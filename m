@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWDJNij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWDJNq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWDJNij (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 09:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWDJNij
+	id S1751138AbWDJNq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 09:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWDJNqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 09:38:39 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:45516 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751150AbWDJNii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 09:38:38 -0400
-Date: Mon, 10 Apr 2006 15:38:31 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pchdtv 3000 cx88 audio very very low level
-Message-ID: <20060410133831.GA22079@rhlx01.fht-esslingen.de>
-References: <8764lmnlcx.fsf@stark.xeocode.com> <20060407092426.GA21330@rhlx01.fht-esslingen.de> <87d5ftmt5p.fsf@stark.xeocode.com>
+	Mon, 10 Apr 2006 09:46:55 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:56584 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751138AbWDJNqy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 09:46:54 -0400
+Date: Mon, 10 Apr 2006 09:46:30 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Benoit Boissinot <benoit.boissinot@ens-lyon.org>, netdev@vger.kernel.org,
+       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
+Message-ID: <20060410134625.GA25360@tuxdriver.com>
+Mail-Followup-To: Michael Buesch <mb@bu3sch.de>,
+	Benoit Boissinot <benoit.boissinot@ens-lyon.org>,
+	netdev@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
+	linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+References: <20060410040120.GA4860@ens-lyon.fr> <200604100607.33362.mb@bu3sch.de> <20060410042228.GN27596@ens-lyon.fr> <200604100628.01483.mb@bu3sch.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87d5ftmt5p.fsf@stark.xeocode.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+In-Reply-To: <200604100628.01483.mb@bu3sch.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Apr 10, 2006 at 06:28:00AM +0200, Michael Buesch wrote:
 
-On Fri, Apr 07, 2006 at 09:06:42AM -0400, Greg Stark wrote:
-> Andreas Mohr <andi@rhlx01.fht-esslingen.de> writes:
-> 
-> > IOW, you need to examine the driver sources of cx88xx, cx8800, cx88_alsa,
-> > btcx_risc, tveeprom (?) for some multiplexer bit mask and tweak/twiddle that
-> > for your tuner until you manage to hear something properly.
-> 
-> Hm. Except nobody else seems to have this problem with the pchdtv 3000 card.
-> And there are plenty of HOWTOs and FAQs online for it. Perhaps nobody else is
-> trying to use the NTSC tuner on it though.
+> To summerize: I actually added these messages, because people were
+> hitting "this does not work with >1G" issues and did not get an error message.
+> So I decided to insert warnings until the issue is fixed inside the arch code.
+> I will remove them once the issue is fixed.
 
-A distant possibility might be that your card is a very specific rare revision
-of that thing and thus doesn't have a proper card type entry for it due to
-almost nobody else having that card.
-In the TV card area (just as in the WLAN card area) there are quite some cards
-sold under the *very same* name but wildly (or not so wildly but sufficiently)
-differing hardware (those manufacturer b****rds burn in hell please, thanks).
+This sounds like the same sort of problems w/ the b44 driver.
+I surmise that both use the same (broken) DMA engine from Broadcom.
 
-> I'm assuming that if cx88_alsa found any audio devices on the card then it
-> would create a card1 listed in /proc/asound/cards ? It isn't doing that
-> currently. Apparently not all cx88 cards provide a mixer interface.
+Unfortunately, I don't know of any good solution to this.  There are
+a few hacks in b44 that deal with the issue.  I don't like them,
+although I am the perpetrator of at least one of them.  It might be
+worth looking at what was done there?
 
-I'm not that familiar with ALSA user-space interface specifics (rather than
-kernel-level), sorry.
+YMMV...
 
-Andreas Mohr
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

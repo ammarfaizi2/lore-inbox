@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWDJWNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWDJWNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWDJWNY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 18:13:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWDJWNY
+	id S1751083AbWDJWNP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 18:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWDJWNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 18:13:24 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63723 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751213AbWDJWNX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 18:13:23 -0400
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH rc1-mm] de_thread: fix deadlockable process addition
-References: <20060406220403.GA205@oleg>
-	<m1acay1fbh.fsf@ebiederm.dsl.xmission.com>
-	<20060407234653.GB11460@oleg> <20060407155113.37d6a3b3.akpm@osdl.org>
-	<20060407155619.18f3c5ec.akpm@osdl.org>
-	<m1d5fslcwx.fsf@ebiederm.dsl.xmission.com> <20060408172745.GA89@oleg>
-	<m1r748jbju.fsf@ebiederm.dsl.xmission.com>
-	<20060408211308.GA1845@oleg> <20060408212343.GB1845@oleg>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 10 Apr 2006 16:11:56 -0600
-In-Reply-To: <20060408212343.GB1845@oleg> (Oleg Nesterov's message of "Sun,
- 9 Apr 2006 01:23:43 +0400")
-Message-ID: <m17j5xf5cj.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 10 Apr 2006 18:13:15 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:26504 "EHLO
+	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1751083AbWDJWNO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 18:13:14 -0400
+Date: Tue, 11 Apr 2006 00:13:59 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Michael Buesch <mb@bu3sch.de>, netdev@vger.kernel.org,
+       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
+Message-ID: <20060410221359.GC27596@ens-lyon.fr>
+References: <20060410040120.GA4860@ens-lyon.fr> <200604100607.33362.mb@bu3sch.de> <20060410042228.GN27596@ens-lyon.fr> <200604100628.01483.mb@bu3sch.de> <20060410134625.GA25360@tuxdriver.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060410134625.GA25360@tuxdriver.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+On Mon, Apr 10, 2006 at 09:46:30AM -0400, John W. Linville wrote:
+> On Mon, Apr 10, 2006 at 06:28:00AM +0200, Michael Buesch wrote:
+> 
+> > To summerize: I actually added these messages, because people were
+> > hitting "this does not work with >1G" issues and did not get an error message.
+> > So I decided to insert warnings until the issue is fixed inside the arch code.
+> > I will remove them once the issue is fixed.
+> 
+> This sounds like the same sort of problems w/ the b44 driver.
+> I surmise that both use the same (broken) DMA engine from Broadcom.
+> 
+> Unfortunately, I don't know of any good solution to this.  There are
+> a few hacks in b44 that deal with the issue.  I don't like them,
+> although I am the perpetrator of at least one of them.  It might be
+> worth looking at what was done there?
 
-> On 04/09, Oleg Nesterov wrote:
->>
->> proc_task_readdir:
->> 
->> 	first_tid() returns old_leader
->> 
->> 	next_tid()  returns new_leader
->> 	
->> 						de_thread:
->> old_leader->group_leader = new_leader;
->> 
->> 	
->> 	next_rid()  returns old_leader again,
->> 	because it is not thread_group_leader()
->> 	anymore
->
-> I think something like this for next_tid() is sufficient:
->
-> 	-	if (thread_group_leader(pos))
-> 	+	if (pos->pid == pos->tgid)
->
-> We can also do the same change in first_tgid().
+The hacks i see there is reallocating a buffer with GFP_DMA, so that
+means that if the ppc dma_alloc_coherent did the same thing as the i386
+counterpart (adding GFP_DMA if dma_mask is less than 32bits) it should
+work, no ?
 
-But the loop will terminate when things settle down,
-and we can always use my original test of pos == start->group_leader.
+regards,
 
-I was worried about the stable kernel case and next_tid was
-such a generic name I failed to associate it with /proc.
+Benoit
 
-Short of confusion (and de_thread invariably introduces that)
-I don't see anything that the code will actually do wrong.
+ps: i do not have the hardware so i sadly cannot test.
 
-Eric
+-- 
+powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS

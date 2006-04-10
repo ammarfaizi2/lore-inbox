@@ -1,29 +1,45 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751086AbWDJJX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1751169AbWDJOZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWDJJX7 (ORCPT <rfc822;akpm@zip.com.au>);
-	Mon, 10 Apr 2006 05:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWDJJX7
+	id S1751169AbWDJOZy (ORCPT <rfc822;akpm@zip.com.au>);
+	Mon, 10 Apr 2006 10:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWDJOZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 05:23:59 -0400
-Received: from pool-71-108-29-201.lsanca.dsl-w.verizon.net ([71.108.29.201]:44997
-	"HELO pool-71-108-29-201.lsanca.dsl-w.verizon.net") by vger.kernel.org
-	with SMTP id S1751086AbWDJJX6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 05:23:58 -0400
-From: "Hollis Bonds" <capitalizingxsqn@upo.com>
-Reply-To: "Hollis Bonds" <capitalizingxsqn@upo.com>
-Message-ID: <9878603024.0506283397@upo.com>
-Date: Mon, 10 Apr 2006 05:25:46 -0400
+	Mon, 10 Apr 2006 10:25:54 -0400
+Received: from [85.103.195.110] ([85.103.195.110]:52242 "HELO to-nb.local")
+	by vger.kernel.org with SMTP id S1751169AbWDJOZx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 10:25:53 -0400
+Reply-To: kafkasyapi@yahoo.com
+Message-ID: <5fbb0c7c7915ea4d819874d73d31599f@yahoo.com>
+From: "=?iso-8859-9?B?S0FGS0FTIEHe?=" <kafkasyapi@yahoo.com>
 To: <linux-kernel@vger.kernel.org>
-Subject: open Tabblets for Pennis
+Subject: 
+Date: Mon, 10 Apr 2006 17:24:23 +0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-9"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+HEMEN TAPU GÜVENCESÝYLE FIRSAT VÝLLA ARSALARI
 
-click Penis excite
+BODRUM YOLU ÜZERÝNDE DÝDÝM-AKBÜK-BAFA GÖLÜ ÜÇGENÝNDE
 
-http://f63t3t30l0luaxf82xxq2xxx.denticledm.com/?YbWPM-ZfSWfY.OdfS,ZfSWfY,VSd
+-	TEMÝZ HAVASI PIRIL PIRIL VE DOÐAL ZENGÝNLÝKLERÝYLE BAFA GÖLÜ
+-	TATÝLCÝLERÝN YENÝ GÖZDESÝ DÝDM
+-	EMLAK PÝYASASININ PARLAYAN YILDIZI AKBÜK KOYU
+-	BÝTMETEN TATÝL GÜNEÞÝ BODRUM
+-	TARÝHÝN ESÝNTÝSÝ KUÞADASI
+
+TÜM BU GÜZELLÝKLERÝN BULUÞTUÐU NOKTA BAFA GÖLÜNDE ÝNÞAAT MÜSADELÝ ÝMARLI VE HEMEN TAPU GÜVENCESÝ ÝLE TAMAMI PEÞÝN 11.500 YTL 
+%20 PEÞÝN KALANI 36 AYA VARAN VADELERLE SÝZLERÝ 20.000 KONUTLUK BU DOÐAL CENNETTE DAVET EDÝYORUZ.SÝZ DE YERÝNÝZÝ ALMAK ÝSTERMÝSÝNÝZ?
+
+
+KAFKAS AÞ
+www.kafkasyapi.com
+
+Tel : 0216 518 05 37
+Fax: 0216 489 99 35
+
 

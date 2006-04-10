@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWDJLLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWDJL2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWDJLLI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 07:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWDJLLH
+	id S1751140AbWDJL2c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 07:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWDJL2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 07:11:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13545 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751137AbWDJLLG (ORCPT
+	Mon, 10 Apr 2006 07:28:32 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:48023 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751140AbWDJL2c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 07:11:06 -0400
-Date: Mon, 10 Apr 2006 03:10:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: sam@ravnborg.org, zippel@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11/19] kconfig: move .kernelrelease
-Message-Id: <20060410031023.22082c28.akpm@osdl.org>
-In-Reply-To: <20060410025851.641022a0.akpm@osdl.org>
-References: <Pine.LNX.4.64.0604091728560.23148@scrub.home>
-	<20060410015727.69b5c1f6.akpm@osdl.org>
-	<20060410104250.GA24160@mars.ravnborg.org>
-	<20060410025851.641022a0.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 10 Apr 2006 07:28:32 -0400
+Date: Mon, 10 Apr 2006 13:28:18 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Aubrey <aubreylee@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The assemble file under the driver folder can not be recognized when the driver is built as module
+Message-ID: <20060410112817.GE12896@harddisk-recovery.com>
+References: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> I stopped using `make kernelrelease' when it did something bad when used
->  from another machine across NFS.
-> 
->  <tries it>
-> 
->  hm, it takes nearly five seconds, but it wasn't that - something actually
->  broke.  But I forget what it was.  I'll put it back and will wait for it
->  to reoccur.
-> 
+On Mon, Apr 10, 2006 at 06:16:56PM +0800, Aubrey wrote:
+> I've written a framebuffer driver and put it under the folder
+> "./drivers/video", it consists of two files" mydriver.c and myfun.S".
 
-Actually, I think it was a problem interacting with the weird things which
-`git bisect' does with .kernelrelease.
+Why would you write a driver in assembly in the first place? That makes
+it highly unportable, I bet you can't compile your driver for x86 and
+ARM from the same source. There are only four drivers in the whole
+kernel tree that have an assembly part, but those are so tied to their
+platform (Acorn, Amiga) that they aren't portable anyway.
 
-bix:/usr/src/git26> git bisect start
-bix:/usr/src/git26> git bisect bad v2.6.15
-bix:/usr/src/git26> git bisect good v2.6.14
-Bisecting:    2705 revisions left to test after this
-bix:/usr/src/git26> cat .kernelrelease 
-2.6.16-rc2-g6bd0e10e
-bix:/usr/src/git26> make kernelrelease
-2.6.14-gref: ref
+> When I build it into the kernel image, everything is ok.
+> But when I build it as module, I got the following error message:
+> ===========================================
+> aubrey@linux:~/cvs/kernel/uClinux-dist> make V=1
+> --------snip---------
+> make -f scripts/Makefile.build obj=drivers/video
+> make -f scripts/Makefile.build obj=drivers/video/backlight
+> make[3]: *** No rule to make target `drivers/video/rgb2ycbcr.c',
+> needed by `drivers/video/rgb2ycbcr.o'.  Stop.
+> make[2]: *** [drivers/video] Error 2
+> make[1]: *** [drivers] Error 2
+> make[1]: Leaving directory `/home/aubrey/cvs/kernel/uClinux-dist/linux-2.6.x'
+> make: *** [linux] Error 1
+> ===========================================
+> 
+> Make ask me for ".c" file. But it's an assemble file indeed.
+> Is it a bug of kernel script? (I'm using 2.6.16)
 
-That's cute, but it wasn't that..
+I haven't seen your Makefile so I can't see what's wrong, but see
+drivers/scsi/arm/Makefile for an example.
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

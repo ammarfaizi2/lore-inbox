@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWDJN1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWDJN3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750994AbWDJN1U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 09:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWDJN1T
+	id S1751148AbWDJN3H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 09:29:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWDJN3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 09:27:19 -0400
-Received: from nproxy.gmail.com ([64.233.182.191]:43851 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750993AbWDJN1T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 09:27:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZQuWEXrVwmuMTehM/7eJJKZK+dJC+lwhm+bRHalBODCMH9iT9fZSWtBJ+7rvW9aMevHcHJ9TKHqq6K951EpevttZJquOseaOO1E/vL+3iedYIR70xekDWt18aWotHRlpEbTTKvL3UOHNiCfxUetApXuNr0sJ5lmZCW8Z/NRxtD8=
-Message-ID: <6d6a94c50604100627q297b7335yb58288356aaa8edd@mail.gmail.com>
-Date: Mon, 10 Apr 2006 21:27:18 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: "Erik Mouw" <erik@harddisk-recovery.com>
-Subject: Re: The assemble file under the driver folder can not be recognized when the driver is built as module
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060410112817.GE12896@harddisk-recovery.com>
+	Mon, 10 Apr 2006 09:29:07 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:58546 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751148AbWDJN3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 09:29:05 -0400
+Date: Mon, 10 Apr 2006 15:29:01 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 11/19] kconfig: move .kernelrelease
+In-Reply-To: <20060410025851.641022a0.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0604101523031.32445@scrub.home>
+References: <Pine.LNX.4.64.0604091728560.23148@scrub.home>
+ <20060410015727.69b5c1f6.akpm@osdl.org> <20060410104250.GA24160@mars.ravnborg.org>
+ <20060410025851.641022a0.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com>
-	 <20060410112817.GE12896@harddisk-recovery.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/10/06, Erik Mouw <erik@harddisk-recovery.com> wrote:
-> On Mon, Apr 10, 2006 at 06:16:56PM +0800, Aubrey wrote:
-> Why would you write a driver in assembly in the first place? That makes
-> it highly unportable, I bet you can't compile your driver for x86 and
-> ARM from the same source. There are only four drivers in the whole
-> kernel tree that have an assembly part, but those are so tied to their
-> platform (Acorn, Amiga) that they aren't portable anyway.
+Hi,
 
-Yes, the driver isn't portable. I'm working on the blackfin linux
-system. The driver is written mostly by c except one codec. You know,
-blackfin has DSP instruction set, so I write the codec in assembly to
-improve my driver's performance.
->
-> I haven't seen your Makefile so I can't see what's wrong, but see
-> drivers/scsi/arm/Makefile for an example.
->
-Makefile is simple.
-===============================
-----snip----
-obj-$(CONFIG_FB_BFIN_7171)	  += bfin_ad7171fb.o rgb2ycbcr.o
-----snip----
-===============================
-There are two files, bfin_ad7171fb.c and rgb2ycbcr.S under the folder
-" ./drivers/video".
-It should be OK because the driver can pass the compilation when
-select it as built-in.
-It just failed when select it as module.
+On Mon, 10 Apr 2006, Andrew Morton wrote:
 
-Thanks your any hints.
+> hm, it takes nearly five seconds, but it wasn't that - something actually
+> broke.  But I forget what it was.  I'll put it back and will wait for it
+> to reoccur.
 
+The patch below should speed this up. You know that you have to update 
+this file explicitly?
 
-Regards,
--Aubrey
+bye, Roman
+
+---
+
+ Makefile |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+Index: linux-2.6-git/Makefile
+===================================================================
+--- linux-2.6-git.orig/Makefile
++++ linux-2.6-git/Makefile
+@@ -366,7 +366,8 @@ outputmakefile:
+ # of make so .config is not included in this case either (for *config).
+ 
+ no-dot-config-targets := clean mrproper distclean \
+-			 cscope TAGS tags help %docs check%
++			 cscope TAGS tags help %docs check% \
++			 kernelrelease kernelversion
+ 
+ config-targets := 0
+ mixed-targets  := 0
+@@ -1251,7 +1252,7 @@ namespacecheck:
+ endif #ifeq ($(config-targets),1)
+ endif #ifeq ($(mixed-targets),1)
+ 
+-PHONY += checkstack
++PHONY += checkstack kernelrelease kernelversion
+ checkstack:
+ 	$(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
+ 	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)

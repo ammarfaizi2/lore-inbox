@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWDKBaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWDKBqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWDKBaj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 21:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWDKBaj
+	id S1751219AbWDKBqg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 21:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWDKBqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 21:30:39 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28691 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932182AbWDKBai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 21:30:38 -0400
-Date: Tue, 11 Apr 2006 03:30:36 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: chris@zankel.net
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: [BUG] sizeof(struct async_icount) exported to userspace on SH, SH64 and xtensa (fwd)
-Message-ID: <20060411013036.GA3190@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 10 Apr 2006 21:46:36 -0400
+Received: from gate.crashing.org ([63.228.1.57]:25059 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751215AbWDKBqf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 21:46:35 -0400
+Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+Cc: Michael Buesch <mb@bu3sch.de>, netdev@vger.kernel.org,
+       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
+       linville@tuxdriver.com
+In-Reply-To: <20060410042228.GN27596@ens-lyon.fr>
+References: <20060410040120.GA4860@ens-lyon.fr>
+	 <200604100607.33362.mb@bu3sch.de>  <20060410042228.GN27596@ens-lyon.fr>
+Content-Type: text/plain
+Date: Tue, 11 Apr 2006 11:46:12 +1000
+Message-Id: <1144719972.19353.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris,
 
-now that the sh people have fixed it on their ports, xtensa is the only 
-port with this issue.
+> Yes, I know they hit the message, that's from a message in some forum
+> that i got interested in the issue. It probably comes from an allocation
+> from:
+> http://www.linux-m32r.org/lxr/http/source/arch/powerpc/kernel/pci_direct_iommu.c#L32
+> 
+> Either the ppc code is wrong (it doesn't enforce dma_mask) either the
+> driver still works without the check.
+> 
+> Maybe ppc should do the same thing as i386:
+> 
+> 47         if (dev == NULL || (dev->coherent_dma_mask < 0xffffffff))
+> 48                 gfp |= GFP_DMA;
 
-Please fix it.
+PPC doesn't have a ZONE_DMA... PPC assumes that the whole memory is
+DMA'able... What happens here is that it works by "chance" on x86 ;)
+ZONE_DMA is a thing of the past that represents ISA DMA (below 16M iirc
+or something like that). Thus x86 historically maintained a separate
+allocation zone down there for ISA devices. What happens here is that
+the x86 code sort-of detects that the DMA mask isn't the full 32 bits
+and kicks everything down into ZONE_DMA. Makes things work, though the
+pressure on ZONE_DMA can often be high enough that you'll have a lot of
+failed allocations ...
 
-TIA
-Adrian
+PPC doesn't have ZONE_DMA, thus can't provide memory guaranteed to be
+below that limit.
 
+Now, for ppc32, it should still sort-of work because all of lowmem is
+below 1Gb and people generally don't hack their lowmem size (well, I do
+but heh, that doesn't count :) and I don't think you'll get skb's in
+highmem. But ppc64 hits the problem and at this point, there is nothing
+I can do other than either implementing a split zone allocation mecanism
+in the ppc64 architecture for the sole sake of bcm43xx (ick !) or doing
+some trick with the iommu...
 
------ Forwarded message from Russell King <rmk+lkml@arm.linux.org.uk> -----
+Ben.
 
-Date:	Sat, 21 Jan 2006 18:57:12 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: chris@zankel.net, lethal@linux-sh.org
-Subject: [BUG] sizeof(struct async_icount) exported to userspace on SH, SH64 and xtensa
-
-I've just been looking through the remaining cruft in the serial
-drivers, and have come across this silly thing:
-
-TIOCGICOUNT exports a structure to userspace called
-struct serial_icounter_struct.
-
-However, sh, sh64 and xtensa do this:
-
-include/asm-sh/ioctls.h:#define TIOCGICOUNT     _IOR('T', 93, struct async_icount) /* 0x545D */ /* read serial port inline interrupt counts */
-include/asm-sh64/ioctls.h:#define TIOCGICOUNT   0x802c545d      /* _IOR('T', 93, struct async_icount) 0x545D */ /* read serial port inline interrupt counts */
-include/asm-xtensa/ioctls.h:#define TIOCGICOUNT _IOR('T', 93, struct async_icount) /* read serial port inline interrupt counts */
-
-What's more is that no driver actually exports async_icount, and
-async_icount is a kernel internal structure which does _not_ form
-part of the public API, and modifications to this will result in
-unexpected breakage on these platforms.
-
-100% for trying to clean up the tty ioctl definitions.  0% for
-using the wrong structures.  As such, these _require_ fixing.
-
-Please document that your TIOCGICOUNT is broken and remove the
-dependence on the async_icount structure.  Thanks.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
 

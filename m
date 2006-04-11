@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWDKCW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWDKCor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWDKCW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 22:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWDKCW2
+	id S932263AbWDKCor (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 22:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWDKCor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 22:22:28 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:4028 "EHLO pilet.ens-lyon.fr")
-	by vger.kernel.org with ESMTP id S932257AbWDKCW2 (ORCPT
+	Mon, 10 Apr 2006 22:44:47 -0400
+Received: from colin.muc.de ([193.149.48.1]:17931 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S932263AbWDKCor (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 22:22:28 -0400
-Date: Tue, 11 Apr 2006 04:23:11 +0200
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Michael Buesch <mb@bu3sch.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, netdev@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
-       linville@tuxdriver.com
-Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
-Message-ID: <20060411022311.GB31118@ens-lyon.fr>
-References: <20060410040120.GA4860@ens-lyon.fr> <20060410042228.GN27596@ens-lyon.fr> <1144719972.19353.24.camel@localhost.localdomain> <200604110353.52067.mb@bu3sch.de>
+	Mon, 10 Apr 2006 22:44:47 -0400
+Date: 11 Apr 2006 04:44:39 +0200
+Date: Tue, 11 Apr 2006 04:44:39 +0200
+From: Andi Kleen <ak@muc.de>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       "Eric W.Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] kdump: x86_64 add crashdump trigger points
+Message-ID: <20060411024439.GB52164@muc.de>
+References: <20060410220511.GB24711@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200604110353.52067.mb@bu3sch.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060410220511.GB24711@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 11, 2006 at 03:53:51AM +0200, Michael Buesch wrote:
-> On Tuesday 11 April 2006 03:46, you wrote:
-> > 
-> > 
-> > Now, for ppc32, it should still sort-of work because all of lowmem is
-> > below 1Gb and people generally don't hack their lowmem size (well, I do
-> > but heh, that doesn't count :) and I don't think you'll get skb's in
-> > highmem. But ppc64 hits the problem and at this point, there is nothing
-> > I can do other than either implementing a split zone allocation mecanism
-> > in the ppc64 architecture
+On Mon, Apr 10, 2006 at 06:05:11PM -0400, Vivek Goyal wrote:
 > 
-> > for the sole sake of bcm43xx (ick !)
 > 
-> Nope. For every broadcom device, which has this stupid DMA engine.
-> That is b44 and bcm43xx, as far as I can tell. But likely there are more.
+> o Start booting into the capture kernel after an Oops if system is in a
+>   unrecoverable state. System will boot into the capture kernel, if one is
+>   pre-loaded by the user, and capture the kernel core dump.
+> 
+> o One of the following conditions should be true to trigger the booting of
+>   capture kernel.
+> 	- panic_on_oops is set.
+> 	- pid of current thread is 0
+> 	- pid of current thread is 1
+> 	- Oops happened inside interrupt context.  
 
-On the other hand, bcm43xx looks very common with apple hardware, so there
-are probably a lot of users who cannot use their wifi card in G5's.
+I would rather put it into die(). Then the patch will be much smaller
+too.
 
-regards,
-
-Benoit
--- 
-powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
+-Andi

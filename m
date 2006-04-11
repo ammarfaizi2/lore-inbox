@@ -1,37 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWDKTVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWDKTYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWDKTVo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 15:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWDKTVn
+	id S1751081AbWDKTYG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 15:24:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWDKTYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 15:21:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14748 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751089AbWDKTVm (ORCPT
+	Tue, 11 Apr 2006 15:24:06 -0400
+Received: from mailer1.psc.edu ([128.182.58.100]:26059 "EHLO mailer1.psc.edu")
+	by vger.kernel.org with ESMTP id S1751081AbWDKTYF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 15:21:42 -0400
-Date: Tue, 11 Apr 2006 12:21:24 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
+	Tue, 11 Apr 2006 15:24:05 -0400
+Message-ID: <443C024C.2070107@psc.edu>
+Date: Tue, 11 Apr 2006 15:23:56 -0400
+From: John Heffner <jheffner@psc.edu>
+User-Agent: Thunderbird 1.5 (Macintosh/20051201)
+MIME-Version: 1.0
 To: Daniel Drake <dsd@gentoo.org>
-Cc: jheffner@psc.edu, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.17 regression: Very slow net transfer from some hosts
-Message-ID: <20060411122124.55ab3b5c@localhost.localdomain>
-In-Reply-To: <443C03E6.7080202@gentoo.org>
 References: <443C03E6.7080202@gentoo.org>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <443C03E6.7080202@gentoo.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Apr 2006 20:30:46 +0100
-Daniel Drake <dsd@gentoo.org> wrote:
-
+Daniel Drake wrote:
 > Hi,
 > 
 > Since sometime after 2.6.16, some websites have been very slow to load. 
->   Examples include:
+>  Examples include:
 > 
 > http://zd1211.ath.cx
 > http://developer.osdl.org/shemminger/blog/
@@ -54,12 +51,17 @@ Daniel Drake <dsd@gentoo.org> wrote:
 > Author: John Heffner <jheffner@psc.edu>
 > Date:   Sat Mar 25 01:34:07 2006 -0800
 > 
->      [TCP]: Set default max buffers from memory pool size
+>     [TCP]: Set default max buffers from memory pool size
 > 
 > Indeed, reverting this patch from 2.6.17-rc1-git4 allows those sites to 
 > load again.
 > 
 > Any ideas?
 
-Get a tcpdump. There are tools to sanitize the file if you worry about
-ip addresses, etc. 
+I'm not seeing this behavior myself.  What are the values of 
+/proc/sys/net/ipv4/tcp_wmem, tcp_rmem, and tcp_mem?  How much memory 
+does this system have?  (A binary tcpdump might be good, too.)
+
+Thanks,
+   -John
+

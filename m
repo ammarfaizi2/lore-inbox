@@ -1,80 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWDKQOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWDKQPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWDKQOA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 12:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWDKQOA
+	id S1750858AbWDKQPK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 12:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWDKQPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 12:14:00 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29706 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750858AbWDKQN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 12:13:59 -0400
-Date: Tue, 11 Apr 2006 18:13:58 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Ramakanth Gunuganti <rgunugan@yahoo.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL issues
-Message-ID: <20060411161358.GI3190@stusta.de>
-References: <9CF84823-E0BA-404C-9C5A-CAFF0D4C92DF@mac.com> <20060411154944.65714.qmail@web54308.mail.yahoo.com>
+	Tue, 11 Apr 2006 12:15:10 -0400
+Received: from odin2.bull.net ([129.184.85.11]:14819 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S1750858AbWDKQPI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 12:15:08 -0400
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: PREEMPT_RT : 2.6.16-rt12 and boot : BUG ?
+Date: Tue, 11 Apr 2006 18:15:25 +0200
+User-Agent: KMail/1.7.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <200604061416.00741.Serge.Noiraud@bull.net> <200604061705.36303.Serge.Noiraud@bull.net> <200604101446.13610.Serge.Noiraud@bull.net>
+In-Reply-To: <200604101446.13610.Serge.Noiraud@bull.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060411154944.65714.qmail@web54308.mail.yahoo.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200604111815.25494.Serge.Noiraud@bull.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 11, 2006 at 08:49:44AM -0700, Ramakanth Gunuganti wrote:
+Hi,
+
+	It now works with all config parameters set to yes on 2.6.16-rt16.
+however, PERCPU_ENOUGH_ROOM is set to 384KB.
+I'm now trying to lower this value of PERCPU_ENOUGH_ROOM.
+With 256K and 2.6.16-rt16 : doesn't work.
+With 320K : OK
+So I need to use 320K for PERCPU_ENOUGH_ROOM to boot correctly.
+
+I have several questions :
+Is there a problem in my config file ?
+Will this memory freed at end of kernel loading ?
+Why do we need such a size ?
+What usage is this for ?
+
+lundi 10 Avril 2006 14:46, Serge Noiraud wrote/a écrit :
+> jeudi 6 Avril 2006 17:05, Serge Noiraud wrote/a écrit :
+> > jeudi 6 Avril 2006 16:31, Ingo Molnar wrote/a écrit :
+> > > 
+> > > * Serge Noiraud <serge.noiraud@bull.net> wrote:
+> > > 
+> > > > input: ImPS/2 Generic Wheel Mouse as /class/input/input1
+> > > > VFS: Mounted root (ext2 filesystem).
+> > > > Fusion MPT base driver 3.03.07
+> > > > Copyright (c) 1999-2005 LSI Logic Corporation
+> > > > Could not allocate 8 bytes percpu data
+> > > > mptscsih: Unknown symbol scsi_remove_host
+> > > 
+> > > could you increase (double) PERCPU_ENOUGH_ROOM in 
+> > > include/linux/percpu.h, does that solve this problem? (and make sure you 
+> > > use -rt13, -rt12 had a couple of bugs)
+> > Tested with rt12 and 192K : same problem
+> > Tested with rt12 and 256K : same problem.
+> > Tested with rt13 and 256K : same problem.
+> > I'm currently compiling with CONFIG_KALLSYMS_ALL not set.
+> Same thing.
 > 
-> Thanks for the replies, talking to a lawyer seems to
-> be too stringent a requirement to even evaluate Linux.
-> Who would be the ultimate authority to give definitive
-> answers to these questions? 
-
-There is none:
-
-The kernel has _many_ people holding a copyright on part of the kernel, 
-and there's no ultimate authority except for the COPYING file shipped 
-with the kernel sources.
-
-The GPL is just a licence, and if you distribute your product to N 
-countries, this means you can potentially be sued in N countries based 
-on N different copyright laws.
-
-There are things that are clear. E.g. if you'd have read the COPYING 
-file shipped with the kernel sources, you could have answered at least 
-one of your questions yourself.
-
-But the exact borders of what is a "derived work" work and what is not 
-are not well-defined and therefore unknown unless there have been court 
-cases in all N countries you are distributing your product to.
-
-Many things have never been challenged in court, and might never be, but 
-remember that e.g. Harald Welte recently has much success with enforcing 
-the GPL in cases of obvious violations at for products shipped in 
-Germany at German courts.
-
-> Since it's the Linux kernel that's under GPLv2, any
-> work done here should be released under GPLv2. That
-> part seems to be clear, however any product would
-> include other things that could be proprietary. If
-> Linux kernel is made part of this proprietary package,
-> how does the distribution work. Can we just claim that
-> part of the package is under GPL and only release the
-> source code for the kernel portions. 
-
-I am not a lawyer, but the distribution alone shouldn't be a problem - 
-that is similar to what most Linux distributions are doing.
-
-> -Ram
-
-cu
-Adrian
+> The boot succeed if I set CONFIG_CRITICAL_IRQSOFF_TIMING to no.
+> If I set this parameter to yes, I get the scsi unresolved symbols.
+> PERCPU_ENOUGH_ROOM  is actually set to 256K.
+> I'll try to set the original value.
+it didn't work with CONFIG_CRITICAL_IRQSOFF_TIMING  set to no and PERCPU_ENOUGH_ROOM  = 128K.
+> 
+> I don't see the relation between this parameter and the missing scsi symbols resolution.
+> Timing problem ?
+> 
+> > > 
+> > > 	Ingo
+> 
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Serge Noiraud

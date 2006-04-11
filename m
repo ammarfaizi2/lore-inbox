@@ -1,43 +1,1823 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWDKKs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWDKKtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWDKKs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 06:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWDKKs6
+	id S1750732AbWDKKtP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 06:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWDKKtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 06:48:58 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:59983 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750728AbWDKKs5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 06:48:57 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=SuDHXomSGT2VTwYDkamyxMLxp78E2o5Dc8J/+I08lqO11RFYdIbS94MQznHi8OnKY
-	mzu+FvSokCO4V+fjKaoRQ==
-Message-ID: <608a53b0604110348g22445b00u5ef57286eb230d58@mail.google.com>
-Date: Tue, 11 Apr 2006 16:18:48 +0530
-From: "Prasanna Meda" <mlp@google.com>
-To: akpm@osdl.org, ebiederm@xmission.com
-Subject: Re: Comment about proc-dont-lock-task_structs-indefinitely.patch
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <608a53b0604101242v4778af80ybaf639c38cc00587@mail.google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 11 Apr 2006 06:49:12 -0400
+Received: from mx2.informatik.uni-stuttgart.de ([129.69.211.69]:10233 "EHLO
+	mx2.informatik.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id S1750721AbWDKKtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 06:49:08 -0400
+Date: Tue, 11 Apr 2006 12:49:03 +0200
+From: lkml@Think-Future.de
+To: Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: usbstorage + radeon = resume from stdby screen garbled
+Message-ID: <20060411104903.GA26177@marvin.informatik.uni-stuttgart.de>
+Reply-To: lkml@Think-Future.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <608a53b0604101242v4778af80ybaf639c38cc00587@mail.google.com>
+X-Url: http://www.Think-Future.de
+X-Editor: Vi it! http://www.vim.org
+X-Bkp: p2mi
+X-GnuPG-Key: gpg --keyserver search.keyserver.net --recv-keys 9F1B6BCE
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/11/06, Prasanna Meda <mlp@google.com> wrote:
 
->
-> The task decrement problem is fixed, but I think we have two more
-> problems in the following patch segment.
->
 
-I think you agreed with the first problem. And the second problem is,
-show_map_internal is still treating m->private as task_struct instead
-of  proc_maps_private.
+  Hi Folks, 
+
+
+One line summary of the problem:    
+When using usb 2.0 card reader and radeon module, suspend2r-resume-cycle behaves badly.
+
+
+Full description of the problem/report:
+Reproducingly connecting the card reader and a successive suspend-resume-cycle
+collide. Suspend itself is ok as usual. Resume from suspend to ram works in sense of system resumes. X however cannot be used any more. Garbled screen, i. e. the mouse cursor is a colorful square. Nothing else may be recognized as X running. Switching to
+console does not relieve. Console ist useless also. Single exit is reboot via 3-key-press..
+Afterwards, when rebooting console screen shows (mainly green) vertical bars of the height of a pipe-sign. The bars clutter the screen with a kind of systematic pattern.
+
+
+Keywords (i.e., modules, networking, kernel):
+usbstorage, radeon, kernel 2.6.16.1, suspend, resume, X hangs with garbled screen
+
+
+/proc/version:
+--------------
+
+Linux version 2.6.16tf (root@tadpole) (gcc version 3.3.6 (Debian 1:3.3.6-9)) #1 PREEMPT Mon Mar 20 14:07:05 CET 2006
+
+
+Output of Oops.. message:
+No Oops. X is unusable. Console also. System itself is working (disk/net). Reboot possible.
+
+A small shell script or example program which triggers the problem:
+Not applicable. Suspend-resume causes problem.
+
+/usr/src/linux/scripts/ver_linux:
+---------------------------------
+
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+ 
+Linux tadpole 2.6.16tf #1 PREEMPT Mon Mar 20 14:07:05 CET 2006 i686 GNU/Linux
+ 
+Gnu C                  4.0.3
+Gnu make               3.80
+binutils               2.16.91
+util-linux             2.12p
+mount                  2.12p
+module-init-tools      3.2.2
+e2fsprogs              1.39-WIP
+reiserfsprogs          line
+reiser4progs           line
+Linux C Library        2.3.6
+Dynamic linker (ldd)   2.3.6
+Procps                 3.2.6
+Net-tools              1.60
+Kbd                    [opzione...]
+Console-tools          0.2.3
+Sh-utils               5.2.1
+udev                   088
+Modules Loaded         usb_storage libusual xt_state ipv6 eepro100 radeon drm snd_usb_audio snd_usb_lib snd_rawmidi snd_seq_device snd_hwdep pwc hci_usb usbhid yenta_socket rsrc_nonstatic pcmcia_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd uhci_hcd snd_page_alloc usbcore psmouse
+
+
+/proc/cpuinfo:
+--------------
+
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 2
+model name	: Intel(R) Pentium(R) 4 Mobile CPU 1.60GHz
+stepping	: 4
+cpu MHz		: 1600.000
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3203.88
+
+
+
+/proc/modules:
+--------------
+
+usb_storage 93840 0 - Live 0xf1a36000
+libusual 13968 1 usb_storage, Live 0xf1994000
+xt_state 1920 23 - Live 0xf193f000
+ipv6 215424 22 - Live 0xf1a00000
+eepro100 25744 0 - Live 0xf1959000
+radeon 98336 1 - Live 0xf19a5000
+drm 58900 2 radeon, Live 0xf197b000
+snd_usb_audio 71488 0 - Live 0xf1968000
+snd_usb_lib 13568 1 snd_usb_audio, Live 0xf193a000
+snd_rawmidi 20128 1 snd_usb_lib, Live 0xf1902000
+snd_seq_device 6924 1 snd_rawmidi, Live 0xf191a000
+snd_hwdep 7556 1 snd_usb_audio, Live 0xf1917000
+pwc 44796 0 - Live 0xf1943000
+hci_usb 13332 2 - Live 0xf1908000
+usbhid 32992 0 - Live 0xf190d000
+yenta_socket 21772 0 - Live 0xf18e6000
+rsrc_nonstatic 10496 1 yenta_socket, Live 0xf18e2000
+pcmcia_core 33808 2 yenta_socket,rsrc_nonstatic, Live 0xf189a000
+snd_intel8x0 26908 0 - Live 0xf18a4000
+snd_ac97_codec 81952 1 snd_intel8x0, Live 0xf191e000
+snd_ac97_bus 2048 1 snd_ac97_codec, Live 0xf086e000
+snd_pcm_oss 49952 0 - Live 0xf18d4000
+snd_mixer_oss 14976 1 snd_pcm_oss, Live 0xf087a000
+snd_pcm 79240 4 snd_usb_audio,snd_intel8x0,snd_ac97_codec,snd_pcm_oss, Live 0xf18ed000
+snd_timer 20868 1 snd_pcm, Live 0xf1893000
+snd 47460 11 snd_usb_audio,snd_usb_lib,snd_rawmidi,snd_seq_device,snd_hwdep,snd_intel8x0,snd_ac97_codec,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_timer, Live 0xf18c7000
+uhci_hcd 27792 0 - Live 0xf188b000
+snd_page_alloc 8456 2 snd_intel8x0,snd_pcm, Live 0xf0870000
+usbcore 106116 9 usb_storage,libusual,snd_usb_audio,snd_usb_lib,pwc,hci_usb,usbhid,uhci_hcd, Live 0xf18ac000
+psmouse 33160 0 - Live 0xf1881000
+
+
+/proc/ioports:
+--------------
+
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0376-0376 : ide1
+03bc-03be : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0cf8-0cff : PCI conf1
+1000-107f : 0000:00:1f.0
+  1000-107f : motherboard
+    1000-1003 : PM1a_EVT_BLK
+    1004-1005 : PM1a_CNT_BLK
+    1008-100b : PM_TMR
+    1010-1015 : ACPI CPU throttle
+    1020-1020 : PM2_CNT_BLK
+    1028-102b : GPE0_BLK
+    102c-102f : GPE1_BLK
+1180-11bf : 0000:00:1f.0
+  1180-11bf : motherboard
+15e0-15ef : motherboard
+1600-167f : motherboard
+1800-181f : 0000:00:1d.0
+  1800-181f : uhci_hcd
+1820-183f : 0000:00:1d.1
+  1820-183f : uhci_hcd
+1840-185f : 0000:00:1d.2
+  1840-185f : uhci_hcd
+1860-186f : 0000:00:1f.1
+  1860-1867 : ide0
+  1868-186f : ide1
+1880-189f : 0000:00:1f.3
+18c0-18ff : 0000:00:1f.5
+  18c0-18ff : Intel 82801CA-ICH3
+1c00-1cff : 0000:00:1f.5
+  1c00-1cff : Intel 82801CA-ICH3
+2000-207f : 0000:00:1f.6
+2400-24ff : 0000:00:1f.6
+3000-3fff : PCI Bus #01
+  3000-30ff : 0000:01:00.0
+4000-8fff : PCI Bus #02
+  4000-40ff : PCI CardBus #03
+  4400-44ff : PCI CardBus #03
+  4800-48ff : PCI CardBus #07
+  4c00-4cff : PCI CardBus #07
+  8000-803f : 0000:02:08.0
+    8000-803f : eepro100
+
+
+/proc/iomem:
+------------
+
+00000000-0009efff : System RAM
+0009f000-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000cffff : Video ROM
+000e0000-000effff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-2ff6ffff : System RAM
+  00100000-0055afa2 : Kernel code
+  0055afa3-0076a46b : Kernel data
+2ff70000-2ff7dfff : ACPI Tables
+2ff7e000-2ff7ffff : ACPI Non-volatile Storage
+2ff80000-2fffffff : reserved
+40000000-400003ff : 0000:00:1f.1
+50000000-50000fff : 0000:02:00.0
+  50000000-50000fff : yenta_socket
+50100000-50100fff : 0000:02:00.1
+  50100000-50100fff : yenta_socket
+d0100000-d01fffff : PCI Bus #01
+  d0100000-d010ffff : 0000:01:00.0
+    d0100000-d010ffff : radeonfb mmio
+  d0120000-d013ffff : 0000:01:00.0
+d0200000-dfffffff : PCI Bus #02
+  d0200000-d0200fff : 0000:02:08.0
+    d0200000-d0200fff : eepro100
+  d2000000-d3ffffff : PCI CardBus #03
+  d4000000-d5ffffff : PCI CardBus #07
+e0000000-e3ffffff : 0000:00:00.0
+e8000000-efffffff : PCI Bus #01
+  e8000000-efffffff : 0000:01:00.0
+    e8000000-efffffff : radeonfb framebuffer
+f0000000-f80fffff : PCI Bus #02
+  f0000000-f1ffffff : PCI CardBus #03
+  f2000000-f3ffffff : PCI CardBus #07
+  f8000000-f8000fff : 0000:02:02.0
+ff800000-ffffffff : reserved
+
+
+lspci -vvv:
+-----------
+
+0000:00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge (rev 04)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 0
+	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: <available only to root>
+
+0000:00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (rev 04) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 96
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	I/O behind bridge: 00003000-00003fff
+	Memory behind bridge: d0100000-d01fffff
+	Prefetchable memory behind bridge: e8000000-efffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+0000:00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02) (prog-if 00 [UHCI])
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 11
+	Region 4: I/O ports at 1800 [size=32]
+
+0000:00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #2) (rev 02) (prog-if 00 [UHCI])
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin B routed to IRQ 11
+	Region 4: I/O ports at 1820 [size=32]
+
+0000:00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #3) (rev 02) (prog-if 00 [UHCI])
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin C routed to IRQ 11
+	Region 4: I/O ports at 1840 [size=32]
+
+0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 42) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=02, subordinate=08, sec-latency=64
+	I/O behind bridge: 00004000-00008fff
+	Memory behind bridge: d0200000-dfffffff
+	Prefetchable memory behind bridge: f0000000-f80fffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+
+0000:00:1f.0 ISA bridge: Intel Corp. 82801CAM ISA Bridge (LPC) (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+0000:00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02) (prog-if 8a [Master SecP PriP])
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at <ignored>
+	Region 1: I/O ports at <ignored>
+	Region 2: I/O ports at <ignored>
+	Region 3: I/O ports at <ignored>
+	Region 4: I/O ports at 1860 [size=16]
+	Region 5: Memory at 40000000 (32-bit, non-prefetchable) [size=1K]
+
+0000:00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus Controller (rev 02)
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin B routed to IRQ 11
+	Region 4: I/O ports at 1880 [size=32]
+
+0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio Controller (rev 02)
+	Subsystem: IBM ThinkPad T30
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin B routed to IRQ 11
+	Region 0: I/O ports at 1c00 [size=256]
+	Region 1: I/O ports at 18c0 [size=64]
+
+0000:00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem Controller (rev 02) (prog-if 00 [Generic])
+	Subsystem: IBM: Unknown device 0227
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin B routed to IRQ 11
+	Region 0: I/O ports at 2400 [size=256]
+	Region 1: I/O ports at 2000 [size=128]
+
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M7 LW [Radeon Mobility 7500] (prog-if 00 [VGA])
+	Subsystem: IBM: Unknown device 0509
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR+ FastB2B+
+	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 66 (2000ns min), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=128M]
+	Region 1: I/O ports at 3000 [size=256]
+	Region 2: Memory at d0100000 (32-bit, non-prefetchable) [size=64K]
+	Expansion ROM at d0120000 [disabled] [size=128K]
+	Capabilities: <available only to root>
+
+0000:02:00.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at 50000000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=02, secondary=03, subordinate=06, sec-latency=176
+	Memory window 0: f0000000-f1fff000 (prefetchable)
+	Memory window 1: d2000000-d3fff000
+	I/O window 0: 00004000-000040ff
+	I/O window 1: 00004400-000044ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+0000:02:00.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin B routed to IRQ 11
+	Region 0: Memory at 50100000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=02, secondary=07, subordinate=07, sec-latency=176
+	Memory window 0: f2000000-f3fff000 (prefetchable)
+	Memory window 1: d4000000-d5fff000
+	I/O window 0: 00004800-000048ff
+	I/O window 1: 00004c00-00004cff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+0000:02:02.0 Network controller: Intersil Corporation Prism 2.5 Wavelan chipset (rev 01)
+	Subsystem: Actiontec Electronics Inc: Unknown device 0406
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at f8000000 (32-bit, prefetchable) [size=4K]
+	Capabilities: <available only to root>
+
+0000:02:08.0 Ethernet controller: Intel Corp. 82801CAM (ICH3) PRO/100 VE (LOM) Ethernet Controller (rev 42)
+	Subsystem: IBM ThinkPad A/T/X Series
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 66 (2000ns min, 14000ns max), Cache Line Size: 0x08 (32 bytes)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at d0200000 (32-bit, non-prefetchable) [size=4K]
+	Region 1: I/O ports at 8000 [size=64]
+	Capabilities: <available only to root>
+
+
+
+/proc/scsi/scsi:
+----------------
+
+Attached devices:
+usb 2.0 card reader, usbview:
+T:  Bus=02 Lev=02 Prnt=03 Port=01 Cnt=02 Dev#=  8 Spd=12  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0dda ProdID=2005 Rev= 1.9c
+S:  Manufacturer=Hama Card Reader
+S:  Product=Hama Card Reader
+S:  SerialNumber=ABCD12345683
+C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=500mA
+I:  If#= 0 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50 Driver=usb-storage
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+
+
+/proc/cmdline:
+--------------
+
+root=/dev/hda1 acpi=on vga=ext ro video=force_sleep,mirror,radeon_force_sleep=1 acpi_sleep=s3_bios
+
+Changing boot options (video=...) does not have influence on this problem.
+
+
+/proc/interrupts:
+-----------------
+
+           CPU0       
+  0:     831424          XT-PIC  timer
+  1:         14          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  8:          4          XT-PIC  rtc
+  9:      10557          XT-PIC  acpi
+ 11:     878891          XT-PIC  uhci_hcd:usb1, uhci_hcd:usb2, uhci_hcd:usb3, Intel 82801CA-ICH3, yenta, yenta, eth0, radeon@pci:0000:01:00.0
+ 12:        149          XT-PIC  i8042
+ 14:      46202          XT-PIC  ide0
+ 15:         37          XT-PIC  ide1
+NMI:          0 
+LOC:          0 
+ERR:          0
+MIS:          0
+
+
+cat /proc/config.gz | grep "[y|m]":
+-----------------------------------
+
+# Automatically generated make config: don't edit
+CONFIG_X86_32=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_DMI=y
+# Code maturity level options
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_BSD_PROCESS_ACCT_V3=y
+CONFIG_SYSCTL=y
+CONFIG_AUDIT=y
+CONFIG_AUDITSYSCALL=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_UID16=y
+CONFIG_VM86=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+CONFIG_KALLSYMS=y
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+# Loadable module support
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+# Block layer
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_AS=y
+CONFIG_DEFAULT_IOSCHED="anticipatory"
+# Processor type and features
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_CMPXCHG64=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_TSC=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+# Firmware Drivers
+CONFIG_NOHIGHMEM=y
+CONFIG_VMSPLIT_3G=y
+CONFIG_ARCH_FLATMEM_ENABLE=y
+CONFIG_ARCH_SPARSEMEM_ENABLE=y
+CONFIG_ARCH_SELECT_MEMORY_MODEL=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_SPARSEMEM_STATIC=y
+CONFIG_MTRR=y
+CONFIG_SECCOMP=y
+CONFIG_HZ_250=y
+CONFIG_DOUBLEFAULT=y
+# Power management options (ACPI, APM)
+CONFIG_PM=y
+CONFIG_PM_LEGACY=y
+CONFIG_SOFTWARE_SUSPEND=y
+CONFIG_SWSUSP_ENCRYPT=y
+CONFIG_ACPI=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_SLEEP_PROC_SLEEP=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_VIDEO=y
+CONFIG_ACPI_HOTKEY=m
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_IBM=y
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+# APM (Advanced Power Management) BIOS Support
+CONFIG_APM=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_APM_ALLOW_INTS=y
+CONFIG_APM_REAL_MODE_POWER_OFF=y
+# CPU Frequency scaling
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_TABLE=y
+CONFIG_CPU_FREQ_STAT=y
+CONFIG_CPU_FREQ_STAT_DETAILS=y
+CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+CONFIG_CPU_FREQ_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_ONDEMAND=y
+CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
+CONFIG_X86_ACPI_CPUFREQ=y
+CONFIG_X86_SPEEDSTEP_CENTRINO=y
+CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
+CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
+CONFIG_X86_SPEEDSTEP_ICH=y
+CONFIG_X86_SPEEDSTEP_SMI=y
+CONFIG_X86_P4_CLOCKMOD=y
+CONFIG_X86_ACPI_CPUFREQ_PROC_INTF=y
+CONFIG_X86_SPEEDSTEP_LIB=y
+CONFIG_X86_SPEEDSTEP_RELAXED_CAP_CHECK=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_ISA_DMA_API=y
+CONFIG_ISA=y
+CONFIG_EISA=y
+CONFIG_EISA_PCI_EISA=y
+CONFIG_EISA_VIRTUAL_ROOT=y
+CONFIG_EISA_NAMES=y
+CONFIG_PCCARD=m
+CONFIG_PCMCIA=m
+CONFIG_PCMCIA_LOAD_CIS=y
+CONFIG_PCMCIA_IOCTL=y
+CONFIG_CARDBUS=y
+CONFIG_YENTA=m
+CONFIG_YENTA_O2=y
+CONFIG_YENTA_RICOH=y
+CONFIG_YENTA_TI=y
+CONFIG_YENTA_ENE_TUNE=y
+CONFIG_YENTA_TOSHIBA=y
+CONFIG_PD6729=m
+CONFIG_I82092=m
+CONFIG_I82365=m
+CONFIG_TCIC=m
+CONFIG_PCMCIA_PROBE=y
+CONFIG_PCCARD_NONSTATIC=m
+CONFIG_HOTPLUG_PCI=m
+CONFIG_HOTPLUG_PCI_IBM=m
+CONFIG_HOTPLUG_PCI_ACPI=m
+CONFIG_HOTPLUG_PCI_ACPI_IBM=m
+# Executable file formats
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_ASK_IP_FIB_HASH=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_PNP=y
+CONFIG_IP_PNP_DHCP=y
+CONFIG_IP_PNP_BOOTP=y
+CONFIG_IP_PNP_RARP=y
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+CONFIG_ARPD=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=m
+CONFIG_INET_ESP=m
+CONFIG_INET_IPCOMP=m
+CONFIG_INET_TUNNEL=m
+CONFIG_INET_DIAG=m
+CONFIG_INET_TCP_DIAG=m
+CONFIG_TCP_CONG_ADVANCED=y
+CONFIG_TCP_CONG_BIC=m
+CONFIG_TCP_CONG_CUBIC=m
+CONFIG_TCP_CONG_WESTWOOD=m
+CONFIG_TCP_CONG_HTCP=m
+CONFIG_TCP_CONG_HSTCP=m
+CONFIG_TCP_CONG_HYBLA=m
+CONFIG_TCP_CONG_VEGAS=m
+CONFIG_TCP_CONG_SCALABLE=m
+CONFIG_IPV6=m
+CONFIG_IPV6_PRIVACY=y
+CONFIG_INET6_AH=m
+CONFIG_INET6_ESP=m
+CONFIG_INET6_IPCOMP=m
+CONFIG_INET6_TUNNEL=m
+CONFIG_IPV6_TUNNEL=m
+CONFIG_NETFILTER=y
+CONFIG_BRIDGE_NETFILTER=y
+CONFIG_NETFILTER_NETLINK=y
+CONFIG_NETFILTER_NETLINK_QUEUE=y
+CONFIG_NETFILTER_NETLINK_LOG=y
+CONFIG_NETFILTER_XTABLES=y
+CONFIG_NETFILTER_XT_TARGET_CLASSIFY=y
+CONFIG_NETFILTER_XT_TARGET_CONNMARK=m
+CONFIG_NETFILTER_XT_TARGET_MARK=y
+CONFIG_NETFILTER_XT_TARGET_NFQUEUE=y
+CONFIG_NETFILTER_XT_TARGET_NOTRACK=m
+CONFIG_NETFILTER_XT_MATCH_COMMENT=y
+CONFIG_NETFILTER_XT_MATCH_CONNBYTES=m
+CONFIG_NETFILTER_XT_MATCH_CONNMARK=m
+CONFIG_NETFILTER_XT_MATCH_CONNTRACK=m
+CONFIG_NETFILTER_XT_MATCH_DCCP=y
+CONFIG_NETFILTER_XT_MATCH_HELPER=m
+CONFIG_NETFILTER_XT_MATCH_LENGTH=y
+CONFIG_NETFILTER_XT_MATCH_LIMIT=y
+CONFIG_NETFILTER_XT_MATCH_MAC=y
+CONFIG_NETFILTER_XT_MATCH_MARK=y
+CONFIG_NETFILTER_XT_MATCH_PHYSDEV=y
+CONFIG_NETFILTER_XT_MATCH_PKTTYPE=y
+CONFIG_NETFILTER_XT_MATCH_REALM=y
+CONFIG_NETFILTER_XT_MATCH_SCTP=y
+CONFIG_NETFILTER_XT_MATCH_STATE=m
+CONFIG_NETFILTER_XT_MATCH_STRING=y
+CONFIG_NETFILTER_XT_MATCH_TCPMSS=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_CT_ACCT=y
+CONFIG_IP_NF_CONNTRACK_MARK=y
+CONFIG_IP_NF_CONNTRACK_EVENTS=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IRC=y
+CONFIG_IP_NF_TFTP=y
+CONFIG_IP_NF_AMANDA=y
+CONFIG_IP_NF_PPTP=y
+CONFIG_IP_NF_QUEUE=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_IPRANGE=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_RECENT=y
+CONFIG_IP_NF_MATCH_ECN=y
+CONFIG_IP_NF_MATCH_DSCP=y
+CONFIG_IP_NF_MATCH_AH_ESP=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_OWNER=y
+CONFIG_IP_NF_MATCH_ADDRTYPE=y
+CONFIG_IP_NF_MATCH_HASHLIMIT=y
+CONFIG_IP_NF_MATCH_POLICY=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_ULOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_TARGET_NETMAP=y
+CONFIG_IP_NF_TARGET_SAME=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=y
+CONFIG_IP_NF_NAT_IRC=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_NAT_TFTP=y
+CONFIG_IP_NF_NAT_AMANDA=y
+CONFIG_IP_NF_NAT_PPTP=y
+CONFIG_IP_NF_MANGLE=y
+CONFIG_IP_NF_TARGET_TOS=y
+CONFIG_IP_NF_TARGET_ECN=y
+CONFIG_IP_NF_TARGET_DSCP=y
+CONFIG_IP_NF_TARGET_TTL=y
+CONFIG_IP_NF_RAW=y
+CONFIG_IP_NF_ARPTABLES=y
+CONFIG_IP_NF_ARPFILTER=y
+CONFIG_IP_NF_ARP_MANGLE=y
+CONFIG_IP6_NF_QUEUE=m
+CONFIG_IP6_NF_IPTABLES=m
+CONFIG_IP6_NF_MATCH_RT=m
+CONFIG_IP6_NF_MATCH_OPTS=m
+CONFIG_IP6_NF_MATCH_FRAG=m
+CONFIG_IP6_NF_MATCH_HL=m
+CONFIG_IP6_NF_MATCH_MULTIPORT=m
+CONFIG_IP6_NF_MATCH_OWNER=m
+CONFIG_IP6_NF_MATCH_IPV6HEADER=m
+CONFIG_IP6_NF_MATCH_AHESP=m
+CONFIG_IP6_NF_MATCH_EUI64=m
+CONFIG_IP6_NF_MATCH_POLICY=m
+CONFIG_IP6_NF_FILTER=m
+CONFIG_IP6_NF_TARGET_LOG=m
+CONFIG_IP6_NF_TARGET_REJECT=m
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_TARGET_HL=m
+CONFIG_IP6_NF_RAW=m
+CONFIG_BRIDGE_NF_EBTABLES=m
+CONFIG_BRIDGE_EBT_BROUTE=m
+CONFIG_BRIDGE_EBT_T_FILTER=m
+CONFIG_BRIDGE_EBT_T_NAT=m
+CONFIG_BRIDGE_EBT_802_3=m
+CONFIG_BRIDGE_EBT_AMONG=m
+CONFIG_BRIDGE_EBT_ARP=m
+CONFIG_BRIDGE_EBT_IP=m
+CONFIG_BRIDGE_EBT_LIMIT=m
+CONFIG_BRIDGE_EBT_MARK=m
+CONFIG_BRIDGE_EBT_PKTTYPE=m
+CONFIG_BRIDGE_EBT_STP=m
+CONFIG_BRIDGE_EBT_VLAN=m
+CONFIG_BRIDGE_EBT_ARPREPLY=m
+CONFIG_BRIDGE_EBT_DNAT=m
+CONFIG_BRIDGE_EBT_MARK_T=m
+CONFIG_BRIDGE_EBT_REDIRECT=m
+CONFIG_BRIDGE_EBT_SNAT=m
+CONFIG_BRIDGE_EBT_LOG=m
+CONFIG_BRIDGE_EBT_ULOG=m
+CONFIG_IP_DCCP=m
+CONFIG_INET_DCCP_DIAG=m
+CONFIG_IP_DCCP_CCID3=m
+CONFIG_IP_DCCP_TFRC_LIB=m
+CONFIG_IP_SCTP=m
+CONFIG_SCTP_DBG_MSG=y
+CONFIG_SCTP_DBG_OBJCNT=y
+CONFIG_SCTP_HMAC_MD5=y
+CONFIG_BRIDGE=y
+CONFIG_VLAN_8021Q=y
+CONFIG_LLC=m
+CONFIG_IPX=m
+CONFIG_IPX_INTERN=y
+CONFIG_ATALK=m
+CONFIG_DEV_APPLETALK=y
+CONFIG_IPDDP=m
+CONFIG_IPDDP_ENCAP=y
+CONFIG_IPDDP_DECAP=y
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CLK_JIFFIES=y
+CONFIG_NET_SCH_CBQ=y
+CONFIG_NET_SCH_HTB=y
+CONFIG_NET_SCH_HFSC=y
+CONFIG_NET_SCH_PRIO=y
+CONFIG_NET_SCH_RED=y
+CONFIG_NET_SCH_SFQ=y
+CONFIG_NET_SCH_TEQL=y
+CONFIG_NET_SCH_TBF=y
+CONFIG_NET_SCH_GRED=y
+CONFIG_NET_SCH_DSMARK=y
+CONFIG_NET_SCH_INGRESS=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_BASIC=y
+CONFIG_NET_CLS_TCINDEX=y
+CONFIG_NET_CLS_ROUTE4=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=y
+CONFIG_CLS_U32_PERF=y
+CONFIG_CLS_U32_MARK=y
+CONFIG_NET_CLS_RSVP=y
+CONFIG_NET_CLS_RSVP6=y
+CONFIG_NET_EMATCH=y
+CONFIG_NET_EMATCH_CMP=y
+CONFIG_NET_EMATCH_NBYTE=y
+CONFIG_NET_EMATCH_U32=y
+CONFIG_NET_EMATCH_META=y
+CONFIG_NET_EMATCH_TEXT=y
+CONFIG_NET_CLS_ACT=y
+CONFIG_NET_ACT_POLICE=y
+CONFIG_NET_ACT_GACT=y
+CONFIG_GACT_PROB=y
+CONFIG_NET_ACT_MIRRED=y
+CONFIG_NET_ACT_IPT=y
+CONFIG_NET_ACT_PEDIT=y
+CONFIG_NET_ACT_SIMP=y
+CONFIG_NET_CLS_IND=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_IRDA=y
+CONFIG_IRLAN=y
+CONFIG_IRNET=y
+CONFIG_IRCOMM=y
+CONFIG_IRDA_ULTRA=y
+CONFIG_IRDA_CACHE_LAST_LSAP=y
+CONFIG_IRDA_FAST_RR=y
+CONFIG_IRDA_DEBUG=y
+CONFIG_IRTTY_SIR=y
+CONFIG_DONGLE=y
+CONFIG_ESI_DONGLE=y
+CONFIG_ACTISYS_DONGLE=y
+CONFIG_TEKRAM_DONGLE=y
+CONFIG_LITELINK_DONGLE=y
+CONFIG_MA600_DONGLE=y
+CONFIG_GIRBIL_DONGLE=y
+CONFIG_MCP2120_DONGLE=y
+CONFIG_OLD_BELKIN_DONGLE=y
+CONFIG_ACT200L_DONGLE=y
+CONFIG_IRPORT_SIR=y
+CONFIG_DONGLE_OLD=y
+CONFIG_ESI_DONGLE_OLD=y
+CONFIG_ACTISYS_DONGLE_OLD=y
+CONFIG_TEKRAM_DONGLE_OLD=y
+CONFIG_GIRBIL_DONGLE_OLD=y
+CONFIG_LITELINK_DONGLE_OLD=y
+CONFIG_MCP2120_DONGLE_OLD=y
+CONFIG_OLD_BELKIN_DONGLE_OLD=y
+CONFIG_USB_IRDA=m
+CONFIG_NSC_FIR=y
+CONFIG_WINBOND_FIR=y
+CONFIG_TOSHIBA_FIR=y
+CONFIG_SMC_IRCC_FIR=y
+CONFIG_ALI_FIR=y
+CONFIG_VLSI_FIR=y
+CONFIG_VIA_FIR=y
+CONFIG_BT=y
+CONFIG_BT_L2CAP=y
+CONFIG_BT_SCO=y
+CONFIG_BT_RFCOMM=y
+CONFIG_BT_RFCOMM_TTY=y
+CONFIG_BT_BNEP=m
+CONFIG_BT_BNEP_MC_FILTER=y
+CONFIG_BT_BNEP_PROTO_FILTER=y
+CONFIG_BT_CMTP=y
+CONFIG_BT_HIDP=y
+CONFIG_BT_HCIUSB=m
+CONFIG_BT_HCIUSB_SCO=y
+CONFIG_BT_HCIUART=y
+CONFIG_BT_HCIUART_H4=y
+CONFIG_BT_HCIUART_BCSP=y
+CONFIG_BT_HCIBCM203X=m
+CONFIG_BT_HCIBPA10X=m
+CONFIG_BT_HCIBFUSB=m
+CONFIG_BT_HCIDTL1=m
+CONFIG_BT_HCIBT3C=m
+CONFIG_BT_HCIBLUECARD=m
+CONFIG_BT_HCIBTUART=m
+CONFIG_BT_HCIVHCI=m
+CONFIG_IEEE80211=y
+CONFIG_IEEE80211_CRYPT_WEP=y
+CONFIG_IEEE80211_CRYPT_CCMP=y
+CONFIG_IEEE80211_CRYPT_TKIP=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=y
+CONFIG_CONNECTOR=m
+# Memory Technology Devices (MTD)
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_PC_PCMCIA=m
+CONFIG_PARPORT_NOT_PC=y
+CONFIG_PARPORT_1284=y
+# Plug and Play support
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_CRYPTOLOOP=y
+CONFIG_BLK_DEV_NBD=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_CDROM_PKTCDVD=y
+CONFIG_CDROM_PKTCDVD_WCACHE=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+# Please see Documentation/ide.txt for help/info on IDE drives
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECS=m
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_RAID_ATTRS=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+# SCSI support type (disk, tape, CD-ROM)
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_CHR_DEV_SG=y
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_SPI_ATTRS=y
+CONFIG_SCSI_AIC7XXX_OLD=y
+CONFIG_SCSI_FUTURE_DOMAIN=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_CRYPT=y
+CONFIG_IEEE1394=y
+# Subsystem Options
+CONFIG_IEEE1394_OUI_DB=y
+CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
+CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
+CONFIG_IEEE1394_PCILYNX=m
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_VIDEO1394=y
+CONFIG_IEEE1394_SBP2=y
+CONFIG_IEEE1394_SBP2_PHYS_DMA=y
+CONFIG_IEEE1394_ETH1394=y
+CONFIG_IEEE1394_DV1394=y
+CONFIG_IEEE1394_RAWIO=y
+CONFIG_I2O=y
+CONFIG_I2O_LCT_NOTIFY_ON_CHANGES=y
+CONFIG_I2O_EXT_ADAPTEC=y
+CONFIG_I2O_CONFIG=y
+CONFIG_I2O_CONFIG_OLD_IOCTL=y
+CONFIG_I2O_BLOCK=y
+CONFIG_I2O_SCSI=y
+CONFIG_I2O_PROC=y
+CONFIG_NETDEVICES=y
+CONFIG_IFB=y
+CONFIG_DUMMY=y
+CONFIG_BONDING=y
+CONFIG_TUN=y
+CONFIG_PHYLIB=m
+CONFIG_MARVELL_PHY=m
+CONFIG_DAVICOM_PHY=m
+CONFIG_QSEMI_PHY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+# Tulip family network device support
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=m
+CONFIG_E100=m
+CONFIG_SKGE=m
+# Wireless LAN (non-hamradio)
+CONFIG_NET_RADIO=y
+CONFIG_STRIP=m
+# Wireless 802.11 Frequency Hopping cards support
+CONFIG_PCMCIA_RAYCS=m
+CONFIG_IPW2100=m
+CONFIG_IPW2100_MONITOR=y
+CONFIG_IPW2200=m
+CONFIG_AIRO=m
+CONFIG_HERMES=m
+CONFIG_PLX_HERMES=m
+CONFIG_NORTEL_HERMES=m
+CONFIG_PCI_HERMES=m
+CONFIG_ATMEL=m
+CONFIG_PCI_ATMEL=m
+# Wireless 802.11b Pcmcia/Cardbus cards support
+CONFIG_PCMCIA_HERMES=m
+CONFIG_PCMCIA_SPECTRUM=m
+CONFIG_AIRO_CS=m
+CONFIG_PCMCIA_ATMEL=m
+CONFIG_PCMCIA_WL3501=m
+# Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support
+CONFIG_PRISM54=m
+CONFIG_HOSTAP=m
+CONFIG_HOSTAP_FIRMWARE=y
+CONFIG_HOSTAP_FIRMWARE_NVRAM=y
+CONFIG_HOSTAP_PLX=m
+CONFIG_HOSTAP_PCI=m
+CONFIG_HOSTAP_CS=m
+CONFIG_NET_WIRELESS=y
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_3C589=m
+CONFIG_PCMCIA_3C574=m
+CONFIG_PCMCIA_FMVJ18X=m
+CONFIG_PCMCIA_PCNET=m
+CONFIG_PCMCIA_NMCLAN=m
+CONFIG_PCMCIA_SMC91C92=m
+CONFIG_PCMCIA_XIRC2PS=m
+CONFIG_PCMCIA_AXNET=m
+CONFIG_PLIP=y
+CONFIG_PPP=y
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_SYNC_TTY=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_PPP_MPPE=m
+CONFIG_PPPOE=y
+CONFIG_SLIP=y
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_SLIP_SMART=y
+CONFIG_SLIP_MODE_SLIP6=y
+CONFIG_SHAPER=y
+CONFIG_NETCONSOLE=y
+CONFIG_NETPOLL=y
+CONFIG_NET_POLL_CONTROLLER=y
+# ISDN subsystem
+CONFIG_ISDN=y
+CONFIG_ISDN_I4L=m
+CONFIG_ISDN_PPP=y
+CONFIG_ISDN_PPP_VJ=y
+CONFIG_ISDN_MPP=y
+CONFIG_IPPP_FILTER=y
+CONFIG_ISDN_PPP_BSDCOMP=m
+CONFIG_ISDN_AUDIO=y
+CONFIG_ISDN_TTY_FAX=y
+# ISDN feature submodules
+CONFIG_ISDN_DRV_LOOP=m
+CONFIG_ISDN_DIVERSION=m
+CONFIG_ISDN_DRV_HISAX=m
+CONFIG_HISAX_EURO=y
+CONFIG_DE_AOC=y
+CONFIG_HISAX_NO_KEYPAD=y
+CONFIG_HISAX_1TR6=y
+CONFIG_HISAX_16_3=y
+CONFIG_HISAX_FRITZPCI=y
+CONFIG_HISAX_ELSA=y
+CONFIG_HISAX_HFC_SX=y
+CONFIG_HISAX_DEBUG=y
+# HiSax PCMCIA card service modules
+CONFIG_HISAX_ELSA_CS=m
+CONFIG_HISAX_AVM_A1_CS=m
+CONFIG_HISAX_TELES_CS=m
+# HiSax sub driver modules
+CONFIG_HISAX_ST5481=m
+CONFIG_HISAX_HFCUSB=m
+CONFIG_HISAX_FRITZ_PCIPNP=m
+CONFIG_HISAX_HDLC=y
+# CAPI subsystem
+CONFIG_ISDN_CAPI=y
+CONFIG_ISDN_DRV_AVMB1_VERBOSE_REASON=y
+CONFIG_ISDN_CAPI_MIDDLEWARE=y
+CONFIG_ISDN_CAPI_CAPI20=y
+CONFIG_ISDN_CAPI_CAPIFS_BOOL=y
+CONFIG_ISDN_CAPI_CAPIFS=y
+CONFIG_ISDN_CAPI_CAPIDRV=m
+CONFIG_CAPI_AVM=y
+CONFIG_ISDN_DRV_AVMB1_B1PCI=y
+# Telephony Support
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_JOYDEV=y
+CONFIG_INPUT_EVDEV=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=m
+CONFIG_MOUSE_SERIAL=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_INPUT_UINPUT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_PRINTER=y
+CONFIG_LP_CONSOLE=y
+CONFIG_PPDEV=y
+CONFIG_IPMI_HANDLER=y
+CONFIG_IPMI_DEVICE_INTERFACE=y
+CONFIG_IPMI_SI=y
+CONFIG_IPMI_WATCHDOG=y
+CONFIG_IPMI_POWEROFF=m
+CONFIG_HW_RANDOM=m
+CONFIG_NVRAM=y
+CONFIG_RTC=y
+# Ftape, the floppy tape device driver
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=m
+CONFIG_DRM_RADEON=m
+CONFIG_DRM_I810=m
+CONFIG_MWAVE=m
+CONFIG_HANGCHECK_TIMER=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+# I2C Algorithms
+CONFIG_I2C_ALGOBIT=y
+CONFIG_I2C_ALGOPCF=y
+CONFIG_I2C_ALGOPCA=y
+CONFIG_I2C_I810=y
+CONFIG_I2C_ISA=m
+CONFIG_SENSORS_DS1374=m
+CONFIG_I2C_DEBUG_CORE=y
+CONFIG_I2C_DEBUG_ALGO=y
+CONFIG_I2C_DEBUG_BUS=y
+CONFIG_I2C_DEBUG_CHIP=y
+CONFIG_W1=y
+CONFIG_W1_DS9490=m
+CONFIG_W1_DS9490_BRIDGE=m
+CONFIG_W1_THERM=y
+CONFIG_HWMON=y
+CONFIG_HWMON_VID=m
+CONFIG_SENSORS_DS1621=m
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM80=m
+CONFIG_SENSORS_LM83=m
+CONFIG_SENSORS_LM85=m
+CONFIG_SENSORS_LM90=m
+CONFIG_SENSORS_HDAPS=m
+CONFIG_IBM_ASM=y
+# Multimedia Capabilities Port drivers
+# Multimedia devices
+CONFIG_VIDEO_DEV=y
+CONFIG_VIDEO_OVCAMCHIP=m
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_TILEBLITTING=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_I810=y
+CONFIG_FB_I810_GTF=y
+CONFIG_FB_I810_I2C=y
+CONFIG_FB_RADEON_OLD=y
+CONFIG_FB_RADEON=y
+CONFIG_FB_RADEON_I2C=y
+CONFIG_FB_RADEON_DEBUG=y
+# Console display driver support
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_FONT_SUN8x16=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_BACKLIGHT_LCD_SUPPORT=y
+CONFIG_BACKLIGHT_CLASS_DEVICE=y
+CONFIG_BACKLIGHT_DEVICE=y
+CONFIG_LCD_CLASS_DEVICE=y
+CONFIG_LCD_DEVICE=y
+CONFIG_SOUND=y
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_HWDEP=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_SEQ_RTCTIMER_DEFAULT=y
+CONFIG_SND_SUPPORT_OLD_API=y
+CONFIG_SND_VERBOSE_PRINTK=y
+CONFIG_SND_DEBUG=y
+CONFIG_SND_DEBUG_DETECT=y
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_AC97_BUS=m
+CONFIG_SND_VIRMIDI=m
+CONFIG_SND_SERIAL_U16550=m
+CONFIG_SND_MPU401=m
+CONFIG_SND_INTEL8X0=m
+CONFIG_SND_USB_AUDIO=m
+# Open Sound System
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_SUSPEND=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_EHCI_ROOT_HUB_TT=y
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+CONFIG_USB_UHCI_HCD=m
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+# may also be needed; see USB_STORAGE Help for more information
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DEBUG=y
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_USBAT=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+CONFIG_USB_LIBUSUAL=y
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_KEYSPAN_REMOTE=m
+# USB Imaging devices
+CONFIG_USB_MDC800=m
+CONFIG_USB_MICROTEK=m
+# USB Multimedia devices
+CONFIG_USB_DABUSB=m
+CONFIG_USB_VICAM=m
+CONFIG_USB_DSBR=m
+CONFIG_USB_IBMCAM=m
+CONFIG_USB_KONICAWC=m
+CONFIG_USB_OV511=m
+CONFIG_USB_SE401=m
+CONFIG_USB_STV680=m
+CONFIG_USB_W9968CF=m
+CONFIG_USB_PWC=m
+CONFIG_USB_CATC=m
+CONFIG_USB_KAWETH=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_RTL8150=m
+CONFIG_USB_USBNET=m
+CONFIG_USB_NET_AX8817X=m
+CONFIG_USB_NET_CDCETHER=m
+CONFIG_USB_NET_NET1080=m
+CONFIG_USB_NET_ZAURUS=m
+CONFIG_USB_MON=y
+CONFIG_USB_USS720=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_BELKIN=m
+CONFIG_USB_SERIAL_WHITEHEAT=m
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
+CONFIG_USB_SERIAL_EMPEG=m
+CONFIG_USB_SERIAL_FTDI_SIO=m
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_USB_SERIAL_IPAQ=m
+CONFIG_USB_SERIAL_IR=m
+CONFIG_USB_SERIAL_EDGEPORT=m
+CONFIG_USB_SERIAL_EDGEPORT_TI=m
+CONFIG_USB_SERIAL_GARMIN=m
+CONFIG_USB_SERIAL_KEYSPAN_PDA=m
+CONFIG_USB_SERIAL_KEYSPAN=m
+CONFIG_USB_SERIAL_KEYSPAN_MPR=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19=y
+CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
+CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
+CONFIG_USB_SERIAL_KEYSPAN_USA49WLC=y
+CONFIG_USB_SERIAL_KLSI=m
+CONFIG_USB_SERIAL_MCT_U232=m
+CONFIG_USB_SERIAL_PL2303=m
+CONFIG_USB_SERIAL_CYBERJACK=m
+CONFIG_USB_SERIAL_XIRCOM=m
+CONFIG_USB_SERIAL_OMNINET=m
+CONFIG_USB_EZUSB=y
+CONFIG_USB_EMI62=m
+CONFIG_USB_EMI26=m
+CONFIG_USB_AUERSWALD=m
+CONFIG_USB_RIO500=m
+CONFIG_USB_LEGOTOWER=m
+CONFIG_USB_LCD=m
+CONFIG_USB_LED=m
+CONFIG_USB_CYTHERM=m
+# USB DSL modem support
+CONFIG_USB_GADGET=m
+CONFIG_USB_GADGET_SELECTED=y
+CONFIG_USB_GADGET_NET2280=y
+CONFIG_USB_NET2280=m
+CONFIG_USB_GADGET_DUALSPEED=y
+CONFIG_MMC=y
+CONFIG_MMC_BLOCK=y
+CONFIG_MMC_WBSD=y
+# File systems
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT2_FS_XIP=y
+CONFIG_FS_XIP=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_REISERFS_FS_XATTR=y
+CONFIG_REISERFS_FS_POSIX_ACL=y
+CONFIG_REISERFS_FS_SECURITY=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_MINIX_FS=y
+CONFIG_ROMFS_FS=y
+CONFIG_INOTIFY=y
+CONFIG_QUOTA=y
+CONFIG_QFMT_V1=y
+CONFIG_QFMT_V2=y
+CONFIG_QUOTACTL=y
+CONFIG_DNOTIFY=y
+CONFIG_AUTOFS_FS=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_FUSE_FS=m
+# CD-ROM/DVD Filesystems
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=y
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
+# DOS/FAT/NT Filesystems
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_NTFS_FS=y
+CONFIG_NTFS_RW=y
+# Pseudo filesystems
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_RELAYFS_FS=m
+CONFIG_CONFIGFS_FS=y
+# Miscellaneous filesystems
+CONFIG_CRAMFS=y
+CONFIG_HPFS_FS=y
+CONFIG_SYSV_FS=y
+CONFIG_UFS_FS=y
+# Network File Systems
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFS_V4=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_ROOT_NFS=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=y
+CONFIG_SUNRPC_GSS=y
+CONFIG_RPCSEC_GSS_KRB5=y
+CONFIG_SMB_FS=y
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_CIFS=y
+CONFIG_NCP_FS=y
+CONFIG_NCPFS_PACKET_SIGNING=y
+CONFIG_NCPFS_IOCTL_LOCKING=y
+CONFIG_NCPFS_STRONG=y
+CONFIG_NCPFS_NFS_NS=y
+CONFIG_NCPFS_OS2_NS=y
+CONFIG_NCPFS_SMALLDOS=y
+CONFIG_NCPFS_NLS=y
+CONFIG_NCPFS_EXTRAS=y
+CONFIG_AFS_FS=y
+CONFIG_RXRPC=y
+# Partition Types
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+CONFIG_MINIX_SUBPARTITION=y
+CONFIG_SOLARIS_X86_PARTITION=y
+CONFIG_UNIXWARE_DISKLABEL=y
+CONFIG_LDM_PARTITION=y
+CONFIG_SUN_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1250=y
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ASCII=m
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=y
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=y
+# Instrumentation Support
+CONFIG_PRINTK_TIME=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DETECT_SOFTLOCKUP=y
+CONFIG_DEBUG_PREEMPT=y
+CONFIG_DEBUG_MUTEXES=y
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_FORCED_INLINING=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+# Page alloc debug is incompatible with Software Suspend on i386
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+# Security options
+# Cryptographic options
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=y
+CONFIG_CRYPTO_MD4=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=y
+CONFIG_CRYPTO_SHA512=y
+CONFIG_CRYPTO_WP512=y
+CONFIG_CRYPTO_TGR192=y
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=y
+CONFIG_CRYPTO_TWOFISH=y
+CONFIG_CRYPTO_SERPENT=y
+CONFIG_CRYPTO_AES=y
+CONFIG_CRYPTO_AES_586=y
+CONFIG_CRYPTO_CAST5=y
+CONFIG_CRYPTO_CAST6=y
+CONFIG_CRYPTO_TEA=y
+CONFIG_CRYPTO_ARC4=y
+CONFIG_CRYPTO_KHAZAD=y
+CONFIG_CRYPTO_ANUBIS=y
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRYPTO_MICHAEL_MIC=y
+CONFIG_CRYPTO_CRC32C=y
+CONFIG_CRYPTO_TEST=y
+# Hardware crypto devices
+# Library routines
+CONFIG_CRC_CCITT=y
+CONFIG_CRC16=y
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_TEXTSEARCH=y
+CONFIG_TEXTSEARCH_KMP=y
+CONFIG_TEXTSEARCH_BM=y
+CONFIG_TEXTSEARCH_FSM=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_KTIME_SCALAR=y
+
+
+Other notes, patches, fixes, workarounds:
+Not yet known.
+
+
+uptime:
+-------
+
+ 12:30:27 up 55 min,  7 users,  load average: 0.20, 0.17, 0.09
+
+
+free:
+-----
+
+             total       used       free     shared    buffers     cached
+Mem:        771476     690436      81040          0     132968     289388
+-/+ buffers/cache:     268080     503396
+Swap:            0          0          0
+
+
+dmesg:
+------
+
+usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182884.152000] usb-storage: Status code 0; transferred 31/31
+[17182884.152000] usb-storage: -- transfer complete
+[17182884.152000] usb-storage: Bulk command transfer result=0
+[17182884.152000] usb-storage: usb_stor_bulk_transfer_buf: xfer 18 bytes
+[17182884.152000] usb-storage: Status code 0; transferred 18/18
+[17182884.152000] usb-storage: -- transfer complete
+[17182884.152000] usb-storage: Bulk data transfer result 0x0
+[17182884.152000] usb-storage: Attempting to get CSW...
+[17182884.152000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182884.156000] usb-storage: Status code 0; transferred 13/13
+[17182884.156000] usb-storage: -- transfer complete
+[17182884.156000] usb-storage: Bulk status result = 0
+[17182884.156000] usb-storage: Bulk Status S 0x53425355 T 0x90 R 0 Stat 0x0
+[17182884.156000] usb-storage: -- Result from auto-sense is 0
+[17182884.156000] usb-storage: -- code: 0xf0, key: 0x2, ASC: 0x3a, ASCQ: 0x0
+[17182884.156000] usb-storage: Not Ready: Medium not present
+[17182884.156000] usb-storage: scsi cmd done, result=0x2
+[17182884.156000] usb-storage: *** thread sleeping.
+[17182884.156000] usb-storage: queuecommand called
+[17182884.156000] usb-storage: *** thread awakened.
+[17182884.156000] usb-storage: Command TEST_UNIT_READY (6 bytes)
+[17182884.156000] usb-storage:  00 20 00 00 00 00
+[17182884.156000] usb-storage: Bulk Command S 0x43425355 T 0x91 L 0 F 0 Trg 0 LUN 1 CL 6
+[17182884.156000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182884.156000] usb-storage: Status code 0; transferred 31/31
+[17182884.156000] usb-storage: -- transfer complete
+[17182884.156000] usb-storage: Bulk command transfer result=0
+[17182884.156000] usb-storage: Attempting to get CSW...
+[17182884.156000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182884.156000] usb-storage: Status code 0; transferred 13/13
+[17182884.156000] usb-storage: -- transfer complete
+[17182884.156000] usb-storage: Bulk status result = 0
+[17182884.156000] usb-storage: Bulk Status S 0x53425355 T 0x91 R 0 Stat 0x1
+[17182884.156000] usb-storage: -- transport indicates command failure
+[17182884.156000] usb-storage: Issuing auto-REQUEST_SENSE
+[17182884.156000] usb-storage: Bulk Command S 0x43425355 T 0x92 L 18 F 128 Trg 0 LUN 1 CL 6
+[17182884.156000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182884.160000] usb-storage: Status code 0; transferred 31/31
+[17182884.160000] usb-storage: -- transfer complete
+[17182884.160000] usb-storage: Bulk command transfer result=0
+[17182884.160000] usb-storage: usb_stor_bulk_transfer_buf: xfer 18 bytes
+[17182884.160000] usb-storage: Status code 0; transferred 18/18
+[17182884.160000] usb-storage: -- transfer complete
+[17182884.160000] usb-storage: Bulk data transfer result 0x0
+[17182884.160000] usb-storage: Attempting to get CSW...
+[17182884.160000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182884.160000] usb-storage: Status code 0; transferred 13/13
+[17182884.160000] usb-storage: -- transfer complete
+[17182884.160000] usb-storage: Bulk status result = 0
+[17182884.160000] usb-storage: Bulk Status S 0x53425355 T 0x92 R 0 Stat 0x0
+[17182884.160000] usb-storage: -- Result from auto-sense is 0
+[17182884.160000] usb-storage: -- code: 0xf0, key: 0x2, ASC: 0x3a, ASCQ: 0x0
+[17182884.160000] usb-storage: Not Ready: Medium not present
+[17182884.160000] usb-storage: scsi cmd done, result=0x2
+[17182884.160000] usb-storage: *** thread sleeping.
+[17182884.160000] usb-storage: queuecommand called
+[17182884.160000] usb-storage: *** thread awakened.
+[17182884.160000] usb-storage: Command TEST_UNIT_READY (6 bytes)
+[17182884.160000] usb-storage:  00 20 00 00 00 00
+[17182884.160000] usb-storage: Bulk Command S 0x43425355 T 0x93 L 0 F 0 Trg 0 LUN 1 CL 6
+[17182884.160000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182884.164000] usb-storage: Status code 0; transferred 31/31
+[17182884.164000] usb-storage: -- transfer complete
+[17182884.164000] usb-storage: Bulk command transfer result=0
+[17182884.164000] usb-storage: Attempting to get CSW...
+[17182884.164000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182884.164000] usb-storage: Status code 0; transferred 13/13
+[17182884.164000] usb-storage: -- transfer complete
+[17182884.164000] usb-storage: Bulk status result = 0
+[17182884.164000] usb-storage: Bulk Status S 0x53425355 T 0x93 R 0 Stat 0x1
+[17182884.164000] usb-storage: -- transport indicates command failure
+[17182884.164000] usb-storage: Issuing auto-REQUEST_SENSE
+[17182884.164000] usb-storage: Bulk Command S 0x43425355 T 0x94 L 18 F 128 Trg 0 LUN 1 CL 6
+[17182884.164000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182884.164000] usb-storage: Status code 0; transferred 31/31
+[17182884.164000] usb-storage: -- transfer complete
+[17182884.164000] usb-storage: Bulk command transfer result=0
+[17182884.164000] usb-storage: usb_stor_bulk_transfer_buf: xfer 18 bytes
+[17182884.164000] usb-storage: Status code 0; transferred 18/18
+[17182884.164000] usb-storage: -- transfer complete
+[17182884.164000] usb-storage: Bulk data transfer result 0x0
+[17182884.164000] usb-storage: Attempting to get CSW...
+[17182884.164000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182884.168000] usb-storage: Status code 0; transferred 13/13
+[17182884.168000] usb-storage: -- transfer complete
+[17182884.168000] usb-storage: Bulk status result = 0
+[17182884.168000] usb-storage: Bulk Status S 0x53425355 T 0x94 R 0 Stat 0x0
+[17182884.168000] usb-storage: -- Result from auto-sense is 0
+[17182884.168000] usb-storage: -- code: 0xf0, key: 0x2, ASC: 0x3a, ASCQ: 0x0
+[17182884.168000] usb-storage: Not Ready: Medium not present
+[17182884.168000] usb-storage: scsi cmd done, result=0x2
+[17182884.168000] usb-storage: *** thread sleeping.
+[17182885.176000] usb-storage: queuecommand called
+[17182885.176000] usb-storage: *** thread awakened.
+[17182885.176000] usb-storage: Command TEST_UNIT_READY (6 bytes)
+[17182885.176000] usb-storage:  00 20 00 00 00 00
+[17182885.176000] usb-storage: Bulk Command S 0x43425355 T 0x95 L 0 F 0 Trg 0 LUN 1 CL 6
+[17182885.176000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182885.176000] usb-storage: Status code 0; transferred 31/31
+[17182885.176000] usb-storage: -- transfer complete
+[17182885.176000] usb-storage: Bulk command transfer result=0
+[17182885.176000] usb-storage: Attempting to get CSW...
+[17182885.176000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182885.180000] usb-storage: Status code 0; transferred 13/13
+[17182885.180000] usb-storage: -- transfer complete
+[17182885.180000] usb-storage: Bulk status result = 0
+[17182885.180000] usb-storage: Bulk Status S 0x53425355 T 0x95 R 0 Stat 0x1
+[17182885.180000] usb-storage: -- transport indicates command failure
+[17182885.180000] usb-storage: Issuing auto-REQUEST_SENSE
+[17182885.180000] usb-storage: Bulk Command S 0x43425355 T 0x96 L 18 F 128 Trg 0 LUN 1 CL 6
+[17182885.180000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182885.180000] usb-storage: Status code 0; transferred 31/31
+[17182885.180000] usb-storage: -- transfer complete
+[17182885.180000] usb-storage: Bulk command transfer result=0
+[17182885.180000] usb-storage: usb_stor_bulk_transfer_buf: xfer 18 bytes
+[17182885.180000] usb-storage: Status code 0; transferred 18/18
+[17182885.180000] usb-storage: -- transfer complete
+[17182885.180000] usb-storage: Bulk data transfer result 0x0
+[17182885.180000] usb-storage: Attempting to get CSW...
+[17182885.180000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182885.180000] usb-storage: Status code 0; transferred 13/13
+[17182885.180000] usb-storage: -- transfer complete
+[17182885.180000] usb-storage: Bulk status result = 0
+[17182885.180000] usb-storage: Bulk Status S 0x53425355 T 0x96 R 0 Stat 0x0
+[17182885.180000] usb-storage: -- Result from auto-sense is 0
+[17182885.180000] usb-storage: -- code: 0xf0, key: 0x2, ASC: 0x3a, ASCQ: 0x0
+[17182885.180000] usb-storage: Not Ready: Medium not present
+[17182885.180000] usb-storage: scsi cmd done, result=0x2
+[17182885.180000] usb-storage: *** thread sleeping.
+[17182885.180000] usb-storage: queuecommand called
+[17182885.180000] usb-storage: *** thread awakened.
+[17182885.180000] usb-storage: Command TEST_UNIT_READY (6 bytes)
+[17182885.180000] usb-storage:  00 20 00 00 00 00
+[17182885.180000] usb-storage: Bulk Command S 0x43425355 T 0x97 L 0 F 0 Trg 0 LUN 1 CL 6
+[17182885.180000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182885.184000] usb-storage: Status code 0; transferred 31/31
+[17182885.184000] usb-storage: -- transfer complete
+[17182885.184000] usb-storage: Bulk command transfer result=0
+[17182885.184000] usb-storage: Attempting to get CSW...
+[17182885.184000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182885.184000] usb-storage: Status code 0; transferred 13/13
+[17182885.184000] usb-storage: -- transfer complete
+[17182885.184000] usb-storage: Bulk status result = 0
+[17182885.184000] usb-storage: Bulk Status S 0x53425355 T 0x97 R 0 Stat 0x1
+[17182885.184000] usb-storage: -- transport indicates command failure
+[17182885.184000] usb-storage: Issuing auto-REQUEST_SENSE
+[17182885.184000] usb-storage: Bulk Command S 0x43425355 T 0x98 L 18 F 128 Trg 0 LUN 1 CL 6
+[17182885.184000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182885.184000] usb-storage: Status code 0; transferred 31/31
+[17182885.184000] usb-storage: -- transfer complete
+[17182885.184000] usb-storage: Bulk command transfer result=0
+[17182885.184000] usb-storage: usb_stor_bulk_transfer_buf: xfer 18 bytes
+[17182885.184000] usb-storage: Status code 0; transferred 18/18
+[17182885.184000] usb-storage: -- transfer complete
+[17182885.184000] usb-storage: Bulk data transfer result 0x0
+[17182885.184000] usb-storage: Attempting to get CSW...
+[17182885.184000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182885.188000] usb-storage: Status code 0; transferred 13/13
+[17182885.188000] usb-storage: -- transfer complete
+[17182885.188000] usb-storage: Bulk status result = 0
+[17182885.188000] usb-storage: Bulk Status S 0x53425355 T 0x98 R 0 Stat 0x0
+[17182885.188000] usb-storage: -- Result from auto-sense is 0
+[17182885.188000] usb-storage: -- code: 0xf0, key: 0x2, ASC: 0x3a, ASCQ: 0x0
+[17182885.188000] usb-storage: Not Ready: Medium not present
+[17182885.188000] usb-storage: scsi cmd done, result=0x2
+[17182885.188000] usb-storage: *** thread sleeping.
+[17182885.188000] usb-storage: queuecommand called
+[17182885.188000] usb-storage: *** thread awakened.
+[17182885.188000] usb-storage: Command TEST_UNIT_READY (6 bytes)
+[17182885.188000] usb-storage:  00 20 00 00 00 00
+[17182885.188000] usb-storage: Bulk Command S 0x43425355 T 0x99 L 0 F 0 Trg 0 LUN 1 CL 6
+[17182885.188000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182885.188000] usb-storage: Status code 0; transferred 31/31
+[17182885.188000] usb-storage: -- transfer complete
+[17182885.188000] usb-storage: Bulk command transfer result=0
+[17182885.188000] usb-storage: Attempting to get CSW...
+[17182885.188000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182885.188000] usb-storage: Status code 0; transferred 13/13
+[17182885.188000] usb-storage: -- transfer complete
+[17182885.188000] usb-storage: Bulk status result = 0
+[17182885.188000] usb-storage: Bulk Status S 0x53425355 T 0x99 R 0 Stat 0x1
+[17182885.188000] usb-storage: -- transport indicates command failure
+[17182885.188000] usb-storage: Issuing auto-REQUEST_SENSE
+[17182885.188000] usb-storage: Bulk Command S 0x43425355 T 0x9a L 18 F 128 Trg 0 LUN 1 CL 6
+[17182885.188000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182885.188000] usb-storage: Status code 0; transferred 31/31
+[17182885.188000] usb-storage: -- transfer complete
+[17182885.188000] usb-storage: Bulk command transfer result=0
+[17182885.188000] usb-storage: usb_stor_bulk_transfer_buf: xfer 18 bytes
+[17182885.192000] usb-storage: Status code 0; transferred 18/18
+[17182885.192000] usb-storage: -- transfer complete
+[17182885.192000] usb-storage: Bulk data transfer result 0x0
+[17182885.192000] usb-storage: Attempting to get CSW...
+[17182885.192000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182885.192000] usb-storage: Status code 0; transferred 13/13
+[17182885.192000] usb-storage: -- transfer complete
+[17182885.192000] usb-storage: Bulk status result = 0
+[17182885.192000] usb-storage: Bulk Status S 0x53425355 T 0x9a R 0 Stat 0x0
+[17182885.192000] usb-storage: -- Result from auto-sense is 0
+[17182885.192000] usb-storage: -- code: 0xf0, key: 0x2, ASC: 0x3a, ASCQ: 0x0
+[17182885.192000] usb-storage: Not Ready: Medium not present
+[17182885.192000] usb-storage: scsi cmd done, result=0x2
+[17182885.192000] usb-storage: *** thread sleeping.
+[17182885.192000] usb-storage: queuecommand called
+[17182885.192000] usb-storage: *** thread awakened.
+[17182885.192000] usb-storage: Command TEST_UNIT_READY (6 bytes)
+[17182885.192000] usb-storage:  00 20 00 00 00 00
+[17182885.192000] usb-storage: Bulk Command S 0x43425355 T 0x9b L 0 F 0 Trg 0 LUN 1 CL 6
+[17182885.192000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182885.192000] usb-storage: Status code 0; transferred 31/31
+[17182885.192000] usb-storage: -- transfer complete
+[17182885.192000] usb-storage: Bulk command transfer result=0
+[17182885.192000] usb-storage: Attempting to get CSW...
+[17182885.192000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182885.192000] usb-storage: Status code 0; transferred 13/13
+[17182885.192000] usb-storage: -- transfer complete
+[17182885.192000] usb-storage: Bulk status result = 0
+[17182885.192000] usb-storage: Bulk Status S 0x53425355 T 0x9b R 0 Stat 0x1
+[17182885.192000] usb-storage: -- transport indicates command failure
+[17182885.192000] usb-storage: Issuing auto-REQUEST_SENSE
+[17182885.192000] usb-storage: Bulk Command S 0x43425355 T 0x9c L 18 F 128 Trg 0 LUN 1 CL 6
+[17182885.192000] usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+[17182885.196000] usb-storage: Status code 0; transferred 31/31
+[17182885.196000] usb-storage: -- transfer complete
+[17182885.196000] usb-storage: Bulk command transfer result=0
+[17182885.196000] usb-storage: usb_stor_bulk_transfer_buf: xfer 18 bytes
+[17182885.196000] usb-storage: Status code 0; transferred 18/18
+[17182885.196000] usb-storage: -- transfer complete
+[17182885.196000] usb-storage: Bulk data transfer result 0x0
+[17182885.196000] usb-storage: Attempting to get CSW...
+[17182885.196000] usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+[17182885.196000] usb-storage: Status code 0; transferred 13/13
+[17182885.196000] usb-storage: -- transfer complete
+[17182885.196000] usb-storage: Bulk status result = 0
+[17182885.196000] usb-storage: Bulk Status S 0x53425355 T 0x9c R 0 Stat 0x0
+[17182885.196000] usb-storage: -- Result from auto-sense is 0
+[17182885.196000] usb-storage: -- code: 0xf0, key: 0x2, ASC: 0x3a, ASCQ: 0x0
+[17182885.196000] usb-storage: Not Ready: Medium not present
+[17182885.196000] usb-storage: scsi cmd done, result=0x2
+[17182885.196000] usb-storage: *** thread sleeping.
+[17182886.144000] usb 2-2.2: USB disconnect, address 7
+[17182886.144000] usb-storage: storage_disconnect() called
+[17182886.144000] usb-storage: usb_stor_stop_transport called
+[17182886.148000] usb-storage: -- usb_stor_release_resources
+[17182886.148000] usb-storage: -- sending exit command to thread
+[17182886.148000] usb-storage: -- dissociate_dev
+[17182886.148000] usb-storage: *** thread awakened.
+[17182886.148000] usb-storage: -- exiting
+
+
+### EOF
+### vim:tw=256:et:sts=2:st=2:sw=2:com+=b\:###:fo+=cqtr:tags=ctags:

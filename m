@@ -1,131 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWDKCHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWDKCW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbWDKCHd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 22:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWDKCHd
+	id S932261AbWDKCW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 22:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWDKCW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 22:07:33 -0400
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:41195 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932172AbWDKCHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 22:07:32 -0400
-Message-ID: <443B0F62.1080207@bigpond.net.au>
-Date: Tue, 11 Apr 2006 12:07:30 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
-References: <200604031459.51542.a1426z@gawab.com> <200604090804.40867.a1426z@gawab.com> <44399E81.9050908@bigpond.net.au> <200604101743.23072.a1426z@gawab.com>
-In-Reply-To: <200604101743.23072.a1426z@gawab.com>
-Content-Type: text/plain; charset=windows-1256; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 11 Apr 2006 02:07:30 +0000
+	Mon, 10 Apr 2006 22:22:28 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:4028 "EHLO pilet.ens-lyon.fr")
+	by vger.kernel.org with ESMTP id S932257AbWDKCW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 22:22:28 -0400
+Date: Tue, 11 Apr 2006 04:23:11 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Michael Buesch <mb@bu3sch.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, netdev@vger.kernel.org,
+       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
+       linville@tuxdriver.com
+Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
+Message-ID: <20060411022311.GB31118@ens-lyon.fr>
+References: <20060410040120.GA4860@ens-lyon.fr> <20060410042228.GN27596@ens-lyon.fr> <1144719972.19353.24.camel@localhost.localdomain> <200604110353.52067.mb@bu3sch.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604110353.52067.mb@bu3sch.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Peter Williams wrote:
->> Al Boldi wrote:
->>> But how does this explain spa_no_frills setting promotion to max not
->>> having this problem?
->> I'm still puzzled by this.  The only thing I can think of is that the
->> promotion mechanism is to simple in that it just moves all promotable
->> tasks up one slot without regard for how long they've been on the queue.
->>   Doing this was a deliberate decision based on the desire to minimize
->> overhead and the belief that it wouldn't matter in the grand scheme of
->> things.  I may do some experimenting with slightly more sophisticated
->> version.
->>
->> Properly done, promotion should hardly ever occur but the cost would be
->> slightly more complex enqueue/dequeue operations.  The current version
->> will do unnecessary promotions but it was felt this was more than
->> compensated for by the lower enqueue/dequeue costs.  We'll see how a
->> more sophisticated version goes in terms of trade offs.
+On Tue, Apr 11, 2006 at 03:53:51AM +0200, Michael Buesch wrote:
+> On Tuesday 11 April 2006 03:46, you wrote:
+> > 
+> > 
+> > Now, for ppc32, it should still sort-of work because all of lowmem is
+> > below 1Gb and people generally don't hack their lowmem size (well, I do
+> > but heh, that doesn't count :) and I don't think you'll get skb's in
+> > highmem. But ppc64 hits the problem and at this point, there is nothing
+> > I can do other than either implementing a split zone allocation mecanism
+> > in the ppc64 architecture
 > 
-> Would this affect the current, nearly perfect, spa_no_frills rr-behaviour w/ 
-> its ability to circumvent the timeslice problem when setting promo to max?
-
-No, I'd leave those controls in there.
-
+> > for the sole sake of bcm43xx (ick !)
 > 
->>>> This is one good reason not to use spa_no_frills on
->>>> production systems.
->>> spa_ebs is great, but rather bursty.  Even setting max_ia_bonus=0
->>> doesn't fix that.   Is there a way to smooth it like spa_no_frills?
->> The principal determinant would be the smoothness of the yardstick.
->> This is supposed to represent the task with the highest (recent) CPU
->> usage rate per share and is used to determine how fairly CPU is being
->> distributed among the currently active tasks.  Tasks are given a
->> priority based on how their CPU usage rate per share compares to this
->> yardstick.  This means that as the system load and/or type of task
->> running changes the priorities of the tasks can change dramatically.
->>
->> Is the burstiness that you're seeing just in the observed priorities or
->> is it associated with behavioural burstiness as well?
-> 
-> It's behavioural, exhibited in a choking style, like a jumpy mouse move 
-> during ia boosts.
+> Nope. For every broadcom device, which has this stupid DMA engine.
+> That is b44 and bcm43xx, as far as I can tell. But likely there are more.
 
-Yeah, I just tried it on my machine with the same results.  It used to 
-behave quite well so I must have broken something recently.  I've been 
-trying different things for IA bonus calculations.
+On the other hand, bcm43xx looks very common with apple hardware, so there
+are probably a lot of users who cannot use their wifi card in G5's.
 
-BTW I've increased the smoothing of my rate statistics and that should 
-help smooth scheduling as a whole.  It used to average a tasks behaviour 
-over its last 10 cycles but now it does it over 44.  Plus I've moved 
-initial_time_slice as discussed.  I'll post patches for 2.6.17-rc1-mm2 
-shortly.
+regards,
 
-> 
->>>> Perhaps you should consider creating a child
->>>> scheduler on top of it that meets your needs?
->>> Perhaps.
->> Good.  I've been hoping that other interested parties might be
->> encouraged by the small interface to SPA children to try different ideas
->> for scheduling.
-> 
-> Is there a no-op child skeleton available?
-
-No.  But I could create one.
-
-> 
->> One thing that could be played with here is to vary the time slice based
->> on the priority.  This would be in the opposite direction to the normal
->> scheduler with higher priority tasks (i.e. those with lower prio values)
->> getting smaller time slices.  The rationale being:
->>
->> 1. stop tasks that have been given large bonuses from shutting out other
->> tasks for too long, and
->> 2. reduce the context switch rate for tasks that haven't received bonuses.
->>
->> Because tasks that get large bonuses will have short CPU bursts they
->> should not be adversely effected (if this is done properly) as they will
->> (except in exceptional circumstances such as a change in behaviour)
->> surrender the CPU voluntarily before their reduced time slice has
->> expired.  Imaginative use of the available statistics could make this
->> largely automatic but there would be a need to be aware that the
->> statistics can be distorted by the shorter time slices.
->>
->> On the other hand, giving tasks without bonuses longer time slices
->> shouldn't adversely effect interactive performance as the interactive
->> tasks will (courtesy of their bonuses) preempt them.
-> 
-> I couldn't agree more.  Tackling the problem on both fronts (prio/tslice) may 
-> give us more control, which could result in a more appropriate / fairer / 
-> smoother scheduler.
-
-"Hedging one's bets" as punters would say.
-
-> 
-> Thanks!
-
-My pleasure.
-
-Peter
+Benoit
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS

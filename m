@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWDKBzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWDKB5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWDKBzq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 21:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWDKBzq
+	id S932255AbWDKB5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 21:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWDKB5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 21:55:46 -0400
-Received: from pproxy.gmail.com ([64.233.166.182]:30802 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932244AbWDKBzp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 21:55:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RpZIitN6FI05slNsq5p8eNd7ZEp5QDR1Bb3IwO0INJN2n93LATbjjrjwKcwQ/yB7UE2Beho9FepGHRVrFs7MppcxhxB9JK6FYwG9nFA3JCtptimvwVEqd/iBf5yL3QhClxy4a5ng2ZmTS4xspU/Agr4K1EEQLeAFpBXWQAfj5rQ=
-Message-ID: <5d4799ae0604101855o72f01453l438d0d4d628bbb7@mail.gmail.com>
-Date: Tue, 11 Apr 2006 11:55:45 +1000
-From: "Kris Shannon" <kris.shannon.kernel@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Separate Initramfs dependency on initrd (and therefore ramdisks)
-In-Reply-To: <5d4799ae0602170820j33795815u7104bd41c7fe7e67@mail.gmail.com>
+	Mon, 10 Apr 2006 21:57:16 -0400
+Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:12888 "EHLO
+	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932255AbWDKB5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 21:57:15 -0400
+Message-ID: <443B0CF8.6060707@bigpond.net.au>
+Date: Tue, 11 Apr 2006 11:57:12 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5d4799ae0602170820j33795815u7104bd41c7fe7e67@mail.gmail.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: move enough load to balance average load per task
+References: <4439FF0C.8030407@bigpond.net.au> <20060410181237.A26977@unix-os.sc.intel.com>
+In-Reply-To: <20060410181237.A26977@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 11 Apr 2006 01:57:13 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A number of distributions (most importantly for me - Debian) use the
-initrd as initramfs facility.  I assumed that the passing of the data
-block would be independent of ram disks seeing as not using a ram
-disk was one of the major reasons for initramfs,  but it seems that
-you need CONFIG_BLK_DEV_INITRD=y which depends on
-CONFIG_BLK_DEV_RAM=y
+Siddha, Suresh B wrote:
+> On Mon, Apr 10, 2006 at 04:45:32PM +1000, Peter Williams wrote:
+>> Problem:
+>>
+>> The current implementation of find_busiest_group() recognizes that 
+>> approximately equal average loads per task for each group/queue are 
+>> desirable (e.g. this condition will increase the probability that the 
+>> top N highest priority tasks on an N CPU system will be on different 
+>> CPUs) by being slightly more aggressive when *imbalance is small but the 
+>> average load per task in "busiest" group is more than that in "this" 
+>> group.  Unfortunately, the amount moved from "busiest" to "this" is too 
+>> small to reduce the average load per task on "busiest" (at best there 
+>> will be no change and at worst it will get bigger).
+> 
+> Peter, We don't need to reduce the average load per task on "busiest"
+> always. By moving a "busiest_load_per_task", we will increase the 
+> average load per task of lesser busy cpu (there by trying to achieve
+> the equality with busiest...)
+> 
+> Can you give an example scenario where this patch helps? And doesn't
+> the normal imabalance calculations capture those issues?
 
-Would a patch separating out the init image handling from the initrd
-handling be welcome and if so should the resulting init image code
-be dependant on a CONFIG variable or always on (like initramfs is now)
+Yes, I think that the normal imbalance calculations (in 
+find_busiest_queue()) will generally capture the aim of having 
+approximately equal average loads per task on run queues.  But this bit 
+of code is a special case in that the extra aggression being taken by 
+the load balancer (in response to a scenario raised by you) is being 
+justified by the imbalance in the average loads per task so it behooves 
+us to do the best we can to ensure that that imbalance is addressed.
 
-The only reference to this I found in the archives was:
+I don't think this is true for try_to_wake_up() and some changes may be 
+desirable there.  However, any such changes would interact with the RT 
+load balancing that Ingo is working on and would need to be considered 
+in conjunction with that.
 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0508.1/0097.html
+Why I think "approximately equal average loads per task" is worthwhile 
+secondary aim for the load balancer is because it helps restore an 
+implicit aim (approximately equal numbers of tasks per run queue) that 
+was present in the original version.  This in turn means that the 
+distribution of priorities within the queues will be similar and this 
+increases the chances that (on an N CPU system) the N highest priority 
+tasks will be on different CPUs.  This is a desirable state of affairs.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

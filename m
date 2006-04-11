@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWDKS6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWDKTBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWDKS6z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 14:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWDKS6z
+	id S1750991AbWDKTBS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 15:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWDKTBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 14:58:55 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:7613 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750998AbWDKS6z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 14:58:55 -0400
-Date: Tue, 11 Apr 2006 20:58:31 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Ramakanth Gunuganti <rgunugan@yahoo.com>
-cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL issues
-In-Reply-To: <20060411154944.65714.qmail@web54308.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.61.0604112055380.25940@yvahk01.tjqt.qr>
-References: <20060411154944.65714.qmail@web54308.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Apr 2006 15:01:18 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:36821 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750991AbWDKTBR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 15:01:17 -0400
+Subject: Re: [RFC][PATCH 0/3] ext3 percpu counter fixes to suppport for
+	ext3 unsigned long type free blocks counter
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, kiran@scalex86.org,
+       Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0604111007230.564@schroedinger.engr.sgi.com>
+References: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com>
+	 <Pine.LNX.4.64.0604111007230.564@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Tue, 11 Apr 2006 12:01:13 -0700
+Message-Id: <1144782073.3986.15.camel@dyn9047017067.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Since it's the Linux kernel that's under GPLv2, any
->work done here should be released under GPLv2. That
->part seems to be clear, however any product would
->include other things that could be proprietary.
+On Tue, 2006-04-11 at 10:09 -0700, Christoph Lameter wrote:
+> On Mon, 10 Apr 2006, Mingming Cao wrote:
+> 
+> > Here are the proposed patches to allow the ext3 free block accounting
+> > works with more than 8TB storage.
+> 
+> Umm.. This is an issue on 32 bit platforms only. 64bit platforms x86_64, 
+> ia64 etc do not need this. Would you make it arch specific?
 
-One thing that is clear in the GPL: If you link the kernel with something 
-else to an executable, the resulting blob (and therefore the sources to the 
-proprietary part) must be GPL.
-
-Linking by making certain parts shared libraries is already a gray zone.
-
-If in doubt, release everything. It also offers users the possibility to 
-find your bugs.
+Yes, make sense. I will update my patch soon. Thanks.
 
 
-Jan Engelhardt
--- 
+Mingming
+
+
+

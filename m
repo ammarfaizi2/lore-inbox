@@ -1,110 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWDKBNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWDKBVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWDKBNx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 21:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWDKBNx
+	id S932131AbWDKBVV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 21:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWDKBVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 21:13:53 -0400
-Received: from mga06.intel.com ([134.134.136.21]:19755 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932246AbWDKBNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 21:13:52 -0400
-TrustExchangeSourcedMail: True
-X-ExchangeTrusted: True
-X-IronPort-AV: i="4.04,109,1144047600"; 
-   d="scan'208"; a="21687528:sNHT17525550"
-Date: Mon, 10 Apr 2006 18:12:37 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched: move enough load to balance average load per task
-Message-ID: <20060410181237.A26977@unix-os.sc.intel.com>
-References: <4439FF0C.8030407@bigpond.net.au>
-Mime-Version: 1.0
+	Mon, 10 Apr 2006 21:21:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51881 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932131AbWDKBVU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 21:21:20 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4439FF0C.8030407@bigpond.net.au>; from pwil3058@bigpond.net.au on Mon, Apr 10, 2006 at 04:45:32PM +1000
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+X-Fcc: ~/Mail/linus
+Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] coredump: kill ptrace related stuff
+In-Reply-To: Oleg Nesterov's message of  Monday, 10 April 2006 17:35:52 +0400 <20060410133511.GA85@oleg>
+X-Shopping-List: (1) Ardent squirrel ghost-melts
+   (2) Inconvenient console winters
+   (3) Coherent anarchic tensions
+   (4) Inefficient companion rails
+Message-Id: <20060411012109.4DB3A1809D1@magilla.sf.frob.com>
+Date: Mon, 10 Apr 2006 18:21:09 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 10, 2006 at 04:45:32PM +1000, Peter Williams wrote:
-> Problem:
-> 
-> The current implementation of find_busiest_group() recognizes that 
-> approximately equal average loads per task for each group/queue are 
-> desirable (e.g. this condition will increase the probability that the 
-> top N highest priority tasks on an N CPU system will be on different 
-> CPUs) by being slightly more aggressive when *imbalance is small but the 
-> average load per task in "busiest" group is more than that in "this" 
-> group.  Unfortunately, the amount moved from "busiest" to "this" is too 
-> small to reduce the average load per task on "busiest" (at best there 
-> will be no change and at worst it will get bigger).
+> It turns out I misread SIGNAL_GROUP_EXIT check in ptrace_stop(),
+> didn't notice '(->parent->signal != current->signal) ||' before
+> it.
 
-Peter, We don't need to reduce the average load per task on "busiest"
-always. By moving a "busiest_load_per_task", we will increase the 
-average load per task of lesser busy cpu (there by trying to achieve
-the equality with busiest...)
+I thought that might have been it.
 
-Can you give an example scenario where this patch helps? And doesn't
-the normal imabalance calculations capture those issues?
+> Do you see any solution which doesn't need tasklist_lock to be
+> held while traversing global process list?
 
-thanks,
-suresh
+Eh, kind of, but I'm not sure I want to get into it.  This only comes up in
+a pathological case and we don't actually take the lock unless the weird
+case really happened.  My inclination is to get the rest of the cleanups
+and optimizations ironed out and merged in first.  Then we can revisit this
+oddball case later on.
 
-> 
-> Solution:
-> 
-> Increase the amount of load moved from "busiest" to "this" in these 
-> circumstances while making sure that the amount of load moved won't 
-> increase the (absolute) difference in the two groups' total weighted 
-> loads.  A task with a weighted load greater than the average needs to be 
-> moved to cause the average to be reduced.
-> 
-> NB This makes no difference to load balancing for the case where all 
-> tasks have nice==0.
-> 
-> Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
-> 
-> -- 
-> Peter Williams                                   pwil3058@bigpond.net.au
-> 
-> "Learning, n. The kind of ignorance distinguishing the studious."
->   -- Ambrose Bierce
+> > > 	3. Can't go to do_signal_stop() after return
+> > > 	   from ptrace_stop() in get_signal_to_deliver()
+> >
+> > This is only true because of the check in get_signal_to_deliver,
+> > which I've said I think should be taken out for other reasons.
+>
+> Yes, changelog refers to SIGNAL_GROUP_EXIT check in get_signal_to_deliver.
+> However, do_signal_stop() returns 0 when it doesn't see SIGNAL_STOP_DEQUEUED,
+> (which was cleared by SIGNAL_GROUP_EXIT), so I think we don't depend on
+> SIGNAL_GROUP_EXIT check in get_signal_to_deliver. No?
 
-> Index: MM-2.6.17-rc1-mm2/kernel/sched.c
-> ===================================================================
-> --- MM-2.6.17-rc1-mm2.orig/kernel/sched.c	2006-04-10 10:46:53.000000000 +1000
-> +++ MM-2.6.17-rc1-mm2/kernel/sched.c	2006-04-10 14:16:32.000000000 +1000
-> @@ -2258,16 +2258,20 @@ find_busiest_group(struct sched_domain *
->  	if (*imbalance < busiest_load_per_task) {
->  		unsigned long pwr_now = 0, pwr_move = 0;
->  		unsigned long tmp;
-> -		unsigned int imbn = 2;
->  
-> -		if (this_nr_running) {
-> +		if (this_nr_running)
->  			this_load_per_task /= this_nr_running;
-> -			if (busiest_load_per_task > this_load_per_task)
-> -				imbn = 1;
-> -		} else
-> +		else
->  			this_load_per_task = SCHED_LOAD_SCALE;
->  
-> -		if (max_load - this_load >= busiest_load_per_task * imbn) {
-> +		if (busiest_load_per_task > this_load_per_task) {
-> +			unsigned long dld = max_load - this_load;
-> +
-> +			if (dld > busiest_load_per_task) {
-> +				*imbalance = (dld + busiest_load_per_task) / 2;
-> +				return busiest;
-> +			}
-> +		} else if (max_load - this_load >= busiest_load_per_task * 2) {
->  			*imbalance = busiest_load_per_task;
->  			return busiest;
->  		}
+Ah yes, you are right.  So there is no conflict with removing the check as
+I want to do.
+
+
+Thanks,
+Roland

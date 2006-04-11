@@ -1,82 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWDKQ7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWDKRD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWDKQ7v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 12:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWDKQ7v
+	id S1750856AbWDKRD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 13:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWDKRD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 12:59:51 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:35719 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751365AbWDKQ7u (ORCPT
+	Tue, 11 Apr 2006 13:03:56 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:11103 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750856AbWDKRD4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 12:59:50 -0400
-Date: Tue, 11 Apr 2006 17:59:38 +0100 (IST)
-From: Mel Gorman <mel@skynet.ie>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: davej@codemonkey.org.uk, linuxppc-dev@ozlabs.org, tony.luck@intel.com,
-       ak@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 6/6] Break out memory initialisation code from page_alloc.c
- to mem_init.c
-In-Reply-To: <443B8DE7.4000900@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0604111752140.19280@skynet.skynet.ie>
-References: <20060411103946.18153.83059.sendpatchset@skynet>
- <20060411104147.18153.64342.sendpatchset@skynet> <443B8DE7.4000900@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 11 Apr 2006 13:03:56 -0400
+Date: Tue, 11 Apr 2006 19:03:57 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Rachita Kothiyal <rachita@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [RFC] Patch to fix cdrom being confused on using kdump
+Message-ID: <20060411170357.GR4791@suse.de>
+References: <20060407135714.GA25569@in.ibm.com> <20060409102942.GI3859@suse.de> <20060411153114.GA5255@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060411153114.GA5255@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Apr 2006, Nick Piggin wrote:
+On Tue, Apr 11 2006, Rachita Kothiyal wrote:
+> On Sun, Apr 09, 2006 at 12:29:42PM +0200, Jens Axboe wrote:
+> > On Fri, Apr 07 2006, Rachita Kothiyal wrote:
+> > 
+> > if (stat & DRQ_STAT)
+> > 
+> > checking for DRQ_STAT again doesn't make sense, how can it ever be
+> > anything but DRQ_STAT if DRQ_STAT is set?
+> 
+> Hi Jens,
+> 
+> Yes, you are right. The condition itself is redundant there as 
+> DRQ will always be set there. I will remove it.
 
-> Mel Gorman wrote:
->> page_alloc.c contains a large amount of memory initialisation code. This 
->> patch
->> breaks out the initialisation code to a separate file to make page_alloc.c
->> a bit easier to read.
->> 
->
-> Seems like a very good idea to me.
->
+Good so far.
 
-If there is interest in treating this separetly, it can be broken out as a 
-standalone patch. In this form, it depends on the first patch from the 
-set.
+> > 
+> > > +			/* DRQ is set. Interrupt not welcome now. Ignore */
+> > > +			HWIF(drive)->OUTB((stat & 0xEF), IDE_STATUS_REG);
+> > > +			return ide_stopped;
+> > 
+> > And this looks very wrong, you can't write to the status register. Well
+> > you can, but then it's the command register! Writing stat & 0xef to the
+> > command register is an odd thing to do. I think you just want to clear
+> > the DRQ bit, which should be fine after it was read initially. How about
+> > 
+> > 
+> >         if (stat & DRQ_STAT)
+> >                 return ide_stopped;
+> > 
+> > Can you test that?
+> 
+> I tested this, but I see it fail a couple of times...sometimes it hung
+> while booting up the second kernel and sometimes the kernel paniced 
+> while shutting it down.(attached partial log for panic)
+> 
+> I see your point that writing to the status register is not a good idea.
+> I think what we want to do is just ignore this particular interrupt and 
+> let it continue.
+> Am not sure if clearing DRQ bit will achieve this. Please correct me if
+> I am wrong, but to clear the DRQ bit also we will have to write to the 
+> status register. 
 
->> +/*
->> + * mm/mem_init.c
->> + * Initialises the architecture independant view of memory. pgdats, zones, 
->> etc
->> + *
->> + *  Copyright (C) 1991, 1992, 1993, 1994  Linus Torvalds
->> + *  Swap reorganised 29.12.95, Stephen Tweedie
->> + *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999
->> + *  Reshaped it to be a zoned allocator, Ingo Molnar, Red Hat, 1999
->> + *  Discontiguous memory support, Kanoj Sarcar, SGI, Nov 1999
->> + *  Zone balancing, Kanoj Sarcar, SGI, Jan 2000
->> + *  Per cpu hot/cold page lists, bulk allocation, Martin J. Bligh, Sept 
->> 2002
->> + *	(lots of bits borrowed from Ingo Molnar & Andrew Morton)
->> + *  Arch-independant zone size and hole calculation, Mel Gorman, IBM, Apr 
->> 2006
->> + *	(lots of bits taken from architecture code)
->> + */
->
-> Maybe drop the duplicated changelog? (just retain copyrights I guess)
->
+No, there is not writable status register - that is called the command
+register. Just reading the status register is enough to clear the irq,
+so if you just want to ignore the interrupt that'll work.
 
-Makes sense.
-
-+ *  Copyright (C) 1991, 1992, 1993, 1994  Linus Torvalds
-+ *  Copyright (C) 1995, Stephen Tweedie
-+ *  Copyright (C) July 1999, Gerhard Wichert, Siemens AG
-+ *  Copyright (C) 1999, Ingo Molnar, Red Hat
-+ *  Copyright (C) 1999, 2000, Kanoj Sarcar, SGI
-+ *  Copyright (C) Sept 2000, Martin J. Bligh
-+ *     (lots of bits borrowed from Ingo Molnar & Andrew Morton)
-+ *  Copyright (C) Apr 2006, Mel Gorman, IBM
-+ *     (lots of bits taken from architecture-specific code)
-
+What happens if you rearm the interrupt handler instead of returning
+ide_stopped?
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+Jens Axboe
+

@@ -1,156 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWDKTpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWDKTtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750864AbWDKTpv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 15:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWDKTpv
+	id S1751134AbWDKTtN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 15:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWDKTtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 15:45:51 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:24024
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750864AbWDKTpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 15:45:50 -0400
-Date: Tue, 11 Apr 2006 20:45:39 +0100
-To: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] squash duplicate page_to_pfn and pfn_to_page
-Message-ID: <20060411194539.GA2507@shadowen.org>
+	Tue, 11 Apr 2006 15:49:13 -0400
+Received: from wproxy.gmail.com ([64.233.184.226]:3628 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751134AbWDKTtM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 15:49:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YietDs5PlJh3xTla16aUnwaCPspi6kIZT7+QSCQCZfBCC9loJ541f5BRmQv9nkn+Jo61QzPbf6WOqw0REqoneuEiIgLg67NON18EPqSuS11GBzolE4bG7M1gt5WLX/2+wF+rRz2oeGeeu3a3wkx6iZOTaxb198R++X+0OcHXNEg=
+Message-ID: <5a4c581d0604111249g57882f7g29e132a7f4c0ab38@mail.gmail.com>
+Date: Tue, 11 Apr 2006 21:49:11 +0200
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Subject: Re: 40% IDE performance regression going from FC3 to FC5 with same kernel
+Cc: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0604112042060.25940@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
-From: Andy Whitcroft <apw@shadowen.org>
+References: <5a4c581d0604080747w61464d48k5480391d98b2bc47@mail.gmail.com>
+	 <20060411122806.GA26836@rhlx01.fht-esslingen.de>
+	 <5a4c581d0604111111s4946b39x3686ade1275ded90@mail.gmail.com>
+	 <Pine.LNX.4.61.0604112042060.25940@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-squash duplicate page_to_pfn and pfn_to_page
+On 4/11/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> >> > I'll be filing a FC5 performance bug for this but would like an opinion
+> >> >  from the IDE kernel people just in case this has already been seen...
+> >> >
+> >> > I just upgraded my home K7-800, 512MB RAM box from FC3 to FC5
+> >> >  and noticed a disk performance slowdown while copying files around.
+> >>
+> >> Just another suggestion: try eliminating/pinpointing I/O scheduler issues
+> >> (switch e.g. to "noop" at /sys/block/hda/queue/scheduler and compare again)
+> >
+> >Thanks Andi. Tried every scheduler (my default is anticipatory) and
+> > there aren't meaningful differences - 18.3 to 18.6MB/s.
+> >
+> >As a further data point, my box can burn a 8x DVD+R at up to 7.1x
+> > average speed under FC3, while it barely keeps up with 4x in FC5.
+>
+> Since you said it happens with the same kernel, I think it's caused by
+> userspace (do the boot-with-"-b" thing and you'll know). Possible someone
+> setting DMA to speeds as low as udma4 or udma2.
 
-We have architectures where the size of page_to_pfn and pfn_to_page
-are significant enough to overall image size that they wish to
-push them out of line.  However, in the process we have grown
-a second copy of the implementation of each of these routines
-for each memory model.  Share the implmentation exposing it either
-inline or out-of-line as required.
+Booting into /sbin/init -b indeed shows I get 33.3MB/s from hdparm,
+ as in FC3. DMA is (again according to hdparm) udma4 both booted
+ normally and in emergency mode. Note that at this point I'm testing
+ 2.6.17-rc1-git4 in FC5, not to be trailing current kernels too much
+ (and yes, I already tested that normal 2.6.17-rc1-git4 boot in FC5
+ gets 18.5MB/s - without IDE_GENERIC, so that is also clearly a
+ non relevant factor).
 
-Tested on a range of test boxes with various memory models.  Against
-2.6.17-rc1-mm2.
+As per Bill Davidsen's question in another email, blockdev --getra
+ shows 256, which is the same value that hdparm shows.
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- include/asm-generic/memory_model.h |   27 +++++++++++++++------------
- mm/page_alloc.c                    |   32 ++------------------------------
- 2 files changed, 17 insertions(+), 42 deletions(-)
-diff -upN reference/include/asm-generic/memory_model.h current/include/asm-generic/memory_model.h
---- reference/include/asm-generic/memory_model.h
-+++ current/include/asm-generic/memory_model.h
-@@ -23,29 +23,23 @@
- 
- #endif /* CONFIG_DISCONTIGMEM */
- 
--#ifdef CONFIG_OUT_OF_LINE_PFN_TO_PAGE
--struct page;
--/* this is useful when inlined pfn_to_page is too big */
--extern struct page *pfn_to_page(unsigned long pfn);
--extern unsigned long page_to_pfn(struct page *page);
--#else
- /*
-  * supports 3 memory models.
-  */
- #if defined(CONFIG_FLATMEM)
- 
--#define pfn_to_page(pfn)	(mem_map + ((pfn) - ARCH_PFN_OFFSET))
--#define page_to_pfn(page)	((unsigned long)((page) - mem_map) + \
-+#define __pfn_to_page(pfn)	(mem_map + ((pfn) - ARCH_PFN_OFFSET))
-+#define __page_to_pfn(page)	((unsigned long)((page) - mem_map) + \
- 				 ARCH_PFN_OFFSET)
- #elif defined(CONFIG_DISCONTIGMEM)
- 
--#define pfn_to_page(pfn)			\
-+#define __pfn_to_page(pfn)			\
- ({	unsigned long __pfn = (pfn);		\
- 	unsigned long __nid = arch_pfn_to_nid(pfn);  \
- 	NODE_DATA(__nid)->node_mem_map + arch_local_page_offset(__pfn, __nid);\
- })
- 
--#define page_to_pfn(pg)							\
-+#define __page_to_pfn(pg)						\
- ({	struct page *__pg = (pg);					\
- 	struct pglist_data *__pgdat = NODE_DATA(page_to_nid(__pg));	\
- 	(unsigned long)(__pg - __pgdat->node_mem_map) +			\
-@@ -57,18 +51,27 @@ extern unsigned long page_to_pfn(struct 
-  * Note: section's mem_map is encorded to reflect its start_pfn.
-  * section[i].section_mem_map == mem_map's address - start_pfn;
-  */
--#define page_to_pfn(pg)					\
-+#define __page_to_pfn(pg)					\
- ({	struct page *__pg = (pg);				\
- 	int __sec = page_to_section(__pg);			\
- 	__pg - __section_mem_map_addr(__nr_to_section(__sec));	\
- })
- 
--#define pfn_to_page(pfn)				\
-+#define __pfn_to_page(pfn)				\
- ({	unsigned long __pfn = (pfn);			\
- 	struct mem_section *__sec = __pfn_to_section(__pfn);	\
- 	__section_mem_map_addr(__sec) + __pfn;		\
- })
- #endif /* CONFIG_FLATMEM/DISCONTIGMEM/SPARSEMEM */
-+
-+#ifdef CONFIG_OUT_OF_LINE_PFN_TO_PAGE
-+struct page;
-+/* this is useful when inlined pfn_to_page is too big */
-+extern struct page *pfn_to_page(unsigned long pfn);
-+extern unsigned long page_to_pfn(struct page *page);
-+#else
-+#define page_to_pfn __page_to_pfn
-+#define pfn_to_page __pfn_to_page
- #endif /* CONFIG_OUT_OF_LINE_PFN_TO_PAGE */
- 
- #endif /* __ASSEMBLY__ */
-diff -upN reference/mm/page_alloc.c current/mm/page_alloc.c
---- reference/mm/page_alloc.c
-+++ current/mm/page_alloc.c
-@@ -2861,42 +2861,14 @@ void *__init alloc_large_system_hash(con
- }
- 
- #ifdef CONFIG_OUT_OF_LINE_PFN_TO_PAGE
--/*
-- * pfn <-> page translation. out-of-line version.
-- * (see asm-generic/memory_model.h)
-- */
--#if defined(CONFIG_FLATMEM)
- struct page *pfn_to_page(unsigned long pfn)
- {
--	return mem_map + (pfn - ARCH_PFN_OFFSET);
-+	return __pfn_to_page(pfn);
- }
- unsigned long page_to_pfn(struct page *page)
- {
--	return (page - mem_map) + ARCH_PFN_OFFSET;
-+	return __page_to_pfn(page);
- }
--#elif defined(CONFIG_DISCONTIGMEM)
--struct page *pfn_to_page(unsigned long pfn)
--{
--	int nid = arch_pfn_to_nid(pfn);
--	return NODE_DATA(nid)->node_mem_map + arch_local_page_offset(pfn,nid);
--}
--unsigned long page_to_pfn(struct page *page)
--{
--	struct pglist_data *pgdat = NODE_DATA(page_to_nid(page));
--	return (page - pgdat->node_mem_map) + pgdat->node_start_pfn;
--}
--#elif defined(CONFIG_SPARSEMEM)
--struct page *pfn_to_page(unsigned long pfn)
--{
--	return __section_mem_map_addr(__pfn_to_section(pfn)) + pfn;
--}
--
--unsigned long page_to_pfn(struct page *page)
--{
--	long section_id = page_to_section(page);
--	return page - __section_mem_map_addr(__nr_to_section(section_id));
--}
--#endif /* CONFIG_FLATMEM/DISCONTIGMME/SPARSEMEM */
- EXPORT_SYMBOL(pfn_to_page);
- EXPORT_SYMBOL(page_to_pfn);
- #endif /* CONFIG_OUT_OF_LINE_PFN_TO_PAGE */
+--alessandro
+
+ "Dreamer ? Each one of us is a dreamer. We just push it down deep because
+   we are repeatedly told that we are not allowed to dream in real life"
+     (Reinhold Ziegler)

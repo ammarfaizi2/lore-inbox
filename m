@@ -1,44 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWDKW3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWDKWbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWDKW3i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 18:29:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWDKW3i
+	id S1751192AbWDKWbp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 18:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWDKWbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 18:29:38 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:12183 "EHLO
-	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1751173AbWDKW3h
+	Tue, 11 Apr 2006 18:31:45 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:22765 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751192AbWDKWbp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 18:29:37 -0400
-Date: Wed, 12 Apr 2006 00:30:24 +0200
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "David S. Miller" <davem@davemloft.net>, mb@bu3sch.de,
-       netdev@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
-       linux-kernel@vger.kernel.org, linville@tuxdriver.com
-Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
-Message-ID: <20060411223024.GA6543@ens-lyon.fr>
-References: <1144719972.19353.24.camel@localhost.localdomain> <20060410.224933.39567033.davem@davemloft.net> <1144788541.19353.41.camel@localhost.localdomain> <20060411.143407.74615246.davem@davemloft.net> <1144794077.19353.53.camel@localhost.localdomain>
+	Tue, 11 Apr 2006 18:31:45 -0400
+Subject: [PATCH] tpm: compiler cleanup
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
+In-Reply-To: <1144789502.12054.18.camel@localhost.localdomain>
+References: <1144679825.4917.10.camel@localhost.localdomain>
+	 <20060411111834.587e4461.akpm@osdl.org>
+	 <1144786558.12054.14.camel@localhost.localdomain>
+	 <200604112245.02443.ioe-lkml@rameria.de>
+	 <1144789502.12054.18.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 11 Apr 2006 17:32:35 -0500
+Message-Id: <1144794755.12054.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1144794077.19353.53.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 12, 2006 at 08:21:17AM +1000, Benjamin Herrenschmidt wrote:
-> 
-> > I still think we shouldn't reward shit hardware by complicating
-> > up our DMA mappings internals. :-)
-> 
-> BTW. In the meantime, can't that driver work in PIO only mode ?
+Fix compiler warnings about strict type checking with the max macro.
 
-yes, I think you just have to have the pci_set_dma_mask fail with
-DMA30BIT_MASK.
+Signed-off-by: Kylie Hall <kjhall@us.ibm.com>
+---
+ drivers/char/tpm/tpm.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
-regards,
+--- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm.c	2006-04-11 17:30:57.612009250 -0500
++++ linux-2.6.17-rc1/drivers/char/tpm/tpm.c	2006-04-11 17:19:30.969096750 -0500
+@@ -490,7 +490,7 @@ static ssize_t transmit_cmd(struct tpm_c
+ 
+ void tpm_gen_interrupt(struct tpm_chip *chip)
+ {
+-	u8 data[max(ARRAY_SIZE(tpm_cap), 30)];
++	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 30)];
+ 	ssize_t rc;
+ 
+ 	memcpy(data, tpm_cap, sizeof(tpm_cap));
+@@ -504,7 +504,7 @@ EXPORT_SYMBOL_GPL(tpm_gen_interrupt);
+ 
+ void tpm_get_timeouts(struct tpm_chip *chip)
+ {
+-	u8 data[max(ARRAY_SIZE(TPM_CAP), 30)];
++	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 30)];
+ 	ssize_t rc;
+ 	u32 timeout;
+ 
+@@ -577,7 +577,7 @@ EXPORT_SYMBOL_GPL(tpm_continue_selftest)
+ ssize_t tpm_show_enabled(struct device * dev, struct device_attribute * attr,
+ 			char *buf)
+ {
+-	u8 data[max(ARRAY_SIZE(tpm_cap), 30)];
++	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 30)];
+ 	ssize_t rc;
+ 
+ 	struct tpm_chip *chip = dev_get_drvdata(dev);
+@@ -599,7 +599,7 @@ EXPORT_SYMBOL_GPL(tpm_show_enabled);
+ ssize_t tpm_show_active(struct device * dev, struct device_attribute * attr,
+ 			char *buf)
+ {
+-	u8 data[max(ARRAY_SIZE(tpm_cap), 35)];
++	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 35)];
+ 	ssize_t rc;
+ 
+ 	struct tpm_chip *chip = dev_get_drvdata(dev);
+@@ -672,7 +672,7 @@ static const u8 pcrread[] = {
+ ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[max(max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(pcrread)), 30)];
++	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(pcrread)), 30)];
+ 	ssize_t rc;
+ 	int i, j, num_pcrs;
+ 	__be32 index;
+@@ -789,7 +789,7 @@ static const u8 cap_version[] = {
+ ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[max(max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
++	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
+ 	ssize_t rc;
+ 	char *str = buf;
+ 
+@@ -829,7 +829,7 @@ EXPORT_SYMBOL_GPL(tpm_show_caps);
+ ssize_t tpm_show_caps_1_2(struct device * dev,
+ 			  struct device_attribute * attr, char *buf)
+ {
+-	u8 data[max(max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
++	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
+ 	ssize_t len;
+ 	char *str = buf;
+ 
 
-Benoit
 
--- 
-powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS

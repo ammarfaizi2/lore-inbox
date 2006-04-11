@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWDKFtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWDKGIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWDKFtt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 01:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWDKFtt
+	id S932141AbWDKGIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 02:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWDKGIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 01:49:49 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:45491
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751233AbWDKFts (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 01:49:48 -0400
-Date: Mon, 10 Apr 2006 22:49:33 -0700 (PDT)
-Message-Id: <20060410.224933.39567033.davem@davemloft.net>
-To: benh@kernel.crashing.org
-Cc: benoit.boissinot@ens-lyon.org, mb@bu3sch.de, netdev@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org,
-       linville@tuxdriver.com
-Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1144719972.19353.24.camel@localhost.localdomain>
-References: <200604100607.33362.mb@bu3sch.de>
-	<20060410042228.GN27596@ens-lyon.fr>
-	<1144719972.19353.24.camel@localhost.localdomain>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 11 Apr 2006 02:08:25 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:695 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932141AbWDKGIY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 02:08:24 -0400
+Date: Tue, 11 Apr 2006 14:05:27 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] de_thread: Don't confuse users do_each_thread.
+Message-ID: <20060411100527.GA112@oleg>
+References: <20060406220403.GA205@oleg> <m1acay1fbh.fsf@ebiederm.dsl.xmission.com> <20060407234653.GB11460@oleg> <20060407155113.37d6a3b3.akpm@osdl.org> <20060407155619.18f3c5ec.akpm@osdl.org> <m1d5fslcwx.fsf@ebiederm.dsl.xmission.com> <20060408172745.GA89@oleg> <m1y7yddo75.fsf_-_@ebiederm.dsl.xmission.com> <m1u091dnry.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1u091dnry.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Date: Tue, 11 Apr 2006 11:46:12 +1000
+On 04/10, Eric W. Biederman wrote:
+>
+> I believe this is 2.6.17 material as the bug is present in
+> 2.6.17-rc1 and the fix is simple.
+>
+> ...
+>
+> +		list_del_init(&leader->tasks);
 
-> But ppc64 hits the problem and at this point, there is nothing
-> I can do other than either implementing a split zone allocation mecanism
-> in the ppc64 architecture for the sole sake of bcm43xx (ick !) or doing
-> some trick with the iommu...
+I beleive this is ok for 2.6.17-rc1, but this breaks lockless
+for_each_process/while_each_thread (I am talking about -mm tree).
 
-I think allowing DMA mask range limiting in the IOMMU layer is going
-to set a very bad precedence, just don't do it.
+Andrew, could you please drop these ones:
 
-It's 2006, we should be way past the era of not putting the full 32
-PCI DMA address bits in devices.  In this day and age it is simply
-inexscusable.
+	task-make-task-list-manipulations-rcu-safe-fix.patch
+	task-make-task-list-manipulations-rcu-safe-fix-fix.patch
 
-Maybe we could understand chips coming out 8 years ago when a lot of
-designs were transitioning from ISA to PCI, but that no longer applies
-in any way today.
+Then we need this "patch" for de_thread:
+
+-		list_add_tail_rcu(&current->tasks, &init_task.tasks);
++		list_replace_rcu(&leader->tasks, &current->tasks);
+ ...
+-		list_del_init(&leader->tasks);
+
+Currently I don't know how the code looks in -mm tree, I lost the plot.
+
+Oleg.
+

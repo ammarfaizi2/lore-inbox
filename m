@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWDKSlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWDKSlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWDKSlP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 14:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWDKSlP
+	id S1750908AbWDKSlz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 14:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWDKSlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 14:41:15 -0400
-Received: from nproxy.gmail.com ([64.233.182.190]:18897 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750866AbWDKSlP (ORCPT
+	Tue, 11 Apr 2006 14:41:55 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:21141 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750899AbWDKSlx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 14:41:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=LHyLmFiSRwzjNady8GqnuaiRlVJDAiKNA25zMnfJO1OxYk4xOMHTJtk/RR6GAkmbHIsD3RMdd8eQsF7IVOr8zrFcawJfSqyw3svGK4TiJANYhdBKMtkHsLOqoyBMac8mVDOxCQIYFUqkT5NDWfr1u0G5P9Ey4Q7G5LmaV+6qLJk=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] mtd, nettel: fix build error and implicit declaration
-Date: Tue, 11 Apr 2006 20:41:49 +0200
-User-Agent: KMail/1.9.1
-Cc: Greg Ungerer <gerg@snapgear.com>, dwmw2@infradead.org
+	Tue, 11 Apr 2006 14:41:53 -0400
+Date: Tue, 11 Apr 2006 20:41:42 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 40% IDE performance regression going from FC3 to FC5 with same
+ kernel
+In-Reply-To: <5a4c581d0604111104y65f35e68ha9a5ff7e4061a9ea@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0604112040360.25940@yvahk01.tjqt.qr>
+References: <5a4c581d0604080747w61464d48k5480391d98b2bc47@mail.gmail.com> 
+ <5a4c581d0604080834k7961aff5l7794b8893325a90c@mail.gmail.com> 
+ <1144511112.2989.8.camel@laptopd505.fenrus.org> 
+ <5a4c581d0604080927g532b6d10y7992d9adb4e63d08@mail.gmail.com> 
+ <1144514167.2989.10.camel@laptopd505.fenrus.org> 
+ <5a4c581d0604081007t32863bf4n1253ebd8352dbf35@mail.gmail.com> 
+ <Pine.LNX.4.61.0604111325140.928@yvahk01.tjqt.qr>
+ <5a4c581d0604111104y65f35e68ha9a5ff7e4061a9ea@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604112041.49689.jesper.juhl@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just hit the following error and warning : 
-  drivers/mtd/maps/nettel.c: In function `nettel_init':
-  drivers/mtd/maps/nettel.c:418: error: `ROOT_DEV' undeclared (first use in this function)
-  drivers/mtd/maps/nettel.c:418: error: (Each undeclared identifier is reported only once
-  drivers/mtd/maps/nettel.c:418: error: for each function it appears in.)
-  drivers/mtd/maps/nettel.c:418: warning: implicit declaration of function `MKDEV'
-  make[3]: *** [drivers/mtd/maps/nettel.o] Error 1
-  make[2]: *** [drivers/mtd/maps] Error 2
-  make[1]: *** [drivers/mtd] Error 2
-The patch fixes the missing ROOT_DEV declaration by including linux/root_dev.h
-and fixes the implicit declaration of MKDEV by including linux/kdev_t.h .
+>> Compile a non-initrd kernel and run it with the -b parameter (it's passed
+>> to /sbin/init). From that shell, run your speed test. What does it show?
+>
+>All my kernels are non-initrd (as long as I can do this in Fedora,
+> I will do that). How do I pass -b to init ?
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- drivers/mtd/maps/nettel.c |    2 ++
- 1 files changed, 2 insertions(+)
-
---- linux-2.6.17-rc1-git4-orig/drivers/mtd/maps/nettel.c	2006-04-09 13:58:20.000000000 +0200
-+++ linux-2.6.17-rc1-git4/drivers/mtd/maps/nettel.c	2006-04-11 20:30:37.000000000 +0200
-@@ -20,6 +20,8 @@
- #include <linux/mtd/partitions.h>
- #include <linux/mtd/cfi.h>
- #include <linux/reboot.h>
-+#include <linux/kdev_t.h>
-+#include <linux/root_dev.h>
- #include <asm/io.h>
- 
- /****************************************************************************/
+Any arguments on the kernel boot command line ("append" in lilo.conf or 
+equivalent in grub) are passed down to the master process, as specified by 
+the init= boot option, if any (defaults to /sbin/init for non-initrd 
+kernels, defaults to /init for initramfs, and defaults to something else 
+for initrds).
 
 
-
-
-
+Jan Engelhardt
+-- 

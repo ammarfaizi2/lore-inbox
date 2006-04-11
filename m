@@ -1,63 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWDKBVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWDKBaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWDKBVV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 21:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWDKBVV
+	id S932182AbWDKBaj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 21:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWDKBaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 21:21:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51881 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932131AbWDKBVU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 21:21:20 -0400
+	Mon, 10 Apr 2006 21:30:39 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28691 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932182AbWDKBai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 21:30:38 -0400
+Date: Tue, 11 Apr 2006 03:30:36 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: chris@zankel.net
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: [BUG] sizeof(struct async_icount) exported to userspace on SH, SH64 and xtensa (fwd)
+Message-ID: <20060411013036.GA3190@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] coredump: kill ptrace related stuff
-In-Reply-To: Oleg Nesterov's message of  Monday, 10 April 2006 17:35:52 +0400 <20060410133511.GA85@oleg>
-X-Shopping-List: (1) Ardent squirrel ghost-melts
-   (2) Inconvenient console winters
-   (3) Coherent anarchic tensions
-   (4) Inefficient companion rails
-Message-Id: <20060411012109.4DB3A1809D1@magilla.sf.frob.com>
-Date: Mon, 10 Apr 2006 18:21:09 -0700 (PDT)
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It turns out I misread SIGNAL_GROUP_EXIT check in ptrace_stop(),
-> didn't notice '(->parent->signal != current->signal) ||' before
-> it.
+Chris,
 
-I thought that might have been it.
+now that the sh people have fixed it on their ports, xtensa is the only 
+port with this issue.
 
-> Do you see any solution which doesn't need tasklist_lock to be
-> held while traversing global process list?
+Please fix it.
 
-Eh, kind of, but I'm not sure I want to get into it.  This only comes up in
-a pathological case and we don't actually take the lock unless the weird
-case really happened.  My inclination is to get the rest of the cleanups
-and optimizations ironed out and merged in first.  Then we can revisit this
-oddball case later on.
-
-> > > 	3. Can't go to do_signal_stop() after return
-> > > 	   from ptrace_stop() in get_signal_to_deliver()
-> >
-> > This is only true because of the check in get_signal_to_deliver,
-> > which I've said I think should be taken out for other reasons.
->
-> Yes, changelog refers to SIGNAL_GROUP_EXIT check in get_signal_to_deliver.
-> However, do_signal_stop() returns 0 when it doesn't see SIGNAL_STOP_DEQUEUED,
-> (which was cleared by SIGNAL_GROUP_EXIT), so I think we don't depend on
-> SIGNAL_GROUP_EXIT check in get_signal_to_deliver. No?
-
-Ah yes, you are right.  So there is no conflict with removing the check as
-I want to do.
+TIA
+Adrian
 
 
-Thanks,
-Roland
+----- Forwarded message from Russell King <rmk+lkml@arm.linux.org.uk> -----
+
+Date:	Sat, 21 Jan 2006 18:57:12 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: chris@zankel.net, lethal@linux-sh.org
+Subject: [BUG] sizeof(struct async_icount) exported to userspace on SH, SH64 and xtensa
+
+I've just been looking through the remaining cruft in the serial
+drivers, and have come across this silly thing:
+
+TIOCGICOUNT exports a structure to userspace called
+struct serial_icounter_struct.
+
+However, sh, sh64 and xtensa do this:
+
+include/asm-sh/ioctls.h:#define TIOCGICOUNT     _IOR('T', 93, struct async_icount) /* 0x545D */ /* read serial port inline interrupt counts */
+include/asm-sh64/ioctls.h:#define TIOCGICOUNT   0x802c545d      /* _IOR('T', 93, struct async_icount) 0x545D */ /* read serial port inline interrupt counts */
+include/asm-xtensa/ioctls.h:#define TIOCGICOUNT _IOR('T', 93, struct async_icount) /* read serial port inline interrupt counts */
+
+What's more is that no driver actually exports async_icount, and
+async_icount is a kernel internal structure which does _not_ form
+part of the public API, and modifications to this will result in
+unexpected breakage on these platforms.
+
+100% for trying to clean up the tty ioctl definitions.  0% for
+using the wrong structures.  As such, these _require_ fixing.
+
+Please document that your TIOCGICOUNT is broken and remove the
+dependence on the async_icount structure.  Thanks.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

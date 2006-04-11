@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWDKUii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWDKUkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750933AbWDKUii (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 16:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWDKUii
+	id S1751384AbWDKUkh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 16:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWDKUkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 16:38:38 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:65243 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750933AbWDKUih (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 16:38:37 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Christian Heimanns <ch.heimanns@gmx.de>
-Subject: Re: Suspend to disk
-Date: Tue, 11 Apr 2006 22:38:06 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       Pavel Machek <pavel@suse.cz>
-References: <443C0C2D.1020207@gmx.de> <200604112235.18943.rjw@sisk.pl>
-In-Reply-To: <200604112235.18943.rjw@sisk.pl>
+	Tue, 11 Apr 2006 16:40:37 -0400
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:41645 "EHLO
+	mtaout01-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1751384AbWDKUkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 16:40:36 -0400
+Message-ID: <443C1738.20605@gentoo.org>
+Date: Tue, 11 Apr 2006 21:53:12 +0100
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mail/News 1.5 (X11/20060401)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: John Heffner <jheffner@psc.edu>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17 regression: Very slow net transfer from some hosts
+References: <443C03E6.7080202@gentoo.org> <443C024C.2070107@psc.edu> <443C0B74.50305@gentoo.org> <443C09A7.2040900@psc.edu>
+In-Reply-To: <443C09A7.2040900@psc.edu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604112238.07166.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[update]
-
-On Tuesday 11 April 2006 22:35, Rafael J. Wysocki wrote:
-> On Tuesday 11 April 2006 22:06, Christian Heimanns wrote:
-> > Hello to all,
-> > following situation:
-> > On my notebook Samsung X20 1730V I'm running Slackware 10.2 current with
-> > kernel 2.6.15.6. Suspend to RAM and suspend to disk works fine.
-> > Since kernel >= 2.6.16 suspend to disk breaks the restore of the
-> > X-Server. That means that the current sessions is lost and the X-Server
-> > restarts.
+John Heffner wrote:
+>> tcp_wmem: 4096    16384   131072
+>> tcp_rmem: 4096    87380   174760
+>> tcp_mem: 98304   131072  196608
 > 
-> Does it resume successfully without X (ie. runlevel 3)?
-> 
-> > No problems with suspend to RAM. Please find attached the 
-> > dmesg output for kernel 2.6.15.6 and 2.6.16.2. As well there is the
-> > output frpm lspci. The only difference I can find is that I have with
-> > kernel 2.6.16 some
-> 
-> Do you use a framebuffer driver and if so, is it modular?
+> These are (I assume) with the patch reversed.  What are the values with 
+> the patch applied?
 
-Sorry, I see in the logs that you do.  Could you please boot with vga=normal
-and see if that helps?
+Yes- that was on a good kernel, with the patch reversed.
 
-Rafael
+On a bad kernel, with the patch applied (2.6.16-git16):
+
+tcp_wmem: 4096    16384   4194304
+tcp_rmem: 4096    87380   4194304
+tcp_mem: 98304   131072  196608
+
+They seem to be identical, which makes sense, since most websites work 
+just fine.
+
+I am sending tcpdump's privately to you and Stephen. If anyone else 
+wants to see them, just ask.
+
+Daniel

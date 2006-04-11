@@ -1,95 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWDKOfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWDKOhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWDKOfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 10:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWDKOfJ
+	id S1751303AbWDKOhP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 10:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWDKOhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 10:35:09 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:3811 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751020AbWDKOfH (ORCPT
+	Tue, 11 Apr 2006 10:37:14 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:59029 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751303AbWDKOhN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 10:35:07 -0400
-Date: Tue, 11 Apr 2006 07:35:31 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] kernel/rcupdate.c: kill synchronize_kernel()
-Message-ID: <20060411143531.GA1295@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060411035100.GD3190@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060411035100.GD3190@stusta.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 11 Apr 2006 10:37:13 -0400
+Message-ID: <443BC0BC.4000600@sw.ru>
+Date: Tue, 11 Apr 2006 18:44:12 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Poetzl <herbert@13thfloor.at>, Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>	<1143228339.19152.91.camel@localhost.localdomain>	<4428BB5C.3060803@tmr.com> <20060328085206.GA14089@MAIL.13thfloor.at>	<4428FB29.8020402@yahoo.com.au>	<20060328142639.GE14576@MAIL.13thfloor.at>	<44294BE4.2030409@yahoo.com.au> <m1psk5kcpj.fsf@ebiederm.dsl.xmission.com> <442B4FD6.1050600@yahoo.com.au> <443B85B4.7030009@sw.ru> <443B8F89.8070608@yahoo.com.au>
+In-Reply-To: <443B8F89.8070608@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Adrian,
+>> Nick, OpenVZ, for example, uses "User Bean Counters" patch originally 
+>> developed by Alan Cox. The good thing is that it is fully separate 
+>> from virtualization and allows to control any users or set of 
+>> processes. Don't you think it is valuable and helpful feature itself? 
+>> Why are you afraid of resource management?
+> 
+> 
+> I'm afraid of resource management because I've seen things like the
+> ckrm cpu resource manager.
+Ohhhhh... Now I see :)
+CKRM is using too much heavy framework, with hierarchical settings and 
+so on, but little practical things.
 
-This one is on my list for May 1st.  At that time, I will submit a
-patch such that:
+Our approach is totally different, we make it simple and straitforward 
+and all resource management features are compile-time configurable.
 
-o	synchronize_kernel() goes away
+> Considering we tend to mostly have only per-process resource management,
+> low level virtualisation seems like a much better place to do this.
+it depends. if you want trully secure environment in Linux, resource 
+management is a MUST. Also, per-process management is not natural from 
+user POV.
 
-o	call_rcu() and call_rcu_bh() become EXPORT_SYMBOL_GPL().
+Thanks,
+Kirill
 
-						Thanx, Paul
-
-On Tue, Apr 11, 2006 at 05:51:01AM +0200, Adrian Bunk wrote:
-> synchronize_kernel() is both deprecated and completely unused.
-> 
-> Let's kill this bloat.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  Documentation/RCU/whatisRCU.txt |    1 -
->  include/linux/rcupdate.h        |    1 -
->  kernel/rcupdate.c               |    9 ---------
->  3 files changed, 11 deletions(-)
-> 
-> --- linux-2.6.17-rc1-mm2-full/Documentation/RCU/whatisRCU.txt.old	2006-04-11 01:23:39.000000000 +0200
-> +++ linux-2.6.17-rc1-mm2-full/Documentation/RCU/whatisRCU.txt	2006-04-11 01:23:45.000000000 +0200
-> @@ -790,7 +790,6 @@
->  
->  RCU grace period:
->  
-> -	synchronize_kernel (deprecated)
->  	synchronize_net
->  	synchronize_sched
->  	synchronize_rcu
-> --- linux-2.6.17-rc1-mm2-full/include/linux/rcupdate.h.old	2006-04-11 01:23:53.000000000 +0200
-> +++ linux-2.6.17-rc1-mm2-full/include/linux/rcupdate.h	2006-04-11 01:24:28.000000000 +0200
-> @@ -263,7 +263,6 @@
->  				void (*func)(struct rcu_head *head)));
->  extern void FASTCALL(call_rcu_bh(struct rcu_head *head,
->  				void (*func)(struct rcu_head *head)));
-> -extern __deprecated_for_modules void synchronize_kernel(void);
->  extern void synchronize_rcu(void);
->  void synchronize_idle(void);
->  extern void rcu_barrier(void);
-> --- linux-2.6.17-rc1-mm2-full/kernel/rcupdate.c.old	2006-04-11 01:24:36.000000000 +0200
-> +++ linux-2.6.17-rc1-mm2-full/kernel/rcupdate.c	2006-04-11 01:24:57.000000000 +0200
-> @@ -593,14 +593,6 @@
->  	wait_for_completion(&rcu.completion);
->  }
->  
-> -/*
-> - * Deprecated, use synchronize_rcu() or synchronize_sched() instead.
-> - */
-> -void synchronize_kernel(void)
-> -{
-> -	synchronize_rcu();
-> -}
-> -
->  module_param(blimit, int, 0);
->  module_param(qhimark, int, 0);
->  module_param(qlowmark, int, 0);
-> @@ -611,4 +603,3 @@
->  EXPORT_SYMBOL_GPL_FUTURE(call_rcu);	/* WARNING: GPL-only in April 2006. */
->  EXPORT_SYMBOL_GPL_FUTURE(call_rcu_bh);	/* WARNING: GPL-only in April 2006. */
->  EXPORT_SYMBOL_GPL(synchronize_rcu);
-> -EXPORT_SYMBOL_GPL_FUTURE(synchronize_kernel); /* WARNING: GPL-only in April 2006. */
-> 

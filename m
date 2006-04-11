@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWDKWY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWDKW3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWDKWY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 18:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWDKWY1
+	id S1751179AbWDKW3i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 18:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWDKW3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 18:24:27 -0400
-Received: from mx0.karneval.cz ([81.27.192.107]:54929 "EHLO av1.karneval.cz")
-	by vger.kernel.org with ESMTP id S1751164AbWDKWY1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 18:24:27 -0400
-Message-ID: <443C2CA7.6000800@gmail.com>
-Date: Wed, 12 Apr 2006 00:24:39 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Bernard Pidoux <pidoux@ccr.jussieu.fr>
-CC: linux-kernel@vger.kernel.org, Bernard Pidoux <bpidoux@free.fr>
-Subject: Re: [kernel 2.6] Patch for mxser.c driver
-References: <443C1DA0.1030004@ccr.jussieu.fr>
-In-Reply-To: <443C1DA0.1030004@ccr.jussieu.fr>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Apr 2006 18:29:38 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:12183 "EHLO
+	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1751173AbWDKW3h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 18:29:37 -0400
+Date: Wed, 12 Apr 2006 00:30:24 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "David S. Miller" <davem@davemloft.net>, mb@bu3sch.de,
+       netdev@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
+       linux-kernel@vger.kernel.org, linville@tuxdriver.com
+Subject: Re: [RFC/PATCH] remove unneeded check in bcm43xx
+Message-ID: <20060411223024.GA6543@ens-lyon.fr>
+References: <1144719972.19353.24.camel@localhost.localdomain> <20060410.224933.39567033.davem@davemloft.net> <1144788541.19353.41.camel@localhost.localdomain> <20060411.143407.74615246.davem@davemloft.net> <1144794077.19353.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144794077.19353.53.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Apr 12, 2006 at 08:21:17AM +1000, Benjamin Herrenschmidt wrote:
+> 
+> > I still think we shouldn't reward shit hardware by complicating
+> > up our DMA mappings internals. :-)
+> 
+> BTW. In the meantime, can't that driver work in PIO only mode ?
 
-Bernard Pidoux napsal(a):
-> Hi,
-> 
-> mxser driver in kernel 2.6.16 can compile but it does not drive the
-> serial multiport adapter from Moxa.
-> 
-> According to Moxa documentation for version 1.8, msmknod script,
-> downloaded from their support site, creates ttyM0-7 and cum0-7 tty
-> devices with major numbers 30 and 35 by defaults.
-Anyway, it should be /proc/devices dependent.
+yes, I think you just have to have the pci_set_dma_mask fail with
+DMA30BIT_MASK.
 
 regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFEPCynMsxVwznUen4RAgUVAKDCCrpJ+Gc6C08k1PmwB/k1aELs/ACfUIA9
-RxAwuNyDP0mrPLbx2bn9OFk=
-=VGac
------END PGP SIGNATURE-----
+Benoit
+
+-- 
+powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS

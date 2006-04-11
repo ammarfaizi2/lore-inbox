@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWDKMvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWDKNAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWDKMvH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 08:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWDKMvH
+	id S1750811AbWDKNAb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 09:00:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWDKNAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 08:51:07 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:57853 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750809AbWDKMvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 08:51:06 -0400
-Date: Tue, 11 Apr 2006 08:50:52 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: 2.6.16.1 breaks pipes and amanda
+	Tue, 11 Apr 2006 09:00:31 -0400
+Received: from pproxy.gmail.com ([64.233.166.179]:61937 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750811AbWDKNAb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 09:00:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=Lke5vMO9LbjXxnnCVlAwB9GR2vC1ugfjB+mFTeZ7b46zVsubB67sSoAInq7bGw3cUwZiHmbkEHrEMprr3TP9h8Gk100/0DqcV7MlWwJOL27a0082fnbvcGkBiQj1PvEGc+YgfD5kQ/O/P1TaZXV2vh7o1LlUBrOwZkWEL8TYLDE=
+Date: Tue, 11 Apr 2006 21:00:24 +0800
+From: lepton <ytht.net@gmail.com>
 To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizononline.net
-Message-id: <200604110850.53092.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+Subject: [PATCH] asm-i386/atomic.h: local_irq_save should be used instead of local_irq_disable
+Message-ID: <20060411130024.GA3364@gsy2.lepton.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+Hi!
+	When I read the kernel codes, I think this perhaps be a little
+	bug, What do you think about this?
 
-Amanda has failed on several, apparently randomly chosen disklist 
-entries for the last 2 nights, due to what it calls a broken pipe in 
-the dbg logs and in the email the dear girl sends me.
+	See the following patch (against 2.6.16.3)
 
-This is with amanda-2.5.0-20060405, which coverity says is totally 
-clean.
+Signed-off-by: Lepton Wu <ytht.net@gmail.com>
 
-Another problem being logged in the amanda-dbg directory is that the 
-disklist entry prior to the failures in the logs had mysteriously been 
-changed to use the DUMP program rather than GNUTAR, and none of my 
-dle's use a dumptype specifying DUMP, all are GNUTAR.
-
-I rebooted to plain 2.6.16 early this morning, and edited amanda's 
-crontab to start a new backup 3 minutes after the edit, and amanda is 
-now apparently happy again (for this run anyway).
-
-There are no entries in the /var/log/messages file during the time of 
-this mornings failure, nor were there any entries 
-in /var/log/messages.1 for the previously failed runs time frame.
-
-If the amanda logs for the failures should be posted, I have merged the 
-20060411 logs from the dbg dir into one file, but its about 440k.  Your 
-call.
-
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+diff -pru linux-2.6-curr.orig/include/asm-i386/atomic.h linux-2.6-curr.lepton/include/asm-i386/atomic.h
+--- linux-2.6-curr.orig/include/asm-i386/atomic.h	2006-04-06 09:21:53.000000000 +0800
++++ linux-2.6-curr.lepton/include/asm-i386/atomic.h	2006-04-11 20:47:39.000000000 +0800
+@@ -189,6 +189,7 @@ static __inline__ int atomic_add_return(
+ {
+ 	int __i;
+ #ifdef CONFIG_M386
++	unsigned long flags;
+ 	if(unlikely(boot_cpu_data.x86==3))
+ 		goto no_xadd;
+ #endif
+@@ -202,10 +203,10 @@ static __inline__ int atomic_add_return(
+ 
+ #ifdef CONFIG_M386
+ no_xadd: /* Legacy 386 processor */
+-	local_irq_disable();
++	local_irq_save(flags);
+ 	__i = atomic_read(v);
+ 	atomic_set(v, i + __i);
+-	local_irq_enable();
++	local_irq_restore(flags);
+ 	return i + __i;
+ #endif
+ }

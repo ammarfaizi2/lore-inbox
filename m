@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWDKQPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWDKQU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWDKQPj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 12:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWDKQPj
+	id S1750964AbWDKQU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 12:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWDKQU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 12:15:39 -0400
-Received: from smtpout.mac.com ([17.250.248.97]:24269 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750961AbWDKQPi (ORCPT
+	Tue, 11 Apr 2006 12:20:57 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:18318 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1750914AbWDKQU4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 12:15:38 -0400
-In-Reply-To: <20060411154944.65714.qmail@web54308.mail.yahoo.com>
-References: <20060411154944.65714.qmail@web54308.mail.yahoo.com>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <DCEBF051-8627-44BC-B15C-7E716E1E509B@mac.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: GPL issues
-Date: Tue, 11 Apr 2006 12:15:34 -0400
-To: Ramakanth Gunuganti <rgunugan@yahoo.com>
-X-Mailer: Apple Mail (2.746.3)
+	Tue, 11 Apr 2006 12:20:56 -0400
+Date: Tue, 11 Apr 2006 18:20:55 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Bill Davidsen <davidsen@tmr.com>, Kir Kolyshkin <kir@openvz.org>,
+       akpm@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net,
+       linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+Message-ID: <20060411162055.GA22367@MAIL.13thfloor.at>
+Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
+	Bill Davidsen <davidsen@tmr.com>, Kir Kolyshkin <kir@openvz.org>,
+	akpm@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+	sam@vilain.net, linux-kernel@vger.kernel.org,
+	"Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
+	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+References: <1143228339.19152.91.camel@localhost.localdomain> <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com> <443B873B.9040908@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <443B873B.9040908@sw.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 11, 2006, at 11:49:44, Ramakanth Gunuganti wrote:
-> Thanks for the replies, talking to a lawyer seems to be too  
-> stringent a requirement to even evaluate Linux.  Who would be the  
-> ultimate authority to give definitive answers to these questions?
+On Tue, Apr 11, 2006 at 02:38:51PM +0400, Kirill Korotaev wrote:
+> Bill,
+> 
+> >>OpenVZ will have live zero downtime migration and suspend/resume some 
+> >>time next month.
+> >>
+> >Please clarify. Currently a migration involves:
+> >- stopping or suspending the instance
+> >- backing up the instance and all of its data
+> >- creating an environment for the instance on a new machine
+> >- transporting the data to a new machine
+> >- installing the instance and all data
+> >- starting the instance
+> 
+> >If you could just briefly cover how you do each of these steps with zero
+> >downtime...
+> 
+> it does exactly what you wrote with some minor steps such as networking 
+> stop on source and start on destination etc.
+> 
+> So I would detailed it like this:
+> - freeze VPS
+> - freeze networking
+> - copy VPS data to destination
+> - dump VPS
 
-Once again, as I said before, a lawyer.  There are currently very few  
-GPL-related precedents, and none on that particular topic.  The best  
-place to get advice is a lawyer.   Think of it as though you were  
-licensing some code from another proprietary company for inclusion in  
-your product; there you would _definitely_ talk to a lawyer.  The  
-"ultimate authority" is your local/regional/national courts, a local  
-lawyer is best able to use your particular set of laws to interpret  
-what your courts are likely to decide and advise you accordingly.   
-Nobody on this list can give you that kind of legal advice, at least  
-not for free.
+IIRC, Xen does some kind of repetitive sync of
+memory pages to allow the 'original' to continue
+running for as long as possible, so pages and
+structures get resynced until it looks like the
+migration would require only a few pages to be
+synced for the final move, then it does the actual
+move ...
 
-> Since it's the Linux kernel that's under GPLv2, any work done here  
-> should be released under GPLv2.
+> - copy dump to the destination
+> - restore VPS
+> - unfreeze VPS
+> - kill original VPS on source
+> 
+> Moreover, in OpenVZ live migration allows to migrate 32bit VPSs between 
+> i686 and x86-64 Linux machines.
 
-Any "Derivative Work" of the Linux kernel must be licensed under the  
-GPL.  The definition of "Derivative Work" is hard to resolve in  
-detail.  Most kernel developers (including Linus himself) believe  
-that all kernel modules are derivative works due to the unique and  
-variable nature of the in-kernel APIs.  It is almost always held that  
-userspace-only programs are _not_ derivative works.  On the other  
-hand, if you export some kernel-internal API directly to userspace  
-through a syscall, any program that uses it might be considered a  
-derivative work.
+I think that zero downtime is some kind of marketing
+buzzword here, and has nothing to do with the actual
+time the migration takes, which will probably be
+around 20 seconds or so (for larger guests) ...
 
-> Can we just claim that part of the package is under GPL and only  
-> release the source code for the kernel portions.
+best,
+Herbert
 
-It really depends, which is why I suggest you contact a lawyer versed  
-in this field.  Virtually none of the people on this list can give  
-you any definitive answers, especially without access to the product  
-itself, and even then they would most likely just tell you of their  
-personal opinion which has no legal weight whatsoever.
-
-Cheers,
-Kyle Moffett
+> Thanks,
+> Kirill

@@ -1,105 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWDKWbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWDKWbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWDKWbp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 18:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWDKWbp
+	id S1751212AbWDKWbr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 18:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWDKWbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 18:31:45 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:22765 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751192AbWDKWbp
+	Tue, 11 Apr 2006 18:31:47 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:11405 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751176AbWDKWbq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 18:31:45 -0400
-Subject: [PATCH] tpm: compiler cleanup
+	Tue, 11 Apr 2006 18:31:46 -0400
+Subject: [PATCH] tpm: use wait_event return code and msecs_to_jiffies
 From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>,
+To: Nish Aravamudan <nish.aravamudan@gmail.com>,
+       Ingo Oeser <ioe-lkml@rameria.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
        TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-In-Reply-To: <1144789502.12054.18.camel@localhost.localdomain>
-References: <1144679825.4917.10.camel@localhost.localdomain>
-	 <20060411111834.587e4461.akpm@osdl.org>
-	 <1144786558.12054.14.camel@localhost.localdomain>
-	 <200604112245.02443.ioe-lkml@rameria.de>
-	 <1144789502.12054.18.camel@localhost.localdomain>
+In-Reply-To: <29495f1d0604111331t7741e6b2g994c234585a59af0@mail.gmail.com>
+References: <1144679848.4917.15.camel@localhost.localdomain>
+	 <20060410150324.4dd55994.akpm@osdl.org>
+	 <1144786559.12054.15.camel@localhost.localdomain>
+	 <29495f1d0604111331t7741e6b2g994c234585a59af0@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 11 Apr 2006 17:32:35 -0500
-Message-Id: <1144794755.12054.31.camel@localhost.localdomain>
+Date: Tue, 11 Apr 2006 17:32:36 -0500
+Message-Id: <1144794756.12054.32.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix compiler warnings about strict type checking with the max macro.
+On Tue, 2006-04-11 at 13:31 -0700, Nish Aravamudan wrote:
+> Rather than check the condition you slept on right away, couldn't you
+> just store the return value of wait_event_interruptible_timeout()? If
+> it's positive, the condition should be true, if it's negative, then
+> you got a signal, if it's 0, then you timed out. Same would go for the
+> other change.
+
+On Tue, 2006-04-11 at 22:40 +0200, Ingo Oeser wrote:
+> what about using msecs_to_jiffies(chip->vendor.timeout_a) for this?
+
+Great ideas, patch included below.
+
+Update the usage of wait_event calls to utilize the return code and
+msecs_to_jiffies.
 
 Signed-off-by: Kylie Hall <kjhall@us.ibm.com>
 ---
- drivers/char/tpm/tpm.c |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/char/tpm/tpm_tis.c |   28 +++++++++++++++++-----------
+ 1 files changed, 17 insertions(+), 11 deletions(-)
 
---- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm.c	2006-04-11 17:30:57.612009250 -0500
-+++ linux-2.6.17-rc1/drivers/char/tpm/tpm.c	2006-04-11 17:19:30.969096750 -0500
-@@ -490,7 +490,7 @@ static ssize_t transmit_cmd(struct tpm_c
- 
- void tpm_gen_interrupt(struct tpm_chip *chip)
+--- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm_tis.c	2006-04-11 17:36:08.247422750 -0500
++++ linux-2.6.17-rc1/drivers/char/tpm/tpm_tis.c	2006-04-11 17:26:24.134918000 -0500
+@@ -87,6 +87,7 @@ static void release_locality(struct tpm_
+ static int request_locality(struct tpm_chip *chip, int l)
  {
--	u8 data[max(ARRAY_SIZE(tpm_cap), 30)];
-+	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 30)];
- 	ssize_t rc;
+ 	unsigned long stop;
++	long rc;
  
- 	memcpy(data, tpm_cap, sizeof(tpm_cap));
-@@ -504,7 +504,7 @@ EXPORT_SYMBOL_GPL(tpm_gen_interrupt);
+ 	if (check_locality(chip, l) >= 0)
+ 		return l;
+@@ -95,11 +96,14 @@ static int request_locality(struct tpm_c
+ 		 chip->vendor.iobase + TPM_ACCESS(l));
  
- void tpm_get_timeouts(struct tpm_chip *chip)
+ 	if (chip->vendor.irq) {
+-		wait_event_interruptible_timeout(chip->vendor.int_queue,
+-						 (check_locality(chip, l) >= 0),
+-						 HZ * chip->vendor.timeout_a /
+-						 1000);
+-		if (check_locality(chip, l) >= 0)
++		rc = wait_event_interruptible_timeout(chip->vendor.
++						      int_queue,
++						      (check_locality
++						       (chip, l) >= 0),
++						      msecs_to_jiffies
++						      (chip->vendor.
++						       timeout_a));
++		if (rc > 0)
+ 			return l;
+ 
+ 	} else {
+@@ -153,6 +157,7 @@ static int wait_for_stat(struct tpm_chip
+ 			 wait_queue_head_t *queue)
  {
--	u8 data[max(ARRAY_SIZE(TPM_CAP), 30)];
-+	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 30)];
- 	ssize_t rc;
- 	u32 timeout;
+ 	unsigned long stop;
++	long rc;
+ 	u8 status;
  
-@@ -577,7 +577,7 @@ EXPORT_SYMBOL_GPL(tpm_continue_selftest)
- ssize_t tpm_show_enabled(struct device * dev, struct device_attribute * attr,
- 			char *buf)
- {
--	u8 data[max(ARRAY_SIZE(tpm_cap), 30)];
-+	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 30)];
- 	ssize_t rc;
+ 	/* check current status */
+@@ -161,12 +166,13 @@ static int wait_for_stat(struct tpm_chip
+ 		return 0;
  
- 	struct tpm_chip *chip = dev_get_drvdata(dev);
-@@ -599,7 +599,7 @@ EXPORT_SYMBOL_GPL(tpm_show_enabled);
- ssize_t tpm_show_active(struct device * dev, struct device_attribute * attr,
- 			char *buf)
- {
--	u8 data[max(ARRAY_SIZE(tpm_cap), 35)];
-+	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 35)];
- 	ssize_t rc;
- 
- 	struct tpm_chip *chip = dev_get_drvdata(dev);
-@@ -672,7 +672,7 @@ static const u8 pcrread[] = {
- ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
- 		      char *buf)
- {
--	u8 data[max(max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(pcrread)), 30)];
-+	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(pcrread)), 30)];
- 	ssize_t rc;
- 	int i, j, num_pcrs;
- 	__be32 index;
-@@ -789,7 +789,7 @@ static const u8 cap_version[] = {
- ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
- 		      char *buf)
- {
--	u8 data[max(max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
-+	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
- 	ssize_t rc;
- 	char *str = buf;
- 
-@@ -829,7 +829,7 @@ EXPORT_SYMBOL_GPL(tpm_show_caps);
- ssize_t tpm_show_caps_1_2(struct device * dev,
- 			  struct device_attribute * attr, char *buf)
- {
--	u8 data[max(max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
-+	u8 data[max_t(int, max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
- 	ssize_t len;
- 	char *str = buf;
- 
+ 	if (chip->vendor.irq) {
+-		wait_event_interruptible_timeout(*queue,
+-						 ((tpm_tis_status(chip) &
+-						   mask) == mask),
+-						 HZ * timeout / 1000);
+-		status = tpm_tis_status(chip);
+-		if ((status & mask) == mask)
++		rc = wait_event_interruptible_timeout(*queue,
++						      ((tpm_tis_status
++							(chip) & mask) ==
++						       mask),
++						      msecs_to_jiffies
++						      (timeout));
++		if (rc > 0)
+ 			return 0;
+ 	} else {
+ 		stop = jiffies + (HZ * timeout / 1000);
 
 

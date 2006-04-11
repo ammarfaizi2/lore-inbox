@@ -1,85 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWDKNLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWDKNSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWDKNLj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 09:11:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWDKNLj
+	id S1750821AbWDKNSF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 09:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWDKNSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 09:11:39 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:64777 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1750813AbWDKNLi convert rfc822-to-8bit (ORCPT
+	Tue, 11 Apr 2006 09:18:04 -0400
+Received: from mail.axxeo.de ([82.100.226.146]:27346 "EHLO mail.axxeo.de")
+	by vger.kernel.org with ESMTP id S1750818AbWDKNSB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 09:11:38 -0400
+	Tue, 11 Apr 2006 09:18:01 -0400
+From: Ingo Oeser <netdev@axxeo.de>
+Organization: Axxeo GmbH
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: [PATCH] deinline a few large functions in vlan code v2
+Date: Tue, 11 Apr 2006 15:17:36 +0200
+User-Agent: KMail/1.7.2
+Cc: Dave Dillow <dave@thedillows.org>, netdev@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, ioe-lkml@rameria.de
+References: <200604071628.30486.vda@ilport.com.ua> <200604111149.24862.netdev@axxeo.de> <200604111502.52302.vda@ilport.com.ua>
+In-Reply-To: <200604111502.52302.vda@ilport.com.ua>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <20060411130024.GA3364@gsy2.lepton.home>
-x-originalarrivaltime: 11 Apr 2006 13:11:36.0908 (UTC) FILETIME=[769540C0:01C65D69]
-Content-class: urn:content-classes:message
-Subject: Re: [PATCH] asm-i386/atomic.h: local_irq_save should be used instead of local_irq_disable
-Date: Tue, 11 Apr 2006 09:11:31 -0400
-Message-ID: <Pine.LNX.4.61.0604110907060.29348@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] asm-i386/atomic.h: local_irq_save should be used instead of local_irq_disable
-Thread-Index: AcZdaXa9LTkaBEEATNeB2gGPL/NEBg==
-References: <20060411130024.GA3364@gsy2.lepton.home>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "lepton" <ytht.net@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604111517.37215.netdev@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Denis,
 
-On Tue, 11 Apr 2006, lepton wrote:
+Denis Vlasenko wrote:
+> On Tuesday 11 April 2006 12:49, Ingo Oeser wrote:
+> > #if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+> > static inline  has_vlan_group(...) {
+> >   /* get VLAN group */
+> > }
+> > #else
+> > static inline  has_vlan_group(...) {return 0;}
+> > #endif
+> > 
+> > With this and similiar changes in the drivers, 
+> > your patch might be less intrusive and thus more acceptable to maintainers.
+> > 
+> > Just let the compiler remove the extra code with constant folding and dead
+> > code elemination. The result will be even cleaner code, I think.
+> > 
+> > What do you think?
 
-> Hi!
-> 	When I read the kernel codes, I think this perhaps be a little
-> 	bug, What do you think about this?
+I thought more of introducing functions, which just fold away 
+all the "if ()" blocks in normal code paths, 
+which you wrapped into "#if" here. 
+
+I don't think people have problems, if you #ifdef out complete functions,
+linear setup code or structure members. People seem to have more problems
+with #ifdef in control flow code, because there the condition is nothing else but
+a compile time constant (the CONFIG_FOO value) which should be expressed as such.
+
+Instead of 
+
+#ifdef CONFIG_FOO
+if (condition) {
+}
+#endif
+
+just do
+
+#ifdef CONFIG_FOO
+#define foo 1
+#else
+#define foo 0
+#endif
+
+if  (foo && condition) {
+}
+
+Just do nothing or return a compile time constant in those inlines.
+
+> 
+> Addresses of these functions are stored into netdevice members:
 >
-> 	See the following patch (against 2.6.16.3)
->
-> Signed-off-by: Lepton Wu <ytht.net@gmail.com>
->
-> diff -pru linux-2.6-curr.orig/include/asm-i386/atomic.h linux-2.6-curr.lepton/include/asm-i386/atomic.h
-> --- linux-2.6-curr.orig/include/asm-i386/atomic.h	2006-04-06 09:21:53.000000000 +0800
-> +++ linux-2.6-curr.lepton/include/asm-i386/atomic.h	2006-04-11 20:47:39.000000000 +0800
-> @@ -189,6 +189,7 @@ static __inline__ int atomic_add_return(
-> {
-> 	int __i;
-> #ifdef CONFIG_M386
-> +	unsigned long flags;
-> 	if(unlikely(boot_cpu_data.x86==3))
-> 		goto no_xadd;
-> #endif
-> @@ -202,10 +203,10 @@ static __inline__ int atomic_add_return(
->
-> #ifdef CONFIG_M386
-> no_xadd: /* Legacy 386 processor */
-> -	local_irq_disable();
-> +	local_irq_save(flags);
-> 	__i = atomic_read(v);
-> 	atomic_set(v, i + __i);
-> -	local_irq_enable();
-> +	local_irq_restore(flags);
-> 	return i + __i;
-> #endif
-> }
+> @@ -2549,8 +2559,10 @@ typhoon_init_one(struct pci_dev *pdev, c
+>         dev->watchdog_timeo     = TX_TIMEOUT;
+>         dev->get_stats          = typhoon_get_stats;
+>         dev->set_mac_address    = typhoon_set_mac_address;
+> +#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+>         dev->vlan_rx_register   = typhoon_vlan_rx_register;
+>         dev->vlan_rx_kill_vid   = typhoon_vlan_rx_kill_vid;
+> +#endif
+> 
+> Even empty inline would not be "optimized out to nothing" here.
 
-You need to disable interrupts on the local CPU! So, you would need
-to save the flags, disable the interrupts, then restore the flags
-after the atomic operations.
+No problem, just optimize out the assignment itself:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+static inline void typhoon_setup_vlan_hooks(struct netdev *dev) {
+         dev->vlan_rx_register = typhoon_vlan_rx_register;
+         dev->vlan_rx_kill_vid = typhoon_vlan_rx_kill_vid;
+}
+#else
+static inline void typhoon_setup_vlan_hooks(struct netdev *dev) { (void)dev; }
+#endif
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+The whole linux/if_vlan.h stuff misses this style of code.
+There is simply no fallback code for CONFIG_VLAN_8021Q not being defined.
 
-Thank you.
+
+Regards
+
+Ingo Oeser

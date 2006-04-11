@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWDKH1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWDKH1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWDKH1U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 03:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWDKH1U
+	id S932224AbWDKH1h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 03:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWDKH1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 03:27:20 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:1677 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932223AbWDKH1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 03:27:19 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [PATCH] de_thread: Don't confuse users do_each_thread.
-Date: Tue, 11 Apr 2006 09:25:07 +0200
-User-Agent: KMail/1.9.1
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060406220403.GA205@oleg> <200604110152.38861.ioe-lkml@rameria.de> <20060411101923.GB112@oleg>
-In-Reply-To: <20060411101923.GB112@oleg>
+	Tue, 11 Apr 2006 03:27:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60125 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932224AbWDKH1g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 03:27:36 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604110925.08685.ioe-lkml@rameria.de>
+From: Roland McGrath <roland@redhat.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Michael Kerrisk <mtk-lkml@gmx.net>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] fix de_thread() vs do_coredump() deadlock
+In-Reply-To: Oleg Nesterov's message of  Monday, 10 April 2006 21:43:46 +0400 <20060410174346.GA100@oleg>
+X-Windows: the cutting edge of obsolescence.
+Message-Id: <20060411072722.0953A1809BB@magilla.sf.frob.com>
+Date: Tue, 11 Apr 2006 00:27:22 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 11. April 2006 12:19, Oleg Nesterov wrote:
-> On 04/11, Ingo Oeser wrote:
-> >
-> > While you are at it: Could you please avoid calculating current over 
-> > and over again? 
-> > 
-> > Just calculate it once and use the task_struct pointer.
+> So, de_thread() sets SIGNAL_GROUP_EXEC and sends SIGKILL to other thereads.
 > 
-> Ironically, de_thread() has 'tsk' parameter which is equal to 'current'.
+> Sub-thread receives the signal, and calls get_signal_to_deliver->do_group_exit.
+> do_group_exit() calls zap_other_threads(SIGNAL_GROUP_EXIT) because there is no
+> SIGNAL_GROUP_EXIT set. zap_other_threads() notices SIGNAL_GROUP_EXEC, wakes up
+> execer, and changes ->signal->flags to SIGNAL_GROUP_EXIT.
+> 
+> de_thread() re-locks sighand, sees !SIGNAL_GROUP_EXEC and goes to 'dying:'.
 
-That's the thing that made me doubt :-)
+That is what I intend.  The exec'ing thread backs out and processes its SIGKILL.
+It sounds like you are calling this scenario a problem, but I don't know why.
 
-But thinking more about it: current cannot change within one thread, 
-right? So all of this can be cleaned up.
+> Another problem. de_thread() sets '->group_exit_task = current' _only_ if
+> 'atomic_read(&sig->count) > count', so wake_up_process(->group_exit_task)
+> in zap_other_threads() is unsafe.
 
-I'll clean them up tonight and sent out a patch against current -mm.
+Ah, this is indeed a problem when the only other thread is the old leader.
+I think it's easy enough just to set it unconditionally and clear it at the
+end, after the leader too is gone.  i.e., this on top of the previous patch:
+
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -659,8 +659,8 @@ static int de_thread(struct task_struct 
+ 			goto dying;
+ 		}
+ 	}
++	sig->group_exit_task = current;
+ 	while (atomic_read(&sig->count) > count) {
+-		sig->group_exit_task = current;
+ 		sig->notify_count = count;
+ 		__set_current_state(TASK_UNINTERRUPTIBLE);
+ 		spin_unlock_irq(lock);
+@@ -675,7 +675,6 @@ static int de_thread(struct task_struct 
+ 			goto dying;
+ 		}
+ 	}
+-	sig->group_exit_task = NULL;
+ 	sig->notify_count = 0;
+ 	spin_unlock_irq(lock);
+ 
+@@ -774,6 +773,7 @@ static int de_thread(struct task_struct 
+ 	 * but it's safe to stop telling the group to kill themselves.
+ 	 */
+ 	sig->flags = 0;
++	sig->group_exit_task = NULL;
+ 
+ no_thread_group:
+ 	exit_itimers(sig);
 
 
-Regards
 
-Ingo Oeser
+Thanks,
+Roland

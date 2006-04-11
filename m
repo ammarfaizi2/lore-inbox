@@ -1,297 +1,226 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWDKKky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWDKKl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWDKKky (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 06:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWDKKky
+	id S1750725AbWDKKl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 06:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWDKKl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 06:40:54 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:57039 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750722AbWDKKks (ORCPT
+	Tue, 11 Apr 2006 06:41:27 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:60111 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1750729AbWDKKlK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 06:40:48 -0400
+	Tue, 11 Apr 2006 06:41:10 -0400
 From: Mel Gorman <mel@csn.ul.ie>
-To: davej@codemonkey.org.uk, tony.luck@intel.com, ak@suse.de,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+To: linuxppc-dev@ozlabs.org, davej@codemonkey.org.uk, tony.luck@intel.com,
+       ak@suse.de, linux-kernel@vger.kernel.org
 Cc: Mel Gorman <mel@csn.ul.ie>
-Message-Id: <20060411104046.18153.61063.sendpatchset@skynet>
+Message-Id: <20060411104107.18153.61893.sendpatchset@skynet>
 In-Reply-To: <20060411103946.18153.83059.sendpatchset@skynet>
 References: <20060411103946.18153.83059.sendpatchset@skynet>
-Subject: [PATCH 3/6] Have x86 use add_active_range() and free_area_init_nodes
-Date: Tue, 11 Apr 2006 11:40:47 +0100 (IST)
+Subject: [PATCH 4/6] Have x86_64 use add_active_range() and free_area_init_nodes
+Date: Tue, 11 Apr 2006 11:41:07 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Size zones and holes in an architecture independent manner for x86.
+Size zones and holes in an architecture independent manner for x86_64.
 
-This has been boot tested on;
-
-x86 with 4 CPUs, flatmem
-x86 on NUMAQ
-
-It needs to be boot tested on an x86 machine that uses SRAT.
+This has only been boot tested on an x86_64 with NUMA and SRAT.
 
 
- Kconfig        |    8 +---
- kernel/setup.c |   19 +++-------
- kernel/srat.c  |   98 ----------------------------------------------------
- mm/discontig.c |   59 ++++---------------------------
- 4 files changed, 17 insertions(+), 167 deletions(-)
+ arch/x86_64/Kconfig        |    3 ++
+ arch/x86_64/kernel/e820.c  |   18 ++++++++++++
+ arch/x86_64/mm/init.c      |   60 +---------------------------------------
+ arch/x86_64/mm/numa.c      |   15 +++++-----
+ include/asm-x86_64/e820.h  |    1 
+ include/asm-x86_64/proto.h |    2 -
+ 6 files changed, 32 insertions(+), 67 deletions(-)
 
 Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-102-powerpc_use_init_nodes/arch/i386/Kconfig linux-2.6.17-rc1-103-x86_use_init_nodes/arch/i386/Kconfig
---- linux-2.6.17-rc1-102-powerpc_use_init_nodes/arch/i386/Kconfig	2006-04-03 04:22:10.000000000 +0100
-+++ linux-2.6.17-rc1-103-x86_use_init_nodes/arch/i386/Kconfig	2006-04-10 10:53:52.000000000 +0100
-@@ -563,12 +563,10 @@ config ARCH_SELECT_MEMORY_MODEL
- 	def_bool y
- 	depends on ARCH_SPARSEMEM_ENABLE
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-103-x86_use_init_nodes/arch/x86_64/Kconfig linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/Kconfig
+--- linux-2.6.17-rc1-103-x86_use_init_nodes/arch/x86_64/Kconfig	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/Kconfig	2006-04-10 10:54:38.000000000 +0100
+@@ -73,6 +73,9 @@ config ARCH_MAY_HAVE_PC_FDC
+ 	bool
+ 	default y
  
--source "mm/Kconfig"
 +config ARCH_POPULATES_NODE_MAP
 +	def_bool y
- 
--config HAVE_ARCH_EARLY_PFN_TO_NID
--	bool
--	default y
--	depends on NUMA
-+source "mm/Kconfig"
- 
- config HIGHPTE
- 	bool "Allocate 3rd-level pagetables from highmem"
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-102-powerpc_use_init_nodes/arch/i386/kernel/setup.c linux-2.6.17-rc1-103-x86_use_init_nodes/arch/i386/kernel/setup.c
---- linux-2.6.17-rc1-102-powerpc_use_init_nodes/arch/i386/kernel/setup.c	2006-04-03 04:22:10.000000000 +0100
-+++ linux-2.6.17-rc1-103-x86_use_init_nodes/arch/i386/kernel/setup.c	2006-04-10 10:53:52.000000000 +0100
-@@ -1156,22 +1156,15 @@ static unsigned long __init setup_memory
- 
- void __init zone_sizes_init(void)
- {
--	unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
--	unsigned int max_dma, low;
-+	unsigned int max_dma;
-+#ifndef CONFIG_HIGHMEM
-+	unsigned long highend_pfn = max_low_pfn;
-+#endif
- 
- 	max_dma = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
--	low = max_low_pfn;
- 
--	if (low < max_dma)
--		zones_size[ZONE_DMA] = low;
--	else {
--		zones_size[ZONE_DMA] = max_dma;
--		zones_size[ZONE_NORMAL] = low - max_dma;
--#ifdef CONFIG_HIGHMEM
--		zones_size[ZONE_HIGHMEM] = highend_pfn - low;
--#endif
--	}
--	free_area_init(zones_size);
-+	add_active_range(0, 0, highend_pfn);
-+	free_area_init_nodes(max_dma, max_dma, max_low_pfn, highend_pfn);
- }
- #else
- extern unsigned long __init setup_memory(void);
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-102-powerpc_use_init_nodes/arch/i386/kernel/srat.c linux-2.6.17-rc1-103-x86_use_init_nodes/arch/i386/kernel/srat.c
---- linux-2.6.17-rc1-102-powerpc_use_init_nodes/arch/i386/kernel/srat.c	2006-04-03 04:22:10.000000000 +0100
-+++ linux-2.6.17-rc1-103-x86_use_init_nodes/arch/i386/kernel/srat.c	2006-04-10 10:53:52.000000000 +0100
-@@ -56,8 +56,6 @@ struct node_memory_chunk_s {
- static struct node_memory_chunk_s node_memory_chunk[MAXCHUNKS];
- 
- static int num_memory_chunks;		/* total number of memory chunks */
--static int zholes_size_init;
--static unsigned long zholes_size[MAX_NUMNODES * MAX_NR_ZONES];
- 
- extern void * boot_ioremap(unsigned long, unsigned long);
- 
-@@ -137,50 +135,6 @@ static void __init parse_memory_affinity
- 		 "enabled and removable" : "enabled" ) );
++
+ config DMI
+ 	bool
+ 	default y
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-103-x86_use_init_nodes/arch/x86_64/kernel/e820.c linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/kernel/e820.c
+--- linux-2.6.17-rc1-103-x86_use_init_nodes/arch/x86_64/kernel/e820.c	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/kernel/e820.c	2006-04-10 10:54:38.000000000 +0100
+@@ -220,6 +220,24 @@ e820_hole_size(unsigned long start_pfn, 
+ 	return ((end - start) - ram) >> PAGE_SHIFT;
  }
  
--#if MAX_NR_ZONES != 4
--#error "MAX_NR_ZONES != 4, chunk_to_zone requires review"
--#endif
--/* Take a chunk of pages from page frame cstart to cend and count the number
-- * of pages in each zone, returned via zones[].
-- */
--static __init void chunk_to_zones(unsigned long cstart, unsigned long cend, 
--		unsigned long *zones)
--{
--	unsigned long max_dma;
--	extern unsigned long max_low_pfn;
--
--	int z;
--	unsigned long rend;
--
--	/* FIXME: MAX_DMA_ADDRESS and max_low_pfn are trying to provide
--	 * similarly scoped information and should be handled in a consistant
--	 * manner.
--	 */
--	max_dma = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
--
--	/* Split the hole into the zones in which it falls.  Repeatedly
--	 * take the segment in which the remaining hole starts, round it
--	 * to the end of that zone.
--	 */
--	memset(zones, 0, MAX_NR_ZONES * sizeof(long));
--	while (cstart < cend) {
--		if (cstart < max_dma) {
--			z = ZONE_DMA;
--			rend = (cend < max_dma)? cend : max_dma;
--
--		} else if (cstart < max_low_pfn) {
--			z = ZONE_NORMAL;
--			rend = (cend < max_low_pfn)? cend : max_low_pfn;
--
--		} else {
--			z = ZONE_HIGHMEM;
--			rend = cend;
--		}
--		zones[z] += rend - cstart;
--		cstart = rend;
--	}
--}
--
++/* Walk the e820 map and register active regions */
++unsigned long __init
++e820_register_active_regions(void)
++{
++	int i;
++	unsigned long start_pfn, end_pfn;
++	for (i = 0; i < e820.nr_map; i++) {
++		struct e820entry *ei = &e820.map[i];
++		if (ei->type != E820_RAM)
++			continue;
++
++		start_pfn = round_up(ei->addr, PAGE_SIZE);
++		end_pfn = round_down(ei->addr + ei->size, PAGE_SIZE);
++
++		add_active_range(0, start_pfn, end_pfn);
++	}
++}
++
  /*
-  * The SRAT table always lists ascending addresses, so can always
-  * assume that the first "start" address that you see is the real
-@@ -233,7 +187,6 @@ static int __init acpi20_parse_srat(stru
- 
- 	memset(pxm_bitmap, 0, sizeof(pxm_bitmap));	/* init proximity domain bitmap */
- 	memset(node_memory_chunk, 0, sizeof(node_memory_chunk));
--	memset(zholes_size, 0, sizeof(zholes_size));
- 
- 	/* -1 in these maps means not available */
- 	memset(pxm_to_nid_map, -1, sizeof(pxm_to_nid_map));
-@@ -414,54 +367,3 @@ out_err:
- 	printk("failed to get NUMA memory information from SRAT table\n");
- 	return 0;
+  * Mark e820 reserved areas as busy for the resource manager.
+  */
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-103-x86_use_init_nodes/arch/x86_64/mm/init.c linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/mm/init.c
+--- linux-2.6.17-rc1-103-x86_use_init_nodes/arch/x86_64/mm/init.c	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/mm/init.c	2006-04-10 10:54:38.000000000 +0100
+@@ -405,69 +405,13 @@ void __cpuinit zap_low_mappings(int cpu)
+ 	__flush_tlb_all();
  }
--
--/* For each node run the memory list to determine whether there are
-- * any memory holes.  For each hole determine which ZONE they fall
-- * into.
-- *
-- * NOTE#1: this requires knowledge of the zone boundries and so
-- * _cannot_ be performed before those are calculated in setup_memory.
-- * 
-- * NOTE#2: we rely on the fact that the memory chunks are ordered by
-- * start pfn number during setup.
-- */
--static void __init get_zholes_init(void)
+ 
+-/* Compute zone sizes for the DMA and DMA32 zones in a node. */
+-__init void
+-size_zones(unsigned long *z, unsigned long *h,
+-	   unsigned long start_pfn, unsigned long end_pfn)
 -{
--	int nid;
--	int c;
--	int first;
--	unsigned long end = 0;
+- 	int i;
+- 	unsigned long w;
 -
--	for_each_online_node(nid) {
--		first = 1;
--		for (c = 0; c < num_memory_chunks; c++){
--			if (node_memory_chunk[c].nid == nid) {
--				if (first) {
--					end = node_memory_chunk[c].end_pfn;
--					first = 0;
+- 	for (i = 0; i < MAX_NR_ZONES; i++)
+- 		z[i] = 0;
 -
--				} else {
--					/* Record any gap between this chunk
--					 * and the previous chunk on this node
--					 * against the zones it spans.
--					 */
--					chunk_to_zones(end,
--						node_memory_chunk[c].start_pfn,
--						&zholes_size[nid * MAX_NR_ZONES]);
--				}
--			}
+- 	if (start_pfn < MAX_DMA_PFN)
+- 		z[ZONE_DMA] = MAX_DMA_PFN - start_pfn;
+- 	if (start_pfn < MAX_DMA32_PFN) {
+- 		unsigned long dma32_pfn = MAX_DMA32_PFN;
+- 		if (dma32_pfn > end_pfn)
+- 			dma32_pfn = end_pfn;
+- 		z[ZONE_DMA32] = dma32_pfn - start_pfn;
+- 	}
+- 	z[ZONE_NORMAL] = end_pfn - start_pfn;
+-
+- 	/* Remove lower zones from higher ones. */
+- 	w = 0;
+- 	for (i = 0; i < MAX_NR_ZONES; i++) {
+- 		if (z[i])
+- 			z[i] -= w;
+- 	        w += z[i];
+-	}
+-
+-	/* Compute holes */
+-	w = start_pfn;
+-	for (i = 0; i < MAX_NR_ZONES; i++) {
+-		unsigned long s = w;
+-		w += z[i];
+-		h[i] = e820_hole_size(s, w);
+-	}
+-
+-	/* Add the space pace needed for mem_map to the holes too. */
+-	for (i = 0; i < MAX_NR_ZONES; i++)
+-		h[i] += (z[i] * sizeof(struct page)) / PAGE_SIZE;
+-
+-	/* The 16MB DMA zone has the kernel and other misc mappings.
+- 	   Account them too */
+-	if (h[ZONE_DMA]) {
+-		h[ZONE_DMA] += dma_reserve;
+-		if (h[ZONE_DMA] >= z[ZONE_DMA]) {
+-			printk(KERN_WARNING
+-				"Kernel too large and filling up ZONE_DMA?\n");
+-			h[ZONE_DMA] = z[ZONE_DMA];
 -		}
 -	}
 -}
 -
--unsigned long * __init get_zholes_size(int nid)
--{
--	if (!zholes_size_init) {
--		zholes_size_init++;
--		get_zholes_init();
--	}
--	if (nid >= MAX_NUMNODES || !node_online(nid))
--		printk("%s: nid = %d is invalid/offline. num_online_nodes = %d",
--		       __FUNCTION__, nid, num_online_nodes());
--	return &zholes_size[nid * MAX_NR_ZONES];
--}
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-102-powerpc_use_init_nodes/arch/i386/mm/discontig.c linux-2.6.17-rc1-103-x86_use_init_nodes/arch/i386/mm/discontig.c
---- linux-2.6.17-rc1-102-powerpc_use_init_nodes/arch/i386/mm/discontig.c	2006-04-03 04:22:10.000000000 +0100
-+++ linux-2.6.17-rc1-103-x86_use_init_nodes/arch/i386/mm/discontig.c	2006-04-10 10:53:52.000000000 +0100
-@@ -157,21 +157,6 @@ static void __init find_max_pfn_node(int
- 		BUG();
- }
- 
--/* Find the owning node for a pfn. */
--int early_pfn_to_nid(unsigned long pfn)
--{
--	int nid;
--
--	for_each_node(nid) {
--		if (node_end_pfn[nid] == 0)
--			break;
--		if (node_start_pfn[nid] <= pfn && node_end_pfn[nid] >= pfn)
--			return nid;
--	}
--
--	return 0;
--}
--
- /* 
-  * Allocate memory for the pg_data_t for this node via a crude pre-bootmem
-  * method.  For node zero take this from the bottom of memory, for
-@@ -352,45 +337,17 @@ unsigned long __init setup_memory(void)
- void __init zone_sizes_init(void)
+ #ifndef CONFIG_NUMA
+ void __init paging_init(void)
  {
- 	int nid;
+-	unsigned long zones[MAX_NR_ZONES], holes[MAX_NR_ZONES];
 -
-+	unsigned long max_dma_pfn;
+ 	memory_present(0, 0, end_pfn);
+ 	sparse_init();
+-	size_zones(zones, holes, 0, end_pfn);
+-	free_area_init_node(0, NODE_DATA(0), zones,
+-			    __pa(PAGE_OFFSET) >> PAGE_SHIFT, holes);
++	e820_register_active_regions();
++	free_area_init_nodes(MAX_DMA_PFN, MAX_DMA32_PFN, end_pfn, end_pfn);
+ }
+ #endif
  
- 	for_each_online_node(nid) {
--		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
--		unsigned long *zholes_size;
--		unsigned int max_dma;
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-103-x86_use_init_nodes/arch/x86_64/mm/numa.c linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/mm/numa.c
+--- linux-2.6.17-rc1-103-x86_use_init_nodes/arch/x86_64/mm/numa.c	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/mm/numa.c	2006-04-10 10:54:38.000000000 +0100
+@@ -149,13 +149,12 @@ void __init setup_node_bootmem(int nodei
+ void __init setup_node_zones(int nodeid)
+ { 
+ 	unsigned long start_pfn, end_pfn, memmapsize, limit;
+-	unsigned long zones[MAX_NR_ZONES];
+-	unsigned long holes[MAX_NR_ZONES];
+ 
+  	start_pfn = node_start_pfn(nodeid);
+  	end_pfn = node_end_pfn(nodeid);
++	add_active_range(nodeid, start_pfn, end_pfn);
+ 
+-	Dprintk(KERN_INFO "Setting up node %d %lx-%lx\n",
++	Dprintk(KERN_INFO "Setting up memmap for node %d %lx-%lx\n",
+ 		nodeid, start_pfn, end_pfn);
+ 
+ 	/* Try to allocate mem_map at end to not fill up precious <4GB
+@@ -167,10 +166,6 @@ void __init setup_node_zones(int nodeid)
+ 				memmapsize, SMP_CACHE_BYTES, 
+ 				round_down(limit - memmapsize, PAGE_SIZE), 
+ 				limit);
 -
--		unsigned long low = max_low_pfn;
--		unsigned long start = node_start_pfn[nid];
--		unsigned long high = node_end_pfn[nid];
--
--		max_dma = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
--
--		if (node_has_online_mem(nid)){
--			if (start > low) {
--#ifdef CONFIG_HIGHMEM
--				BUG_ON(start > high);
--				zones_size[ZONE_HIGHMEM] = high - start;
--#endif
--			} else {
--				if (low < max_dma)
--					zones_size[ZONE_DMA] = low;
--				else {
--					BUG_ON(max_dma > low);
--					BUG_ON(low > high);
--					zones_size[ZONE_DMA] = max_dma;
--					zones_size[ZONE_NORMAL] = low - max_dma;
--#ifdef CONFIG_HIGHMEM
--					zones_size[ZONE_HIGHMEM] = high - low;
--#endif
--				}
--			}
--		}
--
--		zholes_size = get_zholes_size(nid);
--
--		free_area_init_node(nid, NODE_DATA(nid), zones_size, start,
--				zholes_size);
-+		if (node_has_online_mem(nid))
-+			add_active_range(nid, node_start_pfn[nid],
-+							node_end_pfn[nid]);
+-	size_zones(zones, holes, start_pfn, end_pfn);
+-	free_area_init_node(nodeid, NODE_DATA(nodeid), zones,
+-			    start_pfn, holes);
+ } 
+ 
+ void __init numa_init_array(void)
+@@ -312,12 +307,18 @@ static void __init arch_sparse_init(void
+ void __init paging_init(void)
+ { 
+ 	int i;
++	unsigned long max_normal_pfn = 0;
+ 
+ 	arch_sparse_init();
+ 
+ 	for_each_online_node(i) {
+ 		setup_node_zones(i); 
++		if (max_normal_pfn < node_end_pfn(i))
++			max_normal_pfn = node_end_pfn(i);
  	}
 +
-+	max_dma_pfn = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
-+	free_area_init_nodes(max_dma_pfn, max_dma_pfn,
-+						max_low_pfn, highend_pfn);
- 	return;
- }
++	free_area_init_nodes(MAX_DMA_PFN, MAX_DMA32_PFN, max_normal_pfn,
++								max_normal_pfn);
+ } 
  
+ /* [numa=off] */
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-103-x86_use_init_nodes/include/asm-x86_64/e820.h linux-2.6.17-rc1-104-x86_64_use_init_nodes/include/asm-x86_64/e820.h
+--- linux-2.6.17-rc1-103-x86_use_init_nodes/include/asm-x86_64/e820.h	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-104-x86_64_use_init_nodes/include/asm-x86_64/e820.h	2006-04-10 10:54:38.000000000 +0100
+@@ -53,6 +53,7 @@ extern void e820_bootmem_free(pg_data_t 
+ extern void e820_setup_gap(void);
+ extern unsigned long e820_hole_size(unsigned long start_pfn,
+ 				    unsigned long end_pfn);
++extern unsigned long e820_register_active_regions(void);
+ 
+ extern void __init parse_memopt(char *p, char **end);
+ extern void __init parse_memmapopt(char *p, char **end);
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-103-x86_use_init_nodes/include/asm-x86_64/proto.h linux-2.6.17-rc1-104-x86_64_use_init_nodes/include/asm-x86_64/proto.h
+--- linux-2.6.17-rc1-103-x86_use_init_nodes/include/asm-x86_64/proto.h	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-104-x86_64_use_init_nodes/include/asm-x86_64/proto.h	2006-04-10 10:54:38.000000000 +0100
+@@ -24,8 +24,6 @@ extern void mtrr_bp_init(void);
+ #define mtrr_bp_init() do {} while (0)
+ #endif
+ extern void init_memory_mapping(unsigned long start, unsigned long end);
+-extern void size_zones(unsigned long *z, unsigned long *h,
+-			unsigned long start_pfn, unsigned long end_pfn);
+ 
+ extern void system_call(void); 
+ extern int kernel_syscall(void);

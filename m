@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWDKTz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWDKUDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWDKTz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 15:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWDKTz2
+	id S1751361AbWDKUDG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 16:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWDKUDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 15:55:28 -0400
-Received: from mailer2.psc.edu ([128.182.66.106]:62419 "EHLO mailer2.psc.edu")
-	by vger.kernel.org with ESMTP id S1751348AbWDKTz1 (ORCPT
+	Tue, 11 Apr 2006 16:03:06 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:12738 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751361AbWDKUDE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 15:55:27 -0400
-Message-ID: <443C09A7.2040900@psc.edu>
-Date: Tue, 11 Apr 2006 15:55:19 -0400
-From: John Heffner <jheffner@psc.edu>
-User-Agent: Thunderbird 1.5 (Macintosh/20051201)
+	Tue, 11 Apr 2006 16:03:04 -0400
+Message-ID: <443C0B8F.7010501@de.ibm.com>
+Date: Tue, 11 Apr 2006 22:03:27 +0200
+From: Carsten Otte <cotte@de.ibm.com>
+Reply-To: carsteno@de.ibm.com
+Organization: IBM Deutschland
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17 regression: Very slow net transfer from some hosts
-References: <443C03E6.7080202@gentoo.org> <443C024C.2070107@psc.edu> <443C0B74.50305@gentoo.org>
-In-Reply-To: <443C0B74.50305@gentoo.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Linus Torvalds <torvalds@osdl.org>
+CC: carsteno@de.ibm.com, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       bjorn_helgaas@hp.com
+Subject: Re: [patch] do_no_pfn handler
+References: <yq0k6a6uc7i.fsf@jaguar.mkp.net> <yq0psjonq2p.fsf@jaguar.mkp.net> <Pine.LNX.4.64.0604110751510.10745@g5.osdl.org> <443BCA98.1020805@de.ibm.com> <Pine.LNX.4.64.0604110830260.10745@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604110830260.10745@g5.osdl.org>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> John Heffner wrote:
->> I'm not seeing this behavior myself.  What are the values of 
->> /proc/sys/net/ipv4/tcp_wmem, tcp_rmem, and tcp_mem?  How much memory 
->> does this system have?  (A binary tcpdump might be good, too.)
+Linus Torvalds wrote:
+> You _really_ cannot do COW together with "random pfn filling".
+I still have'nt found a good way to do so, even after discussing with Nick and Hugh, but that's exactly where I intend to get for the xip stuff.
+
+Today, the _only_ code that uses the struct page behind those DCSS segments is aops->nopage (as return value) and do_wp_page. Those small servers have almost no local memory (kernel, libraries, and binaries are shared), and the mem_map array is a large overhead.
+
+> You can do COW with a pure remap_pfn_range() (ie a /dev/mem kind of 
+> mapping, or a frame buffer etc), but that's only because it has a very 
+> magic special case that is used to distinguish between cow'ed pages and 
+> the pages that were inserted initially.
 > 
-> tcp_wmem: 4096    16384   131072
-> tcp_rmem: 4096    87380   174760
-> tcp_mem: 98304   131072  196608
+> We have no free bits in the page tables to say "this is a COW page" in 
+> general (on x86 we could do it, but some other architectures don't have 
+> any SW-usable bits). 
+That's true. One can store that information in the vma flags, and split the vma into 3 vmas once we have a write fault. Although that would work in theory, I doubt it would save lot of memory because of too many vmas, and I think we would burn precious CPU horsepower walking all those vmas.
+I believe Hugh has already done an implementation for that which he does not consider nice. I have not found a feasible way to adress that issue so far, and I promise to keep from coding until I find a reasonable non-intrusive way to get there.
+-- 
 
-These are (I assume) with the patch reversed.  What are the values with 
-the patch applied?
-
-Thanks,
-   -John
+Carsten Otte
+IBM Linux technology center
+ARCH=s390

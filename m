@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWDKLHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWDKLLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWDKLHa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 07:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWDKLHa
+	id S1750745AbWDKLLl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 07:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWDKLLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 07:07:30 -0400
-Received: from moeglingen.blank.eu.org ([82.139.201.30]:6599 "EHLO
-	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
-	id S1750759AbWDKLH3 convert rfc822-to-8bit (ORCPT
+	Tue, 11 Apr 2006 07:11:41 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:28682 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1750745AbWDKLLl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 07:07:29 -0400
-Date: Tue, 11 Apr 2006 13:07:22 +0200
-From: Bastian Blank <bastian@waldi.eu.org>
-To: linux-kernel@vger.kernel.org
-Cc: davej@redhat.com
-Subject: i386 - msr support for xen
-Message-ID: <20060411110722.GA12385@wavehammer.waldi.eu.org>
-Mail-Followup-To: Bastian Blank <bastian@waldi.eu.org>,
-	linux-kernel@vger.kernel.org, davej@redhat.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Tue, 11 Apr 2006 07:11:41 -0400
+Date: Tue, 11 Apr 2006 13:11:37 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: What is the most efficient way to copy a bunch of files nowadays?
+Message-ID: <20060411111137.GA13961@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	"Hack inc." <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks
+After having read-only mucked with the headers of a bunch of files[1]
+I've selected a subset of 2500 or so with sizes going from 2K to 85M
+which I want to copy to another directory in the same local
+filesystem.  What is the "best" (CPU usage, fragmentation, wall clock
+time, system responsiveness during and after the copy) way to copy
+these files?  read+write, mmap+write, read+mmap, mmap+mmap+memcpy,
+something else?  That's with recent kernels, of course.
 
-The speedstep modules uses MSR to do its work. XEN can't allow this and
-the calls needs to be done via a hypercall into xen.
+  OG.
 
-I only found a hacky patch in
-http://article.gmane.org/gmane.comp.emulators.xen.devel/22282, which
-converts one of the speedstep modules to use xen. Does someone know if
-there is another solution raising?
-
-Bastian
-
--- 
-	"Beauty is transitory."
-	"Beauty survives."
-		-- Spock and Kirk, "That Which Survives", stardate unknown
+[1] Say rpms from a random distribution and its updates for instance

@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWDKLZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWDKL0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWDKLZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 07:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWDKLZ6
+	id S1750753AbWDKL0P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 07:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWDKL0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 07:25:58 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:15497 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750748AbWDKLZ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 07:25:57 -0400
-Date: Tue, 11 Apr 2006 20:25:22 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch:000/005] wait_table and zonelist initializing for memory hotadd
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, Yasunori Goto <y-goto@jp.fujitsu.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060411202031.5643.Y-GOTO@jp.fujitsu.com>
+	Tue, 11 Apr 2006 07:26:14 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:14508 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750753AbWDKL0M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 07:26:12 -0400
+Date: Tue, 11 Apr 2006 13:26:01 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 40% IDE performance regression going from FC3 to FC5 with same
+ kernel
+In-Reply-To: <5a4c581d0604081007t32863bf4n1253ebd8352dbf35@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0604111325140.928@yvahk01.tjqt.qr>
+References: <5a4c581d0604080747w61464d48k5480391d98b2bc47@mail.gmail.com> 
+ <5a4c581d0604080834k7961aff5l7794b8893325a90c@mail.gmail.com> 
+ <1144511112.2989.8.camel@laptopd505.fenrus.org> 
+ <5a4c581d0604080927g532b6d10y7992d9adb4e63d08@mail.gmail.com> 
+ <1144514167.2989.10.camel@laptopd505.fenrus.org>
+ <5a4c581d0604081007t32863bf4n1253ebd8352dbf35@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+>> try killing that one next; it may or may not help but it's sure worth a
+>> try (esp given the success of the first kill :)
+>
+>killing udevd doesn't bring any improvement - still at 20MB/s.
+>
+>Do you want me to file a FC5 bugzilla entry with the current info
+> or do you think there is something else that can be discussed
+> on lkml ?
+>
 
-These are patches for initialization of wait_table and updating of zonelists
-for memory hot-add.
-These patches can be used when a new node/zone becomes available.
-When empty zone becomes not empty by memory hot-add, 
-wait_table must be initialized, and zonelists must be updated.
-
-  ex) x86-64 is good example of new zone addition.
-      - System boot up with memory under 4G address.
-        All of memory will be ZONE_DMA32.
-      - Then hot-add over 4G memory. It becomes ZONE_NORMAL. But, 
-        wait table of zone normal is not initialized at this time.
-
-This patch is for 2.6.17-rc1-mm2.
-
-Please apply.
-
-----------------------------
-Change log from v1 of wait_table init and build_zonelist.
-  - update for 2.6.17-rc1-mm2.
-  - add comment for wait_table hash entries.
-  - change name wait_table_size() -> wait_table_hash_nr_entries()
-
-Change log from v4 of node hot-add.
-  - wait_table and build_zonelists updating are picked up.
-  - update for 2.6.17-rc1-mm1.
-  - change allocation for wait_table from kmalloc() to vmalloc().
-    vmalloc() is enough for it.
-
-V4 of post is here.
-<description>
-http://marc.theaimsgroup.com/?l=linux-mm&w=2&r=1&s=memory+hotplug+node+v.4&q=b
-<patches>
-http://marc.theaimsgroup.com/?l=linux-mm&w=2&r=1&s=memory+hotplug+node+v.4.&q=b
+Compile a non-initrd kernel and run it with the -b parameter (it's passed 
+to /sbin/init). From that shell, run your speed test. What does it show?
 
 
-
+Jan Engelhardt
 -- 
-Yasunori Goto 
-
-

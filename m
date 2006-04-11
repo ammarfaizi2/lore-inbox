@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWDKTfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWDKTlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbWDKTfH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 15:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWDKTfH
+	id S1750824AbWDKTlg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 15:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWDKTlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 15:35:07 -0400
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:39821 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750825AbWDKTfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 15:35:05 -0400
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: Dumpable tasks and ownership of /proc/*/fd
-To: "Eric W. Biederman" <ebiederm@xmission.com>, Petr Baudis <pasky@suse.cz>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 11 Apr 2006 21:30:32 +0200
-References: <5Zkqr-5LI-5@gated-at.bofh.it> <5ZXrM-3qg-3@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Tue, 11 Apr 2006 15:41:36 -0400
+Received: from wproxy.gmail.com ([64.233.184.231]:65314 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750824AbWDKTlg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 15:41:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ntcdUI6FS1rBukJnpf9Zo4B5SoZqUA7Eu5xkV1yi5FTRHQUnqIIFDeKV2ErIogM19O1UCq3S3Ysk4gSKvXLmV6TpVYqUR7Rctl3TyMDOkYMYp1DKyHxKOpzeLnpEf4TUvOhJgV8FsCngaoq6iZgSG8baMN6kHUZigThUZooBnrw=
+Message-ID: <7c3341450604111241h1c20ae11qce4599f7ba8c07c2@mail.gmail.com>
+Date: Tue, 11 Apr 2006 20:41:34 +0100
+From: "Nick Warne" <nick.warne@gmail.com>
+Reply-To: nick@linicks.net
+To: "Paolo Ornati" <ornati@fastwebnet.it>
+Subject: Re: what does 2.6.16.3 patch against?
+Cc: "John Tate" <kintaro@aanet.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060411144737.277ced53@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1FTOZg-0000av-IY@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1144756073.3475.2.camel@localhost.localdomain>
+	 <20060411144501.5ae1bea2@localhost>
+	 <20060411144737.277ced53@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman <ebiederm@xmission.com> wrote:
+On 11/04/06, Paolo Ornati <ornati@fastwebnet.it> wrote:
+> On Tue, 11 Apr 2006 14:45:01 +0200
+> Paolo Ornati <ornati@fastwebnet.it> wrote:
+>
+> > Documentation/applying-patches.txt
+>
+> And if you don't want to apply patches manually there's always ketchup:
+>
+> http://www.selenic.com/ketchup/wiki/
 
-> Speaking of things why does the *at() emulation need to touch
-> /proc/self/fd/*?  I may be completely dense but if the practical
-> justification for allowing access to /proc/self/fd/ is that we
-> already have access then we shouldn't need /proc/self/fd.
-> 
-> I suspect this a matter of convenience where you are prepending
-> /proc/self/fd/xxx/ to the path before you open it instead of calling
-> fchdir openat() and the doing fchdir back.  Have I properly guessed
-> how the *at() emulation works?
+I have seen this before posted here... and after I got my head around
+it, WOW.  What a good tool (if it works right, building right now ;-) 
+)
 
-Think about threads or siglongjmp(sp?).
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+It took me some sussing to upgrade from 2.6.15.4 -> 2.6.15.7 (I
+trashed my 2.6.15.6 tree, so had to start from last full kernel source
+I had), but once sorted it is so fast!
+
+Good job :-)
+
+Nick

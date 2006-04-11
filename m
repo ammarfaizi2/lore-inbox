@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWDKLFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWDKLGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWDKLFK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 07:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWDKLFK
+	id S1750744AbWDKLGg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 07:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWDKLGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 07:05:10 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:56461 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750741AbWDKLFI (ORCPT
+	Tue, 11 Apr 2006 07:06:36 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:59789 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750744AbWDKLGf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 07:05:08 -0400
-Date: Tue, 11 Apr 2006 13:05:03 +0200 (MEST)
+	Tue, 11 Apr 2006 07:06:35 -0400
+Date: Tue, 11 Apr 2006 13:06:34 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: lkml <linux-kernel@vger.kernel.org>, zippel@linux-m68k.org
-Subject: Re: [RFC/POC] multiple CONFIG y/m/n
-In-Reply-To: <20060406224134.0430e827.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.61.0604111303131.928@yvahk01.tjqt.qr>
-References: <20060406224134.0430e827.rdunlap@xenotime.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.17-rc1 compile failure
+Message-ID: <Pine.LNX.4.61.0604111306040.928@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283855629-1196508970-1144753594=:928"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->In doing lots of kernel build testing, I often want to enable all options
->in a sub-menu and their sub-sub-menus.  Sound is one of the worst^W longest
->of these, so I chose a shorter (easier) one to practice on:  parport.
->[..]
->I can already see that I find this useful, but is there a good (better)
->way to implement this in kconfig?
->[..]
->Comments?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-I would like this one, for menuconfig (ncurses):
+--1283855629-1196508970-1144753594=:928
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-  'y', 'm' and 'n' have their usual behavior
-  'Y', 'M' and 'N' affect the current item plus any subparts (if any)
+Hi,
 
-That is, press *Shift*-Y/M/N for the "deep change".
+
+I just tried an allyesconfig on 2.6.17-rc1 and this popped up:
+
+security/selinux/xfrm.c: In function ‘selinux_socket_getpeer_dgram’:
+security/selinux/xfrm.c:284: error: ‘struct sec_path’ has no member named 
+‘x’
+security/selinux/xfrm.c: In function ‘selinux_xfrm_sock_rcv_skb’:
+security/selinux/xfrm.c:317: error: ‘struct sec_path’ has no member named 
+‘x’
+
 
 
 Jan Engelhardt
 -- 
+--1283855629-1196508970-1144753594=:928--

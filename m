@@ -1,284 +1,341 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWDKIMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWDKIWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWDKIMH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 04:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWDKIMG
+	id S932311AbWDKIWD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 04:22:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWDKIWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 04:12:06 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:64215 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932354AbWDKIME
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 04:12:04 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 3/3] deinline a few large functions in vlan code - v3
-Date: Tue, 11 Apr 2006 11:11:12 +0300
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@vger.kernel.org
-References: <200604111043.13605.vda@ilport.com.ua> <200604111047.36941.vda@ilport.com.ua> <20060411.005858.49205474.davem@davemloft.net>
-In-Reply-To: <20060411.005858.49205474.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_gS2OEAQ6TLxI9u+"
-Message-Id: <200604111111.12554.vda@ilport.com.ua>
+	Tue, 11 Apr 2006 04:22:03 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:33225 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932311AbWDKIWB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 04:22:01 -0400
+Date: Tue, 11 Apr 2006 12:21:23 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Yi Yang <yang.y.yi@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Helsley <matthltc@us.ibm.com>
+Subject: Re: [2.6.16 PATCH] Filessytem Events Reporter V3
+Message-ID: <20060411082123.GB7852@2ka.mipt.ru>
+References: <443A6F56.20701@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <443A6F56.20701@gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 11 Apr 2006 12:21:26 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_gS2OEAQ6TLxI9u+
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, Apr 10, 2006 at 10:44:38PM +0800, Yi Yang (yang.y.yi@gmail.com) wrote:
+> Compared with Filesystem Events Reporter v2, the following changes are done:
+>   - Can be built as module. 
+>   - Fix some bugs pointed out by Evgeniy
+>   - Substitute spinlock with mutex
+>   - Complete exit cleanup
 
-On Tuesday 11 April 2006 10:58, David S. Miller wrote:
-> This is not very nice, there is no way I'm applying these patches.
-> 
-> I think the current situation is far better than the large pile of
-> ifdefs these patches are adding to the tree.
-> 
-> Let's just leave things the way they are ok?
+...
 
-:(
+> --- /dev/null	2003-01-30 18:24:37.000000000 +0800
+> +++ b/include/linux/fsevent.h	2006-04-08 22:09:30.000000000 +0800
+> @@ -0,0 +1,167 @@
+> +/*
+> + * fsevent.h - filesystem events connector
 
-Ok, one last try. Would you like this smallish patch instead?
-It takes care of those BIG inlines.
---
-vda
+I think you want to change this sentence to "... reporter", don't you :)
 
---Boundary-00=_gS2OEAQ6TLxI9u+
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="2.6.16.vlan_inline5_core-1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.16.vlan_inline5_core-1.patch"
+...
+> +static inline int filter_fsevent(u32 filter_mask, u32 event_mask)
+> +{
+> +	event_mask &= FSEVENT_MASK;
+> +	event_mask &= filter_mask;
+> +	if (event_mask == 0) {
+> +		return -1;
+> +	}
 
-diff -urpN linux-2.6.16.org/net/core/Makefile linux-2.6.16.vlan/net/core/Makefile
---- linux-2.6.16.org/net/core/Makefile	Mon Mar 20 07:53:29 2006
-+++ linux-2.6.16.vlan/net/core/Makefile	Tue Apr 11 10:15:59 2006
-@@ -7,7 +7,7 @@ obj-y := sock.o request_sock.o skbuff.o 
- 
- obj-$(CONFIG_SYSCTL) += sysctl_net_core.o
- 
--obj-y		     += dev.o ethtool.o dev_mcast.o dst.o \
-+obj-y		     += dev.o ethtool.o dev_mcast.o dev_vlan.o dst.o \
- 			neighbour.o rtnetlink.o utils.o link_watch.o filter.o
- 
- obj-$(CONFIG_XFRM) += flow.o
-diff -urpN linux-2.6.16.org/include/linux/if_vlan.h linux-2.6.16.vlan/include/linux/if_vlan.h
---- linux-2.6.16.org/include/linux/if_vlan.h	Mon Mar 20 07:53:29 2006
-+++ linux-2.6.16.vlan/include/linux/if_vlan.h	Tue Apr 11 10:15:59 2006
-@@ -149,49 +149,9 @@ struct vlan_skb_tx_cookie {
- #define vlan_tx_tag_get(__skb)	(VLAN_TX_SKB_CB(__skb)->vlan_tag)
- 
- /* VLAN rx hw acceleration helper.  This acts like netif_{rx,receive_skb}(). */
--static inline int __vlan_hwaccel_rx(struct sk_buff *skb,
-+int __vlan_hwaccel_rx(struct sk_buff *skb,
- 				    struct vlan_group *grp,
--				    unsigned short vlan_tag, int polling)
--{
--	struct net_device_stats *stats;
--
--	skb->dev = grp->vlan_devices[vlan_tag & VLAN_VID_MASK];
--	if (skb->dev == NULL) {
--		dev_kfree_skb_any(skb);
--
--		/* Not NET_RX_DROP, this is not being dropped
--		 * due to congestion.
--		 */
--		return 0;
--	}
--
--	skb->dev->last_rx = jiffies;
--
--	stats = vlan_dev_get_stats(skb->dev);
--	stats->rx_packets++;
--	stats->rx_bytes += skb->len;
--
--	skb->priority = vlan_get_ingress_priority(skb->dev, vlan_tag);
--	switch (skb->pkt_type) {
--	case PACKET_BROADCAST:
--		break;
--
--	case PACKET_MULTICAST:
--		stats->multicast++;
--		break;
--
--	case PACKET_OTHERHOST:
--		/* Our lower layer thinks this is not local, let's make sure.
--		 * This allows the VLAN to have a different MAC than the underlying
--		 * device, and still route correctly.
--		 */
--		if (!memcmp(eth_hdr(skb)->h_dest, skb->dev->dev_addr, ETH_ALEN))
--			skb->pkt_type = PACKET_HOST;
--		break;
--	};
--
--	return (polling ? netif_receive_skb(skb) : netif_rx(skb));
--}
-+				    unsigned short vlan_tag, int polling);
- 
- static inline int vlan_hwaccel_rx(struct sk_buff *skb,
- 				  struct vlan_group *grp,
-@@ -218,43 +178,7 @@ static inline int vlan_hwaccel_receive_s
-  * Following the skb_unshare() example, in case of error, the calling function
-  * doesn't have to worry about freeing the original skb.
-  */
--static inline struct sk_buff *__vlan_put_tag(struct sk_buff *skb, unsigned short tag)
--{
--	struct vlan_ethhdr *veth;
--
--	if (skb_headroom(skb) < VLAN_HLEN) {
--		struct sk_buff *sk_tmp = skb;
--		skb = skb_realloc_headroom(sk_tmp, VLAN_HLEN);
--		kfree_skb(sk_tmp);
--		if (!skb) {
--			printk(KERN_ERR "vlan: failed to realloc headroom\n");
--			return NULL;
--		}
--	} else {
--		skb = skb_unshare(skb, GFP_ATOMIC);
--		if (!skb) {
--			printk(KERN_ERR "vlan: failed to unshare skbuff\n");
--			return NULL;
--		}
--	}
--
--	veth = (struct vlan_ethhdr *)skb_push(skb, VLAN_HLEN);
--
--	/* Move the mac addresses to the beginning of the new header. */
--	memmove(skb->data, skb->data + VLAN_HLEN, 2 * VLAN_ETH_ALEN);
--
--	/* first, the ethernet type */
--	veth->h_vlan_proto = __constant_htons(ETH_P_8021Q);
--
--	/* now, the tag */
--	veth->h_vlan_TCI = htons(tag);
--
--	skb->protocol = __constant_htons(ETH_P_8021Q);
--	skb->mac.raw -= VLAN_HLEN;
--	skb->nh.raw -= VLAN_HLEN;
--
--	return skb;
--}
-+struct sk_buff *__vlan_put_tag(struct sk_buff *skb, unsigned short tag);
- 
- /**
-  * __vlan_hwaccel_put_tag - hardware accelerated VLAN inserting
-diff -urpN linux-2.6.16.org/net/core/dev_vlan.c linux-2.6.16.vlan/net/core/dev_vlan.c
---- linux-2.6.16.org/net/core/dev_vlan.c	Thu Jan  1 03:00:00 1970
-+++ linux-2.6.16.vlan/net/core/dev_vlan.c	Tue Apr 11 10:15:59 2006
-@@ -0,0 +1,110 @@
-+/* 802.1q helpers.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+/* #if defined(CONFIG_VLAN_8021Q) || defined (CONFIG_VLAN_8021Q_MODULE) */
-+
-+#include <linux/skbuff.h>
-+#include <linux/if_vlan.h>
-+
-+/* VLAN rx hw acceleration helper.  This acts like netif_{rx,receive_skb}(). */
-+int __vlan_hwaccel_rx(struct sk_buff *skb,
-+				    struct vlan_group *grp,
-+				    unsigned short vlan_tag, int polling)
-+{
-+	struct net_device_stats *stats;
-+
-+	skb->dev = grp->vlan_devices[vlan_tag & VLAN_VID_MASK];
-+	if (skb->dev == NULL) {
-+		dev_kfree_skb_any(skb);
-+
-+		/* Not NET_RX_DROP, this is not being dropped
-+		 * due to congestion.
-+		 */
-+		return 0;
-+	}
-+
-+	skb->dev->last_rx = jiffies;
-+
-+	stats = vlan_dev_get_stats(skb->dev);
-+	stats->rx_packets++;
-+	stats->rx_bytes += skb->len;
-+
-+	skb->priority = vlan_get_ingress_priority(skb->dev, vlan_tag);
-+	switch (skb->pkt_type) {
-+	case PACKET_BROADCAST:
-+		break;
-+
-+	case PACKET_MULTICAST:
-+		stats->multicast++;
-+		break;
-+
-+	case PACKET_OTHERHOST:
-+		/* Our lower layer thinks this is not local, let's make sure.
-+		 * This allows the VLAN to have a different MAC than the underlying
-+		 * device, and still route correctly.
-+		 */
-+		if (!memcmp(eth_hdr(skb)->h_dest, skb->dev->dev_addr, ETH_ALEN))
-+			skb->pkt_type = PACKET_HOST;
-+		break;
-+	};
-+
-+	return (polling ? netif_receive_skb(skb) : netif_rx(skb));
-+}
-+EXPORT_SYMBOL(__vlan_hwaccel_rx);
-+
-+/**
-+ * __vlan_put_tag - regular VLAN tag inserting
-+ * @skb: skbuff to tag
-+ * @tag: VLAN tag to insert
-+ *
-+ * Inserts the VLAN tag into @skb as part of the payload
-+ * Returns a VLAN tagged skb. If a new skb is created, @skb is freed.
-+ * 
-+ * Following the skb_unshare() example, in case of error, the calling function
-+ * doesn't have to worry about freeing the original skb.
-+ */
-+struct sk_buff *__vlan_put_tag(struct sk_buff *skb, unsigned short tag)
-+{
-+	struct vlan_ethhdr *veth;
-+
-+	if (skb_headroom(skb) < VLAN_HLEN) {
-+		struct sk_buff *sk_tmp = skb;
-+		skb = skb_realloc_headroom(sk_tmp, VLAN_HLEN);
-+		kfree_skb(sk_tmp);
-+		if (!skb) {
-+			printk(KERN_ERR "vlan: failed to realloc headroom\n");
-+			return NULL;
-+		}
-+	} else {
-+		skb = skb_unshare(skb, GFP_ATOMIC);
-+		if (!skb) {
-+			printk(KERN_ERR "vlan: failed to unshare skbuff\n");
-+			return NULL;
-+		}
-+	}
-+
-+	veth = (struct vlan_ethhdr *)skb_push(skb, VLAN_HLEN);
-+
-+	/* Move the mac addresses to the beginning of the new header. */
-+	memmove(skb->data, skb->data + VLAN_HLEN, 2 * VLAN_ETH_ALEN);
-+
-+	/* first, the ethernet type */
-+	veth->h_vlan_proto = __constant_htons(ETH_P_8021Q);
-+
-+	/* now, the tag */
-+	veth->h_vlan_TCI = htons(tag);
-+
-+	skb->protocol = __constant_htons(ETH_P_8021Q);
-+	skb->mac.raw -= VLAN_HLEN;
-+	skb->nh.raw -= VLAN_HLEN;
-+
-+	return skb;
-+}
-+EXPORT_SYMBOL(__vlan_put_tag);
-+
-+/* #endif */
+Coding style...
+...
 
---Boundary-00=_gS2OEAQ6TLxI9u+--
+> +	(*mask) &= fsevents_mask;
+> +	if ((*mask) == 0) {
+> +		ret = -1;
+> +	}
+
+Ditto.
+
+...
+
+> +static void fsevent_recv(struct sock *sk, int len)
+> +{
+> +	struct sk_buff *skb = NULL;
+> +	struct nlmsghdr *nlhdr = NULL;
+> +	struct fsevent_filter * filter = NULL;
+> +	pid_t pid;
+> +	int inc_flag = 0;
+> +
+> +	if (exit_flag == 1)
+> +		return;
+> +
+> +	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL) {
+> +		skb_get(skb);
+
+Really suspicious, only you own skb at this place, no need to grab a
+reference, which, btw, will never be released.
+
+> +		if (skb->len >= FSEVENT_FILTER_MSGSIZE) {
+
+I'm not sure about your size checks.
+I think it should be compared with nlhdr->nlmsg_len?
+
+> +			nlhdr = (struct nlmsghdr *)skb->data;
+> +			filter = NLMSG_DATA(nlhdr);
+> +			pid = NETLINK_CREDS(skb)->pid;
+> +			if (find_fsevent_listener(pid) == NULL)
+> +				inc_flag = 1;
+
+This logic is broken if several skbs are processed at once, since
+inc_flag is not cleared if find_fsevent_listener() fails for second skb.
+
+> +			if (set_fsevent_filter(filter, pid) == 0) {
+> +				if (inc_flag == 1)
+> +					atomic_inc(&fsevent_listener_num);
+> +			}
+
+Why not 
+if ((find_fsevent_listener(pid) == NULL) &&
+	(set_fsevent_filter(filter, pid) == 0))
+		atomic_inc(&fsevent_listener_num);
+
+> +		}
+> +		kfree_skb(skb);
+
+Here you only release a reference to skb, but do not free skb itself.
+
+> +	}
+> +}
+> +
+> +#define DEFINE_FILTER_MATCH_FUNC(filtertype, key) 			\
+> +	static int match_##filtertype(listener * p,			\
+> +				struct fsevent * event,			\
+> +				struct sk_buff * skb)			\
+> +	{								\
+> +		int ret = 0;						\
+> +		filtertype * xfilter = NULL;				\
+> +		struct sk_buff * skb2 = NULL;				\
+> +		struct list_head *  head = &(p->key##_filter_list_head);  \
+> +		list_for_each_entry(xfilter, head, list) {		\
+> +			if (xfilter->key != event->key)			\
+> +				continue;				\
+> +			ret = filter_fsevent(xfilter->mask, event->type); \
+> +			if ( ret != 0)					\
+> +				return -1;				\
+> +			skb2 = skb_clone(skb, GFP_KERNEL);		\
+> +       			if (skb2 == NULL)				\
+
+Coding style.
+
+> +				return -1;				\
+> +			NETLINK_CB(skb2).dst_group = 0;			\
+> +			NETLINK_CB(skb2).dst_pid = p->pid;		\
+> +			NETLINK_CB(skb2).pid = 0;			\
+> +			return (netlink_unicast(fsevent_sock, skb2,	\
+> +					p->pid, MSG_DONTWAIT));		\
+> +		}							\
+> +		return -1;						\
+> +	}								\
+> +
+> +DEFINE_FILTER_MATCH_FUNC(pid_filter, pid)
+> +
+> +DEFINE_FILTER_MATCH_FUNC(uid_filter, uid)
+> +
+> +DEFINE_FILTER_MATCH_FUNC(gid_filter, gid)
+
+You send the same data for each type of filters, maybe it is design
+approach, but why don't you want to send that data in one skb?
+
+> +#define MATCH_XID(key, listenerp, event, skb) 			\
+> +	ret = match_##key##_filter(listenerp, event, skb); 	\
+> +	if (ret == 0) {					 	\
+> +		kfree_skb(skb);				 	\
+> +	        continue;				 	\
+
+Your match funtions can not return 0.
+
+> +	}						 	\
+> +	do {} while (0)					 	\
+> +
+> +static int fsevent_send_to_process(struct sk_buff * skb)
+> +{
+> +	listener * p  = NULL, * q = NULL;
+> +	struct fsevent * event = NULL;
+> +	struct sk_buff * skb2 = NULL;
+> +	int ret = 0;
+> +
+> +	event = (struct fsevent *)(skb->data + sizeof(struct nlmsghdr));
+> +	mutex_lock(&listener_list_mutex);
+> +	list_for_each_entry_safe(p, q, &listener_list_head, list) {
+> +		MATCH_XID(pid, p, event, skb);
+> +		MATCH_XID(uid, p, event, skb);
+> +		MATCH_XID(gid, p, event, skb);
+
+Khm, you free the same skb three times here if each filter returns 0,
+is it right? I do not see where appropriate reference is grabbed.
+
+Well, since your match functions can not return 0, so it is ok,
+but in this case you do not need a check in MATCH_XID() check.
+
+> +		if (filter_fsevent(p->mask, event->type) == 0) {
+> +			 skb2 = skb_clone(skb, GFP_KERNEL);
+> +	                 if (skb2 == NULL)
+> +	                 	return -1;
+> +	                 NETLINK_CB(skb2).dst_group = 0;
+> +	                 NETLINK_CB(skb2).dst_pid = p->pid;
+> +	                 NETLINK_CB(skb2).pid = 0;
+> +	                 ret = netlink_unicast(fsevent_sock, skb2,
+> +	                                p->pid, 0);
+> +			if (ret == -ECONNREFUSED) {
+> +				atomic_dec(&fsevent_listener_num);
+> +				cleanup_dead_listener(p);
+> +			}
+> +		}
+> +	}
+> +	mutex_unlock(&listener_list_mutex);
+> +	return ret;
+> +}
+> +
+> +static void fsevent_commit(void * unused)
+> +{
+> +	struct sk_buff * skb = NULL;
+> +		
+> +	while((skb = skb_dequeue(&get_cpu_var(fsevent_send_queue)))
+> +		!= NULL) {
+> +		fsevent_send_to_process(skb);
+> +		kfree_skb(skb);
+> +		put_cpu_var(fsevent_send_queue);
+> +	}
+> +}
+> +
+> +static struct ctl_table fsevent_mask_sysctl[] = {
+> +	{
+> +		.ctl_name = FSEVENT_MASK_CTL_NAME,
+> +		.procname = "fsevent_mask",
+> +		.data = &fsevents_mask,
+> +		.maxlen = sizeof(u32),
+> +		.mode = 0644,
+> +		.proc_handler = &proc_dointvec,
+> +	},
+> +	{ .ctl_name = 0 }
+> +};
+> +
+> +static struct ctl_table fs_root_sysctl[] = {
+> +	{
+> +		.ctl_name = CTL_FS,
+> +		.procname = "fs",
+> +		.mode = 0555,
+> +		.child = fsevent_mask_sysctl,
+> +	},
+> +	{ .ctl_name = 0 }
+> +};
+> +
+> +static int __init fsevent_init(void)
+> +{
+> +	int cpu;
+> +	struct sk_buff_head * listptr;
+> +	struct work_struct * workptr;
+> +
+> +	fsevent_sock = netlink_kernel_create(NETLINK_FSEVENT, 0,
+> +					 fsevent_recv, THIS_MODULE);
+> +	if (!fsevent_sock)
+> +		return -EIO;
+> +	for_each_cpu(cpu) {
+> +		listptr = &per_cpu(fsevent_send_queue, cpu);
+> +		skb_queue_head_init(listptr);
+> +		workptr = &per_cpu(fsevent_work, cpu);
+> +		INIT_WORK(workptr, fsevent_commit, NULL);
+> +	}
+> +
+> +	if (register_sysctl_table(fs_root_sysctl, 0) == NULL)
+> +                return -ENOMEM;
+> +
+> +	_raise_fsevent = __raise_fsevent;
+> +
+> +	return 0;
+> +}
+> +
+> +static void __exit fsevent_exit(void)
+> +{
+> +	listener * p = NULL, * q = NULL;
+> +	int cpu;
+> +	int wait_flag = 0;
+> +	struct sk_buff_head * skb_head = NULL;
+> +
+> +	fsevents_mask = 0;
+> +	_raise_fsevent = 0;
+> +	exit_flag = 1;
+> +
+> +	for_each_cpu(cpu)
+> +		schedule_work(&per_cpu(fsevent_work, cpu));
+> +
+> +	while (1) {
+> +		wait_flag = 0;
+> +		for_each_cpu(cpu) {
+> +			skb_head = &per_cpu(fsevent_send_queue, cpu);
+> +			if (skb_head->qlen != 0) {
+> +				wait_flag = 1;
+> +				break;
+> +			}
+> +		}
+> +		if (wait_flag == 1) {
+> +			set_current_state(TASK_INTERRUPTIBLE);
+> +			schedule_timeout(HZ/10);
+> +		} else
+> +			break;
+> +	}
+
+This is still broken.
+You race with schedule_work() in this loop. It requires
+flush_scheduled_work().
+
+And I still have soume doubts about __raise_fsevent().
+What if you set fsevents_mask to zero after __raise_fsevent() is
+started, but not yet queued an skb, and above loop and scheduled work
+are completed?
+You need some type of completion of the last worker...
+
+> +	atomic_set(&fsevent_sock->sk_rmem_alloc, 0);
+> +	atomic_set(&fsevent_sock->sk_wmem_alloc, 0);
+
+This is really wrong, since it hides skb processing errors like double
+freeing or leaks.
+
+> +	sock_release(fsevent_sock->sk_socket);
+> +	mutex_lock(&listener_list_mutex);
+> +	list_for_each_entry_safe(p, q, &listener_list_head, list) {
+> +		cleanup_dead_listener(p);
+> +	}
+> +	mutex_unlock(&listener_list_mutex);
+> +}
+> +
+> +module_init(fsevent_init);
+> +module_exit(fsevent_exit);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Yi Yang <yang.y.yi@gmail.com>");
+> +MODULE_DESCRIPTION("File System Events Reporter");
+> --- /dev/null	2003-01-30 18:24:37.000000000 +0800
+> +++ b/fs/fsevent_hook.c	2006-04-08 22:01:30.000000000 +0800
+> @@ -0,0 +1,5 @@
+> +#include <linux/fsevent.h>
+> +
+> +int (* _raise_fsevent)
+> +        (const char * oldname, const char * newname, u32 mask) = 0;
+> +EXPORT_SYMBOL(_raise_fsevent);
+
+Well, this is a hack :)
+
+
+Btw, it would be nice to have some kind of microbenchmark,
+like http://permalink.gmane.org/gmane.linux.kernel/292755
+just to see how things go...
+
+-- 
+	Evgeniy Polyakov

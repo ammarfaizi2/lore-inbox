@@ -1,103 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWDKPp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWDKPt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWDKPp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 11:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWDKPp6
+	id S1750746AbWDKPt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 11:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWDKPt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 11:45:58 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:8938 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750706AbWDKPp6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 11:45:58 -0400
-Date: Tue, 11 Apr 2006 11:45:46 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       "Eric W.Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] kdump: x86_64 add crashdump trigger points
-Message-ID: <20060411154545.GA5359@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060410220511.GB24711@in.ibm.com> <20060411024439.GB52164@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060411024439.GB52164@muc.de>
-User-Agent: Mutt/1.5.11
+	Tue, 11 Apr 2006 11:49:56 -0400
+Received: from web54310.mail.yahoo.com ([206.190.49.120]:24412 "HELO
+	web54310.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1750746AbWDKPtz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 11:49:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=V2tR7lusYJcz3RxM5NnihVDk2t2rT0KZQ1sUdgvp4y7m/ig7amm4Yn9Go9zhT73AqjBOrgsFEQtoZibmlXXzYDFIi4S/EP3IMA3sLghz1t6tG5uRkBdB9u90V9EoehB760FoM0jOKVmFuuThVoA3aO1q9m5no9PM/GCnrtp6T1M=  ;
+Message-ID: <20060411154954.91646.qmail@web54310.mail.yahoo.com>
+Date: Tue, 11 Apr 2006 08:49:54 -0700 (PDT)
+From: Ramakanth Gunuganti <rgunugan@yahoo.com>
+Subject: Re: GPL issues
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9CF84823-E0BA-404C-9C5A-CAFF0D4C92DF@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 11, 2006 at 04:44:39AM +0200, Andi Kleen wrote:
-> On Mon, Apr 10, 2006 at 06:05:11PM -0400, Vivek Goyal wrote:
-> > 
-> > 
-> > o Start booting into the capture kernel after an Oops if system is in a
-> >   unrecoverable state. System will boot into the capture kernel, if one is
-> >   pre-loaded by the user, and capture the kernel core dump.
-> > 
-> > o One of the following conditions should be true to trigger the booting of
-> >   capture kernel.
-> > 	- panic_on_oops is set.
-> > 	- pid of current thread is 0
-> > 	- pid of current thread is 1
-> > 	- Oops happened inside interrupt context.  
+
+Thanks for the replies, talking to a lawyer seems to
+be too stringent a requirement to even evaluate Linux.
+Who would be the ultimate authority to give definitive
+answers to these questions? 
+
+Since it's the Linux kernel that's under GPLv2, any
+work done here should be released under GPLv2. That
+part seems to be clear, however any product would
+include other things that could be proprietary. If
+Linux kernel is made part of this proprietary package,
+how does the distribution work. Can we just claim that
+part of the package is under GPL and only release the
+source code for the kernel portions. 
+
+-Ram
+
+--- Kyle Moffett <mrmacman_g4@mac.com> wrote:
+
+> On Apr 11, 2006, at 02:31:27, Ramakanth Gunuganti
+> wrote:
+> > I am trying to understand the GPL boundaries for
+> Linux, any  
+> > clarification provided on the following issues
+> below would be great:
+> > [...]
+> > Anyone trying to build a new application to work
+> on Linux must have  
+> > these issues clarified, if you can share your
+> experiences that  
+> > would be great too.
 > 
-> I would rather put it into die(). Then the patch will be much smaller
-> too.
+> If you're planning to make money off of any code
+> developed based in  
+> part off of the Linux Kernel, you should definitely
+> contact a lawyer  
+> familiar with the linux kernel and ask them.  Any
+> advice you get from  
+> this list should probably come prefixed with
+> "IANAL", and as such  
+> isn't worth terribly much.
+> 
+> Cheers,
+> Kyle Moffett
+> 
+> 
 
-Not everybody calls die(), instead they call __die() directly. For example
-do_page_fault(), pgtable_bad(). Hence I am putting this call inside __die().
 
-Anyway, if capture kernel is loaded, after displaying the registers and
-backtrace, we probably don't want to do anything else and just boot into
-capture kernel. Please find attached the modified patch.
-
-
-
-o Start booting into the capture kernel after an Oops if system is in a
-  unrecoverable state. System will boot into the capture kernel, if one is
-  pre-loaded by the user, and capture the kernel core dump.
-
-o One of the following conditions should be true to trigger the booting of
-  capture kernel.
-        - panic_on_oops is set.
-        - pid of current thread is 0
-        - pid of current thread is 1
-        - Oops happened inside interrupt context.
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- arch/x86_64/kernel/traps.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
-diff -puN arch/x86_64/kernel/traps.c~kdump-x86_64-add-crashdump-trigger-points arch/x86_64/kernel/traps.c
---- linux-2.6.17-rc1-1M/arch/x86_64/kernel/traps.c~kdump-x86_64-add-crashdump-trigger-points	2006-04-11 08:37:08.000000000 -0400
-+++ linux-2.6.17-rc1-1M-root/arch/x86_64/kernel/traps.c	2006-04-11 09:03:26.000000000 -0400
-@@ -30,6 +30,7 @@
- #include <linux/moduleparam.h>
- #include <linux/nmi.h>
- #include <linux/kprobes.h>
-+#include <linux/kexec.h>
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -433,6 +434,8 @@ void __kprobes __die(const char * str, s
- 	printk(KERN_ALERT "RIP ");
- 	printk_address(regs->rip); 
- 	printk(" RSP <%016lx>\n", regs->rsp); 
-+	if (kexec_should_crash(current))
-+		crash_kexec(regs);
- }
- 
- void die(const char * str, struct pt_regs * regs, long err)
-@@ -455,6 +458,8 @@ void __kprobes die_nmi(char *str, struct
- 	 */
- 	printk(str, safe_smp_processor_id());
- 	show_registers(regs);
-+	if (kexec_should_crash(current))
-+		crash_kexec(regs);
- 	if (panic_on_timeout || panic_on_oops)
- 		panic("nmi watchdog");
- 	printk("console shuts up ...\n");
-_
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

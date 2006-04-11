@@ -1,511 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWDKObs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWDKOfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbWDKObs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 10:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWDKObs
+	id S1751020AbWDKOfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 10:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWDKOfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 10:31:48 -0400
-Received: from vanessarodrigues.com ([192.139.46.150]:6801 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751015AbWDKObr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 10:31:47 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       bjorn_helgaas@hp.com, cotte@de.ibm.com
-Subject: [patch] mspec driver (requires do_no_pfn)
-References: <yq0fykuuc3h.fsf@jaguar.mkp.net>
-From: Jes Sorensen <jes@sgi.com>
-Date: 11 Apr 2006 10:31:17 -0400
-In-Reply-To: <yq0fykuuc3h.fsf@jaguar.mkp.net>
-Message-ID: <yq0lkucnpze.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Tue, 11 Apr 2006 10:35:09 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:3811 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751020AbWDKOfH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 10:35:07 -0400
+Date: Tue, 11 Apr 2006 07:35:31 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] kernel/rcupdate.c: kill synchronize_kernel()
+Message-ID: <20060411143531.GA1295@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060411035100.GD3190@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060411035100.GD3190@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello, Adrian,
 
-This patch is a repost of the mspec driver for special memory
-operations. It requires the do_no_pfn patch I posted a few minutes
-ago.
+This one is on my list for May 1st.  At that time, I will submit a
+patch such that:
 
-This version of the patch includes Jan's suggestion for changing the
-Kconfig description, no other changes since the previous version.
+o	synchronize_kernel() goes away
 
-Cheers,
-Jes
+o	call_rcu() and call_rcu_bh() become EXPORT_SYMBOL_GPL().
 
-This patch implements the special memory driver (mspec) based on the
-do_no_pfn approach. The driver is currently used only on SN2 hardware
-with special fetchop support but could be beneficial on other
-architectures using the uncached mode.
+						Thanx, Paul
 
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-
-----
-
- drivers/char/Kconfig  |    8 
- drivers/char/Makefile |    1 
- drivers/char/mspec.c  |  422 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 431 insertions(+)
-
-Index: linux-2.6/drivers/char/Kconfig
-===================================================================
---- linux-2.6.orig/drivers/char/Kconfig
-+++ linux-2.6/drivers/char/Kconfig
-@@ -422,6 +422,14 @@
-          If you have an SGI Altix with an attached SABrick
-          say Y or M here, otherwise say N.
- 
-+config MSPEC
-+	tristate "Memory special operations driver"
-+	depends on IA64
-+	help
-+	  If you have an ia64 and you want to enable memory special
-+	  operations support (formerly known as fetchop), say Y here,
-+	  otherwise say N.
-+
- source "drivers/serial/Kconfig"
- 
- config UNIX98_PTYS
-Index: linux-2.6/drivers/char/Makefile
-===================================================================
---- linux-2.6.orig/drivers/char/Makefile
-+++ linux-2.6/drivers/char/Makefile
-@@ -51,6 +51,7 @@
- obj-$(CONFIG_VIOTAPE)		+= viotape.o
- obj-$(CONFIG_HVCS)		+= hvcs.o
- obj-$(CONFIG_SGI_MBCS)		+= mbcs.o
-+obj-$(CONFIG_MSPEC)		+= mspec.o
- 
- obj-$(CONFIG_PRINTER)		+= lp.o
- obj-$(CONFIG_TIPAR)		+= tipar.o
-Index: linux-2.6/drivers/char/mspec.c
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/char/mspec.c
-@@ -0,0 +1,422 @@
-+/*
-+ * Copyright (C) 2001-2006 Silicon Graphics, Inc.  All rights
-+ * reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of version 2 of the GNU General Public License
-+ * as published by the Free Software Foundation.
-+ */
-+
-+/*
-+ * SN Platform Special Memory (mspec) Support
-+ *
-+ * This driver exports the SN special memory (mspec) facility to user
-+ * processes.
-+ * There are three types of memory made available thru this driver:
-+ * fetchops, uncached and cached.
-+ *
-+ * Fetchops are atomic memory operations that are implemented in the
-+ * memory controller on SGI SN hardware.
-+ *
-+ * Uncached are used for memory write combining feature of the ia64
-+ * cpu.
-+ *
-+ * Cached are used for areas of memory that are used as cached addresses
-+ * on our partition and used as uncached addresses from other partitions.
-+ * Due to a design constraint of the SN2 Shub, you can not have processors
-+ * on the same FSB perform both a cached and uncached reference to the
-+ * same cache line.  These special memory cached regions prevent the
-+ * kernel from ever dropping in a TLB entry and therefore prevent the
-+ * processor from ever speculating a cache line from this page.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include <linux/miscdevice.h>
-+#include <linux/spinlock.h>
-+#include <linux/mm.h>
-+#include <linux/vmalloc.h>
-+#include <linux/string.h>
-+#include <linux/slab.h>
-+#include <linux/numa.h>
-+#include <asm/page.h>
-+#include <asm/system.h>
-+#include <asm/pgtable.h>
-+#include <asm/atomic.h>
-+#include <asm/tlbflush.h>
-+#include <asm/uncached.h>
-+#include <asm/sn/addrs.h>
-+#include <asm/sn/arch.h>
-+#include <asm/sn/mspec.h>
-+#include <asm/sn/sn_cpuid.h>
-+#include <asm/sn/io.h>
-+#include <asm/sn/bte.h>
-+#include <asm/sn/shubio.h>
-+
-+
-+#define FETCHOP_ID	"SGI Fetchop,"
-+#define CACHED_ID	"Cached,"
-+#define UNCACHED_ID	"Uncached"
-+#define REVISION	"4.0"
-+#define MSPEC_BASENAME	"mspec"
-+
-+/*
-+ * Page types allocated by the device.
-+ */
-+enum {
-+	MSPEC_FETCHOP = 1,
-+	MSPEC_CACHED,
-+	MSPEC_UNCACHED
-+};
-+
-+static int is_sn2;
-+
-+/*
-+ * One of these structures is allocated when an mspec region is mmaped. The
-+ * structure is pointed to by the vma->vm_private_data field in the vma struct.
-+ * This structure is used to record the addresses of the mspec pages.
-+ */
-+struct vma_data {
-+	atomic_t refcnt;	/* Number of vmas sharing the data. */
-+	spinlock_t lock;	/* Serialize access to the vma. */
-+	int count;		/* Number of pages allocated. */
-+	int type;		/* Type of pages allocated. */
-+	unsigned long maddr[0];	/* Array of MSPEC addresses. */
-+};
-+
-+/* used on shub2 to clear FOP cache in the HUB */
-+static unsigned long scratch_page[MAX_NUMNODES];
-+#define SH2_AMO_CACHE_ENTRIES	4
-+
-+static inline int
-+mspec_zero_block(unsigned long addr, int len)
-+{
-+	int status;
-+
-+	if (is_sn2) {
-+		if (is_shub2()) {
-+			int nid;
-+			void *p;
-+			int i;
-+
-+			nid = nasid_to_cnodeid(get_node_number(__pa(addr)));
-+			p = (void *)TO_AMO(scratch_page[nid]);
-+
-+			for (i=0; i < SH2_AMO_CACHE_ENTRIES; i++) {
-+				FETCHOP_LOAD_OP(p, FETCHOP_LOAD);
-+				p += FETCHOP_VAR_SIZE;
-+			}
-+		}
-+
-+		status = bte_copy(0, addr & ~__IA64_UNCACHED_OFFSET, len,
-+				  BTE_WACQUIRE | BTE_ZERO_FILL, NULL);
-+	} else {
-+		memset((char *) addr, 0, len);
-+		status = 0;
-+	}
-+	return status;
-+}
-+
-+/*
-+ * mspec_open
-+ *
-+ * Called when a device mapping is created by a means other than mmap
-+ * (via fork, etc.).  Increments the reference count on the underlying
-+ * mspec data so it is not freed prematurely.
-+ */
-+static void
-+mspec_open(struct vm_area_struct *vma)
-+{
-+	struct vma_data *vdata;
-+
-+	vdata = vma->vm_private_data;
-+	atomic_inc(&vdata->refcnt);
-+}
-+
-+/*
-+ * mspec_close
-+ *
-+ * Called when unmapping a device mapping. Frees all mspec pages
-+ * belonging to the vma.
-+ */
-+static void
-+mspec_close(struct vm_area_struct *vma)
-+{
-+	struct vma_data *vdata;
-+	int i, pages, result, vdata_size;
-+
-+	vdata = vma->vm_private_data;
-+	if (!atomic_dec_and_test(&vdata->refcnt))
-+		return;
-+
-+	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
-+	for (i = 0; i < pages; i++) {
-+		if (vdata->maddr[i] == 0)
-+			continue;
-+		/*
-+		 * Clear the page before sticking it back
-+		 * into the pool.
-+		 */
-+		result = mspec_zero_block(vdata->maddr[i], PAGE_SIZE);
-+		if (!result)
-+			uncached_free_page(vdata->maddr[i]);
-+		else
-+			printk(KERN_WARNING "mspec_close(): "
-+			       "failed to zero page %i\n",
-+			       result);
-+	}
-+
-+	if (vdata_size <= PAGE_SIZE)
-+		kfree(vdata);
-+	else
-+		vfree(vdata);
-+}
-+
-+
-+/*
-+ * mspec_nopfn
-+ *
-+ * Creates a mspec page and maps it to user space.
-+ */
-+static long
-+mspec_nopfn(struct vm_area_struct *vma, unsigned long address, int *unused)
-+{
-+	unsigned long paddr, maddr;
-+	unsigned long pfn;
-+	int index;
-+	struct vma_data *vdata = vma->vm_private_data;
-+
-+	index = (address - vma->vm_start) >> PAGE_SHIFT;
-+	maddr = (volatile unsigned long) vdata->maddr[index];
-+	if (maddr == 0) {
-+		maddr = uncached_alloc_page(numa_node_id());
-+		if (maddr == 0)
-+			return -ENOMEM;
-+
-+		spin_lock(&vdata->lock);
-+		if (vdata->maddr[index] == 0) {
-+			vdata->count++;
-+			vdata->maddr[index] = maddr;
-+		} else {
-+			uncached_free_page(maddr);
-+			maddr = vdata->maddr[index];
-+		}
-+		spin_unlock(&vdata->lock);
-+	}
-+
-+	if (vdata->type == MSPEC_FETCHOP)
-+		paddr = TO_AMO(maddr);
-+	else
-+		paddr = __pa(TO_CAC(maddr));
-+
-+	pfn = paddr >> PAGE_SHIFT;
-+
-+	return pfn;
-+}
-+
-+static struct vm_operations_struct mspec_vm_ops = {
-+	.open = mspec_open,
-+	.close = mspec_close,
-+	.nopfn = mspec_nopfn
-+};
-+
-+/*
-+ * mspec_mmap
-+ *
-+ * Called when mmaping the device.  Initializes the vma with a fault handler
-+ * and private data structure necessary to allocate, track, and free the
-+ * underlying pages.
-+ */
-+static int
-+mspec_mmap(struct file *file, struct vm_area_struct *vma, int type)
-+{
-+	struct vma_data *vdata;
-+	int pages, vdata_size;
-+
-+	if (vma->vm_pgoff != 0)
-+		return -EINVAL;
-+
-+	if ((vma->vm_flags & VM_SHARED) == 0)
-+		return -EINVAL;
-+
-+	if ((vma->vm_flags & VM_WRITE) == 0)
-+		return -EPERM;
-+
-+	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
-+	if (vdata_size <= PAGE_SIZE)
-+		vdata = kmalloc(vdata_size, GFP_KERNEL);
-+	else
-+		vdata = vmalloc(vdata_size);
-+	if (!vdata)
-+		return -ENOMEM;
-+	memset(vdata, 0, vdata_size);
-+
-+	vdata->type = type;
-+	spin_lock_init(&vdata->lock);
-+	vdata->refcnt = ATOMIC_INIT(1);
-+	vma->vm_private_data = vdata;
-+
-+	vma->vm_flags |= (VM_IO | VM_LOCKED | VM_RESERVED | VM_PFNMAP);
-+	if (vdata->type == MSPEC_FETCHOP || vdata->type == MSPEC_UNCACHED)
-+		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-+	vma->vm_ops = &mspec_vm_ops;
-+
-+	return 0;
-+}
-+
-+static int
-+fetchop_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_FETCHOP);
-+}
-+
-+static int
-+cached_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_CACHED);
-+}
-+
-+static int
-+uncached_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_UNCACHED);
-+}
-+
-+static struct file_operations fetchop_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = fetchop_mmap
-+};
-+
-+static struct miscdevice fetchop_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "sgi_fetchop",
-+	.fops = &fetchop_fops
-+};
-+
-+static struct file_operations cached_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = cached_mmap
-+};
-+
-+static struct miscdevice cached_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "mspec_cached",
-+	.fops = &cached_fops
-+};
-+
-+static struct file_operations uncached_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = uncached_mmap
-+};
-+
-+static struct miscdevice uncached_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "mspec_uncached",
-+	.fops = &uncached_fops
-+};
-+
-+/*
-+ * mspec_init
-+ *
-+ * Called at boot time to initialize the mspec facility.
-+ */
-+static int __init
-+mspec_init(void)
-+{
-+	int ret;
-+	int nid;
-+
-+	/*
-+	 * The fetchop device only works on SN2 hardware, uncached and cached
-+	 * memory drivers should both be valid on all ia64 hardware
-+	 */
-+	if (ia64_platform_is("sn2")) {
-+		is_sn2 = 1;
-+		if (is_shub2()) {
-+			ret = -ENOMEM;
-+			for_each_online_node(nid) {
-+				int actual_nid;
-+				int nasid;
-+				unsigned long phys;
-+
-+				scratch_page[nid] = uncached_alloc_page(nid);
-+				if (scratch_page[nid] == 0)
-+					goto free_scratch_pages;
-+				phys = __pa(scratch_page[nid]);
-+				nasid = get_node_number(phys);
-+				actual_nid = nasid_to_cnodeid(nasid);
-+				if (actual_nid != nid)
-+					goto free_scratch_pages;
-+			}
-+		}
-+
-+		ret = misc_register(&fetchop_miscdev);
-+		if (ret) {
-+			printk(KERN_ERR
-+			       "%s: failed to register device %i\n",
-+			       FETCHOP_ID, ret);
-+			goto free_scratch_pages;
-+		}
-+	}
-+	ret = misc_register(&cached_miscdev);
-+	if (ret) {
-+		printk(KERN_ERR "%s: failed to register device %i\n",
-+		       CACHED_ID, ret);
-+		if (is_sn2)
-+			misc_deregister(&fetchop_miscdev);
-+		goto free_scratch_pages;
-+	}
-+	ret = misc_register(&uncached_miscdev);
-+	if (ret) {
-+		printk(KERN_ERR "%s: failed to register device %i\n",
-+		       UNCACHED_ID, ret);
-+		misc_deregister(&cached_miscdev);
-+		if (is_sn2)
-+			misc_deregister(&fetchop_miscdev);
-+		goto free_scratch_pages;
-+	}
-+
-+	printk(KERN_INFO "%s %s initialized devices: %s %s %s\n",
-+	       MSPEC_BASENAME, REVISION, is_sn2 ? FETCHOP_ID : "",
-+	       CACHED_ID, UNCACHED_ID);
-+
-+	return 0;
-+
-+free_scratch_pages:
-+	for_each_node(nid) {
-+		if (scratch_page[nid] != 0)
-+			uncached_free_page(scratch_page[nid]);
-+	}
-+	return ret;
-+}
-+
-+static void __exit
-+mspec_exit(void)
-+{
-+	int nid;
-+
-+	misc_deregister(&uncached_miscdev);
-+	misc_deregister(&cached_miscdev);
-+	if (is_sn2) {
-+		misc_deregister(&fetchop_miscdev);
-+
-+		for_each_node(nid) {
-+			if (scratch_page[nid] != 0)
-+				uncached_free_page(scratch_page[nid]);
-+		}
-+	}
-+}
-+
-+module_init(mspec_init);
-+module_exit(mspec_exit);
-+
-+MODULE_AUTHOR("Silicon Graphics, Inc.");
-+MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
-+MODULE_LICENSE("GPL");
-+MODULE_INFO(supported, "external");
+On Tue, Apr 11, 2006 at 05:51:01AM +0200, Adrian Bunk wrote:
+> synchronize_kernel() is both deprecated and completely unused.
+> 
+> Let's kill this bloat.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  Documentation/RCU/whatisRCU.txt |    1 -
+>  include/linux/rcupdate.h        |    1 -
+>  kernel/rcupdate.c               |    9 ---------
+>  3 files changed, 11 deletions(-)
+> 
+> --- linux-2.6.17-rc1-mm2-full/Documentation/RCU/whatisRCU.txt.old	2006-04-11 01:23:39.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/Documentation/RCU/whatisRCU.txt	2006-04-11 01:23:45.000000000 +0200
+> @@ -790,7 +790,6 @@
+>  
+>  RCU grace period:
+>  
+> -	synchronize_kernel (deprecated)
+>  	synchronize_net
+>  	synchronize_sched
+>  	synchronize_rcu
+> --- linux-2.6.17-rc1-mm2-full/include/linux/rcupdate.h.old	2006-04-11 01:23:53.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/include/linux/rcupdate.h	2006-04-11 01:24:28.000000000 +0200
+> @@ -263,7 +263,6 @@
+>  				void (*func)(struct rcu_head *head)));
+>  extern void FASTCALL(call_rcu_bh(struct rcu_head *head,
+>  				void (*func)(struct rcu_head *head)));
+> -extern __deprecated_for_modules void synchronize_kernel(void);
+>  extern void synchronize_rcu(void);
+>  void synchronize_idle(void);
+>  extern void rcu_barrier(void);
+> --- linux-2.6.17-rc1-mm2-full/kernel/rcupdate.c.old	2006-04-11 01:24:36.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/kernel/rcupdate.c	2006-04-11 01:24:57.000000000 +0200
+> @@ -593,14 +593,6 @@
+>  	wait_for_completion(&rcu.completion);
+>  }
+>  
+> -/*
+> - * Deprecated, use synchronize_rcu() or synchronize_sched() instead.
+> - */
+> -void synchronize_kernel(void)
+> -{
+> -	synchronize_rcu();
+> -}
+> -
+>  module_param(blimit, int, 0);
+>  module_param(qhimark, int, 0);
+>  module_param(qlowmark, int, 0);
+> @@ -611,4 +603,3 @@
+>  EXPORT_SYMBOL_GPL_FUTURE(call_rcu);	/* WARNING: GPL-only in April 2006. */
+>  EXPORT_SYMBOL_GPL_FUTURE(call_rcu_bh);	/* WARNING: GPL-only in April 2006. */
+>  EXPORT_SYMBOL_GPL(synchronize_rcu);
+> -EXPORT_SYMBOL_GPL_FUTURE(synchronize_kernel); /* WARNING: GPL-only in April 2006. */
+> 

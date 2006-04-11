@@ -1,87 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWDKEV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWDKEsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbWDKEV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 00:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWDKEV4
+	id S1751229AbWDKEsq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 00:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWDKEsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 00:21:56 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:64900 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1751122AbWDKEVz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 00:21:55 -0400
-Message-ID: <443B2EE2.1030107@tlinx.org>
-Date: Mon, 10 Apr 2006 21:21:54 -0700
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 11 Apr 2006 00:48:46 -0400
+Received: from web33008.mail.mud.yahoo.com ([68.142.206.72]:6819 "HELO
+	web33008.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751229AbWDKEsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 00:48:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=uYD5u/q+rKFYkm3MKU0k0NEZJtD30QyV61tTXZTvuKFv2RciZF4KnS1e2FIkF3CCg3CQei/u7M9IXglARphbZWPcrzAZGgfM7DJn536jyW5ySsmTexAyVkzeqIeql1qKJg1mwnSAnaRUaH5iOBV6iWo2MQJFXMzhj3lAJB4BlWE=  ;
+Message-ID: <20060411044845.87232.qmail@web33008.mail.mud.yahoo.com>
+Date: Mon, 10 Apr 2006 21:48:45 -0700 (PDT)
+From: Stephen Cameron <smcameron@yahoo.com>
+Subject: Re: cciss: bug fix for crash when running hpacucli
+To: linux-kernel@vger.kernel.org, mike.miller@hp.com, akpm@osdl.org
 MIME-Version: 1.0
-To: Herbert Rosmanith <kernel@wildsau.enemy.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Q on audit, audit-syscall: insecure?
-References: <200604051127.k35BR3Qe009718@wildsau.enemy.org>
-In-Reply-To: <200604051127.k35BR3Qe009718@wildsau.enemy.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+
+> "Mike Miller (OS Dev)" <m...@beardog.cca.cpqcorp.net> wrote:
+>
+>> This patch fixes a crash when running hpacucli with multiple logical volumes
+>>  on a cciss controller. We were not properly initializing the disk->queue
+>>  and causing a fault.
+>
+>Please confirm that this is safe&appropriate for backporting into 2.6.16.x? 
+
+I think it should be ok, so long as those kernels contain 
+Jens's softirq changes, and I think they do, iirc.
+
+The problem was an ioctl that the hpacucli program uses to
+tell the driver to re-query the controller about what logical drives are
+configured (after it say, adds or deletes logical drives) didn't bother to set up
+the queue in this ioctl with the softirq function as it does in 
+cciss_init_one (the latter being called at init time).  
+
+The business end of the patch is this hunk, 
+which mimics code in cciss.c:cciss_init_one():
+
+ @@ -1249,6 +1296,8 @@ static void cciss_update_drive_info(int
+
+                blk_queue_max_sectors(disk->queue, 512);
+
++               blk_queue_softirq_done(disk->queue, cciss_softirq_done);
++
+                disk->queue->queuedata = hba[ctlr];
+
+                blk_queue_hardsect_size(disk->queue, 
+
+The rest of it is just moving functions around to satisfy the compiler
+about function prototypes.
+
+Well, maybe that doesn't answer your question if you were wanting
+stronger verification, such as actual testing with those kernels.
+If the function cciss_init_one contains a call to blk_queue_softirq_done, 
+but cciss_update_drive_info does not contain such a call, then
+it's a safe bet this patch or something very like it is needed.  
+cciss_update_drive_info needs to do the same thing per new drive as
+cciss_init_one does.
+
+-- steve
 
 
-Herbert Rosmanith wrote:
->  * The method for actual interception of syscall entry and exit (not in
->  * this file -- see entry.S) is based on a GPL'd patch written by
->  * okir@suse.de and Copyright 2003 SuSE Linux AG.
->   
-===
-    How does this audit method overcome the well known security
-problem or race condition where one object is decoded and stored at
-audit time, and a second, different object is used when the kernel
-decodes the same arguments a second time, between which, user memory
-has changed?
-
-    I.e. -
-    From this description, audit could store the filename used in an
-"open" call by decoding the open arguments and recording
-(copying from user-space into kernel space audit-buffer), then
-return to the beginning of the code of the actual system call.
-    Then a process on another CPU or an interrupting process on
-the same CPU runs and changes the contents of the user-buffer.
-    Then execution resumes in "audited" process and the "open" system
-call decodes the arguments and copies the *different* filename from
-the user space buffer into the kernel space buffer which the kernel
-then uses for the call. 
-
-    Usually, double-decoding of arguments is not just inefficient, but also
-insecure because of this problem.  It's not practical to mask off interrupts
-or halt all other CPU's to prevent them from accessing the user-memory
-buffer. 
-
-    The only safe way, that I'm aware of, is for "audit" to record
-the arguments after the kernel has decoded and transferred them from
-user space to kernel space.
-
-    Is Linux's audit implementation secure or is it expected that it will
-be vulnerable to these insecure race conditions?
-
-    If it is vulnerable, the integrity of the audit records is known to
-be suspect.  Such a system would not pass an open CAPP security evaluation.
-However, if evaluators are properly misled, known-flawed
-systems have been known to achieve CAPP and LSPP certification.  To my
-understanding, it's not illegal to construct a certification plan such
-that the certifier is led around such bugs.  It's also possible that
-certifier doesn't know enough about the system to suspect such a problem.
-
-The ethical preference would be to eliminate the race condition, but when
-someone less ethical is in charge, it may not be your decision.  And if
-a corporation, interested in the bottom line is running the priorities,
-which would be cheaper?  On one hand you have the easy, two points of
-insertion for auditing before and after the common system call vector,
-    versus
-spending the extra cycles (and $$$) to add calls for audit-recording in
-every security relevant call, both at entry and exit points, then
-testing the resulting code?
-
-The second method is considerably more efficient because the security is
-built into the kernel, instead of tacked on as an afterthought, but
-$$$ often speak louder than ethics in a corporate/capitalist environment.
-
-Linda
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

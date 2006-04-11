@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWDKQaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbWDKQbH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbWDKQaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 12:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWDKQaj
+	id S1751040AbWDKQbH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 12:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWDKQbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 12:30:39 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6813 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751206AbWDKQai (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 12:30:38 -0400
-Date: Tue, 11 Apr 2006 09:26:20 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Linux 2.6.16.3
-Message-ID: <20060411162620.GA10332@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Tue, 11 Apr 2006 12:31:07 -0400
+Received: from mail.latinred.net ([62.37.236.165]:63115 "HELO
+	mail.latinred.net") by vger.kernel.org with SMTP id S1751040AbWDKQbG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 12:31:06 -0400
+Message-ID: <49a901c65d85$5dbba550$c9d611ac@wnet.es.wanadoo.com>
+From: "LATINMAIL" <latinmail@latinred.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Re: file
+Date: Tue, 11 Apr 2006 18:20:26 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Outlook Express 6.00.2800.1506
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.16.3 kernel.
+Apreciado usuario:
 
-The diffstat and short summary of the fixes are below.
+Bienvenido al buzón del Servicio de Atención al Cliente de Wanadoo/Latinmail, desde donde nos complacera resolver tus dudas y responder a cuantas preguntas nos quieras plantear.
+En primer lugar lamentar los incovenientes que la incidencia comentada en tu mail
+ te pueda estar ocasionando.Estamos trabajando para solventalarla en el menor espacio de
+tiempo posible.
 
-I'll also be replying to this message with a copy of the patch between
-2.6.16.2 and 2.6.16.3, as it is small enough to do so.
+Te recomendamos realizes lo siguiente:
 
-The updated 2.6.16.y git tree can be found at:
- 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+- Borra las cookies de tu Pc y actualiza la versión de tu navegador a IE 6.0 o superior.
 
-thanks,
+Si aún realizando esto, continuas teniendo el mismo problema, no dudes en volverte a poner en contacto con nostros, indicando en  el asunto del mensaje: 
+Error_continua.
+Indicarte que desde ya estamos trabajando en la resolución de la incidencia que nos has hecho llegar.
+Nos pondremos en contacto contigo en el menor espacio de tiempo posible.
 
-greg k-h
+Rogamos disculpes las molestias ocasiondas.
+ 
+Aprovechamos la ocasión para enviarte un cordial saludo.
 
---------
+Atentamente
 
- Makefile                |    2 +-
- security/keys/key.c     |    4 ++++
- security/keys/keyring.c |    1 +
- 3 files changed, 6 insertions(+), 1 deletion(-)
+Servicio Atencion al Cliente
 
-Summary of changes from v2.6.16.2 to v2.6.16.3
-==============================================
+Wanadoo/Latinmail
 
-David Howells:
-      Keys: Fix oops when adding key to non-keyring [CVE-2006-1522]
+ 
 
-Greg Kroah-Hartman:
-      Linux 2.6.16.3
 

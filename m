@@ -1,553 +1,284 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWDKIGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWDKIMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWDKIGu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 04:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWDKIGu
+	id S932354AbWDKIMH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 04:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWDKIMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 04:06:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:49729 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932353AbWDKIGs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 04:06:48 -0400
-Date: Tue, 11 Apr 2006 10:07:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: sys_tee
-Message-ID: <20060411080705.GB3439@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="yEPQxsgoJgBvi8ip"
-Content-Disposition: inline
+	Tue, 11 Apr 2006 04:12:06 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:64215 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932354AbWDKIME
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 04:12:04 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 3/3] deinline a few large functions in vlan code - v3
+Date: Tue, 11 Apr 2006 11:11:12 +0300
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@vger.kernel.org
+References: <200604111043.13605.vda@ilport.com.ua> <200604111047.36941.vda@ilport.com.ua> <20060411.005858.49205474.davem@davemloft.net>
+In-Reply-To: <20060411.005858.49205474.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_gS2OEAQ6TLxI9u+"
+Message-Id: <200604111111.12554.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---yEPQxsgoJgBvi8ip
-Content-Type: text/plain; charset=us-ascii
+--Boundary-00=_gS2OEAQ6TLxI9u+
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Hi,
+On Tuesday 11 April 2006 10:58, David S. Miller wrote:
+> This is not very nice, there is no way I'm applying these patches.
+> 
+> I think the current situation is far better than the large pile of
+> ifdefs these patches are adding to the tree.
+> 
+> Let's just leave things the way they are ok?
 
-Here follows an implementation of sys_tee. It works a little differently
-that one might expect from the name (hence it might need a change).
-Basically what it does is duplicate one pipe to another - not by copying
-the contents, but merely linking it. sys_tee doesn't consume the input
-pipe, so you are free to read the same data from that as you just teed
-to the output pipe.
+:(
 
-So to implement an efficient tee, one would do something like:
+Ok, one last try. Would you like this smallish patch instead?
+It takes care of those BIG inlines.
+--
+vda
 
-        /*
-         * Duplicate stdin to stdout
-         */
-        len = tee(STDIN_FILENO, STDOUT_FILENO, INT_MAX, SPLICE_F_NONBLOCK);
+--Boundary-00=_gS2OEAQ6TLxI9u+
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="2.6.16.vlan_inline5_core-1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="2.6.16.vlan_inline5_core-1.patch"
 
-        /*
-         * Splice stdin to file
-         */
-        splice(STDIN_FILENO, file_fd, len, 0);
-
-and none of that data would touch user space. I'm attaching a sample
-ktee.c implementation as a reference. The "meat" of that file is the two
-lines I showed above.
-
-Patch applies on top of current splice branch, it wont apply to
-2.6.17-rc1.
-
-------
-
-Basically an in-kernel implementation of tee, which uses splice and the
-pipe buffers as an intelligent way to pass data around by reference.
-
-Where the user space tee consumes the input and produces a stdout and
-file output, this syscall merely duplicates the data inside a pipe to
-another pipe. No data is copied, the output just grabs a reference to the
-input pipe data.
-
-Signed-off-by: Jens Axboe <axboe@suse.de>
-
----
-
- arch/i386/kernel/syscall_table.S |    1 
- arch/ia64/kernel/entry.S         |    1 
- arch/powerpc/kernel/systbl.S     |    1 
- fs/pipe.c                        |    7 +
- fs/splice.c                      |  186 ++++++++++++++++++++++++++++++++++++++
- include/asm-i386/unistd.h        |    3 -
- include/asm-ia64/unistd.h        |    3 -
- include/asm-powerpc/unistd.h     |    3 -
- include/asm-x86_64/unistd.h      |    4 +
- include/linux/pipe_fs_i.h        |    1 
- include/linux/syscalls.h         |    1 
- 11 files changed, 207 insertions(+), 4 deletions(-)
-
-3c81754e333add4bd05ffb015ad8960006757b6e
-diff --git a/arch/i386/kernel/syscall_table.S b/arch/i386/kernel/syscall_table.S
-index 4f58b9c..f48bef1 100644
---- a/arch/i386/kernel/syscall_table.S
-+++ b/arch/i386/kernel/syscall_table.S
-@@ -314,3 +314,4 @@ ENTRY(sys_call_table)
- 	.long sys_get_robust_list
- 	.long sys_splice
- 	.long sys_sync_file_range
-+	.long sys_tee			/* 315 */
-diff --git a/arch/ia64/kernel/entry.S b/arch/ia64/kernel/entry.S
-index 750e8e7..766155c 100644
---- a/arch/ia64/kernel/entry.S
-+++ b/arch/ia64/kernel/entry.S
-@@ -1606,5 +1606,6 @@ sys_call_table:
- 	data8 sys_ni_syscall			// 1295 reserved for ppoll
- 	data8 sys_unshare
- 	data8 sys_splice
-+	data8 sys_tee
+diff -urpN linux-2.6.16.org/net/core/Makefile linux-2.6.16.vlan/net/core/Makefile
+--- linux-2.6.16.org/net/core/Makefile	Mon Mar 20 07:53:29 2006
++++ linux-2.6.16.vlan/net/core/Makefile	Tue Apr 11 10:15:59 2006
+@@ -7,7 +7,7 @@ obj-y := sock.o request_sock.o skbuff.o 
  
- 	.org sys_call_table + 8*NR_syscalls	// guard against failures to increase NR_syscalls
-diff --git a/arch/powerpc/kernel/systbl.S b/arch/powerpc/kernel/systbl.S
-index 1424eab..a14c964 100644
---- a/arch/powerpc/kernel/systbl.S
-+++ b/arch/powerpc/kernel/systbl.S
-@@ -323,3 +323,4 @@ COMPAT_SYS(pselect6)
- COMPAT_SYS(ppoll)
- SYSCALL(unshare)
- SYSCALL(splice)
-+SYSCALL(tee)
-diff --git a/fs/pipe.c b/fs/pipe.c
-index e984beb..7fefb10 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -131,12 +131,19 @@ static int anon_pipe_buf_steal(struct pi
- 	return 0;
- }
+ obj-$(CONFIG_SYSCTL) += sysctl_net_core.o
  
-+static void anon_pipe_buf_get(struct pipe_inode_info *info,
-+			      struct pipe_buffer *buf)
-+{
-+	page_cache_get(buf->page);
-+}
-+
- static struct pipe_buf_operations anon_pipe_buf_ops = {
- 	.can_merge = 1,
- 	.map = anon_pipe_buf_map,
- 	.unmap = anon_pipe_buf_unmap,
- 	.release = anon_pipe_buf_release,
- 	.steal = anon_pipe_buf_steal,
-+	.get = anon_pipe_buf_get,
- };
+-obj-y		     += dev.o ethtool.o dev_mcast.o dst.o \
++obj-y		     += dev.o ethtool.o dev_mcast.o dev_vlan.o dst.o \
+ 			neighbour.o rtnetlink.o utils.o link_watch.o filter.o
  
- static ssize_t
-diff --git a/fs/splice.c b/fs/splice.c
-index 78b8b9a..b63fb2f 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -125,12 +125,19 @@ static void page_cache_pipe_buf_unmap(st
- 	kunmap(buf->page);
- }
+ obj-$(CONFIG_XFRM) += flow.o
+diff -urpN linux-2.6.16.org/include/linux/if_vlan.h linux-2.6.16.vlan/include/linux/if_vlan.h
+--- linux-2.6.16.org/include/linux/if_vlan.h	Mon Mar 20 07:53:29 2006
++++ linux-2.6.16.vlan/include/linux/if_vlan.h	Tue Apr 11 10:15:59 2006
+@@ -149,49 +149,9 @@ struct vlan_skb_tx_cookie {
+ #define vlan_tx_tag_get(__skb)	(VLAN_TX_SKB_CB(__skb)->vlan_tag)
  
-+static void page_cache_pipe_buf_get(struct pipe_inode_info *info,
-+				    struct pipe_buffer *buf)
-+{
-+	page_cache_get(buf->page);
-+}
-+
- static struct pipe_buf_operations page_cache_pipe_buf_ops = {
- 	.can_merge = 0,
- 	.map = page_cache_pipe_buf_map,
- 	.unmap = page_cache_pipe_buf_unmap,
- 	.release = page_cache_pipe_buf_release,
- 	.steal = page_cache_pipe_buf_steal,
-+	.get = page_cache_pipe_buf_get,
- };
+ /* VLAN rx hw acceleration helper.  This acts like netif_{rx,receive_skb}(). */
+-static inline int __vlan_hwaccel_rx(struct sk_buff *skb,
++int __vlan_hwaccel_rx(struct sk_buff *skb,
+ 				    struct vlan_group *grp,
+-				    unsigned short vlan_tag, int polling)
+-{
+-	struct net_device_stats *stats;
+-
+-	skb->dev = grp->vlan_devices[vlan_tag & VLAN_VID_MASK];
+-	if (skb->dev == NULL) {
+-		dev_kfree_skb_any(skb);
+-
+-		/* Not NET_RX_DROP, this is not being dropped
+-		 * due to congestion.
+-		 */
+-		return 0;
+-	}
+-
+-	skb->dev->last_rx = jiffies;
+-
+-	stats = vlan_dev_get_stats(skb->dev);
+-	stats->rx_packets++;
+-	stats->rx_bytes += skb->len;
+-
+-	skb->priority = vlan_get_ingress_priority(skb->dev, vlan_tag);
+-	switch (skb->pkt_type) {
+-	case PACKET_BROADCAST:
+-		break;
+-
+-	case PACKET_MULTICAST:
+-		stats->multicast++;
+-		break;
+-
+-	case PACKET_OTHERHOST:
+-		/* Our lower layer thinks this is not local, let's make sure.
+-		 * This allows the VLAN to have a different MAC than the underlying
+-		 * device, and still route correctly.
+-		 */
+-		if (!memcmp(eth_hdr(skb)->h_dest, skb->dev->dev_addr, ETH_ALEN))
+-			skb->pkt_type = PACKET_HOST;
+-		break;
+-	};
+-
+-	return (polling ? netif_receive_skb(skb) : netif_rx(skb));
+-}
++				    unsigned short vlan_tag, int polling);
  
- /*
-@@ -961,7 +968,186 @@ asmlinkage long sys_splice(int fd_in, lo
- 		}
+ static inline int vlan_hwaccel_rx(struct sk_buff *skb,
+ 				  struct vlan_group *grp,
+@@ -218,43 +178,7 @@ static inline int vlan_hwaccel_receive_s
+  * Following the skb_unshare() example, in case of error, the calling function
+  * doesn't have to worry about freeing the original skb.
+  */
+-static inline struct sk_buff *__vlan_put_tag(struct sk_buff *skb, unsigned short tag)
+-{
+-	struct vlan_ethhdr *veth;
+-
+-	if (skb_headroom(skb) < VLAN_HLEN) {
+-		struct sk_buff *sk_tmp = skb;
+-		skb = skb_realloc_headroom(sk_tmp, VLAN_HLEN);
+-		kfree_skb(sk_tmp);
+-		if (!skb) {
+-			printk(KERN_ERR "vlan: failed to realloc headroom\n");
+-			return NULL;
+-		}
+-	} else {
+-		skb = skb_unshare(skb, GFP_ATOMIC);
+-		if (!skb) {
+-			printk(KERN_ERR "vlan: failed to unshare skbuff\n");
+-			return NULL;
+-		}
+-	}
+-
+-	veth = (struct vlan_ethhdr *)skb_push(skb, VLAN_HLEN);
+-
+-	/* Move the mac addresses to the beginning of the new header. */
+-	memmove(skb->data, skb->data + VLAN_HLEN, 2 * VLAN_ETH_ALEN);
+-
+-	/* first, the ethernet type */
+-	veth->h_vlan_proto = __constant_htons(ETH_P_8021Q);
+-
+-	/* now, the tag */
+-	veth->h_vlan_TCI = htons(tag);
+-
+-	skb->protocol = __constant_htons(ETH_P_8021Q);
+-	skb->mac.raw -= VLAN_HLEN;
+-	skb->nh.raw -= VLAN_HLEN;
+-
+-	return skb;
+-}
++struct sk_buff *__vlan_put_tag(struct sk_buff *skb, unsigned short tag);
  
- 		fput_light(in, fput_in);
-+	}
-+
-+	return error;
-+}
-+
-+/*
-+ * Link contents of ipipe to opipe.
+ /**
+  * __vlan_hwaccel_put_tag - hardware accelerated VLAN inserting
+diff -urpN linux-2.6.16.org/net/core/dev_vlan.c linux-2.6.16.vlan/net/core/dev_vlan.c
+--- linux-2.6.16.org/net/core/dev_vlan.c	Thu Jan  1 03:00:00 1970
++++ linux-2.6.16.vlan/net/core/dev_vlan.c	Tue Apr 11 10:15:59 2006
+@@ -0,0 +1,110 @@
++/* 802.1q helpers.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
 + */
-+static int link_pipe(struct pipe_inode_info *ipipe,
-+		     struct pipe_inode_info *opipe,
-+		     size_t len, unsigned int flags)
++
++/* #if defined(CONFIG_VLAN_8021Q) || defined (CONFIG_VLAN_8021Q_MODULE) */
++
++#include <linux/skbuff.h>
++#include <linux/if_vlan.h>
++
++/* VLAN rx hw acceleration helper.  This acts like netif_{rx,receive_skb}(). */
++int __vlan_hwaccel_rx(struct sk_buff *skb,
++				    struct vlan_group *grp,
++				    unsigned short vlan_tag, int polling)
 +{
-+	struct pipe_buffer *ibuf, *obuf;
-+	int ret = 0, do_wakeup = 0, i;
++	struct net_device_stats *stats;
 +
-+	/*
-+	 * Potential ABBA deadlock, work around it by ordering lock
-+	 * grabbing by inode address. Otherwise two different processes
-+	 * could deadlock (one doing tee from A -> B, the other from B -> A).
-+	 */
-+	if (ipipe->inode < opipe->inode) {
-+		mutex_lock(&ipipe->inode->i_mutex);
-+		mutex_lock(&opipe->inode->i_mutex);
-+	} else {
-+		mutex_lock(&opipe->inode->i_mutex);
-+		mutex_lock(&ipipe->inode->i_mutex);
-+	}
++	skb->dev = grp->vlan_devices[vlan_tag & VLAN_VID_MASK];
++	if (skb->dev == NULL) {
++		dev_kfree_skb_any(skb);
 +
-+	for (i = 0;; i++) {
-+		if (!opipe->readers) {
-+			send_sig(SIGPIPE, current, 0);
-+			if (!ret)
-+				ret = -EPIPE;
-+			break;
-+		}
-+		if (ipipe->nrbufs - i) {
-+			ibuf = ipipe->bufs + ((ipipe->curbuf + i) & (PIPE_BUFFERS - 1));
-+
-+			/*
-+			 * If we have room, fill this buffer
-+			 */
-+			if (opipe->nrbufs < PIPE_BUFFERS) {
-+				int nbuf = (opipe->curbuf + opipe->nrbufs) & (PIPE_BUFFERS - 1);
-+
-+				/*
-+				 * Get a reference to this pipe buffer,
-+				 * so we can copy the contents over.
-+				 */
-+				ibuf->ops->get(ipipe, ibuf);
-+
-+				obuf = opipe->bufs + nbuf;
-+				*obuf = *ibuf;
-+
-+				if (obuf->len > len)
-+					obuf->len = len;
-+
-+				opipe->nrbufs++;
-+				do_wakeup = 1;
-+				ret += obuf->len;
-+				len -= obuf->len;
-+
-+				if (!len)
-+					break;
-+				if (opipe->nrbufs < PIPE_BUFFERS)
-+					continue;
-+			}
-+
-+			/*
-+			 * We have input available, but no output room.
-+			 * If we already copied data, return that.
-+			 */
-+			if (flags & SPLICE_F_NONBLOCK) {
-+				if (!ret)
-+					ret = -EAGAIN;
-+				break;
-+			}
-+			if (signal_pending(current)) {
-+				if (!ret)
-+					ret = -ERESTARTSYS;
-+				break;
-+			}
-+			if (do_wakeup) {
-+				smp_mb();
-+				if (waitqueue_active(&opipe->wait))
-+					wake_up_interruptible(&opipe->wait);
-+				kill_fasync(&opipe->fasync_readers, SIGIO, POLL_IN);
-+				do_wakeup = 0;
-+			}
-+
-+			opipe->waiting_writers++;
-+			pipe_wait(opipe);
-+			opipe->waiting_writers--;
-+			continue;
-+		}
-+
-+		/*
-+		 * No input buffers, do the usual checks for available
-+		 * writers and blocking and wait if necessary
++		/* Not NET_RX_DROP, this is not being dropped
++		 * due to congestion.
 +		 */
-+		if (!ipipe->writers)
-+			break;
-+		if (!ipipe->waiting_writers) {
-+			if (ret)
-+				break;
-+		}
-+		if (flags & SPLICE_F_NONBLOCK) {
-+			if (!ret)
-+				ret = -EAGAIN;
-+			break;
-+		}
-+		if (signal_pending(current)) {
-+			if (!ret)
-+				ret = -ERESTARTSYS;
-+			break;
-+		}
-+
-+		if (waitqueue_active(&ipipe->wait))
-+			wake_up_interruptible_sync(&ipipe->wait);
-+		kill_fasync(&ipipe->fasync_writers, SIGIO, POLL_OUT);
-+
-+		pipe_wait(ipipe);
++		return 0;
 +	}
 +
-+	mutex_unlock(&ipipe->inode->i_mutex);
-+	mutex_unlock(&opipe->inode->i_mutex);
++	skb->dev->last_rx = jiffies;
 +
-+	if (do_wakeup) {
-+		smp_mb();
-+		if (waitqueue_active(&opipe->wait))
-+			wake_up_interruptible(&opipe->wait);
-+		kill_fasync(&opipe->fasync_readers, SIGIO, POLL_IN);
- 	}
++	stats = vlan_dev_get_stats(skb->dev);
++	stats->rx_packets++;
++	stats->rx_bytes += skb->len;
 +
-+	return ret;
++	skb->priority = vlan_get_ingress_priority(skb->dev, vlan_tag);
++	switch (skb->pkt_type) {
++	case PACKET_BROADCAST:
++		break;
++
++	case PACKET_MULTICAST:
++		stats->multicast++;
++		break;
++
++	case PACKET_OTHERHOST:
++		/* Our lower layer thinks this is not local, let's make sure.
++		 * This allows the VLAN to have a different MAC than the underlying
++		 * device, and still route correctly.
++		 */
++		if (!memcmp(eth_hdr(skb)->h_dest, skb->dev->dev_addr, ETH_ALEN))
++			skb->pkt_type = PACKET_HOST;
++		break;
++	};
++
++	return (polling ? netif_receive_skb(skb) : netif_rx(skb));
 +}
++EXPORT_SYMBOL(__vlan_hwaccel_rx);
 +
-+/*
-+ * This is a tee(1) implementation that works on pipes. It doesn't copy
-+ * any data, it simply references the 'in' pages on the 'out' pipe.
-+ * The 'flags' used are the SPLICE_F_* variants, currently the only
-+ * applicable one is SPLICE_F_NONBLOCK.
++/**
++ * __vlan_put_tag - regular VLAN tag inserting
++ * @skb: skbuff to tag
++ * @tag: VLAN tag to insert
++ *
++ * Inserts the VLAN tag into @skb as part of the payload
++ * Returns a VLAN tagged skb. If a new skb is created, @skb is freed.
++ * 
++ * Following the skb_unshare() example, in case of error, the calling function
++ * doesn't have to worry about freeing the original skb.
 + */
-+static long do_tee(struct file *in, struct file *out, size_t len,
-+		   unsigned int flags)
++struct sk_buff *__vlan_put_tag(struct sk_buff *skb, unsigned short tag)
 +{
-+	struct pipe_inode_info *ipipe = in->f_dentry->d_inode->i_pipe;
-+	struct pipe_inode_info *opipe = out->f_dentry->d_inode->i_pipe;
++	struct vlan_ethhdr *veth;
 +
-+	/*
-+	 * Link ipipe to the two output pipes, consuming as we go along.
-+	 */
-+	if (ipipe && opipe)
-+		return link_pipe(ipipe, opipe, len, flags);
-+
-+	return -EINVAL;
-+}
-+
-+asmlinkage long sys_tee(int fdin, int fdout, size_t len, unsigned int flags)
-+{
-+	struct file *in;
-+	int error, fput_in;
-+
-+	if (unlikely(!len))
-+		return 0;
-+
-+	error = -EBADF;
-+	in = fget_light(fdin, &fput_in);
-+	if (in) {
-+		if (in->f_mode & FMODE_READ) {
-+			int fput_out;
-+			struct file *out = fget_light(fdout, &fput_out);
-+
-+			if (out) {
-+				if (out->f_mode & FMODE_WRITE)
-+					error = do_tee(in, out, len, flags);
-+				fput_light(out, fput_out);
-+			}
++	if (skb_headroom(skb) < VLAN_HLEN) {
++		struct sk_buff *sk_tmp = skb;
++		skb = skb_realloc_headroom(sk_tmp, VLAN_HLEN);
++		kfree_skb(sk_tmp);
++		if (!skb) {
++			printk(KERN_ERR "vlan: failed to realloc headroom\n");
++			return NULL;
 +		}
-+ 		fput_light(in, fput_in);
-+ 	}
- 
- 	return error;
- }
-diff --git a/include/asm-i386/unistd.h b/include/asm-i386/unistd.h
-index 7b1ba84..26b1882 100644
---- a/include/asm-i386/unistd.h
-+++ b/include/asm-i386/unistd.h
-@@ -320,8 +320,9 @@ #define __NR_set_robust_list	311
- #define __NR_get_robust_list	312
- #define __NR_splice		313
- #define __NR_sync_file_range	314
-+#define __NR_tee		315
- 
--#define NR_syscalls 315
-+#define NR_syscalls 316
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
-diff --git a/include/asm-ia64/unistd.h b/include/asm-ia64/unistd.h
-index 36070c1..3e122f1 100644
---- a/include/asm-ia64/unistd.h
-+++ b/include/asm-ia64/unistd.h
-@@ -286,12 +286,13 @@ #define __NR_faccessat			1293
- /* 1294, 1295 reserved for pselect/ppoll */
- #define __NR_unshare			1296
- #define __NR_splice			1297
-+#define __NR_tee			1298
- 
- #ifdef __KERNEL__
- 
- #include <linux/config.h>
- 
--#define NR_syscalls			274 /* length of syscall table */
-+#define NR_syscalls			275 /* length of syscall table */
- 
- #define __ARCH_WANT_SYS_RT_SIGACTION
- 
-diff --git a/include/asm-powerpc/unistd.h b/include/asm-powerpc/unistd.h
-index 536ba08..c612f1a 100644
---- a/include/asm-powerpc/unistd.h
-+++ b/include/asm-powerpc/unistd.h
-@@ -302,8 +302,9 @@ #define __NR_pselect6		280
- #define __NR_ppoll		281
- #define __NR_unshare		282
- #define __NR_splice		283
-+#define __NR_tee		284
- 
--#define __NR_syscalls		284
-+#define __NR_syscalls		285
- 
- #ifdef __KERNEL__
- #define __NR__exit __NR_exit
-diff --git a/include/asm-x86_64/unistd.h b/include/asm-x86_64/unistd.h
-index f21ff2c..d86494e 100644
---- a/include/asm-x86_64/unistd.h
-+++ b/include/asm-x86_64/unistd.h
-@@ -611,8 +611,10 @@ #define __NR_get_robust_list	274
- __SYSCALL(__NR_get_robust_list, sys_get_robust_list)
- #define __NR_splice		275
- __SYSCALL(__NR_splice, sys_splice)
-+#define __NR_tee		276
-+__SYSCALL(__NR_tee, sys_tee)
- 
--#define __NR_syscall_max __NR_splice
-+#define __NR_syscall_max __NR_tee
- 
- #ifndef __NO_STUBS
- 
-diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
-index 123a7c2..ef7f33c 100644
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -21,6 +21,7 @@ struct pipe_buf_operations {
- 	void (*unmap)(struct pipe_inode_info *, struct pipe_buffer *);
- 	void (*release)(struct pipe_inode_info *, struct pipe_buffer *);
- 	int (*steal)(struct pipe_inode_info *, struct pipe_buffer *);
-+	void (*get)(struct pipe_inode_info *, struct pipe_buffer *);
- };
- 
- struct pipe_inode_info {
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index 4c292fa..a60d8d4 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -576,5 +576,6 @@ asmlinkage long sys_splice(int fd_in, lo
- 
- asmlinkage long sys_sync_file_range(int fd, loff_t offset, loff_t nbytes,
- 					int flags);
-+asmlinkage long sys_tee(int fdin, int fdout, size_t len, unsigned int flags);
- 
- #endif
--- 
-1.3.0.rc1.g384e
++	} else {
++		skb = skb_unshare(skb, GFP_ATOMIC);
++		if (!skb) {
++			printk(KERN_ERR "vlan: failed to unshare skbuff\n");
++			return NULL;
++		}
++	}
++
++	veth = (struct vlan_ethhdr *)skb_push(skb, VLAN_HLEN);
++
++	/* Move the mac addresses to the beginning of the new header. */
++	memmove(skb->data, skb->data + VLAN_HLEN, 2 * VLAN_ETH_ALEN);
++
++	/* first, the ethernet type */
++	veth->h_vlan_proto = __constant_htons(ETH_P_8021Q);
++
++	/* now, the tag */
++	veth->h_vlan_TCI = htons(tag);
++
++	skb->protocol = __constant_htons(ETH_P_8021Q);
++	skb->mac.raw -= VLAN_HLEN;
++	skb->nh.raw -= VLAN_HLEN;
++
++	return skb;
++}
++EXPORT_SYMBOL(__vlan_put_tag);
++
++/* #endif */
 
-
--- 
-Jens Axboe
-
-
---yEPQxsgoJgBvi8ip
-Content-Type: text/x-c++src; charset=us-ascii
-Content-Disposition: attachment; filename="ktee.c"
-
-/*
- * A tee implementation using sys_tee.
- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <assert.h>
-#include <limits.h>
-
-#if defined(__i386__)
-#define __NR_splice	313
-#define __NR_tee	315
-#elif defined(__x86_64__)
-#define __NR_splice	275
-#define __NR_tee	276
-#elif defined(__powerpc__) || defined(__powerpc64__)
-#define __NR_splice	283
-#define __NR_tee	284
-#else
-#error unsupported arch
-#endif
-
-#define SPLICE_F_NONBLOCK (0x02)
-
-static inline int splice(int fdin, loff_t *off_in, int fdout, loff_t *off_out,
-			 size_t len, unsigned int flags)
-{
-	return syscall(__NR_splice, fdin, off_in, fdout, off_out, len, flags);
-}
-
-static inline int tee(int fdin, int fdout, size_t len, unsigned int flags)
-{
-	return syscall(__NR_tee, fdin, fdout, len, flags);
-}
-
-static int error(const char *n)
-{
-	perror(n);
-	return -1;
-}
-
-static int do_splice(int infd, int outfd, unsigned int len, char *msg)
-{
-	while (len) {
-		int written = splice(infd, NULL, outfd, NULL, len, 0);
-
-		if (written <= 0)
-			return error(msg);
-
-		len -= written;
-	}
-
-	return 0;
-}
-
-int main(int argc, char *argv[])
-{
-	struct stat sb;
-	int fd;
-
-	if (argc < 2) {
-		fprintf(stderr, "%s: outfile\n", argv[0]);
-		return 1;
-	}
-
-	if (fstat(STDIN_FILENO, &sb) < 0)
-		return error("stat");
-	if (!S_ISFIFO(sb.st_mode)) {
-		fprintf(stderr, "stdout must be a pipe\n");
-		return 1;
-	}
-
-	fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd < 0)
-		return error("open output");
-
-	do {
-		int tee_len = tee(STDIN_FILENO, STDOUT_FILENO, INT_MAX, SPLICE_F_NONBLOCK);
-
-		if (tee_len < 0) {
-			if (errno == EAGAIN) {
-				usleep(1000);
-				continue;
-			}
-			return error("tee");
-		} else if (!tee_len)
-			break;
-
-		/*
-		 * Send output to file, also consumes input pipe.
-		 */
-		if (do_splice(STDIN_FILENO, fd, tee_len, "splice-file"))
-			break;
-	} while (1);
-
-	return 0;
-}
-
---yEPQxsgoJgBvi8ip--
+--Boundary-00=_gS2OEAQ6TLxI9u+--

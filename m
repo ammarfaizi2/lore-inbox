@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWDKUmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWDKUrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWDKUmu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 16:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWDKUmu
+	id S1751362AbWDKUrB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 16:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWDKUrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 16:42:50 -0400
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:59408 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751390AbWDKUmt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 16:42:49 -0400
-Date: Tue, 11 Apr 2006 22:42:50 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Rudolf Marek <r.marek@sh.cvut.cz>, Jordan Crouse <jordan.crouse@amd.com>
-Cc: info-linux@ldcmail.amd.com, BGardner@Wabtec.com,
-       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
-Subject: Re: scx200_acb: Use PCI I/O resource when appropriate
-Message-Id: <20060411224250.9f2b2ead.khali@linux-fr.org>
-In-Reply-To: <443BD961.3050807@sh.cvut.cz>
-References: <20060331230309.GE17261@cosmic.amd.com>
-	<LYRIS-4270-45297-2006.04.11-06.08.18--jordan.crouse#amd.com@whitestar.amd.com>
-	<20060411161942.GB13334@cosmic.amd.com>
-	<443BD961.3050807@sh.cvut.cz>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 11 Apr 2006 16:47:01 -0400
+Received: from smtprelay03.ispgateway.de ([80.67.18.15]:16775 "EHLO
+	smtprelay03.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751362AbWDKUrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 16:47:01 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Subject: Re: [PATCH] tpm: sysfs function buffer size fix
+Date: Tue, 11 Apr 2006 22:45:01 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
+References: <1144679825.4917.10.camel@localhost.localdomain> <20060411111834.587e4461.akpm@osdl.org> <1144786558.12054.14.camel@localhost.localdomain>
+In-Reply-To: <1144786558.12054.14.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604112245.02443.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rudolf, Jordan,
+Hi Kylene,
 
-> Well we had the problem with i2c-viapro and vi686a. Best solution was
-> to fail from the probe function - like this:
-> 
->          /* Always return failure here.  This is to allow other drivers to bind
->           * to this pci device.  We don't really want to have control over the
->           * pci device, we only wanted to read as few register values from it.
->           */
->          return -ENODEV;
-> 
-> release_region:
->          release_region(vt596_smba, 8);
->          return error;
-> }
+On Tuesday, 11. April 2006 22:15, Kylene Jo Hall wrote:
+> --- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm.c	2006-04-11 14:56:13.311776750 -0500
+> +++ linux-2.6.17-rc1/drivers/char/tpm/tpm.c	2006-04-11 15:03:29.427032250 -0500
+> @@ -490,7 +490,7 @@ static ssize_t transmit_cmd(struct tpm_c
+>  
+>  void tpm_gen_interrupt(struct tpm_chip *chip)
+>  {
+> -	u8 data[30];
+> +	u8 data[max(ARRAY_SIZE(tpm_cap), 30)];
+>  	ssize_t rc;
+>  
+>  	memcpy(data, tpm_cap, sizeof(tpm_cap));
+> @@ -504,7 +504,7 @@ EXPORT_SYMBOL_GPL(tpm_gen_interrupt);
+>  
+>  void tpm_get_timeouts(struct tpm_chip *chip)
+>  {
+> -	u8 data[30];
+> +	u8 data[max(ARRAY_SIZE(TPM_CAP), 30)];
+>  	ssize_t rc;
+>  	u32 timeout;
+>  
 
-True, but we were lucky. You can only do that if you don't need to
-access the PCI configuration space during run-time (after the
-initialization step) in either driver "sharing" the PCI device. The
-i2c-viapro driver qualified, but for example we couldn't do that for
-the i2c-i801 driver (block transactions in I2C mode require PCI
-configuration register access.)
+Once in ALL CAPS and once in lower case?
+Sure about these?
 
-So depending on the exact hardware context, Jordan may or may not be
-able to use the same trick. The other (cleaner) solution is to have an
-additional module which registers the PCI device and exports some kind
-of interface for the other modules to access the parts they need - but
-this requires extra code and makes things much more complex too.
+Regards
 
--- 
-Jean Delvare
+Ingo Oeser

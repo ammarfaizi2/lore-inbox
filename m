@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWDKSqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWDKSwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbWDKSqY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 14:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWDKSqY
+	id S1750975AbWDKSwn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 14:52:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWDKSwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 14:46:24 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:12449 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750892AbWDKSqX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 14:46:23 -0400
-Date: Tue, 11 Apr 2006 20:46:15 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: libata-pata works on ICH4-M
-In-Reply-To: <443B9EBB.6010607@gmx.net>
-Message-ID: <Pine.LNX.4.61.0604112044340.25940@yvahk01.tjqt.qr>
-References: <443B9EBB.6010607@gmx.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 11 Apr 2006 14:52:43 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:57729 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1750971AbWDKSwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 14:52:42 -0400
+Date: Tue, 11 Apr 2006 15:52:41 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@mandriva.com.br>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ftdi_sio: Adds support for iPlus device.
+Message-ID: <20060411155241.72242b56@doriath.conectiva>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.16; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
 
->just a quick note to tell you that with ATA_ENABLE_PATA my
->system works fine and does even survive suspend-to-ram.
->This is a Samsung P35 laptop with one builtin 80 GB harddisk
->and one builtin DVD-RAM drive.
->libata patches are the ones included in 2.6.17-rc1-mm2 with
->an additional one-liner:
->
->ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0x1860 irq 14
->ata1: dev 0 cfg 49:2f00 82:346b 83:7f01 84:6003 85:3c69 86:3f01 87:6003 88:203f
->ata1: dev 0 ATA-7, max UDMA/100, 156368016 sectors: LBA48
->ata1: dev 0 configured for UDMA/100
->scsi0 : ata_piix
->  Vendor: ATA       Model: SAMSUNG MP0804H   Rev: UE10
->  Type:   Direct-Access                      ANSI SCSI revision: 05
->SCSI device sda: 156368016 512-byte hdwr sectors (80060 MB)
-[...]
+ Adds support in ftdi_sio usbserial driver for USB modems sold by
+Plus GSM Company in Poland.
 
-So libata has the overhead of using SCSI commands? At least 
-that's what it suggests to the normal user.
+Signed-off-by: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
 
+---
 
+ drivers/usb/serial/ftdi_sio.c |    1 +
+ drivers/usb/serial/ftdi_sio.h |    3 +++
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
-Jan
+cdb05e70295196f5ab2f19c415239b6f1c3be764
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index f3af81b..8a81e51 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -308,6 +308,7 @@ static struct ftdi_sio_quirk ftdi_HE_TIR
+ 
+ static struct usb_device_id id_table_combined [] = {
+ 	{ USB_DEVICE(FTDI_VID, FTDI_IRTRANS_PID) },
++	{ USB_DEVICE(FTDI_VID, FTDI_IPLUS_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SIO_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_8U232AM_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_8U232AM_ALT_PID) },
+diff --git a/drivers/usb/serial/ftdi_sio.h b/drivers/usb/serial/ftdi_sio.h
+index 8da773c..d703b80 100644
+--- a/drivers/usb/serial/ftdi_sio.h
++++ b/drivers/usb/serial/ftdi_sio.h
+@@ -39,6 +39,9 @@
+ /* www.thoughttechnology.com/ TT-USB provide with procomp use ftdi_sio */
+ #define FTDI_TTUSB_PID 0xFF20 /* Product Id */
+ 
++/* iPlus device */
++#define FTDI_IPLUS_PID 0xD070 /* Product Id */
++
+ /* www.crystalfontz.com devices - thanx for providing free devices for evaluation ! */
+ /* they use the ftdi chipset for the USB interface and the vendor id is the same */
+ #define FTDI_XF_632_PID 0xFC08	/* 632: 16x2 Character Display */
+-- 
+1.2.4
 
+-- 
+Luiz Fernando N. Capitulino

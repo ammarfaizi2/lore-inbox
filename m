@@ -1,67 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWDKTYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWDKT2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbWDKTYG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 15:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWDKTYG
+	id S1750971AbWDKT2P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 15:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWDKT2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 15:24:06 -0400
-Received: from mailer1.psc.edu ([128.182.58.100]:26059 "EHLO mailer1.psc.edu")
-	by vger.kernel.org with ESMTP id S1751081AbWDKTYF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 15:24:05 -0400
-Message-ID: <443C024C.2070107@psc.edu>
-Date: Tue, 11 Apr 2006 15:23:56 -0400
-From: John Heffner <jheffner@psc.edu>
-User-Agent: Thunderbird 1.5 (Macintosh/20051201)
+	Tue, 11 Apr 2006 15:28:15 -0400
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:59282 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1750971AbWDKT2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 15:28:14 -0400
+Message-ID: <443C0410.4080306@tmr.com>
+Date: Tue, 11 Apr 2006 15:31:28 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a1) Gecko/20060410 SeaMonkey/1.5a
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17 regression: Very slow net transfer from some hosts
-References: <443C03E6.7080202@gentoo.org>
-In-Reply-To: <443C03E6.7080202@gentoo.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 40% IDE performance regression going from FC3 to FC5 with same
+ kernel
+References: <5a4c581d0604080747w61464d48k5480391d98b2bc47@mail.gmail.com>
+In-Reply-To: <5a4c581d0604080747w61464d48k5480391d98b2bc47@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Hi,
+Alessandro Suardi wrote:
+> I'll be filing a FC5 performance bug for this but would like an opinion
+>  from the IDE kernel people just in case this has already been seen...
 > 
-> Since sometime after 2.6.16, some websites have been very slow to load. 
->  Examples include:
+> I just upgraded my home K7-800, 512MB RAM box from FC3 to FC5
+>  and noticed a disk performance slowdown while copying files around.
 > 
-> http://zd1211.ath.cx
-> http://developer.osdl.org/shemminger/blog/
-> http://www.reactivated.net/weblog
+> System has two 160GB disks, a Samsung SP1604N 2MB cache and
+>  a Maxtor 6Y160P0 8MB cache; both disks appear to be almost 2x
+>  slower both on hdparm -t tests (17-19MB/s against 33/35 MB/s) and
+>  on dd tests, like this:
 > 
-> On a good kernel, "wget http://zd1211.ath.cx" says:
-> 20:23:38 (90.44 KB/s) - `index.html' saved [20895/20895]
+> FC3
+> [root@donkey tmp]# time dd if=/dev/hda of=/dev/null skip=200 bs=1024k count=200
+> 200+0 records in
+> 200+0 records out
 > 
-> On a bad kernel:
-> 20:14:18 (327.01 B/s) - `index.html' saved [20895/20895]
+> real    0m4.623s
+> user    0m0.004s
+> sys     0m1.308s
 > 
-> I reproduced this on two different internet connections (same ISP 
-> though). However I cannot reproduce it on my other system.
+> FC5
+> [root@donkey tmp]#  time dd if=/dev/hda of=/dev/null skip=200 bs=1024k count=200
+> 200+0 records in
+> 200+0 records out
+> 209715200 bytes (210 MB) copied, 9.67808 seconds, 21.7 MB/s
 > 
-> git-bisect tracked it down to:
+> real    0m9.683s
+> user    0m0.008s
+> sys     0m1.400s
 > 
-> 7b4f4b5ebceab67ce440a61081a69f0265e17c2a is first bad commit
-> diff-tree 7b4f4b5ebceab67ce440a61081a69f0265e17c2a (from 
-> 2babf9daae4a3561f3264638a22ac7d0b14a6f52)
-> Author: John Heffner <jheffner@psc.edu>
-> Date:   Sat Mar 25 01:34:07 2006 -0800
 > 
->     [TCP]: Set default max buffers from memory pool size
+> The initial tests were my last FC3 self-compiled kernel (2.6.16-rc5-git8)
+>  vs FC5's 2.6.16-1.2080_FC5 kernel; so just to be sure, I copied over
+>  from my FC3 partition the 2.6.16-rc5-git8 kernel and its config file,
+>  and rebuilt it under FC5, with just a few differences for the new USB
+>  2.0 disk I added to a PCI controller I just put in, namely
 > 
-> Indeed, reverting this patch from 2.6.17-rc1-git4 allows those sites to 
-> load again.
+> [root@donkey linux-2.6.16-rc5-git8]# diff .config
+> /fc3/usr/src/linux-2.6.16-rc5-git8/.config
+> 4c4
+> < # Fri Apr  7 03:58:23 2006
+> ---
+>> # Mon Mar  6 22:49:32 2006
+> 1110,1112c1110
+> < CONFIG_USB_EHCI_HCD=m
+> < CONFIG_USB_EHCI_SPLIT_ISO=y
+> < CONFIG_USB_EHCI_ROOT_HUB_TT=y
+> ---
+>> # CONFIG_USB_EHCI_HCD is not set
+> 1115c1113
+> < CONFIG_USB_UHCI_HCD=m
+> ---
+>> CONFIG_USB_UHCI_HCD=y
+> 1218d1215
+> < # CONFIG_USB_SISUSBVGA is not set
 > 
-> Any ideas?
+> The result is unexpected - performance delta is still there. Concatenating
+>  output from hdparm -i /dev/hda and hdparm /dev/hda for the same kernel
+>  under FC3 and FC5, the only difference is
+> 
+> [root@donkey ~]# diff /tmp/hdparm.out.2616rc2git8-fc5
+> /tmp/hdparm.out.2616rc2git8
+> 14c14
+> <  Drive conforms to: (null):  ATA/ATAPI-1 ATA/ATAPI-2 ATA/ATAPI-3
+> ATA/ATAPI-4 ATA/ATAPI-5 ATA/ATAPI-6 ATA/ATAPI-7
+> ---
+>>  Drive conforms to: (null):
+> 27c27
+> <  geometry     = 19457/255/63, sectors = 312581808, start = 0
+> ---
+>>  geometry     = 19457/255/63, sectors = 160041885696, start = 0
+> 
+> I'll try now and rebuild a 2.6.16-rc5-git8 kernel under FC5 with the
+>  FC3 GCC and see whether that is responsible for the performance
+>  drop... of course if anyone has any idea about what's going on, I
+>  will be happy to try out stuff. Attaching hdparm output from the FC5
+>  2.6.16-rc5-git8 just to show that there is DMA etc. all configured fine.
 
-I'm not seeing this behavior myself.  What are the values of 
-/proc/sys/net/ipv4/tcp_wmem, tcp_rmem, and tcp_mem?  How much memory 
-does this system have?  (A binary tcpdump might be good, too.)
-
-Thanks,
-   -John
-
+Could you look at params with hdparm, and display the readahead with
+"blockdev --getra" and see if this is read or write limited?

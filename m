@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWDKNkp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWDKNtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWDKNkp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 09:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWDKNkp
+	id S1750963AbWDKNtp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 09:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWDKNtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 09:40:45 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:11993 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1750874AbWDKNkp (ORCPT
+	Tue, 11 Apr 2006 09:49:45 -0400
+Received: from smtpout.mac.com ([17.250.248.84]:24533 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750962AbWDKNto (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 09:40:45 -0400
-Date: Tue, 11 Apr 2006 15:40:54 +0200
-From: Petr Baudis <pasky@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
+	Tue, 11 Apr 2006 09:49:44 -0400
+In-Reply-To: <20060411063127.97362.qmail@web54314.mail.yahoo.com>
+References: <20060411063127.97362.qmail@web54314.mail.yahoo.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <9CF84823-E0BA-404C-9C5A-CAFF0D4C92DF@mac.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dumpable tasks and ownership of /proc/*/fd
-Message-ID: <20060411134054.GU27631@pasky.or.cz>
-References: <20060408120815.GB16588@pasky.or.cz> <m17j5yhtp4.fsf@ebiederm.dsl.xmission.com> <20060410065332.GD16588@pasky.or.cz> <m1r745ho6s.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1r745ho6s.fsf@ebiederm.dsl.xmission.com>
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: GPL issues
+Date: Tue, 11 Apr 2006 09:49:39 -0400
+To: Ramakanth Gunuganti <rgunugan@yahoo.com>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Mon, Apr 10, 2006 at 09:42:03AM CEST, I got a letter
-where "Eric W. Biederman" <ebiederm@xmission.com> said that...
-> The most straight forward is:
-> int openat(int dirfd, const char *path, int flags, int mode)
-> {
->         int orig_dir_fd;
->         int result;
-> 	lock()
-> 	orig_dir_fd = open(".");
-> 	fchdir(dirfd);
->         result = open(relpath);
->         fchdir(orig_dir_fd);
->         close(orig_dir_fd);
->         unlock();
->         return result;
-> }
-> 
-> I suspect something like the above needs to be considered if
-> you want the emulation to work on old kernels, in the presence
-> of suid applications.
-> 
-..snip..
-> 
-> Although I guess you could attempt to use /proc/self/fd/<n>
-> and if that gets a permission problem try a slower but more
-> reliable path in the emulation.
+On Apr 11, 2006, at 02:31:27, Ramakanth Gunuganti wrote:
+> I am trying to understand the GPL boundaries for Linux, any  
+> clarification provided on the following issues below would be great:
+> [...]
+> Anyone trying to build a new application to work on Linux must have  
+> these issues clarified, if you can share your experiences that  
+> would be great too.
 
-Oops, I completely forgot about fchdir(). Thanks, I think I will use
-something like this for now.
+If you're planning to make money off of any code developed based in  
+part off of the Linux Kernel, you should definitely contact a lawyer  
+familiar with the linux kernel and ask them.  Any advice you get from  
+this list should probably come prefixed with "IANAL", and as such  
+isn't worth terribly much.
 
+Cheers,
+Kyle Moffett
 
-By the way, I would like to return to a statement from your previous
-mail:
-
-> Other processes we do need to deny if we aren't dumpable because
-> they don't have another way to get that information.
-
-I still don't understand this - so why don't provide them _this_ way to
-get that information? What is the security risk?
-
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-Right now I am having amnesia and deja-vu at the same time.  I think
-I have forgotten this before.

@@ -1,98 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWDKXFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWDKXGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWDKXFG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 19:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWDKXFG
+	id S1751335AbWDKXGp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 19:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWDKXGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 19:05:06 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:7389 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751340AbWDKXFF (ORCPT
+	Tue, 11 Apr 2006 19:06:45 -0400
+Received: from mail.acc.umu.se ([130.239.18.156]:54940 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S1751335AbWDKXGo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 19:05:05 -0400
-Date: Tue, 11 Apr 2006 16:05:05 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>,
-       Leendert Van Doorn <leendert@us.ibm.com>
-Subject: Re: [PATCH 7/7] tpm: Driver for next generation TPM chips
-Message-ID: <20060411230505.GB21210@us.ibm.com>
-References: <1144679848.4917.15.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Tue, 11 Apr 2006 19:06:44 -0400
+Date: Wed, 12 Apr 2006 01:06:42 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Ramakanth Gunuganti <rgunugan@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL issues
+Message-ID: <20060411230642.GV23222@vasa.acc.umu.se>
+Mail-Followup-To: Ramakanth Gunuganti <rgunugan@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20060411063127.97362.qmail@web54314.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1144679848.4917.15.camel@localhost.localdomain>
-X-Operating-System: Linux 2.6.16-i386 (i686)
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060411063127.97362.qmail@web54314.mail.yahoo.com>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10.04.2006 [09:37:28 -0500], Kylene Jo Hall wrote:
-> This patch contains the driver for the next generation of TPM chips
-> version 1.2 including support for interrupts.  The Trusted Computing
-> Group has written the TPM Interface Specification (TIS) which defines a
-> common interface for all manufacturer's 1.2 TPM's thus the name
-> tpm_tis.
-> 
-> This updated version of the patch uses the new sysfs files that came
-> about from the comments and changes in patch 6/7.  It replaces the 7/7
-> patch from the original set.
+OK, simplified rules; if you follow them you should generally be OK:
 
-<snip>
+1. Changes to kernel --> GPL
 
-> +static int request_locality(struct tpm_chip *chip, int l)
-> +{
-> +	unsigned long stop;
-> +
-> +	if (check_locality(chip, l) >= 0)
-> +		return l;
-> +
-> +	iowrite8(TPM_ACCESS_REQUEST_USE,
-> +		 chip->vendor.iobase + TPM_ACCESS(l));
-> +
-> +	if (chip->vendor.irq) {
-> +		interruptible_sleep_on_timeout(&chip->vendor.int_queue,
-> +					       HZ *
-> +					       chip->vendor.timeout_a /
-> +					       1000);
-> +		if (check_locality(chip, l) >= 0)
-> +			return l;
-> +
-> +	} else {
-> +		/* wait for burstcount */
-> +		stop = jiffies + (HZ * chip->vendor.timeout_a / 1000);
-> +		do {
-> +			if (check_locality(chip, l) >= 0)
-> +				return l;
-> +			msleep(TPM_TIMEOUT);
-> +		}
-> +		while (time_before(jiffies, stop));
-> +	}
+2. Kernel driver --> GPL
 
-This looks like it could take the msecs_to_jiffies() conversion as well.
-Might as well cache it before the if/else, as both clauses use it?
-Really, it is just wait_event*() without the wait-queue. Well, this is
-at least one more consumer potentially of the poll_event*() API I had
-written a while back, I'll dust it off again if I have the time.
+3. Userspace code that uses interfaces that was not exposed to userspace
+before you change the kernel --> GPL (but don't do it; there's almost
+always a reason why an interface is not exported to userspace)
 
-<snip>
+4. Userspace code that only uses existing interfaces --> choose
+license yourself (but of course, GPL would be nice...)
 
-> +static int get_burstcount(struct tpm_chip *chip)
-> +{
-> +	unsigned long stop;
-> +	int burstcnt;
-> +
-> +	/* wait for burstcount */
-> +	/* which timeout value, spec has 2 answers (c & d) */
-> +	stop = jiffies + (HZ * chip->vendor.timeout_d / 1000);
+5. Userspace code that depends on interfaces you added to the kernel
+--> consult a lawyer (if this interface is something completely new,
+you can *probably* use your own license for the userland part; if the
+interface is more or less a wrapper of existing functionality, GPL)
 
-msecs_to_jiffies().
+And of course, I'm not a lawyer either...
 
-<snip>
 
-With the changes you've already made, that should clean up the sleeping
-code a bit, at least.
-
+Regards: David Weinehall
 -- 
-Nishanth Aravamudan <nacc@us.ibm.com>
-IBM Linux Technology Center
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

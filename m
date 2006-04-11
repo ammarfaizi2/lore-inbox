@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWDKUfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWDKUgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWDKUfH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 16:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWDKUfH
+	id S1751382AbWDKUgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 16:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWDKUgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 16:35:07 -0400
-Received: from mail.kroah.org ([69.55.234.183]:65187 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751281AbWDKUfG (ORCPT
+	Tue, 11 Apr 2006 16:36:22 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:62171 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751302AbWDKUgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 16:35:06 -0400
-Date: Tue, 11 Apr 2006 13:30:41 -0700
-From: Greg KH <gregkh@suse.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
-Subject: Re: several messages
-Message-ID: <20060411203041.GA5555@suse.de>
-References: <20060411173323.GA29965@kroah.com> <Pine.LNX.4.61.0604112102170.25940@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Apr 2006 16:36:21 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Christian Heimanns <ch.heimanns@gmx.de>
+Subject: Re: Suspend to disk
+Date: Tue, 11 Apr 2006 22:35:18 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>
+References: <443C0C2D.1020207@gmx.de>
+In-Reply-To: <443C0C2D.1020207@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0604112102170.25940@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
+Message-Id: <200604112235.18943.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 11, 2006 at 09:04:42PM +0200, Jan Engelhardt wrote:
-> 
-> >Date: Tue, 11 Apr 2006 09:26:20 -0700
-> >Subject: Linux 2.6.16.3
-> >David Howells:
-> >      Keys: Fix oops when adding key to non-keyring [CVE-2006-1522]
-> 
-> >Date: Tue, 11 Apr 2006 10:33:23 -0700
-> >Subject: Linux 2.6.16.4
-> >Oleg Nesterov:
-> >      RCU signal handling [CVE-2006-1523]
-> 
-> Now admins spend another hour this day just to upgrade.
-> These two patches could have been queued until the end of the day. Maybe 
-> another one turns up soon.
+Hi,
 
-The first one went out last night, as it was a real issue that affected
-people and I had already waited longer than I felt comfortable with, due
-to travel issues I had (two different talks in two different cities in
-two different days.)
+On Tuesday 11 April 2006 22:06, Christian Heimanns wrote:
+> Hello to all,
+> following situation:
+> On my notebook Samsung X20 1730V I'm running Slackware 10.2 current with
+> kernel 2.6.15.6. Suspend to RAM and suspend to disk works fine.
+> Since kernel >= 2.6.16 suspend to disk breaks the restore of the
+> X-Server. That means that the current sessions is lost and the X-Server
+> restarts.
 
-The second one went out today, because it was reported today.  Should I
-have waited until tomorrow to see if something else came up?
+Does it resume successfully without X (ie. runlevel 3)?
 
-thanks,
+> No problems with suspend to RAM. Please find attached the 
+> dmesg output for kernel 2.6.15.6 and 2.6.16.2. As well there is the
+> output frpm lspci. The only difference I can find is that I have with
+> kernel 2.6.16 some
 
-greg k-h
+Do you use a framebuffer driver and if so, is it modular?
+
+Greetings,
+Rafael

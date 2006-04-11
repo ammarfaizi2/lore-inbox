@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWDKLaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWDKLah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWDKLaP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 07:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWDKLaO
+	id S1750760AbWDKLah (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 07:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWDKLag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 07:30:14 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19333 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750758AbWDKLaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 07:30:13 -0400
-To: "Prasanna Meda" <mlp@google.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Comment about proc-dont-lock-task_structs-indefinitely.patch
-References: <608a53b0604101242v4778af80ybaf639c38cc00587@mail.google.com>
-	<608a53b0604110348g22445b00u5ef57286eb230d58@mail.google.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 11 Apr 2006 05:28:52 -0600
-In-Reply-To: <608a53b0604110348g22445b00u5ef57286eb230d58@mail.google.com> (Prasanna
- Meda's message of "Tue, 11 Apr 2006 16:18:48 +0530")
-Message-ID: <m1ek04bbbf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 11 Apr 2006 07:30:36 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:60371 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750760AbWDKLae (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 07:30:34 -0400
+Date: Tue, 11 Apr 2006 13:30:29 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Grzegorz Kulewski <kangur@polcom.net>
+cc: Helge Hafting <helge.hafting@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Slow swapon for big (12GB) swap
+In-Reply-To: <Pine.LNX.4.63.0604101205300.31989@alpha.polcom.net>
+Message-ID: <Pine.LNX.4.61.0604111329520.928@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.63.0604091338030.31989@alpha.polcom.net>
+ <443A0A6F.2040500@aitel.hist.no> <Pine.LNX.4.63.0604101205300.31989@alpha.polcom.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Prasanna Meda" <mlp@google.com> writes:
-
-> On 4/11/06, Prasanna Meda <mlp@google.com> wrote:
 >
->>
->> The task decrement problem is fixed, but I think we have two more
->> problems in the following patch segment.
->>
+> Well - I use it for /var/tmp for compiling packages in Gentoo. Most compiles
+> use < 1MB of it and it is *much* faster that way because immendiate data never
+> touch disk. And the disk stays idle the whole time so can be put to sleep and
+> should live longer.
 >
-> I think you agreed with the first problem. And the second problem is,
-> show_map_internal is still treating m->private as task_struct instead
-> of  proc_maps_private.
 
-Sorry my brain has been off thinking about a subtle
-bug accidentally introduced in 2.6.17-rc1.
-
-You are absolutely right.  Somehow I missed the
-fact that show_map_internal was using m->private.
-Because get_gate_vma doesn't actually use it's argument
-no bad behavior will result but that could change.
-
-As for the seek case you may be right.
-I have a cold that is beating on me, and I need to take a nap.
-
-I remember looking at that closely and not seeing a problem,
-but I have made mistakes before, and I'm not certain I recall
-the seek case.
+Spinning the disk up and down more often than a continuously-running disk 
+is also a issue.
 
 
-Eric
-
-
-
-
+Jan Engelhardt
+-- 

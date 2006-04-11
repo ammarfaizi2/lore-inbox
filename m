@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWDKIC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWDKIGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWDKIC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 04:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWDKIC6
+	id S932346AbWDKIGU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 04:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWDKIGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 04:02:58 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:21684
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932340AbWDKIC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 04:02:57 -0400
-Date: Tue, 11 Apr 2006 01:02:43 -0700 (PDT)
-Message-Id: <20060411.010243.132136674.davem@davemloft.net>
-To: vda@ilport.com.ua
-Cc: dave@thedillows.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH] deinline a few large functions in vlan code v2
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200604111028.54813.vda@ilport.com.ua>
-References: <200604101716.58463.vda@ilport.com.ua>
-	<1144682807.12177.22.camel@dillow.idleaire.com>
-	<200604111028.54813.vda@ilport.com.ua>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 11 Apr 2006 04:06:20 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:22224 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932346AbWDKIGT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 04:06:19 -0400
+Date: Tue, 11 Apr 2006 16:03:26 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Roland McGrath <roland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Michael Kerrisk <mtk-lkml@gmx.net>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] fix de_thread() vs do_coredump() deadlock
+Message-ID: <20060411120326.GA84@oleg>
+References: <20060410174346.GA100@oleg> <20060411072722.0953A1809BB@magilla.sf.frob.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060411072722.0953A1809BB@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Denis Vlasenko <vda@ilport.com.ua>
-Date: Tue, 11 Apr 2006 10:28:54 +0300
+On 04/11, Roland McGrath wrote:
+>
+> > So, de_thread() sets SIGNAL_GROUP_EXEC and sends SIGKILL to other thereads.
+> > 
+> > Sub-thread receives the signal, and calls get_signal_to_deliver->do_group_exit.
+> > do_group_exit() calls zap_other_threads(SIGNAL_GROUP_EXIT) because there is no
+> > SIGNAL_GROUP_EXIT set. zap_other_threads() notices SIGNAL_GROUP_EXEC, wakes up
+> > execer, and changes ->signal->flags to SIGNAL_GROUP_EXIT.
+> > 
+> > de_thread() re-locks sighand, sees !SIGNAL_GROUP_EXEC and goes to 'dying:'.
+> 
+> That is what I intend.  The exec'ing thread backs out and processes its SIGKILL.
+> It sounds like you are calling this scenario a problem, but I don't know why.
 
-> But it saves some text (~5k total in all network drivers)
-> and removes a branch on rx path on non-VLAN enabled kernels...
+Ok, here is the test:
 
-It removes "5K total" when you build every single networking driver
-statically into the main kernel image.
+#include <stdio.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <stdlib.h>
 
-Nobody does that except for build sanity testing.  Folks will
-enable the drivers they need for their testing into a static
-kernel, or build all the net drivers they want modular.
+static void *tfunc(void *arg)
+{
+	pause();
+	return NULL;
+}
 
-Please resist the urge to work on things like this in a robotic
-fashion.  Consider whether the thing you're working on really matters
-in real life, and whether the alternative you're providing is really
-an overall improvement.  In this case you're "improving" a case only
-kernel build testers will use, and the amount of ifdef's added by
-your patches uglify the code immensely.  To me, that's a clear net
-loss.
+int main(int argc, const char *argv[])
+{
+	pthread_t thread;
+
+	if (!argv[0]) {
+		printf("--------- SUCCESS ----------\n");
+		exit(0);
+	}
+
+	if (pthread_create(&thread, NULL, tfunc, NULL)) {
+		perror ("pthread_create");
+		exit (1);
+	}
+
+	execl("/proc/self/exe", NULL);
+
+	return pause();
+}
+
+
+	$ ./test
+	--------- SUCCESS ----------
+
+With this patch applied I have:
+
+	$ ./test
+	Killed
+
+Oleg.
+

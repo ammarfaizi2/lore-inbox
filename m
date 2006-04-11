@@ -1,53 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWDKUDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWDKUEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbWDKUDG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 16:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWDKUDG
+	id S1751367AbWDKUEs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 16:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWDKUEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 16:03:06 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:12738 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751361AbWDKUDE (ORCPT
+	Tue, 11 Apr 2006 16:04:48 -0400
+Received: from nproxy.gmail.com ([64.233.182.184]:16038 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751367AbWDKUEr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 16:03:04 -0400
-Message-ID: <443C0B8F.7010501@de.ibm.com>
-Date: Tue, 11 Apr 2006 22:03:27 +0200
-From: Carsten Otte <cotte@de.ibm.com>
-Reply-To: carsteno@de.ibm.com
-Organization: IBM Deutschland
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 11 Apr 2006 16:04:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=mXVzEIbJa3Klrs11jrme66RjknGH9qFYaBRpKJ5TKGoEViN8oaNVDvrBUceFrAUlXvXxhV6Aokpsx64+fULD0N43tEnhVl8J2ioIffDVfC0I52xodt5pM1gahqAPijNiPaOwzb5ZB3rD/2OFVtwhNTe7uxPuRplW0AeYEWYXJJ4=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ISDN: unsafe interaction between isdn_write and isdn_writebuf_stub
+Date: Tue, 11 Apr 2006 22:05:21 +0200
+User-Agent: KMail/1.9.1
+Cc: Karsten Keil <kkeil@suse.de>, Kai Germaschewski <kai.germaschewski@gmx.de>,
+       Fritz Elfert <fritz@isdn4linux.de>,
+       Michael Hipp <Michael.Hipp@student.uni-tuebingen.de>,
+       isdn4linux@listserv.isdn4linux.de, Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: carsteno@de.ibm.com, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       bjorn_helgaas@hp.com
-Subject: Re: [patch] do_no_pfn handler
-References: <yq0k6a6uc7i.fsf@jaguar.mkp.net> <yq0psjonq2p.fsf@jaguar.mkp.net> <Pine.LNX.4.64.0604110751510.10745@g5.osdl.org> <443BCA98.1020805@de.ibm.com> <Pine.LNX.4.64.0604110830260.10745@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0604110830260.10745@g5.osdl.org>
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604112205.21736.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> You _really_ cannot do COW together with "random pfn filling".
-I still have'nt found a good way to do so, even after discussing with Nick and Hugh, but that's exactly where I intend to get for the xip stuff.
+isdn_write() and isdn_writebuf_stub() seem to have some unsafe interaction.
 
-Today, the _only_ code that uses the struct page behind those DCSS segments is aops->nopage (as return value) and do_wp_page. Those small servers have almost no local memory (kernel, libraries, and binaries are shared), and the mem_map array is a large overhead.
+I was originally just looking to fix this warning:
+  drivers/isdn/i4l/isdn_common.c:1956: warning: ignoring return value of `opy_from_user', declared with attribute warn_unused_result
+And indeed, the return value is not checked, and I can't convince myself
+that it's 100% certain that it can never fail.
 
-> You can do COW with a pure remap_pfn_range() (ie a /dev/mem kind of 
-> mapping, or a frame buffer etc), but that's only because it has a very 
-> magic special case that is used to distinguish between cow'ed pages and 
-> the pages that were inserted initially.
-> 
-> We have no free bits in the page tables to say "this is a COW page" in 
-> general (on x86 we could do it, but some other architectures don't have 
-> any SW-usable bits). 
-That's true. One can store that information in the vma flags, and split the vma into 3 vmas once we have a write fault. Although that would work in theory, I doubt it would save lot of memory because of too many vmas, and I think we would burn precious CPU horsepower walking all those vmas.
-I believe Hugh has already done an implementation for that which he does not consider nice. I have not found a feasible way to adress that issue so far, and I promise to keep from coding until I find a reasonable non-intrusive way to get there.
--- 
+While reading the code I also noticed that the while loop in isdn_write()
+only tests for isdn_writebuf_stub() return value != count as termination
+condition. This makes it impossible for isdn_writebuf_stub() to tell the 
+caller why it failed so the caller can pass that info on.
+It also looks unsafe that if isdn_writebuf_stub() fails to allocate an skb,
+then it just returns 0 (zero) which is unlikely to cause the != count 
+check in the caller to abort the loop, so it looks like it'll just enter 
+the function once more and again fail to alloc an skb, repeat ad infinitum.
 
-Carsten Otte
-IBM Linux technology center
-ARCH=s390
+To fix these things I first made isdn_writebuf_stub() return -ENOMEM if it 
+cannot allocate an skb and also return -EFAULT if the user copy fails.
+ (this ofcourse also fixes the warning I was originally investigating)
+
+Then I ditched the while loop in isdn_write() and replaced it with a 
+hand-coded loop made up of a label and a goto, and inside this hand-made 
+loop I then test if isdn_writebuf_stub() returns a value <=0 and if it does
+then that value is used as the `retval' from isdn_write() and if not then 
+it tests the !=count condition and otherwise behaves like the original 
+while loop.
+
+
+I hope my analysis of the situation and the resulting fix is correct; if 
+not, then I'd appreciate feedback pointing out my error(s).
+
+Unfortunately I have no hardware to properly test the patch, so it's 
+compile tested only. So please read the patch carefully before applying it.
+
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ drivers/isdn/i4l/isdn_common.c |   14 ++++++++++----
+ 1 files changed, 10 insertions(+), 4 deletions(-)
+
+--- linux-2.6.17-rc1-git4-orig/drivers/isdn/i4l/isdn_common.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.17-rc1-git4/drivers/isdn/i4l/isdn_common.c	2006-04-11 21:43:26.000000000 +0200
+@@ -1177,9 +1177,14 @@ isdn_write(struct file *file, const char
+ 			goto out;
+ 		}
+ 		chidx = isdn_minor2chan(minor);
+-		while (isdn_writebuf_stub(drvidx, chidx, buf, count) != count)
++ loop:
++		retval = isdn_writebuf_stub(drvidx, chidx, buf, count);
++		if (retval < 0)
++			goto out;
++		if (retval != count) {
+ 			interruptible_sleep_on(&dev->drv[drvidx]->snd_waitq[chidx]);
+-		retval = count;
++			goto loop;
++		}
+ 		goto out;
+ 	}
+ 	if (minor <= ISDN_MINOR_CTRLMAX) {
+@@ -1951,9 +1956,10 @@ isdn_writebuf_stub(int drvidx, int chan,
+ 	struct sk_buff *skb = alloc_skb(hl + len, GFP_ATOMIC);
+ 
+ 	if (!skb)
+-		return 0;
++		return -ENOMEM;
+ 	skb_reserve(skb, hl);
+-	copy_from_user(skb_put(skb, len), buf, len);
++	if (!copy_from_user(skb_put(skb, len), buf, len))
++		return -EFAULT;
+ 	ret = dev->drv[drvidx]->interface->writebuf_skb(drvidx, chan, 1, skb);
+ 	if (ret <= 0)
+ 		dev_kfree_skb(skb);
+
+
+
+

@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWDKVUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWDKV0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWDKVUc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 17:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWDKVUc
+	id S1751094AbWDKV0X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 17:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWDKV0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 17:20:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:202 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751098AbWDKVUb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 17:20:31 -0400
-Date: Tue, 11 Apr 2006 14:21:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       arjan@infradead.org, hare@suse.de, gibbs@scsiguy.com,
-       eike-kernel@sf-tec.de, stefanr@s5r6.in-berlin.de
-Subject: Re: [PATCH] cleanup after deinlining patch 1/2
-Message-Id: <20060411142115.4e19b1c9.akpm@osdl.org>
-In-Reply-To: <200604111013.26800.vda@ilport.com.ua>
-References: <200604111004.40339.vda@ilport.com.ua>
-	<200604111013.26800.vda@ilport.com.ua>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 11 Apr 2006 17:26:23 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:45193 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751094AbWDKV0W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 17:26:22 -0400
+Message-ID: <443C1ECA.1040308@us.ibm.com>
+Date: Tue, 11 Apr 2006 14:25:30 -0700
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Special handling of sysfs device resource files?
+X-Enigmail-Version: 0.92.0.0
+OpenPGP: id=AC84030F
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@ilport.com.ua> wrote:
->
-> On Tuesday 11 April 2006 10:04, Denis Vlasenko wrote:
-> > * moved inlines into aic79xx_core.c and aic7xxx_core.c
-> > * fixed bug in ahd_delay (made it a trivial wrapper around udelay)
-> > * fixed bug in aic7xxx_pci.c (wrong order of parameters
-> >   in ahc_pci_write_config calls)
-> > * marked a few functions static
-> > * spelling fix in error message
-> 
-> Won't apply t your tree because I failed to notice that you
-> already included those two small fixes.
-> 
-> Rediffed patch (which hopefully will apply) is attached. Sorry.
-> 
-> > Patch which does s/__inline/inline/g will follow in a few minutes.
-> 
-> This one (which I already sent) should apply.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I dropped everything except for aic7xxx-ahc_pci_write_config-fix.patch.
+I'm in the process of modifying X to be civilized in it's handling of
+PCI devices on Linux.  As part of that, I've modified it to map the
+/sys/bus/pci/device/*/resource[0-6] files instead of mucking about with
+/dev/mem.
 
-So please resend all patches from scratch.  Preferably with accurate
-Subject:s and with standalone changelogs, thanks.
+This seems to mostly work, but I am having one problem.  I map the
+region by opening the file with O_RDWR, then mmap with
+(PROT_READ|PROT_WRITE) and MAP_SHARED.  In all cases, the open and mmap
+succeed.  However, for I/O BARs, the resulting pointer from mmap is
+invalid.  Any access to it results in a segfault and GDB says it's "out
+of range".
+
+The base address of the BAR is page aligned, so its not a problem with
+the alignment of mmap vs. the alignment of the BAR.  What else could it
+be?  I'm pretty stumped.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+
+iD8DBQFEPB7KX1gOwKyEAw8RAhG/AJ4x+Vjl8V9SNeyMhYe2txeAeKALKACePCwL
+6s0kj4YhDY3/thVh6mvO5X4=
+=g9eu
+-----END PGP SIGNATURE-----

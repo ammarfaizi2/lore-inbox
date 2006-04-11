@@ -1,35 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWDKRJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWDKRXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbWDKRJp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 13:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWDKRJp
+	id S1751045AbWDKRXq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 13:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWDKRXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 13:09:45 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:18142 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751042AbWDKRJo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 13:09:44 -0400
-Date: Tue, 11 Apr 2006 10:09:18 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Mingming Cao <cmm@us.ibm.com>
-cc: akpm@osdl.org, kiran@scalex86.org,
-       Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
+	Tue, 11 Apr 2006 13:23:46 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:48364 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751029AbWDKRXp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 13:23:45 -0400
+Subject: Re: [RFC][PATCH 1/3] per cpu counter fixes for unsigned long type
+	counter overflow
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Andrew Morton <akpm@osdl.org>, kiran@scalex86.org, Laurent.Vivier@bull.net,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] ext3 percpu counter fixes to suppport for ext3
- unsigned long type free blocks counter
-In-Reply-To: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.64.0604111007230.564@schroedinger.engr.sgi.com>
-References: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20060411075440.GQ17364@schatzie.adilger.int>
+References: <1144691947.3964.54.camel@dyn9047017067.beaverton.ibm.com>
+	 <20060410151817.27766565.akpm@osdl.org>
+	 <1144717779.3964.93.camel@dyn9047017067.beaverton.ibm.com>
+	 <20060411075440.GQ17364@schatzie.adilger.int>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Tue, 11 Apr 2006 10:23:41 -0700
+Message-Id: <1144776221.3986.0.camel@dyn9047017067.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Apr 2006, Mingming Cao wrote:
+On Tue, 2006-04-11 at 01:54 -0600, Andreas Dilger wrote:
+> On Apr 10, 2006  18:09 -0700, Mingming Cao wrote:
+> > +static void __percpu_counter_mod(struct percpu_counter *fbc, long amount,
+> > +				int ul_overflow_check)
+> >  {
+> > +		 *  Before updating the global counter, if we detect the
+> > +		 *  updated new value will cause overflow, then we should not
+> > +		 *  do the update from this local counter at this moment. (i.e.
+> > +		 *  the local counter will not be cleared right now). The update
+> > +		 *  will be deferred at some point until either other local
+> > +		 *  counter updated the global counter first, or the local
+> > +		 *  counter's value will not cause global counter overflow.
+> 
+> Wouldn't it be better to update the counter by the maximum amount possible
+> to avoid overflow/underflow?
+> 
 
-> Here are the proposed patches to allow the ext3 free block accounting
-> works with more than 8TB storage.
+Yep. Thanks for pointing this out.:)
 
-Umm.. This is an issue on 32 bit platforms only. 64bit platforms x86_64, 
-ia64 etc do not need this. Would you make it arch specific?
+Mingming
+> Cheers, Andreas
+> --
+> Andreas Dilger
+> Principal Software Engineer
+> Cluster File Systems, Inc.
+> 
+

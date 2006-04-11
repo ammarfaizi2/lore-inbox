@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWDKGWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWDKGYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbWDKGWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 02:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWDKGWQ
+	id S932230AbWDKGYK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 02:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWDKGYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 02:22:16 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:32185 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932229AbWDKGWP (ORCPT
+	Tue, 11 Apr 2006 02:24:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57826 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932230AbWDKGYJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 02:22:15 -0400
-Date: Tue, 11 Apr 2006 14:19:23 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
+	Tue, 11 Apr 2006 02:24:09 -0400
+Date: Mon, 10 Apr 2006 22:23:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: ebiederm@xmission.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] de_thread: Don't confuse users do_each_thread.
-Message-ID: <20060411101923.GB112@oleg>
-References: <20060406220403.GA205@oleg> <m1y7yddo75.fsf_-_@ebiederm.dsl.xmission.com> <m1u091dnry.fsf@ebiederm.dsl.xmission.com> <200604110152.38861.ioe-lkml@rameria.de>
+Message-Id: <20060410222324.7b9daeef.akpm@osdl.org>
+In-Reply-To: <20060411100527.GA112@oleg>
+References: <20060406220403.GA205@oleg>
+	<m1acay1fbh.fsf@ebiederm.dsl.xmission.com>
+	<20060407234653.GB11460@oleg>
+	<20060407155113.37d6a3b3.akpm@osdl.org>
+	<20060407155619.18f3c5ec.akpm@osdl.org>
+	<m1d5fslcwx.fsf@ebiederm.dsl.xmission.com>
+	<20060408172745.GA89@oleg>
+	<m1y7yddo75.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1u091dnry.fsf@ebiederm.dsl.xmission.com>
+	<20060411100527.GA112@oleg>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604110152.38861.ioe-lkml@rameria.de>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/11, Ingo Oeser wrote:
+Oleg Nesterov <oleg@tv-sign.ru> wrote:
 >
-> While you are at it: Could you please avoid calculating current over 
-> and over again? 
+> Andrew, could you please drop these ones:
 > 
-> Just calculate it once and use the task_struct pointer.
+>  	task-make-task-list-manipulations-rcu-safe-fix.patch
+>  	task-make-task-list-manipulations-rcu-safe-fix-fix.patch
 
-Ironically, de_thread() has 'tsk' parameter which is equal to 'current'.
+plop, plop.
 
-Oleg.
+>  Then we need this "patch" for de_thread:
+> 
+>  -		list_add_tail_rcu(&current->tasks, &init_task.tasks);
+>  +		list_replace_rcu(&leader->tasks, &current->tasks);
+>   ...
+>  -		list_del_init(&leader->tasks);
 
+OK, please send patch.
+
+>  Currently I don't know how the code looks in -mm tree,
+
+http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2 is -mm-as-of-now.
+
+> I lost the plot.
+
+What plot?

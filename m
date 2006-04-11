@@ -1,76 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbWDKB5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWDKCHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbWDKB5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 21:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWDKB5Q
+	id S932172AbWDKCHd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 22:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWDKCHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 21:57:16 -0400
-Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:12888 "EHLO
-	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932255AbWDKB5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 21:57:15 -0400
-Message-ID: <443B0CF8.6060707@bigpond.net.au>
-Date: Tue, 11 Apr 2006 11:57:12 +1000
+	Mon, 10 Apr 2006 22:07:33 -0400
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:41195 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932172AbWDKCHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 22:07:32 -0400
+Message-ID: <443B0F62.1080207@bigpond.net.au>
+Date: Tue, 11 Apr 2006 12:07:30 +1000
 From: Peter Williams <pwil3058@bigpond.net.au>
 User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched: move enough load to balance average load per task
-References: <4439FF0C.8030407@bigpond.net.au> <20060410181237.A26977@unix-os.sc.intel.com>
-In-Reply-To: <20060410181237.A26977@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Al Boldi <a1426z@gawab.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+References: <200604031459.51542.a1426z@gawab.com> <200604090804.40867.a1426z@gawab.com> <44399E81.9050908@bigpond.net.au> <200604101743.23072.a1426z@gawab.com>
+In-Reply-To: <200604101743.23072.a1426z@gawab.com>
+Content-Type: text/plain; charset=windows-1256; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 11 Apr 2006 01:57:13 +0000
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 11 Apr 2006 02:07:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> On Mon, Apr 10, 2006 at 04:45:32PM +1000, Peter Williams wrote:
->> Problem:
+Al Boldi wrote:
+> Peter Williams wrote:
+>> Al Boldi wrote:
+>>> But how does this explain spa_no_frills setting promotion to max not
+>>> having this problem?
+>> I'm still puzzled by this.  The only thing I can think of is that the
+>> promotion mechanism is to simple in that it just moves all promotable
+>> tasks up one slot without regard for how long they've been on the queue.
+>>   Doing this was a deliberate decision based on the desire to minimize
+>> overhead and the belief that it wouldn't matter in the grand scheme of
+>> things.  I may do some experimenting with slightly more sophisticated
+>> version.
 >>
->> The current implementation of find_busiest_group() recognizes that 
->> approximately equal average loads per task for each group/queue are 
->> desirable (e.g. this condition will increase the probability that the 
->> top N highest priority tasks on an N CPU system will be on different 
->> CPUs) by being slightly more aggressive when *imbalance is small but the 
->> average load per task in "busiest" group is more than that in "this" 
->> group.  Unfortunately, the amount moved from "busiest" to "this" is too 
->> small to reduce the average load per task on "busiest" (at best there 
->> will be no change and at worst it will get bigger).
+>> Properly done, promotion should hardly ever occur but the cost would be
+>> slightly more complex enqueue/dequeue operations.  The current version
+>> will do unnecessary promotions but it was felt this was more than
+>> compensated for by the lower enqueue/dequeue costs.  We'll see how a
+>> more sophisticated version goes in terms of trade offs.
 > 
-> Peter, We don't need to reduce the average load per task on "busiest"
-> always. By moving a "busiest_load_per_task", we will increase the 
-> average load per task of lesser busy cpu (there by trying to achieve
-> the equality with busiest...)
+> Would this affect the current, nearly perfect, spa_no_frills rr-behaviour w/ 
+> its ability to circumvent the timeslice problem when setting promo to max?
+
+No, I'd leave those controls in there.
+
 > 
-> Can you give an example scenario where this patch helps? And doesn't
-> the normal imabalance calculations capture those issues?
+>>>> This is one good reason not to use spa_no_frills on
+>>>> production systems.
+>>> spa_ebs is great, but rather bursty.  Even setting max_ia_bonus=0
+>>> doesn't fix that.   Is there a way to smooth it like spa_no_frills?
+>> The principal determinant would be the smoothness of the yardstick.
+>> This is supposed to represent the task with the highest (recent) CPU
+>> usage rate per share and is used to determine how fairly CPU is being
+>> distributed among the currently active tasks.  Tasks are given a
+>> priority based on how their CPU usage rate per share compares to this
+>> yardstick.  This means that as the system load and/or type of task
+>> running changes the priorities of the tasks can change dramatically.
+>>
+>> Is the burstiness that you're seeing just in the observed priorities or
+>> is it associated with behavioural burstiness as well?
+> 
+> It's behavioural, exhibited in a choking style, like a jumpy mouse move 
+> during ia boosts.
 
-Yes, I think that the normal imbalance calculations (in 
-find_busiest_queue()) will generally capture the aim of having 
-approximately equal average loads per task on run queues.  But this bit 
-of code is a special case in that the extra aggression being taken by 
-the load balancer (in response to a scenario raised by you) is being 
-justified by the imbalance in the average loads per task so it behooves 
-us to do the best we can to ensure that that imbalance is addressed.
+Yeah, I just tried it on my machine with the same results.  It used to 
+behave quite well so I must have broken something recently.  I've been 
+trying different things for IA bonus calculations.
 
-I don't think this is true for try_to_wake_up() and some changes may be 
-desirable there.  However, any such changes would interact with the RT 
-load balancing that Ingo is working on and would need to be considered 
-in conjunction with that.
+BTW I've increased the smoothing of my rate statistics and that should 
+help smooth scheduling as a whole.  It used to average a tasks behaviour 
+over its last 10 cycles but now it does it over 44.  Plus I've moved 
+initial_time_slice as discussed.  I'll post patches for 2.6.17-rc1-mm2 
+shortly.
 
-Why I think "approximately equal average loads per task" is worthwhile 
-secondary aim for the load balancer is because it helps restore an 
-implicit aim (approximately equal numbers of tasks per run queue) that 
-was present in the original version.  This in turn means that the 
-distribution of priorities within the queues will be similar and this 
-increases the chances that (on an N CPU system) the N highest priority 
-tasks will be on different CPUs.  This is a desirable state of affairs.
+> 
+>>>> Perhaps you should consider creating a child
+>>>> scheduler on top of it that meets your needs?
+>>> Perhaps.
+>> Good.  I've been hoping that other interested parties might be
+>> encouraged by the small interface to SPA children to try different ideas
+>> for scheduling.
+> 
+> Is there a no-op child skeleton available?
+
+No.  But I could create one.
+
+> 
+>> One thing that could be played with here is to vary the time slice based
+>> on the priority.  This would be in the opposite direction to the normal
+>> scheduler with higher priority tasks (i.e. those with lower prio values)
+>> getting smaller time slices.  The rationale being:
+>>
+>> 1. stop tasks that have been given large bonuses from shutting out other
+>> tasks for too long, and
+>> 2. reduce the context switch rate for tasks that haven't received bonuses.
+>>
+>> Because tasks that get large bonuses will have short CPU bursts they
+>> should not be adversely effected (if this is done properly) as they will
+>> (except in exceptional circumstances such as a change in behaviour)
+>> surrender the CPU voluntarily before their reduced time slice has
+>> expired.  Imaginative use of the available statistics could make this
+>> largely automatic but there would be a need to be aware that the
+>> statistics can be distorted by the shorter time slices.
+>>
+>> On the other hand, giving tasks without bonuses longer time slices
+>> shouldn't adversely effect interactive performance as the interactive
+>> tasks will (courtesy of their bonuses) preempt them.
+> 
+> I couldn't agree more.  Tackling the problem on both fronts (prio/tslice) may 
+> give us more control, which could result in a more appropriate / fairer / 
+> smoother scheduler.
+
+"Hedging one's bets" as punters would say.
+
+> 
+> Thanks!
+
+My pleasure.
 
 Peter
 -- 

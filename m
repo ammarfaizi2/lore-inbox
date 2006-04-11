@@ -1,95 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWDKUPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWDKUPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751378AbWDKUPN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 16:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWDKUPN
+	id S1751369AbWDKUPK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 16:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWDKUPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 16:15:13 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:15813 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751378AbWDKUPL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 16:15:11 -0400
-Subject: [PATCH] tpm: update to use wait_event calls
+	Tue, 11 Apr 2006 16:15:10 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:2724 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751369AbWDKUPI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 16:15:08 -0400
+Subject: [PATCH] tpm: sysfs function buffer size fix
 From: Kylene Jo Hall <kjhall@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>,
        TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-In-Reply-To: <20060410150324.4dd55994.akpm@osdl.org>
-References: <1144679848.4917.15.camel@localhost.localdomain>
-	 <20060410150324.4dd55994.akpm@osdl.org>
+In-Reply-To: <20060411111834.587e4461.akpm@osdl.org>
+References: <1144679825.4917.10.camel@localhost.localdomain>
+	 <20060410144623.110895d0.akpm@osdl.org>
+	 <1144765495.4917.25.camel@localhost.localdomain>
+	 <20060411111834.587e4461.akpm@osdl.org>
 Content-Type: text/plain
-Date: Tue, 11 Apr 2006 15:15:59 -0500
-Message-Id: <1144786559.12054.15.camel@localhost.localdomain>
+Date: Tue, 11 Apr 2006 15:15:58 -0500
+Message-Id: <1144786558.12054.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-10 at 15:03 -0700, Andrew Morton wrote:
-> 
-> > +		interruptible_sleep_on_timeout(&chip->vendor.int_queue,
-> > +					       HZ *
-> > +					       chip->vendor.timeout_a /
-> > +					       1000);
+On Tue, 2006-04-11 at 11:18 -0700, Andrew Morton wrote:
+> Kylene Jo Hall <kjhall@us.ibm.com> wrote:
 > >
-> > ...
-> >
-> > +		interruptible_sleep_on_timeout(queue, HZ * timeout / 1000);
+> > > Does that look OK?
+> > 
+> >  No this is not ok because in several of these cases the response to the
+> >  command is longer than tpm_cap thus the reason for the hardcoded size.
 > 
-> Please don't use the sleep_on functions.  They are racy unless (iirc) both
-> the waker and wakee are holding lock_kernel().  If the race hits, we miss a
-> wakeup.
+> OK.
 > 
-> These should be converted to the not-racy wait_event_interruptible().
+> >  I can put in a max function though that compares the size of the
+> >  response and the tpm_cap.  The read functions will make sure the
+> >  response does not overflow the buffer should that length ever change in
+> >  the future.
+> 
+> Well, pretty much anything which will automatically increase the size of
+> that array in response to changing data structures would suit, thanks.
 
-Changed in this patch.
+Will do.  Fixed in this patch for all the sysfs files.
 
-Use wait_event_interruptible_timeout in place of
-interruptible_sleep_on_timeout due to its racy nature.
+This patch will determine the size of the buffer in the sysfs functions
+based on the size of the command structure(s), such as tpm_cap, and the
+known amount of data the command will return.  The receive functions are
+smart enough not to overflow the buffer should the command response
+change.
 
 Signed-off-by: Kylie Hall <kjhall@us.ibm.com>
 ---
- drivers/char/tpm/tpm_tis.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+ drivers/char/tpm/tpm.c |   15 +++++++--------
+ 1 files changed, 7 insertions(+), 8 deletions(-)
 
---- linux-2.6.17-rc1/drivers/char/tpm/tpm_tis.c	2006-04-11 12:18:35.573996500 -0500
-+++ linux-2.6.16-44/drivers/char/tpm/tpm_tis.c	2006-04-11 14:00:04.341229250 -0500
-@@ -95,10 +95,10 @@ static int request_locality(struct tpm_c
- 		 chip->vendor.iobase + TPM_ACCESS(l));
+--- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm.c	2006-04-11 14:56:13.311776750 -0500
++++ linux-2.6.17-rc1/drivers/char/tpm/tpm.c	2006-04-11 15:03:29.427032250 -0500
+@@ -490,7 +490,7 @@ static ssize_t transmit_cmd(struct tpm_c
  
- 	if (chip->vendor.irq) {
--		interruptible_sleep_on_timeout(&chip->vendor.int_queue,
--					       HZ *
--					       chip->vendor.timeout_a /
--					       1000);
-+		wait_event_interruptible_timeout(chip->vendor.int_queue,
-+						 (check_locality(chip, l) >= 0),
-+						 HZ * chip->vendor.timeout_a /
-+						 1000);
- 		if (check_locality(chip, l) >= 0)
- 			return l;
- 
-@@ -150,7 +150,7 @@ static int get_burstcount(struct tpm_chi
- }
- 
- static int wait_for_stat(struct tpm_chip *chip, u8 mask, u32 timeout,
--			 wait_queue_head_t * queue)
-+			 wait_queue_head_t *queue)
+ void tpm_gen_interrupt(struct tpm_chip *chip)
  {
- 	unsigned long stop;
- 	u8 status;
-@@ -161,7 +161,10 @@ static int wait_for_stat(struct tpm_chip
- 		return 0;
+-	u8 data[30];
++	u8 data[max(ARRAY_SIZE(tpm_cap), 30)];
+ 	ssize_t rc;
  
- 	if (chip->vendor.irq) {
--		interruptible_sleep_on_timeout(queue, HZ * timeout / 1000);
-+		wait_event_interruptible_timeout(*queue,
-+						 ((tpm_tis_status(chip) &
-+						   mask) == mask),
-+						 HZ * timeout / 1000);
- 		status = tpm_tis_status(chip);
- 		if ((status & mask) == mask)
- 			return 0;
+ 	memcpy(data, tpm_cap, sizeof(tpm_cap));
+@@ -504,7 +504,7 @@ EXPORT_SYMBOL_GPL(tpm_gen_interrupt);
+ 
+ void tpm_get_timeouts(struct tpm_chip *chip)
+ {
+-	u8 data[30];
++	u8 data[max(ARRAY_SIZE(TPM_CAP), 30)];
+ 	ssize_t rc;
+ 	u32 timeout;
+ 
+@@ -564,7 +564,6 @@ EXPORT_SYMBOL_GPL(tpm_get_timeouts);
+ 
+ void tpm_continue_selftest(struct tpm_chip *chip)
+ {
+-
+ 	u8 data[] = {
+ 		0, 193,			/* TPM_TAG_RQU_COMMAND */
+ 		0, 0, 0, 10,		/* length */
+@@ -578,7 +577,7 @@ EXPORT_SYMBOL_GPL(tpm_continue_selftest)
+ ssize_t tpm_show_enabled(struct device * dev, struct device_attribute * attr,
+ 			char *buf)
+ {
+-	u8 data[35];
++	u8 data[max(ARRAY_SIZE(tpm_cap), 30)];
+ 	ssize_t rc;
+ 
+ 	struct tpm_chip *chip = dev_get_drvdata(dev);
+@@ -600,7 +599,7 @@ EXPORT_SYMBOL_GPL(tpm_show_enabled);
+ ssize_t tpm_show_active(struct device * dev, struct device_attribute * attr,
+ 			char *buf)
+ {
+-	u8 data[35];
++	u8 data[max(ARRAY_SIZE(tpm_cap), 35)];
+ 	ssize_t rc;
+ 
+ 	struct tpm_chip *chip = dev_get_drvdata(dev);
+@@ -673,7 +672,7 @@ static const u8 pcrread[] = {
+ ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[30];
++	u8 data[max(max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(pcrread)), 30)];
+ 	ssize_t rc;
+ 	int i, j, num_pcrs;
+ 	__be32 index;
+@@ -790,7 +789,7 @@ static const u8 cap_version[] = {
+ ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
+ 		      char *buf)
+ {
+-	u8 data[30];
++	u8 data[max(max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
+ 	ssize_t rc;
+ 	char *str = buf;
+ 
+@@ -830,7 +829,7 @@ EXPORT_SYMBOL_GPL(tpm_show_caps);
+ ssize_t tpm_show_caps_1_2(struct device * dev,
+ 			  struct device_attribute * attr, char *buf)
+ {
+-	u8 data[30];
++	u8 data[max(max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version)), 30)];
+ 	ssize_t len;
+ 	char *str = buf;
+ 
 
 

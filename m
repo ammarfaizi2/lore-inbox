@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWDKTBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWDKTFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWDKTBS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 15:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWDKTBS
+	id S1751009AbWDKTFB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 15:05:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWDKTFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 15:01:18 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:36821 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750991AbWDKTBR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 15:01:17 -0400
-Subject: Re: [RFC][PATCH 0/3] ext3 percpu counter fixes to suppport for
-	ext3 unsigned long type free blocks counter
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, kiran@scalex86.org,
-       Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0604111007230.564@schroedinger.engr.sgi.com>
-References: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com>
-	 <Pine.LNX.4.64.0604111007230.564@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Tue, 11 Apr 2006 12:01:13 -0700
-Message-Id: <1144782073.3986.15.camel@dyn9047017067.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Apr 2006 15:05:01 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:60316 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751006AbWDKTFA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 15:05:00 -0400
+Date: Tue, 11 Apr 2006 21:04:42 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Greg KH <gregkh@suse.de>
+cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+Subject: Re: several messages
+In-Reply-To: <20060411173323.GA29965@kroah.com>
+Message-ID: <Pine.LNX.4.61.0604112102170.25940@yvahk01.tjqt.qr>
+References: <20060411173323.GA29965@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-11 at 10:09 -0700, Christoph Lameter wrote:
-> On Mon, 10 Apr 2006, Mingming Cao wrote:
-> 
-> > Here are the proposed patches to allow the ext3 free block accounting
-> > works with more than 8TB storage.
-> 
-> Umm.. This is an issue on 32 bit platforms only. 64bit platforms x86_64, 
-> ia64 etc do not need this. Would you make it arch specific?
 
-Yes, make sense. I will update my patch soon. Thanks.
+>Date: Tue, 11 Apr 2006 09:26:20 -0700
+>Subject: Linux 2.6.16.3
+>David Howells:
+>      Keys: Fix oops when adding key to non-keyring [CVE-2006-1522]
+
+>Date: Tue, 11 Apr 2006 10:33:23 -0700
+>Subject: Linux 2.6.16.4
+>Oleg Nesterov:
+>      RCU signal handling [CVE-2006-1523]
+
+Now admins spend another hour this day just to upgrade.
+These two patches could have been queued until the end of the day. Maybe 
+another one turns up soon.
 
 
-Mingming
-
-
-
+Jan Engelhardt
+-- 

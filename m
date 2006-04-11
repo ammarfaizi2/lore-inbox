@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWDKAGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWDKAIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWDKAGy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 20:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWDKAGy
+	id S932245AbWDKAIg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 20:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWDKAIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 20:06:54 -0400
-Received: from virtua-cwbas128-199.ctb.virtua.com.br ([201.21.141.199]:25104
-	"EHLO oops.ghostprotocols.net") by vger.kernel.org with ESMTP
-	id S932241AbWDKAGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 20:06:54 -0400
-Date: Mon, 10 Apr 2006 21:04:19 -0300
-To: "David S. Miller" <davem@davemloft.net>
-Cc: snakebyte@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] leak in net/dccp/ipv4.c
-Message-ID: <20060411000419.GA28645@mandriva.com>
-Mail-Followup-To: acme@mandriva.com,
-	"David S. Miller" <davem@davemloft.net>, snakebyte@gmx.de,
-	linux-kernel@vger.kernel.org
-References: <1144706846.31667.1.camel@alice> <20060410.164316.93690683.davem@davemloft.net>
-Mime-Version: 1.0
+	Mon, 10 Apr 2006 20:08:36 -0400
+Received: from ns1.suse.de ([195.135.220.2]:27867 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932245AbWDKAIf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 20:08:35 -0400
+From: Neil Brown <neilb@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Date: Tue, 11 Apr 2006 10:08:07 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060410.164316.93690683.davem@davemloft.net>
-X-Url: http://advogato.org/person/acme
-User-Agent: Mutt/1.5.9i
-From: acme@mandriva.com (Arnaldo Carvalho de Melo)
+Content-Transfer-Encoding: 7bit
+Message-ID: <17466.62311.155274.454051@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] drivers/md/md.c: make md_print_devices() static
+In-Reply-To: message from Adrian Bunk on Tuesday April 11
+References: <20060410222024.GL2408@stusta.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Apr 10, 2006 at 04:43:16PM -0700, David S. Miller escreveu:
-> From: Eric Sesterhenn <snakebyte@gmx.de>
-> Date: Tue, 11 Apr 2006 00:07:26 +0200
+On Tuesday April 11, bunk@stusta.de wrote:
+> This patch makes the needlessly global md_print_devices() static.
 > 
-> > we dont free req if we cant parse the options.
-> > This fixes coverity bug id #1046
-> > 
-> > Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-> 
-> Looks good.
-> 
-> Applied, thanks Eric.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Thanks everybody.
+Looks good, thanks.  It'll be in my next batch to Andrew.
 
-- Arnaldo
+NeilBrown

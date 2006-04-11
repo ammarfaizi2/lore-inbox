@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWDKR7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWDKSEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbWDKR7X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 13:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWDKR7W
+	id S1750912AbWDKSEa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 14:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWDKSEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 13:59:22 -0400
-Received: from nproxy.gmail.com ([64.233.182.186]:19051 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750897AbWDKR7W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 13:59:22 -0400
+	Tue, 11 Apr 2006 14:04:30 -0400
+Received: from zproxy.gmail.com ([64.233.162.203]:48330 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750911AbWDKSE3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 14:04:29 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type;
-        b=iIqWVMd4/Fncrmsh/aCTNXwUrQnZJ+HG3DA0TOxkOnxMf8/6FNgIT1h6g0eY7GqiHyov6+RWohEbW5pBISkAInlhlVywqCdRb9EopcZNkwyVbrFrj3tQGhlfIMVhNKizFkPHdo8RkQYjam1tp90JWObGVrp5sg9bO2ecIT3vxYU=
-Message-ID: <443BEE76.9050407@gmail.com>
-Date: Tue, 11 Apr 2006 19:59:18 +0200
-From: Xose Vazquez Perez <xose.vazquez@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fnrD/EagpVMPHOoAXv3ymgYrXWivaCgM7dhPsjU0AIKpzpRi/uS0sYC8PKdBXNowHzrwEJ20Qth+fM/YK3hI3QW24ovKT+4bOQSuhwS9hdhwJOxMWS/QUaRlzjpXnNSCPI68/Skg4DJIgYliYWjhdAjvqswlhYhYvJj6ZIg7K8g=
+Message-ID: <5a4c581d0604111104y65f35e68ha9a5ff7e4061a9ea@mail.gmail.com>
+Date: Tue, 11 Apr 2006 20:04:29 +0200
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Subject: Re: 40% IDE performance regression going from FC3 to FC5 with same kernel
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0604111325140.928@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 2.6.17-rc1-git4 1/1]  module.h: updated comments with a new
- license.
-Content-Type: multipart/mixed;
- boundary="------------040303090205080208050301"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5a4c581d0604080747w61464d48k5480391d98b2bc47@mail.gmail.com>
+	 <5a4c581d0604080834k7961aff5l7794b8893325a90c@mail.gmail.com>
+	 <1144511112.2989.8.camel@laptopd505.fenrus.org>
+	 <5a4c581d0604080927g532b6d10y7992d9adb4e63d08@mail.gmail.com>
+	 <1144514167.2989.10.camel@laptopd505.fenrus.org>
+	 <5a4c581d0604081007t32863bf4n1253ebd8352dbf35@mail.gmail.com>
+	 <Pine.LNX.4.61.0604111325140.928@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040303090205080208050301
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+On 4/11/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> >> try killing that one next; it may or may not help but it's sure worth a
+> >> try (esp given the success of the first kill :)
+> >
+> >killing udevd doesn't bring any improvement - still at 20MB/s.
+> >
+> >Do you want me to file a FC5 bugzilla entry with the current info
+> > or do you think there is something else that can be discussed
+> > on lkml ?
+> >
+>
+> Compile a non-initrd kernel and run it with the -b parameter (it's passed
+> to /sbin/init). From that shell, run your speed test. What does it show?
 
-hi,
+All my kernels are non-initrd (as long as I can do this in Fedora,
+ I will do that). How do I pass -b to init ?
 
+Thanks,
 
-"Dual MIT/GPL" is also accepted (kernel/module.c), so updated comments.
+--alessandro
 
-
--thanks-
-
--- 
-Politicos de mierda, yo no soy un terrorista.
-
---------------040303090205080208050301
-Content-Type: text/x-patch;
- name="licenses.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="licenses.diff"
-
-diff -Nuar o/include/linux/module.h n/include/linux/module.h
---- o/include/linux/module.h	2006-03-31 22:58:37.000000000 +0200
-+++ n/include/linux/module.h	2006-03-31 22:59:36.000000000 +0200
-@@ -106,6 +106,8 @@
-  *	"GPL and additional rights"	[GNU Public License v2 rights and more]
-  *	"Dual BSD/GPL"			[GNU Public License v2
-  *					 or BSD license choice]
-+ *	"Dual MIT/GPL"			[GNU Public License v2
-+ *					 or MIT license choice]
-  *	"Dual MPL/GPL"			[GNU Public License v2
-  *					 or Mozilla license choice]
-  *
-
-
---------------040303090205080208050301--
+ "Dreamer ? Each one of us is a dreamer. We just push it down deep because
+   we are repeatedly told that we are not allowed to dream in real life"
+     (Reinhold Ziegler)

@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWDKK3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWDKKcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWDKK3z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 06:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWDKK3z
+	id S1750709AbWDKKcj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 06:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWDKKcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 06:29:55 -0400
-Received: from dsl-KK-static-121.207.95.61.touchtelindia.net ([61.95.207.121]:62829
-	"EHLO mxsrvr.mail.connoiseur.com") by vger.kernel.org with ESMTP
-	id S1750709AbWDKK3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 06:29:55 -0400
-From: "Jagdish S Varma" <jsvarma@connoiseur.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RHEL 3.0 Advanced Server update 3 with Kernel 2.4.21-20 SMP
-Date: Tue, 11 Apr 2006 15:59:38 +0530
-Message-ID: <000901c65d52$d64315e0$0d64a8c0@jsv>
+	Tue, 11 Apr 2006 06:32:39 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:4028 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750709AbWDKKcj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 06:32:39 -0400
+Message-ID: <443B873B.9040908@sw.ru>
+Date: Tue, 11 Apr 2006 14:38:51 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Kir Kolyshkin <kir@openvz.org>, akpm@osdl.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net,
+       linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, herbert@13thfloor.at
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <1143228339.19152.91.camel@localhost.localdomain> <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com>
+In-Reply-To: <443151B4.7010401@tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-thread-index: AcZdUtXNz6l3yVnlRjqk313tVGMe5Q==
-X-OriginalArrivalTime: 11 Apr 2006 10:27:27.0125 (UTC) FILETIME=[87A7A450:01C65D52]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-We have purchased Quad Opteron (852) processor based server board from Tyan
-(S4881). This board is built with 64GB of RAM & 72.0GB SCSI Hard Disk drive.
-The same solution was sold on Rack mount config to a client.
+Bill,
 
- When the client tries to install RHEL 3.0 Advanced Server with update 3 &
-SMP kernel, the same installation itself hangs immediately after boot. The
-client wants to have kernel 2.4.21-20 SMP on the same distro of Linux,
-because they are using SYNOPSYS tool which is stable only on this version of
-Linux & kernel.
+>> OpenVZ will have live zero downtime migration and suspend/resume some 
+>> time next month.
+>>
+> Please clarify. Currently a migration involves:
+> - stopping or suspending the instance
+> - backing up the instance and all of its data
+> - creating an environment for the instance on a new machine
+> - transporting the data to a new machine
+> - installing the instance and all data
+> - starting the instance
 
-Can you please help us in resolving the matter? We have tried installing
-Fedora Core 4 with 2.6.11 kernel SMP ver. This works fine, but the SYNOPSYS
-tool is not stable. 
+> If you could just briefly cover how you do each of these steps with zero
+> downtime...
 
-Further the client has purchased the same config server from HP (DL585).
-This server is presently working fine under the RHEL 3.0 Advanced Server
-with update 3 on SMP kernel 2.4.21-20.
+it does exactly what you wrote with some minor steps such as networking 
+stop on source and start on destination etc.
 
-The HP server is based on AMD 8000 series chipset and the client s saying
-that the NVIDIA chipset based servers are not good. Please help in resolving
-this issue kindly.
+So I would detailed it like this:
+- freeze VPS
+- freeze networking
+- copy VPS data to destination
+- dump VPS
+- copy dump to the destination
+- restore VPS
+- unfreeze VPS
+- kill original VPS on source
 
+Moreover, in OpenVZ live migration allows to migrate 32bit VPSs between 
+i686 and x86-64 Linux machines.
 
-Jagdish S Varma
-
+Thanks,
+Kirill
 

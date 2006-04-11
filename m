@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWDKCor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWDKCnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWDKCor (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 22:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWDKCor
+	id S932251AbWDKCnO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 22:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWDKCnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 22:44:47 -0400
-Received: from colin.muc.de ([193.149.48.1]:17931 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932263AbWDKCor (ORCPT
+	Mon, 10 Apr 2006 22:43:14 -0400
+Received: from mx1.suse.de ([195.135.220.2]:34025 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932251AbWDKCnO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 22:44:47 -0400
-Date: 11 Apr 2006 04:44:39 +0200
-Date: Tue, 11 Apr 2006 04:44:39 +0200
-From: Andi Kleen <ak@muc.de>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       "Eric W.Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] kdump: x86_64 add crashdump trigger points
-Message-ID: <20060411024439.GB52164@muc.de>
-References: <20060410220511.GB24711@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 10 Apr 2006 22:43:14 -0400
+From: Andi Kleen <ak@suse.de>
+To: prasanna@in.ibm.com
+Subject: Re: [PATCH] [2/5] Switch Kprobes inline functions to __kprobes for x86_64
+Date: Tue, 11 Apr 2006 04:41:59 +0200
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
+       ananth@in.ibm.com, anil.s.keshavamurthy@intel.com,
+       systemtap@sources.redhat.com
+References: <20060410055712.GA24711@in.ibm.com> <20060410055813.GA23879@in.ibm.com>
+In-Reply-To: <20060410055813.GA23879@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060410220511.GB24711@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200604110442.00259.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 10, 2006 at 06:05:11PM -0400, Vivek Goyal wrote:
-> 
-> 
-> o Start booting into the capture kernel after an Oops if system is in a
->   unrecoverable state. System will boot into the capture kernel, if one is
->   pre-loaded by the user, and capture the kernel core dump.
-> 
-> o One of the following conditions should be true to trigger the booting of
->   capture kernel.
-> 	- panic_on_oops is set.
-> 	- pid of current thread is 0
-> 	- pid of current thread is 1
-> 	- Oops happened inside interrupt context.  
+On Monday 10 April 2006 07:58, Prasanna S Panchamukhi wrote:
+> Andrew Morton pointed out that compiler might not inline the functions
+> marked for inline in kprobes. There by allowing the insertion of probes
+> on these kprobes routines, which might cause recursion. This patch
+> removes all such inline and adds them to kprobes section there by
+> disallowing probes on all such routines. Some of the routines can
+> even still be inlined, since these routines gets executed after
+> the kprobes had done necessay setup for reentrancy.
 
-I would rather put it into die(). Then the patch will be much smaller
-too.
+Ok for me.
 
 -Andi

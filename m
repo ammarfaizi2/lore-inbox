@@ -1,77 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWDKDXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWDKDNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWDKDXp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 23:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWDKDXp
+	id S932260AbWDKDNe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 23:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWDKDNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 23:23:45 -0400
-Received: from mga01.intel.com ([192.55.52.88]:28445 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932271AbWDKDXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 23:23:45 -0400
-X-IronPort-AV: i="4.04,109,1144047600"; 
-   d="scan'208"; a="22404022:sNHT18413843"
-Subject: [PATCH] inline function prefix with __always_inline invsyscall
-	function
-From: "mao, bibo" <bibo.mao@intel.com>
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 11 Apr 2006 11:13:16 +0800
-Message-Id: <1144725196.9974.10.camel@maobb.site>
+	Mon, 10 Apr 2006 23:13:34 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:35243 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S932260AbWDKDNd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 23:13:33 -0400
+X-IMAP-Sender: amg
+Date: Mon, 10 Apr 2006 23:13:30 -0400
+From: Amy Griffis <amy.griffis@hp.com>
+To: John McCutchan <john@johnmccutchan.com>
+Cc: linux-kernel@vger.kernel.org, Robert Love <rlove@rlove.org>
+Subject: Re: [RFC][PATCH] inotify kernel api
+Message-ID: <20060411031329.GC656@sage.flatmonk>
+Mail-Followup-To: Amy Griffis <amy.griffis@hp.com>,
+	John McCutchan <john@johnmccutchan.com>,
+	linux-kernel@vger.kernel.org, Robert Love <rlove@rlove.org>
+References: <20060406170601.GA22698@zk3.dec.com> <1144694188.29846.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1144694188.29846.9.camel@localhost.localdomain>
+X-Mailer: Mutt http://www.mutt.org/
+X-Editor: Vim http://www.vim.org/
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In vsyscall function do_vgettimeofday(), some functions are declared as
-inlined, which is hint for gcc to compile the function inlined but it
-not forced. Sometimes compiler does not compiler the function as
-inlined, So here inline is replaced by __always_inline prefix.
+John McCutchan wrote:  [Mon Apr 10 2006, 02:36:28PM EDT]
+> On Thu, 2006-04-06 at 13:06 -0400, Amy Griffis wrote:
+> > The following patch against 2.6.17-rc1-mm1 introduces a kernel API for inotify.
+> >
+> > Event processing is unchanged except for the indirection added for the
+> > callback.  In inotify_user.c, an additional per-device mutex is held
+> > while adding watches to prevent adding the same watch twice.  The
+> > design retains the original assumption that there will be more watches
+> > per inotify_handle than watches on any given inode, and performs the
+> > search for existing watches accordingly.
+> > 
+> 
+> Why do we need the 'up_mutex' mutex? Was this a bug in the old code? 
 
-It does not happen in gcc compiler actually, but it possibly happens.
+The up_mutex is needed to ensure that a watch that does not exist when
+calling inotify_find_update_watch() still does not exist when calling
+inotify_add_watch().  It seemed to me that the find/update and add
+functions needed to be separated for the kernel api.
 
-Signed-off-by: bibo mao <bibo.mao@intel.com>
+Unfortunately we can't use dev->ev_mutex here as it's taken during the
+callback.
 
+> > This patch makes the inotify_watch public so it can be embedded in callers' own
+> > watch structures, which avoids the use of a void ptr to caller data.
+> > Even though inotify_watch is public, callers must use the established
+> > interfaces to access inotify_watch contents.  Was this the best
+> > choice?
+> > 
+> 
+> I suppose this is an alright change. As long as it is understood that
+> there is no guarantee about the layout of the inotify_watch structure. A
+> comment in inotify.h should do.
 
-diff -Nruap linux-2.6.17-rc1-mm1.org/include/asm-x86_64/io.h
-linux-2.6.17-rc1-mm1/include/asm-x86_64/io.h
---- linux-2.6.17-rc1-mm1.org/include/asm-x86_64/io.h	2006-04-07
-15:13:06.000000000 +0800
-+++ linux-2.6.17-rc1-mm1/include/asm-x86_64/io.h	2006-04-07
-15:37:03.000000000 +0800
-@@ -177,7 +177,7 @@ static inline __u16 __readw(const volati
- {
- 	return *(__force volatile __u16 *)addr;
- }
--static inline __u32 __readl(const volatile void __iomem *addr)
-+static __always_inline __u32 __readl(const volatile void __iomem *addr)
- {
- 	return *(__force volatile __u32 *)addr;
- }
-diff -Nruap linux-2.6.17-rc1-mm1.org/include/linux/seqlock.h
-linux-2.6.17-rc1-mm1/include/linux/seqlock.h
---- linux-2.6.17-rc1-mm1.org/include/linux/seqlock.h	2006-04-07
-15:13:06.000000000 +0800
-+++ linux-2.6.17-rc1-mm1/include/linux/seqlock.h	2006-04-07
-15:16:13.000000000 +0800
-@@ -73,7 +73,7 @@ static inline int write_tryseqlock(seqlo
- }
- 
- /* Start of read calculation -- fetch last complete writer token */
--static inline unsigned read_seqbegin(const seqlock_t *sl)
-+static __always_inline unsigned read_seqbegin(const seqlock_t *sl)
- {
- 	unsigned ret = sl->sequence;
- 	smp_rmb();
-@@ -88,7 +88,7 @@ static inline unsigned read_seqbegin(con
-  *    
-  * Using xor saves one conditional branch.
-  */
--static inline int read_seqretry(const seqlock_t *sl, unsigned iv)
-+static __always_inline int read_seqretry(const seqlock_t *sl, unsigned
-iv)
- {
- 	smp_rmb();
- 	return (iv & 1) | (sl->sequence ^ iv);
+Done.
+
+ * Callers must use the established inotify interfaces to access inotify_watch
+ * contents.  The content of this structure is private to the inotify
+ * implementation.
+
+> > I think the locking may be less than ideal, as the
+> > inode->inotify_mutex must be held to traverse the inode's watchlist,
+> > and thus must be held during the callback.  The result is that the
+> > caller can't hold any locks taken during callback processing while
+> > calling any of the published inotify interfaces, making
+> > synchronization a little more difficult.
+> > 
+> 
+> Well, I think it's up for the kernel consumers to decide whether or not
+> this is acceptable. It's probably a good idea to come up with some use
+> cases for the kernel API and see if this _is_ a problem. Since the
+> callbacks will be run inside the VFS ops, they need to be small and
+> fast, so they probably should just be putting the event on a list and
+> handling it later.
+> 
+> Looking over the patch, nothing jumps out at me as being wrong. But some
+> stress testing would convince me faster than my eyes can.
+
+I'll follow up with some stress test results.
+
+Thanks,
+Amy

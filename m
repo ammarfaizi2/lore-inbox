@@ -1,68 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWDKGZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWDKGbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWDKGZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 02:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWDKGZM
+	id S932236AbWDKGbb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 02:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWDKGbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 02:25:12 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29314 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932231AbWDKGZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 02:25:11 -0400
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] de_thread: Don't confuse users do_each_thread.
-References: <20060406220403.GA205@oleg>
-	<m1acay1fbh.fsf@ebiederm.dsl.xmission.com>
-	<20060407234653.GB11460@oleg> <20060407155113.37d6a3b3.akpm@osdl.org>
-	<20060407155619.18f3c5ec.akpm@osdl.org>
-	<m1d5fslcwx.fsf@ebiederm.dsl.xmission.com> <20060408172745.GA89@oleg>
-	<m1y7yddo75.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1u091dnry.fsf@ebiederm.dsl.xmission.com> <20060411100527.GA112@oleg>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 11 Apr 2006 00:23:57 -0600
-In-Reply-To: <20060411100527.GA112@oleg> (Oleg Nesterov's message of "Tue,
- 11 Apr 2006 14:05:27 +0400")
-Message-ID: <m14q10eiki.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 11 Apr 2006 02:31:31 -0400
+Received: from web54314.mail.yahoo.com ([206.190.49.124]:47775 "HELO
+	web54314.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932236AbWDKGba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 02:31:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=4uTDwMYX64VROb+/RGLULXttRO6rF+5xOpIevxAa6e0qq2MnuWMF/VQnU9XI1Yhdi+2taJi7E+e2hupMDzTegdaZaNThDHbEdX4IHBFbJF28ySooIS/FqBVVoj5BQAsQ2Rv7qzQ/y/wsalB55gCGNu6Apnh1++/2go8Jr5gcOX8=  ;
+Message-ID: <20060411063127.97362.qmail@web54314.mail.yahoo.com>
+Date: Mon, 10 Apr 2006 23:31:27 -0700 (PDT)
+From: Ramakanth Gunuganti <rgunugan@yahoo.com>
+Subject: GPL issues
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+I am trying to understand the GPL boundaries for
+Linux, any clarification provided on the following
+issues below would be great:
 
-> On 04/10, Eric W. Biederman wrote:
->>
->> I believe this is 2.6.17 material as the bug is present in
->> 2.6.17-rc1 and the fix is simple.
->>
->> ...
->>
->> +		list_del_init(&leader->tasks);
->
-> I beleive this is ok for 2.6.17-rc1, but this breaks lockless
-> for_each_process/while_each_thread (I am talking about -mm tree).
+As part of a project, I would like to extend the Linux
+kernel to support some additional features needed for
+the project, the changes will include:
+  o  Modification to Linux kernel.
+  o  Adding new kernel modules.
+  o  New system calls/IOCTLs to use the kernel
+modifications/LKMs.
 
-Agreed.
+All kernel changes including LKMs will be released
+under GPL.
 
-> Andrew, could you please drop these ones:
->
-> 	task-make-task-list-manipulations-rcu-safe-fix.patch
-> 	task-make-task-list-manipulations-rcu-safe-fix-fix.patch
->
-> Then we need this "patch" for de_thread:
->
-> -		list_add_tail_rcu(&current->tasks, &init_task.tasks);
-> +		list_replace_rcu(&leader->tasks, &current->tasks);
->  ...
-> -		list_del_init(&leader->tasks);
->
-> Currently I don't know how the code looks in -mm tree, I lost the plot.
+Questions:
+
+(Any reference to GPL license while answering these
+questions would be great)
+
+1. If an application is built on top of this modified
+kernel, should the application be released under GPL?
+Do system calls provide a bounday for GPL? How does
+this work with LKMs, all the code for LKMs will be
+released but would a userspace application using the
+LKMs choose not to use GPL?
+
+2. If the application has to be packaged with the
+Linux kernel, example: tarball that includes kernel +
+application, can this application be released without
+GPL. (The changes to Linux kernel are already released
+under GPL).
+
+3. How does this work if this application + kernel has
+to run on a proprietary system on a seperate interface
+card? Can I assume that once there is a clear hardware
+boundary rest of the software for the system does not
+have to be released under GPL? The software for the
+interface card will be built and distributed
+seperately from the rest of the software.
+
+4. Can the GPL code and non-GPL code exist under the
+same source tree?
+
+5. In case of litigation, will there be pressure to
+open up other parts of the software (non-GPL) running
+on the same system but on other hardware components
+interacting with this new package on a different
+interface card?
+
+Anyone trying to build a new application to work on
+Linux must have these issues clarified, if you can
+share your experiences that would be great too.
+
+Thanks,
+Ram
 
 
-Since the patches don't conflict on context I bet they are
-all in there, at the moment.  I am just about to see if I can
-sort that out.
-
-Eric
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,46 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWDKC7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWDKDXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWDKC7B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 22:59:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWDKC7B
+	id S932271AbWDKDXp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 23:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWDKDXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 22:59:01 -0400
-Received: from nproxy.gmail.com ([64.233.182.184]:29752 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932266AbWDKC7A convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 22:59:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=INBs51RAQn1gsJAx8SZlAlLeOX0AQdOvWxkU3R1iW5xjabgzyZ6EmC1fDPma1FTX5V0axoYMB9pRhI41iNbxFTn2hZwCe4T4ceCgymlFssAI+hHvn6SzL2g1PGOo3i8iJu4V4DS4RT8pmOKvAJtFVzoNMEIt275GVE02fhpiWa0=
-Message-ID: <6d6a94c50604101958t3ae9b9d2s5387b39dc09ac2c1@mail.gmail.com>
-Date: Tue, 11 Apr 2006 10:58:48 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: The assemble file under the driver folder can not be recognized when the driver is built as module
-Cc: "Adrian Bunk" <bunk@stusta.de>, "Erik Mouw" <erik@harddisk-recovery.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0604101402400.26129@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com>
-	 <20060410112817.GE12896@harddisk-recovery.com>
-	 <6d6a94c50604100627q297b7335yb58288356aaa8edd@mail.gmail.com>
-	 <20060410174252.GD2408@stusta.de>
-	 <Pine.LNX.4.61.0604101402400.26129@chaos.analogic.com>
+	Mon, 10 Apr 2006 23:23:45 -0400
+Received: from mga01.intel.com ([192.55.52.88]:28445 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932271AbWDKDXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 23:23:45 -0400
+X-IronPort-AV: i="4.04,109,1144047600"; 
+   d="scan'208"; a="22404022:sNHT18413843"
+Subject: [PATCH] inline function prefix with __always_inline invsyscall
+	function
+From: "mao, bibo" <bibo.mao@intel.com>
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Tue, 11 Apr 2006 11:13:16 +0800
+Message-Id: <1144725196.9974.10.camel@maobb.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > IOW, you want:
-> >
-> >  obj-$(CONFIG_FB_BFIN_7171)   += bfin_ad7171fb.o
-> >  bfin_ad7171fb-objs           := bfin_ad7171fb_main.o rgb2ycbcr.o
-> >
-> > Note that this requires renaming bfin_ad7171fb.c to bfin_ad7171fb_main.c.
+In vsyscall function do_vgettimeofday(), some functions are declared as
+inlined, which is hint for gcc to compile the function inlined but it
+not forced. Sometimes compiler does not compiler the function as
+inlined, So here inline is replaced by __always_inline prefix.
 
-That's the trick. Thanks.
+It does not happen in gcc compiler actually, but it possibly happens.
 
-Regards,
--Aubrey
+Signed-off-by: bibo mao <bibo.mao@intel.com>
+
+
+diff -Nruap linux-2.6.17-rc1-mm1.org/include/asm-x86_64/io.h
+linux-2.6.17-rc1-mm1/include/asm-x86_64/io.h
+--- linux-2.6.17-rc1-mm1.org/include/asm-x86_64/io.h	2006-04-07
+15:13:06.000000000 +0800
++++ linux-2.6.17-rc1-mm1/include/asm-x86_64/io.h	2006-04-07
+15:37:03.000000000 +0800
+@@ -177,7 +177,7 @@ static inline __u16 __readw(const volati
+ {
+ 	return *(__force volatile __u16 *)addr;
+ }
+-static inline __u32 __readl(const volatile void __iomem *addr)
++static __always_inline __u32 __readl(const volatile void __iomem *addr)
+ {
+ 	return *(__force volatile __u32 *)addr;
+ }
+diff -Nruap linux-2.6.17-rc1-mm1.org/include/linux/seqlock.h
+linux-2.6.17-rc1-mm1/include/linux/seqlock.h
+--- linux-2.6.17-rc1-mm1.org/include/linux/seqlock.h	2006-04-07
+15:13:06.000000000 +0800
++++ linux-2.6.17-rc1-mm1/include/linux/seqlock.h	2006-04-07
+15:16:13.000000000 +0800
+@@ -73,7 +73,7 @@ static inline int write_tryseqlock(seqlo
+ }
+ 
+ /* Start of read calculation -- fetch last complete writer token */
+-static inline unsigned read_seqbegin(const seqlock_t *sl)
++static __always_inline unsigned read_seqbegin(const seqlock_t *sl)
+ {
+ 	unsigned ret = sl->sequence;
+ 	smp_rmb();
+@@ -88,7 +88,7 @@ static inline unsigned read_seqbegin(con
+  *    
+  * Using xor saves one conditional branch.
+  */
+-static inline int read_seqretry(const seqlock_t *sl, unsigned iv)
++static __always_inline int read_seqretry(const seqlock_t *sl, unsigned
+iv)
+ {
+ 	smp_rmb();
+ 	return (iv & 1) | (sl->sequence ^ iv);

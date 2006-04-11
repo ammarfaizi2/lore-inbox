@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWDKOAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWDKOCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbWDKOAx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 10:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWDKOAx
+	id S1750815AbWDKOCP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 10:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWDKOCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 10:00:53 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:11027 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750819AbWDKOAw convert rfc822-to-8bit (ORCPT
+	Tue, 11 Apr 2006 10:02:15 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:19140 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750815AbWDKOCO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 10:00:52 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <1cafb3070604110627v3bddeb7frc2b63c3004a6a6b2@mail.gmail.com>
-x-originalarrivaltime: 11 Apr 2006 14:00:50.0747 (UTC) FILETIME=[573550B0:01C65D70]
-Content-class: urn:content-classes:message
-Subject: Re: [PATCH] asm-i386/atomic.h: local_irq_save should be used instead of local_irq_disable
-Date: Tue, 11 Apr 2006 10:00:50 -0400
-Message-ID: <Pine.LNX.4.61.0604110958430.29479@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] asm-i386/atomic.h: local_irq_save should be used instead of local_irq_disable
-Thread-Index: AcZdcFdUBURfCGOvTlu0+iep4QgKLQ==
-References: <20060411130024.GA3364@gsy2.lepton.home> <Pine.LNX.4.61.0604110907060.29348@chaos.analogic.com> <1cafb3070604110627v3bddeb7frc2b63c3004a6a6b2@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "lepton" <ytht.net@gmail.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Tue, 11 Apr 2006 10:02:14 -0400
+Date: Tue, 11 Apr 2006 09:01:46 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       herbert@13thfloor.at, sam@vilain.net,
+       "Eric W. Biederman" <ebiederm@xmission.com>, xemul@sw.ru,
+       James Morris <jmorris@namei.org>
+Subject: Re: [RFC][PATCH 0/5] uts namespaces: Introduction
+Message-ID: <20060411140146.GB10610@sergelap.austin.ibm.com>
+References: <20060407095132.455784000@sergelap> <443BA1D3.1070200@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <443BA1D3.1070200@sw.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Kirill Korotaev (dev@sw.ru):
+> Serge,
+> 
+> >This patchset is based on Kirill Korotaev's Mar 24 submission, taking
+> >comments (in particular from James Morris and Eric Biederman) into
+> >account.
+> thanks a lot for doing this!
 
-On Tue, 11 Apr 2006, lepton wrote:
+NP, thanks for doing the first round.
 
-> I think irq is disbaled in local_irq_save, am I right?
->
-> /* For spinlocks etc */
-> #define local_irq_save(x)       __asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
->
+> >Some performance results are attached.  I was mainly curious whether
+> >it would be worth putting the task_struct->uts_ns pointer inside
+> >a #ifdef CONFIG_UTS_NS.  The result show that leaving it in when
+> >CONFIG_UTS_NS=n has negligable performance impact, so that is the
+> >approach this patch takes.
+> Serge, your testing approach looks really strange for me.
+> First of all, you selected the worst namespace to check performance 
+> overhead on.
+> 1) uts_ns is rarely used and never used on hot paths,
+> 2) also all these test suites below doesn't test the code paths you 
+> modified.
+> 
+> So I wonder what was the goal of these tests, especially dbench?!
 
-Yes, with the CLI in the code. The macro-name was not correct and implied
-only a save of the flags..
+Right, I wasn't actually aiming to test the performance of the uts
+namespaces themselves (despite including those numbers), since they're
+not on hot paths.  I was mostly curious whether putting the utsns
+pointer into the task_struct would affect performance at all, to know
+whether to put that inside an #ifdef.  Based on the results, I kept it
+non-#ifdefed even if !CONFIG_UTS_NS, and that's what I was justifying
+with those numbers.
 
+These tests should be done again when we get 3 or 5 namespace pointers,
+and perhaps there should still be some other tests included, ie mainly a
+forkbomb perhaps.  I just did my default set of tests that I usually
+use.
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.42 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+thanks,
+-serge

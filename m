@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWDKLDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWDKLFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWDKLDc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 07:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWDKLDb
+	id S1750741AbWDKLFK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 07:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWDKLFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 07:03:31 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:39331 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750740AbWDKLDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 07:03:31 -0400
-Date: Tue, 11 Apr 2006 14:03:28 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: akpm@osdl.org
-cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: [PATCH] vfs: add splice_write and splice_read to documentation
-Message-ID: <Pine.LNX.4.58.0604111402550.15286@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Apr 2006 07:05:10 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:56461 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750741AbWDKLFI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 07:05:08 -0400
+Date: Tue, 11 Apr 2006 13:05:03 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: lkml <linux-kernel@vger.kernel.org>, zippel@linux-m68k.org
+Subject: Re: [RFC/POC] multiple CONFIG y/m/n
+In-Reply-To: <20060406224134.0430e827.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.61.0604111303131.928@yvahk01.tjqt.qr>
+References: <20060406224134.0430e827.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pekka Enberg <penberg@cs.helsinki.fi>
+>
+>In doing lots of kernel build testing, I often want to enable all options
+>in a sub-menu and their sub-sub-menus.  Sound is one of the worst^W longest
+>of these, so I chose a shorter (easier) one to practice on:  parport.
+>[..]
+>I can already see that I find this useful, but is there a good (better)
+>way to implement this in kconfig?
+>[..]
+>Comments?
 
-This patch adds the new splice_write and splice_read file operations to
-Documentation/filesystems/vfs.txt.
+I would like this one, for menuconfig (ncurses):
 
-Cc: Jens Axboe <axboe@suse.de>
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
----
+  'y', 'm' and 'n' have their usual behavior
+  'Y', 'M' and 'N' affect the current item plus any subparts (if any)
 
- vfs.txt |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+That is, press *Shift*-Y/M/N for the "deep change".
 
-diff --git a/Documentation/filesystems/vfs.txt b/Documentation/filesystems/vfs.txt
-index adaa899..73a79c0 100644
---- a/Documentation/filesystems/vfs.txt
-+++ b/Documentation/filesystems/vfs.txt
-@@ -694,7 +694,7 @@ struct file_operations
- ----------------------
- 
- This describes how the VFS can manipulate an open file. As of kernel
--2.6.13, the following members are defined:
-+2.6.17, the following members are defined:
- 
- struct file_operations {
- 	loff_t (*llseek) (struct file *, loff_t, int);
-@@ -723,6 +723,8 @@ struct file_operations {
- 	int (*check_flags)(int);
- 	int (*dir_notify)(struct file *filp, unsigned long arg);
- 	int (*flock) (struct file *, int, struct file_lock *);
-+	ssize_t (*splice_write)(struct inode *, struct file *, size_t, unsigned int);
-+	ssize_t (*splice_read)(struct file *, struct inode *, size_t, unsigned int);
- };
- 
- Again, all methods are called without any locks being held, unless
-@@ -790,6 +792,12 @@ otherwise noted.
- 
-   flock: called by the flock(2) system call
- 
-+  splice_write: called by the VFS to splice data from a pipe to a file. This
-+  	method is used by the splice(2) system call
-+
-+  splice_read: called by the VFS to splice data from file to a pipe. This
-+  	method is used by the splice(2) system call
-+
- Note that the file operations are implemented by the specific
- filesystem in which the inode resides. When opening a device node
- (character or block special) most filesystems will call special
+
+Jan Engelhardt
+-- 

@@ -1,88 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWDKQU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWDKQXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750964AbWDKQU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 12:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWDKQU5
+	id S1750969AbWDKQXs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 12:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbWDKQXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 12:20:57 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:18318 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1750914AbWDKQU4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 12:20:56 -0400
-Date: Tue, 11 Apr 2006 18:20:55 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Bill Davidsen <davidsen@tmr.com>, Kir Kolyshkin <kir@openvz.org>,
-       akpm@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net,
-       linux-kernel@vger.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-Message-ID: <20060411162055.GA22367@MAIL.13thfloor.at>
-Mail-Followup-To: Kirill Korotaev <dev@sw.ru>,
-	Bill Davidsen <davidsen@tmr.com>, Kir Kolyshkin <kir@openvz.org>,
-	akpm@osdl.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-	sam@vilain.net, linux-kernel@vger.kernel.org,
-	"Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-References: <1143228339.19152.91.camel@localhost.localdomain> <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com> <443B873B.9040908@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Apr 2006 12:23:48 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:24614 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750968AbWDKQXr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 12:23:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Lk4yUqekD5Snj9wwLmyQKaG0JgnsJ/DC2/HTv2ml5BWZ1xd7HXdzwQ8u6mAvvLSCd9l/TXtYTKFJfEkLzPXRqsCj7GGpbJBxnzJlpD5DyuBDgGrV87BiwDX1Ncm3Jpo7N1NmVMkN5tXKBzPPwpJsEzZe0MRh12ZYIdHHx9IXI6A=
+Message-ID: <161717d50604110923g4586b6e5qdb05ad5c8e23d2bb@mail.gmail.com>
+Date: Tue, 11 Apr 2006 12:23:36 -0400
+From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+To: "Ramakanth Gunuganti" <rgunugan@yahoo.com>
+Subject: Re: GPL issues
+Cc: "Kyle Moffett" <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060411154944.65714.qmail@web54308.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <443B873B.9040908@sw.ru>
-User-Agent: Mutt/1.5.6i
+References: <9CF84823-E0BA-404C-9C5A-CAFF0D4C92DF@mac.com>
+	 <20060411154944.65714.qmail@web54308.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 11, 2006 at 02:38:51PM +0400, Kirill Korotaev wrote:
-> Bill,
-> 
-> >>OpenVZ will have live zero downtime migration and suspend/resume some 
-> >>time next month.
-> >>
-> >Please clarify. Currently a migration involves:
-> >- stopping or suspending the instance
-> >- backing up the instance and all of its data
-> >- creating an environment for the instance on a new machine
-> >- transporting the data to a new machine
-> >- installing the instance and all data
-> >- starting the instance
-> 
-> >If you could just briefly cover how you do each of these steps with zero
-> >downtime...
-> 
-> it does exactly what you wrote with some minor steps such as networking 
-> stop on source and start on destination etc.
-> 
-> So I would detailed it like this:
-> - freeze VPS
-> - freeze networking
-> - copy VPS data to destination
-> - dump VPS
+On 4/11/06, Ramakanth Gunuganti <rgunugan@yahoo.com> wrote:
+>
+> Thanks for the replies, talking to a lawyer seems to
+> be too stringent a requirement to even evaluate Linux.
+> Who would be the ultimate authority to give definitive
+> answers to these questions?
 
-IIRC, Xen does some kind of repetitive sync of
-memory pages to allow the 'original' to continue
-running for as long as possible, so pages and
-structures get resynced until it looks like the
-migration would require only a few pages to be
-synced for the final move, then it does the actual
-move ...
+A lawyer. The questions you are asking are inherently legal ones, and
+any answer you get on this mailing list (which is a technical list,
+not a legal one) is not going to be the *real* answer. The "ultimate
+authority" you're asking for here is the court system, so if you're
+concerned about legal liability for copyright infringement due to a
+product you plan to distribute, you need to hire a lawyer.
 
-> - copy dump to the destination
-> - restore VPS
-> - unfreeze VPS
-> - kill original VPS on source
-> 
-> Moreover, in OpenVZ live migration allows to migrate 32bit VPSs between 
-> i686 and x86-64 Linux machines.
-
-I think that zero downtime is some kind of marketing
-buzzword here, and has nothing to do with the actual
-time the migration takes, which will probably be
-around 20 seconds or so (for larger guests) ...
-
-best,
-Herbert
-
-> Thanks,
-> Kirill
+Dave

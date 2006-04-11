@@ -1,93 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWDKOYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWDKO3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWDKOYG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 10:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWDKOYG
+	id S1751300AbWDKO3t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 10:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWDKO3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 10:24:06 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:27882 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750853AbWDKOYF
+	Tue, 11 Apr 2006 10:29:49 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:4497 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751300AbWDKO3s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 10:24:05 -0400
-Subject: Re: [PATCH 2/7] tpm: reorganize sysfs files - Updated patch
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-In-Reply-To: <20060410144623.110895d0.akpm@osdl.org>
-References: <1144679825.4917.10.camel@localhost.localdomain>
-	 <20060410144623.110895d0.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 11 Apr 2006 09:24:54 -0500
-Message-Id: <1144765495.4917.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Apr 2006 10:29:48 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       bjorn_helgaas@hp.com, cotte@de.ibm.com
+Subject: [patch] do_no_pfn handler
+References: <yq0k6a6uc7i.fsf@jaguar.mkp.net>
+From: Jes Sorensen <jes@sgi.com>
+Date: 11 Apr 2006 10:29:18 -0400
+In-Reply-To: <yq0k6a6uc7i.fsf@jaguar.mkp.net>
+Message-ID: <yq0psjonq2p.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-10 at 14:46 -0700, Andrew Morton wrote:
-> Kylene Jo Hall <kjhall@us.ibm.com> wrote:
-> >
-> >  ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
-> >   		      char *buf)
-> >   {
-> >  -	u8 data[READ_PCR_RESULT_SIZE];
-> >  -	ssize_t len;
-> >  +	u8 data[30];
-> >  +	ssize_t rc;
-> >   	int i, j, num_pcrs;
-> >   	__be32 index;
-> >   	char *str = buf;
-> >  @@ -150,29 +190,24 @@ ssize_t tpm_show_pcrs(struct device *dev
-> >   	if (chip == NULL)
-> >   		return -ENODEV;
-> >   
-> >  -	memcpy(data, cap_pcr, sizeof(cap_pcr));
-> >  -	if ((len = tpm_transmit(chip, data, sizeof(data)))
-> >  -	    < CAP_PCR_RESULT_SIZE) {
-> >  -		dev_dbg(chip->dev, "A TPM error (%d) occurred "
-> >  -				"attempting to determine the number of PCRS\n",
-> >  -			be32_to_cpu(*((__be32 *) (data + 6))));
-> >  +	memcpy(data, tpm_cap, sizeof(tpm_cap));
-> 
-> I'd be a bit worried about potential for array overruns here.  If someone
-> later were to increase the size of tpm_cap[] we'll silently overrun data[].
-> 
-> One approach would be to do:
-> 
-> --- devel/drivers/char/tpm/tpm.c~tpm-reorganize-sysfs-files-fix	2006-04-10 14:43:16.000000000 -0700
-> +++ devel-akpm/drivers/char/tpm/tpm.c	2006-04-10 14:45:19.000000000 -0700
-> @@ -180,7 +180,7 @@ static const u8 pcrread[] = {
->  ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
->  		      char *buf)
->  {
-> -	u8 data[30];
-> +	u8 data[ARRAY_SIZE(tpm_cap)];
->  	ssize_t rc;
->  	int i, j, num_pcrs;
->  	__be32 index;
-> @@ -296,7 +296,7 @@ static const u8 cap_version[] = {
->  ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
->  		      char *buf)
->  {
-> -	u8 data[30];
-> +	u8 data[max(ARRAY_SIZE(tpm_cap), ARRAY_SIZE(cap_version))];
->  	ssize_t rc;
->  	char *str = buf;
->  
-> _
-> 
-> 
-> Does that look OK?
+Linus,
 
-No this is not ok because in several of these cases the response to the
-command is longer than tpm_cap thus the reason for the hardcoded size.
-I can put in a max function though that compares the size of the
-response and the tpm_cap.  The read functions will make sure the
-response does not overflow the buffer should that length ever change in
-the future.
+Attached is a repost of the do_no_pfn handler patch. This version
+includes all the changes that were suggested after my previous posting
+(the order of checking ->nopage before ->nopfn and Nick's suggestion
+to check for others refaulting the same).  The patch is needed for the
+MSPEC driver and Bjorn and Carsten have expressed strong interest in
+using this interface for other things as well.
+
+You mentioned earlier that you preferred an alternative approach, do
+you still feel that given the additional interest from other Bjorn and
+Carsten? If this is still the case, I'd love to get some guidance as
+to what that should be.
+
+I had hoped to get this in before 2.6.17, dunno if that is too late or
+would you prefer to see it in -mm first?
 
 Thanks,
-Kylie
+Jes
 
+Implement do_no_pfn() for handling mapping of memory without a struct
+page backing it. This avoids creating fake page table entries for
+regions which are not backed by real memory.
+
+Signed-off-by: Jes Sorensen <jes@sgi.com>
+
+---
+ include/linux/mm.h |    1 
+ mm/memory.c        |   63 ++++++++++++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 59 insertions(+), 5 deletions(-)
+
+Index: linux-2.6/include/linux/mm.h
+===================================================================
+--- linux-2.6.orig/include/linux/mm.h
++++ linux-2.6/include/linux/mm.h
+@@ -199,6 +199,7 @@
+ 	void (*open)(struct vm_area_struct * area);
+ 	void (*close)(struct vm_area_struct * area);
+ 	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int *type);
++	long (*nopfn)(struct vm_area_struct * area, unsigned long address, int *type);
+ 	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
+ #ifdef CONFIG_NUMA
+ 	int (*set_policy)(struct vm_area_struct *vma, struct mempolicy *new);
+Index: linux-2.6/mm/memory.c
+===================================================================
+--- linux-2.6.orig/mm/memory.c
++++ linux-2.6/mm/memory.c
+@@ -2146,6 +2146,53 @@
+ }
+ 
+ /*
++ * do_no_pfn() tries to create a new page mapping for a page without
++ * a struct_page backing it
++ *
++ * As this is called only for pages that do not currently exist, we
++ * do not need to flush old virtual caches or the TLB.
++ *
++ * We enter with non-exclusive mmap_sem (to exclude vma changes,
++ * but allow concurrent faults), and pte mapped but not yet locked.
++ * We return with mmap_sem still held, but pte unmapped and unlocked.
++ *
++ * It is expected that the ->nopfn handler always returns the same pfn
++ * for a given virtual mapping.
++ */
++static int do_no_pfn(struct mm_struct *mm, struct vm_area_struct *vma,
++		     unsigned long address, pte_t *page_table, pmd_t *pmd,
++		     int write_access)
++{
++	spinlock_t *ptl;
++	pte_t entry;
++	long pfn;
++	int ret = VM_FAULT_MINOR;
++
++	pte_unmap(page_table);
++	BUG_ON(!(vma->vm_flags & VM_PFNMAP));
++
++	pfn = vma->vm_ops->nopfn(vma, address & PAGE_MASK, &ret);
++	if (pfn == -ENOMEM)
++		return VM_FAULT_OOM;
++	if (pfn == -EFAULT)
++		return VM_FAULT_SIGBUS;
++	if (pfn < 0)
++		return VM_FAULT_SIGBUS;
++
++	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
++
++	/* Only go through if we didn't race with anybody else... */
++	if (pte_none(*page_table)) {
++		entry = pfn_pte(pfn, vma->vm_page_prot);
++		if (write_access)
++			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
++		set_pte_at(mm, address, page_table, entry);
++	}
++	pte_unmap_unlock(page_table, ptl);
++	return ret;
++}
++
++/*
+  * Fault of a previously existing named mapping. Repopulate the pte
+  * from the encoded file_pte if possible. This enables swappable
+  * nonlinear vmas.
+@@ -2207,11 +2254,17 @@
+ 	old_entry = entry = *pte;
+ 	if (!pte_present(entry)) {
+ 		if (pte_none(entry)) {
+-			if (!vma->vm_ops || !vma->vm_ops->nopage)
+-				return do_anonymous_page(mm, vma, address,
+-					pte, pmd, write_access);
+-			return do_no_page(mm, vma, address,
+-					pte, pmd, write_access);
++			if (vma->vm_ops) {
++				if (vma->vm_ops->nopage)
++					return do_no_page(mm, vma, address,
++							  pte, pmd,
++							  write_access);
++				if (vma->vm_ops->nopfn)
++					return do_no_pfn(mm, vma, address, pte,
++							 pmd, write_access);
++			}
++			return do_anonymous_page(mm, vma, address,
++						 pte, pmd, write_access);
+ 		}
+ 		if (pte_file(entry))
+ 			return do_file_page(mm, vma, address,

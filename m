@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWDKCnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWDKC7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWDKCnO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Apr 2006 22:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWDKCnO
+	id S932266AbWDKC7B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Apr 2006 22:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWDKC7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 22:43:14 -0400
-Received: from mx1.suse.de ([195.135.220.2]:34025 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932251AbWDKCnO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 22:43:14 -0400
-From: Andi Kleen <ak@suse.de>
-To: prasanna@in.ibm.com
-Subject: Re: [PATCH] [2/5] Switch Kprobes inline functions to __kprobes for x86_64
-Date: Tue, 11 Apr 2006 04:41:59 +0200
-User-Agent: KMail/1.9.1
-Cc: akpm@osdl.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       ananth@in.ibm.com, anil.s.keshavamurthy@intel.com,
-       systemtap@sources.redhat.com
-References: <20060410055712.GA24711@in.ibm.com> <20060410055813.GA23879@in.ibm.com>
-In-Reply-To: <20060410055813.GA23879@in.ibm.com>
+	Mon, 10 Apr 2006 22:59:01 -0400
+Received: from nproxy.gmail.com ([64.233.182.184]:29752 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932266AbWDKC7A convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Apr 2006 22:59:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=INBs51RAQn1gsJAx8SZlAlLeOX0AQdOvWxkU3R1iW5xjabgzyZ6EmC1fDPma1FTX5V0axoYMB9pRhI41iNbxFTn2hZwCe4T4ceCgymlFssAI+hHvn6SzL2g1PGOo3i8iJu4V4DS4RT8pmOKvAJtFVzoNMEIt275GVE02fhpiWa0=
+Message-ID: <6d6a94c50604101958t3ae9b9d2s5387b39dc09ac2c1@mail.gmail.com>
+Date: Tue, 11 Apr 2006 10:58:48 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: The assemble file under the driver folder can not be recognized when the driver is built as module
+Cc: "Adrian Bunk" <bunk@stusta.de>, "Erik Mouw" <erik@harddisk-recovery.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0604101402400.26129@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200604110442.00259.ak@suse.de>
+References: <6d6a94c50604100316j43bcc32p6fa781c0ce47182d@mail.gmail.com>
+	 <20060410112817.GE12896@harddisk-recovery.com>
+	 <6d6a94c50604100627q297b7335yb58288356aaa8edd@mail.gmail.com>
+	 <20060410174252.GD2408@stusta.de>
+	 <Pine.LNX.4.61.0604101402400.26129@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 April 2006 07:58, Prasanna S Panchamukhi wrote:
-> Andrew Morton pointed out that compiler might not inline the functions
-> marked for inline in kprobes. There by allowing the insertion of probes
-> on these kprobes routines, which might cause recursion. This patch
-> removes all such inline and adds them to kprobes section there by
-> disallowing probes on all such routines. Some of the routines can
-> even still be inlined, since these routines gets executed after
-> the kprobes had done necessay setup for reentrancy.
+> > IOW, you want:
+> >
+> >  obj-$(CONFIG_FB_BFIN_7171)   += bfin_ad7171fb.o
+> >  bfin_ad7171fb-objs           := bfin_ad7171fb_main.o rgb2ycbcr.o
+> >
+> > Note that this requires renaming bfin_ad7171fb.c to bfin_ad7171fb_main.c.
 
-Ok for me.
+That's the trick. Thanks.
 
--Andi
+Regards,
+-Aubrey

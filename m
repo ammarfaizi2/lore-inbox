@@ -1,241 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWDKK1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWDKK3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWDKK1b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 06:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWDKK1b
+	id S1750705AbWDKK3z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 06:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWDKK3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 06:27:31 -0400
-Received: from lama.bgc-jena.mpg.de ([195.37.229.21]:5854 "EHLO
-	lama.bgc-jena.mpg.de") by vger.kernel.org with ESMTP
-	id S1750714AbWDKK1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 06:27:30 -0400
-Message-ID: <443B8417.8020706@bgc-jena.mpg.de>
-Date: Tue, 11 Apr 2006 12:25:27 +0200
-From: "Dr.Peer-Joachim Koch" <pkoch@bgc-jena.mpg.de>
-Organization: MPI for Biogeochemistry
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: de-DE, de, en-us, en
+	Tue, 11 Apr 2006 06:29:55 -0400
+Received: from dsl-KK-static-121.207.95.61.touchtelindia.net ([61.95.207.121]:62829
+	"EHLO mxsrvr.mail.connoiseur.com") by vger.kernel.org with ESMTP
+	id S1750709AbWDKK3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 06:29:55 -0400
+From: "Jagdish S Varma" <jsvarma@connoiseur.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RHEL 3.0 Advanced Server update 3 with Kernel 2.4.21-20 SMP
+Date: Tue, 11 Apr 2006 15:59:38 +0530
+Message-ID: <000901c65d52$d64315e0$0d64a8c0@jsv>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: NFSD stops working
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060606090407030801050101"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+thread-index: AcZdUtXNz6l3yVnlRjqk313tVGMe5Q==
+X-OriginalArrivalTime: 11 Apr 2006 10:27:27.0125 (UTC) FILETIME=[87A7A450:01C65D52]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+Hello,
+We have purchased Quad Opteron (852) processor based server board from Tyan
+(S4881). This board is built with 64GB of RAM & 72.0GB SCSI Hard Disk drive.
+The same solution was sold on Rack mount config to a client.
 
---------------ms060606090407030801050101
-Content-Type: multipart/mixed;
- boundary="------------030507000007080205090704"
+ When the client tries to install RHEL 3.0 Advanced Server with update 3 &
+SMP kernel, the same installation itself hangs immediately after boot. The
+client wants to have kernel 2.4.21-20 SMP on the same distro of Linux,
+because they are using SYNOPSYS tool which is stable only on this version of
+Linux & kernel.
 
-This is a multi-part message in MIME format.
---------------030507000007080205090704
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Can you please help us in resolving the matter? We have tried installing
+Fedora Core 4 with 2.6.11 kernel SMP ver. This works fine, but the SYNOPSYS
+tool is not stable. 
 
-Hi,
+Further the client has purchased the same config server from HP (DL585).
+This server is presently working fine under the RHEL 3.0 Advanced Server
+with update 3 on SMP kernel 2.4.21-20.
 
-we have a big problem with the nfsd.
-
-Our system is running SuSE SLES 9 SP2 (AMD64)on
-6 Sun X4100 (1 Opteron 275, 4GB RAM, 1 *QLA2340)
-All machines are connect via SAN to a EMC CX700.
-
-Software installed SuSE SLES 9 SP2, kernel 2.6.5-7.191-smp
-which is required for the GFS (Adic StorNEXT 2.6.1)
-and also for EMC Powerpath to access the lun's.
-
-After 8 to 80h one (not allways the same)
-of the NFS server is starting to increase
-the load from 0 -> ~7.5.
-The system is not exporting any file system.
-The system can be accessed using ssh.
-Files CAN be seen, created and delete on the machine
-locally.
-The nfsd can't not be stopped and taking all of the
-cpu time.
-The load is rather small.
-Only solution is a hard reboot for the node.
-
-dmesg shows nothing, neither messages.
-fuser will not work (hanging)
-
-a) How can I get more information ?
-b) What are save settings for the nfsd ?
-
-Any hint is welcome !!
-
-Please send answers as cc to my private address, I'm not
-subscribed to the list.
-
--- 
-Kind regards,
-     Peer
-_________________________________________________________
-Max-Planck-Institut fuer Biogeochemie
-Dr. Peer-Joachim Koch
-Hans-Knöll Str.10            Telefon: ++49 3641 57-6705
-D-07745 Jena                 Telefax: ++49 3641 57-7705
-
---------------030507000007080205090704
-Content-Type: text/x-vcard; charset=utf-8;
- name="pkoch.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="pkoch.vcf"
-
-begin:vcard
-fn:Peer-Joachim Koch
-n:Koch;Peer-Joachim
-org;quoted-printable:MPI f=C3=BCr Biogeochemie;DVA
-adr:;;Hans-Knoell-Str. 10;Jena;;07745;Germany
-email;internet:pkoch@bgc-jena.mpg.de
-title:Dr. 
-tel;work:+49 3641 576705
-tel;fax:+49 3641 577705
-x-mozilla-html:FALSE
-version:2.1
-end:vcard
+The HP server is based on AMD 8000 series chipset and the client s saying
+that the NVIDIA chipset based servers are not good. Please help in resolving
+this issue kindly.
 
 
---------------030507000007080205090704--
-
---------------ms060606090407030801050101
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIYIjCC
-BWAwggRIoAMCAQICBAZ7GSYwDQYJKoZIhvcNAQEFBQAwWzELMAkGA1UEBhMCREUxEzARBgNV
-BAoTCkRGTi1WZXJlaW4xEDAOBgNVBAsTB0RGTi1QS0kxJTAjBgNVBAMTHERGTi1WZXJlaW4g
-UENBIENsYXNzaWMgLSBHMDEwHhcNMDUwNDEyMDk1NzQ1WhcNMDkwNDEyMDk1NzQ1WjB3MQsw
-CQYDVQQGEwJERTEgMB4GA1UEChMXTWF4LVBsYW5jay1HZXNlbGxzY2hhZnQxCzAJBgNVBAsT
-AkNBMRswGQYDVQQDExJNUEctQ0EgRWJlbmUgMSBHMDExHDAaBgkqhkiG9w0BCQEWDW1wZy1j
-YUBtcGcuZGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDAnExqQ1dHhxIiLBie
-Q0yudMlYybZLqfGXMbWGouxKS/SqzEkFrGv46k7gCVVbsZqWuZuCVShw3fYDTZEd6Qst1YT2
-egeAQ1/gg2UEZGkkQ3Lueabljs4Zk3NQOEkvhkQxY0PTjiksRvc658/jk+wx6UMO+/DnIHkG
-5B0rwaE0vYNoDdiFq8G6ROfcJSm8ymsa46h7KbhhbQJcaWVLDGe6ILep1pzkxYbPzUEZRXk+
-618nM3wSe4voaPf/4jqSxi/QuQV6B26CO3NU72is6sEOyzTBbMyFiramfMCnos87rUQrb4+1
-+chGBuT+euqx/DGBU+mP493+yNiTmFozPpolAgMBAAGjggIOMIICCjAdBgNVHQ4EFgQUEEdF
-A//6Fa2drJbYQbaLvYNy+7EwHwYDVR0jBBgwFoAUg647zJPhJFJ66SBPg3CiKt17LwEwDwYD
-VR0TAQH/BAUwAwEB/zCBxwYDVR0fBIG/MIG8MFygWqBYhlZodHRwOi8vY2RwMS5wY2EuZGZu
-LmRlL2Rmbi1wa2kvY2VydGlmaWNhdGlvbi94NTA5L2NsYXNzaWMvZzEvZGF0YS9jcmxzL3Jv
-b3QtY2EtY3JsLmNybDBcoFqgWIZWaHR0cDovL2NkcDIucGNhLmRmbi5kZS9kZm4tcGtpL2Nl
-cnRpZmljYXRpb24veDUwOS9jbGFzc2ljL2cxL2RhdGEvY3Jscy9yb290LWNhLWNybC5jcmww
-gdwGCCsGAQUFBwEBBIHPMIHMMGQGCCsGAQUFBzAChlhodHRwOi8vY2RwMS5wY2EuZGZuLmRl
-L2Rmbi1wa2kvY2VydGlmaWNhdGlvbi94NTA5L2NsYXNzaWMvZzEvZGF0YS9jZXJ0cy9yb290
-LWNhLWNlcnQuY3J0MGQGCCsGAQUFBzAChlhodHRwOi8vY2RwMi5wY2EuZGZuLmRlL2Rmbi1w
-a2kvY2VydGlmaWNhdGlvbi94NTA5L2NsYXNzaWMvZzEvZGF0YS9jZXJ0cy9yb290LWNhLWNl
-cnQuY3J0MA4GA1UdDwEB/wQEAwIBBjANBgkqhkiG9w0BAQUFAAOCAQEAS3Wxv5klmkyqWrxJ
-scLw2HcD0T8XAVIoabwuWVRrvCr2Yz5CPMTP+YcegdXfbFcgR2Q8Yf5i3FAUpkVQ3sivoDs6
-cGYPNPA/D7aOKSFgP0pIW260lE6Xhs+flT9Ay73BgsaOD0eFtek7AVUfoZMLe1SJT/uk3PPa
-JCJ0fREqVYXsWkCTE6vWCqHkXH/Mq6D8uW8xg1Lvft7EVbIZ42k5LccJfDKTh7rsxWL5Mo9+
-U8pbBN6g3R05yQoYtnEFj5bZWAnLiPDVm+BVLy0kkPw5UuNdhrMXXJFEqEMUagoY7pDjGZ5B
-/my1D2Vr8CxTcO8kvWTx5mp7c2elYSpVWmqWUTCCBeIwggTKoAMCAQICCmIhkHsAAAAAALIw
-DQYJKoZIhvcNAQEFBQAwcjELMAkGA1UEBhMCREUxIDAeBgNVBAoTF01heC1QbGFuY2stR2Vz
-ZWxsc2NoYWZ0MQswCQYDVQQLEwJDQTEoMCYGA1UEAxMfTVBHLUNBIEViZW5lIDIgRzAxLjEg
-R2VuZXJpYy1DQTEKMAgGA1UEBRMBMjAeFw0wNTA2MTQxNDI4NTNaFw0wNjA2MTQxNDI4NTNa
-MIG2MQswCQYDVQQGEwJERTEgMB4GA1UEChMXTWF4LVBsYW5jay1HZXNlbGxzY2hhZnQxLjAs
-BgNVBAsTJU1heC1QbGFuY2stSW5zdGl0dXQgZnVlciBCaW9nZW9jaGVtaWUxDDAKBgNVBAsT
-A0VEVjEhMB8GA1UEAxMYUGVlci1Kb2FjaGltIFRvYmlhcyBLb2NoMSQwIgYJKoZIhvcNAQkB
-FhVwa29jaEBiZ2MtamVuYS5tcGcuZGUwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMR/
-7HDx0cNAhMi1bLfpinO/wAlwFHhf3TU9b7SnxVr4yTrFwY4jVJ+GUV+HdzdVYYvU/ko4FBT1
-yJm6LPjZ3yhgraldSbyr58bNSrX0IXsX2fG9d7FT6kXzRL2HIH+9V1yVytv5X5chFBYzhNfk
-5wgJZgFycPeuyXjHwgcFr4opAgMBAAGjggK3MIICszAdBgNVHQ4EFgQUa43ouVb2vUpFwWf7
-iw1tsHihW0UwHwYDVR0jBBgwFoAUJX+a5vFX3O9TPG2441lqJOyHDpIwgZ0GA1UdHwSBlTCB
-kjCBj6CBjKCBiYY+aHR0cDovL2NhLm1wZy5kZS9jcmwvZWJlbmUyL2cwMS4xL21wZy1jYS1l
-YmVuZTItZ2VuZXJpYy1jYS5jcmyGR2h0dHA6Ly9wY2EuZ3dkZy5kZS9jcmwvbXBnLWNhL2Vi
-ZW5lMi9nMDEuMS9tcGctY2EtZWJlbmUyLWdlbmVyaWMtY2EuY3JsMIG1BggrBgEFBQcBAQSB
-qDCBpTBMBggrBgEFBQcwAYZAaHR0cDovL2NhLm1wZy5kZS9jZXJ0cy9lYmVuZTIvZzAxLjEv
-bXBnLWNhLWViZW5lMi1nZW5lcmljLWNhLmNydDBVBggrBgEFBQcwAYZJaHR0cDovL3BjYS5n
-d2RnLmRlL2NlcnRzL21wZy1jYS9lYmVuZTIvZzAxLjEvbXBnLWNhLWViZW5lMi1nZW5lcmlj
-LWNhLmNydDAMBgNVHRMBAf8EAjAAMAsGA1UdDwQEAwIFoDA8BgkrBgEEAYI3FQcELzAtBiUr
-BgEEAYI3FQjspRKBm6kVg7mbIYaC7CWCqL1gH4GE022GnNs7AgFkAgEDMDUGA1UdJQQuMCwG
-CisGAQQBgjcUAgIGCCsGAQUFBwMCBggrBgEFBQcDBAYKKwYBBAGCNwoDBDBDBgkrBgEEAYI3
-FQoENjA0MAwGCisGAQQBgjcUAgIwCgYIKwYBBQUHAwIwCgYIKwYBBQUHAwQwDAYKKwYBBAGC
-NwoDBDBEBgkqhkiG9w0BCQ8ENzA1MA4GCCqGSIb3DQMCAgIAgDAOBggqhkiG9w0DBAICAIAw
-BwYFKw4DAgcwCgYIKoZIhvcNAwcwDQYJKoZIhvcNAQEFBQADggEBAGJWFAOvuQAubxtqBBcS
-wYWsVWhzqlD5Ryeztd0zlWP1+bGNo9SZM49KrZyI5LOk0jYo6XtOLSpAieZ77LC6/MmMVl3V
-o4EJBkDCzWo7z25Dawj6E1zSaZjlXXEvkWs4ykoV4M+2b174Rd/ZLx/6kLftsu8HwP+0Xj4/
-rvbioesuUm3f/PS1xcnsJMhX6owGKcjCJ8Rxi0U/BxGeYHVpyrDzBjfVmPCO5RrpliNcFir3
-Sp1sEGVAaV3mTRfMLWQJAd/7VZVYewjUpReXzxCrmw5wAQU/ZUosVfcPsKYv1fa184ZaqSAr
-ixHa0Vt7xbSa1AB6Q4S7+8eym7cdpcDRCmYwggXiMIIEyqADAgECAgpiIZB7AAAAAACyMA0G
-CSqGSIb3DQEBBQUAMHIxCzAJBgNVBAYTAkRFMSAwHgYDVQQKExdNYXgtUGxhbmNrLUdlc2Vs
-bHNjaGFmdDELMAkGA1UECxMCQ0ExKDAmBgNVBAMTH01QRy1DQSBFYmVuZSAyIEcwMS4xIEdl
-bmVyaWMtQ0ExCjAIBgNVBAUTATIwHhcNMDUwNjE0MTQyODUzWhcNMDYwNjE0MTQyODUzWjCB
-tjELMAkGA1UEBhMCREUxIDAeBgNVBAoTF01heC1QbGFuY2stR2VzZWxsc2NoYWZ0MS4wLAYD
-VQQLEyVNYXgtUGxhbmNrLUluc3RpdHV0IGZ1ZXIgQmlvZ2VvY2hlbWllMQwwCgYDVQQLEwNF
-RFYxITAfBgNVBAMTGFBlZXItSm9hY2hpbSBUb2JpYXMgS29jaDEkMCIGCSqGSIb3DQEJARYV
-cGtvY2hAYmdjLWplbmEubXBnLmRlMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEf+xw
-8dHDQITItWy36Ypzv8AJcBR4X901PW+0p8Va+Mk6xcGOI1SfhlFfh3c3VWGL1P5KOBQU9ciZ
-uiz42d8oYK2pXUm8q+fGzUq19CF7F9nxvXexU+pF80S9hyB/vVdclcrb+V+XIRQWM4TX5OcI
-CWYBcnD3rsl4x8IHBa+KKQIDAQABo4ICtzCCArMwHQYDVR0OBBYEFGuN6LlW9r1KRcFn+4sN
-bbB4oVtFMB8GA1UdIwQYMBaAFCV/mubxV9zvUzxtuONZaiTshw6SMIGdBgNVHR8EgZUwgZIw
-gY+ggYyggYmGPmh0dHA6Ly9jYS5tcGcuZGUvY3JsL2ViZW5lMi9nMDEuMS9tcGctY2EtZWJl
-bmUyLWdlbmVyaWMtY2EuY3JshkdodHRwOi8vcGNhLmd3ZGcuZGUvY3JsL21wZy1jYS9lYmVu
-ZTIvZzAxLjEvbXBnLWNhLWViZW5lMi1nZW5lcmljLWNhLmNybDCBtQYIKwYBBQUHAQEEgagw
-gaUwTAYIKwYBBQUHMAGGQGh0dHA6Ly9jYS5tcGcuZGUvY2VydHMvZWJlbmUyL2cwMS4xL21w
-Zy1jYS1lYmVuZTItZ2VuZXJpYy1jYS5jcnQwVQYIKwYBBQUHMAGGSWh0dHA6Ly9wY2EuZ3dk
-Zy5kZS9jZXJ0cy9tcGctY2EvZWJlbmUyL2cwMS4xL21wZy1jYS1lYmVuZTItZ2VuZXJpYy1j
-YS5jcnQwDAYDVR0TAQH/BAIwADALBgNVHQ8EBAMCBaAwPAYJKwYBBAGCNxUHBC8wLQYlKwYB
-BAGCNxUI7KUSgZupFYO5myGGguwlgqi9YB+BhNNthpzbOwIBZAIBAzA1BgNVHSUELjAsBgor
-BgEEAYI3FAICBggrBgEFBQcDAgYIKwYBBQUHAwQGCisGAQQBgjcKAwQwQwYJKwYBBAGCNxUK
-BDYwNDAMBgorBgEEAYI3FAICMAoGCCsGAQUFBwMCMAoGCCsGAQUFBwMEMAwGCisGAQQBgjcK
-AwQwRAYJKoZIhvcNAQkPBDcwNTAOBggqhkiG9w0DAgICAIAwDgYIKoZIhvcNAwQCAgCAMAcG
-BSsOAwIHMAoGCCqGSIb3DQMHMA0GCSqGSIb3DQEBBQUAA4IBAQBiVhQDr7kALm8bagQXEsGF
-rFVoc6pQ+Ucns7XdM5Vj9fmxjaPUmTOPSq2ciOSzpNI2KOl7Ti0qQInme+ywuvzJjFZd1aOB
-CQZAws1qO89uQ2sI+hNc0mmY5V1xL5FrOMpKFeDPtm9e+EXf2S8f+pC37bLvB8D/tF4+P672
-4qHrLlJt3/z0tcXJ7CTIV+qMBinIwifEcYtFPwcRnmB1acqw8wY31ZjwjuUa6ZYjXBYq90qd
-bBBlQGld5k0XzC1kCQHf+1WVWHsI1KUXl88Qq5sOcAEFP2VKLFX3D7CmL9X2tfOGWqkgK4sR
-2tFbe8W0mtQAekOEu/vHspu3HaXA0QpmMIIG7jCCBdagAwIBAgIBAjANBgkqhkiG9w0BAQUF
-ADB3MQswCQYDVQQGEwJERTEgMB4GA1UEChMXTWF4LVBsYW5jay1HZXNlbGxzY2hhZnQxCzAJ
-BgNVBAsTAkNBMRswGQYDVQQDExJNUEctQ0EgRWJlbmUgMSBHMDExHDAaBgkqhkiG9w0BCQEW
-DW1wZy1jYUBtcGcuZGUwHhcNMDUwNDE5MTQyODI1WhcNMDcwNDE5MTQyODI1WjByMQswCQYD
-VQQGEwJERTEgMB4GA1UEChMXTWF4LVBsYW5jay1HZXNlbGxzY2hhZnQxCzAJBgNVBAsTAkNB
-MSgwJgYDVQQDEx9NUEctQ0EgRWJlbmUgMiBHMDEuMSBHZW5lcmljLUNBMQowCAYDVQQFEwEy
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuvp3Dvb016R0lYMOZWwAKzUaHNuT
-sbb3BWMug2JFmiq1eJHlrtd5zEUThjRUnPHMEDt/GT38fvyXbHWyUMTbbdB0pL8VxsyFLQNY
-wXwEHoHdrnAjzDoatJ8zhGObRMgVvaw158efkwCcz3JE/KY5GOEp+J0NOdGjTwkRw16Gylfq
-54g23xY6tIbdbc3QTlTsZA1Y48B9tR2M/fha27nVnaAA8RQNmcAW0EIp7icnQzKqRxMVQsTa
-ohwqHq2FYLah9c9fZCjjRlPL+oCu++WnIQtHVl1j27wAPV87+spB7OUqssZxGvsXstCCW3qe
-o1BxAYDVsrSnDa09P8IB54rnmwIDAQABo4IDiDCCA4QwDwYDVR0TAQH/BAUwAwEB/zALBgNV
-HQ8EBAMCAQYwTAYJYIZIAYb4QgENBD8WPVN1Ym9yZGluYXRlIENlcnRpZmljYXRpb24gQXV0
-aG9yaXR5IC0gTWF4LVBsYW5jay1HZXNlbGxzY2hhZnQwHQYDVR0OBBYEFCV/mubxV9zvUzxt
-uONZaiTshw6SMIGGBgNVHSMEfzB9gBQQR0UD//oVrZ2slthBtou9g3L7saFfpF0wWzELMAkG
-A1UEBhMCREUxEzARBgNVBAoTCkRGTi1WZXJlaW4xEDAOBgNVBAsTB0RGTi1QS0kxJTAjBgNV
-BAMTHERGTi1WZXJlaW4gUENBIENsYXNzaWMgLSBHMDGCBAZ7GSYwGAYDVR0RBBEwD4ENbXBn
-LWNhQG1wZy5kZTAJBgNVHRIEAjAAMEAGCWCGSAGG+EIBBAQzFjFodHRwOi8vY2EubXBnLmRl
-L2NybC9lYmVuZTEvZzAxL21wZy1jYS1lYmVuZTEuY3JsMEAGCWCGSAGG+EIBAwQzFjFodHRw
-Oi8vY2EubXBnLmRlL2NybC9lYmVuZTEvZzAxL21wZy1jYS1lYmVuZTEuY3JsMIGEBgNVHR8E
-fTB7MDegNaAzhjFodHRwOi8vY2EubXBnLmRlL2NybC9lYmVuZTEvZzAxL21wZy1jYS1lYmVu
-ZTEuY3JsMECgPqA8hjpodHRwOi8vcGNhLmd3ZGcuZGUvY3JsL21wZy1jYS9lYmVuZTEvZzAx
-L21wZy1jYS1lYmVuZTEuY3JsMIGbBggrBgEFBQcBAQSBjjCBizA/BggrBgEFBQcwAoYzaHR0
-cDovL2NhLm1wZy5kZS9jZXJ0cy9lYmVuZTEvZzAxL21wZy1jYS1lYmVuZTEuY3J0MEgGCCsG
-AQUFBzAChjxodHRwOi8vcGNhLmd3ZGcuZGUvY2VydHMvbXBnLWNhL2ViZW5lMS9nMDEvbXBn
-LWNhLWViZW5lMS5jcnQwHwYJYIZIAYb4QgECBBIWEGh0dHA6Ly9jYS5tcGcuZGUwMQYJYIZI
-AYb4QgEIBCQWImh0dHA6Ly9jYS5tcGcuZGUvcG9saWN5L2luZGV4Lmh0bWwwTAYDVR0gBEUw
-QzBBBg0rBgEEAYGdSDIBAwEBMDAwLgYIKwYBBQUHAgEWImh0dHA6Ly9jYS5tcGcuZGUvcG9s
-aWN5L2luZGV4Lmh0bWwwDQYJKoZIhvcNAQEFBQADggEBAF9c4RguQ5az0Ey1FtiZIllC2uNS
-vyWIvCSQqkoCDSk75sb2QvwI8ZbtQpzXJkjSRYJdzoKHv3cO3XCYUM6Vw1XisOhzYsltUlk8
-VCVRSxhdFm9f/Yg/OOksEtyNH0YnK9NKspuqppd6+/jaC93vY6cWwdcHkTAZkGlhm407zNN7
-7CTBSmN71U3R1MH4TLVwRq569c7foPhdsFfqd2D3/svSaIHyGfLcHwNFiozf8RJlp4RMEV4u
-56Xk35kC0lzL/DVvrIEtpxopHm0z5VMUWf9jgzWpK2X8gEMk/dP7OZJiS3UROW2ALMZez6+l
-DIMebDVL7WpCLycpPAAt8WdAE5MxggMGMIIDAgIBATCBgDByMQswCQYDVQQGEwJERTEgMB4G
-A1UEChMXTWF4LVBsYW5jay1HZXNlbGxzY2hhZnQxCzAJBgNVBAsTAkNBMSgwJgYDVQQDEx9N
-UEctQ0EgRWJlbmUgMiBHMDEuMSBHZW5lcmljLUNBMQowCAYDVQQFEwEyAgpiIZB7AAAAAACy
-MAkGBSsOAwIaBQCgggHbMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkF
-MQ8XDTA2MDQxMTEwMjUyN1owIwYJKoZIhvcNAQkEMRYEFENRP1xTQFNKJXLHD5+Iwd5/pdXx
-MFIGCSqGSIb3DQEJDzFFMEMwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3
-DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMIGRBgkrBgEEAYI3EAQxgYMwgYAwcjEL
-MAkGA1UEBhMCREUxIDAeBgNVBAoTF01heC1QbGFuY2stR2VzZWxsc2NoYWZ0MQswCQYDVQQL
-EwJDQTEoMCYGA1UEAxMfTVBHLUNBIEViZW5lIDIgRzAxLjEgR2VuZXJpYy1DQTEKMAgGA1UE
-BRMBMgIKYiGQewAAAAAAsjCBkwYLKoZIhvcNAQkQAgsxgYOggYAwcjELMAkGA1UEBhMCREUx
-IDAeBgNVBAoTF01heC1QbGFuY2stR2VzZWxsc2NoYWZ0MQswCQYDVQQLEwJDQTEoMCYGA1UE
-AxMfTVBHLUNBIEViZW5lIDIgRzAxLjEgR2VuZXJpYy1DQTEKMAgGA1UEBRMBMgIKYiGQewAA
-AAAAsjANBgkqhkiG9w0BAQEFAASBgAb5lZj/YKeumHKbRTg0xFL/xJj6WbEqYPP3Tcj+1yFR
-vJZ8BNGX/3vaed6FdBD6jGck6/7VVPUrGQgDCT6uP+yMpELeR9R0mQY6FFMaccAajeMmV58g
-uHeRyTlzAX/MmOK6bwGp4SOgmFBpL90nXwHExoNjG3utgM2ZmD/yEEsvAAAAAAAA
---------------ms060606090407030801050101--
+Jagdish S Varma
 
 

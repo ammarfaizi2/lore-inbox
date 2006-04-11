@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWDKTwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWDKTz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbWDKTwL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 15:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWDKTwK
+	id S1751348AbWDKTz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 15:55:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWDKTz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 15:52:10 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:63448 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1751272AbWDKTwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 15:52:10 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] de_thread: Don't confuse users do_each_thread.
-Date: Tue, 11 Apr 2006 21:50:06 +0200
-User-Agent: KMail/1.9.1
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060406220403.GA205@oleg> <200604110925.08685.ioe-lkml@rameria.de> <m11ww4d0nm.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m11ww4d0nm.fsf@ebiederm.dsl.xmission.com>
+	Tue, 11 Apr 2006 15:55:28 -0400
+Received: from mailer2.psc.edu ([128.182.66.106]:62419 "EHLO mailer2.psc.edu")
+	by vger.kernel.org with ESMTP id S1751348AbWDKTz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 15:55:27 -0400
+Message-ID: <443C09A7.2040900@psc.edu>
+Date: Tue, 11 Apr 2006 15:55:19 -0400
+From: John Heffner <jheffner@psc.edu>
+User-Agent: Thunderbird 1.5 (Macintosh/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Daniel Drake <dsd@gentoo.org>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17 regression: Very slow net transfer from some hosts
+References: <443C03E6.7080202@gentoo.org> <443C024C.2070107@psc.edu> <443C0B74.50305@gentoo.org>
+In-Reply-To: <443C0B74.50305@gentoo.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604112150.07493.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 11. April 2006 09:36, Eric W. Biederman wrote:
-[cleanup of current usage]
-> Please skip de_thread.  I will catch that one, in a minute.  There is
-> enough churn on that function that you are likely to patch the wrong
-> version.
+Daniel Drake wrote:
+> John Heffner wrote:
+>> I'm not seeing this behavior myself.  What are the values of 
+>> /proc/sys/net/ipv4/tcp_wmem, tcp_rmem, and tcp_mem?  How much memory 
+>> does this system have?  (A binary tcpdump might be good, too.)
+> 
+> tcp_wmem: 4096    16384   131072
+> tcp_rmem: 4096    87380   174760
+> tcp_mem: 98304   131072  196608
 
-Ok, I'll wait for you and Oleg. Maybe I should revisit this cleanup
-after 2.6.18 opens up. If you both are done in that area, just tell me
-and I'll cook up a patch.
+These are (I assume) with the patch reversed.  What are the values with 
+the patch applied?
 
-Regards
-
-Ingo Oeser
+Thanks,
+   -John

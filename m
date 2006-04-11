@@ -1,161 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWDKQgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWDKQlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbWDKQgb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 12:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWDKQga
+	id S1751352AbWDKQlL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 12:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWDKQlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 12:36:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18313 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751324AbWDKQga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 12:36:30 -0400
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Use atomic ops for file_nr accounting, not spinlock+irq
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Tue, 11 Apr 2006 17:36:15 +0100
-Message-ID: <16476.1144773375@warthog.cambridge.redhat.com>
+	Tue, 11 Apr 2006 12:41:11 -0400
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:17021 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751352AbWDKQlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 12:41:10 -0400
+In-Reply-To: <20060410221455.GH2408@stusta.de>
+References: <20060410221455.GH2408@stusta.de>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8C90D17C-DB88-4B60-9D88-C01627E347F3@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [2.6 patch] the scheduled unexport of insert_resource
+Date: Tue, 11 Apr 2006 11:41:07 -0500
+To: Adrian Bunk <bunk@stusta.de>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm fine with this.  I'll deal with getting my bus code out in the  
+future.
 
-Make the kernel use atomic operations for files_stat.nr_files accounting
-rather than using a spinlocked and interrupt-disabled critical section.  This
-should improve reduce the latency of the critical section.
+- k
 
-This patch is slightly problematic for a couple of reasons:
+On Apr 10, 2006, at 5:14 PM, Adrian Bunk wrote:
 
- (1) The sysctl code then implicitly casts the atomic value to an int, which
-     I'm not sure is permissible.
+> This patch contains the scheduled unexport of insert_resource.
+>
+> Kumar Gala said that some not yet submitted code uses it [1], but  
+> since
+> there is after one month still no code submission, and reverting the
+> exporting it again is trivial if it is both submitted and considered
+> acceptable for inclusion this shouldn't be a problem.
+>
+> [1] http://lkml.org/lkml/2006/4/1/28
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> ---
+>
+>  Documentation/feature-removal-schedule.txt |    8 --------
+>  include/linux/ioport.h                     |    2 +-
+>  kernel/resource.c                          |    2 --
+>  3 files changed, 1 insertion(+), 11 deletions(-)
+>
+> --- linux-2.6.17-rc1-mm2-full/Documentation/feature-removal- 
+> schedule.txt.old	2006-04-10 20:52:23.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/Documentation/feature-removal- 
+> schedule.txt	2006-04-10 20:52:36.000000000 +0200
+> @@ -72,14 +72,6 @@
+>
+>  ---------------------------
+>
+> -What:	remove EXPORT_SYMBOL(insert_resource)
+> -When:	April 2006
+> -Files:	kernel/resource.c
+> -Why:	No modular usage in the kernel.
+> -Who:	Adrian Bunk <bunk@stusta.de>
+> -
+> ----------------------------
+> -
+>  What:	PCMCIA control ioctl (needed for pcmcia-cs [cardmgr, cardctl])
+>  When:	November 2005
+>  Files:	drivers/pcmcia/: pcmcia_ioctl.c
+> --- linux-2.6.17-rc1-mm2-full/include/linux/ioport.h.old	2006-04-10  
+> 20:52:46.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/include/linux/ioport.h	2006-04-10  
+> 20:52:55.000000000 +0200
+> @@ -95,7 +95,7 @@
+>  extern int request_resource(struct resource *root, struct resource  
+> *new);
+>  extern struct resource * ____request_resource(struct resource  
+> *root, struct resource *new);
+>  extern int release_resource(struct resource *new);
+> -extern __deprecated_for_modules int insert_resource(struct  
+> resource *parent, struct resource *new);
+> +extern int insert_resource(struct resource *parent, struct  
+> resource *new);
+>  extern int allocate_resource(struct resource *root, struct  
+> resource *new,
+>  			     u64 size,
+>  			     u64 min, u64 max,
+> --- linux-2.6.17-rc1-mm2-full/kernel/resource.c.old	2006-04-10  
+> 20:53:04.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/kernel/resource.c	2006-04-10  
+> 20:53:11.000000000 +0200
+> @@ -381,8 +381,6 @@
+>  	return result;
+>  }
+>
+> -EXPORT_SYMBOL(insert_resource);
+> -
+>  /*
+>   * Given an existing resource, change its start and size to match the
+>   * arguments.  Returns -EBUSY if it can't fit.  Existing children of
 
- (2) linux/fs.h only includes asm/atomic.h if __KERNEL__ is defined, but the
-     files_stat_struct is declared whether or not __KERNEL__ is defined.  To
-     deal with this I've made the type of the nr_files member change to int if
-     necessary.
-
-     However, I'm not sure there's any need to present files_stat_struct to
-     non-kernel code.
-
-Additionally, I'm not sure that doing the accounting in the slab constructor
-and destructor is a good idea: if ENFILE is returned, and then a whole bunch
-of files are freed up thus permitting the next open to theoretically avoid
-ENFILE, what's to say that the slab has actually recycled all those objects?
-
-Under some conditions the destructors will only be invoked when the actual
-slab pages are released, in which case the ENFILE condition won't necessarily
-cease to be reported, even if it has actually gone away.
-
-Consider where the files_cache has more than one object per slab, and after an
-ENFILE condition a whole bunch of files are released, such as to leave all the
-slab pages still allocated, with one struct file allocated in each...
-
-
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 /tmp/file-nr.diff
- fs/file_table.c    |   25 +++++++++----------------
- include/linux/fs.h |    8 +++++++-
- 2 files changed, 16 insertions(+), 17 deletions(-)
-
-diff --git a/fs/file_table.c b/fs/file_table.c
-index 1008050..67b0084 100644
---- a/fs/file_table.c
-+++ b/fs/file_table.c
-@@ -22,7 +22,8 @@
- 
- /* sysctl tunables... */
- struct files_stat_struct files_stat = {
--	.max_files = NR_FILE
-+	.max_files	= NR_FILE,
-+	.nr_files	= ATOMIC_INIT(0),
- };
- 
- EXPORT_SYMBOL(files_stat); /* Needed by unix.o */
-@@ -33,26 +34,18 @@ EXPORT_SYMBOL(files_stat); /* Needed by 
- static DEFINE_SPINLOCK(filp_count_lock);
- 
- /* slab constructors and destructors are called from arbitrary
-- * context and must be fully threaded - use a local spinlock
-- * to protect files_stat.nr_files
-+ * context and must be fully threaded
-  */
- void filp_ctor(void *objp, struct kmem_cache *cachep, unsigned long cflags)
- {
- 	if ((cflags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
--	    SLAB_CTOR_CONSTRUCTOR) {
--		unsigned long flags;
--		spin_lock_irqsave(&filp_count_lock, flags);
--		files_stat.nr_files++;
--		spin_unlock_irqrestore(&filp_count_lock, flags);
--	}
-+	    SLAB_CTOR_CONSTRUCTOR)
-+		atomic_inc(&files_stat.nr_files);
- }
- 
- void filp_dtor(void *objp, struct kmem_cache *cachep, unsigned long dflags)
- {
--	unsigned long flags;
--	spin_lock_irqsave(&filp_count_lock, flags);
--	files_stat.nr_files--;
--	spin_unlock_irqrestore(&filp_count_lock, flags);
-+	atomic_dec(&files_stat.nr_files);
- }
- 
- static inline void file_free_rcu(struct rcu_head *head)
-@@ -78,7 +71,7 @@ struct file *get_empty_filp(void)
- 	/*
- 	 * Privileged users can go above max_files
- 	 */
--	if (files_stat.nr_files >= files_stat.max_files &&
-+	if (atomic_read(&files_stat.nr_files) >= files_stat.max_files &&
- 				!capable(CAP_SYS_ADMIN))
- 		goto over;
- 
-@@ -101,10 +94,10 @@ struct file *get_empty_filp(void)
- 
- over:
- 	/* Ran out of filps - report that */
--	if (files_stat.nr_files > old_max) {
-+	if (atomic_read(&files_stat.nr_files) > old_max) {
- 		printk(KERN_INFO "VFS: file-max limit %d reached\n",
- 					files_stat.max_files);
--		old_max = files_stat.nr_files;
-+		old_max = atomic_read(&files_stat.nr_files);
- 	}
- 	goto fail;
- 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index cc9ecc0..533fd18 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -9,6 +9,9 @@
- #include <linux/config.h>
- #include <linux/limits.h>
- #include <linux/ioctl.h>
-+#ifdef __KERNEL__
-+#include <asm/atomic.h>
-+#endif
- 
- /*
-  * It's silly to have NR_OPEN bigger than NR_FILE, but you can change
-@@ -30,7 +33,11 @@
- 
- /* And dynamically-tunable limits and defaults: */
- struct files_stat_struct {
-+#ifdef __KERNEL__
-+	atomic_t nr_files;	/* read only */
-+#else
- 	int nr_files;		/* read only */
-+#endif
- 	int nr_free_files;	/* read only */
- 	int max_files;		/* tunable */
- };
-@@ -218,7 +225,6 @@ extern int dir_notify_enable;
- #include <linux/sched.h>
- #include <linux/mutex.h>
- 
--#include <asm/atomic.h>
- #include <asm/semaphore.h>
- #include <asm/byteorder.h>
- 

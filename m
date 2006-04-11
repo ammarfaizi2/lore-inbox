@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWDKXxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWDKXzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWDKXxd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 19:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWDKXxc
+	id S1751078AbWDKXzq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 19:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWDKXzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 19:53:32 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:59945 "EHLO
-	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1751357AbWDKXxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 19:53:32 -0400
-Message-ID: <443C4471.7040407@gentoo.org>
-Date: Wed, 12 Apr 2006 01:06:09 +0100
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mail/News 1.5 (X11/20060401)
+	Tue, 11 Apr 2006 19:55:46 -0400
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:9093 "EHLO
+	vrapenec.doma") by vger.kernel.org with ESMTP id S1751078AbWDKXzp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 19:55:45 -0400
+Message-ID: <443C41F2.5070307@ribosome.natur.cuni.cz>
+Date: Wed, 12 Apr 2006 01:55:30 +0200
+From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060323
+X-Accept-Language: cs
 MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: John Heffner <jheffner@psc.edu>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17 regression: Very slow net transfer from some hosts
-References: <443C03E6.7080202@gentoo.org>	<443C024C.2070107@psc.edu>	<443C0B74.50305@gentoo.org>	<443C09A7.2040900@psc.edu>	<443C1738.20605@gentoo.org>	<443C178B.3030805@psc.edu>	<443C2BBA.5010804@gentoo.org> <20060411153315.4132b477@localhost.localdomain>
-In-Reply-To: <20060411153315.4132b477@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Oops in 2.6.17-rc1: EIP is at snd_pcm_oss_sync+0x1f/0x260 [snd_pcm_oss]
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
->> This is very familiar, and I just found the article I was thinking of: 
->> http://lwn.net/Articles/92727/
->>
->> I was also hit by that bug, on the same collection of websites, but that 
->> particular problem was fixed for 2.6.8 or so. So I guess it is extremely 
->> likely that my ISP has broken routers. nmap isn't able to identify the 
->> OS of any ISP routers in my path.
-> 
-> We never fixed it, its kind of hard to fix other peoples equipment ;-)
+I used skype to chat and after I tried to close the application it did not return
+to xterm. This is what I have found. Hope this helps someone to find the cause. ;-)
 
-Weird, things started working for me around 2.6.9 without having to 
-modify any sysctl stuff.
+BUG: unable to handle kernel NULL pointer dereference at virtual address 000000a0
+ printing eip:
+f9a2e57f
+*pde = 00000000
+Oops: 0000 [#1]
+Modules linked in: snd_pcm_oss snd_mixer_oss snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device ohci_hcd ehci_hcd radeon drm eth1394 pcmcia ohci1394 ieee1394 uhci_hcd snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd snd_page_alloc yenta_socket rsrc_nonstatic pcmcia_core intel_agp agpgart 8139too
+CPU:    0
+EIP:    0060:[<f9a2e57f>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.17-rc1 #1) 
+EIP is at snd_pcm_oss_sync+0x1f/0x260 [snd_pcm_oss]
+eax: c1fe6580   ebx: f79f2140   ecx: f9a2f562   edx: 00000000
+esi: dfdbdb60   edi: f79f2000   ebp: da51ae24   esp: da51ae00
+ds: 007b   es: 007b   ss: 0068
+Process skype (pid: 12275, threadinfo=da51a000 task=f09bd070)
+Stack: <0>c1ee1a60 c1ee1a40 c1ee1a40 00000000 c1fe6580 dfdbdb60 f79f2140 dfdbdb60 
+       f79f2000 da51ae3c f9a2f587 f4738540 00000008 f4738540 f752ae9c da51ae58 
+       c014b2a3 c1cd4e40 f75208d4 f4738540 c1ec5f00 00000000 da51ae60 c014b20e 
+Call Trace:
+ <c0102f11> show_stack_log_lvl+0x89/0x91   <c0103066> show_registers+0x10e/0x176
+ <c010321a> die+0xd8/0x168   <c01124ef> do_page_fault+0x452/0x538
+ <c0102bb7> error_code+0x4f/0x54   <f9a2f587> snd_pcm_oss_release+0x25/0x88 [snd_pcm_oss]
+ <c014b2a3> __fput+0x93/0x120   <c014b20e> fput+0x16/0x18
+ <c0149fab> filp_close+0x4e/0x58   <c011a88e> close_files+0x57/0x67
+ <c011a8c6> put_files_struct+0x17/0x3d   <c011b129> do_exit+0x19d/0x2fb
+ <c011b305> sys_exit_group+0x0/0x11   <c0121a3a> get_signal_to_deliver+0x20b/0x21b
+ <c01027a1> do_signal+0x54/0xfd   <c0102876> do_notify_resume+0x2c/0x3a
+ <c0102a1e> work_notifysig+0x13/0x19  
+Code: 6f c6 8d 65 f4 89 d8 5b 5e 5f 5d c3 55 89 e5 57 56 53 83 ec 18 89 45 f0 8b 00 85 c0 89 45 ec 0f 84 f5 01 00 00 8b 50 5c 89 55 e8 <8b> 82 a0 00 00 00 85 c0 0f 85 a0 01 00 00 8b 45 ec e8 c0 f6 ff 
+ <1>Fixing recursive fault but reboot is needed!
 
-> Turn off TCP window scaling, your performance will be limited but about
-> as good as you can get with a corrupting firewall in between.
 
-I was wrong in my previous mail where I said that the rmem/wmem output 
-hasn't changed over the two kernels - it has, the 3rd column differs. I 
-simply set those values back to what they were on 2.6.16 and now things 
-work again - I presumably have window scale 2 (scale factor 4) again, 
-which appears to be a decent compromise between having a window and 
-things actually working.
-
-For anyone else interested, the ISP is NTL (UK). The fix:
-
-	echo "4096    16384   131072 " > /proc/sys/net/ipv4/tcp_wmem
-	echo "4096    87380   174760 " > /proc/sys/net/ipv4/tcp_rmem
-
-
-This issue is visible on my 1GB system but not on my laptop (256mb RAM). 
-The key thing is that more memory means a higher window scale factor is 
-used, which appears to trigger ntl's brokenness.
-
-Daniel
+Please Cc: me in replies, if any. ;-)
+Martin

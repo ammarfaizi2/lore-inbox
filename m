@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWDKWOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWDKWTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbWDKWOu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 18:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWDKWOu
+	id S1751161AbWDKWTR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 18:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWDKWTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 18:14:50 -0400
-Received: from xenotime.net ([66.160.160.81]:43482 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751154AbWDKWOt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 18:14:49 -0400
-Date: Tue, 11 Apr 2006 15:17:16 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Luca Falavigna <dktrkranz@gmail.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CONSOLE_LP_STRICT Kconfig option
-Message-Id: <20060411151716.58278056.rdunlap@xenotime.net>
-In-Reply-To: <ff1cadb20602150103u437562ddu@mail.gmail.com>
-References: <43F1ED62.4050609@gmail.com>
-	<p731wy63s0j.fsf@verdi.suse.de>
-	<ff1cadb20602150103u437562ddu@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 11 Apr 2006 18:19:17 -0400
+Received: from ns1.siteground.net ([207.218.208.2]:6375 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1751157AbWDKWTQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 18:19:16 -0400
+Date: Tue, 11 Apr 2006 15:20:12 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+       Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] ext3 percpu counter fixes to suppport for ext3 unsigned long type free blocks counter
+Message-ID: <20060411222012.GA5007@localhost.localdomain>
+References: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com> <Pine.LNX.4.64.0604111007230.564@schroedinger.engr.sgi.com> <1144782073.3986.15.camel@dyn9047017067.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144782073.3986.15.camel@dyn9047017067.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Feb 2006 10:03:30 +0100 Luca Falavigna wrote:
-
-> Oops, I noticed I sent twice my email. Sorry.
+On Tue, Apr 11, 2006 at 12:01:13PM -0700, Mingming Cao wrote:
+> On Tue, 2006-04-11 at 10:09 -0700, Christoph Lameter wrote:
+> > On Mon, 10 Apr 2006, Mingming Cao wrote:
+> > 
+> > > Here are the proposed patches to allow the ext3 free block accounting
+> > > works with more than 8TB storage.
+> > 
+> > Umm.. This is an issue on 32 bit platforms only. 64bit platforms x86_64, 
+> > ia64 etc do not need this. Would you make it arch specific?
 > 
-> 14 Feb 2006 15:59:56 +0100, Andi Kleen <ak@suse.de>:
-> > This shouldn't be a CONFIG. This should be a runtime option.
-> > It's ridiculous to have to recompile your kernel just to fix some
-> > problem with your printer.
-> >
-> > e.g. sysctl, ioctl, sysfs entry, module parameter. Whatever is en
-> > vogue these days. Easiest would be probably a module_param().
-> 
-> This feature only gets involved when passing console=lp0 parameter to
-> the bootloader. I never tried to load a new system console while
-> system was running so I'm not sure if it behaves correctly. If it
-> does, I will modify this patch following your advices.
+> Yes, make sense. I will update my patch soon. Thanks.
 
-Andi's suggestion seems fine to me:  use a module_param() for
-CONSOLE_LP_STRICT instead of a hidden build-time (non-Kconfig)
-option.  Are you interested in making this change?
+Or make the counter s64? so that it stays 64 bit on all arches? 
 
----
-~Randy
+OR
+why not change the global per-cpu counter type to unsigned long (as we
+discussed earlier), so we don't need the extra "ul" flags and interfaces, 
+and all arches get a standard unsigned long return type?  We could also 
+do away with percpu_read_positive then no?  The applications for per-cpu 
+counters is going to be upcounters always methinks...
+
+Thanks,
+Kiran

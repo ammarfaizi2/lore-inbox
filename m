@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWDKJtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWDKJtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWDKJtm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 05:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWDKJtm
+	id S1750704AbWDKJtr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 05:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWDKJtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 05:49:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7357 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750702AbWDKJtl (ORCPT
+	Tue, 11 Apr 2006 05:49:46 -0400
+Received: from mail.axxeo.de ([82.100.226.146]:34247 "EHLO mail.axxeo.de")
+	by vger.kernel.org with ESMTP id S1750704AbWDKJtp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 05:49:41 -0400
+	Tue, 11 Apr 2006 05:49:45 -0400
+From: Ingo Oeser <netdev@axxeo.de>
+Organization: Axxeo GmbH
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: [PATCH] deinline a few large functions in vlan code v2
+Date: Tue, 11 Apr 2006 11:49:24 +0200
+User-Agent: KMail/1.7.2
+Cc: Dave Dillow <dave@thedillows.org>, netdev@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+References: <200604071628.30486.vda@ilport.com.ua> <1144682807.12177.22.camel@dillow.idleaire.com> <200604111028.54813.vda@ilport.com.ua>
+In-Reply-To: <200604111028.54813.vda@ilport.com.ua>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-X-Fcc: ~/Mail/linus
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Michael Kerrisk <mtk-lkml@gmx.net>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] fix de_thread() vs do_coredump() deadlock
-In-Reply-To: Oleg Nesterov's message of  Tuesday, 11 April 2006 17:13:43 +0400 <20060411131343.GA113@oleg>
-X-Antipastobozoticataclysm: Bariumenemanilow
-Message-Id: <20060411094937.3D4541809BB@magilla.sf.frob.com>
-Date: Tue, 11 Apr 2006 02:49:37 -0700 (PDT)
+Content-Disposition: inline
+Message-Id: <200604111149.24862.netdev@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I still think we are ok with no ptrace. If that (non-coredump) signal was
-> delivered before de_thread sets SIGNAL_GROUP_EXIT, then this flag is set
-> by __group_complete_signal(), so de_thread return -EAGAIN. If de_thread()
-> wins, the signal will be dequeued later from ->shared_pending.
+Hi Denis,
 
-There is no guarantee that __group_complete_signal gets to that code path
-when the signal is generated.  There may be no thread that doesn't have it
-blocked nor is already descheduled with pending signals.  Then some thread
-gets scheduled, or changes it signal mask, and then gets into
-get_signal_to_deliver and takes the siglock either before an exec'ing
-thread gets the lock, or while the exec'ing thread releases it to wait.
-When the dequeuer thread releases the siglock, we have the race window.
-(There is another similar case if the signal was handled at generation time
-and the handler is reset to SIG_DFL later in a race with another thread
-dequeuing the signal and a third doing an exec.)
+Denis Vlasenko wrote:
+> +#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+>  	if(vlan_tx_tag_present(skb)) {
+>  		first_txd->processFlags |=
+>  		    TYPHOON_TX_PF_INSERT_VLAN | TYPHOON_TX_PF_VLAN_PRIORITY;
+> @@ -844,6 +849,7 @@ typhoon_start_tx(struct sk_buff *skb, st
+>  		    cpu_to_le32(htons(vlan_tx_tag_get(skb)) <<
+>  				TYPHOON_TX_PF_VLAN_TAG_SHIFT);
+>  	}
+> +#endif
+
+Wouldn't it be much easier to just do
+
+#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+static inline int  vlan_tx_tag_present(...) {
+ /** get VLAN tag */
+}
+#else
+static inline  int vlan_tx_tag_present(...) {return 0;}
+#endif
+
+in some header file?
+
+Similiar in typhoon.c:
+
+#if defined(CONFIG_VLAN_8021Q) || defined(CONFIG_VLAN_8021Q_MODULE)
+static inline  has_vlan_group(...) {
+  /* get VLAN group */
+}
+#else
+static inline  has_vlan_group(...) {return 0;}
+#endif
+
+With this and similiar changes in the drivers, 
+your patch might be less intrusive and thus more acceptable to maintainers.
+
+Just let the compiler remove the extra code with constant folding and dead
+code elemination. The result will be even cleaner code, I think.
+
+What do you think?
 
 
-Thanks,
-Roland
+Regards
 
+Ingo Oeser

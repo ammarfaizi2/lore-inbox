@@ -1,462 +1,922 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWDKMTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWDKMTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWDKMTM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 08:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWDKMTM
+	id S1750795AbWDKMTt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 08:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWDKMTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 08:19:12 -0400
-Received: from mail.gmx.net ([213.165.64.20]:30350 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750784AbWDKMTK (ORCPT
+	Tue, 11 Apr 2006 08:19:49 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:4894 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750795AbWDKMTr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 08:19:10 -0400
-X-Authenticated: #31060655
-Message-ID: <443B9EBB.6010607@gmx.net>
-Date: Tue, 11 Apr 2006 14:19:07 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
-X-Accept-Language: de, en
+	Tue, 11 Apr 2006 08:19:47 -0400
+Message-ID: <443BA062.1040208@sw.ru>
+Date: Tue, 11 Apr 2006 16:26:10 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: libata-pata works on ICH4-M
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------080207020107060006080507"
-X-Y-GMX-Trusted: 0
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
+       sam@vilain.net, "Eric W. Biederman" <ebiederm@xmission.com>,
+       xemul@sw.ru, James Morris <jmorris@namei.org>
+Subject: Re: [RFC][PATCH 2/5] uts namespaces: Switch to using uts namespaces
+References: <20060407095132.455784000@sergelap> <20060407183600.D025B19B8FF@sergelap.hallyn.com>
+In-Reply-To: <20060407183600.D025B19B8FF@sergelap.hallyn.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080207020107060006080507
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Serge,
 
-Hi Alan,
+BTW, have you noticed that NFS is using utsname for internal processes 
+and in general case this makes NFS ns to be coupled with uts ns?
 
-just a quick note to tell you that with ATA_ENABLE_PATA my
-system works fine and does even survive suspend-to-ram.
-This is a Samsung P35 laptop with one builtin 80 GB harddisk
-and one builtin DVD-RAM drive.
-libata patches are the ones included in 2.6.17-rc1-mm2 with
-an additional one-liner:
+Kirill
 
---- drivers/scsi/ata_piix.c~    2006-04-11 14:11:11.000000000 +0200
-+++ drivers/scsi/ata_piix.c     2006-04-11 01:02:55.000000000 +0200
-@@ -157,6 +157,7 @@
- static const struct pci_device_id piix_pci_tbl[] = {
- #ifdef ATA_ENABLE_PATA
-        { 0x8086, 0x7111, PCI_ANY_ID, PCI_ANY_ID, 0, 0, piix4_pata },
-+       { 0x8086, 0x24ca, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich5_pata },
-        { 0x8086, 0x24db, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich5_pata },
-        { 0x8086, 0x25a2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich5_pata },
- #endif
+> Replace references to system_utsname to the per-process uts namespace
+> where appropriate.  This includes things like uname.
+> 
+> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+> ---
+>  arch/alpha/kernel/osf_sys.c         |   24 ++++++++++++------------
+>  arch/i386/kernel/sys_i386.c         |   12 ++++++------
+>  arch/ia64/sn/kernel/sn2/sn_hwperf.c |    2 +-
+>  arch/m32r/kernel/sys_m32r.c         |    2 +-
+>  arch/mips/kernel/linux32.c          |    2 +-
+>  arch/mips/kernel/syscall.c          |   18 +++++++++---------
+>  arch/mips/kernel/sysirix.c          |   12 ++++++------
+>  arch/parisc/hpux/sys_hpux.c         |   22 +++++++++++-----------
+>  arch/powerpc/kernel/syscalls.c      |   14 +++++++-------
+>  arch/sh/kernel/sys_sh.c             |    2 +-
+>  arch/sh64/kernel/sys_sh64.c         |    2 +-
+>  arch/sparc/kernel/sys_sparc.c       |    4 ++--
+>  arch/sparc/kernel/sys_sunos.c       |   10 +++++-----
+>  arch/sparc64/kernel/sys_sparc.c     |    4 ++--
+>  arch/sparc64/kernel/sys_sunos32.c   |   10 +++++-----
+>  arch/sparc64/solaris/misc.c         |    6 +++---
+>  arch/um/drivers/mconsole_kern.c     |    6 +++---
+>  arch/um/kernel/syscall_kern.c       |   12 ++++++------
+>  arch/um/sys-x86_64/syscalls.c       |    2 +-
+>  arch/x86_64/ia32/sys_ia32.c         |   10 +++++-----
+>  arch/x86_64/kernel/sys_x86_64.c     |    2 +-
+>  arch/xtensa/kernel/syscalls.c       |    2 +-
+>  drivers/char/random.c               |    4 ++--
+>  fs/cifs/connect.c                   |   28 ++++++++++++++--------------
+>  fs/exec.c                           |    2 +-
+>  fs/lockd/clntproc.c                 |    4 ++--
+>  fs/lockd/mon.c                      |    2 +-
+>  fs/lockd/svclock.c                  |    2 +-
+>  fs/lockd/xdr.c                      |    2 +-
+>  fs/nfs/nfsroot.c                    |    2 +-
+>  include/linux/lockd/lockd.h         |    2 +-
+>  kernel/sys.c                        |   14 +++++++-------
+>  32 files changed, 121 insertions(+), 121 deletions(-)
+> 
+> 92a8cf13a78415ed5ec9068698b5039ddcc00210
+> diff --git a/arch/alpha/kernel/osf_sys.c b/arch/alpha/kernel/osf_sys.c
+> index 31afe3d..b793b96 100644
+> --- a/arch/alpha/kernel/osf_sys.c
+> +++ b/arch/alpha/kernel/osf_sys.c
+> @@ -402,15 +402,15 @@ osf_utsname(char __user *name)
+>  
+>  	down_read(&uts_sem);
+>  	error = -EFAULT;
+> -	if (copy_to_user(name + 0, system_utsname.sysname, 32))
+> +	if (copy_to_user(name + 0, utsname()->sysname, 32))
+>  		goto out;
+> -	if (copy_to_user(name + 32, system_utsname.nodename, 32))
+> +	if (copy_to_user(name + 32, utsname()->nodename, 32))
+>  		goto out;
+> -	if (copy_to_user(name + 64, system_utsname.release, 32))
+> +	if (copy_to_user(name + 64, utsname()->release, 32))
+>  		goto out;
+> -	if (copy_to_user(name + 96, system_utsname.version, 32))
+> +	if (copy_to_user(name + 96, utsname()->version, 32))
+>  		goto out;
+> -	if (copy_to_user(name + 128, system_utsname.machine, 32))
+> +	if (copy_to_user(name + 128, utsname()->machine, 32))
+>  		goto out;
+>  
+>  	error = 0;
+> @@ -449,8 +449,8 @@ osf_getdomainname(char __user *name, int
+>  
+>  	down_read(&uts_sem);
+>  	for (i = 0; i < len; ++i) {
+> -		__put_user(system_utsname.domainname[i], name + i);
+> -		if (system_utsname.domainname[i] == '\0')
+> +		__put_user(utsname()->domainname[i], name + i);
+> +		if (utsname()->domainname[i] == '\0')
+>  			break;
+>  	}
+>  	up_read(&uts_sem);
+> @@ -608,11 +608,11 @@ asmlinkage long
+>  osf_sysinfo(int command, char __user *buf, long count)
+>  {
+>  	static char * sysinfo_table[] = {
+> -		system_utsname.sysname,
+> -		system_utsname.nodename,
+> -		system_utsname.release,
+> -		system_utsname.version,
+> -		system_utsname.machine,
+> +		utsname()->sysname,
+> +		utsname()->nodename,
+> +		utsname()->release,
+> +		utsname()->version,
+> +		utsname()->machine,
+>  		"alpha",	/* instruction set architecture */
+>  		"dummy",	/* hardware serial number */
+>  		"dummy",	/* hardware manufacturer */
+> diff --git a/arch/i386/kernel/sys_i386.c b/arch/i386/kernel/sys_i386.c
+> index 8fdb1fb..4af731d 100644
+> --- a/arch/i386/kernel/sys_i386.c
+> +++ b/arch/i386/kernel/sys_i386.c
+> @@ -210,7 +210,7 @@ asmlinkage int sys_uname(struct old_utsn
+>  	if (!name)
+>  		return -EFAULT;
+>  	down_read(&uts_sem);
+> -	err=copy_to_user(name, &system_utsname, sizeof (*name));
+> +	err=copy_to_user(name, utsname(), sizeof (*name));
+>  	up_read(&uts_sem);
+>  	return err?-EFAULT:0;
+>  }
+> @@ -226,15 +226,15 @@ asmlinkage int sys_olduname(struct oldol
+>    
+>    	down_read(&uts_sem);
+>  	
+> -	error = __copy_to_user(&name->sysname,&system_utsname.sysname,__OLD_UTS_LEN);
+> +	error = __copy_to_user(&name->sysname,&utsname()->sysname,__OLD_UTS_LEN);
+>  	error |= __put_user(0,name->sysname+__OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->nodename,&system_utsname.nodename,__OLD_UTS_LEN);
+> +	error |= __copy_to_user(&name->nodename,&utsname()->nodename,__OLD_UTS_LEN);
+>  	error |= __put_user(0,name->nodename+__OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->release,&system_utsname.release,__OLD_UTS_LEN);
+> +	error |= __copy_to_user(&name->release,&utsname()->release,__OLD_UTS_LEN);
+>  	error |= __put_user(0,name->release+__OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->version,&system_utsname.version,__OLD_UTS_LEN);
+> +	error |= __copy_to_user(&name->version,&utsname()->version,__OLD_UTS_LEN);
+>  	error |= __put_user(0,name->version+__OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->machine,&system_utsname.machine,__OLD_UTS_LEN);
+> +	error |= __copy_to_user(&name->machine,&utsname()->machine,__OLD_UTS_LEN);
+>  	error |= __put_user(0,name->machine+__OLD_UTS_LEN);
+>  	
+>  	up_read(&uts_sem);
+> diff --git a/arch/ia64/sn/kernel/sn2/sn_hwperf.c b/arch/ia64/sn/kernel/sn2/sn_hwperf.c
+> index d917afa..a0632a9 100644
+> --- a/arch/ia64/sn/kernel/sn2/sn_hwperf.c
+> +++ b/arch/ia64/sn/kernel/sn2/sn_hwperf.c
+> @@ -420,7 +420,7 @@ static int sn_topology_show(struct seq_f
+>  			"coherency_domain %d, "
+>  			"region_size %d\n",
+>  
+> -			partid, system_utsname.nodename,
+> +			partid, utsname()->nodename,
+>  			shubtype ? "shub2" : "shub1", 
+>  			(u64)nasid_mask << nasid_shift, nasid_msb, nasid_shift,
+>  			system_size, sharing_size, coher, region_size);
+> diff --git a/arch/m32r/kernel/sys_m32r.c b/arch/m32r/kernel/sys_m32r.c
+> index 670cb49..11412c0 100644
+> --- a/arch/m32r/kernel/sys_m32r.c
+> +++ b/arch/m32r/kernel/sys_m32r.c
+> @@ -206,7 +206,7 @@ asmlinkage int sys_uname(struct old_utsn
+>  	if (!name)
+>  		return -EFAULT;
+>  	down_read(&uts_sem);
+> -	err=copy_to_user(name, &system_utsname, sizeof (*name));
+> +	err=copy_to_user(name, utsname(), sizeof (*name));
+>  	up_read(&uts_sem);
+>  	return err?-EFAULT:0;
+>  }
+> diff --git a/arch/mips/kernel/linux32.c b/arch/mips/kernel/linux32.c
+> index 3f40c37..b9b702f 100644
+> --- a/arch/mips/kernel/linux32.c
+> +++ b/arch/mips/kernel/linux32.c
+> @@ -1100,7 +1100,7 @@ asmlinkage long sys32_newuname(struct ne
+>  	int ret = 0;
+>  
+>  	down_read(&uts_sem);
+> -	if (copy_to_user(name,&system_utsname,sizeof *name))
+> +	if (copy_to_user(name,utsname(),sizeof *name))
+>  		ret = -EFAULT;
+>  	up_read(&uts_sem);
+>  
+> diff --git a/arch/mips/kernel/syscall.c b/arch/mips/kernel/syscall.c
+> index 2aeaa2f..8b13d57 100644
+> --- a/arch/mips/kernel/syscall.c
+> +++ b/arch/mips/kernel/syscall.c
+> @@ -232,7 +232,7 @@ out:
+>   */
+>  asmlinkage int sys_uname(struct old_utsname __user * name)
+>  {
+> -	if (name && !copy_to_user(name, &system_utsname, sizeof (*name)))
+> +	if (name && !copy_to_user(name, utsname(), sizeof (*name)))
+>  		return 0;
+>  	return -EFAULT;
+>  }
+> @@ -249,15 +249,15 @@ asmlinkage int sys_olduname(struct oldol
+>  	if (!access_ok(VERIFY_WRITE,name,sizeof(struct oldold_utsname)))
+>  		return -EFAULT;
+>  
+> -	error = __copy_to_user(&name->sysname,&system_utsname.sysname,__OLD_UTS_LEN);
+> +	error = __copy_to_user(&name->sysname,&utsname()->sysname,__OLD_UTS_LEN);
+>  	error -= __put_user(0,name->sysname+__OLD_UTS_LEN);
+> -	error -= __copy_to_user(&name->nodename,&system_utsname.nodename,__OLD_UTS_LEN);
+> +	error -= __copy_to_user(&name->nodename,&utsname()->nodename,__OLD_UTS_LEN);
+>  	error -= __put_user(0,name->nodename+__OLD_UTS_LEN);
+> -	error -= __copy_to_user(&name->release,&system_utsname.release,__OLD_UTS_LEN);
+> +	error -= __copy_to_user(&name->release,&utsname()->release,__OLD_UTS_LEN);
+>  	error -= __put_user(0,name->release+__OLD_UTS_LEN);
+> -	error -= __copy_to_user(&name->version,&system_utsname.version,__OLD_UTS_LEN);
+> +	error -= __copy_to_user(&name->version,&utsname()->version,__OLD_UTS_LEN);
+>  	error -= __put_user(0,name->version+__OLD_UTS_LEN);
+> -	error -= __copy_to_user(&name->machine,&system_utsname.machine,__OLD_UTS_LEN);
+> +	error -= __copy_to_user(&name->machine,&utsname()->machine,__OLD_UTS_LEN);
+>  	error = __put_user(0,name->machine+__OLD_UTS_LEN);
+>  	error = error ? -EFAULT : 0;
+>  
+> @@ -293,10 +293,10 @@ asmlinkage int _sys_sysmips(int cmd, lon
+>  			return -EFAULT;
+>  
+>  		down_write(&uts_sem);
+> -		strncpy(system_utsname.nodename, nodename, len);
+> +		strncpy(utsname()->nodename, nodename, len);
+>  		nodename[__NEW_UTS_LEN] = '\0';
+> -		strlcpy(system_utsname.nodename, nodename,
+> -		        sizeof(system_utsname.nodename));
+> +		strlcpy(utsname()->nodename, nodename,
+> +		        sizeof(utsname()->nodename));
+>  		up_write(&uts_sem);
+>  		return 0;
+>  	}
+> diff --git a/arch/mips/kernel/sysirix.c b/arch/mips/kernel/sysirix.c
+> index 5407b78..1b4e7e7 100644
+> --- a/arch/mips/kernel/sysirix.c
+> +++ b/arch/mips/kernel/sysirix.c
+> @@ -884,7 +884,7 @@ asmlinkage int irix_getdomainname(char _
+>  	down_read(&uts_sem);
+>  	if (len > __NEW_UTS_LEN)
+>  		len = __NEW_UTS_LEN;
+> -	err = copy_to_user(name, system_utsname.domainname, len) ? -EFAULT : 0;
+> +	err = copy_to_user(name, utsname()->domainname, len) ? -EFAULT : 0;
+>  	up_read(&uts_sem);
+>  
+>  	return err;
+> @@ -1127,11 +1127,11 @@ struct iuname {
+>  asmlinkage int irix_uname(struct iuname __user *buf)
+>  {
+>  	down_read(&uts_sem);
+> -	if (copy_from_user(system_utsname.sysname, buf->sysname, 65)
+> -	    || copy_from_user(system_utsname.nodename, buf->nodename, 65)
+> -	    || copy_from_user(system_utsname.release, buf->release, 65)
+> -	    || copy_from_user(system_utsname.version, buf->version, 65)
+> -	    || copy_from_user(system_utsname.machine, buf->machine, 65)) {
+> +	if (copy_from_user(utsname()->sysname, buf->sysname, 65)
+> +	    || copy_from_user(utsname()->nodename, buf->nodename, 65)
+> +	    || copy_from_user(utsname()->release, buf->release, 65)
+> +	    || copy_from_user(utsname()->version, buf->version, 65)
+> +	    || copy_from_user(utsname()->machine, buf->machine, 65)) {
+>  		return -EFAULT;
+>  	}
+>  	up_read(&uts_sem);
+> diff --git a/arch/parisc/hpux/sys_hpux.c b/arch/parisc/hpux/sys_hpux.c
+> index 05273cc..9fc2c08 100644
+> --- a/arch/parisc/hpux/sys_hpux.c
+> +++ b/arch/parisc/hpux/sys_hpux.c
+> @@ -266,15 +266,15 @@ static int hpux_uname(struct hpux_utsnam
+>  
+>  	down_read(&uts_sem);
+>  
+> -	error = __copy_to_user(&name->sysname,&system_utsname.sysname,HPUX_UTSLEN-1);
+> +	error = __copy_to_user(&name->sysname,&utsname()->sysname,HPUX_UTSLEN-1);
+>  	error |= __put_user(0,name->sysname+HPUX_UTSLEN-1);
+> -	error |= __copy_to_user(&name->nodename,&system_utsname.nodename,HPUX_UTSLEN-1);
+> +	error |= __copy_to_user(&name->nodename,&utsname()->nodename,HPUX_UTSLEN-1);
+>  	error |= __put_user(0,name->nodename+HPUX_UTSLEN-1);
+> -	error |= __copy_to_user(&name->release,&system_utsname.release,HPUX_UTSLEN-1);
+> +	error |= __copy_to_user(&name->release,&utsname()->release,HPUX_UTSLEN-1);
+>  	error |= __put_user(0,name->release+HPUX_UTSLEN-1);
+> -	error |= __copy_to_user(&name->version,&system_utsname.version,HPUX_UTSLEN-1);
+> +	error |= __copy_to_user(&name->version,&utsname()->version,HPUX_UTSLEN-1);
+>  	error |= __put_user(0,name->version+HPUX_UTSLEN-1);
+> -	error |= __copy_to_user(&name->machine,&system_utsname.machine,HPUX_UTSLEN-1);
+> +	error |= __copy_to_user(&name->machine,&utsname()->machine,HPUX_UTSLEN-1);
+>  	error |= __put_user(0,name->machine+HPUX_UTSLEN-1);
+>  
+>  	up_read(&uts_sem);
+> @@ -373,8 +373,8 @@ int hpux_utssys(char *ubuf, int n, int t
+>  		/*  TODO:  print a warning about using this?  */
+>  		down_write(&uts_sem);
+>  		error = -EFAULT;
+> -		if (!copy_from_user(system_utsname.sysname, ubuf, len)) {
+> -			system_utsname.sysname[len] = 0;
+> +		if (!copy_from_user(utsname()->sysname, ubuf, len)) {
+> +			utsname()->sysname[len] = 0;
+>  			error = 0;
+>  		}
+>  		up_write(&uts_sem);
+> @@ -400,8 +400,8 @@ int hpux_utssys(char *ubuf, int n, int t
+>  		/*  TODO:  print a warning about this?  */
+>  		down_write(&uts_sem);
+>  		error = -EFAULT;
+> -		if (!copy_from_user(system_utsname.release, ubuf, len)) {
+> -			system_utsname.release[len] = 0;
+> +		if (!copy_from_user(utsname()->release, ubuf, len)) {
+> +			utsname()->release[len] = 0;
+>  			error = 0;
+>  		}
+>  		up_write(&uts_sem);
+> @@ -422,13 +422,13 @@ int hpux_getdomainname(char *name, int l
+>   	
+>   	down_read(&uts_sem);
+>   	
+> -	nlen = strlen(system_utsname.domainname) + 1;
+> +	nlen = strlen(utsname()->domainname) + 1;
+>  
+>  	if (nlen < len)
+>  		len = nlen;
+>  	if(len > __NEW_UTS_LEN)
+>  		goto done;
+> -	if(copy_to_user(name, system_utsname.domainname, len))
+> +	if(copy_to_user(name, utsname()->domainname, len))
+>  		goto done;
+>  	err = 0;
+>  done:
+> diff --git a/arch/powerpc/kernel/syscalls.c b/arch/powerpc/kernel/syscalls.c
+> index 9b69d99..d358866 100644
+> --- a/arch/powerpc/kernel/syscalls.c
+> +++ b/arch/powerpc/kernel/syscalls.c
+> @@ -260,7 +260,7 @@ long ppc_newuname(struct new_utsname __u
+>  	int err = 0;
+>  
+>  	down_read(&uts_sem);
+> -	if (copy_to_user(name, &system_utsname, sizeof(*name)))
+> +	if (copy_to_user(name, utsname(), sizeof(*name)))
+>  		err = -EFAULT;
+>  	up_read(&uts_sem);
+>  	if (!err)
+> @@ -273,7 +273,7 @@ int sys_uname(struct old_utsname __user 
+>  	int err = 0;
+>  	
+>  	down_read(&uts_sem);
+> -	if (copy_to_user(name, &system_utsname, sizeof(*name)))
+> +	if (copy_to_user(name, utsname(), sizeof(*name)))
+>  		err = -EFAULT;
+>  	up_read(&uts_sem);
+>  	if (!err)
+> @@ -289,19 +289,19 @@ int sys_olduname(struct oldold_utsname _
+>  		return -EFAULT;
+>    
+>  	down_read(&uts_sem);
+> -	error = __copy_to_user(&name->sysname, &system_utsname.sysname,
+> +	error = __copy_to_user(&name->sysname, &utsname()->sysname,
+>  			       __OLD_UTS_LEN);
+>  	error |= __put_user(0, name->sysname + __OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->nodename, &system_utsname.nodename,
+> +	error |= __copy_to_user(&name->nodename, &utsname()->nodename,
+>  				__OLD_UTS_LEN);
+>  	error |= __put_user(0, name->nodename + __OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->release, &system_utsname.release,
+> +	error |= __copy_to_user(&name->release, &utsname()->release,
+>  				__OLD_UTS_LEN);
+>  	error |= __put_user(0, name->release + __OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->version, &system_utsname.version,
+> +	error |= __copy_to_user(&name->version, &utsname()->version,
+>  				__OLD_UTS_LEN);
+>  	error |= __put_user(0, name->version + __OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->machine, &system_utsname.machine,
+> +	error |= __copy_to_user(&name->machine, &utsname()->machine,
+>  				__OLD_UTS_LEN);
+>  	error |= override_machine(name->machine);
+>  	up_read(&uts_sem);
+> diff --git a/arch/sh/kernel/sys_sh.c b/arch/sh/kernel/sys_sh.c
+> index 917b2f3..e4966b2 100644
+> --- a/arch/sh/kernel/sys_sh.c
+> +++ b/arch/sh/kernel/sys_sh.c
+> @@ -267,7 +267,7 @@ asmlinkage int sys_uname(struct old_utsn
+>  	if (!name)
+>  		return -EFAULT;
+>  	down_read(&uts_sem);
+> -	err=copy_to_user(name, &system_utsname, sizeof (*name));
+> +	err=copy_to_user(name, utsname(), sizeof (*name));
+>  	up_read(&uts_sem);
+>  	return err?-EFAULT:0;
+>  }
+> diff --git a/arch/sh64/kernel/sys_sh64.c b/arch/sh64/kernel/sys_sh64.c
+> index 58ff7d5..a8dc88c 100644
+> --- a/arch/sh64/kernel/sys_sh64.c
+> +++ b/arch/sh64/kernel/sys_sh64.c
+> @@ -279,7 +279,7 @@ asmlinkage int sys_uname(struct old_utsn
+>  	if (!name)
+>  		return -EFAULT;
+>  	down_read(&uts_sem);
+> -	err=copy_to_user(name, &system_utsname, sizeof (*name));
+> +	err=copy_to_user(name, utsname(), sizeof (*name));
+>  	up_read(&uts_sem);
+>  	return err?-EFAULT:0;
+>  }
+> diff --git a/arch/sparc/kernel/sys_sparc.c b/arch/sparc/kernel/sys_sparc.c
+> index 0cdfc9d..c8ad73c 100644
+> --- a/arch/sparc/kernel/sys_sparc.c
+> +++ b/arch/sparc/kernel/sys_sparc.c
+> @@ -470,13 +470,13 @@ asmlinkage int sys_getdomainname(char __
+>   	
+>   	down_read(&uts_sem);
+>   	
+> -	nlen = strlen(system_utsname.domainname) + 1;
+> +	nlen = strlen(utsname()->domainname) + 1;
+>  
+>  	if (nlen < len)
+>  		len = nlen;
+>  	if (len > __NEW_UTS_LEN)
+>  		goto done;
+> -	if (copy_to_user(name, system_utsname.domainname, len))
+> +	if (copy_to_user(name, utsname()->domainname, len))
+>  		goto done;
+>  	err = 0;
+>  done:
+> diff --git a/arch/sparc/kernel/sys_sunos.c b/arch/sparc/kernel/sys_sunos.c
+> index 288de27..9f9206f 100644
+> --- a/arch/sparc/kernel/sys_sunos.c
+> +++ b/arch/sparc/kernel/sys_sunos.c
+> @@ -483,13 +483,13 @@ asmlinkage int sunos_uname(struct sunos_
+>  {
+>  	int ret;
+>  	down_read(&uts_sem);
+> -	ret = copy_to_user(&name->sname[0], &system_utsname.sysname[0], sizeof(name->sname) - 1);
+> +	ret = copy_to_user(&name->sname[0], &utsname()->sysname[0], sizeof(name->sname) - 1);
+>  	if (!ret) {
+> -		ret |= __copy_to_user(&name->nname[0], &system_utsname.nodename[0], sizeof(name->nname) - 1);
+> +		ret |= __copy_to_user(&name->nname[0], &utsname()->nodename[0], sizeof(name->nname) - 1);
+>  		ret |= __put_user('\0', &name->nname[8]);
+> -		ret |= __copy_to_user(&name->rel[0], &system_utsname.release[0], sizeof(name->rel) - 1);
+> -		ret |= __copy_to_user(&name->ver[0], &system_utsname.version[0], sizeof(name->ver) - 1);
+> -		ret |= __copy_to_user(&name->mach[0], &system_utsname.machine[0], sizeof(name->mach) - 1);
+> +		ret |= __copy_to_user(&name->rel[0], &utsname()->release[0], sizeof(name->rel) - 1);
+> +		ret |= __copy_to_user(&name->ver[0], &utsname()->version[0], sizeof(name->ver) - 1);
+> +		ret |= __copy_to_user(&name->mach[0], &utsname()->machine[0], sizeof(name->mach) - 1);
+>  	}
+>  	up_read(&uts_sem);
+>  	return ret ? -EFAULT : 0;
+> diff --git a/arch/sparc64/kernel/sys_sparc.c b/arch/sparc64/kernel/sys_sparc.c
+> index 7a86913..0453bd2 100644
+> --- a/arch/sparc64/kernel/sys_sparc.c
+> +++ b/arch/sparc64/kernel/sys_sparc.c
+> @@ -707,13 +707,13 @@ asmlinkage long sys_getdomainname(char _
+>  
+>   	down_read(&uts_sem);
+>   	
+> -	nlen = strlen(system_utsname.domainname) + 1;
+> +	nlen = strlen(utsname()->domainname) + 1;
+>  
+>          if (nlen < len)
+>                  len = nlen;
+>  	if (len > __NEW_UTS_LEN)
+>  		goto done;
+> -	if (copy_to_user(name, system_utsname.domainname, len))
+> +	if (copy_to_user(name, utsname()->domainname, len))
+>  		goto done;
+>  	err = 0;
+>  done:
+> diff --git a/arch/sparc64/kernel/sys_sunos32.c b/arch/sparc64/kernel/sys_sunos32.c
+> index ae5b32f..ba98c47 100644
+> --- a/arch/sparc64/kernel/sys_sunos32.c
+> +++ b/arch/sparc64/kernel/sys_sunos32.c
+> @@ -439,16 +439,16 @@ asmlinkage int sunos_uname(struct sunos_
+>  	int ret;
+>  
+>  	down_read(&uts_sem);
+> -	ret = copy_to_user(&name->sname[0], &system_utsname.sysname[0],
+> +	ret = copy_to_user(&name->sname[0], &utsname()->sysname[0],
+>  			   sizeof(name->sname) - 1);
+> -	ret |= copy_to_user(&name->nname[0], &system_utsname.nodename[0],
+> +	ret |= copy_to_user(&name->nname[0], &utsname()->nodename[0],
+>  			    sizeof(name->nname) - 1);
+>  	ret |= put_user('\0', &name->nname[8]);
+> -	ret |= copy_to_user(&name->rel[0], &system_utsname.release[0],
+> +	ret |= copy_to_user(&name->rel[0], &utsname()->release[0],
+>  			    sizeof(name->rel) - 1);
+> -	ret |= copy_to_user(&name->ver[0], &system_utsname.version[0],
+> +	ret |= copy_to_user(&name->ver[0], &utsname()->version[0],
+>  			    sizeof(name->ver) - 1);
+> -	ret |= copy_to_user(&name->mach[0], &system_utsname.machine[0],
+> +	ret |= copy_to_user(&name->mach[0], &utsname()->machine[0],
+>  			    sizeof(name->mach) - 1);
+>  	up_read(&uts_sem);
+>  	return (ret ? -EFAULT : 0);
+> diff --git a/arch/sparc64/solaris/misc.c b/arch/sparc64/solaris/misc.c
+> index 5284996..5d0162a 100644
+> --- a/arch/sparc64/solaris/misc.c
+> +++ b/arch/sparc64/solaris/misc.c
+> @@ -239,7 +239,7 @@ asmlinkage int solaris_utssys(u32 buf, u
+>  		/* Let's cheat */
+>  		err  = set_utsfield(v->sysname, "SunOS", 1, 0);
+>  		down_read(&uts_sem);
+> -		err |= set_utsfield(v->nodename, system_utsname.nodename,
+> +		err |= set_utsfield(v->nodename, utsname()->nodename,
+>  				    1, 1);
+>  		up_read(&uts_sem);
+>  		err |= set_utsfield(v->release, "2.6", 0, 0);
+> @@ -263,7 +263,7 @@ asmlinkage int solaris_utsname(u32 buf)
+>  	/* Why should we not lie a bit? */
+>  	down_read(&uts_sem);
+>  	err  = set_utsfield(v->sysname, "SunOS", 0, 0);
+> -	err |= set_utsfield(v->nodename, system_utsname.nodename, 1, 1);
+> +	err |= set_utsfield(v->nodename, utsname()->nodename, 1, 1);
+>  	err |= set_utsfield(v->release, "5.6", 0, 0);
+>  	err |= set_utsfield(v->version, "Generic", 0, 0);
+>  	err |= set_utsfield(v->machine, machine(), 0, 0);
+> @@ -295,7 +295,7 @@ asmlinkage int solaris_sysinfo(int cmd, 
+>  	case SI_HOSTNAME:
+>  		r = buffer + 256;
+>  		down_read(&uts_sem);
+> -		for (p = system_utsname.nodename, q = buffer; 
+> +		for (p = utsname()->nodename, q = buffer;
+>  		     q < r && *p && *p != '.'; *q++ = *p++);
+>  		up_read(&uts_sem);
+>  		*q = 0;
+> diff --git a/arch/um/drivers/mconsole_kern.c b/arch/um/drivers/mconsole_kern.c
+> index 28e3760..5f87323 100644
+> --- a/arch/um/drivers/mconsole_kern.c
+> +++ b/arch/um/drivers/mconsole_kern.c
+> @@ -106,9 +106,9 @@ void mconsole_version(struct mc_request 
+>  {
+>  	char version[256];
+>  
+> -	sprintf(version, "%s %s %s %s %s", system_utsname.sysname,
+> -		system_utsname.nodename, system_utsname.release,
+> -		system_utsname.version, system_utsname.machine);
+> +	sprintf(version, "%s %s %s %s %s", utsname()->sysname,
+> +		utsname()->nodename, utsname()->release,
+> +		utsname()->version, utsname()->machine);
+>  	mconsole_reply(req, version, 0, 0);
+>  }
+>  
+> diff --git a/arch/um/kernel/syscall_kern.c b/arch/um/kernel/syscall_kern.c
+> index 37d3978..d90e9ed 100644
+> --- a/arch/um/kernel/syscall_kern.c
+> +++ b/arch/um/kernel/syscall_kern.c
+> @@ -110,7 +110,7 @@ long sys_uname(struct old_utsname __user
+>  	if (!name)
+>  		return -EFAULT;
+>  	down_read(&uts_sem);
+> -	err=copy_to_user(name, &system_utsname, sizeof (*name));
+> +	err=copy_to_user(name, utsname(), sizeof (*name));
+>  	up_read(&uts_sem);
+>  	return err?-EFAULT:0;
+>  }
+> @@ -126,19 +126,19 @@ long sys_olduname(struct oldold_utsname 
+>    
+>    	down_read(&uts_sem);
+>  	
+> -	error = __copy_to_user(&name->sysname,&system_utsname.sysname,
+> +	error = __copy_to_user(&name->sysname,&utsname()->sysname,
+>  			       __OLD_UTS_LEN);
+>  	error |= __put_user(0,name->sysname+__OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->nodename,&system_utsname.nodename,
+> +	error |= __copy_to_user(&name->nodename,&utsname()->nodename,
+>  				__OLD_UTS_LEN);
+>  	error |= __put_user(0,name->nodename+__OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->release,&system_utsname.release,
+> +	error |= __copy_to_user(&name->release,&utsname()->release,
+>  				__OLD_UTS_LEN);
+>  	error |= __put_user(0,name->release+__OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->version,&system_utsname.version,
+> +	error |= __copy_to_user(&name->version,&utsname()->version,
+>  				__OLD_UTS_LEN);
+>  	error |= __put_user(0,name->version+__OLD_UTS_LEN);
+> -	error |= __copy_to_user(&name->machine,&system_utsname.machine,
+> +	error |= __copy_to_user(&name->machine,&utsname()->machine,
+>  				__OLD_UTS_LEN);
+>  	error |= __put_user(0,name->machine+__OLD_UTS_LEN);
+>  	
+> diff --git a/arch/um/sys-x86_64/syscalls.c b/arch/um/sys-x86_64/syscalls.c
+> index 6acee5c..3ad014e 100644
+> --- a/arch/um/sys-x86_64/syscalls.c
+> +++ b/arch/um/sys-x86_64/syscalls.c
+> @@ -21,7 +21,7 @@ asmlinkage long sys_uname64(struct new_u
+>  {
+>  	int err;
+>  	down_read(&uts_sem);
+> -	err = copy_to_user(name, &system_utsname, sizeof (*name));
+> +	err = copy_to_user(name, utsname(), sizeof (*name));
+>  	up_read(&uts_sem);
+>  	if (personality(current->personality) == PER_LINUX32)
+>  		err |= copy_to_user(&name->machine, "i686", 5);
+> diff --git a/arch/x86_64/ia32/sys_ia32.c b/arch/x86_64/ia32/sys_ia32.c
+> index f182b20..6e0a19d 100644
+> --- a/arch/x86_64/ia32/sys_ia32.c
+> +++ b/arch/x86_64/ia32/sys_ia32.c
+> @@ -801,13 +801,13 @@ asmlinkage long sys32_olduname(struct ol
+>    
+>    	down_read(&uts_sem);
+>  	
+> -	error = __copy_to_user(&name->sysname,&system_utsname.sysname,__OLD_UTS_LEN);
+> +	error = __copy_to_user(&name->sysname,&utsname()->sysname,__OLD_UTS_LEN);
+>  	 __put_user(0,name->sysname+__OLD_UTS_LEN);
+> -	 __copy_to_user(&name->nodename,&system_utsname.nodename,__OLD_UTS_LEN);
+> +	 __copy_to_user(&name->nodename,&utsname()->nodename,__OLD_UTS_LEN);
+>  	 __put_user(0,name->nodename+__OLD_UTS_LEN);
+> -	 __copy_to_user(&name->release,&system_utsname.release,__OLD_UTS_LEN);
+> +	 __copy_to_user(&name->release,&utsname()->release,__OLD_UTS_LEN);
+>  	 __put_user(0,name->release+__OLD_UTS_LEN);
+> -	 __copy_to_user(&name->version,&system_utsname.version,__OLD_UTS_LEN);
+> +	 __copy_to_user(&name->version,&utsname()->version,__OLD_UTS_LEN);
+>  	 __put_user(0,name->version+__OLD_UTS_LEN);
+>  	 { 
+>  		 char *arch = "x86_64";
+> @@ -830,7 +830,7 @@ long sys32_uname(struct old_utsname __us
+>  	if (!name)
+>  		return -EFAULT;
+>  	down_read(&uts_sem);
+> -	err=copy_to_user(name, &system_utsname, sizeof (*name));
+> +	err=copy_to_user(name, utsname(), sizeof (*name));
+>  	up_read(&uts_sem);
+>  	if (personality(current->personality) == PER_LINUX32) 
+>  		err |= copy_to_user(&name->machine, "i686", 5);
+> diff --git a/arch/x86_64/kernel/sys_x86_64.c b/arch/x86_64/kernel/sys_x86_64.c
+> index 6449ea8..76bf7c2 100644
+> --- a/arch/x86_64/kernel/sys_x86_64.c
+> +++ b/arch/x86_64/kernel/sys_x86_64.c
+> @@ -148,7 +148,7 @@ asmlinkage long sys_uname(struct new_uts
+>  {
+>  	int err;
+>  	down_read(&uts_sem);
+> -	err = copy_to_user(name, &system_utsname, sizeof (*name));
+> +	err = copy_to_user(name, utsname(), sizeof (*name));
+>  	up_read(&uts_sem);
+>  	if (personality(current->personality) == PER_LINUX32) 
+>  		err |= copy_to_user(&name->machine, "i686", 5); 		
+> diff --git a/arch/xtensa/kernel/syscalls.c b/arch/xtensa/kernel/syscalls.c
+> index f20c649..30060c1 100644
+> --- a/arch/xtensa/kernel/syscalls.c
+> +++ b/arch/xtensa/kernel/syscalls.c
+> @@ -129,7 +129,7 @@ out:
+>  
+>  int sys_uname(struct old_utsname * name)
+>  {
+> -	if (name && !copy_to_user(name, &system_utsname, sizeof (*name)))
+> +	if (name && !copy_to_user(name, utsname(), sizeof (*name)))
+>  		return 0;
+>  	return -EFAULT;
+>  }
+> diff --git a/drivers/char/random.c b/drivers/char/random.c
+> index 86be04b..ec4c11d 100644
+> --- a/drivers/char/random.c
+> +++ b/drivers/char/random.c
+> @@ -888,8 +888,8 @@ static void init_std_data(struct entropy
+>  
+>  	do_gettimeofday(&tv);
+>  	add_entropy_words(r, (__u32 *)&tv, sizeof(tv)/4);
+> -	add_entropy_words(r, (__u32 *)&system_utsname,
+> -			  sizeof(system_utsname)/4);
+> +	add_entropy_words(r, (__u32 *)utsname(),
+> +			  sizeof(*(utsname()))/4);
+>  }
+>  
+>  static int __init rand_initialize(void)
+> diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+> index 0b86d5c..852ff41 100644
+> --- a/fs/cifs/connect.c
+> +++ b/fs/cifs/connect.c
+> @@ -765,12 +765,12 @@ cifs_parse_mount_options(char *options, 
+>  	separator[1] = 0; 
+>  
+>  	memset(vol->source_rfc1001_name,0x20,15);
+> -	for(i=0;i < strnlen(system_utsname.nodename,15);i++) {
+> +	for(i=0;i < strnlen(utsname()->nodename,15);i++) {
+>  		/* does not have to be a perfect mapping since the field is
+>  		informational, only used for servers that do not support
+>  		port 445 and it can be overridden at mount time */
+>  		vol->source_rfc1001_name[i] = 
+> -			toupper(system_utsname.nodename[i]);
+> +			toupper(utsname()->nodename[i]);
+>  	}
+>  	vol->source_rfc1001_name[15] = 0;
+>  	/* null target name indicates to use *SMBSERVR default called name
+> @@ -2077,7 +2077,7 @@ CIFSSessSetup(unsigned int xid, struct c
+>  				  32, nls_codepage);
+>  		bcc_ptr += 2 * bytes_returned;
+>  		bytes_returned =
+> -		    cifs_strtoUCS((__le16 *) bcc_ptr, system_utsname.release,
+> +		    cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release,
+>  				  32, nls_codepage);
+>  		bcc_ptr += 2 * bytes_returned;
+>  		bcc_ptr += 2;
+> @@ -2104,8 +2104,8 @@ CIFSSessSetup(unsigned int xid, struct c
+>  		}
+>  		strcpy(bcc_ptr, "Linux version ");
+>  		bcc_ptr += strlen("Linux version ");
+> -		strcpy(bcc_ptr, system_utsname.release);
+> -		bcc_ptr += strlen(system_utsname.release) + 1;
+> +		strcpy(bcc_ptr, utsname()->release);
+> +		bcc_ptr += strlen(utsname()->release) + 1;
+>  		strcpy(bcc_ptr, CIFS_NETWORK_OPSYS);
+>  		bcc_ptr += strlen(CIFS_NETWORK_OPSYS) + 1;
+>  	}
+> @@ -2346,7 +2346,7 @@ CIFSSpnegoSessSetup(unsigned int xid, st
+>  				  32, nls_codepage);
+>  		bcc_ptr += 2 * bytes_returned;
+>  		bytes_returned =
+> -		    cifs_strtoUCS((__le16 *) bcc_ptr, system_utsname.release, 32,
+> +		    cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release, 32,
+>  				  nls_codepage);
+>  		bcc_ptr += 2 * bytes_returned;
+>  		bcc_ptr += 2;
+> @@ -2371,8 +2371,8 @@ CIFSSpnegoSessSetup(unsigned int xid, st
+>  		}
+>  		strcpy(bcc_ptr, "Linux version ");
+>  		bcc_ptr += strlen("Linux version ");
+> -		strcpy(bcc_ptr, system_utsname.release);
+> -		bcc_ptr += strlen(system_utsname.release) + 1;
+> +		strcpy(bcc_ptr, utsname()->release);
+> +		bcc_ptr += strlen(utsname()->release) + 1;
+>  		strcpy(bcc_ptr, CIFS_NETWORK_OPSYS);
+>  		bcc_ptr += strlen(CIFS_NETWORK_OPSYS) + 1;
+>  	}
+> @@ -2622,7 +2622,7 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
+>  				  32, nls_codepage);
+>  		bcc_ptr += 2 * bytes_returned;
+>  		bytes_returned =
+> -		    cifs_strtoUCS((__le16 *) bcc_ptr, system_utsname.release, 32,
+> +		    cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release, 32,
+>  				  nls_codepage);
+>  		bcc_ptr += 2 * bytes_returned;
+>  		bcc_ptr += 2;	/* null terminate Linux version */
+> @@ -2639,8 +2639,8 @@ CIFSNTLMSSPNegotiateSessSetup(unsigned i
+>  	} else {		/* ASCII */
+>  		strcpy(bcc_ptr, "Linux version ");
+>  		bcc_ptr += strlen("Linux version ");
+> -		strcpy(bcc_ptr, system_utsname.release);
+> -		bcc_ptr += strlen(system_utsname.release) + 1;
+> +		strcpy(bcc_ptr, utsname()->release);
+> +		bcc_ptr += strlen(utsname()->release) + 1;
+>  		strcpy(bcc_ptr, CIFS_NETWORK_OPSYS);
+>  		bcc_ptr += strlen(CIFS_NETWORK_OPSYS) + 1;
+>  		bcc_ptr++;	/* empty domain field */
+> @@ -3001,7 +3001,7 @@ CIFSNTLMSSPAuthSessSetup(unsigned int xi
+>  				  32, nls_codepage);
+>  		bcc_ptr += 2 * bytes_returned;
+>  		bytes_returned =
+> -		    cifs_strtoUCS((__le16 *) bcc_ptr, system_utsname.release, 32,
+> +		    cifs_strtoUCS((__le16 *) bcc_ptr, utsname()->release, 32,
+>  				  nls_codepage);
+>  		bcc_ptr += 2 * bytes_returned;
+>  		bcc_ptr += 2;	/* null term version string */
+> @@ -3053,8 +3053,8 @@ CIFSNTLMSSPAuthSessSetup(unsigned int xi
+>  
+>  		strcpy(bcc_ptr, "Linux version ");
+>  		bcc_ptr += strlen("Linux version ");
+> -		strcpy(bcc_ptr, system_utsname.release);
+> -		bcc_ptr += strlen(system_utsname.release) + 1;
+> +		strcpy(bcc_ptr, utsname()->release);
+> +		bcc_ptr += strlen(utsname()->release) + 1;
+>  		strcpy(bcc_ptr, CIFS_NETWORK_OPSYS);
+>  		bcc_ptr += strlen(CIFS_NETWORK_OPSYS) + 1;
+>  		bcc_ptr++;	/* null domain */
+> diff --git a/fs/exec.c b/fs/exec.c
+> index 0291a68..d881479 100644
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -1347,7 +1347,7 @@ static void format_corename(char *corena
+>  			case 'h':
+>  				down_read(&uts_sem);
+>  				rc = snprintf(out_ptr, out_end - out_ptr,
+> -					      "%s", system_utsname.nodename);
+> +					      "%s", utsname()->nodename);
+>  				up_read(&uts_sem);
+>  				if (rc > out_end - out_ptr)
+>  					goto out;
+> diff --git a/fs/lockd/clntproc.c b/fs/lockd/clntproc.c
+> index f96e381..915e596 100644
+> --- a/fs/lockd/clntproc.c
+> +++ b/fs/lockd/clntproc.c
+> @@ -130,11 +130,11 @@ static void nlmclnt_setlockargs(struct n
+>  	nlmclnt_next_cookie(&argp->cookie);
+>  	argp->state   = nsm_local_state;
+>  	memcpy(&lock->fh, NFS_FH(fl->fl_file->f_dentry->d_inode), sizeof(struct nfs_fh));
+> -	lock->caller  = system_utsname.nodename;
+> +	lock->caller  = utsname()->nodename;
+>  	lock->oh.data = req->a_owner;
+>  	lock->oh.len  = snprintf(req->a_owner, sizeof(req->a_owner), "%u@%s",
+>  				(unsigned int)fl->fl_u.nfs_fl.owner->pid,
+> -				system_utsname.nodename);
+> +				utsname()->nodename);
+>  	lock->svid = fl->fl_u.nfs_fl.owner->pid;
+>  	lock->fl.fl_start = fl->fl_start;
+>  	lock->fl.fl_end = fl->fl_end;
+> diff --git a/fs/lockd/mon.c b/fs/lockd/mon.c
+> index 3fc683f..547aaa3 100644
+> --- a/fs/lockd/mon.c
+> +++ b/fs/lockd/mon.c
+> @@ -152,7 +152,7 @@ xdr_encode_common(struct rpc_rqst *rqstp
+>  	 */
+>  	sprintf(buffer, "%u.%u.%u.%u", NIPQUAD(argp->addr));
+>  	if (!(p = xdr_encode_string(p, buffer))
+> -	 || !(p = xdr_encode_string(p, system_utsname.nodename)))
+> +	 || !(p = xdr_encode_string(p, utsname()->nodename)))
+>  		return ERR_PTR(-EIO);
+>  	*p++ = htonl(argp->prog);
+>  	*p++ = htonl(argp->vers);
+> diff --git a/fs/lockd/svclock.c b/fs/lockd/svclock.c
+> index d2b66ba..61b4791 100644
+> --- a/fs/lockd/svclock.c
+> +++ b/fs/lockd/svclock.c
+> @@ -326,7 +326,7 @@ static int nlmsvc_setgrantargs(struct nl
+>  {
+>  	locks_copy_lock(&call->a_args.lock.fl, &lock->fl);
+>  	memcpy(&call->a_args.lock.fh, &lock->fh, sizeof(call->a_args.lock.fh));
+> -	call->a_args.lock.caller = system_utsname.nodename;
+> +	call->a_args.lock.caller = utsname()->nodename;
+>  	call->a_args.lock.oh.len = lock->oh.len;
+>  
+>  	/* set default data area */
+> diff --git a/fs/lockd/xdr.c b/fs/lockd/xdr.c
+> index f22a376..4eec051 100644
+> --- a/fs/lockd/xdr.c
+> +++ b/fs/lockd/xdr.c
+> @@ -516,7 +516,7 @@ nlmclt_decode_res(struct rpc_rqst *req, 
+>   */
+>  #define NLM_void_sz		0
+>  #define NLM_cookie_sz		1+XDR_QUADLEN(NLM_MAXCOOKIELEN)
+> -#define NLM_caller_sz		1+XDR_QUADLEN(sizeof(system_utsname.nodename))
+> +#define NLM_caller_sz		1+XDR_QUADLEN(sizeof(utsname()->nodename))
+>  #define NLM_netobj_sz		1+XDR_QUADLEN(XDR_MAX_NETOBJ)
+>  /* #define NLM_owner_sz		1+XDR_QUADLEN(NLM_MAXOWNER) */
+>  #define NLM_fhandle_sz		1+XDR_QUADLEN(NFS2_FHSIZE)
+> diff --git a/fs/nfs/nfsroot.c b/fs/nfs/nfsroot.c
+> index c0a754e..1d656a6 100644
+> --- a/fs/nfs/nfsroot.c
+> +++ b/fs/nfs/nfsroot.c
+> @@ -312,7 +312,7 @@ static int __init root_nfs_name(char *na
+>  	/* Override them by options set on kernel command-line */
+>  	root_nfs_parse(name, buf);
+>  
+> -	cp = system_utsname.nodename;
+> +	cp = utsname()->nodename;
+>  	if (strlen(buf) + strlen(cp) > NFS_MAXPATHLEN) {
+>  		printk(KERN_ERR "Root-NFS: Pathname for remote directory too long.\n");
+>  		return -1;
+> diff --git a/include/linux/lockd/lockd.h b/include/linux/lockd/lockd.h
+> index 995f89d..ac15b87 100644
+> --- a/include/linux/lockd/lockd.h
+> +++ b/include/linux/lockd/lockd.h
+> @@ -80,7 +80,7 @@ struct nlm_wait;
+>  /*
+>   * Memory chunk for NLM client RPC request.
+>   */
+> -#define NLMCLNT_OHSIZE		(sizeof(system_utsname.nodename)+10)
+> +#define NLMCLNT_OHSIZE		(sizeof(utsname()->nodename)+10)
+>  struct nlm_rqst {
+>  	unsigned int		a_flags;	/* initial RPC task flags */
+>  	struct nlm_host *	a_host;		/* host handle */
+> diff --git a/kernel/sys.c b/kernel/sys.c
+> index 0b6ec0e..bcaa48e 100644
+> --- a/kernel/sys.c
+> +++ b/kernel/sys.c
+> @@ -1671,7 +1671,7 @@ asmlinkage long sys_newuname(struct new_
+>  	int errno = 0;
+>  
+>  	down_read(&uts_sem);
+> -	if (copy_to_user(name,&system_utsname,sizeof *name))
+> +	if (copy_to_user(name,utsname(),sizeof *name))
+>  		errno = -EFAULT;
+>  	up_read(&uts_sem);
+>  	return errno;
+> @@ -1689,8 +1689,8 @@ asmlinkage long sys_sethostname(char __u
+>  	down_write(&uts_sem);
+>  	errno = -EFAULT;
+>  	if (!copy_from_user(tmp, name, len)) {
+> -		memcpy(system_utsname.nodename, tmp, len);
+> -		system_utsname.nodename[len] = 0;
+> +		memcpy(utsname()->nodename, tmp, len);
+> +		utsname()->nodename[len] = 0;
+>  		errno = 0;
+>  	}
+>  	up_write(&uts_sem);
+> @@ -1706,11 +1706,11 @@ asmlinkage long sys_gethostname(char __u
+>  	if (len < 0)
+>  		return -EINVAL;
+>  	down_read(&uts_sem);
+> -	i = 1 + strlen(system_utsname.nodename);
+> +	i = 1 + strlen(utsname()->nodename);
+>  	if (i > len)
+>  		i = len;
+>  	errno = 0;
+> -	if (copy_to_user(name, system_utsname.nodename, i))
+> +	if (copy_to_user(name, utsname()->nodename, i))
+>  		errno = -EFAULT;
+>  	up_read(&uts_sem);
+>  	return errno;
+> @@ -1735,8 +1735,8 @@ asmlinkage long sys_setdomainname(char _
+>  	down_write(&uts_sem);
+>  	errno = -EFAULT;
+>  	if (!copy_from_user(tmp, name, len)) {
+> -		memcpy(system_utsname.domainname, tmp, len);
+> -		system_utsname.domainname[len] = 0;
+> +		memcpy(utsname()->domainname, tmp, len);
+> +		utsname()->domainname[len] = 0;
+>  		errno = 0;
+>  	}
+>  	up_write(&uts_sem);
 
 
-lspci -nvxxx is attached.
-Excerpt from boot log under libata follows:
-
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0x1860 irq 14
-ata1: dev 0 cfg 49:2f00 82:346b 83:7f01 84:6003 85:3c69 86:3f01 87:6003 88:203f
-ata1: dev 0 ATA-7, max UDMA/100, 156368016 sectors: LBA48
-ata1: dev 0 configured for UDMA/100
-scsi0 : ata_piix
-  Vendor: ATA       Model: SAMSUNG MP0804H   Rev: UE10
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 156368016 512-byte hdwr sectors (80060 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
-SCSI device sda: 156368016 512-byte hdwr sectors (80060 MB)
-sda: Write Protect is off
-sda: Mode Sense: 00 3a 00 00
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 < sda5 sda6 sda7 sda8 sda9 >
-sd 0:0:0:0: Attached scsi disk sda
-ata2: PATA max UDMA/100 cmd 0x170 ctl 0x376 bmdma 0x1868 irq 15
-ata2: dev 0 cfg 49:2f00 82:0000 83:0000 84:0000 85:0000 86:0000 87:0000 88:0407
-ata2: dev 0 ATAPI, max UDMA/33
-ata2: dev 0 configured for UDMA/33
-scsi1 : ata_piix
-  Vendor: TEAC      Model: DV-W24ES          Rev: S.0A
-  Type:   CD-ROM                             ANSI SCSI revision: 05
-
-If you need any additional information, holler.
-
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
-
---------------080207020107060006080507
-Content-Type: text/plain;
- name="lspci-nvxxx.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="lspci-nvxxx.txt"
-
-MDAwMDowMDowMC4wIENsYXNzIDA2MDA6IDgwODY6MzM0MCAocmV2IDIxKQoJU3Vic3lzdGVt
-OiAxNDRkOmMwMGMKCUZsYWdzOiBidXMgbWFzdGVyLCBmYXN0IGRldnNlbCwgbGF0ZW5jeSAw
-CglNZW1vcnkgYXQgZTAwMDAwMDAgKDMyLWJpdCwgcHJlZmV0Y2hhYmxlKSBbc2l6ZT0yNTZN
-XQoJQ2FwYWJpbGl0aWVzOiBbZTRdICMwOSBbNDEwNF0KCUNhcGFiaWxpdGllczogW2EwXSBB
-R1AgdmVyc2lvbiAyLjAKMDA6IDg2IDgwIDQwIDMzIDA2IDAxIDkwIDIwIDIxIDAwIDAwIDA2
-IDAwIDAwIDAwIDAwCjEwOiAwOCAwMCAwMCBlMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMAoyMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgNGQg
-MTQgMGMgYzAKMzA6IDAwIDAwIDAwIDAwIGU0IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwCjQwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMAo1MDogMDAgMDIgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMjcgMDAg
-MDAKNjA6IDA0IDA4IDBjIDEwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-CjcwOiAwMiAwMiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMiAyZCA3MSAzMiA0MCAzMAo4
-MDogNzEgMDAgODAgMDUgMDAgMDAgMDAgMDAgMDAgMTAgMDEgMDAgMDAgMDAgMDAgMDAKOTA6
-IDEwIDExIDExIDAwIDAxIDEzIDExIDAwIDQxIDE5IDAwIDAwIDAwIDFhIDNkIDAwCmEwOiAw
-MiAwMCAyMCAwMCAxNyAwMiAwMCAxZiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApiMDogMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgM2MgMWMgMjAgMTAgMDAgMDAKYzA6IDQ0IDQw
-IDUwIDExIDAwIDIwIDA1IDA2IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmQwOiAwMiAyOCAw
-MCAwZSAwYiAwMCAwMCAzMCAwMCAwMCAzMSBiNSAwMCAwMCAwMiAwMAplMDogMDAgMDAgMDAg
-MDAgMDkgYTAgMDQgNDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKZjA6IDAwIDAwIDAxIDAw
-IDc0IGY4IDIwIDgwIDM4IDBmIDIxIDAwIDA0IDAwIDAwIDAwCgowMDAwOjAwOjAxLjAgQ2xh
-c3MgMDYwNDogODA4NjozMzQxIChyZXYgMjEpCglGbGFnczogYnVzIG1hc3RlciwgNjZNaHos
-IGZhc3QgZGV2c2VsLCBsYXRlbmN5IDk2CglCdXM6IHByaW1hcnk9MDAsIHNlY29uZGFyeT0w
-MSwgc3Vib3JkaW5hdGU9MDEsIHNlYy1sYXRlbmN5PTY0CglJL08gYmVoaW5kIGJyaWRnZTog
-MDAwMDMwMDAtMDAwMDNmZmYKCU1lbW9yeSBiZWhpbmQgYnJpZGdlOiBkMDEwMDAwMC1kMDFm
-ZmZmZgoJUHJlZmV0Y2hhYmxlIG1lbW9yeSBiZWhpbmQgYnJpZGdlOiBkODAwMDAwMC1kZmZm
-ZmZmZgowMDogODYgODAgNDEgMzMgMDcgMDEgYTAgMDAgMjEgMDAgMDQgMDYgMDAgNjAgMDEg
-MDAKMTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAxIDAxIDQwIDMwIDMwIGEwIDAy
-CjIwOiAxMCBkMCAxMCBkMCAwMCBkOCBmMCBkZiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAoz
-MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMGMgMDAKNDA6
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjUwOiAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo2MDogMDEg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKNzA6IDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjgwOiAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo5MDogMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKYTA6IDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmIwOiAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApjMDogMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKZDA6IDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmUwOiAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApmMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKCjAwMDA6MDA6MWQuMCBDbGFzcyAwYzAzOiA4
-MDg2OjI0YzIgKHJldiAwMykKCVN1YnN5c3RlbTogMTQ0ZDpjMDBjCglGbGFnczogYnVzIG1h
-c3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSAwLCBJUlEgNQoJSS9PIHBvcnRzIGF0IDE4
-MDAgW3NpemU9MzJdCjAwOiA4NiA4MCBjMiAyNCAwNSAwMCA4MCAwMiAwMyAwMCAwMyAwYyAw
-MCAwMCA4MCAwMAoxMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAKMjA6IDAxIDE4IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDRkIDE0
-IDBjIGMwCjMwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwNSAwMSAw
-MCAwMAo0MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAKNTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-CjYwOiAxMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo3
-MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKODA6
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjkwOiAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAphMDogMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKYjA6IDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmMwOiAwMCAyZiAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApkMDogMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKZTA6IDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmYwOiAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCA2MCAwZiAwMCAwMCAwMCAwMCAwMCAwMAoKMDAwMDowMDoxZC4xIENsYXNz
-IDBjMDM6IDgwODY6MjRjNCAocmV2IDAzKQoJU3Vic3lzdGVtOiAxNDRkOmMwMGMKCUZsYWdz
-OiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDAsIElSUSAxMQoJSS9PIHBv
-cnRzIGF0IDE4MjAgW3NpemU9MzJdCjAwOiA4NiA4MCBjNCAyNCAwNSAwMCA4MCAwMiAwMyAw
-MCAwMyAwYyAwMCAwMCAwMCAwMAoxMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAKMjA6IDIxIDE4IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDRkIDE0IDBjIGMwCjMwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwYiAwMiAwMCAwMAo0MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAKNTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwCjYwOiAxMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMAo3MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAKODA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwCjkwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MAphMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAK
-YjA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmMw
-OiAwMCAyZiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApkMDog
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKZTA6IDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmYwOiAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCA2MCAwZiAwMCAwMCAwMCAwMCAwMCAwMAoKMDAwMDowMDox
-ZC4yIENsYXNzIDBjMDM6IDgwODY6MjRjNyAocmV2IDAzKQoJU3Vic3lzdGVtOiAxNDRkOmMw
-MGMKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDAsIElSUSA1
-CglJL08gcG9ydHMgYXQgMTg0MCBbc2l6ZT0zMl0KMDA6IDg2IDgwIGM3IDI0IDA1IDAwIDgw
-IDAyIDAzIDAwIDAzIDBjIDAwIDAwIDAwIDAwCjEwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAoyMDogNDEgMTggMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgNGQgMTQgMGMgYzAKMzA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDA1IDAzIDAwIDAwCjQwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMAo1MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAKNjA6IDEwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwCjcwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMAo4MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAKOTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwCmEwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMApiMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAKYzA6IDAwIDJmIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwCmQwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MAplMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAK
-ZjA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDYwIDBmIDAwIDAwIDAwIDAwIDAwIDAwCgow
-MDAwOjAwOjFkLjcgQ2xhc3MgMGMwMzogODA4NjoyNGNkIChyZXYgMDMpIChwcm9nLWlmIDIw
-KQoJU3Vic3lzdGVtOiAxNDRkOmMwMGMKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2
-c2VsLCBsYXRlbmN5IDAsIElSUSAxMQoJTWVtb3J5IGF0IGQwMDAwMDAwICgzMi1iaXQsIG5v
-bi1wcmVmZXRjaGFibGUpIFtzaXplPTFLXQoJQ2FwYWJpbGl0aWVzOiBbNTBdIFBvd2VyIE1h
-bmFnZW1lbnQgdmVyc2lvbiAyCglDYXBhYmlsaXRpZXM6IFs1OF0gIzBhIFsyMDgwXQowMDog
-ODYgODAgY2QgMjQgMDYgMDEgOTAgMDIgMDMgMjAgMDMgMGMgMDAgMDAgMDAgMDAKMTA6IDAw
-IDAwIDAwIGQwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjIwOiAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCA0ZCAxNCAwYyBjMAozMDogMDAgMDAg
-MDAgMDAgNTAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMGIgMDQgMDAgMDAKNDA6IDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjUwOiAwMSA1OCBjMiBj
-OSAwMCAwMCAwMCAwMCAwYSAwMCA4MCAyMCAwMCAwMCAwMCAwMAo2MDogMjAgMjAgN2YgMDAg
-MDAgMDAgMDAgMDAgMDEgMDAgMDAgMDAgMDAgMDAgMDAgYzAKNzA6IDAwIDAwIDAxIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjgwOiAwMCAwMCAwMCAwMCAwMSAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo5MDogMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKYTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmIwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApjMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKZDA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDEwIDAwIDNmIDAwCmUwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMApmMDogNzggYmYgMWYgMDAgODggODMgMDAgMDAgNjAgMGYg
-MDAgMDAgMDYgMDAgMDAgMDAKCjAwMDA6MDA6MWUuMCBDbGFzcyAwNjA0OiA4MDg2OjI0NDgg
-KHJldiA4MykKCUZsYWdzOiBidXMgbWFzdGVyLCBmYXN0IGRldnNlbCwgbGF0ZW5jeSAwCglC
-dXM6IHByaW1hcnk9MDAsIHNlY29uZGFyeT0wMiwgc3Vib3JkaW5hdGU9MDQsIHNlYy1sYXRl
-bmN5PTY0CglJL08gYmVoaW5kIGJyaWRnZTogMDAwMDQwMDAtMDAwMDRmZmYKCU1lbW9yeSBi
-ZWhpbmQgYnJpZGdlOiBkMDIwMDAwMC1kMDJmZmZmZgoJUHJlZmV0Y2hhYmxlIG1lbW9yeSBi
-ZWhpbmQgYnJpZGdlOiAzMDAwMDAwMC0zM2ZmZmZmZgowMDogODYgODAgNDggMjQgMDcgMDEg
-ODAgODAgODMgMDAgMDQgMDYgMDAgMDAgMDEgMDAKMTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAyIDA0IDQwIDQwIDQwIDgwIDIyCjIwOiAyMCBkMCAyMCBkMCAwMCAzMCBmMCAz
-MyAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAozMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDQgMDAKNDA6IDAyIDI4IDIwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwCjUwOiAwMiA3NCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMAo2MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAKNzA6IDQwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwCjgwOiAwMCAwMCAwMSAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMAo5MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAKYTA6IDEwIDAwIDA4IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwCmIwOiAwMSAwMCAwMiAwMCAwMCAwMCBjMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMApjMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAKZDA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwCmUwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MApmMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgNjAgMGYgMDAgMDAgMDAgMDAgMmUgNGEK
-CjAwMDA6MDA6MWYuMCBDbGFzcyAwNjAxOiA4MDg2OjI0Y2MgKHJldiAwMykKCUZsYWdzOiBi
-dXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDAKMDA6IDg2IDgwIGNjIDI0IDBm
-IDAwIDgwIDAyIDAzIDAwIDAxIDA2IDAwIDAwIDgwIDAwCjEwOiAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAoyMDogMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKMzA6IDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjQwOiAwMSAxMCAwMCAwMCAxMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo1MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-ODEgMTEgMDAgMDAgMTAgMDAgMDAgMDAKNjA6IDA1IDA1IDA1IDBiIDkwIDAwIDAwIDAwIDgw
-IDgwIDgwIDBiIDAwIDAwIDAwIDAwCjcwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMAo4MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAKOTA6IGZmIGZjIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwCmEwOiAyMCAwMiAwMCAwMCAwMSAwMCAwMCAwMCAwZCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMApiMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgODEgMGEg
-MDAgMDAgMDAgMDAKYzA6IDAwIDAwIDAwIDAwIDgwIDAwIDAwIGZlIDAwIDAwIDAwIDA4IDAw
-IDcwIDAwIDAwCmQwOiAwNiAyOCAwMCAwMCAwMiBjZiAwMCAwMCAwNCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMAplMDogMTAgMDAgMDAgZmYgMDAgMDAgMDAgMDggMzMgMjIgMTEgMDAgMDAgMDAg
-NjcgNDUKZjA6IDBmIDAwIDA5IDAwIDAwIDAwIDAwIDAwIDYwIDBmIDAzIDAwIDAwIDAwIDgx
-IDAwCgowMDAwOjAwOjFmLjEgQ2xhc3MgMDEwMTogODA4NjoyNGNhIChyZXYgMDMpIChwcm9n
-LWlmIDhhIFtNYXN0ZXIgU2VjUCBQcmlQXSkKCVN1YnN5c3RlbTogMTQ0ZDpjMDBjCglGbGFn
-czogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSAwLCBJUlEgNQoJSS9PIHBv
-cnRzIGF0IDx1bmFzc2lnbmVkPgoJSS9PIHBvcnRzIGF0IDx1bmFzc2lnbmVkPgoJSS9PIHBv
-cnRzIGF0IDx1bmFzc2lnbmVkPgoJSS9PIHBvcnRzIGF0IDx1bmFzc2lnbmVkPgoJSS9PIHBv
-cnRzIGF0IDE4NjAgW3NpemU9MTZdCglNZW1vcnkgYXQgMzQwMDAwMDAgKDMyLWJpdCwgbm9u
-LXByZWZldGNoYWJsZSkgW3NpemU9MUtdCjAwOiA4NiA4MCBjYSAyNCAwNyAwMCA4MCAwMiAw
-MyA4YSAwMSAwMSAwMCAwMCAwMCAwMAoxMDogMDEgMDAgMDAgMDAgMDEgMDAgMDAgMDAgMDEg
-MDAgMDAgMDAgMDEgMDAgMDAgMDAKMjA6IDYxIDE4IDAwIDAwIDAwIDAwIDAwIDM0IDAwIDAw
-IDAwIDAwIDRkIDE0IDBjIGMwCjMwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCBmZiAwMSAwMCAwMAo0MDogMDcgYTMgNzcgYTMgMDAgMDAgMDAgMDAgMGQgMDAgMDEg
-MTEgMDAgMDAgMDAgMDAKNTA6IDAwIDAwIDAwIDAwIGRkIGQ0IDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwCjYwOiAwOCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwOCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMAo3MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAKODA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwCjkwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMAphMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAKYjA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-CmMwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApk
-MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKZTA6
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmYwOiAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCA2MCAwZiAwMCAwMCAwMCAwMCAwMCAwMAoKMDAwMDow
-MDoxZi4zIENsYXNzIGZmZmY6IDgwODY6MjRjMyAocmV2IGZmKSAocHJvZy1pZiBmZikKCSEh
-ISBVbmtub3duIGhlYWRlciB0eXBlIDdmCjAwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
-ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZgoxMDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
-ZmYgZmYgZmYgZmYgZmYgZmYgZmYKMjA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
-IGZmIGZmIGZmIGZmIGZmIGZmCjMwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
-ZiBmZiBmZiBmZiBmZiBmZgo0MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
-ZmYgZmYgZmYgZmYgZmYKNTA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
-IGZmIGZmIGZmIGZmCjYwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
-ZiBmZiBmZiBmZgo3MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
-ZmYgZmYgZmYKODA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
-IGZmIGZmCjkwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBm
-ZiBmZgphMDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYg
-ZmYKYjA6IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZm
-CmMwOiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZgpk
-MDogZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYgZmYKZTA6
-IGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmIGZmCmYwOiBm
-ZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZiBmZgoKMDAwMDow
-MDoxZi41IENsYXNzIDA0MDE6IDgwODY6MjRjNSAocmV2IDAzKQoJU3Vic3lzdGVtOiAxNDRk
-OmMwMGMKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDAsIElS
-USA1CglJL08gcG9ydHMgYXQgMWMwMCBbc2l6ZT0yNTZdCglJL08gcG9ydHMgYXQgMTg4MCBb
-c2l6ZT02NF0KCU1lbW9yeSBhdCBkMDAwMGMwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxl
-KSBbc2l6ZT01MTJdCglNZW1vcnkgYXQgZDAwMDA4MDAgKDMyLWJpdCwgbm9uLXByZWZldGNo
-YWJsZSkgW3NpemU9MjU2XQoJQ2FwYWJpbGl0aWVzOiBbNTBdIFBvd2VyIE1hbmFnZW1lbnQg
-dmVyc2lvbiAyCjAwOiA4NiA4MCBjNSAyNCAwNyAwMCA5MCAwMiAwMyAwMCAwMSAwNCAwMCAw
-MCAwMCAwMAoxMDogMDEgMWMgMDAgMDAgODEgMTggMDAgMDAgMDAgMGMgMDAgZDAgMDAgMDgg
-MDAgZDAKMjA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDRkIDE0IDBj
-IGMwCjMwOiAwMCAwMCAwMCAwMCA1MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwNSAwMiAwMCAw
-MAo0MDogMDkgMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAK
-NTA6IDAxIDAwIGMyIGM5IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjYw
-OiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo3MDog
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKODA6IDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjkwOiAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAphMDogMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKYjA6IDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmMwOiAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApkMDogMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKZTA6IDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmYwOiAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCA2MCAwZiAwMCAwMCAwMCAwMCAwMCAwMAoKMDAwMDowMDoxZi42IENsYXNzIDA3
-MDM6IDgwODY6MjRjNiAocmV2IDAzKQoJU3Vic3lzdGVtOiAxNDRkOmMwMGMKCUZsYWdzOiBt
-ZWRpdW0gZGV2c2VsLCBJUlEgNQoJSS9PIHBvcnRzIGF0IDI0MDAgW3NpemU9MjU2XQoJSS9P
-IHBvcnRzIGF0IDIwMDAgW3NpemU9MTI4XQoJQ2FwYWJpbGl0aWVzOiBbNTBdIFBvd2VyIE1h
-bmFnZW1lbnQgdmVyc2lvbiAyCjAwOiA4NiA4MCBjNiAyNCAwMSAwMCA5MCAwMiAwMyAwMCAw
-MyAwNyAwMCAwMCAwMCAwMAoxMDogMDEgMjQgMDAgMDAgMDEgMjAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAKMjA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDRkIDE0IDBjIGMwCjMwOiAwMCAwMCAwMCAwMCA1MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-NSAwMiAwMCAwMAo0MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAKNTA6IDAxIDAwIGMyIGM5IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwCjYwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMAo3MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAKODA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-CjkwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAph
-MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKYjA6
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmMwOiAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApkMDogMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKZTA6IDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmYwOiAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCA2MCAwZiAwMCAwMCAwMCAwMCAwMCAwMAoKMDAwMDowMTowMC4w
-IENsYXNzIDAzMDA6IDEwMDI6NGU1MAoJU3Vic3lzdGVtOiAxNDRkOmMwMGMKCUZsYWdzOiBi
-dXMgbWFzdGVyLCBmYXN0IEJhY2syQmFjaywgNjZNaHosIG1lZGl1bSBkZXZzZWwsIGxhdGVu
-Y3kgNjYsIElSUSA1CglNZW1vcnkgYXQgZDgwMDAwMDAgKDMyLWJpdCwgcHJlZmV0Y2hhYmxl
-KSBbc2l6ZT0xMjhNXQoJSS9PIHBvcnRzIGF0IDMwMDAgW3NpemU9MjU2XQoJTWVtb3J5IGF0
-IGQwMTAwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTY0S10KCUV4cGFu
-c2lvbiBST00gYXQgZDAxMjAwMDAgW2Rpc2FibGVkXSBbc2l6ZT0xMjhLXQoJQ2FwYWJpbGl0
-aWVzOiBbNThdIEFHUCB2ZXJzaW9uIDIuMAoJQ2FwYWJpbGl0aWVzOiBbNTBdIFBvd2VyIE1h
-bmFnZW1lbnQgdmVyc2lvbiAyCjAwOiAwMiAxMCA1MCA0ZSAwNyAwMyBiMCAwMiAwMCAwMCAw
-MCAwMyAwOCA0MiAwMCAwMAoxMDogMDggMDAgMDAgZDggMDEgMzAgMDAgMDAgMDAgMDAgMTAg
-ZDAgMDAgMDAgMDAgMDAKMjA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDRkIDE0IDBjIGMwCjMwOiAwMCAwMCAwMCAwMCA1OCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-NSAwMSAwOCAwMAo0MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgNGQg
-MTQgMGMgYzAKNTA6IDAxIDAwIDAyIDA2IDAwIDAwIDAwIDAwIDAyIDUwIDIwIDAwIDE3IDAy
-IDAwIDRmCjYwOiAwMCAwMiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMAo3MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAKODA6IDA1IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-CjkwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAph
-MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKYjA6
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmMwOiAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApkMDogMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKZTA6IDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmYwOiAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAoKMDAwMDowMjowMC4w
-IENsYXNzIDAyMDA6IDEwZWM6ODEzOSAocmV2IDEwKQoJU3Vic3lzdGVtOiAxNDRkOmMwMGMK
-CUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDY0LCBJUlEgNQoJ
-SS9PIHBvcnRzIGF0IDQwMDAgW3NpemU9MjU2XQoJTWVtb3J5IGF0IGQwMjAxODAwICgzMi1i
-aXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTI1Nl0KCUNhcGFiaWxpdGllczogWzUwXSBQ
-b3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgowMDogZWMgMTAgMzkgODEgMDcgMDEgOTAgMDIg
-MTAgMDAgMDAgMDIgMDAgNDAgMDAgMDAKMTA6IDAxIDQwIDAwIDAwIDAwIDE4IDIwIGQwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwCjIwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCA0ZCAxNCAwYyBjMAozMDogMDAgMDAgMDAgMDAgNTAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDUgMDEgMjAgNDAKNDA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwCjUwOiAwMSAwMCBjMiBmNyAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMAo2MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAKNzA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwCjgwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMAo5MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAKYTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwCmIwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MApjMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAK
-ZDA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmUw
-OiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApmMDog
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKCjAwMDA6
-MDI6MDEuMCBDbGFzcyAwNjA3OiAxMTgwOjA0NzYgKHJldiBhYykKCVN1YnN5c3RlbTogMTQ0
-ZDpjMDBjCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSA2NCwg
-SVJRIDUKCU1lbW9yeSBhdCBkMDIwMjAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBb
-c2l6ZT00S10KCUJ1czogcHJpbWFyeT0wMiwgc2Vjb25kYXJ5PTAzLCBzdWJvcmRpbmF0ZT0w
-Mywgc2VjLWxhdGVuY3k9MTc2CglNZW1vcnkgd2luZG93IDA6IDMwMDAwMDAwLTMxZmZmMDAw
-IChwcmVmZXRjaGFibGUpCglNZW1vcnkgd2luZG93IDE6IDM2MDAwMDAwLTM3ZmZmMDAwIChw
-cmVmZXRjaGFibGUpCglJL08gd2luZG93IDA6IDAwMDA0NDAwLTAwMDA0NGZmCglJL08gd2lu
-ZG93IDE6IDAwMDA0ODAwLTAwMDA0OGZmCgkxNi1iaXQgbGVnYWN5IGludGVyZmFjZSBwb3J0
-cyBhdCAwMDAxCjAwOiA4MCAxMSA3NiAwNCAwNyAwMCAxMCAwMiBhYyAwMCAwNyAwNiAwMCA0
-MCA4MiAwMAoxMDogMDAgMjAgMjAgZDAgZGMgMDAgMDAgMDIgMDIgMDMgMDMgYjAgMDAgMDAg
-MDAgMzAKMjA6IDAwIGYwIGZmIDMxIDAwIDAwIDAwIDM2IDAwIGYwIGZmIDM3IDAwIDQ0IDAw
-IDAwCjMwOiBmYyA0NCAwMCAwMCAwMCA0OCAwMCAwMCBmYyA0OCAwMCAwMCAwMCAwMSA4MCAw
-Nwo0MDogNGQgMTQgMGMgYzAgMDEgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAK
-NTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjYw
-OiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo3MDog
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKODA6IDAx
-IDAwIGEwIDIwIDAwIDAzIDAwIDAwIDYzIDA0IDYzIDA0IDAwIDAwIDAwIDAwCjkwOiAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAphMDogMDAgMDAg
-MDAgMDAgZmYgMGYgMDAgODAgMDAgMDAgMDMgMDAgMDAgMDAgMDAgMDAKYjA6IDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmMwOiA0ZCAxNCAwYyBj
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApkMDogMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDEgMDAgMGEgZmUKZTA6IDAwIDQwIGMwIDI0IDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmYwOiAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAoKMDAwMDowMjowMS4xIENsYXNzIDA2
-MDc6IDExODA6MDQ3NiAocmV2IGFjKQoJU3Vic3lzdGVtOiAxNDRkOmMwMGMKCUZsYWdzOiBi
-dXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDY0LCBJUlEgNQoJTWVtb3J5IGF0
-IGQwMjAzMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTRLXQoJQnVzOiBw
-cmltYXJ5PTAyLCBzZWNvbmRhcnk9MDQsIHN1Ym9yZGluYXRlPTA3LCBzZWMtbGF0ZW5jeT0x
-NzYKCU1lbW9yeSB3aW5kb3cgMDogMzIwMDAwMDAtMzNmZmYwMDAgKHByZWZldGNoYWJsZSkK
-CU1lbW9yeSB3aW5kb3cgMTogMzgwMDAwMDAtMzlmZmYwMDAgKHByZWZldGNoYWJsZSkKCUkv
-TyB3aW5kb3cgMDogMDAwMDRjMDAtMDAwMDRjZmYKCUkvTyB3aW5kb3cgMTogMDAwMDE0MDAt
-MDAwMDE0ZmYKCTE2LWJpdCBsZWdhY3kgaW50ZXJmYWNlIHBvcnRzIGF0IDAwMDEKMDA6IDgw
-IDExIDc2IDA0IDA3IDAwIDEwIDAyIGFjIDAwIDA3IDA2IDAwIDQwIDgyIDAwCjEwOiAwMCAz
-MCAyMCBkMCBkYyAwMCAwMCAwMiAwMiAwNCAwNyBiMCAwMCAwMCAwMCAzMgoyMDogMDAgZjAg
-ZmYgMzMgMDAgMDAgMDAgMzggMDAgZjAgZmYgMzkgMDAgNGMgMDAgMDAKMzA6IGZjIDRjIDAw
-IDAwIDAwIDE0IDAwIDAwIGZjIDE0IDAwIDAwIDAwIDAyIDAwIDA3CjQwOiA0ZCAxNCAwYyBj
-MCAwMSAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo1MDogMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKNjA6IDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjcwOiAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo4MDogMDEgMDAgYTAgMjAgMDAgMDMg
-MDAgMDAgNjMgMDQgNjMgMDQgMDAgMDAgMDAgMDAKOTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmEwOiAwMCAwMCAwMCAwMCBmZiAwZiAwMCA4
-MCAwMCAwMCAwMyAwMCAwMCAwMCAwMCAwMApiMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKYzA6IDRkIDE0IDBjIGMwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwCmQwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMSAwMCAwYSBmZQplMDogMDAgNDAgYzAgMjQgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAKZjA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwCgowMDAwOjAyOjAxLjIgQ2xhc3MgMGMwMDogMTE4MDowNTUyIChy
-ZXYgMDQpIChwcm9nLWlmIDEwKQoJU3Vic3lzdGVtOiAxNDRkOmMwMGMKCUZsYWdzOiBidXMg
-bWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDY0LCBJUlEgNQoJTWVtb3J5IGF0IGQw
-MjAxMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTJLXQoJQ2FwYWJpbGl0
-aWVzOiBbZGNdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyCjAwOiA4MCAxMSA1MiAwNSAw
-NiAwMSAxMCAwMiAwNCAxMCAwMCAwYyAwMCA0MCA4MCAwMAoxMDogMDAgMTAgMjAgZDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKMjA6IDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDRkIDE0IDBjIGMwCjMwOiAwMCAwMCAwMCAwMCBkYyAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwNSAwMyAwMiAwNAo0MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKNTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjYwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo3MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAKODA6IDAwIDgwIDgwIDE2IDAwIDAwIDA0IDAwIDAwIDIw
-IDAwIDAwIDY2IDY2IDMyIDEyCjkwOiA0OCA2MCA2NiAxMCAwMCAwMCAwMiAwMCA1MCA4MCAw
-MCAwMCAwMCAwMSAwMCAwMAphMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgNGQgMTQgMGMgYzAKYjA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDMwIDAwIDAw
-IDAwIDAwIDAyIDA0CmMwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMApkMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDEg
-MDAgMDIgYzgKZTA6IDAwIDQwIDAwIDQ4IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwCmYwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMAoKMDAwMDowMjowMi4wIENsYXNzIDAyODA6IDgwODY6NDIyMCAocmV2IDA1KQoJU3Vi
-c3lzdGVtOiA4MDg2OjI3MzEKCUZsYWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBs
-YXRlbmN5IDY0LCBJUlEgNQoJTWVtb3J5IGF0IGQwMjAwMDAwICgzMi1iaXQsIG5vbi1wcmVm
-ZXRjaGFibGUpIFtzaXplPTRLXQoJQ2FwYWJpbGl0aWVzOiBbZGNdIFBvd2VyIE1hbmFnZW1l
-bnQgdmVyc2lvbiAyCjAwOiA4NiA4MCAyMCA0MiAxNiAwMSA5MCAwMiAwNSAwMCA4MCAwMiAw
-OCA0MCAwMCAwMAoxMDogMDAgMDAgMjAgZDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAKMjA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDg2IDgw
-IDMxIDI3CjMwOiAwMCAwMCAwMCAwMCBkYyAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwNSAwMSAw
-MyAxOAo0MDogODAgODAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAKNTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-CjYwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAo3
-MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKODA6
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCjkwOiAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAphMDogMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAKYjA6IDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmMwOiAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMApkMDogMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDEgMDAgMjIgYzgKZTA6IDAwIDIwIDAwIDEz
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwCmYwOiAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMAoK
---------------080207020107060006080507--

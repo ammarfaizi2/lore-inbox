@@ -1,85 +1,246 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWDLOvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWDLPJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbWDLOvj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 10:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWDLOvj
+	id S1750707AbWDLPJx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 11:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWDLPJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 10:51:39 -0400
-Received: from [4.79.56.4] ([4.79.56.4]:7816 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S1751191AbWDLOvi (ORCPT
+	Wed, 12 Apr 2006 11:09:53 -0400
+Received: from pip249.ish.de ([80.69.98.249]:61997 "EHLO mail01.ish.de")
+	by vger.kernel.org with ESMTP id S1750707AbWDLPJw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 10:51:38 -0400
-Subject: Re: GPL issues
-From: Arjan van de Ven <arjan@infradead.org>
-To: jdow <jdow@earthlink.net>
-Cc: Mark Lord <lkml@rtr.ca>, Joshua Hudson <joshudson@gmail.com>,
-       Ramakanth Gunuganti <rgunugan@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <004101c65df4$5eb71ce0$0225a8c0@Wednesday>
-References: <20060411063127.97362.qmail@web54314.mail.yahoo.com>
-	 <20060411230642.GV23222@vasa.acc.umu.se>
-	 <bda6d13a0604111938j5ece401cid364582fe9d6cf76@mail.gmail.com>
-	 <443C716C.1060103@rtr.ca> <1144819887.3089.0.camel@laptopd505.fenrus.org>
-	 <004101c65df4$5eb71ce0$0225a8c0@Wednesday>
-Content-Type: text/plain
-Date: Wed, 12 Apr 2006 16:51:32 +0200
-Message-Id: <1144853492.3091.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 12 Apr 2006 11:09:52 -0400
+Message-ID: <443D1835.70107@crypto.rub.de>
+Date: Wed, 12 Apr 2006 17:09:41 +0200
+From: Marcel Selhorst <selhorst@crypto.rub.de>
+User-Agent: Mail/News 1.5 (X11/20060401)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, Kylene Jo Hall <kjhall@us.ibm.com>
+Subject: [PATCH] tpm: tpm_infineon updated to latest interface changes
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-14; AVE: 6.34.0.24; VDF: 6.34.0.179; host: mail)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-11 at 22:45 -0700, jdow wrote:
-> > On Tue, 2006-04-11 at 23:18 -0400, Mark Lord wrote:
-> >> Joshua Hudson wrote:
-> >> > On 4/11/06, David Weinehall <tao@acc.umu.se> wrote:
-> >> >> OK, simplified rules; if you follow them you should generally be OK:
-> >> ..
-> >> >> 3. Userspace code that uses interfaces that was not exposed to userspace
-> >> >> before you change the kernel --> GPL (but don't do it; there's almost
-> >> >> always a reason why an interface is not exported to userspace)
-> >> >>
-> >> >> 4. Userspace code that only uses existing interfaces --> choose
-> >> >> license yourself (but of course, GPL would be nice...)
-> >> 
-> >> Err.. there is ZERO difference between situations 3 and 4.
-> >> Userspace code can be any license one wants, regardless of where
-> >> or when or how the syscalls are added to the kernel.
-> > 
-> > that is not so clear if the syscalls were added exclusively for this
-> > application by the authors of the application....
+Dear LKML,
+
+this patch applies the latest changes in the TPM interface to the Infineon TPM-driver
+(as posted by Kylene Hall yesterday - see below)
+
+> Kylene Jo Hall wrote:
+> To assist with chip management and better support the possibility of
+> having multiple TPMs in the system of the same kind, the struct
+> tpm_vendor_specific member of the tpm_chip was changed from a pointer to
+> an instance.  This patch changes that declaration and fixes up all
+> accesses to the structure member except in tpm_infineon which is coming
+> in a patch from Marcel Selhorst.
 > 
-> Consider a book. The book is GPLed. I do not have to GPL my brain when
-> I read the book.
-> 
-> I add some margin notes to the GPLed book. I still do not have to GPL
-> my brain when I read the book.
+> Changes in the 1.2 TPM Specification make it necessary to update some
+> fields of the chip structure in the initialization function after it is
+> registered with tpm.c thus tpm_register_hardware was modified to return
+> a pointer to the structure.  This patch makes that change and the
+> associated changes in tpm_atmel and tpm_nsc.  The changes to
+> tpm_infineon will be coming in a patch from Marcel Selhorst.
 
-wrong comparison
+Signed-off-by: Marcel Selhorst <selhorst@crypto.rub.de>
+---
+--- linux-old/drivers/char/tpm/tpm_infineon.c	2006-03-20 05:53:29.000000000 +0000
++++ linux-2.6.16-rc3/drivers/char/tpm/tpm_infineon.c	2006-04-06 11:37:24.000000000 +0000
+@@ -104,7 +104,7 @@ static int empty_fifo(struct tpm_chip *c
 
-you have a book, book is gpl'd. You have another book with another plot.
-THat other book doesn't need to be gpl'd.
+ 	if (clear_wrfifo) {
+ 		for (i = 0; i < 4096; i++) {
+-			status = inb(chip->vendor->base + WRFIFO);
++			status = inb(chip->vendor.base + WRFIFO);
+ 			if (status == 0xff) {
+ 				if (check == 5)
+ 					break;
+@@ -124,8 +124,8 @@ static int empty_fifo(struct tpm_chip *c
+ 	 */
+ 	i = 0;
+ 	do {
+-		status = inb(chip->vendor->base + RDFIFO);
+-		status = inb(chip->vendor->base + STAT);
++		status = inb(chip->vendor.base + RDFIFO);
++		status = inb(chip->vendor.base + STAT);
+ 		i++;
+ 		if (i == TPM_MAX_TRIES)
+ 			return -EIO;
+@@ -138,7 +138,7 @@ static int wait(struct tpm_chip *chip, i
+ 	int status;
+ 	int i;
+ 	for (i = 0; i < TPM_MAX_TRIES; i++) {
+-		status = inb(chip->vendor->base + STAT);
++		status = inb(chip->vendor.base + STAT);
+ 		/* check the status-register if wait_for_bit is set */
+ 		if (status & 1 << wait_for_bit)
+ 			break;
+@@ -157,7 +157,7 @@ static int wait(struct tpm_chip *chip, i
+ static void wait_and_send(struct tpm_chip *chip, u8 sendbyte)
+ {
+ 	wait(chip, STAT_XFE);
+-	outb(sendbyte, chip->vendor->base + WRFIFO);
++	outb(sendbyte, chip->vendor.base + WRFIFO);
+ }
 
-you have a book, book is gpl'd. Your other book now requires the first
-book to change it's plot so that the two books form a series. This is
-where your lawyer will get nervous.
+     /* Note: WTX means Waiting-Time-Extension. Whenever the TPM needs more
+@@ -204,7 +204,7 @@ recv_begin:
+ 		ret = wait(chip, STAT_RDA);
+ 		if (ret)
+ 			return -EIO;
+-		buf[i] = inb(chip->vendor->base + RDFIFO);
++		buf[i] = inb(chip->vendor.base + RDFIFO);
+ 	}
 
-Think of it differently perhaps, and it's a question of "where is the
-boundary of the work"
+ 	if (buf[0] != TPM_VL_VER) {
+@@ -219,7 +219,7 @@ recv_begin:
 
-You can see the situation with the syscall change in 2 ways:
+ 		for (i = 0; i < size; i++) {
+ 			wait(chip, STAT_RDA);
+-			buf[i] = inb(chip->vendor->base + RDFIFO);
++			buf[i] = inb(chip->vendor.base + RDFIFO);
+ 		}
 
-1) kernel + modification is a work
-   userspace app is a separate work
+ 		if ((size == 0x6D00) && (buf[1] == 0x80)) {
+@@ -268,7 +268,7 @@ static int tpm_inf_send(struct tpm_chip
+ 	u8 count_high, count_low, count_4, count_3, count_2, count_1;
 
-or
+ 	/* Disabling Reset, LP and IRQC */
+-	outb(RESET_LP_IRQC_DISABLE, chip->vendor->base + CMD);
++	outb(RESET_LP_IRQC_DISABLE, chip->vendor.base + CMD);
 
-2) kernel is a work
-   userspace app and the kernel modification are together one work
+ 	ret = empty_fifo(chip, 1);
+ 	if (ret) {
+@@ -319,7 +319,7 @@ static void tpm_inf_cancel(struct tpm_ch
 
-in this 2nd case you have a GPL issue. The question is if your lawyer
-can convince the judge that the second interpretation is unreasonable.
-That may or may not be easy, depending on the exact nature of the
-modification.
+ static u8 tpm_inf_status(struct tpm_chip *chip)
+ {
+-	return inb(chip->vendor->base + STAT);
++	return inb(chip->vendor.base + STAT);
+ }
 
+ static DEVICE_ATTR(pubek, S_IRUGO, tpm_show_pubek, NULL);
+@@ -346,7 +346,7 @@ static struct file_operations inf_ops =
+ 	.release = tpm_release,
+ };
+
+-static struct tpm_vendor_specific tpm_inf = {
++static const struct tpm_vendor_specific tpm_inf = {
+ 	.recv = tpm_inf_recv,
+ 	.send = tpm_inf_send,
+ 	.cancel = tpm_inf_cancel,
+@@ -375,6 +375,7 @@ static int __devinit tpm_inf_pnp_probe(s
+ 	int version[2];
+ 	int productid[2];
+ 	char chipname[20];
++	struct tpm_chip *chip;
+
+ 	/* read IO-ports through PnP */
+ 	if (pnp_port_valid(dev, 0) && pnp_port_valid(dev, 1) &&
+@@ -395,14 +396,13 @@ static int __devinit tpm_inf_pnp_probe(s
+ 			goto err_last;
+ 		}
+ 		/* publish my base address and request region */
+-		tpm_inf.base = TPM_INF_BASE;
+ 		if (request_region
+-		    (tpm_inf.base, TPM_INF_PORT_LEN, "tpm_infineon0") == NULL) {
++		    (TPM_INF_BASE, TPM_INF_PORT_LEN, "tpm_infineon0") == NULL) {
+ 			rc = -EINVAL;
+ 			goto err_last;
+ 		}
+-		if (request_region(TPM_INF_ADDR, TPM_INF_ADDR_LEN,
+-				"tpm_infineon0") == NULL) {
++		if (request_region
++		    (TPM_INF_ADDR, TPM_INF_ADDR_LEN, "tpm_infineon0") == NULL) {
+ 			rc = -EINVAL;
+ 			goto err_last;
+ 		}
+@@ -442,9 +442,9 @@ static int __devinit tpm_inf_pnp_probe(s
+
+ 		/* configure TPM with IO-ports */
+ 		outb(IOLIMH, TPM_INF_ADDR);
+-		outb(((tpm_inf.base >> 8) & 0xff), TPM_INF_DATA);
++		outb(((TPM_INF_BASE >> 8) & 0xff), TPM_INF_DATA);
+ 		outb(IOLIML, TPM_INF_ADDR);
+-		outb((tpm_inf.base & 0xff), TPM_INF_DATA);
++		outb((TPM_INF_BASE & 0xff), TPM_INF_DATA);
+
+ 		/* control if IO-ports are set correctly */
+ 		outb(IOLIMH, TPM_INF_ADDR);
+@@ -452,10 +452,10 @@ static int __devinit tpm_inf_pnp_probe(s
+ 		outb(IOLIML, TPM_INF_ADDR);
+ 		iol = inb(TPM_INF_DATA);
+
+-		if ((ioh << 8 | iol) != tpm_inf.base) {
++		if ((ioh << 8 | iol) != TPM_INF_BASE) {
+ 			dev_err(&dev->dev,
+-				"Could not set IO-ports to 0x%lx\n",
+-				tpm_inf.base);
++				"Could not set IO-ports to 0x%x\n",
++				TPM_INF_BASE);
+ 			rc = -EIO;
+ 			goto err_release_region;
+ 		}
+@@ -466,15 +466,15 @@ static int __devinit tpm_inf_pnp_probe(s
+ 		outb(DISABLE_REGISTER_PAIR, TPM_INF_ADDR);
+
+ 		/* disable RESET, LP and IRQC */
+-		outb(RESET_LP_IRQC_DISABLE, tpm_inf.base + CMD);
++		outb(RESET_LP_IRQC_DISABLE, TPM_INF_BASE + CMD);
+
+ 		/* Finally, we're done, print some infos */
+ 		dev_info(&dev->dev, "TPM found: "
+ 			 "config base 0x%x, "
+ 			 "io base 0x%x, "
+-			 "chip version %02x%02x, "
+-			 "vendor id %x%x (Infineon), "
+-			 "product id %02x%02x"
++			 "chip version 0x%02x%02x, "
++			 "vendor id 0x%x%x (Infineon), "
++			 "product id 0x%02x%02x"
+ 			 "%s\n",
+ 			 TPM_INF_ADDR,
+ 			 TPM_INF_BASE,
+@@ -482,11 +482,10 @@ static int __devinit tpm_inf_pnp_probe(s
+ 			 vendorid[0], vendorid[1],
+ 			 productid[0], productid[1], chipname);
+
+-		rc = tpm_register_hardware(&dev->dev, &tpm_inf);
+-		if (rc < 0) {
+-			rc = -ENODEV;
++		if (!(chip = tpm_register_hardware(&dev->dev, &tpm_inf))) {
+ 			goto err_release_region;
+ 		}
++		chip->vendor.base = TPM_INF_BASE;
+ 		return 0;
+ 	} else {
+ 		rc = -ENODEV;
+@@ -494,7 +493,7 @@ static int __devinit tpm_inf_pnp_probe(s
+ 	}
+
+ err_release_region:
+-	release_region(tpm_inf.base, TPM_INF_PORT_LEN);
++	release_region(TPM_INF_BASE, TPM_INF_PORT_LEN);
+ 	release_region(TPM_INF_ADDR, TPM_INF_ADDR_LEN);
+
+ err_last:
+@@ -506,7 +505,8 @@ static __devexit void tpm_inf_pnp_remove
+ 	struct tpm_chip *chip = pnp_get_drvdata(dev);
+
+ 	if (chip) {
+-		release_region(chip->vendor->base, TPM_INF_PORT_LEN);
++		release_region(TPM_INF_BASE, TPM_INF_PORT_LEN);
++		release_region(TPM_INF_ADDR, TPM_INF_ADDR_LEN);
+ 		tpm_remove_hardware(chip->dev);
+ 	}
+ }
+@@ -538,5 +538,5 @@ module_exit(cleanup_inf);
+
+ MODULE_AUTHOR("Marcel Selhorst <selhorst@crypto.rub.de>");
+ MODULE_DESCRIPTION("Driver for Infineon TPM SLD 9630 TT 1.1 / SLB 9635 TT 1.2");
+-MODULE_VERSION("1.7");
++MODULE_VERSION("1.8");
+ MODULE_LICENSE("GPL");
 

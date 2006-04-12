@@ -1,33 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWDLRs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWDLRtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWDLRs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 13:48:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWDLRs5
+	id S932298AbWDLRtP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 13:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWDLRtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 13:48:57 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:29141 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932277AbWDLRs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 13:48:56 -0400
-Subject: Re: OOPS (ALSA?) in 2.6.17-rc1-g6246b612 (Apr 3)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOC.4.61.0604121713560.15688@math.ut.ee>
-References: <Pine.SOC.4.61.0604121713560.15688@math.ut.ee>
+	Wed, 12 Apr 2006 13:49:14 -0400
+Received: from pat.uio.no ([129.240.10.6]:9895 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932277AbWDLRtM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 13:49:12 -0400
+Subject: Re: [PATCH] Use atomic ops for file_nr accounting, not spinlock+irq
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: David Howells <dhowells@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <17771.1144839377@warthog.cambridge.redhat.com>
+References: <20060411150512.5dd6e83d.akpm@osdl.org>
+	 <16476.1144773375@warthog.cambridge.redhat.com>
+	 <17771.1144839377@warthog.cambridge.redhat.com>
 Content-Type: text/plain
-Date: Wed, 12 Apr 2006 13:48:51 -0400
-Message-Id: <1144864132.27313.14.camel@mindpipe>
+Date: Wed, 12 Apr 2006 13:48:48 -0400
+Message-Id: <1144864128.8056.8.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.829, required 12,
+	autolearn=disabled, AWL 1.17, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-12 at 17:17 +0300, Meelis Roos wrote:
-> Just got this one from openoffice.org today. The -dirty is from a 8250 
-> serial debug patch. Seems to come from ALSAO OSS emulation.
+On Wed, 2006-04-12 at 11:56 +0100, David Howells wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > > Make the kernel use atomic operations for files_stat.nr_files accounting
+> > > rather than using a spinlocked and interrupt-disabled critical section.
+> > 
+> > This code has all been redone in current kernels.
+> 
+> Hmmm... So it has. Trond's tree hasn't caught up yet, which is a bit of a
+> problem:-/
 
-Please check the list archives before reporting a bug, this has been
-reported at least 10 times in the past week
+I've been updating the NFS git tree on a daily basis. I'm not going to
+begin pulling from the -mm tree, though.
+
+Cheers,
+  Trond
 

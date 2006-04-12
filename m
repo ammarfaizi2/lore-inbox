@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWDLDEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWDLDST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbWDLDEh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 23:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWDLDEh
+	id S1751320AbWDLDST (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 23:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWDLDST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 23:04:37 -0400
-Received: from pproxy.gmail.com ([64.233.166.180]:25363 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751149AbWDLDEh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 23:04:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LimJOXIY3pe04ZlYVCu1Er77DGVa/7xcQ0jQpcFtXem3T1mUw6e3A/RPRJ0Gd1Zt41I89BKKkdFLAk40tzqDzI9zH6Tt+DTWUhElVBFf7KxIGnkWyyTabauV1b3XYRh9fp3rXIQd0jDqb3rQE+YEygUV0N3sE+3KFC+EIVfp+6Q=
-Message-ID: <bda6d13a0604112004s16ee3c7fo210ef2caeebdcd0e@mail.gmail.com>
-Date: Tue, 11 Apr 2006 20:04:36 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: lepton <ytht.net@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: 386/smp issue with atomic_add_return()
-In-Reply-To: <20060412021340.GA6718@gsy2.lepton.home>
+	Tue, 11 Apr 2006 23:18:19 -0400
+Received: from rtr.ca ([64.26.128.89]:56012 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751320AbWDLDSS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 23:18:18 -0400
+Message-ID: <443C716C.1060103@rtr.ca>
+Date: Tue, 11 Apr 2006 23:18:04 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060412021340.GA6718@gsy2.lepton.home>
+To: Joshua Hudson <joshudson@gmail.com>
+Cc: Ramakanth Gunuganti <rgunugan@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL issues
+References: <20060411063127.97362.qmail@web54314.mail.yahoo.com>	 <20060411230642.GV23222@vasa.acc.umu.se> <bda6d13a0604111938j5ece401cid364582fe9d6cf76@mail.gmail.com>
+In-Reply-To: <bda6d13a0604111938j5ece401cid364582fe9d6cf76@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/11/06, lepton <ytht.net@gmail.com> wrote:
-> Hi
->         Is there any smp box with 386 cpu?
->         If it exist, then I think atomic_add_return has a problem.
->         Just disabling local interrupts can not keep another cpu from entering this function.
->         What do you think about this?
->
->         This is the code (copied from 2.6.16.4):
->
->         #ifdef CONFIG_M386
->  no_xadd: /* Legacy 386 processor */
->         local_irq_disable();
->         __i = atomic_read(v);
->         atomic_set(v, i + __i);
->         local_irq_enable();
->         return i + __i;
->         #endif
+Joshua Hudson wrote:
+> On 4/11/06, David Weinehall <tao@acc.umu.se> wrote:
+>> OK, simplified rules; if you follow them you should generally be OK:
+..
+>> 3. Userspace code that uses interfaces that was not exposed to userspace
+>> before you change the kernel --> GPL (but don't do it; there's almost
+>> always a reason why an interface is not exported to userspace)
+>>
+>> 4. Userspace code that only uses existing interfaces --> choose
+>> license yourself (but of course, GPL would be nice...)
 
-If such a box exists (and I doubt), it is not a commody PC.
-First x86 SMP motherboard I heard of was a P1 with two processors.
+Err.. there is ZERO difference between situations 3 and 4.
+Userspace code can be any license one wants, regardless of where
+or when or how the syscalls are added to the kernel.
+
+Cheers

@@ -1,101 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWDLSd2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWDLSdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWDLSd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 14:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWDLSd2
+	id S932312AbWDLSdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 14:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWDLSdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 14:33:28 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:4761 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S932314AbWDLSd2 convert rfc822-to-8bit
+	Wed, 12 Apr 2006 14:33:09 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:15530 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932312AbWDLSdI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 14:33:28 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: x86_86 SMP megaraid_mbox hangups and panics.
-Date: Wed, 12 Apr 2006 12:33:23 -0600
-Message-ID: <890BF3111FB9484E9526987D912B261901BCC6@NAMAIL3.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: x86_86 SMP megaraid_mbox hangups and panics.
-Thread-Index: AcZeWhQG8DY5KEOvTmOpLEuQHkMGFgAAri2A
-From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-To: "dormando" <dormando@rydia.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 12 Apr 2006 18:33:21.0488 (UTC) FILETIME=[936C2500:01C65E5F]
+	Wed, 12 Apr 2006 14:33:08 -0400
+Date: Thu, 13 Apr 2006 00:01:06 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Paul E.McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix file lookup without ref
+Message-ID: <20060412183106.GD25957@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wednesday, April 12, 2006 1:53 PM, Dormando  wrote:
-> Can you confirm that you read my whole message? I might be a complete 
-> idiot, but let me reiterate some highlights and add a few 
-> more details 
-> from my last mail:
-> 
-> If I build a 32-bit SMP OR 64-bit UP kernel, the cards will boot and 
-> work *every time*.
-Sorry, I've gone through but, ...
+This patch fixes a problem with some places in the kernel where
+we look up file structure from the fd table but don't hold
+a reference to the file. Those places cannot be lock-free.
+These places aren't in fast path, so it is not a problem.
+I have tested this patch on powerpc and x86_64 using basic
+tests and ltp. We should aim to merge this for 2.6.17.
 
-So far, the driver has been working on various x86_64 platforms (both AMD64 and EM64T with more than 4 GB mem.). Is this first time x86_64 kernel on those platforms or, the systems have been running on previous x86_64 kernels?
-If you send me console log file, I'll look into it. But, still the issue need to be handled by SE team for further investigation.
-
-I've submitted a patch that addresses one problem in 'megaraid_reset_handler()', but I don't think the fix connected to your issue directly.
-
-Thank you,
-
-Seokmann
+Thanks
+Dipankar
 
 
 
-> -----Original Message-----
-> From: dormando [mailto:dormando@rydia.net] 
-> Sent: Wednesday, April 12, 2006 1:53 PM
-> To: Ju, Seokmann
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: x86_86 SMP megaraid_mbox hangups and panics.
-> 
-> Ju, Seokmann wrote:
-> > Hi,
-> >> Most of the time the server hits: "megaraid: probe new 
-> device" - with 
-> >> the device information, then hangs and starts the 180 second 
-> >> countdown: 
-> >> "megaraid: wait for FW to boot [blah]"
-> >> After which I get a VFS panic for not having a root disk.
-> > This means the controller is NOT taking any commands from 
-> the driver at that time.
-> > In other words, the F/W is NOT ready to take any command, yet.
-> > It sounds like that the controller is NOT in good condition 
-> for some reason and needs to check sanity of it.
-> > You may want to check with LSI logic SE team.
-> > 
-> > Thank you,
-> 
-> Can you confirm that you read my whole message? I might be a complete 
-> idiot, but let me reiterate some highlights and add a few 
-> more details 
-> from my last mail:
-> 
-> If I build a 32-bit SMP OR 64-bit UP kernel, the cards will boot and 
-> work *every time*.
-> 
-> Most of the time this is a *kernel panic* in megaraid_ack_sequence, 
-> somewhere through megaraid_isr in megaraid_mbox.c
-> *Sometimes* it results in the firmware hanging like you 
-> mentioned above.
-> If I compile the drivers as modules instead of statically, this 
-> *sometimes* results in the machine booting all the way. Once 
-> the machine 
-> boots up, I can give it a good 'ole I/O beatdown and it does 
-> not flinch.
-> 
-> As in: I boot it once, it hangs. I reboot, it panics. I reboot, it 
-> panics. I reboot, it works. I have 16 cards in 16 systems that all 
-> exhibit the same behavior. Looks like an x86_64 SMP timing 
-> issue of some 
-> kind to me, and less of a card issue. Please correct me if I am wrong!
-> 
-> -Dormando
-> 
+There are places in the kernel where we look up files in fd tables 
+and access the file structure without holding refereces to the file. 
+So, we need special care to avoid the race between
+looking up files in the fd table and tearing down of the file
+in another CPU. Otherwise, one might see a NULL f_dentry or
+such torn down version of the file. This patch fixes those
+special places where such a race may happen.
+
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+---
+
+
+ drivers/char/tty_io.c |    8 ++++++--
+ fs/locks.c            |    9 +++++++--
+ fs/proc/base.c        |   21 +++++++++++++++------
+ 3 files changed, 28 insertions(+), 10 deletions(-)
+
+diff -puN drivers/char/tty_io.c~fix-proc-fd-ops drivers/char/tty_io.c
+--- linux-2.6.16-rcu/drivers/char/tty_io.c~fix-proc-fd-ops	2006-04-12 21:06:24.000000000 +0530
++++ linux-2.6.16-rcu-dipankar/drivers/char/tty_io.c	2006-04-12 21:06:24.000000000 +0530
+@@ -2706,7 +2706,11 @@ static void __do_SAK(void *arg)
+ 		}
+ 		task_lock(p);
+ 		if (p->files) {
+-			rcu_read_lock();
++			/*
++			 * We don't take a ref to the file, so we must
++			 * hold ->file_lock instead.
++			 */
++			spin_lock(&p->files->file_lock);
+ 			fdt = files_fdtable(p->files);
+ 			for (i=0; i < fdt->max_fds; i++) {
+ 				filp = fcheck_files(p->files, i);
+@@ -2721,7 +2725,7 @@ static void __do_SAK(void *arg)
+ 					break;
+ 				}
+ 			}
+-			rcu_read_unlock();
++			spin_unlock(&p->files->file_lock);
+ 		}
+ 		task_unlock(p);
+ 	} while_each_task_pid(session, PIDTYPE_SID, p);
+diff -puN fs/locks.c~fix-proc-fd-ops fs/locks.c
+--- linux-2.6.16-rcu/fs/locks.c~fix-proc-fd-ops	2006-04-12 21:06:24.000000000 +0530
++++ linux-2.6.16-rcu-dipankar/fs/locks.c	2006-04-12 21:06:24.000000000 +0530
+@@ -2212,7 +2212,12 @@ void steal_locks(fl_owner_t from)
+ 
+ 	lock_kernel();
+ 	j = 0;
+-	rcu_read_lock();
++
++	/*
++	 * We are not taking a ref to the file structures, so
++	 * we need to acquire ->file_lock.
++	 */
++	spin_lock(&files->file_lock);
+ 	fdt = files_fdtable(files);
+ 	for (;;) {
+ 		unsigned long set;
+@@ -2230,7 +2235,7 @@ void steal_locks(fl_owner_t from)
+ 			set >>= 1;
+ 		}
+ 	}
+-	rcu_read_unlock();
++	spin_unlock(&files->file_lock);
+ 	unlock_kernel();
+ }
+ EXPORT_SYMBOL(steal_locks);
+diff -puN fs/proc/base.c~fix-proc-fd-ops fs/proc/base.c
+--- linux-2.6.16-rcu/fs/proc/base.c~fix-proc-fd-ops	2006-04-12 21:06:24.000000000 +0530
++++ linux-2.6.16-rcu-dipankar/fs/proc/base.c	2006-04-12 21:06:24.000000000 +0530
+@@ -294,16 +294,20 @@ static int proc_fd_link(struct inode *in
+ 
+ 	files = get_files_struct(task);
+ 	if (files) {
+-		rcu_read_lock();
++		/*
++		 * We are not taking a ref to the file structure, so we must
++		 * hold ->file_lock.
++		 */
++		spin_lock(&files->file_lock);
+ 		file = fcheck_files(files, fd);
+ 		if (file) {
+ 			*mnt = mntget(file->f_vfsmnt);
+ 			*dentry = dget(file->f_dentry);
+-			rcu_read_unlock();
++			spin_unlock(&files->file_lock);
+ 			put_files_struct(files);
+ 			return 0;
+ 		}
+-		rcu_read_unlock();
++		spin_unlock(&files->file_lock);
+ 		put_files_struct(files);
+ 	}
+ 	return -ENOENT;
+@@ -1485,7 +1489,12 @@ static struct dentry *proc_lookupfd(stru
+ 	if (!files)
+ 		goto out_unlock;
+ 	inode->i_mode = S_IFLNK;
+-	rcu_read_lock();
++
++	/*
++	 * We are not taking a ref to the file structure, so we must
++	 * hold ->file_lock.
++	 */
++	spin_lock(&files->file_lock);
+ 	file = fcheck_files(files, fd);
+ 	if (!file)
+ 		goto out_unlock2;
+@@ -1493,7 +1502,7 @@ static struct dentry *proc_lookupfd(stru
+ 		inode->i_mode |= S_IRUSR | S_IXUSR;
+ 	if (file->f_mode & 2)
+ 		inode->i_mode |= S_IWUSR | S_IXUSR;
+-	rcu_read_unlock();
++	spin_unlock(&files->file_lock);
+ 	put_files_struct(files);
+ 	inode->i_op = &proc_pid_link_inode_operations;
+ 	inode->i_size = 64;
+@@ -1503,7 +1512,7 @@ static struct dentry *proc_lookupfd(stru
+ 	return NULL;
+ 
+ out_unlock2:
+-	rcu_read_unlock();
++	spin_unlock(&files->file_lock);
+ 	put_files_struct(files);
+ out_unlock:
+ 	iput(inode);
+
+_

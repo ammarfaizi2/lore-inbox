@@ -1,59 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWDLVrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWDLVrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbWDLVrc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 17:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWDLVrc
+	id S932326AbWDLVrL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 17:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWDLVrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 17:47:32 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:60323 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932328AbWDLVrR
+	Wed, 12 Apr 2006 17:47:11 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:54736 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932326AbWDLVrJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 17:47:17 -0400
-Subject: [PATCH] tpm: check mem start and len
+	Wed, 12 Apr 2006 17:47:09 -0400
+Subject: [PATCH] tpm: use find_first_zero_bit
 From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org, TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
+In-Reply-To: <20060411160206.4bffa1c2.akpm@osdl.org>
+References: <1144679828.4917.11.camel@localhost.localdomain>
+	 <20060410145030.0b719e18.akpm@osdl.org>
+	 <1144795345.12054.36.camel@localhost.localdomain>
+	 <20060411160206.4bffa1c2.akpm@osdl.org>
 Content-Type: text/plain
-Date: Wed, 12 Apr 2006 16:48:06 -0500
-Message-Id: <1144878487.12054.93.camel@localhost.localdomain>
+Date: Wed, 12 Apr 2006 16:47:59 -0500
+Message-Id: <1144878479.12054.91.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The memory start and length values obtained from the ACPI entry need to
-be checked and filled in with the default values from the specification
-if they don't exist.  This patch fills in the default values and uses
-them appropriately.
+On Tue, 2006-04-11 at 16:02 -0700, Andrew Morton wrote:
+> -			}
+> +	/* This should use find_first_zero_bit() */
+> +	for (dev_num = 0; dev_num < TPM_NUM_DEVICES; dev_num++) {
+
+Given the suggestion in the code of your use-clear_bit-fix.  This patch
+uses find_first_zero_bit to find a bit instead of the roll my own for
+loop solution.
 
 Signed-off-by: Kylie Hall <kjhall@us.ibm.com>
 ---
- drivers/char/tpm/tpm_tis.c |    7 +++++++
- 1 files changed, 7 insertions(+)
+ drivers/char/tpm/tpm.c |   20 ++++++--------------
+ 1 files changed, 6 insertions(+), 14 deletions(-)
 
---- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm_tis.c	2006-04-12 16:39:40.191345000 -0500
-+++ linux-2.6.17-rc1/drivers/char/tpm/tpm_tis.c	2006-04-12 14:49:13.033173500 -0500
-@@ -52,6 +52,8 @@ enum tis_int_flags {
- };
+--- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm.c	2006-04-12 11:46:18.375300250 -0500
++++ linux-2.6.17-rc1/drivers/char/tpm/tpm.c	2006-04-12 12:34:41.692746250 -0500
+@@ -1090,7 +1090,6 @@ struct tpm_chip *tpm_register_hardware(s
  
- enum tis_defaults {
-+	TIS_MEM_BASE = 0xFED4000,
-+	TIS_MEM_LEN = 0x5000,
- 	TIS_SHORT_TIMEOUT = 750, /* ms */
- 	TIS_LONG_TIMEOUT = 2000, /* 2 sec */
- };
-@@ -437,6 +439,11 @@ static int __devinit tpm_tis_pnp_init(st
- 	start = pnp_mem_start(pnp_dev, 0);
- 	len = pnp_mem_len(pnp_dev, 0);
+ 	char *devname;
+ 	struct tpm_chip *chip;
+-	int dev_num;
  
-+	if (!start)
-+		start = TIS_MEM_BASE; 
-+	if (!len)
-+		len = TIS_MEM_LEN;
+ 	/* Driver specific per-device data */
+ 	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
+@@ -1109,18 +1108,9 @@ struct tpm_chip *tpm_register_hardware(s
+ 
+ 	memcpy(&chip->vendor, entry, sizeof(struct tpm_vendor_specific));
+ 
+-	chip->dev_num = -1;
+-
+-	/* This should use find_first_zero_bit() */
+-	for (dev_num = 0; dev_num < TPM_NUM_DEVICES; dev_num++) {
+-		if (!test_bit(dev_num, dev_mask)) {
+-			chip->dev_num = dev_num;
+-			set_bit(dev_num, dev_mask);
+-			break;
+-		}
+-	}
+-
+-	if (chip->dev_num < 0) {
++	chip->dev_num = find_first_zero_bit(dev_mask, TPM_NUM_DEVICES);
++	
++	if (chip->dev_num < 0 || chip->dev_num > TPM_NUM_DEVICES) {
+ 		dev_err(dev, "No available tpm device numbers\n");
+ 		kfree(chip);
+ 		return NULL;
+@@ -1129,6 +1119,8 @@ struct tpm_chip *tpm_register_hardware(s
+ 	else
+ 		chip->vendor.miscdev.minor = MISC_DYNAMIC_MINOR;
+ 
++	set_bit(chip->dev_num, dev_mask);
 +
- 	if (!(chip = tpm_register_hardware(&pnp_dev->dev, &tpm_tis)))
- 		return -ENODEV;
+ 	devname = kmalloc(DEVNAME_SIZE, GFP_KERNEL);
+ 	scnprintf(devname, DEVNAME_SIZE, "%s%d", "tpm", chip->dev_num);
+ 	chip->vendor.miscdev.name = devname;
+@@ -1143,7 +1135,7 @@ struct tpm_chip *tpm_register_hardware(s
+ 			chip->vendor.miscdev.minor);
+ 		put_device(dev);
+ 		kfree(chip);
+-		clear_bit(dev_num, dev_mask);
++		clear_bit(chip->dev_num, dev_mask);
+ 		return NULL;
+ 	}
  
 
 

@@ -1,54 +1,62 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWDJUD3 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 10 Apr 2006 16:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWDJUD3
+	id S932165AbWDLMXV (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 12 Apr 2006 08:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWDLMXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Apr 2006 16:03:29 -0400
-Received: from vsmtp4.tin.it ([212.216.176.224]:44786 "EHLO vsmtp4.tin.it")
-	by vger.kernel.org with ESMTP id S932111AbWDJUD2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Apr 2006 16:03:28 -0400
-Message-ID: <10a855d11f5.frankjim10@virgilio.it>
-Date: Mon, 10 Apr 2006 20:52:49 +0100 (GMT+01:00)
-From: "Dr Frank," <frankjim10@virgilio.it>
-Reply-To: frankjim006@yahoo.com.hk
-Subject: Important Reply....
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	Wed, 12 Apr 2006 08:23:21 -0400
+Received: from jahoda.mail-atlas.net ([212.47.13.142]:6415 "EHLO
+	jahoda.mail-atlas.net") by vger.kernel.org with ESMTP
+	id S932165AbWDLMXU convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 08:23:20 -0400
+From: "Shatin Anglican Church" <shatinanglic.ch@atlas.cz>
+Message-ID: <82ce5bd51db9440aac45ec4925a27e06@atlas.cz>
+Date: Wed, 12 Apr 2006 14:11:24 +0200
+X-Priority: 3 (Normal)
+Subject: SHATIN ANGLICAN CHURCH MADRID SPAIN LOAN SCHEME
+Reply-To: "SHATIN ANGLICAN CHURCH" <shatinanglican@maktoob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=windows-1250
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-X-Originating-IP: 200.65.0.27
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932111AbWDJUD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932165AbWDLMXV@vger.kernel.org>
 
-Dear Sir/Madam,=20
+SHATIN ANGLICAN CHURCH MADRID SPAIN LOAN SCHEME
+=20
+                      Shatin Anglican Church
+                                           =20
+=20
+=20
+CALLE SIMON No 46
+LEGANES MADRID=20
+SPAIN
+=20
+Tell: + 34 679 008 440.
 
-My name is Dr. Frank Jim, a senior staff and auditor=20
-head of computing department here in our bank.I have only written to=20
-seek your indulgence and assistance. I wish to make a transfer=20
-involving a huge amount of =C2=A315,000,000.00.(fifteen million pounds=20
-sterling).=20
+E-mail Address: shatinanglican@maktoob.com
+=20
+WEBSITE: www.shatinchurch.org.hk
+=20
+ DEAR SIR,
+=20
+I AM Pastor Steve Durie, OF  Shatin Anglican Church, IN SPAIN.
+WE WANT YOU TO KNOW THAT WE HAVE THE CALLING FROM GOD=20
+TO HELP THE NEEDING,BY GIVEN OUT LOAN TO  ANY PERSON THAT=20
+NEED MONEY TO DO  BUSINESS.
+=20
+THE AMOUNT OF THE LOAN IS  THIS =801,000,000.00.One million,
+TO BE GIVEN OUT TO YOU AND YOU WILL RETURN THE MONEY  BACK=20
+IN 4 YEAR TIME TO THE CHURCH.IF YOU ARE READY TO COLLECT=20
+THE  LOAN, SEND YOUR REPLY URGENT TO US.
+=20
+REGARDS,
+=20
+Pastor Steve Durie
+=20
 
-I am proposing to make this transfer to a designated bank=20
-account of your choice. Thus, for your indulgence and support, I=20
-propose an offer of 25% of the total amount to be yours after the=20
-transfer has been successfully concluded.=20
 
-Kindly reply me stating=20
-your interest, and I shall furnish you with the details and necessary=20
-proceedure with which to make the transfer. I am anxiously awaiting=20
-your response through my alternative email address: frankprivate@myway.
-com : Please get back with your information. TELEPHONE NUMBER/FAX.
-
-Thanks and Godbless.=20
-
-Dr. Frank Jim.
-.......................................................................=
-.....................................=20
-DR. FRANK JIM, SENIOR STAFF AND AUDITOR HEAD OF COMPUTING=20
-DEPARTMENT.
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
  in

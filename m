@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWDLXba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWDLXxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWDLXba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 19:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWDLXba
+	id S932388AbWDLXxg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 19:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWDLXxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 19:31:30 -0400
-Received: from ns1.suse.de ([195.135.220.2]:12435 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932411AbWDLXb3 (ORCPT
+	Wed, 12 Apr 2006 19:53:36 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:35003 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932388AbWDLXxg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 19:31:29 -0400
-Date: Wed, 12 Apr 2006 16:30:32 -0700
-From: Greg KH <gregkh@suse.de>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: Rene Herman <rene.herman@keyaccess.nl>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Jean Delvare <khali@linux-fr.org>, Takashi Iwai <tiwai@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Is platform_device_register_simple() deprecated?
-Message-ID: <20060412233032.GA28007@suse.de>
-References: <443D3DED.5030009@keyaccess.nl> <20060412214108.GA12480@suse.de> <7724966D-F760-4075-8D69-B4B73700A9BA@kernel.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Apr 2006 19:53:36 -0400
+From: Andi Kleen <ak@suse.de>
+To: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture independent manner V2
+Date: Thu, 13 Apr 2006 01:53:07 +0200
+User-Agent: KMail/1.9.1
+Cc: davej@codemonkey.org.uk, tony.luck@intel.com, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, bob.picco@hp.com, linux-mm@kvack.org
+References: <20060412232036.18862.84118.sendpatchset@skynet>
+In-Reply-To: <20060412232036.18862.84118.sendpatchset@skynet>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <7724966D-F760-4075-8D69-B4B73700A9BA@kernel.crashing.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200604130153.08604.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 12, 2006 at 06:09:48PM -0500, Kumar Gala wrote:
-> 
-> On Apr 12, 2006, at 4:41 PM, Greg KH wrote:
-> 
-> >On Wed, Apr 12, 2006 at 07:50:37PM +0200, Rene Herman wrote:
-> >>Hi Greg, Russel, Dmitry.
-> >>
-> >>ALSA is using platform_device_register_simple(). Jean Delvare  
-> >>pointed:
-> >>
-> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=113398060508534&w=2
-> >>
-> >>out, where _simple looks to be slated for removal. Is this indeed the
-> >>case? ALSA isn't using the resources -- doing a manual alloc/add  
-> >>would
-> >>not be a problem...
-> >
-> >Great, care to convert ALSA to use the proper api so we can remove
-> >platform_device_register_simple()?
-> 
-> Can we mark this deprecated and add it to feature-removal-schedule.txt.
+On Thursday 13 April 2006 01:20, Mel Gorman wrote:
+> This is V2 of the patchset. They have been boot tested on x86, ppc64
+> and x86_64 but I still need to do a double check that zones are the
+> same size before and after the patch on all arches. IA64 passed a
+> basic compile-test. a driver program that fed in the values generated
+> by IA64 to add_active_range(), zone_present_pages_in_node() and
+> zone_absent_pages_in_node() seemed to generate expected values.
 
-Sure, I'll take a patch for that.  But really, it's just easier to fix
-up all callers and delete the function.  It isn't anything that
-feature-removal-schedule.txt should care about, as it's just the normal
-API changes we do all the time.
+For x86-64  the new code seems far more complicated than the old one and keeps
+the same information in two places now. I have my doubts that is really a 
+improvement over the old state.
 
-thanks,
+I think it would be better if you just defined some simple "library functions"
+that can be called from the architecture specific code instead of adding
+all this new high level code.
 
-greg k-h
+-Andi

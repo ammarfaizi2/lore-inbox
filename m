@@ -1,87 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWDLQP1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWDLQg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWDLQP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 12:15:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWDLQP1
+	id S932199AbWDLQg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 12:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWDLQg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 12:15:27 -0400
-Received: from xenotime.net ([66.160.160.81]:50850 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932077AbWDLQP0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 12:15:26 -0400
-Date: Wed, 12 Apr 2006 09:17:51 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       sam@ravnborg.org
-Subject: Re: [RFC/POC] multiple CONFIG y/m/n
-Message-Id: <20060412091751.feba2dd4.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.64.0604121253540.32445@scrub.home>
-References: <20060406224134.0430e827.rdunlap@xenotime.net>
-	<87odzdh1fp.fsf@duaron.myhome.or.jp>
-	<20060409220426.8027953a.rdunlap@xenotime.net>
-	<Pine.LNX.4.64.0604121253540.32445@scrub.home>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 12 Apr 2006 12:36:29 -0400
+Received: from mga02.intel.com ([134.134.136.20]:10922 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932199AbWDLQg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 12:36:28 -0400
+X-IronPort-AV: i="4.04,115,1144047600"; 
+   d="scan'208"; a="22432552:sNHT4296244078"
+Date: Wed, 12 Apr 2006 09:36:19 -0700
+From: "Luck, Tony" <tony.luck@intel.com>
+To: Mel Gorman <mel@skynet.ie>
+Cc: linuxppc-dev@ozlabs.org, davej@codemonkey.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@suse.de,
+       bob.picco@hp.com
+Subject: Re: [PATCH 0/6] [RFC] Sizing zones and holes in an architecture independent manner
+Message-ID: <20060412163619.GA11085@agluck-lia64.sc.intel.com>
+References: <20060411103946.18153.83059.sendpatchset@skynet> <20060411222029.GA7743@agluck-lia64.sc.intel.com> <Pine.LNX.4.64.0604112352230.6624@skynet.skynet.ie> <20060412000500.GA8532@agluck-lia64.sc.intel.com> <Pine.LNX.4.64.0604121001590.24819@skynet.skynet.ie> <20060412154633.GA10589@agluck-lia64.sc.intel.com> <Pine.LNX.4.64.0604121657380.24819@skynet.skynet.ie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604121657380.24819@skynet.skynet.ie>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Apr 2006 13:00:22 +0200 (CEST) Roman Zippel wrote:
+On Wed, Apr 12, 2006 at 05:00:32PM +0100, Mel Gorman wrote:
+> Patch is attached as 105-ia64_use_init_nodes.patch until I beat sense into 
+> my mail setup. I've added Bob Picco to the cc list as he will hit the same 
+> issue with whitespace corruption.
 
-> Hi,
-> 
-> On Sun, 9 Apr 2006, Randy.Dunlap wrote:
-> 
-> > +void usage(char *progname)
-> > +{
-> > +	printf("%s [-o|-s|-d|-D|-n|-m|-y|-r] Kconfig_filename\n", progname);
-> 
-> |-D <config>|
-> 
-> > +	printf("  -o: oldconfig: ask only about new config symbols\n");
-> > +	printf("  -s: silentoldconfig: don't ask about any symbol values\n");
-> 
-> It does ask about them, but suppresses a lot of prints.
-> 
-> > +	printf("  -d: defconfig: use default symbol values\n");
-> 
-> To be precise it uses arch/$ARCH/defconfig as default values.
-> 
-> > +	printf("  -n: set unknown symbol values to 'n'\n");
-> > +	printf("  -m: set unknown symbol values to 'm'\n");
-> > +	printf("  -y: set unknown symbol values to 'y'\n");
-> 
-> It actually tries to set all values to n/m/y.
-> 
-> > @@ -546,8 +564,8 @@ int main(int ac, char **av)
-> >  			break;
-> >  		case 'h':
-> >  		case '?':
-> > -			printf("%s [-o|-s] config\n", av[0]);
-> > -			exit(0);
-> > +			usage(av[0]);
-> > +			break;
-> 
-> That's indeed a little obsolete. :-)
+Ok!  That boots on the tiger_defconfig.
 
-IMO the main points/questions are:
+Some stuff is weird in the dmesg output though.  You report about
+twice as many pages in each zone, but then the total memory is
+about right.  Here's the diff of my regular kernel (got a bunch of
+patches post-2.6.17-rc1) against a 2.6.17-rc1 with your patches
+applied.  Note also that the Dentry and Inode caches allocated
+twice as much space (presumably based on the belief that there
+is more memory).  My guess is that you are counting the holes.
 
-- where to document the command-line options and environment variables
-  (including the recent KCONFIG_CONFIG):  in a usage() function or in
-  Documentation/kbuild/usage.txt file?
+-Tony
 
-- if the answer above is in a usage() function, how does a user invoke
-  that help request?  Doing "make config -h" doesn't work: 'make' sees
-  the -h and spits out its own help text.  Would a special case of
-  'make config help' be acceptable or is this a good reason to use
-  a usage.txt file instead?
-
-- or have you already taken care of all of this?  8;)
-
-
-Thanks.
+19,21c20,37
+< On node 0 totalpages: 260725
+<   DMA zone: 129700 pages, LIFO batch:7
+<   Normal zone: 131025 pages, LIFO batch:7
 ---
-~Randy
+> add_active_range(0, 1024, 130688): New
+> add_active_range(0, 130984, 131020): New
+> add_active_range(0, 393216, 524164): New
+> add_active_range(0, 524192, 524269): New
+> Dumping sorted node map
+> entry 0: 0  1024 -> 130688
+> entry 1: 0  130984 -> 131020
+> entry 2: 0  393216 -> 524164
+> entry 3: 0  524192 -> 524269
+> Hole found index 0: 1024 -> 1024
+> Hole found index 1: 130688 -> 130984
+> Hole found index 3: 524164 -> 524192
+> On node 0 totalpages: 522921
+> Hole found index 0: 1024 -> 1024
+> Hole found index 1: 130688 -> 130984
+>   DMA zone: 260824 pages, LIFO batch:7
+> Hole found index 3: 524164 -> 524192
+>   Normal zone: 262097 pages, LIFO batch:7
+25c41
+< Kernel command line: BOOT_IMAGE=scsi0:EFI\redhat\l-tiger-smp.gz  root=LABEL=/ console=tty1 console=ttyS1,115200 ro
+---
+> Kernel command line: BOOT_IMAGE=scsi0:EFI\redhat\l-tiger-smpxx.gz  root=LABEL=/ console=uart,io,0x2f8 ro
+29,30c45,46
+< Dentry cache hash table entries: 524288 (order: 8, 4194304 bytes)
+< Inode-cache hash table entries: 262144 (order: 7, 2097152 bytes)
+---
+> Dentry cache hash table entries: 1048576 (order: 9, 8388608 bytes)
+> Inode-cache hash table entries: 524288 (order: 8, 4194304 bytes)
+32c48
+< Memory: 4070560k/4171600k available (6836k code, 99792k reserved, 2749k data, 256k init)
+---
+> Memory: 4064416k/4171600k available (6832k code, 105936k reserved, 2753k data, 256k init)

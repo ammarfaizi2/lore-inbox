@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbWDLPou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWDLPqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750850AbWDLPou (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 11:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWDLPou
+	id S1750907AbWDLPqg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 11:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWDLPqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 11:44:50 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:24008 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750781AbWDLPot (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 11:44:49 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: Paul Mackerras <paulus@samba.org>
-Subject: [PATCH] spufs: fix context-switch decrementer code
-Date: Wed, 12 Apr 2006 17:44:27 +0200
-User-Agent: KMail/1.9.1
-Cc: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Apr 2006 11:46:36 -0400
+Received: from mga01.intel.com ([192.55.52.88]:31033 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750781AbWDLPqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 11:46:35 -0400
+X-IronPort-AV: i="4.04,115,1144047600"; 
+   d="scan'208"; a="23109290:sNHT48661522"
+Date: Wed, 12 Apr 2006 08:46:33 -0700
+From: "Luck, Tony" <tony.luck@intel.com>
+To: Mel Gorman <mel@skynet.ie>
+Cc: linuxppc-dev@ozlabs.org, davej@codemonkey.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@suse.de
+Subject: Re: [PATCH 0/6] [RFC] Sizing zones and holes in an architecture independent manner
+Message-ID: <20060412154633.GA10589@agluck-lia64.sc.intel.com>
+References: <20060411103946.18153.83059.sendpatchset@skynet> <20060411222029.GA7743@agluck-lia64.sc.intel.com> <Pine.LNX.4.64.0604112352230.6624@skynet.skynet.ie> <20060412000500.GA8532@agluck-lia64.sc.intel.com> <Pine.LNX.4.64.0604121001590.24819@skynet.skynet.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604121744.27674.arnd.bergmann@de.ibm.com>
+In-Reply-To: <Pine.LNX.4.64.0604121001590.24819@skynet.skynet.ie>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jordi Caubet <jordi_caubet@es.ibm.com>
+On Wed, Apr 12, 2006 at 11:50:31AM +0100, Mel Gorman wrote:
 
-We found that when the 'decrementer' is saved, the PPE saves the current
-time 'csa->suspend_time'. When restoring the 'decrementer', (Step 34)
-decrementer seems to be adjusted with the number of cycles th= at a spu
-thread has not been running.
+Patch got corrupted in transit and won't apply (looks like something stripped
+trailing spaces from empty lines).  E.g.
 
-In that code it is missing a substract ('-') because 'delta_time' is
-assigned a not substracted(see bellow).
-
-Acked-by: Mark Nutter <mnutter@us.ibm.com>
-Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-
----
-
-Index: linus-2.6/arch/powerpc/platforms/cell/spufs/switch.c
-===================================================================
---- linus-2.6.orig/arch/powerpc/platforms/cell/spufs/switch.c
-+++ linus-2.6/arch/powerpc/platforms/cell/spufs/switch.c
-@@ -1299,7 +1299,7 @@ static inline void setup_decr(struct spu
- 		cycles_t resume_time = get_cycles();
- 		cycles_t delta_time = resume_time - csa->suspend_time;
- 
--		csa->lscsa->decr.slot[0] = delta_time;
-+		csa->lscsa->decr.slot[0] -= delta_time;
- 	}
- }
- 
+> diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/Kconfig linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/Kconfig
+> --- linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/Kconfig	2006-04-03 04:22:10.000000000 +0100
+> +++ linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/Kconfig	2006-04-11 23:31:38.000000000 +0100
+> @@ -352,6 +352,9 @@ config NUMA
+>   	  Access).  This option is for configuring high-end multiprocessor
+>   	  server systems.  If in doubt, say N.
+> 
+> +config ARCH_POPULATES_NODE_MAP
+> +	def_bool y
+> +
+>   # VIRTUAL_MEM_MAP and FLAT_NODE_MEM_MAP are functionally equivalent.
+>   # VIRTUAL_MEM_MAP has been retained for historical reasons.
+>   config VIRTUAL_MEM_MAP

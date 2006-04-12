@@ -1,128 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWDLGVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWDLG0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWDLGVH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 02:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWDLGVG
+	id S1750915AbWDLG0q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 02:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWDLG0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 02:21:06 -0400
-Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:62853 "EHLO
-	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750977AbWDLGVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 02:21:05 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Al Boldi <a1426z@gawab.com>
-Subject: Re: [patch][rfc] quell interactive feeding frenzy
-Date: Wed, 12 Apr 2006 16:22:01 +1000
-User-Agent: KMail/1.8.3
-Cc: ck list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org,
-       Mike Galbraith <efault@gmx.de>
-References: <200604112100.28725.kernel@kolivas.org> <200604120856.15983.kernel@kolivas.org> <200604120841.43459.a1426z@gawab.com>
-In-Reply-To: <200604120841.43459.a1426z@gawab.com>
+	Wed, 12 Apr 2006 02:26:46 -0400
+Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:50613 "EHLO
+	elasmtp-banded.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S1750905AbWDLG0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 02:26:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=dk20050327; d=earthlink.net;
+  b=k51xATC1gb/A6Y1RzJa9Sp+WawfMyoqa9S5ijdGXZuSAGzH/GBGEjd4fZX2wq3Xm;
+  h=Received:Message-ID:From:To:Cc:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MimeOLE:X-ELNK-Trace:X-Originating-IP;
+Message-ID: <004d01c65dfa$0e2bda80$0225a8c0@Wednesday>
+From: "jdow" <jdow@earthlink.net>
+To: "David Weinehall" <tao@acc.umu.se>
+Cc: "Arjan van de Ven" <arjan@infradead.org>, "Mark Lord" <lkml@rtr.ca>,
+       "Joshua Hudson" <joshudson@gmail.com>,
+       "Ramakanth Gunuganti" <rgunugan@yahoo.com>,
+       <linux-kernel@vger.kernel.org>
+References: <20060411063127.97362.qmail@web54314.mail.yahoo.com> <20060411230642.GV23222@vasa.acc.umu.se> <bda6d13a0604111938j5ece401cid364582fe9d6cf76@mail.gmail.com> <443C716C.1060103@rtr.ca> <1144819887.3089.0.camel@laptopd505.fenrus.org> <004101c65df4$5eb71ce0$0225a8c0@Wednesday> <20060412060122.GW23222@vasa.acc.umu.se>
+Subject: Re: GPL issues
+Date: Tue, 11 Apr 2006 23:26:37 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="windows-1256"
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604121622.02341.kernel@kolivas.org>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b57112070bd049b34611176eb7bce5c77cb9c123ca473d225a0f487350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 71.116.162.101
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Apr 2006 03:41 pm, Al Boldi wrote:
-> Con Kolivas wrote:
-> > Which is fine because sched_compute isn't designed for heavily
-> > multithreaded usage.
->
-> What's it good for?
+From: "David Weinehall" <tao@acc.umu.se>
+> On Tue, Apr 11, 2006 at 10:45:55PM -0700, jdow wrote:
+>> >On Tue, 2006-04-11 at 23:18 -0400, Mark Lord wrote:
+>> >>Joshua Hudson wrote:
+>> >>> On 4/11/06, David Weinehall <tao@acc.umu.se> wrote:
+>> >>>> OK, simplified rules; if you follow them you should generally be OK:
+>> >>..
+>> >>>> 3. Userspace code that uses interfaces that was not exposed to 
+>> >>userspace
+>> >>>> before you change the kernel --> GPL (but don't do it; there's almost
+>> >>>> always a reason why an interface is not exported to userspace)
+>> >>>>
+>> >>>> 4. Userspace code that only uses existing interfaces --> choose
+>> >>>> license yourself (but of course, GPL would be nice...)
+>> >>
+>> >>Err.. there is ZERO difference between situations 3 and 4.
+>> >>Userspace code can be any license one wants, regardless of where
+>> >>or when or how the syscalls are added to the kernel.
+>> >
+>> >that is not so clear if the syscalls were added exclusively for this
+>> >application by the authors of the application....
+>> 
+>> Consider a book. The book is GPLed. I do not have to GPL my brain when
+>> I read the book.
+>> 
+>> I add some margin notes to the GPLed book. I still do not have to GPL
+>> my brain when I read the book.
+> 
+> This is possibly the worst comparison I've read in a long long time...
+> 
+> It's rather a case of:
+> 
+> Consider a book.  The book is GPLed.  You take add one chapter to the
+> book.  The resulting book needs to be GPLed.
 
-Single heavily cpu bound computationally intensive tasks (think rendering 
-etc).
+I am with you this far.
 
-> > Oh that's good because staircase14.2_test3 is basically staircase15 which
-> > is in the current plugsched (ie newer than the staircase you tested in
-> > plugsched-2.6.16 above). So it tolerates a load of up to 500 on single
-> > cpu? That seems very robust to me.
->
-> Yes, better than the default 2.6 scheduler.
->
-> > > Your scheduler seems to be tuned for single-user multi-tasking, i.e.
-> > > concurrent tasks around 10, where its aggressive nature is sustained by
-> > > a short run-queue.  Once you go above 50, this aggressiveness starts to
-> > > express itself as very jumpy.
-> >
-> > Oh no it's nothing like "tuned for single-user multi tasking". It seems a
-> > common misconception because interactivity is a prime concern for
-> > staircase but the idea is that we should be able to do interactivity
-> > without sacrificing fairness.
->
-> Agreed.
->
-> > The same mechanism that is responsible for
-> > maintaining fairness is also responsible for creating its interactivity.
-> > That's what I mean by "interactive by design", and what makes it
-> > different from extracting interactivity out of other designs that have
-> > some form of estimator to add unfairness to create that interactivity.
->
-> Yes, but staircase isn't really fair, and it's definitely not smooth.  You
-> are trying to get ia by aggressively attacking priority which kills
-> smoothness, and is only fair with a short run-queue.
+> Now, instead of adding to that book, you "export" parts of the book by
+> copying them into your book.  Your new book wouldn't work without the
+> copied parts.  Your resulting book needs to be GPLed.
 
-Sorry I don't understand what you mean. Why do you say it's not fair (got a 
-testcase?). What do you mean by "definitely not smooth". What is smoothness 
-and on what workloads is it not smooth? Also by ia you mean what? 
+Nothing is exported except to the reader's brain aka user space. It
+is not exported to a new book.
 
-> > I know you're _very_ keen on the idea of some autotuning but I think this
-> > is the wrong thing to autotune. The whole point of staircase is it's a
-> > simple design without any interactivity estimator. It uses pure cpu
-> > accounting to change priority and that is a percentage which is
-> > effectively already tuned to the underlying cpu. Any
-> > benchmarking/aggressiveness "tuning" would undo the (effectively) very
-> > simple design.
->
-> I like simple designs.  They tend to keep things to the point and aid
-> efficiency.  But staircase doesn't look efficient to me under heavy load,
-> and I would think this may be easily improved.
+Exporting a new interface is equivalent to making the marginal notes.
 
-Again I don't understand. Just how heavy a load is heavy? Your testcases are 
-already in what I would call stratospheric range. I don't personally think a 
-cpu scheduler should be optimised for load infinity. And how are you defining 
-efficient? You say it doesn't "look" efficient? What "looks" inefficient 
-about it?
+You can still READ the book without GPLing your brain or your
+application. You can make additional temporary marginal notes,
+place data into the kernel which causes the kernel to disgorge
+some data.
 
-> > Feel free to look at the code. Sleep for time Y, increase priority by
-> > Y/RR_INTERVAL. Run for time X, drop priority by X/RR_INTERVAL. If it
-> > drops to lowest priority it then jumps back up to best priority again (to
-> > prevent it being "batch starved").
->
-> Looks simple enough, and should work for short run'q's, but this looks
-> unsustainable for long run'q's, due to the unconditional jump from lowest
-> to best prio.
+> Your "read the book"-case is only comparable to the case of building
+> a userspace binary for local use that only uses existing interfaces,
+> vs building one that uses exported private interfaces.  In both cases,
+> since you're not distributing your modified version, you're free to
+> do whatever you like.
 
-Looks? How? You've shown what I consider very long runqueues work fine 
-already.
+Either you cannot have a non-GPL program on the kernel OR you can. It
+makes no difference if the kernel is modified (the modification is GPL)
+or the kernel is not modified. The modified kernel must be distributed
+as source if requested. The application does not unless EVERY application
+must be distributed with source.
 
-> Making it conditional and maybe moderating X,Y,RR_INTERVAL 
-> could be helpful.
+There is apparently no argument with regards to applications that are
+not GPL running on LINUX. Therefore there should be no argument with
+an application that uses a newly exported API being GPLed.
 
-I think over all meaningful loads, and into absurdly high load ranges it 
-works. I don't think undoing the incredible simplicity that works over all 
-that range should be done to optimise for loads even greater than that.
+If you are considering the potential case that the modification is made
+to the kernel and then the source for that modification is also used in
+user space in an application requiring the application to be GPLed then
+you must first prove it was done in that order rather than the other order.
+Code can also be released dual licensed. GPL for the kernel and private
+for the user space, if it is done so by the owner or creator of the code
+in question. Anything else is absurd on its face.
 
-> Also, can you export  lowest/best prio as well as timeslice and friends to
-> procfs/sysfs?
-
-You want tunables? The only tunable in staircase is rr_interval which (in -ck) 
-has an on/off for big/small (sched_compute) since most other numbers in 
-between (in my experience) are pretty meaningless. I could export rr_interval 
-directly instead... I've not seen a good argument for doing that. Got one? 
-However there are no other tunables at all (just look at the code). All tasks 
-of any nice level have available the whole priority range from 100-139 which 
-appears as PRIO 0-39 on top. Limiting that (again) changes the semantics.
-
-> > Thanks very much for testing :)
->
-> Thank you!
-
-And another round of thanks :) But many more questions.
-
---
--ck
+{^_^}   Joanne Dow

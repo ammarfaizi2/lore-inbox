@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWDLRdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWDLRds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWDLRdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 13:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWDLRdZ
+	id S932284AbWDLRds (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 13:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWDLRds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 13:33:25 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:25069 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932281AbWDLRdX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 13:33:23 -0400
-Date: Wed, 12 Apr 2006 10:32:36 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 7/7] tpm: Driver for next generation TPM chips
-Message-ID: <20060412173236.GA8964@us.ibm.com>
-References: <1144679848.4917.15.camel@localhost.localdomain> <20060411230505.GB21210@us.ibm.com> <1144862957.12054.59.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Wed, 12 Apr 2006 13:33:48 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:15813 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932281AbWDLRdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 13:33:38 -0400
+Message-ID: <7986404.1144863211340.SLOX.WebMail.wwwrun@exchange.deltacomputer.de>
+Date: Wed, 12 Apr 2006 19:33:31 +0200 (CEST)
+From: Oliver Weihe <o.weihe@deltacomputer.de>
+To: linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Opteron 128GB NODMAPSIZE too small?
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1144862957.12054.59.camel@localhost.localdomain>
-X-Operating-System: Linux 2.6.16-i386 (i686)
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (normal)
+X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
+X-Operating-System: Linux 2.4.21-295-smp i386 (JVM 1.3.1_13)
+Organization: Delta Computer Products GmbH
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:62e2eaa30f0557f14c09a5fa777a0a78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12.04.2006 [12:29:17 -0500], Kylene Jo Hall wrote:
-> On Tue, 2006-04-11 at 16:05 -0700, Nishanth Aravamudan wrote:
-> > return l;
-> > > +
-> > > +	} else {
-> > > +		/* wait for burstcount */
-> > > +		stop = jiffies + (HZ * chip->vendor.timeout_a / 1000);
-> > > +		do {
-> > > +			if (check_locality(chip, l) >= 0)
-> > > +				return l;
-> > > +			msleep(TPM_TIMEOUT);
-> > > +		}
-> > > +		while (time_before(jiffies, stop));
-> > > +	}
-> > 
-> > This looks like it could take the msecs_to_jiffies() conversion as well.
-> > Might as well cache it before the if/else, as both clauses use it?
-> > Really, it is just wait_event*() without the wait-queue. Well, this is
-> > at least one more consumer potentially of the poll_event*() API I had
-> > written a while back, I'll dust it off again if I have the time.
-> > 
-> > <snip>
-> > 
-> > > +static int get_burstcount(struct tpm_chip *chip)
-> > > +{
-> > > +	unsigned long stop;
-> > > +	int burstcnt;
-> > > +
-> > > +	/* wait for burstcount */
-> > > +	/* which timeout value, spec has 2 answers (c & d) */
-> > > +	stop = jiffies + (HZ * chip->vendor.timeout_d / 1000);
-> > 
-> > msecs_to_jiffies().
-> 
-> > 
-> 
-> Since the timeout and duration values are always used in jiffies I
-> think I'll just convert them to those values when I store them in the
-> chip struct to cut way down on the number of conversions all together.
-> Sound reasonable?
+While running SuSE Linux 10.0 (x86_64) with a vanilla 2.6.16.1 on an
+8way (8 sockets) Opteron equipped with 128GB (16GB per socket) of memory
+I found this in dmesg.
 
-Probably, as long as they aren't exposed to userspace in any way. I
-don't think userspace should do any calculations in jiffies units.
+Any guesses to which value I should set NODEMAPSIZE?
+Currently it is 0xfff (from 'include/asm-x86_64/mmzone.h')
 
-Thanks,
-Nish
+Scanning NUMA topology in Northbridge 24
+Number of nodes 8
+Node 0 MemBase 0000000000000000 Limit 0000000422000000
+Node 1 MemBase 0000000422000000 Limit 0000000822000000
+Node 2 MemBase 0000000822000000 Limit 0000000c22000000
+Node 3 MemBase 0000000c22000000 Limit 0000001022000000
+Node 4 MemBase 0000001022000000 Limit 0000001422000000
+Node 5 MemBase 0000001422000000 Limit 0000001822000000
+Node 6 MemBase 0000001822000000 Limit 0000001c22000000
+Node 7 MemBase 0000001c22000000 Limit 0000002022000000
+NUMA: Using 25 for the hash shift.
+Your memory is not aligned you need to rebuild your kernel with a bigger
+NODEMAPSIZE shift=25
+No NUMA node hash function found. Contact maintainer
+No NUMA configuration found
+Faking a node at 0000000000000000-0000002022000000
+Bootmem setup node 0 0000000000000000-0000002022000000
 
--- 
-Nishanth Aravamudan <nacc@us.ibm.com>
-IBM Linux Technology Center
+
+Regards,
+  Oliver Weihe
+

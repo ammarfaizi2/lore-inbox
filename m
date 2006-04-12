@@ -1,164 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWDLLZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWDLL1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbWDLLZR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 07:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWDLLZR
+	id S932183AbWDLL1g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 07:27:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWDLL1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 07:25:17 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:21945 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932181AbWDLLZP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 07:25:15 -0400
-Date: Wed, 12 Apr 2006 16:59:33 +0530
-From: Rachita Kothiyal <rachita@in.ibm.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [RFC] Patch to fix cdrom being confused on using kdump
-Message-ID: <20060412112933.GA6204@in.ibm.com>
-Reply-To: rachita@in.ibm.com
-References: <20060407135714.GA25569@in.ibm.com> <20060409102942.GI3859@suse.de> <20060411153114.GA5255@in.ibm.com> <20060411170357.GR4791@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="fdj2RfSjLxBAspz7"
+	Wed, 12 Apr 2006 07:27:36 -0400
+Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:28068 "EHLO
+	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932183AbWDLL1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 07:27:35 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Al Boldi <a1426z@gawab.com>
+Subject: Re: [patch][rfc] quell interactive feeding frenzy
+Date: Wed, 12 Apr 2006 21:27:19 +1000
+User-Agent: KMail/1.9.1
+Cc: ck list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org,
+       Mike Galbraith <efault@gmx.de>
+References: <200604112100.28725.kernel@kolivas.org> <200604121936.16584.kernel@kolivas.org> <200604121339.40563.a1426z@gawab.com>
+In-Reply-To: <200604121339.40563.a1426z@gawab.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060411170357.GR4791@suse.de>
-User-Agent: Mutt/1.4.2.1i
+X-Length: 1478
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604122127.20322.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 12 April 2006 20:39, Al Boldi wrote:
+> Con Kolivas wrote:
+> > Installed and tested here just now. They run smoothly concurrently here.
+> > Are you testing on staircase15?
+>
+> staircase14.2-test3.  Are you testing w/ DRM?  If not then all mesa
+> requests will be queued into X, and then runs as one task (check top d.1)
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Nvidia driver; all separate tasks in top.
 
-On Tue, Apr 11, 2006 at 07:03:57PM +0200, Jens Axboe wrote:
-> > 
-> > I see your point that writing to the status register is not a good idea.
-> > I think what we want to do is just ignore this particular interrupt and 
-> > let it continue.
-> > Am not sure if clearing DRQ bit will achieve this. Please correct me if
-> > I am wrong, but to clear the DRQ bit also we will have to write to the 
-> > status register. 
-> 
-> No, there is not writable status register - that is called the command
-> register. Just reading the status register is enough to clear the irq,
-> so if you just want to ignore the interrupt that'll work.
+> Try ping -A (10x).  top d.1 should show skewed times.  If you have a fast
+> machine, you may have to increase the load.
 
-Hi Jens,
+Ran for a bit over 10 mins outside of X to avoid other tasks influencing 
+results. I was too lazy to go to init 1.
 
-I actually tried just reading the status register and then returning
-ide_stopped. It seemed to be working fine, just that there appears 
-a 'status error' message while booting:
+ps -eALo pid,spid,user,priority,ni,pcpu,vsize,time,args
 
-<snippet>
-ide0: start_request: current=0xffff8100035cba68
-hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-ide: failed opcode was: unknown
-hda: drive not ready for command
-</snippet>
+15648 15648 root      39   0  9.2  1740 00:01:03 ping -A localhost
+15649 15649 root      28   0  9.8  1740 00:01:06 ping -A localhost
+15650 15650 root      39   0  9.9  1744 00:01:07 ping -A localhost
+15651 15651 root      39   0  9.3  1740 00:01:03 ping -A localhost
+15652 15652 root      39   0 10.3  1740 00:01:10 ping -A localhost
+15653 15653 root      39   0 10.8  1740 00:01:13 ping -A localhost
+15654 15654 root      39   0 10.0  1740 00:01:08 ping -A localhost
+15655 15655 root      39   0 10.5  1740 00:01:11 ping -A localhost
+15656 15656 root      39   0  9.9  1740 00:01:07 ping -A localhost
+15657 15657 root      39   0 10.2  1740 00:01:09 ping -A localhost
 
-The second kernel boots up fine though and I am able to mount the cdrom
-ok and access its files too.
+mean 68.7 seconds
 
-> What happens if you rearm the interrupt handler instead of returning
-> ide_stopped?
+range 63-73 seconds.
 
-In this case the kernel just panics during booting(attaching the partial 
-panic log).
+For a load that wakes up so frequently for such a short period of time I think 
+that is pretty fair cpu distribution over 10 mins. Over shorter periods top 
+is hopeless at representing accurate cpu usage, especially at low HZ settings 
+of the kernel. You can see the current cpu distribution on ps there is pretty 
+consistent across the tasks and gives what I consider quite a fair cpu 
+distribution over 10 mins.
 
-Thanks
-Rachita
-
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="rearm.cap"
-
-usb usb2: SerialNumber: 0000:00:1d.1
-usb usb2: configuration #1 chosen from 1 choice
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 2 ports detected
-ide0: start_request: current=0xffff810003a2ba88
-Rachita: DRQ set.Interrupt ignored
-hda: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-hda: ide_set_handler: handler not null; old=ffffffff881624cc, new=ffffffff881624cc
------------ [cut here ] --------- [please bite here ] ---------
-Kernel BUG at include/linux/timer.h:83
-invalid opcode: 0000 [1] 
-last sysfs file: /devices/platform/floppy.0/cmos
-CPU 0 
-Modules linked in: ide_cd cdrom ehci_hcd uhci_hcd usbcore shpchp e752x_edac pci_hotplug edac_mc floppy ext3 jbd processor sg aic79xx scsi_transport_spi piix sd_mod scsi_mod ide_disk ide_core
-Pid: 940, comm: modprobe Tainted: G     U 2.6.16-rc2-git5-rachita-3-kdump #6
-RIP: 0010:[<ffffffff88006ad1>] <ffffffff88006ad1>{:ide_core:__ide_set_handler+96}
-RSP: 0018:ffffffff8124b9b8  EFLAGS: 00010082
-RAX: 00000000ffff44ce RBX: ffff810004e2a548 RCX: 00000000000002f8
-RDX: 0000000000003a98 RSI: 0000000000000046 RDI: ffff810004e2a588
-RBP: ffffffff881624cc R08: 0000000000000007 R09: ffffffff8124b718
-R10: 0000000000000010 R11: 0000000000000000 R12: ffffffff8815f1cf
-R13: 0000000000003a98 R14: ffffffff881624cc R15: ffffffff8801d438
-FS:  00002aba4494e6d0(0000) GS:ffffffff812c1000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 000000000053873d CR3: 00000000037f4000 CR4: 00000000000006e0
-Process modprobe (pid: 940, threadinfo ffff810003a2a000, task ffff8100031760c0)
-Stack: 0000000000000002 ffffffff8815f1cf 0000000000000018 0000000000003a98 
-       0000000000000002 ffffffff88006cf5 ffff810003a2ba88 0000000000000018 
-       ffffffff8801d438 0000000000000001 
-Call Trace: <IRQ> <ffffffff8815f1cf>{:ide_cd:cdrom_timer_expiry+0}
-       <ffffffff88006cf5>{:ide_core:ide_set_handler+53} <ffffffff88162713>{:ide_cd:cdrom_pc_intr+583}
-       <ffffffff881624cc>{:ide_cd:cdrom_pc_intr+0} <ffffffff88005a98>{:ide_core:ide_intr+386}
-       <ffffffff810431a8>{note_interrupt+219} <ffffffff81042b7e>{__do_IRQ+173}
-       <ffffffff8100c3cb>{do_IRQ+59} <ffffffff8100aa24>{ret_from_intr+0} <EOI>
-       <ffffffff81046584>{mempool_alloc+66} <ffffffff8105e21b>{poison_obj+38}
-       <ffffffff88006273>{:ide_core:ide_outsw+0} <ffffffff88006278>{:ide_core:ide_outsw+5}
-       <ffffffff880066c1>{:ide_core:atapi_output_bytes+38}
-       <ffffffff881624cc>{:ide_cd:cdrom_pc_intr+0} <ffffffff88162b68>{:ide_cd:cdrom_transfer_packet_command+182}
-       <ffffffff88162be7>{:ide_cd:cdrom_do_pc_continuation+0}
-       <ffffffff8815f91a>{:ide_cd:cdrom_start_packet_command+359}
-       <ffffffff880055dc>{:ide_core:ide_do_request+1601} <ffffffff810bd928>{elv_insert+120}
-       <ffffffff880058b8>{:ide_core:ide_do_drive_cmd+245} <ffffffff881603a7>{:ide_cd:cdrom_queue_packet_command+70}
-       <ffffffff81050afd>{__handle_mm_fault+2388} <ffffffff880045f8>{:ide_core:ide_init_drive_cmd+16}
-       <ffffffff881604de>{:ide_cd:ide_cdrom_packet+155} <ffffffff810bf79a>{blk_end_sync_rq+0}
-       <ffffffff8815f6c1>{:ide_cd:ide_cdrom_get_capabilities+114}
-       <ffffffff88161491>{:ide_cd:ide_cd_probe+1335} <ffffffff8118e791>{_spin_unlock_irq+12}
-       <ffffffff8118d23a>{thread_return+86} <ffffffff8111da4d>{driver_probe_device+82}
-       <ffffffff8111dba4>{__driver_attach+140} <ffffffff8111db18>{__driver_attach+0}
-       <ffffffff8111d452>{bus_for_each_dev+67} <ffffffff8111d0c2>{bus_add_driver+126}
-       <ffffffff8103eca3>{sys_init_module+5269} <ffffffff81038aa5>{autoremove_wake_function+0}
-       <ffffffff810625b2>{vfs_write+283} <ffffffff8100a47e>{system_call+126}
-
-Code: 0f 0b 68 b7 ec 00 88 c2 53 00 48 8b 77 10 41 58 5b 5d 41 5c 
-RIP <ffffffff88006ad1>{:ide_core:__ide_set_handler+96} RSP <ffffffff8124b9b8>
- <3>Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-in_atomic():1, irqs_disabled():1
-
-Call Trace: <IRQ> <ffffffff81027e14>{profile_task_exit+21}
-       <ffffffff810299e0>{do_exit+32} <ffffffff8100b85e>{kernel_math_error+0}
-       <ffffffff8815f1cf>{:ide_cd:cdrom_timer_expiry+0} <ffffffff881624cc>{:ide_cd:cdrom_pc_intr+0}
-       <ffffffff8100bdc5>{do_invalid_op+163} <ffffffff88006ad1>{:ide_core:__ide_set_handler+96}
-       <ffffffff8102743a>{vprintk+652} <ffffffff81026de9>{release_console_sem+423}
-       <ffffffff881624cc>{:ide_cd:cdrom_pc_intr+0} <ffffffff8815f1cf>{:ide_cd:cdrom_timer_expiry+0}
-       <ffffffff8100adad>{error_exit+0} <ffffffff881624cc>{:ide_cd:cdrom_pc_intr+0}
-       <ffffffff8815f1cf>{:ide_cd:cdrom_timer_expiry+0} <ffffffff881624cc>{:ide_cd:cdrom_pc_intr+0}
-       <ffffffff88006ad1>{:ide_core:__ide_set_handler+96} <ffffffff88006aab>{:ide_core:__ide_set_handler+58}
-       <ffffffff8815f1cf>{:ide_cd:cdrom_timer_expiry+0} <ffffffff88006cf5>{:ide_core:ide_set_handler+53}
-       <ffffffff88162713>{:ide_cd:cdrom_pc_intr+583} <ffffffff881624cc>{:ide_cd:cdrom_pc_intr+0}
-       <ffffffff88005a98>{:ide_core:ide_intr+386} <ffffffff810431a8>{note_interrupt+219}
-       <ffffffff81042b7e>{__do_IRQ+173} <ffffffff8100c3cb>{do_IRQ+59}
-       <ffffffff8100aa24>{ret_from_intr+0} <EOI> <ffffffff81046584>{mempool_alloc+66}
-       <ffffffff8105e21b>{poison_obj+38} <ffffffff88006273>{:ide_core:ide_outsw+0}
-       <ffffffff88006278>{:ide_core:ide_outsw+5} <ffffffff880066c1>{:ide_core:atapi_output_bytes+38}
-       <ffffffff881624cc>{:ide_cd:cdrom_pc_intr+0} <ffffffff88162b68>{:ide_cd:cdrom_transfer_packet_command+182}
-       <ffffffff8815f91a>{:ide_cd:cdrom_start_packet_command+359}
-       <ffffffff880055dc>{:ide_core:ide_do_request+1601} <ffffffff810bd928>{elv_insert+120}
-       <ffffffff880058b8>{:ide_core:ide_do_drive_cmd+245} <ffffffff881603a7>{:ide_cd:cdrom_queue_packet_command+70}
-       <ffffffff81050afd>{__handle_mm_fault+2388} <ffffffff880045f8>{:ide_core:ide_init_drive_cmd+16}
-       <ffffffff881604de>{:ide_cd:ide_cdrom_packet+155} <ffffffff810bf79a>{blk_end_sync_rq+0}
-       <ffffffff8815f6c1>{:ide_cd:ide_cdrom_get_capabilities+114}
-       <ffffffff88161491>{:ide_cd:ide_cd_probe+1335} <ffffffff8118e791>{_spin_unlock_irq+12}
-       <ffffffff8118d23a>{thread_return+86} <ffffffff8111da4d>{driver_probe_device+82}
-       <ffffffff8111dba4>{__driver_attach+140} <ffffffff8111db18>{__driver_attach+0}
-       <ffffffff8111d452>{bus_for_each_dev+67} <ffffffff8111d0c2>{bus_add_driver+126}
-       <ffffffff8103eca3>{sys_init_module+5269} <ffffffff81038aa5>{autoremove_wake_function+0}
-       <ffffffff810625b2>{vfs_write+283} <ffffffff8100a47e>{system_call+126}
-Kernel panic - not syncing: Aiee, killing interrupt handler!
- 
-
---fdj2RfSjLxBAspz7--
+-- 
+-ck

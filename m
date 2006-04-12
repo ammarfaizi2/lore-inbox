@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWDLAhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWDLAhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWDLAhg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 20:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWDLAhf
+	id S1751186AbWDLAhS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 20:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWDLAhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 20:37:35 -0400
-Received: from mta207-rme.xtra.co.nz ([210.86.15.118]:5035 "EHLO
-	mta207-rme.xtra.co.nz") by vger.kernel.org with ESMTP
-	id S1751197AbWDLAhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 20:37:34 -0400
-X-Originating-IP: [139.80.27.22]
-From: Zhiyi Huang <zhiyi6@xtra.co.nz>
-Reply-To: hzy@cs.otago.ac.nz
-Organization: Univ of Otago
-To: <linux-kernel@vger.kernel.org>
-CC: <zhiyi6@xtra.co.nz>
-Subject: Slab corruption after unloading a module
-Date: Wed, 12 Apr 2006 12:37:23 +1200
+	Tue, 11 Apr 2006 20:37:18 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:11537 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751186AbWDLAhQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 20:37:16 -0400
+To: Greg KH <gregkh@suse.de>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, torvalds@osdl.org
+Subject: Re: several messages
+References: <20060411173323.GA29965@kroah.com>
+	<Pine.LNX.4.61.0604112102170.25940@yvahk01.tjqt.qr>
+	<20060411203041.GA5555@suse.de>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: it's not slow --- it's stately.
+Date: Wed, 12 Apr 2006 01:36:14 +0100
+In-Reply-To: <20060411203041.GA5555@suse.de> (Greg KH's message of "11 Apr 2006 21:35:44 +0100")
+Message-ID: <874q0z4old.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Message-Id: <20060412003723.OFTM8268.mta4-rme.xtra.co.nz@[202.27.184.228]>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there, I am a bit timid to post a message to the list after reading the FAQ,
-but I did get a problem. When reply, please cc to my email address.
-My kernel info: Linux version 2.6.8 (root@zhiyi) (gcc version 3.3.5 (Debian
-1:3.3.5-8)) #1
-Everytime (except the first time) I unload my module (a ram device), I got the
-following message. Please just indicate if it is a kernel bug or if there is any
-fix patch. At the moment I have no clue. I used kmalloc and alloc_page to
-allocate memory dynamically when the ram device grows. And I freed them
-when the module is unloaded of course.
+On 11 Apr 2006, Greg KH whispered secretively:
+> The first one went out last night, as it was a real issue that affected
+> people and I had already waited longer than I felt comfortable with, due
+> to travel issues I had (two different talks in two different cities in
+> two different days.)
+> 
+> The second one went out today, because it was reported today.  Should I
+> have waited until tomorrow to see if something else came up?
 
-Hello world from Template Module
-temp device MAJOR is 253
-Good bye from Template Module: 618 pages
-Hello world from Template Module
-temp device MAJOR is 253
-Good bye from Template Module: 618 pages
-Slab corruption: start=c7c12d24, len=192
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<c01ac52d>](load_elf_interp+0xdd/0x2d0)
-070: 6b 6b 6b 6b 98 2d c1 c7 98 2d c1 c7 6b 6b 6b 6b
-Prev obj: start=c7c12c58, len=192
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<c01ac52d>](load_elf_interp+0xdd/0x2d0)
-000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Next obj: start=c7c12df0, len=192
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<00000000>](0x0)
-000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Indeed.
+
+On top of that, they're `only' local DoSes, so many admins (i.e. those
+without untrusted local users) will probably not have installed .3 yet:
+and anyone with untrusted local users probably has someone whose entire
+job is handling security anyway.
 
 
+There's nothing wrong with rapid-fire -stables; either the issue is (in
+the judgement of the ones doing the installation) critical, in which
+case it should get out as fast as possible, or it isn't, in which case
+the local installing admins can put it off for a day or so themselves to
+see if another release comes out immediately afterwards.
+
+-- 
+`On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
+ because bringing Windows into the picture rescaled "brokenness" by
+ a factor of 10.' --- Peter da Silva

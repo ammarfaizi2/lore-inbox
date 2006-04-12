@@ -1,96 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWDLVrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWDLVub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWDLVrL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 17:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWDLVrL
+	id S932330AbWDLVub (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 17:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWDLVub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 17:47:11 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:54736 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932326AbWDLVrJ
+	Wed, 12 Apr 2006 17:50:31 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:38043 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932330AbWDLVua
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 17:47:09 -0400
-Subject: [PATCH] tpm: use find_first_zero_bit
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-In-Reply-To: <20060411160206.4bffa1c2.akpm@osdl.org>
-References: <1144679828.4917.11.camel@localhost.localdomain>
-	 <20060410145030.0b719e18.akpm@osdl.org>
-	 <1144795345.12054.36.camel@localhost.localdomain>
-	 <20060411160206.4bffa1c2.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 12 Apr 2006 16:47:59 -0500
-Message-Id: <1144878479.12054.91.camel@localhost.localdomain>
+	Wed, 12 Apr 2006 17:50:30 -0400
+Date: Wed, 12 Apr 2006 15:50:27 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+       Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [Ext2-devel] Re: [RFC][PATCH 0/3] ext3 percpu counter fixes to suppport for ext3 unsigned long type free blocks counter
+Message-ID: <20060412215027.GO17364@schatzie.adilger.int>
+Mail-Followup-To: Mingming Cao <cmm@us.ibm.com>,
+	Ravikiran G Thirumalai <kiran@scalex86.org>,
+	Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+	Laurent Vivier <Laurent.Vivier@bull.net>,
+	linux-kernel@vger.kernel.org,
+	ext2-devel <ext2-devel@lists.sourceforge.net>,
+	linux-fsdevel@vger.kernel.org
+References: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com> <Pine.LNX.4.64.0604111007230.564@schroedinger.engr.sgi.com> <1144782073.3986.15.camel@dyn9047017067.beaverton.ibm.com> <20060411222012.GA5007@localhost.localdomain> <1144877315.3722.26.camel@dyn9047017067.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144877315.3722.26.camel@dyn9047017067.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-11 at 16:02 -0700, Andrew Morton wrote:
-> -			}
-> +	/* This should use find_first_zero_bit() */
-> +	for (dev_num = 0; dev_num < TPM_NUM_DEVICES; dev_num++) {
+On Apr 12, 2006  14:28 -0700, Mingming Cao wrote:
+> where the check for unsigned long overflow is only turned on 32 bit
+> platforms.
+> 
+> > Or make the counter s64? so that it stays 64 bit on all arches? 
+> > 
+> 
+> Well, don't we have the problem : 64 bit counter add/dec/update is not
+> always atomic on all 32 bit platforms? There are risk that we will get
+> bogus global value. 
 
-Given the suggestion in the code of your use-clear_bit-fix.  This patch
-uses find_first_zero_bit to find a bit instead of the roll my own for
-loop solution.
+My thought here is that the per-cpu counter could still be a 32-bit counter
+and the global value could be a 64-bit value.  That way, we don't need to
+mess with 64-bit math in the common case, and we can still have a 64-bit
+global value.  The minor drawback would be that we can't have a per-cpu
+delta of more than 2^31 at a time, but I don't think this is a worry here.
 
-Signed-off-by: Kylie Hall <kjhall@us.ibm.com>
----
- drivers/char/tpm/tpm.c |   20 ++++++--------------
- 1 files changed, 6 insertions(+), 14 deletions(-)
+> > why not change the global per-cpu counter type to unsigned long (as we
+> > discussed earlier), so we don't need the extra "ul" flags and interfaces, 
+> > and all arches get a standard unsigned long return type? 
+> >  We could also 
+> > do away with percpu_read_positive then no?  The applications for per-cpu 
+> > counters is going to be upcounters always methinks...
 
---- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm.c	2006-04-12 11:46:18.375300250 -0500
-+++ linux-2.6.17-rc1/drivers/char/tpm/tpm.c	2006-04-12 12:34:41.692746250 -0500
-@@ -1090,7 +1090,6 @@ struct tpm_chip *tpm_register_hardware(s
- 
- 	char *devname;
- 	struct tpm_chip *chip;
--	int dev_num;
- 
- 	/* Driver specific per-device data */
- 	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
-@@ -1109,18 +1108,9 @@ struct tpm_chip *tpm_register_hardware(s
- 
- 	memcpy(&chip->vendor, entry, sizeof(struct tpm_vendor_specific));
- 
--	chip->dev_num = -1;
--
--	/* This should use find_first_zero_bit() */
--	for (dev_num = 0; dev_num < TPM_NUM_DEVICES; dev_num++) {
--		if (!test_bit(dev_num, dev_mask)) {
--			chip->dev_num = dev_num;
--			set_bit(dev_num, dev_mask);
--			break;
--		}
--	}
--
--	if (chip->dev_num < 0) {
-+	chip->dev_num = find_first_zero_bit(dev_mask, TPM_NUM_DEVICES);
-+	
-+	if (chip->dev_num < 0 || chip->dev_num > TPM_NUM_DEVICES) {
- 		dev_err(dev, "No available tpm device numbers\n");
- 		kfree(chip);
- 		return NULL;
-@@ -1129,6 +1119,8 @@ struct tpm_chip *tpm_register_hardware(s
- 	else
- 		chip->vendor.miscdev.minor = MISC_DYNAMIC_MINOR;
- 
-+	set_bit(chip->dev_num, dev_mask);
-+
- 	devname = kmalloc(DEVNAME_SIZE, GFP_KERNEL);
- 	scnprintf(devname, DEVNAME_SIZE, "%s%d", "tpm", chip->dev_num);
- 	chip->vendor.miscdev.name = devname;
-@@ -1143,7 +1135,7 @@ struct tpm_chip *tpm_register_hardware(s
- 			chip->vendor.miscdev.minor);
- 		put_device(dev);
- 		kfree(chip);
--		clear_bit(dev_num, dev_mask);
-+		clear_bit(chip->dev_num, dev_mask);
- 		return NULL;
- 	}
- 
+The "percpu_read_positive" usage is broken in any case, since it doesn't
+correctly handle the case where there is no space in the filesystem at
+all.  The calling code (ext3_statfs) really needs to just call percpu_read()
+and then return zero if this is negative.
 
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 

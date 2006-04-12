@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWDLG3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWDLGmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWDLG3c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 02:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932067AbWDLG3c
+	id S932072AbWDLGmE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 02:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWDLGmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 02:29:32 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:14234 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932069AbWDLG3b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 02:29:31 -0400
-Date: Wed, 12 Apr 2006 08:27:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -rt] Buggy uart (for 2.6.16)
-Message-ID: <20060412062725.GC8499@elte.hu>
-References: <1144676225.12145.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Apr 2006 02:42:04 -0400
+Received: from wproxy.gmail.com ([64.233.184.237]:18826 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932072AbWDLGmD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 02:42:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HGxCgCimj1xABplPvwL9hwtje7pgx3Wb6mNI9Ea0Zr/rHy5STN2WT76O6BHNJ10BgQdMmO9a5UXW73l9iPtFmmFn1DEKhxujwrOTMjwHeZu3Y92Zy2uZRrU+IQV9mVIll3yC0XJ1Z2W7vNIPL6WYdugAsfEOUsOxnDO1lZFFH7o=
+Message-ID: <84144f020604112342v47a734a1t26f49e44c0d6b870@mail.gmail.com>
+Date: Wed, 12 Apr 2006 09:42:02 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: hzy@cs.otago.ac.nz
+Subject: Re: Re: Slab corruption after unloading a module
+Cc: "Hareesh Nagarajan" <hnagar2@gmail.com>, linux-kernel@vger.kernel.org,
+       zhiyi6@xtra.co.nz
+In-Reply-To: <20060412040756.YSVZ11236.web3-rme.xtra.co.nz@202.27.184.228>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1144676225.12145.30.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20060412040756.YSVZ11236.web3-rme.xtra.co.nz@202.27.184.228>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 4/12/06, Zhiyi Huang <zhiyi6@xtra.co.nz> wrote:
+> Thanks for help. I already configured the kernel with CONFIG_DEBUG_SLAB=y,
+> but I changed the current log level from 7 to 8. I got similar messages below.
+> I still have no clue. The messages show nothing about my module. Any more
+> suggestions?
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+2.6.8 is an old kernel, you could very well be hitting a kernel bug
+that has been fixed already. Can you reproduce this with 2.6.16? Also,
+you're not including sources to your module so it's impossible to tell
+whether you're doing something wrong.
 
-> Ingo,
-> 
-> I've noticed that you dropped my "buggy uart" patch.  Probably because 
-> the 2.6.14 version would cause a deadlock on 2.6.16.  I've sent you a 
-> new update, but it must have been lost in all the noise.  Here's the 
-> patch again. [...]
-
-thanks - indeed i missed your updated patch. Applied.
-
-	Ingo
+                                                         Pekka

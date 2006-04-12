@@ -1,112 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWDLISl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWDLIV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWDLISl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 04:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWDLISl
+	id S932103AbWDLIV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 04:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWDLIV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 04:18:41 -0400
-Received: from dial169-140.awalnet.net ([213.184.169.140]:24581 "EHLO
-	raad.intranet") by vger.kernel.org with ESMTP id S932104AbWDLISk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 04:18:40 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [patch][rfc] quell interactive feeding frenzy
-Date: Wed, 12 Apr 2006 11:17:01 +0300
-User-Agent: KMail/1.5
-Cc: ck list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org,
-       Mike Galbraith <efault@gmx.de>
-References: <200604112100.28725.kernel@kolivas.org> <200604120841.43459.a1426z@gawab.com> <200604121622.02341.kernel@kolivas.org>
-In-Reply-To: <200604121622.02341.kernel@kolivas.org>
+	Wed, 12 Apr 2006 04:21:58 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:11581 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932103AbWDLIV5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 04:21:57 -0400
+Message-ID: <443CBA48.7020301@sw.ru>
+Date: Wed, 12 Apr 2006 12:28:56 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
+To: Sam Vilain <sam@vilain.net>
+CC: Herbert Poetzl <herbert@13thfloor.at>, devel@openvz.org,
+       Kir Kolyshkin <kir@sacred.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <44242A3F.1010307@sw.ru> <44242D4D.40702@yahoo.com.au>	 <1143228339.19152.91.camel@localhost.localdomain>	 <4428BB5C.3060803@tmr.com> <4428DB76.9040102@openvz.org>	 <1143583179.6325.10.camel@localhost.localdomain>	 <4429B789.4030209@sacred.ru>	 <1143588501.6325.75.camel@localhost.localdomain>	 <442A4FAA.4010505@openvz.org> <20060329134524.GA14522@MAIL.13thfloor.at>	 <442A9E1E.4030707@sw.ru> <1143668273.9969.19.camel@localhost.localdomain>
+In-Reply-To: <1143668273.9969.19.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604121117.01393.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Wed, 12 Apr 2006 03:41 pm, Al Boldi wrote:
-> > Con Kolivas wrote:
-> > > Which is fine because sched_compute isn't designed for heavily
-> > > multithreaded usage.
-> >
-> > What's it good for?
->
-> Single heavily cpu bound computationally intensive tasks (think rendering
-> etc).
+Sam,
 
-Why do you need a switch for that?
+> Ok, I'll call those three VPSes fast, faster and fastest.
+> 
+> "fast"    : fill rate 1, interval 3
+> "faster"  : fill rate 2, interval 3
+> "fastest" : fill rate 3, interval 3
+> 
+> That all adds up to a fill rate of 6 with an interval of 3, but that is
+> right because with two processors you have 2 tokens to allocate per
+> jiffie.  Also set the bucket size to something of the order of HZ.
+> 
+> You can watch the processes within each vserver's priority jump up and
+> down with `vtop' during testing.  Also you should be able to watch the
+> vserver's bucket fill and empty in /proc/virtual/XXX/sched (IIRC)
+> 
+> I mentioned this earlier, but for the sake of the archives I'll repeat -
+> if you are running with any of the buckets on empty, the scheduler is
+> imbalanced and therefore not going to provide the exact distribution you
+> asked for.
+> 
+> However with a single busy loop in each vserver I'd expect the above to
+> yield roughly 100% for fastest, 66% for faster and 33% for fast, within
+> 5 seconds or so of starting those processes (assuming you set a bucket
+> size of HZ).
 
-> > > The same mechanism that is responsible for
-> > > maintaining fairness is also responsible for creating its
-> > > interactivity. That's what I mean by "interactive by design", and what
-> > > makes it different from extracting interactivity out of other designs
-> > > that have some form of estimator to add unfairness to create that
-> > > interactivity.
-> >
-> > Yes, but staircase isn't really fair, and it's definitely not smooth. 
-> > You are trying to get ia by aggressively attacking priority which kills
-> > smoothness, and is only fair with a short run-queue.
->
-> Sorry I don't understand what you mean. Why do you say it's not fair (got
-> a testcase?). What do you mean by "definitely not smooth". What is
-> smoothness and on what workloads is it not smooth? Also by ia you mean
-> what?
+Sam, what we observe is the situation, when Linux cpu scheduler spreads 
+2 tasks on 1st CPU and 1 task on the 2nd CPU. Std linux scheduler 
+doesn't do any rebalancing after that, so no plays with tokens make the 
+spread to be 3:2:1, since the lowest priority process gets a full 2nd 
+CPU (100% instead of 33% of CPU).
 
-ia=interactivity i.e: responsiveness under high load.
-smooth=not jumpy i.e: run '# gears & morph3d & reflect &' w/o stutter
-fair=non hogging i.e: spreading cpu-load across tasks evenly (top d.1)
+Where is my mistake? Can you provide a configuration where we could test 
+or the instuctions on how to avoid this?
 
-> > > I know you're _very_ keen on the idea of some autotuning but I think
-> > > this is the wrong thing to autotune. The whole point of staircase is
-> > > it's a simple design without any interactivity estimator. It uses pure
-> > > cpu accounting to change priority and that is a percentage which is
-> > > effectively already tuned to the underlying cpu. Any
-> > > benchmarking/aggressiveness "tuning" would undo the (effectively) very
-> > > simple design.
-> >
-> > I like simple designs.  They tend to keep things to the point and aid
-> > efficiency.  But staircase doesn't look efficient to me under heavy
-> > load, and I would think this may be easily improved.
->
-> Again I don't understand. Just how heavy a load is heavy? Your testcases
-> are already in what I would call stratospheric range. I don't personally
-> think a cpu scheduler should be optimised for load infinity. And how are
-> you defining efficient? You say it doesn't "look" efficient? What "looks"
-> inefficient about it?
-
-The idea here is to expose inefficiencies by driving the system into 
-saturation, and although staircase is more efficient than the default 2.6 
-scheduler, it is obviously less efficient than spa.
-
-> > Also, can you export  lowest/best prio as well as timeslice and friends
-> > to procfs/sysfs?
->
-> You want tunables? The only tunable in staircase is rr_interval which (in
-> -ck) has an on/off for big/small (sched_compute) since most other numbers
-> in between (in my experience) are pretty meaningless. I could export
-> rr_interval directly instead... I've not seen a good argument for doing
-> that. Got one? 
-
-Smoothness control, maybe?
-
-> However there are no other tunables at all (just look at
-> the code). All tasks of any nice level have available the whole priority
-> range from 100-139 which appears as PRIO 0-39 on top. Limiting that
-> (again) changes the semantics.
-
-Yes, limiting this could change the semantics for the sake of fairness, it's 
-up to you.
-
-> And another round of thanks :) But many more questions.
-
-No problem.
-
-Thanks!
-
---
-Al
+Thanks,
+Kirill
 

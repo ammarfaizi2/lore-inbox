@@ -1,166 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWDLSdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWDLSyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWDLSdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 14:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWDLSdJ
+	id S932217AbWDLSyg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 14:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWDLSyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 14:33:09 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:15530 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932312AbWDLSdI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 14:33:08 -0400
-Date: Thu, 13 Apr 2006 00:01:06 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Paul E.McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix file lookup without ref
-Message-ID: <20060412183106.GD25957@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
+	Wed, 12 Apr 2006 14:54:36 -0400
+Received: from xenotime.net ([66.160.160.81]:28289 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932217AbWDLSyg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 14:54:36 -0400
+Date: Wed, 12 Apr 2006 11:56:57 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: zippel@linux-m68k.org, hirofumi@mail.parknet.co.jp,
+       linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
+Subject: [PATCH] config: update usage/help info
+Message-Id: <20060412115657.409b71bc.rdunlap@xenotime.net>
+In-Reply-To: <20060412165929.GA20573@mars.ravnborg.org>
+References: <20060406224134.0430e827.rdunlap@xenotime.net>
+	<87odzdh1fp.fsf@duaron.myhome.or.jp>
+	<20060409220426.8027953a.rdunlap@xenotime.net>
+	<Pine.LNX.4.64.0604121253540.32445@scrub.home>
+	<20060412091751.feba2dd4.rdunlap@xenotime.net>
+	<20060412165929.GA20573@mars.ravnborg.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a problem with some places in the kernel where
-we look up file structure from the fd table but don't hold
-a reference to the file. Those places cannot be lock-free.
-These places aren't in fast path, so it is not a problem.
-I have tested this patch on powerpc and x86_64 using basic
-tests and ltp. We should aim to merge this for 2.6.17.
+On Wed, 12 Apr 2006 18:59:29 +0200 Sam Ravnborg wrote:
 
-Thanks
-Dipankar
+> > IMO the main points/questions are:
+> > 
+> > - where to document the command-line options and environment variables
+> >   (including the recent KCONFIG_CONFIG):  in a usage() function or in
+> >   Documentation/kbuild/usage.txt file?
+> 
+> The latter...
+> make help was the other alternative and it is too big already.
+> 
+> For kbuild I also need to add some stuff.
 
-
-
-There are places in the kernel where we look up files in fd tables 
-and access the file structure without holding refereces to the file. 
-So, we need special care to avoid the race between
-looking up files in the fd table and tearing down of the file
-in another CPU. Otherwise, one might see a NULL f_dentry or
-such torn down version of the file. This patch fixes those
-special places where such a race may happen.
-
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+Here's a shot at it, although it seemed that top-level README was
+sufficient for the make *config additions.  We can move whatever you
+think should be moved to a new file.
+(This is missing a recent KCONFIG_OVERWRITECONFIG environment variable
+that I think Roman just added.)
 ---
 
+From: Randy Dunlap <rdunlap@xenotime.net>
 
- drivers/char/tty_io.c |    8 ++++++--
- fs/locks.c            |    9 +++++++--
- fs/proc/base.c        |   21 +++++++++++++++------
- 3 files changed, 28 insertions(+), 10 deletions(-)
+Replace outdated help message with a reference to README.
+Update README for make *config variants and environment
+variable info.
 
-diff -puN drivers/char/tty_io.c~fix-proc-fd-ops drivers/char/tty_io.c
---- linux-2.6.16-rcu/drivers/char/tty_io.c~fix-proc-fd-ops	2006-04-12 21:06:24.000000000 +0530
-+++ linux-2.6.16-rcu-dipankar/drivers/char/tty_io.c	2006-04-12 21:06:24.000000000 +0530
-@@ -2706,7 +2706,11 @@ static void __do_SAK(void *arg)
- 		}
- 		task_lock(p);
- 		if (p->files) {
--			rcu_read_lock();
-+			/*
-+			 * We don't take a ref to the file, so we must
-+			 * hold ->file_lock instead.
-+			 */
-+			spin_lock(&p->files->file_lock);
- 			fdt = files_fdtable(p->files);
- 			for (i=0; i < fdt->max_fds; i++) {
- 				filp = fcheck_files(p->files, i);
-@@ -2721,7 +2725,7 @@ static void __do_SAK(void *arg)
- 					break;
- 				}
- 			}
--			rcu_read_unlock();
-+			spin_unlock(&p->files->file_lock);
- 		}
- 		task_unlock(p);
- 	} while_each_task_pid(session, PIDTYPE_SID, p);
-diff -puN fs/locks.c~fix-proc-fd-ops fs/locks.c
---- linux-2.6.16-rcu/fs/locks.c~fix-proc-fd-ops	2006-04-12 21:06:24.000000000 +0530
-+++ linux-2.6.16-rcu-dipankar/fs/locks.c	2006-04-12 21:06:24.000000000 +0530
-@@ -2212,7 +2212,12 @@ void steal_locks(fl_owner_t from)
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ README                 |   23 ++++++++++++++++++++++-
+ scripts/kconfig/conf.c |    3 ++-
+ 2 files changed, 24 insertions(+), 2 deletions(-)
+
+--- linux-2617-rc1.orig/scripts/kconfig/conf.c
++++ linux-2617-rc1/scripts/kconfig/conf.c
+@@ -5,6 +5,7 @@
  
- 	lock_kernel();
- 	j = 0;
--	rcu_read_lock();
-+
-+	/*
-+	 * We are not taking a ref to the file structures, so
-+	 * we need to acquire ->file_lock.
-+	 */
-+	spin_lock(&files->file_lock);
- 	fdt = files_fdtable(files);
- 	for (;;) {
- 		unsigned long set;
-@@ -2230,7 +2235,7 @@ void steal_locks(fl_owner_t from)
- 			set >>= 1;
+ #include <ctype.h>
+ #include <stdlib.h>
++#include <stdio.h>
+ #include <string.h>
+ #include <unistd.h>
+ #include <time.h>
+@@ -546,7 +547,7 @@ int main(int ac, char **av)
+ 			break;
+ 		case 'h':
+ 		case '?':
+-			printf("%s [-o|-s] config\n", av[0]);
++			fprintf(stderr, "See README for usage info\n");
+ 			exit(0);
  		}
  	}
--	rcu_read_unlock();
-+	spin_unlock(&files->file_lock);
- 	unlock_kernel();
- }
- EXPORT_SYMBOL(steal_locks);
-diff -puN fs/proc/base.c~fix-proc-fd-ops fs/proc/base.c
---- linux-2.6.16-rcu/fs/proc/base.c~fix-proc-fd-ops	2006-04-12 21:06:24.000000000 +0530
-+++ linux-2.6.16-rcu-dipankar/fs/proc/base.c	2006-04-12 21:06:24.000000000 +0530
-@@ -294,16 +294,20 @@ static int proc_fd_link(struct inode *in
- 
- 	files = get_files_struct(task);
- 	if (files) {
--		rcu_read_lock();
-+		/*
-+		 * We are not taking a ref to the file structure, so we must
-+		 * hold ->file_lock.
-+		 */
-+		spin_lock(&files->file_lock);
- 		file = fcheck_files(files, fd);
- 		if (file) {
- 			*mnt = mntget(file->f_vfsmnt);
- 			*dentry = dget(file->f_dentry);
--			rcu_read_unlock();
-+			spin_unlock(&files->file_lock);
- 			put_files_struct(files);
- 			return 0;
- 		}
--		rcu_read_unlock();
-+		spin_unlock(&files->file_lock);
- 		put_files_struct(files);
- 	}
- 	return -ENOENT;
-@@ -1485,7 +1489,12 @@ static struct dentry *proc_lookupfd(stru
- 	if (!files)
- 		goto out_unlock;
- 	inode->i_mode = S_IFLNK;
--	rcu_read_lock();
+--- linux-2617-rc1.orig/README
++++ linux-2617-rc1/README
+@@ -165,10 +165,31 @@ CONFIGURING the kernel:
+ 	"make xconfig"     X windows (Qt) based configuration tool.
+ 	"make gconfig"     X windows (Gtk) based configuration tool.
+ 	"make oldconfig"   Default all questions based on the contents of
+-			   your existing ./.config file.
++			   your existing ./.config file and asking about
++			   new config symbols.
+ 	"make silentoldconfig"
+ 			   Like above, but avoids cluttering the screen
+ 			   with questions already answered.
++	"make defconfig"   Create a ./.config file by using the default
++			   symbol values from arch/$ARCH/defconfig.
++	"make allyesconfig"
++			   Create a ./.config file by setting symbol
++			   values to 'y' as much as possible.
++	"make allmodconfig"
++			   Create a ./.config file by setting symbol
++			   values to 'm' as much as possible.
++	"make allnoconfig" Create a ./.config file by setting symbol
++			   values to 'n' as much as possible.
++	"make randconfig"  Create a ./.config file by setting symbol
++			   values to random values.
 +
-+	/*
-+	 * We are not taking a ref to the file structure, so we must
-+	 * hold ->file_lock.
-+	 */
-+	spin_lock(&files->file_lock);
- 	file = fcheck_files(files, fd);
- 	if (!file)
- 		goto out_unlock2;
-@@ -1493,7 +1502,7 @@ static struct dentry *proc_lookupfd(stru
- 		inode->i_mode |= S_IRUSR | S_IXUSR;
- 	if (file->f_mode & 2)
- 		inode->i_mode |= S_IWUSR | S_IXUSR;
--	rcu_read_unlock();
-+	spin_unlock(&files->file_lock);
- 	put_files_struct(files);
- 	inode->i_op = &proc_pid_link_inode_operations;
- 	inode->i_size = 64;
-@@ -1503,7 +1512,7 @@ static struct dentry *proc_lookupfd(stru
- 	return NULL;
- 
- out_unlock2:
--	rcu_read_unlock();
-+	spin_unlock(&files->file_lock);
- 	put_files_struct(files);
- out_unlock:
- 	iput(inode);
-
-_
++   The allyesconfig/allmodconfig/allnoconfig/randconfig variants can
++   also use the environment variable KCONFIG_ALLCONFIG to specify a
++   filename that contains config options that the user requires to be
++   set to a specific value.  If KCONFIG_ALLCONFIG=filename is not used,
++   "make *config" checks for a file named "all{yes/mod/no/random}.config"
++   for symbol values that are to be forced.  If this file is not found,
++   it checks for a file named "all.config" to contain forced values.
+    
+ 	NOTES on "make config":
+ 	- having unnecessary drivers will make the kernel bigger, and can

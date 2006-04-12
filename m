@@ -1,250 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWDLPT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWDLPTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWDLPT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 11:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWDLPT0
+	id S1750703AbWDLPTl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 11:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWDLPTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 11:19:26 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:59024 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750708AbWDLPT0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 11:19:26 -0400
-Subject: Re: [PATCH] tpm: tpm_infineon updated to latest interface changes
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Marcel Selhorst <selhorst@crypto.rub.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <443D1835.70107@crypto.rub.de>
-References: <443D1835.70107@crypto.rub.de>
-Content-Type: text/plain
-Date: Wed, 12 Apr 2006 10:20:09 -0500
-Message-Id: <1144855210.12054.46.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Apr 2006 11:19:41 -0400
+Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:30360 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id S1750703AbWDLPTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 11:19:40 -0400
+Date: Wed, 12 Apr 2006 17:19:30 +0200
+From: Gabor Gombas <gombasg@sztaki.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       linux-ide@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: libata-pata works on ICH4-M
+Message-ID: <20060412151930.GH4919@boogie.lpds.sztaki.hu>
+References: <443B9EBB.6010607@gmx.net> <Pine.LNX.4.61.0604112044340.25940@yvahk01.tjqt.qr> <1144832990.1952.20.camel@localhost.localdomain> <Pine.LNX.4.61.0604121153060.12544@yvahk01.tjqt.qr> <1144852703.1952.36.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144852703.1952.36.camel@localhost.localdomain>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACKed-By: Kylie Hall <kjhall@us.ibm.com>
+On Wed, Apr 12, 2006 at 03:38:22PM +0100, Alan Cox wrote:
 
-On Wed, 2006-04-12 at 17:09 +0200, Marcel Selhorst wrote:
-> Dear LKML,
-> 
-> this patch applies the latest changes in the TPM interface to the Infineon TPM-driver
-> (as posted by Kylene Hall yesterday - see below)
-> 
-> > Kylene Jo Hall wrote:
-> > To assist with chip management and better support the possibility of
-> > having multiple TPMs in the system of the same kind, the struct
-> > tpm_vendor_specific member of the tpm_chip was changed from a pointer to
-> > an instance.  This patch changes that declaration and fixes up all
-> > accesses to the structure member except in tpm_infineon which is coming
-> > in a patch from Marcel Selhorst.
-> > 
-> > Changes in the 1.2 TPM Specification make it necessary to update some
-> > fields of the chip structure in the initialization function after it is
-> > registered with tpm.c thus tpm_register_hardware was modified to return
-> > a pointer to the structure.  This patch makes that change and the
-> > associated changes in tpm_atmel and tpm_nsc.  The changes to
-> > tpm_infineon will be coming in a patch from Marcel Selhorst.
-> 
-> Signed-off-by: Marcel Selhorst <selhorst@crypto.rub.de>
-> ---
-> --- linux-old/drivers/char/tpm/tpm_infineon.c	2006-03-20 05:53:29.000000000 +0000
-> +++ linux-2.6.16-rc3/drivers/char/tpm/tpm_infineon.c	2006-04-06 11:37:24.000000000 +0000
-> @@ -104,7 +104,7 @@ static int empty_fifo(struct tpm_chip *c
-> 
->  	if (clear_wrfifo) {
->  		for (i = 0; i < 4096; i++) {
-> -			status = inb(chip->vendor->base + WRFIFO);
-> +			status = inb(chip->vendor.base + WRFIFO);
->  			if (status == 0xff) {
->  				if (check == 5)
->  					break;
-> @@ -124,8 +124,8 @@ static int empty_fifo(struct tpm_chip *c
->  	 */
->  	i = 0;
->  	do {
-> -		status = inb(chip->vendor->base + RDFIFO);
-> -		status = inb(chip->vendor->base + STAT);
-> +		status = inb(chip->vendor.base + RDFIFO);
-> +		status = inb(chip->vendor.base + STAT);
->  		i++;
->  		if (i == TPM_MAX_TRIES)
->  			return -EIO;
-> @@ -138,7 +138,7 @@ static int wait(struct tpm_chip *chip, i
->  	int status;
->  	int i;
->  	for (i = 0; i < TPM_MAX_TRIES; i++) {
-> -		status = inb(chip->vendor->base + STAT);
-> +		status = inb(chip->vendor.base + STAT);
->  		/* check the status-register if wait_for_bit is set */
->  		if (status & 1 << wait_for_bit)
->  			break;
-> @@ -157,7 +157,7 @@ static int wait(struct tpm_chip *chip, i
->  static void wait_and_send(struct tpm_chip *chip, u8 sendbyte)
->  {
->  	wait(chip, STAT_XFE);
-> -	outb(sendbyte, chip->vendor->base + WRFIFO);
-> +	outb(sendbyte, chip->vendor.base + WRFIFO);
->  }
-> 
->      /* Note: WTX means Waiting-Time-Extension. Whenever the TPM needs more
-> @@ -204,7 +204,7 @@ recv_begin:
->  		ret = wait(chip, STAT_RDA);
->  		if (ret)
->  			return -EIO;
-> -		buf[i] = inb(chip->vendor->base + RDFIFO);
-> +		buf[i] = inb(chip->vendor.base + RDFIFO);
->  	}
-> 
->  	if (buf[0] != TPM_VL_VER) {
-> @@ -219,7 +219,7 @@ recv_begin:
-> 
->  		for (i = 0; i < size; i++) {
->  			wait(chip, STAT_RDA);
-> -			buf[i] = inb(chip->vendor->base + RDFIFO);
-> +			buf[i] = inb(chip->vendor.base + RDFIFO);
->  		}
-> 
->  		if ((size == 0x6D00) && (buf[1] == 0x80)) {
-> @@ -268,7 +268,7 @@ static int tpm_inf_send(struct tpm_chip
->  	u8 count_high, count_low, count_4, count_3, count_2, count_1;
-> 
->  	/* Disabling Reset, LP and IRQC */
-> -	outb(RESET_LP_IRQC_DISABLE, chip->vendor->base + CMD);
-> +	outb(RESET_LP_IRQC_DISABLE, chip->vendor.base + CMD);
-> 
->  	ret = empty_fifo(chip, 1);
->  	if (ret) {
-> @@ -319,7 +319,7 @@ static void tpm_inf_cancel(struct tpm_ch
-> 
->  static u8 tpm_inf_status(struct tpm_chip *chip)
->  {
-> -	return inb(chip->vendor->base + STAT);
-> +	return inb(chip->vendor.base + STAT);
->  }
-> 
->  static DEVICE_ATTR(pubek, S_IRUGO, tpm_show_pubek, NULL);
-> @@ -346,7 +346,7 @@ static struct file_operations inf_ops =
->  	.release = tpm_release,
->  };
-> 
-> -static struct tpm_vendor_specific tpm_inf = {
-> +static const struct tpm_vendor_specific tpm_inf = {
->  	.recv = tpm_inf_recv,
->  	.send = tpm_inf_send,
->  	.cancel = tpm_inf_cancel,
-> @@ -375,6 +375,7 @@ static int __devinit tpm_inf_pnp_probe(s
->  	int version[2];
->  	int productid[2];
->  	char chipname[20];
-> +	struct tpm_chip *chip;
-> 
->  	/* read IO-ports through PnP */
->  	if (pnp_port_valid(dev, 0) && pnp_port_valid(dev, 1) &&
-> @@ -395,14 +396,13 @@ static int __devinit tpm_inf_pnp_probe(s
->  			goto err_last;
->  		}
->  		/* publish my base address and request region */
-> -		tpm_inf.base = TPM_INF_BASE;
->  		if (request_region
-> -		    (tpm_inf.base, TPM_INF_PORT_LEN, "tpm_infineon0") == NULL) {
-> +		    (TPM_INF_BASE, TPM_INF_PORT_LEN, "tpm_infineon0") == NULL) {
->  			rc = -EINVAL;
->  			goto err_last;
->  		}
-> -		if (request_region(TPM_INF_ADDR, TPM_INF_ADDR_LEN,
-> -				"tpm_infineon0") == NULL) {
-> +		if (request_region
-> +		    (TPM_INF_ADDR, TPM_INF_ADDR_LEN, "tpm_infineon0") == NULL) {
->  			rc = -EINVAL;
->  			goto err_last;
->  		}
-> @@ -442,9 +442,9 @@ static int __devinit tpm_inf_pnp_probe(s
-> 
->  		/* configure TPM with IO-ports */
->  		outb(IOLIMH, TPM_INF_ADDR);
-> -		outb(((tpm_inf.base >> 8) & 0xff), TPM_INF_DATA);
-> +		outb(((TPM_INF_BASE >> 8) & 0xff), TPM_INF_DATA);
->  		outb(IOLIML, TPM_INF_ADDR);
-> -		outb((tpm_inf.base & 0xff), TPM_INF_DATA);
-> +		outb((TPM_INF_BASE & 0xff), TPM_INF_DATA);
-> 
->  		/* control if IO-ports are set correctly */
->  		outb(IOLIMH, TPM_INF_ADDR);
-> @@ -452,10 +452,10 @@ static int __devinit tpm_inf_pnp_probe(s
->  		outb(IOLIML, TPM_INF_ADDR);
->  		iol = inb(TPM_INF_DATA);
-> 
-> -		if ((ioh << 8 | iol) != tpm_inf.base) {
-> +		if ((ioh << 8 | iol) != TPM_INF_BASE) {
->  			dev_err(&dev->dev,
-> -				"Could not set IO-ports to 0x%lx\n",
-> -				tpm_inf.base);
-> +				"Could not set IO-ports to 0x%x\n",
-> +				TPM_INF_BASE);
->  			rc = -EIO;
->  			goto err_release_region;
->  		}
-> @@ -466,15 +466,15 @@ static int __devinit tpm_inf_pnp_probe(s
->  		outb(DISABLE_REGISTER_PAIR, TPM_INF_ADDR);
-> 
->  		/* disable RESET, LP and IRQC */
-> -		outb(RESET_LP_IRQC_DISABLE, tpm_inf.base + CMD);
-> +		outb(RESET_LP_IRQC_DISABLE, TPM_INF_BASE + CMD);
-> 
->  		/* Finally, we're done, print some infos */
->  		dev_info(&dev->dev, "TPM found: "
->  			 "config base 0x%x, "
->  			 "io base 0x%x, "
-> -			 "chip version %02x%02x, "
-> -			 "vendor id %x%x (Infineon), "
-> -			 "product id %02x%02x"
-> +			 "chip version 0x%02x%02x, "
-> +			 "vendor id 0x%x%x (Infineon), "
-> +			 "product id 0x%02x%02x"
->  			 "%s\n",
->  			 TPM_INF_ADDR,
->  			 TPM_INF_BASE,
-> @@ -482,11 +482,10 @@ static int __devinit tpm_inf_pnp_probe(s
->  			 vendorid[0], vendorid[1],
->  			 productid[0], productid[1], chipname);
-> 
-> -		rc = tpm_register_hardware(&dev->dev, &tpm_inf);
-> -		if (rc < 0) {
-> -			rc = -ENODEV;
-> +		if (!(chip = tpm_register_hardware(&dev->dev, &tpm_inf))) {
->  			goto err_release_region;
->  		}
-> +		chip->vendor.base = TPM_INF_BASE;
->  		return 0;
->  	} else {
->  		rc = -ENODEV;
-> @@ -494,7 +493,7 @@ static int __devinit tpm_inf_pnp_probe(s
->  	}
-> 
->  err_release_region:
-> -	release_region(tpm_inf.base, TPM_INF_PORT_LEN);
-> +	release_region(TPM_INF_BASE, TPM_INF_PORT_LEN);
->  	release_region(TPM_INF_ADDR, TPM_INF_ADDR_LEN);
-> 
->  err_last:
-> @@ -506,7 +505,8 @@ static __devexit void tpm_inf_pnp_remove
->  	struct tpm_chip *chip = pnp_get_drvdata(dev);
-> 
->  	if (chip) {
-> -		release_region(chip->vendor->base, TPM_INF_PORT_LEN);
-> +		release_region(TPM_INF_BASE, TPM_INF_PORT_LEN);
-> +		release_region(TPM_INF_ADDR, TPM_INF_ADDR_LEN);
->  		tpm_remove_hardware(chip->dev);
->  	}
->  }
-> @@ -538,5 +538,5 @@ module_exit(cleanup_inf);
-> 
->  MODULE_AUTHOR("Marcel Selhorst <selhorst@crypto.rub.de>");
->  MODULE_DESCRIPTION("Driver for Infineon TPM SLD 9630 TT 1.1 / SLB 9635 TT 1.2");
-> -MODULE_VERSION("1.7");
-> +MODULE_VERSION("1.8");
->  MODULE_LICENSE("GPL");
-> 
+> Ask the hdparm maintainers. Its mostly obsoleted by blktool and the like
+> which are generic
 
+# hdparm -M 128 /dev/sda
+
+/dev/sda:
+ setting acoustic management to 128
+HDIO_GET_ACOUSTIC failed: Inappropriate ioctl for device
+# blktool /dev/sda acoustic-mgmt 128
+HDIO_SET_ACOUSTIC: Inappropriate ioctl for device
+
+The world is still not perfect :-) Btw. it's kernel 2.6.16, ata_piix,
+and a PATA drive. The new ata_piix now uses UDMA/100 while the old IDE
+ICH driver always limited the first disk to UDMA/33 for no obvious
+reason. So I'm quite happy with libata and can wait a little longer for
+acoustic management to be implemented :-)
+
+Gabor
+
+-- 
+     ---------------------------------------------------------
+     MTA SZTAKI Computer and Automation Research Institute
+                Hungarian Academy of Sciences
+     ---------------------------------------------------------

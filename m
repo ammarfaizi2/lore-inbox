@@ -1,47 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWDLGtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWDLGvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWDLGtS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 02:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWDLGtR
+	id S932082AbWDLGvd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 02:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWDLGvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 02:49:17 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:25109 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932078AbWDLGtR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 02:49:17 -0400
-Message-ID: <443CA47E.4070809@sw.ru>
-Date: Wed, 12 Apr 2006 10:55:58 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Kir Kolyshkin <kir@openvz.org>, akpm@osdl.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net,
-       linux-kernel@vger.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, herbert@13thfloor.at
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-References: <1143228339.19152.91.camel@localhost.localdomain>	<200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp>	<4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com>	<443B873B.9040908@sw.ru> <p73mzer4bti.fsf@bragg.suse.de>
-In-Reply-To: <p73mzer4bti.fsf@bragg.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 12 Apr 2006 02:51:32 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:24980 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932082AbWDLGvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 02:51:32 -0400
+Date: Wed, 12 Apr 2006 15:53:01 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <clameter@engr.sgi.com>, riel@redhat.com, dgc@sgi.com
+Subject: [PATCH] support for panic at OOM
+Message-Id: <20060412155301.10d611ca.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Moreover, in OpenVZ live migration allows to migrate 32bit VPSs
->>between i686 and x86-64 Linux machines.
+This patch adds a feature to panic at OOM, oom_die.
 
-> How would that work when x86-64 32bit programs have 4GB of address
-> space and native on i386 programs only 3GB?
-we limit address space of i386 apps on x86-64 to 3GB due to 
-compatibility issues - some applications don't work with not 3:1 GB VM 
-split.
+When sysctl vm.oom_die = 1, the kernel panics intead of killing
+rogue processes. And if vm.oom_die is 0 the kernel will do
+oom_kill() in the same way as it does today. Of course, the 
+default value is 0 and only root can modifies it.
 
-On the other hand if you need 4GB addr space for user you can use 4GB 
-x8664 and 4gb split on i386.
+In general, oom_killer works well and kill rogue processes. So 
+the whole system can survive. But there are environments where
+panic is preferable rather than kill some processes.
 
-Thanks,
-Kirill
+For example, a failover system can replace a broken system with
+back-up system immediately at panic, so it doesn't need oom_kill.
 
+Considering a failover cluster system, a failover service puts
+all nodes under its observation. When a node panics, the failover
+system  can replace it with new one immediately. But if oom_kill runs
+and kills some processes, the system will go to partial broken
+state. This partial broken state is sometimes difficult to be
+detected. The worst case is that a failover daemon is killed 
+(possibility is not 0%), the whole system will be unstable.
+
+Another case is crash-dump supported system. If the system panics
+at OOM, crash dump can preserve *all* information about system.
+Because SIGKILL cannot cause process coredump, oom killer cannot
+preserve any hints except for the message log.
+
+thanks,
+-Kame
+==
+
+This patch adds oom_die sysctl under sys.vm.
+
+When oom_die==1, system panic at out_of_memory istead of kill some
+process. In some situation, I think panic is more useful than kill.
+This patch is against 2.6.17-rc1-mm2.
+
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+Index: linux-2.6.17-rc1-mm2/kernel/sysctl.c
+===================================================================
+--- linux-2.6.17-rc1-mm2.orig/kernel/sysctl.c
++++ linux-2.6.17-rc1-mm2/kernel/sysctl.c
+@@ -60,6 +60,7 @@ extern int proc_nr_files(ctl_table *tabl
+ extern int C_A_D;
+ extern int sysctl_overcommit_memory;
+ extern int sysctl_overcommit_ratio;
++extern int sysctl_oom_die;
+ extern int max_threads;
+ extern int sysrq_enabled;
+ extern int core_uses_pid;
+@@ -718,6 +719,14 @@ static ctl_table vm_table[] = {
+ 		.proc_handler	= &proc_dointvec,
+ 	},
+ 	{
++		.ctl_name	= VM_OOM_DIE,
++		.procname	= "oom_die",
++		.data		= &sysctl_oom_die,
++		.maxlen		= sizeof(sysctl_oom_die),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
+ 		.ctl_name	= VM_OVERCOMMIT_RATIO,
+ 		.procname	= "overcommit_ratio",
+ 		.data		= &sysctl_overcommit_ratio,
+Index: linux-2.6.17-rc1-mm2/mm/oom_kill.c
+===================================================================
+--- linux-2.6.17-rc1-mm2.orig/mm/oom_kill.c
++++ linux-2.6.17-rc1-mm2/mm/oom_kill.c
+@@ -23,7 +23,7 @@
+ #include <linux/cpuset.h>
+ 
+ /* #define DEBUG */
+-
++int sysctl_oom_die = 0;
+ /**
+  * oom_badness - calculate a numeric value for how bad this task has been
+  * @p: task struct of which task we should calculate
+@@ -290,6 +290,12 @@ static struct mm_struct *oom_kill_proces
+ 	return oom_kill_task(p, message);
+ }
+ 
++
++static void oom_die(void)
++{
++	panic("Panic: out of memory: oom_die is selected.");
++}
++
+ /**
+  * oom_kill - kill the "best" process when we run out of memory
+  *
+@@ -331,6 +337,8 @@ void out_of_memory(struct zonelist *zone
+ 
+ 	case CONSTRAINT_NONE:
+ retry:
++		if (sysctl_oom_die)
++			oom_die();
+ 		/*
+ 		 * Rambo mode: Shoot down a process and hope it solves whatever
+ 		 * issues we may have.
 

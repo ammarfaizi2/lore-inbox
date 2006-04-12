@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWDLEB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWDLEH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbWDLEB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 00:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWDLEB5
+	id S1751337AbWDLEH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 00:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWDLEH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 00:01:57 -0400
-Received: from ns2.suse.de ([195.135.220.15]:55739 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751338AbWDLEB5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 00:01:57 -0400
-From: Neil Brown <neilb@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Date: Wed, 12 Apr 2006 14:01:15 +1000
+	Wed, 12 Apr 2006 00:07:59 -0400
+Received: from mta203-rme.xtra.co.nz ([210.86.15.146]:47746 "EHLO
+	mta203-rme.xtra.co.nz") by vger.kernel.org with ESMTP
+	id S1751337AbWDLEH6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 00:07:58 -0400
+X-Originating-IP: [139.80.27.22]
+From: Zhiyi Huang <zhiyi6@xtra.co.nz>
+Reply-To: hzy@cs.otago.ac.nz
+Organization: Univ of Otago
+To: "Hareesh Nagarajan" <hnagar2@gmail.com>
+CC: <linux-kernel@vger.kernel.org>, <zhiyi6@xtra.co.nz>
+Subject: Re: Re: Slab corruption after unloading a module
+Date: Wed, 12 Apr 2006 16:07:56 +1200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-ID: <17468.31627.825807.569134@cse.unsw.edu.au>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to correct ELCR? - was Re: [PATCH 2.6.16] Shared interrupts sometimes lost
-In-Reply-To: message from Pavel Machek on Tuesday April 11
-References: <5Zd5E-3vi-7@gated-at.bofh.it>
-	<4437C45E.8010503@shaw.ca>
-	<17464.55398.270243.839773@cse.unsw.edu.au>
-	<20060411170728.GB1893@elf.ucw.cz>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-Id: <20060412040756.YSVZ11236.web3-rme.xtra.co.nz@[202.27.184.228]>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday April 11, pavel@suse.cz wrote:
-> > 
-> > I currently have Linux compiled without ACPI support (as I don't
-> > really want that and being an oldish notebook I gather it has a good
-> > chance of causing problems) so that isn't fiddling with the ELCR.
 > 
-> Can you try to enable ACPI and/or APIC? Some machines are known to
-> require APIC...
+> From: "Hareesh Nagarajan" <hnagar2@gmail.com>
+> Date: 2006/04/12 Wed PM 03:51:22 GMT+12:00
+> To: hzy@cs.otago.ac.nz
+> CC: linux-kernel@vger.kernel.org,  zhiyi6@xtra.co.nz
+> Subject: Re: Slab corruption after unloading a module
+>
+> Why don't you compile the kernel with  CONFIG_DEBUG_SLAB=y and see 
+what the
+> debug messages have to say?
 
-Thanks for the suggestions.
+Thanks for help. I already configured the kernel with CONFIG_DEBUG_SLAB=y, 
+but I changed the current log level from 7 to 8. I got similar messages below. 
+I still have no clue. The messages show nothing about my module. Any more 
+suggestions?
 
-I now have
+Hello world from Template Module
+temp device MAJOR is 252
+Good bye from Template Module: 618 pages
+Slab corruption: start=c7933c38, len=192
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<c01ac52d>](load_elf_interp+0xdd/0x2d0)
+070: 6b 6b 6b 6b ac 3c 93 c7 ac 3c 93 c7 6b 6b 6b 6b
+Prev obj: start=c7933b6c, len=192
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<00000000>](0x0)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Next obj: start=c7933d04, len=192
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<c01e58fa>](__journal_remove_checkpoint+0x4a/0xa0)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
 
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
 
-in my .config, and it doesn't make any apparent difference.
-I haven't tried ACPI yet... maybe in a couple of days.
-
-Thanks again,
-NeilBrown

@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWDLKXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWDLKea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWDLKXz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 06:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWDLKXz
+	id S932145AbWDLKea (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 06:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWDLKea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 06:23:55 -0400
-Received: from newton.linux4geeks.de ([193.30.1.1]:60332 "EHLO
-	newton.linux4geeks.de") by vger.kernel.org with ESMTP
-	id S932136AbWDLKXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 06:23:55 -0400
-Date: Wed, 12 Apr 2006 12:23:52 +0200 (CEST)
-From: Sven Ladegast <sven@linux4geeks.de>
-To: linux-kernel@vger.kernel.org
-Subject: latency problems with kernel >= 2.6.15 and glibc 2.3.6
-Message-ID: <Pine.LNX.4.63.0604121140030.2821@cassini.linux4geeks.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 12 Apr 2006 06:34:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37007 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932145AbWDLKea (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 06:34:30 -0400
+Date: Wed, 12 Apr 2006 03:34:13 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: Binary sysfs blobs
+Message-Id: <20060412033413.6fa5dd54.zaitcev@redhat.com>
+In-Reply-To: <20060411204203.GA6177@kroah.com>
+References: <20060411110841.71390306.zaitcev@redhat.com>
+	<20060411204203.GA6177@kroah.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.3 (GTK+ 2.8.15; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello folks,
+On Tue, 11 Apr 2006 13:42:03 -0700, Greg KH <greg@kroah.com> wrote:
 
-I am experiencing latency problems with kernels above 2.6.15 and my self-compiled system.
-I am using glibc 2.3.6 (pthreads + libidn) compiled against kernel 2.6.12 headers.
+> No.  Binary sysfs files are for "pass-through" mode only.  You are ONLY
+> allowed to use them if you want to read from, or write to, some bit of
+> hardware and not manipulate the data at all.  Examples of this is the
+> raw PCI config space, firmware binary blobs and BIOS upgrades.
 
-If a process needs 100% CPU power the latency is becoming terrible. If i 
-nice that process to a lower priority effects are not that strong. 
-Especially working with a web browser displaying a website where multiple 
-flashplayer-plugins were startet the system is almost unusable. Input 
-events are not catched, mouse and sounds stuck and so on...
+I see. Kind of the opposite of what I thought they were, but it
+makes sense. Thanks.
 
-Preemption model is "low-latency-desktop", 
-CONFIG_PREEMPT_BKL: 1
-CONFIG_HZ: 1000
+> You should NEVER pass a raw structure through sysfs by using a binary
+> file.  If anyone sees anywhere in the current kernel that does this,
+> please let me know and I'll go hit them with a big stick...
 
-Has anyone experienced similar problems?
+I dunno how raw this is, but chp_measurement_copy_block and
+chp_measurement_read (in drivers/s390/cio/chsc.c) sure look like
+passing structures, in 2.6.17-rc1. However, the code does not interpret
+the structures, so maybe it's raw enough.
 
-Sven
--- 
-www.linux4geeks.de
+-- Pete

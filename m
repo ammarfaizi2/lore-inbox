@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWDLJQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWDLJT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbWDLJQu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 05:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWDLJQu
+	id S1751033AbWDLJT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 05:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWDLJT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 05:16:50 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:47752 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751011AbWDLJQu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 05:16:50 -0400
-Message-ID: <443CC586.6060105@de.ibm.com>
-Date: Wed, 12 Apr 2006 11:16:54 +0200
-From: Carsten Otte <cotte@de.ibm.com>
-Reply-To: carsteno@de.ibm.com
-Organization: IBM Deutschland
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, bjorn_helgaas@hp.com
-Subject: Re: [patch] do_no_pfn handler
-References: <yq0k6a6uc7i.fsf@jaguar.mkp.net> <yq0psjonq2p.fsf@jaguar.mkp.net>	<Pine.LNX.4.64.0604110751510.10745@g5.osdl.org> <yq0slojtb22.fsf@jaguar.mkp.net>
-In-Reply-To: <yq0slojtb22.fsf@jaguar.mkp.net>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 12 Apr 2006 05:19:56 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:32418 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751033AbWDLJT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 05:19:56 -0400
+Subject: Re: GPL issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Pramod Srinivasan <pramods@gmail.com>, David Weinehall <tao@acc.umu.se>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0604121057360.12544@yvahk01.tjqt.qr>
+References: <fcff6ec10604120001o18ca9edxf11ed055b5601e2a@mail.gmail.com>
+	 <Pine.LNX.4.61.0604121057360.12544@yvahk01.tjqt.qr>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Apr 2006 10:28:55 +0100
+Message-Id: <1144834135.1952.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
-> Linus> At the very least, it would also need a
-> Linus> 	BUG_ON(is_cow_mapping(vma->vm_flags));
-> 
-> Added - I am not sure how this will affect Carsten's situation based
-> on the further discussion in this thread, however if something changes
-> at that point I assume we can modify the limitation at a later stage.
-Fine with me.
+On Mer, 2006-04-12 at 11:06 +0200, Jan Engelhardt wrote:
+> I don't know an answer (not even a rough one), since there is AFAICS one 
+> example of what you describe: the CiscoVPN kernel module. The source is 
+> available (so you have a chance to run it on any kernel you like), but it's 
+> got a typical EULA. No sign of GPL.
+
+A matter some people have on their list of targets...
+

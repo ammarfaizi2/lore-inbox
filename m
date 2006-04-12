@@ -1,54 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWDLJ3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWDLJbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbWDLJ3I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 05:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWDLJ3I
+	id S1751112AbWDLJbb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 05:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWDLJbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 05:29:08 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:16828 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751097AbWDLJ3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 05:29:07 -0400
-Date: Wed, 12 Apr 2006 11:29:06 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Greg Ungerer <gerg@snapgear.com>,
-       dwmw2@infradead.org
-Subject: Re: [PATCH] mtd, nettel: fix build error and implicit declaration
-Message-ID: <20060412092906.GA6243@wohnheim.fh-wedel.de>
-References: <200604112041.49689.jesper.juhl@gmail.com>
+	Wed, 12 Apr 2006 05:31:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30483 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751112AbWDLJba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 05:31:30 -0400
+Date: Wed, 12 Apr 2006 10:30:20 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Mikkel Erup <mikkelerup@yahoo.com>, Al Viro <viro@ftp.linux.org.uk>,
+       Jens Axboe <axboe@suse.de>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: sdhci driver produces kernel oops on ejecting the card
+Message-ID: <20060412093020.GB25799@flint.arm.linux.org.uk>
+Mail-Followup-To: Mikkel Erup <mikkelerup@yahoo.com>,
+	Al Viro <viro@ftp.linux.org.uk>, Jens Axboe <axboe@suse.de>,
+	Pierre Ossman <drzeus-list@drzeus.cx>, Greg KH <greg@kroah.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060411194356.4573.qmail@web52107.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200604112041.49689.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060411194356.4573.qmail@web52107.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 April 2006 20:41:49 +0200, Jesper Juhl wrote:
+On Tue, Apr 11, 2006 at 12:43:56PM -0700, Mikkel Erup wrote:
+> > --- Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > 
+> > > So the
+> > > only place for sane
+> > > refcounting seems to be genhd.c, as per the patch
+> > > below.
+> > > 
+> > > Comments?
+> > > 
+> > > diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk
+> > -x
+> > > *.orig -x *.rej -x .git a/block/genhd.c
+> > > b/block/genhd.c
+> > > --- a/block/genhd.c	Sat Feb 18 10:31:37 2006
+> > > +++ b/block/genhd.c	Fri Apr  7 15:22:21 2006
+> > > @@ -262,6 +262,7 @@ static int exact_lock(dev_t
+> > dev,
+> > > void *d
+> > >   */
+> > >  void add_disk(struct gendisk *disk)
+> > >  {
+> > > +	get_device(disk->driverfs_dev);
+> > >  	disk->flags |= GENHD_FL_UP;
+> > >  	blk_register_region(MKDEV(disk->major,
+> > > disk->first_minor),
+> > >  			    disk->minors, NULL, exact_match,
+> > exact_lock,
+> > > disk);
+> > > @@ -507,6 +508,7 @@ static struct attribute *
+> > > default_attrs[
+> > >  static void disk_release(struct kobject * kobj)
+> > >  {
+> > >  	struct gendisk *disk = to_disk(kobj);
+> > > +	put_device(disk->driverfs_dev);
+> > >  	kfree(disk->random);
+> > >  	kfree(disk->part);
+> > >  	free_disk_stats(disk);
+> > 
+> > I can confirm that this patch is working.
+> > The 2.6.16-git20 kernel doesn't oops on
+> > ejecting the card after the patch is applied.
+> > 
+> > Mikkel
 > 
-> I just hit the following error and warning : 
->   drivers/mtd/maps/nettel.c: In function `nettel_init':
->   drivers/mtd/maps/nettel.c:418: error: `ROOT_DEV' undeclared (first use in this function)
->   drivers/mtd/maps/nettel.c:418: error: (Each undeclared identifier is reported only once
->   drivers/mtd/maps/nettel.c:418: error: for each function it appears in.)
->   drivers/mtd/maps/nettel.c:418: warning: implicit declaration of function `MKDEV'
->   make[3]: *** [drivers/mtd/maps/nettel.o] Error 1
->   make[2]: *** [drivers/mtd/maps] Error 2
->   make[1]: *** [drivers/mtd] Error 2
-> The patch fixes the missing ROOT_DEV declaration by including linux/root_dev.h
-> and fixes the implicit declaration of MKDEV by including linux/kdev_t.h .
+> I didn't see anything regarding this on sdchi-devel or lkml for a
+> week or so, so I thought I'd just make sure it's not forgotten.
+> This patch works really well for me. The kernel no longer oopses
+> on ejecting the card because a NULL pointer is no longer
+> dereferenced and I think the patch should be considered.
 
-I guess you could just send this to Andrew.
-
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-Acked-by: Joern Engel <joern@wh.fh-wedel.de>
-
-Jörn
+I think it needs someone like Al Viro or Jens Axboe to review it.
+I sent the patch to them originally, but when you replied, your mailer
+removed them from your reply.
 
 -- 
-To my face you have the audacity to advise me to become a thief - the worst
-kind of thief that is conceivable, a thief of spiritual things, a thief of
-ideas! It is insufferable, intolerable!
--- M. Binet in Scarabouche
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

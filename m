@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWDLQ6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWDLQ7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWDLQ6X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 12:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWDLQ6X
+	id S932216AbWDLQ7z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 12:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWDLQ7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 12:58:23 -0400
-Received: from smtp.ocgnet.org ([68.93.27.132]:27102 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S932208AbWDLQ6W (ORCPT
+	Wed, 12 Apr 2006 12:59:55 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:23827 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932216AbWDLQ7y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 12:58:22 -0400
-From: "amatus@ocgnet.org" <amatus@ocgnet.org>
-Date: Wed, 12 Apr 2006 11:58:21 -0500
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] m41t00: fix bitmasks when writing to chip
-Message-ID: <20060412165821.GA3025@login.ocgnet.org>
+	Wed, 12 Apr 2006 12:59:54 -0400
+Date: Wed, 12 Apr 2006 18:59:29 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Roman Zippel <zippel@linux-m68k.org>, hirofumi@mail.parknet.co.jp,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/POC] multiple CONFIG y/m/n
+Message-ID: <20060412165929.GA20573@mars.ravnborg.org>
+References: <20060406224134.0430e827.rdunlap@xenotime.net> <87odzdh1fp.fsf@duaron.myhome.or.jp> <20060409220426.8027953a.rdunlap@xenotime.net> <Pine.LNX.4.64.0604121253540.32445@scrub.home> <20060412091751.feba2dd4.rdunlap@xenotime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060412091751.feba2dd4.rdunlap@xenotime.net>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Barksdale <amatus@ocgnet.org>
+> IMO the main points/questions are:
+> 
+> - where to document the command-line options and environment variables
+>   (including the recent KCONFIG_CONFIG):  in a usage() function or in
+>   Documentation/kbuild/usage.txt file?
 
-This patch fixes the bitmasks used when writing to the M41T00 registers.
-The origional code used a mask of 0x7f when writing to each register,
-this is incorrect and probably the result of a copy-paste error. As a
-result years from 1980 to 1999 will be read back as 2000 to 2019.
+The latter...
+make help was the other alternative and it is too big already.
 
-Signed-off-by: David Barksdale <amatus@ocgnet.org>
+For kbuild I also need to add some stuff.
 
----
-
-The following patch is against the 2.6.16.4 linux kernel
-
---- linux-2.6.16.4/drivers/i2c/chips/m41t00.c.orig	2006-04-12 11:28:04.740793700 -0500
-+++ linux-2.6.16.4/drivers/i2c/chips/m41t00.c	2006-04-12 11:29:58.093959100 -0500
-@@ -129,13 +129,13 @@ m41t00_set_tlet(ulong arg)
- 	if ((i2c_smbus_write_byte_data(save_client, 0, tm.tm_sec & 0x7f) < 0)
- 		|| (i2c_smbus_write_byte_data(save_client, 1, tm.tm_min & 0x7f)
- 			< 0)
--		|| (i2c_smbus_write_byte_data(save_client, 2, tm.tm_hour & 0x7f)
-+		|| (i2c_smbus_write_byte_data(save_client, 2, tm.tm_hour & 0x3f)
- 			< 0)
--		|| (i2c_smbus_write_byte_data(save_client, 4, tm.tm_mday & 0x7f)
-+		|| (i2c_smbus_write_byte_data(save_client, 4, tm.tm_mday & 0x3f)
- 			< 0)
--		|| (i2c_smbus_write_byte_data(save_client, 5, tm.tm_mon & 0x7f)
-+		|| (i2c_smbus_write_byte_data(save_client, 5, tm.tm_mon & 0x1f)
- 			< 0)
--		|| (i2c_smbus_write_byte_data(save_client, 6, tm.tm_year & 0x7f)
-+		|| (i2c_smbus_write_byte_data(save_client, 6, tm.tm_year & 0xff)
- 			< 0))
- 
- 		dev_warn(&save_client->dev,"m41t00: can't write to rtc chip\n");
+	Sam

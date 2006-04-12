@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWDLJkU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWDLJte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWDLJkU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 05:40:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWDLJkU
+	id S932128AbWDLJte (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 05:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWDLJte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 05:40:20 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56002 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932124AbWDLJkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 05:40:19 -0400
-Date: Wed, 12 Apr 2006 11:40:18 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Pramod Srinivasan <pramods@gmail.com>, David Weinehall <tao@acc.umu.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL issues
-Message-ID: <mj+md-20060412.093650.16425.atrey@ucw.cz>
-References: <fcff6ec10604120001o18ca9edxf11ed055b5601e2a@mail.gmail.com> <Pine.LNX.4.61.0604121057360.12544@yvahk01.tjqt.qr> <443CC6CE.6070102@stesmi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <443CC6CE.6070102@stesmi.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 12 Apr 2006 05:49:34 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:40385 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932128AbWDLJtd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 05:49:33 -0400
+Date: Wed, 12 Apr 2006 11:49:27 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jeff Garzik <jeff@garzik.org>
+cc: Andreas Schnaiter <schnaiter@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16 -  SATA read performance drop ~50% on Intel
+ 82801GB/GR/GH
+In-Reply-To: <443C7A92.6010604@garzik.org>
+Message-ID: <Pine.LNX.4.61.0604121145040.12544@yvahk01.tjqt.qr>
+References: <200604120136.28681.schnaiter@gmx.net> <443C7A92.6010604@garzik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>
+> hdparm usually skips the usual layers, and benchmarks the ATA command
+> submission itself.  So if hdparm didn't change, that may indicate the problem
+> is either in the block (scheduler?) or filesystem layers.
+>
+> Tests:
+>
+> 2) Eliminate the filesystem layer by doing dd directly to the block device (dd
+> ... of=/dev/sda1) rather than dd'ing to a file on a filesystem.
 
-> That's almost forcing the person who wrote the kernel part to write
-> a GPL'd program JUST because there is a proprietary program using
-> his stuff - and THAT is insane.
+Use dd_rescue (dd_rescue /dev/sda /dev/null) and watch the 'cur rate' 
+marker. It should naturally drop over time (that is, it's less at the end 
+of the hard disk). If it instantly drops somewhere (and the system is not 
+otherwise loaded), it may indicate that the harddisk is going bad.
+I have seen disks that ran previously with udma4 speeds drop down to 
+900KB/s making backup to CD in the last minute a real excitement.
 
-If the kernel part does something, which can work _separately_, i.e.,
-do something useful without the proprietary program, then it's very
-likely OK. Otherwise, the proprietery program cannot be considered
-a work separate from the kernel part.
 
-				Have a nice fortnight
+Jan Engelhardt
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-If Bill Gates had a nickel for every time Windows crashed... ..oh wait, he does.

@@ -1,73 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWDLRWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWDLR22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWDLRWm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 13:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWDLRWm
+	id S932274AbWDLR22 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 13:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWDLR21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 13:22:42 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32406 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932271AbWDLRWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 13:22:41 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: Kirill Korotaev <dev@sw.ru>, Kir Kolyshkin <kir@openvz.org>, akpm@osdl.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net,
-       linux-kernel@vger.kernel.org, serue@us.ibm.com,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, herbert@13thfloor.at
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-References: <1143228339.19152.91.camel@localhost.localdomain>
-	<200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
-	<4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com>
-	<443B873B.9040908@sw.ru> <p73mzer4bti.fsf@bragg.suse.de>
-	<443CA47E.4070809@sw.ru> <p73irpf473y.fsf@bragg.suse.de>
-	<443CB181.40008@sw.ru> <p738xqa4tgj.fsf@bragg.suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 12 Apr 2006 11:20:05 -0600
-In-Reply-To: <p738xqa4tgj.fsf@bragg.suse.de> (Andi Kleen's message of "12
- Apr 2006 19:03:24 +0200")
-Message-ID: <m1mzeq7ltm.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Apr 2006 13:28:27 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:15761 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932274AbWDLR21
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 13:28:27 -0400
+Subject: Re: [PATCH 7/7] tpm: Driver for next generation TPM chips
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
+In-Reply-To: <20060411230505.GB21210@us.ibm.com>
+References: <1144679848.4917.15.camel@localhost.localdomain>
+	 <20060411230505.GB21210@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 12 Apr 2006 12:29:17 -0500
+Message-Id: <1144862957.12054.59.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Tue, 2006-04-11 at 16:05 -0700, Nishanth Aravamudan wrote:
+> return l;
+> > +
+> > +	} else {
+> > +		/* wait for burstcount */
+> > +		stop = jiffies + (HZ * chip->vendor.timeout_a / 1000);
+> > +		do {
+> > +			if (check_locality(chip, l) >= 0)
+> > +				return l;
+> > +			msleep(TPM_TIMEOUT);
+> > +		}
+> > +		while (time_before(jiffies, stop));
+> > +	}
+> 
+> This looks like it could take the msecs_to_jiffies() conversion as well.
+> Might as well cache it before the if/else, as both clauses use it?
+> Really, it is just wait_event*() without the wait-queue. Well, this is
+> at least one more consumer potentially of the poll_event*() API I had
+> written a while back, I'll dust it off again if I have the time.
+> 
+> <snip>
+> 
+> > +static int get_burstcount(struct tpm_chip *chip)
+> > +{
+> > +	unsigned long stop;
+> > +	int burstcnt;
+> > +
+> > +	/* wait for burstcount */
+> > +	/* which timeout value, spec has 2 answers (c & d) */
+> > +	stop = jiffies + (HZ * chip->vendor.timeout_d / 1000);
+> 
+> msecs_to_jiffies().
 
-> Kirill Korotaev <dev@sw.ru> writes:
->> 
->> -------------- cut ---------------
->> Changing PAGE_OFFSET this way would break at least Valgrind (the latest
->> release 3.1.0 by default is statically linked at address 0xb0000000, and
->> PIE support does not seem to be present in that release).  I remember
->> that similar changes were also breaking Lisp implementations (cmucl,
->> sbcl), however, I am not really sure about this.
->> -------------- cut ---------------
->
-> valgrind only breaks when you decrease TASK_SIZE to 2GB, not when you
-> enlarge it. In general 2GB VM breaks a lot of apps, that is why
-> the new CONFIGs that were added for this were a very bad idea imho.
->
-> Obviously the x86-64 kernel doesn't support such things.
->
->> Also, why would one expect 4GB of VM on x86-64 if normally have 3GB on
->> i686? Anyway, as it is tunable, people can select which one they
->> prefer.
->
-> Because near all programs that need can actually take advance of it.
+> 
 
-So back to the core aim of this thread.
+Since the timeout and duration values are always used in jiffies I think
+I'll just convert them to those values when I store them in the chip
+struct to cut way down on the number of conversions all together. Sound
+reasonable?
 
-i386 -> x86_64: 32bit migration should work, but may be a little
-confusing with the increase in VM space.  (I wonder how this
-interacts with the kernels vdso).  
+Thanks,
+Kylie
 
-x86_64 -> i386 is likely to use addresses between 3GB and 4GB
-and thus the migration probably will not work.  Unless the VM
-accessible to user space is capped at 3G.
 
-Odd.  But address space layout looks like one of the easiest migraion
-problem to solve.
 
-Eric
 

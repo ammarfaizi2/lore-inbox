@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWDLSDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWDLST3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWDLSDc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 14:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWDLSDc
+	id S932309AbWDLST3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 14:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWDLST3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 14:03:32 -0400
-Received: from xenotime.net ([66.160.160.81]:14789 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932302AbWDLSDc (ORCPT
+	Wed, 12 Apr 2006 14:19:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41138 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932309AbWDLST2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 14:03:32 -0400
-Date: Wed, 12 Apr 2006 11:05:57 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, minyard@mvista.com
-Subject: [PATCH] IPMI: fix devinit placement
-Message-Id: <20060412110557.dc03c0f8.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Apr 2006 14:19:28 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1144864128.8056.8.camel@lade.trondhjem.org> 
+References: <1144864128.8056.8.camel@lade.trondhjem.org>  <20060411150512.5dd6e83d.akpm@osdl.org> <16476.1144773375@warthog.cambridge.redhat.com> <17771.1144839377@warthog.cambridge.redhat.com> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use atomic ops for file_nr accounting, not spinlock+irq 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Wed, 12 Apr 2006 19:19:18 +0100
+Message-ID: <18424.1144865958@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-gcc complains about __devinit in the wrong location:
-drivers/char/ipmi/ipmi_si_intf.c:2205: warning: '__section__' attribute does not apply to types
+> I've been updating the NFS git tree on a daily basis. I'm not going to
+> begin pulling from the -mm tree, though.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/char/ipmi/ipmi_si_intf.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+The thing to which I refer is in Linus's tree but wasn't in yours this
+morning.  Unfortunately, this means my patch has to be different, depending on
+whose tree I'm using... although your tree has been updated since then, so the
+difference seems to have gone away.
 
---- linux-2617-rc1g5.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ linux-2617-rc1g5/drivers/char/ipmi/ipmi_si_intf.c
-@@ -2198,11 +2198,11 @@ static inline void wait_for_timer_and_th
- 	}
- }
- 
--static struct ipmi_default_vals
-+static __devinit struct ipmi_default_vals
- {
- 	int type;
- 	int port;
--} __devinit ipmi_defaults[] =
-+} ipmi_defaults[] =
- {
- 	{ .type = SI_KCS, .port = 0xca2 },
- 	{ .type = SI_SMIC, .port = 0xca9 },
+I don't mean to be critical of your efforts, but the requirement imposed by
+Andrew that I have to base my tree on yours makes things a little tricky
+sometimes:-/
 
-
----
+David

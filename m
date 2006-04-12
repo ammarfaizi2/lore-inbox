@@ -1,96 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWDLBi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWDLB64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbWDLBi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 21:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWDLBi2
+	id S1751304AbWDLB64 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 21:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWDLB64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 21:38:28 -0400
-Received: from mailhub.hp.com ([192.151.27.10]:42716 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S1750896AbWDLBi1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 21:38:27 -0400
-From: "Bob Picco" <bob.picco@hp.com>
-Date: Tue, 11 Apr 2006 21:38:24 -0400
-To: Mel Gorman <mel@skynet.ie>
-Cc: Bob Picco <bob.picco@hp.com>, "Luck, Tony" <tony.luck@intel.com>,
-       linuxppc-dev@ozlabs.org, davej@codemonkey.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@suse.de
-Subject: Re: [PATCH 0/6] [RFC] Sizing zones and holes in an architecture independent manner
-Message-ID: <20060412013824.GF23742@localhost>
-References: <20060411103946.18153.83059.sendpatchset@skynet> <20060411222029.GA7743@agluck-lia64.sc.intel.com> <20060411232944.GE23742@localhost> <Pine.LNX.4.64.0604120053080.10268@skynet.skynet.ie>
+	Tue, 11 Apr 2006 21:58:56 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:3744 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751304AbWDLB6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 21:58:55 -0400
+Subject: Re: PREEMPT_RT : 2.6.16-rt12 and boot : BUG ?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200604111815.25494.Serge.Noiraud@bull.net>
+References: <200604061416.00741.Serge.Noiraud@bull.net>
+	 <200604061705.36303.Serge.Noiraud@bull.net>
+	 <200604101446.13610.Serge.Noiraud@bull.net>
+	 <200604111815.25494.Serge.Noiraud@bull.net>
+Content-Type: text/plain
+Date: Tue, 11 Apr 2006 21:58:46 -0400
+Message-Id: <1144807126.26133.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604120053080.10268@skynet.skynet.ie>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman wrote:	[Tue Apr 11 2006, 08:02:10PM EDT]
-> On Tue, 11 Apr 2006, Bob Picco wrote:
+On Tue, 2006-04-11 at 18:15 +0200, Serge Noiraud wrote:
+> Hi,
 > 
-> >luck wrote:	[Tue Apr 11 2006, 06:20:29PM EDT]
-> >>On Tue, Apr 11, 2006 at 11:39:46AM +0100, Mel Gorman wrote:
-> >>
-> >>>The patches have only been *compile tested* for ia64 with a flatmem
-> >>>configuration. At attempt was made to boot test on an ancient RS/6000
-> >>>but the vanilla kernel does not boot so I have to investigate there.
-> >>
-> >>The good news: Compilation is clean on the ia64 config variants that
-> >>I usually build (all 10 of them).
-> >>
-> >>The bad (or at least consistent) news: It doesn't boot on an Intel
-> >>Tiger either (oops at kmem_cache_alloc+0x41).
-> >>
-> >>-Tony
-> >I had a reply queued to report the same failure with
-> >DISCONTIG+NUMA+VIRTUAL_MEM_MAP.  This was 2 CPU HP rx2600. I'll take a 
-> >closer
-> >look at the code tomorrow.
-> >
+> 	It now works with all config parameters set to yes on 2.6.16-rt16.
+> however, PERCPU_ENOUGH_ROOM is set to 384KB.
+> I'm now trying to lower this value of PERCPU_ENOUGH_ROOM.
+> With 256K and 2.6.16-rt16 : doesn't work.
+> With 320K : OK
+> So I need to use 320K for PERCPU_ENOUGH_ROOM to boot correctly.
 > 
-> hmm, ok, so discontig.c is in use which narrows things down. When 
-> build_node_maps() is called, I assumed that the start and end pfn passed 
-> in was for a valid page range. Was this a valid assumption? When I re-read 
-The addresses are a valid physical range. The caution should be that
-filter_rsvd_memory converts the addresses from identity mapped to
-physical. efi_memmap_walk calls back to function with identity mapped
-addresses. What you've done seems okay.
-BTW - I like want you are attempting to achieve.
-> the comment, it implies that memory holes could be within this range which 
-> would cause boot failures. If that is the case, the correct thing to do 
-> was to call add_active_range() in count_node_pages() instead of 
-> build_node_maps().
-Yes that helps because of granules and it boots.  The patch below is applied 
-on top of your original post. But..
+> I have several questions :
+> Is there a problem in my config file ?
 
-Index: linux-2.6.17-rc1/arch/ia64/mm/discontig.c
-===================================================================
---- linux-2.6.17-rc1.orig/arch/ia64/mm/discontig.c	2006-04-11 20:36:15.000000000 -0400
-+++ linux-2.6.17-rc1/arch/ia64/mm/discontig.c	2006-04-11 20:52:59.000000000 -0400
-@@ -88,9 +88,6 @@ static int __init build_node_maps(unsign
- 	min_low_pfn = min(min_low_pfn, bdp->node_boot_start>>PAGE_SHIFT);
- 	max_low_pfn = max(max_low_pfn, bdp->node_low_pfn);
- 
--	/* Add a known active range */
--	add_active_range(node, start, end);
--
- 	return 0;
- }
- 
-@@ -651,6 +648,8 @@ static __init int count_node_pages(unsig
- 	mem_data[node].min_pfn = min(mem_data[node].min_pfn,
- 				     start >> PAGE_SHIFT);
- 
-+	add_active_range(node, start, end);
-+
- 	return 0;
- }
+Not that I know of. (perhaps debugging options are on. Ingo?)
+Or you have too many things as modules (that's our problem, not yours).
 
-Page free/avail accounting is off and I'm done for tonight. I believe it's how 
-you treat holes but haven't looked closely yet.
- 
+> Will this memory freed at end of kernel loading ?
 
-Let me wrap my head around this code again. It's been some time.
-> 
-bob
+No
+
+> Why do we need such a size ?
+
+It seems that the -rt kernel has increased the size of structures that
+are used in modules and are defined per cpu.
+
+> What usage is this for ?
+
+There are variables that are defined per CPU.  The reason for variables
+to be defined special for each CPU is that you want the variables in
+their own cache line such that modifying a variable that is specific for
+a CPU wont cause a write to a cache line that has a variable (say read
+only) to all CPUS. Because this would cause strain on the bus and slow
+things down as the write to the cache line is causing the other CPUs to
+update that line and become coherent.
+
+But to make this easier for developers and to actually save space (don't
+want to waste the cache alignment just to space out variables), there is
+a lot of linker magic to do all the work for you.  So all a developer
+needs to do to declare a variable with DEFINE_PER_CPU(type, name) and
+friends and the linker takes care of the rest.
+
+Currently this is implemented by creating a section at compile time to
+hold all these variables.  At compile time, only one set is made.  When
+the machine boots up, this section is copied (cache aligned) NR_CPUS
+times.  And to access these variables, a macro per_cpu(var, cpu) is used
+to find the variable in this index.  Note: since the size of
+PERCPU_ENOUGH_ROOM is used if it is bigger than the current compile time
+section, PERCPU_ENOUGH_ROOM must be a multiple of the cache size or
+there can be an overlap in the CPU cache lines. (hmm, this looks like a
+patch is needed.)
+
+Now the problem you have is with modules.  Since the variables in the
+per_cpu() macro are looked up via an index and cpu, all these variables
+must be located in the same section.  Currently, to make this easier,
+(and this too probably should change), the per_cpu variables of a module
+are put in this same section.  So when a module is loaded, it finds a
+block in the per cpu area that is available and makes a copy of its per
+cpu variables into each section (per cpu).  But since this is static
+memory (the per cpu section cant grow) it must be allocated at boot up
+hoping that there's enough room for the modules that will be loaded in
+the future.  Don't worry about leaks, when a module is unloaded, it
+frees up the space in the per cpu area.
+
+What you have seen, is that the -rt patch grew something that the
+modules were using per cpu.  So when it tried to allocate the space in
+the per cpu area, there wasn't enough room.  So your module failed to be
+loaded.
+
+Hope this helps,
+
+-- Steve
+
+

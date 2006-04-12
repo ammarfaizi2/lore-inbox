@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWDLD5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWDLEB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbWDLD5L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 23:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWDLD5L
+	id S1751338AbWDLEB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 00:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWDLEB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 23:57:11 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:44955 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750940AbWDLD5L (ORCPT
+	Wed, 12 Apr 2006 00:01:57 -0400
+Received: from ns2.suse.de ([195.135.220.15]:55739 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751338AbWDLEB5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 23:57:11 -0400
-Message-ID: <443C7A92.6010604@garzik.org>
-Date: Tue, 11 Apr 2006 23:57:06 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Wed, 12 Apr 2006 00:01:57 -0400
+From: Neil Brown <neilb@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Date: Wed, 12 Apr 2006 14:01:15 +1000
 MIME-Version: 1.0
-To: Andreas Schnaiter <schnaiter@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16 -  SATA read performance drop ~50% on Intel 82801GB/GR/GH
-References: <200604120136.28681.schnaiter@gmx.net>
-In-Reply-To: <200604120136.28681.schnaiter@gmx.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -3.8 (---)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-3.8 points, 5.0 required)
+Message-ID: <17468.31627.825807.569134@cse.unsw.edu.au>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to correct ELCR? - was Re: [PATCH 2.6.16] Shared interrupts sometimes lost
+In-Reply-To: message from Pavel Machek on Tuesday April 11
+References: <5Zd5E-3vi-7@gated-at.bofh.it>
+	<4437C45E.8010503@shaw.ca>
+	<17464.55398.270243.839773@cse.unsw.edu.au>
+	<20060411170728.GB1893@elf.ucw.cz>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schnaiter wrote:
-> Hi,
+On Tuesday April 11, pavel@suse.cz wrote:
+> > 
+> > I currently have Linux compiled without ACPI support (as I don't
+> > really want that and being an oldish notebook I gather it has a good
+> > chance of causing problems) so that isn't fiddling with the ELCR.
 > 
-> after upgrading from linux 2.6.15.7 to 2.6.16.2 I noticed an extreme slowdown 
-> of the SATA disks on my system. Writing/reading a 8GB file showed that 
-> reading performes with less than half the speed on 2.6.16 (strangely hdparm 
-> shows almost no difference).
-> The two affected disks are connected to the Intel 82801GB/GR/GH (ICH7 Family)  
-> Serial ATA Controller.
-> Disks on the Silicon Image/Intel IDE Controllers are not affected.
-> I didn't have the chance yet to test if this problem also exists on the 
-> Silicon Image SATA Controller.
+> Can you try to enable ACPI and/or APIC? Some machines are known to
+> require APIC...
 
-hdparm usually skips the usual layers, and benchmarks the ATA command 
-submission itself.  So if hdparm didn't change, that may indicate the 
-problem is either in the block (scheduler?) or filesystem layers.
+Thanks for the suggestions.
 
-Tests:
+I now have
 
-1) Try with Silicon Image controller, as you mentioned.  Try in same 
-machine with same device, if possible.
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
 
-2) Eliminate the filesystem layer by doing dd directly to the block 
-device (dd ... of=/dev/sda1) rather than dd'ing to a file on a filesystem.
+in my .config, and it doesn't make any apparent difference.
+I haven't tried ACPI yet... maybe in a couple of days.
 
-3) Try decreasing the block size to 4k or 8k.
-
-4) Finally, the thing that will help us kernel hackers the most, use 
-'git bisect' to definitively discover the changeset that causes your 
-problems.
-
-	Jeff
-
-
-
+Thanks again,
+NeilBrown

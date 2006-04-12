@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWDLCdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWDLCi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbWDLCdf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 22:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWDLCdf
+	id S1751321AbWDLCi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 22:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWDLCi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 22:33:35 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:10987 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751316AbWDLCde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 22:33:34 -0400
-Date: Tue, 11 Apr 2006 19:33:47 -0700
-From: Mike Kravetz <mjkravetz@verizon.net>
-Subject: [PATCH] sparsemem interaction with memory add bug fixes
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Joel H Schopp <jschopp@us.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Message-id: <20060412023347.GA9343@w-mikek2.ibm.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Tue, 11 Apr 2006 22:38:27 -0400
+Received: from pproxy.gmail.com ([64.233.166.182]:17886 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751321AbWDLCi0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 22:38:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BseIkOGY0Z3TjGrRWFCORGBcONNRKG1YQ8RFUWxUG7Rih8OfBCCNHGhkFXigc2X2+BVp3590NMQ1UfTHFCdkjPZRa/3GcQFJCmI06KkkxoLPhsm433sZhjnZgk4Z+0ISl5kYJNMMK8Rnf0mUGaayAeLmbp8GnuECvwbFtz51UWg=
+Message-ID: <bda6d13a0604111938j5ece401cid364582fe9d6cf76@mail.gmail.com>
+Date: Tue, 11 Apr 2006 19:38:24 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: "Ramakanth Gunuganti" <rgunugan@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL issues
+In-Reply-To: <20060411230642.GV23222@vasa.acc.umu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060411063127.97362.qmail@web54314.mail.yahoo.com>
+	 <20060411230642.GV23222@vasa.acc.umu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes two bugs with the way sparsemem interacts with memory
-add.  They are:
-- memory leak if memmap for section already exists
-- calling alloc_bootmem_node() after boot
-These bugs were discovered and a first cut at the fixes were provided by
-Arnd Bergmann <arnd@arndb.de> and Joel Schopp <jschopp@us.ibm.com>.
-
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
-
-diff -Naupr linux-2.6.17-rc1-mm2/mm/sparse.c linux-2.6.17-rc1-mm2.work/mm/sparse.c
---- linux-2.6.17-rc1-mm2/mm/sparse.c	2006-04-03 03:22:10.000000000 +0000
-+++ linux-2.6.17-rc1-mm2.work/mm/sparse.c	2006-04-11 23:32:10.000000000 +0000
-@@ -32,7 +32,10 @@ static struct mem_section *sparse_index_
- 	unsigned long array_size = SECTIONS_PER_ROOT *
- 				   sizeof(struct mem_section);
- 
--	section = alloc_bootmem_node(NODE_DATA(nid), array_size);
-+	if (system_state == SYSTEM_RUNNING)
-+		section = kmalloc_node(array_size, GFP_KERNEL, nid);
-+	else
-+		section = alloc_bootmem_node(NODE_DATA(nid), array_size);
- 
- 	if (section)
- 		memset(section, 0, array_size);
-@@ -281,9 +284,9 @@ int sparse_add_one_section(struct zone *
- 
- 	ret = sparse_init_one_section(ms, section_nr, memmap);
- 
-+out:
- 	if (ret <= 0)
- 		__kfree_section_memmap(memmap, nr_pages);
--out:
- 	pgdat_resize_unlock(pgdat, &flags);
- 	return ret;
- }
+On 4/11/06, David Weinehall <tao@acc.umu.se> wrote:
+> OK, simplified rules; if you follow them you should generally be OK:
+>
+> 1. Changes to kernel --> GPL
+>
+> 2. Kernel driver --> GPL
+>
+> 3. Userspace code that uses interfaces that was not exposed to userspace
+> before you change the kernel --> GPL (but don't do it; there's almost
+> always a reason why an interface is not exported to userspace)
+>
+> 4. Userspace code that only uses existing interfaces --> choose
+> license yourself (but of course, GPL would be nice...)
+>
+> 5. Userspace code that depends on interfaces you added to the kernel
+> --> consult a lawyer (if this interface is something completely new,
+> you can *probably* use your own license for the userland part; if the
+> interface is more or less a wrapper of existing functionality, GPL)
+>
+> And of course, I'm not a lawyer either...
+Excellent summary except for one case. Propriatary binary allowed in initramfs?
+Not that I care.

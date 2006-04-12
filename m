@@ -1,202 +1,257 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWDLRiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWDLRil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWDLRiu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 13:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWDLRiu
+	id S932287AbWDLRil (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 13:38:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWDLRil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 13:38:50 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36101 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932281AbWDLRit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 13:38:49 -0400
-Date: Wed, 12 Apr 2006 19:38:47 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Domen Puncer <domen@coderock.org>, Alexey Dobriyan <adobriyan@gmail.com>,
-       linux-kernel@vger.kernel.org, philb@gnu.org, tim@cyberelk.net,
-       andrea@suse.de, linux-parport@lists.infradead.org, spyro@f2s.com
-Subject: [RFC: 2.6 patch] Remove CONFIG_PARPORT_ARC, drivers/parport/parport_arc.c
-Message-ID: <20060412173847.GC6517@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 12 Apr 2006 13:38:41 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:447 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S932262AbWDLRik (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 13:38:40 -0400
+Subject: Re: [RFC][PATCH 2/7] implementation of LSM hooks
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: =?ISO-8859-1?Q?T=F6r=F6k?= Edwin <edwin@gurde.com>
+Cc: linux-security-module@vger.kernel.org, James Morris <jmorris@namei.org>,
+       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
+In-Reply-To: <200604072138.35201.edwin@gurde.com>
+References: <200604021240.21290.edwin@gurde.com>
+	 <200604072034.20972.edwin@gurde.com> <200604072124.24000.edwin@gurde.com>
+	 <200604072138.35201.edwin@gurde.com>
+Content-Type: text/plain; charset=utf-8
+Organization: National Security Agency
+Date: Wed, 12 Apr 2006 13:42:48 -0400
+Message-Id: <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Domen Puncer <domen@coderock.org>
+On Fri, 2006-04-07 at 21:38 +0300, Török Edwin wrote:
+> Implementation of the LSM hooks. It is based on hooks.c from SELinux. 
+> I replaced the avc with calls to functions from autolabel.c
+> 
+> Also, one important difference:
+> - when open files are checked during an execve, they are NOT closed when a 
+> domain transition occurs to a different sid. A group SID is created, and both 
+> the old sid, and new sids can be retrieved later.
+> 
+> How could I write an SELinux policy that does this?
 
-It's wasn't referenced in Makefile since at least 2.2.8, unbuildable
-due to trivial typos and things like DATA_LATCH and arc_write_control()
-which doesn't exist.
+I don't think you can without further changes to SELinux, as you are
+mutating object labels in response to events (aka floating labels).  But
+the real question is why do you want to, i.e. what is actual functional
+requirement, not just how you have chosen to implement it.
 
-Adrian Bunk:
-adapted the patch to unrelated context changes
+> diff -uprN null/hooks.c fireflier_lsm/hooks.c
+> --- null/hooks.c	1970-01-01 02:00:00.000000000 +0200
+> +++ fireflier_lsm/hooks.c	2006-04-07 17:43:37.000000000 +0300
+> + * This function might sleep.
+> + */
+> +static int task_alloc_security(struct task_struct *task)
+> +{
+> +	struct fireflier_task_security_struct *tsec;
+> +	
+> +	tsec = kzalloc(sizeof(*tsec), GFP_ATOMIC);
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Why GFP_ATOMIC?
 
----
+> +	if (!tsec)
+> +		return -ENOMEM;
+> +	
+> +	tsec->magic = FIREFLIER_MAGIC;
 
- drivers/parport/Kconfig       |    5 -
- drivers/parport/parport_arc.c |  139 ----------------------------------
- 2 files changed, 144 deletions(-)
+Drop the magic fields and tests; they are a relic of early LSM
+development and have been dropped from SELinux.  Also you should
+naturally drop any fields you aren't using.
 
---- a/drivers/parport/parport_arc.c
-+++ b/drivers/parport/parport_arc.c
-@@ -1,139 +0,0 @@
--/* Low-level parallel port routines for Archimedes onboard hardware
-- *
-- * Author: Phil Blundell <philb@gnu.org>
-- */
--
--/* This driver is for the parallel port hardware found on Acorn's old
-- * range of Archimedes machines.  The A5000 and newer systems have PC-style
-- * I/O hardware and should use the parport_pc driver instead.
-- *
-- * The Acorn printer port hardware is very simple.  There is a single 8-bit
-- * write-only latch for the data port and control/status bits are handled
-- * with various auxilliary input and output lines.  The port is not
-- * bidirectional, does not support any modes other than SPP, and has only
-- * a subset of the standard printer control lines connected.
-- */
--
--#include <linux/threads.h>
--#include <linux/delay.h>
--#include <linux/errno.h>
--#include <linux/interrupt.h>
--#include <linux/ioport.h>
--#include <linux/kernel.h>
--#include <linux/slab.h>
--#include <linux/parport.h>
--
--#include <asm/ptrace.h>
--#include <asm/io.h>
--#include <asm/arch/oldlatches.h>
--#include <asm/arch/irqs.h>
--
--#define DATA_ADDRESS    0x3350010
--
--/* This is equivalent to the above and only used for request_region. */
--#define PORT_BASE       0x80000000 | ((DATA_ADDRESS - IO_BASE) >> 2)
--
--/* The hardware can't read from the data latch, so we must use a soft
--   copy. */
--static unsigned char data_copy;
--
--/* These are pretty simple. We know the irq is never shared and the
--   kernel does all the magic that's required. */
--static void arc_enable_irq(struct parport *p)
--{
--	enable_irq(p->irq);
--}
--
--static void arc_disable_irq(struct parport *p)
--{
--	disable_irq(p->irq);
--}
--
--static void arc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
--{
--	parport_generic_irq(irq, (struct parport *) dev_id, regs);
--}
--
--static void arc_write_data(struct parport *p, unsigned char data)
--{
--	data_copy = data;
--	outb_t(data, DATA_LATCH);
--}
--
--static unsigned char arc_read_data(struct parport *p)
--{
--	return data_copy;
--}
--
--static struct parport_operations parport_arc_ops = 
--{
--	.write_data	= arc_write_data,
--	.read_data	= arc_read_data,
--
--	.write_control	= arc_write_control,
--	.read_control	= arc_read_control,
--	.frob_control	= arc_frob_control,
--
--	.read_status	= arc_read_status,
--
--	.enable_irq	= arc_enable_irq,
--	.disable_irq	= arc_disable_irq,
--
--	.data_forward	= arc_data_forward,
--	.data_reverse	= arc_data_reverse,
--
--	.init_state	= arc_init_state,
--	.save_state	= arc_save_state,
--	.restore_state	= arc_restore_state,
--
--	.epp_write_data	= parport_ieee1284_epp_write_data,
--	.epp_read_data	= parport_ieee1284_epp_read_data,
--	.epp_write_addr	= parport_ieee1284_epp_write_addr,
--	.epp_read_addr	= parport_ieee1284_epp_read_addr,
--
--	.ecp_write_data	= parport_ieee1284_ecp_write_data,
--	.ecp_read_data	= parport_ieee1284_ecp_read_data,
--	.ecp_write_addr	= parport_ieee1284_ecp_write_addr,
--	
--	.compat_write_data	= parport_ieee1284_write_compat,
--	.nibble_read_data	= parport_ieee1284_read_nibble,
--	.byte_read_data		= parport_ieee1284_read_byte,
--
--	.owner		= THIS_MODULE,
--};
--
--/* --- Initialisation code -------------------------------- */
--
--static int parport_arc_init(void)
--{
--	/* Archimedes hardware provides only one port, at a fixed address */
--	struct parport *p;
--	struct resource res;
--	char *fake_name = "parport probe");
--
--	res = request_region(PORT_BASE, 1, fake_name);
--	if (res == NULL)
--		return 0;
--
--	p = parport_register_port (PORT_BASE, IRQ_PRINTERACK,
--				   PARPORT_DMA_NONE, &parport_arc_ops);
--
--	if (!p) {
--		release_region(PORT_BASE, 1);
--		return 0;
--	}
--
--	p->modes = PARPORT_MODE_ARCSPP;
--	p->size = 1;
--	rename_region(res, p->name);
--
--	printk(KERN_INFO "%s: Archimedes on-board port, using irq %d\n",
--	       p->irq);
--
--	/* Tell the high-level drivers about the port. */
--	parport_announce_port (p);
--
--	return 1;
--}
--
--module_init(parport_arc_init)
+> +static int fireflier_task_alloc_security(struct task_struct *tsk)
+> +{
+> +	struct fireflier_task_security_struct *tsec_current, *tsec_tsk;
+> +
+> +
+> +	int rc;
+> +	rc = task_alloc_security(tsk);
+> +	if (rc)
+> +		return rc;
+> +	tsec_current = current->security;
+> +	if(tsec_current) {
 
---- linux-2.6.17-rc1-mm2-full/drivers/parport/Kconfig.old	2006-04-12 19:30:11.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/drivers/parport/Kconfig	2006-04-12 19:29:35.000000000 +0200
-@@ -85,11 +85,6 @@
- config PARPORT_NOT_PC
- 	bool
- 
--config PARPORT_ARC
--	tristate "Archimedes hardware"
--	depends on ARM && PARPORT
--	select PARPORT_NOT_PC
--
- config PARPORT_IP32
- 	tristate "SGI IP32 builtin port (EXPERIMENTAL)"
- 	depends on SGI_IP32 && PARPORT && EXPERIMENTAL
+Better if you can guarantee that all tasks have a security structure,
+either via early initialization or by processing them all during your
+own initialization.
+
+> +	return secondary_ops->task_alloc_security(tsk);
+
+Don't call a secondary module hook unless you truly need it and know
+that it can work.  In particular, alloc_security hooks can't work
+properly without some mechanism for sharing the security field, so no
+point in doing this here.
+
+> +static int fireflier_bprm_set_security(struct linux_binprm *bprm)
+> +{
+> +	struct fireflier_bprm_security_struct *bsec;
+> +
+> +	bsec = bprm->security;
+> +	if(unlikely(!bsec)) {
+> +		printk(KERN_DEBUG "Fireflier: bprm->security not set\n");
+
+Shouldn't be possible since you are allocating one in the other hook,
+right, so don't test for such conditions.  You don't gain anything, and
+you may hide or lose useful info that you would have gotten from the
+Oops if it did occur.  Naturally the printks have to go for real use.
+
+> +/**
+> + * fireflier_bprm_free_security - free the binbprm's security structure
+> + * @bprm: linux_binprm structure, who's security structure is to be freed
+> + */
+> +static void fireflier_bprm_free_security(struct linux_binprm *bprm)
+> +{
+> +	BUG_ON(!bprm->security);
+
+Again, it doesn't serve any real purpose to have this kind of test.
+
+> +	kfree(bprm->security);
+> +	bprm->security = NULL;
+> +	return secondary_ops->bprm_free_security(bprm);
+
+And calling a secondary module here isn't likely to work anyway.
+
+> +static void fireflier_bprm_apply_creds(struct linux_binprm *bprm, int unsafe)
+> +{
+> +	struct fireflier_task_security_struct *tsec;
+> +	struct fireflier_bprm_security_struct *bsec;
+> +	u32 sid;
+> +
+> +
+> +	secondary_ops->bprm_apply_creds(bprm, unsafe);
+> +
+> +	tsec = current->security;
+> +	bsec = bprm->security;
+> +	if(unlikely(!bsec)) {
+> +		printk(KERN_DEBUG "No bprm security structure allocated\n");
+> +		dump_stack();
+> +		return;
+> +	}
+
+Again, drop the test and let it Oops if it happens.
+
+> +	sid = bsec->sid;
+> +
+> +
+> +	bsec->unsafe = 0;
+> +	if(unlikely(!tsec)) {
+> +		printk(KERN_DEBUG "No security structure allocated\n");
+> +		dump_stack();
+> +		return;
+> +	}
+
+Ditto.
+
+> +/**
+> + * inode_update_perm - update the group SID of this inode
+> + * @tsk - the task that has accesses the inode
+> + * @inode - the inode who's SID has to be updated
+> + * A task has accessed this file, add the task's SID to the group SID of 
+> tasks
+> + * accessing the file
+> + * based on inode_has_perm 
+> + */
+> +static void inode_update_perm(struct task_struct *tsk,struct inode *inode)
+> +{
+> +	struct fireflier_task_security_struct *tsec;
+> +	struct fireflier_inode_security_struct *isec;
+> +
+> +     	tsec = tsk->security;
+> +   	isec = inode->i_security;
+> +   	if(!isec) 
+> +     		return;
+> +   
+> +     	if(unlikely(!tsec))
+> +       		isec->sid = compute_inode_sid(isec->sid,FIREFLIER_SID_UNLABELED);
+> +   	else
+> +     		isec->sid = compute_inode_sid(isec->sid,tsec->sid);
+> +   	printk(KERN_DEBUG "computed inode 
+> sid: %ld->%d\n",inode->i_ino,isec->sid);   
+> +}
+
+Locking?  You are mutating the inode's SID, but many different tasks may
+be accessing (in this case, inheriting/receiving a descriptor to) the
+inode simultaneously.  Not clear that SIDs are even the right primitive
+for what you are doing here, essentially aggregating a list of all
+subjects that have gained a descriptor to the socket.  
+
+> +static  inline void file_update_perm(struct task_struct *tsk, struct file 
+> *file)    
+> +{
+> +   
+> +	struct fireflier_task_security_struct *tsec = tsk->security;
+> +	struct fireflier_file_security_struct *fsec = file->f_security;
+> +	struct dentry *dentry = file->f_dentry;
+> +	struct inode *inode = dentry->d_inode;
+> +   
+> +	inode_update_perm(tsk, inode);
+> +   
+> +	if(!fsec)
+> +		return;
+> +	if(unlikely(!tsec))
+> +		fsec->sid=compute_inode_sid(fsec->sid,FIREFLIER_SID_UNLABELED);
+> +	else
+> +		fsec->sid=compute_inode_sid(fsec->sid,tsec->sid);
+
+As before, locking required for safety.  But also - where do you use
+this fsec->sid for anything (vs. the isec->sid)?
+
+> +static int fireflier_inode_getsecurity(struct inode *inode, const char *name, 
+> void *buffer, size_t size, int err)
+> +{
+<snip>
+> +	if (err > 0) {
+> +		if ((len == err) && !(memcmp(context, buffer, len))) {
+> +			/* Don't need to canonicalize value */
+> +			rc = err;
+> +			goto out_free;
+> +		}
+> +		memset(buffer, 0, size);
+
+IIUC, since you are dealing with sockets, this case is extraneous for
+you.  In SELinux, it only exists for the case where you have an on-disk
+xattr that already matches the incore representation, and is actually
+eliminated in recent patches altogether.
+
+> +	}
+> +	memcpy(buffer, context, len);
+> +	rc = len;
+> + out_free:
+> +	kfree(context);
+> + out:
+> +	return secondary_ops->inode_getsecurity(inode,name,buffer,size,err);
+> +}
+
+If there is a secondary module that implements that hook, won't it end
+up clobbering what you just put into the buffer (and you lose the rc
+value here)?  Again, drop any secondary hooks that you don't need and
+that can't work in the absence of a real stacking solution.
+
+> +
+> +static int fireflier_inode_listsecurity(struct inode *inode, char *buffer, 
+> size_t buffer_size)
+> +{
+> +	if(inode->i_security) 
+> +	{
+> +	
+> +		const int len = sizeof(XATTR_NAME_FIREFLIER);
+> +		if (buffer && len <= buffer_size)
+> +			memcpy(buffer, XATTR_NAME_FIREFLIER, len);
+> +		return len+
+> +			secondary_ops->inode_listsecurity(inode,buffer+len,buffer_size-len);
+
+What if len > buffer_size?  But as before, don't bother calling
+secondary here unless you can actually make it work and have a need for
+it.
+
+-- 
+Stephen Smalley
+National Security Agency
+

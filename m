@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWDLJuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWDLJzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWDLJuX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 05:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWDLJuW
+	id S932133AbWDLJzx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 05:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWDLJzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 05:50:22 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:712 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932126AbWDLJuW (ORCPT
+	Wed, 12 Apr 2006 05:55:53 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:39908 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932125AbWDLJzw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 05:50:22 -0400
-Date: Wed, 12 Apr 2006 13:50:17 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: New asycnhronous crypto layer (acrypto) release.
-Message-ID: <20060412095017.GA14530@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 12 Apr 2006 13:50:18 +0400 (MSD)
+	Wed, 12 Apr 2006 05:55:52 -0400
+Date: Wed, 12 Apr 2006 11:55:43 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       linux-ide@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: libata-pata works on ICH4-M
+In-Reply-To: <1144832990.1952.20.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0604121153060.12544@yvahk01.tjqt.qr>
+References: <443B9EBB.6010607@gmx.net>  <Pine.LNX.4.61.0604112044340.25940@yvahk01.tjqt.qr>
+ <1144832990.1952.20.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Acrypto [1] - asynchronous crypto layer for linux kernel 2.6
 
-New acrypto combined patch for 2.6.15 kernel tree has been released, which
-fixes IPsec ESP4 tunnel mode processing and initialization dependency on
-connector when acrypto is built statically.
-Many thanks to Yakov Lerner for testing.
-Patch [2] is available in archive [3].
+>> So libata has the overhead of using SCSI commands? At least 
+>> that's what it suggests to the normal user.
+>
+>libata issues standard ATA commands to disks and CF cards, and ATAPI to
+>other devices. The current tree knows how to use LBA28 commands
+>opportunistically so its generating basically the same command stream as
+>the old IDE layer
 
-New standalone acrypto source released. It is a sync with combined
-patch, so it only includes resolution of dependency on connector when
-acrypto is built statically. It is available in archive [3].
+That sounds nice, but does hdparm also work with it? The last time I 
+tried to hdparm a SCSI-style device (usb flash disk, /dev/sda), it did 
+not work, only sdparm did the job. Will this also be the case with libata?
 
-Main work is concentrated on 2.6.16 IPsec port, which was noticebly
-changed after 2.6.15.
+(BTW, did you mean LBA48?)
 
-1. http://tservice.net.ru/~s0mbre/old/?section=projects&item=acrypto
-2. http://tservice.net.ru/~s0mbre/archive/acrypto/drivers/acrypto-combined-2.6.15.diff.2
-3. http://tservice.net.ru/~s0mbre/archive/acrypto
 
+Jan Engelhardt
 -- 
-	Evgeniy Polyakov

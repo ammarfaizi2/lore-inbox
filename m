@@ -1,39 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWDLST3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWDLSWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWDLST3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 14:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWDLST3
+	id S932307AbWDLSWx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 14:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWDLSWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 14:19:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41138 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932309AbWDLST2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 14:19:28 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1144864128.8056.8.camel@lade.trondhjem.org> 
-References: <1144864128.8056.8.camel@lade.trondhjem.org>  <20060411150512.5dd6e83d.akpm@osdl.org> <16476.1144773375@warthog.cambridge.redhat.com> <17771.1144839377@warthog.cambridge.redhat.com> 
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use atomic ops for file_nr accounting, not spinlock+irq 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Wed, 12 Apr 2006 19:19:18 +0100
-Message-ID: <18424.1144865958@warthog.cambridge.redhat.com>
+	Wed, 12 Apr 2006 14:22:53 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:33809 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S932307AbWDLSWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 14:22:52 -0400
+Message-ID: <443D4575.1090506@mvista.com>
+Date: Wed, 12 Apr 2006 13:22:45 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       minyard@mvista.com
+Subject: Re: [PATCH] IPMI: fix devinit placement
+References: <20060412110557.dc03c0f8.rdunlap@xenotime.net>
+In-Reply-To: <20060412110557.dc03c0f8.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Looks fine to me. Thanks.
 
-> I've been updating the NFS git tree on a daily basis. I'm not going to
-> begin pulling from the -mm tree, though.
+-Corey
 
-The thing to which I refer is in Linus's tree but wasn't in yours this
-morning.  Unfortunately, this means my patch has to be different, depending on
-whose tree I'm using... although your tree has been updated since then, so the
-difference seems to have gone away.
+Randy.Dunlap wrote:
 
-I don't mean to be critical of your efforts, but the requirement imposed by
-Andrew that I have to base my tree on yours makes things a little tricky
-sometimes:-/
+>From: Randy Dunlap <rdunlap@xenotime.net>
+>
+>gcc complains about __devinit in the wrong location:
+>drivers/char/ipmi/ipmi_si_intf.c:2205: warning: '__section__' attribute does not apply to types
+>
+>Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+>---
+> drivers/char/ipmi/ipmi_si_intf.c |    4 ++--
+> 1 files changed, 2 insertions(+), 2 deletions(-)
+>
+>--- linux-2617-rc1g5.orig/drivers/char/ipmi/ipmi_si_intf.c
+>+++ linux-2617-rc1g5/drivers/char/ipmi/ipmi_si_intf.c
+>@@ -2198,11 +2198,11 @@ static inline void wait_for_timer_and_th
+> 	}
+> }
+> 
+>-static struct ipmi_default_vals
+>+static __devinit struct ipmi_default_vals
+> {
+> 	int type;
+> 	int port;
+>-} __devinit ipmi_defaults[] =
+>+} ipmi_defaults[] =
+> {
+> 	{ .type = SI_KCS, .port = 0xca2 },
+> 	{ .type = SI_SMIC, .port = 0xca9 },
+>
+>
+>---
+>  
+>
 
-David

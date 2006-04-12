@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWDLUov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWDLUwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbWDLUov (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 16:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWDLUov
+	id S932233AbWDLUwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 16:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWDLUwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 16:44:51 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:24580 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932235AbWDLUov (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 16:44:51 -0400
-Date: Wed, 12 Apr 2006 22:44:37 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: zippel@linux-m68k.org, hirofumi@mail.parknet.co.jp,
-       linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] config: update usage/help info
-Message-ID: <20060412204437.GA8061@mars.ravnborg.org>
-References: <20060406224134.0430e827.rdunlap@xenotime.net> <87odzdh1fp.fsf@duaron.myhome.or.jp> <20060409220426.8027953a.rdunlap@xenotime.net> <Pine.LNX.4.64.0604121253540.32445@scrub.home> <20060412091751.feba2dd4.rdunlap@xenotime.net> <20060412165929.GA20573@mars.ravnborg.org> <20060412115657.409b71bc.rdunlap@xenotime.net>
+	Wed, 12 Apr 2006 16:52:25 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54230
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932233AbWDLUwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 16:52:24 -0400
+Date: Wed, 12 Apr 2006 13:51:43 -0700 (PDT)
+Message-Id: <20060412.135143.29962858.davem@davemloft.net>
+To: greearb@candelatech.com
+Cc: ioe-lkml@rameria.de, netdev@axxeo.de, vda@ilport.com.ua,
+       dave@thedillows.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [RFD][PATCH] typhoon and core sample for folding away VLAN
+ stuff
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <443D5E9E.80002@candelatech.com>
+References: <200604111517.37215.netdev@axxeo.de>
+	<200604122132.46113.ioe-lkml@rameria.de>
+	<443D5E9E.80002@candelatech.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060412115657.409b71bc.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 12, 2006 at 11:56:57AM -0700, Randy.Dunlap wrote:
- 
-> Here's a shot at it, although it seemed that top-level README was
-> sufficient for the make *config additions.
-README is covering too much today. So adding the below text is fine with
-the content of README today.
+From: Ben Greear <greearb@candelatech.com>
+Date: Wed, 12 Apr 2006 13:10:06 -0700
 
-So:
+> What is the reasoning for this change?  Is the compiler
+> able to optomize the right-hand-side to a constant with your
+> change in place?
+> 
+> > -	if (veth->h_vlan_proto != __constant_htons(ETH_P_8021Q)) {
+> > +	if (veth->h_vlan_proto != htons(ETH_P_8021Q)) {
+> >  		return -EINVAL;
+> >  	}
 
-> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
+As a policy, Ben, we only use __constant_htons() in compile
+time initializers of data structures.  Otherwise we use the
+normal htons().
 
-	Sam
+That's why.

@@ -1,102 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWDLAVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWDLAcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWDLAVp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 20:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWDLAVp
+	id S1751188AbWDLAcV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 20:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWDLAcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 20:21:45 -0400
-Received: from mailfe08.tele2.fr ([212.247.154.236]:23734 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1751142AbWDLAVo (ORCPT
+	Tue, 11 Apr 2006 20:32:20 -0400
+Received: from mailer1.psc.edu ([128.182.58.100]:8954 "EHLO mailer1.psc.edu")
+	by vger.kernel.org with ESMTP id S1751181AbWDLAcU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 20:21:44 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-X-Cloudmark-Score: 0.000000 []
-Date: Wed, 12 Apr 2006 02:21:25 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: [PATCH] Enhancing accessibility of lxdialog
-Message-ID: <20060412002125.GG5491@bouh.residence.ens-lyon.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i-nntp
+	Tue, 11 Apr 2006 20:32:20 -0400
+Message-ID: <443C4A8C.8070407@psc.edu>
+Date: Tue, 11 Apr 2006 20:32:12 -0400
+From: John Heffner <jheffner@psc.edu>
+User-Agent: Thunderbird 1.5 (Macintosh/20051201)
+MIME-Version: 1.0
+To: Daniel Drake <dsd@gentoo.org>
+CC: Stephen Hemminger <shemminger@osdl.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17 regression: Very slow net transfer from some hosts
+References: <443C03E6.7080202@gentoo.org>	<443C024C.2070107@psc.edu>	<443C0B74.50305@gentoo.org>	<443C09A7.2040900@psc.edu>	<443C1738.20605@gentoo.org>	<443C178B.3030805@psc.edu>	<443C2BBA.5010804@gentoo.org> <20060411153315.4132b477@localhost.localdomain> <443C4471.7040407@gentoo.org>
+In-Reply-To: <443C4471.7040407@gentoo.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Daniel Drake wrote:
+> Stephen Hemminger wrote:
+>> Turn off TCP window scaling, your performance will be limited but about
+>> as good as you can get with a corrupting firewall in between.
 
-For easily getting fairly good accessibility, TTY's cursor should
-always be left at the focus location. This patch fixes the checklist by
-just having the list refreshed after the dialog box (hence the cursor
-position remains in the list).
+[snip]
 
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+> For anyone else interested, the ISP is NTL (UK). The fix:
+> 
+>     echo "4096    16384   131072 " > /proc/sys/net/ipv4/tcp_wmem
+>     echo "4096    87380   174760 " > /proc/sys/net/ipv4/tcp_rmem
 
-diff --git a/scripts/kconfig/lxdialog/checklist.c b/scripts/kconfig/lxdialog/checklist.c
-index db07ae7..cf14b29 100644
---- a/scripts/kconfig/lxdialog/checklist.c
-+++ b/scripts/kconfig/lxdialog/checklist.c
-@@ -196,8 +196,8 @@
- 
- 	print_buttons(dialog, height, width, 0);
- 
--	wnoutrefresh(list);
- 	wnoutrefresh(dialog);
-+	wnoutrefresh(list);
- 	doupdate();
- 
- 	while (key != ESC) {
-@@ -225,12 +225,11 @@
- 					}
- 					scroll--;
- 					print_item(list, items[scroll * 3 + 1], status[scroll], 0, TRUE);
--					wnoutrefresh(list);
--
- 					print_arrows(dialog, choice, item_no,
- 						     scroll, box_y, box_x + check_x + 5, list_height);
- 
--					wrefresh(dialog);
-+					wnoutrefresh(dialog);
-+					wrefresh(list);
- 
- 					continue;	/* wait for another key press */
- 				} else
-@@ -252,12 +251,12 @@
- 					scroll++;
- 					print_item(list, items[(scroll + max_choice - 1) * 3 + 1],
- 						   status[scroll + max_choice - 1], max_choice - 1, TRUE);
--					wnoutrefresh(list);
- 
- 					print_arrows(dialog, choice, item_no,
- 						     scroll, box_y, box_x + check_x + 5, list_height);
- 
--					wrefresh(dialog);
-+					wnoutrefresh(dialog);
-+					wrefresh(list);
- 
- 					continue;	/* wait for another key press */
- 				} else
-@@ -271,8 +270,8 @@
- 				choice = i;
- 				print_item(list, items[(scroll + choice) * 3 + 1],
- 					   status[scroll + choice], choice, TRUE);
--				wnoutrefresh(list);
--				wrefresh(dialog);
-+				wnoutrefresh(dialog);
-+				wrefresh(list);
- 			}
- 			continue;	/* wait for another key press */
- 		}
-@@ -306,8 +305,8 @@
- 						print_item(list, items[(scroll + i) * 3 + 1],
- 							   status[scroll + i], i, i == choice);
- 				}
--				wnoutrefresh(list);
--				wrefresh(dialog);
-+				wnoutrefresh(dialog);
-+				wrefresh(list);
- 
- 				for (i = 0; i < item_no; i++)
- 					if (status[i])
+For the record, I think Stephen's suggested workaround is better:
+
+echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
+
+It will prevent the other end of the connection from using a window 
+scale, so it "fixes" both directions of the connection, not just receiving.
+
+Thanks,
+   -John

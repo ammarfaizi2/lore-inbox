@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWDLORi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWDLOTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbWDLORi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 10:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWDLORi
+	id S932186AbWDLOTj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 10:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWDLOTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 10:17:38 -0400
-Received: from math.ut.ee ([193.40.36.2]:8699 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S932186AbWDLORh (ORCPT
+	Wed, 12 Apr 2006 10:19:39 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:20131 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932186AbWDLOTi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 10:17:37 -0400
-Date: Wed, 12 Apr 2006 17:17:25 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: OOPS (ALSA?) in 2.6.17-rc1-g6246b612 (Apr 3)
-Message-ID: <Pine.SOC.4.61.0604121713560.15688@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 12 Apr 2006 10:19:38 -0400
+Date: Wed, 12 Apr 2006 10:18:38 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
+       ebiederm@xmission.com
+Subject: Re: [Fastboot] [PATCH] Kexec: Common alloc
+Message-ID: <20060412141838.GA5550@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060412083402.25911.56088.sendpatchset@cherry.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060412083402.25911.56088.sendpatchset@cherry.local>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just got this one from openoffice.org today. The -dirty is from a 8250 
-serial debug patch. Seems to come from ALSAO OSS emulation.
+On Wed, Apr 12, 2006 at 05:33:02PM +0900, Magnus Damm wrote:
+> Kexec: Common alloc
+> 
+> This patch reduces code redundancy by introducing a new function called
+> kimage_common_alloc() which is used to set up image->control_code_page.
+> 
+> Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
+> ---
+> 
+> Applies on top of linux-2.6.17-rc1-git5 + "Kexec: Remove duplicate rimage"
+> 
+>  kexec.c |   51 ++++++++++++++++++++-------------------------------
+>  1 files changed, 20 insertions(+), 31 deletions(-)
+> 
+> --- 0004/kernel/kexec.c
+> +++ work/kernel/kexec.c	2006-04-12 16:30:34.000000000 +0900
+> @@ -205,34 +205,36 @@ out:
+>  
+>  }
+>  
+> -static int kimage_normal_alloc(struct kimage **rimage, unsigned long entry,
+> -				unsigned long nr_segments,
+> -				struct kexec_segment __user *segments)
+> +static int kimage_common_alloc(struct kimage *image)
+>  {
+> -	int result;
+> -	struct kimage *image;
+> -
+> -	/* Allocate and initialize a controlling structure */
+> -	image = NULL;
+> -	result = do_kimage_alloc(&image, entry, nr_segments, segments);
+> -	if (result)
+> -		goto out;
+> -
+>  	/*
+> -	 * Find a location for the control code buffer, and add it
+> +	 * Find a location for the control code buffer, and add
+>  	 * the vector of segments so that it's pages will also be
+>  	 * counted as destination pages.
+>  	 */
+> -	result = -ENOMEM;
+>  	image->control_code_page = kimage_alloc_control_pages(image,
+>  					   get_order(KEXEC_CONTROL_CODE_SIZE));
+>  	if (!image->control_code_page) {
+>  		printk(KERN_ERR "Could not allocate control_code_buffer\n");
+> -		goto out;
+> +		return -ENOMEM;
 
-BUG: unable to handle kernel NULL pointer dereference at virtual address 0000005c
-  printing eip:
-e08c894f
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-Modules linked in: ipt_REJECT iptable_filter ip_tables x_tables r128 ipv6 md_mod adm1025 hwmon_vid smsc47m1 hwmon i2c_isa sd_mod usb_storage scsi_mod isofs zlib_inflate vfat fat eeprom ntfs snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc evdev i2c_i801 i2c_core uhci_hcd usbcore dm_mod
-CPU:    0
-EIP:    0060:[<e08c894f>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.17-rc1-g6246b612-dirty #176)
-EIP is at snd_pcm_oss_get_formats+0x1b/0xfb [snd_pcm_oss]
-eax: 00000000   ebx: bfc8380c   ecx: 00000050   edx: 00000000
-esi: c2ecd960   edi: bfc8380c   ebp: c7555f0c   esp: c7555ee0
-ds: 007b   es: 007b   ss: 0068
-Process soffice.bin (pid: 30580, threadinfo=c7555000 task=c6a76570)
-Stack: <0>c44880c0 dfa55ce8 dfa3f7a0 00000000 c014d29e c44880c0 dfa55ce8 c7555f20
-        00000000 bfc8380c c2ecd960 c7555f50 e08c8f74 c44880c0 c7555f3c 08335b54
-        c7555f34 c01454d3 c44880c0 00000000 00000000 c7555f88 c0145513 df4a2098
-Call Trace:
-  <c0103b50> show_stack_log_lvl+0x8b/0x95   <c0103c8c> show_registers+0x132/0x198
-  <c0103fb3> die+0x168/0x1f2   <c011154f> do_page_fault+0x451/0x534
-  <c01035eb> error_code+0x4f/0x54   <e08c8f74> snd_pcm_oss_ioctl+0x545/0x94d [snd_pcm_oss]
-  <c0154c28> do_ioctl+0x20/0x65   <c0154eba> vfs_ioctl+0x24d/0x260
-  <c0154ef7> sys_ioctl+0x2a/0x43   <c0102a77> sysenter_past_esp+0x54/0x75
-Code: e8 04 4b 75 db 89 f0 e8 93 ff ff ff 5b 5e 5d c3 55 89 e5 56 53 83 ec 24 8d 55 f4 e8 f3 fe ff ff 85 c0 0f 88 dc 00 00 00 8b 55 f4 <8b> 42 5c 8b 80 a0 00 00 00 85 c0 75 11 f6 82 98 00 00 00 02 66
+Ok. So effectively call to the the function kimage_alloc_control_pages() and
+its return code handling is being wrapped in another function. This function
+is called at only two places. Not quite convinced that this duplication is
+significant enough that we introduce another function to wrap a function
+call.
 
-mroos@rhn:~$ uname -a
-Linux rhn 2.6.17-rc1-g6246b612-dirty #176 PREEMPT Mon Apr 3 07:41:07 EEST 2006 i686 GNU/Linux
-
-
--- 
-Meelis Roos (mroos@linux.ee)
+Thanks
+Vivek

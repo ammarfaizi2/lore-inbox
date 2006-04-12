@@ -1,102 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWDLB64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWDLB6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751304AbWDLB64 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 21:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWDLB64
+	id S1751301AbWDLB6l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 21:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWDLB6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 21:58:56 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:3744 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751304AbWDLB6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 21:58:55 -0400
-Subject: Re: PREEMPT_RT : 2.6.16-rt12 and boot : BUG ?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200604111815.25494.Serge.Noiraud@bull.net>
-References: <200604061416.00741.Serge.Noiraud@bull.net>
-	 <200604061705.36303.Serge.Noiraud@bull.net>
-	 <200604101446.13610.Serge.Noiraud@bull.net>
-	 <200604111815.25494.Serge.Noiraud@bull.net>
-Content-Type: text/plain
-Date: Tue, 11 Apr 2006 21:58:46 -0400
-Message-Id: <1144807126.26133.21.camel@localhost.localdomain>
+	Tue, 11 Apr 2006 21:58:41 -0400
+Received: from mga06.intel.com ([134.134.136.21]:34884 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751301AbWDLB6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 21:58:40 -0400
+X-IronPort-AV: i="4.04,113,1144047600"; 
+   d="scan'208"; a="22174865:sNHT16741585"
+X-IronPort-AV: i="4.04,113,1144047600"; 
+   d="scan'208"; a="22174859:sNHT17005527"
+TrustExchangeSourcedMail: True
+X-IronPort-AV: i="4.04,113,1144047600"; 
+   d="scan'208"; a="22174858:sNHT17766077"
+Date: Tue, 11 Apr 2006 18:57:09 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: move enough load to balance average load per task
+Message-ID: <20060411185709.A2401@unix-os.sc.intel.com>
+References: <4439FF0C.8030407@bigpond.net.au> <20060410181237.A26977@unix-os.sc.intel.com> <443C3FD8.2060906@bigpond.net.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <443C3FD8.2060906@bigpond.net.au>; from pwil3058@bigpond.net.au on Wed, Apr 12, 2006 at 09:46:32AM +1000
+X-OriginalArrivalTime: 12 Apr 2006 01:58:31.0974 (UTC) FILETIME=[99B31C60:01C65DD4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-11 at 18:15 +0200, Serge Noiraud wrote:
-> Hi,
+On Wed, Apr 12, 2006 at 09:46:32AM +1000, Peter Williams wrote:
+> Siddha, Suresh B wrote:
+> > On Mon, Apr 10, 2006 at 04:45:32PM +1000, Peter Williams wrote:
+> >> Problem:
+> >>
+> >> The current implementation of find_busiest_group() recognizes that 
+> >> approximately equal average loads per task for each group/queue are 
+> >> desirable (e.g. this condition will increase the probability that the 
+> >> top N highest priority tasks on an N CPU system will be on different 
+> >> CPUs) by being slightly more aggressive when *imbalance is small but the 
+> >> average load per task in "busiest" group is more than that in "this" 
+> >> group.  Unfortunately, the amount moved from "busiest" to "this" is too 
+> >> small to reduce the average load per task on "busiest" (at best there 
+> >> will be no change and at worst it will get bigger).
+> > 
+> > Peter, We don't need to reduce the average load per task on "busiest"
+> > always. By moving a "busiest_load_per_task", we will increase the 
+> > average load per task of lesser busy cpu (there by trying to achieve
+> > the equality with busiest...)
 > 
-> 	It now works with all config parameters set to yes on 2.6.16-rt16.
-> however, PERCPU_ENOUGH_ROOM is set to 384KB.
-> I'm now trying to lower this value of PERCPU_ENOUGH_ROOM.
-> With 256K and 2.6.16-rt16 : doesn't work.
-> With 320K : OK
-> So I need to use 320K for PERCPU_ENOUGH_ROOM to boot correctly.
-> 
-> I have several questions :
-> Is there a problem in my config file ?
+> Well, first off, we don't always move busiest_load_per_task we move UP 
+> TO busiest_load_per_task so there is no way you can make definitive 
+> statements about what will happen to the value "this_load_per_task" as a 
+> result of setting *imbalance to busiest_load_per_task.  Load balancing 
+> is a probabilistic endeavour and we need to take steps that increase the 
+> probability that we get the desired result.
 
-Not that I know of. (perhaps debugging options are on. Ingo?)
-Or you have too many things as modules (that's our problem, not yours).
+I agree with you. But the previous code was more conservative and may slowly
+(just from theory pt of view... I don't have an example to show this..)
+balance towards the desired state. With this code, I feel we are
+aggressive. for example, on a DP system: if I run one high priority
+and two low priority processes, they keep hopping from one processor
+to another... you may argue it is because of the "top" or some other
+process... I agree that it is the case.. But same thing doesn't happen
+with the previous version.. I like the conservative approach...
 
-> Will this memory freed at end of kernel loading ?
+> Without this patch there is no chance that busiest_load_per_task will 
+> get smaller 
 
-No
+Is there an example for this?
 
-> Why do we need such a size ?
+> and whether this_load_per_task will get bigger is 
+> indeterminate.  With this patch there IS a chance that 
+> busiest_load_per_task will decrease and an INCREASED chance that 
+> this_load_per_task will get bigger.  Ergo we have increased the 
+> probability that the (absolute) difference between this_load_per_task 
+> and busiest_load_per_task will decrease.  This is a desirable outcome.
 
-It seems that the -rt kernel has increased the size of structures that
-are used in modules and are defined per cpu.
+All I am saying is we are more aggressive.. I don't have any issue with
+the desired outcome..
 
-> What usage is this for ?
-
-There are variables that are defined per CPU.  The reason for variables
-to be defined special for each CPU is that you want the variables in
-their own cache line such that modifying a variable that is specific for
-a CPU wont cause a write to a cache line that has a variable (say read
-only) to all CPUS. Because this would cause strain on the bus and slow
-things down as the write to the cache line is causing the other CPUs to
-update that line and become coherent.
-
-But to make this easier for developers and to actually save space (don't
-want to waste the cache alignment just to space out variables), there is
-a lot of linker magic to do all the work for you.  So all a developer
-needs to do to declare a variable with DEFINE_PER_CPU(type, name) and
-friends and the linker takes care of the rest.
-
-Currently this is implemented by creating a section at compile time to
-hold all these variables.  At compile time, only one set is made.  When
-the machine boots up, this section is copied (cache aligned) NR_CPUS
-times.  And to access these variables, a macro per_cpu(var, cpu) is used
-to find the variable in this index.  Note: since the size of
-PERCPU_ENOUGH_ROOM is used if it is bigger than the current compile time
-section, PERCPU_ENOUGH_ROOM must be a multiple of the cache size or
-there can be an overlap in the CPU cache lines. (hmm, this looks like a
-patch is needed.)
-
-Now the problem you have is with modules.  Since the variables in the
-per_cpu() macro are looked up via an index and cpu, all these variables
-must be located in the same section.  Currently, to make this easier,
-(and this too probably should change), the per_cpu variables of a module
-are put in this same section.  So when a module is loaded, it finds a
-block in the per cpu area that is available and makes a copy of its per
-cpu variables into each section (per cpu).  But since this is static
-memory (the per cpu section cant grow) it must be allocated at boot up
-hoping that there's enough room for the modules that will be loaded in
-the future.  Don't worry about leaks, when a module is unloaded, it
-frees up the space in the per cpu area.
-
-What you have seen, is that the -rt patch grew something that the
-modules were using per cpu.  So when it tried to allocate the space in
-the per cpu area, there wasn't enough room.  So your module failed to be
-loaded.
-
-Hope this helps,
-
--- Steve
-
-
+thanks,
+suresh

@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWDLRxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWDLSDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWDLRxu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 13:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWDLRxu
+	id S932302AbWDLSDc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 14:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWDLSDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 13:53:50 -0400
-Received: from mail.gaiaonline.com ([72.5.72.76]:58304 "EHLO gaiaonline.com")
-	by vger.kernel.org with ESMTP id S932206AbWDLRxt (ORCPT
+	Wed, 12 Apr 2006 14:03:32 -0400
+Received: from xenotime.net ([66.160.160.81]:14789 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932302AbWDLSDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 13:53:49 -0400
-Message-ID: <443D3E72.1050408@rydia.net>
-Date: Wed, 12 Apr 2006 10:52:50 -0700
-From: dormando <dormando@rydia.net>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: x86_86 SMP megaraid_mbox hangups and panics.
-References: <890BF3111FB9484E9526987D912B261901BCC1@NAMAIL3.ad.lsil.com>
-In-Reply-To: <890BF3111FB9484E9526987D912B261901BCC1@NAMAIL3.ad.lsil.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 12 Apr 2006 14:03:32 -0400
+Date: Wed, 12 Apr 2006 11:05:57 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, minyard@mvista.com
+Subject: [PATCH] IPMI: fix devinit placement
+Message-Id: <20060412110557.dc03c0f8.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ju, Seokmann wrote:
-> Hi,
->> Most of the time the server hits: "megaraid: probe new device" - with 
->> the device information, then hangs and starts the 180 second 
->> countdown: 
->> "megaraid: wait for FW to boot [blah]"
->> After which I get a VFS panic for not having a root disk.
-> This means the controller is NOT taking any commands from the driver at that time.
-> In other words, the F/W is NOT ready to take any command, yet.
-> It sounds like that the controller is NOT in good condition for some reason and needs to check sanity of it.
-> You may want to check with LSI logic SE team.
-> 
-> Thank you,
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Can you confirm that you read my whole message? I might be a complete 
-idiot, but let me reiterate some highlights and add a few more details 
-from my last mail:
+gcc complains about __devinit in the wrong location:
+drivers/char/ipmi/ipmi_si_intf.c:2205: warning: '__section__' attribute does not apply to types
 
-If I build a 32-bit SMP OR 64-bit UP kernel, the cards will boot and 
-work *every time*.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/char/ipmi/ipmi_si_intf.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Most of the time this is a *kernel panic* in megaraid_ack_sequence, 
-somewhere through megaraid_isr in megaraid_mbox.c
-*Sometimes* it results in the firmware hanging like you mentioned above.
-If I compile the drivers as modules instead of statically, this 
-*sometimes* results in the machine booting all the way. Once the machine 
-boots up, I can give it a good 'ole I/O beatdown and it does not flinch.
+--- linux-2617-rc1g5.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2617-rc1g5/drivers/char/ipmi/ipmi_si_intf.c
+@@ -2198,11 +2198,11 @@ static inline void wait_for_timer_and_th
+ 	}
+ }
+ 
+-static struct ipmi_default_vals
++static __devinit struct ipmi_default_vals
+ {
+ 	int type;
+ 	int port;
+-} __devinit ipmi_defaults[] =
++} ipmi_defaults[] =
+ {
+ 	{ .type = SI_KCS, .port = 0xca2 },
+ 	{ .type = SI_SMIC, .port = 0xca9 },
 
-As in: I boot it once, it hangs. I reboot, it panics. I reboot, it 
-panics. I reboot, it works. I have 16 cards in 16 systems that all 
-exhibit the same behavior. Looks like an x86_64 SMP timing issue of some 
-kind to me, and less of a card issue. Please correct me if I am wrong!
 
--Dormando
+---

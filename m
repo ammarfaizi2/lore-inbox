@@ -1,74 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWDLR22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWDLRc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbWDLR22 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 13:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWDLR21
+	id S932273AbWDLRc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 13:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWDLRc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 13:28:27 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:15761 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932274AbWDLR21
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 13:28:27 -0400
-Subject: Re: [PATCH 7/7] tpm: Driver for next generation TPM chips
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-In-Reply-To: <20060411230505.GB21210@us.ibm.com>
-References: <1144679848.4917.15.camel@localhost.localdomain>
-	 <20060411230505.GB21210@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 12 Apr 2006 12:29:17 -0500
-Message-Id: <1144862957.12054.59.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Apr 2006 13:32:56 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:47766 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932273AbWDLRcz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 13:32:55 -0400
+Date: Wed, 12 Apr 2006 18:32:42 +0100 (IST)
+From: Mel Gorman <mel@skynet.ie>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: linuxppc-dev@ozlabs.org, davej@codemonkey.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@suse.de,
+       bob.picco@hp.com
+Subject: Re: [PATCH 0/6] [RFC] Sizing zones and holes in an architecture
+ independent manner
+In-Reply-To: <20060412170726.GA11143@agluck-lia64.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0604121818200.7697@skynet.skynet.ie>
+References: <20060411103946.18153.83059.sendpatchset@skynet>
+ <20060411222029.GA7743@agluck-lia64.sc.intel.com>
+ <Pine.LNX.4.64.0604112352230.6624@skynet.skynet.ie>
+ <20060412000500.GA8532@agluck-lia64.sc.intel.com>
+ <Pine.LNX.4.64.0604121001590.24819@skynet.skynet.ie>
+ <20060412154633.GA10589@agluck-lia64.sc.intel.com>
+ <Pine.LNX.4.64.0604121657380.24819@skynet.skynet.ie>
+ <20060412170726.GA11143@agluck-lia64.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-11 at 16:05 -0700, Nishanth Aravamudan wrote:
-> return l;
-> > +
-> > +	} else {
-> > +		/* wait for burstcount */
-> > +		stop = jiffies + (HZ * chip->vendor.timeout_a / 1000);
-> > +		do {
-> > +			if (check_locality(chip, l) >= 0)
-> > +				return l;
-> > +			msleep(TPM_TIMEOUT);
-> > +		}
-> > +		while (time_before(jiffies, stop));
-> > +	}
-> 
-> This looks like it could take the msecs_to_jiffies() conversion as well.
-> Might as well cache it before the if/else, as both clauses use it?
-> Really, it is just wait_event*() without the wait-queue. Well, this is
-> at least one more consumer potentially of the poll_event*() API I had
-> written a while back, I'll dust it off again if I have the time.
-> 
-> <snip>
-> 
-> > +static int get_burstcount(struct tpm_chip *chip)
-> > +{
-> > +	unsigned long stop;
-> > +	int burstcnt;
-> > +
-> > +	/* wait for burstcount */
-> > +	/* which timeout value, spec has 2 answers (c & d) */
-> > +	stop = jiffies + (HZ * chip->vendor.timeout_d / 1000);
-> 
-> msecs_to_jiffies().
+On Wed, 12 Apr 2006, Luck, Tony wrote:
 
-> 
+> On Wed, Apr 12, 2006 at 05:00:32PM +0100, Mel Gorman wrote:
+>> Patch is attached as 105-ia64_use_init_nodes.patch until I beat sense into
+>> my mail setup. I've added Bob Picco to the cc list as he will hit the same
+>> issue with whitespace corruption.
+>
+> Next I tried building a "generic" kernel (using arch/ia64/defconfig). This
+> has NUMA=y and DISCONTIG=y).  This crashes with the following console log.
+>
+>
+> <snipped>
+> add_active_range(0, 0, 4096): New
+> add_active_range(0, 0, 131072): New
+> add_active_range(0, 0, 131072): New
+> add_active_range(0, 393216, 523264): New
+> add_active_range(0, 393216, 523264): New
+> add_active_range(0, 393216, 524288): New
+> add_active_range(0, 393216, 524288): New
 
-Since the timeout and duration values are always used in jiffies I think
-I'll just convert them to those values when I store them in the chip
-struct to cut way down on the number of conversions all together. Sound
-reasonable?
+This is where it started going wrong. I did not expect add_active_range() 
+to be called with overlapping PFNs so they were not getting merged. If 
+they were getting merged correctly, I'd expect the output to be
 
-Thanks,
-Kylie
+add_active_range(0, 0, 4096): New
+add_active_range(0, 0, 131072): Merging forward
+add_active_range(0, 0, 131072): Merging forward
+add_active_range(0, 393216, 523264): New
+add_active_range(0, 393216, 523264): Merging forward
+add_active_range(0, 393216, 524288): Merging forward
+add_active_range(0, 393216, 524288): Merging forward
 
+> Virtual mem_map starts at 0xa0007ffffe400000
+> Dumping sorted node map
+> entry 0: 0  0 -> 131072
+> entry 1: 0  0 -> 4096
+> entry 2: 0  0 -> 131072
+> entry 3: 0  393216 -> 523264
+> entry 4: 0  393216 -> 524288
+> entry 5: 0  393216 -> 524288
+> entry 6: 0  393216 -> 523264
+> Hole found index 0: 0 -> 0
+> prev_end > start_pfn : 131072 > 0
 
+And here is where it goes BLAM. Without the debugging patch, the check is 
+just;
 
+BUG_ON(prev_end_pfn > start_pfn);
 
+The error I was *expecting* to catch was an unsorted node map. It's just 
+nice it caught this situation as well. It'll take a while to fix this up 
+properly.
+
+Thanks
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

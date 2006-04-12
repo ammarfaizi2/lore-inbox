@@ -1,102 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWDLH3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWDLHpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWDLH3y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 03:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWDLH3y
+	id S932092AbWDLHpF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 03:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWDLHpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 03:29:54 -0400
-Received: from odin2.bull.net ([129.184.85.11]:41160 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S932088AbWDLH3x convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 03:29:53 -0400
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: PREEMPT_RT : 2.6.16-rt12 and boot : BUG ?
-Date: Wed, 12 Apr 2006 09:30:11 +0200
-User-Agent: KMail/1.7.1
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200604061416.00741.Serge.Noiraud@bull.net> <200604111815.25494.Serge.Noiraud@bull.net> <1144807126.26133.21.camel@localhost.localdomain>
-In-Reply-To: <1144807126.26133.21.camel@localhost.localdomain>
+	Wed, 12 Apr 2006 03:45:05 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:27031 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932092AbWDLHpE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 03:45:04 -0400
+Message-ID: <443CB181.40008@sw.ru>
+Date: Wed, 12 Apr 2006 11:51:29 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200604120930.11764.Serge.Noiraud@bull.net>
+To: Andi Kleen <ak@suse.de>
+CC: Kir Kolyshkin <kir@openvz.org>, akpm@osdl.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net,
+       linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, herbert@13thfloor.at
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <1143228339.19152.91.camel@localhost.localdomain>	<200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp>	<4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com>	<443B873B.9040908@sw.ru> <p73mzer4bti.fsf@bragg.suse.de>	<443CA47E.4070809@sw.ru> <p73irpf473y.fsf@bragg.suse.de>
+In-Reply-To: <p73irpf473y.fsf@bragg.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>How would that work when x86-64 32bit programs have 4GB of address
+>>>space and native on i386 programs only 3GB?
+>>
+>>we limit address space of i386 apps on x86-64 to 3GB due to
+>>compatibility issues - some applications don't work with not 3:1 GB VM
+>>split.
+> 
+> The only program I'm aware of with this problem is an very old JDK
+> used in the Oracle installer - and the official documented fix
+> for this is to run it with linux32 --3gb
+> 
+> Limiting everybody just for that single bug seems quite excessive.
+Sergey Vlasov recently reported some other apps:
 
-	many thanks for all these explanations.
+-------------- cut ---------------
+Changing PAGE_OFFSET this way would break at least Valgrind (the latest
+release 3.1.0 by default is statically linked at address 0xb0000000, and
+PIE support does not seem to be present in that release).  I remember
+that similar changes were also breaking Lisp implementations (cmucl,
+sbcl), however, I am not really sure about this.
+-------------- cut ---------------
 
-mercredi 12 Avril 2006 03:58, Steven Rostedt wrote/a écrit :
-> On Tue, 2006-04-11 at 18:15 +0200, Serge Noiraud wrote:
-> > Hi,
-...
-> > 
-> > I have several questions :
-> > Is there a problem in my config file ?
-> 
-> Not that I know of. (perhaps debugging options are on. Ingo?)
-> Or you have too many things as modules (that's our problem, not yours).
-> 
-> > Will this memory freed at end of kernel loading ?
-> 
-> No
-> 
-> > Why do we need such a size ?
-> 
-> It seems that the -rt kernel has increased the size of structures that
-> are used in modules and are defined per cpu.
-> 
-> > What usage is this for ?
-> 
-> There are variables that are defined per CPU.  The reason for variables
-> to be defined special for each CPU is that you want the variables in
-> their own cache line such that modifying a variable that is specific for
-> a CPU wont cause a write to a cache line that has a variable (say read
-> only) to all CPUS. Because this would cause strain on the bus and slow
-> things down as the write to the cache line is causing the other CPUs to
-> update that line and become coherent.
-> 
-> But to make this easier for developers and to actually save space (don't
-> want to waste the cache alignment just to space out variables), there is
-> a lot of linker magic to do all the work for you.  So all a developer
-> needs to do to declare a variable with DEFINE_PER_CPU(type, name) and
-> friends and the linker takes care of the rest.
-> 
-> Currently this is implemented by creating a section at compile time to
-> hold all these variables.  At compile time, only one set is made.  When
-> the machine boots up, this section is copied (cache aligned) NR_CPUS
-> times.  And to access these variables, a macro per_cpu(var, cpu) is used
-> to find the variable in this index.  Note: since the size of
-> PERCPU_ENOUGH_ROOM is used if it is bigger than the current compile time
-> section, PERCPU_ENOUGH_ROOM must be a multiple of the cache size or
-> there can be an overlap in the CPU cache lines. (hmm, this looks like a
-> patch is needed.)
-> 
-> Now the problem you have is with modules.  Since the variables in the
-> per_cpu() macro are looked up via an index and cpu, all these variables
-> must be located in the same section.  Currently, to make this easier,
-> (and this too probably should change), the per_cpu variables of a module
-> are put in this same section.  So when a module is loaded, it finds a
-> block in the per cpu area that is available and makes a copy of its per
-> cpu variables into each section (per cpu).  But since this is static
-> memory (the per cpu section cant grow) it must be allocated at boot up
-> hoping that there's enough room for the modules that will be loaded in
-> the future.  Don't worry about leaks, when a module is unloaded, it
-> frees up the space in the per cpu area.
-> 
-> What you have seen, is that the -rt patch grew something that the
-> modules were using per cpu.  So when it tried to allocate the space in
-> the per cpu area, there wasn't enough room.  So your module failed to be
-> loaded.
-> 
-> Hope this helps,
-> 
-> -- Steve
+Also, why would one expect 4GB of VM on x86-64 if normally have 3GB on 
+i686? Anyway, as it is tunable, people can select which one they prefer.
 
+Thanks,
+Kirill
 
--- 
-Serge Noiraud

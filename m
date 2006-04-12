@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWDLTHm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWDLTGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWDLTHm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 15:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWDLTHm
+	id S1750909AbWDLTGm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 15:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbWDLTGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 15:07:42 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:32750 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1750918AbWDLTHl (ORCPT
+	Wed, 12 Apr 2006 15:06:42 -0400
+Received: from xenotime.net ([66.160.160.81]:54667 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750909AbWDLTGm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 15:07:41 -0400
-Subject: Re: [RFC][PATCH 1/7] fireflier LSM for labeling sockets based on
-	its creator (owner)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: =?ISO-8859-1?Q?T=F6r=F6k?= Edwin <edwin@gurde.com>
-Cc: linux-security-module@vger.kernel.org, James Morris <jmorris@namei.org>,
-       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
-In-Reply-To: <200604072127.30925.edwin@gurde.com>
-References: <200604021240.21290.edwin@gurde.com>
-	 <200604072034.20972.edwin@gurde.com> <200604072124.24000.edwin@gurde.com>
-	 <200604072127.30925.edwin@gurde.com>
-Content-Type: text/plain; charset=utf-8
-Organization: National Security Agency
-Date: Wed, 12 Apr 2006 15:11:52 -0400
-Message-Id: <1144869112.1083.27.camel@moss-spartans.epoch.ncsc.mil>
+	Wed, 12 Apr 2006 15:06:42 -0400
+Date: Wed, 12 Apr 2006 12:09:04 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Luca Falavigna" <dktrkranz@gmail.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONSOLE_LP_STRICT Kconfig option
+Message-Id: <20060412120904.e2fce912.rdunlap@xenotime.net>
+In-Reply-To: <ff1cadb20604121153k6552ea84maf58b44869412f2@mail.gmail.com>
+References: <43F1ED62.4050609@gmail.com>
+	<p731wy63s0j.fsf@verdi.suse.de>
+	<ff1cadb20602150103u437562ddu@mail.gmail.com>
+	<20060411151716.58278056.rdunlap@xenotime.net>
+	<ff1cadb20604121153k6552ea84maf58b44869412f2@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-07 at 21:27 +0300, Török Edwin wrote:
-> Auto-labeling logic. This is where the (individual&group) SIDs are generated, 
-> and maintained.
+On Wed, 12 Apr 2006 20:53:28 +0200 Luca Falavigna wrote:
 
-> diff -uprN null/autolabel.c fireflier_lsm/autolabel.c
-> --- /dev/null	1970-01-01 02:00:00.000000000 +0200
-> +++ fireflier_lsm/autolabel.c	2006-04-07 17:43:48.000000000 +0300
-> +/**
-> + * internal_get_or_generate_sid - returns a SID that uniqueuly identifies 
-> this devname+inode combination
-> + * @devname - name of the mountpoint(device) the process's executable is on
-> + * @inode - inode of the process's executable
-> + * @unsafe - reason this process might be unsafe (ptrace,etc.)
-> + */
-> +static inline u32 internal_get_or_generate_sid(const char* devname,const 
-> unsigned long inode,const char unsafe)
-> +{
-> +	u32 sid = FIREFLIER_SID_UNLABELED;
-> +	const struct context context=
-> +		{
-> +			.inode = inode,
-> +			.mnt_devname = unlikely(devname==NULL) ? empty_dev : devname,
-> +			.groupmembers = 0,
-> +			.unsafe = unsafe
-> +		};
-> +	sidtab_context_to_sid(&fireflier_sidtab,&context,&sid);
-<snip>
-> +u32 get_or_generate_sid(const struct file* execfile,const char unsafe)
-> +{
-> +	return 
-> internal_get_or_generate_sid(execfile->f_vfsmnt->mnt_devname,execfile->f_dentry->d_inode->i_ino,unsafe);
-> +}
+> 2006/4/12, Randy.Dunlap <rdunlap@xenotime.net>:
+> > On Wed, 15 Feb 2006 10:03:30 +0100 Luca Falavigna wrote:
+> >
+> > > Oops, I noticed I sent twice my email. Sorry.
+> > >
+> > > 14 Feb 2006 15:59:56 +0100, Andi Kleen <ak@suse.de>:
+> > > > This shouldn't be a CONFIG. This should be a runtime option.
+> > > > It's ridiculous to have to recompile your kernel just to fix some
+> > > > problem with your printer.
+> > > >
+> > > > e.g. sysctl, ioctl, sysfs entry, module parameter. Whatever is en
+> > > > vogue these days. Easiest would be probably a module_param().
+> > >
+> > > This feature only gets involved when passing console=lp0 parameter to
+> > > the bootloader. I never tried to load a new system console while
+> > > system was running so I'm not sure if it behaves correctly. If it
+> > > does, I will modify this patch following your advices.
+> >
+> > Andi's suggestion seems fine to me:  use a module_param() for
+> > CONSOLE_LP_STRICT instead of a hidden build-time (non-Kconfig)
+> > option.  Are you interested in making this change?
+> >
+> > ---
+> 
+> I can give it a try. I'm not sure if this can be done when system is loaded.
 
-(mnt_devname, ino) pair is not a suitable basis here.  If you truly
-cannot use inode extended attributes, then you might want to consider
-using file handles.  It would help to understand how the userspace
-component intends to use the supplied information, e.g. given some kind
-of identifier or attribute for the subjects that have access to the
-socket, what does the userspace component do with that identifier or
-attribute?
+I think that if you make it a module_param() and use (root-) writeable
+permissions on it, it's just a variable that can be changed after the
+driver is loaded and running.
 
--- 
-Stephen Smalley
-National Security Agency
+Andi, did you want just a boot-time option or a run-time (changeable) option?
 
+---
+~Randy

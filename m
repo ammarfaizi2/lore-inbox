@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWDLUfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWDLUov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWDLUfR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 16:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWDLUfQ
+	id S932235AbWDLUov (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 16:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWDLUov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 16:35:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33194 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932233AbWDLUfP (ORCPT
+	Wed, 12 Apr 2006 16:44:51 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:24580 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932235AbWDLUov (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 16:35:15 -0400
-Date: Wed, 12 Apr 2006 13:33:58 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Linux 2.6.16.5
-Message-ID: <20060412203358.GA10641@kroah.com>
+	Wed, 12 Apr 2006 16:44:51 -0400
+Date: Wed, 12 Apr 2006 22:44:37 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: zippel@linux-m68k.org, hirofumi@mail.parknet.co.jp,
+       linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>
+Subject: Re: [PATCH] config: update usage/help info
+Message-ID: <20060412204437.GA8061@mars.ravnborg.org>
+References: <20060406224134.0430e827.rdunlap@xenotime.net> <87odzdh1fp.fsf@duaron.myhome.or.jp> <20060409220426.8027953a.rdunlap@xenotime.net> <Pine.LNX.4.64.0604121253540.32445@scrub.home> <20060412091751.feba2dd4.rdunlap@xenotime.net> <20060412165929.GA20573@mars.ravnborg.org> <20060412115657.409b71bc.rdunlap@xenotime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060412115657.409b71bc.rdunlap@xenotime.net>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.16.5 kernel.
+On Wed, Apr 12, 2006 at 11:56:57AM -0700, Randy.Dunlap wrote:
+ 
+> Here's a shot at it, although it seemed that top-level README was
+> sufficient for the make *config additions.
+README is covering too much today. So adding the below text is fine with
+the content of README today.
 
-The diffstat and short summary of the fixes are below.
+So:
 
-I'll also be replying to this message with a copy of the patch between
-2.6.16.4 and 2.6.16.5, as it is small enough to do so.
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
 
-The updated 2.6.16.y git tree can be found at:
- 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
-
-thanks,
-
-greg k-h
-
---------
-
- Makefile                   |    2 +-
- arch/x86_64/kernel/entry.S |   28 ++++++++++------------------
- 2 files changed, 11 insertions(+), 19 deletions(-)
-
-
-Summary of changes from v2.6.16.4 to v2.6.16.5
-==============================================
-
-Andi Kleen:
-      x86_64: Clean up execve
-      x86_64: When user could have changed RIP always force IRET (CVE-2006-0744)
-
-Greg Kroah-Hartman:
-      Linux 2.6.16.5
-
+	Sam

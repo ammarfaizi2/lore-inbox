@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWDLRTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWDLRUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932267AbWDLRTS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 13:19:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWDLRTS
+	id S932269AbWDLRUh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 13:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWDLRUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 13:19:18 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:34471 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932263AbWDLRTQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 13:19:16 -0400
-Date: Wed, 12 Apr 2006 10:19:28 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Joel H Schopp <jschopp@us.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>,
-       lhms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] sparsemem interaction with memory add bug fixes
-Message-ID: <20060412171928.GA9111@w-mikek2.ibm.com>
+	Wed, 12 Apr 2006 13:20:37 -0400
+Received: from solarneutrino.net ([66.199.224.43]:6660 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S932269AbWDLRUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 13:20:36 -0400
+Date: Wed, 12 Apr 2006 13:20:29 -0400
+To: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: lockd oopses continue with 2.6.16.1
+Message-ID: <20060412172028.GA12637@tau.solarneutrino.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updated version of patch with Andy's suggestion.
+I'm still seeing lockd oopses after server reboots:
 
-Fix two bugs with the way sparsemem interacts with memory add:
-- memory leak if memmap for section already exists
-- calling alloc_bootmem_node() after boot
+Unable to handle kernel paging request at 00002b8134a867a0 RIP: 
+<ffffffff801bfdb1>{nlmclnt_mark_reclaim+67}
+PGD 0 
+Oops: 0000 [1] 
+CPU 0 
+Modules linked in:
+Pid: 1182, comm: lockd Not tainted 2.6.16.1 #2
+RIP: 0010:[<ffffffff801bfdb1>] <ffffffff801bfdb1>{nlmclnt_mark_reclaim+67}
+RSP: 0018:ffff81007dd25e70  EFLAGS: 00010206
+RAX: 00002b8134a86788 RBX: ffff81007d53e480 RCX: ffff81007e3807f8
+RDX: ffff81007e380800 RSI: 000000000000005f RDI: ffff81007d53e480
+RBP: ffff81007f265400 R08: 00000000fffffffa R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000011
+R13: 0000000000000004 R14: 0000000000000010 R15: ffffffff803c3e20
+FS:  00002ad3fb57a4a0(0000) GS:ffffffff80490000(0000) knlGS:00000000f6e519e0
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002b8134a867a0 CR3: 000000007e2e0000 CR4: 00000000000006e0
+Process lockd (pid: 1182, threadinfo ffff81007dd24000, task ffff81007f85e710)
+Stack: ffffffff801bfe68 ffff81007d53e480 ffffffff801c6601 3256cc844d030002 
+       0000000000000000 0000000000000004 ffff81007ec65000 ffff81007ec650a0 
+       ffffffff803c4ea0 ffff81007dd1f014 
+Call Trace: <ffffffff801bfe68>{nlmclnt_recovery+139}
+       <ffffffff801c6601>{nlm4svc_proc_sm_notify+188} <ffffffff80312a2b>{svc_process+871}
+       <ffffffff801c1a19>{lockd+344} <ffffffff801c18c1>{lockd+0}
+       <ffffffff801c18c1>{lockd+0} <ffffffff8010b01e>{child_rip+8}
+       <ffffffff801c18c1>{lockd+0} <ffffffff801c18c1>{lockd+0}
+       <ffffffff8010b016>{child_rip+0}
 
-Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
+Code: 48 39 78 18 75 13 8b 81 8c 00 00 00 a8 01 74 09 83 c8 02 89 
+RIP <ffffffff801bfdb1>{nlmclnt_mark_reclaim+67} RSP <ffff81007dd25e70>
+CR2: 00002b8134a867a0
 
-diff -Naupr linux-2.6.17-rc1-mm2/mm/sparse.c linux-2.6.17-rc1-mm2.work/mm/sparse.c
---- linux-2.6.17-rc1-mm2/mm/sparse.c	2006-04-03 03:22:10.000000000 +0000
-+++ linux-2.6.17-rc1-mm2.work/mm/sparse.c	2006-04-12 17:21:11.000000000 +0000
-@@ -32,7 +32,10 @@ static struct mem_section *sparse_index_
- 	unsigned long array_size = SECTIONS_PER_ROOT *
- 				   sizeof(struct mem_section);
- 
--	section = alloc_bootmem_node(NODE_DATA(nid), array_size);
-+	if (system_state == SYSTEM_RUNNING)
-+		section = kmalloc_node(array_size, GFP_KERNEL, nid);
-+	else
-+		section = alloc_bootmem_node(NODE_DATA(nid), array_size);
- 
- 	if (section)
- 		memset(section, 0, array_size);
-@@ -281,9 +284,9 @@ int sparse_add_one_section(struct zone *
- 
- 	ret = sparse_init_one_section(ms, section_nr, memmap);
- 
--	if (ret <= 0)
--		__kfree_section_memmap(memmap, nr_pages);
- out:
- 	pgdat_resize_unlock(pgdat, &flags);
-+	if (ret <= 0)
-+		__kfree_section_memmap(memmap, nr_pages);
- 	return ret;
- }
+-ryan

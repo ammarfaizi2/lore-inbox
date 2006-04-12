@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWDLUYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWDLUY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWDLUYB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 16:24:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWDLUYA
+	id S932222AbWDLUY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 16:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932227AbWDLUY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 16:24:00 -0400
-Received: from cantor.suse.de ([195.135.220.2]:5099 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932205AbWDLUYA (ORCPT
+	Wed, 12 Apr 2006 16:24:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:430 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932222AbWDLUY5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 16:24:00 -0400
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Making percpu module variables have their own memory.
-References: <1144869739.26133.74.camel@localhost.localdomain>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Apr 2006 22:23:58 +0200
-In-Reply-To: <1144869739.26133.74.camel@localhost.localdomain>
-Message-ID: <p734q0y4k69.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Apr 2006 16:24:57 -0400
+Date: Wed, 12 Apr 2006 13:23:22 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, Ingo Oeser <netdev@axxeo.de>,
+       Denis Vlasenko <vda@ilport.com.ua>, Dave Dillow <dave@thedillows.org>,
+       netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [RFD][PATCH] typhoon and core sample for folding away VLAN
+ stuff
+Message-ID: <20060412132322.7786111b@localhost.localdomain>
+In-Reply-To: <443D5E9E.80002@candelatech.com>
+References: <200604071628.30486.vda@ilport.com.ua>
+	<200604111502.52302.vda@ilport.com.ua>
+	<200604111517.37215.netdev@axxeo.de>
+	<200604122132.46113.ioe-lkml@rameria.de>
+	<443D5E9E.80002@candelatech.com>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> writes:
+On Wed, 12 Apr 2006 13:10:06 -0700
+Ben Greear <greearb@candelatech.com> wrote:
 
-The basic optimization idea looks interesting. But your implementation
-is quite complicated.  
+> What is the reasoning for this change?  Is the compiler
+> able to optomize the right-hand-side to a constant with your
+> change in place?
+> 
+> > -	if (veth->h_vlan_proto != __constant_htons(ETH_P_8021Q)) {
+> > +	if (veth->h_vlan_proto != htons(ETH_P_8021Q)) {
+> >  		return -EINVAL;
+> >  	}
 
-The basic problem is that extern declarations and definitions
-are the same macro. If they weren't one could just use a different
-macro depending on if MODULE is defined or not and get rid
-of the type comparisons you do.
+Read the source, the macro handles it.
 
-Since you already need to change a lot of the per CPU definitions how
-about you just define a separate macro for extern per cpu
-declarations? And then change the basic macro to do the right
-thing based on MODULE is set or not.
+For i386:
+	htons maps to __cpu_to_be16
+	cpu_to_be16 maps to swab16 which is defined in swab.h
 
--Andi
+#  define __swab16(x) \
+(__builtin_constant_p((__u16)(x)) ? \
+ ___swab16((x)) : \
+ __fswab16((x)))
+
+

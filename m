@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWDLG7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWDLHBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWDLG7f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 02:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWDLG7f
+	id S932093AbWDLHBG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 03:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWDLHBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 02:59:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34179 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932089AbWDLG7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 02:59:35 -0400
-Date: Tue, 11 Apr 2006 23:59:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, clameter@engr.sgi.com,
-       riel@redhat.com, dgc@sgi.com
-Subject: Re: [PATCH] support for panic at OOM
-Message-Id: <20060411235907.6a59ecba.akpm@osdl.org>
-In-Reply-To: <20060412155301.10d611ca.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060412155301.10d611ca.kamezawa.hiroyu@jp.fujitsu.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Wed, 12 Apr 2006 03:01:06 -0400
+Received: from nproxy.gmail.com ([64.233.182.190]:4833 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932090AbWDLHBF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 03:01:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=g7rdhGUSNFJcJhta+qef1RUpyzTitsgfy16sh+LRPwNwV0k3fpZC5LnU2LWWitOynp7+C/ttlJgOuV2L8pAEaS6diieOt8y7V5ucnY/XsL1TBxWr2GlBRlz2Ei+oQ9kYv18LAF8RxdJUo6HNHvnJkWFwLiKekA90ENRWKJuoaGs=
+Message-ID: <fcff6ec10604120001o18ca9edxf11ed055b5601e2a@mail.gmail.com>
+Date: Wed, 12 Apr 2006 00:01:02 -0700
+From: "Pramod Srinivasan" <pramods@gmail.com>
+To: "David Weinehall" <tao@acc.umu.se>, linux-kernel@vger.kernel.org
+Subject: Re: GPL issues
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
->
-> This patch adds a feature to panic at OOM, oom_die.
+> 3. Userspace code that uses interfaces that was not exposed to userspace
+> before you change the kernel --> GPL (but don't do it; there's almost
+> always a reason why an interface is not exported to userspace)
 
-Makes sense I guess.
+> 4. Userspace code that only uses existing interfaces --> choose
+> license yourself (but of course, GPL would be nice...)
 
-> ===================================================================
-> --- linux-2.6.17-rc1-mm2.orig/kernel/sysctl.c
-> +++ linux-2.6.17-rc1-mm2/kernel/sysctl.c
-> @@ -60,6 +60,7 @@ extern int proc_nr_files(ctl_table *tabl
->  extern int C_A_D;
->  extern int sysctl_overcommit_memory;
->  extern int sysctl_overcommit_ratio;
-> +extern int sysctl_oom_die;
->  extern int max_threads;
->  extern int sysrq_enabled;
->  extern int core_uses_pid;
+> 5. Userspace code that depends on interfaces you added to the kernel
+> --> consult a lawyer (if this interface is something completely new,
+> you can *probably* use your own license for the userland part; if the
+> interface is more or less a wrapper of existing functionality, GPL)
 
-One day we should create a header file for all these.
+An example could be helpful in clarifying the GPL license.
 
-> @@ -718,6 +719,14 @@ static ctl_table vm_table[] = {
->  		.proc_handler	= &proc_dointvec,
->  	},
->  	{
-> +		.ctl_name	= VM_OOM_DIE,
-> +		.procname	= "oom_die",
+Suppose I use the linux-vrf patch for the kernel that is freely
+available and use the extended setsocket options such as SO_VRF in an
+application, do I have to release my application under GPL since I am
+using a facility in the kernel that a standard linux kernel does not
+provide?
 
-I'd suggest it be called "panic_on_oom".  Like the current panic_on_oops.
+Suppose my LKM driver adds a extra header to all outgoing packets and
+removes the extra header from the incoming packets, should this driver
+be released under GPL.? In a way it extends the functionality of
+linux, if I do release the driver code under GPL because this was
+built with linux  in mind, Should I release the application  which
+adds intelligence to interpret the extra header under GPL?
 
-> +int sysctl_oom_die = 0;
-
-The initialisation is unneeded.
-
-> +static void oom_die(void)
-> +{
-> +	panic("Panic: out of memory: oom_die is selected.");
-> +}
-> +
->  /**
->   * oom_kill - kill the "best" process when we run out of memory
->   *
-> @@ -331,6 +337,8 @@ void out_of_memory(struct zonelist *zone
->  
->  	case CONSTRAINT_NONE:
->  retry:
-> +		if (sysctl_oom_die)
-> +			oom_die();
-
-I don't think we need a separate function for this?
-
-Please document the new sysctl in Documentation/sysctl/.
+Thanks,
+Pramod

@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWDLVub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWDLWKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWDLVub (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 17:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWDLVub
+	id S932332AbWDLWKN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 18:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWDLWKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 17:50:31 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:38043 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932330AbWDLVua
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 17:50:30 -0400
-Date: Wed, 12 Apr 2006 15:50:27 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
-       Laurent Vivier <Laurent.Vivier@bull.net>, linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] Re: [RFC][PATCH 0/3] ext3 percpu counter fixes to suppport for ext3 unsigned long type free blocks counter
-Message-ID: <20060412215027.GO17364@schatzie.adilger.int>
-Mail-Followup-To: Mingming Cao <cmm@us.ibm.com>,
-	Ravikiran G Thirumalai <kiran@scalex86.org>,
-	Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
-	Laurent Vivier <Laurent.Vivier@bull.net>,
-	linux-kernel@vger.kernel.org,
-	ext2-devel <ext2-devel@lists.sourceforge.net>,
-	linux-fsdevel@vger.kernel.org
-References: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com> <Pine.LNX.4.64.0604111007230.564@schroedinger.engr.sgi.com> <1144782073.3986.15.camel@dyn9047017067.beaverton.ibm.com> <20060411222012.GA5007@localhost.localdomain> <1144877315.3722.26.camel@dyn9047017067.beaverton.ibm.com>
+	Wed, 12 Apr 2006 18:10:13 -0400
+Received: from mga01.intel.com ([192.55.52.88]:9364 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932332AbWDLWKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 18:10:11 -0400
+X-IronPort-AV: i="4.04,115,1144047600"; 
+   d="scan'208"; a="23277020:sNHT768196688"
+Subject: [patch 0/3] Redesigned Dock Patches
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: len.brown@intel.com, greg@kroah.com
+Cc: linux-acpi@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, mochel@linux.intel.com,
+       arjan@linux.intel.com, muneda.takahiro@jp.fujitsu.com, pavel@ucw.cz,
+       temnota@kmv.ru
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 12 Apr 2006 15:18:38 -0700
+Message-Id: <1144880318.11215.42.camel@whizzy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1144877315.3722.26.camel@dyn9047017067.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 12 Apr 2006 22:10:09.0760 (UTC) FILETIME=[DCF4EE00:01C65E7D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 12, 2006  14:28 -0700, Mingming Cao wrote:
-> where the check for unsigned long overflow is only turned on 32 bit
-> platforms.
-> 
-> > Or make the counter s64? so that it stays 64 bit on all arches? 
-> > 
-> 
-> Well, don't we have the problem : 64 bit counter add/dec/update is not
-> always atomic on all 32 bit platforms? There are risk that we will get
-> bogus global value. 
+After getting more laptop/dock combos tested, it's apparent to me that
+I need to redesign the dock patches to not exclusively use acpiphp to
+handle dock events.  This is because there are dock stations with no
+pci on them at all, and it doesn't make sense for the apci pci hotplug
+driver to handle the dock event in this case.  So, I moved the dock
+event handling to the acpi directory, in a separate driver called "dock".
+The acpiphp driver will still handle hotplugging any new pci devices
+(including dock bridges) that will be need to be inserted after a dock
+event.
 
-My thought here is that the per-cpu counter could still be a 32-bit counter
-and the global value could be a 64-bit value.  That way, we don't need to
-mess with 64-bit math in the common case, and we can still have a 64-bit
-global value.  The minor drawback would be that we can't have a per-cpu
-delta of more than 2^31 at a time, but I don't think this is a worry here.
+To use these driver, you will need to select CONFIG_ACPI_DOCK in the
+.config file, and make sure if you are using an IBM laptop that you have
+NOT selected the option to allow ibm_acpi to handle the docking events.  Then,
+you modprobe dock as well as acpiphp.
 
-> > why not change the global per-cpu counter type to unsigned long (as we
-> > discussed earlier), so we don't need the extra "ul" flags and interfaces, 
-> > and all arches get a standard unsigned long return type? 
-> >  We could also 
-> > do away with percpu_read_positive then no?  The applications for per-cpu 
-> > counters is going to be upcounters always methinks...
+Please take a look at these patches and test them if you can.  Every time
+another person tests the dock patches I find another combination I didn't
+think of :).  Thanks for your feedback, and thanks to all the testers who
+are helping make the dock patches work for as many systems as we can.
 
-The "percpu_read_positive" usage is broken in any case, since it doesn't
-correctly handle the case where there is no space in the filesystem at
-all.  The calling code (ext3_statfs) really needs to just call percpu_read()
-and then return zero if this is negative.
+Kristen
 
-Cheers, Andreas
 --
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
-

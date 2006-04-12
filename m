@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWDLKwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWDLK4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWDLKwt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 06:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWDLKwt
+	id S932151AbWDLK4c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 06:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWDLK4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 06:52:49 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:28355 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932150AbWDLKwt (ORCPT
+	Wed, 12 Apr 2006 06:56:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63386 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932151AbWDLK4b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 06:52:49 -0400
-Date: Wed, 12 Apr 2006 12:51:50 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
+	Wed, 12 Apr 2006 06:56:31 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060411150512.5dd6e83d.akpm@osdl.org> 
+References: <20060411150512.5dd6e83d.akpm@osdl.org>  <16476.1144773375@warthog.cambridge.redhat.com> 
 To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: Re: [PATCH 0/19] kconfig patches
-In-Reply-To: <20060410142458.1aec19e4.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0604121232000.32445@scrub.home>
-References: <Pine.LNX.4.64.0604091628240.21970@scrub.home>
- <20060409235548.52b563a9.akpm@osdl.org> <Pine.LNX.4.64.0604101035240.32445@scrub.home>
- <20060410005153.2a5c19e2.akpm@osdl.org> <Pine.LNX.4.64.0604101122530.32445@scrub.home>
- <20060410014113.5ba40dd9.akpm@osdl.org> <Pine.LNX.4.64.0604101331030.32445@scrub.home>
- <20060410142458.1aec19e4.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use atomic ops for file_nr accounting, not spinlock+irq 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Wed, 12 Apr 2006 11:56:17 +0100
+Message-ID: <17771.1144839377@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton <akpm@osdl.org> wrote:
 
-On Mon, 10 Apr 2006, Andrew Morton wrote:
-
-> > and what does update the file the symlink 
-> >  points to?
+> > Make the kernel use atomic operations for files_stat.nr_files accounting
+> > rather than using a spinlocked and interrupt-disabled critical section.
 > 
-> Me, using oldconfig, menuconfig, etc.  I want those changes to be made in
-> the symlinked-to revision-controlled config file.
+> This code has all been redone in current kernels.
 
-I see, that makes it indeed a bit more complicated to preserve the 
-symlink, I thought you had something to automatically update the .config, 
-when you apply/remove patches.
-Anyway, as I mentioned in one of the patches, we can start to relax the 
-syntax requirements, e.g. we can add something to ignore unknown symbols, 
-so you don't have to update the .config all the time, only because a 
-config option was added/removed.
-I don't want to change the default behaviour yet, but there is now a lot 
-of room for experiments, e.g. it's now possible to properly support a 
-miniconfig by adding an option to set all unknown symbols to 
-n/m/y/default.
+Hmmm... So it has. Trond's tree hasn't caught up yet, which is a bit of a
+problem:-/
 
-bye, Roman
+David

@@ -1,195 +1,507 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWDLJJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWDLJKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbWDLJJa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 05:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWDLJJ3
+	id S932073AbWDLJKq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 05:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWDLJKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 05:09:29 -0400
-Received: from vanessarodrigues.com ([192.139.46.150]:4493 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1750928AbWDLJJ3
+	Wed, 12 Apr 2006 05:10:46 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:6285 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932120AbWDLJKo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 05:09:29 -0400
+	Wed, 12 Apr 2006 05:10:44 -0400
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
        bjorn_helgaas@hp.com, cotte@de.ibm.com
-Subject: Re: [patch] do_no_pfn handler
-References: <yq0k6a6uc7i.fsf@jaguar.mkp.net> <yq0psjonq2p.fsf@jaguar.mkp.net>
-	<Pine.LNX.4.64.0604110751510.10745@g5.osdl.org>
+Subject: Re: [patch] mspec driver (requires do_no_pfn)
+References: <yq0fykuuc3h.fsf@jaguar.mkp.net> <yq0lkucnpze.fsf@jaguar.mkp.net>
 From: Jes Sorensen <jes@sgi.com>
-Date: 12 Apr 2006 05:09:25 -0400
-In-Reply-To: <Pine.LNX.4.64.0604110751510.10745@g5.osdl.org>
-Message-ID: <yq0slojtb22.fsf@jaguar.mkp.net>
+Date: 12 Apr 2006 05:10:41 -0400
+In-Reply-To: <yq0lkucnpze.fsf@jaguar.mkp.net>
+Message-ID: <yq0odz7tazy.fsf@jaguar.mkp.net>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
+Hi,
 
-Linus> On Tue, 11 Apr 2006, Jes Sorensen wrote:
->>  You mentioned earlier that you preferred an alternative approach,
->> do you still feel that given the additional interest from other
->> Bjorn and Carsten? If this is still the case, I'd love to get some
->> guidance as to what that should be.
-
-Linus> I'm still pretty unhappy with this. It's pretty much designed
-Linus> to screw up the system by letting the driver do random things
-Linus> that make little or no sense from a VM standpoint.
-
-Hi Linus,
-
-I'd love to come up with another way to do it, but this still comes
-back as the cleanest to me :( I've tried to limit the damage based on
-your comments.
-
-Linus> At the very least, it would also need a
-
-Linus> 	BUG_ON(is_cow_mapping(vma->vm_flags));
-
-Added - I am not sure how this will affect Carsten's situation based
-on the further discussion in this thread, however if something changes
-at that point I assume we can modify the limitation at a later stage.
-
-Linus> It also assumes that a negative pfn is ok as an error return,
-Linus> but maybe that's fine. I can't think of any architecture that
-Linus> uses all bits of the PFN (x86 with PAE can have a full 32-bit
-Linus> PFN, but I don't think any actual CPU supports 48 bits of
-Linus> physical addressing?). Something to think about.
-
-Good catch! I think it goes back to when the mspec driver abused the
-nopage interface. The previous version was passing `ret' to the driver
-as well as looking at the pfn return value. I don't think the driver
-should modify `ret' directly, so I have changed it to use two specific
-pfn error values (NOPFN_OOM and NOPFN_SIGBUS), similar to how the
-nopage handler works. I think the original intention was to catch all
-potential errors a driver could stick in, but thinking about it again
-I don't think it makes sense to try that.
-
-Anyway, I hope you like this version of the nopfn code better! Update
-version of the mspec driver to match it will follow in a minute.
+Updated version of the mspec driver to match the changes in the nopfn
+interface.
 
 Cheers,
 Jes
 
-Implement do_no_pfn() for handling mapping of memory without a struct
-page backing it. This avoids creating fake page table entries for
-regions which are not backed by real memory.
-
-This version uses specific NOPFN_{SIGBUS,OOM} return values, rather
-than expect all negative pfn values would be an error. It also bugs on
-cow mappings as this would not work with the VM.
+This patch implements the special memory driver (mspec) based on the
+do_no_pfn approach. The driver is currently used only on SN2 hardware
+with special fetchop support but could be beneficial on other
+architectures using the uncached mode.
 
 Signed-off-by: Jes Sorensen <jes@sgi.com>
 
----
- include/linux/mm.h |    7 +++++
- mm/memory.c        |   62 ++++++++++++++++++++++++++++++++++++++++++++++++-----
- 2 files changed, 64 insertions(+), 5 deletions(-)
+----
 
-Index: linux-2.6/include/linux/mm.h
+ drivers/char/Kconfig  |    8 
+ drivers/char/Makefile |    1 
+ drivers/char/mspec.c  |  422 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 431 insertions(+)
+
+Index: linux-2.6/drivers/char/Kconfig
 ===================================================================
---- linux-2.6.orig/include/linux/mm.h
-+++ linux-2.6/include/linux/mm.h
-@@ -199,6 +199,7 @@
- 	void (*open)(struct vm_area_struct * area);
- 	void (*close)(struct vm_area_struct * area);
- 	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int *type);
-+	long (*nopfn)(struct vm_area_struct * area, unsigned long address);
- 	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
- #ifdef CONFIG_NUMA
- 	int (*set_policy)(struct vm_area_struct *vma, struct mempolicy *new);
-@@ -612,6 +613,12 @@
- #define NOPAGE_OOM	((struct page *) (-1))
+--- linux-2.6.orig/drivers/char/Kconfig
++++ linux-2.6/drivers/char/Kconfig
+@@ -422,6 +422,14 @@
+          If you have an SGI Altix with an attached SABrick
+          say Y or M here, otherwise say N.
  
- /*
-+ * Error return values for the *_nopfn functions
++config MSPEC
++	tristate "Memory special operations driver"
++	depends on IA64
++	help
++	  If you have an ia64 and you want to enable memory special
++	  operations support (formerly known as fetchop), say Y here,
++	  otherwise say N.
++
+ source "drivers/serial/Kconfig"
+ 
+ config UNIX98_PTYS
+Index: linux-2.6/drivers/char/Makefile
+===================================================================
+--- linux-2.6.orig/drivers/char/Makefile
++++ linux-2.6/drivers/char/Makefile
+@@ -51,6 +51,7 @@
+ obj-$(CONFIG_VIOTAPE)		+= viotape.o
+ obj-$(CONFIG_HVCS)		+= hvcs.o
+ obj-$(CONFIG_SGI_MBCS)		+= mbcs.o
++obj-$(CONFIG_MSPEC)		+= mspec.o
+ 
+ obj-$(CONFIG_PRINTER)		+= lp.o
+ obj-$(CONFIG_TIPAR)		+= tipar.o
+Index: linux-2.6/drivers/char/mspec.c
+===================================================================
+--- /dev/null
++++ linux-2.6/drivers/char/mspec.c
+@@ -0,0 +1,422 @@
++/*
++ * Copyright (C) 2001-2006 Silicon Graphics, Inc.  All rights
++ * reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of version 2 of the GNU General Public License
++ * as published by the Free Software Foundation.
 + */
-+#define NOPFN_SIGBUS	((unsigned long) -1)
-+#define NOPFN_OOM	((unsigned long) -2)
 +
 +/*
-  * Different kinds of faults, as returned by handle_mm_fault().
-  * Used to decide whether a process gets delivered SIGBUS or
-  * just gets major/minor fault counters bumped up.
-Index: linux-2.6/mm/memory.c
-===================================================================
---- linux-2.6.orig/mm/memory.c
-+++ linux-2.6/mm/memory.c
-@@ -2146,6 +2146,52 @@
- }
- 
- /*
-+ * do_no_pfn() tries to create a new page mapping for a page without
-+ * a struct_page backing it
++ * SN Platform Special Memory (mspec) Support
 + *
-+ * As this is called only for pages that do not currently exist, we
-+ * do not need to flush old virtual caches or the TLB.
++ * This driver exports the SN special memory (mspec) facility to user
++ * processes.
++ * There are three types of memory made available thru this driver:
++ * fetchops, uncached and cached.
 + *
-+ * We enter with non-exclusive mmap_sem (to exclude vma changes,
-+ * but allow concurrent faults), and pte mapped but not yet locked.
-+ * We return with mmap_sem still held, but pte unmapped and unlocked.
++ * Fetchops are atomic memory operations that are implemented in the
++ * memory controller on SGI SN hardware.
 + *
-+ * It is expected that the ->nopfn handler always returns the same pfn
-+ * for a given virtual mapping.
++ * Uncached are used for memory write combining feature of the ia64
++ * cpu.
++ *
++ * Cached are used for areas of memory that are used as cached addresses
++ * on our partition and used as uncached addresses from other partitions.
++ * Due to a design constraint of the SN2 Shub, you can not have processors
++ * on the same FSB perform both a cached and uncached reference to the
++ * same cache line.  These special memory cached regions prevent the
++ * kernel from ever dropping in a TLB entry and therefore prevent the
++ * processor from ever speculating a cache line from this page.
 + */
-+static int do_no_pfn(struct mm_struct *mm, struct vm_area_struct *vma,
-+		     unsigned long address, pte_t *page_table, pmd_t *pmd,
-+		     int write_access)
++
++#include <linux/config.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++#include <linux/miscdevice.h>
++#include <linux/spinlock.h>
++#include <linux/mm.h>
++#include <linux/vmalloc.h>
++#include <linux/string.h>
++#include <linux/slab.h>
++#include <linux/numa.h>
++#include <asm/page.h>
++#include <asm/system.h>
++#include <asm/pgtable.h>
++#include <asm/atomic.h>
++#include <asm/tlbflush.h>
++#include <asm/uncached.h>
++#include <asm/sn/addrs.h>
++#include <asm/sn/arch.h>
++#include <asm/sn/mspec.h>
++#include <asm/sn/sn_cpuid.h>
++#include <asm/sn/io.h>
++#include <asm/sn/bte.h>
++#include <asm/sn/shubio.h>
++
++
++#define FETCHOP_ID	"SGI Fetchop,"
++#define CACHED_ID	"Cached,"
++#define UNCACHED_ID	"Uncached"
++#define REVISION	"4.0"
++#define MSPEC_BASENAME	"mspec"
++
++/*
++ * Page types allocated by the device.
++ */
++enum {
++	MSPEC_FETCHOP = 1,
++	MSPEC_CACHED,
++	MSPEC_UNCACHED
++};
++
++static int is_sn2;
++
++/*
++ * One of these structures is allocated when an mspec region is mmaped. The
++ * structure is pointed to by the vma->vm_private_data field in the vma struct.
++ * This structure is used to record the addresses of the mspec pages.
++ */
++struct vma_data {
++	atomic_t refcnt;	/* Number of vmas sharing the data. */
++	spinlock_t lock;	/* Serialize access to the vma. */
++	int count;		/* Number of pages allocated. */
++	int type;		/* Type of pages allocated. */
++	unsigned long maddr[0];	/* Array of MSPEC addresses. */
++};
++
++/* used on shub2 to clear FOP cache in the HUB */
++static unsigned long scratch_page[MAX_NUMNODES];
++#define SH2_AMO_CACHE_ENTRIES	4
++
++static inline int
++mspec_zero_block(unsigned long addr, int len)
 +{
-+	spinlock_t *ptl;
-+	pte_t entry;
-+	unsigned long pfn;
-+	int ret = VM_FAULT_MINOR;
++	int status;
 +
-+	pte_unmap(page_table);
-+	BUG_ON(!(vma->vm_flags & VM_PFNMAP));
-+	BUG_ON(is_cow_mapping(vma->vm_flags));
++	if (is_sn2) {
++		if (is_shub2()) {
++			int nid;
++			void *p;
++			int i;
 +
-+	pfn = vma->vm_ops->nopfn(vma, address & PAGE_MASK);
-+	if (pfn == NOPFN_OOM)
-+		return VM_FAULT_OOM;
-+	if (pfn == NOPFN_SIGBUS)
-+		return VM_FAULT_SIGBUS;
++			nid = nasid_to_cnodeid(get_node_number(__pa(addr)));
++			p = (void *)TO_AMO(scratch_page[nid]);
 +
-+	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
++			for (i=0; i < SH2_AMO_CACHE_ENTRIES; i++) {
++				FETCHOP_LOAD_OP(p, FETCHOP_LOAD);
++				p += FETCHOP_VAR_SIZE;
++			}
++		}
 +
-+	/* Only go through if we didn't race with anybody else... */
-+	if (pte_none(*page_table)) {
-+		entry = pfn_pte(pfn, vma->vm_page_prot);
-+		if (write_access)
-+			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+		set_pte_at(mm, address, page_table, entry);
++		status = bte_copy(0, addr & ~__IA64_UNCACHED_OFFSET, len,
++				  BTE_WACQUIRE | BTE_ZERO_FILL, NULL);
++	} else {
++		memset((char *) addr, 0, len);
++		status = 0;
 +	}
-+	pte_unmap_unlock(page_table, ptl);
-+	return ret;
++	return status;
 +}
 +
 +/*
-  * Fault of a previously existing named mapping. Repopulate the pte
-  * from the encoded file_pte if possible. This enables swappable
-  * nonlinear vmas.
-@@ -2207,11 +2253,17 @@
- 	old_entry = entry = *pte;
- 	if (!pte_present(entry)) {
- 		if (pte_none(entry)) {
--			if (!vma->vm_ops || !vma->vm_ops->nopage)
--				return do_anonymous_page(mm, vma, address,
--					pte, pmd, write_access);
--			return do_no_page(mm, vma, address,
--					pte, pmd, write_access);
-+			if (vma->vm_ops) {
-+				if (vma->vm_ops->nopage)
-+					return do_no_page(mm, vma, address,
-+							  pte, pmd,
-+							  write_access);
-+				if (vma->vm_ops->nopfn)
-+					return do_no_pfn(mm, vma, address, pte,
-+							 pmd, write_access);
++ * mspec_open
++ *
++ * Called when a device mapping is created by a means other than mmap
++ * (via fork, etc.).  Increments the reference count on the underlying
++ * mspec data so it is not freed prematurely.
++ */
++static void
++mspec_open(struct vm_area_struct *vma)
++{
++	struct vma_data *vdata;
++
++	vdata = vma->vm_private_data;
++	atomic_inc(&vdata->refcnt);
++}
++
++/*
++ * mspec_close
++ *
++ * Called when unmapping a device mapping. Frees all mspec pages
++ * belonging to the vma.
++ */
++static void
++mspec_close(struct vm_area_struct *vma)
++{
++	struct vma_data *vdata;
++	int i, pages, result, vdata_size;
++
++	vdata = vma->vm_private_data;
++	if (!atomic_dec_and_test(&vdata->refcnt))
++		return;
++
++	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
++	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
++	for (i = 0; i < pages; i++) {
++		if (vdata->maddr[i] == 0)
++			continue;
++		/*
++		 * Clear the page before sticking it back
++		 * into the pool.
++		 */
++		result = mspec_zero_block(vdata->maddr[i], PAGE_SIZE);
++		if (!result)
++			uncached_free_page(vdata->maddr[i]);
++		else
++			printk(KERN_WARNING "mspec_close(): "
++			       "failed to zero page %i\n",
++			       result);
++	}
++
++	if (vdata_size <= PAGE_SIZE)
++		kfree(vdata);
++	else
++		vfree(vdata);
++}
++
++
++/*
++ * mspec_nopfn
++ *
++ * Creates a mspec page and maps it to user space.
++ */
++static unsigned long
++mspec_nopfn(struct vm_area_struct *vma, unsigned long address)
++{
++	unsigned long paddr, maddr;
++	unsigned long pfn;
++	int index;
++	struct vma_data *vdata = vma->vm_private_data;
++
++	index = (address - vma->vm_start) >> PAGE_SHIFT;
++	maddr = (volatile unsigned long) vdata->maddr[index];
++	if (maddr == 0) {
++		maddr = uncached_alloc_page(numa_node_id());
++		if (maddr == 0)
++			return NOPFN_OOM;
++
++		spin_lock(&vdata->lock);
++		if (vdata->maddr[index] == 0) {
++			vdata->count++;
++			vdata->maddr[index] = maddr;
++		} else {
++			uncached_free_page(maddr);
++			maddr = vdata->maddr[index];
++		}
++		spin_unlock(&vdata->lock);
++	}
++
++	if (vdata->type == MSPEC_FETCHOP)
++		paddr = TO_AMO(maddr);
++	else
++		paddr = __pa(TO_CAC(maddr));
++
++	pfn = paddr >> PAGE_SHIFT;
++
++	return pfn;
++}
++
++static struct vm_operations_struct mspec_vm_ops = {
++	.open = mspec_open,
++	.close = mspec_close,
++	.nopfn = mspec_nopfn
++};
++
++/*
++ * mspec_mmap
++ *
++ * Called when mmaping the device.  Initializes the vma with a fault handler
++ * and private data structure necessary to allocate, track, and free the
++ * underlying pages.
++ */
++static int
++mspec_mmap(struct file *file, struct vm_area_struct *vma, int type)
++{
++	struct vma_data *vdata;
++	int pages, vdata_size;
++
++	if (vma->vm_pgoff != 0)
++		return -EINVAL;
++
++	if ((vma->vm_flags & VM_SHARED) == 0)
++		return -EINVAL;
++
++	if ((vma->vm_flags & VM_WRITE) == 0)
++		return -EPERM;
++
++	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
++	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
++	if (vdata_size <= PAGE_SIZE)
++		vdata = kmalloc(vdata_size, GFP_KERNEL);
++	else
++		vdata = vmalloc(vdata_size);
++	if (!vdata)
++		return -ENOMEM;
++	memset(vdata, 0, vdata_size);
++
++	vdata->type = type;
++	spin_lock_init(&vdata->lock);
++	vdata->refcnt = ATOMIC_INIT(1);
++	vma->vm_private_data = vdata;
++
++	vma->vm_flags |= (VM_IO | VM_LOCKED | VM_RESERVED | VM_PFNMAP);
++	if (vdata->type == MSPEC_FETCHOP || vdata->type == MSPEC_UNCACHED)
++		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
++	vma->vm_ops = &mspec_vm_ops;
++
++	return 0;
++}
++
++static int
++fetchop_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	return mspec_mmap(file, vma, MSPEC_FETCHOP);
++}
++
++static int
++cached_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	return mspec_mmap(file, vma, MSPEC_CACHED);
++}
++
++static int
++uncached_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	return mspec_mmap(file, vma, MSPEC_UNCACHED);
++}
++
++static struct file_operations fetchop_fops = {
++	.owner = THIS_MODULE,
++	.mmap = fetchop_mmap
++};
++
++static struct miscdevice fetchop_miscdev = {
++	.minor = MISC_DYNAMIC_MINOR,
++	.name = "sgi_fetchop",
++	.fops = &fetchop_fops
++};
++
++static struct file_operations cached_fops = {
++	.owner = THIS_MODULE,
++	.mmap = cached_mmap
++};
++
++static struct miscdevice cached_miscdev = {
++	.minor = MISC_DYNAMIC_MINOR,
++	.name = "mspec_cached",
++	.fops = &cached_fops
++};
++
++static struct file_operations uncached_fops = {
++	.owner = THIS_MODULE,
++	.mmap = uncached_mmap
++};
++
++static struct miscdevice uncached_miscdev = {
++	.minor = MISC_DYNAMIC_MINOR,
++	.name = "mspec_uncached",
++	.fops = &uncached_fops
++};
++
++/*
++ * mspec_init
++ *
++ * Called at boot time to initialize the mspec facility.
++ */
++static int __init
++mspec_init(void)
++{
++	int ret;
++	int nid;
++
++	/*
++	 * The fetchop device only works on SN2 hardware, uncached and cached
++	 * memory drivers should both be valid on all ia64 hardware
++	 */
++	if (ia64_platform_is("sn2")) {
++		is_sn2 = 1;
++		if (is_shub2()) {
++			ret = -ENOMEM;
++			for_each_online_node(nid) {
++				int actual_nid;
++				int nasid;
++				unsigned long phys;
++
++				scratch_page[nid] = uncached_alloc_page(nid);
++				if (scratch_page[nid] == 0)
++					goto free_scratch_pages;
++				phys = __pa(scratch_page[nid]);
++				nasid = get_node_number(phys);
++				actual_nid = nasid_to_cnodeid(nasid);
++				if (actual_nid != nid)
++					goto free_scratch_pages;
 +			}
-+			return do_anonymous_page(mm, vma, address,
-+						 pte, pmd, write_access);
- 		}
- 		if (pte_file(entry))
- 			return do_file_page(mm, vma, address,
++		}
++
++		ret = misc_register(&fetchop_miscdev);
++		if (ret) {
++			printk(KERN_ERR
++			       "%s: failed to register device %i\n",
++			       FETCHOP_ID, ret);
++			goto free_scratch_pages;
++		}
++	}
++	ret = misc_register(&cached_miscdev);
++	if (ret) {
++		printk(KERN_ERR "%s: failed to register device %i\n",
++		       CACHED_ID, ret);
++		if (is_sn2)
++			misc_deregister(&fetchop_miscdev);
++		goto free_scratch_pages;
++	}
++	ret = misc_register(&uncached_miscdev);
++	if (ret) {
++		printk(KERN_ERR "%s: failed to register device %i\n",
++		       UNCACHED_ID, ret);
++		misc_deregister(&cached_miscdev);
++		if (is_sn2)
++			misc_deregister(&fetchop_miscdev);
++		goto free_scratch_pages;
++	}
++
++	printk(KERN_INFO "%s %s initialized devices: %s %s %s\n",
++	       MSPEC_BASENAME, REVISION, is_sn2 ? FETCHOP_ID : "",
++	       CACHED_ID, UNCACHED_ID);
++
++	return 0;
++
++free_scratch_pages:
++	for_each_node(nid) {
++		if (scratch_page[nid] != 0)
++			uncached_free_page(scratch_page[nid]);
++	}
++	return ret;
++}
++
++static void __exit
++mspec_exit(void)
++{
++	int nid;
++
++	misc_deregister(&uncached_miscdev);
++	misc_deregister(&cached_miscdev);
++	if (is_sn2) {
++		misc_deregister(&fetchop_miscdev);
++
++		for_each_node(nid) {
++			if (scratch_page[nid] != 0)
++				uncached_free_page(scratch_page[nid]);
++		}
++	}
++}
++
++module_init(mspec_init);
++module_exit(mspec_exit);
++
++MODULE_AUTHOR("Silicon Graphics, Inc.");
++MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
++MODULE_LICENSE("GPL");
++MODULE_INFO(supported, "external");

@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWDLJte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWDLJuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWDLJte (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 05:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWDLJte
+	id S932126AbWDLJuX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 05:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWDLJuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 05:49:34 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:40385 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932128AbWDLJtd (ORCPT
+	Wed, 12 Apr 2006 05:50:22 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:712 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932126AbWDLJuW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 05:49:33 -0400
-Date: Wed, 12 Apr 2006 11:49:27 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Andreas Schnaiter <schnaiter@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16 -  SATA read performance drop ~50% on Intel
- 82801GB/GR/GH
-In-Reply-To: <443C7A92.6010604@garzik.org>
-Message-ID: <Pine.LNX.4.61.0604121145040.12544@yvahk01.tjqt.qr>
-References: <200604120136.28681.schnaiter@gmx.net> <443C7A92.6010604@garzik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 Apr 2006 05:50:22 -0400
+Date: Wed, 12 Apr 2006 13:50:17 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: New asycnhronous crypto layer (acrypto) release.
+Message-ID: <20060412095017.GA14530@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 12 Apr 2006 13:50:18 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> hdparm usually skips the usual layers, and benchmarks the ATA command
-> submission itself.  So if hdparm didn't change, that may indicate the problem
-> is either in the block (scheduler?) or filesystem layers.
->
-> Tests:
->
-> 2) Eliminate the filesystem layer by doing dd directly to the block device (dd
-> ... of=/dev/sda1) rather than dd'ing to a file on a filesystem.
+Acrypto [1] - asynchronous crypto layer for linux kernel 2.6
 
-Use dd_rescue (dd_rescue /dev/sda /dev/null) and watch the 'cur rate' 
-marker. It should naturally drop over time (that is, it's less at the end 
-of the hard disk). If it instantly drops somewhere (and the system is not 
-otherwise loaded), it may indicate that the harddisk is going bad.
-I have seen disks that ran previously with udma4 speeds drop down to 
-900KB/s making backup to CD in the last minute a real excitement.
+New acrypto combined patch for 2.6.15 kernel tree has been released, which
+fixes IPsec ESP4 tunnel mode processing and initialization dependency on
+connector when acrypto is built statically.
+Many thanks to Yakov Lerner for testing.
+Patch [2] is available in archive [3].
 
+New standalone acrypto source released. It is a sync with combined
+patch, so it only includes resolution of dependency on connector when
+acrypto is built statically. It is available in archive [3].
 
-Jan Engelhardt
+Main work is concentrated on 2.6.16 IPsec port, which was noticebly
+changed after 2.6.15.
+
+1. http://tservice.net.ru/~s0mbre/old/?section=projects&item=acrypto
+2. http://tservice.net.ru/~s0mbre/archive/acrypto/drivers/acrypto-combined-2.6.15.diff.2
+3. http://tservice.net.ru/~s0mbre/archive/acrypto
+
 -- 
+	Evgeniy Polyakov

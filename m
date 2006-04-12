@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWDLRtP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWDLRtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWDLRtP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 13:49:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWDLRtO
+	id S932297AbWDLRtn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 13:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWDLRtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 13:49:14 -0400
-Received: from pat.uio.no ([129.240.10.6]:9895 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932277AbWDLRtM (ORCPT
+	Wed, 12 Apr 2006 13:49:43 -0400
+Received: from xenotime.net ([66.160.160.81]:35767 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932297AbWDLRtj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 13:49:12 -0400
-Subject: Re: [PATCH] Use atomic ops for file_nr accounting, not spinlock+irq
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David Howells <dhowells@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <17771.1144839377@warthog.cambridge.redhat.com>
-References: <20060411150512.5dd6e83d.akpm@osdl.org>
-	 <16476.1144773375@warthog.cambridge.redhat.com>
-	 <17771.1144839377@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Wed, 12 Apr 2006 13:48:48 -0400
-Message-Id: <1144864128.8056.8.camel@lade.trondhjem.org>
+	Wed, 12 Apr 2006 13:49:39 -0400
+Date: Wed, 12 Apr 2006 10:52:06 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, wli@holomorphy.com
+Subject: [PATCH] Doc; vm/hugetlbpage update-2
+Message-Id: <20060412105206.41a3521c.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.829, required 12,
-	autolearn=disabled, AWL 1.17, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-12 at 11:56 +0100, David Howells wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > > Make the kernel use atomic operations for files_stat.nr_files accounting
-> > > rather than using a spinlocked and interrupt-disabled critical section.
-> > 
-> > This code has all been redone in current kernels.
-> 
-> Hmmm... So it has. Trond's tree hasn't caught up yet, which is a bit of a
-> problem:-/
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-I've been updating the NFS git tree on a daily basis. I'm not going to
-begin pulling from the -mm tree, though.
+Add new line of /proc/meminfo output.
+Explain the HugePage_ lines in /proc/meminfo (from Bill Irwin).
+Change KB to kB since the latter is what is used in the kernel.
 
-Cheers,
-  Trond
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/vm/hugetlbpage.txt |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
+--- linux-2617-rc1.orig/Documentation/vm/hugetlbpage.txt
++++ linux-2617-rc1/Documentation/vm/hugetlbpage.txt
+@@ -32,7 +32,16 @@ The output of "cat /proc/meminfo" will h
+ .....
+ HugePages_Total: xxx
+ HugePages_Free:  yyy
+-Hugepagesize:    zzz KB
++HugePages_Rsvd:  www
++Hugepagesize:    zzz kB
++
++where:
++HugePages_Total is the size of the pool of hugepages.
++HugePages_Free is the number of hugepages in the pool that are not yet
++allocated.
++HugePages_Rsvd is short for "reserved," and is the number of hugepages
++for which a commitment to allocate from the pool has been made, but no
++allocation has yet been made. It's vaguely analogous to overcommit.
+ 
+ /proc/filesystems should also show a filesystem of type "hugetlbfs" configured
+ in the kernel.
+
+
+---
+~Randy

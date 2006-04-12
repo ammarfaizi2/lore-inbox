@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWDLCkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWDLCjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWDLCkE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 22:40:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWDLCjn
+	id S1751100AbWDLCjm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 22:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWDLCjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 22:39:43 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:11169 "EHLO
+	Tue, 11 Apr 2006 22:39:42 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:10913 "EHLO
 	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751114AbWDLCjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751100AbWDLCjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 11 Apr 2006 22:39:41 -0400
-Subject: [PATCH 3/3] swsusp x86_64 mark special saveable/unsaveable pages
+Subject: [PATCH 2/3] swsusp i386 mark special saveable/unsaveable pages
 From: Shaohua Li <shaohua.li@intel.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
        Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
-Date: Wed, 12 Apr 2006 10:38:22 +0800
-Message-Id: <1144809502.2865.41.camel@sli10-desk.sh.intel.com>
+Date: Wed, 12 Apr 2006 10:38:21 +0800
+Message-Id: <1144809501.2865.40.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
@@ -24,33 +24,33 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Pages (Reserved/ACPI NVS/ACPI Data) below end_pfn will
-be saved/restored by S4 currently. We should mark 'Reserved'
-pages not saveable.
-Pages (Reserved/ACPI NVS/ACPI Data) above end_pfn will
-not be saved/restored by S4 currently. We should save the
+Pages (Reserved/ACPI NVS/ACPI Data) below max_low_pfn will be
+saved/restored by S4 currently. We should mark 'Reserved' pages
+not saveable.
+Pages (Reserved/ACPI NVS/ACPI Data) above max_low_pfn will not be
+saved/restored by S4 currently. We should save the
 'ACPI NVS/ACPI Data' pages.
 
 Signed-off-by: Shaohua Li <shaohua.li@intel.com>
 ---
 
- linux-2.6.17-rc1-root/arch/x86_64/kernel/setup.c |   95 +++++++++++++++++++++++
- 1 files changed, 95 insertions(+)
+ linux-2.6.17-rc1-root/arch/i386/kernel/setup.c |  106 +++++++++++++++++++++++++
+ 1 files changed, 106 insertions(+)
 
-diff -puN arch/x86_64/kernel/setup.c~swsusp_x86_64_save_pages arch/x86_64/kernel/setup.c
---- linux-2.6.17-rc1/arch/x86_64/kernel/setup.c~swsusp_x86_64_save_pages	2006-04-11 08:09:25.000000000 +0800
-+++ linux-2.6.17-rc1-root/arch/x86_64/kernel/setup.c	2006-04-11 08:26:37.000000000 +0800
-@@ -47,6 +47,7 @@
+diff -puN arch/i386/kernel/setup.c~swsusp_i386_save_pages arch/i386/kernel/setup.c
+--- linux-2.6.17-rc1/arch/i386/kernel/setup.c~swsusp_i386_save_pages	2006-04-11 08:04:23.000000000 +0800
++++ linux-2.6.17-rc1-root/arch/i386/kernel/setup.c	2006-04-11 08:08:12.000000000 +0800
+@@ -48,6 +48,7 @@
+ #include <linux/crash_dump.h>
  #include <linux/dmi.h>
- #include <linux/dma-mapping.h>
- #include <linux/ctype.h>
+ #include <linux/pfn.h>
 +#include <linux/suspend.h>
  
- #include <asm/mtrr.h>
- #include <asm/uaccess.h>
-@@ -582,6 +583,100 @@ static void __init reserve_ebda_region(v
- 		reserve_bootmem_generic(addr, PAGE_SIZE);
- }
+ #include <video/edid.h>
+ 
+@@ -1400,6 +1401,111 @@ static void set_mca_bus(int x)
+ static void set_mca_bus(int x) { }
+ #endif
  
 +#ifdef CONFIG_SOFTWARE_SUSPEND
 +static void __init mark_nosave_page_range(unsigned long start, unsigned long end)
@@ -73,21 +73,24 @@ diff -puN arch/x86_64/kernel/setup.c~swsusp_x86_64_save_pages arch/x86_64/kernel
 +		struct e820entry *ei = &e820.map[i];
 +		unsigned long start, end;
 +
-+		start = round_down(ei->addr, PAGE_SIZE);
-+		end = round_up(ei->addr + ei->size, PAGE_SIZE);
++		start = PFN_DOWN(ei->addr);
++		end = PFN_UP(ei->addr + ei->size);
 +		if (start >= end)
 +			continue;
 +		if (ei->type == E820_RESERVED)
 +			continue;
-+		r_end = start>>PAGE_SHIFT;
-+		/* swsusp ignores invalid pfn, ignore these pages here */
-+		if (r_end > end_pfn)
-+			r_end = end_pfn;
++		r_end = start;
++		/*
++		 * Highmem 'Reserved' pages are marked as reserved, swsusp
++		 * will not save/restore them, so we ignore these pages here.
++		 */
++		if (r_end > max_low_pfn)
++			r_end = max_low_pfn;
 +		if (r_end > r_start)
 +			mark_nosave_page_range(r_start, r_end-1);
-+		if (r_end >= end_pfn)
++		if (r_end >= max_low_pfn)
 +			break;
-+		r_start = end>>PAGE_SHIFT;
++		r_start = end;
 +	}
 +}
 +
@@ -100,18 +103,23 @@ diff -puN arch/x86_64/kernel/setup.c~swsusp_x86_64_save_pages arch/x86_64/kernel
 +		struct e820entry *ei = &e820.map[i];
 +		unsigned long start, end;
 +
-+		start = round_down(ei->addr, PAGE_SIZE) >> PAGE_SHIFT;
-+		end = round_up(ei->addr + ei->size, PAGE_SIZE) >> PAGE_SHIFT;
++		start = PFN_DOWN(ei->addr);
++		end = PFN_UP(ei->addr + ei->size);
 +		if (start >= end)
 +			continue;
 +		if (ei->type != E820_ACPI && ei->type != E820_NVS)
 +			continue;
 +		/*
-+		 * If the region is below end_pfn, it will be
++		 * If the region is below max_low_pfn, it will be
 +		 * saved/restored by swsusp follow 'RAM' type.
 +		 */
-+		if (start < end_pfn)
-+			start = end_pfn;
++		if (start < max_low_pfn)
++			start = max_low_pfn;
++		/*
++		 * Highmem pages (ACPI NVS/Data) are reserved, but swsusp
++		 * highmem save/restore will not save/restore them. We marked
++		 * them as arch saveable pages here
++		 */
 +		if (end > start)
 +			swsusp_add_arch_pages(start, end - 1);
 +	}
@@ -130,12 +138,15 @@ diff -puN arch/x86_64/kernel/setup.c~swsusp_x86_64_save_pages arch/x86_64/kernel
 +{
 +	unsigned long pfn_start, pfn_end;
 +
++	/* FIXME: provide a version for efi BIOS */
++	if (efi_enabled)
++		return 0;
 +	/* BIOS reserved regions & holes */
 +	e820_nosave_reserved_pages();
 +
 +	/* kernel rodata */
-+	pfn_start = round_up(__pa_symbol(&__start_rodata), PAGE_SIZE) >> PAGE_SHIFT;
-+	pfn_end = round_down(__pa_symbol(&__end_rodata), PAGE_SIZE) >> PAGE_SHIFT;
++	pfn_start = PFN_UP(virt_to_phys(&__start_rodata));
++	pfn_end = PFN_DOWN(virt_to_phys(&__end_rodata));
 +	mark_nosave_page_range(pfn_start, pfn_end-1);
 +
 +	/* record ACPI Data/NVS as saveable */
@@ -146,9 +157,9 @@ diff -puN arch/x86_64/kernel/setup.c~swsusp_x86_64_save_pages arch/x86_64/kernel
 +core_initcall(mark_nosave_pages);
 +#endif
 +
- void __init setup_arch(char **cmdline_p)
- {
- 	unsigned long kernel_end;
+ /*
+  * Determine if we were loaded by an EFI loader.  If so, then we have also been
+  * passed the efi memmap, systab, etc., so we should use these data structures
 _
 
 

@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWDLOVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWDLO3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWDLOVU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 10:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWDLOVT
+	id S1751187AbWDLO3V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 10:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWDLO3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 10:21:19 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12986 "EHLO
+	Wed, 12 Apr 2006 10:29:21 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:13706 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751150AbWDLOVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 10:21:19 -0400
-Subject: Re: HDIO_SCAN_HWIF causes hwif to "forget" PCI parent
+	id S1751171AbWDLO3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 10:29:20 -0400
+Subject: Re: libata-pata works on ICH4-M
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200604080030.07236.arvidjaar@mail.ru>
-References: <200604080030.07236.arvidjaar@mail.ru>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       linux-ide@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0604121153060.12544@yvahk01.tjqt.qr>
+References: <443B9EBB.6010607@gmx.net>
+	 <Pine.LNX.4.61.0604112044340.25940@yvahk01.tjqt.qr>
+	 <1144832990.1952.20.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0604121153060.12544@yvahk01.tjqt.qr>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Wed, 12 Apr 2006 15:30:17 +0100
-Message-Id: <1144852217.1952.34.camel@localhost.localdomain>
+Date: Wed, 12 Apr 2006 15:38:22 +0100
+Message-Id: <1144852703.1952.36.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2006-04-08 at 00:30 +0400, Andrey Borzenkov wrote:
-> One of scripts called on Mandriva during suspend/resume calls hdparm -U for 
-> hdc on suspend and hdparm -R on resume.
+On Mer, 2006-04-12 at 11:55 +0200, Jan Engelhardt wrote:
+> That sounds nice, but does hdparm also work with it? The last time I 
+> tried to hdparm a SCSI-style device (usb flash disk, /dev/sda), it did 
+> not work, only sdparm did the job. Will this also be the case with libata?
 
-Thats not a good idea. These functions are not suitable for use with
-anything but extremely specialised platforms and only when IDE is
-quiescent, or on 2.4-ac.
+Ask the hdparm maintainers. Its mostly obsoleted by blktool and the like
+which are generic
 
-Fix Mandriva not to vandalise the IDE configuration.
+> (BTW, did you mean LBA48?)
+
+No I meant LBA28. An LBA48 command takes far longer to issue than LBA28
 

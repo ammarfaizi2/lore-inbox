@@ -1,88 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWDLPry@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWDLPye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWDLPry (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 11:47:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWDLPry
+	id S1751006AbWDLPye (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 11:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWDLPyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 11:47:54 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36757 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750909AbWDLPry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 11:47:54 -0400
-To: vgoyal@in.ibm.com
-Cc: Magnus Damm <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] [PATCH] Kexec: Common alloc
-References: <20060412083402.25911.56088.sendpatchset@cherry.local>
-	<20060412141838.GA5550@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 12 Apr 2006 09:46:16 -0600
-In-Reply-To: <20060412141838.GA5550@in.ibm.com> (Vivek Goyal's message of
- "Wed, 12 Apr 2006 10:18:38 -0400")
-Message-ID: <m1acaq94qf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 12 Apr 2006 11:54:33 -0400
+Received: from mga03.intel.com ([143.182.124.21]:16940 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1750992AbWDLPyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 11:54:33 -0400
+X-IronPort-AV: i="4.04,115,1144047600"; 
+   d="scan'208"; a="22344554:sNHT43072897"
+Date: Wed, 12 Apr 2006 08:54:29 -0700
+From: "Luck, Tony" <tony.luck@intel.com>
+To: Mel Gorman <mel@skynet.ie>
+Cc: linuxppc-dev@ozlabs.org, davej@codemonkey.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@suse.de
+Subject: Re: [PATCH 0/6] [RFC] Sizing zones and holes in an architecture independent manner
+Message-ID: <20060412155429.GA10645@agluck-lia64.sc.intel.com>
+References: <20060411103946.18153.83059.sendpatchset@skynet> <20060411222029.GA7743@agluck-lia64.sc.intel.com> <Pine.LNX.4.64.0604112352230.6624@skynet.skynet.ie> <20060412000500.GA8532@agluck-lia64.sc.intel.com> <Pine.LNX.4.64.0604121001590.24819@skynet.skynet.ie>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604121001590.24819@skynet.skynet.ie>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+> That seems to register memory about the 0-2G mark and 6-8G with some small 
+> holes here and there. Sounds like what you expected to happen. In case the 
+> 1:1 virt->phys mapping is not always true on IA64, I decided to use __pa() 
+> instead of PAGE_OFFSET like;
+> 
+> add_active_range(node, __pa(start) >> PAGE_SHIFT, __pa(end) >> PAGE_SHIFT);
+> 
+> Is this the correct thing to do or is "start - PAGE_OFFSET" safer? 
+> Optimistically assuming __pa() is ok, the following patch (which replaces 
+> Patch 5/6 again) should boot (passed compile testing here). If it doesn't, 
+> can you send the console log again please?
 
-> On Wed, Apr 12, 2006 at 05:33:02PM +0900, Magnus Damm wrote:
->> Kexec: Common alloc
->> 
->> This patch reduces code redundancy by introducing a new function called
->> kimage_common_alloc() which is used to set up image->control_code_page.
->> 
->> Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
->> ---
->> 
->> Applies on top of linux-2.6.17-rc1-git5 + "Kexec: Remove duplicate rimage"
->> 
->>  kexec.c |   51 ++++++++++++++++++++-------------------------------
->>  1 files changed, 20 insertions(+), 31 deletions(-)
->> 
->> --- 0004/kernel/kexec.c
->> +++ work/kernel/kexec.c	2006-04-12 16:30:34.000000000 +0900
->> @@ -205,34 +205,36 @@ out:
->>  
->>  }
->>  
->> -static int kimage_normal_alloc(struct kimage **rimage, unsigned long entry,
->> -				unsigned long nr_segments,
->> -				struct kexec_segment __user *segments)
->> +static int kimage_common_alloc(struct kimage *image)
->>  {
->> -	int result;
->> -	struct kimage *image;
->> -
->> -	/* Allocate and initialize a controlling structure */
->> -	image = NULL;
->> -	result = do_kimage_alloc(&image, entry, nr_segments, segments);
->> -	if (result)
->> -		goto out;
->> -
->>  	/*
->> -	 * Find a location for the control code buffer, and add it
->> +	 * Find a location for the control code buffer, and add
->>  	 * the vector of segments so that it's pages will also be
->>  	 * counted as destination pages.
->>  	 */
->> -	result = -ENOMEM;
->>  	image->control_code_page = kimage_alloc_control_pages(image,
->>  					   get_order(KEXEC_CONTROL_CODE_SIZE));
->>  	if (!image->control_code_page) {
->>  		printk(KERN_ERR "Could not allocate control_code_buffer\n");
->> -		goto out;
->> +		return -ENOMEM;
->
-> Ok. So effectively call to the the function kimage_alloc_control_pages() and
-> its return code handling is being wrapped in another function. This function
-> is called at only two places. Not quite convinced that this duplication is
-> significant enough that we introduce another function to wrap a function
-> call.
+Almost all of "region 7" (0xE000000000000000-0xFFFFFFFFFFFFFFFF) of the kernel
+address space is defined to have a 1:1 mapping with physical memory (the exception
+being the top 64K (0xFFFFFFFFFFFF0000-0xFFFFFFFFFFFFFFFF) which is mapped as
+a per-cpu area).  So __pa(x) is simply defined as ((x) - PAGE_OFFSET). Using
+__pa(start) is effectively identical to (start - PAGE_OFFSET), but __pa() is
+a bit cleaner and easier to read.
 
-Agreed.
 
-Eric
-
+-Tony

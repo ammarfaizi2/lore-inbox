@@ -1,58 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWDLRUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWDLRU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWDLRUh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 13:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWDLRUh
+	id S932263AbWDLRU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 13:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWDLRU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 13:20:37 -0400
-Received: from solarneutrino.net ([66.199.224.43]:6660 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S932269AbWDLRUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 13:20:36 -0400
-Date: Wed, 12 Apr 2006 13:20:29 -0400
-To: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: lockd oopses continue with 2.6.16.1
-Message-ID: <20060412172028.GA12637@tau.solarneutrino.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+	Wed, 12 Apr 2006 13:20:27 -0400
+Received: from detroit.securenet-server.net ([209.51.153.26]:16805 "EHLO
+	detroit.securenet-server.net") by vger.kernel.org with ESMTP
+	id S932263AbWDLRU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 13:20:26 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Ian Romanick <idr@us.ibm.com>
+Subject: Re: Special handling of sysfs device resource files?
+Date: Wed, 12 Apr 2006 10:20:11 -0700
+User-Agent: KMail/1.9.1
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <443C1ECA.1040308@us.ibm.com> <443C42EA.1050608@us.ibm.com>
+In-Reply-To: <443C42EA.1050608@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_LbTPE5iR3xdb5+N"
+Message-Id: <200604121020.11309.jbarnes@virtuousgeek.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - virtuousgeek.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm still seeing lockd oopses after server reboots:
+--Boundary-00=_LbTPE5iR3xdb5+N
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Unable to handle kernel paging request at 00002b8134a867a0 RIP: 
-<ffffffff801bfdb1>{nlmclnt_mark_reclaim+67}
-PGD 0 
-Oops: 0000 [1] 
-CPU 0 
-Modules linked in:
-Pid: 1182, comm: lockd Not tainted 2.6.16.1 #2
-RIP: 0010:[<ffffffff801bfdb1>] <ffffffff801bfdb1>{nlmclnt_mark_reclaim+67}
-RSP: 0018:ffff81007dd25e70  EFLAGS: 00010206
-RAX: 00002b8134a86788 RBX: ffff81007d53e480 RCX: ffff81007e3807f8
-RDX: ffff81007e380800 RSI: 000000000000005f RDI: ffff81007d53e480
-RBP: ffff81007f265400 R08: 00000000fffffffa R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000011
-R13: 0000000000000004 R14: 0000000000000010 R15: ffffffff803c3e20
-FS:  00002ad3fb57a4a0(0000) GS:ffffffff80490000(0000) knlGS:00000000f6e519e0
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 00002b8134a867a0 CR3: 000000007e2e0000 CR4: 00000000000006e0
-Process lockd (pid: 1182, threadinfo ffff81007dd24000, task ffff81007f85e710)
-Stack: ffffffff801bfe68 ffff81007d53e480 ffffffff801c6601 3256cc844d030002 
-       0000000000000000 0000000000000004 ffff81007ec65000 ffff81007ec650a0 
-       ffffffff803c4ea0 ffff81007dd1f014 
-Call Trace: <ffffffff801bfe68>{nlmclnt_recovery+139}
-       <ffffffff801c6601>{nlm4svc_proc_sm_notify+188} <ffffffff80312a2b>{svc_process+871}
-       <ffffffff801c1a19>{lockd+344} <ffffffff801c18c1>{lockd+0}
-       <ffffffff801c18c1>{lockd+0} <ffffffff8010b01e>{child_rip+8}
-       <ffffffff801c18c1>{lockd+0} <ffffffff801c18c1>{lockd+0}
-       <ffffffff8010b016>{child_rip+0}
+On Tuesday, April 11, 2006 4:59 pm, Ian Romanick wrote:
+> I was a little mistaken about this.  The BAR that causes the problem
+> is not I/O.  It *is* memory.
+>
+> 01:00.0 VGA compatible controller: Matrox Graphics, Inc. G400/G450
+> (rev 03) (prog-if 00 [VGA])
+>         Subsystem: Matrox Graphics, Inc. Millennium G400 16Mb SGRAM
+>         Flags: bus master, medium devsel, latency 64, IRQ 11
+>         Memory at cc000000 (32-bit, prefetchable) [size=32M]
+>         Memory at cfefc000 (32-bit, non-prefetchable) [size=16K]
+>         Memory at cf000000 (32-bit, non-prefetchable) [size=8M]
+>         Expansion ROM at cfee0000 [disabled] [size=64K]
+>
+> When I open and mmap resource0 (the framebuffer) I get 0x2b9aa48ea000.
+> When I open and mmap resource1 (the card's registers) I get
+> 0x2b9aa68ea000.  I can access the resource0 pointer all day long
+> without problems.  The firs access to the resource1 pointer results in
+> a segfault.
 
-Code: 48 39 78 18 75 13 8b 81 8c 00 00 00 a8 01 74 09 83 c8 02 89 
-RIP <ffffffff801bfdb1>{nlmclnt_mark_reclaim+67} RSP <ffff81007dd25e70>
-CR2: 00002b8134a867a0
+Just tested on my x86-64 machine with this dumb little test program.  It 
+seems to work ok, though I haven't tried writing data to the resource.
 
--ryan
+Jesse
+
+--Boundary-00=_LbTPE5iR3xdb5+N
+Content-Type: text/x-csrc;
+  charset="iso-8859-1";
+  name="mapdump.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="mapdump.c"
+
+#include <errno.h>
+#include <fcntl.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+int main(int argc, char *argv[])
+{
+	size_t len;
+	int fd, i;
+	void *ptr;
+	uint32_t *val;
+
+	if (argc != 3) {
+		fprintf(stderr, "usage: %s <file> <mapsize>\n",
+			argv[0]);
+		return -1;
+	}
+
+	len = atoi(argv[2]);
+
+	fd = open(argv[1], O_RDONLY);
+	if (fd == -1) {
+		fprintf(stderr, "open failed: %s\n", strerror(errno));
+		return errno;
+	}
+
+	ptr = mmap(NULL, len, PROT_READ, MAP_SHARED, fd, 0);
+	if (ptr == MAP_FAILED) {
+		fprintf(stderr, "mmap failed: %s\n", strerror(errno));
+		return errno;
+	}
+
+	val = ptr;
+	len = len / sizeof(uint32_t);
+	for (i = 0; i < len; i += 4) {
+		printf("%08x: 0x%08x 0x%08x 0x%08x 0x%08x\n", i * 4, val[i],
+		       val[i+1], val[i+2], val[i+3]);
+	}
+
+	munmap(ptr, len); /* ignore any errors, we don't care */
+	close(fd);
+	return 0;
+}
+
+--Boundary-00=_LbTPE5iR3xdb5+N--

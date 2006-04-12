@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWDLAhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWDLAmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbWDLAhS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Apr 2006 20:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWDLAhS
+	id S1751216AbWDLAmd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Apr 2006 20:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWDLAmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Apr 2006 20:37:18 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:11537 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751186AbWDLAhQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Apr 2006 20:37:16 -0400
-To: Greg KH <gregkh@suse.de>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, torvalds@osdl.org
-Subject: Re: several messages
-References: <20060411173323.GA29965@kroah.com>
-	<Pine.LNX.4.61.0604112102170.25940@yvahk01.tjqt.qr>
-	<20060411203041.GA5555@suse.de>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: it's not slow --- it's stately.
-Date: Wed, 12 Apr 2006 01:36:14 +0100
-In-Reply-To: <20060411203041.GA5555@suse.de> (Greg KH's message of "11 Apr 2006 21:35:44 +0100")
-Message-ID: <874q0z4old.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+	Tue, 11 Apr 2006 20:42:33 -0400
+Received: from mailer1.psc.edu ([128.182.58.100]:49913 "EHLO mailer1.psc.edu")
+	by vger.kernel.org with ESMTP id S1751216AbWDLAmc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Apr 2006 20:42:32 -0400
+Message-ID: <443C4CF0.8040508@psc.edu>
+Date: Tue, 11 Apr 2006 20:42:24 -0400
+From: John Heffner <jheffner@psc.edu>
+User-Agent: Thunderbird 1.5 (Macintosh/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel Drake <dsd@gentoo.org>
+CC: Stephen Hemminger <shemminger@osdl.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17 regression: Very slow net transfer from some hosts
+References: <443C03E6.7080202@gentoo.org>	<443C024C.2070107@psc.edu>	<443C0B74.50305@gentoo.org>	<443C09A7.2040900@psc.edu>	<443C1738.20605@gentoo.org>	<443C178B.3030805@psc.edu>	<443C2BBA.5010804@gentoo.org> <20060411153315.4132b477@localhost.localdomain> <443C4471.7040407@gentoo.org>
+In-Reply-To: <443C4471.7040407@gentoo.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Apr 2006, Greg KH whispered secretively:
-> The first one went out last night, as it was a real issue that affected
-> people and I had already waited longer than I felt comfortable with, due
-> to travel issues I had (two different talks in two different cities in
-> two different days.)
+Daniel Drake wrote:
+> Stephen Hemminger wrote:
+>>> This is very familiar, and I just found the article I was thinking 
+>>> of: http://lwn.net/Articles/92727/
+>>>
+>>> I was also hit by that bug, on the same collection of websites, but 
+>>> that particular problem was fixed for 2.6.8 or so. So I guess it is 
+>>> extremely likely that my ISP has broken routers. nmap isn't able to 
+>>> identify the OS of any ISP routers in my path.
+>>
+>> We never fixed it, its kind of hard to fix other peoples equipment ;-)
 > 
-> The second one went out today, because it was reported today.  Should I
-> have waited until tomorrow to see if something else came up?
+> Weird, things started working for me around 2.6.9 without having to 
+> modify any sysctl stuff.
 
-Indeed.
+Ah, I remember now.  2.6.7 introduced the tcp_default_win_scale 
+variable, and 2.6.9 got rid of it, doing the calculation based on the 
+max possible tcp rcvbuf.  This is conceptually the right thing to do, 
+regardless of broken middleboxes, but had the side effect of hiding this 
+latent problem a bit longer.
 
-On top of that, they're `only' local DoSes, so many admins (i.e. those
-without untrusted local users) will probably not have installed .3 yet:
-and anyone with untrusted local users probably has someone whose entire
-job is handling security anyway.
+Thanks,
+   -John
 
-
-There's nothing wrong with rapid-fire -stables; either the issue is (in
-the judgement of the ones doing the installation) critical, in which
-case it should get out as fast as possible, or it isn't, in which case
-the local installing admins can put it off for a day or so themselves to
-see if another release comes out immediately afterwards.
-
--- 
-`On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
- because bringing Windows into the picture rescaled "brokenness" by
- a factor of 10.' --- Peter da Silva

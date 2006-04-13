@@ -1,130 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWDMNml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWDMNpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbWDMNml (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 09:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWDMNml
+	id S964930AbWDMNpN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 09:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWDMNpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 09:42:41 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:54676 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S964929AbWDMNmk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 09:42:40 -0400
-Date: Thu, 13 Apr 2006 15:42:39 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: Sam Vilain <sam@vilain.net>, devel@openvz.org,
-       Kir Kolyshkin <kir@sacred.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-Message-ID: <20060413134239.GA6663@MAIL.13thfloor.at>
-Mail-Followup-To: Kirill Korotaev <dev@openvz.org>,
-	Sam Vilain <sam@vilain.net>, devel@openvz.org,
-	Kir Kolyshkin <kir@sacred.ru>, linux-kernel@vger.kernel.org
-References: <1143583179.6325.10.camel@localhost.localdomain> <4429B789.4030209@sacred.ru> <1143588501.6325.75.camel@localhost.localdomain> <442A4FAA.4010505@openvz.org> <20060329134524.GA14522@MAIL.13thfloor.at> <442A9E1E.4030707@sw.ru> <1143668273.9969.19.camel@localhost.localdomain> <443CBA48.7020301@sw.ru> <20060413010506.GA16864@MAIL.13thfloor.at> <443DF523.3060906@openvz.org>
+	Thu, 13 Apr 2006 09:45:13 -0400
+Received: from mail.renesas.com ([202.234.163.13]:59896 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S964930AbWDMNpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 09:45:11 -0400
+Date: Thu, 13 Apr 2006 22:45:06 +0900 (JST)
+Message-Id: <20060413.224506.432825768.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] m32r: update include/asm-m32r/semaphore.h
+From: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+X-Mailer: Mew version 3.3 on XEmacs 21.4.19 (Constant Variable)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <443DF523.3060906@openvz.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 10:52:19AM +0400, Kirill Korotaev wrote:
-> Herbert,
-> 
-> Thanks a lot for the details, I will give it a try once again. Looks 
-> like fairness in this scenario simply requires sched_hard settings.
+This patch updates include/asm-m32r/semaphore.h for good readability
+and maintainability.
 
-hmm, not precisely, it's a cpu limit you described
-and that is what this configuration does, for fair
-scheduling you need to activate the indle skip and
-configure it in a similar way ...
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-> Herbert... I don't know why you've decided that my goal is to prove   
-> that your scheduler is bad or not precise. My goal is simply to       
-> investigate different approaches and make some measurements. 
+ include/asm-m32r/semaphore.h |   64 ++-----------------------------------------
+ 1 file changed, 4 insertions(+), 60 deletions(-)
 
-fair enough ...
+Index: linux-2.6.17-rc1-mm2/include/asm-m32r/semaphore.h
+===================================================================
+--- linux-2.6.17-rc1-mm2.orig/include/asm-m32r/semaphore.h	2006-04-10 10:37:29.826236194 +0900
++++ linux-2.6.17-rc1-mm2/include/asm-m32r/semaphore.h	2006-04-10 11:09:36.730041093 +0900
+@@ -9,7 +9,7 @@
+  * SMP- and interrupt-safe semaphores..
+  *
+  * Copyright (C) 1996  Linus Torvalds
+- * Copyright (C) 2004  Hirokazu Takata <takata at linux-m32r.org>
++ * Copyright (C) 2004, 2006  Hirokazu Takata <takata at linux-m32r.org>
+  */
+ 
+ #include <linux/config.h>
+@@ -77,27 +77,8 @@ asmlinkage void __up(struct semaphore * 
+  */
+ static inline void down(struct semaphore * sem)
+ {
+-	unsigned long flags;
+-	long count;
+-
+ 	might_sleep();
+-	local_irq_save(flags);
+-	__asm__ __volatile__ (
+-		"# down				\n\t"
+-		DCACHE_CLEAR("%0", "r4", "%1")
+-		M32R_LOCK" %0, @%1;		\n\t"
+-		"addi	%0, #-1;		\n\t"
+-		M32R_UNLOCK" %0, @%1;		\n\t"
+-		: "=&r" (count)
+-		: "r" (&sem->count)
+-		: "memory"
+-#ifdef CONFIG_CHIP_M32700_TS1
+-		, "r4"
+-#endif	/* CONFIG_CHIP_M32700_TS1 */
+-	);
+-	local_irq_restore(flags);
+-
+-	if (unlikely(count < 0))
++	if (unlikely(atomic_dec_return(&sem->count) < 0))
+ 		__down(sem);
+ }
+ 
+@@ -107,28 +88,10 @@ static inline void down(struct semaphore
+  */
+ static inline int down_interruptible(struct semaphore * sem)
+ {
+-	unsigned long flags;
+-	long count;
+ 	int result = 0;
+ 
+ 	might_sleep();
+-	local_irq_save(flags);
+-	__asm__ __volatile__ (
+-		"# down_interruptible		\n\t"
+-		DCACHE_CLEAR("%0", "r4", "%1")
+-		M32R_LOCK" %0, @%1;		\n\t"
+-		"addi	%0, #-1;		\n\t"
+-		M32R_UNLOCK" %0, @%1;		\n\t"
+-		: "=&r" (count)
+-		: "r" (&sem->count)
+-		: "memory"
+-#ifdef CONFIG_CHIP_M32700_TS1
+-		, "r4"
+-#endif	/* CONFIG_CHIP_M32700_TS1 */
+-	);
+-	local_irq_restore(flags);
+-
+-	if (unlikely(count < 0))
++	if (unlikely(atomic_dec_return(&sem->count) < 0))
+ 		result = __down_interruptible(sem);
+ 
+ 	return result;
+@@ -174,26 +137,7 @@ static inline int down_trylock(struct se
+  */
+ static inline void up(struct semaphore * sem)
+ {
+-	unsigned long flags;
+-	long count;
+-
+-	local_irq_save(flags);
+-	__asm__ __volatile__ (
+-		"# up				\n\t"
+-		DCACHE_CLEAR("%0", "r4", "%1")
+-		M32R_LOCK" %0, @%1;		\n\t"
+-		"addi	%0, #1;			\n\t"
+-		M32R_UNLOCK" %0, @%1;		\n\t"
+-		: "=&r" (count)
+-		: "r" (&sem->count)
+-		: "memory"
+-#ifdef CONFIG_CHIP_M32700_TS1
+-		, "r4"
+-#endif	/* CONFIG_CHIP_M32700_TS1 */
+-	);
+-	local_irq_restore(flags);
+-
+-	if (unlikely(count <= 0))
++	if (unlikely(atomic_inc_return(&sem->count) <= 0))
+ 		__up(sem);
+ }
+ 
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/
 
-> I suppose you can benefit from such a volunteer, don't you think so?  
-
-well, if the 'results' and 'methods' will be made
-public, I can, until now all I got was something
-along the lines:
-
- "Linux-VServer is not stable! WE (swsoft?) have
-  a secret but essential test suite running two 
-  weeks to confirm that OUR kernels ARE stable,
-  and Linux-VServer will never pass those tests,
-  but of course, we can't tell you what kind of
-  tests or what results we got"
-
-which doesn't help me anything and which, to be 
-honest, does not sound very friendly either ...
-
-> Anyway, thanks again and don't be cycled on the idea that OpenVZ are
-> so cruel bad guys :)
-
-but what about the Virtuozzo(tm) guys? :)
-I'm really trying not to generalize here ...
-
-best,
-Herbert
-
-> Thanks,
-> Kirill
-> 
-> >well, your mistake seems to be that you probably haven't
-> >tested this yet, because with the following (simple)
-> >setups I seem to get what you consider impossible 
-> >(of course, not as precise as your scheduler does it)
-> >
-> >
-> >vcontext --create --xid 100 ./cpuhog -n 1 100 &
-> >vcontext --create --xid 200 ./cpuhog -n 1 200 &
-> >vcontext --create --xid 300 ./cpuhog -n 1 300 &
-> >
-> >vsched --xid 100 --fill-rate 1 --interval 6
-> >vsched --xid 200 --fill-rate 2 --interval 6
-> >vsched --xid 300 --fill-rate 3 --interval 6
-> >
-> >vattribute --xid 100 --flag sched_hard
-> >vattribute --xid 200 --flag sched_hard
-> >vattribute --xid 300 --flag sched_hard
-> >
-> >
-> >  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND       
-> >   39 root      25   0  1304  248  200 R   74  0.1   0:46.16 ./cpuhog -n 1 
-> >   300  38 root      25   0  1308  252  200 H   53  0.1   0:34.06 ./cpuhog 
-> >   -n 1 200  37 root      25   0  1308  252  200 H   28  0.1   0:19.53 
-> >   ./cpuhog -n 1 100  46 root       0   0  1804  912  736 R    1  0.4   
-> >   0:02.14 top -cid 20        
-> >and here the other way round:
-> >
-> >vsched --xid 100 --fill-rate 3 --interval 6
-> >vsched --xid 200 --fill-rate 2 --interval 6
-> >vsched --xid 300 --fill-rate 1 --interval 6
-> >
-> >  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND       
-> >   36 root      25   0  1304  248  200 R   75  0.1   0:58.41 ./cpuhog -n 1 
-> >   100  37 root      25   0  1308  252  200 H   54  0.1   0:42.77 ./cpuhog 
-> >   -n 1 200  38 root      25   0  1308  252  200 R   29  0.1   0:25.30 
-> >   ./cpuhog -n 1 300  45 root       0   0  1804  912  736 R    1  0.4   
-> >   0:02.26 top -cid 20        
-> >
-> >note that this was done on a virtual dual cpu
-> >machine (QEMU 8.0) with 2.6.16-vs2.1.1-rc16 and
-> >that there were roughly 25% idle time, which I'm
-> >unable to explain atm ...
-> >
-> >feel free to jump on that fact, but I consider
-> >it unimportant for now ...
-> >
-> >best,
-> >Herbert
-> >
-> >
-> >>Thanks,
-> >>Kirill
-> >
-> >
-> 

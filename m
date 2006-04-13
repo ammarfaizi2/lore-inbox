@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWDMMkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWDMMmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbWDMMkq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 08:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbWDMMkq
+	id S964911AbWDMMmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 08:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWDMMmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 08:40:46 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:4546 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S964905AbWDMMkq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 08:40:46 -0400
-Date: Thu, 13 Apr 2006 20:37:27 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] pids: simplify do_each_task_pid/while_each_task_pid
-Message-ID: <20060413163727.GA1365@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Apr 2006 08:42:16 -0400
+Received: from wproxy.gmail.com ([64.233.184.231]:44265 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964911AbWDMMmQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 08:42:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iXavO8nQAaskURdaGNV4p09XJ9B5akEX6T+/ObW1dOjUr6ig5+4SZAGHmWi2sqvE+6HJQmgOxhhNukFiHdgTS0nk05hQOOpQc/iqqbWBYZjtqZky8izpGJtNxsig7Z4Me6SVmW1U7dsmALx45Z4nGoX+DFULOhqVdyGkpB4utGg=
+Message-ID: <9a8748490604130542y783e604ew93aea8e4997c3f57@mail.gmail.com>
+Date: Thu, 13 Apr 2006 14:42:15 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Tim Phipps" <tim@phipps-hutton.freeserve.co.uk>
+Subject: Re: p4-clockmod not working in 2.6.16
+Cc: "Mike Galbraith" <efault@gmx.de>, linux-kernel@vger.kernel.org,
+       "Edgar Toernig" <froese@gmx.de>, "Dave Jones" <davej@redhat.com>
+In-Reply-To: <200604131320.58800.tim@phipps-hutton.freeserve.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+References: <1142974528.3470.4.camel@localhost>
+	 <1144245205.7571.11.camel@homer> <1144245577.7571.16.camel@homer>
+	 <200604131320.58800.tim@phipps-hutton.freeserve.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simpllify do_each_task_pid/while_each_task_pid macros.
-This also makes the code a bit smaller.
+On 4/13/06, Tim Phipps <tim@phipps-hutton.freeserve.co.uk> wrote:
+> On Wednesday 05 Apr 2006 14:59, Mike Galbraith wrote:
+> > On Wed, 2006-04-05 at 13:02 +0100, Tim Phipps wrote:
+> > > Here's a patch to 2.6.17-rc1 that disables the 12.5% DC on any CPU that
+> > > has N60. The frequencies in the errata are a bit vague so this is the
+> > > safe bet and it only disables one of the eight frequencies rather than
+> > > the current behaviour which disables all of mine!
+> >
+> > Works for me.  Perhaps you should update...
+> > dprintk("has errata -- disabling frequencies lower than 2ghz\n");
+> > ...,slap a Signed-off-by: on it and see if it flys.
+>
+> Not sure how to do a Signed-off-by but here's the patch.
+>
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+It's simple. Here's what you do :
 
---- MM/include/linux/pid.h~	2006-03-23 22:48:10.000000000 +0300
-+++ MM/include/linux/pid.h	2006-04-13 20:28:53.000000000 +0400
-@@ -99,21 +99,16 @@ extern void FASTCALL(free_pid(struct pid
- 			pids[(type)].node)
- 
- 
--/* We could use hlist_for_each_entry_rcu here but it takes more arguments
-- * than the do_each_task_pid/while_each_task_pid.  So we roll our own
-- * to preserve the existing interface.
-- */
--#define do_each_task_pid(who, type, task)				\
--	if ((task = find_task_by_pid_type(type, who))) {		\
--		prefetch(pid_next(task, type));				\
--		do {
--
--#define while_each_task_pid(who, type, task)				\
--		} while (pid_next(task, type) &&  ({			\
--				task = pid_next_task(task, type);	\
--				rcu_dereference(task);			\
--				prefetch(pid_next(task, type));		\
--				1; }) );				\
--	}
-+#define do_each_task_pid(who, type, task)					\
-+	do {									\
-+		struct hlist_node *pos___;					\
-+		struct pid *pid___ = find_pid(who);				\
-+		if (pid___ != NULL)						\
-+			hlist_for_each_entry_rcu((task), pos___,		\
-+				&pid___->tasks[type], pids[type].node) {
-+
-+#define while_each_task_pid(who, type, task)					\
-+			}							\
-+	} while (0)
- 
- #endif /* _LINUX_PID_H */
+1. Read Documentation/SubmittingPatches, especially the "Developer's
+Certificate of Origin 1.1" bit.
 
+2. Make sure you agree/comply with above mentioned Developer's cert.,
+then add a line like this just above your patch:
+Signed-off-by: Tim Phipps <tim@phipps-hutton.freeserve.co.uk>
+
+
+(ohh and please submit patches inline in emails if at all possible,
+not as attachments, thanks)  :-)
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

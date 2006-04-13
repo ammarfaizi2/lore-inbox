@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWDMOdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWDMOxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWDMOdP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 10:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbWDMOdO
+	id S1750742AbWDMOxv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 10:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWDMOxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 10:33:14 -0400
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:2003 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751244AbWDMOdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 10:33:14 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: notifier chain problem? (was Re: 2.6.17-rc1 did break XFS)
-Date: Fri, 14 Apr 2006 00:32:10 +1000
-User-Agent: KMail/1.9.1
-Cc: Herbert Poetzl <herbert@13thfloor.at>, Jes Sorensen <jes@sgi.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com, stern@rowland.harvard.edu, sekharan@us.ibm.com,
-       akpm@osdl.org, David Chinner <dgc@sgi.com>
-References: <20060413052145.GA31435@MAIL.13thfloor.at> <20060413135000.GB6663@MAIL.13thfloor.at> <Pine.LNX.4.61.0604131618350.17374@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0604131618350.17374@yvahk01.tjqt.qr>
+	Thu, 13 Apr 2006 10:53:51 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:32898 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750742AbWDMOxu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 10:53:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=dLbvPsnJ63EI/v2/kknbK1whY27uVHInuSxjnHE0ewOYWQ/3+eq1/e4hieboUlXy2Ki/eE02TdVsaL5Q/LMWqA0V7r00PhqxAc2c8Xn3GUVmPUF53sF9AgtkxRWLRByi4bvOKjjNFvAl77tid1cc6zuHQQstd3wDksxxz2Sc4i0=
+Message-ID: <62a080740604130753i4b8bbbckc3cba12092b54226@mail.gmail.com>
+Date: Thu, 13 Apr 2006 07:53:50 -0700
+From: "K P" <kplkml@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: JVM performance on Linux (vs. Solaris/Windows)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200604140032.12086.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 April 2006 00:21, Jan Engelhardt wrote:
-> >> Looks strange, the faulting address is in the same region as the
-> >> eip. I am not that strong on x86 layouts, so I am not sure whether
-> >> 0x78xxxxxx is the kernel's mapping or it's module space. Almost looks
-> >> like something else had registered a notifier and then gone away
-> >> without unregistering it.
-> >
-> >sorry, the essential data I didn't provide here is
-> >probably that I configured the 2G/2G split, which for
-> >unknown reasons actually is a 2.125/1.875 split and
-> >starts at 0x78000000 (instead of 0x80000000)
->
-> That's how it is coded in arch/i386/Kconfig. It says 78 rather than 80.
-> Maybe Con has an idea?
+Sun's recently published SPECjbb_2005 numbers on Linux, Windows and
+Solaris on their
+Opteron system, and the Linux result is the lowest of the three by far:
 
-Follow this thread backwards from this point:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113690295909937&w=2
+Linux: http://www.spec.org/jbb2005/results/res2006q1/jbb2005-20060117-00062.html
+Solaris: http://www.spec.org/jbb2005/results/res2006q1/jbb2005-20060117-00063.html
+Windows: http://www.spec.org/jbb2005/results/res2006q1/jbb2005-20060117-00064.html
 
--- 
--ck
+It's not evident if Sun spent any time analyzing and tuning the Linux
+result. While the
+majority of the tuning opportunities for SPECjbb_2005 are likely to be
+in the JVM itself, I was
+wondering (given the large spread between the OS's) if there were
+other typical opportunities
+to tune the Linux kernel for JVM performance and SPECjbb_2005.
+
+There are some other results showing excellent scalability with SPECjbb_2005 on
+Linux/Itanium (such as SGI's:
+http://www.spec.org/jbb2005/results/res2006q2/ ), but it's
+not clear if there are other opportunities for tuning unique to Linux
+on Opteron, or Linux
+in general that should be explored
+
+Comments?
+
+-kp

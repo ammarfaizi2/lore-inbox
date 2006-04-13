@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWDMW4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWDMXA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWDMW4i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 18:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWDMW4i
+	id S1751173AbWDMXA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 19:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWDMXA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 18:56:38 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42710 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751163AbWDMW4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 18:56:37 -0400
-Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Dan Bonachea <bonachead@comcast.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0604131531440.3701@g5.osdl.org>
-References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
-	 <20060412214613.404cf49f.akpm@osdl.org> <443DE2BD.1080103@yahoo.com.au>
-	 <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>
-	 <1144965022.12387.23.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0604131531440.3701@g5.osdl.org>
-Content-Type: text/plain
+	Thu, 13 Apr 2006 19:00:58 -0400
+Received: from ns1.soleranetworks.com ([70.103.108.67]:47835 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751173AbWDMXA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 19:00:58 -0400
+Message-ID: <443EE3AF.7020604@wolfmountaingroup.com>
+Date: Thu, 13 Apr 2006 17:50:07 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Lang <dlang@digitalinsight.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, K P <kplkml@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: JVM performance on Linux (vs. Solaris/Windows)
+References: <62a080740604130753i4b8bbbckc3cba12092b54226@mail.gmail.com>  <443E74C1.5090801@mbligh.org> <443EBC1D.1000307@wolfmountaingroup.com> <Pine.LNX.4.62.0604131220560.15794@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.62.0604131220560.15794@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 14 Apr 2006 00:05:49 +0100
-Message-Id: <1144969549.12387.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-04-13 at 15:40 -0700, Linus Torvalds wrote:
-> > Outside of O_APPEND the specification says only that
-> > - The write starts at the file position
-> > - The file position is updated before the syscall returns
-> > 
-> > It makes no other guarantee I can see.
-> 
-> Right. I think this is purely a "quality of implementation" issue. We 
-> already follow the spec, the question is whether we want to be better than 
-> that.
+David Lang wrote:
 
-Quality for whom ? There is a measurable cost to all that extra locking
-which will hurt everyone. Given existing kernels don't make the
-guarantee and SuS v3 does not make the guarantee the apps that need it
-will continue to do the extra work themselves anyway.
+> On Thu, 13 Apr 2006, Jeff V. Merkey wrote:
+>
+>> Note they ran the benchmark on an Opteron 285 instead of a Xeon with 
+>> 16 GB of memory. Opteron peformance currently **SUCKS** with 2.6 
+>> series kernels under any kind of heavy I/O due to their cloning of 
+>> the ancient 82489DX architecture for I/O interrupt access and 
+>> performance. Looks like the test was stakced against Linux from the 
+>> start. Should have used a Xeon system. AMD needs to get their crappy 
+>> I/O performance up to snuff. Looking at the test parameteres leads me 
+>> to believe there was a lot of swapping on a system with already poor 
+>> I/O performance.
+>
+>
+> Jeff, I've seen several reccomendations from databasefolks (postgres 
+> and mysql) favoring Opterons over Xeons. this doesn't match your 
+> statement that Opteron performance sucks under any kind of I/O load. I 
+> don't understand how both can be correct.
+>
+> David Lang
+>
+Hi David,
 
-I'd say the existing approach is the best quality of implementation for
-those needing performance and that the cost for those needing ordering
-guarantees in Linux is already astoundingly low thanks to the excellent
-work done on futex based posix locking in glibc. I can choose to pay the
-costs today, if we do extra locking I cannot opt out.
+I have tested our Solera products on both Xeon and Opteron Processors. I 
+can sustain 500 MB/S capture off the wire on 4 x 1000 Gigabit segments
+due to the incredible performance of Xeon based I/O chipsets. My tests 
+with Opteron based systems are sick in comparison. An Opteron 200 series 
+CPU on a Tyan based motherbord system is discouraging on comparison. The 
+Opteron systems will only sustain 150 MB/S with the same software.
 
-And of course I too would like to know if anyone is hitting O_APPEND
-examples of this problem and if so on what fs ....
+The I/O chipset performance for disk and LAN I/O is purtrid compared to 
+the 7500 series I/O chipsets.
 
-Alan
+Jeff
 

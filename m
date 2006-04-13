@@ -1,93 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWDMGFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWDMGVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWDMGFV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 02:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWDMGFV
+	id S964790AbWDMGVw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 02:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWDMGVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 02:05:21 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:63960 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932410AbWDMGFU
+	Thu, 13 Apr 2006 02:21:52 -0400
+Received: from pproxy.gmail.com ([64.233.166.177]:42104 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964790AbWDMGVw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 02:05:20 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Dave Dillow <dave@thedillows.org>
-Subject: Re: [PATCH] deinline a few large functions in vlan code v2
-Date: Thu, 13 Apr 2006 09:04:56 +0300
-User-Agent: KMail/1.8.2
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-References: <200604071628.30486.vda@ilport.com.ua> <200604121155.55561.vda@ilport.com.ua> <1144862325.18319.32.camel@dillow.idleaire.com>
-In-Reply-To: <1144862325.18319.32.camel@dillow.idleaire.com>
+	Thu, 13 Apr 2006 02:21:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uk8rp/gEf67K7toRh5gm5Z6lIrpOmF03rYiGLq5e91cgBqgoc/mVvbByxEhWvkZeJXRf0tiZ4pPorjzNthkLMPxtNtXdKycvTt4h2sO+DuifopoqCqwcd/PaM6f34Iuh6AQQEtoZvPAmSb+LZ+4FsgkyKPAoJKZ/e99nEmJ6LYk=
+Message-ID: <aec7e5c30604122321p2bedb370l945009ccdb725bac@mail.gmail.com>
+Date: Thu, 13 Apr 2006 15:21:51 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [Fastboot] Re: [PATCH] Kexec: Remove order
+Cc: "Magnus Damm" <magnus@valinux.co.jp>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m164le6rcg.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200604130904.57054.vda@ilport.com.ua>
+References: <20060413030040.20516.9231.sendpatchset@cherry.local>
+	 <m164le6rcg.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 April 2006 20:18, Dave Dillow wrote:
-> > > or loaded. And even if it saves 200 bytes in one 
-> > > module, unless that module text was already less than 200 bytes into a
-> > > page, you've saved no memory -- a 4300 byte module takes 2 pages on x86,
-> > > as does a 4100 byte module.
-> > 
-> > Sometimes, those 200 bytes can bring module size just under 4096.
-> > Thus on the average, on many modules you get the same size savings
-> > as on built-in code. (Not that we have THAT many network modules...)
-> 
-> You're making a bogus leap from "sometimes" to "average".
+On 4/13/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> Magnus Damm <magnus@valinux.co.jp> writes:
+>
+> > Kexec: Remove order
+> >
+> > This patch replaces kexec n-order allocation code with 0-order only.
+> >
+> > Almost all kexec allocations are 0-order pages already, with the exception of
+> > some x86_64 specific code that requests two physically contiguous pages.
+> >
+> > These two physically contiguous pages are easily replaced with two separate
+> > pages. The second page is kept in an architecture specific pointer that is
+> > added to struct kimage.
+> >
+> > Using 0-order allocations only greatly simplifies kexec porting work to
+> > the Xen hypervisor.
+>
+> NACK.
+>
+> It is a big intrusive patch that makes it impossible to
+> port to some architectures, and it obscures what you
+> are really trying to do which is fix x86_64.
 
-It's not bogus. See below.
+When I had a working x86_64 that didn't use 2 contiguous pages there
+were no other users left of non-0 order allocations, so I thought it
+would be better to remove the unused code than to keep it.
 
-> Assuming an even distribution of lengths mod 4096, less than 5% of the
-> time will 200 bytes save any memory on a module.
+But you probably have some unmerged code that depends on that functionality.
 
-Ok, imagine perfect module size distribution, and suppose we shave 204
-bytes off each module. 5% of the modules will have their size reduced
-so that they occupy one 4k page less.
+> Feel free to fix x86_64, to use only page sized allocates.
 
-Those 5% of modules will have their RAM footprint reduced not
-by just 204 bytes, but by 4096 bytes.
+I will. But first - questions:
 
-Total RAM footprint of all modules, in kb (N=number of modules):
-before: sum_of_orig_module_size
-after, modular: sum_of_orig_module_size - 0.05*N * 4096
-after, builtin: sum_of_orig_module_size - N * 204
+Should KEXEC_CONTROL_CODE_SIZE be left in even if it's always 4096?
 
-0.05*4096 = 204.53
+Do you like how I added image->arch_private?
 
-> I don't like "VLAN_ENABLED" as a global define -- it looks too much like
-> something local. The CONFIG_VLAN... defines were more descriptive.
+> Until I see a reasonable argument that none of the architectures
+> currently supported by the linux kernel would need a multi order
+> allocation for a kexec port am I interested in removing support.
 
-That will require Kconfig changes. Maybe you would like "VLAN_ENABLED_KERNER"
-name? It doesn't sound local...
+I argue that it is quite pointless to have code to support N-order
+allocations that no one is using. Especially since the code is more
+complex and it may be harder for the buddy allocator to fulfill
+N-order allocations compared to 0-order allocations.
 
-> I didn't think about this before, but I'm pretty sure you're taking away
-> functionality. When I wrote the typhoon driver, ISTR that I looked
-> through the vlan implantation, and determined that all the #ifdefs on
-> CONFIG_VLAN_8021Q were not really needed, since all the hooks were
-> there. You could just load the 8021q module (even perhaps building it at
-> a later date), and it would work if you had filled in the hooks in
-> struct net_device. So I didn't #ifdef out code in my driver to let the
-> user have the option.
+And on top of the reasons above I'd like to stay away from N-order
+allocations because Xen doesn't guarantee that (pseudo-)physical pages
+handled out by the buddy allocator are contiguous.
 
-IOW: currently most of VLAN code is already in kernel.
-Then why do we have VLAN as a config option? Let's make it unconditional
-(will add only 10k to core kernel)?
+> As I recall the alpha had an architectural need for a 32KB
+> allocation or something like that.
 
-# size net/8021q/8021q.o
-   text    data     bss     dec     hex filename
-   9379     484     136    9999    270f net/8021q/8021q.o
+Oh. So if someone is working on kexec for alpha I guess we need
+N-order allocations, right?
 
-> You're taking that away in the name of a total of 5K, which most users
-> won't actually get back?
+Thanks for your comments!
 
-It started as a kernel-wide audit for huge inlines, I was not aiming
-at VLAN particularly. But yes, when I saw other (not related to inlines)
-opportunities to make code smaller, I decided to do it.
-
-You know, people say that even Linux is getting fat these days.
---
-vda
+/ magnus

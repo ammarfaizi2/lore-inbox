@@ -1,154 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWDMP2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWDMPal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWDMP2c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 11:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWDMP2c
+	id S1750947AbWDMPal (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 11:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWDMPak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 11:28:32 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3031 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750892AbWDMP2b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 11:28:31 -0400
-Date: Thu, 13 Apr 2006 08:28:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, Dan Bonachea <bonachead@comcast.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
-In-Reply-To: <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0604130827490.14565@g5.osdl.org>
-References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
- <20060412214613.404cf49f.akpm@osdl.org> <443DE2BD.1080103@yahoo.com.au>
- <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Apr 2006 11:30:40 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:18359 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1750946AbWDMPak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 11:30:40 -0400
+Date: Thu, 13 Apr 2006 17:30:28 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Ram Gupta <ram.gupta5@gmail.com>
+Cc: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: select takes too much time
+Message-ID: <20060413153028.GA26480@rhlx01.fht-esslingen.de>
+References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Thu, Apr 13, 2006 at 10:01:04AM -0500, Ram Gupta wrote:
+> I am using select with a timeout value of 90 ms. But for some reason
+> occasionally  it comes out of select after more than one second . I
+> checked the man page but it does not help in concluding if this is ok
+> or not. Is this expected  or it is a bug. Most of this time is
+> consumed in   schedule_timeout . I am using 2.5.45 kernel but I
+> believe the same would  be the true for the latest kernel too. Any
+> thoughts or suggestion are welcome.
 
-On Thu, 13 Apr 2006, Linus Torvalds wrote:
-> 
-> That said, I wouldn't be 100% against it, especially under certain 
-> circumstances. However, the circumstances when I think it might be 
-> acceptable are fairly specific:
-> 
->  - when we use f_pos (ie we'd synchronize write against write, but only 
->    per "struct file", not on an inode basis)
->  - only for files that are marked seekable with FMODE_LSEEK (thus avoiding 
->    the stream-like objects like pipes and sockets)
-> 
-> Under those two circumstances, I'd certainly be ok with it, and I think we 
-> could argue that it is a "good thing". It would be a "f_pos" lock (so we 
-> migt do it for reads too), not a "data lock".
-> 
-> Comments?
+AFAIK (I'm not an absolute expert on this, but it should be about correct):
+Any user of select() competes with all other processes on the system
+for the attention of the scheduler. If there are always runnable tasks
+available with a higher priority than the select() user, then it's easily
+imaginable that those tasks get woken up and/or will be kept running first.
+The timeout value given to select() thus states the *minimum* time that
+the process will continue after if the timeout has been fully taken (i.e.
+no event occurred).
+The man page of select() is a bit inaccurate in saying that "it will return
+immediately". Well, it will *try to* return ASAP once it has decided to
+return. BUT the scheduler will *always* have ultimate authority upon when
+*exactly* this process will be allowed to continue.
 
-Something like this.
+Now if you have issues with select() taking too long, then I'd say tough
+luck, that's life, other processes seem more important than your select()
+user, but OTOH it could mean that our scheduler design is not assigning
+enough importance to processes waiting on a select() and becoming runnable
+again (however I strongly doubt that, since there has gone a LOT of work into
+proper scheduler design in Linux).
 
-NOTE NOTE NOTE! Untested!
+Or, to put it differently, select() doesn't have realtime guarantees, i.e.
+there's no way for you to boldly assume that once select() times out
+your process will continue to run instantly within microseconds.
 
-		Linus
----
-diff --git a/fs/file_table.c b/fs/file_table.c
-index bcea199..48728cc 100644
---- a/fs/file_table.c
-+++ b/fs/file_table.c
-@@ -120,6 +120,7 @@ struct file *get_empty_filp(void)
- 	f->f_uid = tsk->fsuid;
- 	f->f_gid = tsk->fsgid;
- 	eventpoll_init_file(f);
-+	mutex_init(&f->f_pos_lock);
- 	/* f->f_version: 0 */
- 	return f;
- 
-diff --git a/fs/read_write.c b/fs/read_write.c
-index 5bc0e92..ad9db26 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -329,14 +329,23 @@ ssize_t vfs_write(struct file *file, con
- 
- EXPORT_SYMBOL(vfs_write);
- 
--static inline loff_t file_pos_read(struct file *file)
-+/*
-+ * FMODE_LSEEK will never change for a file during its lifetime,
-+ * so it's ok to test it independently on the lock/unlock path
-+ * rather than explicitly remembering whether we locked it.
-+ */
-+static inline loff_t file_pos_read_lock(struct file *file)
- {
-+	if (file->f_mode & FMODE_LSEEK)
-+		mutex_lock(&file->f_pos_lock);
- 	return file->f_pos;
- }
- 
--static inline void file_pos_write(struct file *file, loff_t pos)
-+static inline void file_pos_write_unlock(struct file *file, loff_t pos)
- {
- 	file->f_pos = pos;
-+	if (file->f_mode & FMODE_LSEEK)
-+		mutex_unlock(&file->f_pos_lock);
- }
- 
- asmlinkage ssize_t sys_read(unsigned int fd, char __user * buf, size_t count)
-@@ -347,9 +356,9 @@ asmlinkage ssize_t sys_read(unsigned int
- 
- 	file = fget_light(fd, &fput_needed);
- 	if (file) {
--		loff_t pos = file_pos_read(file);
-+		loff_t pos = file_pos_read_lock(file);
- 		ret = vfs_read(file, buf, count, &pos);
--		file_pos_write(file, pos);
-+		file_pos_write_unlock(file, pos);
- 		fput_light(file, fput_needed);
- 	}
- 
-@@ -365,9 +374,9 @@ asmlinkage ssize_t sys_write(unsigned in
- 
- 	file = fget_light(fd, &fput_needed);
- 	if (file) {
--		loff_t pos = file_pos_read(file);
-+		loff_t pos = file_pos_read_lock(file);
- 		ret = vfs_write(file, buf, count, &pos);
--		file_pos_write(file, pos);
-+		file_pos_write_unlock(file, pos);
- 		fput_light(file, fput_needed);
- 	}
- 
-@@ -603,9 +612,9 @@ sys_readv(unsigned long fd, const struct
- 
- 	file = fget_light(fd, &fput_needed);
- 	if (file) {
--		loff_t pos = file_pos_read(file);
-+		loff_t pos = file_pos_read_lock(file);
- 		ret = vfs_readv(file, vec, vlen, &pos);
--		file_pos_write(file, pos);
-+		file_pos_write_unlock(file, pos);
- 		fput_light(file, fput_needed);
- 	}
- 
-@@ -624,9 +633,9 @@ sys_writev(unsigned long fd, const struc
- 
- 	file = fget_light(fd, &fput_needed);
- 	if (file) {
--		loff_t pos = file_pos_read(file);
-+		loff_t pos = file_pos_read_lock(file);
- 		ret = vfs_writev(file, vec, vlen, &pos);
--		file_pos_write(file, pos);
-+		file_pos_write_unlock(file, pos);
- 		fput_light(file, fput_needed);
- 	}
- 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 162c6e5..1d58cd0 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -643,6 +643,7 @@ struct file {
- 	loff_t			f_pos;
- 	struct fown_struct	f_owner;
- 	unsigned int		f_uid, f_gid;
-+	struct mutex		f_pos_lock;
- 	struct file_ra_state	f_ra;
- 
- 	unsigned long		f_version;
+Finally, *any* scheduling timeout on a system should be taken for granted
+as a *minimum* guarantee only. This is also why looped msleep()s in
+Linux drivers should very often be coupled with a jiffies timeout condition
+just in case the system is so extremely busy that each msleep(1) takes up
+3 seconds, thus letting a 300 times 1ms loop end up as 900 seconds instead...
+
+Whoa, way too many words for answering such a basic issue...
+(but this problem being so basic it probably cannot be explained too often)
+
+Oh, and another related word of advice: when doing thread programming,
+always synchronize parallel threads by letting them *block* on each others
+status instead of letting the peer thread busy-loop for the other thread to
+finish its work. Good schedulers *will* punish busy-looping and honour
+proper blocking on a condition, so your software will suffer a lot when
+doing too much busy-looping or semi-busy-looping (too many useless wakeups).
+
+Andreas Mohr
+
+-- 
+Please consider not buying any HDTV hardware! (extremely anti-consumer)
+Bitte kaufen Sie besser keinerlei HDTV-Geräte! (extrem verbraucherfeindlich)
+Infos:
+http://www.hdboycott.com   http://www.eff.org/IP/DRM/   http://bluraysucks.com

@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWDMICw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWDMINh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWDMICw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 04:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWDMICw
+	id S1751147AbWDMINh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 04:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWDMINh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 04:02:52 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29963 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964825AbWDMICv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 04:02:51 -0400
-Date: Thu, 13 Apr 2006 10:02:49 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: minyard@mvista.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/ipmi/ipmi_msghandler.c: make proc_ipmi_root static
-Message-ID: <20060413080249.GH6517@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 13 Apr 2006 04:13:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5601 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751147AbWDMINg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 04:13:36 -0400
+Date: Thu, 13 Apr 2006 01:13:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Alasdair G Kergon <agk@redhat.com>
+Subject: Re: 2.6.17-rc1-mm1
+Message-Id: <20060413011303.668fe5c1.akpm@osdl.org>
+In-Reply-To: <20060413073958.GB9428@osiris.boeblingen.de.ibm.com>
+References: <20060404014504.564bf45a.akpm@osdl.org>
+	<20060413073958.GB9428@osiris.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the needlessly global struct proc_ipmi_root static.
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+>
+> > +md-dm-reduce-stack-usage-with-stacked-block-devices.patch
+> >  MD update.
+> 
+> Any chance to see this merged? I think this one is pending for quite a while.
 
-Besides this, it removes an unused #ifdef CONFIG_PROC_FS from 
-include/linux/ipmi.h.
+Last time I broached it with Alasdair (10 Jan) he said
 
----
+  I can see nothing wrong with this in principle.
 
-BTW: Please add an entry for IPMI to MAINTAINERS.
+  For device-mapper at the moment though it's essential that, while the
+  bio mappings may now get delayed, they still get processed in exactly the
+  same order as they were passed to generic_make_request().
 
- drivers/char/ipmi/ipmi_msghandler.c |    3 +--
- include/linux/ipmi.h                |    4 ----
- 2 files changed, 1 insertion(+), 6 deletions(-)
+  My main concern is whether the timing changes implicit in this patch
+  will make the rare data-corrupting races in the existing snapshot code
+  more likely.  (I'm working on a fix for these races, but the unfinished
+  patch is already several hundred lines long.)
 
---- linux-2.6.17-rc1-mm2-full/include/linux/ipmi.h.old	2006-04-12 22:32:08.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/include/linux/ipmi.h	2006-04-12 22:32:20.000000000 +0200
-@@ -210,11 +210,7 @@
-  */
- #include <linux/list.h>
- #include <linux/module.h>
--
--#ifdef CONFIG_PROC_FS
- #include <linux/proc_fs.h>
--extern struct proc_dir_entry *proc_ipmi_root;
--#endif /* CONFIG_PROC_FS */
- 
- /* Opaque type for a IPMI message user.  One of these is needed to
-    send and receive messages. */
---- linux-2.6.17-rc1-mm2-full/drivers/char/ipmi/ipmi_msghandler.c.old	2006-04-12 22:32:29.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/drivers/char/ipmi/ipmi_msghandler.c	2006-04-12 22:32:45.000000000 +0200
-@@ -57,8 +57,7 @@
- static int initialized = 0;
- 
- #ifdef CONFIG_PROC_FS
--struct proc_dir_entry *proc_ipmi_root = NULL;
--EXPORT_SYMBOL(proc_ipmi_root);
-+static struct proc_dir_entry *proc_ipmi_root = NULL;
- #endif /* CONFIG_PROC_FS */
- 
- #define MAX_EVENTS_IN_QUEUE	25
+  It would be helpful if some people on this mailing list would test this
+  patch in various scenarios and report back.
 
+
+yes, it has been around for rather a while.

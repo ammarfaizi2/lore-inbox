@@ -1,32 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbWDMXJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWDMXJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965016AbWDMXJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 19:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbWDMXJP
+	id S965013AbWDMXJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 19:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbWDMXJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 19:09:15 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42446 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965011AbWDMXJH (ORCPT
+	Thu, 13 Apr 2006 19:09:23 -0400
+Received: from ns2.suse.de ([195.135.220.15]:33998 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964998AbWDMXIw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 19:09:07 -0400
-Date: Thu, 13 Apr 2006 16:07:59 -0700
+	Thu, 13 Apr 2006 19:08:52 -0400
+Date: Thu, 13 Apr 2006 16:07:43 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Martin Bligh <mbligh@google.com>, Rohit Seth <rohitseth@google.com>,
-       Nick Piggin <npiggin@suse.de>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 10/22] Fix buddy list race that could lead to page lru list corruptions
-Message-ID: <20060413230759.GK5613@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, takata@linux-m32r.org,
+       fujiwara.hayato@renesas.com, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 08/22] m32r: Fix cpu_possible_map and cpu_present_map initialization for SMP kernel
+Message-ID: <20060413230743.GI5613@kroah.com>
 References: <20060413230141.330705000@quad.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-buddy-list-race-that-could-lead-to-page-lru-list-corruptions.patch"
+Content-Disposition: inline; filename="m32r-fix-cpu_possible_map-and-cpu_present_map-initialization-for-smp-kernel.patch"
 In-Reply-To: <20060413230637.GA5613@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -36,160 +33,149 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ------------------
 
-From: Nick Piggin <piggin@cyberone.com.au>
+From: Hirokazu Takata <takata@linux-m32r.org>
 
-[PATCH] Fix buddy list race that could lead to page lru list corruptions
+This patch fixes a boot problem of the m32r SMP kernel 2.6.16-rc1-mm3 or
+later.
 
-Rohit found an obscure bug causing buddy list corruption.
+In this patch, cpu_possible_map is statically initialized, and cpu_present_map
+is also copied from cpu_possible_map in smp_prepare_cpus(), because the m32r
+architecture has not supported CPU hotplug yet.
 
-page_is_buddy is using a non-atomic test (PagePrivate && page_count == 0)
-to determine whether or not a free page's buddy is itself free and in the
-buddy lists.
-
-Each of the conjuncts may be true at different times due to unrelated
-conditions, so the non-atomic page_is_buddy test may find each conjunct to
-be true even if they were not both true at the same time (ie. the page was
-not on the buddy lists).
-
-Signed-off-by: Martin Bligh <mbligh@google.com>
-Signed-off-by: Rohit Seth <rohitseth@google.com>
-Signed-off-by: Nick Piggin <npiggin@suse.de>
-Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Hayato Fujiwara <fujiwara.hayato@renesas.com>
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- include/linux/mm.h         |    5 ++---
- include/linux/page-flags.h |    8 +++++++-
- mm/page_alloc.c            |   31 ++++++++++++++++++-------------
- 3 files changed, 27 insertions(+), 17 deletions(-)
+ arch/m32r/kernel/setup.c   |   12 +++++-------
+ arch/m32r/kernel/smpboot.c |   19 ++++++++++---------
+ include/asm-m32r/smp.h     |    3 ++-
+ 3 files changed, 17 insertions(+), 17 deletions(-)
 
---- linux-2.6.16.5.orig/include/linux/mm.h
-+++ linux-2.6.16.5/include/linux/mm.h
-@@ -229,10 +229,9 @@ struct page {
- 		unsigned long private;		/* Mapping-private opaque data:
- 					 	 * usually used for buffer_heads
- 						 * if PagePrivate set; used for
--						 * swp_entry_t if PageSwapCache.
--						 * When page is free, this
-+						 * swp_entry_t if PageSwapCache;
- 						 * indicates order in the buddy
--						 * system.
-+						 * system if PG_buddy is set.
- 						 */
- 		struct address_space *mapping;	/* If low bit clear, points to
- 						 * inode address_space, or NULL.
---- linux-2.6.16.5.orig/include/linux/page-flags.h
-+++ linux-2.6.16.5/include/linux/page-flags.h
-@@ -74,7 +74,9 @@
- #define PG_mappedtodisk		16	/* Has blocks allocated on-disk */
- #define PG_reclaim		17	/* To be reclaimed asap */
- #define PG_nosave_free		18	/* Free, should not be written */
--#define PG_uncached		19	/* Page has been mapped as uncached */
-+#define PG_buddy		19	/* Page is free, on buddy lists */
-+
-+#define PG_uncached		20	/* Page has been mapped as uncached */
+--- linux-2.6.16.5.orig/arch/m32r/kernel/setup.c
++++ linux-2.6.16.5/arch/m32r/kernel/setup.c
+@@ -9,6 +9,7 @@
  
- /*
-  * Global page accounting.  One instance per CPU.  Only unsigned longs are
-@@ -319,6 +321,10 @@ extern void __mod_page_state_offset(unsi
- #define SetPageNosaveFree(page)	set_bit(PG_nosave_free, &(page)->flags)
- #define ClearPageNosaveFree(page)		clear_bit(PG_nosave_free, &(page)->flags)
+ #include <linux/config.h>
+ #include <linux/init.h>
++#include <linux/kernel.h>
+ #include <linux/stddef.h>
+ #include <linux/fs.h>
+ #include <linux/sched.h>
+@@ -218,8 +219,6 @@ static unsigned long __init setup_memory
+ extern unsigned long setup_memory(void);
+ #endif	/* CONFIG_DISCONTIGMEM */
  
-+#define PageBuddy(page)		test_bit(PG_buddy, &(page)->flags)
-+#define __SetPageBuddy(page)	__set_bit(PG_buddy, &(page)->flags)
-+#define __ClearPageBuddy(page)	__clear_bit(PG_buddy, &(page)->flags)
-+
- #define PageMappedToDisk(page)	test_bit(PG_mappedtodisk, &(page)->flags)
- #define SetPageMappedToDisk(page) set_bit(PG_mappedtodisk, &(page)->flags)
- #define ClearPageMappedToDisk(page) clear_bit(PG_mappedtodisk, &(page)->flags)
---- linux-2.6.16.5.orig/mm/page_alloc.c
-+++ linux-2.6.16.5/mm/page_alloc.c
-@@ -153,7 +153,8 @@ static void bad_page(struct page *page)
- 			1 << PG_reclaim |
- 			1 << PG_slab    |
- 			1 << PG_swapcache |
--			1 << PG_writeback );
-+			1 << PG_writeback |
-+			1 << PG_buddy );
- 	set_page_count(page, 0);
- 	reset_page_mapcount(page);
- 	page->mapping = NULL;
-@@ -224,12 +225,12 @@ static inline unsigned long page_order(s
- 
- static inline void set_page_order(struct page *page, int order) {
- 	set_page_private(page, order);
--	__SetPagePrivate(page);
-+	__SetPageBuddy(page);
- }
- 
- static inline void rmv_page_order(struct page *page)
+-#define M32R_PCC_PCATCR	0x00ef7014	/* will move to m32r.h */
+-
+ void __init setup_arch(char **cmdline_p)
  {
--	__ClearPagePrivate(page);
-+	__ClearPageBuddy(page);
- 	set_page_private(page, 0);
+ 	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
+@@ -268,15 +267,14 @@ void __init setup_arch(char **cmdline_p)
+ 	paging_init();
  }
  
-@@ -268,11 +269,13 @@ __find_combined_index(unsigned long page
-  * This function checks whether a page is free && is the buddy
-  * we can do coalesce a page and its buddy if
-  * (a) the buddy is not in a hole &&
-- * (b) the buddy is free &&
-- * (c) the buddy is on the buddy system &&
-- * (d) a page and its buddy have the same order.
-- * for recording page's order, we use page_private(page) and PG_private.
-+ * (b) the buddy is in the buddy system &&
-+ * (c) a page and its buddy have the same order.
-+ *
-+ * For recording whether a page is in the buddy system, we use PG_buddy.
-+ * Setting, clearing, and testing PG_buddy is serialized by zone->lock.
-  *
-+ * For recording page's order, we use page_private(page).
+-static struct cpu cpu[NR_CPUS];
++static struct cpu cpu_devices[NR_CPUS];
+ 
+ static int __init topology_init(void)
+ {
+-	int cpu_id;
++	int i;
+ 
+-	for (cpu_id = 0; cpu_id < NR_CPUS; cpu_id++)
+-		if (cpu_possible(cpu_id))
+-			register_cpu(&cpu[cpu_id], cpu_id, NULL);
++	for_each_present_cpu(i)
++		register_cpu(&cpu_devices[i], i, NULL);
+ 
+ 	return 0;
+ }
+--- linux-2.6.16.5.orig/arch/m32r/kernel/smpboot.c
++++ linux-2.6.16.5/arch/m32r/kernel/smpboot.c
+@@ -39,8 +39,10 @@
+  *		Martin J. Bligh	: 	Added support for multi-quad systems
   */
- static inline int page_is_buddy(struct page *page, int order)
- {
-@@ -281,10 +284,10 @@ static inline int page_is_buddy(struct p
- 		return 0;
- #endif
  
--       if (PagePrivate(page)           &&
--           (page_order(page) == order) &&
--            page_count(page) == 0)
-+	if (PageBuddy(page) && page_order(page) == order) {
-+		BUG_ON(page_count(page) != 0);
-                return 1;
-+	}
-        return 0;
- }
++#include <linux/module.h>
+ #include <linux/config.h>
+ #include <linux/init.h>
++#include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/smp_lock.h>
+ #include <linux/irq.h>
+@@ -72,11 +74,15 @@ physid_mask_t phys_cpu_present_map;
  
-@@ -301,7 +304,7 @@ static inline int page_is_buddy(struct p
-  * as necessary, plus some accounting needed to play nicely with other
-  * parts of the VM system.
-  * At each level, we keep a list of pages, which are heads of continuous
-- * free pages of length of (1 << order) and marked with PG_Private.Page's
-+ * free pages of length of (1 << order) and marked with PG_buddy. Page's
-  * order is recorded in page_private(page) field.
-  * So when we are allocating or freeing one, we can derive the state of the
-  * other.  That is, if we allocate a small block, and both were   
-@@ -364,7 +367,8 @@ static inline int free_pages_check(struc
- 			1 << PG_slab	|
- 			1 << PG_swapcache |
- 			1 << PG_writeback |
--			1 << PG_reserved ))))
-+			1 << PG_reserved |
-+			1 << PG_buddy ))))
- 		bad_page(page);
- 	if (PageDirty(page))
- 		__ClearPageDirty(page);
-@@ -522,7 +526,8 @@ static int prep_new_page(struct page *pa
- 			1 << PG_slab    |
- 			1 << PG_swapcache |
- 			1 << PG_writeback |
--			1 << PG_reserved ))))
-+			1 << PG_reserved |
-+			1 << PG_buddy ))))
- 		bad_page(page);
+ /* Bitmask of currently online CPUs */
+ cpumask_t cpu_online_map;
++EXPORT_SYMBOL(cpu_online_map);
+ 
+ cpumask_t cpu_bootout_map;
+ cpumask_t cpu_bootin_map;
+-cpumask_t cpu_callout_map;
+ static cpumask_t cpu_callin_map;
++cpumask_t cpu_callout_map;
++EXPORT_SYMBOL(cpu_callout_map);
++cpumask_t cpu_possible_map = CPU_MASK_ALL;
++EXPORT_SYMBOL(cpu_possible_map);
+ 
+ /* Per CPU bogomips and other parameters */
+ struct cpuinfo_m32r cpu_data[NR_CPUS] __cacheline_aligned;
+@@ -110,7 +116,6 @@ static unsigned int calibration_result;
+ 
+ void smp_prepare_boot_cpu(void);
+ void smp_prepare_cpus(unsigned int);
+-static void smp_tune_scheduling(void);
+ static void init_ipi_lock(void);
+ static void do_boot_cpu(int);
+ int __cpu_up(unsigned int);
+@@ -177,6 +182,9 @@ void __init smp_prepare_cpus(unsigned in
+ 	}
+ 	for (phys_id = 0 ; phys_id < nr_cpu ; phys_id++)
+ 		physid_set(phys_id, phys_cpu_present_map);
++#ifndef CONFIG_HOTPLUG_CPU
++	cpu_present_map = cpu_possible_map;
++#endif
+ 
+ 	show_mp_info(nr_cpu);
+ 
+@@ -186,7 +194,6 @@ void __init smp_prepare_cpus(unsigned in
+ 	 * Setup boot CPU information
+ 	 */
+ 	smp_store_cpu_info(0); /* Final full version of the data */
+-	smp_tune_scheduling();
  
  	/*
+ 	 * If SMP should be disabled, then really disable it!
+@@ -230,11 +237,6 @@ smp_done:
+ 	Dprintk("Boot done.\n");
+ }
+ 
+-static void __init smp_tune_scheduling(void)
+-{
+-	/* Nothing to do. */
+-}
+-
+ /*
+  * init_ipi_lock : Initialize IPI locks.
+  */
+@@ -629,4 +631,3 @@ static void __init unmap_cpu_to_physid(i
+ 	physid_2_cpu[phys_id] = -1;
+ 	cpu_2_physid[cpu_id] = -1;
+ }
+-
+--- linux-2.6.16.5.orig/include/asm-m32r/smp.h
++++ linux-2.6.16.5/include/asm-m32r/smp.h
+@@ -67,7 +67,8 @@ extern volatile int cpu_2_physid[NR_CPUS
+ #define raw_smp_processor_id()	(current_thread_info()->cpu)
+ 
+ extern cpumask_t cpu_callout_map;
+-#define cpu_possible_map cpu_callout_map
++extern cpumask_t cpu_possible_map;
++extern cpumask_t cpu_present_map;
+ 
+ static __inline__ int hard_smp_processor_id(void)
+ {
 
 --

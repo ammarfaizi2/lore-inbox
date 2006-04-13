@@ -1,285 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWDMUuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWDMUwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbWDMUuo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 16:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWDMUuo
+	id S964957AbWDMUwO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 16:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWDMUwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 16:50:44 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:2969 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932361AbWDMUun convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 16:50:43 -0400
-From: Darren Hart <dvhltc@us.ibm.com>
-Organization: IBM Linux Technology Center
-To: =?iso-8859-1?q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-Subject: Re: [RFC][PATCH -rt] Make futex_wait() use an hrtimer for timeout
-Date: Thu, 13 Apr 2006 13:50:42 -0700
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, tglx@linutronix.de
-References: <20060412114243.42351c35@frecb000686>
-In-Reply-To: <20060412114243.42351c35@frecb000686>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200604131350.42945.dvhltc@us.ibm.com>
+	Thu, 13 Apr 2006 16:52:14 -0400
+Received: from gate.crashing.org ([63.228.1.57]:27551 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932463AbWDMUwO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 16:52:14 -0400
+Subject: Re: [PATCH] [2/2] POWERPC: Lower threshold for DART enablement to
+	1GB, V2
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olof Johansson <olof@lixom.net>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>, paulus@samba.org,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060413160712.GG24769@pb15.lixom.net>
+References: <20060413020559.GC24769@pb15.lixom.net>
+	 <20060413022809.GD24769@pb15.lixom.net>
+	 <20060413025233.GE24769@pb15.lixom.net>
+	 <20060413064027.GH10412@granada.merseine.nu>
+	 <1144925149.4935.14.camel@localhost.localdomain>
+	 <20060413160712.GG24769@pb15.lixom.net>
+Content-Type: text/plain
+Date: Fri, 14 Apr 2006 06:51:55 +1000
+Message-Id: <1144961515.4935.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 April 2006 02:42, Sébastien Dugué wrote:
->   Hi,
->
->   This patch modifies futex_wait() to use an hrtimer + schedule() in place
-> of schedule_timeout() in an RT kernel.
+On Thu, 2006-04-13 at 11:07 -0500, Olof Johansson wrote:
+> On Thu, Apr 13, 2006 at 08:45:49PM +1000, Benjamin Herrenschmidt wrote:
+> > On Thu, 2006-04-13 at 09:40 +0300, Muli Ben-Yehuda wrote:
+> > > On Wed, Apr 12, 2006 at 09:52:33PM -0500, Olof Johansson wrote:
+> > > 
+> > > > iommu=off can still be used for those who don't want to deal with the
+> > > > overhead (and don't need it for any devices).
+> > > 
+> > > I've been pondering walking the PCI bus before deciding to enable an
+> > > IOMMU and checking each device's DMA mask. Is this something that you
+> > > considered and rejected, or just something no one got around to doing?
+> > 
+> > It would do the trick for airport cards in G5s.. a little bit of OF
+> > walking to find the card.
+> 
+> Walking the DT means we need to hardcode it on PCI IDs, since the Apple
+> OF doesn't give the Airport device a logical name. It's probably easier
+> to implement than walking PCI, but we'd need to maintain a table. My
+> vote is for PCI walking, I'll give that a shot over the weekend.
 
-I haven't seen any public discussion on this, so I just wanted to put in a 
-nod.  It will greatly improve the latency for realtime applications using 
-pthread_cond_timedwait().
+PCI walking it soo late to decide wether to enable the DART no ? In any
+case, we need a table, so I wouldn't bother with PCI walking here.
+Anyway... we should be able to have almost no perf. degradation or even
+an improvement with the DART thanks to virtual merging. Currently, we
+pay a cost due to our stupid invalidate mecanism that we should really
+fix by shooting the TLB directly. Also have you made sure all your
+additions for handling crappy hardware are nicely wrapped in unlikely()
+statements ? :)
 
-Acked-by: Darren Hart <dvhltc@us.ibm.com>
+> > It won't help with cardbus broadcom's but then, there is currently no G5
+> > with a cardbus adaptor that I know of :) It's possible I suppose to get
+> > a pci<->cardbus adapter but I suppose in that case, we can ignore it ...
+> 
+> Yep, that should be rare enough.
 
 
->
->   More details in the patch header.
->
->   Sébastien.
->
->
-> ---------------------------------------------------------------------------
->-----
->
->   This patch modifies futex_wait() to use an hrtimer + schedule() in place
-> of schedule_timeout().
->
->   schedule_timeout() is tick based, therefore the timeout granularity is
-> the tick (1 ms, 4 ms or 10 ms depending on HZ). By using a high resolution
-> timer for timeout wakeup, we can attain a much finer timeout granularity
-> (in the microsecond range). This parallels what is already done for
-> futex_lock_pi().
->
->   The timeout passed to the syscall is no longer converted to jiffies
-> and is therefore passed to do_futex() and futex_wait() as a timespec
-> therefore keeping nanosecond resolution.
->
->   Also this removes the need to pass the nanoseconds timeout part to
-> futex_lock_pi() in val2.
->
->   In futex_wait(), if the timeout is zero then a regular schedule() is
-> performed. Otherwise, an hrtimer is fired before schedule() is called.
->
->  include/linux/futex.h |    2 -
->  kernel/futex.c        |   56
-> +++++++++++++++++++++++++++++++++----------------- kernel/futex_compat.c | 
->   9 --------
->  3 files changed, 40 insertions(+), 27 deletions(-)
->
->
-> Signed-off-by: Sébastien Dugué <sebastien.dugue@bull.net>
->
-> Index: linux-2.6.16-rt16/include/linux/futex.h
-> ===================================================================
-> --- linux-2.6.16-rt16.orig/include/linux/futex.h	2006-04-12
-> 11:20:57.000000000 +0200 +++
-> linux-2.6.16-rt16/include/linux/futex.h	2006-04-12 11:21:01.000000000 +0200
-> @@ -93,7 +93,7 @@ struct robust_list_head {
->   */
->  #define ROBUST_LIST_LIMIT	2048
->
-> -long do_futex(u32 __user *uaddr, int op, u32 val, unsigned long timeout,
-> +long do_futex(u32 __user *uaddr, int op, u32 val, struct timespec
-> *timeout, u32 __user *uaddr2, u32 val2, u32 val3);
->
->  extern int handle_futex_death(u32 __user *uaddr, struct task_struct
-> *curr); Index: linux-2.6.16-rt16/kernel/futex.c
-> ===================================================================
-> --- linux-2.6.16-rt16.orig/kernel/futex.c	2006-04-12 11:20:57.000000000
-> +0200 +++ linux-2.6.16-rt16/kernel/futex.c	2006-04-12 11:21:01.000000000
-> +0200 @@ -49,6 +49,7 @@
->  #include <linux/syscalls.h>
->  #include <linux/signal.h>
->  #include <asm/futex.h>
-> +#include <linux/hrtimer.h>
->
->  #include "rtmutex_common.h"
->
-> @@ -968,7 +969,7 @@ static void unqueue_me_pi(struct futex_q
->  	drop_key_refs(&q->key);
->  }
->
-> -static int futex_wait(u32 __user *uaddr, u32 val, unsigned long time)
-> +static int futex_wait(u32 __user *uaddr, u32 val, struct timespec *time)
->  {
->  	struct task_struct *curr = current;
->  	DECLARE_WAITQUEUE(wait, curr);
-> @@ -976,6 +977,8 @@ static int futex_wait(u32 __user *uaddr,
->  	struct futex_q q;
->  	u32 uval;
->  	int ret;
-> +	struct hrtimer_sleeper t;
-> +	int rem = 0;
->
->  	q.pi_state = NULL;
->   retry:
-> @@ -1057,7 +1060,31 @@ static int futex_wait(u32 __user *uaddr,
->  		unsigned long nosched_flag = current->flags & PF_NOSCHED;
->
->  		current->flags &= ~PF_NOSCHED;
-> -		time = schedule_timeout(time);
-> +
-> +		if (time->tv_sec == 0 && time->tv_nsec == 0)
-> +			schedule();
-> +		else {
-> +
-> +			hrtimer_init(&t.timer, CLOCK_MONOTONIC, HRTIMER_REL);
-> +			hrtimer_init_sleeper(&t, current);
-> +			t.timer.expires = timespec_to_ktime(*time);
-> +
-> +			hrtimer_start(&t.timer, t.timer.expires, HRTIMER_REL);
-> +
-> +			/*
-> +			 * the timer could have already expired, in which
-> +			 * case current would be flagged for rescheduling.
-> +			 * Don't bother calling schedule.
-> +			 */
-> +			if (likely(t.task))
-> +				schedule();
-> +
-> +			hrtimer_cancel(&t.timer);
-> +
-> +			/* Flag if a timeout occured */
-> +			rem = (t.task == NULL);
-> +		}
-> +
->  		current->flags |= nosched_flag;
->  	}
->  	__set_current_state(TASK_RUNNING);
-> @@ -1070,7 +1097,7 @@ static int futex_wait(u32 __user *uaddr,
->  	/* If we were woken (and unqueued), we succeeded, whatever. */
->  	if (!unqueue_me(&q))
->  		return 0;
-> -	if (time == 0)
-> +	if (rem)
->  		return -ETIMEDOUT;
->  	/*
->  	 * We expect signal_pending(current), but another thread may
-> @@ -1093,7 +1120,7 @@ static int futex_wait(u32 __user *uaddr,
->   * races the kernel might see a 0 value of the futex too.)
->   */
->  static int futex_lock_pi(u32 __user *uaddr, int detect,
-> -			 unsigned long sec, long nsec, int trylock)
-> +			 struct timespec *time, int trylock)
->  {
->  	struct task_struct *curr = current;
->  	struct futex_hash_bucket *hb;
-> @@ -1107,11 +1134,11 @@ static int futex_lock_pi(u32 __user *uad
->
->  	pr_debug("Futex lock pi: %d\n", current->pid);
->
-> -	if (sec != MAX_SCHEDULE_TIMEOUT) {
-> +	if (time->tv_sec || time->tv_nsec) {
->  		to = &timeout;
->  		hrtimer_init(&to->timer, CLOCK_REALTIME, HRTIMER_ABS);
->  		hrtimer_init_sleeper(to, current);
-> -		to->timer.expires = ktime_set(sec, nsec);
-> +		to->timer.expires = timespec_to_ktime(*time);
->  	}
->
->  	q.pi_state = NULL;
-> @@ -1708,7 +1735,7 @@ void exit_robust_list(struct task_struct
->  	}
->  }
->
-> -long do_futex(u32 __user *uaddr, int op, u32 val, unsigned long timeout,
-> +long do_futex(u32 __user *uaddr, int op, u32 val, struct timespec
-> *timeout, u32 __user *uaddr2, u32 val2, u32 val3)
->  {
->  	int ret;
-> @@ -1734,13 +1761,13 @@ long do_futex(u32 __user *uaddr, int op,
->  		ret = futex_wake_op(uaddr, uaddr2, val, val2, val3);
->  		break;
->  	case FUTEX_LOCK_PI:
-> -		ret = futex_lock_pi(uaddr, val, timeout, val2, 0);
-> +		ret = futex_lock_pi(uaddr, val, timeout, 0);
->  		break;
->  	case FUTEX_UNLOCK_PI:
->  		ret = futex_unlock_pi(uaddr);
->  		break;
->  	case FUTEX_TRYLOCK_PI:
-> -		ret = futex_lock_pi(uaddr, 0, timeout, val2, 1);
-> +		ret = futex_lock_pi(uaddr, 0, timeout, 1);
->  		break;
->  	default:
->  		ret = -ENOSYS;
-> @@ -1753,8 +1780,7 @@ asmlinkage long sys_futex(u32 __user *ua
->  			  struct timespec __user *utime, u32 __user *uaddr2,
->  			  u32 val3)
->  {
-> -	struct timespec t;
-> -	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
-> +	struct timespec t = {.tv_sec=0, .tv_nsec=0};
->  	u32 val2 = 0;
->
->  	if (utime && (op == FUTEX_WAIT || op == FUTEX_LOCK_PI)) {
-> @@ -1762,12 +1788,6 @@ asmlinkage long sys_futex(u32 __user *ua
->  			return -EFAULT;
->  		if (!timespec_valid(&t))
->  			return -EINVAL;
-> -		if (op == FUTEX_WAIT)
-> -			timeout = timespec_to_jiffies(&t) + 1;
-> -		else {
-> -			timeout = t.tv_sec;
-> -			val2 = t.tv_nsec;
-> -		}
->  	}
->  	/*
->  	 * requeue parameter in 'utime' if op == FUTEX_REQUEUE.
-> @@ -1775,7 +1795,7 @@ asmlinkage long sys_futex(u32 __user *ua
->  	if (op == FUTEX_REQUEUE || op == FUTEX_CMP_REQUEUE)
->  		val2 = (u32) (unsigned long) utime;
->
-> -	return do_futex(uaddr, op, val, timeout, uaddr2, val2, val3);
-> +	return do_futex(uaddr, op, val, &t, uaddr2, val2, val3);
->  }
->
->  static struct super_block *
-> Index: linux-2.6.16-rt16/kernel/futex_compat.c
-> ===================================================================
-> --- linux-2.6.16-rt16.orig/kernel/futex_compat.c	2006-04-12
-> 11:20:57.000000000 +0200 +++
-> linux-2.6.16-rt16/kernel/futex_compat.c	2006-04-12 11:21:01.000000000 +0200
-> @@ -125,8 +125,7 @@ asmlinkage long compat_sys_futex(u32 __u
->  		struct compat_timespec __user *utime, u32 __user *uaddr2,
->  		u32 val3)
->  {
-> -	struct timespec t;
-> -	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
-> +	struct timespec t = {.tv_sec=0, .tv_nsec=0};
->  	int val2 = 0;
->
->  	if (utime && (op == FUTEX_WAIT || op == FUTEX_LOCK_PI)) {
-> @@ -134,12 +133,6 @@ asmlinkage long compat_sys_futex(u32 __u
->  			return -EFAULT;
->  		if (!timespec_valid(&t))
->  			return -EINVAL;
-> -		if (op == FUTEX_WAIT)
-> -			timeout = timespec_to_jiffies(&t) + 1;
-> -		else {
-> -			timeout = t.tv_sec;
-> -			val2 = t.tv_nsec;
-> -		}
->  	}
->  	if (op == FUTEX_REQUEUE || op == FUTEX_CMP_REQUEUE)
->  		val2 = (int) (unsigned long) utime;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Darren Hart
-IBM Linux Technology Center
-Realtime Linux Team
-Phone: 503 578 3185
-  T/L: 775 3185

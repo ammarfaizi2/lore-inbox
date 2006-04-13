@@ -1,385 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWDMKYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWDMK2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbWDMKYs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 06:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWDMKYr
+	id S1751168AbWDMK2U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 06:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbWDMK2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 06:24:47 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:47835 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S964874AbWDMKYr (ORCPT
+	Thu, 13 Apr 2006 06:28:20 -0400
+Received: from smtpout.mac.com ([17.250.248.83]:50384 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751168AbWDMK2T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 06:24:47 -0400
-Date: Thu, 13 Apr 2006 11:24:32 +0100 (IST)
-From: Mel Gorman <mel@skynet.ie>
-To: Andi Kleen <ak@suse.de>
-Cc: davej@codemonkey.org.uk, tony.luck@intel.com, linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bob.picco@hp.com, Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture
- independent manner V2
-In-Reply-To: <200604130257.00203.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0604130919490.1534@skynet.skynet.ie>
-References: <20060412232036.18862.84118.sendpatchset@skynet>
- <200604130153.08604.ak@suse.de> <Pine.LNX.4.64.0604130058210.18950@skynet.skynet.ie>
- <200604130257.00203.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="29444707-509806650-1144923872=:4452"
+	Thu, 13 Apr 2006 06:28:19 -0400
+In-Reply-To: <20060413025608.3edbf603.akpm@osdl.org>
+References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu> <20060412214613.404cf49f.akpm@osdl.org> <6.2.5.6.2.20060413015645.033d3fc8@comcast.net> <20060413025608.3edbf603.akpm@osdl.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <806A7BCF-C5FF-4B38-9F85-1D6FE8D47D6A@mac.com>
+Cc: Dan Bonachea <bonachead@comcast.net>, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au, torvalds@osdl.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
+Date: Thu, 13 Apr 2006 06:28:12 -0400
+To: Andrew Morton <akpm@osdl.org>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---29444707-509806650-1144923872=:4452
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-
-On Thu, 13 Apr 2006, Andi Kleen wrote:
-
-> On Thursday 13 April 2006 02:22, Mel Gorman wrote:
->
->> I experimented with the idea of all architectures sharing the struct
->> node_active_region rather than storing the information twice. It got very
->> messy, particularly for x86 because it needs to store more than nid,
->> start_pfn and end_pfn for a range of page frames (see node_memory_chunk_s
->> in arch/i386/kernel/srat.c). Worse, some architecture-specific code
->> remembers the ranges of active memory as addresses and others as pfn's. In
->> the end, I was not too worried about having the information in two places,
->> because the active ranges are kept in __initdata and gets freed.
->
-> The problem is not memory consumption but complexity of code/data structures.
-
-The architecture-independent code is simpler than i386's SRAT messing, 
-about the same complexity as ppcs dealings with LMB (in fact, much of the 
-code is lifted from ppc) and comparable in complexity to what IA64 does. 
-For x86_64, there is less architecture-specific code that has to be 
-understood.
-
-> Keeping information in two places is usually a good cue that something
-> is wrong. This code is also fragile and hard to test.
->
-
-At minimum, it requires a boot test - not that massive a burden. For the 
-active, a look at the value of the zones before and after the patches.
-
-To test architectures that register PFNs in unexpected ways that I don't 
-have a test machine for (like IA64), I wrote the attached test program. It 
-was a simply case of
-
-1. Few #defines to pretend it's compiled in-kernel
-2. Cut and paste from the architecture-independent code in mem_init.c to
-    the driver program
-3. Pass in sample input from main() and see what pops out
-
-It caught a number of simple bugs (including one this morning) without 
-having to even boot a machine. The same type of testing is hard with the 
-architecture specific code. This is sample output of the driver program 
-handing PFN ranges supplied by IA64;
-
-mel@joshua:~/tmp$ gcc driver_test.c -o driver_test && ./driver_test | grep 
--v "active with no"
-Stage 1: Registering active ranges
-add_active_range(0, 0, 4096): New
-add_active_range(0, 0, 131072): Merging forward
-add_active_range(0, 0, 131072): Merging backwards
-add_active_range(0, 393216, 523264): New
-add_active_range(0, 393216, 523264): Merging backwards
-add_active_range(0, 393216, 524288): Merging forward
-add_active_range(0, 393216, 524288): Merging backwards
-
-Stage 2: Calculating zone sizes and holes
-Hole found zone 1 index 1: 131072 -> 393216
-
-Stage 3: Dumping zone sizes and holes
-zone_size[0][0] =   131020 zone_holes[0][0] =        0
-zone_size[0][1] =   393268 zone_holes[0][1] =   262144
-
-Stage 4: Printing present pages
-On node 0, 262144 pages
-  zone 0 present_pages = 131020
-  zone 1 present_pages = 131124
-
-So, testing is not that hard.
-
-How is the code fragile? Even *if* it is fragile, it only has to be fixed 
-once to benefit any architecture using the code path.
-
->> I'll admit that for x86_64, the entire code path for initialisation (i.e.
->> architecture specific and architecture independent paths) is now more
->> complex. The architecture independent code needed to be able to handle
->> every variety of node layout which is overkill for x86_64. Nevertheless,
->> without size_zones(), I thought the architecture-specific code for x86_64
->> memory initialisation was a bit easier to read. With
->> architecture-independent zone size and hole calculation, you only have to
->> understand the relevant code once, not once for each architecture.
->
->
-> I think i386 SRAT NUMA should be just removed at some point - it never
-> worked all that well and is quite complicated.
-
-Assuming you mean the code, are these patches not a readable replacement?
-
-> That leaves IA64, x86-64
-> and ppc64.  I suspect keeping the code there near their low level
-> data structures is better.
->
-
-For PPC64, the architecture-independent representation *is* the only copy 
-(which is why 128 arch-specific LOC were deleted for ppc including a 
-stryct init_node_data array of nids, start_pfns and end_pfns). IA64's low 
-level representation uses addresses, not pfns, so having only one copy 
-would be a very invasive patch which is not a good idea without a test 
-box.
-
-In many cases, the low-level representation between architectures is 
-similar. The representation I use is the common elements all the 
-architectures need - nid, start_pfn, end_pfn.
-
->>> I have my doubts that is really a improvement over the old state.
->>>
+On Apr 13, 2006, at 05:56:08, Andrew Morton wrote:
+> Dan Bonachea <bonachead@comcast.net> wrote:
 >>
->> For x86_64 in isolation or the entire set of patches?
+>> This problem arose in the parallel runtime system for a scientific  
+>> language compiler (nearly a million lines of code total -  
+>> definitely a "real-world" program) - the example code is merely a  
+>> pared-down demonstration of the problem. In parallel scientific  
+>> computing, it's very common for many threads to be writing to  
+>> stdout (usually for monitoring purposes) and it's expected and  
+>> normal for output from separate threads to be arbitrarily  
+>> interleaved, but it's *not* ok for output to be lost entirely.  
+>> This is essentially equivalent to the real-world example you gave  
+>> of many threads logging to a file.
 >
-> For x86-64/i386. I haven't read the other architectures.
->
+> Interesting - afaik that's the first time this has been hit in a  
+> real application.
 
-ok.
+I would guess that it could also be a problem with a wide variety of  
+Perl CGIs running under Apache2+mod_perl with the worker threading  
+model.  In fact this may actually explain some odd behavior I got  
+from one such module that I "fixed" by switching to logging via  
+syslog.  I don't remember which module it was or what the exact  
+problem was, but I think it seemed similar in nature.  That is  
+somewhat of a surprising and nonintuitive failure mode for logging,  
+IMHO it would be nice to get fixed.  I would imagine that this has  
+probably been hit a number of times before, mysteriously fixed by  
+changed userspace locking or subtle thread ordering, and written off  
+as the mysterious effects of cosmic rays on RAM.
 
->>> I think it would be better if you just defined some simple "library functions"
->>> that can be called from the architecture specific code instead of adding
->>> all this new high level code.
->>>
->>
->> What sort of library functions would you recommend? x86_64 uses
->> add_active_range() and free_area_init_nodes() from this patchset which
->> seemed fairly straight-forward.
->
-> e.g. a generic size_zones(). Possibly some others.
->
+Cheers,
+Kyle Moffett
 
-For a generic size_zones(), one would need an architecture independent way 
-to pass in active page frame ranges and what node they are on. So we end 
-up with code very similar to what I've posted.
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
---29444707-509806650-1144923872=:4452
-Content-Type: TEXT/x-csrc; charset=US-ASCII; name=driver_test.c
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.64.0604131124320.4452@skynet.skynet.ie>
-Content-Description: driver_test.c
-Content-Disposition: attachment; filename=driver_test.c
-
-I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3RyaW5nLmg+DQojaW5j
-bHVkZSA8c3RkbGliLmg+DQoNCiNkZWZpbmUgWk9ORV9ETUEgMA0KI2RlZmlu
-ZSBaT05FX05PUk1BTCAxDQojZGVmaW5lIHByaW50ayh4LCBhcmdzLi4uKSBw
-cmludGYoeCwgIyMgYXJncykNCiNkZWZpbmUgQlVHKHgpIGRvIHsgcHJpbnRm
-KCJCVUcgQVQgJWRcbiIsIF9fTElORV9fKTsgfSB3aGlsZSAoMCkNCiNkZWZp
-bmUgQlVHX09OKHgpIGRvIHsgaWYgKHgpIEJVRygpOyB9IHdoaWxlICgwKQ0K
-I2RlZmluZSBfX2luaXQNCiNkZWZpbmUgX19pbml0ZGF0YQ0KI2RlZmluZSBL
-RVJOX1dBUk5JTkcNCiNkZWZpbmUgS0VSTl9FUlINCiNkZWZpbmUgTUFYX05S
-X05PREVTIDMyDQojZGVmaW5lIE1BWF9OUl9aT05FUyA1DQoNCnN0cnVjdCBu
-b2RlX2FjdGl2ZV9yZWdpb24gew0KCXVuc2lnbmVkIGxvbmcgc3RhcnRfcGZu
-Ow0KCXVuc2lnbmVkIGxvbmcgZW5kX3BmbjsNCglpbnQgbmlkOw0KfTsNCiNk
-ZWZpbmUgTUFYX0FDVElWRV9SRUdJT05TIChNQVhfTlJfTk9ERVMgKiBNQVhf
-TlJfWk9ORVMpDQpzdHJ1Y3Qgbm9kZV9hY3RpdmVfcmVnaW9uIF9faW5pdGRh
-dGEgZWFybHlfbm9kZV9tYXBbTUFYX0FDVElWRV9SRUdJT05TXTsNCnVuc2ln
-bmVkIGxvbmcgX19pbml0ZGF0YSBhcmNoX3pvbmVfbG93ZXN0X3Bvc3NpYmxl
-X3BmbltNQVhfTlJfWk9ORVNdOw0KdW5zaWduZWQgbG9uZyBfX2luaXRkYXRh
-IGFyY2hfem9uZV9oaWdoZXN0X3Bvc3NpYmxlX3BmbltNQVhfTlJfWk9ORVNd
-Ow0KDQpzdGF0aWMgaW50IF9faW5pdCBmaXJzdF9hY3RpdmVfcmVnaW9uX2lu
-ZGV4X2luX25pZChpbnQgbmlkKQ0Kew0KCWludCBpOw0KCWZvciAoaSA9IDA7
-IGVhcmx5X25vZGVfbWFwW2ldLmVuZF9wZm47IGkrKykgew0KCQlpZiAoZWFy
-bHlfbm9kZV9tYXBbaV0ubmlkID09IG5pZCkNCgkJCXJldHVybiBpOw0KCX0N
-Cg0KCXJldHVybiBNQVhfQUNUSVZFX1JFR0lPTlM7DQp9DQoNCnN0YXRpYyBp
-bnQgX19pbml0IG5leHRfYWN0aXZlX3JlZ2lvbl9pbmRleF9pbl9uaWQodW5z
-aWduZWQgaW50IGluZGV4LCBpbnQgbmlkKQ0Kew0KCWZvciAoaW5kZXggPSBp
-bmRleCArIDE7IGVhcmx5X25vZGVfbWFwW2luZGV4XS5lbmRfcGZuOyBpbmRl
-eCsrKSB7DQoJCWlmIChlYXJseV9ub2RlX21hcFtpbmRleF0ubmlkID09IG5p
-ZCkNCgkJCXJldHVybiBpbmRleDsNCgl9DQoNCglyZXR1cm4gTUFYX0FDVElW
-RV9SRUdJT05TOw0KfQ0KDQojaWZuZGVmIENPTkZJR19IQVZFX0FSQ0hfRUFS
-TFlfUEZOX1RPX05JRA0KaW50IF9faW5pdCBlYXJseV9wZm5fdG9fbmlkKHVu
-c2lnbmVkIGxvbmcgcGZuKQ0Kew0KCWludCBpOw0KDQoJZm9yIChpID0gMDsg
-ZWFybHlfbm9kZV9tYXBbaV0uZW5kX3BmbjsgaSsrKSB7DQoJCXVuc2lnbmVk
-IGxvbmcgc3RhcnRfcGZuID0gZWFybHlfbm9kZV9tYXBbaV0uc3RhcnRfcGZu
-Ow0KCQl1bnNpZ25lZCBsb25nIGVuZF9wZm4gPSBlYXJseV9ub2RlX21hcFtp
-XS5lbmRfcGZuOw0KDQoJCWlmICgoc3RhcnRfcGZuIDw9IHBmbikgJiYgKHBm
-biA8IGVuZF9wZm4pKQ0KCQkJcmV0dXJuIGVhcmx5X25vZGVfbWFwW2ldLm5p
-ZDsNCgl9DQoNCglyZXR1cm4gLTE7DQp9DQojZW5kaWYNCg0KI2RlZmluZSBm
-b3JfZWFjaF9hY3RpdmVfcmFuZ2VfaW5kZXhfaW5fbmlkKGksIG5pZCkgXA0K
-CWZvciAoaSA9IGZpcnN0X2FjdGl2ZV9yZWdpb25faW5kZXhfaW5fbmlkKG5p
-ZCk7IFwNCgkJCQlpICE9IE1BWF9BQ1RJVkVfUkVHSU9OUzsgXA0KCQkJCWkg
-PSBuZXh0X2FjdGl2ZV9yZWdpb25faW5kZXhfaW5fbmlkKGksIG5pZCkpDQoN
-CnZvaWQgX19pbml0IGdldF9wZm5fcmFuZ2VfZm9yX25pZCh1bnNpZ25lZCBp
-bnQgbmlkLA0KCQkJdW5zaWduZWQgbG9uZyAqc3RhcnRfcGZuLCB1bnNpZ25l
-ZCBsb25nICplbmRfcGZuKQ0Kew0KCXVuc2lnbmVkIGludCBpOw0KCSpzdGFy
-dF9wZm4gPSAtMVVMOw0KCSplbmRfcGZuID0gMDsNCg0KCWZvcl9lYWNoX2Fj
-dGl2ZV9yYW5nZV9pbmRleF9pbl9uaWQoaSwgbmlkKSB7DQoJCWlmIChlYXJs
-eV9ub2RlX21hcFtpXS5zdGFydF9wZm4gPCAqc3RhcnRfcGZuKQ0KCQkJKnN0
-YXJ0X3BmbiA9IGVhcmx5X25vZGVfbWFwW2ldLnN0YXJ0X3BmbjsNCg0KCQlp
-ZiAoZWFybHlfbm9kZV9tYXBbaV0uZW5kX3BmbiA+ICplbmRfcGZuKQ0KCQkJ
-KmVuZF9wZm4gPSBlYXJseV9ub2RlX21hcFtpXS5lbmRfcGZuOw0KCX0NCg0K
-CWlmICgqc3RhcnRfcGZuID09IC0xVUwpIHsNCgkJcHJpbnRrKEtFUk5fV0FS
-TklORyAiTm9kZSAldSBhY3RpdmUgd2l0aCBubyBtZW1vcnlcbiIsIG5pZCk7
-DQoJCSpzdGFydF9wZm4gPSAwOw0KCX0NCn0NCg0KdW5zaWduZWQgbG9uZyBf
-X2luaXQgem9uZV9wcmVzZW50X3BhZ2VzX2luX25vZGUoaW50IG5pZCwNCgkJ
-CQkJdW5zaWduZWQgbG9uZyB6b25lX3R5cGUsDQoJCQkJCXVuc2lnbmVkIGxv
-bmcgKmlnbm9yZWQpDQp7DQoJdW5zaWduZWQgbG9uZyBub2RlX3N0YXJ0X3Bm
-biwgbm9kZV9lbmRfcGZuOw0KCXVuc2lnbmVkIGxvbmcgem9uZV9zdGFydF9w
-Zm4sIHpvbmVfZW5kX3BmbjsNCg0KCS8qIEdldCB0aGUgc3RhcnQgYW5kIGVu
-ZCBvZiB0aGUgbm9kZSBhbmQgem9uZSAqLw0KCWdldF9wZm5fcmFuZ2VfZm9y
-X25pZChuaWQsICZub2RlX3N0YXJ0X3BmbiwgJm5vZGVfZW5kX3Bmbik7DQoJ
-em9uZV9zdGFydF9wZm4gPSBhcmNoX3pvbmVfbG93ZXN0X3Bvc3NpYmxlX3Bm
-blt6b25lX3R5cGVdOw0KCXpvbmVfZW5kX3BmbiA9IGFyY2hfem9uZV9oaWdo
-ZXN0X3Bvc3NpYmxlX3Bmblt6b25lX3R5cGVdOw0KDQoJLyogQ2hlY2sgdGhh
-dCB0aGlzIG5vZGUgaGFzIHBhZ2VzIHdpdGhpbiB0aGUgem9uZSdzIHJlcXVp
-cmVkIHJhbmdlICovDQoJaWYgKHpvbmVfZW5kX3BmbiA8IG5vZGVfc3RhcnRf
-cGZuIHx8IHpvbmVfc3RhcnRfcGZuID4gbm9kZV9lbmRfcGZuKQ0KCQlyZXR1
-cm4gMDsNCg0KCS8qIE1vdmUgdGhlIHpvbmUgYm91bmRhcmllcyBpbnNpZGUg
-dGhlIG5vZGUgaWYgbmVjZXNzYXJ5ICovDQoJaWYgKHpvbmVfZW5kX3BmbiA+
-IG5vZGVfZW5kX3BmbikNCgkJem9uZV9lbmRfcGZuID0gbm9kZV9lbmRfcGZu
-Ow0KCWlmICh6b25lX3N0YXJ0X3BmbiA8IG5vZGVfc3RhcnRfcGZuKQ0KCQl6
-b25lX3N0YXJ0X3BmbiA9IG5vZGVfc3RhcnRfcGZuOw0KDQoJLyogUmV0dXJu
-IHRoZSBzcGFubmVkIHBhZ2VzICovDQoJcmV0dXJuIHpvbmVfZW5kX3BmbiAt
-IHpvbmVfc3RhcnRfcGZuOw0KfQ0KDQp1bnNpZ25lZCBsb25nIF9faW5pdCB6
-b25lX2Fic2VudF9wYWdlc19pbl9ub2RlKGludCBuaWQsDQoJCQkJCXVuc2ln
-bmVkIGxvbmcgem9uZV90eXBlLA0KCQkJCQl1bnNpZ25lZCBsb25nICppZ25v
-cmVkKQ0Kew0KCWludCBpID0gMDsNCgl1bnNpZ25lZCBsb25nIHByZXZfZW5k
-X3BmbiA9IDAsIGhvbGVfcGFnZXMgPSAwOw0KCXVuc2lnbmVkIGxvbmcgc3Rh
-cnRfcGZuOw0KDQoJLyogRmluZCB0aGUgZW5kX3BmbiBvZiB0aGUgZmlyc3Qg
-YWN0aXZlIHJhbmdlIG9mIHBmbnMgaW4gdGhlIG5vZGUgKi8NCglpID0gZmly
-c3RfYWN0aXZlX3JlZ2lvbl9pbmRleF9pbl9uaWQobmlkKTsNCglwcmV2X2Vu
-ZF9wZm4gPSBlYXJseV9ub2RlX21hcFtpXS5zdGFydF9wZm47DQoNCgkvKiBG
-aW5kIGFsbCBob2xlcyBmb3IgdGhlIHpvbmUgd2l0aGluIHRoZSBub2RlICov
-DQoJZm9yICg7IGkgIT0gTUFYX0FDVElWRV9SRUdJT05TOw0KCQkJaSA9IG5l
-eHRfYWN0aXZlX3JlZ2lvbl9pbmRleF9pbl9uaWQoaSwgbmlkKSkgew0KDQoJ
-CS8qIE5vIG5lZWQgdG8gY29udGludWUgaWYgcHJldl9lbmRfcGZuIGlzIG91
-dHNpZGUgdGhlIHpvbmUgKi8NCgkJaWYgKHByZXZfZW5kX3BmbiA+PSBhcmNo
-X3pvbmVfaGlnaGVzdF9wb3NzaWJsZV9wZm5bem9uZV90eXBlXSkNCgkJCWJy
-ZWFrOw0KDQoJCS8qIE1ha2Ugc3VyZSB0aGUgZW5kIG9mIHRoZSB6b25lIGlz
-IG5vdCB3aXRoaW4gdGhlIGhvbGUgKi8NCgkJc3RhcnRfcGZuID0gZWFybHlf
-bm9kZV9tYXBbaV0uc3RhcnRfcGZuOw0KCQlpZiAoc3RhcnRfcGZuID4gYXJj
-aF96b25lX2hpZ2hlc3RfcG9zc2libGVfcGZuW3pvbmVfdHlwZV0pDQoJCQlz
-dGFydF9wZm4gPSBhcmNoX3pvbmVfaGlnaGVzdF9wb3NzaWJsZV9wZm5bem9u
-ZV90eXBlXTsNCgkJaWYgKHByZXZfZW5kX3BmbiA+IHN0YXJ0X3Bmbikgew0K
-CQkJcHJpbnRrKCJwcmV2X2VuZCA+IHN0YXJ0X3BmbiA6ICVsdSA+ICVsdVxu
-IiwNCgkJCQkJcHJldl9lbmRfcGZuLA0KCQkJCQlzdGFydF9wZm4pOw0KCQkJ
-QlVHKCk7DQoJCX0NCg0KCQkvKiBVcGRhdGUgdGhlIGhvbGUgc2l6ZSBjb3Vu
-ZCBhbmQgbW92ZSBvbiAqLw0KCQlpZiAoc3RhcnRfcGZuID4gYXJjaF96b25l
-X2xvd2VzdF9wb3NzaWJsZV9wZm5bem9uZV90eXBlXSkgew0KCQkJaG9sZV9w
-YWdlcyArPSBzdGFydF9wZm4gLSBwcmV2X2VuZF9wZm47DQoJCQlwcmludGso
-IkhvbGUgZm91bmQgem9uZSAlbHUgaW5kZXggJWQ6ICVsdSAtPiAlbHVcbiIs
-DQoJCQkJCXpvbmVfdHlwZSwgaSwgcHJldl9lbmRfcGZuLCBzdGFydF9wZm4p
-Ow0KCQl9DQoJCXByZXZfZW5kX3BmbiA9IGVhcmx5X25vZGVfbWFwW2ldLmVu
-ZF9wZm47DQoJfQ0KDQoJcmV0dXJuIGhvbGVfcGFnZXM7DQp9DQoNCnZvaWQg
-X19pbml0IGFkZF9hY3RpdmVfcmFuZ2UodW5zaWduZWQgaW50IG5pZCwgdW5z
-aWduZWQgbG9uZyBzdGFydF9wZm4sDQoJCQkJCQl1bnNpZ25lZCBsb25nIGVu
-ZF9wZm4pDQp7DQoJdW5zaWduZWQgaW50IGk7DQoNCglwcmludGsoImFkZF9h
-Y3RpdmVfcmFuZ2UoJWQsICVsdSwgJWx1KTogIiwNCgkJCW5pZCwgc3RhcnRf
-cGZuLCBlbmRfcGZuKTsNCg0KCS8qIE1lcmdlIHdpdGggZXhpc3RpbmcgYWN0
-aXZlIHJlZ2lvbnMgaWYgcG9zc2libGUgKi8NCglmb3IgKGkgPSAwOyBlYXJs
-eV9ub2RlX21hcFtpXS5lbmRfcGZuOyBpKyspIHsNCgkJaWYgKGVhcmx5X25v
-ZGVfbWFwW2ldLm5pZCAhPSBuaWQpDQoJCQljb250aW51ZTsNCg0KCQkvKiBN
-ZXJnZSBmb3J3YXJkIGlmIHN1aXRhYmxlICovDQoJCWlmIChzdGFydF9wZm4g
-PD0gZWFybHlfbm9kZV9tYXBbaV0uZW5kX3BmbiAmJg0KCQkJCWVuZF9wZm4g
-PiBlYXJseV9ub2RlX21hcFtpXS5lbmRfcGZuKSB7DQoJCQlwcmludGsoIk1l
-cmdpbmcgZm9yd2FyZFxuIik7DQoJCQllYXJseV9ub2RlX21hcFtpXS5lbmRf
-cGZuID0gZW5kX3BmbjsNCgkJCXJldHVybjsNCgkJfQ0KDQoJCS8qIE1lcmdl
-IGJhY2t3YXJkIGlmIHN1aXRhYmxlICovDQoJCWlmIChzdGFydF9wZm4gPCBl
-YXJseV9ub2RlX21hcFtpXS5lbmRfcGZuICYmDQoJCQkJZW5kX3BmbiA+PSBl
-YXJseV9ub2RlX21hcFtpXS5zdGFydF9wZm4pIHsNCgkJCXByaW50aygiTWVy
-Z2luZyBiYWNrd2FyZHNcbiIpOw0KCQkJZWFybHlfbm9kZV9tYXBbaV0uc3Rh
-cnRfcGZuID0gc3RhcnRfcGZuOw0KCQkJcmV0dXJuOw0KCQl9DQoJfQ0KDQoJ
-LyoNCgkgKiBMZWF2ZSBsYXN0IGVudHJ5IE5VTEwgc28gd2UgZG9udCBpdGVy
-YXRlIG9mZiB0aGUgZW5kICh3ZSB1c2UNCgkgKiBlbnRyeS5lbmRfcGZuIHRv
-IHRlcm1pbmF0ZSB0aGUgd2FsaykuDQoJICovDQoJaWYgKGkgPj0gTUFYX0FD
-VElWRV9SRUdJT05TIC0gMSkgew0KCQlwcmludGsoS0VSTl9FUlIgIldBUk5J
-Tkc6IHRvbyBtYW55IG1lbW9yeSByZWdpb25zIGluICINCgkJCQkibnVtYSBj
-b2RlLCB0cnVuY2F0aW5nXG4iKTsNCgkJcmV0dXJuOw0KCX0NCg0KCXByaW50
-aygiTmV3XG4iKTsNCgllYXJseV9ub2RlX21hcFtpXS5uaWQgPSBuaWQ7DQoJ
-ZWFybHlfbm9kZV9tYXBbaV0uc3RhcnRfcGZuID0gc3RhcnRfcGZuOw0KCWVh
-cmx5X25vZGVfbWFwW2ldLmVuZF9wZm4gPSBlbmRfcGZuOw0KfQ0KDQp1bnNp
-Z25lZCBsb25nIF9faW5pdCBmaW5kX21pbl9wZm4odm9pZCkNCnsNCglpbnQg
-aTsNCgl1bnNpZ25lZCBsb25nIG1pbl9wZm4gPSAtMVVMOw0KDQoJZm9yIChp
-ID0gMDsgZWFybHlfbm9kZV9tYXBbaV0uZW5kX3BmbjsgaSsrKSB7DQoJCWlm
-IChlYXJseV9ub2RlX21hcFtpXS5zdGFydF9wZm4gPCBtaW5fcGZuKQ0KCQkJ
-bWluX3BmbiA9IGVhcmx5X25vZGVfbWFwW2ldLnN0YXJ0X3BmbjsNCgl9DQoN
-CglyZXR1cm4gbWluX3BmbjsNCn0NCg0KLyogRmluZCB0aGUgbG93ZXN0IHBm
-biBpbiBhIG5vZGUuIFRoaXMgZGVwZW5kcyBvbiBhIHNvcnRlZCBlYXJseV9u
-b2RlX21hcCAqLw0KdW5zaWduZWQgbG9uZyBfX2luaXQgZmluZF9zdGFydF9w
-Zm5fZm9yX25vZGUodW5zaWduZWQgbG9uZyBuaWQpDQp7DQoJaW50IGk7DQoN
-CgkvKiBBc3N1bWluZyBhIHNvcnRlZCBtYXAsIHRoZSBmaXJzdCByYW5nZSBm
-b3VuZCBoYXMgdGhlIHN0YXJ0aW5nIHBmbiAqLw0KCWZvcl9lYWNoX2FjdGl2
-ZV9yYW5nZV9pbmRleF9pbl9uaWQoaSwgbmlkKSB7DQoJCXJldHVybiBlYXJs
-eV9ub2RlX21hcFtpXS5zdGFydF9wZm47DQoJfQ0KDQoJLyogbmlkIGRvZXMg
-bm90IGV4aXN0IGluIGVhcmx5X25vZGVfbWFwICovDQoJcHJpbnRrKEtFUk5f
-V0FSTklORyAiQ291bGQgbm90IGZpbmQgc3RhcnRfcGZuIGZvciBub2RlICVs
-dVxuIiwgbmlkKTsNCglyZXR1cm4gMDsNCn0NCg0KaW50IG1haW4oKQ0Kew0K
-CXVuc2lnbmVkIGxvbmcgem9uZV9zaXplW01BWF9OUl9OT0RFU11bTUFYX05S
-X1pPTkVTXTsNCgl1bnNpZ25lZCBsb25nIHpvbmVfaG9sZXNbTUFYX05SX05P
-REVTXVtNQVhfTlJfWk9ORVNdOw0KCXVuc2lnbmVkIGxvbmcgbm9kZV9wcmVz
-ZW50W01BWF9OUl9OT0RFU107DQoJdW5zaWduZWQgbG9uZyBzdGFydF9wZm4s
-IGVuZF9wZm47DQoJaW50IGksIGo7DQoNCgkvKiBpbml0ICovDQoJbWVtc2V0
-KGVhcmx5X25vZGVfbWFwLCAwLCBzaXplb2YoZWFybHlfbm9kZV9tYXApKTsN
-CgltZW1zZXQoem9uZV9zaXplLCAwLCBzaXplb2Yoem9uZV9zaXplKSk7DQoJ
-bWVtc2V0KHpvbmVfaG9sZXMsIDAsIHNpemVvZih6b25lX2hvbGVzKSk7DQoJ
-bWVtc2V0KG5vZGVfcHJlc2VudCwgMCwgc2l6ZW9mKG5vZGVfcHJlc2VudCkp
-Ow0KDQoJcHJpbnRrKCJTdGFnZSAxOiBSZWdpc3RlcmluZyBhY3RpdmUgcmFu
-Z2VzXG4iKTsNCg0KCS8qIFRlc3QgQ2FzZTogSUE2NCBmbGF0bWVtIHdpdGgg
-VklSVF9NRU1fTUFQPXkgKi8NCgkvKg0KCWFkZF9hY3RpdmVfcmFuZ2UoMCwg
-MTAyNCwgMTMwNjg4KTsNCglhZGRfYWN0aXZlX3JhbmdlKDAsIDEzMDk4NCwg
-MTMxMDIwKTsNCglhZGRfYWN0aXZlX3JhbmdlKDAsIDM5MzIxNiwgNTI0MTY0
-KTsNCglhZGRfYWN0aXZlX3JhbmdlKDAsIDUyNDE5MiwgNTI0MjY5KTsNCgkq
-Lw0KDQoJLyogVGVzdCBDYXNlOiBJQTY0IGdlbmVyaWMga2VybmVsICovDQoJ
-YWRkX2FjdGl2ZV9yYW5nZSgwLCAwLCA0MDk2KTsNCglhZGRfYWN0aXZlX3Jh
-bmdlKDAsIDAsIDEzMTA3Mik7DQoJYWRkX2FjdGl2ZV9yYW5nZSgwLCAwLCAx
-MzEwNzIpOw0KCWFkZF9hY3RpdmVfcmFuZ2UoMCwgMzkzMjE2LCA1MjMyNjQp
-Ow0KCWFkZF9hY3RpdmVfcmFuZ2UoMCwgMzkzMjE2LCA1MjMyNjQpOw0KCWFk
-ZF9hY3RpdmVfcmFuZ2UoMCwgMzkzMjE2LCA1MjQyODgpOw0KCWFkZF9hY3Rp
-dmVfcmFuZ2UoMCwgMzkzMjE2LCA1MjQyODgpOw0KDQoJLyogVGVzdCBDYXNl
-OiBTaW1wbGUgUFBDNjQgTE1CICovDQoJLyoNCglhZGRfYWN0aXZlX3Jhbmdl
-KDAsIDAsIDEwMCk7DQoJYWRkX2FjdGl2ZV9yYW5nZSgwLCAxMDAsIDIwMCk7
-DQoJYWRkX2FjdGl2ZV9yYW5nZSgwLCAyMDAsIDMwMCk7DQoJYWRkX2FjdGl2
-ZV9yYW5nZSgxLCAxMDAwLCAyMDAwKTsNCglhZGRfYWN0aXZlX3JhbmdlKDEs
-IDUwMCwgMTAwMCk7DQoJKi8NCg0KCS8qIFRlc3QgQ2FzZTogUFBDNjQgd2l0
-aCBpbnRlcmxldmluZyBub2RlcyBhbmQgaG9sZXMqLw0KCS8qDQoJYWRkX2Fj
-dGl2ZV9yYW5nZSgwLCAwLCAxMDApOw0KCWFkZF9hY3RpdmVfcmFuZ2UoMCwg
-MjAwLCAzMDApOw0KCWFkZF9hY3RpdmVfcmFuZ2UoMSwgMTAwLCAyMDApOw0K
-CWFkZF9hY3RpdmVfcmFuZ2UoMCwgNTAwLCAxMDAwKTsNCgkqLw0KDQoJLyog
-SUE2NCB6b25lIHBmbiByYW5nZXMgKi8NCglhcmNoX3pvbmVfbG93ZXN0X3Bv
-c3NpYmxlX3BmbltaT05FX0RNQV0gPSAwOw0KCWFyY2hfem9uZV9oaWdoZXN0
-X3Bvc3NpYmxlX3BmbltaT05FX0RNQV0gPSAxMzEwMjA7DQoJYXJjaF96b25l
-X2xvd2VzdF9wb3NzaWJsZV9wZm5bWk9ORV9OT1JNQUxdID0gYXJjaF96b25l
-X2hpZ2hlc3RfcG9zc2libGVfcGZuW1pPTkVfRE1BXTsNCglhcmNoX3pvbmVf
-aGlnaGVzdF9wb3NzaWJsZV9wZm5bWk9ORV9OT1JNQUxdID0gODAwMDAwOw0K
-CQ0KCS8qIFBQQzY0IHpvbmUgcGZuIHJhbmdlcyAqLw0KCS8qDQoJYXJjaF96
-b25lX2xvd2VzdF9wb3NzaWJsZV9wZm5bWk9ORV9ETUFdID0gMDsNCglhcmNo
-X3pvbmVfaGlnaGVzdF9wb3NzaWJsZV9wZm5bWk9ORV9ETUFdID0gMTMxMDIw
-Ow0KCSovDQoNCglwcmludGYoIlxuU3RhZ2UgMjogQ2FsY3VsYXRpbmcgem9u
-ZSBzaXplcyBhbmQgaG9sZXNcbiIpOw0KCWZvciAoaSA9IDA7IGkgPCBNQVhf
-TlJfTk9ERVM7IGkrKykgew0KCQlmb3IgKGogPSAwOyBqIDwgTUFYX05SX1pP
-TkVTOyBqKyspIHsNCgkJCXpvbmVfc2l6ZVtpXVtqXSA9IHpvbmVfcHJlc2Vu
-dF9wYWdlc19pbl9ub2RlKGksIGosIE5VTEwpOw0KCQkJem9uZV9ob2xlc1tp
-XVtqXSA9IHpvbmVfYWJzZW50X3BhZ2VzX2luX25vZGUoaSwgaiwgTlVMTCk7
-DQoJCQlub2RlX3ByZXNlbnRbaV0gKz0gem9uZV9zaXplW2ldW2pdOw0KCQkJ
-bm9kZV9wcmVzZW50W2ldIC09IHpvbmVfaG9sZXNbaV1bal07DQoJCX0NCgl9
-DQoJDQoJcHJpbnRmKCJcblN0YWdlIDM6IER1bXBpbmcgem9uZSBzaXplcyBh
-bmQgaG9sZXNcbiIpOw0KCWZvciAoaSA9IDA7IGkgPCBNQVhfTlJfTk9ERVM7
-IGkrKykgew0KCQlpZiAoIW5vZGVfcHJlc2VudFtpXSkNCgkJCWNvbnRpbnVl
-Ow0KDQoJCWZvciAoaiA9IDA7IGogPCBNQVhfTlJfWk9ORVM7IGorKykgew0K
-CQkJaWYgKCF6b25lX3NpemVbaV1bal0pDQoJCQkJY29udGludWU7DQoNCgkJ
-CXByaW50Zigiem9uZV9zaXplWyVkXVslZF0gPSAlOGx1IHpvbmVfaG9sZXNb
-JWRdWyVkXSA9ICU4bHVcbiIsDQoJCQkJCWksIGosIHpvbmVfc2l6ZVtpXVtq
-XSwgaSwgaiwgem9uZV9ob2xlc1tpXVtqXSk7DQoJCX0NCgl9DQoNCglwcmlu
-dGYoIlxuU3RhZ2UgNDogUHJpbnRpbmcgcHJlc2VudCBwYWdlc1xuIik7DQoJ
-Zm9yIChpID0gMDsgaSA8IE1BWF9OUl9OT0RFUzsgaSsrKSB7DQoJCWlmICgh
-bm9kZV9wcmVzZW50W2ldKQ0KCQkJY29udGludWU7DQoNCgkJcHJpbnRmKCJP
-biBub2RlICVkLCAlbHUgcGFnZXNcbiIsIGksIG5vZGVfcHJlc2VudFtpXSk7
-DQoJCWZvciAoaiA9IDA7IGogPCBNQVhfTlJfWk9ORVM7IGorKykgew0KCQkJ
-aWYgKCF6b25lX3NpemVbaV1bal0pDQoJCQkJY29udGludWU7DQoJCQlwcmlu
-dGYoIiB6b25lICVkIHByZXNlbnRfcGFnZXMgPSAlbHVcbiIsIGosDQoJCQkJ
-CXpvbmVfc2l6ZVtpXVtqXSAtIHpvbmVfaG9sZXNbaV1bal0pOw0KCQl9DQoJ
-fQ0KfQ0KDQo=
-
---29444707-509806650-1144923872=:4452--

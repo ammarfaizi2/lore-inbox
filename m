@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWDMJ4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWDMJwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWDMJ4U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 05:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWDMJ4U
+	id S964864AbWDMJwP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 05:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWDMJwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 05:56:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1157 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964810AbWDMJ4T (ORCPT
+	Thu, 13 Apr 2006 05:52:15 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:56792 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S964864AbWDMJwO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 05:56:19 -0400
-Date: Thu, 13 Apr 2006 02:56:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dan Bonachea <bonachead@comcast.net>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au, torvalds@osdl.org
-Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
-Message-Id: <20060413025608.3edbf603.akpm@osdl.org>
-In-Reply-To: <6.2.5.6.2.20060413015645.033d3fc8@comcast.net>
-References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
-	<20060412214613.404cf49f.akpm@osdl.org>
-	<6.2.5.6.2.20060413015645.033d3fc8@comcast.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 13 Apr 2006 05:52:14 -0400
+Date: Thu, 13 Apr 2006 10:52:08 +0100
+To: davej@codemonkey.org.uk, tony.luck@intel.com, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
+       linux-mm@kvack.org
+Subject: Re: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture independent manner V2
+Message-ID: <20060413095207.GA4047@skynet.ie>
+References: <20060412232036.18862.84118.sendpatchset@skynet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20060412232036.18862.84118.sendpatchset@skynet>
+User-Agent: Mutt/1.5.9i
+From: mel@csn.ul.ie (Mel Gorman)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Bonachea <bonachead@comcast.net> wrote:
->
-> This problem arose in the parallel runtime system for a scientific language 
->  compiler (nearly a million lines of code total - definitely a "real-world" 
->  program) - the example code is merely a pared-down demonstration of the 
->  problem. In parallel scientific computing, it's very common for many threads 
->  to be writing to stdout (usually for monitoring purposes) and it's expected 
->  and normal for output from separate threads to be arbitrarily interleaved, but 
->  it's *not* ok for output to be lost entirely. This is essentially equivalent 
->  to the real-world example you gave of many threads logging to a file.
+On (13/04/06 00:20), Mel Gorman didst pronounce:
+> This is V2 of the patchset. They have been boot tested on x86, ppc64
+> and x86_64 but I still need to do a double check that zones are the
+> same size before and after the patch on all arches. IA64 passed a
+> basic compile-test. a driver program that fed in the values generated
+> by IA64 to add_active_range(), zone_present_pages_in_node() and
+> zone_absent_pages_in_node() seemed to generate expected values.
 
-Interesting - afaik that's the first time this has been hit in a real
-application.
+I didn't look at the test program output carefully enough! There was a
+double counting of some holes because of a missing "if" - obvious in the
+morning. Fix is this (applies on top of the debugging patch)
 
->  We've worked around the problem in Linux 2.6 by adding locking at user-level 
->  around our writes, as you suggest, although this of course penalizes our 
->  performance on kernels that already correctly implement the thread-safety 
->  required by the POSIX spec. In any case it seemed like a problem that we 
->  should report, to be good open-source citizens - especially given that it 
->  appears to be a regression with respect to the Linux 2.4 kernel. How you 
->  choose to handle the report is of course your decision.
-
-yup, thanks.
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-zonesizing-v6/mm/mem_init.c linux-2.6.17-rc1-zonesizing-v7/mm/mem_init.c
+--- linux-2.6.17-rc1-zonesizing-v6/mm/mem_init.c	2006-04-13 10:30:50.000000000 +0100
++++ linux-2.6.17-rc1-zonesizing-v7/mm/mem_init.c	2006-04-13 10:37:11.000000000 +0100
+@@ -761,9 +761,11 @@ unsigned long __init zone_absent_pages_i
+ 		}
+ 
+ 		/* Update the hole size cound and move on */
+-		hole_pages += start_pfn - prev_end_pfn;
+-		printk("Hole found index %d: %lu -> %lu\n",
+-				i, prev_end_pfn, start_pfn);
++		if (start_pfn > arch_zone_lowest_possible_pfn[zone_type]) {
++			hole_pages += start_pfn - prev_end_pfn;
++			printk("Hole found index %d: %lu -> %lu\n",
++					i, prev_end_pfn, start_pfn);
++		}
+ 		prev_end_pfn = early_node_map[i].end_pfn;
+ 	}
+ 

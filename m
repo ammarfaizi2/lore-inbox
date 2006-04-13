@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWDMPal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWDMPd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbWDMPal (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 11:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWDMPak
+	id S1750952AbWDMPd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 11:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWDMPd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 11:30:40 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:18359 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1750946AbWDMPak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 11:30:40 -0400
-Date: Thu, 13 Apr 2006 17:30:28 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Ram Gupta <ram.gupta5@gmail.com>
-Cc: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: select takes too much time
-Message-ID: <20060413153028.GA26480@rhlx01.fht-esslingen.de>
-References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
+	Thu, 13 Apr 2006 11:33:26 -0400
+Received: from pat.uio.no ([129.240.10.6]:63620 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750949AbWDMPd0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 11:33:26 -0400
+Subject: Re: lockd oopses continue with 2.6.16.1
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+In-Reply-To: <20060412172028.GA12637@tau.solarneutrino.net>
+References: <20060412172028.GA12637@tau.solarneutrino.net>
+Content-Type: text/plain
+Date: Thu, 13 Apr 2006 11:33:12 -0400
+Message-Id: <1144942392.25298.6.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.551, required 12,
+	autolearn=disabled, AWL 1.45, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2006-04-12 at 13:20 -0400, Ryan Richter wrote:
+> I'm still seeing lockd oopses after server reboots:
+> 
+> Unable to handle kernel paging request at 00002b8134a867a0 RIP: 
+> <ffffffff801bfdb1>{nlmclnt_mark_reclaim+67}
+> PGD 0 
+> Oops: 0000 [1] 
+> CPU 0 
+> Modules linked in:
+> Pid: 1182, comm: lockd Not tainted 2.6.16.1 #2
+> RIP: 0010:[<ffffffff801bfdb1>] <ffffffff801bfdb1>{nlmclnt_mark_reclaim+67}
+> RSP: 0018:ffff81007dd25e70  EFLAGS: 00010206
+> RAX: 00002b8134a86788 RBX: ffff81007d53e480 RCX: ffff81007e3807f8
+> RDX: ffff81007e380800 RSI: 000000000000005f RDI: ffff81007d53e480
+> RBP: ffff81007f265400 R08: 00000000fffffffa R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000011
+> R13: 0000000000000004 R14: 0000000000000010 R15: ffffffff803c3e20
+> FS:  00002ad3fb57a4a0(0000) GS:ffffffff80490000(0000) knlGS:00000000f6e519e0
+> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+> CR2: 00002b8134a867a0 CR3: 000000007e2e0000 CR4: 00000000000006e0
+> Process lockd (pid: 1182, threadinfo ffff81007dd24000, task ffff81007f85e710)
+> Stack: ffffffff801bfe68 ffff81007d53e480 ffffffff801c6601 3256cc844d030002 
+>        0000000000000000 0000000000000004 ffff81007ec65000 ffff81007ec650a0 
+>        ffffffff803c4ea0 ffff81007dd1f014 
+> Call Trace: <ffffffff801bfe68>{nlmclnt_recovery+139}
+>        <ffffffff801c6601>{nlm4svc_proc_sm_notify+188} <ffffffff80312a2b>{svc_process+871}
+>        <ffffffff801c1a19>{lockd+344} <ffffffff801c18c1>{lockd+0}
+>        <ffffffff801c18c1>{lockd+0} <ffffffff8010b01e>{child_rip+8}
+>        <ffffffff801c18c1>{lockd+0} <ffffffff801c18c1>{lockd+0}
+>        <ffffffff8010b016>{child_rip+0}
+> 
+> Code: 48 39 78 18 75 13 8b 81 8c 00 00 00 a8 01 74 09 83 c8 02 89 
+> RIP <ffffffff801bfdb1>{nlmclnt_mark_reclaim+67} RSP <ffff81007dd25e70>
+> CR2: 00002b8134a867a0
+> 
 
-On Thu, Apr 13, 2006 at 10:01:04AM -0500, Ram Gupta wrote:
-> I am using select with a timeout value of 90 ms. But for some reason
-> occasionally  it comes out of select after more than one second . I
-> checked the man page but it does not help in concluding if this is ok
-> or not. Is this expected  or it is a bug. Most of this time is
-> consumed in   schedule_timeout . I am using 2.5.45 kernel but I
-> believe the same would  be the true for the latest kernel too. Any
-> thoughts or suggestion are welcome.
+Does the following patch (applies on top of 2.6.17-rc1) help?
 
-AFAIK (I'm not an absolute expert on this, but it should be about correct):
-Any user of select() competes with all other processes on the system
-for the attention of the scheduler. If there are always runnable tasks
-available with a higher priority than the select() user, then it's easily
-imaginable that those tasks get woken up and/or will be kept running first.
-The timeout value given to select() thus states the *minimum* time that
-the process will continue after if the timeout has been fully taken (i.e.
-no event occurred).
-The man page of select() is a bit inaccurate in saying that "it will return
-immediately". Well, it will *try to* return ASAP once it has decided to
-return. BUT the scheduler will *always* have ultimate authority upon when
-*exactly* this process will be allowed to continue.
+http://client.linux-nfs.org/Linux-2.6.x/2.6.17-rc1/linux-2.6.17-010-fix_nlm_reclaim_races.dif
 
-Now if you have issues with select() taking too long, then I'd say tough
-luck, that's life, other processes seem more important than your select()
-user, but OTOH it could mean that our scheduler design is not assigning
-enough importance to processes waiting on a select() and becoming runnable
-again (however I strongly doubt that, since there has gone a LOT of work into
-proper scheduler design in Linux).
+Cheers,
+  Trond
 
-Or, to put it differently, select() doesn't have realtime guarantees, i.e.
-there's no way for you to boldly assume that once select() times out
-your process will continue to run instantly within microseconds.
-
-Finally, *any* scheduling timeout on a system should be taken for granted
-as a *minimum* guarantee only. This is also why looped msleep()s in
-Linux drivers should very often be coupled with a jiffies timeout condition
-just in case the system is so extremely busy that each msleep(1) takes up
-3 seconds, thus letting a 300 times 1ms loop end up as 900 seconds instead...
-
-Whoa, way too many words for answering such a basic issue...
-(but this problem being so basic it probably cannot be explained too often)
-
-Oh, and another related word of advice: when doing thread programming,
-always synchronize parallel threads by letting them *block* on each others
-status instead of letting the peer thread busy-loop for the other thread to
-finish its work. Good schedulers *will* punish busy-looping and honour
-proper blocking on a condition, so your software will suffer a lot when
-doing too much busy-looping or semi-busy-looping (too many useless wakeups).
-
-Andreas Mohr
-
--- 
-Please consider not buying any HDTV hardware! (extremely anti-consumer)
-Bitte kaufen Sie besser keinerlei HDTV-Geräte! (extrem verbraucherfeindlich)
-Infos:
-http://www.hdboycott.com   http://www.eff.org/IP/DRM/   http://bluraysucks.com

@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbWDMVUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWDMVdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964977AbWDMVUn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 17:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbWDMVUn
+	id S964972AbWDMVdT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 17:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbWDMVdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 17:20:43 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:27155 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S964977AbWDMVUm
+	Thu, 13 Apr 2006 17:33:19 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:12513 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S964972AbWDMVdS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 17:20:42 -0400
-Message-ID: <443EC09C.2050409@stud.feec.vutbr.cz>
-Date: Thu, 13 Apr 2006 23:20:28 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mail/News 1.5 (X11/20060228)
+	Thu, 13 Apr 2006 17:33:18 -0400
+Message-ID: <443EC399.2040307@fr.ibm.com>
+Date: Thu, 13 Apr 2006 23:33:13 +0200
+From: Cedric Le Goater <clg@fr.ibm.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Ram Gupta <ram.gupta5@gmail.com>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: select takes too much time
-References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com> <443E9A17.4070805@stud.feec.vutbr.cz> <728201270604131251h5296dd41o7d0e0dd8f2f1ac63@mail.gmail.com> <Pine.LNX.4.61.0604131701030.7732@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0604131701030.7732@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Kirill Korotaev <dev@openvz.org>, Sam Vilain <sam@vilain.net>,
+       devel@openvz.org, Kir Kolyshkin <kir@sacred.ru>,
+       linux-kernel@vger.kernel.org, Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <1143583179.6325.10.camel@localhost.localdomain>	<4429B789.4030209@sacred.ru>	<1143588501.6325.75.camel@localhost.localdomain>	<442A4FAA.4010505@openvz.org>	<20060329134524.GA14522@MAIL.13thfloor.at> <442A9E1E.4030707@sw.ru>	<1143668273.9969.19.camel@localhost.localdomain>	<443CBA48.7020301@sw.ru> <20060413010506.GA16864@MAIL.13thfloor.at>	<443DF523.3060906@openvz.org> <20060413134239.GA6663@MAIL.13thfloor.at>
+In-Reply-To: <20060413134239.GA6663@MAIL.13thfloor.at>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (0.6 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -0.1 BAYES_20               BODY: Bayesian spam probability is 20 to 30%
-                              [score: 0.2046]
-  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> It is as though the sleep time is always at least 1000
-> microseconds. If this is correct, then there should be some kind of
-> warning that the time can't be less than the HZ value, or whatever is
-> limiting it.
+Herbert Poetzl wrote:
 
-Of course you can't get lower resolution than 1/HZ, unless you're using 
-a kernel with high-res timers. It's always been like that.
-But it's not Ram's problem, because he's requesting a timeout of 90ms, 
-which is much longer than one tick even with HZ=100.
+> well, if the 'results' and 'methods' will be made
+> public, I can, until now all I got was something
+> along the lines:
+> 
+>  "Linux-VServer is not stable! WE (swsoft?) have
+>   a secret but essential test suite running two 
+>   weeks to confirm that OUR kernels ARE stable,
+>   and Linux-VServer will never pass those tests,
+>   but of course, we can't tell you what kind of
+>   tests or what results we got"
+> 
+> which doesn't help me anything and which, to be 
+> honest, does not sound very friendly either ...
 
-Michal
+Recently, we've been running tests and benchmarks in different
+virtualization environments : openvz, vserver, vserver in a minimal context
+and also Xen as a reference in the virtual machine world.
+
+We ran the usual benchmarks, dbench, tbench, lmbench, kernerl build, on the
+native kernel, on the patched kernel and in each virtualized environment.
+We also did some scalability tests to see how each solution behaved. And
+finally, some tests on live migration. We didn't do much on network nor on
+resource management behavior.
+
+We'd like to continue in an open way. But first, we want to make sure we
+have the right tests, benchmarks, tools, versions, configuration, tuning,
+etc, before publishing any results :) We have some materials already but
+before proposing we would like to have your comments and advices on what we
+should or shouldn't use.
+
+Thanks for doing such a great job on lightweight containers,
+
+C.

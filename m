@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWDMPAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWDMPB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750906AbWDMPAX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 11:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWDMPAW
+	id S1750901AbWDMPB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 11:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWDMPB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 11:00:22 -0400
-Received: from ns1.idleaire.net ([65.220.16.2]:52685 "EHLO iasrv1.idleaire.net")
-	by vger.kernel.org with ESMTP id S1750793AbWDMPAU (ORCPT
+	Thu, 13 Apr 2006 11:01:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61900 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750845AbWDMPB2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 11:00:20 -0400
-Subject: Re: [RFD][PATCH] typhoon and core sample for folding away VLAN
-	stuff
-From: Dave Dillow <dave@thedillows.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, Ingo Oeser <netdev@axxeo.de>,
-       netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-In-Reply-To: <200604131138.59611.vda@ilport.com.ua>
-References: <200604071628.30486.vda@ilport.com.ua>
-	 <200604122132.46113.ioe-lkml@rameria.de> <443DA830.8030209@thedillows.org>
-	 <200604131138.59611.vda@ilport.com.ua>
-Content-Type: text/plain
-Date: Thu, 13 Apr 2006 11:00:14 -0400
-Message-Id: <1144940414.29160.14.camel@dillow.idleaire.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Apr 2006 14:59:41.0960 (UTC) FILETIME=[E4CD2880:01C65F0A]
+	Thu, 13 Apr 2006 11:01:28 -0400
+Date: Thu, 13 Apr 2006 08:01:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, Dan Bonachea <bonachead@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
+In-Reply-To: <443DE2BD.1080103@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>
+References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
+ <20060412214613.404cf49f.akpm@osdl.org> <443DE2BD.1080103@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-13 at 11:38 +0300, Denis Vlasenko wrote:
-> On Thursday 13 April 2006 04:24, Dave Dillow wrote:
-> > Regardless, I remain opposed to this particular instance of bloat 
-> > busting. While both patches have improved in style, they remove a useful 
-> > feature and make the code less clean, for no net gain.
+
+
+On Thu, 13 Apr 2006, Nick Piggin wrote:
 > 
-> What happened to non-modular build? "no net gain" is not true.
+> Didn't Linus explicitly made the decision not to add synchronisation for
+> writes with the same file?
 
-Ok, so you saved what, 200 bytes? On a few drivers that may save you a
-small amount -- you basically said you had to have everything loaded to
-see 5K.
+I would be _very_ nervous to do it, yes. In particular, I do not consider 
+it at all unlikely to have something database-like that does concurrent 
+writes to the same file at different offsets, and serializing them on the 
+VFS layer seems pretty broken. 
 
-Weren't most of those savings from moving a big function out-of-line?
-The part I agree with?
- 
-> > > This kind of changes are important, because bloat creeps in byte by byte
-> > > of unused features. So I really appreciate your work here Denis.
-> > 
-> > On SMP FC4, typhoon.ko has a text size of 68330, so you need to cut 2794 
-> > bytes to see an actual difference in memory usage for a module. Non-SMP 
-> > it is 67741, so there you only need to cut 2205 bytes to get a win.
-> 
-> This is silly. Should I go this route and try a dozen of different gcc
-> versions and "-O2 versus -Os" things to demonstrate that sometimes
-> it will matter?
+Also, doing it unconditionally in the VFS layer is actually pretty 
+seriously broken: the VFS layer doesn't even know what kind of file it is, 
+and locking on writes can be literally the wrong thing for some file 
+descriptors (think pipes or sockets: if we have one blocking write holding 
+the lock, that should _not_ imply that other - possibly nonblocking - 
+writes shouldn't be able to call in to the low-level write handler).
 
-Quit being dense. No one has said that there are cases will it make a
-difference, just that that case is far removed from the usual case.
+That said, I wouldn't be 100% against it, especially under certain 
+circumstances. However, the circumstances when I think it might be 
+acceptable are fairly specific:
 
-I think I'm done on this topic. You've got more important people to
-convince than me, and they've already clear stated their position.
--- 
-Dave Dillow <dave@thedillows.org>
+ - when we use f_pos (ie we'd synchronize write against write, but only 
+   per "struct file", not on an inode basis)
+ - only for files that are marked seekable with FMODE_LSEEK (thus avoiding 
+   the stream-like objects like pipes and sockets)
 
+Under those two circumstances, I'd certainly be ok with it, and I think we 
+could argue that it is a "good thing". It would be a "f_pos" lock (so we 
+migt do it for reads too), not a "data lock".
+
+Comments?
+
+		Linus

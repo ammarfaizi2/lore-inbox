@@ -1,90 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWDMRO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWDMROs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWDMRO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 13:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWDMRO1
+	id S932181AbWDMROs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 13:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWDMROs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 13:14:27 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:25523 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S932105AbWDMRO1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 13:14:27 -0400
-Date: Thu, 13 Apr 2006 19:14:25 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Pavel Machek <pavel@ucw.cz>, Richard Purdie <rpurdie@rpsys.net>,
-       linux-pcmcia@lists.infradead.org, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, metan@seznam.cz
-Subject: Re: 2.6.17-rc1: collie -- oopsen in pccardd?
-Message-ID: <20060413171425.GA12404@isilmar.linta.de>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Richard Purdie <rpurdie@rpsys.net>,
-	linux-pcmcia@lists.infradead.org, lenz@cs.wisc.edu,
-	kernel list <linux-kernel@vger.kernel.org>, metan@seznam.cz
-References: <20060404122212.GG19139@elf.ucw.cz> <20060404124350.GA16857@flint.arm.linux.org.uk> <20060404000129.GA2590@ucw.cz> <1144923105.7236.18.camel@localhost.localdomain> <20060413164706.GB18635@atrey.karlin.mff.cuni.cz> <20060413165452.GA7805@flint.arm.linux.org.uk>
+	Thu, 13 Apr 2006 13:14:48 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:57486 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932181AbWDMROr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 13:14:47 -0400
+Date: Thu, 13 Apr 2006 11:14:45 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: sho@tnes.nec.co.jp
+Cc: Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC][8/21]ext3 modify variables to exceed 2G
+Message-ID: <20060413171445.GT17364@schatzie.adilger.int>
+Mail-Followup-To: sho@tnes.nec.co.jp,
+	Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20060413160657sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060413165452.GA7805@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060413160657sho@rifu.tnes.nec.co.jp>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 05:54:52PM +0100, Russell King wrote:
-> diff --git a/drivers/pcmcia/pcmcia_resource.c b/drivers/pcmcia/pcmcia_resource.c
-> --- a/drivers/pcmcia/pcmcia_resource.c
-> +++ b/drivers/pcmcia/pcmcia_resource.c
-> @@ -89,7 +88,7 @@ static int alloc_io_space(struct pcmcia_
->         }
->         if ((s->features & SS_CAP_STATIC_MAP) && s->io_offset) {
->                 *base = s->io_offset | (*base & 0x0fff);
-> -               s->io[0].Attributes = attr;
-> +               s->io[0].res->flags = (s->io[0].res->flags & ~IORESOURCE_BITS) | (attr & IORESOURCE_BITS);
->                 return 0;
->         }
->         /* Check for an already-allocated window that must conflict with
-> 
-> will probably be the culpret - which is from commit
-> c7d006935dfda9174187aa557e94a137ced10c30.
-> 
-> Static maps do not have IO resources, so s->io[].Attributes was not a
-> "duplicated" field in this case.  This part of this change needs
-> reverting.
+On Apr 13, 2006  16:06 +0900, sho@tnes.nec.co.jp wrote:
+> Summary of this patch:
+>   [8/21]  change the type of variables manipulating a block or an
+>           inode(ext3)
+>           - Change the type of 4byte variables manipulating a block or
+>             an inode from signed to unsigned.
 
-Oh yes, mea culpa. However, we can simply remove setting res->flags here, as
-we never read it in this case anyways.
+Takashi-san, please, it would make the code much more maintainable if the
+changes made here would use new types for filesystem-wide block offsets
+and for file-relative block offsets, as was previously discussed, instead
+of just changing some variables to be unsigned long.  Like:
 
-Thanks,
-	Dominik
+typedef unsigned long ext3_fsblk_t;	# block offset in the filesystem
+typedef unsigned long ext3_fscnt_t;	# block count in the filesystem
+typedef unsigned long ext3_fileblk_t;	# block offset in a file
 
+I believe we should already be using le32 for all on-disk blocks (e.g.
+indirect blocks, inodes, etc), but this would be good to verify.
 
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-Date: Thu Apr 13 19:06:49 2006 +0200
-Subject: [PATCH] pcmcia: fix oops in static mapping case
+This way, when we get to the stage where we want to increase the blocks
+to be 64-bit (as Laurent has wanted to do) we don't need to go through
+and re-patch all of the same files to change "unsigned long" to
+"unsigned long long".  It also makes the code easier to read, since it
+will be clear what kind of variable is being used.
 
-As static maps do not have IO resources, this setting oopses. However, as
-we do not ever read this value, we can safely remove it.
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
-
----
-
- drivers/pcmcia/pcmcia_resource.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
-
-618d4702f894d73df4f6e631e83699ea5cc87abc
-diff --git a/drivers/pcmcia/pcmcia_resource.c b/drivers/pcmcia/pcmcia_resource.c
-index 2539c0b..cc3402c 100644
---- a/drivers/pcmcia/pcmcia_resource.c
-+++ b/drivers/pcmcia/pcmcia_resource.c
-@@ -88,7 +88,6 @@ static int alloc_io_space(struct pcmcia_
- 	}
- 	if ((s->features & SS_CAP_STATIC_MAP) && s->io_offset) {
- 		*base = s->io_offset | (*base & 0x0fff);
--		s->io[0].res->flags = (s->io[0].res->flags & ~IORESOURCE_BITS) | (attr & IORESOURCE_BITS);
- 		return 0;
- 	}
- 	/* Check for an already-allocated window that must conflict with
--- 
-1.2.4
-
- 

@@ -1,100 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWDMNuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWDMNzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbWDMNuz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 09:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWDMNuy
+	id S964925AbWDMNzj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 09:55:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWDMNzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 09:50:54 -0400
-Received: from mail.renesas.com ([202.234.163.13]:5509 "EHLO
-	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S964937AbWDMNux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 09:50:53 -0400
-Date: Thu, 13 Apr 2006 22:50:50 +0900 (JST)
-Message-Id: <20060413.225050.189714797.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH-2.6.17-rc1-mm2] m32r: mappi3 reboot support
-From: Hirokazu Takata <takata@linux-m32r.org>
-Cc: linux-kernel@vger.kernel.org, fujiwara@linux-m32r.org,
-       takata@linux-m32r.org
-X-Mailer: Mew version 3.3 on XEmacs 21.4.19 (Constant Variable)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 13 Apr 2006 09:55:39 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:31977 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964925AbWDMNzi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 09:55:38 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: shrink_all_memory tweaks (was: Re: Userland swsusp failure (mm-related))
+Date: Thu, 13 Apr 2006 15:54:30 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+       Fabio Comolli <fabio.comolli@gmail.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <b637ec0b0604080537s55e63544r8bb63c887e81ecaf@mail.gmail.com> <200604111906.32535.rjw@sisk.pl> <200604132242.57664.kernel@kolivas.org>
+In-Reply-To: <200604132242.57664.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604131554.31613.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch to support a reboot function for M3A-2170(Mappi-III) 
-evaluation board.
+On Thursday 13 April 2006 14:42, Con Kolivas wrote:
+> On Wednesday 12 April 2006 03:06, Rafael J. Wysocki wrote:
+> > The patch is appended.
+> >
+> > In shrink_all_memory() I try to free exactly as many pages as the caller
+> > asks for, preferably in one shot, starting from easier targets.  If slabs
+> > are huge, they are most likely to have enough pages to reclaim.  The
+> > inactive lists are next (the zones with more inactive pages go first) etc. 
+> > However, since each pass potentially requires more work, the number of
+> > pages to scan is decreased as the pages are reclaimed which seems to make
+> > the shrinking of memory go more smoothly.
+> >
+> > I've been testing it on an x86_64 box for some time and it seems to behave
+> > quite reasonably, eg. it usually makes the actual image size very close to
+> > the value of image_size and if you set image_size to 0, it shrinks
+> > everything almost totally.
+> 
+> Great. Looks pretty good. See comments.
+> 
+> > ---
+> 
+> >  #ifdef CONFIG_PM
+> >  /*
+> > - * Try to free `nr_pages' of memory, system-wide.  Returns the number of
+> > freed - * pages.
+> > + * Helper function for shrink_all_memory().  Tries to reclaim 'nr_pages'
+> > pages + * from LRU lists system-wide, for given pass and priority, and
+> > returns the + * number of reclaimed pages
+> > + *
+> > + * For pass > 3 we also try to shrink the LRU lists that contain a few
+> > pages + */
+> > +unsigned long shrink_all_zones(unsigned long nr_pages, int pass, int prio,
+> > +				struct scan_control *sc)
+> 
+> I like how this moves all suspend vm functions out of the generic functions 
+> even more than I managed to.
+> 
+> > +	int swappiness = vm_swappiness, pass;
+> > +	struct reclaim_state reclaim_state;
+> > +	struct zone *zone;
+> > +	struct scan_control sc = {
+> > +		.gfp_mask = GFP_KERNEL,
+> > +		.may_swap = 1,
+> > +		.swap_cluster_max = nr_pages,
+> > +		.may_writepage = 1,
+> >  	};
+> 
+> This is not quite right at maintaining the original semantics I was proposing. 
+> Since you are iterating over all priorities, setting may_swap means you will 
+> reclaim mapped ram on the earlier passes once priority gets low enough.
 
-Signed-off-by: Hayato Fujiwara <fujiwara@linux-m32r.org>
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+No, I won't, because I don't update zone->prev_priority which is necessary
+to trigger this.  Unless of course zone->prev_priority is already low enough ...
 
- arch/m32r/kernel/process.c           |    4 ++++
- include/asm-m32r/mappi3/mappi3_pld.h |   22 +++++++++++-----------
- 2 files changed, 15 insertions(+), 11 deletions(-)
+> Setting vm_swappiness temporarily to 100 is unncecessary. You should set 
+> may_swap to 0 and set it to 1 on passes 3+.
 
-Index: linux-2.6.17-rc1-mm2/arch/m32r/kernel/process.c
-===================================================================
---- linux-2.6.17-rc1-mm2.orig/arch/m32r/kernel/process.c	2006-04-10 11:22:09.154152202 +0900
-+++ linux-2.6.17-rc1-mm2/arch/m32r/kernel/process.c	2006-04-10 11:36:54.529211492 +0900
-@@ -116,6 +116,10 @@ void cpu_idle (void)
- 
- void machine_restart(char *__unused)
- {
-+#if defined(CONFIG_PLAT_MAPPI3)
-+	outw(1, (unsigned long)PLD_REBOOT);
-+#endif
-+
- 	printk("Please push reset button!\n");
- 	while (1)
- 		cpu_relax();
-Index: linux-2.6.17-rc1-mm2/include/asm-m32r/mappi3/mappi3_pld.h
-===================================================================
---- linux-2.6.17-rc1-mm2.orig/include/asm-m32r/mappi3/mappi3_pld.h	2006-04-10 11:32:09.000000000 +0900
-+++ linux-2.6.17-rc1-mm2/include/asm-m32r/mappi3/mappi3_pld.h	2006-04-10 11:32:36.564911597 +0900
-@@ -53,16 +53,14 @@
- /* Power Control of MMC and CF */
- #define PLD_CPCR		__reg16(PLD_BASE + 0x14000)
- 
--
--/*==== ICU ====*/
--#define  M32R_IRQ_PC104        (5)   /* INT4(PC/104) */
--#define  M32R_IRQ_I2C          (28)  /* I2C-BUS     */
--#define  PLD_IRQ_CFIREQ       (6)  /* INT5 CFC Card Interrupt */
--#define  PLD_IRQ_CFC_INSERT   (7)  /* INT6 CFC Card Insert */
--#define  PLD_IRQ_IDEIREQ      (8)  /* INT7 IDE Interrupt   */
--#define  PLD_IRQ_MMCCARD      (43)  /* MMC Card Insert */
--#define  PLD_IRQ_MMCIRQ       (44)  /* MMC Transfer Done */
--
-+/* ICU */
-+#define M32R_IRQ_PC104		(5)	/* INT4(PC/104) */
-+#define M32R_IRQ_I2C		(28)	/* I2C-BUS */
-+#define PLD_IRQ_CFIREQ		(6)	/* INT5 CFC Card Interrupt */
-+#define PLD_IRQ_CFC_INSERT	(7)	/* INT6 CFC Card Insert & Eject */
-+#define PLD_IRQ_IDEIREQ		(8)	/* INT7 IDE Interrupt */
-+#define PLD_IRQ_MMCCARD		(43)	/* MMC Card Insert */
-+#define PLD_IRQ_MMCIRQ		(44)	/* MMC Transfer Done */
- 
- #if 0
- /* LED Control
-@@ -97,7 +95,6 @@
- #define PLD_CRC16ADATA		__reg16(PLD_BASE + 0x18008)
- #define PLD_CRC16AINDATA	__reg16(PLD_BASE + 0x1800a)
- 
--
- #if 0
- /* RTC */
- #define PLD_RTCCR		__reg16(PLD_BASE + 0x1c000)
-@@ -140,4 +137,7 @@
- 
- #endif
- 
-+/* Reset Control */
-+#define PLD_REBOOT		__reg16(PLD_BASE + 0x38000)
-+
- #endif	/* _MAPPI3_PLD.H */
+... which can be dealt with by setting may_swap like you're saying.
 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+I'll make this change and repost as an RFC in a separate thread.
+ 
+> Otherwise, looks good, thanks!
+
+Thanks a lot for the comments.
+
+Greetings,
+Rafael

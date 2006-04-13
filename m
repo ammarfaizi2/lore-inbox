@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWDMWxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWDMW4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWDMWxh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 18:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWDMWxh
+	id S1751163AbWDMW4i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 18:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWDMW4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 18:53:37 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:62673 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751128AbWDMWxg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 18:53:36 -0400
-Date: Fri, 14 Apr 2006 00:53:24 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: tyler@agat.net
-cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH] Kmod optimization
-In-Reply-To: <20060413190412.GA30541@Starbuck>
-Message-ID: <Pine.LNX.4.64.0604140048160.17704@scrub.home>
-References: <20060413180345.GA10910@Starbuck> <20060413182401.GA26885@suse.de>
- <20060413183617.GB10910@Starbuck> <20060413185014.GA27130@suse.de>
- <20060413190412.GA30541@Starbuck>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Apr 2006 18:56:38 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:42710 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751163AbWDMW4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 18:56:37 -0400
+Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Dan Bonachea <bonachead@comcast.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0604131531440.3701@g5.osdl.org>
+References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
+	 <20060412214613.404cf49f.akpm@osdl.org> <443DE2BD.1080103@yahoo.com.au>
+	 <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>
+	 <1144965022.12387.23.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0604131531440.3701@g5.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 14 Apr 2006 00:05:49 +0100
+Message-Id: <1144969549.12387.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Iau, 2006-04-13 at 15:40 -0700, Linus Torvalds wrote:
+> > Outside of O_APPEND the specification says only that
+> > - The write starts at the file position
+> > - The file position is updated before the syscall returns
+> > 
+> > It makes no other guarantee I can see.
+> 
+> Right. I think this is purely a "quality of implementation" issue. We 
+> already follow the spec, the question is whether we want to be better than 
+> that.
 
-On Thu, 13 Apr 2006, tyler@agat.net wrote:
+Quality for whom ? There is a measurable cost to all that extra locking
+which will hurt everyone. Given existing kernels don't make the
+guarantee and SuS v3 does not make the guarantee the apps that need it
+will continue to do the extra work themselves anyway.
 
-> Well perhaps I don't understand the mechanism :) But let's take an
-> example.
-> On all kernels (even recent), if the module smbfs is loaded, it's not
-> handled by udev and request_module could be called.
+I'd say the existing approach is the best quality of implementation for
+those needing performance and that the cost for those needing ordering
+guarantees in Linux is already astoundingly low thanks to the excellent
+work done on futex based posix locking in glibc. I can choose to pay the
+costs today, if we do extra locking I cannot opt out.
 
-No, it can't. If the smbfs is loaded, get_fs_type() will find it and won't 
-even try to load it.
-Do you a real example, where this is a problem?
+And of course I too would like to know if anyone is hitting O_APPEND
+examples of this problem and if so on what fs ....
 
-bye, Roman
+Alan
+

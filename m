@@ -1,164 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWDMHFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWDMHGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWDMHFu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 03:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWDMHFu
+	id S1751102AbWDMHGV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 03:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbWDMHGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 03:05:50 -0400
-Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:55804 "EHLO
+	Thu, 13 Apr 2006 03:06:21 -0400
+Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:44285 "EHLO
 	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1750772AbWDMHFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 03:05:49 -0400
+	id S1751102AbWDMHGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 03:06:20 -0400
 To: Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC][4/21]ext2 modify format strings
-Message-Id: <20060413160506sho@rifu.tnes.nec.co.jp>
+Subject: [RFC][5/21]bfs modify format strings
+Message-Id: <20060413160542sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
 X-Mailer: WeMail32[2.51] ID:1K0086
 From: sho@tnes.nec.co.jp
-Date: Thu, 13 Apr 2006 16:05:06 +0900
+Date: Thu, 13 Apr 2006 16:05:42 +0900
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Summary of this patch:
-  [4/21]  modify format strings in print(ext2)
-          - The part which prints the signed value, related to a block
-            and an inode, in decimal is corrected so that it can print
-            unsigned one.
+  [5/21]  modify format strings in print(bfs)
+          - As i_blocks of VFS inode gets 8 byte variable, change its
+            string format to %lld.
 
 Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
 ---
-diff -upNr -X linux-2.6.17-rc1.org/Documentation/dontdiff linux-2.6.17-rc1.org/fs/ext2/balloc.c linux-2.6.17-rc1.tmp/fs/ext2/balloc.c
---- linux-2.6.17-rc1.org/fs/ext2/balloc.c	2006-04-05 17:44:56.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext2/balloc.c	2006-04-05 17:57:29.000000000 +0900
-@@ -465,7 +465,7 @@ got_block:
- 
- 	if (target_block >= le32_to_cpu(es->s_blocks_count)) {
- 		ext2_error (sb, "ext2_new_block",
--			    "block(%d) >= blocks count(%d) - "
-+			    "block(%d) >= blocks count(%u) - "
- 			    "block_group = %d, es == %p ", ret_block,
- 			le32_to_cpu(es->s_blocks_count), group_no, es);
- 		goto io_error;
-@@ -504,7 +504,7 @@ got_block:
- 	if (sb->s_flags & MS_SYNCHRONOUS)
- 		sync_dirty_buffer(bitmap_bh);
- 
--	ext2_debug ("allocating block %d. ", block);
-+	ext2_debug ("allocating block %u. ", block);
- 
- 	*err = 0;
- out_release:
-diff -upNr -X linux-2.6.17-rc1.org/Documentation/dontdiff linux-2.6.17-rc1.org/fs/ext2/inode.c linux-2.6.17-rc1.tmp/fs/ext2/inode.c
---- linux-2.6.17-rc1.org/fs/ext2/inode.c	2006-04-03 12:22:10.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext2/inode.c	2006-04-05 17:57:43.000000000 +0900
-@@ -880,7 +880,7 @@ static void ext2_free_branches(struct in
- 			 */ 
- 			if (!bh) {
- 				ext2_error(inode->i_sb, "ext2_free_branches",
--					"Read failure, inode=%ld, block=%ld",
-+					"Read failure, inode=%lu, block=%lu",
- 					inode->i_ino, nr);
- 				continue;
- 			}
-diff -upNr -X linux-2.6.17-rc1.org/Documentation/dontdiff linux-2.6.17-rc1.org/fs/ext2/xattr.c linux-2.6.17-rc1.tmp/fs/ext2/xattr.c
---- linux-2.6.17-rc1.org/fs/ext2/xattr.c	2006-04-03 12:22:10.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext2/xattr.c	2006-04-05 18:00:40.000000000 +0900
-@@ -71,7 +71,7 @@
- 
- #ifdef EXT2_XATTR_DEBUG
- # define ea_idebug(inode, f...) do { \
--		printk(KERN_DEBUG "inode %s:%ld: ", \
-+		printk(KERN_DEBUG "inode %s:%lu: ", \
- 			inode->i_sb->s_id, inode->i_ino); \
- 		printk(f); \
- 		printk("\n"); \
-@@ -164,7 +164,7 @@ ext2_xattr_get(struct inode *inode, int 
- 	error = -ENODATA;
- 	if (!EXT2_I(inode)->i_file_acl)
- 		goto cleanup;
--	ea_idebug(inode, "reading block %d", EXT2_I(inode)->i_file_acl);
-+	ea_idebug(inode, "reading block %u", EXT2_I(inode)->i_file_acl);
- 	bh = sb_bread(inode->i_sb, EXT2_I(inode)->i_file_acl);
- 	error = -EIO;
- 	if (!bh)
-@@ -175,7 +175,7 @@ ext2_xattr_get(struct inode *inode, int 
- 	if (HDR(bh)->h_magic != cpu_to_le32(EXT2_XATTR_MAGIC) ||
- 	    HDR(bh)->h_blocks != cpu_to_le32(1)) {
- bad_block:	ext2_error(inode->i_sb, "ext2_xattr_get",
--			"inode %ld: bad block %d", inode->i_ino,
-+			"inode %lu: bad block %u", inode->i_ino,
- 			EXT2_I(inode)->i_file_acl);
- 		error = -EIO;
- 		goto cleanup;
-@@ -264,7 +264,7 @@ ext2_xattr_list(struct inode *inode, cha
- 	error = 0;
- 	if (!EXT2_I(inode)->i_file_acl)
- 		goto cleanup;
--	ea_idebug(inode, "reading block %d", EXT2_I(inode)->i_file_acl);
-+	ea_idebug(inode, "reading block %u", EXT2_I(inode)->i_file_acl);
- 	bh = sb_bread(inode->i_sb, EXT2_I(inode)->i_file_acl);
- 	error = -EIO;
- 	if (!bh)
-@@ -275,7 +275,7 @@ ext2_xattr_list(struct inode *inode, cha
- 	if (HDR(bh)->h_magic != cpu_to_le32(EXT2_XATTR_MAGIC) ||
- 	    HDR(bh)->h_blocks != cpu_to_le32(1)) {
- bad_block:	ext2_error(inode->i_sb, "ext2_xattr_list",
--			"inode %ld: bad block %d", inode->i_ino,
-+			"inode %lu: bad block %u", inode->i_ino,
- 			EXT2_I(inode)->i_file_acl);
- 		error = -EIO;
- 		goto cleanup;
-@@ -411,7 +411,7 @@ ext2_xattr_set(struct inode *inode, int 
- 		if (header->h_magic != cpu_to_le32(EXT2_XATTR_MAGIC) ||
- 		    header->h_blocks != cpu_to_le32(1)) {
- bad_block:		ext2_error(sb, "ext2_xattr_set",
--				"inode %ld: bad block %d", inode->i_ino, 
-+				"inode %lu: bad block %u", inode->i_ino, 
- 				   EXT2_I(inode)->i_file_acl);
- 			error = -EIO;
- 			goto cleanup;
-@@ -672,7 +672,7 @@ ext2_xattr_set2(struct inode *inode, str
- 						   NULL, NULL, &error);
- 			if (error)
- 				goto cleanup;
--			ea_idebug(inode, "creating block %d", block);
-+			ea_idebug(inode, "creating block %u", block);
- 
- 			new_bh = sb_getblk(sb, block);
- 			if (!new_bh) {
-@@ -772,7 +772,7 @@ ext2_xattr_delete_inode(struct inode *in
- 	bh = sb_bread(inode->i_sb, EXT2_I(inode)->i_file_acl);
- 	if (!bh) {
- 		ext2_error(inode->i_sb, "ext2_xattr_delete_inode",
--			"inode %ld: block %d read error", inode->i_ino,
-+			"inode %lu: block %u read error", inode->i_ino,
- 			EXT2_I(inode)->i_file_acl);
- 		goto cleanup;
- 	}
-@@ -780,7 +780,7 @@ ext2_xattr_delete_inode(struct inode *in
- 	if (HDR(bh)->h_magic != cpu_to_le32(EXT2_XATTR_MAGIC) ||
- 	    HDR(bh)->h_blocks != cpu_to_le32(1)) {
- 		ext2_error(inode->i_sb, "ext2_xattr_delete_inode",
--			"inode %ld: bad block %d", inode->i_ino,
-+			"inode %lu: bad block %u", inode->i_ino,
- 			EXT2_I(inode)->i_file_acl);
- 		goto cleanup;
- 	}
-@@ -931,13 +931,13 @@ again:
- 		bh = sb_bread(inode->i_sb, ce->e_block);
- 		if (!bh) {
- 			ext2_error(inode->i_sb, "ext2_xattr_cache_find",
--				"inode %ld: block %ld read error",
-+				"inode %lu: block %lu read error",
- 				inode->i_ino, (unsigned long) ce->e_block);
- 		} else {
- 			lock_buffer(bh);
- 			if (le32_to_cpu(HDR(bh)->h_refcount) >
- 				   EXT2_XATTR_REFCOUNT_MAX) {
--				ea_idebug(inode, "block %ld refcount %d>%d",
-+				ea_idebug(inode, "block %lu refcount %d>%d",
- 					  (unsigned long) ce->e_block,
- 					  le32_to_cpu(HDR(bh)->h_refcount),
- 					  EXT2_XATTR_REFCOUNT_MAX);
+diff -upNr -X linux-2.6.17-rc1.org/Documentation/dontdiff linux-2.6.17-rc1.org/fs/bfs/inode.c linux-2.6.17-rc1.tmp/fs/bfs/inode.c
+--- linux-2.6.17-rc1.org/fs/bfs/inode.c	2006-03-29 11:48:27.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/bfs/inode.c	2006-03-29 15:37:56.000000000 +0900
+@@ -75,7 +75,7 @@ static void bfs_read_inode(struct inode 
+ 	inode->i_nlink =  le32_to_cpu(di->i_nlink);
+ 	inode->i_size = BFS_FILESIZE(di);
+ 	inode->i_blocks = BFS_FILEBLOCKS(di);
+-        if (inode->i_size || inode->i_blocks) dprintf("Registered inode with %lld size, %ld blocks\n", inode->i_size, inode->i_blocks);
++        if (inode->i_size || inode->i_blocks) dprintf("Registered inode with %lld size, %lld blocks\n", inode->i_size, inode->i_blocks);
+ 	inode->i_blksize = PAGE_SIZE;
+ 	inode->i_atime.tv_sec =  le32_to_cpu(di->i_atime);
+ 	inode->i_mtime.tv_sec =  le32_to_cpu(di->i_mtime);

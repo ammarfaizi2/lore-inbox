@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbWDMSvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbWDMSwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbWDMSvP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 14:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbWDMSvP
+	id S964949AbWDMSwl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 14:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWDMSwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 14:51:15 -0400
-Received: from ns2.suse.de ([195.135.220.15]:57265 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964954AbWDMSvP (ORCPT
+	Thu, 13 Apr 2006 14:52:41 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:5013 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932435AbWDMSwk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 14:51:15 -0400
-Date: Thu, 13 Apr 2006 11:50:14 -0700
-From: Greg KH <gregkh@suse.de>
-To: tyler@agat.net
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kmod optimization
-Message-ID: <20060413185014.GA27130@suse.de>
-References: <20060413180345.GA10910@Starbuck> <20060413182401.GA26885@suse.de> <20060413183617.GB10910@Starbuck>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060413183617.GB10910@Starbuck>
-User-Agent: Mutt/1.5.11
+	Thu, 13 Apr 2006 14:52:40 -0400
+Date: Thu, 13 Apr 2006 20:52:05 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Herbert Poetzl <herbert@13thfloor.at>
+cc: Jes Sorensen <jes@sgi.com>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com,
+       xfs-masters@oss.sgi.com, stern@rowland.harvard.edu, sekharan@us.ibm.com,
+       akpm@osdl.org, David Chinner <dgc@sgi.com>
+Subject: Re: notifier chain problem? (was Re: 2.6.17-rc1 did break XFS)
+In-Reply-To: <20060413175342.GF6663@MAIL.13thfloor.at>
+Message-ID: <Pine.LNX.4.61.0604132049110.20938@yvahk01.tjqt.qr>
+References: <20060413052145.GA31435@MAIL.13thfloor.at>
+ <20060413072325.GF2732@melbourne.sgi.com> <yq0k69tuauh.fsf@jaguar.mkp.net>
+ <20060413135000.GB6663@MAIL.13thfloor.at> <Pine.LNX.4.61.0604131618350.17374@yvahk01.tjqt.qr>
+ <20060413175342.GF6663@MAIL.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 08:36:17PM +0200, tyler@agat.net wrote:
-> On Thu, Apr 13, 2006 at 11:24:01AM -0700, Greg KH wrote:
-> > On Thu, Apr 13, 2006 at 08:03:45PM +0200, tyler@agat.net wrote:
-> > > Hi,
-> > > 
-> > > the request_mod functions try to load automatically a module by running
-> > > a user mode process helper (modprobe).
-> > > 
-> > > The user process is launched even if the module is already loaded. I
-> > > think it would be better to test if the module is already loaded.
-> > 
-> > Does this cause a problem somehow?  request_mod is called _very_
-> > infrequently from a normal kernel these days, so I really don't think
-> > this is necessary.
-> 
-> Yes I agree it _should_ be very infrequently called but it _will_ be very
-> infrequently called just if the user space configuration is done properly.
 
-What do you mean by this?  Almost all 2.6 distros use udev today, which
-prevents this code from ever getting called.  So odds are, you are
-optimising something that no one will ever use :)
+>[    3.583356] hda: QEMU HARDDISK, ATA DISK drive
+>[    5.021521] hdc: QEMU HARDDISK, ATA DISK drive
 
-> I personnaly think we shouldn't trust the configuration and the way the
-> different modules are loaded.
+Maybe QEMU is involved in the Oops? What if used on a normal system?
 
-What way different modules are loaded?  What problem are you referring
-to here?
 
-thanks,
 
-greg k-h
+Jan Engelhardt
+-- 

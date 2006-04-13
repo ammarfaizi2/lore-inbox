@@ -1,301 +1,434 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWDMHMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWDMHNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWDMHMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 03:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWDMHMZ
+	id S964817AbWDMHNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 03:13:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWDMHNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 03:12:25 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:55976 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S964814AbWDMHMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 03:12:24 -0400
+	Thu, 13 Apr 2006 03:13:08 -0400
+Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:16773 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S964817AbWDMHNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 03:13:06 -0400
 To: Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC][14/21]e2fsprogs modify variables to exceed 2G
-Message-Id: <20060413161145sho@rifu.tnes.nec.co.jp>
+Subject: [RFC][15/21]e2fsprogs modify variables for bitmap to exceed 2G
+Message-Id: <20060413161227sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
 X-Mailer: WeMail32[2.51] ID:1K0086
 From: sho@tnes.nec.co.jp
-Date: Thu, 13 Apr 2006 16:11:45 +0900
+Date: Thu, 13 Apr 2006 16:12:27 +0900
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Summary of this patch:
-  [14/21] change the type of variables manipulating a block and an
-          inode
-          - Change the type of 4byte variables manipulating a block or
-            an inode from signed to unsigned.
-
-          - Where an overflow occurs in process of operation, casting
-            it to long long.
+  [15/21] change the type of variables which manipulate bitmap
+          - Change the type of 4byte variables manipulating bitmap
+            from signed to unsigned.
 
 Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
 ---
-diff -upNr e2fsprogs-1.39/e2fsck/pass1.c e2fsprogs-1.39.tmp/e2fsck/pass1.c
---- e2fsprogs-1.39/e2fsck/pass1.c	2006-03-19 11:33:56.000000000 +0900
-+++ e2fsprogs-1.39.tmp/e2fsck/pass1.c	2006-04-12 12:05:15.000000000 +0900
-@@ -1893,6 +1893,7 @@ static void new_table_block(e2fsck_t ctx
- 	int		i;
- 	char		*buf;
+diff -upNr e2fsprogs-1.39/e2fsck/pass5.c e2fsprogs-1.39.tmp/e2fsck/pass5.c
+--- e2fsprogs-1.39/e2fsck/pass5.c	2005-09-06 18:40:14.000000000 +0900
++++ e2fsprogs-1.39.tmp/e2fsck/pass5.c	2006-04-12 13:27:56.000000000 +0900
+@@ -502,13 +502,13 @@ static void check_inode_end(e2fsck_t ctx
+ static void check_block_end(e2fsck_t ctx)
+ {
+ 	ext2_filsys fs = ctx->fs;
+-	blk_t	end, save_blocks_count, i;
++	blk64_t	end, save_blocks_count, i;
  	struct problem_context	pctx;
-+	blk64_t         last_block;
  
  	clear_problem_context(&pctx);
  
-@@ -1900,8 +1901,11 @@ static void new_table_block(e2fsck_t ctx
- 	pctx.blk = old_block;
- 	pctx.str = name;
- 
--	pctx.errcode = ext2fs_get_free_blocks(fs, first_block,
--			first_block + fs->super->s_blocks_per_group,
-+	last_block = (blk64_t) first_block + fs->super->s_blocks_per_group - 1;
-+	if (last_block >= fs->super->s_blocks_count)
-+		last_block = fs->super->s_blocks_count - 1;
-+
-+	pctx.errcode = ext2fs_get_free_blocks(fs, first_block, last_block,
- 					num, ctx->block_found_map, new_block);
+ 	end = fs->block_map->start +
+-		(EXT2_BLOCKS_PER_GROUP(fs->super) * fs->group_desc_count) - 1;
++		(EXT2_BLOCKS_PER_GROUP(fs->super) * (__u64)fs->group_desc_count) - 1;
+ 	pctx.errcode = ext2fs_fudge_block_bitmap_end(fs->block_map, end,
+ 						     &save_blocks_count);
  	if (pctx.errcode) {
- 		pctx.num = num;
-diff -upNr e2fsprogs-1.39/lib/ext2fs/alloc.c e2fsprogs-1.39.tmp/lib/ext2fs/alloc.c
---- e2fsprogs-1.39/lib/ext2fs/alloc.c	2005-09-06 18:40:14.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/alloc.c	2006-04-12 12:06:24.000000000 +0900
-@@ -159,15 +159,15 @@ errcode_t ext2fs_get_free_blocks(ext2_fi
- 		finish = start;
- 	if (!num)
- 		num = 1;
-+	if (b+num-1 >= fs->super->s_blocks_count)
-+		b = fs->super->s_first_data_block;
- 	do {
--		if (b+num-1 > fs->super->s_blocks_count)
--			b = fs->super->s_first_data_block;
- 		if (ext2fs_fast_test_block_bitmap_range(map, b, num)) {
- 			*ret = b;
- 			return 0;
- 		}
- 		b++;
--	} while (b != finish);
-+	} while (b <= finish);
- 	return EXT2_ET_BLOCK_ALLOC_FAIL;
- }
+diff -upNr e2fsprogs-1.39/lib/ext2fs/bitmaps.c e2fsprogs-1.39.tmp/lib/ext2fs/bitmaps.c
+--- e2fsprogs-1.39/lib/ext2fs/bitmaps.c	2005-09-06 18:40:14.000000000 +0900
++++ e2fsprogs-1.39.tmp/lib/ext2fs/bitmaps.c	2006-04-12 13:27:56.000000000 +0900
+@@ -27,7 +27,7 @@
+ #include "ext2_fs.h"
+ #include "ext2fs.h"
  
-diff -upNr e2fsprogs-1.39/lib/ext2fs/alloc_tables.c e2fsprogs-1.39.tmp/lib/ext2fs/alloc_tables.c
---- e2fsprogs-1.39/lib/ext2fs/alloc_tables.c	2005-09-06 18:40:14.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/alloc_tables.c	2006-04-12 12:08:20.000000000 +0900
-@@ -31,13 +31,14 @@ errcode_t ext2fs_allocate_group_table(ex
- 				      ext2fs_block_bitmap bmap)
+-static errcode_t make_bitmap(__u32 start, __u32 end, __u32 real_end,
++static errcode_t make_bitmap(__u32 start, __u32 end, __u64 real_end,
+ 			     const char *descr, char *init_map,
+ 			     ext2fs_generic_bitmap *ret)
  {
+@@ -74,7 +74,7 @@ static errcode_t make_bitmap(__u32 start
+ 
+ errcode_t ext2fs_allocate_generic_bitmap(__u32 start,
+ 					 __u32 end,
+-					 __u32 real_end,
++					 __u64 real_end,
+ 					 const char *descr,
+ 					 ext2fs_generic_bitmap *ret)
+ {
+@@ -143,7 +143,8 @@ errcode_t ext2fs_allocate_block_bitmap(e
+ {
+ 	ext2fs_block_bitmap bitmap;
  	errcode_t	retval;
--	blk_t		group_blk, start_blk, last_blk, new_blk, blk;
-+	blk_t           group_blk, new_blk, blk;
-+	blk64_t         start_blk, last_blk;
- 	int		j;
- 
- 	group_blk = fs->super->s_first_data_block +
- 		(group * fs->super->s_blocks_per_group);
- 	
--	last_blk = group_blk + fs->super->s_blocks_per_group;
-+	last_blk = (__u64) group_blk + fs->super->s_blocks_per_group - 1;
- 	if (last_blk >= fs->super->s_blocks_count)
- 		last_blk = fs->super->s_blocks_count - 1;
- 
-@@ -48,9 +49,9 @@ errcode_t ext2fs_allocate_group_table(ex
- 	 * Allocate the block and inode bitmaps, if necessary
- 	 */
- 	if (fs->stride) {
--		start_blk = group_blk + fs->inode_blocks_per_group;
-+		start_blk = (__u64) group_blk + fs->inode_blocks_per_group;
- 		start_blk += ((fs->stride * group) %
--			      (last_blk - start_blk));
-+			      (last_blk - start_blk + 1));
- 		if (start_blk > last_blk)
- 			start_blk = group_blk;
- 	} else
-diff -upNr e2fsprogs-1.39/lib/ext2fs/check_desc.c e2fsprogs-1.39.tmp/lib/ext2fs/check_desc.c
---- e2fsprogs-1.39/lib/ext2fs/check_desc.c	2005-09-06 18:40:14.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/check_desc.c	2006-04-12 12:09:00.000000000 +0900
-@@ -33,12 +33,12 @@ errcode_t ext2fs_check_desc(ext2_filsys 
- {
- 	dgrp_t i;
- 	blk_t block = fs->super->s_first_data_block;
--	blk_t next;
-+	blk64_t next;
+-	__u32		start, end, real_end;
++	__u32           start, end;
++	__u64           real_end;
  
  	EXT2_CHECK_MAGIC(fs, EXT2_ET_MAGIC_EXT2FS_FILSYS);
  
- 	for (i = 0; i < fs->group_desc_count; i++) {
--		next = block + fs->super->s_blocks_per_group;
-+		next = (blk64_t) block + fs->super->s_blocks_per_group;
- 		/*
- 		 * Check to make sure block bitmap for group is
- 		 * located within the group.
-diff -upNr e2fsprogs-1.39/lib/ext2fs/initialize.c e2fsprogs-1.39.tmp/lib/ext2fs/initialize.c
---- e2fsprogs-1.39/lib/ext2fs/initialize.c	2006-03-19 08:59:47.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/initialize.c	2006-04-12 12:11:48.000000000 +0900
-@@ -77,7 +77,7 @@ static unsigned int calc_reserved_gdt_bl
- 	 */
- 	if (sb->s_blocks_count < max_blocks / 1024)
- 		max_blocks = sb->s_blocks_count * 1024;
--	rsv_groups = (max_blocks - sb->s_first_data_block + bpg - 1) / bpg;
-+	rsv_groups = ((__u64)max_blocks - sb->s_first_data_block + bpg - 1) / bpg;
- 	rsv_gdb = (rsv_groups + gdpb - 1) / gdpb - fs->desc_blocks;
- 	if (rsv_gdb > EXT2_ADDR_PER_BLOCK(sb))
- 		rsv_gdb = EXT2_ADDR_PER_BLOCK(sb);
-@@ -205,7 +205,7 @@ errcode_t ext2fs_initialize(const char *
- 	}
+@@ -151,7 +152,7 @@ errcode_t ext2fs_allocate_block_bitmap(e
  
- retry:
--	fs->group_desc_count = (super->s_blocks_count -
-+	fs->group_desc_count = ((__u64) super->s_blocks_count -
- 				super->s_first_data_block +
- 				EXT2_BLOCKS_PER_GROUP(super) - 1)
- 		/ EXT2_BLOCKS_PER_GROUP(super);
-@@ -233,7 +233,7 @@ retry:
- 	 * should be.  But make sure that we don't allocate more than
- 	 * one bitmap's worth of inodes each group.
- 	 */
--	ipg = (super->s_inodes_count + fs->group_desc_count - 1) /
-+	ipg = ((__u64) super->s_inodes_count + fs->group_desc_count - 1) /
- 		fs->group_desc_count;
- 	if (ipg > fs->blocksize * 8) {
- 		if (super->s_blocks_per_group >= 256) {
-@@ -250,8 +250,9 @@ retry:
- 	if (ipg > (unsigned) EXT2_MAX_INODES_PER_GROUP(super))
- 		ipg = EXT2_MAX_INODES_PER_GROUP(super);
- 
-+ipg_try:
- 	super->s_inodes_per_group = ipg;
--	if (super->s_inodes_count > ipg * fs->group_desc_count)
-+	if (super->s_inodes_count > (__u64) ipg * fs->group_desc_count)
- 		super->s_inodes_count = ipg * fs->group_desc_count;
- 
- 	/*
-@@ -277,6 +278,11 @@ retry:
- 				       EXT2_BLOCK_SIZE(super) - 1) /
- 				      EXT2_BLOCK_SIZE(super));
- 
-+	if ((__u64) super->s_inodes_per_group * fs->group_desc_count > ~0U) {
-+		ipg--;
-+		goto ipg_try;
-+	}
-+
- 	/*
- 	 * adjust inode count to reflect the adjusted inodes_per_group
- 	 */
-diff -upNr e2fsprogs-1.39/lib/ext2fs/openfs.c e2fsprogs-1.39.tmp/lib/ext2fs/openfs.c
---- e2fsprogs-1.39/lib/ext2fs/openfs.c	2006-03-18 12:56:25.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/openfs.c	2006-04-12 12:12:09.000000000 +0900
-@@ -258,7 +258,7 @@ errcode_t ext2fs_open2(const char *name,
- 		retval = EXT2_ET_CORRUPT_SUPERBLOCK;
- 		goto cleanup;
- 	}
--	fs->group_desc_count = (fs->super->s_blocks_count -
-+	fs->group_desc_count = ((__u64) fs->super->s_blocks_count -
- 				fs->super->s_first_data_block +
- 				blocks_per_group - 1) / blocks_per_group;
- 	fs->desc_blocks = (fs->group_desc_count +
-diff -upNr e2fsprogs-1.39/misc/mke2fs.c e2fsprogs-1.39.tmp/misc/mke2fs.c
---- e2fsprogs-1.39/misc/mke2fs.c	2006-04-12 12:02:43.000000000 +0900
-+++ e2fsprogs-1.39.tmp/misc/mke2fs.c	2006-04-12 12:18:36.000000000 +0900
-@@ -780,11 +780,11 @@ static void parse_extended_opts(struct e
- 			if (!bpg)
- 				bpg = blocksize * 8;
- 			gdpb = blocksize / sizeof(struct ext2_group_desc);
--			group_desc_count = (param->s_blocks_count +
-+			group_desc_count = ((__u64) param->s_blocks_count +
- 					    bpg - 1) / bpg;
- 			desc_blocks = (group_desc_count +
- 				       gdpb - 1) / gdpb;
--			rsv_groups = (resize + bpg - 1) / bpg;
-+			rsv_groups = ((__u64) resize + bpg - 1) / bpg;
- 			rsv_gdb = (rsv_groups + gdpb - 1) / gdpb - 
- 				desc_blocks;
- 			if (rsv_gdb > (int) EXT2_ADDR_PER_BLOCK(param))
-@@ -855,7 +855,7 @@ static void PRS(int argc, char *argv[])
- 	double		reserved_ratio = 5.0;
- 	int		sector_size = 0;
- 	int		show_version_only = 0;
--	ext2_ino_t	num_inodes = 0;
-+	__u64		num_inodes = 0;
- 	errcode_t	retval;
- 	char *		oldpath = getenv("PATH");
- 	char *		extended_opts = 0;
-@@ -1221,7 +1221,7 @@ static void PRS(int argc, char *argv[])
- 	}
- 
- 	if (!fs_type) {
--		int megs = fs_param.s_blocks_count * 
-+		int megs = (__u64) fs_param.s_blocks_count * 
- 			(EXT2_BLOCK_SIZE(&fs_param) / 1024) / 1024;
- 
- 		if (megs <= 3)
-@@ -1390,6 +1390,22 @@ static void PRS(int argc, char *argv[])
- 		fs_param.s_inode_size = inode_size;
- 	}
- 
-+	/* inodes safty check */
-+	if (num_inodes == 0) {
-+		__u64 n;
-+
-+		n = (__u64) param.s_blocks_count * blocksize / inode_ratio;
-+		if (n > ~0U) {
-+			com_err(program_name, 0,
-+				_("inodes_count must be less than 4G!"));
-+			exit(1);
-+		}
-+	} else if (num_inodes > ~0U) {
-+		com_err(program_name, 0,
-+			_("inodes_count must be less than 4G!"));
-+		exit(1);
-+	}
-+
- 	/*
- 	 * Calculate number of inodes based on the inode ratio
- 	 */
-@@ -1400,7 +1416,7 @@ static void PRS(int argc, char *argv[])
- 	/*
- 	 * Calculate number of blocks to reserve
- 	 */
--	fs_param.s_r_blocks_count = (fs_param.s_blocks_count * reserved_ratio)
-+	fs_param.s_r_blocks_count = ((__u64) fs_param.s_blocks_count * reserved_ratio)
- 		/ 100;
+ 	start = fs->super->s_first_data_block;
+ 	end = fs->super->s_blocks_count-1;
+-	real_end = (EXT2_BLOCKS_PER_GROUP(fs->super)  
++	real_end = ((__u64)EXT2_BLOCKS_PER_GROUP(fs->super)  
+ 		    * fs->group_desc_count)-1 + start;
+ 	
+ 	retval = ext2fs_allocate_generic_bitmap(start, end, real_end,
+@@ -181,7 +182,7 @@ errcode_t ext2fs_fudge_inode_bitmap_end(
  }
  
+ errcode_t ext2fs_fudge_block_bitmap_end(ext2fs_block_bitmap bitmap,
+-					blk_t end, blk_t *oend)
++					blk64_t end, blk64_t *oend)
+ {
+ 	EXT2_CHECK_MAGIC(bitmap, EXT2_ET_MAGIC_BLOCK_BITMAP);
+ 	
+diff -upNr e2fsprogs-1.39/lib/ext2fs/bitops.c e2fsprogs-1.39.tmp/lib/ext2fs/bitops.c
+--- e2fsprogs-1.39/lib/ext2fs/bitops.c	2005-09-06 18:40:14.000000000 +0900
++++ e2fsprogs-1.39.tmp/lib/ext2fs/bitops.c	2006-04-12 13:27:56.000000000 +0900
+@@ -66,26 +66,26 @@ int ext2fs_test_bit(unsigned int nr, con
+ 
+ #endif	/* !_EXT2_HAVE_ASM_BITOPS_ */
+ 
+-void ext2fs_warn_bitmap(errcode_t errcode, unsigned long arg,
++void ext2fs_warn_bitmap(errcode_t errcode, unsigned long long arg,
+ 			const char *description)
+ {
+ #ifndef OMIT_COM_ERR
+ 	if (description)
+-		com_err(0, errcode, "#%lu for %s", arg, description);
++		com_err(0, errcode, "#%llu for %s", arg, description);
+ 	else
+-		com_err(0, errcode, "#%lu", arg);
++		com_err(0, errcode, "#%llu", arg);
+ #endif
+ }
+ 
+ void ext2fs_warn_bitmap2(ext2fs_generic_bitmap bitmap,
+-			    int code, unsigned long arg)
++			    int code, unsigned long long arg)
+ {
+ #ifndef OMIT_COM_ERR
+ 	if (bitmap->description)
+ 		com_err(0, bitmap->base_error_code+code,
+-			"#%lu for %s", arg, bitmap->description);
++			"#%llu for %s", arg, bitmap->description);
+ 	else
+-		com_err(0, bitmap->base_error_code + code, "#%lu", arg);
++		com_err(0, bitmap->base_error_code + code, "#%llu", arg);
+ #endif
+ }
+ 
+diff -upNr e2fsprogs-1.39/lib/ext2fs/bitops.h e2fsprogs-1.39.tmp/lib/ext2fs/bitops.h
+--- e2fsprogs-1.39/lib/ext2fs/bitops.h	2006-03-30 02:51:53.000000000 +0900
++++ e2fsprogs-1.39.tmp/lib/ext2fs/bitops.h	2006-04-12 13:28:14.000000000 +0900
+@@ -52,15 +52,15 @@ extern const char *ext2fs_inode_string;
+ extern const char *ext2fs_mark_string;
+ extern const char *ext2fs_unmark_string;
+ extern const char *ext2fs_test_string;
+-extern void ext2fs_warn_bitmap(errcode_t errcode, unsigned long arg,
++extern void ext2fs_warn_bitmap(errcode_t errcode, unsigned long long arg,
+ 			       const char *description);
+ extern void ext2fs_warn_bitmap2(ext2fs_generic_bitmap bitmap,
+-				int code, unsigned long arg);
++				int code, unsigned long long arg);
+ 
+-extern int ext2fs_mark_block_bitmap(ext2fs_block_bitmap bitmap, blk_t block);
++extern int ext2fs_mark_block_bitmap(ext2fs_block_bitmap bitmap, blk64_t block);
+ extern int ext2fs_unmark_block_bitmap(ext2fs_block_bitmap bitmap,
+-				       blk_t block);
+-extern int ext2fs_test_block_bitmap(ext2fs_block_bitmap bitmap, blk_t block);
++					blk64_t block);
++extern int ext2fs_test_block_bitmap(ext2fs_block_bitmap bitmap, blk64_t block);
+ 
+ extern int ext2fs_mark_inode_bitmap(ext2fs_inode_bitmap bitmap, ext2_ino_t inode);
+ extern int ext2fs_unmark_inode_bitmap(ext2fs_inode_bitmap bitmap,
+@@ -68,11 +68,11 @@ extern int ext2fs_unmark_inode_bitmap(ex
+ extern int ext2fs_test_inode_bitmap(ext2fs_inode_bitmap bitmap, ext2_ino_t inode);
+ 
+ extern void ext2fs_fast_mark_block_bitmap(ext2fs_block_bitmap bitmap,
+-					  blk_t block);
++					  blk64_t block);
+ extern void ext2fs_fast_unmark_block_bitmap(ext2fs_block_bitmap bitmap,
+-					    blk_t block);
++					    blk64_t block);
+ extern int ext2fs_fast_test_block_bitmap(ext2fs_block_bitmap bitmap,
+-					 blk_t block);
++					 blk64_t block);
+ 
+ extern void ext2fs_fast_mark_inode_bitmap(ext2fs_inode_bitmap bitmap,
+ 					  ext2_ino_t inode);
+@@ -86,24 +86,24 @@ extern blk_t ext2fs_get_block_bitmap_end
+ extern ext2_ino_t ext2fs_get_inode_bitmap_end(ext2fs_inode_bitmap bitmap);
+ 
+ extern void ext2fs_mark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-					   blk_t block, int num);
++					   blk64_t block, int num);
+ extern void ext2fs_unmark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-					     blk_t block, int num);
++					     blk64_t block, int num);
+ extern int ext2fs_test_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-					  blk_t block, int num);
++					  blk64_t block, int num);
+ extern void ext2fs_fast_mark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-						blk_t block, int num);
++						blk64_t block, int num);
+ extern void ext2fs_fast_unmark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-						  blk_t block, int num);
++						  blk64_t block, int num);
+ extern int ext2fs_fast_test_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-					       blk_t block, int num);
++					       blk64_t block, int num);
+ extern void ext2fs_set_bitmap_padding(ext2fs_generic_bitmap map);
+ 
+ /* These two routines moved to gen_bitmap.c */
+ extern int ext2fs_mark_generic_bitmap(ext2fs_generic_bitmap bitmap,
+-					 __u32 bitno);
++					 __u64 bitno);
+ extern int ext2fs_unmark_generic_bitmap(ext2fs_generic_bitmap bitmap,
+-					   blk_t bitno);
++					   blk64_t bitno);
+ /*
+  * The inline routines themselves...
+  * 
+@@ -391,10 +391,10 @@ _INLINE_ int ext2fs_find_next_bit_set (v
+ #endif	
+ 
+ _INLINE_ int ext2fs_test_generic_bitmap(ext2fs_generic_bitmap bitmap,
+-					blk_t bitno);
++					blk64_t bitno);
+ 
+ _INLINE_ int ext2fs_test_generic_bitmap(ext2fs_generic_bitmap bitmap,
+-					blk_t bitno)
++					blk64_t bitno)
+ {
+ 	if ((bitno < bitmap->start) || (bitno > bitmap->end)) {
+ 		ext2fs_warn_bitmap2(bitmap, EXT2FS_TEST_ERROR, bitno);
+@@ -404,7 +404,7 @@ _INLINE_ int ext2fs_test_generic_bitmap(
+ }
+ 
+ _INLINE_ int ext2fs_mark_block_bitmap(ext2fs_block_bitmap bitmap,
+-				       blk_t block)
++				       blk64_t block)
+ {
+ 	return ext2fs_mark_generic_bitmap((ext2fs_generic_bitmap)
+ 				       bitmap,
+@@ -412,14 +412,14 @@ _INLINE_ int ext2fs_mark_block_bitmap(ex
+ }
+ 
+ _INLINE_ int ext2fs_unmark_block_bitmap(ext2fs_block_bitmap bitmap,
+-					 blk_t block)
++					 blk64_t block)
+ {
+ 	return ext2fs_unmark_generic_bitmap((ext2fs_generic_bitmap) bitmap, 
+ 					    block);
+ }
+ 
+ _INLINE_ int ext2fs_test_block_bitmap(ext2fs_block_bitmap bitmap,
+-				       blk_t block)
++				       blk64_t block)
+ {
+ 	return ext2fs_test_generic_bitmap((ext2fs_generic_bitmap) bitmap, 
+ 					  block);
+@@ -447,7 +447,7 @@ _INLINE_ int ext2fs_test_inode_bitmap(ex
+ }
+ 
+ _INLINE_ void ext2fs_fast_mark_block_bitmap(ext2fs_block_bitmap bitmap,
+-					    blk_t block)
++					    blk64_t block)
+ {
+ #ifdef EXT2FS_DEBUG_FAST_OPS
+ 	if ((block < bitmap->start) || (block > bitmap->end)) {
+@@ -460,7 +460,7 @@ _INLINE_ void ext2fs_fast_mark_block_bit
+ }
+ 
+ _INLINE_ void ext2fs_fast_unmark_block_bitmap(ext2fs_block_bitmap bitmap,
+-					      blk_t block)
++					      blk64_t block)
+ {
+ #ifdef EXT2FS_DEBUG_FAST_OPS
+ 	if ((block < bitmap->start) || (block > bitmap->end)) {
+@@ -473,7 +473,7 @@ _INLINE_ void ext2fs_fast_unmark_block_b
+ }
+ 
+ _INLINE_ int ext2fs_fast_test_block_bitmap(ext2fs_block_bitmap bitmap,
+-					    blk_t block)
++					    blk64_t block)
+ {
+ #ifdef EXT2FS_DEBUG_FAST_OPS
+ 	if ((block < bitmap->start) || (block > bitmap->end)) {
+@@ -545,7 +545,7 @@ _INLINE_ ext2_ino_t ext2fs_get_inode_bit
+ }
+ 
+ _INLINE_ int ext2fs_test_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-					    blk_t block, int num)
++					    blk64_t block, int num)
+ {
+ 	int	i;
+ 
+@@ -562,7 +562,7 @@ _INLINE_ int ext2fs_test_block_bitmap_ra
+ }
+ 
+ _INLINE_ int ext2fs_fast_test_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-						 blk_t block, int num)
++						 blk64_t block, int num)
+ {
+ 	int	i;
+ 
+@@ -581,7 +581,7 @@ _INLINE_ int ext2fs_fast_test_block_bitm
+ }
+ 
+ _INLINE_ void ext2fs_mark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-					     blk_t block, int num)
++					     blk64_t block, int num)
+ {
+ 	int	i;
+ 	
+@@ -595,7 +595,7 @@ _INLINE_ void ext2fs_mark_block_bitmap_r
+ }
+ 
+ _INLINE_ void ext2fs_fast_mark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-						  blk_t block, int num)
++						  blk64_t block, int num)
+ {
+ 	int	i;
+ 	
+@@ -611,7 +611,7 @@ _INLINE_ void ext2fs_fast_mark_block_bit
+ }
+ 
+ _INLINE_ void ext2fs_unmark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-					       blk_t block, int num)
++					       blk64_t block, int num)
+ {
+ 	int	i;
+ 	
+@@ -626,7 +626,7 @@ _INLINE_ void ext2fs_unmark_block_bitmap
+ }
+ 
+ _INLINE_ void ext2fs_fast_unmark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+-						    blk_t block, int num)
++						    blk64_t block, int num)
+ {
+ 	int	i;
+ 	
+diff -upNr e2fsprogs-1.39/lib/ext2fs/ext2fs.h e2fsprogs-1.39.tmp/lib/ext2fs/ext2fs.h
+--- e2fsprogs-1.39/lib/ext2fs/ext2fs.h	2006-03-19 08:58:00.000000000 +0900
++++ e2fsprogs-1.39.tmp/lib/ext2fs/ext2fs.h	2006-04-12 13:27:56.000000000 +0900
+@@ -102,7 +102,7 @@ struct ext2fs_struct_generic_bitmap {
+ 	errcode_t	magic;
+ 	ext2_filsys 	fs;
+ 	__u32		start, end;
+-	__u32		real_end;
++	__u64		real_end;
+ 	char	*	description;
+ 	char	*	bitmap;
+ 	errcode_t	base_error_code;
+@@ -545,7 +545,7 @@ extern errcode_t ext2fs_read_inode_bitma
+ extern errcode_t ext2fs_read_block_bitmap(ext2_filsys fs);
+ extern errcode_t ext2fs_allocate_generic_bitmap(__u32 start,
+ 						__u32 end,
+-						__u32 real_end,
++						__u64 real_end,
+ 						const char *descr,
+ 						ext2fs_generic_bitmap *ret);
+ extern errcode_t ext2fs_allocate_block_bitmap(ext2_filsys fs,
+@@ -557,7 +557,7 @@ extern errcode_t ext2fs_allocate_inode_b
+ extern errcode_t ext2fs_fudge_inode_bitmap_end(ext2fs_inode_bitmap bitmap,
+ 					       ext2_ino_t end, ext2_ino_t *oend);
+ extern errcode_t ext2fs_fudge_block_bitmap_end(ext2fs_block_bitmap bitmap,
+-					       blk_t end, blk_t *oend);
++					       blk64_t end, blk64_t *oend);
+ extern void ext2fs_clear_inode_bitmap(ext2fs_inode_bitmap bitmap);
+ extern void ext2fs_clear_block_bitmap(ext2fs_block_bitmap bitmap);
+ extern errcode_t ext2fs_read_bitmaps(ext2_filsys fs);
+@@ -914,11 +914,11 @@ extern errcode_t ext2fs_create_resize_in
+ 
+ /* rs_bitmap.c */
+ extern errcode_t ext2fs_resize_generic_bitmap(__u32 new_end,
+-					      __u32 new_real_end,
++					      __u64 new_real_end,
+ 					      ext2fs_generic_bitmap bmap);
+ extern errcode_t ext2fs_resize_inode_bitmap(__u32 new_end, __u32 new_real_end,
+ 					    ext2fs_inode_bitmap bmap);
+-extern errcode_t ext2fs_resize_block_bitmap(__u32 new_end, __u32 new_real_end,
++extern errcode_t ext2fs_resize_block_bitmap(__u32 new_end, __u64 new_real_end,
+ 					    ext2fs_block_bitmap bmap);
+ extern errcode_t ext2fs_copy_bitmap(ext2fs_generic_bitmap src,
+ 				    ext2fs_generic_bitmap *dest);
+diff -upNr e2fsprogs-1.39/lib/ext2fs/gen_bitmap.c e2fsprogs-1.39.tmp/lib/ext2fs/gen_bitmap.c
+--- e2fsprogs-1.39/lib/ext2fs/gen_bitmap.c	2005-09-06 18:40:14.000000000 +0900
++++ e2fsprogs-1.39.tmp/lib/ext2fs/gen_bitmap.c	2006-04-12 13:27:56.000000000 +0900
+@@ -28,7 +28,7 @@
+ #include "ext2fs.h"
+ 
+ int ext2fs_mark_generic_bitmap(ext2fs_generic_bitmap bitmap,
+-					 __u32 bitno)
++					 __u64 bitno)
+ {
+ 	if ((bitno < bitmap->start) || (bitno > bitmap->end)) {
+ 		ext2fs_warn_bitmap2(bitmap, EXT2FS_MARK_ERROR, bitno);
+@@ -38,7 +38,7 @@ int ext2fs_mark_generic_bitmap(ext2fs_ge
+ }
+ 
+ int ext2fs_unmark_generic_bitmap(ext2fs_generic_bitmap bitmap,
+-					   blk_t bitno)
++					   blk64_t bitno)
+ {
+ 	if ((bitno < bitmap->start) || (bitno > bitmap->end)) {
+ 		ext2fs_warn_bitmap2(bitmap, EXT2FS_UNMARK_ERROR, bitno);
+diff -upNr e2fsprogs-1.39/lib/ext2fs/rs_bitmap.c e2fsprogs-1.39.tmp/lib/ext2fs/rs_bitmap.c
+--- e2fsprogs-1.39/lib/ext2fs/rs_bitmap.c	2005-09-06 18:40:14.000000000 +0900
++++ e2fsprogs-1.39.tmp/lib/ext2fs/rs_bitmap.c	2006-04-12 13:27:56.000000000 +0900
+@@ -26,7 +26,7 @@
+ #include "ext2_fs.h"
+ #include "ext2fs.h"
+ 
+-errcode_t ext2fs_resize_generic_bitmap(__u32 new_end, __u32 new_real_end,
++errcode_t ext2fs_resize_generic_bitmap(__u32 new_end, __u64 new_real_end,
+ 				       ext2fs_generic_bitmap bmap)
+ {
+ 	errcode_t	retval;
+@@ -87,7 +87,7 @@ errcode_t ext2fs_resize_inode_bitmap(__u
+ 	return retval;
+ }
+ 
+-errcode_t ext2fs_resize_block_bitmap(__u32 new_end, __u32 new_real_end,
++errcode_t ext2fs_resize_block_bitmap(__u32 new_end, __u64 new_real_end,
+ 				     ext2fs_block_bitmap bmap)
+ {
+ 	errcode_t	retval;
 diff -upNr e2fsprogs-1.39/resize/resize2fs.c e2fsprogs-1.39.tmp/resize/resize2fs.c
---- e2fsprogs-1.39/resize/resize2fs.c	2006-03-19 11:34:00.000000000 +0900
-+++ e2fsprogs-1.39.tmp/resize/resize2fs.c	2006-04-12 12:20:22.000000000 +0900
-@@ -190,7 +190,7 @@ errcode_t adjust_fs_info(ext2_filsys fs,
- 	fs->super->s_blocks_count = new_size;
- 
- retry:
--	fs->group_desc_count = (fs->super->s_blocks_count -
-+	fs->group_desc_count = ((__u64) fs->super->s_blocks_count -
- 				fs->super->s_first_data_block +
- 				EXT2_BLOCKS_PER_GROUP(fs->super) - 1)
- 		/ EXT2_BLOCKS_PER_GROUP(fs->super);
-@@ -225,6 +225,13 @@ retry:
- 		fs->super->s_blocks_count -= rem;
- 		goto retry;
- 	}
-+
-+	if ((__u64) fs->super->s_inodes_per_group * fs->group_desc_count > ~0U)
-+	{
-+		fprintf(stderr, _("inodes_count must be less than 4G!\n"));
-+		return EXT2_ET_TOO_MANY_INODES;
-+	}
-+
- 	/*
- 	 * Adjust the number of inodes
- 	 */
-@@ -245,9 +252,9 @@ retry:
- 	/*
- 	 * Adjust the number of reserved blocks
- 	 */
--	blk = old_fs->super->s_r_blocks_count * 100 /
-+	blk = (__u64) old_fs->super->s_r_blocks_count * 100 /
- 		old_fs->super->s_blocks_count;
--	fs->super->s_r_blocks_count = ((fs->super->s_blocks_count * blk)
-+	fs->super->s_r_blocks_count = (((__u64) fs->super->s_blocks_count * blk)
- 				       / 100);
- 
- 	/*
+--- e2fsprogs-1.39/resize/resize2fs.c	2006-04-12 13:27:51.000000000 +0900
++++ e2fsprogs-1.39.tmp/resize/resize2fs.c	2006-04-12 13:27:56.000000000 +0900
+@@ -181,7 +181,7 @@ errcode_t adjust_fs_info(ext2_filsys fs,
+ 	int		overhead = 0;
+ 	int		rem;
+ 	blk_t		blk, group_block;
+-	ext2_ino_t	real_end;
++	blk64_t		real_end;
+ 	int		adj, old_numblocks, numblocks, adjblocks;
+ 	unsigned long	i, j, old_desc_blocks, max_group;
+ 	unsigned int	meta_bg, meta_bg_size;
+@@ -266,7 +266,7 @@ retry:
+ 	if (retval) goto errout;
+ 	
+ 	real_end = ((EXT2_BLOCKS_PER_GROUP(fs->super)
+-		     * fs->group_desc_count)) - 1 +
++		     * (__u64)fs->group_desc_count)) - 1 +
+ 			     fs->super->s_first_data_block;
+ 	retval = ext2fs_resize_block_bitmap(fs->super->s_blocks_count-1,
+ 					    real_end, fs->block_map);
+

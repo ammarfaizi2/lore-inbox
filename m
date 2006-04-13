@@ -1,29 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWDMXJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWDMXKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbWDMXJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 19:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbWDMXJX
+	id S965025AbWDMXKy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 19:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbWDMXKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 19:09:23 -0400
-Received: from ns2.suse.de ([195.135.220.15]:33998 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964998AbWDMXIw (ORCPT
+	Thu, 13 Apr 2006 19:10:53 -0400
+Received: from ns2.suse.de ([195.135.220.15]:22735 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965025AbWDMXKs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 19:08:52 -0400
-Date: Thu, 13 Apr 2006 16:07:43 -0700
+	Thu, 13 Apr 2006 19:10:48 -0400
+Date: Thu, 13 Apr 2006 16:09:46 -0700
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, takata@linux-m32r.org,
-       fujiwara.hayato@renesas.com, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 08/22] m32r: Fix cpu_possible_map and cpu_present_map initialization for SMP kernel
-Message-ID: <20060413230743.GI5613@kroah.com>
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       chas@cmf.nrl.navy.mil, netdev@vger.kernel.org,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 22/22] atm: clip causes unregister hang
+Message-ID: <20060413230946.GW5613@kroah.com>
 References: <20060413230141.330705000@quad.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="m32r-fix-cpu_possible_map-and-cpu_present_map-initialization-for-smp-kernel.patch"
+Content-Disposition: inline; filename="atm-clip-causes-unregister-hang.patch"
 In-Reply-To: <20060413230637.GA5613@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,149 +36,113 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ------------------
 
-From: Hirokazu Takata <takata@linux-m32r.org>
+If Classical IP over ATM module is loaded, its neighbor table gets
+populated when permanent neighbor entries are created; but these entries
+are not flushed when the device is removed. Since the entry never gets
+flushed the unregister of the network device never completes.
 
-This patch fixes a boot problem of the m32r SMP kernel 2.6.16-rc1-mm3 or
-later.
+This version of the patch also adds locking around the reference to
+the atm arp daemon to avoid races with events and daemon state changes.
+(Note: barrier() was never really safe)
 
-In this patch, cpu_possible_map is statically initialized, and cpu_present_map
-is also copied from cpu_possible_map in smp_prepare_cpus(), because the m32r
-architecture has not supported CPU hotplug yet.
+Bug-reference: http://bugzilla.kernel.org/show_bug.cgi?id=6295
 
-Signed-off-by: Hayato Fujiwara <fujiwara.hayato@renesas.com>
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- arch/m32r/kernel/setup.c   |   12 +++++-------
- arch/m32r/kernel/smpboot.c |   19 ++++++++++---------
- include/asm-m32r/smp.h     |    3 ++-
- 3 files changed, 17 insertions(+), 17 deletions(-)
+ net/atm/clip.c |   42 +++++++++++++++++++++++++++---------------
+ 1 file changed, 27 insertions(+), 15 deletions(-)
 
---- linux-2.6.16.5.orig/arch/m32r/kernel/setup.c
-+++ linux-2.6.16.5/arch/m32r/kernel/setup.c
-@@ -9,6 +9,7 @@
+--- linux-2.6.16.5.orig/net/atm/clip.c
++++ linux-2.6.16.5/net/atm/clip.c
+@@ -613,12 +613,19 @@ static int clip_create(int number)
  
- #include <linux/config.h>
- #include <linux/init.h>
-+#include <linux/kernel.h>
- #include <linux/stddef.h>
- #include <linux/fs.h>
- #include <linux/sched.h>
-@@ -218,8 +219,6 @@ static unsigned long __init setup_memory
- extern unsigned long setup_memory(void);
- #endif	/* CONFIG_DISCONTIGMEM */
  
--#define M32R_PCC_PCATCR	0x00ef7014	/* will move to m32r.h */
--
- void __init setup_arch(char **cmdline_p)
+ static int clip_device_event(struct notifier_block *this,unsigned long event,
+-    void *dev)
++			     void *arg)
  {
- 	ROOT_DEV = old_decode_dev(ORIG_ROOT_DEV);
-@@ -268,15 +267,14 @@ void __init setup_arch(char **cmdline_p)
- 	paging_init();
++	struct net_device *dev = arg;
++
++	if (event == NETDEV_UNREGISTER) {
++		neigh_ifdown(&clip_tbl, dev);
++		return NOTIFY_DONE;
++	}
++
+ 	/* ignore non-CLIP devices */
+-	if (((struct net_device *) dev)->type != ARPHRD_ATM ||
+-	    ((struct net_device *) dev)->hard_start_xmit != clip_start_xmit)
++	if (dev->type != ARPHRD_ATM || dev->hard_start_xmit != clip_start_xmit)
+ 		return NOTIFY_DONE;
++
+ 	switch (event) {
+ 		case NETDEV_UP:
+ 			DPRINTK("clip_device_event NETDEV_UP\n");
+@@ -686,14 +693,12 @@ static struct notifier_block clip_inet_n
+ static void atmarpd_close(struct atm_vcc *vcc)
+ {
+ 	DPRINTK("atmarpd_close\n");
+-	atmarpd = NULL; /* assumed to be atomic */
+-	barrier();
+-	unregister_inetaddr_notifier(&clip_inet_notifier);
+-	unregister_netdevice_notifier(&clip_dev_notifier);
+-	if (skb_peek(&sk_atm(vcc)->sk_receive_queue))
+-		printk(KERN_ERR "atmarpd_close: closing with requests "
+-		    "pending\n");
++
++	rtnl_lock();
++	atmarpd = NULL;
+ 	skb_queue_purge(&sk_atm(vcc)->sk_receive_queue);
++	rtnl_unlock();
++
+ 	DPRINTK("(done)\n");
+ 	module_put(THIS_MODULE);
  }
+@@ -714,7 +719,12 @@ static struct atm_dev atmarpd_dev = {
  
--static struct cpu cpu[NR_CPUS];
-+static struct cpu cpu_devices[NR_CPUS];
- 
- static int __init topology_init(void)
+ static int atm_init_atmarp(struct atm_vcc *vcc)
  {
--	int cpu_id;
-+	int i;
- 
--	for (cpu_id = 0; cpu_id < NR_CPUS; cpu_id++)
--		if (cpu_possible(cpu_id))
--			register_cpu(&cpu[cpu_id], cpu_id, NULL);
-+	for_each_present_cpu(i)
-+		register_cpu(&cpu_devices[i], i, NULL);
- 
+-	if (atmarpd) return -EADDRINUSE;
++	rtnl_lock();
++	if (atmarpd) {
++		rtnl_unlock();
++		return -EADDRINUSE;
++	}
++
+ 	if (start_timer) {
+ 		start_timer = 0;
+ 		init_timer(&idle_timer);
+@@ -731,10 +741,7 @@ static int atm_init_atmarp(struct atm_vc
+ 	vcc->push = NULL;
+ 	vcc->pop = NULL; /* crash */
+ 	vcc->push_oam = NULL; /* crash */
+-	if (register_netdevice_notifier(&clip_dev_notifier))
+-		printk(KERN_ERR "register_netdevice_notifier failed\n");
+-	if (register_inetaddr_notifier(&clip_inet_notifier))
+-		printk(KERN_ERR "register_inetaddr_notifier failed\n");
++	rtnl_unlock();
  	return 0;
  }
---- linux-2.6.16.5.orig/arch/m32r/kernel/smpboot.c
-+++ linux-2.6.16.5/arch/m32r/kernel/smpboot.c
-@@ -39,8 +39,10 @@
-  *		Martin J. Bligh	: 	Added support for multi-quad systems
-  */
  
-+#include <linux/module.h>
- #include <linux/config.h>
- #include <linux/init.h>
-+#include <linux/kernel.h>
- #include <linux/mm.h>
- #include <linux/smp_lock.h>
- #include <linux/irq.h>
-@@ -72,11 +74,15 @@ physid_mask_t phys_cpu_present_map;
+@@ -992,6 +999,8 @@ static int __init atm_clip_init(void)
  
- /* Bitmask of currently online CPUs */
- cpumask_t cpu_online_map;
-+EXPORT_SYMBOL(cpu_online_map);
+ 	clip_tbl_hook = &clip_tbl;
+ 	register_atm_ioctl(&clip_ioctl_ops);
++	register_netdevice_notifier(&clip_dev_notifier);
++	register_inetaddr_notifier(&clip_inet_notifier);
  
- cpumask_t cpu_bootout_map;
- cpumask_t cpu_bootin_map;
--cpumask_t cpu_callout_map;
- static cpumask_t cpu_callin_map;
-+cpumask_t cpu_callout_map;
-+EXPORT_SYMBOL(cpu_callout_map);
-+cpumask_t cpu_possible_map = CPU_MASK_ALL;
-+EXPORT_SYMBOL(cpu_possible_map);
- 
- /* Per CPU bogomips and other parameters */
- struct cpuinfo_m32r cpu_data[NR_CPUS] __cacheline_aligned;
-@@ -110,7 +116,6 @@ static unsigned int calibration_result;
- 
- void smp_prepare_boot_cpu(void);
- void smp_prepare_cpus(unsigned int);
--static void smp_tune_scheduling(void);
- static void init_ipi_lock(void);
- static void do_boot_cpu(int);
- int __cpu_up(unsigned int);
-@@ -177,6 +182,9 @@ void __init smp_prepare_cpus(unsigned in
- 	}
- 	for (phys_id = 0 ; phys_id < nr_cpu ; phys_id++)
- 		physid_set(phys_id, phys_cpu_present_map);
-+#ifndef CONFIG_HOTPLUG_CPU
-+	cpu_present_map = cpu_possible_map;
-+#endif
- 
- 	show_mp_info(nr_cpu);
- 
-@@ -186,7 +194,6 @@ void __init smp_prepare_cpus(unsigned in
- 	 * Setup boot CPU information
- 	 */
- 	smp_store_cpu_info(0); /* Final full version of the data */
--	smp_tune_scheduling();
- 
- 	/*
- 	 * If SMP should be disabled, then really disable it!
-@@ -230,11 +237,6 @@ smp_done:
- 	Dprintk("Boot done.\n");
- }
- 
--static void __init smp_tune_scheduling(void)
--{
--	/* Nothing to do. */
--}
--
- /*
-  * init_ipi_lock : Initialize IPI locks.
-  */
-@@ -629,4 +631,3 @@ static void __init unmap_cpu_to_physid(i
- 	physid_2_cpu[phys_id] = -1;
- 	cpu_2_physid[cpu_id] = -1;
- }
--
---- linux-2.6.16.5.orig/include/asm-m32r/smp.h
-+++ linux-2.6.16.5/include/asm-m32r/smp.h
-@@ -67,7 +67,8 @@ extern volatile int cpu_2_physid[NR_CPUS
- #define raw_smp_processor_id()	(current_thread_info()->cpu)
- 
- extern cpumask_t cpu_callout_map;
--#define cpu_possible_map cpu_callout_map
-+extern cpumask_t cpu_possible_map;
-+extern cpumask_t cpu_present_map;
- 
- static __inline__ int hard_smp_processor_id(void)
+ #ifdef CONFIG_PROC_FS
  {
+@@ -1012,6 +1021,9 @@ static void __exit atm_clip_exit(void)
+ 
+ 	remove_proc_entry("arp", atm_proc_root);
+ 
++	unregister_inetaddr_notifier(&clip_inet_notifier);
++	unregister_netdevice_notifier(&clip_dev_notifier);
++
+ 	deregister_atm_ioctl(&clip_ioctl_ops);
+ 
+ 	/* First, stop the idle timer, so it stops banging
 
 --

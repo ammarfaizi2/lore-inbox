@@ -1,137 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWDMNpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWDMNuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWDMNpN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 09:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWDMNpN
+	id S964932AbWDMNuE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 09:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbWDMNuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 09:45:13 -0400
-Received: from mail.renesas.com ([202.234.163.13]:59896 "EHLO
-	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S964930AbWDMNpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 09:45:11 -0400
-Date: Thu, 13 Apr 2006 22:45:06 +0900 (JST)
-Message-Id: <20060413.224506.432825768.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] m32r: update include/asm-m32r/semaphore.h
-From: Hirokazu Takata <takata@linux-m32r.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-X-Mailer: Mew version 3.3 on XEmacs 21.4.19 (Constant Variable)
+	Thu, 13 Apr 2006 09:50:03 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:55956 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S964932AbWDMNuB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 09:50:01 -0400
+Date: Thu, 13 Apr 2006 15:50:00 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com,
+       xfs-masters@oss.sgi.com, stern@rowland.harvard.edu, sekharan@us.ibm.com,
+       akpm@osdl.org, David Chinner <dgc@sgi.com>
+Subject: Re: notifier chain problem? (was Re: 2.6.17-rc1 did break XFS)
+Message-ID: <20060413135000.GB6663@MAIL.13thfloor.at>
+Mail-Followup-To: Jes Sorensen <jes@sgi.com>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>,
+	linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+	stern@rowland.harvard.edu, sekharan@us.ibm.com, akpm@osdl.org,
+	David Chinner <dgc@sgi.com>
+References: <20060413052145.GA31435@MAIL.13thfloor.at> <20060413072325.GF2732@melbourne.sgi.com> <yq0k69tuauh.fsf@jaguar.mkp.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq0k69tuauh.fsf@jaguar.mkp.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates include/asm-m32r/semaphore.h for good readability
-and maintainability.
+On Thu, Apr 13, 2006 at 04:40:54AM -0400, Jes Sorensen wrote:
+> >>>>> "David" == David Chinner <dgc@sgi.com> writes:
+> 
+> David> On Thu, Apr 13, 2006 at 07:21:45AM +0200, Herbert Poetzl wrote:
+> David> It looks like we landed on top of a a notifier call chain
+> David> implementation change in -rc1. However, this should not matter
+> David> to XFS because the interface to register_cpu_notifier() did not
+> David> change and XFS is completely abstracted away from the notifier
+> David> chain implementation. We do:
+> 
+> Dave,
+> 
+> Looks strange, the faulting address is in the same region as the
+> eip. I am not that strong on x86 layouts, so I am not sure whether
+> 0x78xxxxxx is the kernel's mapping or it's module space. Almost looks
+> like something else had registered a notifier and then gone away
+> without unregistering it.
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+sorry, the essential data I didn't provide here is
+probably that I configured the 2G/2G split, which for
+unknown reasons actually is a 2.125/1.875 split and
+starts at 0x78000000 (instead of 0x80000000)
 
- include/asm-m32r/semaphore.h |   64 ++-----------------------------------------
- 1 file changed, 4 insertions(+), 60 deletions(-)
+> Herbert, any chance you can make the complete boot log up to the point
+> where it crashes, as well as a System.map and your .config available?
+> (probably not posted to all the lists :)
 
-Index: linux-2.6.17-rc1-mm2/include/asm-m32r/semaphore.h
-===================================================================
---- linux-2.6.17-rc1-mm2.orig/include/asm-m32r/semaphore.h	2006-04-10 10:37:29.826236194 +0900
-+++ linux-2.6.17-rc1-mm2/include/asm-m32r/semaphore.h	2006-04-10 11:09:36.730041093 +0900
-@@ -9,7 +9,7 @@
-  * SMP- and interrupt-safe semaphores..
-  *
-  * Copyright (C) 1996  Linus Torvalds
-- * Copyright (C) 2004  Hirokazu Takata <takata at linux-m32r.org>
-+ * Copyright (C) 2004, 2006  Hirokazu Takata <takata at linux-m32r.org>
-  */
- 
- #include <linux/config.h>
-@@ -77,27 +77,8 @@ asmlinkage void __up(struct semaphore * 
-  */
- static inline void down(struct semaphore * sem)
- {
--	unsigned long flags;
--	long count;
--
- 	might_sleep();
--	local_irq_save(flags);
--	__asm__ __volatile__ (
--		"# down				\n\t"
--		DCACHE_CLEAR("%0", "r4", "%1")
--		M32R_LOCK" %0, @%1;		\n\t"
--		"addi	%0, #-1;		\n\t"
--		M32R_UNLOCK" %0, @%1;		\n\t"
--		: "=&r" (count)
--		: "r" (&sem->count)
--		: "memory"
--#ifdef CONFIG_CHIP_M32700_TS1
--		, "r4"
--#endif	/* CONFIG_CHIP_M32700_TS1 */
--	);
--	local_irq_restore(flags);
--
--	if (unlikely(count < 0))
-+	if (unlikely(atomic_dec_return(&sem->count) < 0))
- 		__down(sem);
- }
- 
-@@ -107,28 +88,10 @@ static inline void down(struct semaphore
-  */
- static inline int down_interruptible(struct semaphore * sem)
- {
--	unsigned long flags;
--	long count;
- 	int result = 0;
- 
- 	might_sleep();
--	local_irq_save(flags);
--	__asm__ __volatile__ (
--		"# down_interruptible		\n\t"
--		DCACHE_CLEAR("%0", "r4", "%1")
--		M32R_LOCK" %0, @%1;		\n\t"
--		"addi	%0, #-1;		\n\t"
--		M32R_UNLOCK" %0, @%1;		\n\t"
--		: "=&r" (count)
--		: "r" (&sem->count)
--		: "memory"
--#ifdef CONFIG_CHIP_M32700_TS1
--		, "r4"
--#endif	/* CONFIG_CHIP_M32700_TS1 */
--	);
--	local_irq_restore(flags);
--
--	if (unlikely(count < 0))
-+	if (unlikely(atomic_dec_return(&sem->count) < 0))
- 		result = __down_interruptible(sem);
- 
- 	return result;
-@@ -174,26 +137,7 @@ static inline int down_trylock(struct se
-  */
- static inline void up(struct semaphore * sem)
- {
--	unsigned long flags;
--	long count;
--
--	local_irq_save(flags);
--	__asm__ __volatile__ (
--		"# up				\n\t"
--		DCACHE_CLEAR("%0", "r4", "%1")
--		M32R_LOCK" %0, @%1;		\n\t"
--		"addi	%0, #1;			\n\t"
--		M32R_UNLOCK" %0, @%1;		\n\t"
--		: "=&r" (count)
--		: "r" (&sem->count)
--		: "memory"
--#ifdef CONFIG_CHIP_M32700_TS1
--		, "r4"
--#endif	/* CONFIG_CHIP_M32700_TS1 */
--	);
--	local_irq_restore(flags);
--
--	if (unlikely(count <= 0))
-+	if (unlikely(atomic_inc_return(&sem->count) <= 0))
- 		__up(sem);
- }
- 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+sure, bootup is fine, as it boots on ext2/3 but once
+it is up, and I mount the newly created xfs filesystem
+the (virtual) machine (QEMU) panics ...
 
+will provide all the data shortly via separated mail
+
+best,
+Herbert
+
+> Cheers,
+> Jes
+> 

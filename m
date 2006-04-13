@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWDMTOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWDMTRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWDMTOI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 15:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWDMTOI
+	id S1751107AbWDMTRK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 15:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWDMTRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 15:14:08 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:29093 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750806AbWDMTOH (ORCPT
+	Thu, 13 Apr 2006 15:17:10 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:29931 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751107AbWDMTRI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 15:14:07 -0400
-Date: Thu, 13 Apr 2006 20:14:02 +0100
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: davej@codemonkey.org.uk, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
-       linux-mm@kvack.org
-Subject: Re: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture independent manner V2
-Message-ID: <20060413191402.GA20606@skynet.ie>
-References: <20060412232036.18862.84118.sendpatchset@skynet> <20060413095207.GA4047@skynet.ie> <20060413171942.GA15047@agluck-lia64.sc.intel.com> <20060413173008.GA19402@skynet.ie> <20060413174720.GA15183@agluck-lia64.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Thu, 13 Apr 2006 15:17:08 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH][Fix] swsusp: take lowmem reserves into account
+Date: Thu, 13 Apr 2006 21:15:49 +0200
+User-Agent: KMail/1.9.1
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060413174720.GA15183@agluck-lia64.sc.intel.com>
-User-Agent: Mutt/1.5.9i
-From: mel@csn.ul.ie (Mel Gorman)
+Message-Id: <200604132115.49764.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On (13/04/06 10:47), Luck, Tony didst pronounce:
-> > Double counted a hole here, then went downhill. Does the following fix
-> > it?
-> 
-> Yes, that boots.  What's more the counts of pages in DMA/Normal
-> zone match the kernel w/o your patches too.  So for tiger_defconfig
-> you've now exactly matched the old behaivour.
-> 
+swsusp allocates memory from the normal zone, so it cannot use lowmem reserve
+pages from the lower zones.  Therefore it should not count these pages as
+available to it.
 
-Very very cool. Thanks for persisting.
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ kernel/power/swsusp.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
 
-> I'll try to test generic and sparse kernels later, but I have to
-> look at another issue now.
-> 
-
-When you get around to it later, there is one case you may hit that Bob
-Picco encountered and fixed for me. It's where a "new" range is registered
-that is inside an existing area; e.g.
-
-add_active_range:    0->10000
-add_active_range: 9800->10000
-
-It ends up merging incorrectly and you end up with one region from
-9800-10000. The fix is below. 
-
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-zonesizing-v6/mm/mem_init.c linux-2.6.17-rc1-107-debug/mm/mem_init.c
---- linux-2.6.17-rc1-zonesizing-v6/mm/mem_init.c	2006-04-13 10:30:50.000000000 +0100
-+++ linux-2.6.17-rc1-107-debug/mm/mem_init.c	2006-04-13 18:39:24.000000000 +0100
-@@ -922,6 +926,13 @@ void __init add_active_range(unsigned in
- 		if (early_node_map[i].nid != nid)
- 			continue;
- 
-+		/* Skip if an existing region covers this new one */
-+		if (start_pfn >= early_node_map[i].start_pfn &&
-+				end_pfn <= early_node_map[i].end_pfn) {
-+			printk("Existing\n");
-+			return;
-+		}
-+
- 		/* Merge forward if suitable */
- 		if (start_pfn <= early_node_map[i].end_pfn &&
- 				end_pfn > early_node_map[i].end_pfn) {
+Index: linux-2.6.17-rc1-mm2/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.17-rc1-mm2.orig/kernel/power/swsusp.c	2006-04-12 07:09:20.000000000 +0200
++++ linux-2.6.17-rc1-mm2/kernel/power/swsusp.c	2006-04-13 20:38:23.000000000 +0200
+@@ -192,8 +192,10 @@ int swsusp_shrink_memory(void)
+ 			PAGES_FOR_IO;
+ 		tmp = size;
+ 		for_each_zone (zone)
+-			if (!is_highmem(zone))
++			if (!is_highmem(zone) && populated_zone(zone)) {
+ 				tmp -= zone->free_pages;
++				tmp += zone->lowmem_reserve[ZONE_NORMAL];
++			}
+ 		if (tmp > 0) {
+ 			tmp = shrink_all_memory(SHRINK_BITE);
+ 			if (!tmp)

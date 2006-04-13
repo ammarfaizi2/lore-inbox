@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWDMSZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWDMS3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWDMSZM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 14:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWDMSZM
+	id S964798AbWDMS3M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 14:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWDMS3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 14:25:12 -0400
-Received: from mx1.suse.de ([195.135.220.2]:12194 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964775AbWDMSZL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 14:25:11 -0400
-Date: Thu, 13 Apr 2006 11:24:01 -0700
-From: Greg KH <gregkh@suse.de>
-To: tyler@agat.net
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kmod optimization
-Message-ID: <20060413182401.GA26885@suse.de>
-References: <20060413180345.GA10910@Starbuck>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060413180345.GA10910@Starbuck>
-User-Agent: Mutt/1.5.11
+	Thu, 13 Apr 2006 14:29:12 -0400
+Received: from smtp-out-01.utu.fi ([130.232.202.171]:25021 "EHLO
+	smtp-out-01.utu.fi") by vger.kernel.org with ESMTP id S964798AbWDMS3L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 14:29:11 -0400
+Date: Thu, 13 Apr 2006 21:29:10 +0300
+From: Jan Knutar <jk-lkml@sci.fi>
+Subject: Re: select takes too much time
+In-reply-to: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
+To: Ram Gupta <ram.gupta5@gmail.com>
+Cc: linux mailing-list <linux-kernel@vger.kernel.org>
+Message-id: <200604132129.10056.jk-lkml@sci.fi>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
+User-Agent: KMail/1.6.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 08:03:45PM +0200, tyler@agat.net wrote:
-> Hi,
-> 
-> the request_mod functions try to load automatically a module by running
-> a user mode process helper (modprobe).
-> 
-> The user process is launched even if the module is already loaded. I
-> think it would be better to test if the module is already loaded.
+On Thursday 13 April 2006 18:01, Ram Gupta wrote:
+> I am using select with a timeout value of 90 ms. But for some reason
+> occasionally  it comes out of select after more than one second .
 
-Does this cause a problem somehow?  request_mod is called _very_
-infrequently from a normal kernel these days, so I really don't think
-this is necessary.
+I have a memory-starved prosignia that sometimes needs up to
+10 seconds :)
+Though that includes bringing in the relevant code page of the userspace
+application too, and that page probably gets discarded after doing the
+syscall, or similar.
+It's all allright though, it gets served eventually.
 
-thanks,
+> I 
+> checked the man page but it does not help in concluding if this is ok
+> or not.
 
-greg k-h
+The documentation doesn't impose or guarantee any minimum performance,
+as far as I know.

@@ -1,102 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWDMKDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWDMKIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWDMKDE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 06:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWDMKDE
+	id S964866AbWDMKIs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 06:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWDMKIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 06:03:04 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43935 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964867AbWDMKDC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 06:03:02 -0400
-To: "Magnus Damm" <magnus.damm@gmail.com>
-Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       "Magnus Damm" <magnus@valinux.co.jp>
-Subject: Re: [Fastboot] Re: [PATCH] Kexec: Remove order
-References: <20060413030040.20516.9231.sendpatchset@cherry.local>
-	<m164le6rcg.fsf@ebiederm.dsl.xmission.com>
-	<aec7e5c30604122321p2bedb370l945009ccdb725bac@mail.gmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 13 Apr 2006 04:01:37 -0600
-In-Reply-To: <aec7e5c30604122321p2bedb370l945009ccdb725bac@mail.gmail.com> (Magnus
- Damm's message of "Thu, 13 Apr 2006 15:21:51 +0900")
-Message-ID: <m1wtdt6bge.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Apr 2006 06:08:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41611 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964866AbWDMKIr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 06:08:47 -0400
+Subject: Re: Reduce IRQ latency or revise hardware?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Burkhard =?ISO-8859-1?Q?Sch=F6lpen?= <bschoelpen@web.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <615249858@web.de>
+References: <615249858@web.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 13 Apr 2006 11:17:56 +0100
+Message-Id: <1144923476.9989.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Magnus Damm" <magnus.damm@gmail.com> writes:
+On Iau, 2006-04-13 at 08:42 +0200, Burkhard Schölpen wrote:
+> 1. Is it somehow possible to fulfill the realtime requirements of the
+> hardware by e.g. a realtime kernel patch or some kernel configuration
+> fine tuning (at the moment I need a maximum hardware latency of about
+> 100 microseconds)?
 
-> On 4/13/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+I don't believe you can 100% reliably achieve 100uS on an x86 board just
+because of the possible SMM, cache and tlb miss worse cases combined
+with the IRQ latency of the hardware. If you have other PCI devices on
+the bus then you will have real fun getting hear it.
 
->> Feel free to fix x86_64, to use only page sized allocates.
->
-> I will. But first - questions:
->
-> Should KEXEC_CONTROL_CODE_SIZE be left in even if it's always 4096?
+Hand tuning all the configuration and using rtlinux as the bottom layer
+might just about do it if you avoided other PCI devices that can be slow
+to respond (eg ATA disk and many video cards). You'll also need a board
+with no SMM mode code in use so probably ACPI disabled, and possibly
+have to pick the board to suit the needs.
 
-So far I don't see a compelling case to remove it.  To a certain
-extent I am happily surprised to see that everyone's code
-across several architectures has managed to fit in 4KB.
+It may also be far easier to hit such deadlines if the chip is wired
+fairly directly to one of the embedded processors so you don't have
+busses in the way and you have a fast IRQ response.
 
-> Do you like how I added image->arch_private?
+> Again I would like to underline that the main task is to get the
+> interrupt handler invoked early enough, so I can get data out of a
+> hardware FIFO. If this FIFO produces overflows, I get into big
+> trouble, because the following data stream will be corrupted and the
+> hardware must be reset. The programmer of the FPGA says that the
+> buffer size is already at the maximum.
 
-At a quick glance I couldn't make sense of the interactions.
-So I totally missed that.
+The other highly latency sensitive stuff like that I've seen appears to
+all bus master and have a FIFO to front that which just handles PCI
+delays. That way an IRQ just means one of the bus master buffers is
+full.
 
-So you actually did 3 things at once. That makes a very hard
-to digest patch.
+Alan
 
->> Until I see a reasonable argument that none of the architectures
->> currently supported by the linux kernel would need a multi order
->> allocation for a kexec port am I interested in removing support.
->
-> I argue that it is quite pointless to have code to support N-order
-> allocations that no one is using. Especially since the code is more
-> complex and it may be harder for the buddy allocator to fulfill
-> N-order allocations compared to 0-order allocations.
-
-The complexity as your patch shows is currently is 2 for loops.
-Refactoring the entire code base to save 2 for loops when
-using N-order allocations are totally voluntary is over kill.
-
-Most of the complexity in the code actually comes from having
-to use 0-order allocations.
-
-> And on top of the reasons above I'd like to stay away from N-order
-> allocations because Xen doesn't guarantee that (pseudo-)physical pages
-> handled out by the buddy allocator are contiguous.
-
-Yes. Xen doesn't have enough sense to use 4MB pages so kernels can
-execute efficiently.  That may be overly harsh.  But given the
-efficiency that you can get from using large pages in the kernel
-not guaranteeing large page allocations seems quite foolish.
-
->> As I recall the alpha had an architectural need for a 32KB
->> allocation or something like that.
->
-> Oh. So if someone is working on kexec for alpha I guess we need
-> N-order allocations, right?
-
-To be clear.  Until some one shows me that on no architecture
-that the linux kernel supports there are no data structures
-that the cpus use directly that exceed 1 page there is the potential
-to need > 0 order allocations.
-
-My investigation into the basic problem says the are occasions
-when order-N allocations are needed.
-
-I am overjoyed that currently there are multiple architectures
-supported by kexec but the porting work has yet to slow
-down as your Xen work shows.
-
-kexec currently does not have the volume of development and the number
-of people who understand it to handle being refactored very often.
-For preparation phase we are likely ok.  For later when it gets into
-very tricky arch specific assembly things are much worse.  Unless the
-basic skeleton gets it the way please use what is provided has been 
-debugged.
-
-Eric

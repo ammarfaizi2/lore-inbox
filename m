@@ -1,187 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWDMHEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWDMHEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbWDMHEL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 03:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWDMHEL
+	id S932443AbWDMHEl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 03:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWDMHEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 03:04:11 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:51359 "EHLO
+	Thu, 13 Apr 2006 03:04:41 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:21920 "EHLO
 	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S932441AbWDMHEK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 03:04:10 -0400
+	id S932443AbWDMHEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 03:04:40 -0400
 To: Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC][2/21]ext2 add new percpu_counter
-Message-Id: <20060413160332sho@rifu.tnes.nec.co.jp>
+Subject: [RFC][3/21]ext3 modify format strings
+Message-Id: <20060413160403sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
 X-Mailer: WeMail32[2.51] ID:1K0086
 From: sho@tnes.nec.co.jp
-Date: Thu, 13 Apr 2006 16:03:32 +0900
+Date: Thu, 13 Apr 2006 16:04:02 +0900
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Summary of this patch:
-  [2/21]  add percpu_llcounter for ext2
-          - The number of blocks and inodes are counted using
-            percpu_counter whose entry for counter is long type, so it
-            can only have less than 2G-1.  Then I add percpu_llcounter
-            whose entry for counter is long long type in ext2.
+  [3/21]  modify format strings in print(ext3)
+          - The part which prints the signed value, related to a block
+            and an inode, in decimal is corrected so that it can print
+            unsigned one.
 
 Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
 ---
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/balloc.c linux-2.6.17-rc1.tmp/fs/ext2/balloc.c
---- linux-2.6.17-rc1/fs/ext2/balloc.c	2006-04-03 12:22:10.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext2/balloc.c	2006-04-10 08:56:34.000000000 +0900
-@@ -106,7 +106,7 @@ static int reserve_blocks(struct super_b
- 	unsigned free_blocks;
- 	unsigned root_blocks;
- 
--	free_blocks = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
-+	free_blocks = percpu_llcounter_read_positive(&sbi->s_freeblocks_counter);
- 	root_blocks = le32_to_cpu(es->s_r_blocks_count);
- 
- 	if (free_blocks < count)
-@@ -125,7 +125,7 @@ static int reserve_blocks(struct super_b
- 			return 0;
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/balloc.c linux-2.6.17-rc1.tmp/fs/ext3/balloc.c
+--- linux-2.6.17-rc1/fs/ext3/balloc.c	2006-04-11 09:16:03.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext3/balloc.c	2006-04-11 09:17:38.000000000 +0900
+@@ -1406,15 +1406,15 @@ allocated:
+ 			}
+ 		}
  	}
+-	ext3_debug("found bit %d\n", group_allocated_blk);
++	ext3_debug("found bit %u\n", group_allocated_blk);
+ 	spin_unlock(sb_bgl_lock(sbi, group_no));
+ 	jbd_unlock_bh_state(bitmap_bh);
+ #endif
  
--	percpu_counter_mod(&sbi->s_freeblocks_counter, -count);
-+	percpu_llcounter_mod(&sbi->s_freeblocks_counter, -(long long)count);
- 	sb->s_dirt = 1;
- 	return count;
- }
-@@ -135,7 +135,7 @@ static void release_blocks(struct super_
- 	if (count) {
- 		struct ext2_sb_info *sbi = EXT2_SB(sb);
- 
--		percpu_counter_mod(&sbi->s_freeblocks_counter, count);
-+		percpu_llcounter_mod(&sbi->s_freeblocks_counter, count);
- 		sb->s_dirt = 1;
+ 	if (ret_block + num - 1 >= le32_to_cpu(es->s_blocks_count)) {
+ 		ext3_error(sb, "ext3_new_block",
+-			    "block(%lu) >= blocks count(%d) - "
+-			    "block_group = %d, es == %p ", ret_block,
++			    "block(%lu) >= blocks count(%u) - "
++			    "block_group = %u, es == %p ", ret_block,
+ 			le32_to_cpu(es->s_blocks_count), group_no, es);
+ 		goto out;
  	}
- }
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/ialloc.c linux-2.6.17-rc1.tmp/fs/ext2/ialloc.c
---- linux-2.6.17-rc1/fs/ext2/ialloc.c	2006-04-03 12:22:10.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext2/ialloc.c	2006-04-10 08:56:11.000000000 +0900
-@@ -83,7 +83,7 @@ static void ext2_release_inode(struct su
- 			cpu_to_le16(le16_to_cpu(desc->bg_used_dirs_count) - 1);
- 	spin_unlock(sb_bgl_lock(EXT2_SB(sb), group));
- 	if (dir)
--		percpu_counter_dec(&EXT2_SB(sb)->s_dirs_counter);
-+		percpu_llcounter_dec(&EXT2_SB(sb)->s_dirs_counter);
- 	sb->s_dirt = 1;
- 	mark_buffer_dirty(bh);
- }
-@@ -287,11 +287,11 @@ static int find_group_orlov(struct super
- 	struct ext2_group_desc *desc;
- 	struct buffer_head *bh;
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/inode.c linux-2.6.17-rc1.tmp/fs/ext3/inode.c
+--- linux-2.6.17-rc1/fs/ext3/inode.c	2006-04-11 09:15:57.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext3/inode.c	2006-04-11 09:17:38.000000000 +0900
+@@ -2110,7 +2110,7 @@ static void ext3_free_branches(handle_t 
+ 			 */
+ 			if (!bh) {
+ 				ext3_error(inode->i_sb, "ext3_free_branches",
+-					   "Read failure, inode=%ld, block=%ld",
++					   "Read failure, inode=%lu, block=%lu",
+ 					   inode->i_ino, nr);
+ 				continue;
+ 			}
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/namei.c linux-2.6.17-rc1.tmp/fs/ext3/namei.c
+--- linux-2.6.17-rc1/fs/ext3/namei.c	2006-04-03 12:22:10.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext3/namei.c	2006-04-11 09:17:38.000000000 +0900
+@@ -1910,8 +1910,8 @@ int ext3_orphan_add(handle_t *handle, st
+ 	if (!err)
+ 		list_add(&EXT3_I(inode)->i_orphan, &EXT3_SB(sb)->s_orphan);
  
--	freei = percpu_counter_read_positive(&sbi->s_freeinodes_counter);
-+	freei = percpu_llcounter_read_positive(&sbi->s_freeinodes_counter);
- 	avefreei = freei / ngroups;
--	free_blocks = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
-+	free_blocks = percpu_llcounter_read_positive(&sbi->s_freeblocks_counter);
- 	avefreeb = free_blocks / ngroups;
--	ndirs = percpu_counter_read_positive(&sbi->s_dirs_counter);
-+	ndirs = percpu_llcounter_read_positive(&sbi->s_dirs_counter);
- 
- 	if ((parent == sb->s_root->d_inode) ||
- 	    (EXT2_I(parent)->i_flags & EXT2_TOPDIR_FL)) {
-@@ -328,7 +328,7 @@ static int find_group_orlov(struct super
- 	}
- 
- 	if (ndirs == 0)
--		ndirs = 1;	/* percpu_counters are approximate... */
-+		ndirs = 1;	/* percpu_llcounters are approximate... */
- 
- 	blocks_per_dir = (le32_to_cpu(es->s_blocks_count)-free_blocks) / ndirs;
- 
-@@ -543,9 +543,9 @@ got:
- 		goto fail;
- 	}
- 
--	percpu_counter_mod(&sbi->s_freeinodes_counter, -1);
-+	percpu_llcounter_mod(&sbi->s_freeinodes_counter, -1);
- 	if (S_ISDIR(mode))
--		percpu_counter_inc(&sbi->s_dirs_counter);
-+		percpu_llcounter_inc(&sbi->s_dirs_counter);
- 
- 	spin_lock(sb_bgl_lock(sbi, group));
- 	gdp->bg_free_inodes_count =
-@@ -670,7 +670,7 @@ unsigned long ext2_count_free_inodes (st
- 	}
- 	brelse(bitmap_bh);
- 	printk("ext2_count_free_inodes: stored = %lu, computed = %lu, %lu\n",
--		percpu_counter_read(&EXT2_SB(sb)->s_freeinodes_counter),
-+		percpu_llcounter_read(&EXT2_SB(sb)->s_freeinodes_counter),
- 		desc_count, bitmap_count);
+-	jbd_debug(4, "superblock will point to %ld\n", inode->i_ino);
+-	jbd_debug(4, "orphan inode %ld will point to %d\n",
++	jbd_debug(4, "superblock will point to %lu\n", inode->i_ino);
++	jbd_debug(4, "orphan inode %lu will point to %d\n",
+ 			inode->i_ino, NEXT_ORPHAN(inode));
+ out_unlock:
  	unlock_super(sb);
- 	return desc_count;
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/super.c linux-2.6.17-rc1.tmp/fs/ext2/super.c
---- linux-2.6.17-rc1/fs/ext2/super.c	2006-04-03 12:22:10.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext2/super.c	2006-04-10 08:56:11.000000000 +0900
-@@ -126,9 +126,9 @@ static void ext2_put_super (struct super
- 			brelse (sbi->s_group_desc[i]);
- 	kfree(sbi->s_group_desc);
- 	kfree(sbi->s_debts);
--	percpu_counter_destroy(&sbi->s_freeblocks_counter);
--	percpu_counter_destroy(&sbi->s_freeinodes_counter);
--	percpu_counter_destroy(&sbi->s_dirs_counter);
-+	percpu_llcounter_destroy(&sbi->s_freeblocks_counter);
-+	percpu_llcounter_destroy(&sbi->s_freeinodes_counter);
-+	percpu_llcounter_destroy(&sbi->s_dirs_counter);
- 	brelse (sbi->s_sbh);
- 	sb->s_fs_info = NULL;
- 	kfree(sbi);
-@@ -834,9 +834,9 @@ static int ext2_fill_super(struct super_
- 		printk ("EXT2-fs: not enough memory\n");
- 		goto failed_mount;
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/resize.c linux-2.6.17-rc1.tmp/fs/ext3/resize.c
+--- linux-2.6.17-rc1/fs/ext3/resize.c	2006-04-11 09:16:03.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext3/resize.c	2006-04-11 09:17:38.000000000 +0900
+@@ -45,7 +45,7 @@ static int verify_group_input(struct sup
+ 
+ 	if (test_opt(sb, DEBUG))
+ 		printk(KERN_DEBUG "EXT3-fs: adding %s group %u: %u blocks "
+-		       "(%d free, %u reserved)\n",
++		       "(%lld free, %u reserved)\n",
+ 		       ext3_bg_has_super(sb, input->group) ? "normal" :
+ 		       "no-super", input->group, input->blocks_count,
+ 		       free_blocks_count, input->reserved_blocks);
+@@ -145,7 +145,7 @@ static void mark_bitmap_end(int start_bi
+ 	if (start_bit >= end_bit)
+ 		return;
+ 
+-	ext3_debug("mark end bits +%d through +%d used\n", start_bit, end_bit);
++	ext3_debug("mark end bits +%u through +%u used\n", start_bit, end_bit);
+ 	for (i = start_bit; i < ((start_bit + 7) & ~7UL); i++)
+ 		ext3_set_bit(i, bitmap);
+ 	if (i < end_bit)
+@@ -340,7 +340,7 @@ static int verify_reserved_gdb(struct su
+ 	while ((grp = ext3_list_backups(sb, &three, &five, &seven)) < end) {
+ 		if (le32_to_cpu(*p++) != grp * EXT3_BLOCKS_PER_GROUP(sb) + blk){
+ 			ext3_warning(sb, __FUNCTION__,
+-				     "reserved GDT %ld missing grp %d (%ld)",
++				     "reserved GDT %lu missing grp %d (%lu)",
+ 				     blk, grp,
+ 				     grp * EXT3_BLOCKS_PER_GROUP(sb) + blk);
+ 			return -EINVAL;
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/super.c linux-2.6.17-rc1.tmp/fs/ext3/super.c
+--- linux-2.6.17-rc1/fs/ext3/super.c	2006-04-11 09:16:03.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext3/super.c	2006-04-11 09:17:38.000000000 +0900
+@@ -377,7 +377,7 @@ static void dump_orphan_list(struct supe
+ 	list_for_each(l, &sbi->s_orphan) {
+ 		struct inode *inode = orphan_list_entry(l);
+ 		printk(KERN_ERR "  "
+-		       "inode %s:%ld at %p: mode %o, nlink %d, next %d\n",
++		       "inode %s:%lu at %p: mode %o, nlink %d, next %d\n",
+ 		       inode->i_sb->s_id, inode->i_ino, inode,
+ 		       inode->i_mode, inode->i_nlink, 
+ 		       NEXT_ORPHAN(inode));
+@@ -1254,17 +1254,17 @@ static void ext3_orphan_cleanup (struct 
+ 		DQUOT_INIT(inode);
+ 		if (inode->i_nlink) {
+ 			printk(KERN_DEBUG
+-				"%s: truncating inode %ld to %Ld bytes\n",
++				"%s: truncating inode %lu to %Ld bytes\n",
+ 				__FUNCTION__, inode->i_ino, inode->i_size);
+-			jbd_debug(2, "truncating inode %ld to %Ld bytes\n",
++			jbd_debug(2, "truncating inode %lu to %Ld bytes\n",
+ 				  inode->i_ino, inode->i_size);
+ 			ext3_truncate(inode);
+ 			nr_truncates++;
+ 		} else {
+ 			printk(KERN_DEBUG
+-				"%s: deleting unreferenced inode %ld\n",
++				"%s: deleting unreferenced inode %lu\n",
+ 				__FUNCTION__, inode->i_ino);
+-			jbd_debug(2, "deleting unreferenced inode %ld\n",
++			jbd_debug(2, "deleting unreferenced inode %lu\n",
+ 				  inode->i_ino);
+ 			nr_orphans++;
+ 		}
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/xattr.c linux-2.6.17-rc1.tmp/fs/ext3/xattr.c
+--- linux-2.6.17-rc1/fs/ext3/xattr.c	2006-04-11 09:15:57.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext3/xattr.c	2006-04-11 09:18:03.000000000 +0900
+@@ -75,7 +75,7 @@
+ 
+ #ifdef EXT3_XATTR_DEBUG
+ # define ea_idebug(inode, f...) do { \
+-		printk(KERN_DEBUG "inode %s:%ld: ", \
++		printk(KERN_DEBUG "inode %s:%lu: ", \
+ 			inode->i_sb->s_id, inode->i_ino); \
+ 		printk(f); \
+ 		printk("\n"); \
+@@ -233,7 +233,7 @@ ext3_xattr_block_get(struct inode *inode
+ 		atomic_read(&(bh->b_count)), le32_to_cpu(BHDR(bh)->h_refcount));
+ 	if (ext3_xattr_check_block(bh)) {
+ bad_block:	ext3_error(inode->i_sb, __FUNCTION__,
+-			   "inode %ld: bad block %u", inode->i_ino,
++			   "inode %lu: bad block %u", inode->i_ino,
+ 			   EXT3_I(inode)->i_file_acl);
+ 		error = -EIO;
+ 		goto cleanup;
+@@ -375,7 +375,7 @@ ext3_xattr_block_list(struct inode *inod
+ 		atomic_read(&(bh->b_count)), le32_to_cpu(BHDR(bh)->h_refcount));
+ 	if (ext3_xattr_check_block(bh)) {
+ 		ext3_error(inode->i_sb, __FUNCTION__,
+-			   "inode %ld: bad block %u", inode->i_ino,
++			   "inode %lu: bad block %u", inode->i_ino,
+ 			   EXT3_I(inode)->i_file_acl);
+ 		error = -EIO;
+ 		goto cleanup;
+@@ -647,7 +647,7 @@ ext3_xattr_block_find(struct inode *inod
+ 			le32_to_cpu(BHDR(bs->bh)->h_refcount));
+ 		if (ext3_xattr_check_block(bs->bh)) {
+ 			ext3_error(sb, __FUNCTION__,
+-				"inode %ld: bad block %u", inode->i_ino,
++				"inode %lu: bad block %u", inode->i_ino,
+ 				EXT3_I(inode)->i_file_acl);
+ 			error = -EIO;
+ 			goto cleanup;
+@@ -847,7 +847,7 @@ cleanup_dquot:
+ 
+ bad_block:
+ 	ext3_error(inode->i_sb, __FUNCTION__,
+-		   "inode %ld: bad block %u", inode->i_ino,
++		   "inode %lu: bad block %u", inode->i_ino,
+ 		   EXT3_I(inode)->i_file_acl);
+ 	goto cleanup;
+ 
+@@ -1076,14 +1076,14 @@ ext3_xattr_delete_inode(handle_t *handle
+ 	bh = sb_bread(inode->i_sb, EXT3_I(inode)->i_file_acl);
+ 	if (!bh) {
+ 		ext3_error(inode->i_sb, __FUNCTION__,
+-			"inode %ld: block %u read error", inode->i_ino,
++			"inode %lu: block %u read error", inode->i_ino,
+ 			EXT3_I(inode)->i_file_acl);
+ 		goto cleanup;
  	}
--	percpu_counter_init(&sbi->s_freeblocks_counter);
--	percpu_counter_init(&sbi->s_freeinodes_counter);
--	percpu_counter_init(&sbi->s_dirs_counter);
-+	percpu_llcounter_init(&sbi->s_freeblocks_counter);
-+	percpu_llcounter_init(&sbi->s_freeinodes_counter);
-+	percpu_llcounter_init(&sbi->s_dirs_counter);
- 	bgl_lock_init(&sbi->s_blockgroup_lock);
- 	sbi->s_debts = kmalloc(sbi->s_groups_count * sizeof(*sbi->s_debts),
- 			       GFP_KERNEL);
-@@ -886,11 +886,11 @@ static int ext2_fill_super(struct super_
- 		ext2_warning(sb, __FUNCTION__,
- 			"mounting ext3 filesystem as ext2");
- 	ext2_setup_super (sb, es, sb->s_flags & MS_RDONLY);
--	percpu_counter_mod(&sbi->s_freeblocks_counter,
-+	percpu_llcounter_mod(&sbi->s_freeblocks_counter,
- 				ext2_count_free_blocks(sb));
--	percpu_counter_mod(&sbi->s_freeinodes_counter,
-+	percpu_llcounter_mod(&sbi->s_freeinodes_counter,
- 				ext2_count_free_inodes(sb));
--	percpu_counter_mod(&sbi->s_dirs_counter,
-+	percpu_llcounter_mod(&sbi->s_dirs_counter,
- 				ext2_count_dirs(sb));
- 	return 0;
- 
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/include/linux/ext2_fs_sb.h linux-2.6.17-rc1.tmp/include/linux/ext2_fs_sb.h
---- linux-2.6.17-rc1/include/linux/ext2_fs_sb.h	2006-04-03 12:22:10.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/include/linux/ext2_fs_sb.h	2006-04-10 08:56:11.000000000 +0900
-@@ -17,7 +17,7 @@
- #define _LINUX_EXT2_FS_SB
- 
- #include <linux/blockgroup_lock.h>
--#include <linux/percpu_counter.h>
-+#include <linux/percpu_llcounter.h>
- 
- /*
-  * second extended-fs super-block data in memory
-@@ -49,9 +49,9 @@ struct ext2_sb_info {
- 	u32 s_next_generation;
- 	unsigned long s_dir_count;
- 	u8 *s_debts;
--	struct percpu_counter s_freeblocks_counter;
--	struct percpu_counter s_freeinodes_counter;
--	struct percpu_counter s_dirs_counter;
-+	struct percpu_llcounter s_freeblocks_counter;
-+	struct percpu_llcounter s_freeinodes_counter;
-+	struct percpu_llcounter s_dirs_counter;
- 	struct blockgroup_lock s_blockgroup_lock;
- };
+ 	if (BHDR(bh)->h_magic != cpu_to_le32(EXT3_XATTR_MAGIC) ||
+ 	    BHDR(bh)->h_blocks != cpu_to_le32(1)) {
+ 		ext3_error(inode->i_sb, __FUNCTION__,
+-			"inode %ld: bad block %u", inode->i_ino,
++			"inode %lu: bad block %u", inode->i_ino,
+ 			EXT3_I(inode)->i_file_acl);
+ 		goto cleanup;
+ 	}
+@@ -1210,11 +1210,11 @@ again:
+ 		bh = sb_bread(inode->i_sb, ce->e_block);
+ 		if (!bh) {
+ 			ext3_error(inode->i_sb, __FUNCTION__,
+-				"inode %ld: block %ld read error",
++				"inode %lu: block %lu read error",
+ 				inode->i_ino, (unsigned long) ce->e_block);
+ 		} else if (le32_to_cpu(BHDR(bh)->h_refcount) >=
+ 				EXT3_XATTR_REFCOUNT_MAX) {
+-			ea_idebug(inode, "block %ld refcount %d>=%d",
++			ea_idebug(inode, "block %lu refcount %d>=%d",
+ 				  (unsigned long) ce->e_block,
+ 				  le32_to_cpu(BHDR(bh)->h_refcount),
+ 					  EXT3_XATTR_REFCOUNT_MAX);

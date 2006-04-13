@@ -1,52 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWDMUxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbWDMVHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWDMUxI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 16:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWDMUxH
+	id S964967AbWDMVHr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 17:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbWDMVHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 16:53:07 -0400
-Received: from gate.crashing.org ([63.228.1.57]:31647 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932463AbWDMUxG (ORCPT
+	Thu, 13 Apr 2006 17:07:47 -0400
+Received: from xenotime.net ([66.160.160.81]:8686 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964967AbWDMVHq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 16:53:06 -0400
-Subject: Re: [PATCH] [2/2] POWERPC: Lower threshold for DART enablement to
-	1GB, V2
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Olof Johansson <olof@lixom.net>, paulus@samba.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060413173121.GJ10412@granada.merseine.nu>
-References: <20060413020559.GC24769@pb15.lixom.net>
-	 <20060413022809.GD24769@pb15.lixom.net>
-	 <20060413025233.GE24769@pb15.lixom.net>
-	 <20060413064027.GH10412@granada.merseine.nu>
-	 <1144925149.4935.14.camel@localhost.localdomain>
-	 <20060413160712.GG24769@pb15.lixom.net>
-	 <20060413173121.GJ10412@granada.merseine.nu>
-Content-Type: text/plain
-Date: Fri, 14 Apr 2006 06:52:44 +1000
-Message-Id: <1144961564.4935.24.camel@localhost.localdomain>
+	Thu, 13 Apr 2006 17:07:46 -0400
+Date: Thu, 13 Apr 2006 14:10:10 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, jgarzik <jgarzik@pobox.com>, perex@suse.cz,
+       chas@cmf.nrl.navy.mil
+Subject: [PATCH 2/2] update 2 drivers for poison.h
+Message-Id: <20060413141010.66ea08e8.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-13 at 20:31 +0300, Muli Ben-Yehuda wrote:
-> On Thu, Apr 13, 2006 at 11:07:12AM -0500, Olof Johansson wrote:
-> 
-> > Walking the DT means we need to hardcode it on PCI IDs, since the Apple
-> > OF doesn't give the Airport device a logical name. It's probably easier
-> > to implement than walking PCI, but we'd need to maintain a table. My
-> > vote is for PCI walking, I'll give that a shot over the weekend.
-> 
-> Cool! bonus points if you do it in drivers/pci and we can steal it
-> easily for Calgary on x8-64 :-)
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-How so ? Anything remotely related to the iommu is totally different...
-Besides, on x86-64, laptops _are_ more common, and thus the problem of
-cardbus cards is much more significant.
+Update 2 drivers to use poison.h.
 
-Ben.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/atm/firestream.c    |    3 ++-
+ include/linux/poison.h      |    6 ++++++
+ sound/oss/via82cxxx_audio.c |    5 +++--
+ 3 files changed, 11 insertions(+), 3 deletions(-)
+
+--- linux-2617-rc1g5.orig/drivers/atm/firestream.c
++++ linux-2617-rc1g5/drivers/atm/firestream.c
+@@ -33,6 +33,7 @@
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/pci.h>
++#include <linux/poison.h>
+ #include <linux/errno.h>
+ #include <linux/atm.h>
+ #include <linux/atmdev.h>
+@@ -754,7 +755,7 @@ static void process_txdone_queue (struct
+ 			fs_kfree_skb (skb);
+ 
+ 			fs_dprintk (FS_DEBUG_ALLOC, "Free trans-d: %p\n", td); 
+-			memset (td, 0x12, sizeof (struct FS_BPENTRY));
++			memset (td, ATM_POISON_FREE, sizeof(struct FS_BPENTRY));
+ 			kfree (td);
+ 			break;
+ 		default:
+--- linux-2617-rc1g5.orig/include/linux/poison.h
++++ linux-2617-rc1g5/include/linux/poison.h
+@@ -42,4 +42,10 @@
+ #define	POOL_POISON_FREED	0xa7	/* !inuse */
+ #define	POOL_POISON_ALLOCATED	0xa9	/* !initted */
+ 
++/********** drivers/atm/ **********/
++#define ATM_POISON_FREE		0x12
++
++/********** sound/oss/ **********/
++#define OSS_POISON_FREE		0xAB
++
+ #endif
+--- linux-2617-rc1g5.orig/sound/oss/via82cxxx_audio.c
++++ linux-2617-rc1g5/sound/oss/via82cxxx_audio.c
+@@ -24,6 +24,7 @@
+ #include <linux/fs.h>
+ #include <linux/mm.h>
+ #include <linux/pci.h>
++#include <linux/poison.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/proc_fs.h>
+@@ -3522,7 +3523,7 @@ err_out_have_mixer:
+ 
+ err_out_kfree:
+ #ifndef VIA_NDEBUG
+-	memset (card, 0xAB, sizeof (*card)); /* poison memory */
++	memset (card, OSS_POISON_FREE, sizeof (*card)); /* poison memory */
+ #endif
+ 	kfree (card);
+ 
+@@ -3559,7 +3560,7 @@ static void __devexit via_remove_one (st
+ 	via_ac97_cleanup (card);
+ 
+ #ifndef VIA_NDEBUG
+-	memset (card, 0xAB, sizeof (*card)); /* poison memory */
++	memset (card, OSS_POISON_FREE, sizeof (*card)); /* poison memory */
+ #endif
+ 	kfree (card);
+ 
 
 
+---

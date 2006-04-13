@@ -1,61 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWDMPB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWDMPBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbWDMPB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 11:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWDMPB3
+	id S1750838AbWDMPBH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 11:01:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWDMPBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 11:01:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61900 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750845AbWDMPB2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 11:01:28 -0400
-Date: Thu, 13 Apr 2006 08:01:25 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, Dan Bonachea <bonachead@comcast.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
-In-Reply-To: <443DE2BD.1080103@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>
-References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
- <20060412214613.404cf49f.akpm@osdl.org> <443DE2BD.1080103@yahoo.com.au>
+	Thu, 13 Apr 2006 11:01:06 -0400
+Received: from pproxy.gmail.com ([64.233.166.181]:4969 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750838AbWDMPBF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 11:01:05 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=c8IPfZDQ6S6Pdxt814CsZzDoXzgb4VOQhjx80MegGv300bu6KBVPzqCeJLV8EDRusURpubmGGA+zVPzy/5hrVBlxXEvP6xJ0uSMYvyug8QImuPbzhqN29SJ4RNI8vMBUb6mvcMHliakKrWJ9mQfimHORfUUFbu6w1tNoRaL9lx8=
+Message-ID: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
+Date: Thu, 13 Apr 2006 10:01:04 -0500
+From: "Ram Gupta" <ram.gupta5@gmail.com>
+To: "linux mailing-list" <linux-kernel@vger.kernel.org>
+Subject: select takes too much time
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am using select with a timeout value of 90 ms. But for some reason
+occasionally  it comes out of select after more than one second . I
+checked the man page but it does not help in concluding if this is ok
+or not. Is this expected  or it is a bug. Most of this time is
+consumed in   schedule_timeout . I am using 2.5.45 kernel but I
+believe the same would  be the true for the latest kernel too. Any
+thoughts or suggestion are welcome.
 
-
-On Thu, 13 Apr 2006, Nick Piggin wrote:
-> 
-> Didn't Linus explicitly made the decision not to add synchronisation for
-> writes with the same file?
-
-I would be _very_ nervous to do it, yes. In particular, I do not consider 
-it at all unlikely to have something database-like that does concurrent 
-writes to the same file at different offsets, and serializing them on the 
-VFS layer seems pretty broken. 
-
-Also, doing it unconditionally in the VFS layer is actually pretty 
-seriously broken: the VFS layer doesn't even know what kind of file it is, 
-and locking on writes can be literally the wrong thing for some file 
-descriptors (think pipes or sockets: if we have one blocking write holding 
-the lock, that should _not_ imply that other - possibly nonblocking - 
-writes shouldn't be able to call in to the low-level write handler).
-
-That said, I wouldn't be 100% against it, especially under certain 
-circumstances. However, the circumstances when I think it might be 
-acceptable are fairly specific:
-
- - when we use f_pos (ie we'd synchronize write against write, but only 
-   per "struct file", not on an inode basis)
- - only for files that are marked seekable with FMODE_LSEEK (thus avoiding 
-   the stream-like objects like pipes and sockets)
-
-Under those two circumstances, I'd certainly be ok with it, and I think we 
-could argue that it is a "good thing". It would be a "f_pos" lock (so we 
-migt do it for reads too), not a "data lock".
-
-Comments?
-
-		Linus
+Thanks
+Ram Gupta

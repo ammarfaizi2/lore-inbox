@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWDMQwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWDMQxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWDMQwK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 12:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWDMQwK
+	id S1751041AbWDMQxY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 12:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWDMQxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 12:52:10 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:14311 "EHLO
+	Thu, 13 Apr 2006 12:53:24 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:53223 "EHLO
 	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1750844AbWDMQwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 12:52:09 -0400
-Date: Thu, 13 Apr 2006 18:51:53 +0200
+	id S1751031AbWDMQxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 12:53:23 -0400
+Date: Thu, 13 Apr 2006 18:53:14 +0200
 From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: David Woodhouse <dwmw2@infradead.org>,
        Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
        linux-mtd@lists.infradead.org
-Subject: [PATCH 0/4] Cleanup of mtd->type and mtd->flags
-Message-ID: <20060413165153.GD30574@wohnheim.fh-wedel.de>
+Subject: [PATCH 1/4] Simplify test for RAM devices
+Message-ID: <20060413165314.GE30574@wohnheim.fh-wedel.de>
+References: <20060413165153.GD30574@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060413165153.GD30574@wohnheim.fh-wedel.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, there appears to be a great confusion surrounding mtd->type
-and mtd->flags.  Various combinations of type and flags are used by
-device drivers to give some hints to users.  Some users interpret
-these hints as seems to be intended by the drivers, others don't.
-Mismatches are caused by both drivers and users being confused and the
-whole system being less than clear.
+mtdblock is the only user of aggregate capabilities in mtd.  This is clearly
+bogus and should be changed.  In particular, it tries to determine whether
+the device in question is a piece of RAM.  For every single driver that fits
+the current criteria, an easier test would be to check for the type being
+MTD_RAM.
 
-This patchset is part of a larger work trying to clean things up.
-Patches are fairly simple and shouldn't need any discussion.
+Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
+---
 
-Jörn
+ drivers/mtd/mtdblock.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+
+--- mtd_type/drivers/mtd/mtdblock.c~mtdblock_ram_test	2006-04-13 18:03:41.000000000 +0200
++++ mtd_type/drivers/mtd/mtdblock.c	2006-04-13 18:19:19.000000000 +0200
+@@ -288,8 +288,7 @@ static int mtdblock_open(struct mtd_blkt
+ 
+ 	mutex_init(&mtdblk->cache_mutex);
+ 	mtdblk->cache_state = STATE_EMPTY;
+-	if ((mtdblk->mtd->flags & MTD_CAP_RAM) != MTD_CAP_RAM &&
+-	    mtdblk->mtd->erasesize) {
++	if (mtdblk->mtd->type != MTD_RAM && mtdblk->mtd->erasesize) {
+ 		mtdblk->cache_size = mtdblk->mtd->erasesize;
+ 		mtdblk->cache_data = NULL;
+ 	}

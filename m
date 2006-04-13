@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWDMO7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWDMO7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWDMO7T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 10:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWDMO7S
+	id S1750826AbWDMO7A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 10:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWDMO7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 10:59:18 -0400
-Received: from ns1.idleaire.net ([65.220.16.2]:51149 "EHLO iasrv1.idleaire.net")
-	by vger.kernel.org with ESMTP id S1750833AbWDMO7Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 10:59:16 -0400
-Subject: Re: [PATCH] deinline a few large functions in vlan code v2
-From: Dave Dillow <dave@thedillows.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-In-Reply-To: <200604130904.57054.vda@ilport.com.ua>
-References: <200604071628.30486.vda@ilport.com.ua>
-	 <200604121155.55561.vda@ilport.com.ua>
-	 <1144862325.18319.32.camel@dillow.idleaire.com>
-	 <200604130904.57054.vda@ilport.com.ua>
-Content-Type: text/plain
-Date: Thu, 13 Apr 2006 10:59:08 -0400
-Message-Id: <1144940349.29160.13.camel@dillow.idleaire.com>
+	Thu, 13 Apr 2006 10:59:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1546 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750826AbWDMO7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 10:59:00 -0400
+Date: Thu, 13 Apr 2006 15:57:57 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
+       ALSA devel <alsa-devel@alsa-project.org>
+Subject: Re: [ALSA STABLE 3/3] a few more -- unregister platform device again if probe was unsuccessful
+Message-ID: <20060413145756.GA29959@flint.arm.linux.org.uk>
+Mail-Followup-To: Rene Herman <rene.herman@keyaccess.nl>,
+	Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+	Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
+	ALSA devel <alsa-devel@alsa-project.org>
+References: <443DAD5C.8080007@keyaccess.nl> <200604131126.35841.ioe-lkml@rameria.de> <443E5AAD.5040800@keyaccess.nl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Apr 2006 14:58:39.0146 (UTC) FILETIME=[BF5C80A0:01C65F0A]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <443E5AAD.5040800@keyaccess.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-13 at 09:04 +0300, Denis Vlasenko wrote:
-> On Wednesday 12 April 2006 20:18, Dave Dillow wrote:
-> > > > or loaded. And even if it saves 200 bytes in one 
-> > > > module, unless that module text was already less than 200 bytes into a
-> > > > page, you've saved no memory -- a 4300 byte module takes 2 pages on x86,
-> > > > as does a 4100 byte module.
-> > > 
-> > > Sometimes, those 200 bytes can bring module size just under 4096.
-> > > Thus on the average, on many modules you get the same size savings
-> > > as on built-in code. (Not that we have THAT many network modules...)
-> > 
-> > You're making a bogus leap from "sometimes" to "average".
+On Thu, Apr 13, 2006 at 04:05:33PM +0200, Rene Herman wrote:
+> Not honouring/passing up probe() method error returns, not even -ENODEV, 
+> makes some sense for discoverable busses such as PCI where you at least 
+> have a driver independent bus_id sitting in /sys/devices/pci* that you 
+> can later echo into /sys/bus/pci/drivers/*/bind to make the driver bind 
+> to a device, but not much sense for the platform bus. Platform devices 
+> only "exist" (in /sys/devices/platform) due to the driver creating them 
+> itself and keeping them after failing a probe means that directory 
+> becomes an enumeration of the drivers we loaded, rather than a view of 
+> what's present in the system.
+
+Incorrect.  In some circumstances, they may be created by architecture
+support code, and might be created and destroyed dynamically by
+architecture support code.
+
+> The driver model crowd did not seem exceedingly interested in the 
+> problem though:
 > 
-> It's not bogus. See below.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114417829014332&w=2
 
-My bad, I used a different notion of "average". You're using a
-mathematical definition, and are of course correct in that case.
-
-But to get your average, you have to either build all modules in, or
-load every module. I'm saying the "average" user won't do that.
-
-> IOW: currently most of VLAN code is already in kernel.
-
-No, I'm saying most of the code is in 8021q.ko. The exceptions are the
-big inlines you targeted, and I agree with moving them out-of-line.
+Incorrect summary.  The ALSA use model of the driver model doesn't fit
+with the driver model use model.  It's not that we're not interested
+in it - it's that it's perverted to the way driver model folk intend
+the subsystem to work, and the way that platform devices are used on
+some architectures.
 
 -- 
-Dave Dillow <dave@thedillows.org>
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

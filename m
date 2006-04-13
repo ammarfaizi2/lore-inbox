@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWDMP4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWDMQIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWDMP4l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 11:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWDMP4l
+	id S1751046AbWDMQIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 12:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWDMQII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 11:56:41 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:17415 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750953AbWDMP4l convert rfc822-to-8bit (ORCPT
+	Thu, 13 Apr 2006 12:08:08 -0400
+Received: from lixom.net ([66.141.50.11]:5283 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S1751046AbWDMQIH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 11:56:41 -0400
+	Thu, 13 Apr 2006 12:08:07 -0400
+Date: Thu, 13 Apr 2006 11:07:12 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>, Olof Johansson <olof@lixom.net>,
+       paulus@samba.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2/2] POWERPC: Lower threshold for DART enablement to 1GB, V2
+Message-ID: <20060413160712.GG24769@pb15.lixom.net>
+References: <20060413020559.GC24769@pb15.lixom.net> <20060413022809.GD24769@pb15.lixom.net> <20060413025233.GE24769@pb15.lixom.net> <20060413064027.GH10412@granada.merseine.nu> <1144925149.4935.14.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
-x-originalarrivaltime: 13 Apr 2006 15:56:38.0628 (UTC) FILETIME=[D94B5240:01C65F12]
-Content-class: urn:content-classes:message
-Subject: Re: select takes too much time
-Date: Thu, 13 Apr 2006 11:56:37 -0400
-Message-ID: <Pine.LNX.4.61.0604131141140.6964@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: select takes too much time
-Thread-Index: AcZfEtlxfAWu74w0SzeF5Pj3fsONOg==
-References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Ram Gupta" <ram.gupta5@gmail.com>
-Cc: "linux mailing-list" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1144925149.4935.14.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 13, 2006 at 08:45:49PM +1000, Benjamin Herrenschmidt wrote:
+> On Thu, 2006-04-13 at 09:40 +0300, Muli Ben-Yehuda wrote:
+> > On Wed, Apr 12, 2006 at 09:52:33PM -0500, Olof Johansson wrote:
+> > 
+> > > iommu=off can still be used for those who don't want to deal with the
+> > > overhead (and don't need it for any devices).
+> > 
+> > I've been pondering walking the PCI bus before deciding to enable an
+> > IOMMU and checking each device's DMA mask. Is this something that you
+> > considered and rejected, or just something no one got around to doing?
+> 
+> It would do the trick for airport cards in G5s.. a little bit of OF
+> walking to find the card.
 
-On Thu, 13 Apr 2006, Ram Gupta wrote:
+Walking the DT means we need to hardcode it on PCI IDs, since the Apple
+OF doesn't give the Airport device a logical name. It's probably easier
+to implement than walking PCI, but we'd need to maintain a table. My
+vote is for PCI walking, I'll give that a shot over the weekend.
 
-> I am using select with a timeout value of 90 ms. But for some reason
-> occasionally  it comes out of select after more than one second . I
-> checked the man page but it does not help in concluding if this is ok
-> or not. Is this expected  or it is a bug. Most of this time is
-> consumed in   schedule_timeout . I am using 2.5.45 kernel but I
-> believe the same would  be the true for the latest kernel too. Any
-> thoughts or suggestion are welcome.
->
-> Thanks
-> Ram Gupta
+> It won't help with cardbus broadcom's but then, there is currently no G5
+> with a cardbus adaptor that I know of :) It's possible I suppose to get
+> a pci<->cardbus adapter but I suppose in that case, we can ignore it ...
 
-This may point out a problem with a driver that is polling
-inside a spin-lock or other places where interrupts are disabled.
-It is unlikely that select() or poll() are at fault. I have a
-server that takes high-speed DAS data and sends it over the
-network as UDP packets. The server sleeps in poll() until data
-are ready, then wakes up and sends the data. This happens 4,000
-times per second and has been tested to 10,000 times per second.
-The HZ value on that server is 1024. So, poll() and select()
-can be fast in response to a 'wake_up_interruptible()' inside
-a driver. They should be equally fast to a normal timeout.
+Yep, that should be rare enough.
 
-Make sure that your 'struct timeval' is initialized prior to every
-call to select(). Linux writes remaining time back into that
-structure! Also make sure you are using the right structure,
-'struct timeval', not 'struct timespec'!
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+-Olof

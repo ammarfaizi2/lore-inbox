@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWDMBJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWDMBXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbWDMBJo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 21:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWDMBJo
+	id S932419AbWDMBXx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 21:23:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWDMBXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 21:09:44 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:46979 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932396AbWDMBJn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 21:09:43 -0400
-Subject: Re: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture
-	independent manner V2
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Mel Gorman <mel@skynet.ie>, davej@codemonkey.org.uk, tony.luck@intel.com,
-       linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bob.picco@hp.com, Linux Memory Management List <linux-mm@kvack.org>
-In-Reply-To: <200604130257.00203.ak@suse.de>
-References: <20060412232036.18862.84118.sendpatchset@skynet>
-	 <200604130153.08604.ak@suse.de>
-	 <Pine.LNX.4.64.0604130058210.18950@skynet.skynet.ie>
-	 <200604130257.00203.ak@suse.de>
-Content-Type: text/plain
-Date: Wed, 12 Apr 2006 18:08:48 -0700
-Message-Id: <1144890528.31255.97.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Wed, 12 Apr 2006 21:23:53 -0400
+Received: from smtp.knology.net ([24.214.63.101]:32911 "EHLO smtp.knology.net")
+	by vger.kernel.org with ESMTP id S932416AbWDMBXw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 21:23:52 -0400
+Message-ID: <443DA830.8030209@thedillows.org>
+Date: Wed, 12 Apr 2006 21:24:00 -0400
+From: Dave Dillow <dave@thedillows.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Oeser <ioe-lkml@rameria.de>
+CC: Ingo Oeser <netdev@axxeo.de>, Denis Vlasenko <vda@ilport.com.ua>,
+       netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [RFD][PATCH] typhoon and core sample for folding away VLAN stuff
+References: <200604071628.30486.vda@ilport.com.ua> <200604111502.52302.vda@ilport.com.ua> <200604111517.37215.netdev@axxeo.de> <200604122132.46113.ioe-lkml@rameria.de>
+In-Reply-To: <200604122132.46113.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-13 at 02:56 +0200, Andi Kleen wrote:
-> The problem is not memory consumption but complexity of code/data structures.
-> Keeping information in two places is usually a good cue that something 
-> is wrong. This code is also fragile and hard to test. 
+Ingo Oeser wrote:
+> Dave Dillow: Is this style clean enough to have it in your driver?
 
-Part of the motivation for these patches is that we really duplicate a
-lot of functionality across architectures.  For instance, on x86, we
-have limit_regions() to fiddle with the e820 or efi tables to make them
-look right after a mem= on the command-line.
+Though I'm not real fond of Denis's last patch, I think I prefer it's 
+style to this, solely because it removes more code when VLANs are 
+disabled -- you've left the spin_locks in, and have more #ifdefs.
 
-We end up doing the same kind of fiddling on powerpc, but on LMBs,
-instead.  This code is error-prone, and every one of these
-implementations gets it wrong.  I believe I've seen and fixed bugs in at
-least two of them.  Add in NUMA things or hotplug boot-time zone sizing,
-and you get an even worse mess. 
+Regardless, I remain opposed to this particular instance of bloat 
+busting. While both patches have improved in style, they remove a useful 
+feature and make the code less clean, for no net gain.
 
-The motivation for Mel's patches is to keep the architectures from
-getting it wrong.  If we let them do it themselves, they _will_ get it
-wrong, and any bugfixes will not help anybody else.
+> This kind of changes are important, because bloat creeps in byte by byte
+> of unused features. So I really appreciate your work here Denis.
 
-If we do it in common code, we will certainly have bugs for a while.  By
-sharing code, we narrow the bugs down to one place, and only have to fix
-them once.
+On SMP FC4, typhoon.ko has a text size of 68330, so you need to cut 2794 
+bytes to see an actual difference in memory usage for a module. Non-SMP 
+it is 67741, so there you only need to cut 2205 bytes to get a win.
 
--- Dave "guy who hates the same bugs in many arches" Hansen
+Every byte counts, except when it doesn't.
 

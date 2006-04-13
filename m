@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWDMTT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWDMTrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbWDMTT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 15:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbWDMTT2
+	id S1750845AbWDMTrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 15:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWDMTrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 15:19:28 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:897 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S964868AbWDMTT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 15:19:27 -0400
-Date: Thu, 13 Apr 2006 21:19:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>, linux-pcmcia@lists.infradead.org,
-       lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-       metan@seznam.cz
-Subject: Re: 2.6.17-rc1: collie -- oopsen in pccardd?
-Message-ID: <20060413191926.GA28945@atrey.karlin.mff.cuni.cz>
-References: <20060404122212.GG19139@elf.ucw.cz> <20060404124350.GA16857@flint.arm.linux.org.uk> <20060404000129.GA2590@ucw.cz> <1144923105.7236.18.camel@localhost.localdomain> <20060413164706.GB18635@atrey.karlin.mff.cuni.cz> <20060413165452.GA7805@flint.arm.linux.org.uk> <20060413171425.GA12404@isilmar.linta.de>
+	Thu, 13 Apr 2006 15:47:09 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:14279 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750845AbWDMTrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 15:47:08 -0400
+Date: Thu, 13 Apr 2006 14:46:44 -0500
+From: Robin Holt <holt@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Keith Owens <kaos@americas.sgi.com>, Dean Nelson <dcn@americas.sgi.com>
+Subject: Is notify_die being overloaded?
+Message-ID: <20060413194643.GC25701@lnx-holt.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060413171425.GA12404@isilmar.linta.de>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Apr 13, 2006 at 05:54:52PM +0100, Russell King wrote:
-> > diff --git a/drivers/pcmcia/pcmcia_resource.c b/drivers/pcmcia/pcmcia_resource.c
-> > --- a/drivers/pcmcia/pcmcia_resource.c
-> > +++ b/drivers/pcmcia/pcmcia_resource.c
-> > @@ -89,7 +88,7 @@ static int alloc_io_space(struct pcmcia_
-> >         }
-> >         if ((s->features & SS_CAP_STATIC_MAP) && s->io_offset) {
-> >                 *base = s->io_offset | (*base & 0x0fff);
-> > -               s->io[0].Attributes = attr;
-> > +               s->io[0].res->flags = (s->io[0].res->flags & ~IORESOURCE_BITS) | (attr & IORESOURCE_BITS);
-> >                 return 0;
-> >         }
-> >         /* Check for an already-allocated window that must conflict with
-> > 
-> > will probably be the culpret - which is from commit
-> > c7d006935dfda9174187aa557e94a137ced10c30.
-> > 
-> > Static maps do not have IO resources, so s->io[].Attributes was not a
-> > "duplicated" field in this case.  This part of this change needs
-> > reverting.
-> 
-> Oh yes, mea culpa. However, we can simply remove setting res->flags here, as
-> we never read it in this case anyways.
+notify_die seems to be called to indicate the machine is going down as
+well as there are trapped events for the process.
 
-It fixes the problem for me.
-									Pavel
+Specifically, the following call notify_die when there are machine
+related events:
+ia64_mca_rendez_int_handler (DIE_MCA_RENDZVOUS_ENTER,
+	DIE_MCA_RENDZVOUS_PROCESS, DIE_MCA_RENDZVOUS_LEAVE)
+ia64_mca_handler (DIE_MCA_MONARCH_ENTER, DIE_MCA_MONARCH_PROCESS,
+	DIE_MCA_MONARCH_LEAVE)
+ia64_init_handler (DIE_INIT_ENTER,
+	DIE_INIT_{SLAVE|MONARCH}_{ENTER|PROCESS|LEAVE})
+ia64_mca_init (DIE_MCA_NEW_TIMEOUT)
+machine_restart (DIE_MACHINE_RESTART)
+machine_halt (DIE_MACHINE_HALT)
+die (DIE_OOPS)
 
--- 
-Thanks, Sharp!
+
+The following seem to be process related:
+ia64_bad_break (DIE_BREAK, DIE_FAULT)
+ia64_do_page_fault (DIE_PAGE_FAULT)
+
+
+Shouldn't these really be seperated into two seperate notifier chains?
+One for OS level die() type activity and another for process faults
+which a debugger et. al. would want to know about?
+
+The specific concern is some testing we have been doing with an upcoming
+OSD release.  We see notify_die being called from ia64_do_page_fault
+frequently in our performance samples.  On these machines, xpc has
+registers a die notifier and therefore callouts are occuring which have
+no relationship to a processes page faulting.  XPC is looking for events
+which indicate the OS is stopping.  Additionally, kdb is installed on
+this machine as well and it has registered a die notifier as well.
+
+Thanks,
+Robin Holt

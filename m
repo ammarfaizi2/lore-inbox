@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWDMNzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbWDMN5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbWDMNzx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 09:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWDMNzx
+	id S964937AbWDMN5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 09:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWDMN5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 09:55:53 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:50907 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964926AbWDMNzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 09:55:51 -0400
-Subject: Direct writing to the IDE on panic?
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 13 Apr 2006 09:55:47 -0400
-Message-Id: <1144936547.1336.20.camel@localhost.localdomain>
+	Thu, 13 Apr 2006 09:57:24 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:9944 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S964937AbWDMN5X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 09:57:23 -0400
+Date: Thu, 13 Apr 2006 21:54:31 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pids: simplify do_each_task_pid/while_each_task_pid
+Message-ID: <20060413175431.GA108@oleg>
+References: <20060413163727.GA1365@oleg> <20060413133814.GA29914@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060413133814.GA29914@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 04/13, Christoph Hellwig wrote:
+>
+> On Thu, Apr 13, 2006 at 08:37:27PM +0400, Oleg Nesterov wrote:
+> > +#define do_each_task_pid(who, type, task)					\
+> > +	do {									\
+> > +		struct hlist_node *pos___;					\
+> > +		struct pid *pid___ = find_pid(who);				\
+> > +		if (pid___ != NULL)						\
+> > +			hlist_for_each_entry_rcu((task), pos___,		\
+> > +				&pid___->tasks[type], pids[type].node) {
+> > +
+> > +#define while_each_task_pid(who, type, task)					\
+> > +			}							\
+> > +	} while (0)
+> 
+> This is prtty ugly.  Can't we just have a
+> 
+> #define for_each_task_pid(task, pid, type, pos) \
+> 	hlist_for_each_entry_rcu((task), (pos),  \
+> 		(&(pid))->tasks[type], pids[type].node) {
+> 
+> and move the find_pid to the caller?  That would make the code a whole lot
+> more readable.
 
-I was wondering if anyone has done some work to directly write and poll
-to the IDE?  This is to store data on a panic or oops.  So it would need
-to bypass pretty much all the normal Linux mechanisms to do low lever
-IDE work.
+Then the caller should check find_pid() doesn't return NULL. But yes,
+we can hide this check inside for_each_task_pid().
 
-So lets say we have a special partition on a hard drive to be reserved
-for just this purpose.  Even set it up to be a swap partition.  So on a
-system crash, turn off interrupts, stop all other processors, and then
-through polling (to avoid interrupt handling), write as much data as
-possible about the state of the machine to this special partition.
-After a reboot, this data can then be retrieved for review to see why
-the system crashed.
+But what about current users of do_each_task_pid ? We can't just remove
+these macros.
 
-Obviously, this would be a slow process, but the system has crashed and
-we care more about retrieving information than speed.
-
-Has this already been done and what issues need to be addressed?
-
-Thanks,
-
--- Steve
-
+Oleg.
 

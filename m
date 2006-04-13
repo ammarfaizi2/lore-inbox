@@ -1,30 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWDMHkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWDMICw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWDMHkK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 03:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWDMHkK
+	id S964825AbWDMICw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 04:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWDMICw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 03:40:10 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:59100 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S964822AbWDMHkI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 03:40:08 -0400
-Date: Thu, 13 Apr 2006 09:39:58 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
+	Thu, 13 Apr 2006 04:02:52 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29963 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964825AbWDMICv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 04:02:51 -0400
+Date: Thu, 13 Apr 2006 10:02:49 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: minyard@mvista.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc1-mm1
-Message-ID: <20060413073958.GB9428@osiris.boeblingen.de.ibm.com>
-References: <20060404014504.564bf45a.akpm@osdl.org>
+Subject: [2.6 patch] drivers/char/ipmi/ipmi_msghandler.c: make proc_ipmi_root static
+Message-ID: <20060413080249.GH6517@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060404014504.564bf45a.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r796 (Linux)
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +md-dm-reduce-stack-usage-with-stacked-block-devices.patch
->  MD update.
+This patch makes the needlessly global struct proc_ipmi_root static.
 
-Any chance to see this merged? I think this one is pending for quite a while.
+Besides this, it removes an unused #ifdef CONFIG_PROC_FS from 
+include/linux/ipmi.h.
+
+---
+
+BTW: Please add an entry for IPMI to MAINTAINERS.
+
+ drivers/char/ipmi/ipmi_msghandler.c |    3 +--
+ include/linux/ipmi.h                |    4 ----
+ 2 files changed, 1 insertion(+), 6 deletions(-)
+
+--- linux-2.6.17-rc1-mm2-full/include/linux/ipmi.h.old	2006-04-12 22:32:08.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/include/linux/ipmi.h	2006-04-12 22:32:20.000000000 +0200
+@@ -210,11 +210,7 @@
+  */
+ #include <linux/list.h>
+ #include <linux/module.h>
+-
+-#ifdef CONFIG_PROC_FS
+ #include <linux/proc_fs.h>
+-extern struct proc_dir_entry *proc_ipmi_root;
+-#endif /* CONFIG_PROC_FS */
+ 
+ /* Opaque type for a IPMI message user.  One of these is needed to
+    send and receive messages. */
+--- linux-2.6.17-rc1-mm2-full/drivers/char/ipmi/ipmi_msghandler.c.old	2006-04-12 22:32:29.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/drivers/char/ipmi/ipmi_msghandler.c	2006-04-12 22:32:45.000000000 +0200
+@@ -57,8 +57,7 @@
+ static int initialized = 0;
+ 
+ #ifdef CONFIG_PROC_FS
+-struct proc_dir_entry *proc_ipmi_root = NULL;
+-EXPORT_SYMBOL(proc_ipmi_root);
++static struct proc_dir_entry *proc_ipmi_root = NULL;
+ #endif /* CONFIG_PROC_FS */
+ 
+ #define MAX_EVENTS_IN_QUEUE	25
+

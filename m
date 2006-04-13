@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbWDMUgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWDMUfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbWDMUgR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 16:36:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWDMUfw
+	id S964955AbWDMUfu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 16:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWDMUfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 16:35:52 -0400
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:33046 "EHLO
+	Thu, 13 Apr 2006 16:35:50 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:33302 "EHLO
 	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S964956AbWDMUft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S964955AbWDMUft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 13 Apr 2006 16:35:49 -0400
 Date: Thu, 13 Apr 2006 16:35:46 -0400
 From: Jeff Mahoney <jeffm@suse.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
 Subject: [PATCH 01/08] idr: add idr_replace method for replacing pointers
-Message-ID: <20060413203546.GA3170@locomotive.unixthugs.org>
+Message-ID: <20060413203546.GA3181@locomotive.unixthugs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -61,7 +61,7 @@ diff -ruNpX ../dontdiff linux-2.6.16-staging1/lib/idr.c linux-2.6.16-staging2/li
 + * @id: lookup key
 + *
 + * Replace the pointer registered with the id.  A -ENOENT
-+ * return indicates that @id was not found.
++ * return indicates that @id is not found.
 + *
 + * The caller must serialize vs idr_find(), idr_get_new(), and idr_remove().
 + */

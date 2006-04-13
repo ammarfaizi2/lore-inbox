@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWDMQzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWDMQ4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWDMQzU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 12:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWDMQzU
+	id S1751070AbWDMQ4F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 12:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWDMQ4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 12:55:20 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:49641 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751061AbWDMQzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 12:55:18 -0400
-Date: Thu, 13 Apr 2006 18:55:09 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-Subject: [PATCH 4/4] Remove unused types
-Message-ID: <20060413165509.GH30574@wohnheim.fh-wedel.de>
-References: <20060413165153.GD30574@wohnheim.fh-wedel.de>
+	Thu, 13 Apr 2006 12:56:04 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44299 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751070AbWDMQ4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 12:56:03 -0400
+Date: Thu, 13 Apr 2006 17:54:52 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Richard Purdie <rpurdie@rpsys.net>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-pcmcia@lists.infradead.org, lenz@cs.wisc.edu,
+       kernel list <linux-kernel@vger.kernel.org>, metan@seznam.cz
+Subject: Re: 2.6.17-rc1: collie -- oopsen in pccardd?
+Message-ID: <20060413165452.GA7805@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	Richard Purdie <rpurdie@rpsys.net>,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	linux-pcmcia@lists.infradead.org, lenz@cs.wisc.edu,
+	kernel list <linux-kernel@vger.kernel.org>, metan@seznam.cz
+References: <20060404122212.GG19139@elf.ucw.cz> <20060404124350.GA16857@flint.arm.linux.org.uk> <20060404000129.GA2590@ucw.cz> <1144923105.7236.18.camel@localhost.localdomain> <20060413164706.GB18635@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060413165153.GD30574@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060413164706.GB18635@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Three types are never set or checked for.  Remove.
+On Thu, Apr 13, 2006 at 06:47:06PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > I'm getting some oopses when inserting/removing pccard (on collie,
+> > > > > oopses in pccardd). It does not break boot, so it is not immediate
+> > > > > problem, but I wonder if it also happens on non-collie machines?
+> > > > 
+> > > > No idea what so ever.  Not even any clues as to what might be going wrong
+> > > > due to the lack of oops dump.  (Not that I even look after PCMCIA anymore.)
+> > > 
+> > > Sorry for lack of oops. I was not expecting you to debug it, I
+> > > expected some voices telling me it is broken for them, too :-).
+> > 
+> > With a recent git kernel (907d91d708d9999bec0185d630062576ac4181a7) I
+> > see the oops below when booting spitz (SL-C3000 - ARM pxa270 based). Was
+> > this the same oops you saw Pavel?
+> 
+> I think so.
 
-Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
----
+diff --git a/drivers/pcmcia/pcmcia_resource.c b/drivers/pcmcia/pcmcia_resource.c
+--- a/drivers/pcmcia/pcmcia_resource.c
++++ b/drivers/pcmcia/pcmcia_resource.c
+@@ -89,7 +88,7 @@ static int alloc_io_space(struct pcmcia_
+        }
+        if ((s->features & SS_CAP_STATIC_MAP) && s->io_offset) {
+                *base = s->io_offset | (*base & 0x0fff);
+-               s->io[0].Attributes = attr;
++               s->io[0].res->flags = (s->io[0].res->flags & ~IORESOURCE_BITS) | (attr & IORESOURCE_BITS);
+                return 0;
+        }
+        /* Check for an already-allocated window that must conflict with
 
- include/mtd/mtd-abi.h |    3 ---
- 1 file changed, 3 deletions(-)
+will probably be the culpret - which is from commit
+c7d006935dfda9174187aa557e94a137ced10c30.
 
+Static maps do not have IO resources, so s->io[].Attributes was not a
+"duplicated" field in this case.  This part of this change needs
+reverting.
 
---- mtd_type/include/mtd/mtd-abi.h~unused_types	2006-04-13 18:32:42.000000000 +0200
-+++ mtd_type/include/mtd/mtd-abi.h	2006-04-13 18:34:14.000000000 +0200
-@@ -28,10 +28,7 @@ struct mtd_oob_buf {
- #define MTD_ROM			2
- #define MTD_NORFLASH		3
- #define MTD_NANDFLASH		4
--#define MTD_PEROM		5
- #define MTD_DATAFLASH		6
--#define MTD_OTHER		14
--#define MTD_UNKNOWN		15
- 
- #define MTD_CLEAR_BITS		1       // Bits can be cleared (flash)
- #define MTD_SET_BITS		2       // Bits can be set
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

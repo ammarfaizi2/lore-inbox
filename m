@@ -1,99 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWDMQQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWDMQUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbWDMQQK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 12:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWDMQQK
+	id S1750884AbWDMQUg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 12:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWDMQUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 12:16:10 -0400
-Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:51602 "EHLO
-	smtpq3.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S1751053AbWDMQQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 12:16:09 -0400
-Message-ID: <443E79AD.50505@keyaccess.nl>
-Date: Thu, 13 Apr 2006 18:17:49 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Thu, 13 Apr 2006 12:20:36 -0400
+Received: from thunk.org ([69.25.196.29]:37860 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750827AbWDMQUf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 12:20:35 -0400
+Date: Thu, 13 Apr 2006 12:20:28 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: sho@tnes.nec.co.jp
+Cc: Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC][15/21]e2fsprogs modify variables for bitmap to exceed 2G
+Message-ID: <20060413162028.GA23452@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, sho@tnes.nec.co.jp,
+	Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20060413161227sho@rifu.tnes.nec.co.jp>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
-       ALSA devel <alsa-devel@alsa-project.org>
-Subject: Re: [ALSA STABLE 3/3] a few more -- unregister platform device again
- if probe was unsuccessful
-References: <443DAD5C.8080007@keyaccess.nl> <200604131126.35841.ioe-lkml@rameria.de> <443E5AAD.5040800@keyaccess.nl> <20060413145756.GA29959@flint.arm.linux.org.uk>
-In-Reply-To: <20060413145756.GA29959@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060413161227sho@rifu.tnes.nec.co.jp>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+On Thu, Apr 13, 2006 at 04:12:27PM +0900, sho@tnes.nec.co.jp wrote:
+> Summary of this patch:
+>   [15/21] change the type of variables which manipulate bitmap
+>           - Change the type of 4byte variables manipulating bitmap
+>             from signed to unsigned.
 
-> On Thu, Apr 13, 2006 at 04:05:33PM +0200, Rene Herman wrote:
+Generalized NACK.  We can't just blindly change function signatures of
+pre-existing functions in libext2fs, since this breaks the ABI with
+pre-existing applications linked with current shared libraries of
+libext2fs.
 
->> Not honouring/passing up probe() method error returns, not even -ENODEV, 
->> makes some sense for discoverable busses such as PCI where you at least 
->> have a driver independent bus_id sitting in /sys/devices/pci* that you 
->> can later echo into /sys/bus/pci/drivers/*/bind to make the driver bind 
->> to a device, but not much sense for the platform bus. Platform devices 
->> only "exist" (in /sys/devices/platform) due to the driver creating them 
->> itself and keeping them after failing a probe means that directory 
->> becomes an enumeration of the drivers we loaded, rather than a view of 
->> what's present in the system.
-> 
-> Incorrect.  In some circumstances, they may be created by architecture
-> support code, and might be created and destroyed dynamically by
-> architecture support code.
+We could bump the major version number, but what I'd much rather do is
+to create new functions which use the 64-bit blk64_t (i.e.,
+ext2fs_mark_block_bitmap2).  This will make the patches much bigger,
+but it allows us to preserve backwards compatibility.
 
-Okay, thanks, that's relevant information. Please explain though what's 
-incorrect about the fact that for these ISA devices on the plain old PC, 
-with nothing other than the driver available to probe for them, just 
-keeping them registered after failing a probe turns 
-/sys/devices/platform into a view of "what drivers did we load".
+> --- e2fsprogs-1.39/lib/ext2fs/bitmaps.c	2005-09-06 18:40:14.000000000 +0900
+> +++ e2fsprogs-1.39.tmp/lib/ext2fs/bitmaps.c	2006-04-12 13:27:56.000000000 +0900
+>  errcode_t ext2fs_allocate_generic_bitmap(__u32 start,
+>  					 __u32 end,
+> -					 __u32 real_end,
+> +					 __u64 real_end,
+>  					 const char *descr,
+>  					 ext2fs_generic_bitmap *ret)
 
->> The driver model crowd did not seem exceedingly interested in the 
->> problem though:
->>
->> http://marc.theaimsgroup.com/?l=linux-kernel&m=114417829014332&w=2
-> 
-> Incorrect summary.  The ALSA use model of the driver model doesn't fit
-> with the driver model use model.  It's not that we're not interested
-> in it - it's that it's perverted to the way driver model folk intend
-> the subsystem to work, and the way that platform devices are used on
-> some architectures.
+Breaks the ABI
 
-And I take it that interest is reflected in getting a grand total of 0 
-comments from anyone on my own feeble attempts to suggest things in that 
-thread such as the settable flag that would make the driver model pass 
-up the error return from probe when set, or having an additional 
-.discover method, or ..
+> @@ -181,7 +182,7 @@ errcode_t ext2fs_fudge_inode_bitmap_end(
+>  }
+>  
+>  errcode_t ext2fs_fudge_block_bitmap_end(ext2fs_block_bitmap bitmap,
+> -					blk_t end, blk_t *oend)
+> +					blk64_t end, blk64_t *oend)
 
-M'kay. I believe there's one clean way out of this. We could add an "isa 
-bus", where the _user_ would first need to setup the hardware from 
-userspace by echoing values into sysfs. Say, something like:
+Breaks the ABI.
 
-echo -n foo		>/sys/devices/isa0/new
-echo -n "io 0x220"	>/sys/devices/isa0/foo/resources
-echo -n "irq 5"		>/sys/devices/isa0/foo/resources
-echo -n "dma 1"		>/sys/devices/isa0/foo/resources
+> --- e2fsprogs-1.39/lib/ext2fs/bitops.c	2005-09-06 18:40:14.000000000 +0900
+> +++ e2fsprogs-1.39.tmp/lib/ext2fs/bitops.c	2006-04-12 13:27:56.000000000 +0900
+> @@ -66,26 +66,26 @@ int ext2fs_test_bit(unsigned int nr, con
+>  
+>  #endif	/* !_EXT2_HAVE_ASM_BITOPS_ */
+>  
+> -void ext2fs_warn_bitmap(errcode_t errcode, unsigned long arg,
+> +void ext2fs_warn_bitmap(errcode_t errcode, unsigned long long arg,
 
-and so on. The type of resources would be modelled after ISA-PnP (and to 
-make them more equal, you could do multiple device id's per bus id, card 
-id's, in PNP lingo, but this principle at least)
+Breaks the ABI
 
-The driver would them request id "foo" as an agreed upon ID (snd-sb8 
-would request "sb8", say) or we could pass in the id as a module parameter.
+>  void ext2fs_warn_bitmap2(ext2fs_generic_bitmap bitmap,
+> -			    int code, unsigned long arg)
+> +			    int code, unsigned long long arg)
 
-I actually think this would be Great. Comments? Pitchforks?
+Breaks the ABI
 
- From the driver's standpoint, there would not be a difference with 
-ISA-PnP anymore other than ISA-PnP also providing for the possibilty to 
-change them -- something which ALSA also uses, but which it should 
-probably not; has annoyed me for some time. We could then in fact also 
-integrate this into ISA-PnP itself, using PnP-like device IDs and all, 
-so that from the driver's standpoint, it _is_ always speaking to an 
-ISA-PnP device.
+> diff -upNr e2fsprogs-1.39/lib/ext2fs/bitops.h e2fsprogs-1.39.tmp/lib/ext2fs/bitops.h
+> --- e2fsprogs-1.39/lib/ext2fs/bitops.h	2006-03-30 02:51:53.000000000 +0900
+> +++ e2fsprogs-1.39.tmp/lib/ext2fs/bitops.h	2006-04-12 13:28:14.000000000 +0900
+> @@ -52,15 +52,15 @@ extern const char *ext2fs_inode_string;
+>  extern const char *ext2fs_mark_string;
+>  extern const char *ext2fs_unmark_string;
+>  extern const char *ext2fs_test_string;
+> -extern void ext2fs_warn_bitmap(errcode_t errcode, unsigned long arg,
+> +extern void ext2fs_warn_bitmap(errcode_t errcode, unsigned long long arg,
+>  			       const char *description);
 
-Rene.
+Breaks the ABI.
+
+>  extern void ext2fs_warn_bitmap2(ext2fs_generic_bitmap bitmap,
+> -				int code, unsigned long arg);
+> +				int code, unsigned long long arg);
+>  
+> -extern int ext2fs_mark_block_bitmap(ext2fs_block_bitmap bitmap, blk_t block);
+> +extern int ext2fs_mark_block_bitmap(ext2fs_block_bitmap bitmap, blk64_t block);
+
+Breaks the ABI.
+
+>  extern int ext2fs_unmark_block_bitmap(ext2fs_block_bitmap bitmap,
+> -				       blk_t block);
+> -extern int ext2fs_test_block_bitmap(ext2fs_block_bitmap bitmap, blk_t block);
+> +					blk64_t block);
+> +extern int ext2fs_test_block_bitmap(ext2fs_block_bitmap bitmap, blk64_t block);
+>  
+
+Breaks the ABI.
+
+>  extern int ext2fs_mark_inode_bitmap(ext2fs_inode_bitmap bitmap, ext2_ino_t inode);
+>  extern int ext2fs_unmark_inode_bitmap(ext2fs_inode_bitmap bitmap,
+> @@ -68,11 +68,11 @@ extern int ext2fs_unmark_inode_bitmap(ex
+>  extern int ext2fs_test_inode_bitmap(ext2fs_inode_bitmap bitmap, ext2_ino_t inode);
+>  
+>  extern void ext2fs_fast_mark_block_bitmap(ext2fs_block_bitmap bitmap,
+> -					  blk_t block);
+> +					  blk64_t block);
+>  extern void ext2fs_fast_unmark_block_bitmap(ext2fs_block_bitmap bitmap,
+
+Breaks the ABI.
+
+
+> -					    blk_t block);
+> +					    blk64_t block);
+>  extern int ext2fs_fast_test_block_bitmap(ext2fs_block_bitmap bitmap,
+> -					 blk_t block);
+> +					 blk64_t block);
+>  
+
+Breaks the ABI.
+
+>  extern void ext2fs_fast_mark_inode_bitmap(ext2fs_inode_bitmap bitmap,
+>  					  ext2_ino_t inode);
+> @@ -86,24 +86,24 @@ extern blk_t ext2fs_get_block_bitmap_end
+>  extern ext2_ino_t ext2fs_get_inode_bitmap_end(ext2fs_inode_bitmap bitmap);
+>  
+>  extern void ext2fs_mark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+> -					   blk_t block, int num);
+> +					   blk64_t block, int num);
+
+Breaks the ABI.
+
+>  extern void ext2fs_unmark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+> -					     blk_t block, int num);
+> +					     blk64_t block, int num);
+
+Breaks the ABI.
+
+>  extern int ext2fs_test_block_bitmap_range(ext2fs_block_bitmap bitmap,
+> -					  blk_t block, int num);
+> +					  blk64_t block, int num);
+
+Breaks the ABI.
+
+>  extern void ext2fs_fast_mark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+> -						blk_t block, int num);
+> +						blk64_t block, int num);
+
+Breaks the ABI.
+
+>  extern void ext2fs_fast_unmark_block_bitmap_range(ext2fs_block_bitmap bitmap,
+> -						  blk_t block, int num);
+> +						  blk64_t block, int num);
+
+Breaks the ABI.
+
+>  extern int ext2fs_fast_test_block_bitmap_range(ext2fs_block_bitmap bitmap,
+> -					       blk_t block, int num);
+> +					       blk64_t block, int num);
+
+Breaks the ABI.
+
+>  extern void ext2fs_set_bitmap_padding(ext2fs_generic_bitmap map);
+>  
+>  /* These two routines moved to gen_bitmap.c */
+>  extern int ext2fs_mark_generic_bitmap(ext2fs_generic_bitmap bitmap,
+> -					 __u32 bitno);
+> +					 __u64 bitno);
+
+Breaks the ABI.
+
+>  extern int ext2fs_unmark_generic_bitmap(ext2fs_generic_bitmap bitmap,
+> -					   blk_t bitno);
+> +					   blk64_t bitno);
+
+Breaks the ABI.
+
+>  /*
+>   * The inline routines themselves...
+>   * 
+> @@ -391,10 +391,10 @@ _INLINE_ int ext2fs_find_next_bit_set (v
+>  #endif	
+>  
+>  _INLINE_ int ext2fs_test_generic_bitmap(ext2fs_generic_bitmap bitmap,
+> -					blk_t bitno);
+> +					blk64_t bitno);
+>  
+
+Breaks the ABI.
+
+
+etc....
+

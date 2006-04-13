@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbWDMOYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWDMO2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964946AbWDMOYI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 10:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWDMOYI
+	id S964948AbWDMO2o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 10:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWDMO2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 10:24:08 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:46026 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964946AbWDMOYH (ORCPT
+	Thu, 13 Apr 2006 10:28:44 -0400
+Received: from [4.79.56.4] ([4.79.56.4]:13795 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S964948AbWDMO2o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 10:24:07 -0400
-Date: Thu, 13 Apr 2006 16:23:26 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Denis Vlasenko <vda@ilport.com.ua>
-cc: Avramenko Andrew <liksx@mail.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Troubles with booting init
-In-Reply-To: <200604131147.05686.vda@ilport.com.ua>
-Message-ID: <Pine.LNX.4.61.0604131621570.17374@yvahk01.tjqt.qr>
-References: <443E0DEC.4000602@mail.ru> <200604131147.05686.vda@ilport.com.ua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Apr 2006 10:28:44 -0400
+Subject: Re: [PATCH] pids: simplify do_each_task_pid/while_each_task_pid
+From: Arjan van de Ven <arjan@infradead.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060413175431.GA108@oleg>
+References: <20060413163727.GA1365@oleg>
+	 <20060413133814.GA29914@infradead.org>  <20060413175431.GA108@oleg>
+Content-Type: text/plain
+Date: Thu, 13 Apr 2006 16:27:19 +0200
+Message-Id: <1144938439.3206.0.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I've compiled kernel for it but it doesn't work. It doesn't shows any 
->> error but stopped with:
->
->I bet your /sbin/init (or all programs spawned by it)
->is compiled with P4 instructions (cmov or something like that).
->
->Recompile those for 386.
 
-I can confirm that from a similar experience. Running a glibc-i586 on i386 
-locks up too due to cmpxchg not being available.
+> Then the caller should check find_pid() doesn't return NULL. But yes,
+> we can hide this check inside for_each_task_pid().
+> 
+> But what about current users of do_each_task_pid ? We can't just remove
+> these macros.
+
+you can if you fix the callers :)
 
 
-Jan Engelhardt
--- 

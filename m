@@ -1,107 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWDMODw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWDMOEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbWDMODw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 10:03:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWDMODw
+	id S964900AbWDMOEX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 10:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWDMOEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 10:03:52 -0400
-Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:21637 "EHLO
-	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S964941AbWDMODv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 10:03:51 -0400
-Message-ID: <443E5AAD.5040800@keyaccess.nl>
-Date: Thu, 13 Apr 2006 16:05:33 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Thu, 13 Apr 2006 10:04:23 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:10203 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964900AbWDMOEW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 10:04:22 -0400
+Date: Thu, 13 Apr 2006 16:04:12 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Vishal Patil <vishpat@gmail.com>
+cc: Jens Axboe <axboe@suse.de>, Antonio Vargas <windenntw@gmail.com>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CSCAN I/O scheduler for 2.6.10 kernel
+In-Reply-To: <4745278c0604121653p68d7baf0uc3f8ebf952a4cb61@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0604131600540.17374@yvahk01.tjqt.qr>
+References: <4745278c0603301955w26fea42eid6bcab91c573eaa3@mail.gmail.com> 
+ <4745278c0603301958o4c2ed282x3513fdb459d8ec7c@mail.gmail.com> 
+ <4432D6D4.2020102@tmr.com>  <4745278c0604041402n5c6329ebw71d7fdc5c3a9dd68@mail.gmail.com>
+  <69304d110604050448x60fd5bb1ub74f66b720dc7d8a@mail.gmail.com> 
+ <4745278c0604050646n668bc9fy2b8c18462439ae5d@mail.gmail.com> 
+ <4745278c0604090955j2841ebacka990a90ffebc7841@mail.gmail.com> 
+ <Pine.LNX.4.61.0604111334150.928@yvahk01.tjqt.qr>  <20060411113926.GD4791@suse.de>
+  <Pine.LNX.4.61.0604111340550.928@yvahk01.tjqt.qr>
+ <4745278c0604121653p68d7baf0uc3f8ebf952a4cb61@mail.gmail.com>
 MIME-Version: 1.0
-To: Ingo Oeser <ioe-lkml@rameria.de>
-CC: linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-       Greg KH <gregkh@suse.de>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       ALSA devel <alsa-devel@alsa-project.org>
-Subject: Re: [ALSA STABLE 3/3] a few more -- unregister platform device again
- if probe was unsuccessful
-References: <443DAD5C.8080007@keyaccess.nl> <200604131126.35841.ioe-lkml@rameria.de>
-In-Reply-To: <200604131126.35841.ioe-lkml@rameria.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
+>Jan
+>
+>I am attaching a final CSCAN scheduler patch for the 2.6.16.2 kernel.
+>The earlier patch that I had posted had a bug in the
+>"cscan_merged_requests" function. This has been taken care of in the
+>attached patch.  I would really appreciate if some one could help me
+>in conducting performance tests for the attached patch.
+>
+>Many thanks for to all of you all for your inputs on this.
 
-Why did you remove alsa-devel from the CC?
+Looks good, and did not break so far.
+At frst I was puzzled why it did not show up in menuconfig, and eventually 
+I found out it was not assigned a name. Also allow building it as a module. 
+Updated patch for the Kconfig.iosched file in block is below.
 
-> This is inserting lots of duplicate and control heavy code. It looks 
-> like the same pattern and is using just platform_xxx funxtions.
-> 
-> Any counter-examples with a different pattern, which you converted in
-> a different manner?
+diff -Ndpru linux-2.6.17-rc1~/block/Kconfig.iosched linux-2.6.17-rc1-csc/block/Kconfig.iosched
+--- linux-2.6.17-rc1~/block/Kconfig.iosched	2006-04-03 05:22:10.000000000 +0200
++++ linux-2.6.17-rc1-csc/block/Kconfig.iosched	2006-04-13 13:12:09.275805000 +0200
+@@ -38,6 +38,19 @@ config IOSCHED_CFQ
+ 	  among all processes in the system. It should provide a fair
+ 	  working environment, suitable for desktop systems.
+ 
++config IOSCHED_CSCAN
++	tristate "CSCAN I/O scheduler"
++	default y
++	---help---
++        CSCAN I/O scheduler. Maintain two queues which will be sorted in
++        ascending order using Red Black Trees. When a disk request arrives and
++        if the block number it refers to is greater than the block number of the
++        current request being served add (merge) it to the first sorted queue or
++        else add (merge) it to the second sorted queue. Keep on servicing the
++        requests from the first request queue until it is empty after which
++        switch over to the second queue and now reverse the roles of the two
++        queues
++
+ choice
+ 	prompt "Default I/O scheduler"
+ 	default DEFAULT_AS
+@@ -54,6 +67,9 @@ choice
+ 	config DEFAULT_CFQ
+ 		bool "CFQ" if IOSCHED_CFQ=y
+ 
++	config DEFAULT_CSCAN
++		bool "CSCAN" if IOSCHED_CSCAN=y
++
+ 	config DEFAULT_NOOP
+ 		bool "No-op"
+ 
+@@ -64,6 +80,7 @@ config DEFAULT_IOSCHED
+ 	default "anticipatory" if DEFAULT_AS
+ 	default "deadline" if DEFAULT_DEADLINE
+ 	default "cfq" if DEFAULT_CFQ
++	default "cscan" if DEFAULT_CSCAN
+ 	default "noop" if DEFAULT_NOOP
+ 
+ endmenu
+#<<eof>>
 
-Not lots really... for all of them it's basically:
 
-if (!platform_get_drvdata(device)) {
-	platform_device_unregister(device);
-	continue;
-}
-
-in the driver's main init loop. In this batch there were three drivers 
-that both did not support more than one device and passed the error on 
-up meaning it looks a bit a bit more clumsy than that but when moving 
-these drivers from the platform_device_register_simple() interface this 
-code will be revisited again; making them support more devices can also 
-happen longer term.
-
-> Wouldn't it be more useful to do these checks in 
-> platform_register_simple() and return the proper error value there?
-
-That interface is going away. I checked where ALSA used them due to that 
-in fact (the same patches for sound/isa are already in ALSA and have 
-been submitted for -stable as well).
-
-Yes, it would be better if the driver model supplied this functionality 
-itself. The problem is that an error return from the platform probe() 
-method is not being honoured/passed up by the driver model so that we 
-don't get a chance to say "no, the hardware's not here, go away!".
-
-Not honouring/passing up probe() method error returns, not even -ENODEV, 
-makes some sense for discoverable busses such as PCI where you at least 
-have a driver independent bus_id sitting in /sys/devices/pci* that you 
-can later echo into /sys/bus/pci/drivers/*/bind to make the driver bind 
-to a device, but not much sense for the platform bus. Platform devices 
-only "exist" (in /sys/devices/platform) due to the driver creating them 
-itself and keeping them after failing a probe means that directory 
-becomes an enumeration of the drivers we loaded, rather than a view of 
-what's present in the system.
-
-The driver model crowd did not seem exceedingly interested in the 
-problem though:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114417829014332&w=2
-
-It _is_ ofcourse an option to not care about /sys/devices/platform, and 
-ALSA could do that as well longer term. This was discussed:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114442720631596&w=2
-
-(marc seems to be not so good at keeping threads intact. reply at: 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114469016131522&w=2)
-
-and for now, we'll keep the old behaviour of not loading on probe 
-failure, using drvdata() as a private success flag set from probe(). 
-Longer term, we can revisit this.
-
-Most importantly though, you replied to the one submitted for -stable. 
-For -stable, this is certainly the way to go. ALSA drivers always failed 
-to load on probe() failure before they were even using the platform 
-driver interface (which was new to 2.6.16) and things like the alsaconf 
-script rely on this. For -stable, it's a simple bugfix therefore.
-
-> Or just create a small helper, if this have to be done seperate.
-
-That would be going way overboard for the three lines as stated in the 
-beginning. Certainly when they might/will go again in the future...
-
-Rene.
-
+Jan Engelhardt
+-- 

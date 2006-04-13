@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWDMETq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWDMEq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbWDMETq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 00:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWDMETq
+	id S964781AbWDMEq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 00:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWDMEq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 00:19:46 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28060 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964779AbWDMETp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 00:19:45 -0400
-To: Magnus Damm <magnus@valinux.co.jp>
-Cc: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kexec: Remove order
-References: <20060413030040.20516.9231.sendpatchset@cherry.local>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 12 Apr 2006 22:18:23 -0600
-In-Reply-To: <20060413030040.20516.9231.sendpatchset@cherry.local> (Magnus
- Damm's message of "Thu, 13 Apr 2006 11:59:39 +0900 (JST)")
-Message-ID: <m164le6rcg.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Apr 2006 00:46:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:29877 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964781AbWDMEqZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 00:46:25 -0400
+Date: Wed, 12 Apr 2006 21:46:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dan Bonachea <bonachead@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
+Message-Id: <20060412214613.404cf49f.akpm@osdl.org>
+In-Reply-To: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
+References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnus Damm <magnus@valinux.co.jp> writes:
-
-> Kexec: Remove order
+Dan Bonachea <bonachead@comcast.net> wrote:
 >
-> This patch replaces kexec n-order allocation code with 0-order only.
->
-> Almost all kexec allocations are 0-order pages already, with the exception of 
-> some x86_64 specific code that requests two physically contiguous pages. 
->
-> These two physically contiguous pages are easily replaced with two separate
-> pages. The second page is kept in an architecture specific pointer that is
-> added to struct kimage.
->
-> Using 0-order allocations only greatly simplifies kexec porting work to
-> the Xen hypervisor.
+> Hi - I believe I've discovered a thread-safety bug in the Linux 2.6.x kernel 
+>  implementation of write(2).
+> 
+>  The small C program below the problem - in a nutshell, if multiple threads 
+>  write() to STDOUT_FILENO, and stdout has been redirected to a file, then some 
+>  of the output lines get lost. The actual result is non-deterministic (even in 
+>  a "correct" run) - however the expected correct behavior is 10 lines of output 
+>  (in some non-deterministic order). However, the test program reproducibly 
+>  generates some lost output (less than 10 lines of total output) on every run 
+>  where the output is redirected to a new file. This appears to be a violation 
+>  of the POSIX spec (POSIX 1003.1-2001:2.9.1 requires thread-safety of write()). 
+> 
+> 
+>  The problem does not appear to occur if output goes to the console, or is 
+>  redirected to append to an existing file, only when stdout is redirected to a 
+>  new file.
 
-NACK.
+This comes up occasionally.  Is very simple:
 
-It is a big intrusive patch that makes it impossible to
-port to some architectures, and it obscures what you
-are really trying to do which is fix x86_64.
+asmlinkage ssize_t sys_write(unsigned int fd, const char __user * buf, size_t count)
+{
+	struct file *file;
+	ssize_t ret = -EBADF;
+	int fput_needed;
 
-Feel free to fix x86_64, to use only page sized allocates.
+	file = fget_light(fd, &fput_needed);
+	if (file) {
+		loff_t pos = file_pos_read(file);
+		ret = vfs_write(file, buf, count, &pos);
+		file_pos_write(file, pos);
+		fput_light(file, fput_needed);
+	}
 
-Until I see a reasonable argument that none of the architectures
-currently supported by the linux kernel would need a multi order
-allocation for a kexec port am I interested in removing support.
+	return ret;
+}
 
-As I recall the alpha had an architectural need for a 32KB
-allocation or something like that.
+we can have multiple threads in vfs_write() using the same `pos'.
 
-Eric
+Locking for file.f_pos is generally file->f_dentry->d_inode->i_mutex.  We
+could use that if we were to restructure the code a lot.  Or we could add a
+new lock to `struct file'.
+
+Or we could do nothing, because a) the application is going to produce
+inderterminate output anyway and b) because it only affects silly testcases
+and not real-world apps.
+
+OK, there _might_ be a real-world case: threads appending logging
+information to a flat file.  Trivially workable-around with a userspace
+lock, or by switching to stdio (same thing).
+
+Yes, really we should fix it.  But it's not worth adding more overhead to
+do so.  So the fix would involve widespread (but simple) change, to draw
+that f_pos update inside i_mutex.
+
+(We could pseudo-fix it by updating f_pos _before_ entering vfs_write(), too).

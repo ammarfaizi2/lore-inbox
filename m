@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWDMUfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWDMUgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964955AbWDMUfu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 16:35:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWDMUfu
+	id S932461AbWDMUgX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 16:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWDMUf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 16:35:50 -0400
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:33302 "EHLO
+	Thu, 13 Apr 2006 16:35:59 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:37142 "EHLO
 	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S964955AbWDMUft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S964970AbWDMUft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 13 Apr 2006 16:35:49 -0400
 Date: Thu, 13 Apr 2006 16:35:46 -0400
 From: Jeff Mahoney <jeffm@suse.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 01/08] idr: add idr_replace method for replacing pointers
-Message-ID: <20060413203546.GA3181@locomotive.unixthugs.org>
+Subject: [PATCH 04/08] dm: use spinlock for _minor_lock
+Message-ID: <20060413203546.GA3220@locomotive.unixthugs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,71 +26,120 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- This patch adds an idr_replace() method to the IDR library for replacing
- a pointer already present in the IDR. Rather than do a remove/add pair, this
- function simply updates the pointer for an ID.
+ In order to truly serialize reference counting and properly handle the final
+ dm_put, we need to use atomic_dec_and_lock, since another thread of execution
+ can attempt to "resurrect" a potentially dead mapped_device.
+
+ This patch replaces the _minor_lock mutex with a spinlock, and leverages
+ atomic_dec_and_lock to properly serialize reference counting.
 
 Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 --
- include/linux/idr.h |    1 +
- lib/idr.c           |   37 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 38 insertions(+)
+ drivers/md/dm.c |   27 +++++++++++++--------------
+ 1 files changed, 13 insertions(+), 14 deletions(-)
 
-diff -ruNpX ../dontdiff linux-2.6.16-staging1/include/linux/idr.h linux-2.6.16-staging2/include/linux/idr.h
---- linux-2.6.16-staging1/include/linux/idr.h	2006-01-02 22:21:10.000000000 -0500
-+++ linux-2.6.16-staging2/include/linux/idr.h	2006-04-13 16:18:14.000000000 -0400
-@@ -78,6 +78,7 @@ void *idr_find(struct idr *idp, int id);
- int idr_pre_get(struct idr *idp, gfp_t gfp_mask);
- int idr_get_new(struct idr *idp, void *ptr, int *id);
- int idr_get_new_above(struct idr *idp, void *ptr, int starting_id, int *id);
-+int idr_replace(struct idr *idp, void *ptr, int id);
- void idr_remove(struct idr *idp, int id);
- void idr_destroy(struct idr *idp);
- void idr_init(struct idr *idp);
-diff -ruNpX ../dontdiff linux-2.6.16-staging1/lib/idr.c linux-2.6.16-staging2/lib/idr.c
---- linux-2.6.16-staging1/lib/idr.c	2006-01-02 22:21:10.000000000 -0500
-+++ linux-2.6.16-staging2/lib/idr.c	2006-04-13 16:18:14.000000000 -0400
-@@ -390,6 +390,43 @@ void *idr_find(struct idr *idp, int id)
- }
- EXPORT_SYMBOL(idr_find);
+diff -ruNpX ../dontdiff linux-2.6.16-staging1/drivers/md/dm.c linux-2.6.16-staging2/drivers/md/dm.c
+--- linux-2.6.16-staging1/drivers/md/dm.c	2006-04-13 16:18:19.000000000 -0400
++++ linux-2.6.16-staging2/drivers/md/dm.c	2006-04-13 16:18:19.000000000 -0400
+@@ -23,6 +23,7 @@ static const char *_name = DM_NAME;
+ static unsigned int major = 0;
+ static unsigned int _major = 0;
  
-+/**
-+ * idr_replace - replace pointer for given id
-+ * @idp: idr handle
-+ * @ptr: pointer you want associated with the ide
-+ * @id: lookup key
-+ *
-+ * Replace the pointer registered with the id.  A -ENOENT
-+ * return indicates that @id is not found.
-+ *
-+ * The caller must serialize vs idr_find(), idr_get_new(), and idr_remove().
-+ */
-+int idr_replace(struct idr *idp, void *ptr, int id)
-+{
-+	int n;
-+	struct idr_layer *p;
-+	int shift = (idp->layers - 1) * IDR_BITS;
-+
-+	n = idp->layers * IDR_BITS;
-+	p = idp->top;
-+
-+	id &= MAX_ID_MASK;
-+
-+	while ((shift > 0) && p) {
-+		n = (id >> shift) & IDR_MASK;
-+		p = p->ary[n];
-+		shift -= IDR_BITS;
-+	}
-+
-+	n = id & IDR_MASK;
-+	if (unlikely(p == NULL || !test_bit(n, &p->bitmap)))
-+		return -ENOENT;
-+
-+	p->ary[n] = ptr;
-+	return 0;
-+}
-+EXPORT_SYMBOL(idr_replace);
-+
- static void idr_cache_ctor(void * idr_layer, kmem_cache_t *idr_layer_cache,
- 		unsigned long flags)
++static DEFINE_SPINLOCK(_minor_lock);
+ /*
+  * One of these is allocated per bio.
+  */
+@@ -697,14 +698,13 @@ static int dm_any_congested(void *conges
+ /*-----------------------------------------------------------------
+  * An IDR is used to keep track of allocated minor numbers.
+  *---------------------------------------------------------------*/
+-static DECLARE_MUTEX(_minor_lock);
+ static DEFINE_IDR(_minor_idr);
+ 
+ static void free_minor(unsigned int minor)
  {
+-	down(&_minor_lock);
++	spin_lock(&_minor_lock);
+ 	idr_remove(&_minor_idr, minor);
+-	up(&_minor_lock);
++	spin_unlock(&_minor_lock);
+ }
+ 
+ /*
+@@ -721,7 +721,7 @@ static int specific_minor(struct mapped_
+ 	if (!r)
+ 		return -ENOMEM;
+ 
+-	down(&_minor_lock);
++	spin_lock(&_minor_lock);
+ 
+ 	if (idr_find(&_minor_idr, minor)) {
+ 		r = -EBUSY;
+@@ -740,7 +740,7 @@ static int specific_minor(struct mapped_
+ 	}
+ 
+ out:
+-	up(&_minor_lock);
++	spin_unlock(&_minor_lock);
+ 	return r;
+ }
+ 
+@@ -753,7 +753,7 @@ static int next_free_minor(struct mapped
+ 	if (!r)
+ 		return -ENOMEM;
+ 
+-	down(&_minor_lock);
++	spin_lock(&_minor_lock);
+ 
+ 	r = idr_get_new(&_minor_idr, MINOR_ALLOCED, &m);
+ 	if (r) {
+@@ -769,7 +769,7 @@ static int next_free_minor(struct mapped
+ 	*minor = m;
+ 
+ out:
+-	up(&_minor_lock);
++	spin_unlock(&_minor_lock);
+ 	return r;
+ }
+ 
+@@ -839,9 +839,9 @@ static struct mapped_device *alloc_dev(u
+ 	init_waitqueue_head(&md->eventq);
+ 
+ 	/* Populate the mapping, nobody knows we exist yet */
+-	down(&_minor_lock);
++	spin_lock(&_minor_lock);
+ 	r = idr_replace(&_minor_idr, md, minor);
+-	up(&_minor_lock);
++	spin_unlock(&_minor_lock);
+ 	BUG_ON(r < 0);
+ 
+ 	return md;
+@@ -964,13 +964,13 @@ static struct mapped_device *dm_find_md(
+ 	if (MAJOR(dev) != _major || minor >= (1 << MINORBITS))
+ 		return NULL;
+ 
+-	down(&_minor_lock);
++	spin_lock(&_minor_lock);
+ 
+ 	md = idr_find(&_minor_idr, minor);
+ 	if (md && (md == MINOR_ALLOCED || (dm_disk(md)->first_minor != minor)))
+ 		md = NULL;
+ 
+-	up(&_minor_lock);
++	spin_unlock(&_minor_lock);
+ 
+ 	return md;
+ }
+@@ -1010,10 +1010,9 @@ void dm_put(struct mapped_device *md)
+ {
+ 	struct dm_table *map = dm_get_table(md);
+ 
+-	if (atomic_dec_and_test(&md->holders)) {
+-		down(&_minor_lock);
++	if (atomic_dec_and_lock(&md->holders, &_minor_lock)) {
+ 		idr_replace(&_minor_idr, MINOR_ALLOCED, md->disk->first_minor);
+-		up(&_minor_lock);
++		spin_unlock(&_minor_lock);
+ 		if (!dm_suspended(md)) {
+ 			dm_table_presuspend_targets(map);
+ 			dm_table_postsuspend_targets(map);

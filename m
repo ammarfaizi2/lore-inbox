@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWDMLbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWDMLfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWDMLbj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 07:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWDMLbj
+	id S964884AbWDMLfG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 07:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWDMLfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 07:31:39 -0400
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:46468 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964882AbWDMLbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 07:31:38 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
-Subject: 2.6.16-ck5
-Date: Thu, 13 Apr 2006 21:31:29 +1000
+	Thu, 13 Apr 2006 07:35:05 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:21697 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S964885AbWDMLfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 07:35:04 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Dave Dillow <dave@thedillows.org>
+Subject: Re: [PATCH] deinline a few large functions in vlan code v2
+Date: Thu, 13 Apr 2006 13:32:50 +0200
 User-Agent: KMail/1.9.1
+Cc: Denis Vlasenko <vda@ilport.com.ua>, netdev@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+References: <200604071628.30486.vda@ilport.com.ua> <200604121155.55561.vda@ilport.com.ua> <1144862325.18319.32.camel@dillow.idleaire.com>
+In-Reply-To: <1144862325.18319.32.camel@dillow.idleaire.com>
 MIME-Version: 1.0
-Message-Id: <200604132131.31898.kernel@kolivas.org>
-X-Length: 1435
-Content-Type: multipart/signed;
-  boundary="nextPart1548215.rZ0xhyCKh2";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604131332.51784.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1548215.rZ0xhyCKh2
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi Dave,
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck patch is aimed at the=
-=20
-desktop and cks is available with more emphasis on serverspace.
+On Wednesday, 12. April 2006 19:18, Dave Dillow wrote:
+> you've left the spin_locks in, and have more #ifdefs.
 
-THESE INCLUDE THE PATCHES FROM 2.6.16.5 SO START WITH 2.6.16 AS YOUR BASE
+Ok, I can refactor your driver to even remove this and reduce it to exaxtly 
+two ifdef sections for your driver. Acceptable?
+ 
+> Regardless, I remain opposed to this particular instance of bloat 
+> busting. While both patches have improved in style, they remove a useful 
+> feature and make the code less clean, for no net gain.
 
-Apply to 2.6.16
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.16/2.6.16-=
-ck5/patch-2.6.16-ck5.bz2
+s/useful feature/unreachable code/g
 
-or server version
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/cks/patch-2.6.16-c=
-ks5.bz2
+> On SMP FC4, typhoon.ko has a text size of 68330, so you need to cut 2794 
+> bytes to see an actual difference in memory usage for a module. Non-SMP 
+> it is 67741, so there you only need to cut 2205 bytes to get a win.
 
-web:
-http://kernel.kolivas.org
+   text    data     bss     dec     hex filename
+  62079     973       4   63056    f650 no-vlan/drivers/net/typhoon.o
+  62654     973       4   63631    f88f vlan/drivers/net/typhoon.o
 
-all patches:
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/
-
-Split patches available.
+with allyesconfig (minus CONFIG_INFO) and my patches applied.
+So maybe the uninlining is enough. Gain after this is just 575 bytes here.
 
 
-Changes:
+Regards
 
-Modified:
- -patch-2.6.16.2
- +patch-2.6.16.5
-Resync with mainline
-
- -2.6.16-ck4-version.patch
- +2.6.16-ck5-version.patch
-Version update
-
-=2D-=20
-=2Dck
-
---nextPart1548215.rZ0xhyCKh2
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEPjaTZUg7+tp6mRURAiMCAJ9aiF/zb9MRn4+k6DGjTyhQrnCifACggwRo
-k3HcuMnzcl5tGnNFfY05vGE=
-=4IsQ
------END PGP SIGNATURE-----
-
---nextPart1548215.rZ0xhyCKh2--
+Ingo Oeser

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWDMXG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWDMXIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWDMXG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 19:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWDMXG7
+	id S932137AbWDMXIM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 19:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWDMXIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 19:06:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64668 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751199AbWDMXG6 (ORCPT
+	Thu, 13 Apr 2006 19:08:12 -0400
+Received: from ns2.suse.de ([195.135.220.15]:10446 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932137AbWDMXIL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 19:06:58 -0400
-Date: Thu, 13 Apr 2006 16:06:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Dan Bonachea <bonachead@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
-In-Reply-To: <1144969549.12387.33.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0604131603310.3701@g5.osdl.org>
-References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu> 
- <20060412214613.404cf49f.akpm@osdl.org> <443DE2BD.1080103@yahoo.com.au> 
- <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>  <1144965022.12387.23.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0604131531440.3701@g5.osdl.org> <1144969549.12387.33.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Apr 2006 19:08:11 -0400
+Date: Thu, 13 Apr 2006 16:06:37 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: [patch 00/22] -stable review
+Message-ID: <20060413230637.GA5613@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is the start of the stable review cycle for the 2.6.16.6 release.
+There are 22 patches in this series, all will be posted as a response to
+this one.  If anyone has any issues with these being applied, please let
+us know.  If anyone is a maintainer of the proper subsystem, and wants
+to add a signed-off-by: line to the patch, please respond with it.
 
+These patches are sent out with a number of different people on the Cc:
+line.  If you wish to be a reviewer, please email stable@kernel.org to
+add your name to the list.  If you want to be off the reviewer list,
+also email us.
 
-On Fri, 14 Apr 2006, Alan Cox wrote:
-> 
-> Quality for whom ? There is a measurable cost to all that extra locking
-> which will hurt everyone. Given existing kernels don't make the
-> guarantee and SuS v3 does not make the guarantee the apps that need it
-> will continue to do the extra work themselves anyway.
+Responses should be made by Saturday, April 15, 22:00:00 UTC.  Anything
+received after that time, might be too late.
 
-True. 
+thanks,
 
-> And of course I too would like to know if anyone is hitting O_APPEND
-> examples of this problem and if so on what fs ....
-
-Well, Dan already said that he doesn't see it with O_APPEND (aka ">>"), 
-but yes, other filesystems may not be that lucky.
-
-I'd actually not be surprised if the O_APPEND thing is tested by some of 
-the FS stress tools, so I suspect all the regular filesystems get it 
-right. Of course, since most of them - at least the local ones - use the 
-same generic framework, that's an even safer bet.
-
-NFS etc is very special, of course, especially in the presense of clients 
-on different machines. At that point, I wouldn't guarantee a whole lot.
-
-		Linus
+the -stable release team

@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWDMSS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWDMSRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbWDMSS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 14:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWDMSS4
+	id S932369AbWDMSRK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 14:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWDMSRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 14:18:56 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:34712 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932434AbWDMSSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 14:18:55 -0400
-Message-Id: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [RFC] PATCH 0/4 - Time virtualization
+	Thu, 13 Apr 2006 14:17:10 -0400
+Received: from xenotime.net ([66.160.160.81]:51082 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932369AbWDMSRJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 14:17:09 -0400
+Date: Thu, 13 Apr 2006 11:19:36 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: <tyler@agat.net>
+Cc: rusty@rustcorp.com.au, gregkh@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kmod optimization
+Message-Id: <20060413111936.3d035771.rdunlap@xenotime.net>
+In-Reply-To: <20060413180345.GA10910@Starbuck>
+References: <20060413180345.GA10910@Starbuck>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 13 Apr 2006 13:19:36 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This set of patches implements 
-	time virtualization by creating a time namespace
-	an interface to it through unshare
-	a ptrace extension to allow UML to take advantage of this
-	UML support
+On Thu, 13 Apr 2006 20:03:45 +0200 tyler@agat.net wrote:
 
-The guts of the namespace is just an offset from the system time.  Within
-the container, gettimeofday adds this offset to the system time.  settimeofday
-changes the offset without touching the system time.  As such, within a 
-namespace, settimeofday is unprivileged.
+> Hi,
+> 
+> the request_mod functions try to load automatically a module by running
+> a user mode process helper (modprobe).
+> 
+> The user process is launched even if the module is already loaded. I
+> think it would be better to test if the module is already loaded.
 
-The interface to it is through unshare(CLONE_TIME).  This creates the new
-namespace, initialized with a zero offset from the system time.
+Please try not to use attachments: it makes it more difficult
+to review and comment on code (so I'll paste it here).
 
-The advantage of this for UML is that it can create a time namespace for itself
-and subsequently let its process' gettimeofday run on the host, without
-being intercepted and run inside UML.  As such, it should basically run at
-native speed.
 
-In order to allow this, we need selective system call interception.  The
-third patch implements PTRACE_SYSCALL_MASK, which specifies, through a 
-bitmask, which system calls are intercepted and which aren't.
++	/* We don't to load the module if it's already loaded */
++	spin_lock_irqsave(&modlist_lock, flags);
++	if (is_loaded(module_name)) {
++		return -EEXIST;
++	}
++	spin_unlock_irqrestore(&modlist_lock, flags);
 
-Finally, the UML support is straightforward.  It calls unshare(CLONE_TIME)
-to create the new namespace, sets gettimeofday to run without being 
-intercepted, and makes settimeofday call the host's settimeofday instead
-of maintaining the time offset itself.
+Need to do spin_unlock_irqrestore() even if is_loaded() is true.
 
-As expected, a gettimeofday loop runs basically at native speed.  The two
-quick tests I did had it running inside UML at 98.8 and 99.2 % of native.
++/* Test if a module is loaded : must hold module_mutex */
++int is_loaded(const char *module_name);
++{
++	struct module *mod = find_module(module_name);
++
++	if (!mod) {
++		return 1;
++	}
 
-BUG - as I was writing this, I realized that refcounting of the time_ns
-structures is wrong - they need to be incremented at process creation and
-decremented at process exit.
+Don't use braces when not needed.
+Why not make this function inline and put it into a header file?
 
-				Jeff
-
+---
+~Randy

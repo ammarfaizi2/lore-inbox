@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbWDMXKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWDMXP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbWDMXKz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 19:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWDMXKA
+	id S965035AbWDMXP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 19:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbWDMXKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 19:10:00 -0400
-Received: from ns1.suse.de ([195.135.220.2]:59589 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964998AbWDMXJm (ORCPT
+	Thu, 13 Apr 2006 19:10:55 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:17871 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965021AbWDMXKj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 19:09:42 -0400
-Date: Thu, 13 Apr 2006 16:08:35 -0700
+	Thu, 13 Apr 2006 19:10:39 -0400
+Date: Thu, 13 Apr 2006 16:09:38 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,13 +17,14 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Adrian Bunk <bunk@stusta.de>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 13/22] edac_752x needs CONFIG_HOTPLUG
-Message-ID: <20060413230835.GN5613@kroah.com>
+       Andrea Arcangeli <andrea@suse.de>, Roland McGrath <roland@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 21/22] fix non-leader exec under ptrace
+Message-ID: <20060413230938.GV5613@kroah.com>
 References: <20060413230141.330705000@quad.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="edac_752x-needs-config_hotplug.patch"
+Content-Disposition: inline; filename="fix-non-leader-exec-under-ptrace.patch"
 In-Reply-To: <20060413230637.GA5613@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,34 +34,55 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 ------------------
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+This reverts most of commit 30e0fca6c1d7d26f3f2daa4dd2b12c51dadc778a.
+It broke the case of non-leader MT exec when ptraced.
+I think the bug it was intended to fix was already addressed by commit
+788e05a67c343fa22f2ae1d3ca264e7f15c25eaf.
 
-EDAC_752X uses pci_scan_single_device(), which is only available
-if CONFIG_HOTPLUG is enabled, so limit this driver with HOTPLUG.
-
-This patch was already included in Linus' tree.
-
-Adrian Bunk:
-Rediffed for 2.6.16.x due to unrelated context changes.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Roland McGrath <roland@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/edac/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/ptrace.c |    7 ++-----
+ kernel/signal.c |    4 ++--
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
---- linux-2.6.16.5.orig/drivers/edac/Kconfig
-+++ linux-2.6.16.5/drivers/edac/Kconfig
-@@ -71,7 +71,7 @@ config EDAC_E7XXX
+--- linux-2.6.16.5.orig/kernel/ptrace.c
++++ linux-2.6.16.5/kernel/ptrace.c
+@@ -57,10 +57,6 @@ void ptrace_untrace(task_t *child)
+ 			signal_wake_up(child, 1);
+ 		}
+ 	}
+-	if (child->signal->flags & SIGNAL_GROUP_EXIT) {
+-		sigaddset(&child->pending.signal, SIGKILL);
+-		signal_wake_up(child, 1);
+-	}
+ 	spin_unlock(&child->sighand->siglock);
+ }
  
- config EDAC_E752X
- 	tristate "Intel e752x (e7520, e7525, e7320)"
--	depends on EDAC_MM_EDAC && PCI
-+	depends on EDAC_MM_EDAC && PCI && HOTPLUG
- 	help
- 	  Support for error detection and correction on the Intel
- 	  E7520, E7525, E7320 server chipsets.
+@@ -82,7 +78,8 @@ void __ptrace_unlink(task_t *child)
+ 		SET_LINKS(child);
+ 	}
+ 
+-	ptrace_untrace(child);
++	if (child->state == TASK_TRACED)
++		ptrace_untrace(child);
+ }
+ 
+ /*
+--- linux-2.6.16.5.orig/kernel/signal.c
++++ linux-2.6.16.5/kernel/signal.c
+@@ -1942,9 +1942,9 @@ relock:
+ 			/* Let the debugger run.  */
+ 			ptrace_stop(signr, signr, info);
+ 
+-			/* We're back.  Did the debugger cancel the sig or group_exit? */
++			/* We're back.  Did the debugger cancel the sig?  */
+ 			signr = current->exit_code;
+-			if (signr == 0 || current->signal->flags & SIGNAL_GROUP_EXIT)
++			if (signr == 0)
+ 				continue;
+ 
+ 			current->exit_code = 0;
 
 --

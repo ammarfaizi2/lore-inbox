@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWDMHHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWDMHHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWDMHHh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 03:07:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWDMHHg
+	id S964806AbWDMHHy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 03:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWDMHHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 03:07:36 -0400
-Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:61950 "EHLO
+	Thu, 13 Apr 2006 03:07:54 -0400
+Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:18687 "EHLO
 	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1751118AbWDMHHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 03:07:34 -0400
+	id S964808AbWDMHHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 03:07:51 -0400
 To: Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC][8/21]ext3 modify variables to exceed 2G
-Message-Id: <20060413160657sho@rifu.tnes.nec.co.jp>
+Subject: [RFC][9/21]ext2 modify variables to exceed 2G
+Message-Id: <20060413160713sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
 X-Mailer: WeMail32[2.51] ID:1K0086
 From: sho@tnes.nec.co.jp
-Date: Thu, 13 Apr 2006 16:06:56 +0900
+Date: Thu, 13 Apr 2006 16:07:13 +0900
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Summary of this patch:
-  [8/21]  change the type of variables manipulating a block or an
-          inode(ext3)
+  [9/21]  change the type of variables manipulating a block or an
+          inode(ext2)
           - Change the type of 4byte variables manipulating a block or
             an inode from signed to unsigned.
 
@@ -32,270 +32,250 @@ Summary of this patch:
 
 Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
 ---
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/balloc.c linux-2.6.17-rc1.tmp/fs/ext3/balloc.c
---- linux-2.6.17-rc1/fs/ext3/balloc.c	2006-04-13 12:12:08.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext3/balloc.c	2006-04-13 12:15:19.000000000 +0900
-@@ -1135,7 +1135,7 @@ ext3_try_to_allocate_with_rsv(struct sup
- 			try_to_extend_reservation(my_rsv, sb,
- 					*count-my_rsv->rsv_end + goal - 1);
- 
--		if ((my_rsv->rsv_start >= group_first_block + EXT3_BLOCKS_PER_GROUP(sb))
-+		if ((my_rsv->rsv_start >= (unsigned long long)group_first_block + EXT3_BLOCKS_PER_GROUP(sb))
- 		    || (my_rsv->rsv_end < group_first_block))
- 			BUG();
- 		ret = ext3_try_to_allocate(sb, handle, group, bitmap_bh, goal,
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/ialloc.c linux-2.6.17-rc1.tmp/fs/ext3/ialloc.c
---- linux-2.6.17-rc1/fs/ext3/ialloc.c	2006-04-13 12:12:03.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext3/ialloc.c	2006-04-13 12:15:19.000000000 +0900
-@@ -202,7 +202,8 @@ error_return:
- static int find_group_dir(struct super_block *sb, struct inode *parent)
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/balloc.c linux-2.6.17-rc1.tmp/fs/ext2/balloc.c
+--- linux-2.6.17-rc1/fs/ext2/balloc.c	2006-04-11 09:19:13.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext2/balloc.c	2006-04-11 09:23:21.000000000 +0900
+@@ -99,7 +99,7 @@ error_out:
+  * Set sb->s_dirt here because the superblock was "logically" altered.  We
+  * need to recalculate its free blocks count and flush it out.
+  */
+-static int reserve_blocks(struct super_block *sb, int count)
++static unsigned int reserve_blocks(struct super_block *sb, unsigned int count)
  {
- 	int ngroups = EXT3_SB(sb)->s_groups_count;
--	int freei, avefreei;
-+	unsigned long freei;
-+	int avefreei;
- 	struct ext3_group_desc *desc, *best_desc = NULL;
- 	struct buffer_head *bh;
- 	int group, best_group = -1;
-@@ -261,9 +262,9 @@ static int find_group_orlov(struct super
- 	struct ext3_super_block *es = sbi->s_es;
+ 	struct ext2_sb_info *sbi = EXT2_SB(sb);
+ 	struct ext2_super_block *es = sbi->s_es;
+@@ -130,7 +130,7 @@ static int reserve_blocks(struct super_b
+ 	return count;
+ }
+ 
+-static void release_blocks(struct super_block *sb, int count)
++static void release_blocks(struct super_block *sb, unsigned int count)
+ {
+ 	if (count) {
+ 		struct ext2_sb_info *sbi = EXT2_SB(sb);
+@@ -140,8 +140,8 @@ static void release_blocks(struct super_
+ 	}
+ }
+ 
+-static int group_reserve_blocks(struct ext2_sb_info *sbi, int group_no,
+-	struct ext2_group_desc *desc, struct buffer_head *bh, int count)
++static unsigned int group_reserve_blocks(struct ext2_sb_info *sbi, int group_no,
++	struct ext2_group_desc *desc, struct buffer_head *bh, unsigned int count)
+ {
+ 	unsigned free_blocks;
+ 
+@@ -159,7 +159,7 @@ static int group_reserve_blocks(struct e
+ }
+ 
+ static void group_release_blocks(struct super_block *sb, int group_no,
+-	struct ext2_group_desc *desc, struct buffer_head *bh, int count)
++	struct ext2_group_desc *desc, struct buffer_head *bh, unsigned int count)
+ {
+ 	if (count) {
+ 		struct ext2_sb_info *sbi = EXT2_SB(sb);
+@@ -324,7 +324,7 @@ got_it:
+  * bitmap, and then for any free bit if that fails.
+  * This function also updates quota and i_blocks field.
+  */
+-int ext2_new_block(struct inode *inode, unsigned long goal,
++unsigned int ext2_new_block(struct inode *inode, unsigned long goal,
+ 			u32 *prealloc_count, u32 *prealloc_block, int *err)
+ {
+ 	struct buffer_head *bitmap_bh = NULL;
+@@ -333,8 +333,8 @@ int ext2_new_block(struct inode *inode, 
+ 	int group_no;			/* i */
+ 	int ret_block;			/* j */
+ 	int group_idx;			/* k */
+-	int target_block;		/* tmp */
+-	int block = 0;
++	unsigned int target_block;      /* tmp */
++	unsigned int block = 0;
+ 	struct super_block *sb = inode->i_sb;
+ 	struct ext2_sb_info *sbi = EXT2_SB(sb);
+ 	struct ext2_super_block *es = sbi->s_es;
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/ext2.h linux-2.6.17-rc1.tmp/fs/ext2/ext2.h
+--- linux-2.6.17-rc1/fs/ext2/ext2.h	2006-04-03 12:22:10.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext2/ext2.h	2006-04-11 09:20:20.000000000 +0900
+@@ -91,7 +91,7 @@ static inline struct ext2_inode_info *EX
+ /* balloc.c */
+ extern int ext2_bg_has_super(struct super_block *sb, int group);
+ extern unsigned long ext2_bg_num_gdb(struct super_block *sb, int group);
+-extern int ext2_new_block (struct inode *, unsigned long,
++extern unsigned int ext2_new_block (struct inode *, unsigned long,
+ 			   __u32 *, __u32 *, int *);
+ extern void ext2_free_blocks (struct inode *, unsigned long,
+ 			      unsigned long);
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/ialloc.c linux-2.6.17-rc1.tmp/fs/ext2/ialloc.c
+--- linux-2.6.17-rc1/fs/ext2/ialloc.c	2006-04-11 09:16:05.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext2/ialloc.c	2006-04-11 09:20:20.000000000 +0900
+@@ -276,12 +276,10 @@ static int find_group_orlov(struct super
+ 	struct ext2_super_block *es = sbi->s_es;
  	int ngroups = sbi->s_groups_count;
- 	int inodes_per_group = EXT3_INODES_PER_GROUP(sb);
--	int freei, avefreei;
--	unsigned long freeb, avefreeb;
--	int blocks_per_dir, ndirs;
-+	int avefreei;
-+	unsigned long freeb, avefreeb, freei, ndirs;
-+	int blocks_per_dir;
+ 	int inodes_per_group = EXT2_INODES_PER_GROUP(sb);
+-	int freei;
++	unsigned long freei, free_blocks, ndirs;
+ 	int avefreei;
+-	int free_blocks;
+ 	int avefreeb;
+ 	int blocks_per_dir;
+-	int ndirs;
  	int max_debt, max_dirs, min_blocks, min_inodes;
  	int group = -1, i;
- 	struct ext3_group_desc *desc;
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/inode.c linux-2.6.17-rc1.tmp/fs/ext3/inode.c
---- linux-2.6.17-rc1/fs/ext3/inode.c	2006-04-13 12:12:08.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext3/inode.c	2006-04-13 12:15:19.000000000 +0900
-@@ -284,7 +284,7 @@ static int verify_chain(Indirect *from, 
+ 	struct ext2_group_desc *desc;
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/inode.c linux-2.6.17-rc1.tmp/fs/ext2/inode.c
+--- linux-2.6.17-rc1/fs/ext2/inode.c	2006-04-11 09:19:13.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext2/inode.c	2006-04-11 09:20:20.000000000 +0900
+@@ -107,7 +107,7 @@ void ext2_discard_prealloc (struct inode
+ #endif
+ }
+ 
+-static int ext2_alloc_block (struct inode * inode, unsigned long goal, int *err)
++static unsigned int ext2_alloc_block (struct inode * inode, unsigned long goal, int *err)
+ {
+ #ifdef EXT2FS_DEBUG
+ 	static unsigned long alloc_hits, alloc_attempts;
+@@ -194,7 +194,7 @@ static inline int verify_chain(Indirect 
   */
  
- static int ext3_block_to_path(struct inode *inode,
+ static int ext2_block_to_path(struct inode *inode,
 -			long i_block, int offsets[4], int *boundary)
 +			unsigned long i_block, int offsets[4], int *boundary)
  {
- 	int ptrs = EXT3_ADDR_PER_BLOCK(inode->i_sb);
- 	int ptrs_bits = EXT3_ADDR_PER_BLOCK_BITS(inode->i_sb);
-@@ -448,7 +448,7 @@ static unsigned long ext3_find_near(stru
-  *	stores it in *@goal and returns zero.
+ 	int ptrs = EXT2_ADDR_PER_BLOCK(inode->i_sb);
+ 	int ptrs_bits = EXT2_ADDR_PER_BLOCK_BITS(inode->i_sb);
+@@ -363,7 +363,7 @@ static unsigned long ext2_find_near(stru
   */
  
--static unsigned long ext3_find_goal(struct inode *inode, long block,
-+static unsigned long ext3_find_goal(struct inode *inode, unsigned long block,
- 		Indirect chain[4], Indirect *partial)
- {
- 	struct ext3_block_alloc_info *block_i;
-@@ -515,7 +515,7 @@ static int ext3_blks_to_allocate(Indirec
-  *	@blks:	on return it will store the total number of allocated
-  *		direct blocks
-  */
--static int ext3_alloc_blocks(handle_t *handle, struct inode *inode,
-+static unsigned int ext3_alloc_blocks(handle_t *handle, struct inode *inode,
- 			unsigned long goal, int indirect_blks, int blks,
- 			unsigned long long new_blocks[4], int *err)
- {
-@@ -599,7 +599,7 @@ static int ext3_alloc_branch(handle_t *h
- 	int i, n = 0;
- 	int err = 0;
- 	struct buffer_head *bh;
--	int num;
-+	unsigned int num;
- 	unsigned long long new_blocks[4];
- 	unsigned long long current_block;
- 
-@@ -683,7 +683,7 @@ failed:
-  * chain to new block and return 0.
-  */
- static int ext3_splice_branch(handle_t *handle, struct inode *inode,
--			long block, Indirect *where, int num, int blks)
-+			unsigned long block, Indirect *where, int num, int blks)
- {
+ static inline int ext2_find_goal(struct inode *inode,
+-				 long block,
++				 unsigned long block,
+ 				 Indirect chain[4],
+ 				 Indirect *partial,
+ 				 unsigned long *goal)
+@@ -425,13 +425,13 @@ static int ext2_alloc_branch(struct inod
+ 	int n = 0;
+ 	int err;
  	int i;
- 	int err = 0;
-@@ -995,7 +995,7 @@ get_block:
-  * `handle' can be NULL if create is zero
+-	int parent = ext2_alloc_block(inode, goal, &err);
++	unsigned int parent = ext2_alloc_block(inode, goal, &err);
+ 
+ 	branch[0].key = cpu_to_le32(parent);
+ 	if (parent) for (n = 1; n < num; n++) {
+ 		struct buffer_head *bh;
+ 		/* Allocate the next block */
+-		int nr = ext2_alloc_block(inode, parent, &err);
++		unsigned int nr = ext2_alloc_block(inode, parent, &err);
+ 		if (!nr)
+ 			break;
+ 		branch[n].key = cpu_to_le32(nr);
+@@ -489,7 +489,7 @@ static int ext2_alloc_branch(struct inod
   */
- struct buffer_head *ext3_getblk(handle_t *handle, struct inode *inode,
--				long block, int create, int *errp)
-+				unsigned long block, int create, int *errp)
- {
- 	struct buffer_head dummy;
- 	int fatal = 0, err;
-@@ -1059,7 +1059,7 @@ err:
- }
  
- struct buffer_head *ext3_bread(handle_t *handle, struct inode *inode,
--			       int block, int create, int *err)
-+			       unsigned int block, int create, int *err)
- {
- 	struct buffer_head * bh;
- 
-@@ -2231,7 +2231,7 @@ void ext3_truncate(struct inode *inode)
+ static inline int ext2_splice_branch(struct inode *inode,
+-				     long block,
++				     unsigned long block,
+ 				     Indirect chain[4],
+ 				     Indirect *where,
+ 				     int num)
+@@ -905,7 +905,7 @@ void ext2_truncate (struct inode * inode
  	Indirect *partial;
  	__le32 nr = 0;
  	int n;
--	long last_block;
-+	unsigned long last_block;
- 	unsigned blocksize = inode->i_sb->s_blocksize;
- 	struct page *page;
+-	long iblock;
++	unsigned long iblock;
+ 	unsigned blocksize;
  
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/namei.c linux-2.6.17-rc1.tmp/fs/ext3/namei.c
---- linux-2.6.17-rc1/fs/ext3/namei.c	2006-04-13 12:12:08.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext3/namei.c	2006-04-13 12:15:19.000000000 +0900
-@@ -816,7 +816,8 @@ static struct buffer_head * ext3_find_en
- 	int ra_ptr = 0;		/* Current index into readahead
- 				   buffer */
- 	int num = 0;
--	int nblocks, i, err;
-+	unsigned int nblocks;
-+	int i, err;
- 	struct inode *dir = dentry->d_parent->d_inode;
- 	int namelen;
- 	const u8 *name;
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/resize.c linux-2.6.17-rc1.tmp/fs/ext3/resize.c
---- linux-2.6.17-rc1/fs/ext3/resize.c	2006-04-13 12:12:08.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext3/resize.c	2006-04-13 12:15:19.000000000 +0900
-@@ -37,7 +37,7 @@ static int verify_group_input(struct sup
- 		 le16_to_cpu(es->s_reserved_gdt_blocks)) : 0;
- 	unsigned metaend = start + overhead;
- 	struct buffer_head *bh = NULL;
--	int free_blocks_count;
-+	long long free_blocks_count;
- 	int err = -EINVAL;
- 
- 	input->free_blocks_count = free_blocks_count =
-@@ -138,9 +138,9 @@ static struct buffer_head *bclean(handle
-  * need to use it within a single byte (to ensure we get endianness right).
-  * We can use memset for the rest of the bitmap as there are no other users.
-  */
--static void mark_bitmap_end(int start_bit, int end_bit, char *bitmap)
-+static void mark_bitmap_end(unsigned int start_bit, unsigned int end_bit, char *bitmap)
- {
--	int i;
-+	unsigned int i;
- 
- 	if (start_bit >= end_bit)
- 		return;
-@@ -619,7 +619,7 @@ exit_free:
-  * at this time.  The resize which changed s_groups_count will backup again.
-  */
- static void update_backups(struct super_block *sb,
--			   int blk_off, char *data, int size)
-+			   unsigned int blk_off, char *data, int size)
- {
- 	struct ext3_sb_info *sbi = EXT3_SB(sb);
- 	const unsigned long last = sbi->s_groups_count;
-@@ -726,6 +726,18 @@ int ext3_group_add(struct super_block *s
- 		return -EPERM;
- 	}
- 
-+	if (((unsigned long long)es->s_blocks_count + input->blocks_count) > ~0U) {
-+		ext3_warning(sb, __FUNCTION__,
-+			     "blocks_count must be less than 4G!");  
-+		return -EPERM;
-+	}
-+
-+	if (((unsigned long long)es->s_inodes_count + EXT3_INODES_PER_GROUP(sb)) > ~0U) {
-+		ext3_warning(sb, __FUNCTION__,
-+			     "inodes_count must be less than 4G!");
-+		return -EPERM;
-+	}
-+
- 	if (reserved_gdb || gdb_off == 0) {
- 		if (!EXT3_HAS_COMPAT_FEATURE(sb,
- 					     EXT3_FEATURE_COMPAT_RESIZE_INODE)){
-@@ -943,6 +955,12 @@ int ext3_group_extend(struct super_block
- 
- 	add = EXT3_BLOCKS_PER_GROUP(sb) - last;
- 
-+	if (((unsigned long long)o_blocks_count + add) > ~0U) {
-+		ext3_warning(sb, __FUNCTION__,
-+			     "blocks_count must be less than 4G!");
-+		return -EPERM;
-+	}
-+
- 	if (o_blocks_count + add > n_blocks_count)
- 		add = n_blocks_count - o_blocks_count;
- 
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext3/super.c linux-2.6.17-rc1.tmp/fs/ext3/super.c
---- linux-2.6.17-rc1/fs/ext3/super.c	2006-04-13 12:12:08.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/fs/ext3/super.c	2006-04-13 12:15:19.000000000 +0900
-@@ -38,6 +38,7 @@
+ 	if (!(S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/super.c linux-2.6.17-rc1.tmp/fs/ext2/super.c
+--- linux-2.6.17-rc1/fs/ext2/super.c	2006-04-11 09:16:05.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext2/super.c	2006-04-11 09:20:20.000000000 +0900
+@@ -31,6 +31,7 @@
  #include <linux/seq_file.h>
- 
+ #include <linux/mount.h>
  #include <asm/uaccess.h>
 +#include <asm/div64.h>
- 
+ #include "ext2.h"
  #include "xattr.h"
  #include "acl.h"
-@@ -1141,7 +1142,7 @@ static int ext3_check_descriptors (struc
- 					sbi->s_group_desc[desc_block++]->b_data;
+@@ -516,7 +517,7 @@ static int ext2_check_descriptors (struc
+ 		if ((i % EXT2_DESC_PER_BLOCK(sb)) == 0)
+ 			gdp = (struct ext2_group_desc *) sbi->s_group_desc[desc_block++]->b_data;
  		if (le32_to_cpu(gdp->bg_block_bitmap) < block ||
- 		    le32_to_cpu(gdp->bg_block_bitmap) >=
--				block + EXT3_BLOCKS_PER_GROUP(sb))
-+				(unsigned long long)block + EXT3_BLOCKS_PER_GROUP(sb))
+-		    le32_to_cpu(gdp->bg_block_bitmap) >= block + EXT2_BLOCKS_PER_GROUP(sb))
++		    le32_to_cpu(gdp->bg_block_bitmap) >= (unsigned long long)block + EXT2_BLOCKS_PER_GROUP(sb))
  		{
- 			ext3_error (sb, "ext3_check_descriptors",
+ 			ext2_error (sb, "ext2_check_descriptors",
  				    "Block bitmap for group %d"
-@@ -1152,7 +1153,7 @@ static int ext3_check_descriptors (struc
+@@ -525,7 +526,7 @@ static int ext2_check_descriptors (struc
+ 			return 0;
  		}
  		if (le32_to_cpu(gdp->bg_inode_bitmap) < block ||
- 		    le32_to_cpu(gdp->bg_inode_bitmap) >=
--				block + EXT3_BLOCKS_PER_GROUP(sb))
-+				(unsigned long long)block + EXT3_BLOCKS_PER_GROUP(sb))
+-		    le32_to_cpu(gdp->bg_inode_bitmap) >= block + EXT2_BLOCKS_PER_GROUP(sb))
++		    le32_to_cpu(gdp->bg_inode_bitmap) >= (unsigned long long)block + EXT2_BLOCKS_PER_GROUP(sb))
  		{
- 			ext3_error (sb, "ext3_check_descriptors",
+ 			ext2_error (sb, "ext2_check_descriptors",
  				    "Inode bitmap for group %d"
-@@ -1163,7 +1164,7 @@ static int ext3_check_descriptors (struc
+@@ -535,7 +536,7 @@ static int ext2_check_descriptors (struc
  		}
  		if (le32_to_cpu(gdp->bg_inode_table) < block ||
  		    le32_to_cpu(gdp->bg_inode_table) + sbi->s_itb_per_group >=
--		    block + EXT3_BLOCKS_PER_GROUP(sb))
-+		    (unsigned long long)block + EXT3_BLOCKS_PER_GROUP(sb))
+-		    block + EXT2_BLOCKS_PER_GROUP(sb))
++		    (unsigned long long)block + EXT2_BLOCKS_PER_GROUP(sb))
  		{
- 			ext3_error (sb, "ext3_check_descriptors",
+ 			ext2_error (sb, "ext2_check_descriptors",
  				    "Inode table for group %d"
-@@ -1354,6 +1355,7 @@ static int ext3_fill_super (struct super
- 	int i;
- 	int needs_recovery;
+@@ -609,6 +610,7 @@ static int ext2_fill_super(struct super_
+ 	int db_count;
+ 	int i, j;
  	__le32 features;
 +	unsigned long long tmp_blocks;
  
  	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
  	if (!sbi)
-@@ -1566,10 +1568,11 @@ static int ext3_fill_super (struct super
+@@ -823,10 +825,11 @@ static int ext2_fill_super(struct super_
  
- 	if (EXT3_BLOCKS_PER_GROUP(sb) == 0)
- 		goto cantfind_ext3;
+ 	if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
+ 		goto cantfind_ext2;
 -	sbi->s_groups_count = (le32_to_cpu(es->s_blocks_count) -
--			       le32_to_cpu(es->s_first_data_block) +
--			       EXT3_BLOCKS_PER_GROUP(sb) - 1) /
--			      EXT3_BLOCKS_PER_GROUP(sb);
+-				        le32_to_cpu(es->s_first_data_block) +
+-				       EXT2_BLOCKS_PER_GROUP(sb) - 1) /
+-				       EXT2_BLOCKS_PER_GROUP(sb);
 +	tmp_blocks = (le32_to_cpu(es->s_blocks_count) -
 +		      le32_to_cpu(es->s_first_data_block) +
-+		      (unsigned long long)EXT3_BLOCKS_PER_GROUP(sb) - 1);
-+	do_div(tmp_blocks, EXT3_BLOCKS_PER_GROUP(sb));
++		      (unsigned long long)EXT2_BLOCKS_PER_GROUP(sb) - 1);
++	do_div(tmp_blocks, EXT2_BLOCKS_PER_GROUP(sb));
 +	sbi->s_groups_count = tmp_blocks;
- 	db_count = (sbi->s_groups_count + EXT3_DESC_PER_BLOCK(sb) - 1) /
- 		   EXT3_DESC_PER_BLOCK(sb);
- 	sbi->s_group_desc = kmalloc(db_count * sizeof (struct buffer_head *),
-diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/include/linux/ext3_fs.h linux-2.6.17-rc1.tmp/include/linux/ext3_fs.h
---- linux-2.6.17-rc1/include/linux/ext3_fs.h	2006-04-13 12:11:55.000000000 +0900
-+++ linux-2.6.17-rc1.tmp/include/linux/ext3_fs.h	2006-04-13 12:16:56.000000000 +0900
-@@ -776,8 +776,8 @@ extern unsigned long ext3_count_free (st
+ 	db_count = (sbi->s_groups_count + EXT2_DESC_PER_BLOCK(sb) - 1) /
+ 		   EXT2_DESC_PER_BLOCK(sb);
+ 	sbi->s_group_desc = kmalloc (db_count * sizeof (struct buffer_head *), GFP_KERNEL);
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/xattr.c linux-2.6.17-rc1.tmp/fs/ext2/xattr.c
+--- linux-2.6.17-rc1/fs/ext2/xattr.c	2006-04-11 09:19:13.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext2/xattr.c	2006-04-11 09:20:20.000000000 +0900
+@@ -664,11 +664,11 @@ ext2_xattr_set2(struct inode *inode, str
+ 			ext2_xattr_cache_insert(new_bh);
+ 		} else {
+ 			/* We need to allocate a new block */
+-			int goal = le32_to_cpu(EXT2_SB(sb)->s_es->
++			unsigned int goal = le32_to_cpu(EXT2_SB(sb)->s_es->
+ 						           s_first_data_block) +
+ 				   EXT2_I(inode)->i_block_group *
+ 				   EXT2_BLOCKS_PER_GROUP(sb);
+-			int block = ext2_new_block(inode, goal,
++			unsigned int block = ext2_new_block(inode, goal,
+ 						   NULL, NULL, &error);
+ 			if (error)
+ 				goto cleanup;
+diff -upNr -X linux-2.6.17-rc1/Documentation/dontdiff linux-2.6.17-rc1/fs/ext2/xip.c linux-2.6.17-rc1.tmp/fs/ext2/xip.c
+--- linux-2.6.17-rc1/fs/ext2/xip.c	2006-04-03 12:22:10.000000000 +0900
++++ linux-2.6.17-rc1.tmp/fs/ext2/xip.c	2006-04-11 09:20:20.000000000 +0900
+@@ -44,8 +44,8 @@ __ext2_get_sector(struct inode *inode, s
+ 	return rc;
+ }
  
- /* inode.c */
- int ext3_forget(handle_t *, int, struct inode *, struct buffer_head *, unsigned long);
--struct buffer_head * ext3_getblk (handle_t *, struct inode *, long, int, int *);
--struct buffer_head * ext3_bread (handle_t *, struct inode *, int, int, int *);
-+struct buffer_head * ext3_getblk (handle_t *, struct inode *, unsigned long, int, int *);
-+struct buffer_head * ext3_bread (handle_t *, struct inode *, unsigned int, int, int *);
- int ext3_get_blocks_handle(handle_t *handle, struct inode *inode,
- 	sector_t iblock, unsigned long maxblocks, struct buffer_head *bh_result,
- 	int create, int extend_disksize);
+-int
+-ext2_clear_xip_target(struct inode *inode, int block)
++unsigned int
++ext2_clear_xip_target(struct inode *inode, unsigned int block)
+ {
+ 	sector_t sector = block * (PAGE_SIZE/512);
+ 	unsigned long data;

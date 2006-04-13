@@ -1,151 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWDMPHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWDMPMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWDMPHa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 11:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWDMPHa
+	id S1750797AbWDMPMw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 11:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWDMPMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 11:07:30 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6277 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750836AbWDMPH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 11:07:29 -0400
-Date: Thu, 13 Apr 2006 16:07:22 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pids: simplify do_each_task_pid/while_each_task_pid
-Message-ID: <20060413150722.GA5217@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	linux-kernel@vger.kernel.org
-References: <20060413163727.GA1365@oleg> <20060413133814.GA29914@infradead.org> <20060413175431.GA108@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060413175431.GA108@oleg>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 13 Apr 2006 11:12:52 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:3541 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750797AbWDMPMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 11:12:51 -0400
+Date: Thu, 13 Apr 2006 11:12:47 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Keith Owens <kaos@sgi.com>
+cc: Nathan Scott <nathans@sgi.com>, <dgc@sgi.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>,
+       <xfs-masters@oss.sgi.com>, <sekharan@us.ibm.com>
+Subject: Re: 2.6.17-rc1 did break XFS 
+In-Reply-To: <9488.1144920963@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.44L0.0604131108110.5241-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 09:54:31PM +0400, Oleg Nesterov wrote:
-> > 
-> > #define for_each_task_pid(task, pid, type, pos) \
-> > 	hlist_for_each_entry_rcu((task), (pos),  \
-> > 		(&(pid))->tasks[type], pids[type].node) {
-> > 
-> > and move the find_pid to the caller?  That would make the code a whole lot
-> > more readable.
+On Thu, 13 Apr 2006, Keith Owens wrote:
+
+> Nathan Scott (on Thu, 13 Apr 2006 15:35:33 +1000) wrote:
+> >On Thu, Apr 13, 2006 at 07:21:45AM +0200, Herbert Poetzl wrote:
+> >> [   39.585041] BUG: unable to handle kernel paging request at virtual address 7856c380
+> >> [   39.586688]  printing eip:
+> >> [   39.587040] 78129430
+> >> [   39.587354] *pde = 005bf027
+> >> [   39.587709] *pte = 0056c000
+> >> [   39.588201] Oops: 0000 [#1]
+> >> [   39.588536] SMP DEBUG_PAGEALLOC
+> >> [   39.589057] Modules linked in:
+> >> [   39.589639] CPU:    0
+> >> [   39.589670] EIP:    0060:[<78129430>]    Not tainted VLI
+> >> [   39.589710] EFLAGS: 00000206   (2.6.17-rc1 #1) 
+> >> [   39.591291] EIP is at notifier_chain_register+0x20/0x50
+> >> [   39.591890] eax: 7856c378   ebx: 878db3f8   ecx: 00000000   edx: 784bf9bc
+> >> [   39.592601] esi: 878db3f8   edi: 878e7c00   ebp: 878db800   esp: 878cad5c
+> >> [   39.593399] ds: 007b   es: 007b   ss: 0068
+> >> [   39.593896] Process mount (pid: 50, threadinfo=878ca000 task=87f7e570)
+> >> [   39.594530] Stack: <0>784bf9a0 781295f4 784bf9bc 878db3f8 878db000 878db000 78136997 784bf9a0 
+> >> [   39.595839]        878db3f8 782d43e6 878db3f8 00000404 878db000 87d1e6a0 878e7c00 782d1813 
+> >> [   39.597002]        878db000 00000001 782e5eaf 00000424 00000001 878e7c00 87d1e6a0 782f2150 
+> >> [   39.598164] Call Trace:
+> >> [   39.598592]  <781295f4> blocking_notifier_chain_register+0x54/0x90   <78136997> register_cpu_notifier+0x17/0x20
+> >> [   39.600024]  <782d43e6> xfs_icsb_init_counters+0x46/0xb0   <782d1813> xfs_mount_init+0x23/0x160
+> >> [   39.601199]  <782e5eaf> kmem_zalloc+0x1f/0x50   <782f2150> bhv_insert_all_vfsops+0x10/0x50
+> >> [   39.602315]  <782f1835> xfs_fs_fill_super+0x35/0x1f0   <78313607> snprintf+0x27/0x30
+> >> [   39.603437]  <781a2134> disk_name+0x64/0xc0   <78168fbf> sb_set_blocksize+0x1f/0x50
+> >> [   39.604524]  <78168909> get_sb_bdev+0x109/0x160   <781445ef> __alloc_pages+0x5f/0x370
+> >> [   39.605612]  <782f1a20> xfs_fs_get_sb+0x30/0x40   <782f1800> xfs_fs_fill_super+0x0/0x1f0
+> >> [   39.606698]  <78168bb0> do_kern_mount+0xa0/0x160   <78181467> do_new_mount+0x77/0xc0
+> >> [   39.607764]  <78181b2f> do_mount+0x1bf/0x220   <783f4178> iret_exc+0x3d4/0x6ab
+> >> [   39.608790]  <78181913> copy_mount_options+0x63/0xc0   <783f398f> lock_kernel+0x2f/0x50
+> >> [   39.609867]  <78181f2f> sys_mount+0x9f/0xe0   <78102b27> syscall_call+0x7/0xb
+> >> [   39.610923] Code: 90 90 90 90 90 90 90 90 90 90 90 53 8b 54 24 08 8b 5c 24 0c 8b 02 85 c0 74 31 8b 4b 08 8d b4 26 00 00 00 00 8d bc 27 00 00 00 00 <3b> 48 08 7f 1b 8d 50 04 8b 40 04 85 c0 75 f1 31 c0 eb 0d 90 90 
 > 
-> Then the caller should check find_pid() doesn't return NULL. But yes,
-> we can hide this check inside for_each_task_pid().
+> Ignoring the leading NOPs, that decodes to
 > 
-> But what about current users of do_each_task_pid ? We can't just remove
-> these macros.
+>    0:   53                      push   %ebx
+>    1:   8b 54 24 08             mov    0x8(%esp,1),%edx
+>    5:   8b 5c 24 0c             mov    0xc(%esp,1),%ebx
+>    9:   8b 02                   mov    (%edx),%eax
+>    b:   85 c0                   test   %eax,%eax
+>    d:   74 31                   je     0x40
+>    f:   8b 4b 08                mov    0x8(%ebx),%ecx
+>   12:   8d b4 26 00 00 00 00    lea    0x0(%esi,1),%esi
+>   19:   8d bc 27 00 00 00 00    lea    0x0(%edi,1),%edi
+>   20:   3b 48 08                cmp    0x8(%eax),%ecx		<==== oops
+>   23:   7f 1b                   jg     0x40
+>   25:   8d 50 04                lea    0x4(%eax),%edx
+>   28:   8b 40 04                mov    0x4(%eax),%eax
+>   2b:   85 c0                   test   %eax,%eax
+>   2d:   75 f1                   jne    0x20
+>   2f:   31 c0                   xor    %eax,%eax
+>   31:   eb 0d                   jmp    0x40
+> 
+> static int notifier_chain_register(struct notifier_block **nl,
+>                 struct notifier_block *n)
+> {
+>         while ((*nl) != NULL) {
+>                 if (n->priority > (*nl)->priority)		<=== oops
+>                         break;
+>                 nl = &((*nl)->next);
+>         }
+>         n->next = *nl;
+>         rcu_assign_pointer(*nl, n);
+>         return 0;
+> }
+> 
+> notifier_chain_register() is running the existing chain to find the
+> place where XFS needs to be inserted, and the existing chain is
+> corrupt.  Probably not an XFS problem.
 
-They'd have to switch over to the new variant.  There's just 18 callers
-ayway, currently, and with a patch like the one below that number firther
-decreases :)
+I agree.  It looks like some module registered a cpu notifier and then
+forgot to unregister the notifier block when it was unloaded.
 
+If you add some stack-dump debugging to register_cpu_notifier() and 
+unregister_cpu_notifier() it ought to be pretty easy to identify the 
+guilty party.
 
-Index: linux-2.6/drivers/char/tty_io.c
-===================================================================
---- linux-2.6.orig/drivers/char/tty_io.c	2006-04-13 16:22:12.000000000 +0200
-+++ linux-2.6/drivers/char/tty_io.c	2006-04-13 16:39:57.000000000 +0200
-@@ -1174,6 +1174,17 @@
- 
- EXPORT_SYMBOL(tty_hung_up_p);
- 
-+static void clear_session_ttys(pid_t session)
-+{
-+	struct task_struct *p;
-+
-+	read_lock(&tasklist_lock);
-+	do_each_task_pid(session, PIDTYPE_SID, p) {
-+		p->signal->tty = NULL;
-+	} while_each_task_pid(session, PIDTYPE_SID, p);
-+	read_unlock(&tasklist_lock);
-+}
-+
- /*
-  * This function is typically called only by the session leader, when
-  * it wants to disassociate itself from its controlling tty.
-@@ -1190,7 +1201,6 @@
- void disassociate_ctty(int on_exit)
- {
- 	struct tty_struct *tty;
--	struct task_struct *p;
- 	int tty_pgrp = -1;
- 
- 	lock_kernel();
-@@ -1224,11 +1234,7 @@
- 	tty->pgrp = -1;
- 
- 	/* Now clear signal->tty under the lock */
--	read_lock(&tasklist_lock);
--	do_each_task_pid(current->signal->session, PIDTYPE_SID, p) {
--		p->signal->tty = NULL;
--	} while_each_task_pid(current->signal->session, PIDTYPE_SID, p);
--	read_unlock(&tasklist_lock);
-+	clear_session_ttys(current->signal->session);
- 	mutex_unlock(&tty_mutex);
- 	unlock_kernel();
- }
-@@ -1927,17 +1933,9 @@
- 	 * tty.
- 	 */
- 	if (tty_closing || o_tty_closing) {
--		struct task_struct *p;
--
--		read_lock(&tasklist_lock);
--		do_each_task_pid(tty->session, PIDTYPE_SID, p) {
--			p->signal->tty = NULL;
--		} while_each_task_pid(tty->session, PIDTYPE_SID, p);
-+		clear_session_ttys(tty->session);
- 		if (o_tty)
--			do_each_task_pid(o_tty->session, PIDTYPE_SID, p) {
--				p->signal->tty = NULL;
--			} while_each_task_pid(o_tty->session, PIDTYPE_SID, p);
--		read_unlock(&tasklist_lock);
-+			clear_session_ttys(o_tty->session);
- 	}
- 
- 	mutex_unlock(&tty_mutex);
-@@ -2348,8 +2346,6 @@
- 
- static int tiocsctty(struct tty_struct *tty, int arg)
- {
--	task_t *p;
--
- 	if (current->signal->leader &&
- 	    (current->signal->session == tty->session))
- 		return 0;
-@@ -2364,18 +2360,12 @@
- 		 * This tty is already the controlling
- 		 * tty for another session group!
- 		 */
--		if ((arg == 1) && capable(CAP_SYS_ADMIN)) {
--			/*
--			 * Steal it away
--			 */
--
--			read_lock(&tasklist_lock);
--			do_each_task_pid(tty->session, PIDTYPE_SID, p) {
--				p->signal->tty = NULL;
--			} while_each_task_pid(tty->session, PIDTYPE_SID, p);
--			read_unlock(&tasklist_lock);
--		} else
-+		if (arg != 1 || !capable(CAP_SYS_ADMIN))
- 			return -EPERM;
-+		/*
-+		 * Steal it away
-+		 */
-+		clear_session_ttys(tty->session);
- 	}
- 	task_lock(current);
- 	current->signal->tty = tty;
+Alan Stern
 

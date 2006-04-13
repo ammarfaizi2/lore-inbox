@@ -1,105 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWDMVIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWDMVKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbWDMVIR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 17:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWDMVIR
+	id S964973AbWDMVKU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 17:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWDMVKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 17:08:17 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:36879 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S964968AbWDMVIP convert rfc822-to-8bit
+	Thu, 13 Apr 2006 17:10:20 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:64757 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964973AbWDMVKT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 17:08:15 -0400
+	Thu, 13 Apr 2006 17:10:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kn0Ac/WQivuREJOSb/4WSM55ZOtBmJGGwQRfrKk2JIWkY2m0R1eHP5zAQElNUm/XWSjA+5UfeuRx6agkSSbkC4qNV7bosITYWZL0Cm1pSE36Jwg7TXx8kJaC2Ctm808eE1y6K7glWN0lKC+GRYHWRLsM0HBrkUirkJa+WuQHl2g=
+Message-ID: <62a080740604131410p3f22f7afncd3096c49be41cf4@mail.gmail.com>
+Date: Thu, 13 Apr 2006 14:10:16 -0700
+From: "K P" <kplkml@gmail.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: JVM performance on Linux (vs. Solaris/Windows)
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <443EB70B.3080908@mbligh.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <728201270604131251h5296dd41o7d0e0dd8f2f1ac63@mail.gmail.com>
-x-originalarrivaltime: 13 Apr 2006 21:08:14.0250 (UTC) FILETIME=[60C0D8A0:01C65F3E]
-Content-class: urn:content-classes:message
-Subject: Re: select takes too much time
-Date: Thu, 13 Apr 2006 17:08:13 -0400
-Message-ID: <Pine.LNX.4.61.0604131701030.7732@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: select takes too much time
-Thread-Index: AcZfPmDIpqkN/iUQSPysWl15jTLXMw==
-References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com> <443E9A17.4070805@stud.feec.vutbr.cz> <728201270604131251h5296dd41o7d0e0dd8f2f1ac63@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Ram Gupta" <ram.gupta5@gmail.com>
-Cc: "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "linux mailing-list" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <62a080740604130753i4b8bbbckc3cba12092b54226@mail.gmail.com>
+	 <443E74C1.5090801@mbligh.org> <443EBC1D.1000307@wolfmountaingroup.com>
+	 <443EB70B.3080908@mbligh.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Besides, Specjbb_2005 doesn't do any IO or networking, and these should
+not be factors in the result.
 
-On Thu, 13 Apr 2006, Ram Gupta wrote:
+So although it's a simplistic benchmark where OS tuning may not provide as
+much benefit as JVM tuning, it still doesn't explain why Solaris is ~15% higher
+than Linux on the same hardware and JVM (I'm guessing that the tester did
+not spend as much time tuning Linux as they did Solaris, hence the question).
 
-> On 4/13/06, Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
->> Ram Gupta wrote:
->>> I am using 2.5.45 kernel but I believe the same would  be the true
->>> for the latest kernel too.
->>
->> Are you just assuming this, or did you actually try a recent kernel?
->>
->> Michal
->>
+-kp
+
+
+On 4/13/06, Martin J. Bligh <mbligh@mbligh.org> wrote:
 >
-> I didn't get a chance to try it on a recent kernel yet but I believe
-> it to be so though I may be  wrong
+> > Note they ran the benchmark on an Opteron 285 instead of a Xeon with
+> > 16 GB of memory.    Opteron peformance currently **SUCKS** with 2.6
+> > series kernels under any kind of heavy I/O due to their cloning of the
+> > ancient 82489DX architecture for I/O interrupt access and
+> > performance.  Looks like the test was stakced against Linux from the
+> > start.  Should have used a Xeon system.
+> > AMD needs to get their crappy I/O performance up to snuff.  Looking at
+> > the test parameteres leads me to believe there was a lot of swapping
+> > on a system with already poor I/O performance.
+> >
 >
-> Ram
-> -
-
-Simple program here shows that you may be right! In principle,
-I should be able to multiply the loop-count by 10 and divide
-the sleep time by 10, still resulting in 1-second total time
-through the loop. Not so! Changing the value, marked "Change this" to
-a smaller value doesn't affect the time very much. It is as though
-the sleep time is always at least 1000 microseconds. If this is
-correct, then there should be some kind of warning that the time
-can't be less than the HZ value, or whatever is limiting it.
-
-
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/select.h>
-
-#define USEC 1e6
-
-int main()
-{
-     struct timeval tv,tod;
-     size_t i;
-     double start_time, end_time, total_time;
-     for(;;) {
-         gettimeofday(&tod, NULL);		// Start time in useconds
-         start_time = ((double)tod.tv_sec * USEC) + (double)tod.tv_usec;
-         for(i=0; i< 1000; i++) {
-             tv.tv_sec = 0;
-             tv.tv_usec = 1000;		// <--- change this
-             select(0, NULL, NULL, NULL, &tv);
-         }
-         gettimeofday(&tod, NULL);		// End time in useconds
-         end_time = ((double)tod.tv_sec * USEC) + (double)tod.tv_usec;
-         total_time = (end_time - start_time) / USEC;
-         printf("Total time = %f seconds\n", total_time);
-     }
-     return 0;
-}
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+> Looks to me like it was the same h/w for Linux as Solaris, so I don't
+> think that's much of an excuse ;-)
+>
+> M.
+>
+>

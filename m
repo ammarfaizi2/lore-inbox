@@ -1,272 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbWDMVH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWDMVIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964961AbWDMVH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 17:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbWDMVH2
+	id S964964AbWDMVIR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 17:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWDMVIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 17:07:28 -0400
-Received: from xenotime.net ([66.160.160.81]:49389 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964961AbWDMVH1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 17:07:27 -0400
-Date: Thu, 13 Apr 2006 14:09:53 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, mpm@selenic.com, ak@suse.de, davem@davemloft.net,
-       paulus@samba.org, manfred@colorfullife.com, sct@redhat.com
-Subject: [PATCH 1/2] add poison.h and patch primary users
-Message-Id: <20060413140953.339ad6d9.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Thu, 13 Apr 2006 17:08:17 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:36879 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S964968AbWDMVIP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 17:08:15 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <728201270604131251h5296dd41o7d0e0dd8f2f1ac63@mail.gmail.com>
+x-originalarrivaltime: 13 Apr 2006 21:08:14.0250 (UTC) FILETIME=[60C0D8A0:01C65F3E]
+Content-class: urn:content-classes:message
+Subject: Re: select takes too much time
+Date: Thu, 13 Apr 2006 17:08:13 -0400
+Message-ID: <Pine.LNX.4.61.0604131701030.7732@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: select takes too much time
+Thread-Index: AcZfPmDIpqkN/iUQSPysWl15jTLXMw==
+References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com> <443E9A17.4070805@stud.feec.vutbr.cz> <728201270604131251h5296dd41o7d0e0dd8f2f1ac63@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Ram Gupta" <ram.gupta5@gmail.com>
+Cc: "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "linux mailing-list" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
 
-Matt Mackall wrote:
-I think we should have a central poison.h file.
+On Thu, 13 Apr 2006, Ram Gupta wrote:
 
-Localize poison values into one header file for better
-documentation and easier/quicker debugging and so that the
-same values won't be used for multiple purposes.
+> On 4/13/06, Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+>> Ram Gupta wrote:
+>>> I am using 2.5.45 kernel but I believe the same would  be the true
+>>> for the latest kernel too.
+>>
+>> Are you just assuming this, or did you actually try a recent kernel?
+>>
+>> Michal
+>>
+>
+> I didn't get a chance to try it on a recent kernel yet but I believe
+> it to be so though I may be  wrong
+>
+> Ram
+> -
 
-Use these constants in core arch., mm, driver, and fs code.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- arch/i386/mm/init.c       |    3 ++-
- arch/powerpc/mm/init_64.c |    3 ++-
- arch/sparc64/mm/init.c    |    3 ++-
- arch/x86_64/mm/init.c     |    7 +++++--
- drivers/base/dmapool.c    |    3 +--
- fs/jbd/journal.c          |    3 ++-
- include/linux/list.h      |    9 +--------
- include/linux/poison.h    |   45 +++++++++++++++++++++++++++++++++++++++++++++
- mm/slab.c                 |   12 +-----------
- 9 files changed, 61 insertions(+), 27 deletions(-)
-
---- linux-2617-rc1g5.orig/include/linux/list.h
-+++ linux-2617-rc1g5/include/linux/list.h
-@@ -4,18 +4,11 @@
- #ifdef __KERNEL__
- 
- #include <linux/stddef.h>
-+#include <linux/poison.h>
- #include <linux/prefetch.h>
- #include <asm/system.h>
- 
- /*
-- * These are non-NULL pointers that will result in page faults
-- * under normal circumstances, used to verify that nobody uses
-- * non-initialized list entries.
-- */
--#define LIST_POISON1  ((void *) 0x00100100)
--#define LIST_POISON2  ((void *) 0x00200200)
--
--/*
-  * Simple doubly linked list implementation.
-  *
-  * Some of the internal functions ("__xxx") are useful when
---- /dev/null
-+++ linux-2617-rc1g5/include/linux/poison.h
-@@ -0,0 +1,45 @@
-+#ifndef _LINUX_POISON_H
-+#define _LINUX_POISON_H
-+
-+/********** include/linux/list.h **********/
-+/*
-+ * These are non-NULL pointers that will result in page faults
-+ * under normal circumstances, used to verify that nobody uses
-+ * non-initialized list entries.
-+ */
-+#define LIST_POISON1  ((void *) 0x00100100)
-+#define LIST_POISON2  ((void *) 0x00200200)
-+
-+/********** mm/slab.c **********/
-+/*
-+ * Magic nums for obj red zoning.
-+ * Placed in the first word before and the first word after an obj.
-+ */
-+#define	RED_INACTIVE	0x5A2CF071UL	/* when obj is inactive */
-+#define	RED_ACTIVE	0x170FC2A5UL	/* when obj is active */
-+
-+/* ...and for poisoning */
-+#define	POISON_INUSE	0x5a	/* for use-uninitialised poisoning */
-+#define POISON_FREE	0x6b	/* for use-after-free poisoning */
-+#define	POISON_END	0xa5	/* end-byte of poisoning */
-+
-+/********** arch/$ARCH/mm/init.c **********/
-+#define POISON_FREE_INITMEM	0xcc
-+
-+/********** arch/x86_64/mm/init.c **********/
-+#define	POISON_FREE_INITDATA	0xba
-+
-+/********** arch/ia64/hp/common/sba_iommu.c **********/
-+/*
-+ * arch/ia64/hp/common/sba_iommu.c uses a 16-byte poison string with a
-+ * value of "SBAIOMMU POISON\0" for spill-over poisoning.
-+ */
-+
-+/********** fs/jbd/journal.c **********/
-+#define JBD_POISON_FREE	0x5b
-+
-+/********** drivers/base/dmapool.c **********/
-+#define	POOL_POISON_FREED	0xa7	/* !inuse */
-+#define	POOL_POISON_ALLOCATED	0xa9	/* !initted */
-+
-+#endif
---- linux-2617-rc1g5.orig/mm/slab.c
-+++ linux-2617-rc1g5/mm/slab.c
-@@ -89,6 +89,7 @@
- #include	<linux/config.h>
- #include	<linux/slab.h>
- #include	<linux/mm.h>
-+#include	<linux/poison.h>
- #include	<linux/swap.h>
- #include	<linux/cache.h>
- #include	<linux/interrupt.h>
-@@ -495,17 +496,6 @@ struct kmem_cache {
- #endif
- 
- #if DEBUG
--/*
-- * Magic nums for obj red zoning.
-- * Placed in the first word before and the first word after an obj.
-- */
--#define	RED_INACTIVE	0x5A2CF071UL	/* when obj is inactive */
--#define	RED_ACTIVE	0x170FC2A5UL	/* when obj is active */
--
--/* ...and for poisoning */
--#define	POISON_INUSE	0x5a	/* for use-uninitialised poisoning */
--#define POISON_FREE	0x6b	/* for use-after-free poisoning */
--#define	POISON_END	0xa5	/* end-byte of poisoning */
- 
- /*
-  * memory layout of objects:
---- linux-2617-rc1g5.orig/drivers/base/dmapool.c
-+++ linux-2617-rc1g5/drivers/base/dmapool.c
-@@ -7,6 +7,7 @@
- #include <linux/dmapool.h>
- #include <linux/slab.h>
- #include <linux/module.h>
-+#include <linux/poison.h>
- 
- /*
-  * Pool allocator ... wraps the dma_alloc_coherent page allocator, so
-@@ -35,8 +36,6 @@ struct dma_page {	/* cacheable header fo
- };
- 
- #define	POOL_TIMEOUT_JIFFIES	((100 /* msec */ * HZ) / 1000)
--#define	POOL_POISON_FREED	0xa7	/* !inuse */
--#define	POOL_POISON_ALLOCATED	0xa9	/* !initted */
- 
- static DECLARE_MUTEX (pools_lock);
- 
---- linux-2617-rc1g5.orig/arch/x86_64/mm/init.c
-+++ linux-2617-rc1g5/arch/x86_64/mm/init.c
-@@ -23,6 +23,7 @@
- #include <linux/bootmem.h>
- #include <linux/proc_fs.h>
- #include <linux/pci.h>
-+#include <linux/poison.h>
- #include <linux/dma-mapping.h>
- #include <linux/module.h>
- #include <linux/memory_hotplug.h>
-@@ -652,11 +653,13 @@ void free_initmem(void)
- 	for (; addr < (unsigned long)(&__init_end); addr += PAGE_SIZE) {
- 		ClearPageReserved(virt_to_page(addr));
- 		init_page_count(virt_to_page(addr));
--		memset((void *)(addr & ~(PAGE_SIZE-1)), 0xcc, PAGE_SIZE); 
-+		memset((void *)(addr & ~(PAGE_SIZE-1)),
-+			POISON_FREE_INITMEM, PAGE_SIZE);
- 		free_page(addr);
- 		totalram_pages++;
- 	}
--	memset(__initdata_begin, 0xba, __initdata_end - __initdata_begin);
-+	memset(__initdata_begin, POISON_FREE_INITDATA,
-+		__initdata_end - __initdata_begin);
- 	printk ("Freeing unused kernel memory: %luk freed\n", (__init_end - __init_begin) >> 10);
- }
- 
---- linux-2617-rc1g5.orig/fs/jbd/journal.c
-+++ linux-2617-rc1g5/fs/jbd/journal.c
-@@ -34,6 +34,7 @@
- #include <linux/suspend.h>
- #include <linux/pagemap.h>
- #include <linux/kthread.h>
-+#include <linux/poison.h>
- #include <linux/proc_fs.h>
- 
- #include <asm/uaccess.h>
-@@ -1675,7 +1676,7 @@ static void journal_free_journal_head(st
- {
- #ifdef CONFIG_JBD_DEBUG
- 	atomic_dec(&nr_journal_heads);
--	memset(jh, 0x5b, sizeof(*jh));
-+	memset(jh, JBD_POISON_FREE, sizeof(*jh));
- #endif
- 	kmem_cache_free(journal_head_cache, jh);
- }
---- linux-2617-rc1g5.orig/arch/i386/mm/init.c
-+++ linux-2617-rc1g5/arch/i386/mm/init.c
-@@ -23,6 +23,7 @@
- #include <linux/init.h>
- #include <linux/highmem.h>
- #include <linux/pagemap.h>
-+#include <linux/poison.h>
- #include <linux/bootmem.h>
- #include <linux/slab.h>
- #include <linux/proc_fs.h>
-@@ -752,7 +753,7 @@ void free_init_pages(char *what, unsigne
- 	for (addr = begin; addr < end; addr += PAGE_SIZE) {
- 		ClearPageReserved(virt_to_page(addr));
- 		init_page_count(virt_to_page(addr));
--		memset((void *)addr, 0xcc, PAGE_SIZE);
-+		memset((void *)addr, POISON_FREE_INITMEM, PAGE_SIZE);
- 		free_page(addr);
- 		totalram_pages++;
- 	}
---- linux-2617-rc1g5.orig/arch/powerpc/mm/init_64.c
-+++ linux-2617-rc1g5/arch/powerpc/mm/init_64.c
-@@ -41,6 +41,7 @@
- #include <linux/idr.h>
- #include <linux/nodemask.h>
- #include <linux/module.h>
-+#include <linux/poison.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/page.h>
-@@ -90,7 +91,7 @@ void free_initmem(void)
- 
- 	addr = (unsigned long)__init_begin;
- 	for (; addr < (unsigned long)__init_end; addr += PAGE_SIZE) {
--		memset((void *)addr, 0xcc, PAGE_SIZE);
-+		memset((void *)addr, POISON_FREE_INITMEM, PAGE_SIZE);
- 		ClearPageReserved(virt_to_page(addr));
- 		init_page_count(virt_to_page(addr));
- 		free_page(addr);
---- linux-2617-rc1g5.orig/arch/sparc64/mm/init.c
-+++ linux-2617-rc1g5/arch/sparc64/mm/init.c
-@@ -18,6 +18,7 @@
- #include <linux/initrd.h>
- #include <linux/swap.h>
- #include <linux/pagemap.h>
-+#include <linux/poison.h>
- #include <linux/fs.h>
- #include <linux/seq_file.h>
- #include <linux/kprobes.h>
-@@ -1474,7 +1475,7 @@ void free_initmem(void)
- 		page = (addr +
- 			((unsigned long) __va(kern_base)) -
- 			((unsigned long) KERNBASE));
--		memset((void *)addr, 0xcc, PAGE_SIZE);
-+		memset((void *)addr, POISON_FREE_INITMEM, PAGE_SIZE);
- 		p = virt_to_page(page);
- 
- 		ClearPageReserved(p);
+Simple program here shows that you may be right! In principle,
+I should be able to multiply the loop-count by 10 and divide
+the sleep time by 10, still resulting in 1-second total time
+through the loop. Not so! Changing the value, marked "Change this" to
+a smaller value doesn't affect the time very much. It is as though
+the sleep time is always at least 1000 microseconds. If this is
+correct, then there should be some kind of warning that the time
+can't be less than the HZ value, or whatever is limiting it.
 
 
----
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/select.h>
+
+#define USEC 1e6
+
+int main()
+{
+     struct timeval tv,tod;
+     size_t i;
+     double start_time, end_time, total_time;
+     for(;;) {
+         gettimeofday(&tod, NULL);		// Start time in useconds
+         start_time = ((double)tod.tv_sec * USEC) + (double)tod.tv_usec;
+         for(i=0; i< 1000; i++) {
+             tv.tv_sec = 0;
+             tv.tv_usec = 1000;		// <--- change this
+             select(0, NULL, NULL, NULL, &tv);
+         }
+         gettimeofday(&tod, NULL);		// End time in useconds
+         end_time = ((double)tod.tv_sec * USEC) + (double)tod.tv_usec;
+         total_time = (end_time - start_time) / USEC;
+         printf("Total time = %f seconds\n", total_time);
+     }
+     return 0;
+}
+
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

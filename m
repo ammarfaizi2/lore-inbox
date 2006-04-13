@@ -1,77 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWDMAW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWDMAxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbWDMAW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 20:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWDMAW5
+	id S932389AbWDMAxY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 20:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWDMAxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 20:22:57 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:34995 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932349AbWDMAW5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 20:22:57 -0400
-Date: Thu, 13 Apr 2006 01:22:47 +0100 (IST)
-From: Mel Gorman <mel@skynet.ie>
-To: Andi Kleen <ak@suse.de>
-Cc: davej@codemonkey.org.uk, tony.luck@intel.com, linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bob.picco@hp.com, Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture
- independent manner V2
-In-Reply-To: <200604130153.08604.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0604130058210.18950@skynet.skynet.ie>
-References: <20060412232036.18862.84118.sendpatchset@skynet>
- <200604130153.08604.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 12 Apr 2006 20:53:24 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:59318 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932389AbWDMAxX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 20:53:23 -0400
+Date: Wed, 12 Apr 2006 17:53:56 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix file lookup without ref
+Message-ID: <20060413005356.GF1296@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060412183106.GD25957@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060412183106.GD25957@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Apr 2006, Andi Kleen wrote:
+On Thu, Apr 13, 2006 at 12:01:06AM +0530, Dipankar Sarma wrote:
+> This patch fixes a problem with some places in the kernel where
+> we look up file structure from the fd table but don't hold
+> a reference to the file. Those places cannot be lock-free.
+> These places aren't in fast path, so it is not a problem.
+> I have tested this patch on powerpc and x86_64 using basic
+> tests and ltp. We should aim to merge this for 2.6.17.
+> 
+> Thanks
+> Dipankar
+> 
+> 
+> 
+> There are places in the kernel where we look up files in fd tables 
+> and access the file structure without holding refereces to the file. 
+> So, we need special care to avoid the race between
+> looking up files in the fd table and tearing down of the file
+> in another CPU. Otherwise, one might see a NULL f_dentry or
+> such torn down version of the file. This patch fixes those
+> special places where such a race may happen.
 
-> On Thursday 13 April 2006 01:20, Mel Gorman wrote:
->> This is V2 of the patchset. They have been boot tested on x86, ppc64
->> and x86_64 but I still need to do a double check that zones are the
->> same size before and after the patch on all arches. IA64 passed a
->> basic compile-test. a driver program that fed in the values generated
->> by IA64 to add_active_range(), zone_present_pages_in_node() and
->> zone_absent_pages_in_node() seemed to generate expected values.
->
-> For x86-64  the new code seems far more complicated than the old one and keeps
-> the same information in two places now.
-
-I experimented with the idea of all architectures sharing the struct 
-node_active_region rather than storing the information twice. It got very 
-messy, particularly for x86 because it needs to store more than nid, 
-start_pfn and end_pfn for a range of page frames (see node_memory_chunk_s 
-in arch/i386/kernel/srat.c). Worse, some architecture-specific code 
-remembers the ranges of active memory as addresses and others as pfn's. In 
-the end, I was not too worried about having the information in two places, 
-because the active ranges are kept in __initdata and gets freed.
-
-I'll admit that for x86_64, the entire code path for initialisation (i.e. 
-architecture specific and architecture independent paths) is now more 
-complex. The architecture independent code needed to be able to handle 
-every variety of node layout which is overkill for x86_64. Nevertheless, 
-without size_zones(), I thought the architecture-specific code for x86_64 
-memory initialisation was a bit easier to read. With 
-architecture-independent zone size and hole calculation, you only have to 
-understand the relevant code once, not once for each architecture.
-
-> I have my doubts that is really a improvement over the old state.
->
-
-For x86_64 in isolation or the entire set of patches?
-
-> I think it would be better if you just defined some simple "library functions"
-> that can be called from the architecture specific code instead of adding
-> all this new high level code.
->
-
-What sort of library functions would you recommend? x86_64 uses 
-add_active_range() and free_area_init_nodes() from this patchset which 
-seemed fairly straight-forward.
-
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+Acked-by: <paulmck@us.ibm.com>
+> Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+> ---
+> 
+> 
+>  drivers/char/tty_io.c |    8 ++++++--
+>  fs/locks.c            |    9 +++++++--
+>  fs/proc/base.c        |   21 +++++++++++++++------
+>  3 files changed, 28 insertions(+), 10 deletions(-)
+> 
+> diff -puN drivers/char/tty_io.c~fix-proc-fd-ops drivers/char/tty_io.c
+> --- linux-2.6.16-rcu/drivers/char/tty_io.c~fix-proc-fd-ops	2006-04-12 21:06:24.000000000 +0530
+> +++ linux-2.6.16-rcu-dipankar/drivers/char/tty_io.c	2006-04-12 21:06:24.000000000 +0530
+> @@ -2706,7 +2706,11 @@ static void __do_SAK(void *arg)
+>  		}
+>  		task_lock(p);
+>  		if (p->files) {
+> -			rcu_read_lock();
+> +			/*
+> +			 * We don't take a ref to the file, so we must
+> +			 * hold ->file_lock instead.
+> +			 */
+> +			spin_lock(&p->files->file_lock);
+>  			fdt = files_fdtable(p->files);
+>  			for (i=0; i < fdt->max_fds; i++) {
+>  				filp = fcheck_files(p->files, i);
+> @@ -2721,7 +2725,7 @@ static void __do_SAK(void *arg)
+>  					break;
+>  				}
+>  			}
+> -			rcu_read_unlock();
+> +			spin_unlock(&p->files->file_lock);
+>  		}
+>  		task_unlock(p);
+>  	} while_each_task_pid(session, PIDTYPE_SID, p);
+> diff -puN fs/locks.c~fix-proc-fd-ops fs/locks.c
+> --- linux-2.6.16-rcu/fs/locks.c~fix-proc-fd-ops	2006-04-12 21:06:24.000000000 +0530
+> +++ linux-2.6.16-rcu-dipankar/fs/locks.c	2006-04-12 21:06:24.000000000 +0530
+> @@ -2212,7 +2212,12 @@ void steal_locks(fl_owner_t from)
+>  
+>  	lock_kernel();
+>  	j = 0;
+> -	rcu_read_lock();
+> +
+> +	/*
+> +	 * We are not taking a ref to the file structures, so
+> +	 * we need to acquire ->file_lock.
+> +	 */
+> +	spin_lock(&files->file_lock);
+>  	fdt = files_fdtable(files);
+>  	for (;;) {
+>  		unsigned long set;
+> @@ -2230,7 +2235,7 @@ void steal_locks(fl_owner_t from)
+>  			set >>= 1;
+>  		}
+>  	}
+> -	rcu_read_unlock();
+> +	spin_unlock(&files->file_lock);
+>  	unlock_kernel();
+>  }
+>  EXPORT_SYMBOL(steal_locks);
+> diff -puN fs/proc/base.c~fix-proc-fd-ops fs/proc/base.c
+> --- linux-2.6.16-rcu/fs/proc/base.c~fix-proc-fd-ops	2006-04-12 21:06:24.000000000 +0530
+> +++ linux-2.6.16-rcu-dipankar/fs/proc/base.c	2006-04-12 21:06:24.000000000 +0530
+> @@ -294,16 +294,20 @@ static int proc_fd_link(struct inode *in
+>  
+>  	files = get_files_struct(task);
+>  	if (files) {
+> -		rcu_read_lock();
+> +		/*
+> +		 * We are not taking a ref to the file structure, so we must
+> +		 * hold ->file_lock.
+> +		 */
+> +		spin_lock(&files->file_lock);
+>  		file = fcheck_files(files, fd);
+>  		if (file) {
+>  			*mnt = mntget(file->f_vfsmnt);
+>  			*dentry = dget(file->f_dentry);
+> -			rcu_read_unlock();
+> +			spin_unlock(&files->file_lock);
+>  			put_files_struct(files);
+>  			return 0;
+>  		}
+> -		rcu_read_unlock();
+> +		spin_unlock(&files->file_lock);
+>  		put_files_struct(files);
+>  	}
+>  	return -ENOENT;
+> @@ -1485,7 +1489,12 @@ static struct dentry *proc_lookupfd(stru
+>  	if (!files)
+>  		goto out_unlock;
+>  	inode->i_mode = S_IFLNK;
+> -	rcu_read_lock();
+> +
+> +	/*
+> +	 * We are not taking a ref to the file structure, so we must
+> +	 * hold ->file_lock.
+> +	 */
+> +	spin_lock(&files->file_lock);
+>  	file = fcheck_files(files, fd);
+>  	if (!file)
+>  		goto out_unlock2;
+> @@ -1493,7 +1502,7 @@ static struct dentry *proc_lookupfd(stru
+>  		inode->i_mode |= S_IRUSR | S_IXUSR;
+>  	if (file->f_mode & 2)
+>  		inode->i_mode |= S_IWUSR | S_IXUSR;
+> -	rcu_read_unlock();
+> +	spin_unlock(&files->file_lock);
+>  	put_files_struct(files);
+>  	inode->i_op = &proc_pid_link_inode_operations;
+>  	inode->i_size = 64;
+> @@ -1503,7 +1512,7 @@ static struct dentry *proc_lookupfd(stru
+>  	return NULL;
+>  
+>  out_unlock2:
+> -	rcu_read_unlock();
+> +	spin_unlock(&files->file_lock);
+>  	put_files_struct(files);
+>  out_unlock:
+>  	iput(inode);
+> 
+> _

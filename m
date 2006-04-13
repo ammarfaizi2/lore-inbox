@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWDMOVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbWDMOXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbWDMOVh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 10:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWDMOVg
+	id S964904AbWDMOXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 10:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWDMOXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 10:21:36 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:42186 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964940AbWDMOVg (ORCPT
+	Thu, 13 Apr 2006 10:23:25 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:44746 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964904AbWDMOXY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 10:21:36 -0400
-Date: Thu, 13 Apr 2006 16:21:18 +0200 (MEST)
+	Thu, 13 Apr 2006 10:23:24 -0400
+Date: Thu, 13 Apr 2006 16:08:43 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Herbert Poetzl <herbert@13thfloor.at>
-cc: Jes Sorensen <jes@sgi.com>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com, stern@rowland.harvard.edu, sekharan@us.ibm.com,
-       akpm@osdl.org, David Chinner <dgc@sgi.com>
-Subject: Re: notifier chain problem? (was Re: 2.6.17-rc1 did break XFS)
-In-Reply-To: <20060413135000.GB6663@MAIL.13thfloor.at>
-Message-ID: <Pine.LNX.4.61.0604131618350.17374@yvahk01.tjqt.qr>
-References: <20060413052145.GA31435@MAIL.13thfloor.at>
- <20060413072325.GF2732@melbourne.sgi.com> <yq0k69tuauh.fsf@jaguar.mkp.net>
- <20060413135000.GB6663@MAIL.13thfloor.at>
+To: Olivier Galibert <galibert@pobox.com>
+cc: "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: Re: What is the most efficient way to copy a bunch of files nowadays?
+In-Reply-To: <20060411111137.GA13961@dspnet.fr.eu.org>
+Message-ID: <Pine.LNX.4.61.0604131605150.17374@yvahk01.tjqt.qr>
+References: <20060411111137.GA13961@dspnet.fr.eu.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 
->> Looks strange, the faulting address is in the same region as the
->> eip. I am not that strong on x86 layouts, so I am not sure whether
->> 0x78xxxxxx is the kernel's mapping or it's module space. Almost looks
->> like something else had registered a notifier and then gone away
->> without unregistering it.
->
->sorry, the essential data I didn't provide here is
->probably that I configured the 2G/2G split, which for
->unknown reasons actually is a 2.125/1.875 split and
->starts at 0x78000000 (instead of 0x80000000)
+>After having read-only mucked with the headers of a bunch of files[1]
+>I've selected a subset of 2500 or so with sizes going from 2K to 85M
+>which I want to copy to another directory in the same local
+>filesystem.  What is the "best" (
 
-That's how it is coded in arch/i386/Kconfig. It says 78 rather than 80.
-Maybe Con has an idea?
+>CPU usage
+
+nice
+
+>fragmentation
+
+What? You can't really influence it.
+
+>wall clock time
+
+Using a filesystem with aggressive caching.
+
+>system responsiveness during and after the copy)
+
+See one above. Set /proc/sys/vm/dirty_ratio high to have the flush taking 
+place late, or low to have it "early+often".
+
+>way to copy these files?  read+write, mmap+write, read+mmap, 
+>mmap+mmap+memcpy,
+
+It all boils down to the same: read the file and write it back. So all 
+your methods cost equally much. With splice() instead of read/write 
+however, you may save some cycles.
+
+>something else?  That's with recent kernels, of course.
 
 
 Jan Engelhardt

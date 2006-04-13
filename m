@@ -1,31 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWDMXJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbWDMXIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbWDMXJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 19:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWDMXJ5
+	id S965007AbWDMXIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 19:08:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbWDMXIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 19:09:57 -0400
-Received: from mx2.suse.de ([195.135.220.15]:60110 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965016AbWDMXJu (ORCPT
+	Thu, 13 Apr 2006 19:08:36 -0400
+Received: from ns.suse.de ([195.135.220.2]:32965 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964994AbWDMXIV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 19:09:50 -0400
-Date: Thu, 13 Apr 2006 16:08:46 -0700
+	Thu, 13 Apr 2006 19:08:21 -0400
+Date: Thu, 13 Apr 2006 16:07:20 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       mikem@beardog.cca.cpqcorp.net, mike.miller@hp.com
+       Jeff Garzik <jgarzik@pobox.com>
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stephen Cameron <steve.cameron@hp.com>,
+       netdev@vger.kernel.org, Stephen Hemminger <shemminger@osdl.org>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 14/22] cciss: bug fix for crash when running hpacucli
-Message-ID: <20060413230846.GO5613@kroah.com>
+Subject: [patch 05/22] sky2: bad memory reference on dual port cards
+Message-ID: <20060413230720.GF5613@kroah.com>
 References: <20060413230141.330705000@quad.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="cciss-bug-fix-for-crash-when-running-hpacucli.patch"
+Content-Disposition: inline; filename="sky2-bad-memory-reference-on-dual-port-cards.patch"
 In-Reply-To: <20060413230637.GA5613@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,151 +34,41 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
+Sky2 driver will oops referencing bad memory if used on
+a dual port card.  The problem is accessing past end of
+MIB counter space.
 
-From: "Mike Miller" <mikem@beardog.cca.cpqcorp.net>
-
-Fix a crash when running hpacucli with multiple logical volumes on a cciss
-controller.  We were not properly initializing the disk->queue and causing
-a fault.
-
-Thanks to Hasso Tepper for reporting the problem.  Thanks to Steve Cameron
-for root causing the problem.  Most of the patch just moves things around. 
-The fix is a one-liner.
-
-Signed-off-by: Mike Miller <mike.miller@hp.com>
-Signed-off-by: Stephen Cameron <steve.cameron@hp.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
----
- drivers/block/cciss.c |   96 +++++++++++++++++++++++++-------------------------
- 1 file changed, 49 insertions(+), 47 deletions(-)
 
---- linux-2.6.16.5.orig/drivers/block/cciss.c
-+++ linux-2.6.16.5/drivers/block/cciss.c
-@@ -1181,6 +1181,53 @@ static int revalidate_allvol(ctlr_info_t
-         return 0;
- }
+---
+ drivers/net/sky2.c |    4 ++--
+ drivers/net/sky2.h |    1 +
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+--- linux-2.6.16.5.orig/drivers/net/sky2.c
++++ linux-2.6.16.5/drivers/net/sky2.c
+@@ -579,8 +579,8 @@ static void sky2_mac_init(struct sky2_hw
+ 	reg = gma_read16(hw, port, GM_PHY_ADDR);
+ 	gma_write16(hw, port, GM_PHY_ADDR, reg | GM_PAR_MIB_CLR);
  
-+static inline void complete_buffers(struct bio *bio, int status)
-+{
-+	while (bio) {
-+		struct bio *xbh = bio->bi_next;
-+		int nr_sectors = bio_sectors(bio);
-+
-+		bio->bi_next = NULL;
-+		blk_finished_io(len);
-+		bio_endio(bio, nr_sectors << 9, status ? 0 : -EIO);
-+		bio = xbh;
-+	}
-+
-+}
-+
-+static void cciss_softirq_done(struct request *rq)
-+{
-+	CommandList_struct *cmd = rq->completion_data;
-+	ctlr_info_t *h = hba[cmd->ctlr];
-+	unsigned long flags;
-+	u64bit temp64;
-+	int i, ddir;
-+
-+	if (cmd->Request.Type.Direction == XFER_READ)
-+		ddir = PCI_DMA_FROMDEVICE;
-+	else
-+		ddir = PCI_DMA_TODEVICE;
-+
-+	/* command did not need to be retried */
-+	/* unmap the DMA mapping for all the scatter gather elements */
-+	for(i=0; i<cmd->Header.SGList; i++) {
-+		temp64.val32.lower = cmd->SG[i].Addr.lower;
-+		temp64.val32.upper = cmd->SG[i].Addr.upper;
-+		pci_unmap_page(h->pdev, temp64.val, cmd->SG[i].Len, ddir);
-+	}
-+
-+	complete_buffers(rq->bio, rq->errors);
-+
-+#ifdef CCISS_DEBUG
-+	printk("Done with %p\n", rq);
-+#endif /* CCISS_DEBUG */
-+
-+	spin_lock_irqsave(&h->lock, flags);
-+	end_that_request_last(rq, rq->errors);
-+	cmd_free(h, cmd,1);
-+	spin_unlock_irqrestore(&h->lock, flags);
-+}
-+
- /* This function will check the usage_count of the drive to be updated/added.
-  * If the usage_count is zero then the drive information will be updated and
-  * the disk will be re-registered with the kernel.  If not then it will be
-@@ -1249,6 +1296,8 @@ static void cciss_update_drive_info(int 
+-	for (i = 0; i < GM_MIB_CNT_SIZE; i++)
+-		gma_read16(hw, port, GM_MIB_CNT_BASE + 8 * i);
++	for (i = GM_MIB_CNT_BASE; i <= GM_MIB_CNT_END; i += 4)
++		gma_read16(hw, port, i);
+ 	gma_write16(hw, port, GM_PHY_ADDR, reg);
  
- 		blk_queue_max_sectors(disk->queue, 512);
+ 	/* transmit control */
+--- linux-2.6.16.5.orig/drivers/net/sky2.h
++++ linux-2.6.16.5/drivers/net/sky2.h
+@@ -1380,6 +1380,7 @@ enum {
+ /* MIB Counters */
+ #define GM_MIB_CNT_BASE	0x0100		/* Base Address of MIB Counters */
+ #define GM_MIB_CNT_SIZE	44		/* Number of MIB Counters */
++#define GM_MIB_CNT_END	0x025C		/* Last MIB counter */
  
-+		blk_queue_softirq_done(disk->queue, cciss_softirq_done);
-+
- 		disk->queue->queuedata = hba[ctlr];
- 
- 		blk_queue_hardsect_size(disk->queue,
-@@ -2148,20 +2197,6 @@ static void start_io( ctlr_info_t *h)
- 		addQ (&(h->cmpQ), c); 
- 	}
- }
--
--static inline void complete_buffers(struct bio *bio, int status)
--{
--	while (bio) {
--		struct bio *xbh = bio->bi_next; 
--		int nr_sectors = bio_sectors(bio);
--
--		bio->bi_next = NULL; 
--		blk_finished_io(len);
--		bio_endio(bio, nr_sectors << 9, status ? 0 : -EIO);
--		bio = xbh;
--	}
--
--} 
- /* Assumes that CCISS_LOCK(h->ctlr) is held. */
- /* Zeros out the error record and then resends the command back */
- /* to the controller */
-@@ -2179,39 +2214,6 @@ static inline void resend_cciss_cmd( ctl
- 	start_io(h);
- }
- 
--static void cciss_softirq_done(struct request *rq)
--{
--	CommandList_struct *cmd = rq->completion_data;
--	ctlr_info_t *h = hba[cmd->ctlr];
--	unsigned long flags;
--	u64bit temp64;
--	int i, ddir;
--
--	if (cmd->Request.Type.Direction == XFER_READ)
--		ddir = PCI_DMA_FROMDEVICE;
--	else
--		ddir = PCI_DMA_TODEVICE;
--
--	/* command did not need to be retried */
--	/* unmap the DMA mapping for all the scatter gather elements */
--	for(i=0; i<cmd->Header.SGList; i++) {
--		temp64.val32.lower = cmd->SG[i].Addr.lower;
--		temp64.val32.upper = cmd->SG[i].Addr.upper;
--		pci_unmap_page(h->pdev, temp64.val, cmd->SG[i].Len, ddir);
--	}
--
--	complete_buffers(rq->bio, rq->errors);
--
--#ifdef CCISS_DEBUG
--	printk("Done with %p\n", rq);
--#endif /* CCISS_DEBUG */ 
--
--	spin_lock_irqsave(&h->lock, flags);
--	end_that_request_last(rq, rq->errors);
--	cmd_free(h, cmd,1);
--	spin_unlock_irqrestore(&h->lock, flags);
--}
--
- /* checks the status of the job and calls complete buffers to mark all 
-  * buffers for the completed job. Note that this function does not need
-  * to hold the hba/queue lock.
+ /*
+  * MIB Counters base address definitions (low word) -
 
 --

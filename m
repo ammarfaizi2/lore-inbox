@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWDMRvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWDMRxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWDMRvI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 13:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWDMRvI
+	id S932275AbWDMRxR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 13:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWDMRxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 13:51:08 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:30115 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964771AbWDMRvH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 13:51:07 -0400
-Subject: [PATCH] tpm: tpm-new-12-sysfs-files-fix-fix-fix
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org, TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Date: Thu, 13 Apr 2006 12:51:56 -0500
-Message-Id: <1144950716.12054.113.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Apr 2006 13:53:16 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10916 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932275AbWDMRxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 13:53:15 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] pids: simplify do_each_task_pid/while_each_task_pid
+References: <20060413163727.GA1365@oleg>
+	<20060413133814.GA29914@infradead.org> <20060413175431.GA108@oleg>
+	<20060413150722.GA5217@infradead.org> <20060413202104.GA125@oleg>
+	<20060413163205.GA7492@infradead.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 13 Apr 2006 11:50:40 -0600
+In-Reply-To: <20060413163205.GA7492@infradead.org> (Christoph Hellwig's
+ message of "Thu, 13 Apr 2006 17:32:05 +0100")
+Message-ID: <m11ww15pqn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix a buffer size that got set to small for the return size.
+Christoph Hellwig <hch@infradead.org> writes:
 
-Signed-off-by: Kylie Hall <kjhall@us.ibm.com>
----
- drivers/char/tpm/tpm.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> On Fri, Apr 14, 2006 at 12:21:04AM +0400, Oleg Nesterov wrote:
+>> #define
+> NEW_IMPROVED_HLIST_FOR_EACH_ENTRY_RCU_WHICH_DOESNT_NEED_EXTRA_PARM(pos, head,
+> member) \
+>> for (pos = hlist_entry((head)->first, typeof(*(pos)), member); \
+>> rcu_dereference(pos) != hlist_entry(NULL, typeof(*(pos)), member) \
+>> && ({ prefetch((pos)->member.next); 1; }); \
+>> (pos) = hlist_entry((pos)->member.next, typeof(*(pos)), member))
+>> 
+>> What do you think? What should be the name for it?
+>
+> Justy kill the superflous argument from all hlist_for_each_entry variants
+> without a name change.
 
---- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm.c	2006-04-12 16:39:40.191345000 -0500
-+++ linux-2.6.17-rc1/drivers/char/tpm/tpm.c	2006-04-13 12:56:32.717377500 -0500
-@@ -582,7 +584,7 @@ EXPORT_SYMBOL_GPL(tpm_continue_selftest)
- ssize_t tpm_show_enabled(struct device * dev, struct device_attribute * attr,
- 			char *buf)
- {
--	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 30)];
-+	u8 data[max_t(int, ARRAY_SIZE(tpm_cap), 35)];
- 	ssize_t rc;
- 
- 	struct tpm_chip *chip = dev_get_drvdata(dev);
+Sounds like a plan.
 
+I didn't attack this in the orignal patch that made it possible
+because it would have all been noise there.
+
+But as two independent cleanups it sounds reasonable.
+
+Eric
 

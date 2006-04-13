@@ -1,53 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWDMVvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWDMVxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964986AbWDMVvB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 17:51:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWDMVvB
+	id S964987AbWDMVxG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 17:53:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbWDMVxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 17:51:01 -0400
-Received: from uproxy.gmail.com ([66.249.92.170]:37001 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964986AbWDMVvA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 17:51:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JNqVcmUQlhSp9h/3gVgzgOsoQcYVVq3ICytaeoda34FhdIvS96S4UKoY/DxBaK3yxeuaC3AEstZhvwDTKfNAvdim33qPFk38GWebbAmEk/0C/IO7Yye+oZRj/V5YRDM9eRZtX9+MzXH1E8GLg2DSpxTQcv3buh9eCYq709z910g=
-Message-ID: <625fc13d0604131450i2cbfcc1fie787daea380b7c66@mail.gmail.com>
-Date: Thu, 13 Apr 2006 16:50:58 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "David Woodhouse" <dwmw2@infradead.org>
-Subject: Re: [PATCH 3/4] Remove unchecked flags
-Cc: "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>,
-       "Andrew Morton" <akpm@osdl.org>, "Thomas Gleixner" <tglx@linutronix.de>,
-       linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-In-Reply-To: <1144955886.2697.78.camel@shinybook.infradead.org>
+	Thu, 13 Apr 2006 17:53:06 -0400
+Received: from smtp-1.llnl.gov ([128.115.3.81]:6596 "EHLO smtp-1.llnl.gov")
+	by vger.kernel.org with ESMTP id S964987AbWDMVxF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 17:53:05 -0400
+From: Dave Peterson <dsp@llnl.gov>
+To: linux-mm@kvack.org
+Subject: [PATCH 0/2] mm: minor OOM killer fixes
+Date: Thu, 13 Apr 2006 14:52:05 -0700
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, riel@surriel.com, akpm@osdl.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060413165153.GD30574@wohnheim.fh-wedel.de>
-	 <20060413165434.GG30574@wohnheim.fh-wedel.de>
-	 <625fc13d0604131108w68612124ga77fb5fd9f0a408c@mail.gmail.com>
-	 <1144955886.2697.78.camel@shinybook.infradead.org>
+Message-Id: <200604131452.05089.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/13/06, David Woodhouse <dwmw2@infradead.org> wrote:
-> On Thu, 2006-04-13 at 13:08 -0500, Josh Boyer wrote:
-> > As a side note, these will also need to be removed from the mtd-utils
-> > tree.  The switch to git meant that mtd-utils has it's own copy of the
-> > sanitized headers.  The patch for mtd-abi.h should apply there as
-> > well.
->
-> The idea is that include/mtd/ is sanitised for userspace, and those
-> headers should be identical. Having switched to git and separated the
-> userspace and kernel repositories, I hadn't yet worked out how to
-> address that.
+Following are a couple of minor OOM killer patches that apply to the
+2.6.17-rc1 kernel.  Please apply.
 
-We sorta addressed it already.  The repositories each have their own
-copy of those files.  They should still be identical, which means
-double maintenance on them.  That sucks, but I don't know of a better
-way to do it offhand.
-
-josh
+Thanks,
+Dave

@@ -1,74 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbWDMXWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbWDMXWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbWDMXWF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 19:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWDMXWF
+	id S965037AbWDMXWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 19:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbWDMXWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 19:22:05 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:58769 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S965036AbWDMXWD (ORCPT
+	Thu, 13 Apr 2006 19:22:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10401 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965037AbWDMXWX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 19:22:03 -0400
-Subject: Re: 2.6.17-rc1: collie -- oopsen in pccardd?
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-pcmcia@lists.infradead.org,
-       lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
-       metan@seznam.cz
-In-Reply-To: <20060413171425.GA12404@isilmar.linta.de>
-References: <20060404122212.GG19139@elf.ucw.cz>
-	 <20060404124350.GA16857@flint.arm.linux.org.uk>
-	 <20060404000129.GA2590@ucw.cz>
-	 <1144923105.7236.18.camel@localhost.localdomain>
-	 <20060413164706.GB18635@atrey.karlin.mff.cuni.cz>
-	 <20060413165452.GA7805@flint.arm.linux.org.uk>
-	 <20060413171425.GA12404@isilmar.linta.de>
-Content-Type: text/plain
-Date: Fri, 14 Apr 2006 00:18:34 +0100
-Message-Id: <1144970315.7236.23.camel@localhost.localdomain>
+	Thu, 13 Apr 2006 19:22:23 -0400
+Date: Thu, 13 Apr 2006 16:24:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, riel@surriel.com
+Subject: Re: [PATCH 2/2] mm: fix mm_struct reference counting bugs in
+ mm/oom_kill.c
+Message-Id: <20060413162432.41892d3a.akpm@osdl.org>
+In-Reply-To: <200604131452.08292.dsp@llnl.gov>
+References: <200604131452.08292.dsp@llnl.gov>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-13 at 19:14 +0200, Dominik Brodowski wrote:
-> Oh yes, mea culpa. However, we can simply remove setting res->flags here, as
-> we never read it in this case anyways.
-> 
-> Thanks,
-> 	Dominik
-> 
-> 
-> From: Dominik Brodowski <linux@dominikbrodowski.net>
-> Date: Thu Apr 13 19:06:49 2006 +0200
-> Subject: [PATCH] pcmcia: fix oops in static mapping case
-> 
-> As static maps do not have IO resources, this setting oopses. However, as
-> we do not ever read this value, we can safely remove it.
-> 
-> Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Dave Peterson <dsp@llnl.gov> wrote:
 >
-> diff --git a/drivers/pcmcia/pcmcia_resource.c
-> b/drivers/pcmcia/pcmcia_resource.c
-> index 2539c0b..cc3402c 100644
-> --- a/drivers/pcmcia/pcmcia_resource.c
-> +++ b/drivers/pcmcia/pcmcia_resource.c
-> @@ -88,7 +88,6 @@ static int alloc_io_space(struct pcmcia_
->         }
->         if ((s->features & SS_CAP_STATIC_MAP) && s->io_offset) {
->                 *base = s->io_offset | (*base & 0x0fff);
-> -               s->io[0].res->flags = (s->io[0].res->flags &
-> ~IORESOURCE_BITS) | (attr & IORESOURCE_BITS);
->                 return 0;
->         }
->         /* Check for an already-allocated window that must conflict 
+> The patch below fixes some mm_struct reference counting bugs in
+> badness().
 
+hm, OK, afaict the code _is_ racy.
 
-I can confirm this fixes the problem I was seeing as well.
+But you're now calling mmput() inside read_lock(&tasklist_lock), and
+mmput() can sleep in exit_aio() or in exit_mmap()->unmap_vmas().  So
+sterner stuff will be needed.
 
-Thanks,
-
-Richard
-
+I'll put a might_sleep() into mmput - it's a bit unexpected.

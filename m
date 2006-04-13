@@ -1,195 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWDMBoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWDMBoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932414AbWDMBoX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 21:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWDMBoX
+	id S932422AbWDMBoq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 21:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWDMBoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 21:44:23 -0400
-Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:50567 "EHLO
-	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S932414AbWDMBoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 21:44:23 -0400
-Message-ID: <443DAD5C.8080007@keyaccess.nl>
-Date: Thu, 13 Apr 2006 03:46:04 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: ALSA devel <alsa-devel@alsa-project.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [ALSA STABLE 3/3] a few more -- unregister platform device again
- if probe was unsuccessful
-Content-Type: multipart/mixed;
- boundary="------------040703020001050005080109"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Wed, 12 Apr 2006 21:44:46 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:58325 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932423AbWDMBop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 21:44:45 -0400
+Subject: Re: [RFC] Making percpu module variables have their own memory.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <p734q0y4k69.fsf@bragg.suse.de>
+References: <1144869739.26133.74.camel@localhost.localdomain>
+	 <p734q0y4k69.fsf@bragg.suse.de>
+Content-Type: text/plain
+Date: Wed, 12 Apr 2006 21:44:28 -0400
+Message-Id: <1144892668.26133.92.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040703020001050005080109
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Andi,
 
-Hi Takashi.
+First, thanks a lot for the feedback.
 
-And finally, unregister on probe failure for sound/drivers,
-sound/arm/sa11xx-uda1341.c and sound/ppc/powermac.c.
+On Wed, 2006-04-12 at 22:23 +0200, Andi Kleen wrote:
+> Steven Rostedt <rostedt@goodmis.org> writes:
+> 
+> The basic optimization idea looks interesting. But your implementation
+> is quite complicated.  
 
-   sound/arm/sa11xx-uda1341.c    |   14 +++++++++-----
-   sound/drivers/dummy.c         |    4 ++++
-   sound/drivers/mpu401/mpu401.c |    4 ++++
-   sound/drivers/mtpav.c         |   14 +++++++++-----
-   sound/drivers/serial-u16550.c |    4 ++++
-   sound/drivers/virmidi.c       |    4 ++++
-   sound/ppc/powermac.c          |   14 +++++++++-----
-   7 files changed, 43 insertions(+), 15 deletions(-)
+Yes, it's a little complex, but since it only took me a half a day to
+figured it out, it can't be too complex.  Nothing some good
+documentation and comments can't fix (I would definitely add more
+comments to the final patch).
 
-Signed-off-by: Rene Herman <rene.herman@keyaccess.nl>
+> 
+> The basic problem is that extern declarations and definitions
+> are the same macro. If they weren't one could just use a different
+> macro depending on if MODULE is defined or not and get rid
+> of the type comparisons you do.
 
+I don't quite understand what you mean here.
 
---------------040703020001050005080109
-Content-Type: text/plain;
- name="alsa_platform_unregister_remainder.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="alsa_platform_unregister_remainder.diff"
+> 
+> Since you already need to change a lot of the per CPU definitions how
+> about you just define a separate macro for extern per cpu
+> declarations? And then change the basic macro to do the right
+> thing based on MODULE is set or not.
+> 
 
-Index: local/sound/arm/sa11xx-uda1341.c
-===================================================================
---- local.orig/sound/arm/sa11xx-uda1341.c	2006-03-20 06:53:29.000000000 +0100
-+++ local/sound/arm/sa11xx-uda1341.c	2006-04-13 03:14:49.000000000 +0200
-@@ -984,11 +984,15 @@ static int __init sa11xx_uda1341_init(vo
- 	if ((err = platform_driver_register(&sa11xx_uda1341_driver)) < 0)
- 		return err;
- 	device = platform_device_register_simple(SA11XX_UDA1341_DRIVER, -1, NULL, 0);
--	if (IS_ERR(device)) {
--		platform_driver_unregister(&sa11xx_uda1341_driver);
--		return PTR_ERR(device);
--	}
--	return 0;
-+	if (!IS_ERR(device)) {
-+		if (platform_get_drvdata(device))
-+			return 0;
-+		platform_device_unregister(device);
-+		err = -ENODEV
-+	} else
-+		err = PTR_ERR(device);
-+	platform_driver_unregister(&sa11xx_uda1341_driver);
-+	return err;
- }
- 
- static void __exit sa11xx_uda1341_exit(void)
-Index: local/sound/drivers/dummy.c
-===================================================================
---- local.orig/sound/drivers/dummy.c	2006-04-13 03:11:35.000000000 +0200
-+++ local/sound/drivers/dummy.c	2006-04-13 03:14:49.000000000 +0200
-@@ -677,6 +677,10 @@ static int __init alsa_card_dummy_init(v
- 							 i, NULL, 0);
- 		if (IS_ERR(device))
- 			continue;
-+		if (!platform_get_drvdata(device)) {
-+			platform_device_unregister(device);
-+			continue;
-+		}
- 		devices[i] = device;
- 		cards++;
- 	}
-Index: local/sound/drivers/mpu401/mpu401.c
-===================================================================
---- local.orig/sound/drivers/mpu401/mpu401.c	2006-04-13 03:11:35.000000000 +0200
-+++ local/sound/drivers/mpu401/mpu401.c	2006-04-13 03:14:49.000000000 +0200
-@@ -252,6 +252,10 @@ static int __init alsa_card_mpu401_init(
- 							 i, NULL, 0);
- 		if (IS_ERR(device))
- 			continue;
-+		if (!platform_get_drvdata(device)) {
-+			platform_device_unregister(device);
-+			continue;
-+		}
- 		platform_devices[i] = device;
- 		devices++;
- 	}
-Index: local/sound/drivers/mtpav.c
-===================================================================
---- local.orig/sound/drivers/mtpav.c	2006-03-20 06:53:29.000000000 +0100
-+++ local/sound/drivers/mtpav.c	2006-04-13 03:14:49.000000000 +0200
-@@ -770,11 +770,15 @@ static int __init alsa_card_mtpav_init(v
- 		return err;
- 
- 	device = platform_device_register_simple(SND_MTPAV_DRIVER, -1, NULL, 0);
--	if (IS_ERR(device)) {
--		platform_driver_unregister(&snd_mtpav_driver);
--		return PTR_ERR(device);
--	}
--	return 0;
-+	if (!IS_ERR(device)) {
-+		if (platform_get_drvdata(device))
-+			return 0;
-+		platform_device_unregister(device);
-+		err = -ENODEV;
-+	} else
-+		err = PTR_ERR(device);
-+	platform_driver_unregister(&snd_mtpav_driver);
-+	return err;
- }
- 
- static void __exit alsa_card_mtpav_exit(void)
-Index: local/sound/drivers/serial-u16550.c
-===================================================================
---- local.orig/sound/drivers/serial-u16550.c	2006-04-13 03:11:35.000000000 +0200
-+++ local/sound/drivers/serial-u16550.c	2006-04-13 03:14:49.000000000 +0200
-@@ -997,6 +997,10 @@ static int __init alsa_card_serial_init(
- 							 i, NULL, 0);
- 		if (IS_ERR(device))
- 			continue;
-+		if (!platform_get_drvdata(device)) {
-+			platform_device_unregister(device);
-+			continue;
-+		}
- 		devices[i] = device;
- 		cards++;
- 	}
-Index: local/sound/drivers/virmidi.c
-===================================================================
---- local.orig/sound/drivers/virmidi.c	2006-04-13 03:11:35.000000000 +0200
-+++ local/sound/drivers/virmidi.c	2006-04-13 03:14:49.000000000 +0200
-@@ -171,6 +171,10 @@ static int __init alsa_card_virmidi_init
- 							 i, NULL, 0);
- 		if (IS_ERR(device))
- 			continue;
-+		if (!platform_get_drvdata(device)) {
-+			platform_device_unregister(device);
-+			continue;
-+		}
- 		devices[i] = device;
- 		cards++;
- 	}
-Index: local/sound/ppc/powermac.c
-===================================================================
---- local.orig/sound/ppc/powermac.c	2006-03-20 06:53:29.000000000 +0100
-+++ local/sound/ppc/powermac.c	2006-04-13 03:14:49.000000000 +0200
-@@ -188,11 +188,15 @@ static int __init alsa_card_pmac_init(vo
- 	if ((err = platform_driver_register(&snd_pmac_driver)) < 0)
- 		return err;
- 	device = platform_device_register_simple(SND_PMAC_DRIVER, -1, NULL, 0);
--	if (IS_ERR(device)) {
--		platform_driver_unregister(&snd_pmac_driver);
--		return PTR_ERR(device);
--	}
--	return 0;
-+	if (!IS_ERR(device)) {
-+		if (platform_get_drvdata(device))
-+			return 0;
-+		platform_device_unregister(device);
-+		err = -ENODEV;
-+	} else
-+		err = PTR_ERR(device);
-+	platform_driver_unregister(&snd_pmac_driver);
-+	return err;
- 
- }
- 
+Well, I haven't really changed a lot of the per_cpu variables.  There
+were a few places that were just bad design.  In softirq (at least in
+the -rt patch) the uses were referencing the elements in the per_cpu
+struct which IMO is broken by design.  For example, we had
+__get_cpu_var(ksoftirqd[softirq].tsk) instead of
+__get_cpu_var(ksoftirqd[softirq]).tsk.  The ksoftirqd[softirq] was the
+per_cpu variable, but the former looked like the ksoftirqd[softirq].tsk
+was.  The later shows better what is really meant, and besides, the
+former breaks my solution ;)
+
+The other side effect my solution has is that you can't declare a
+per_cpu variable static.  But with a quick look, the kernel only has a
+few places that actually do that.  But this doesn't increase the size of
+the kernel at all. It only adds more to the name space. But per_cpu
+variables are in their own name space anyway, so this shouldn't be too
+much of an issue.
+
+So, the changes to be made to handle my solution is only a few, but to
+change all per_cpu macros to be local or global would be quite an
+effort, and much more room to make mistakes.  I would also have to
+modify places in the kernel that I can't test, which to me is not a
+solution.
+
+My solution was to try to do as much as possible with as little impact
+as possible.  And reading this mailing list, I took on the impression
+that that's the way to go.  So yes, it adds a little more complexity,
+but it actually simplifies module.c and the complexity is located in
+only one location, which makes it actually much easier to debug and get
+right.
+
+Thanks again for your input,
+
+-- Steve
 
 
---------------040703020001050005080109--

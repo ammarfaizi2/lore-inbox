@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWDMQrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWDMQwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbWDMQrI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 12:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWDMQrI
+	id S1750844AbWDMQwK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 12:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWDMQwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 12:47:08 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61924 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750814AbWDMQrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 12:47:07 -0400
-Date: Thu, 13 Apr 2006 18:47:06 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-pcmcia@lists.infradead.org, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, metan@seznam.cz
-Subject: Re: 2.6.17-rc1: collie -- oopsen in pccardd?
-Message-ID: <20060413164706.GB18635@atrey.karlin.mff.cuni.cz>
-References: <20060404122212.GG19139@elf.ucw.cz> <20060404124350.GA16857@flint.arm.linux.org.uk> <20060404000129.GA2590@ucw.cz> <1144923105.7236.18.camel@localhost.localdomain>
+	Thu, 13 Apr 2006 12:52:10 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:14311 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750844AbWDMQwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 12:52:09 -0400
+Date: Thu, 13 Apr 2006 18:51:53 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       linux-mtd@lists.infradead.org
+Subject: [PATCH 0/4] Cleanup of mtd->type and mtd->flags
+Message-ID: <20060413165153.GD30574@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1144923105.7236.18.camel@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Currently, there appears to be a great confusion surrounding mtd->type
+and mtd->flags.  Various combinations of type and flags are used by
+device drivers to give some hints to users.  Some users interpret
+these hints as seems to be intended by the drivers, others don't.
+Mismatches are caused by both drivers and users being confused and the
+whole system being less than clear.
 
-> > > > I'm getting some oopses when inserting/removing pccard (on collie,
-> > > > oopses in pccardd). It does not break boot, so it is not immediate
-> > > > problem, but I wonder if it also happens on non-collie machines?
-> > > 
-> > > No idea what so ever.  Not even any clues as to what might be going wrong
-> > > due to the lack of oops dump.  (Not that I even look after PCMCIA anymore.)
-> > 
-> > Sorry for lack of oops. I was not expecting you to debug it, I
-> > expected some voices telling me it is broken for them, too :-).
-> 
-> With a recent git kernel (907d91d708d9999bec0185d630062576ac4181a7) I
-> see the oops below when booting spitz (SL-C3000 - ARM pxa270 based). Was
-> this the same oops you saw Pavel?
+This patchset is part of a larger work trying to clean things up.
+Patches are fairly simple and shouldn't need any discussion.
 
-I think so.
-								Pavel
-
--- 
-Thanks, Sharp!
+Jörn

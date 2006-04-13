@@ -1,95 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWDMP0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWDMP2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbWDMP0y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 11:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWDMP0y
+	id S1750919AbWDMP2c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 11:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWDMP2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 11:26:54 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:19328 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750845AbWDMP0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 11:26:53 -0400
-Subject: Re: [Ext2-devel] Re: [RFC][PATCH 0/2]Extend ext3 filesystem limit
-	from 8TB to 16TB
-From: Laurent Vivier <Laurent.Vivier@bull.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mingming Cao <cmm@us.ibm.com>, Takashi Sato <sho@tnes.nec.co.jp>,
-       linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <20060410012431.716d1000.akpm@osdl.org>
-References: <20060325223358sho@rifu.tnes.nec.co.jp>
-	 <1143485147.3970.23.camel@dyn9047017067.beaverton.ibm.com>
-	 <20060327131049.2c6a5413.akpm@osdl.org>
-	 <20060327225847.GC3756@localhost.localdomain>
-	 <1143530126.11560.6.camel@openx2.frec.bull.fr>
-	 <1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com>
-	 <1143623605.5046.11.camel@openx2.frec.bull.fr>
-	 <1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com>
-	 <20060329175446.67149f32.akpm@osdl.org>
-	 <1144660270.5816.3.camel@openx2.frec.bull.fr>
-	 <20060410012431.716d1000.akpm@osdl.org>
-Message-Id: <1144941999.2914.1.camel@openx2.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-14) 
-Date: Thu, 13 Apr 2006 17:26:39 +0200
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 13/04/2006 17:29:14,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 13/04/2006 17:29:17,
-	Serialize complete at 13/04/2006 17:29:17
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TxvS0rl0C1noIiRDeY9d"
+	Thu, 13 Apr 2006 11:28:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3031 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750892AbWDMP2b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 11:28:31 -0400
+Date: Thu, 13 Apr 2006 08:28:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, Dan Bonachea <bonachead@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
+In-Reply-To: <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0604130827490.14565@g5.osdl.org>
+References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
+ <20060412214613.404cf49f.akpm@osdl.org> <443DE2BD.1080103@yahoo.com.au>
+ <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-TxvS0rl0C1noIiRDeY9d
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Le lun 10/04/2006 =C3=A0 10:24, Andrew Morton a =C3=A9crit :
-> Laurent Vivier <Laurent.Vivier@bull.net> wrote:
-> >
-> > Does the attached patch look like the thing you though about ?
->=20
-> I guess so.  But it'll need a lot of performance testing on big SMP
-> to work out what the impact is.
+On Thu, 13 Apr 2006, Linus Torvalds wrote:
+> 
+> That said, I wouldn't be 100% against it, especially under certain 
+> circumstances. However, the circumstances when I think it might be 
+> acceptable are fairly specific:
+> 
+>  - when we use f_pos (ie we'd synchronize write against write, but only 
+>    per "struct file", not on an inode basis)
+>  - only for files that are marked seekable with FMODE_LSEEK (thus avoiding 
+>    the stream-like objects like pipes and sockets)
+> 
+> Under those two circumstances, I'd certainly be ok with it, and I think we 
+> could argue that it is a "good thing". It would be a "f_pos" lock (so we 
+> migt do it for reads too), not a "data lock".
+> 
+> Comments?
 
-I made some tests with dbench:
+Something like this.
 
-IBM x440: 8 CPUs hyperthreaded =3D 16 CPUs (Xeon at 1.4 Ghz)
+NOTE NOTE NOTE! Untested!
 
-with percpu_counter:
-
-        Throughput 188.365 MB/sec 16 procs
-        Throughput 226.164 MB/sec 32 procs
-        Throughput 142.913 MB/sec 64 procs
-
-with atomic_long_t:
-
-        Throughput 194.385 MB/sec 16 procs
-        Throughput 237.273 MB/sec 32 procs
-        Throughput 160.751 MB/sec 64 procs
-
-Regards,
-Laurent
---=20
-Laurent Vivier
-Bull, Architect of an Open World (TM)
-http://www.bullopensource.org/ext4
-
---=-TxvS0rl0C1noIiRDeY9d
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-
-iD8DBQBEPm2v9Kffa9pFVzwRAmofAKCu4OhsqN+i5CbHP/40ZUZqGnIyQgCfZDJJ
-HZvqmeBsfRWbC8n8jz9mOUo=
-=Hd4R
------END PGP SIGNATURE-----
-
---=-TxvS0rl0C1noIiRDeY9d--
-
+		Linus
+---
+diff --git a/fs/file_table.c b/fs/file_table.c
+index bcea199..48728cc 100644
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -120,6 +120,7 @@ struct file *get_empty_filp(void)
+ 	f->f_uid = tsk->fsuid;
+ 	f->f_gid = tsk->fsgid;
+ 	eventpoll_init_file(f);
++	mutex_init(&f->f_pos_lock);
+ 	/* f->f_version: 0 */
+ 	return f;
+ 
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 5bc0e92..ad9db26 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -329,14 +329,23 @@ ssize_t vfs_write(struct file *file, con
+ 
+ EXPORT_SYMBOL(vfs_write);
+ 
+-static inline loff_t file_pos_read(struct file *file)
++/*
++ * FMODE_LSEEK will never change for a file during its lifetime,
++ * so it's ok to test it independently on the lock/unlock path
++ * rather than explicitly remembering whether we locked it.
++ */
++static inline loff_t file_pos_read_lock(struct file *file)
+ {
++	if (file->f_mode & FMODE_LSEEK)
++		mutex_lock(&file->f_pos_lock);
+ 	return file->f_pos;
+ }
+ 
+-static inline void file_pos_write(struct file *file, loff_t pos)
++static inline void file_pos_write_unlock(struct file *file, loff_t pos)
+ {
+ 	file->f_pos = pos;
++	if (file->f_mode & FMODE_LSEEK)
++		mutex_unlock(&file->f_pos_lock);
+ }
+ 
+ asmlinkage ssize_t sys_read(unsigned int fd, char __user * buf, size_t count)
+@@ -347,9 +356,9 @@ asmlinkage ssize_t sys_read(unsigned int
+ 
+ 	file = fget_light(fd, &fput_needed);
+ 	if (file) {
+-		loff_t pos = file_pos_read(file);
++		loff_t pos = file_pos_read_lock(file);
+ 		ret = vfs_read(file, buf, count, &pos);
+-		file_pos_write(file, pos);
++		file_pos_write_unlock(file, pos);
+ 		fput_light(file, fput_needed);
+ 	}
+ 
+@@ -365,9 +374,9 @@ asmlinkage ssize_t sys_write(unsigned in
+ 
+ 	file = fget_light(fd, &fput_needed);
+ 	if (file) {
+-		loff_t pos = file_pos_read(file);
++		loff_t pos = file_pos_read_lock(file);
+ 		ret = vfs_write(file, buf, count, &pos);
+-		file_pos_write(file, pos);
++		file_pos_write_unlock(file, pos);
+ 		fput_light(file, fput_needed);
+ 	}
+ 
+@@ -603,9 +612,9 @@ sys_readv(unsigned long fd, const struct
+ 
+ 	file = fget_light(fd, &fput_needed);
+ 	if (file) {
+-		loff_t pos = file_pos_read(file);
++		loff_t pos = file_pos_read_lock(file);
+ 		ret = vfs_readv(file, vec, vlen, &pos);
+-		file_pos_write(file, pos);
++		file_pos_write_unlock(file, pos);
+ 		fput_light(file, fput_needed);
+ 	}
+ 
+@@ -624,9 +633,9 @@ sys_writev(unsigned long fd, const struc
+ 
+ 	file = fget_light(fd, &fput_needed);
+ 	if (file) {
+-		loff_t pos = file_pos_read(file);
++		loff_t pos = file_pos_read_lock(file);
+ 		ret = vfs_writev(file, vec, vlen, &pos);
+-		file_pos_write(file, pos);
++		file_pos_write_unlock(file, pos);
+ 		fput_light(file, fput_needed);
+ 	}
+ 
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 162c6e5..1d58cd0 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -643,6 +643,7 @@ struct file {
+ 	loff_t			f_pos;
+ 	struct fown_struct	f_owner;
+ 	unsigned int		f_uid, f_gid;
++	struct mutex		f_pos_lock;
+ 	struct file_ra_state	f_ra;
+ 
+ 	unsigned long		f_version;

@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWDMQ4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWDMQ4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWDMQ4F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 12:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWDMQ4E
+	id S1751082AbWDMQ4N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 12:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWDMQ4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 12:56:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44299 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751070AbWDMQ4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 12:56:03 -0400
-Date: Thu, 13 Apr 2006 17:54:52 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Richard Purdie <rpurdie@rpsys.net>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-pcmcia@lists.infradead.org, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>, metan@seznam.cz
-Subject: Re: 2.6.17-rc1: collie -- oopsen in pccardd?
-Message-ID: <20060413165452.GA7805@flint.arm.linux.org.uk>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Richard Purdie <rpurdie@rpsys.net>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	linux-pcmcia@lists.infradead.org, lenz@cs.wisc.edu,
-	kernel list <linux-kernel@vger.kernel.org>, metan@seznam.cz
-References: <20060404122212.GG19139@elf.ucw.cz> <20060404124350.GA16857@flint.arm.linux.org.uk> <20060404000129.GA2590@ucw.cz> <1144923105.7236.18.camel@localhost.localdomain> <20060413164706.GB18635@atrey.karlin.mff.cuni.cz>
+	Thu, 13 Apr 2006 12:56:13 -0400
+Received: from minus.inr.ac.ru ([194.67.69.97]:2755 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1751082AbWDMQ4M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 12:56:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=RZ3Gc8fZPPnBM9YAxj9Eo2FsRWxN7DlAe9TudouxzD/kG62idD2citspFI8YSyxicRDqJ+1EM8bztAT/aDyHjTuomwjeDbqO9MI4zLJ+VWwL+g1VXjM8A/rhOXkX7fNszpSo+gGQJlXE4aP4FSKJ0XH12ZVz9igmRdJ2LfWshtg=;
+Date: Thu, 13 Apr 2006 20:54:06 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: Andi Kleen <ak@suse.de>
+Cc: Kirill Korotaev <dev@sw.ru>, Kir Kolyshkin <kir@openvz.org>, akpm@osdl.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net,
+       linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
+       herbert@13thfloor.at
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+Message-ID: <20060413165406.GA7261@ms2.inr.ac.ru>
+References: <1143228339.19152.91.camel@localhost.localdomain> <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com> <443B873B.9040908@sw.ru> <p73mzer4bti.fsf@bragg.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060413164706.GB18635@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <p73mzer4bti.fsf@bragg.suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 06:47:06PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > I'm getting some oopses when inserting/removing pccard (on collie,
-> > > > > oopses in pccardd). It does not break boot, so it is not immediate
-> > > > > problem, but I wonder if it also happens on non-collie machines?
-> > > > 
-> > > > No idea what so ever.  Not even any clues as to what might be going wrong
-> > > > due to the lack of oops dump.  (Not that I even look after PCMCIA anymore.)
-> > > 
-> > > Sorry for lack of oops. I was not expecting you to debug it, I
-> > > expected some voices telling me it is broken for them, too :-).
-> > 
-> > With a recent git kernel (907d91d708d9999bec0185d630062576ac4181a7) I
-> > see the oops below when booting spitz (SL-C3000 - ARM pxa270 based). Was
-> > this the same oops you saw Pavel?
-> 
-> I think so.
+Hello!
 
-diff --git a/drivers/pcmcia/pcmcia_resource.c b/drivers/pcmcia/pcmcia_resource.c
---- a/drivers/pcmcia/pcmcia_resource.c
-+++ b/drivers/pcmcia/pcmcia_resource.c
-@@ -89,7 +88,7 @@ static int alloc_io_space(struct pcmcia_
-        }
-        if ((s->features & SS_CAP_STATIC_MAP) && s->io_offset) {
-                *base = s->io_offset | (*base & 0x0fff);
--               s->io[0].Attributes = attr;
-+               s->io[0].res->flags = (s->io[0].res->flags & ~IORESOURCE_BITS) | (attr & IORESOURCE_BITS);
-                return 0;
-        }
-        /* Check for an already-allocated window that must conflict with
+> How would that work when x86-64 32bit programs have 4GB of address
+> space and native on i386 programs only 3GB?
 
-will probably be the culpret - which is from commit
-c7d006935dfda9174187aa557e94a137ced10c30.
+It is not the only obstacle. There are another ones:
 
-Static maps do not have IO resources, so s->io[].Attributes was not a
-"duplicated" field in this case.  This part of this change needs
-reverting.
+1. Different values of segment registers. __USER32_* selectors should match
+   ones on i386.
+2. ia32 vsyscall page. It also must be the same, unless arch/i386 is changed
+   to allow various mappins like 32bit page x86_64 works.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Well, if we want something to migrate, we have to pay.
+
+Alexey

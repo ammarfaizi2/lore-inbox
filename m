@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWDMO7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWDMPAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWDMO7A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 10:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWDMO7A
+	id S1750906AbWDMPAX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 11:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWDMPAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 10:59:00 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1546 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750826AbWDMO7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 10:59:00 -0400
-Date: Thu, 13 Apr 2006 15:57:57 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
-       ALSA devel <alsa-devel@alsa-project.org>
-Subject: Re: [ALSA STABLE 3/3] a few more -- unregister platform device again if probe was unsuccessful
-Message-ID: <20060413145756.GA29959@flint.arm.linux.org.uk>
-Mail-Followup-To: Rene Herman <rene.herman@keyaccess.nl>,
-	Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-	Takashi Iwai <tiwai@suse.de>, Greg KH <gregkh@suse.de>,
-	ALSA devel <alsa-devel@alsa-project.org>
-References: <443DAD5C.8080007@keyaccess.nl> <200604131126.35841.ioe-lkml@rameria.de> <443E5AAD.5040800@keyaccess.nl>
+	Thu, 13 Apr 2006 11:00:22 -0400
+Received: from ns1.idleaire.net ([65.220.16.2]:52685 "EHLO iasrv1.idleaire.net")
+	by vger.kernel.org with ESMTP id S1750793AbWDMPAU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 11:00:20 -0400
+Subject: Re: [RFD][PATCH] typhoon and core sample for folding away VLAN
+	stuff
+From: Dave Dillow <dave@thedillows.org>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Ingo Oeser <ioe-lkml@rameria.de>, Ingo Oeser <netdev@axxeo.de>,
+       netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com
+In-Reply-To: <200604131138.59611.vda@ilport.com.ua>
+References: <200604071628.30486.vda@ilport.com.ua>
+	 <200604122132.46113.ioe-lkml@rameria.de> <443DA830.8030209@thedillows.org>
+	 <200604131138.59611.vda@ilport.com.ua>
+Content-Type: text/plain
+Date: Thu, 13 Apr 2006 11:00:14 -0400
+Message-Id: <1144940414.29160.14.camel@dillow.idleaire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <443E5AAD.5040800@keyaccess.nl>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Apr 2006 14:59:41.0960 (UTC) FILETIME=[E4CD2880:01C65F0A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 04:05:33PM +0200, Rene Herman wrote:
-> Not honouring/passing up probe() method error returns, not even -ENODEV, 
-> makes some sense for discoverable busses such as PCI where you at least 
-> have a driver independent bus_id sitting in /sys/devices/pci* that you 
-> can later echo into /sys/bus/pci/drivers/*/bind to make the driver bind 
-> to a device, but not much sense for the platform bus. Platform devices 
-> only "exist" (in /sys/devices/platform) due to the driver creating them 
-> itself and keeping them after failing a probe means that directory 
-> becomes an enumeration of the drivers we loaded, rather than a view of 
-> what's present in the system.
-
-Incorrect.  In some circumstances, they may be created by architecture
-support code, and might be created and destroyed dynamically by
-architecture support code.
-
-> The driver model crowd did not seem exceedingly interested in the 
-> problem though:
+On Thu, 2006-04-13 at 11:38 +0300, Denis Vlasenko wrote:
+> On Thursday 13 April 2006 04:24, Dave Dillow wrote:
+> > Regardless, I remain opposed to this particular instance of bloat 
+> > busting. While both patches have improved in style, they remove a useful 
+> > feature and make the code less clean, for no net gain.
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114417829014332&w=2
+> What happened to non-modular build? "no net gain" is not true.
 
-Incorrect summary.  The ALSA use model of the driver model doesn't fit
-with the driver model use model.  It's not that we're not interested
-in it - it's that it's perverted to the way driver model folk intend
-the subsystem to work, and the way that platform devices are used on
-some architectures.
+Ok, so you saved what, 200 bytes? On a few drivers that may save you a
+small amount -- you basically said you had to have everything loaded to
+see 5K.
 
+Weren't most of those savings from moving a big function out-of-line?
+The part I agree with?
+ 
+> > > This kind of changes are important, because bloat creeps in byte by byte
+> > > of unused features. So I really appreciate your work here Denis.
+> > 
+> > On SMP FC4, typhoon.ko has a text size of 68330, so you need to cut 2794 
+> > bytes to see an actual difference in memory usage for a module. Non-SMP 
+> > it is 67741, so there you only need to cut 2205 bytes to get a win.
+> 
+> This is silly. Should I go this route and try a dozen of different gcc
+> versions and "-O2 versus -Os" things to demonstrate that sometimes
+> it will matter?
+
+Quit being dense. No one has said that there are cases will it make a
+difference, just that that case is far removed from the usual case.
+
+I think I'm done on this topic. You've got more important people to
+convince than me, and they've already clear stated their position.
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Dave Dillow <dave@thedillows.org>
+

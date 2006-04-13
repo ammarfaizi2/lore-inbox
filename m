@@ -1,325 +1,389 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWDMHOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWDMHPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbWDMHOx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 03:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWDMHOx
+	id S964818AbWDMHPl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 03:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWDMHPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 03:14:53 -0400
-Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:10119 "EHLO
+	Thu, 13 Apr 2006 03:15:40 -0400
+Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:64135 "EHLO
 	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S964813AbWDMHOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 03:14:51 -0400
+	id S964818AbWDMHPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 03:15:37 -0400
 To: Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC][19/21]ext2resize enlarge file size and filesystem size
-Message-Id: <20060413161411sho@rifu.tnes.nec.co.jp>
+Subject: [RFC][21/21]ext2resize modify format strings
+Message-Id: <20060413161458sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
 X-Mailer: WeMail32[2.51] ID:1K0086
 From: sho@tnes.nec.co.jp
-Date: Thu, 13 Apr 2006 16:14:11 +0900
+Date: Thu, 13 Apr 2006 16:14:58 +0900
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Summary of this patch:
-  [19/21] enlarge max file size and max filesystem size
-          - With "-O large_block" option in mke2fs, the maximum size of
-            a file is (blocksize) * (2^32-1) bytes, and of a filesystem
-            is (pagesize) * (2^32-1).
+  [21/21] modify format strings in print
+          - The part which prints the signed value, related to a block
+            and an inode, in decimal is corrected so that it can print
+            unsigned one.
 
 Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
 ---
-diff -Nurp old/ext2resize-1.1.19/src/ext2.c ext2resize-1.1.19/src/ext2.c
---- old/ext2resize-1.1.19/src/ext2.c	2006-03-20 21:46:08.000000000 +0800
-+++ ext2resize-1.1.19/src/ext2.c	2006-03-20 21:47:33.000000000 +0800
-@@ -295,7 +295,6 @@ int ext2_block_iterate(struct ext2_fs *f
- 	blk_t			 curblock;
- 	int			 count = 0;
- 	int			 i;
--	int			 i512perblock = 1 << (fs->logsize - 9);
- 	unsigned long long 	apb;
- 
- 	apb = fs->u32perblock;
-@@ -341,7 +340,7 @@ int ext2_block_iterate(struct ext2_fs *f
- 		inode->i_block[EXT2_DIND_BLOCK] = dindblk;
- 		bh = ext2_bread(fs, inode->i_block[EXT2_DIND_BLOCK]);
- 		memset(bh->data, 0, fs->blocksize);
--		inode->i_blocks += i512perblock;
-+		inode->i_blocks += I_BLOCKS;
- 	}
- 	else
- 		bh = ext2_bread(fs, inode->i_block[EXT2_DIND_BLOCK]);
-@@ -363,7 +362,7 @@ int ext2_block_iterate(struct ext2_fs *f
- 			ext2_zero_blocks(fs, block, 1);
- 			ext2_set_block_state(fs, block, 1, 1);
- 			bh->dirty = 1;
--			inode->i_blocks += i512perblock;
-+			inode->i_blocks += I_BLOCKS;
- 			inode->i_mtime = time(NULL);
- 			ext2_brelse(bh, 0);
- 			return 1;
-@@ -379,7 +378,7 @@ int ext2_block_iterate(struct ext2_fs *f
- 
- 		bh2 = ext2_bread(fs, udata[i]);
- 		udata2 = (__u32 *)bh2->data;
--		count += i512perblock;
-+		count += I_BLOCKS;
- 
- 		for (j = 0; j < fs->u32perblock; j++, curblock++) {
- 			if (action == EXT2_ACTION_ADD && !udata2[j]) {
-@@ -390,7 +389,7 @@ int ext2_block_iterate(struct ext2_fs *f
- 					       curblock, udata[i]);
- 				bh2->dirty = 1;
- 				udata2[j] = block;
--				inode->i_blocks += i512perblock;
-+				inode->i_blocks += I_BLOCKS;
- 				if (new_size > inode->i_size)
- 					inode->i_size = new_size;
- 				inode->i_mtime = time(NULL);
-@@ -407,7 +406,7 @@ int ext2_block_iterate(struct ext2_fs *f
+diff -upNr ext2resize-1.1.19.org/src/ext2.c ext2resize-1.1.19.tmp/src/ext2.c
+--- ext2resize-1.1.19.org/src/ext2.c	2006-04-13 14:01:00.000000000 +0900
++++ ext2resize-1.1.19.tmp/src/ext2.c	2006-04-13 14:02:27.000000000 +0900
+@@ -405,7 +405,7 @@ int ext2_block_iterate(struct ext2_fs *f
+ 			if (udata2[j] == block) {
+ 				if (action == EXT2_ACTION_DELETE) {
+ 					if (fs->flags & FL_DEBUG)
+-						printf("del %d from dind %d\n",
++						printf("del %u from dind %d\n",
  						       curblock, udata[i]);
  					bh2->dirty = 1;
  					udata2[j] = 0;
--					inode->i_blocks -= i512perblock;
-+					inode->i_blocks -= I_BLOCKS;
- 					inode->i_mtime = time(NULL);
- 					if (!(fs->flags & FL_ONLINE))
- 						ext2_set_block_state(fs, block,
-@@ -418,7 +417,7 @@ int ext2_block_iterate(struct ext2_fs *f
- 				return curblock;
- 			}
- 			if (udata2[j]) {
--				count += i512perblock;
-+				count += I_BLOCKS;
- 				if (count >= inode->i_blocks &&
- 				    action != EXT2_ACTION_ADD)
- 					return -1;
-@@ -787,7 +786,7 @@ static blk_t ext2_get_reserved(struct ex
+@@ -692,15 +692,15 @@ static int ext2_determine_itoffset(struc
  
- 		for (i = 0; i < fs->numgroups; i++)
- 			sb_groups += ext2_bg_has_super(fs, i);
--		resgdblocks = ((inode->i_blocks >> (fs->logsize - 9)) -
-+		resgdblocks = ((inode->i_blocks >> I_BLOCKS_SHIFT) -
- 			       (inode->i_block[EXT2_IND_BLOCK] ? 1 : 0) -
- 			       (inode->i_block[EXT2_DIND_BLOCK] ? 1 : 0)) /
- 			      sb_groups;
-@@ -820,15 +819,16 @@ static blk_t ext2_get_reserved(struct ex
- 				  EXT2_FEATURE_COMPAT_RESIZE_INODE)
- #define EXT2_OPEN_RO_COMPAT_UNSUPP ~(EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER | \
- 				     EXT2_FEATURE_RO_COMPAT_LARGE_FILE)
--#define EXT2_OPEN_INCOMPAT_UNSUPP ~EXT2_FEATURE_INCOMPAT_FILETYPE
-+#define EXT2_OPEN_INCOMPAT_UNSUPP ~(EXT2_FEATURE_INCOMPAT_FILETYPE | \
-+				    EXT2_FEATURE_INCOMPAT_LARGE_BLOCK)
- 
--struct ext2_fs *ext2_open(struct ext2_dev_handle *handle, blk_t newblocks,
-+struct ext2_fs *ext2_open(struct ext2_dev_handle *handle, blk64_t newblocks,
- 			  int flags)
- {
- 	struct ext2_fs *fs;
- 	struct ext2_inode inode;
- 	int maxgroups;
--	blk_t devsize;
-+	blk64_t devsize;
- 	blk_t residue;
- 
- 	if (flags & FL_DEBUG)
-@@ -909,6 +909,12 @@ struct ext2_fs *ext2_open(struct ext2_de
- 		newblocks = devsize;
- 	else if (fs->flags & FL_KB_BLOCKS)
- 		newblocks >>= fs->logsize - 10;
-+	if (newblocks > ~0U) {
-+		/* actually we can't process fs over 4G-1 amount of blocks */
-+		fprintf(stderr, "%s: can't resize filesystem over %uTB\n",
-+			fs->prog, fs->blocksize >> (40 - 32));
-+		goto error_free_bcache;
-+	}
+ 		if (fs->gd[group].bg_block_bitmap != bb && fs->flags & FL_DEBUG)
+ 			fprintf(stderr,
+-				"group %d block bitmap has offset %d, not %d\n",
++				"group %d block bitmap has offset %u, not %llu\n",
+ 				group, fs->gd[group].bg_block_bitmap, bb);
+ 		if (fs->gd[group].bg_inode_bitmap != ib && fs->flags & FL_DEBUG)
+ 			fprintf(stderr,
+-				"group %d inode bitmap has offset %d, not %d\n",
++				"group %d inode bitmap has offset %u, not %u\n",
+ 				group, fs->gd[group].bg_inode_bitmap, ib);
+ 		if (fs->gd[group].bg_inode_table != it) {
+ 			fprintf(stderr,
+-				"group %d inode table has offset %d, not %d\n",
++				"group %d inode table has offset %llu, not %llu\n",
+ 				group, fs->gd[group].bg_inode_table-start,
+ 				it-start);
+ 			/*
+@@ -920,7 +920,7 @@ struct ext2_fs *ext2_open(struct ext2_de
+ 	}
  
  	if (fs->flags & FL_VERBOSE)
- 		printf("new filesystem size %d\n", newblocks);
-@@ -926,13 +932,13 @@ struct ext2_fs *ext2_open(struct ext2_de
- 	if (devsize < newblocks && !(fs->flags & FL_PREPARE)) {
- 		char *junk[fs->blocksize];
+-		printf("new filesystem size %d\n", newblocks);
++		printf("new filesystem size %llu\n", newblocks);
  
--		fprintf(stderr, "%s: warning - device size %u, specified %u\n",
-+		fprintf(stderr, "%s: warning - device size %llu, specified %llu\n",
- 			fs->prog, devsize, newblocks);
+ 	fs->numgroups = howmany((blk64_t)fs->sb.s_blocks_count -
+ 				fs->sb.s_first_data_block,
+@@ -950,8 +950,8 @@ struct ext2_fs *ext2_open(struct ext2_de
+ 	residue = (newblocks - fs->sb.s_first_data_block) %
+ 		fs->sb.s_blocks_per_group;
+ 	if (residue && residue <= fs->inodeblocks + fs->gdblocks + 50) {
+-		fprintf(stderr, "%s: %i is a bad size for an ext2 fs! "
+-			"rounding down to %i\n",
++		fprintf(stderr, "%s: %lli is a bad size for an ext2 fs! "
++			"rounding down to %lli\n",
+ 			fs->prog, newblocks, newblocks - residue);
+ 		newblocks -= residue;
+ 	}
+diff -upNr ext2resize-1.1.19.org/src/ext2_block_relocator.c ext2resize-1.1.19.tmp/src/ext2_block_relocator.c
+--- ext2resize-1.1.19.org/src/ext2_block_relocator.c	2006-04-13 14:01:00.000000000 +0900
++++ ext2resize-1.1.19.tmp/src/ext2_block_relocator.c	2006-04-13 14:02:54.000000000 +0900
+@@ -648,8 +648,8 @@ static int ext2_block_relocate_grow(stru
+ 	inode->i_mtime = 0;
+ 	state->newallocoffset = newitoffset + fs->inodeblocks;
+ 	if (fs->flags & FL_DEBUG)
+-		printf("moving data (oldgdblocks %d+%d, newgdblocks %d, "
+-		       "olditoffset %d, newitoffset %d, newallocoffset %d)\n",
++		printf("moving data (oldgdblocks %u+%u, newgdblocks %u, "
++		       "olditoffset %d, newitoffset %d, newallocoffset %u)\n",
+ 		       fs->gdblocks, fs->resgdblocks, fs->newgdblocks,
+ 		       fs->itoffset, newitoffset, state->newallocoffset);
  
- 		ext2_read_blocks(fs, junk, newblocks - 1, 1);
- 	} else if (fs->sb.s_blocks_count > devsize) {
- 		char *junk[fs->blocksize];
--		fprintf(stderr, "%s: warning - device size %u, filesystem %u\n",
-+		fprintf(stderr, "%s: warning - device size %llu, filesystem %u\n",
- 			fs->prog, devsize, fs->sb.s_blocks_count);
- 
- 		ext2_read_blocks(fs, junk, fs->sb.s_blocks_count - 1, 1);
-@@ -1014,7 +1020,7 @@ void ext2_fix_resize_inode(struct ext2_f
- 
- 		if (inode->i_block[EXT2_DIND_BLOCK]) {
- 			ext2_zero_blocks(fs, inode->i_block[EXT2_DIND_BLOCK], 1);
--			inode->i_blocks = 1 << (fs->logsize - 9);
-+			inode->i_blocks = I_BLOCKS;
+@@ -694,26 +694,26 @@ static int ext2_block_relocate_grow(stru
+ 		 */
+ 		if (has_sb) {
+ 			if (fs->flags & FL_DEBUG)
+-				printf("new gd table: start=%d, end=%d\n",
++				printf("new gd table: start=%u, end=%u\n",
+ 				       start + 1, start + fs->newgdblocks);
+ 			for (j = fs->gdblocks + 1; j <= fs->newgdblocks; j++) {
+ 				if (j == bb || j == ib) {
+ 					need_reloc = 1;
+ 					if (fs->flags & FL_DEBUG)
+-						printf("skip bitmap %d\n",
++						printf("skip bitmap %u\n",
+ 						       start + j);
+ 					continue;
+ 				}
+ 				if (j >= olditoffset && j < olditend) {
+ 					if (fs->flags & FL_DEBUG)
+-						printf("skip inode table %d\n",
++						printf("skip inode table %u\n",
+ 						       start + j);
+ 					continue;
+ 				}
+ 				if (ext2_block_iterate(fs, inode, start + j,
+ 						       EXT2_ACTION_FIND) >= 0) {
+ 					if (fs->flags & FL_DEBUG)
+-						printf("skip reserved %d\n",
++						printf("skip reserved %u\n",
+ 						       start + j);
+ 					continue;
+ 				}
+@@ -724,7 +724,7 @@ static int ext2_block_relocate_grow(stru
+ 					ext2_brelse(bh, 0);
+ 					return 0;
+ 				} else if (fs->flags & FL_DEBUG)
+-					printf("relocating block %d for GDT\n",
++					printf("relocating block %u for GDT\n",
+ 					       start + j);
+ 			}
+ 		}
+@@ -738,12 +738,12 @@ static int ext2_block_relocate_grow(stru
+ 		 * inode table (don't mark old inode or block birmaps).
+ 		 */
+ 		if (fs->flags & FL_DEBUG)
+-			printf("inode table: old=%d, new=%d\n",
++			printf("inode table: old=%u, new=%u\n",
+ 			       fs->gd[group].bg_inode_table,
+ 			       start + newitoffset);
+ 		for (j = newitoffset; j < newitend; j++) {
+ 			if (fs->flags & FL_DEBUG)
+-				printf("check new inode table %d\n", j + start);
++				printf("check new inode table %u\n", j + start);
+ 			if (j < olditend || j == bb || j == ib ||
+ 			    j == new_bb || j == new_ib)
+ 				continue;
+@@ -753,14 +753,14 @@ static int ext2_block_relocate_grow(stru
+ 				ext2_brelse(bh, 0);
+ 				return 0;
+ 			} else if (fs->flags & FL_DEBUG)
+-				printf("relocating block %d for itable\n",
++				printf("relocating block %u for itable\n",
+ 				       start + j);
+ 		}
+ 		/* Mark blocks for relocation that fall under the new inode
+ 		 * or block bitmaps.
+ 		 */
+ 		if (fs->flags & FL_DEBUG)
+-			printf("checking bb: old %d, new %d\n", start + bb,
++			printf("checking bb: old %u, new %u\n", start + bb,
+ 			       start + new_bb);
+ 		if (new_bb != bb && new_bb != ib &&
+ 		    (new_bb < olditoffset || new_bb >= olditend) &&
+@@ -769,10 +769,10 @@ static int ext2_block_relocate_grow(stru
+ 				ext2_brelse(bh, 0);
+ 				return 0;
+ 			} else if (fs->flags & FL_DEBUG)
+-				printf("relocating block %d for bb\n", start+j);
++				printf("relocating block %u for bb\n", start+j);
+ 		}
+ 		if (fs->flags & FL_DEBUG)
+-			printf("checking ib: old %d, new %d\n", start + ib,
++			printf("checking ib: old %u, new %u\n", start + ib,
+ 			       start + new_ib);
+ 		if (new_ib != ib && new_ib != bb &&
+ 		    (new_ib < olditoffset || new_ib >= olditend) &&
+@@ -781,7 +781,7 @@ static int ext2_block_relocate_grow(stru
+ 				ext2_brelse(bh, 0);
+ 				return 0;
+ 			} else if (fs->flags & FL_DEBUG)
+-				printf("relocating block %d for ib\n", start+j);
++				printf("relocating block %u for ib\n", start+j);
  		}
  
- 		for (i = 0, block = fs->sb.s_first_data_block + fs->newgdblocks + 1;
-diff -Nurp old/ext2resize-1.1.19/src/ext2_fs.h ext2resize-1.1.19/src/ext2_fs.h
---- old/ext2resize-1.1.19/src/ext2_fs.h	2002-07-04 01:52:24.000000000 +0800
-+++ ext2resize-1.1.19/src/ext2_fs.h	2006-03-20 21:47:33.000000000 +0800
-@@ -509,6 +509,8 @@ struct ext2_super_block {
- #define EXT2_FEATURE_INCOMPAT_FILETYPE		0x0002
- #define EXT3_FEATURE_INCOMPAT_RECOVER		0x0004 /* Needs recovery */
- #define EXT3_FEATURE_INCOMPAT_JOURNAL_DEV	0x0008 /* Journal device */
-+/*	EXT3_FEATURE_INCOMPAT_EXTENTS		0x0040 */
-+#define EXT2_FEATURE_INCOMPAT_LARGE_BLOCK	0x0080
+ 		ext2_brelse(bh, 0);
+@@ -848,7 +848,7 @@ static int ext2_block_relocate_shrink(st
+ 			/* group is partly chopped off */
+ 			begin = fs->newblocks - start;
+ 			if (fs->flags & FL_DEBUG)
+-				printf("will truncate group %d at %d blocks\n",
++				printf("will truncate group %d at %u blocks\n",
+ 				       group, begin);
  
- #define EXT2_FEATURE_COMPAT_SUPP	0
- #define EXT2_FEATURE_INCOMPAT_SUPP	EXT2_FEATURE_INCOMPAT_FILETYPE
-diff -Nurp old/ext2resize-1.1.19/src/ext2.h ext2resize-1.1.19/src/ext2.h
---- old/ext2resize-1.1.19/src/ext2.h	2006-03-20 21:47:15.000000000 +0800
-+++ ext2resize-1.1.19/src/ext2.h	2006-03-20 21:47:33.000000000 +0800
-@@ -51,6 +51,7 @@ static const char _ext2_h[] = "$Id: ext2
- #define cpu_to_le32(a)	(a)
- #endif
- typedef u_int32_t blk_t;
-+typedef unsigned long long blk64_t;	/* don't use autoheader for now */
+ 			/* FIXME need to handle case where RAID bitmaps are
+@@ -866,7 +866,7 @@ static int ext2_block_relocate_shrink(st
+ 				if (delgrp)
+ 					continue;
+ 				fprintf(stderr, 
+-					"%s: trying to move block %d in itable!\n",
++					"%s: trying to move block %llu in itable!\n",
+ 					__FUNCTION__,
+ 					j + start);
+ 				return 0;
+@@ -878,7 +878,7 @@ static int ext2_block_relocate_shrink(st
+ 				if (delgrp)
+ 					continue;
+ 				if (fs->flags & FL_DEBUG)
+-					printf("moving RAID %s bitmap at %d\n",
++					printf("moving RAID %s bitmap at %llu\n",
+ 					       j==bb ?"block":"inode", start+j);
+ 				if (check_bit(bh->data, new) &&
+ 				    !ext2_block_relocator_mark(fs, state,
+diff -upNr ext2resize-1.1.19.org/src/ext2_buffer.c ext2resize-1.1.19.tmp/src/ext2_buffer.c
+--- ext2resize-1.1.19.org/src/ext2_buffer.c	2004-09-30 23:01:41.000000000 +0900
++++ ext2resize-1.1.19.tmp/src/ext2_buffer.c	2006-04-13 14:01:50.000000000 +0900
+@@ -333,7 +333,7 @@ void ext2_bcache_sync(struct ext2_fs *fs
+ 	for (i = 0, bh = fs->bc->heads; i < fs->bc->size; i++, bh++) {
+ 		if (bh->dirty) {
+ 			if (fs->flags & FL_VERBOSE)
+-				printf("   ...flushing buffer %d/block %d\r",
++				printf("   ...flushing buffer %d/block %u\r",
+ 				       i, bh->block);
+ 			ext2_bh_do_write(bh);
+ 		}
+diff -upNr ext2resize-1.1.19.org/src/ext2_meta.c ext2resize-1.1.19.tmp/src/ext2_meta.c
+--- ext2resize-1.1.19.org/src/ext2_meta.c	2006-04-13 14:00:56.000000000 +0900
++++ ext2resize-1.1.19.tmp/src/ext2_meta.c	2006-04-13 14:01:50.000000000 +0900
+@@ -133,8 +133,8 @@ int ext2_metadata_push(struct ext2_fs *f
+ 		new_ib = (new_bb + 1 >= bpg) ? new_itend : new_bb + 1;
  
- #include "ext2_fs.h"
+ 		if (fs->flags & FL_DEBUG)
+-			printf("moving group %d (bb %d/%d, ib %d/%d, "
+-			       "itend %d/%d)\n", group, start + bb,
++			printf("moving group %d (bb %u/%u, ib %u/%u, "
++			       "itend %u/%u)\n", group, start + bb,
+ 			       start + new_bb, start + ib, start + new_ib,
+ 			       start + old_itend, start + new_itend);
  
-@@ -85,7 +86,7 @@ struct ext2_buffer_head
- struct ext2_dev_ops
- {
- 	void	(*close)(void *cookie);
--	blk_t	(*get_size)(void *cookie);
-+	blk64_t	(*get_size)(void *cookie);
- 	void	(*read)(void *cookie, void *ptr, blk_t block, blk_t num);
- 	void	(*set_blocksize)(void *cookie, int logsize);
- 	void	(*sync)(void *cookie);
-@@ -176,7 +177,7 @@ int ext2_bg_has_super(struct ext2_fs *fs
- unsigned int ext2_list_backups(struct ext2_fs *fs, unsigned int *three,
- 			       unsigned int *five, unsigned int *seven);
- void ext2_move_blocks(struct ext2_fs *fs, blk_t src, blk_t num, blk_t dest);
--struct ext2_fs *ext2_open(struct ext2_dev_handle *handle, blk_t newblocks,
-+struct ext2_fs *ext2_open(struct ext2_dev_handle *handle, blk64_t newblocks,
- 			  int kb_blocks);
- void ext2_read_blocks(struct ext2_fs *fs, void *ptr, blk_t block,
- 		      blk_t numblocks);
-@@ -248,6 +249,11 @@ void ext2_fix_resize_inode(struct ext2_f
- #define clear_bit(buf, offset)	buf[(offset)>>3] &= ~_bitmap[(offset)&7]
- #define check_bit(buf, offset)	(buf[(offset)>>3] & _bitmap[(offset)&7])
+diff -upNr ext2resize-1.1.19.org/src/ext2_resize.c ext2resize-1.1.19.tmp/src/ext2_resize.c
+--- ext2resize-1.1.19.org/src/ext2_resize.c	2006-04-13 14:01:00.000000000 +0900
++++ ext2resize-1.1.19.tmp/src/ext2_resize.c	2006-04-13 14:01:50.000000000 +0900
+@@ -115,7 +115,7 @@ static int ext2_add_group(struct ext2_fs
+ 	fs->metadirty |= EXT2_META_GD;
  
-+/* Switch macro for EXT2_FEATURE_INCOMPAT_LARGE_BLOCK */
-+#define I_BLOCKS_SHIFT	(EXT2_HAS_INCOMPAT_FEATURE(&fs->sb, \
-+		EXT2_FEATURE_INCOMPAT_LARGE_BLOCK) ? 0 : (fs->logsize - 9))
-+#define I_BLOCKS	(1 << I_BLOCKS_SHIFT)
-+
- #ifdef USE_EXT2_IS_DATA_BLOCK
- static int __inline__ ext2_is_data_block(struct ext2_fs *fs, blk_t block)
- {
-diff -Nurp old/ext2resize-1.1.19/src/ext2online.c ext2resize-1.1.19/src/ext2online.c
---- old/ext2resize-1.1.19/src/ext2online.c	2006-03-20 21:46:08.000000000 +0800
-+++ ext2resize-1.1.19/src/ext2online.c	2006-03-20 21:47:33.000000000 +0800
-@@ -573,7 +573,8 @@ int main(int argc, char *argv[])
- 	char			*progname;
- 	struct ext2_dev_handle	*handle;
- 	struct ext2_fs		*fs;
--	blk_t			 resize = 0, realsize = 0;
-+	blk64_t			 resize = 0;
-+	blk_t			 realsize = 0;
- 	char			 mod = '\0';
- 	int			 flags = FL_SAFE;
+ 	if (fs->flags & FL_DEBUG)
+-		printf("group %d %s: bb %d (+%d), ib %d (+%d), it %d (+%d)\n",
++		printf("group %d %s: bb %u (+%u), ib %u (+%u), it %u (+%d)\n",
+ 		       group, has_sb ? "has sb" : "no sb",
+ 		       fs->gd[group].bg_block_bitmap, new_bb,
+ 		       fs->gd[group].bg_inode_bitmap, new_ib,
+@@ -125,7 +125,7 @@ static int ext2_add_group(struct ext2_fs
  
-@@ -603,7 +604,7 @@ int main(int argc, char *argv[])
+ 	if (has_sb) {
+ 		if (fs->flags & FL_DEBUG)
+-			printf ("mark backup superblock and %d gdblocks used\n",
++			printf ("mark backup superblock and %u gdblocks used\n",
+ 				fs->gdblocks);
+ 		for (i = 0; i <= fs->gdblocks; i++)
+ 			set_bit(bh->data, i);
+@@ -177,7 +177,7 @@ static int ext2_del_group(struct ext2_fs
  
- 	/* See if the user has specified a filesystem size */
- 	if (argc == 2) {
--		sscanf(argv[1], "%i%c", &resize, &mod);
-+		sscanf(argv[1], "%lli%c", &resize, &mod);
+ 	if (fs->sb.s_free_blocks_count < bpg - admin) {
+ 		fprintf(stderr, "%s: filesystem is too full to remove a group "
+-			"(%d used blocks)!\n",
++			"(%u used blocks)!\n",
+ 			fs->prog,
+ 			fs->sb.s_blocks_count - fs->sb.s_free_blocks_count);
  
- 		switch (mod) {	/* Order of these options is important!! */
- 			case 't':
-diff -Nurp old/ext2resize-1.1.19/src/ext2prepare.c ext2resize-1.1.19/src/ext2prepare.c
---- old/ext2resize-1.1.19/src/ext2prepare.c	2006-03-20 21:46:08.000000000 +0800
-+++ ext2resize-1.1.19/src/ext2prepare.c	2006-03-20 21:47:33.000000000 +0800
-@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
- 	char			*dev;
- 	char			*progname;
- 	blk_t			 maxres;
--	blk_t			 resize = 0;
-+	blk64_t			 resize = 0;
- 	char			 mod = '\0';
- 	int			 flags = FL_SAFE;
+@@ -186,7 +186,7 @@ static int ext2_del_group(struct ext2_fs
  
-@@ -248,7 +248,7 @@ int main(int argc, char *argv[])
- 	if (handle == NULL)
- 		return 1;
- 
--	sscanf(argv[1], "%i%c", &resize, &mod);
-+	sscanf(argv[1], "%lli%c", &resize, &mod);
- 
- 	switch (mod) {	/* Order of these options is important!! */
- 		case 't':
-@@ -282,11 +282,13 @@ int main(int argc, char *argv[])
- 			"%s: won't prepare 1k block filesystem over 128GB.\n"
- 			"\tToo much space would be wasted.\n", progname);
- 		return 1;
--	} else if ((fs->blocksize == 4096 && fs->newblocks > 1<<30) ||
-+	} else if (!EXT2_HAS_INCOMPAT_FEATURE(&fs->sb, EXT2_FEATURE_INCOMPAT_LARGE_BLOCK)) {
-+	    if ((fs->blocksize == 4096 && fs->newblocks > 1<<29) ||
- 		   fs->newblocks > 1<<31) {
+ 	if (fs->sb.s_free_inodes_count < fs->sb.s_inodes_per_group) {
+ 		fprintf(stderr, "%s: filesystem has too many used inodes "
+-			"to remove a group (%d used inodes)!\n",
++			"to remove a group (%u used inodes)!\n",
+ 			fs->prog,
+ 			fs->sb.s_inodes_count - fs->sb.s_free_inodes_count);
+ 		return 0;
+@@ -195,7 +195,7 @@ static int ext2_del_group(struct ext2_fs
+ 	if (fs->gd[group].bg_free_inodes_count != fs->sb.s_inodes_per_group) {
+ 		/* This should not happen anymore */
  		fprintf(stderr,
- 			"%s: can't resize filesystem over 2TB.\n", progname);
- 		return 1;
-+	    }
+-			"%s: free inodes != inodes_per_group (%d != %d)!\n",
++			"%s: free inodes != inodes_per_group (%u != %u)!\n",
+ 			fs->prog, fs->gd[group].bg_free_inodes_count,
+ 			fs->sb.s_inodes_per_group);
+ 
+@@ -415,8 +415,8 @@ static int ext2_shrink_fs(struct ext2_fs
+ 	if (fs->sb.s_blocks_count - fs->sb.s_free_blocks_count + fs->itoffset >
+ 	    fs->newblocks) {
+ 		fprintf(stderr,
+-			"%s: filesystem is too full to resize to %d blocks.\n"
+-			"Try resizing it to a larger size first, like %d\n",
++			"%s: filesystem is too full to resize to %u blocks.\n"
++			"Try resizing it to a larger size first, like %u\n",
+ 			fs->prog, fs->newblocks,
+ 			fs->sb.s_blocks_count - fs->sb.s_free_blocks_count +
+ 			fs->itoffset);
+@@ -427,7 +427,7 @@ static int ext2_shrink_fs(struct ext2_fs
+ 	    fs->newgroups * fs->sb.s_inodes_per_group) {
+ 		fprintf(stderr,
+ 			"%s: filesystem has too many used inodes to resize"
+-			"to %i blocks.\n", fs->prog, fs->newblocks);
++			"to %u blocks.\n", fs->prog, fs->newblocks);
+ 		return 0;
  	}
  
- 	maxres = (1 + fs->u32perblock) * fs->u32perblock + EXT2_NDIR_BLOCKS;
-diff -Nurp old/ext2resize-1.1.19/src/ext2resize.c ext2resize-1.1.19/src/ext2resize.c
---- old/ext2resize-1.1.19/src/ext2resize.c	2001-04-19 06:31:21.000000000 +0800
-+++ ext2resize-1.1.19/src/ext2resize.c	2006-03-20 21:47:33.000000000 +0800
-@@ -30,7 +30,7 @@ static const char _ext2resize_c[] = "$Id
- void usage(FILE *outfile, char *progname)
- {
- 	fprintf(outfile,
--		"usage: %s [-dfquvV] device [new_size[bkmgt]]\n\t"
-+		"usage: %s [-dfquvV] device [new_size[bkmgt]]\n"
- 		"\t-d, --debug    : turn debug info on\n"
- 		"\t-f, --force    : skip safety checks\n"
- 		"\t-q, --quiet    : be quiet (print only errors)\n"
-@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
- 	char			*dev;
- 	char			*progname;
- 	char			 mod = '\0';
--	blk_t			 resize = 0;
-+	blk64_t			 resize = 0;
- 	int			 flags = FL_SAFE;
+diff -upNr ext2resize-1.1.19.org/src/ext2online.c ext2resize-1.1.19.tmp/src/ext2online.c
+--- ext2resize-1.1.19.org/src/ext2online.c	2006-04-13 14:01:00.000000000 +0900
++++ ext2resize-1.1.19.tmp/src/ext2online.c	2006-04-13 14:01:50.000000000 +0900
+@@ -204,7 +204,7 @@ static int ext2_check_one_iterate(struct
  
- 	progname = strrchr(argv[0], '/') ? strrchr(argv[0], '/') + 1 : argv[0];
-@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
- 		return 1;
+ 		for (block = fs->gdblocks; block < fs->newgdblocks; block++) {
+ 			if (fs->flags & FL_DEBUG)
+-				printf("checking for group block %d in Bond\n",
++				printf("checking for group block %u in Bond\n",
+ 				       gdb + block);
  
- 	if (argc == 2) {
--		sscanf(argv[1], "%i%c", &resize, &mod);
-+		sscanf(argv[1], "%lli%c", &resize, &mod);
+ 			if (ext2_block_iterate(fs, &fs->resize, gdb + block,
+@@ -240,7 +240,7 @@ static int ext2_check_one_rsv(struct ext
+ 		int last = 0;
  
- 		switch (mod) {	/* Order of these options is important!! */
- 			case 't':
-diff -Nurp old/ext2resize-1.1.19/src/ext2_unix_io.c ext2resize-1.1.19/src/ext2_unix_io.c
---- old/ext2resize-1.1.19/src/ext2_unix_io.c	2004-09-30 22:04:04.000000000 +0800
-+++ ext2resize-1.1.19/src/ext2_unix_io.c	2006-03-20 21:47:33.000000000 +0800
-@@ -96,7 +96,7 @@ static int valid_offset(int fd, __loff_t
- 	return 1;
- }
+ 		if (dindir_buf[gdb_num % apb] != pri_blk) {
+-			fprintf(stderr, "found %d not %d at %d[%d]\n",
++			fprintf(stderr, "found %u not %u at %u[%d]\n",
+ 				dindir_buf[gdb_num % apb], pri_blk,
+ 				fs->resize.i_block[EXT2_DIND_BLOCK],
+ 				gdb_num % apb);
+@@ -258,10 +258,10 @@ static int ext2_check_one_rsv(struct ext
+ 			bku_blk = pri_blk + group * fs->sb.s_blocks_per_group;
  
--static blk_t do_get_size(void *cookie)
-+static blk64_t do_get_size(void *cookie)
- {
- 	struct my_cookie *monster = cookie;
- 	blk_t size;
-@@ -138,7 +138,7 @@ static blk_t do_get_size(void *cookie)
- 		/* Reset filesystem position? */
- 		ext2_llseek(monster->fdread, monster->readoff, SEEK_SET);
- 
--		size = high >> 9;
-+		return high >> monster->logsize;
+ 			if (fs->flags & FL_DEBUG)
+-				printf("checking for group block %d in Bond\n",
++				printf("checking for group block %u in Bond\n",
+ 				       bku_blk);
+ 			if (pri_buf[last] != bku_blk) {
+-				fprintf(stderr, "found %d not %d at %d[%d]\n",
++				fprintf(stderr, "found %u not %u at %u[%d]\n",
+ 					pri_buf[last], bku_blk, pri_blk, last);
+ 				ext2_brelse(pri_bh, 0);
+ 				ret = 0;
+@@ -366,7 +366,7 @@ static blk_t ext2_make_group(struct ext2
+ 		       fs->gd[group].bg_inode_table + fs->inodeblocks - 1);
+ 		printf("new group has %d free blocks\n",
+ 		       fs->gd[group].bg_free_blocks_count);
+-		printf("new group has %d free inodes (%d blocks)\n",
++		printf("new group has %d free inodes (%u blocks)\n",
+ 		       fs->gd[group].bg_free_inodes_count, fs->inodeblocks);
  	}
  
- 	return size >> (monster->logsize - 9);
+@@ -440,8 +440,8 @@ static blk_t ext2_make_group(struct ext2
+ 
+ 	/* Mark unavailable blocks at end of group used */
+ 	if (fs->flags & FL_DEBUG && bpg != fs->blocksize * 8)
+-		printf("mark end blocks 0x%04x-0x%04x used\n",
+-			start + bpg, start + fs->blocksize * 8 - 1);
++		printf("mark end blocks 0x%04x-0x%04llx used\n",
++			start + bpg, (blk64_t)start + fs->blocksize * 8 - 1);
+ 
+ 	for (i = bpg; i < fs->blocksize * 8; i++)
+ 		set_bit(bh->data, i);
+@@ -482,9 +482,9 @@ static blk_t ext2_online_primary(struct 
+ 		return fs->newblocks;
+ 
+ 	if (fs->flags & FL_DEBUG) {
+-		printf("\n%d old groups, %d blocks\n", fs->numgroups,
++		printf("\n%d old groups, %u blocks\n", fs->numgroups,
+ 			fs->gdblocks);
+-		printf("%d new groups, %d blocks\n", fs->newgroups,
++		printf("%d new groups, %u blocks\n", fs->newgroups,
+ 			fs->newgdblocks);
+ 	}
+ 
+diff -upNr ext2resize-1.1.19.org/src/ext2prepare.c ext2resize-1.1.19.tmp/src/ext2prepare.c
+--- ext2resize-1.1.19.org/src/ext2prepare.c	2006-04-13 14:00:58.000000000 +0900
++++ ext2resize-1.1.19.tmp/src/ext2prepare.c	2006-04-13 14:01:50.000000000 +0900
+@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
+ 			fs->newblocks -= fs->sb.s_blocks_per_group;
+ 		}
+ 		fprintf(stderr,
+-		       "%s: can't prepare for filesystem over %d blocks\n"
++		       "%s: can't prepare for filesystem over %u blocks\n"
+ 		       "\tuntil the current filesystem grows larger.\n",
+ 		       progname, fs->newblocks);
+ 		return 1;

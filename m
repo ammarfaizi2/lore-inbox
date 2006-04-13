@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWDMIsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWDMIxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWDMIsM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 04:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWDMIsL
+	id S964829AbWDMIxN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 04:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWDMIxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 04:48:11 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8337 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751158AbWDMIsK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 04:48:10 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Avramenko Andrew <liksx@mail.ru>
-Subject: Re: Troubles with booting init
-Date: Thu, 13 Apr 2006 11:47:05 +0300
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <443E0DEC.4000602@mail.ru>
-In-Reply-To: <443E0DEC.4000602@mail.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Thu, 13 Apr 2006 04:53:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:20200 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751168AbWDMIxM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 04:53:12 -0400
+Date: Thu, 13 Apr 2006 01:52:57 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Chinner <dgc@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: shrink_dcache_sb scalability problem.
+Message-Id: <20060413015257.5b9d0972.akpm@osdl.org>
+In-Reply-To: <20060413082210.GM1484909@melbourne.sgi.com>
+References: <20060413082210.GM1484909@melbourne.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604131147.05686.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 April 2006 11:38, Avramenko Andrew wrote:
-> Hello!
-> 
-> 
-> I have a computer with motherboard VIA EPIA-V.
-> (http://www.via.com.tw/en/products/mainboards/mini_itx/epia_v/)
-> 
-> I've compiled kernel for it but it doesn't work. It doesn't shows any 
-> error but stopped with:
-> 
-> 
-> VFS: Mounted root (ext2 filesystem) readonly.
-> Freeing unused kernel memory: 136k freed.
-> Executing init=/sbin/init
-> 
-> 
-> Then there are no any other messages. Computer is alive (keyboard input 
-> is worked).
-> 
-> 
-> Please help me.
+David Chinner <dgc@sgi.com> wrote:
+>
+> After recently upgrading a build machine to 2.6.16, we started
+>  seeing 10-50s pauses where the machine would appear to hang.
 
-I bet your /sbin/init (or all programs spawned by it)
-is compiled with P4 instructions (cmov or something like that).
+This sounds like the recent thread "Avoid excessive time spend on
+concurrent slab shrinking" over on linux-mm.  Have you read through that?
 
-Recompile those for 386.
---
-vda
+http://marc.theaimsgroup.com/?l=linux-mm&r=1&b=200603&w=2
+http://marc.theaimsgroup.com/?l=linux-mm&r=3&b=200604&w=2
+
+It ended up somewaht inconclusive, but it looks like we do have a bit of a
+problem, but it got exacerbated by an XFS slowness.
+

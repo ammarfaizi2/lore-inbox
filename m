@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWDMCK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWDMC2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWDMCK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 22:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWDMCK1
+	id S932425AbWDMC2b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 22:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWDMC2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 22:10:27 -0400
-Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:57874 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S932426AbWDMCK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 22:10:26 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Dan Bonachea <bonachead@comcast.net>
-Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
-Date: Thu, 13 Apr 2006 03:10:27 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
-In-Reply-To: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
+	Wed, 12 Apr 2006 22:28:31 -0400
+Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:6839 "EHLO
+	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932425AbWDMC2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 22:28:30 -0400
+Message-ID: <443DB7AE.4090605@keyaccess.nl>
+Date: Thu, 13 Apr 2006 04:30:06 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Greg KH <gregkh@suse.de>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Jean Delvare <khali@linux-fr.org>, Takashi Iwai <tiwai@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Is platform_device_register_simple() deprecated?
+References: <443D3DED.5030009@keyaccess.nl> <20060412214108.GA12480@suse.de>
+In-Reply-To: <20060412214108.GA12480@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604130310.27560.s0348365@sms.ed.ac.uk>
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 April 2006 02:45, Dan Bonachea wrote:
-> Hi - I believe I've discovered a thread-safety bug in the Linux 2.6.x
-> kernel implementation of write(2).
+Greg KH wrote:
 
-Hi, let's get the obvious out of the way first.
+>> ALSA is using platform_device_register_simple(). Jean Delvare pointed:
+>>
+>> http://marc.theaimsgroup.com/?l=linux-kernel&m=113398060508534&w=2
+>>
+>> out, where _simple looks to be slated for removal. Is this indeed the 
+>> case? ALSA isn't using the resources -- doing a manual alloc/add would 
+>> not be a problem...
+> 
+> Great, care to convert ALSA to use the proper api so we can remove
+> platform_device_register_simple()?
 
-Is this reproducible on a current -stable, non-vendor kernel?
+Sure. Before I go over them though, could you perhaps confirm that just 
+doing a manual alloc/add _is_ this proper API? Ie, something like:
 
--- 
-Cheers,
-Alistair.
+     device = platform_device_alloc(NAME, i);
+     if (!device)
+             return -ENOMEM;
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+     error = platform_device_add(device);
+     if (error) {
+             platform_device_put(device);
+             return error;
+     }
+
+(there by the way are still a few users left outside ALSA as well)
+
+Rene.

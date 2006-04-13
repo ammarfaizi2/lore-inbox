@@ -1,112 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWDMWpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWDMWrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWDMWpf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 18:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWDMWpf
+	id S1751138AbWDMWrr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 18:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWDMWrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 18:45:35 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:35222 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751155AbWDMWpe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 18:45:34 -0400
-Date: Fri, 14 Apr 2006 00:45:33 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Kirill Korotaev <dev@openvz.org>, Sam Vilain <sam@vilain.net>,
-       devel@openvz.org, Kir Kolyshkin <kir@sacred.ru>,
+	Thu, 13 Apr 2006 18:47:47 -0400
+Received: from gateway0.EECS.Berkeley.EDU ([169.229.60.93]:8944 "EHLO
+	gateway0.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S1751138AbWDMWrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 18:47:46 -0400
+Message-Id: <6.2.5.6.2.20060413145913.03436f38@comcast.net>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.5.6
+Date: Thu, 13 Apr 2006 15:06:03 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>
+From: Dan Bonachea <bonachead@comcast.net>
+Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-Message-ID: <20060413224533.GA11178@MAIL.13thfloor.at>
-Mail-Followup-To: Cedric Le Goater <clg@fr.ibm.com>,
-	Kirill Korotaev <dev@openvz.org>, Sam Vilain <sam@vilain.net>,
-	devel@openvz.org, Kir Kolyshkin <kir@sacred.ru>,
-	linux-kernel@vger.kernel.org
-References: <1143588501.6325.75.camel@localhost.localdomain> <442A4FAA.4010505@openvz.org> <20060329134524.GA14522@MAIL.13thfloor.at> <442A9E1E.4030707@sw.ru> <1143668273.9969.19.camel@localhost.localdomain> <443CBA48.7020301@sw.ru> <20060413010506.GA16864@MAIL.13thfloor.at> <443DF523.3060906@openvz.org> <20060413134239.GA6663@MAIL.13thfloor.at> <443EC399.2040307@fr.ibm.com>
+In-Reply-To: <1144965022.12387.23.camel@localhost.localdomain>
+References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
+ <20060412214613.404cf49f.akpm@osdl.org>
+ <443DE2BD.1080103@yahoo.com.au>
+ <Pine.LNX.4.64.0604130750240.14565@g5.osdl.org>
+ <1144965022.12387.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <443EC399.2040307@fr.ibm.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 11:33:13PM +0200, Cedric Le Goater wrote:
-> Herbert Poetzl wrote:
-> 
-> > well, if the 'results' and 'methods' will be made
-> > public, I can, until now all I got was something
-> > along the lines:
-> > 
-> >  "Linux-VServer is not stable! WE (swsoft?) have
-> >   a secret but essential test suite running two 
-> >   weeks to confirm that OUR kernels ARE stable,
-> >   and Linux-VServer will never pass those tests,
-> >   but of course, we can't tell you what kind of
-> >   tests or what results we got"
-> > 
-> > which doesn't help me anything and which, to be 
-> > honest, does not sound very friendly either ...
-> 
-> Recently, we've been running tests and benchmarks in different
-> virtualization environments : openvz, vserver, vserver in a minimal
-> context and also Xen as a reference in the virtual machine world.
-> 
-> We ran the usual benchmarks, dbench, tbench, lmbench, kernerl build,
-> on the native kernel, on the patched kernel and in each virtualized
-> environment. We also did some scalability tests to see how each
-> solution behaved. And finally, some tests on live migration. We didn't
-> do much on network nor on resource management behavior.
+At 02:50 PM 4/13/2006, Alan Cox wrote:
+>The only serious case historically has been O_APPEND which does have
+>pretty precise semantics. Nowdays we also have pread/pwrite which have
+>pretty clear semantics and deal with threading. The O_APPEND case is
+>very important to get correct and 2.4 certainly did so.
+...
+>As such I belive that the O_APPEND case must be kept locked properly and
+>the non O_APPEND cases are already correctly handled by the kernel. That
+>seems to argue for f_pos serialization on O_APPEND only.
 
-I would be really interested in getting comparisons
-between vanilla kernels and linux-vserver patched
-versions, especially vs2.1.1 and vs2.0.2 on the
-same test setup with a minimum difference in config
+I agree that O_APPEND is important to get correct. However, would that also 
+handle the specific case of stdout redirection to a file? (ie "a.out > 
+result", not just "a.out >> result" - the latter incidentally does not 
+currently seem to fail, at least with my tests)
 
-I doubt that you can really compare across the
-existing virtualization technologies, as it really
-depends on the setup and hardware 
+>Looking at the spec it says the following
+>
+>"If the O_APPEND flag of the file status flags is set, the file offset
+>shall be set to the end of the file prior to each write and no
+>intervening file modification operation shall occur between changing the
+>file offset and the write operation."
+>
+>This is what 2.4 took great paints to guarantee for file writes. Now in
+>actual fact no OS I know of implements this to the extreme (mmap) but
+>does for the other cases.
+>
+>Outside of O_APPEND the specification says only that
+>- The write starts at the file position
+>- The file position is updated before the syscall returns
+>
+>It makes no other guarantee I can see.
 
-> We'd like to continue in an open way. But first, we want to make sure
-> we have the right tests, benchmarks, tools, versions, configuration,
-> tuning, etc, before publishing any results :) We have some materials
-> already but before proposing we would like to have your comments and
-> advices on what we should or shouldn't use.
+The POSIX 1003.1-2001 spec seems to provide a very clear guarantee of 
+thread-safety behavior wrt threads:
 
-In my experience it is extremely hard to do 'proper'
-comparisons, because the slightest change of the
-environment can cause big differences ...
+2.9.1 Thread-Safety
+All functions defined by this volume of IEEE Std 1003.1-2001 shall be 
+thread-safe, except that the following functions need not be thread-safe.
+    <omitted list of functions, which does not include write>
+Implementations shall provide internal synchronization as necessary in order 
+to satisfy this
+requirement.
+...
+2.9.7 Thread Interactions with Regular File Operations
+All of the functions chmod( ), close( ), fchmod( ), fcntl( ), fstat( ), 
+ftruncate( ), lseek( ), open( ), read( ), readlink( ), stat( ), symlink( ), 
+and write( ) shall be atomic with respect to each other in the effects 
+specified in IEEE Std 1003.1-2001 when they operate on regular files. If two 
+threads each call one of these functions, each call shall either see all of 
+the specified effects of the other call, or none of them.
 
-here as example, a kernel build (-j99) on 2.6.16
-on a test host, with and without a chroot:
+Unless I'm missing something, that doesn't leave much ambiguity regarding 
+what's required for POSIX compliance on this issue (although I'm not sure 
+POSIX compliance is the right metric).
 
-without:
+Dan
 
- 451.03user 26.27system 2:00.38elapsed 396%CPU
- 449.39user 26.21system 1:59.95elapsed 396%CPU
- 447.40user 25.86system 1:59.79elapsed 395%CPU
-
-now with:
-
- 490.77user 24.45system 2:13.35elapsed 386%CPU
- 489.69user 24.50system 2:12.60elapsed 387%CPU
- 490.41user 24.99system 2:12.22elapsed 389%CPU
-
-now is chroot() that imperformant? no, but the change
-in /tmp being on a partition vs. tmpfs makes quite
-some difference here
-
-even moving from one partition to another will give
-measurable difference here, all within a small margin
-
-an interesting aspect is the gain (or loss) you have
-when you start several guests basically doing the
-same thing (and sharing the same files, etc)
-
-> Thanks for doing such a great job on lightweight containers,
-
-you're welcome!
-
-best,
-Herbert
-
-> C.

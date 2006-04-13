@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWDMNHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWDMNim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbWDMNHc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 09:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWDMNHc
+	id S964933AbWDMNim (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 09:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWDMNim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 09:07:32 -0400
-Received: from web35003.mail.mud.yahoo.com ([209.191.68.197]:8841 "HELO
-	web35003.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964916AbWDMNHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 09:07:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.br;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=11ucmHYzyhI5msO8H9untQfA9yRx3+tRiPNetL7epoYAUqUIJ8cybJKuJ8NvJQ+vx7jXH0G+ccWwTTKBgy1AToOuftYMisKpis4K1B92cCxBMqoBQBFQ3buNsjeT4Ry8yMdCjIHuT9sy6D+xlJWoxMUTRsxWR8g9VPKyUbBu20g=  ;
-Message-ID: <20060413130729.84397.qmail@web35003.mail.mud.yahoo.com>
-Date: Thu, 13 Apr 2006 13:07:29 +0000 (GMT)
-From: =?iso-8859-1?q?Jos=E9=20Toneh?= <tohnehn@yahoo.com.br>
-Subject: straced process appears in state `S' but still needs SIGCONT
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 13 Apr 2006 09:38:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:50660 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964933AbWDMNil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 09:38:41 -0400
+Date: Thu, 13 Apr 2006 14:38:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pids: simplify do_each_task_pid/while_each_task_pid
+Message-ID: <20060413133814.GA29914@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Oleg Nesterov <oleg@tv-sign.ru>, Andrew Morton <akpm@osdl.org>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-kernel@vger.kernel.org
+References: <20060413163727.GA1365@oleg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060413163727.GA1365@oleg>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Apr 13, 2006 at 08:37:27PM +0400, Oleg Nesterov wrote:
+> Simpllify do_each_task_pid/while_each_task_pid macros.
+> This also makes the code a bit smaller.
+> 
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> 
+> --- MM/include/linux/pid.h~	2006-03-23 22:48:10.000000000 +0300
+> +++ MM/include/linux/pid.h	2006-04-13 20:28:53.000000000 +0400
+> @@ -99,21 +99,16 @@ extern void FASTCALL(free_pid(struct pid
+>  			pids[(type)].node)
+>  
+>  
+> -/* We could use hlist_for_each_entry_rcu here but it takes more arguments
+> - * than the do_each_task_pid/while_each_task_pid.  So we roll our own
+> - * to preserve the existing interface.
+> - */
+> -#define do_each_task_pid(who, type, task)				\
+> -	if ((task = find_task_by_pid_type(type, who))) {		\
+> -		prefetch(pid_next(task, type));				\
+> -		do {
+> -
+> -#define while_each_task_pid(who, type, task)				\
+> -		} while (pid_next(task, type) &&  ({			\
+> -				task = pid_next_task(task, type);	\
+> -				rcu_dereference(task);			\
+> -				prefetch(pid_next(task, type));		\
+> -				1; }) );				\
+> -	}
+> +#define do_each_task_pid(who, type, task)					\
+> +	do {									\
+> +		struct hlist_node *pos___;					\
+> +		struct pid *pid___ = find_pid(who);				\
+> +		if (pid___ != NULL)						\
+> +			hlist_for_each_entry_rcu((task), pos___,		\
+> +				&pid___->tasks[type], pids[type].node) {
+> +
+> +#define while_each_task_pid(who, type, task)					\
+> +			}							\
+> +	} while (0)
 
-After stracing mozilla-bin, I couldn't tell why the app
-stopped working. The process state as shown in ps -l was
-`T' during the whole trace, and went back to `S' after the
-trace; nevertheless, mozilla was still unresponsive.
+This is prtty ugly.  Can't we just have a
 
-`killall -CONT mozilla-bin' solved the issue. So it seems
-the process was still indeed in a stopped state, but the
-kernel seems to have assumed a misled opinion on the subject.
+#define for_each_task_pid(task, pid, type, pos) \
+	hlist_for_each_entry_rcu((task), (pos),  \
+		(&(pid))->tasks[type], pids[type].node) {
 
-I used different invokations of strace, including:
-
-strace -cp 2348
-
-and
-
-strace -ewrite -p 2348 2>&1 | less -S
-
-with the same results.
-
-Regards
-
-José Toneh
-
-
-		
-_______________________________________________________ 
-Novidade no Yahoo! Mail: receba alertas de novas mensagens no seu celular. Registre seu aparelho agora! 
-http://br.mobile.yahoo.com/mailalertas/ 
- 
-
+and move the find_pid to the caller?  That would make the code a whole lot
+more readable.

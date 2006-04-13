@@ -1,107 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWDMSTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWDMSTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbWDMSTd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 14:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWDMSTd
+	id S964783AbWDMSTy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 14:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWDMSTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 14:19:33 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:36504 "EHLO
+	Thu, 13 Apr 2006 14:19:54 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:37016 "EHLO
 	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932444AbWDMSTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 14:19:32 -0400
-Message-Id: <200604131720.k3DHKOTe004697@ccure.user-mode-linux.org>
+	id S964783AbWDMSTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 14:19:52 -0400
+Message-Id: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [RFC] PATCH 2/4 - Time virtualization : unshare support
+Subject: [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 13 Apr 2006 13:20:20 -0400
+Date: Thu, 13 Apr 2006 13:20:50 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add time namespace support to unshare, controlled by CLONE_TIME.
+Add PTRACE_SYSCALL_MASK, which allows system calls to be selectively
+traced.  It takes a bitmask and a length.  A system call is traced
+if its bit is one.  Otherwise, it executes normally, and is
+invisible to the ptracing parent.
 
-Index: linux-2.6.17-mm-vtime/include/linux/sched.h
+This is not just useful for UML - strace -e could make good use of it as well.
+
+Index: linux-2.6.17-mm-vtime/arch/um/kernel/ptrace.c
 ===================================================================
---- linux-2.6.17-mm-vtime.orig/include/linux/sched.h	2006-04-13 13:48:32.000000000 -0400
-+++ linux-2.6.17-mm-vtime/include/linux/sched.h	2006-04-13 13:49:11.000000000 -0400
-@@ -65,6 +65,7 @@ struct bio;
- #define CLONE_UNTRACED		0x00800000	/* set if the tracing process can't force CLONE_PTRACE on this clone */
- #define CLONE_CHILD_SETTID	0x01000000	/* set the TID in the child */
- #define CLONE_STOPPED		0x02000000	/* Start in stopped state */
-+#define CLONE_TIME		0x04000000	/* Make a new time namespace */
+--- linux-2.6.17-mm-vtime.orig/arch/um/kernel/ptrace.c	2006-04-13 13:48:02.000000000 -0400
++++ linux-2.6.17-mm-vtime/arch/um/kernel/ptrace.c	2006-04-13 13:49:32.000000000 -0400
+@@ -83,7 +83,7 @@ long arch_ptrace(struct task_struct *chi
+                 break;
+ 
+ 	case PTRACE_SYSCALL: /* continue and stop at next (return from) syscall */
+-	case PTRACE_CONT: { /* restart after signal. */
++	case PTRACE_CONT: /* restart after signal. */
+ 		ret = -EIO;
+ 		if (!valid_signal(data))
+ 			break;
+@@ -99,7 +99,9 @@ long arch_ptrace(struct task_struct *chi
+ 		wake_up_process(child);
+ 		ret = 0;
+ 		break;
+-	}
++	case PTRACE_SYSCALL_MASK:
++		ret = set_syscall_mask(child, (char __user *) addr, data);
++		break;
  
  /*
-  * List of flags we want to share for kernel threads,
-Index: linux-2.6.17-mm-vtime/kernel/fork.c
+  * make the child exit.  Best I can do is send it a sigkill. 
+@@ -295,6 +297,12 @@ void syscall_trace(union uml_pt_regs *re
+ 	if (!(current->ptrace & PT_PTRACED))
+ 		return;
+ 
++	if((current->syscall_mask != NULL) &&
++	   ((long) UPT_SYSCALL_NR(regs) != -1) &&
++	   !(current->syscall_mask[UPT_SYSCALL_NR(regs) / (8 * sizeof(long))] &
++	     (1 << (UPT_SYSCALL_NR(regs) % (8 * sizeof(long))))))
++		return;
++
+ 	/* the 0x80 provides a way for the tracing parent to distinguish
+ 	   between a syscall stop and SIGTRAP delivery */
+ 	tracesysgood = (current->ptrace & PT_TRACESYSGOOD);
+Index: linux-2.6.17-mm-vtime/include/linux/ptrace.h
 ===================================================================
---- linux-2.6.17-mm-vtime.orig/kernel/fork.c	2006-04-13 13:48:02.000000000 -0400
-+++ linux-2.6.17-mm-vtime/kernel/fork.c	2006-04-13 13:49:11.000000000 -0400
-@@ -1563,6 +1563,25 @@ static int unshare_semundo(unsigned long
+--- linux-2.6.17-mm-vtime.orig/include/linux/ptrace.h	2006-04-13 13:48:02.000000000 -0400
++++ linux-2.6.17-mm-vtime/include/linux/ptrace.h	2006-04-13 13:49:32.000000000 -0400
+@@ -93,6 +93,8 @@ extern void __ptrace_link(struct task_st
+ extern void __ptrace_unlink(struct task_struct *child);
+ extern void ptrace_untrace(struct task_struct *child);
+ extern int ptrace_may_attach(struct task_struct *task);
++extern int set_syscall_mask(struct task_struct *child, char __user *mask,
++			    unsigned long len);
+ 
+ static inline void ptrace_link(struct task_struct *child,
+ 			       struct task_struct *new_parent)
+Index: linux-2.6.17-mm-vtime/arch/i386/kernel/ptrace.c
+===================================================================
+--- linux-2.6.17-mm-vtime.orig/arch/i386/kernel/ptrace.c	2006-04-13 13:48:02.000000000 -0400
++++ linux-2.6.17-mm-vtime/arch/i386/kernel/ptrace.c	2006-04-13 13:49:32.000000000 -0400
+@@ -500,6 +500,9 @@ long arch_ptrace(struct task_struct *chi
+ 		ret = 0;
+ 		break;
+ 
++	case PTRACE_SYSCALL_MASK:
++		ret = set_syscall_mask(child, (char __user *) addr, data);
++		break;
+ /*
+  * make the child exit.  Best I can do is send it a sigkill. 
+  * perhaps it should be put in the status that it wants to 
+@@ -690,6 +693,11 @@ int do_syscall_trace(struct pt_regs *reg
+ 	if (!(current->ptrace & PT_PTRACED))
+ 		goto out;
+ 
++	if((current->syscall_mask != NULL) && ((long) regs->orig_eax != -1) &&
++	   !(current->syscall_mask[regs->orig_eax / (8 * sizeof(long))] &
++	     (1 << (regs->orig_eax % (8 * sizeof(long))))))
++		goto out;
++
+ 	/* If a process stops on the 1st tracepoint with SYSCALL_TRACE
+ 	 * and then is resumed with SYSEMU_SINGLESTEP, it will come in
+ 	 * here. We have to check this and return */
+Index: linux-2.6.17-mm-vtime/include/asm-i386/ptrace.h
+===================================================================
+--- linux-2.6.17-mm-vtime.orig/include/asm-i386/ptrace.h	2006-04-13 13:48:02.000000000 -0400
++++ linux-2.6.17-mm-vtime/include/asm-i386/ptrace.h	2006-04-13 13:49:32.000000000 -0400
+@@ -53,6 +53,7 @@ struct pt_regs {
+ 
+ #define PTRACE_GET_THREAD_AREA    25
+ #define PTRACE_SET_THREAD_AREA    26
++#define PTRACE_SYSCALL_MASK	  27
+ 
+ #define PTRACE_SYSEMU		  31
+ #define PTRACE_SYSEMU_SINGLESTEP  32
+Index: linux-2.6.17-mm-vtime/include/linux/sched.h
+===================================================================
+--- linux-2.6.17-mm-vtime.orig/include/linux/sched.h	2006-04-13 13:49:11.000000000 -0400
++++ linux-2.6.17-mm-vtime/include/linux/sched.h	2006-04-13 13:49:32.000000000 -0400
+@@ -899,6 +899,7 @@ struct task_struct {
+ 
+ 	unsigned long ptrace_message;
+ 	siginfo_t *last_siginfo; /* For ptrace use.  */
++	unsigned long *syscall_mask;
+ /*
+  * current io wait handle: wait queue entry to use for io waits
+  * If this thread is processing aio, this points at the waitqueue
+Index: linux-2.6.17-mm-vtime/kernel/ptrace.c
+===================================================================
+--- linux-2.6.17-mm-vtime.orig/kernel/ptrace.c	2006-04-13 13:48:02.000000000 -0400
++++ linux-2.6.17-mm-vtime/kernel/ptrace.c	2006-04-13 13:49:32.000000000 -0400
+@@ -21,6 +21,7 @@
+ 
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
++#include <asm/unistd.h>
+ 
+ /*
+  * ptrace a task: make the debugger its new parent and
+@@ -450,6 +451,41 @@ int ptrace_traceme(void)
  	return 0;
  }
  
-+static int unshare_time(unsigned long unshare_flags, struct time_ns **new)
++int set_syscall_mask(struct task_struct *child, char __user *mask,
++		     unsigned long len)
 +{
-+	if(unshare_flags & CLONE_TIME){
-+		*new = kmalloc(sizeof(struct time_ns), GFP_KERNEL);
-+		if(*new == NULL)
-+			return -ENOMEM;
-+		atomic_set(&(*new)->counter, 1);
-+		(*new)->offset = 0;
++	int i, n = (NR_syscalls + 7) / 8;
++	char c;
++
++	if(len > n){
++		for(i = NR_syscalls; i < len * 8; i++){
++			get_user(c, &mask[i / 8]);
++			if(!(c & (1 << (i % 8)))){
++				printk("Out of range syscall at %d\n", i);
++				return -EINVAL;
++			}
++		}
++
++		len = n;
 +	}
++
++	if(child->syscall_mask == NULL){
++		child->syscall_mask = kmalloc(n, GFP_KERNEL);
++		if(child->syscall_mask == NULL)
++			return -ENOMEM;
++
++		memset(child->syscall_mask, 0xff, n);
++	}
++
++	/* XXX If this partially fails, we will have a partially updated
++	 * mask.
++	 */
++	if(copy_from_user(child->syscall_mask, mask, len))
++		return -EFAULT;
 +
 +	return 0;
 +}
 +
-+static void put_time_ns(struct time_ns *time)
-+{
-+	if(atomic_sub_and_test(1, &time->counter))
-+		kfree(time);
-+}
-+
- /*
-  * unshare allows a process to 'unshare' part of the process
-  * context which was originally shared using clone.  copy_*
-@@ -1580,6 +1599,7 @@ asmlinkage long sys_unshare(unsigned lon
- 	struct mm_struct *mm, *new_mm = NULL, *active_mm = NULL;
- 	struct files_struct *fd, *new_fd = NULL;
- 	struct sem_undo_list *new_ulist = NULL;
-+	struct time_ns *time, *new_time = NULL;
+ /**
+  * ptrace_get_task_struct  --  grab a task struct reference for ptrace
+  * @pid:       process id to grab a task_struct reference of
+Index: linux-2.6.17-mm-vtime/include/linux/init_task.h
+===================================================================
+--- linux-2.6.17-mm-vtime.orig/include/linux/init_task.h	2006-04-13 13:48:32.000000000 -0400
++++ linux-2.6.17-mm-vtime/include/linux/init_task.h	2006-04-13 13:50:21.000000000 -0400
+@@ -124,6 +124,7 @@ extern struct group_info init_groups;
+ 	.journal_info	= NULL,						\
+ 	.cpu_timers	= INIT_CPU_TIMERS(tsk.cpu_timers),		\
+ 	.fs_excl	= ATOMIC_INIT(0),				\
++	.syscall_mask	= NULL					\
+ 	INIT_RT_MUTEXES(tsk)						\
+ }
  
- 	check_unshare_flags(&unshare_flags);
+Index: linux-2.6.17-mm-vtime/kernel/fork.c
+===================================================================
+--- linux-2.6.17-mm-vtime.orig/kernel/fork.c	2006-04-13 13:49:11.000000000 -0400
++++ linux-2.6.17-mm-vtime/kernel/fork.c	2006-04-13 13:49:32.000000000 -0400
+@@ -1110,6 +1110,7 @@ static task_t *copy_process(unsigned lon
+ #ifdef TIF_SYSCALL_EMU
+ 	clear_tsk_thread_flag(p, TIF_SYSCALL_EMU);
+ #endif
++	p->syscall_mask = NULL;
  
-@@ -1603,8 +1623,11 @@ asmlinkage long sys_unshare(unsigned lon
- 		goto bad_unshare_cleanup_vm;
- 	if ((err = unshare_semundo(unshare_flags, &new_ulist)))
- 		goto bad_unshare_cleanup_fd;
-+	if ((err = unshare_time(unshare_flags, &new_time)))
-+		goto bad_unshare_cleanup_fd;
- 
--	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist) {
-+	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist ||
-+		new_time) {
- 
- 		task_lock(current);
- 
-@@ -1641,9 +1664,18 @@ asmlinkage long sys_unshare(unsigned lon
- 			new_fd = fd;
- 		}
- 
-+		if(new_time) {
-+			time = current->time_ns;
-+			current->time_ns = new_time;
-+			new_time = time;
-+		}
-+
- 		task_unlock(current);
- 	}
- 
-+	if (new_time)
-+		put_time_ns(new_time);
-+
- bad_unshare_cleanup_fd:
- 	if (new_fd)
- 		put_files_struct(new_fd);
+ 	/* Our parent execution domain becomes current domain
+ 	   These must match for thread signalling to apply */
 

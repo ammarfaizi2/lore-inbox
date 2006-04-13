@@ -1,451 +1,339 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWDMHNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWDMHOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWDMHNh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 03:13:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWDMHNh
+	id S1751139AbWDMHOG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 03:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWDMHOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 03:13:37 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:17578 "EHLO
+	Thu, 13 Apr 2006 03:14:06 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.193]:55210 "EHLO
 	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S964815AbWDMHNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 03:13:36 -0400
+	id S1751139AbWDMHOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 03:14:03 -0400
 To: Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC][16/21]e2fsprogs enlarge file size and filesystem size
-Message-Id: <20060413161256sho@rifu.tnes.nec.co.jp>
+Subject: [RFC][17/21]ext2resize fix resize_inode format
+Message-Id: <20060413161324sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
 X-Mailer: WeMail32[2.51] ID:1K0086
 From: sho@tnes.nec.co.jp
-Date: Thu, 13 Apr 2006 16:12:56 +0900
+Date: Thu, 13 Apr 2006 16:13:24 +0900
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Summary of this patch:
-  [16/21] enlarge file size and filesystem size
-          - Add an option "-O large_block" in mke2fs.
-
-          - With this option, the maximum size of a file is (blocksize)
-            * (2^32-1) bytes, and of a filesystem is (pagesize) *
-            (2^32-1).
+  [17/21] fix the bug related to the option "resize_inode"
+          - A format of resize-inode in ext2prepare is different from
+            the one in mke2fs, so ext2prepare fails.  Then I adapt
+            ext2prepare's to mke2fs's.
 
 Signed-off-by: Takashi Sato sho@tnes.nec.co.jp
 ---
-diff -upNr e2fsprogs-1.39/debugfs/debugfs.8.in e2fsprogs-1.39.tmp/debugfs/debugfs.8.in
---- e2fsprogs-1.39/debugfs/debugfs.8.in	2006-03-19 09:53:51.000000000 +0900
-+++ e2fsprogs-1.39.tmp/debugfs/debugfs.8.in	2006-04-12 14:14:42.000000000 +0900
-@@ -319,6 +319,8 @@ flag will list deleted entries in the di
- .I modify_inode filespec
- Modify the contents of the inode structure in the inode
- .IR filespec .
-+On filesystems with large_block feature, the field 'Block count' should be input
-+in filesystem block units.
- .TP
- .I mkdir filespec
- Make a directory.
-@@ -402,6 +404,8 @@ has value 
- The list of valid inode fields which can be set via this command 
- can be displayed by using the command:
- .B set_inode_field -l
-+On filesystems with large_block feature, the field 'blocks' should be input in
-+filesystem block units.
- .TP
- .I set_super_value field value
- Set the superblock field
-diff -upNr e2fsprogs-1.39/debugfs/debugfs.c e2fsprogs-1.39.tmp/debugfs/debugfs.c
---- e2fsprogs-1.39/debugfs/debugfs.c	2006-03-19 11:34:00.000000000 +0900
-+++ e2fsprogs-1.39.tmp/debugfs/debugfs.c	2006-04-12 14:14:42.000000000 +0900
-@@ -846,7 +846,10 @@ void do_modify_inode(int argc, char *arg
- 	modify_u32(argv[0], "Access time", decimal_format, &inode.i_atime);
- 	modify_u32(argv[0], "Deletion time", decimal_format, &inode.i_dtime);
- 	modify_u16(argv[0], "Link count", decimal_format, &inode.i_links_count);
--	modify_u32(argv[0], "Block count", unsignedlong_format, &inode.i_blocks);
-+	if (current_fs->super->s_feature_incompat & EXT2_FEATURE_INCOMPAT_LARGE_BLOCK)
-+		modify_u32(argv[0], "Block count (fsblocks)", unsignedlong_format, &inode.i_blocks);
-+	else
-+		modify_u32(argv[0], "Block count", unsignedlong_format, &inode.i_blocks);
- 	modify_u32(argv[0], "File flags", hex_format, &inode.i_flags);
- 	modify_u32(argv[0], "Generation", hex_format, &inode.i_generation);
- #if 0
-diff -upNr e2fsprogs-1.39/debugfs/set_fields.c e2fsprogs-1.39.tmp/debugfs/set_fields.c
---- e2fsprogs-1.39/debugfs/set_fields.c	2006-03-20 10:31:06.000000000 +0900
-+++ e2fsprogs-1.39.tmp/debugfs/set_fields.c	2006-04-12 14:14:42.000000000 +0900
-@@ -384,6 +384,9 @@ static void print_possible_fields(struct
- 		else if (ss->func == parse_bmap)
- 			type = "set physical->logical block map";
- 		strcpy(name, ss->name);
-+		if ((current_fs->super->s_feature_incompat & EXT2_FEATURE_INCOMPAT_LARGE_BLOCK) &&
-+		    (fields == inode_fields) && (!strcmp(name, "blocks")))
-+			strcat(name, " (fsblocks)");
- 		if (ss->flags & FLAG_ARRAY) {
- 			if (ss->max_idx > 0) 
- 				sprintf(idx, "[%d]", ss->max_idx);
-diff -upNr e2fsprogs-1.39/e2fsck/emptydir.c e2fsprogs-1.39.tmp/e2fsck/emptydir.c
---- e2fsprogs-1.39/e2fsck/emptydir.c	2006-03-19 11:34:00.000000000 +0900
-+++ e2fsprogs-1.39.tmp/e2fsck/emptydir.c	2006-04-12 14:14:42.000000000 +0900
-@@ -169,7 +169,7 @@ static int fix_directory(ext2_filsys fs,
- 	if (edi->freed_blocks) {
- 		edi->inode.i_size -= edi->freed_blocks * fs->blocksize;
- 		edi->inode.i_blocks -= edi->freed_blocks *
--			(fs->blocksize / 512);
-+			(fs->blocksize / i_blocks_base(fs));
- 		(void) ext2fs_write_inode(fs, db->ino, &edi->inode);
+diff -Nurp old/ext2resize-1.1.19/src/ext2.c ext2resize-1.1.19/src/ext2.c
+--- old/ext2resize-1.1.19/src/ext2.c	2004-09-30 22:01:40.000000000 +0800
++++ ext2resize-1.1.19/src/ext2.c	2006-03-20 21:45:13.000000000 +0800
+@@ -286,6 +286,7 @@ void ext2_set_inode_state(struct ext2_fs
  	}
- 	return 0;
-diff -upNr e2fsprogs-1.39/e2fsck/pass1.c e2fsprogs-1.39.tmp/e2fsck/pass1.c
---- e2fsprogs-1.39/e2fsck/pass1.c	2006-04-12 14:14:08.000000000 +0900
-+++ e2fsprogs-1.39.tmp/e2fsck/pass1.c	2006-04-12 14:14:42.000000000 +0900
-@@ -177,7 +177,7 @@ int e2fsck_pass1_check_symlink(ext2_fils
- 	blocks = ext2fs_inode_data_blocks(fs, inode);
- 	if (blocks) {
- 		if ((inode->i_size >= fs->blocksize) ||
--		    (blocks != fs->blocksize >> 9) ||
-+		    (blocks != fs->blocksize / i_blocks_base(fs)) ||		   
- 		    (inode->i_block[0] < fs->super->s_first_data_block) ||
- 		    (inode->i_block[0] >= fs->super->s_blocks_count))
- 			return 0;
-@@ -1470,7 +1470,7 @@ static void check_blocks(e2fsck_t ctx, s
- 		}
- 	}
- 
--	pb.num_blocks *= (fs->blocksize / 512);
-+	pb.num_blocks *= (fs->blocksize / i_blocks_base(fs));
- #if 0
- 	printf("inode %u, i_size = %lu, last_block = %lld, i_blocks=%lu, num_blocks = %lu\n",
- 	       ino, inode->i_size, pb.last_block, inode->i_blocks,
-@@ -1658,8 +1658,9 @@ static int process_block(ext2_filsys fs,
- 
- 	if (p->is_dir && blockcnt > (1 << (21 - fs->super->s_log_block_size)))
- 		problem = PR_1_TOOBIG_DIR;
--	if (p->is_reg && p->num_blocks+1 >= p->max_blocks)
--		problem = PR_1_TOOBIG_REG;
-+	if (!(fs->super->s_feature_incompat & EXT2_FEATURE_INCOMPAT_LARGE_BLOCK))
-+		if (p->is_reg && p->num_blocks+1 >= p->max_blocks)
-+			problem = PR_1_TOOBIG_REG;
- 	if (!p->is_dir && !p->is_reg && blockcnt > 0)
- 		problem = PR_1_TOOBIG_SYMLINK;
- 	    
-diff -upNr e2fsprogs-1.39/e2fsck/pass2.c e2fsprogs-1.39.tmp/e2fsck/pass2.c
---- e2fsprogs-1.39/e2fsck/pass2.c	2006-03-19 11:34:00.000000000 +0900
-+++ e2fsprogs-1.39.tmp/e2fsck/pass2.c	2006-04-12 14:14:42.000000000 +0900
-@@ -1200,7 +1200,7 @@ extern int e2fsck_process_bad_inode(e2fs
- 			 */
- 			if (LINUX_S_ISLNK(inode.i_mode) &&
- 			    (fs->flags & EXT2_FLAG_SWAP_BYTES) &&
--			    (inode.i_blocks == fs->blocksize >> 9))
-+			    (inode.i_blocks == fs->blocksize / i_blocks_base(fs)))
- 				inode.i_block[0] = ext2fs_swab32(inode.i_block[0]);
- #endif
- 			inode_modified++;
-@@ -1375,7 +1375,7 @@ static int allocate_dir_block(e2fsck_t c
- 	 * Update the inode block count
- 	 */
- 	e2fsck_read_inode(ctx, db->ino, &inode, "allocate_dir_block");
--	inode.i_blocks += fs->blocksize / 512;
-+	inode.i_blocks += fs->blocksize / i_blocks_base(fs);
- 	if (inode.i_size < (db->blockcnt+1) * fs->blocksize)
- 		inode.i_size = (db->blockcnt+1) * fs->blocksize;
- 	e2fsck_write_inode(ctx, db->ino, &inode, "allocate_dir_block");
-diff -upNr e2fsprogs-1.39/e2fsck/pass3.c e2fsprogs-1.39.tmp/e2fsck/pass3.c
---- e2fsprogs-1.39/e2fsck/pass3.c	2005-09-06 18:40:14.000000000 +0900
-+++ e2fsprogs-1.39.tmp/e2fsck/pass3.c	2006-04-12 14:14:42.000000000 +0900
-@@ -224,7 +224,7 @@ static void check_root(e2fsck_t ctx)
- 	inode.i_size = fs->blocksize;
- 	inode.i_atime = inode.i_ctime = inode.i_mtime = ctx->now;
- 	inode.i_links_count = 2;
--	inode.i_blocks = fs->blocksize / 512;
-+	inode.i_blocks = fs->blocksize / i_blocks_base(fs);
- 	inode.i_block[0] = blk;
- 
- 	/*
-@@ -472,7 +472,7 @@ ext2_ino_t e2fsck_get_lost_and_found(e2f
- 	inode.i_size = fs->blocksize;
- 	inode.i_atime = inode.i_ctime = inode.i_mtime = ctx->now;
- 	inode.i_links_count = 2;
--	inode.i_blocks = fs->blocksize / 512;
-+	inode.i_blocks = fs->blocksize / i_blocks_base(fs);
- 	inode.i_block[0] = blk;
- 
- 	/*
-@@ -795,7 +795,7 @@ errcode_t e2fsck_expand_directory(e2fsck
- 		return retval;
- 	
- 	inode.i_size = (es.last_block + 1) * fs->blocksize;
--	inode.i_blocks += (fs->blocksize / 512) * es.newblocks;
-+	inode.i_blocks += (fs->blocksize / i_blocks_base(fs)) * es.newblocks;
- 
- 	e2fsck_write_inode(ctx, dir, &inode, "expand_directory");
- 
-diff -upNr e2fsprogs-1.39/e2fsck/rehash.c e2fsprogs-1.39.tmp/e2fsck/rehash.c
---- e2fsprogs-1.39/e2fsck/rehash.c	2005-09-06 18:40:14.000000000 +0900
-+++ e2fsprogs-1.39.tmp/e2fsck/rehash.c	2006-04-12 14:14:42.000000000 +0900
-@@ -648,7 +648,7 @@ static errcode_t write_directory(e2fsck_
- 	else
- 		inode.i_flags |= EXT2_INDEX_FL;
- 	inode.i_size = outdir->num * fs->blocksize;
--	inode.i_blocks -= (fs->blocksize / 512) * wd.cleared;
-+	inode.i_blocks -= (fs->blocksize / i_blocks_base(fs)) * wd.cleared;
- 	e2fsck_write_inode(ctx, ino, &inode, "rehash_dir");
- 
- 	return 0;
-diff -upNr e2fsprogs-1.39/e2fsck/super.c e2fsprogs-1.39.tmp/e2fsck/super.c
---- e2fsprogs-1.39/e2fsck/super.c	2006-03-19 11:33:56.000000000 +0900
-+++ e2fsprogs-1.39.tmp/e2fsck/super.c	2006-04-12 14:14:42.000000000 +0900
-@@ -209,7 +209,7 @@ static int release_inode_blocks(e2fsck_t
- 
- 	if (pb.truncated_blocks)
- 		inode->i_blocks -= pb.truncated_blocks *
--			(fs->blocksize / 512);
-+			(fs->blocksize / i_blocks_base(fs));
- 
- 	if (inode->i_file_acl) {
- 		retval = ext2fs_adjust_ea_refcount(fs, inode->i_file_acl,
-diff -upNr e2fsprogs-1.39/lib/e2p/feature.c e2fsprogs-1.39.tmp/lib/e2p/feature.c
---- e2fsprogs-1.39/lib/e2p/feature.c	2006-03-24 01:01:41.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/e2p/feature.c	2006-04-12 14:14:42.000000000 +0900
-@@ -51,6 +51,8 @@ static struct feature feature_list[] = {
- 			"extents" },
- 	{	E2P_FEATURE_INCOMPAT, EXT2_FEATURE_INCOMPAT_META_BG,
- 			"meta_bg" },
-+	{	E2P_FEATURE_INCOMPAT, EXT2_FEATURE_INCOMPAT_LARGE_BLOCK,
-+			"large_block"},
- 	{	0, 0, 0 },
- };
- 
-diff -upNr e2fsprogs-1.39/lib/ext2fs/bb_inode.c e2fsprogs-1.39.tmp/lib/ext2fs/bb_inode.c
---- e2fsprogs-1.39/lib/ext2fs/bb_inode.c	2005-09-25 09:06:42.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/bb_inode.c	2006-04-12 14:14:42.000000000 +0900
-@@ -127,7 +127,7 @@ errcode_t ext2fs_update_bb_inode(ext2_fi
- 	inode.i_atime = inode.i_mtime = fs->now ? fs->now : time(0);
- 	if (!inode.i_ctime)
- 		inode.i_ctime = fs->now ? fs->now : time(0);
--	inode.i_blocks = rec.bad_block_count * (fs->blocksize / 512);
-+	inode.i_blocks = rec.bad_block_count * (fs->blocksize / i_blocks_base(fs));
- 	inode.i_size = rec.bad_block_count * fs->blocksize;
- 
- 	retval = ext2fs_write_inode(fs, EXT2_BAD_INO, &inode);
-diff -upNr e2fsprogs-1.39/lib/ext2fs/bitops.h e2fsprogs-1.39.tmp/lib/ext2fs/bitops.h
---- e2fsprogs-1.39/lib/ext2fs/bitops.h	2006-04-12 14:14:11.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/bitops.h	2006-04-12 14:14:42.000000000 +0900
-@@ -111,6 +111,7 @@ extern int ext2fs_unmark_generic_bitmap(
-  * functions at all; they will be included as normal functions in
-  * inline.c
-  */
-+
- #ifdef NO_INLINE_FUNCS
- #if (defined(__GNUC__) && (defined(__i386__) || defined(__i486__) || \
- 			   defined(__i586__) || defined(__mc68000__)))
-@@ -131,6 +132,8 @@ extern int ext2fs_unmark_generic_bitmap(
- #endif
- #endif
- 
-+
-+
- /*
-  * Fast bit set/clear functions that doesn't need to return the
-  * previous bit value.
-diff -upNr e2fsprogs-1.39/lib/ext2fs/bmap.c e2fsprogs-1.39.tmp/lib/ext2fs/bmap.c
---- e2fsprogs-1.39/lib/ext2fs/bmap.c	2005-09-06 18:40:14.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/bmap.c	2006-04-12 14:14:42.000000000 +0900
-@@ -260,7 +260,7 @@ done:
- 	if (buf)
- 		ext2fs_free_mem(&buf);
- 	if ((retval == 0) && (blocks_alloc || inode_dirty)) {
--		inode->i_blocks += (blocks_alloc * fs->blocksize) / 512;
-+		inode->i_blocks += (blocks_alloc * fs->blocksize) / i_blocks_base(fs);
- 		retval = ext2fs_write_inode(fs, ino, inode);
- 	}
- 	return retval;
-diff -upNr e2fsprogs-1.39/lib/ext2fs/expanddir.c e2fsprogs-1.39.tmp/lib/ext2fs/expanddir.c
---- e2fsprogs-1.39/lib/ext2fs/expanddir.c	2005-09-06 18:40:14.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/expanddir.c	2006-04-12 14:14:42.000000000 +0900
-@@ -116,7 +116,7 @@ errcode_t ext2fs_expand_dir(ext2_filsys 
- 		return retval;
- 	
- 	inode.i_size += fs->blocksize;
--	inode.i_blocks += (fs->blocksize / 512) * es.newblocks;
-+	inode.i_blocks += (fs->blocksize / i_blocks_base(fs)) * es.newblocks;
- 
- 	retval = ext2fs_write_inode(fs, dir, &inode);
- 	if (retval)
-diff -upNr e2fsprogs-1.39/lib/ext2fs/ext2_fs.h e2fsprogs-1.39.tmp/lib/ext2fs/ext2_fs.h
---- e2fsprogs-1.39/lib/ext2fs/ext2_fs.h	2006-03-20 10:31:06.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/ext2_fs.h	2006-04-12 14:14:42.000000000 +0900
-@@ -579,7 +579,7 @@ struct ext2_super_block {
- #define EXT3_FEATURE_INCOMPAT_JOURNAL_DEV	0x0008 /* Journal device */
- #define EXT2_FEATURE_INCOMPAT_META_BG		0x0010
- #define EXT3_FEATURE_INCOMPAT_EXTENTS		0x0040
--
-+#define EXT2_FEATURE_INCOMPAT_LARGE_BLOCK	0x0080
- 
- #define EXT2_FEATURE_COMPAT_SUPP	0
- #define EXT2_FEATURE_INCOMPAT_SUPP	(EXT2_FEATURE_INCOMPAT_FILETYPE)
-diff -upNr e2fsprogs-1.39/lib/ext2fs/ext2fs.h e2fsprogs-1.39.tmp/lib/ext2fs/ext2fs.h
---- e2fsprogs-1.39/lib/ext2fs/ext2fs.h	2006-04-12 14:14:11.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/ext2fs.h	2006-04-12 14:16:03.000000000 +0900
-@@ -72,6 +72,7 @@ extern "C" {
- 
- typedef __u32		ext2_ino_t;
- typedef __u32		blk_t;
-+typedef __u64          blk64_t;
- typedef __u32		dgrp_t;
- typedef __u32		ext2_off_t;
- typedef __s64		e2_blkcnt_t;
-@@ -456,6 +457,7 @@ typedef struct ext2_icount *ext2_icount_
- #define EXT2_LIB_FEATURE_INCOMPAT_SUPP	(EXT2_FEATURE_INCOMPAT_FILETYPE|\
- 					 EXT3_FEATURE_INCOMPAT_JOURNAL_DEV|\
- 					 EXT2_FEATURE_INCOMPAT_META_BG|\
-+					 EXT2_FEATURE_INCOMPAT_LARGE_BLOCK|\
- 					 EXT3_FEATURE_INCOMPAT_RECOVER)
- #endif
- #define EXT2_LIB_FEATURE_RO_COMPAT_SUPP	(EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER|\
-@@ -1128,11 +1130,23 @@ _INLINE_ int ext2fs_group_of_ino(ext2_fi
- 	return (ino - 1) / fs->super->s_inodes_per_group;
  }
  
-+/*
-+ * `-O large_block' option support
-+ * TODO: rework this function as a variable
-+ */
-+_INLINE_ int i_blocks_base(ext2_filsys fs)
-+{
-+        if (fs->super->s_feature_incompat & EXT2_FEATURE_INCOMPAT_LARGE_BLOCK)
-+                return fs->blocksize;
-+
-+        return 512;
-+}
-+
- _INLINE_ blk_t ext2fs_inode_data_blocks(ext2_filsys fs,
- 					struct ext2_inode *inode)
++/* Remind: prototype returns int, but it may return blk_t */
+ int ext2_block_iterate(struct ext2_fs *fs, struct ext2_inode *inode,
+ 		       blk_t block, int action)
  {
-        return inode->i_blocks -
--              (inode->i_file_acl ? fs->blocksize >> 9 : 0);
-+	      (inode->i_file_acl ? fs->blocksize / i_blocks_base(fs) : 0);
- }
- #undef _INLINE_
- #endif
-diff -upNr e2fsprogs-1.39/lib/ext2fs/mkdir.c e2fsprogs-1.39.tmp/lib/ext2fs/mkdir.c
---- e2fsprogs-1.39/lib/ext2fs/mkdir.c	2005-09-25 09:06:42.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/mkdir.c	2006-04-12 14:14:42.000000000 +0900
-@@ -82,7 +82,7 @@ errcode_t ext2fs_mkdir(ext2_filsys fs, e
- 	memset(&inode, 0, sizeof(struct ext2_inode));
- 	inode.i_mode = LINUX_S_IFDIR | (0777 & ~fs->umask);
- 	inode.i_uid = inode.i_gid = 0;
--	inode.i_blocks = fs->blocksize / 512;
-+	inode.i_blocks = fs->blocksize / i_blocks_base(fs);
- 	inode.i_block[0] = blk;
- 	inode.i_links_count = 2;
- 	inode.i_ctime = inode.i_atime = inode.i_mtime = fs->now ? fs->now : time(NULL);
-diff -upNr e2fsprogs-1.39/lib/ext2fs/mkjournal.c e2fsprogs-1.39.tmp/lib/ext2fs/mkjournal.c
---- e2fsprogs-1.39/lib/ext2fs/mkjournal.c	2006-04-05 08:12:30.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/mkjournal.c	2006-04-12 14:14:42.000000000 +0900
-@@ -228,7 +228,7 @@ static errcode_t write_journal_inode(ext
- 		goto errout;
- 
-  	inode.i_size += fs->blocksize * size;
--	inode.i_blocks += (fs->blocksize / 512) * es.newblocks;
-+	inode.i_blocks += (fs->blocksize / i_blocks_base(fs)) * es.newblocks;
- 	inode.i_mtime = inode.i_ctime = fs->now ? fs->now : time(0);
- 	inode.i_links_count = 1;
- 	inode.i_mode = LINUX_S_IFREG | 0600;
-diff -upNr e2fsprogs-1.39/lib/ext2fs/read_bb.c e2fsprogs-1.39.tmp/lib/ext2fs/read_bb.c
---- e2fsprogs-1.39/lib/ext2fs/read_bb.c	2005-09-06 18:40:14.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/read_bb.c	2006-04-12 14:14:42.000000000 +0900
-@@ -76,7 +76,7 @@ errcode_t ext2fs_read_bb_inode(ext2_fils
- 			return retval;
- 		if (inode.i_blocks < 500)
- 			numblocks = (inode.i_blocks /
--				     (fs->blocksize / 512)) + 20;
-+				     (fs->blocksize / i_blocks_base(fs))) + 20;
- 		else
- 			numblocks = 500;
- 		retval = ext2fs_badblocks_list_create(bb_list, numblocks);
-diff -upNr e2fsprogs-1.39/lib/ext2fs/res_gdt.c e2fsprogs-1.39.tmp/lib/ext2fs/res_gdt.c
---- e2fsprogs-1.39/lib/ext2fs/res_gdt.c	2005-12-11 01:44:25.000000000 +0900
-+++ e2fsprogs-1.39.tmp/lib/ext2fs/res_gdt.c	2006-04-12 14:14:42.000000000 +0900
-@@ -84,7 +84,7 @@ errcode_t ext2fs_create_resize_inode(ext
- 
- 	/* Maximum possible file size (we donly use the dindirect blocks) */
- 	apb = EXT2_ADDR_PER_BLOCK(sb);
--	rsv_add = fs->blocksize / 512;
-+	rsv_add = fs->blocksize / i_blocks_base(fs);
- 	if ((dindir_blk = inode.i_block[EXT2_DIND_BLOCK])) {
- #ifdef RES_GDT_DEBUG
- 		printf("reading GDT dindir %u\n", dindir_blk);
-diff -upNr e2fsprogs-1.39/misc/mke2fs.8.in e2fsprogs-1.39.tmp/misc/mke2fs.8.in
---- e2fsprogs-1.39/misc/mke2fs.8.in	2006-03-27 15:16:49.000000000 +0900
-+++ e2fsprogs-1.39.tmp/misc/mke2fs.8.in	2006-04-12 14:14:42.000000000 +0900
-@@ -406,6 +406,12 @@ extended option.
- .B sparse_super
- Create a filesystem with fewer superblock backup copies
- (saves space on large filesystems).
-+.TP
-+.B large_block
-+The maximum size of a file can be (blocksize)x(2^32-1) bytes and the maximum
-+size of a filesystem is (pagesize)x(2^32-1).  Specifically on 32 bit platforms,
-+a file size cannot exceed 4TB.  With this feature enabled, users cannot make
-+blocksize smaller than 4KB.
- .RE
- .TP
- .B \-q
-diff -upNr e2fsprogs-1.39/misc/mke2fs.c e2fsprogs-1.39.tmp/misc/mke2fs.c
---- e2fsprogs-1.39/misc/mke2fs.c	2006-04-12 14:14:08.000000000 +0900
-+++ e2fsprogs-1.39.tmp/misc/mke2fs.c	2006-04-12 14:14:42.000000000 +0900
-@@ -817,7 +817,8 @@ static __u32 ok_features[3] = {
- 		EXT2_FEATURE_COMPAT_DIR_INDEX,	/* Compat */
- 	EXT2_FEATURE_INCOMPAT_FILETYPE|		/* Incompat */
- 		EXT3_FEATURE_INCOMPAT_JOURNAL_DEV|
--		EXT2_FEATURE_INCOMPAT_META_BG,
-+		EXT2_FEATURE_INCOMPAT_META_BG |
-+		EXT2_FEATURE_INCOMPAT_LARGE_BLOCK,
- 	EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER	/* R/O compat */
- };
- 
-@@ -1336,6 +1337,16 @@ static void PRS(int argc, char *argv[])
- 		int_log2(blocksize >> EXT2_MIN_BLOCK_LOG_SIZE);
- 
- 	blocksize = EXT2_BLOCK_SIZE(&fs_param);
+@@ -295,6 +296,9 @@ int ext2_block_iterate(struct ext2_fs *f
+ 	int			 count = 0;
+ 	int			 i;
+ 	int			 i512perblock = 1 << (fs->logsize - 9);
++	unsigned long long 	apb;
 +
-+	/* We should have checked it earlier if we cared about the blocksize
-+	 * set by -b option. */
-+	if ((fs_param.s_feature_incompat & EXT2_FEATURE_INCOMPAT_LARGE_BLOCK) &&
-+	    (blocksize < 4096)) {
-+		com_err(program_name, 0,
-+			_("Too small blocksize! You should specify more than "
-+			"or equal to 4KB blocksize with the '-O large_block' option."));
-+		exit(1);
-+	}
- 	
- 	if (extended_opts)
- 		parse_extended_opts(&fs_param, extended_opts);
-@@ -1360,7 +1371,8 @@ static void PRS(int argc, char *argv[])
++	apb = fs->u32perblock;
+ 
+ 	if (block == 0 || inode->i_mode == 0)
+ 		return -1;
+@@ -313,114 +317,66 @@ int ext2_block_iterate(struct ext2_fs *f
  		}
  	}
  
--	if (!force && fs_param.s_blocks_count >= (1 << 31)) {
-+	if (!(fs_param.s_feature_incompat & EXT2_FEATURE_INCOMPAT_LARGE_BLOCK) &&
-+		!force && fs_param.s_blocks_count >= (1 << 31)) {
- 		com_err(program_name, 0,
- 			_("Filesystem too large.  No more than 2**31-1 blocks\n"
- 			  "\t (8TB using a blocksize of 4k) are currently supported."));
-@@ -1394,7 +1406,7 @@ static void PRS(int argc, char *argv[])
- 	if (num_inodes == 0) {
- 		__u64 n;
+-	/* Direct blocks for first 12 blocks */
+-	for (i = 0, curblock = 0; i < EXT2_NDIR_BLOCKS; i++, curblock++) {
+-		if (action == EXT2_ACTION_ADD && !inode->i_block[i]) {
+-			size_t new_size = (curblock + 1) * fs->blocksize;
+-
+-			if (fs->flags & FL_DEBUG)
+-				printf("add %d as direct block\n", curblock);
+-			inode->i_block[i] = block;
+-			/* i_blocks is in 512 byte blocks */
+-			inode->i_blocks += i512perblock;
+-			if (new_size > inode->i_size)
+-				inode->i_size = new_size;
+-
+-			inode->i_mtime = time(NULL);
+-			ext2_set_block_state(fs, block, 1,
+-					     !(fs->flags & FL_ONLINE));
+-			return curblock;
+-		}
+-		if (inode->i_block[i] == block) {
+-			if (action == EXT2_ACTION_DELETE) {
+-				if (fs->flags & FL_DEBUG)
+-					printf("del %d as direct block\n",
+-					      curblock);
+-				inode->i_block[i] = 0;
+-				inode->i_blocks -= i512perblock;
+-				inode->i_mtime = time(NULL);
+-				if (!(fs->flags & FL_ONLINE))
+-					ext2_set_block_state(fs, block, 0, 1);
+-			}
+-			return i;
+-		}
+-		if (inode->i_block[i])
+-			count += i512perblock;
+-	}
+-
+-	count += inode->i_block[EXT2_IND_BLOCK] ? i512perblock : 0;
+-	count += inode->i_block[EXT2_DIND_BLOCK] ? i512perblock : 0;
+-	count += inode->i_block[EXT2_TIND_BLOCK] ? i512perblock : 0;
+-
+-	if (!inode->i_block[EXT2_IND_BLOCK] ||
+-	    (count >= inode->i_blocks && action != EXT2_ACTION_ADD))
++	if(!inode->i_block[EXT2_DIND_BLOCK] && action != EXT2_ACTION_ADD)
+ 		return -1;
  
--		n = (__u64) param.s_blocks_count * blocksize / inode_ratio;
-+		n = (__u64) fs_param.s_blocks_count * blocksize / inode_ratio;
- 		if (n > ~0U) {
- 			com_err(program_name, 0,
- 				_("inodes_count must be less than 4G!"));
-diff -upNr e2fsprogs-1.39/resize/resize2fs.c e2fsprogs-1.39.tmp/resize/resize2fs.c
---- e2fsprogs-1.39/resize/resize2fs.c	2006-04-12 14:14:11.000000000 +0900
-+++ e2fsprogs-1.39.tmp/resize/resize2fs.c	2006-04-12 14:14:42.000000000 +0900
-@@ -1520,7 +1520,7 @@ static errcode_t fix_resize_inode(ext2_f
- 	retval = ext2fs_read_inode(fs, EXT2_RESIZE_INO, &inode);
- 	if (retval) goto errout;
+-	bh = ext2_bread(fs, inode->i_block[EXT2_IND_BLOCK]);
+-	udata = (__u32 *)bh->data;
++	if (!inode->i_block[EXT2_DIND_BLOCK]) {
++		unsigned long long	inode_size;
++		blk_t	dindblk;
  
--	inode.i_blocks = fs->blocksize/512;
-+	inode.i_blocks = fs->blocksize/i_blocks_base(fs);
+-	/* Indirect blocks for next 256/512/1024 blocks (for 1k/2k/4k blocks) */
+-	for (i = 0; i < fs->u32perblock; i++, curblock++) {
+-		if (action == EXT2_ACTION_ADD && !udata[i]) {
+-			size_t new_size = (curblock + 1) * fs->blocksize;
+-
+-			if (fs->flags & FL_DEBUG)
+-				printf("add %d to ind block %d\n", curblock,
+-				       inode->i_block[EXT2_IND_BLOCK]);
+-			bh->dirty = 1;
+-			udata[i] = block;
+-			inode->i_blocks += i512perblock;
+-			if (new_size > inode->i_size)
+-				inode->i_size = new_size;
+-			inode->i_mtime = time(NULL);
+-			ext2_set_block_state(fs, block, 1,
+-					     !(fs->flags & FL_ONLINE));
+-			ext2_brelse(bh, 0);
+-			return curblock;
+-		}
+-		if (udata[i] == block) {
+-			if (action == EXT2_ACTION_DELETE) {
+-				if (fs->flags & FL_DEBUG)
+-					printf("del %d from ind block %d\n",
+-					      curblock,
+-					      inode->i_block[EXT2_IND_BLOCK]);
+-				bh->dirty = 1;
+-				udata[i] = 0;
+-				inode->i_blocks -= i512perblock;
+-				inode->i_mtime = time(NULL);
+-				if (!(fs->flags & FL_ONLINE))
+-					ext2_set_block_state(fs, block, 0, 1);
+-			}
+-			ext2_brelse(bh, 0);
+-			return curblock;
+-		}
+-		if (udata[i]) {
+-			count += i512perblock;
+-			if (count >= inode->i_blocks &&
+-			    action != EXT2_ACTION_ADD)
+-				return -1;
+-		}
++		dindblk = ext2_find_free_block(fs);
++		if(!dindblk)
++			return -1;
++		ext2_set_block_state(fs, dindblk, 1, 1);
++		inode_size = apb*apb + apb + EXT2_NDIR_BLOCKS;
++		inode_size *= fs->blocksize;
++		inode->i_size = inode_size & 0xFFFFFFFF;
++		inode->i_size_high = (inode_size >> 32) & 0xFFFFFFFF;
++		if(inode->i_size_high) {
++			fs->sb.s_feature_ro_compat |=
++				EXT2_FEATURE_RO_COMPAT_LARGE_FILE;
++		}
++		inode->i_mtime = time(NULL);
++
++		inode->i_block[EXT2_DIND_BLOCK] = dindblk;
++		bh = ext2_bread(fs, inode->i_block[EXT2_DIND_BLOCK]);
++		memset(bh->data, 0, fs->blocksize);
++		inode->i_blocks += i512perblock;
+ 	}
++	else
++		bh = ext2_bread(fs, inode->i_block[EXT2_DIND_BLOCK]);
  
- 	retval = ext2fs_write_inode(fs, EXT2_RESIZE_INO, &inode);
- 	if (retval) goto errout;
+-	ext2_brelse(bh, 0);
+-
+-	if (!inode->i_block[EXT2_DIND_BLOCK] ||
+-	    (count >= inode->i_blocks && action != EXT2_ACTION_ADD))
+-		return -1;
+-	bh = ext2_bread(fs, inode->i_block[EXT2_DIND_BLOCK]);
+ 	udata = (__u32 *)bh->data;
++	curblock = apb*apb + apb + EXT2_NDIR_BLOCKS;
+ 
+ 	/* Double indirect blocks for next 2^16/2^18/2^20 1k/2k/4k blocks */
+ 	for (i = 0; i < fs->u32perblock; i++) {
+ 		struct ext2_buffer_head	*bh2;
+ 		__u32			*udata2;
+ 		int			 j;
++		int grp, gdb_offset;
+ 
+-		if (!udata[i]) {
++		gdb_offset = fs->sb.s_first_data_block + 1;
++		grp = block/fs->sb.s_blocks_per_group;
++		if(grp == 0 && action == EXT2_ACTION_ADD) {
++			udata[(block - gdb_offset)%fs->u32perblock] = block;
++			ext2_zero_blocks(fs, block, 1);
++			ext2_set_block_state(fs, block, 1, 1);
++			bh->dirty = 1;
++			inode->i_blocks += i512perblock;
++			inode->i_mtime = time(NULL);
+ 			ext2_brelse(bh, 0);
+-			ext2_brelse(bh2, 0);
+-			return -1;
++			return 1;
++		}
++		if (!udata[i])
++			continue;
++		if(udata[i] == block){
++			ext2_brelse(bh, 0);
++			return 1;
+ 		}
++		if(((block - gdb_offset)%fs->u32perblock) != i)
++			continue;
++
+ 		bh2 = ext2_bread(fs, udata[i]);
+ 		udata2 = (__u32 *)bh2->data;
+ 		count += i512perblock;
+@@ -1044,3 +1000,51 @@ error_free_fs:
+ error:
+ 	return NULL;
+ }
++
++/* Update resize_inode's blocks */
++void ext2_fix_resize_inode(struct ext2_fs *fs) {
++	if (fs->sb.s_feature_compat & EXT2_FEATURE_COMPAT_RESIZE_INODE) {
++		int i;
++		blk_t block;
++		struct ext2_inode * inode;
++
++		ext2_read_inode(fs, EXT2_RESIZE_INO, &fs->resize);
++		inode = &fs->resize;
++		inode->i_mtime = 0;
++
++		if (inode->i_block[EXT2_DIND_BLOCK]) {
++			ext2_zero_blocks(fs, inode->i_block[EXT2_DIND_BLOCK], 1);
++			inode->i_blocks = 1 << (fs->logsize - 9);
++		}
++
++		for (i = 0, block = fs->sb.s_first_data_block + fs->newgdblocks + 1;
++		     i < fs->newgroups; i++, block += fs->sb.s_blocks_per_group) {
++			int j;
++
++			if (!ext2_bg_has_super(fs, i))
++				continue;
++			for (j = 0; j < fs->resgdblocks; j++) {
++				if(i == 0)
++					ext2_zero_blocks(fs, block + j, 1);
++
++				if (j < fs->blocksize / 4){
++					if (ext2_get_block_state(fs, block + j))
++						ext2_set_block_state(fs, block + j, 0, 1);
++					ext2_block_iterate(fs, inode, block + j, EXT2_ACTION_ADD);
++				}
++				else{
++					if (ext2_get_block_state(fs, block + j))
++						ext2_set_block_state(fs, block + j, 0, 1);
++				}
++			}
++		}
++
++		fs->sb.s_reserved_gdt_blocks = fs->resgdblocks;
++		if (fs->resgdblocks > fs->blocksize / 4)
++			fs->sb.s_reserved_gdt_blocks = fs->blocksize / 4;
++		fs->metadirty |= EXT2_META_SB;
++		
++		if (inode->i_mtime)
++			ext2_write_inode(fs, EXT2_RESIZE_INO, inode);
++	}
++}
+diff -Nurp old/ext2resize-1.1.19/src/ext2.h ext2resize-1.1.19/src/ext2.h
+--- old/ext2resize-1.1.19/src/ext2.h	2002-12-11 08:05:12.000000000 +0800
++++ ext2resize-1.1.19/src/ext2.h	2006-03-20 21:45:13.000000000 +0800
+@@ -242,6 +242,8 @@ loff_t ext2_llseek(unsigned int fd, loff
+ struct ext2_dev_handle *ext2_make_dev_handle_from_file(char *dev, char *dir,
+ 						       char *prog);
+ 
++void ext2_fix_resize_inode(struct ext2_fs *fs);
++
+ #define set_bit(buf, offset)	buf[(offset)>>3] |= _bitmap[(offset)&7]
+ #define clear_bit(buf, offset)	buf[(offset)>>3] &= ~_bitmap[(offset)&7]
+ #define check_bit(buf, offset)	(buf[(offset)>>3] & _bitmap[(offset)&7])
+diff -Nurp old/ext2resize-1.1.19/src/ext2online.c ext2resize-1.1.19/src/ext2online.c
+--- old/ext2resize-1.1.19/src/ext2online.c	2004-09-30 22:12:01.000000000 +0800
++++ ext2resize-1.1.19/src/ext2online.c	2006-03-20 21:45:13.000000000 +0800
+@@ -551,24 +551,7 @@ static blk_t ext2_online_primary(struct 
+  */
+ static void ext2_online_finish(struct ext2_fs *fs)
+ {
+-	int			 group;
+-	blk_t			 block;
+-	blk_t			 gdb;
+-
+-	/* Remove blocks as required from Bond inode */
+-	for (group = 0, gdb = fs->sb.s_first_data_block + 1;
+-	     group < fs->numgroups;
+-	     group++, gdb += fs->sb.s_blocks_per_group)
+-		if (ext2_bg_has_super(fs, group))
+-			for (block = fs->gdblocks;
+-			     block < fs->newgdblocks;
+-			     block++) {
+-				if (fs->flags & FL_DEBUG)
+-					printf("Checking for group block %d "
+-					       "in Bond\n", gdb);
+-				ext2_block_iterate(fs, &fs->resize, gdb + block,
+-						   EXT2_ACTION_DELETE);
+-			}
++	ext2_fix_resize_inode(fs);
+ 
+ 	/* Save the new number of reserved GDT blocks in the resize inode */
+ 	fs->resize.i_generation = fs->resgdblocks + fs->gdblocks -
+diff -Nurp old/ext2resize-1.1.19/src/ext2prepare.c ext2resize-1.1.19/src/ext2prepare.c
+--- old/ext2resize-1.1.19/src/ext2prepare.c	2004-09-30 22:04:05.000000000 +0800
++++ ext2resize-1.1.19/src/ext2prepare.c	2006-03-20 21:45:13.000000000 +0800
+@@ -155,6 +155,7 @@ int create_resize_inode(struct ext2_fs *
+ 	fs->sb.s_feature_compat |= EXT2_FEATURE_COMPAT_RESIZE_INODE;
+ 
+ 	diff = fs->newgdblocks - fs->gdblocks;
++	fs->resgdblocks = fs->sb.s_reserved_gdt_blocks = diff;
+ 	/* we store the number of reserved blocks in the inode version field */
+ 	inode->i_generation = diff;
+ 
+diff -Nurp old/ext2resize-1.1.19/src/ext2_resize.c ext2resize-1.1.19/src/ext2_resize.c
+--- old/ext2resize-1.1.19/src/ext2_resize.c	2004-09-30 22:01:41.000000000 +0800
++++ ext2resize-1.1.19/src/ext2_resize.c	2006-03-20 21:45:13.000000000 +0800
+@@ -78,7 +78,8 @@ static int ext2_add_group(struct ext2_fs
+ 					ext2_block_iterate(fs, inode,
+ 							   start+fs->gdblocks+1,
+ 							   EXT2_ACTION_DELETE);
+-				ext2_set_block_state(fs, start +fs->gdblocks +1,
++				if(group!=0 || !ext2_get_block_state(fs, start + fs->gdblocks + 1))
++					ext2_set_block_state(fs, start + fs->gdblocks + 1,
+ 						     1, 1);
+ 			}
+ 		}
+@@ -480,6 +481,9 @@ int ext2_resize_fs(struct ext2_fs *fs)
+ 	else
+ 		status = ext2_grow_fs(fs);
+ 
++	if (status)
++		ext2_fix_resize_inode(fs);
++
+ 	free(fs->relocator_pool);
+ 	fs->relocator_pool = NULL;
+ 	fs->relocator_pool_end = NULL;

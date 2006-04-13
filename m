@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWDMEq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWDMFAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWDMEq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 00:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWDMEq0
+	id S964787AbWDMFAc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 01:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWDMFAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 00:46:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29877 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964781AbWDMEqZ (ORCPT
+	Thu, 13 Apr 2006 01:00:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19383 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964784AbWDMFAb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 00:46:25 -0400
-Date: Wed, 12 Apr 2006 21:46:13 -0700
+	Thu, 13 Apr 2006 01:00:31 -0400
+Date: Wed, 12 Apr 2006 22:00:11 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Dan Bonachea <bonachead@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
-Message-Id: <20060412214613.404cf49f.akpm@osdl.org>
-In-Reply-To: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
-References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+Cc: Seokmann.Ju@engenio.com, James.Bottomley@SteelEye.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 1/1] megaraid_{mm,mbox}: fix a bug in reset handler
+Message-Id: <20060412220011.2ddd6f63.akpm@osdl.org>
+In-Reply-To: <890BF3111FB9484E9526987D912B261901BCC2@NAMAIL3.ad.lsil.com>
+References: <890BF3111FB9484E9526987D912B261901BCC2@NAMAIL3.ad.lsil.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,60 +25,64 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Bonachea <bonachead@comcast.net> wrote:
+"Ju, Seokmann" <Seokmann.Ju@lsil.com> wrote:
 >
-> Hi - I believe I've discovered a thread-safety bug in the Linux 2.6.x kernel 
->  implementation of write(2).
+> This patch has fix for a bug in the 'megaraid_reset_handler()'.
 > 
->  The small C program below the problem - in a nutshell, if multiple threads 
->  write() to STDOUT_FILENO, and stdout has been redirected to a file, then some 
->  of the output lines get lost. The actual result is non-deterministic (even in 
->  a "correct" run) - however the expected correct behavior is 10 lines of output 
->  (in some non-deterministic order). However, the test program reproducibly 
->  generates some lost output (less than 10 lines of total output) on every run 
->  where the output is redirected to a new file. This appears to be a violation 
->  of the POSIX spec (POSIX 1003.1-2001:2.9.1 requires thread-safety of write()). 
+>  When abort failed, the driver gets reset handleer called. In the reset
+>  handler, driver calls 'scsi_done()' callback for same SCSI command
+>  packet (struct scsi_cmnd) multiple times if there are multiple SCSI
+>  command packet in the pend_list. More over, if there are entry in the
+>  pend_lsit with IOCTL packet associated, the driver returns it to wrong
+>  free_list so that, in turn, the driver could end up with 'NULL pointer
+>  dereference..' during I/O command building with incorrect resource.
 > 
-> 
->  The problem does not appear to occur if output goes to the console, or is 
->  redirected to append to an existing file, only when stdout is redirected to a 
->  new file.
+>  Also, the patch contains several minor/cosmetic changes besides this.
+>
+> ..
+>
+> @@ -2655,32 +2655,48 @@
+>  	// Also, reset all the commands currently owned by the driver
+>  	spin_lock_irqsave(PENDING_LIST_LOCK(adapter), flags);
+>  	list_for_each_entry_safe(scb, tmp, &adapter->pend_list, list) {
+> -
+>  		list_del_init(&scb->list);	// from pending list
+>  
+> -		con_log(CL_ANN, (KERN_WARNING
+> -			"megaraid: %ld:%d[%d:%d], reset from pending list\n",
+> -				scp->serial_number, scb->sno,
+> -				scb->dev_channel, scb->dev_target));
+> +		if (scb->sno >= MBOX_MAX_SCSI_CMDS) {
+> +			con_log(CL_ANN, (KERN_WARNING 
+> +			"megaraid: IOCTL packet with %d[%d:%d] being reset\n",
+> +			scb->sno, scb->dev_channel, scb->dev_target));
+>  
+> -		scp->result = (DID_RESET << 16);
+> -		scp->scsi_done(scp);
+> +			scb->status = -EFAULT;
 
-This comes up occasionally.  Is very simple:
+What is the significance of -EFAULT here?  Seems inappropriate?
 
-asmlinkage ssize_t sys_write(unsigned int fd, const char __user * buf, size_t count)
-{
-	struct file *file;
-	ssize_t ret = -EBADF;
-	int fput_needed;
+> @@ -2918,12 +2933,12 @@
+>  	wmb();
+>  	WRINDOOR(raid_dev, raid_dev->mbox_dma | 0x1);
+>  
+> -	for (i = 0; i < 0xFFFFF; i++) {
+> +	for (i = 0; i < 0xFFFFFF; i++) {
+>  		if (mbox->numstatus != 0xFF) break;
+>  		rmb();
+>  	}
 
-	file = fget_light(fd, &fput_needed);
-	if (file) {
-		loff_t pos = file_pos_read(file);
-		ret = vfs_write(file, buf, count, &pos);
-		file_pos_write(file, pos);
-		fput_light(file, fput_needed);
-	}
+Oh my.  That's an awfully long interrupts-off spin.  1.7e7 operations with
+an NMI watchdog timeout of five seconds - I'm surprised it doesn't trigger.
 
-	return ret;
-}
+Is that reading from a PCI register there?   Or main memory?
 
-we can have multiple threads in vfs_write() using the same `pos'.
+I'm somewhat surprised that the compiler never "optimises" this into a
+lockup, actually.  That's what `volatile' is for.
 
-Locking for file.f_pos is generally file->f_dentry->d_inode->i_mutex.  We
-could use that if we were to restructure the code a lot.  Or we could add a
-new lock to `struct file'.
+Is it not possible to do this with an interrupt?
 
-Or we could do nothing, because a) the application is going to produce
-inderterminate output anyway and b) because it only affects silly testcases
-and not real-world apps.
+A `cpu_relax()' in that loop would help cool things down a bit.
 
-OK, there _might_ be a real-world case: threads appending logging
-information to a flat file.  Trivially workable-around with a userspace
-lock, or by switching to stdio (same thing).
 
-Yes, really we should fix it.  But it's not worth adding more overhead to
-do so.  So the fix would involve widespread (but simple) change, to draw
-that f_pos update inside i_mutex.
-
-(We could pseudo-fix it by updating f_pos _before_ entering vfs_write(), too).

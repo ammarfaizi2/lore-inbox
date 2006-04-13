@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWDMMmQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWDMMnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWDMMmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 08:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWDMMmQ
+	id S964880AbWDMMnb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 08:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWDMMnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 08:42:16 -0400
-Received: from wproxy.gmail.com ([64.233.184.231]:44265 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964911AbWDMMmQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 08:42:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iXavO8nQAaskURdaGNV4p09XJ9B5akEX6T+/ObW1dOjUr6ig5+4SZAGHmWi2sqvE+6HJQmgOxhhNukFiHdgTS0nk05hQOOpQc/iqqbWBYZjtqZky8izpGJtNxsig7Z4Me6SVmW1U7dsmALx45Z4nGoX+DFULOhqVdyGkpB4utGg=
-Message-ID: <9a8748490604130542y783e604ew93aea8e4997c3f57@mail.gmail.com>
-Date: Thu, 13 Apr 2006 14:42:15 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Tim Phipps" <tim@phipps-hutton.freeserve.co.uk>
-Subject: Re: p4-clockmod not working in 2.6.16
-Cc: "Mike Galbraith" <efault@gmx.de>, linux-kernel@vger.kernel.org,
-       "Edgar Toernig" <froese@gmx.de>, "Dave Jones" <davej@redhat.com>
-In-Reply-To: <200604131320.58800.tim@phipps-hutton.freeserve.co.uk>
+	Thu, 13 Apr 2006 08:43:31 -0400
+Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:58826 "EHLO
+	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S964880AbWDMMna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 08:43:30 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: shrink_all_memory tweaks (was: Re: Userland swsusp failure (mm-related))
+Date: Thu, 13 Apr 2006 22:42:57 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+       Fabio Comolli <fabio.comolli@gmail.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <b637ec0b0604080537s55e63544r8bb63c887e81ecaf@mail.gmail.com> <200604100923.24768.kernel@kolivas.org> <200604111906.32535.rjw@sisk.pl>
+In-Reply-To: <200604111906.32535.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1142974528.3470.4.camel@localhost>
-	 <1144245205.7571.11.camel@homer> <1144245577.7571.16.camel@homer>
-	 <200604131320.58800.tim@phipps-hutton.freeserve.co.uk>
+Message-Id: <200604132242.57664.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/13/06, Tim Phipps <tim@phipps-hutton.freeserve.co.uk> wrote:
-> On Wednesday 05 Apr 2006 14:59, Mike Galbraith wrote:
-> > On Wed, 2006-04-05 at 13:02 +0100, Tim Phipps wrote:
-> > > Here's a patch to 2.6.17-rc1 that disables the 12.5% DC on any CPU that
-> > > has N60. The frequencies in the errata are a bit vague so this is the
-> > > safe bet and it only disables one of the eight frequencies rather than
-> > > the current behaviour which disables all of mine!
-> >
-> > Works for me.  Perhaps you should update...
-> > dprintk("has errata -- disabling frequencies lower than 2ghz\n");
-> > ...,slap a Signed-off-by: on it and see if it flys.
+On Wednesday 12 April 2006 03:06, Rafael J. Wysocki wrote:
+> The patch is appended.
 >
-> Not sure how to do a Signed-off-by but here's the patch.
+> In shrink_all_memory() I try to free exactly as many pages as the caller
+> asks for, preferably in one shot, starting from easier targets.  If slabs
+> are huge, they are most likely to have enough pages to reclaim.  The
+> inactive lists are next (the zones with more inactive pages go first) etc. 
+> However, since each pass potentially requires more work, the number of
+> pages to scan is decreased as the pages are reclaimed which seems to make
+> the shrinking of memory go more smoothly.
 >
+> I've been testing it on an x86_64 box for some time and it seems to behave
+> quite reasonably, eg. it usually makes the actual image size very close to
+> the value of image_size and if you set image_size to 0, it shrinks
+> everything almost totally.
 
-It's simple. Here's what you do :
+Great. Looks pretty good. See comments.
 
-1. Read Documentation/SubmittingPatches, especially the "Developer's
-Certificate of Origin 1.1" bit.
+> ---
 
-2. Make sure you agree/comply with above mentioned Developer's cert.,
-then add a line like this just above your patch:
-Signed-off-by: Tim Phipps <tim@phipps-hutton.freeserve.co.uk>
+>  #ifdef CONFIG_PM
+>  /*
+> - * Try to free `nr_pages' of memory, system-wide.  Returns the number of
+> freed - * pages.
+> + * Helper function for shrink_all_memory().  Tries to reclaim 'nr_pages'
+> pages + * from LRU lists system-wide, for given pass and priority, and
+> returns the + * number of reclaimed pages
+> + *
+> + * For pass > 3 we also try to shrink the LRU lists that contain a few
+> pages + */
+> +unsigned long shrink_all_zones(unsigned long nr_pages, int pass, int prio,
+> +				struct scan_control *sc)
 
+I like how this moves all suspend vm functions out of the generic functions 
+even more than I managed to.
 
-(ohh and please submit patches inline in emails if at all possible,
-not as attachments, thanks)  :-)
+> +	int swappiness = vm_swappiness, pass;
+> +	struct reclaim_state reclaim_state;
+> +	struct zone *zone;
+> +	struct scan_control sc = {
+> +		.gfp_mask = GFP_KERNEL,
+> +		.may_swap = 1,
+> +		.swap_cluster_max = nr_pages,
+> +		.may_writepage = 1,
+>  	};
 
+This is not quite right at maintaining the original semantics I was proposing. 
+Since you are iterating over all priorities, setting may_swap means you will 
+reclaim mapped ram on the earlier passes once priority gets low enough. 
+Setting vm_swappiness temporarily to 100 is unncecessary. You should set 
+may_swap to 0 and set it to 1 on passes 3+.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Otherwise, looks good, thanks!
+
+-- 
+-ck

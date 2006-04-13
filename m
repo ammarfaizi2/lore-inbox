@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWDMXJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbWDMXIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965011AbWDMXJV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 19:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbWDMXJS
+	id S965005AbWDMXIg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 19:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWDMXIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 19:09:18 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:37838 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965010AbWDMXI6 (ORCPT
+	Thu, 13 Apr 2006 19:08:15 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:16590 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932468AbWDMXIN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 19:08:58 -0400
-Date: Thu, 13 Apr 2006 16:07:51 -0700
+	Thu, 13 Apr 2006 19:08:13 -0400
+Date: Thu, 13 Apr 2006 16:06:51 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,13 +17,15 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Miklos Szeredi <miklos@szeredi.hu>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 09/22] fuse: fix oops in fuse_send_readpages()
-Message-ID: <20060413230751.GJ5613@kroah.com>
+       paulus@samba.org, anton@samba.org,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 01/22] powerpc: iSeries needs slb_initialize to be called
+Message-ID: <20060413230651.GB5613@kroah.com>
 References: <20060413230141.330705000@quad.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fuse-fix-oops-in-fuse_send_readpages.patch"
+Content-Disposition: inline; filename="powerpc-iseries-needs-slb_initialize-to-be-called.patch"
 In-Reply-To: <20060413230637.GA5613@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -32,41 +34,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-During heavy parallel filesystem activity it was possible to Oops the
-kernel.  The reason is that read_cache_pages() could skip pages which
-have already been inserted into the cache by another task.
-Occasionally this may result in zero pages actually being sent, while
-fuse_send_readpages() relies on at least one page being in the
-request.
+Since the powerpc 64k pages patch went in, systems that have SLBs
+(like Power4 iSeries) needed to have slb_initialize called to set up
+some variables for the SLB miss handler.  This was not being called
+on the boot processor on iSeries, so on single cpu iSeries machines,
+we would get apparent memory curruption as soon as we entered user mode.
 
-So check this corner case and just free the request instead of trying
-to send it.
+This patch fixes that by calling slb_initialize on the boot cpu if the
+processor has an SLB.
 
-Reported and tested by Konstantin Isakov.
-
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- fs/fuse/file.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/setup_64.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- linux-2.6.16.5.orig/fs/fuse/file.c
-+++ linux-2.6.16.5/fs/fuse/file.c
-@@ -397,8 +397,12 @@ static int fuse_readpages(struct file *f
- 		return -EINTR;
+--- linux-2.6.16.5.orig/arch/powerpc/kernel/setup_64.c
++++ linux-2.6.16.5/arch/powerpc/kernel/setup_64.c
+@@ -256,12 +256,10 @@ void __init early_setup(unsigned long dt
+ 	/*
+ 	 * Initialize stab / SLB management except on iSeries
+ 	 */
+-	if (!firmware_has_feature(FW_FEATURE_ISERIES)) {
+-		if (cpu_has_feature(CPU_FTR_SLB))
+-			slb_initialize();
+-		else
+-			stab_initialize(lpaca->stab_real);
+-	}
++	if (cpu_has_feature(CPU_FTR_SLB))
++		slb_initialize();
++	else if (!firmware_has_feature(FW_FEATURE_ISERIES))
++		stab_initialize(lpaca->stab_real);
  
- 	err = read_cache_pages(mapping, pages, fuse_readpages_fill, &data);
--	if (!err)
--		fuse_send_readpages(data.req, file, inode);
-+	if (!err) {
-+		if (data.req->num_pages)
-+			fuse_send_readpages(data.req, file, inode);
-+		else
-+			fuse_put_request(fc, data.req);
-+	}
- 	return err;
+ 	DBG(" <- early_setup()\n");
  }
- 
 
 --

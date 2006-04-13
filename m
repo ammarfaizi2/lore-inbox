@@ -1,131 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWDMVoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964989AbWDMVpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWDMVoi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 17:44:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWDMVoi
+	id S964989AbWDMVpa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 17:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWDMVpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 17:44:38 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:995 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964983AbWDMVoi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 17:44:38 -0400
-Subject: [PATCH] tpm: update bios log code for 1.2
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org, TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Date: Thu, 13 Apr 2006 16:45:21 -0500
-Message-Id: <1144964722.12054.134.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Apr 2006 17:45:30 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:65487 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S964989AbWDMVp3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 17:45:29 -0400
+Date: Thu, 13 Apr 2006 17:45:25 -0400
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       jgmtfia Mr <jgmtfia@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: NFS data corruption
+Message-ID: <20060413214525.GC19673@fieldses.org>
+References: <16e19f4b0604122025s310f1989j1c301dd5d90f5059@mail.gmail.com> <1144898847.8056.21.camel@lade.trondhjem.org> <20060413185859.GA30387@ti64.telemetry-investments.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060413185859.GA30387@ti64.telemetry-investments.com>
+User-Agent: Mutt/1.5.11+cvs20060403
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The acpi table which contains the BIOS log events was updated for 1.2.
-There are now client and server modes as defined in the specifications
-with slightly different formats.  Additionally, the start field was even
-too small for the 1.1 version but had been working anyway.  This patch
-updates the code to deal with any of the three types of headers
-probperly (1.1, 1.2 client and 1.2 server).
+On Thu, Apr 13, 2006 at 02:58:59PM -0400, Bill Rugolsky Jr. wrote:
+> On Wed, Apr 12, 2006 at 11:27:27PM -0400, Trond Myklebust wrote:
+> > On Wed, 2006-04-12 at 21:25 -0600, jgmtfia Mr wrote:
+> > > When transferring from a 2.6.16 nfs client to a 2.6.16.1 server I get
+> > > data corruption.  There is no indication of any problems in any log on
+> > > the client or server.  It does *not* happen when transferring from
+> > > server to client.
+> > 
+> > Do you get corruption with 2.6.17-rc1? That has a fix for a known
+> > corruption issue.
+>  
+> Trond,
+> 
+> Could you point out the particular commit, or the patch from your patch
+> series?
+> 
+> [On Tuesday, I tried linux-2.6.16-NFS_ALL on a host that is re-exporting
+> a NetApp NFS mount via Samba, and I got thousands of file locks that
+> weren't released, so I had to discard NFS_ALL for now, until I have time
+> to look closer.]
 
-Signed-off-by: Kylie Hall <kjhall@us.ibm.com>
----
- drivers/char/tpm/tpm_bios.c |   53 +++++++++++++++++++++++++---------
- 1 files changed, 39 insertions(+), 14 deletions(-)
+There was a problem with locks not being unlocked which has been fixed
+in the latest 2.6.17-rc1 NFS_ALL.
 
---- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm_bios.c	2006-04-02 22:22:10.000000000 -0500
-+++ linux-2.6.17-rc1/drivers/char/tpm/tpm_bios.c	2006-04-13 11:25:03.623295750 -0500
-@@ -29,6 +29,11 @@
- #define MAX_TEXT_EVENT		1000	/* Max event string length */
- #define ACPI_TCPA_SIG		"TCPA"	/* 0x41504354 /'TCPA' */
- 
-+enum bios_platform_class {
-+	BIOS_CLIENT = 0x00,
-+	BIOS_SERVER = 0x01,
-+};
-+
- struct tpm_bios_log {
- 	void *bios_event_log;
- 	void *bios_event_log_end;
-@@ -36,9 +41,18 @@ struct tpm_bios_log {
- 
- struct acpi_tcpa {
- 	struct acpi_table_header hdr;
--	u16 reserved;
--	u32 log_max_len __attribute__ ((packed));
--	u32 log_start_addr __attribute__ ((packed));
-+	u16 platform_class;
-+	union {
-+		struct client_hdr {
-+			u32 log_max_len __attribute__ ((packed));
-+			u64 log_start_addr __attribute__ ((packed));
-+		} client;
-+		struct server_hdr {
-+			u16 reserved;
-+			u64 log_max_len __attribute__ ((packed));
-+			u64 log_start_addr __attribute__ ((packed));
-+		} server;
-+	};
- };
- 
- struct tcpa_event {
-@@ -376,6 +390,7 @@ static int read_log(struct tpm_bios_log 
- 	struct acpi_tcpa *buff;
- 	acpi_status status;
- 	struct acpi_table_header *virt;
-+	u64 len, start;
- 
- 	if (log->bios_event_log != NULL) {
- 		printk(KERN_ERR
-@@ -396,27 +411,37 @@ static int read_log(struct tpm_bios_log 
- 		return -EIO;
- 	}
- 
--	if (buff->log_max_len == 0) {
-+	switch(buff->platform_class) {
-+	case BIOS_SERVER:
-+		len = buff->server.log_max_len;
-+		start = buff->server.log_start_addr;
-+		break;
-+	case BIOS_CLIENT:
-+	default:
-+		len = buff->client.log_max_len;
-+		start = buff->client.log_start_addr;
-+		break;
-+	} 
-+	if (!len) {
- 		printk(KERN_ERR "%s: ERROR - TCPA log area empty\n", __func__);
- 		return -EIO;
--	}
--
-+	} 
-+	
- 	/* malloc EventLog space */
--	log->bios_event_log = kmalloc(buff->log_max_len, GFP_KERNEL);
-+	log->bios_event_log = kmalloc(len, GFP_KERNEL);
- 	if (!log->bios_event_log) {
--		printk
--		    ("%s: ERROR - Not enough  Memory for BIOS measurements\n",
--		     __func__);
-+		printk("%s: ERROR - Not enough  Memory for BIOS measurements\n",
-+			__func__);
- 		return -ENOMEM;
- 	}
- 
--	log->bios_event_log_end = log->bios_event_log + buff->log_max_len;
-+	log->bios_event_log_end = log->bios_event_log + len;
- 
--	acpi_os_map_memory(buff->log_start_addr, buff->log_max_len, (void *) &virt);
-+	acpi_os_map_memory(start, len, (void *) &virt);
- 
--	memcpy(log->bios_event_log, virt, buff->log_max_len);
-+	memcpy(log->bios_event_log, virt, len);
- 
--	acpi_os_unmap_memory(virt, buff->log_max_len);
-+	acpi_os_unmap_memory(virt, len);
- 	return 0;
- }
- 
-
-
+--b.

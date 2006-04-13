@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWDMUYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWDMU0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbWDMUYE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 16:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWDMUYE
+	id S964969AbWDMU0T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 16:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWDMU0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 16:24:04 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:5854
+	Thu, 13 Apr 2006 16:26:19 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30386
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964962AbWDMUYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 16:24:03 -0400
-Date: Thu, 13 Apr 2006 13:23:35 -0700 (PDT)
-Message-Id: <20060413.132335.77438118.davem@davemloft.net>
-To: mbligh@mbligh.org
-Cc: kplkml@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: JVM performance on Linux (vs. Solaris/Windows)
+	id S964966AbWDMU0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 16:26:18 -0400
+Date: Thu, 13 Apr 2006 13:26:03 -0700 (PDT)
+Message-Id: <20060413.132603.94193712.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] net/netlink/: possible cleanups
 From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <443E74C1.5090801@mbligh.org>
-References: <62a080740604130753i4b8bbbckc3cba12092b54226@mail.gmail.com>
-	<443E74C1.5090801@mbligh.org>
+In-Reply-To: <20060413162710.GE4162@stusta.de>
+References: <20060413162710.GE4162@stusta.de>
 X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -25,18 +24,33 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Date: Thu, 13 Apr 2006 08:56:49 -0700
+From: Adrian Bunk <bunk@stusta.de>
+Date: Thu, 13 Apr 2006 18:27:10 +0200
 
-> SpecJBB is a really frigging stupid benchmark. It's *much* more affected
-> by the stupid crap in Java (like their locking model) than anything in the
-> OS. 
+> This patch contains the following possible cleanups plus changes related 
+> to them:
+> - make the following needlessly global functions static:
+>   - attr.c: __nla_reserve()
+>   - attr.c: __nla_put()
+> - #if 0 the following unused global functions:
+>   - attr.c: nla_validate()
+>   - attr.c: nla_find()
+>   - attr.c: nla_memcpy()
+>   - attr.c: nla_memcmp()
+>   - attr.c: nla_strcmp()
+>   - attr.c: nla_reserve()
+>   - genetlink.c: genl_unregister_ops()
+> - remove the following unused EXPORT_SYMBOL's:
+>   - af_netlink.c: netlink_set_nonroot
+>   - attr.c: nla_parse
+>   - attr.c: nla_strlcpy
+>   - attr.c: nla_put
 > 
-> Best to find another benchmark, oh and preferably somebody vaguely
-> objective to run it ;-)
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-This may be true, but on a more serious note someone should check
-to make sure Sun turned on hugepage support in the JVM under Linux.
+Bunk-bot, you have to stop.
 
-That is one thing that helps this benchmark out enormously, so if
-hugepages are disabled you might as well ignore the result.
+These interfaces were added so that new users of netlink could
+write their code more easily.
+
+Unused does not equate to "comment out or delete".

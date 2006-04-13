@@ -1,122 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWDMBmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWDMBnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWDMBmd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 21:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWDMBmc
+	id S932421AbWDMBnX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 21:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWDMBnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 21:42:32 -0400
-Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:8926 "EHLO
-	smtpq3.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S932418AbWDMBmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 21:42:32 -0400
-Message-ID: <443DACED.9010103@keyaccess.nl>
-Date: Thu, 13 Apr 2006 03:44:13 +0200
+	Wed, 12 Apr 2006 21:43:22 -0400
+Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:64910 "EHLO
+	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932421AbWDMBnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 21:43:21 -0400
+Message-ID: <443DAD1F.3070802@keyaccess.nl>
+Date: Thu, 13 Apr 2006 03:45:03 +0200
 From: Rene Herman <rene.herman@keyaccess.nl>
 User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
 To: Takashi Iwai <tiwai@suse.de>
 CC: ALSA devel <alsa-devel@alsa-project.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [ALSA STABLE 1/3] a few more -- fix the "enable" module parameter
- behaviour
+Subject: [ALSA STABLE 2/3] a few more -- continue on IS_ERR from platform
+ device registration
 Content-Type: multipart/mixed;
- boundary="------------000408030601060207040109"
+ boundary="------------000105060902020304040909"
 X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
 X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000408030601060207040109
+--------------000105060902020304040909
 Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Hi Takashi.
 
-The !enable[i] patch is also applicable to sound/drivers. This gets them
-all.
+And continue-on-iserr for sound/drivers...
 
-   sound/drivers/dummy.c         |    4 +++-
-   sound/drivers/mpu401/mpu401.c |    4 +++-
-   sound/drivers/serial-u16550.c |    4 +++-
-   sound/drivers/virmidi.c       |    4 +++-
-   4 files changed, 12 insertions(+), 4 deletions(-)
+   sound/drivers/dummy.c         |   14 ++++----------
+   sound/drivers/mpu401/mpu401.c |   14 ++++----------
+   sound/drivers/serial-u16550.c |   14 ++++----------
+   sound/drivers/virmidi.c       |   14 ++++----------
+   4 files changed, 16 insertions(+), 40 deletions(-)
 
 Signed-off-by: Rene Herman <rene.herman@keyaccess.nl>
 
 
-
---------------000408030601060207040109
+--------------000105060902020304040909
 Content-Type: text/plain;
- name="alsa_platform_enable_remainder.diff"
+ name="alsa_platform_iserr_remainder.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="alsa_platform_enable_remainder.diff"
+ filename="alsa_platform_iserr_remainder.diff"
 
-Index: local/sound/drivers/dummy.c
-===================================================================
---- local.orig/sound/drivers/dummy.c	2006-03-20 06:53:29.000000000 +0100
-+++ local/sound/drivers/dummy.c	2006-04-13 03:02:43.000000000 +0200
-@@ -669,8 +669,10 @@ static int __init alsa_card_dummy_init(v
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
- 		device = platform_device_register_simple(SND_DUMMY_DRIVER,
- 							 i, NULL, 0);
- 		if (IS_ERR(device)) {
 Index: local/sound/drivers/mpu401/mpu401.c
 ===================================================================
---- local.orig/sound/drivers/mpu401/mpu401.c	2006-03-20 06:53:29.000000000 +0100
-+++ local/sound/drivers/mpu401/mpu401.c	2006-04-13 03:03:18.000000000 +0200
-@@ -240,8 +240,10 @@ static int __init alsa_card_mpu401_init(
- 		return err;
- 
- 	devices = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
+--- local.orig/sound/drivers/mpu401/mpu401.c	2006-04-13 03:03:18.000000000 +0200
++++ local/sound/drivers/mpu401/mpu401.c	2006-04-13 03:11:35.000000000 +0200
+@@ -250,10 +250,8 @@ static int __init alsa_card_mpu401_init(
+ #endif
+ 		device = platform_device_register_simple(SND_MPU401_DRIVER,
+ 							 i, NULL, 0);
+-		if (IS_ERR(device)) {
+-			err = PTR_ERR(device);
+-			goto errout;
+-		}
++		if (IS_ERR(device))
 +			continue;
- #ifdef CONFIG_PNP
- 		if (pnp[i])
- 			continue;
+ 		platform_devices[i] = device;
+ 		devices++;
+ 	}
+@@ -266,14 +264,10 @@ static int __init alsa_card_mpu401_init(
+ #ifdef MODULE
+ 		printk(KERN_ERR "MPU-401 device not found or device busy\n");
+ #endif
+-		err = -ENODEV;
+-		goto errout;
++		snd_mpu401_unregister_all();
++		return -ENODEV;
+ 	}
+ 	return 0;
+-
+- errout:
+-	snd_mpu401_unregister_all();
+-	return err;
+ }
+ 
+ static void __exit alsa_card_mpu401_exit(void)
 Index: local/sound/drivers/serial-u16550.c
 ===================================================================
---- local.orig/sound/drivers/serial-u16550.c	2006-03-20 06:53:29.000000000 +0100
-+++ local/sound/drivers/serial-u16550.c	2006-04-13 03:03:50.000000000 +0200
-@@ -989,8 +989,10 @@ static int __init alsa_card_serial_init(
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
+--- local.orig/sound/drivers/serial-u16550.c	2006-04-13 03:03:50.000000000 +0200
++++ local/sound/drivers/serial-u16550.c	2006-04-13 03:11:35.000000000 +0200
+@@ -995,10 +995,8 @@ static int __init alsa_card_serial_init(
+ 			continue;
  		device = platform_device_register_simple(SND_SERIAL_DRIVER,
  							 i, NULL, 0);
- 		if (IS_ERR(device)) {
+-		if (IS_ERR(device)) {
+-			err = PTR_ERR(device);
+-			goto errout;
+-		}
++		if (IS_ERR(device))
++			continue;
+ 		devices[i] = device;
+ 		cards++;
+ 	}
+@@ -1006,14 +1004,10 @@ static int __init alsa_card_serial_init(
+ #ifdef MODULE
+ 		printk(KERN_ERR "serial midi soundcard not found or device busy\n");
+ #endif
+-		err = -ENODEV;
+-		goto errout;
++		snd_serial_unregister_all();
++		return -ENODEV;
+ 	}
+ 	return 0;
+-
+- errout:
+-	snd_serial_unregister_all();
+-	return err;
+ }
+ 
+ static void __exit alsa_card_serial_exit(void)
 Index: local/sound/drivers/virmidi.c
 ===================================================================
---- local.orig/sound/drivers/virmidi.c	2006-03-20 06:53:29.000000000 +0100
-+++ local/sound/drivers/virmidi.c	2006-04-13 03:04:17.000000000 +0200
-@@ -163,8 +163,10 @@ static int __init alsa_card_virmidi_init
- 		return err;
- 
- 	cards = 0;
--	for (i = 0; i < SNDRV_CARDS && enable[i]; i++) {
-+	for (i = 0; i < SNDRV_CARDS; i++) {
- 		struct platform_device *device;
-+		if (!enable[i])
-+			continue;
+--- local.orig/sound/drivers/virmidi.c	2006-04-13 03:04:17.000000000 +0200
++++ local/sound/drivers/virmidi.c	2006-04-13 03:11:35.000000000 +0200
+@@ -169,10 +169,8 @@ static int __init alsa_card_virmidi_init
+ 			continue;
  		device = platform_device_register_simple(SND_VIRMIDI_DRIVER,
  							 i, NULL, 0);
- 		if (IS_ERR(device)) {
+-		if (IS_ERR(device)) {
+-			err = PTR_ERR(device);
+-			goto errout;
+-		}
++		if (IS_ERR(device))
++			continue;
+ 		devices[i] = device;
+ 		cards++;
+ 	}
+@@ -180,14 +178,10 @@ static int __init alsa_card_virmidi_init
+ #ifdef MODULE
+ 		printk(KERN_ERR "Card-VirMIDI soundcard not found or device busy\n");
+ #endif
+-		err = -ENODEV;
+-		goto errout;
++		snd_virmidi_unregister_all();
++		return -ENODEV;
+ 	}
+ 	return 0;
+-
+- errout:
+-	snd_virmidi_unregister_all();
+-	return err;
+ }
+ 
+ static void __exit alsa_card_virmidi_exit(void)
+Index: local/sound/drivers/dummy.c
+===================================================================
+--- local.orig/sound/drivers/dummy.c	2006-04-13 03:02:43.000000000 +0200
++++ local/sound/drivers/dummy.c	2006-04-13 03:11:35.000000000 +0200
+@@ -675,10 +675,8 @@ static int __init alsa_card_dummy_init(v
+ 			continue;
+ 		device = platform_device_register_simple(SND_DUMMY_DRIVER,
+ 							 i, NULL, 0);
+-		if (IS_ERR(device)) {
+-			err = PTR_ERR(device);
+-			goto errout;
+-		}
++		if (IS_ERR(device))
++			continue;
+ 		devices[i] = device;
+ 		cards++;
+ 	}
+@@ -686,14 +684,10 @@ static int __init alsa_card_dummy_init(v
+ #ifdef MODULE
+ 		printk(KERN_ERR "Dummy soundcard not found or device busy\n");
+ #endif
+-		err = -ENODEV;
+-		goto errout;
++		snd_dummy_unregister_all();
++		return -ENODEV;
+ 	}
+ 	return 0;
+-
+- errout:
+-	snd_dummy_unregister_all();
+-	return err;
+ }
+ 
+ static void __exit alsa_card_dummy_exit(void)
 
 
---------------000408030601060207040109--
+--------------000105060902020304040909--

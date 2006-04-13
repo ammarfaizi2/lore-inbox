@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWDMQIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWDMQLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWDMQIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 12:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWDMQII
+	id S1750953AbWDMQLI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 12:11:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWDMQLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 12:08:08 -0400
-Received: from lixom.net ([66.141.50.11]:5283 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S1751046AbWDMQIH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 12:08:07 -0400
-Date: Thu, 13 Apr 2006 11:07:12 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Olof Johansson <olof@lixom.net>,
-       paulus@samba.org, linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2/2] POWERPC: Lower threshold for DART enablement to 1GB, V2
-Message-ID: <20060413160712.GG24769@pb15.lixom.net>
-References: <20060413020559.GC24769@pb15.lixom.net> <20060413022809.GD24769@pb15.lixom.net> <20060413025233.GE24769@pb15.lixom.net> <20060413064027.GH10412@granada.merseine.nu> <1144925149.4935.14.camel@localhost.localdomain>
+	Thu, 13 Apr 2006 12:11:08 -0400
+Received: from pproxy.gmail.com ([64.233.166.180]:58647 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750953AbWDMQLH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 12:11:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TW8KPIhcTwWGvToQKQ7CVDRH8E9Y+ze1+UPF3e7Ao+zUk+kXVm3IzRz6XOekZPTg5N9L0mkv430q5fT9gXyXaTMslI/VK9O9Y7gc9tSJQ7IYIEj3oRBAKMz93EZ+yCL+bVbmM5tWu4iR1DnubOz7Doktu54hMxlu4Hw6bGes5vc=
+Message-ID: <728201270604130911y4adf9967kd38712e731161074@mail.gmail.com>
+Date: Thu, 13 Apr 2006 11:11:06 -0500
+From: "Ram Gupta" <ram.gupta5@gmail.com>
+To: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>
+Subject: Re: select takes too much time
+Cc: "linux mailing-list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060413153028.GA26480@rhlx01.fht-esslingen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1144925149.4935.14.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
+References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
+	 <20060413153028.GA26480@rhlx01.fht-esslingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 08:45:49PM +1000, Benjamin Herrenschmidt wrote:
-> On Thu, 2006-04-13 at 09:40 +0300, Muli Ben-Yehuda wrote:
-> > On Wed, Apr 12, 2006 at 09:52:33PM -0500, Olof Johansson wrote:
-> > 
-> > > iommu=off can still be used for those who don't want to deal with the
-> > > overhead (and don't need it for any devices).
-> > 
-> > I've been pondering walking the PCI bus before deciding to enable an
-> > IOMMU and checking each device's DMA mask. Is this something that you
-> > considered and rejected, or just something no one got around to doing?
-> 
-> It would do the trick for airport cards in G5s.. a little bit of OF
-> walking to find the card.
+On 4/13/06, Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+> Hi,
+>
 
-Walking the DT means we need to hardcode it on PCI IDs, since the Apple
-OF doesn't give the Airport device a logical name. It's probably easier
-to implement than walking PCI, but we'd need to maintain a table. My
-vote is for PCI walking, I'll give that a shot over the weekend.
 
-> It won't help with cardbus broadcom's but then, there is currently no G5
-> with a cardbus adaptor that I know of :) It's possible I suppose to get
-> a pci<->cardbus adapter but I suppose in that case, we can ignore it ...
+>
+> Now if you have issues with select() taking too long, then I'd say tough
+> luck, that's life, other processes seem more important than y
+>
+> Or, to put it differently, select() doesn't have realtime guarantees, i.e.
+> there's no way for you to boldly assume that once select() times out
+> your process will continue to run instantly within microseconds.
 
-Yep, that should be rare enough.
-
--Olof
+I was not expecting it to run instantly within microseconds but 1
+second seemed to me too much

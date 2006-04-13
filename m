@@ -1,120 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWDMWpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWDMWpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWDMWpI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 18:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWDMWpI
+	id S1751155AbWDMWpf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 18:45:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWDMWpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 18:45:08 -0400
-Received: from wproxy.gmail.com ([64.233.184.226]:26798 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751148AbWDMWpG (ORCPT
+	Thu, 13 Apr 2006 18:45:35 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:35222 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1751155AbWDMWpe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 18:45:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=W/ibeK6hqI8DFRQUKjLVWjsUEo4a0NsmO5PmbjzuGlFRGxGQ5FjT1oLBogmpHlb4X23xHg1PitVHqmz6/i0aHTCwME+lsiUHd1tTVitNz83Fuek21kwz8lom2hnVaOtT9XCJHmYw/yIkn8wzra2tXDEftv8skvUWCbUnMo74olc=
-Message-ID: <443ED499.6040903@gmail.com>
-Date: Fri, 14 Apr 2006 00:45:45 +0200
-From: Luca Falavigna <dktrkranz@gmail.com>
-User-Agent: Mozilla Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CONSOLE_LP_STRICT Kconfig option
-References: <43F1ED62.4050609@gmail.com>	<p731wy63s0j.fsf@verdi.suse.de>	<ff1cadb20602150103u437562ddu@mail.gmail.com>	<20060411151716.58278056.rdunlap@xenotime.net>	<ff1cadb20604121153k6552ea84maf58b44869412f2@mail.gmail.com> <20060412120904.e2fce912.rdunlap@xenotime.net>
-In-Reply-To: <20060412120904.e2fce912.rdunlap@xenotime.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Apr 2006 18:45:34 -0400
+Date: Fri, 14 Apr 2006 00:45:33 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Kirill Korotaev <dev@openvz.org>, Sam Vilain <sam@vilain.net>,
+       devel@openvz.org, Kir Kolyshkin <kir@sacred.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+Message-ID: <20060413224533.GA11178@MAIL.13thfloor.at>
+Mail-Followup-To: Cedric Le Goater <clg@fr.ibm.com>,
+	Kirill Korotaev <dev@openvz.org>, Sam Vilain <sam@vilain.net>,
+	devel@openvz.org, Kir Kolyshkin <kir@sacred.ru>,
+	linux-kernel@vger.kernel.org
+References: <1143588501.6325.75.camel@localhost.localdomain> <442A4FAA.4010505@openvz.org> <20060329134524.GA14522@MAIL.13thfloor.at> <442A9E1E.4030707@sw.ru> <1143668273.9969.19.camel@localhost.localdomain> <443CBA48.7020301@sw.ru> <20060413010506.GA16864@MAIL.13thfloor.at> <443DF523.3060906@openvz.org> <20060413134239.GA6663@MAIL.13thfloor.at> <443EC399.2040307@fr.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <443EC399.2040307@fr.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap ha scritto:
-> I think that if you make it a module_param() and use (root-) writeable
-> permissions on it, it's just a variable that can be changed after the
-> driver is loaded and running.
+On Thu, Apr 13, 2006 at 11:33:13PM +0200, Cedric Le Goater wrote:
+> Herbert Poetzl wrote:
 > 
-> Andi, did you want just a boot-time option or a run-time (changeable) option?
+> > well, if the 'results' and 'methods' will be made
+> > public, I can, until now all I got was something
+> > along the lines:
+> > 
+> >  "Linux-VServer is not stable! WE (swsoft?) have
+> >   a secret but essential test suite running two 
+> >   weeks to confirm that OUR kernels ARE stable,
+> >   and Linux-VServer will never pass those tests,
+> >   but of course, we can't tell you what kind of
+> >   tests or what results we got"
+> > 
+> > which doesn't help me anything and which, to be 
+> > honest, does not sound very friendly either ...
+> 
+> Recently, we've been running tests and benchmarks in different
+> virtualization environments : openvz, vserver, vserver in a minimal
+> context and also Xen as a reference in the virtual machine world.
+> 
+> We ran the usual benchmarks, dbench, tbench, lmbench, kernerl build,
+> on the native kernel, on the patched kernel and in each virtualized
+> environment. We also did some scalability tests to see how each
+> solution behaved. And finally, some tests on live migration. We didn't
+> do much on network nor on resource management behavior.
 
-Here is a patch (built against 2.6.17-rc1) which does use of __setup()
-call to dynamically adjust console_lp_strict value.
-Actually the only way to get console line printer working is to enable
-it at system startup so I adjusted Kconfig parameters accordingly.
-Feel free to submit any feedback.
+I would be really interested in getting comparisons
+between vanilla kernels and linux-vserver patched
+versions, especially vs2.1.1 and vs2.0.2 on the
+same test setup with a minimum difference in config
 
+I doubt that you can really compare across the
+existing virtualization technologies, as it really
+depends on the setup and hardware 
 
+> We'd like to continue in an open way. But first, we want to make sure
+> we have the right tests, benchmarks, tools, versions, configuration,
+> tuning, etc, before publishing any results :) We have some materials
+> already but before proposing we would like to have your comments and
+> advices on what we should or shouldn't use.
 
-Signed-off-by: Luca Falavigna <dktrkranz@gmail.com>
+In my experience it is extremely hard to do 'proper'
+comparisons, because the slightest change of the
+environment can cause big differences ...
 
---- ./drivers/char/lp.c.orig	2006-01-08 16:48:14.000000000 +0100
-+++ ./drivers/char/lp.c	2006-04-14 00:31:57.000000000 +0200
-@@ -686,9 +686,17 @@ static struct file_operations lp_fops =
- #define CONSOLE_LP 0
+here as example, a kernel build (-j99) on 2.6.16
+on a test host, with and without a chroot:
 
- /* If the printer is out of paper, we can either lose the messages or
-- * stall until the printer is happy again.  Define CONSOLE_LP_STRICT
-+ * stall until the printer is happy again.  Setting console_lp_strict
-  * non-zero to get the latter behaviour. */
--#define CONSOLE_LP_STRICT 1
-+static unsigned int console_lp_strict = 1;
-+
-+static int __init console_lp_strict_setup (char *str)
-+{
-+	console_lp_strict = simple_strtol(str, NULL, 0);
-+	return 1;
-+}
-+
-+__setup("console_lp_strict=", console_lp_strict_setup);
+without:
 
- /* The console must be locked when we get here. */
+ 451.03user 26.27system 2:00.38elapsed 396%CPU
+ 449.39user 26.21system 1:59.95elapsed 396%CPU
+ 447.40user 25.86system 1:59.79elapsed 395%CPU
 
-@@ -697,7 +705,7 @@ static void lp_console_write (struct con
- {
- 	struct pardevice *dev = lp_table[CONSOLE_LP].dev;
- 	struct parport *port = dev->port;
--	ssize_t written;
-+	ssize_t written = 0;
+now with:
 
- 	if (parport_claim (dev))
- 		/* Nothing we can do. */
-@@ -737,9 +745,9 @@ static void lp_console_write (struct con
- 				written = parport_write (port, crlf, i);
- 				if (written > 0)
- 					i -= written, crlf += written;
--			} while (i > 0 && (CONSOLE_LP_STRICT || written > 0));
-+			} while (i > 0 && (console_lp_strict || written > 0));
- 		}
--	} while (count > 0 && (CONSOLE_LP_STRICT || written > 0));
-+	} while (count > 0 && (console_lp_strict || written > 0));
+ 490.77user 24.45system 2:13.35elapsed 386%CPU
+ 489.69user 24.50system 2:12.60elapsed 387%CPU
+ 490.41user 24.99system 2:12.22elapsed 389%CPU
 
- 	parport_release (dev);
- }
---- ./drivers/char/Kconfig.orig	2006-04-13 20:52:52.000000000 +0200
-+++ ./drivers/char/Kconfig	2006-04-14 00:27:34.000000000 +0200
-@@ -506,7 +506,7 @@ config PRINTER
+now is chroot() that imperformant? no, but the change
+in /tmp being on a partition vs. tmpfs makes quite
+some difference here
 
- config LP_CONSOLE
- 	bool "Support for console on line printer"
--	depends on PRINTER
-+	depends on PRINTER = y
- 	---help---
- 	  If you want kernel messages to be printed out as they occur, you
- 	  can have a console on the printer. This option adds support for
-@@ -515,9 +515,9 @@ config LP_CONSOLE
+even moving from one partition to another will give
+measurable difference here, all within a small margin
 
- 	  If the printer is out of paper (or off, or unplugged, or too
- 	  busy..) the kernel will stall until the printer is ready again.
--	  By defining CONSOLE_LP_STRICT to 0 (at your own risk) you
--	  can make the kernel continue when this happens,
--	  but it'll lose the kernel messages.
-+	  By passing the option "console_lp_strict=0" to the kernel at
-+	  boot time (at your own risk) you can make the kernel continue
-+	  when this happens, but it will lose the kernel messages.
+an interesting aspect is the gain (or loss) you have
+when you start several guests basically doing the
+same thing (and sharing the same files, etc)
 
- 	  If unsure, say N.
+> Thanks for doing such a great job on lightweight containers,
 
+you're welcome!
 
-Regards,
+best,
+Herbert
 
--- 
-Luca
+> C.

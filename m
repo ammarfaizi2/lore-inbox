@@ -1,70 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWDMWvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWDMWxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbWDMWvj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 18:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWDMWvj
+	id S1751128AbWDMWxh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 18:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWDMWxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 18:51:39 -0400
-Received: from [62.205.161.221] ([62.205.161.221]:56709 "EHLO kir.sacred.ru")
-	by vger.kernel.org with ESMTP id S1750886AbWDMWvi (ORCPT
+	Thu, 13 Apr 2006 18:53:37 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:62673 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751128AbWDMWxg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 18:51:38 -0400
-Message-ID: <443ED5F4.1030604@openvz.org>
-Date: Fri, 14 Apr 2006 02:51:32 +0400
-From: Kir Kolyshkin <kir@openvz.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060217)
-X-Accept-Language: en-us, en
+	Thu, 13 Apr 2006 18:53:36 -0400
+Date: Fri, 14 Apr 2006 00:53:24 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: tyler@agat.net
+cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH] Kmod optimization
+In-Reply-To: <20060413190412.GA30541@Starbuck>
+Message-ID: <Pine.LNX.4.64.0604140048160.17704@scrub.home>
+References: <20060413180345.GA10910@Starbuck> <20060413182401.GA26885@suse.de>
+ <20060413183617.GB10910@Starbuck> <20060413185014.GA27130@suse.de>
+ <20060413190412.GA30541@Starbuck>
 MIME-Version: 1.0
-To: Cedric Le Goater <clg@fr.ibm.com>
-CC: Kirill Korotaev <dev@openvz.org>, Sam Vilain <sam@vilain.net>,
-       devel@openvz.org, linux-kernel@vger.kernel.org,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-References: <1143583179.6325.10.camel@localhost.localdomain>	<4429B789.4030209@sacred.ru>	<1143588501.6325.75.camel@localhost.localdomain>	<442A4FAA.4010505@openvz.org>	<20060329134524.GA14522@MAIL.13thfloor.at> <442A9E1E.4030707@sw.ru>	<1143668273.9969.19.camel@localhost.localdomain>	<443CBA48.7020301@sw.ru> <20060413010506.GA16864@MAIL.13thfloor.at>	<443DF523.3060906@openvz.org> <20060413134239.GA6663@MAIL.13thfloor.at> <443EC399.2040307@fr.ibm.com>
-In-Reply-To: <443EC399.2040307@fr.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric Le Goater wrote:
+Hi,
 
-> Recently, we've been running tests and benchmarks in different
->
->virtualization environments : openvz, vserver, vserver in a minimal context
->and also Xen as a reference in the virtual machine world.
->
->We ran the usual benchmarks, dbench, tbench, lmbench, kernerl build, on the
->native kernel, on the patched kernel and in each virtualized environment.
->We also did some scalability tests to see how each solution behaved. And
->finally, some tests on live migration. We didn't do much on network nor on
->resource management behavior.
->
->We'd like to continue in an open way. But first, we want to make sure we
->have the right tests, benchmarks, tools, versions, configuration, tuning,
->etc, before publishing any results :) We have some materials already but
->before proposing we would like to have your comments and advices on what we
->should or shouldn't use.
->
->Thanks for doing such a great job on lightweight containers,
->
->C.
->  
->
-Cedrik,
+On Thu, 13 Apr 2006, tyler@agat.net wrote:
 
-You made my day, I am really happy to hear that! Such testing and 
-benchmarking should be done by an independent third party, and IBM fits 
-that requirement just fine. It all makes much sense for everybody who's 
-involved.
+> Well perhaps I don't understand the mechanism :) But let's take an
+> example.
+> On all kernels (even recent), if the module smbfs is loaded, it's not
+> handled by udev and request_module could be called.
 
-If it will be opened (not just results, but also the processes and 
-tools), and all the projects will be able to contribute and help, that 
-would be just great. We do a lot of testing in-house, and will be happy 
-to contribute to such an independent testing/benchmarking project.
+No, it can't. If the smbfs is loaded, get_fs_type() will find it and won't 
+even try to load it.
+Do you a real example, where this is a problem?
 
-Speaking of live migration, we in OpenVZ plan to release our 
-implementation as soon as next week.
-
-Regards,
-  Kir.
+bye, Roman

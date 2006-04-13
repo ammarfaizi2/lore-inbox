@@ -1,117 +1,277 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWDMBFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWDMBJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWDMBFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Apr 2006 21:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWDMBFJ
+	id S932394AbWDMBJK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Apr 2006 21:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWDMBJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Apr 2006 21:05:09 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:17811 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S932358AbWDMBFI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Apr 2006 21:05:08 -0400
-Date: Thu, 13 Apr 2006 03:05:06 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Sam Vilain <sam@vilain.net>, devel@openvz.org,
-       Kir Kolyshkin <kir@sacred.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-Message-ID: <20060413010506.GA16864@MAIL.13thfloor.at>
-Mail-Followup-To: Kirill Korotaev <dev@sw.ru>, Sam Vilain <sam@vilain.net>,
-	devel@openvz.org, Kir Kolyshkin <kir@sacred.ru>,
-	linux-kernel@vger.kernel.org
-References: <4428BB5C.3060803@tmr.com> <4428DB76.9040102@openvz.org> <1143583179.6325.10.camel@localhost.localdomain> <4429B789.4030209@sacred.ru> <1143588501.6325.75.camel@localhost.localdomain> <442A4FAA.4010505@openvz.org> <20060329134524.GA14522@MAIL.13thfloor.at> <442A9E1E.4030707@sw.ru> <1143668273.9969.19.camel@localhost.localdomain> <443CBA48.7020301@sw.ru>
+	Wed, 12 Apr 2006 21:09:10 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:63629 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932394AbWDMBJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Apr 2006 21:09:09 -0400
+Subject: Re: [PATCH 1/3] swsusp add architecture special saveable pages
+	support
+From: Shaohua Li <shaohua.li@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, rjw@sisk.pl, pavel@suse.cz
+In-Reply-To: <20060412141642.63debf90.akpm@osdl.org>
+References: <1144809499.2865.39.camel@sli10-desk.sh.intel.com>
+	 <20060412141642.63debf90.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 13 Apr 2006 09:07:45 +0800
+Message-Id: <1144890465.2865.57.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <443CBA48.7020301@sw.ru>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 12, 2006 at 12:28:56PM +0400, Kirill Korotaev wrote:
-> Sam,
+On Wed, 2006-04-12 at 14:16 -0700, Andrew Morton wrote:
+> Shaohua Li <shaohua.li@intel.com> wrote:
+> >
+> > +static int save_arch_mem(void)
+> > +{
+> > +	void *kaddr;
+> > +	struct arch_saveable_page *tmp = arch_pages;
+> > +
+> > +	pr_debug("swsusp: Saving arch specific memory");
+> > +	while (tmp) {
+> > +		tmp->data = (void *)get_zeroed_page(GFP_ATOMIC);
 > 
-> >Ok, I'll call those three VPSes fast, faster and fastest.
-> >
-> >"fast"    : fill rate 1, interval 3
-> >"faster"  : fill rate 2, interval 3
-> >"fastest" : fill rate 3, interval 3
-> >
-> >That all adds up to a fill rate of 6 with an interval of 3, but that is
-> >right because with two processors you have 2 tokens to allocate per
-> >jiffie.  Also set the bucket size to something of the order of HZ.
-> >
-> >You can watch the processes within each vserver's priority jump up and
-> >down with `vtop' during testing.  Also you should be able to watch the
-> >vserver's bucket fill and empty in /proc/virtual/XXX/sched (IIRC)
-> >
-> >I mentioned this earlier, but for the sake of the archives I'll repeat -
-> >if you are running with any of the buckets on empty, the scheduler is
-> >imbalanced and therefore not going to provide the exact distribution you
-> >asked for.
-> >
-> >However with a single busy loop in each vserver I'd expect the above to
-> >yield roughly 100% for fastest, 66% for faster and 33% for fast, within
-> >5 seconds or so of starting those processes (assuming you set a bucket
-> >size of HZ).
+> There's no need to zero the page here.
+Ok.
 > 
-> Sam, what we observe is the situation, when Linux cpu scheduler spreads 
-> 2 tasks on 1st CPU and 1 task on the 2nd CPU. Std linux scheduler 
-> doesn't do any rebalancing after that, so no plays with tokens make the 
-> spread to be 3:2:1, since the lowest priority process gets a full 2nd 
-> CPU (100% instead of 33% of CPU).
+> > +		if (!tmp->data)
+> > +			return -ENOMEM;
+> > +		/* arch pages might haven't a 'struct page' */
+> > +		kaddr = kmap_atomic_pfn(tmp->pfn, KM_PTE0);
+> > +		memcpy(tmp->data, kaddr, PAGE_SIZE);
+> > +		kunmap_atomic(kaddr, KM_PTE0);
 > 
-> Where is my mistake? Can you provide a configuration where we could test 
-> or the instuctions on how to avoid this?
+> Why was KM_PTE0 chosen here?
+Any one is ok here, but maybe KM_USER0 is better. Fixed.
 
-well, your mistake seems to be that you probably haven't
-tested this yet, because with the following (simple)
-setups I seem to get what you consider impossible 
-(of course, not as precise as your scheduler does it)
+1. Add architecture specific pages save/restore support. Next two patches will
+use this to save/restore 'ACPI NVS' pages.
+2. Allow reserved pages 'nosave'. This could avoid save/restore BIOS reserved
+pages.
+
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+---
+
+ linux-2.6.17-rc1-root/include/linux/suspend.h |    1 
+ linux-2.6.17-rc1-root/kernel/power/power.h    |    4 +
+ linux-2.6.17-rc1-root/kernel/power/snapshot.c |  100 +++++++++++++++++++++++++-
+ linux-2.6.17-rc1-root/kernel/power/swsusp.c   |   18 +---
+ 4 files changed, 108 insertions(+), 15 deletions(-)
+
+diff -puN kernel/power/snapshot.c~swsusp_save_pages kernel/power/snapshot.c
+--- linux-2.6.17-rc1/kernel/power/snapshot.c~swsusp_save_pages	2006-04-10 09:14:35.000000000 +0800
++++ linux-2.6.17-rc1-root/kernel/power/snapshot.c	2006-04-12 07:11:31.000000000 +0800
+@@ -39,6 +39,78 @@ static unsigned int nr_copy_pages;
+ static unsigned int nr_meta_pages;
+ static unsigned long *buffer;
+ 
++struct arch_saveable_page {
++	unsigned long pfn;
++	void *data;
++	struct arch_saveable_page *next;
++};
++static struct arch_saveable_page *arch_pages;
++
++int swsusp_add_arch_pages(unsigned long start, unsigned long end)
++{
++	struct arch_saveable_page *tmp;
++
++	while (start <= end) {
++		tmp = kzalloc(sizeof(struct arch_saveable_page), GFP_KERNEL);
++		if (!tmp)
++			return -ENOMEM;
++		tmp->pfn = start;
++		tmp->next = arch_pages;
++		start++;
++		arch_pages = tmp;
++	}
++	return 0;
++}
++
++static unsigned int count_arch_pages(void)
++{
++	unsigned int count = 0;
++	struct arch_saveable_page *tmp = arch_pages;
++	while (tmp) {
++		count++;
++		tmp = tmp->next;
++	}
++	return count;
++}
++
++static int save_arch_mem(void)
++{
++	void *kaddr;
++	struct arch_saveable_page *tmp = arch_pages;
++
++	pr_debug("swsusp: Saving arch specific memory");
++	while (tmp) {
++		tmp->data = (void *)__get_free_page(GFP_ATOMIC);
++		if (!tmp->data)
++			return -ENOMEM;
++		/* arch pages might haven't a 'struct page' */
++		kaddr = kmap_atomic_pfn(tmp->pfn, KM_USER0);
++		memcpy(tmp->data, kaddr, PAGE_SIZE);
++		kunmap_atomic(kaddr, KM_USER0);
++
++		tmp = tmp->next;
++	}
++	return 0;
++}
++
++static int restore_arch_mem(void)
++{
++	void *kaddr;
++	struct arch_saveable_page *tmp = arch_pages;
++
++	while (tmp) {
++		if (!tmp->data)
++			continue;
++		kaddr = kmap_atomic_pfn(tmp->pfn, KM_USER0);
++		memcpy(kaddr, tmp->data, PAGE_SIZE);
++		kunmap_atomic(kaddr, KM_USER0);
++		free_page((long)tmp->data);
++		tmp->data = NULL;
++		tmp = tmp->next;
++	}
++	return 0;
++}
++
+ #ifdef CONFIG_HIGHMEM
+ unsigned int count_highmem_pages(void)
+ {
+@@ -150,8 +222,35 @@ int restore_highmem(void)
+ 	}
+ 	return 0;
+ }
++#else
++static unsigned int count_highmem_pages(void) {return 0;}
++static int save_highmem(void) {return 0;}
++static int restore_highmem(void) {return 0;}
+ #endif
+ 
++unsigned int count_special_pages(void)
++{
++	return count_arch_pages() + count_highmem_pages();
++}
++
++int save_special_mem(void)
++{
++	int ret;
++	ret = save_arch_mem();
++	if (!ret)
++		ret = save_highmem();
++	return ret;
++}
++
++int restore_special_mem(void)
++{
++	int ret;
++	ret = restore_arch_mem();
++	if (!ret)
++		ret = restore_highmem();
++	return ret;
++}
++
+ static int pfn_is_nosave(unsigned long pfn)
+ {
+ 	unsigned long nosave_begin_pfn = __pa(&__nosave_begin) >> PAGE_SHIFT;
+@@ -177,7 +276,6 @@ static int saveable(struct zone *zone, u
+ 		return 0;
+ 
+ 	page = pfn_to_page(pfn);
+-	BUG_ON(PageReserved(page) && PageNosave(page));
+ 	if (PageNosave(page))
+ 		return 0;
+ 	if (PageReserved(page) && pfn_is_nosave(pfn))
+diff -puN kernel/power/swsusp.c~swsusp_save_pages kernel/power/swsusp.c
+--- linux-2.6.17-rc1/kernel/power/swsusp.c~swsusp_save_pages	2006-04-10 09:14:35.000000000 +0800
++++ linux-2.6.17-rc1-root/kernel/power/swsusp.c	2006-04-11 08:02:02.000000000 +0800
+@@ -62,16 +62,6 @@ unsigned long image_size = 500 * 1024 * 
+ 
+ int in_suspend __nosavedata = 0;
+ 
+-#ifdef CONFIG_HIGHMEM
+-unsigned int count_highmem_pages(void);
+-int save_highmem(void);
+-int restore_highmem(void);
+-#else
+-static int save_highmem(void) { return 0; }
+-static int restore_highmem(void) { return 0; }
+-static unsigned int count_highmem_pages(void) { return 0; }
+-#endif
+-
+ /**
+  *	The following functions are used for tracing the allocated
+  *	swap pages, so that they can be freed in case of an error.
+@@ -186,7 +176,7 @@ int swsusp_shrink_memory(void)
+ 
+ 	printk("Shrinking memory...  ");
+ 	do {
+-		size = 2 * count_highmem_pages();
++		size = 2 * count_special_pages();
+ 		size += size / 50 + count_data_pages();
+ 		size += (size + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
+ 			PAGES_FOR_IO;
+@@ -228,7 +218,7 @@ int swsusp_suspend(void)
+ 		goto Enable_irqs;
+ 	}
+ 
+-	if ((error = save_highmem())) {
++	if ((error = save_special_mem())) {
+ 		printk(KERN_ERR "swsusp: Not enough free pages for highmem\n");
+ 		goto Restore_highmem;
+ 	}
+@@ -239,7 +229,7 @@ int swsusp_suspend(void)
+ 	/* Restore control flow magically appears here */
+ 	restore_processor_state();
+ Restore_highmem:
+-	restore_highmem();
++	restore_special_mem();
+ 	device_power_up();
+ Enable_irqs:
+ 	local_irq_enable();
+@@ -265,7 +255,7 @@ int swsusp_resume(void)
+ 	 */
+ 	swsusp_free();
+ 	restore_processor_state();
+-	restore_highmem();
++	restore_special_mem();
+ 	touch_softlockup_watchdog();
+ 	device_power_up();
+ 	local_irq_enable();
+diff -puN include/linux/suspend.h~swsusp_save_pages include/linux/suspend.h
+--- linux-2.6.17-rc1/include/linux/suspend.h~swsusp_save_pages	2006-04-10 09:14:35.000000000 +0800
++++ linux-2.6.17-rc1-root/include/linux/suspend.h	2006-04-10 09:14:35.000000000 +0800
+@@ -72,6 +72,7 @@ struct saved_context;
+ void __save_processor_state(struct saved_context *ctxt);
+ void __restore_processor_state(struct saved_context *ctxt);
+ unsigned long get_safe_page(gfp_t gfp_mask);
++int swsusp_add_arch_pages(unsigned long start, unsigned long end);
+ 
+ /*
+  * XXX: We try to keep some more pages free so that I/O operations succeed
+diff -puN kernel/power/power.h~swsusp_save_pages kernel/power/power.h
+--- linux-2.6.17-rc1/kernel/power/power.h~swsusp_save_pages	2006-04-11 08:00:30.000000000 +0800
++++ linux-2.6.17-rc1-root/kernel/power/power.h	2006-04-11 08:02:03.000000000 +0800
+@@ -105,6 +105,10 @@ extern struct bitmap_page *alloc_bitmap(
+ extern unsigned long alloc_swap_page(int swap, struct bitmap_page *bitmap);
+ extern void free_all_swap_pages(int swap, struct bitmap_page *bitmap);
+ 
++extern unsigned int count_special_pages(void);
++extern int save_special_mem(void);
++extern int restore_special_mem(void);
++
+ extern int swsusp_check(void);
+ extern int swsusp_shrink_memory(void);
+ extern void swsusp_free(void);
+_
 
 
-vcontext --create --xid 100 ./cpuhog -n 1 100 &
-vcontext --create --xid 200 ./cpuhog -n 1 200 &
-vcontext --create --xid 300 ./cpuhog -n 1 300 &
-
-vsched --xid 100 --fill-rate 1 --interval 6
-vsched --xid 200 --fill-rate 2 --interval 6
-vsched --xid 300 --fill-rate 3 --interval 6
-
-vattribute --xid 100 --flag sched_hard
-vattribute --xid 200 --flag sched_hard
-vattribute --xid 300 --flag sched_hard
-
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND            
-   39 root      25   0  1304  248  200 R   74  0.1   0:46.16 ./cpuhog -n 1 300  
-   38 root      25   0  1308  252  200 H   53  0.1   0:34.06 ./cpuhog -n 1 200  
-   37 root      25   0  1308  252  200 H   28  0.1   0:19.53 ./cpuhog -n 1 100  
-   46 root       0   0  1804  912  736 R    1  0.4   0:02.14 top -cid 20        
-
-and here the other way round:
-
-vsched --xid 100 --fill-rate 3 --interval 6
-vsched --xid 200 --fill-rate 2 --interval 6
-vsched --xid 300 --fill-rate 1 --interval 6
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND            
-   36 root      25   0  1304  248  200 R   75  0.1   0:58.41 ./cpuhog -n 1 100  
-   37 root      25   0  1308  252  200 H   54  0.1   0:42.77 ./cpuhog -n 1 200  
-   38 root      25   0  1308  252  200 R   29  0.1   0:25.30 ./cpuhog -n 1 300  
-   45 root       0   0  1804  912  736 R    1  0.4   0:02.26 top -cid 20        
-
-
-note that this was done on a virtual dual cpu
-machine (QEMU 8.0) with 2.6.16-vs2.1.1-rc16 and
-that there were roughly 25% idle time, which I'm
-unable to explain atm ...
-
-feel free to jump on that fact, but I consider
-it unimportant for now ...
-
-best,
-Herbert
-
-> Thanks,
-> Kirill

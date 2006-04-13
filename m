@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWDMOMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbWDMOOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbWDMOMz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 10:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWDMOMy
+	id S964919AbWDMOOq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 10:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWDMOOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 10:12:54 -0400
-Received: from wproxy.gmail.com ([64.233.184.239]:45407 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964943AbWDMOMy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 10:12:54 -0400
-Message-ID: <b29067a0604130712r275c3f0bndd1cc928415b3255@mail.gmail.com>
-Date: Thu, 13 Apr 2006 10:12:53 -0400
-From: "Rahul Karnik" <rahul@genebrew.com>
-To: "Leonid Kalev" <lion@odcnet.com>
-Subject: Re: Tracking down leaking applications
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <4439FD3A.9060305@odcnet.com>
+	Thu, 13 Apr 2006 10:14:46 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:24479 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964919AbWDMOOp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 10:14:45 -0400
+Date: Thu, 13 Apr 2006 16:14:36 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Dan Bonachea <bonachead@comcast.net>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
+In-Reply-To: <6.2.5.6.2.20060413015645.033d3fc8@comcast.net>
+Message-ID: <Pine.LNX.4.61.0604131613160.17374@yvahk01.tjqt.qr>
+References: <6.2.5.6.2.20060412173852.033dbb90@cs.berkeley.edu>
+ <20060412214613.404cf49f.akpm@osdl.org> <6.2.5.6.2.20060413015645.033d3fc8@comcast.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <b29067a0604090842h3bb11a88re9c175a467763c9f@mail.gmail.com>
-	 <4439FD3A.9060305@odcnet.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/10/06, Leonid Kalev <lion@odcnet.com> wrote:
-> This seems a bit off-topic for LKML, because you should *always* check
-> user-space for memory leaks before blaming the kernel. A few things that
-> can help you with your questions:
+>
+> I don't know enough about the kernel implementation to comment on your proposed
+> fixes.
+>
+> However, I should clarify that this problem definitely affects more than just
+> "silly testcases", and the fact that a program generates non-deterministically
+> ordered output does not necessarily make it erroneous, invalid or unuseful.
+>
+For example syslogd (in the rare event that it does not use stdio). Or any 
+kind of logfile daemon that just dumps incoming events to a file that needs 
+user analysis afterwards anyway.
 
-Not blaming the kernel yet, just wondering if it can help me track
-down the offending app.
 
-> - the 'ps' utility, to see who eats the memory
-
-Well, httpd is at the top of the list, as it should be. What I cannot
-tell is if the processes are leaking memory, or if all is well.
-
-> - valgrind - an excellent tool for tracking down memory leaks (and other
-> bugs, too). Comes with Fedora, but check the Web for a newer version.
-
-I will try valgrind on the web application.
-
-Thanks for the help!
-
--Rahul
---
-Rahul Karnik
-rahul@genebrew.com
+Jan Engelhardt
+-- 

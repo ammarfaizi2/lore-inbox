@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWDNR4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWDNSA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWDNR4d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 13:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWDNR4d
+	id S1751343AbWDNSA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 14:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWDNSA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 13:56:33 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:17280 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751341AbWDNR4d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 13:56:33 -0400
-Message-ID: <443FE1AF.8050507@zytor.com>
-Date: Fri, 14 Apr 2006 10:53:51 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
+	Fri, 14 Apr 2006 14:00:56 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:2319 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751343AbWDNSAz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 14:00:55 -0400
+Message-ID: <443FE350.5040502@argo.co.il>
+Date: Fri, 14 Apr 2006 21:00:48 +0300
+From: Avi Kivity <avi@argo.co.il>
 User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: [PATCH][TAKE 3] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
- limit
-References: <443EE4C3.5040409@gmail.com>
-In-Reply-To: <443EE4C3.5040409@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: "Theodore Ts'o" <tytso@mit.edu>, Kylene Jo Hall <kjhall@us.ibm.com>,
+       kbuild-devel@lists.sourceforge.net, dustin.kirkland@us.ibm.com,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make: add modules_update target
+References: <1145027216.12054.164.camel@localhost.localdomain> <20060414170222.GA19172@thunk.org>
+In-Reply-To: <20060414170222.GA19172@thunk.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Apr 2006 18:00:53.0561 (UTC) FILETIME=[5F319290:01C65FED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alon Bar-Lev wrote:
-> diff -urNp linux-2.6.16/Documentation/i386/boot.txt linux-2.6.16.new/Documentation/i386/boot.txt
-> --- linux-2.6.16/Documentation/i386/boot.txt	2006-03-20 07:53:29.000000000 +0200
-> +++ linux-2.6.16.new/Documentation/i386/boot.txt	2006-04-14 01:55:47.000000000 +0300
-> @@ -235,11 +235,8 @@ loader to communicate with the kernel.  
->  relevant to the boot loader itself, see "special command line options"
->  below.
->  
-> -The kernel command line is a null-terminated string currently up to
-> -255 characters long, plus the final null.  A string that is too long
-> -will be automatically truncated by the kernel, a boot loader may allow
-> -a longer command line to be passed to permit future kernels to extend
-> -this limit.
-> +The kernel command line is a null-terminated string. A string that is too
-> +long will be automatically truncated by the kernel.
->  
->  If the boot protocol version is 2.02 or later, the address of the
->  kernel command line is given by the header field cmd_line_ptr (see
-> @@ -260,6 +257,9 @@ command line is entered using the follow
->  	covered by setup_move_size, so you may need to adjust this
->  	field.
->  
-> +       The kernel command line *must* be 256 bytes including the
-> +       final null.
-> +
->  
->  **** SAMPLE BOOT CONFIGURATION
->  
+Theodore Ts'o wrote:
+> On Fri, Apr 14, 2006 at 10:06:56AM -0500, Kylene Jo Hall wrote:
+>   
+>> This new "modules_update" target only copies out modules that have
+>> changed, using "cp -u".  This less zealous method is a more efficient
+>> approach to module installation for kernel developers working on single,
+>> or small numbers of modules.  
+>>     
+>
+> Hi Kylene,
+>
+> This works as long as the .config hasn't been changed so that some
+> configuration options haven't been changed so that a driver which had
+> been previously built as a module is now built into the kernel.  In
+> that case, you really want to make sure the no-longer applicable .ko
+> file has been removed from the system.  If the developer knows that to
+> be true, they can use your proposed modules_update without any problems.
+>
+> As a suggestion, something that might be worth trying would be to
+> change to modules_install so that it uses cp -u, but also so that it
+> tries to delete all files that could have previously installed as
+> modules (by using the obj-y list).  This should hopefully speed up
+> modules_install, and make it do the right thing all the time.
+>
+>   
+How about using rsync with --delete as a substitute for cp (if rsync is 
+available)?
 
-This chunk is confusing at the very best.
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-	-hpa

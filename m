@@ -1,81 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWDNRoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWDNRuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbWDNRoG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 13:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWDNRoG
+	id S1751335AbWDNRuW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 13:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWDNRuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 13:44:06 -0400
-Received: from main.gmane.org ([80.91.229.2]:19604 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751330AbWDNRoF (ORCPT
+	Fri, 14 Apr 2006 13:50:21 -0400
+Received: from mail.acc.umu.se ([130.239.18.156]:16855 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S1751335AbWDNRuV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 13:44:05 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Orion Poplawski <orion@cora.nwra.com>
-Subject: Badness in __msleep at drivers/scsi/sata_mv.c:1733
-Date: Fri, 14 Apr 2006 11:43:32 -0600
-Message-ID: <e1on08$7ok$1@sea.gmane.org>
+	Fri, 14 Apr 2006 13:50:21 -0400
+Date: Fri, 14 Apr 2006 19:50:18 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: David Schwartz <davids@webmaster.com>
+Cc: Ramakanth Gunuganti <rgunugan@yahoo.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
+Subject: Re: GPL issues
+Message-ID: <20060414175018.GD23222@vasa.acc.umu.se>
+Mail-Followup-To: David Schwartz <davids@webmaster.com>,
+	Ramakanth Gunuganti <rgunugan@yahoo.com>,
+	Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0604112055380.25940@yvahk01.tjqt.qr> <MDEHLPKNGKAHNMBLJOLKAEFLLFAB.davids@webmaster.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: inferno.cora.nwra.com
-User-Agent: Thunderbird 1.5 (X11/20060313)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEFLLFAB.davids@webmaster.com>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a Fedora Core 5 dual xeon box with kernel 2.6.16-1.2069_FC4smp 
-which is closest to 2.6.16.1.
+On Fri, Apr 14, 2006 at 04:39:59AM -0700, David Schwartz wrote:
+> 
+> > One thing that is clear in the GPL: If you link the kernel with something
+> > else to an executable, the resulting blob (and therefore the
+> > sources to the
+> > proprietary part) must be GPL.
+> 
+> 	Actually, that is *far* from clear.
+> 
+> 	First, the GPL cannot set its own scope. The GPL could say that
+> 	if you stored a program in the same room as a GPL program, the
+> 	program must be GPL.  So *nothing* the GPL says will answer this
+> 	question -- the question is, can the GPL attach by linking?
+> 
+> 	The contrary argument would be that linking two programs
+> 	together is an automated process. There is no creative input in
+> 	the linking process. So it does not legally produce a single
+> 	work, but a mechanical combination of the two original works.
+> 
+> 	The proof that the executable is not a work for copyright
+> 	purposes is this simple -- could a person who took two object
+> 	files out of the box and linked them together claim copyright in
+> 	the new derivative work he just produced? I think the answer
+> 	would be obvious -- the executable is not a new work, it's just
+> 	the two original works combined.
 
-Card is:
-Marvell Technology Group Ltd. MV88SX6081 8-port SATA II PCI-X Controller 
-(rev 09)
-Class 0100: 11ab:6081 (rev 09)
+[snip]
+
+Ahhh, but you're missing the whole point of the GPL.  The GPL is
+not really a normal license, it's a copyright license.  Basically,
+copyright law doesn't allow you to do *anything* with someone elses
+work without permission.  The GPL grants you such rights.
+However, in exchange for this, you agree to follow the license when
+redistributing your software that you built against the GPL:ed
+software.
+
+So, in essence, *if* you choose to redistribute your work, you must
+abide by the GPL.  And the GPL tells you to GPL your work too, if it
+falls within the scope that the GPL defines.  It thus have nothing
+to do with whether the programs are a mechanical combination of
+two original works or not.  The only point where this comes in is
+where the GPL defines its scope.
+
+Thus, if the GPL said that all programs distributed on the same CD
+as a GPL:ed program needs to be licensed under the GPL, and you
+redistribute your software on that CD, you must license your software
+under the GPL, unless you want to be in violation with the license.
+
+Again, I'm not a lawyer...
 
 
-sata_mv 0000:02:01.0: version 0.5
-ACPI: PCI Interrupt 0000:02:01.0[A] -> GSI 48 (level, low) -> IRQ 19
-sata_mv 0000:02:01.0: 32 slots 8 ports SCSI mode IRQ via INTx
-ata5: SATA max UDMA/133 cmd 0x0 ctl 0xF89A2120 bmdma 0x0 irq 19
-ata6: SATA max UDMA/133 cmd 0x0 ctl 0xF89A4120 bmdma 0x0 irq 19
-ata7: SATA max UDMA/133 cmd 0x0 ctl 0xF89A6120 bmdma 0x0 irq 19
-ata8: SATA max UDMA/133 cmd 0x0 ctl 0xF89A8120 bmdma 0x0 irq 19
-ata9: SATA max UDMA/133 cmd 0x0 ctl 0xF89B2120 bmdma 0x0 irq 19
-ata10: SATA max UDMA/133 cmd 0x0 ctl 0xF89B4120 bmdma 0x0 irq 19
-ata11: SATA max UDMA/133 cmd 0x0 ctl 0xF89B6120 bmdma 0x0 irq 19
-ata12: SATA max UDMA/133 cmd 0x0 ctl 0xF89B8120 bmdma 0x0 irq 19
-Badness in __msleep at drivers/scsi/sata_mv.c:1733 (Not tainted)
-  [<f88d27f9>] __mv_phy_reset+0x23b/0x400 [sata_mv]     [<f88d1853>] 
-mv_scr_write+0xe/0x40
-  [sata_mv]
-  [<f88d2d4c>] mv_interrupt+0x2c9/0x399 [sata_mv]     [<c014836d>] 
-handle_IRQ_event+0x2e/0
-x5a
-  [<c014842a>] __do_IRQ+0x91/0xe7     [<c0106335>] do_IRQ+0x4e/0x86
-  =======================
-  [<c01048be>] common_interrupt+0x1a/0x20     [<c01048be>] 
-common_interrupt+0x1a/0x20
-  [<c0111844>] get_offset_pmtmr+0x11/0x7cd     [<c01072b0>] 
-do_gettimeofday+0x20/0xd1
-  [<c0129701>] getnstimeofday+0xd/0x2f     [<c013a39e>] 
-ktime_get_real+0xe/0x2d
-  [<c013a7da>] hrtimer_run_queues+0x2c/0xec     [<c010633c>] 
-do_IRQ+0x55/0x86
-  [<c012e023>] run_timer_softirq+0x22/0x1b7     [<c012a0e5>] 
-__do_softirq+0x70/0xda
-  [<c01063b8>] do_softirq+0x4b/0x4f     =======================
-  [<c010494c>] apic_timer_interrupt+0x1c/0x24
-  [<c0102b96>] default_idle+0x0/0x55     [<c0102bc2>] default_idle+0x2c/0x55
-  [<c0102c5d>] cpu_idle+0x72/0xad    <7>ata5: dev 0 cfg 49:2f00 82:74eb 
-83:7fea 84:4023 85
-:74e9 86:3c02 87:4023 88:003f
-ata5: dev 0 ATA-6, max UDMA/100, 488397168 sectors: LBA48
-ata5: dev 0 configured for UDMA/100
-scsi7 : sata_mv
-ata6: dev 0 cfg 49:2f00 82:74eb 83:7feb 84:4123 85:74e8 86:3c03 87:4123 
-88:007f
-ata6: dev 0 ATA-7, max UDMA/133, 781422768 sectors: LBA48
-ata6: dev 0 configured for UDMA/133
-
-No other trouble so far.
-
+Regards: David
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

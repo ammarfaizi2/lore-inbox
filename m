@@ -1,100 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbWDNFXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbWDNFRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965107AbWDNFXr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 01:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbWDNFXq
+	id S965099AbWDNFRE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 01:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWDNFRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 01:23:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62344 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965102AbWDNFXp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 01:23:45 -0400
-Date: Thu, 13 Apr 2006 22:23:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Chinner <dgc@sgi.com>
-Cc: dgc@sgi.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: shrink_dcache_sb scalability problem.
-Message-Id: <20060413222325.77f9ec9b.akpm@osdl.org>
-In-Reply-To: <20060414034332.GN1484909@melbourne.sgi.com>
-References: <20060413082210.GM1484909@melbourne.sgi.com>
-	<20060413015257.5b9d0972.akpm@osdl.org>
-	<20060414034332.GN1484909@melbourne.sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Fri, 14 Apr 2006 01:17:04 -0400
+Received: from wproxy.gmail.com ([64.233.184.230]:42442 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965099AbWDNFRD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 01:17:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WZcKrnhRjMaZy8Rf6IznZlHpnBWD3YhHs41Lf4L5g5hRC148JJVNsfGB/nxG4jJ+7FtypvF4SEADbQFa1gp1R0yDyuvGXkpriJSubR/ICn1S0/Tgb3EwRkXpLwzMD2CFOq1ldWH1h59mB7JuuNy7bOXjYRqIP3yZdBGycEEmAN8=
+Message-ID: <3b8510d80604132217h4f889b4dved183444559cc3ba@mail.gmail.com>
+Date: Fri, 14 Apr 2006 10:47:02 +0530
+From: "Thayumanavar Sachithanantham" <thayumk@gmail.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: modprobe bug for aliases with regular expressions
+Cc: "Rusty Russell" <rusty@rustcorp.com.au>, kay.sievers@vrfy.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060413233518.GA7597@kroah.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060413233518.GA7597@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Chinner <dgc@sgi.com> wrote:
+On 4/14/06, Greg KH <greg@kroah.com> wrote:
+> Recently it's been pointed out to me that the modprobe functionality
+> with aliases doesn't quite work properly for some USB modules.
+> Specifically, the usb-storage driver has a lot of aliases with regular
+> expressions for the bcd ranges.  Here's an example of it failing with a
+> real device:
 >
-> On Thu, Apr 13, 2006 at 01:52:57AM -0700, Andrew Morton wrote:
->  > David Chinner <dgc@sgi.com> wrote:
->  > >
->  > > After recently upgrading a build machine to 2.6.16, we started seeing
->  > > 10-50s pauses where the machine would appear to hang.
->  > 
->  > This sounds like the recent thread "Avoid excessive time spend on concurrent
->  > slab shrinking" over on linux-mm.  Have you read through that?
->  > 
->  > http://marc.theaimsgroup.com/?l=linux-mm&r=1&b=200603&w=2
->  > http://marc.theaimsgroup.com/?l=linux-mm&r=3&b=200604&w=2
-> 
->  Yes, I even made comments directly in the thread and it really
->  wasn't a problem with the slab shrinking infrastructure. It
->  was (obvious to us XFS folk) just another XFS inode caching
->  scalability problem that this machine has uncovered over
->  the past few years.
+> $ modprobe -n -v --first-time usb:v054Cp0010d0410dc00dsc00dp00ic08iscFFip01
+> FATAL: Module usb:v054Cp0010d0410dc00dsc00dp00ic08iscFFip01 not found.
+>
+> yet if we change the bcd range by replacing the first 0 with a 1 it
+> somehow works:
+>
+> $ modprobe -n -v --first-time usb:v054Cp0010d0400dc00dsc00dp00ic08iscFFip01
+> insmod /lib/modules/2.6.17-rc1-gkh/kernel/drivers/usb/storage/libusual.ko
+>
+> (yet this isn't a solution as the device does not have a 1 in that
+> position...)
 
-OK.
-
->  > It ended up somewaht inconclusive, but it looks like we do have a bit of a
->  > problem, but it got exacerbated by an XFS slowness.
-> 
->  I've already fixed that problem with:
-> 
->  http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1fc5d959d88a5f77aa7e4435f6c9d0e2d2236704
-> 
->  and the machine showing the shrink_dcache_sb() problems is
->  already running that fix. That problem masked the shrink_dcache_sb
->  one - who notices a 10s hang when the machine has been really,
->  really slow for 20 minutes?
-
-So the problem is shrink_dcache_sb() and not regular memory reclaim?
-
-What is happening on that machine to be triggering shrink_dcache_sb()? 
-automounts?
-
-We fixed a similar problem in the inode cache a year or so back by creating
-per-superblock inode lists, so that
-search-a-global-list-for-objects-belonging-to-this-superblock thing went
-away.  Presumably we could fix this in the same manner.  But adding two
-more pointers to struct dentry would hurt.
-
-An alternative might be to remove the global LRU altogether, make it
-per-superblock.  That would reduce the quality of the LRUing, but that
-probably wouldn't hurt a lot.
-
-Another idea would be to take shrinker_sem for writing when running
-shrink_dcache_sb() - that would prevent tasks from coming in and getting
-stuck on dcache_lock, but there are plentry of other places which want
-dcache_lock.
-
-I don't immediately see any simple tweaks which would allow us to avoid that
-long lock hold time.  Perhaps the scanning in shrink_dcache_sb() could use
-just rcu_read_lock()...
-
-OT, I'm a bit curious about this:
-
-		list_del_init(tmp);
-		spin_lock(&dentry->d_lock);
-		if (atomic_read(&dentry->d_count)) {
-			spin_unlock(&dentry->d_lock);
-			continue;
-		}
-
-So we rip the dentry off dcache_unused and just leave it floating about? 
-Dipankar, do you remember why that change was made, and why it's not a bug?
+      It's because in modprobe.c, in the read_config_file , in the
+wildcard , the "-" (hyphen) is turned into underscore (_) causing the
+fnmatch not to match the first RE.
+  a quick change to check this issue is
+following change in read_config_file function of modprobe.c should fix it.
+                if (strcmp(cmd, "alias") == 0) {
+                        char *wildcard
+                                = strsep_skipspace(&ptr, "\t ");
+                        char *realname
+                                = strsep_skipspace(&ptr, "\t ");
 
 
+S.Thayumanavar

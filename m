@@ -1,73 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWD1DCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbWD1DKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbWD1DCR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 23:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWD1DCR
+	id S1751701AbWD1DKT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 23:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751723AbWD1DKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 23:02:17 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:40893 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030212AbWD1DCQ (ORCPT
+	Thu, 27 Apr 2006 23:10:19 -0400
+Received: from c-67-191-14-151.hsd1.fl.comcast.net ([67.191.14.151]:53245 "EHLO
+	samantha") by vger.kernel.org with ESMTP id S1751701AbWD1DKS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 23:02:16 -0400
-Date: Fri, 28 Apr 2006 08:29:27 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [Patch 5/8] taskstats interface
-Message-ID: <20060428025927.GD14496@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <444991EF.3080708@watson.ibm.com> <444996FB.8000103@watson.ibm.com> <44501A97.2060104@engr.sgi.com> <445041EB.7080205@watson.ibm.com> <20060427064237.GA14496@in.ibm.com> <445104DC.90401@engr.sgi.com> <20060427182719.GC14496@in.ibm.com> <44511CCF.1080504@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44511CCF.1080504@engr.sgi.com>
-User-Agent: Mutt/1.5.10i
+	Thu, 27 Apr 2006 23:10:18 -0400
+Message-Id: <p06210202beea43ef060b@[192.168.1.96]>
+Date: Thu Apr 13 23:42:09 EDT 2006 -0400
+To: yoshfuji@linux-ipv6.org
+Cc: opendon@donlaw.com, davem@davemloft.net, kuznet@ms2.inr.ac.ru,
+       pekkas@netcore.fi, jmorris@namei.org, kaber@coreworks.de,
+       linux-kernel@vger.kernel.org
+From: Don Law <opendon@donlaw.com>
+Subject: [PATCH linux-2.6.17-rc1] net: fix neigh_delete to handle mult. tables
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If we envision a need of it in the future, we'd better put it in
-> today. It would be nice to have the revision number at beginning of
-> the struct. Shailabh's instruction says to add new field after existing
-> fields.
->
+I'm resending the patch I just sent. Sorry - it looks like my
+mailer likes to damage the white space in the patch.
 
-Yes, true. It does not hurt to have a version number for taskstats.
-I will add it in.
+This version should be cleaner:
 
-<snip>
+Signed-off-by: Don Law <opendon@donlaw.com>
+
+--- linux-2.6.17-rc1/net/core/neighbour.c.orig	2006-04-11 16:28:10.000000000 -0400
++++ linux-2.6.17-rc1/net/core/neighbour.c	2006-04-26 23:36:04.535992104 -0400
+@@ -1430,48 +1430,55 @@ int neigh_delete(struct sk_buff *skb, st
+ 	struct rtattr **nda = arg;
+ 	struct neigh_table *tbl;
+ 	struct net_device *dev = NULL;
+-	int err = -ENODEV;
++	int err;
  
-> 
-> I am sorry that i did not make myself clear. My suggestion of using
-> the bitmask payload info is to be combined with #ifdef CONFIG_* to
-> eliminate unnecessary fields from the traffic. I am concerned about
-> losing data due to application not reading data fast enough.
-> 
-> Well, we can revisit this suggestion when we start losing data
-> though. ;-)
-
-Like Shailabh said #ifdef CONFIG_* adds complexity for userspace parsing
-of the structure, but if it helps avoid sending unnecessary data we
-can consider using that approach. 
-
-Would something like the structure below be useful?
-
-struct csastats {
-#if defined(CONFIG_CSA) || defined(CONFIG_CSA_MODULE)
-       char    acctent[sizeof(struct acctcsa) +
-                       sizeof(struct acctmem) +
-                       sizeof(struct acctio)];
-       int     filled;
-#endif
-};
-
-The filled member can be a bool or an int to indicate that the structure
-contains meaningful data and the CONFIG_* is used to control the
-inclusion of meaningful fields. Instead of using a bitmap we use
-the filled member.
-
-Is this what you had in mind?
-
--- 
-					<---	Balbir
+ 	if (ndm->ndm_ifindex &&
+-	    (dev = dev_get_by_index(ndm->ndm_ifindex)) == NULL)
+-		goto out;
++			(dev = dev_get_by_index(ndm->ndm_ifindex)) == NULL)
++		return -ENODEV;
+ 
+ 	read_lock(&neigh_tbl_lock);
+-	for (tbl = neigh_tables; tbl; tbl = tbl->next) {
++	for (tbl = neigh_tables; ; tbl = tbl->next) {
+ 		struct rtattr *dst_attr = nda[NDA_DST - 1];
+ 		struct neighbour *n;
+ 
++		if (!tbl) {
++			read_unlock(&neigh_tbl_lock);
++			err = -EADDRNOTAVAIL;
++			break;
++		}
+ 		if (tbl->family != ndm->ndm_family)
+ 			continue;
+-		read_unlock(&neigh_tbl_lock);
+ 
+ 		err = -EINVAL;
+-		if (!dst_attr || RTA_PAYLOAD(dst_attr) < tbl->key_len)
+-			goto out_dev_put;
++		if (!dst_attr || RTA_PAYLOAD(dst_attr) < tbl->key_len) {
++			read_unlock(&neigh_tbl_lock);
++			break;
++		}
+ 
+ 		if (ndm->ndm_flags & NTF_PROXY) {
+-			err = pneigh_delete(tbl, RTA_DATA(dst_attr), dev);
+-			goto out_dev_put;
++			if (!pneigh_delete(tbl, RTA_DATA(dst_attr), dev)) {
++				read_unlock(&neigh_tbl_lock);
++				break;
++			}
+ 		}
+ 
+-		if (!dev)
+-			goto out;
++		if (!dev) {
++			read_unlock(&neigh_tbl_lock);
++			break;
++		}
+ 
+ 		n = neigh_lookup(tbl, RTA_DATA(dst_attr), dev);
+ 		if (n) {
+-			err = neigh_update(n, NULL, NUD_FAILED, 
++			read_unlock(&neigh_tbl_lock);
++			err = neigh_update(n, NULL, NUD_FAILED,
+ 					   NEIGH_UPDATE_F_OVERRIDE|
+ 					   NEIGH_UPDATE_F_ADMIN);
+ 			neigh_release(n);
++			break;
+ 		}
+-		goto out_dev_put;
+ 	}
+-	read_unlock(&neigh_tbl_lock);
+-	err = -EADDRNOTAVAIL;
+-out_dev_put:
+ 	if (dev)
+ 		dev_put(dev);
+-out:
+ 	return err;
+ }
+ 

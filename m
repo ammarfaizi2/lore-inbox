@@ -1,66 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWDNSsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWDNSsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWDNSsh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 14:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWDNSsh
+	id S1751408AbWDNSsu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 14:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWDNSsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 14:48:37 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:2466 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751405AbWDNSsg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 14:48:36 -0400
-Message-ID: <443FEDF9.6050203@zytor.com>
-Date: Fri, 14 Apr 2006 11:46:17 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Fri, 14 Apr 2006 14:48:50 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51121 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751408AbWDNSst (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 14:48:49 -0400
+Date: Fri, 14 Apr 2006 11:48:09 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
+       linux-mm@kvack.org, taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: Implement lookup_swap_cache for migration entries
+In-Reply-To: <20060414113104.72a5059b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0604141143520.22475@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413171331.1752e21f.akpm@osdl.org> <Pine.LNX.4.64.0604131728150.15802@schroedinger.engr.sgi.com>
+ <20060413174232.57d02343.akpm@osdl.org> <Pine.LNX.4.64.0604131743180.15965@schroedinger.engr.sgi.com>
+ <20060413180159.0c01beb7.akpm@osdl.org> <Pine.LNX.4.64.0604131827210.16220@schroedinger.engr.sgi.com>
+ <20060413222921.2834d897.akpm@osdl.org> <Pine.LNX.4.64.0604141025310.18575@schroedinger.engr.sgi.com>
+ <20060414113104.72a5059b.akpm@osdl.org>
 MIME-Version: 1.0
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: [PATCH][TAKE 3] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
- limit
-References: <443EE4C3.5040409@gmail.com> <443FE1AF.8050507@zytor.com> <443FE560.6010805@gmail.com>
-In-Reply-To: <443FE560.6010805@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alon Bar-Lev wrote:
-> 
-> Hello,
-> 
-> The problem is that boot loader developers did not understand the old 
-> statement: "A string that is too long will be automatically truncated by 
-> the kernel, a boot loader may allow a longer command line to be passed 
-> to permit future kernels to extend this limit."
-> 
-> Most of them handed the same buffer to < 2.02 protocols and >= 2.0.2 
-> protocols. When I've opened bugs against that they claimed that they 
-> follow instructions since the 256 limit was explicitly mentioned. I've 
-> ended up in patching GRUB my-self to allow this.
-> 
-> I thought that this should be made clearer... But maybe I did not write 
-> it too well.
-> 
-> I've removed the 255+1 limitation from the boot protocol main 
-> description, so there will be no known limit there... And moved it to 
-> the <2.02 section notes.
-> 
-> Can you please suggest a different phrasing? Or maybe you think that it 
-> is not needed at all... But then I have a problem of making boot loader 
-> fix their code.
-> 
+On Fri, 14 Apr 2006, Andrew Morton wrote:
 
-Well, obviously, since apparently LILO doesn't properly null-terminate 
-long command line.
+> > @@ -305,6 +306,12 @@ struct page * lookup_swap_cache(swp_entr
+> >  {
+> >  	struct page *page;
+> >  
+> > +	if (is_migration_entry(entry)) {
+> > +		page = migration_entry_to_page(entry);
+> > +		get_page(page);
+> > +		return page;
+> > +	}
+> 
+> What locking ensures that the state of `entry' remains unaltered across the
+> is_migration_entry() and migration_entry_to_page() calls?
 
-Thinking about it a bit, the way to deal with the LILO problem is 
-probably to actually *usw* the boot loader ID byte we've had in there 
-since the 2.00 protocol.  In other words, if the boot loader ID is 0x1X 
-where X <= current version (I don't know how LILO manages this ID) then 
-truncate the command line to 255 bytes; when this is fixed in LILO then 
-LILO gets to bump its boot loader ID version number.
+entry is a variable passed by value to the function.
 
-	-hpa
+> > +/*
+> > + * Must use a macro for lookup_swap_cache since the functions
+> > + * used are only available in certain contexts.
+> > + */
+> > +#define lookup_swap_cache(__swp)				\
+> > +({	struct page *p = NULL;					\
+> > +	if (is_migration_entry(__swp)) {			\
+> > +		p = migration_entry_to_page(__swp);		\
+> > +		get_page(p);					\
+> > +	}							\
+> > +	p;							\
+> > +})
+> 
+> hm.  Can nommu do any of this?
 
+If page migration is off (methinks nommu may not support numa) then
+the fallback functions are used.
+
+Fallback is
+
+is_migration_entry() == 0 
+
+therefore
+
+#define lookup_swap_cache(__swp) NULL
+
+like before.
+ 

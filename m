@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWDNXN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWDNXRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWDNXN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 19:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWDNXN7
+	id S1751445AbWDNXRe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 19:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWDNXRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 19:13:59 -0400
-Received: from main.gmane.org ([80.91.229.2]:8898 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751317AbWDNXN7 (ORCPT
+	Fri, 14 Apr 2006 19:17:32 -0400
+Received: from mga03.intel.com ([143.182.124.21]:12364 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751442AbWDNXRb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 19:13:59 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Orion Poplawski <orion@cora.nwra.com>
-Subject: Problems (lockup/hang) with PCI-X slot on X5DPL motherboard
-Date: Fri, 14 Apr 2006 17:13:38 -0600
-Message-ID: <e1pab8$22t$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: inferno.cora.nwra.com
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Fri, 14 Apr 2006 19:17:31 -0400
+X-IronPort-AV: i="4.04,121,1144047600"; 
+   d="scan'208"; a="23394930:sNHT17450839"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 1/3] acpi: dock driver
+Date: Fri, 14 Apr 2006 19:17:27 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6300EF2@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 1/3] acpi: dock driver
+Thread-Index: AcZgF31J/ODn3YVsTpKjMBEeovQKhwAAezsA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Accardi, Kristen C" <kristen.c.accardi@intel.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <greg@kroah.com>,
+       <linux-acpi@vger.kernel.org>, <pcihpd-discuss@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>, <mochel@linux.intel.com>,
+       <arjan@linux.intel.com>, <muneda.takahiro@jp.fujitsu.com>,
+       <pavel@ucw.cz>, <temnota@kmv.ru>
+X-OriginalArrivalTime: 14 Apr 2006 23:17:28.0281 (UTC) FILETIME=[98EDD490:01C66019]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting to my wits end, so any help would be greatly appreciated.
+ 
+On Fri, 2006-04-14 at 15:42 -0700, Brown, Len wrote:
 
-I've got two disk servers, on with SuperMicro X5DPL-iGM motherboard, the 
-other with a X5DPL-TGM board.  These system use the E7501 chipset, and 
-provide to PCI-X buses.  One for slots 4 and 5, the other for slot 6 and 
-the embedded Intel 82545EM GigE NIC.
+>> Re: acpi_os_free()
+>> Please call kfree() instead, that wrapper is intended
+>> just for the ACPICA core and although it appears symmetric,
+>> it really shouldn't be used outside drivers/acpi/*/*.c
 
-I have had nothing but trouble trying to use slot 6 on these machines. 
-Recently I've been trying with a MV88SX6081 133MHz PCI-X card.  In both 
-machines I get lockups when trying to use the controller.  I also see 
-corruption on the on-board NIC on the TGM (though not on the iGM) with 
-the card in slot 6.
+> Really?  why is it exported then?  We use this in drivers/pci/hotplug
+as
+> well, and it is all over the place in drivers/acpi.  Should I be
+> modifying the hotplug drivers to not use this call?
 
-I'm running Fedora Core 4 with kernel 2.6.12-1.1456_FC4smp and mv_sata 
-driver 3.6.1.  I'm stuck on the older kernel because of the mv_sata driver.
+yes.
 
-Now, maybe this is all the fault of the mv_sata driver, but I believe I 
-had problems on the iGM machine with a Intel 82545GM PCI-X nic in slot 6 
-as well which does not use the mv_sata driver at all normally.
+re: why it is exported?
+this is just the tip of the ice-berg of things that are exported and
+should not be.
 
-Thoughts?
-
-- Orion
-
--- 
-Orion Poplawski
-System Administrator                   303-415-9701 x222
-Colorado Research Associates/NWRA      FAX: 303-415-9702
-3380 Mitchell Lane, Boulder CO 80301   http://www.co-ra.com
-
+thanks,
+-Len

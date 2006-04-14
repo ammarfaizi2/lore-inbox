@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWDNVgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWDNVqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWDNVgn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 17:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWDNVgn
+	id S1751436AbWDNVqE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 17:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWDNVqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 17:36:43 -0400
-Received: from cpe-66-24-229-232.stny.res.rr.com ([66.24.229.232]:38328 "EHLO
-	stargate.lab.yourst.com") by vger.kernel.org with ESMTP
-	id S1751428AbWDNVgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 17:36:42 -0400
-From: "Matt T. Yourst" <yourst@yourst.com>
-To: Bastian Blank <bastian@waldi.eu.org>
-Subject: Re: i386 - msr support for xen
-Date: Fri, 14 Apr 2006 17:36:34 -0400
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, davej@redhat.com
+	Fri, 14 Apr 2006 17:46:03 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:26838 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751436AbWDNVqB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 17:46:01 -0400
+Date: Fri, 14 Apr 2006 23:45:56 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Ram Gupta <ram.gupta5@gmail.com>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: select takes too much time
+In-Reply-To: <Pine.LNX.4.61.0604141056120.11151@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0604142344000.4238@yvahk01.tjqt.qr>
+References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
+ <443E9A17.4070805@stud.feec.vutbr.cz> <728201270604131251h5296dd41o7d0e0dd8f2f1ac63@mail.gmail.com>
+ <Pine.LNX.4.61.0604131701030.7732@chaos.analogic.com> <443EC09C.2050409@stud.feec.vutbr.cz>
+ <728201270604140754g7bf955d6y5e06bc5ce4f86c7b@mail.gmail.com>
+ <Pine.LNX.4.61.0604141056120.11151@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604141736.34352.yourst@yourst.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bastian Blank wrote:
-> Hi folks
->
->The speedstep modules uses MSR to do its work. XEN can't allow this and
->the calls needs to be done via a hypercall into xen.
->
->I only found a hacky patch in
->http://article.gmane.org/gmane.comp.emulators.xen.devel/22282, which
->converts one of the speedstep modules to use xen. Does someone know if
->there is another solution raising?
->
+>> So it seems that the only solution to return back right away after
+>> timeout is to play around with the scheduler or put the process doing
+>> select at the front of the queue so it get a chance to run first.
+>> Is there any other better way to do it?
+>>
+> 	nice(-19);
 
-I submitted a better patch to xen-devel that removes the need to modify any 
-cpufreq modules - it directly traps the MSR writes and updates Xen's internal 
-timers, something the patch above did not do correctly.
+	sched_setscheduler(0, SCHED_FIFO,
+		(struct sched_param){.sched_priority = 99});
 
-Please ignore the previous patch and update to the latest devel version of 
-Xen, which should be incorporating the updated code in the next few days.
+That should probably beat anything, with the exception of IRQs.
 
-- Matt Yourst
-
--------------------------------------------------------
- Matt T. Yourst               yourst@cs.binghamton.edu
- Binghamton University, Department of Computer Science
--------------------------------------------------------
+Jan Engelhardt
+-- 

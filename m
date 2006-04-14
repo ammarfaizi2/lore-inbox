@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWDNQsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWDNQs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWDNQsO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 12:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWDNQsO
+	id S1751279AbWDNQs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 12:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWDNQs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 12:48:14 -0400
-Received: from pproxy.gmail.com ([64.233.166.180]:8624 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751278AbWDNQsN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 12:48:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Ct10Nex9+nM/qo7ljQCkOU2YLm9hdcqglv2cc4WSGrXQ6btzec+IHQYRqM3lR/1P0H67JkObZ0VuFOc4e/DbwwStTdzOZZbG2l0M8z40Z3riEcTb6MPVgvqYUcuCr0AwFlGhLGWLnoBhOpNTU0NRsr8D2DemquL7MrIxlxu6KJU=
-Message-ID: <d4b6d3ea0604140948l36c8048ha819a6611c8fdad3@mail.gmail.com>
-Date: Fri, 14 Apr 2006 09:48:13 -0700
-From: "Michael Madore" <michael.madore@gmail.com>
-To: discuss@amd64.org
-Subject: Lockup/reboots on multiple dual core Opteron systems
-Cc: linux-kernel@vger.kernel.org
+	Fri, 14 Apr 2006 12:48:56 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:48769 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751279AbWDNQsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 12:48:55 -0400
+Date: Fri, 14 Apr 2006 09:48:25 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+In-Reply-To: <20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
+ <20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+ <20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 14 Apr 2006, KAMEZAWA Hiroyuki wrote:
 
-I have several dozen systems based on the AMD 8111/8131 chipset which
-are experiencing lockups or reboots while under heavy stress.  All
-systems are configured identically:
+> I just compiled this patch (because I cannot use NUMA now.)
 
-(2) dual core Opteron 285 processors
-8 GB RAM
-1 IDE hard disk
+I can give this a spin later today.
+> 
+> BTW, why MAX_SWAPFILES_SHIFT==5 now ? required by some arch ?
 
-When the lockup occurs, there is no information printed to the screen,
-and magic sysrq does not work.   The systems will often lockup within
-a matter of hours, but sometimes they can run for several days before
-locking up.
+No idea.
 
-The testing involves:
+> +/* write protected page under migration*/
+> +#define SWP_TYPE_MIGRATION_WP	(MAX_SWAPFILES - 1)
+> +/* write enabled migration type */
+> +#define SWP_TYPE_MIGRATION_WE	(MAX_SWAPFILES)
 
-1) Allocate several GB of memory from each node and read/write to it.
-2) Perform lots of disk I/O
-3) Keep all cores busy
+Could we call this SWP_TYPE_MIGRATION_READ / WRITE?
 
-I see the lockup no matter which kernel I try:
+> +	pte = pte_mkold(mk_pte(new, vma->vm_page_prot));
+> +	if (is_migration_entry_we(entry)) {
+is_write_migration_entry?
 
-2.6.5 (SLES 9)
-2.6.9 (RHEL 4)
-2.6.16 (kernel.org)
+> +		pte = pte_mkwrite(pte);
+> +	}
 
-The systems will run perfectly stable under the following conditions:
+No {} needed.
 
-1) Use a 32-bit kernel
-or
-2) Boot 64-bit kernel with mem=3000M
-or
-3) Don't perform any disk I/O during the test
+> -			entry = make_migration_entry(page);
+> +			if (pte_write(pteval))
+> +				entry = make_migration_entry(page, 1);
+> +			else
+> +				entry = make_migration_entry(page, 0);
+>  		}
 
-I have also tested the dual core 8GB combination on both NForce and
-Serverworks based motherboards with the same results.  In this case
-both systems were using SATA hard disks instead of IDE.
+entry = make_migration_entry(page, pte_write(pteval))
 
-Any ideas what the culprit could be?
-
-Mike
+?

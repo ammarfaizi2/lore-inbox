@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWDNOTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWDNO01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWDNOTj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 10:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWDNOTj
+	id S964800AbWDNO01 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 10:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbWDNO00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 10:19:39 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:491 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751251AbWDNOTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 10:19:38 -0400
-Subject: Re: Direct writing to the IDE on panic?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1144936547.1336.20.camel@localhost.localdomain>
-References: <1144936547.1336.20.camel@localhost.localdomain>
+	Fri, 14 Apr 2006 10:26:26 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:12941 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S964800AbWDNO00 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 10:26:26 -0400
+Subject: Re: [PATCH 2/5] Swapless V2: Add migration swap entries
+From: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Lameter <clameter@sgi.com>, hugh@veritas.com,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
+       kamezawa.hiroyu@jp.fujitsu.com
+In-Reply-To: <20060413222516.4cb5885c.akpm@osdl.org>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+	 <20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
+	 <20060413171331.1752e21f.akpm@osdl.org>
+	 <Pine.LNX.4.64.0604131728150.15802@schroedinger.engr.sgi.com>
+	 <20060413174232.57d02343.akpm@osdl.org>
+	 <Pine.LNX.4.64.0604131743180.15965@schroedinger.engr.sgi.com>
+	 <20060413180159.0c01beb7.akpm@osdl.org>
+	 <20060413181716.152493b8.akpm@osdl.org>
+	 <Pine.LNX.4.64.0604131831150.16220@schroedinger.engr.sgi.com>
+	 <20060413222516.4cb5885c.akpm@osdl.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 14 Apr 2006 15:28:34 +0100
-Message-Id: <1145024914.17531.21.camel@localhost.localdomain>
+Organization: HP/OSLO
+Date: Fri, 14 Apr 2006 10:27:43 -0400
+Message-Id: <1145024863.5211.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-04-13 at 09:55 -0400, Steven Rostedt wrote:
-> Hi,
+On Thu, 2006-04-13 at 22:25 -0700, Andrew Morton wrote:
+> Christoph Lameter <clameter@sgi.com> wrote:
+> >
+> > On Thu, 13 Apr 2006, Andrew Morton wrote:
+> > 
+> > > Andrew Morton <akpm@osdl.org> wrote:
+> > > >
+> > > > Perhaps it would be better to go to
+> > > >  sleep on some global queue, poke that queue each time a page migration
+> > > >  completes?
+> > > 
+> > > Or take mmap_sem for writing in do_migrate_pages()?  That takes the whole
+> > > pagefault path out of the picture.
+> > 
+> > We would have to take that for each task mapping the page. Very expensive 
+> > operation.
 > 
-> I was wondering if anyone has done some work to directly write and poll
-> to the IDE?  This is to store data on a panic or oops.  So it would need
-> to bypass pretty much all the normal Linux mechanisms to do low lever
-> IDE work.
-
-I've seen some 2.4 work here. For 2.6 the current focus is kexec of
-course
-
-> Obviously, this would be a slow process, but the system has crashed and
-> we care more about retrieving information than speed.
+> So...  why does do_migrate_pages() take mmap_sem at all?
 > 
-> Has this already been done and what issues need to be addressed?
+> And the code we're talking about here deals with anonymous pages, which are
+> not shared betweem mm's.
 
-The big issue is 'how am I sure the partition data and code I run are
-valid post crash'. You don't want the risk of dumping to the wrong part
-of the disk and making a crash into a disaster.
+I think that anon pages are shared, copy-on-write, between parent and
+child after a fork().  If no exec() and no task writes the page, the
+sharing can become quite extensive.  I encountered this testing the
+migrate-on-fault patches.  With MPOL_MF_MOVE, these shared anon pages
+don't get migrated at all [sometimes this is what you want, sometimes
+not...], but with '_MOVE_ALL the shared anon pages DO get migrated, so
+you can have races between a faulting task and the migrating task.
 
+Lee
 

@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWDNQYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWDNQmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWDNQYq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 12:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWDNQYq
+	id S1751277AbWDNQmH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 12:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWDNQmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 12:24:46 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:60581 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751268AbWDNQYp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 12:24:45 -0400
-Subject: Re: [uml-devel] Re: [RFC] PATCH 0/4 - Time virtualization
-From: john stultz <johnstul@us.ibm.com>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-In-Reply-To: <20060414015316.GA7723@ccure.user-mode-linux.org>
-References: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org>
-	 <1144974688.8548.26.camel@cog.beaverton.ibm.com>
-	 <20060414015316.GA7723@ccure.user-mode-linux.org>
-Content-Type: text/plain
-Date: Fri, 14 Apr 2006 09:24:20 -0700
-Message-Id: <1145031860.10781.6.camel@localhost.localdomain>
+	Fri, 14 Apr 2006 12:42:06 -0400
+Received: from tayrelbas04.tay.hp.com ([161.114.80.247]:65217 "EHLO
+	tayrelbas04.tay.hp.com") by vger.kernel.org with ESMTP
+	id S1751275AbWDNQmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 12:42:05 -0400
+Date: Fri, 14 Apr 2006 09:42:03 -0700
+To: Adrian Bunk <bunk@stusta.de>, Samuel.Ortiz@nokia.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] net/irda/irias_object.c: remove unused exports
+Message-ID: <20060414164203.GA24146@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20060414114446.GL4162@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060414114446.GL4162@stusta.de>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-13 at 21:53 -0400, Jeff Dike wrote:
-> On Thu, Apr 13, 2006 at 05:31:27PM -0700, john stultz wrote:
-> > Looks interesting. I've never quite understood the need for different
-> > time domains, it only allows you to run one domain with the incorrect
-> > time, but I'm sure there is some use case that is desired.
+	Hi,
+
+	You now need to send those patches to :
+		Samuel.Ortiz@nokia.com
+	Personally, I don't see what this patch buy us...
+
+	Jean
+
+On Fri, Apr 14, 2006 at 01:44:46PM +0200, Adrian Bunk wrote:
+> This patch removes the following unused EXPORT_SYMBOL's:
+> - irias_find_attrib
+> - irias_new_string_value
+> - irias_new_octseq_value
 > 
-> There are a few possible answers -
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 > 
-> If when this virtualization stuff is done, no one has done anything with
-> time, someone is going to moan.
-
-Apparently its like painting a wall then, no? 
-"You missed those spots over there!"  :)
-
-
-> Once in a while, you want to fiddle your system clock to make sure that
-> a cron job or something does what it's supposed to.
+> ---
 > 
-> There was some extra infrastructure that UML needed in order to start using
-> this stuff, so I chose a fairly simple virtualization case to accompany it.
+>  net/irda/irias_object.c |    3 ---
+>  1 file changed, 3 deletions(-)
 > 
-> > I'm not psyched about possible namespace vs nanosecond confusion w/
-> > terms like "time_ns", but that's pretty minor.
+> --- linux-2.6.17-rc1-mm2-full/net/irda/irias_object.c.old	2006-04-14 12:37:49.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/net/irda/irias_object.c	2006-04-14 12:39:26.000000000 +0200
+> @@ -257,7 +257,6 @@
+>  	/* Unsafe (locking), attrib might change */
+>  	return attrib;
+>  }
+> -EXPORT_SYMBOL(irias_find_attrib);
+>  
+>  /*
+>   * Function irias_add_attribute (obj, attrib)
+> @@ -484,7 +483,6 @@
+>  
+>  	return value;
+>  }
+> -EXPORT_SYMBOL(irias_new_string_value);
+>  
+>  /*
+>   * Function irias_new_octseq_value (octets, len)
+> @@ -519,7 +517,6 @@
+>  	memcpy(value->t.oct_seq, octseq , len);
+>  	return value;
+>  }
+> -EXPORT_SYMBOL(irias_new_octseq_value);
+>  
+>  struct ias_value *irias_new_missing_value(void)
+>  {
 > 
-> Yeah, names can be changed.
-
-Well, as long as its pretty isolated its not such a big deal. Just
-figured I'd bring it up as a consideration.
-
-> > Also I hope you're not wanting to deal w/ NTP adjustments between
-> > domains that have the incorrect time? That would be very ugly.
-> 
-> No, the domain stores an offset from the system time, so it automatically
-> gets the system's NTP adjustments.
-
-Ok, as long as you don't intend to go down that path, these patches
-looks pretty harmless.
-
-thanks
--john
-

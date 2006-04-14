@@ -1,77 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbWDNAbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWDNAcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965070AbWDNAbd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 20:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWDNAbd
+	id S965002AbWDNAcn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 20:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965000AbWDNAcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 20:31:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:4523 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965070AbWDNAbc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 20:31:32 -0400
-Subject: Re: [RFC] PATCH 0/4 - Time virtualization
-From: john stultz <johnstul@us.ibm.com>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-In-Reply-To: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org>
-References: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org>
-Content-Type: text/plain
-Date: Thu, 13 Apr 2006 17:31:27 -0700
-Message-Id: <1144974688.8548.26.camel@cog.beaverton.ibm.com>
+	Thu, 13 Apr 2006 20:32:43 -0400
+Received: from mga05.intel.com ([192.55.52.89]:60943 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S965002AbWDNAcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 20:32:42 -0400
+X-IronPort-AV: i="4.04,119,1144047600"; 
+   d="scan'208"; a="23778657:sNHT212326954"
+X-IronPort-AV: i="4.04,119,1144047600"; 
+   d="scan'208"; a="23778649:sNHT19729675"
+TrustExchangeSourcedMail: True
+X-IronPort-AV: i="4.04,119,1144047600"; 
+   d="scan'208"; a="23778646:sNHT20387108"
+Date: Thu, 13 Apr 2006 17:31:04 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: smpnice: issues with finding busiest queue 
+Message-ID: <20060413173104.B15723@unix-os.sc.intel.com>
+References: <4439FF0C.8030407@bigpond.net.au> <20060410181237.A26977@unix-os.sc.intel.com> <443C3FD8.2060906@bigpond.net.au> <20060411185709.A2401@unix-os.sc.intel.com> <443C8AEC.9010309@bigpond.net.au> <443D95DF.2090807@bigpond.net.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <443D95DF.2090807@bigpond.net.au>; from pwil3058@bigpond.net.au on Thu, Apr 13, 2006 at 10:05:51AM +1000
+X-OriginalArrivalTime: 14 Apr 2006 00:32:41.0048 (UTC) FILETIME=[F055AD80:01C65F5A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-13 at 13:19 -0400, Jeff Dike wrote:
-> This set of patches implements 
-> 	time virtualization by creating a time namespace
-> 	an interface to it through unshare
-> 	a ptrace extension to allow UML to take advantage of this
-> 	UML support
+On Thu, Apr 13, 2006 at 10:05:51AM +1000, Peter Williams wrote:
 > 
-> The guts of the namespace is just an offset from the system time.  Within
-> the container, gettimeofday adds this offset to the system time.  settimeofday
-> changes the offset without touching the system time.  As such, within a 
-> namespace, settimeofday is unprivileged.
+> There be dragons here :-(.
 > 
-> The interface to it is through unshare(CLONE_TIME).  This creates the new
-> namespace, initialized with a zero offset from the system time.
-> 
-> The advantage of this for UML is that it can create a time namespace for itself
-> and subsequently let its process' gettimeofday run on the host, without
-> being intercepted and run inside UML.  As such, it should basically run at
-> native speed.
-> 
-> In order to allow this, we need selective system call interception.  The
-> third patch implements PTRACE_SYSCALL_MASK, which specifies, through a 
-> bitmask, which system calls are intercepted and which aren't.
-> 
-> Finally, the UML support is straightforward.  It calls unshare(CLONE_TIME)
-> to create the new namespace, sets gettimeofday to run without being 
-> intercepted, and makes settimeofday call the host's settimeofday instead
-> of maintaining the time offset itself.
-> 
-> As expected, a gettimeofday loop runs basically at native speed.  The two
-> quick tests I did had it running inside UML at 98.8 and 99.2 % of native.
-> 
-> BUG - as I was writing this, I realized that refcounting of the time_ns
-> structures is wrong - they need to be incremented at process creation and
-> decremented at process exit.
 
+At more places in this part of the world (smpnice) :)
 
-Looks interesting. I've never quite understood the need for different
-time domains, it only allows you to run one domain with the incorrect
-time, but I'm sure there is some use case that is desired.
+We need to relook at find_busiest_queue()... With the current weighted
+calculations, it doesn't always make sense to look at the highest weighted
+runqueue in the busy group..
 
-I'm not psyched about possible namespace vs nanosecond confusion w/
-terms like "time_ns", but that's pretty minor.
+for example on a DP with HT system, how does the load balance behave with
+Package-0 containing one high priority and one low priority, Package-1
+containing one low priority(with other thread being idle)..
 
-Also I hope you're not wanting to deal w/ NTP adjustments between
-domains that have the incorrect time? That would be very ugly.
+Package-1 thinks that it need to take the low priority thread from Package-0.
+And find_busiest_queue() returns the cpu thread with highest priority task..
+And ultimately(with help of active load balance) we move high priority
+task to Package-1. And same continues with Package-0 now, moving high priority
+task from package-1 to package-0..
 
-thanks
--john
+Even without the presence of active load balance, load balance will fail
+to balance(having two low priority tasks on one package, and high
+priority task on another package) the above scenario....
 
+We probably need to use imbalance(and more factors) to determine the busiest 
+queue in the group.....
 
+thanks,
+suresh

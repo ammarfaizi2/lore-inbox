@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWDNS5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWDNS7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbWDNS5z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 14:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWDNS5z
+	id S1751413AbWDNS7s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 14:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWDNS7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 14:57:55 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:6924 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1751412AbWDNS5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 14:57:54 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL issues
-Date: Fri, 14 Apr 2006 11:56:55 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEHDLFAB.davids@webmaster.com>
+	Fri, 14 Apr 2006 14:59:48 -0400
+Received: from nproxy.gmail.com ([64.233.182.187]:10659 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751413AbWDNS7s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 14:59:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:disposition-notification-to:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=OF6QPlG2TClbcBC29+VMHVY0z9a31QWsiXFYMHm5iwKHMDHQi0T9/8JuUVEncl1bnKKkZJqsncWtA+Pa6aA8NTn/JpA8Au5BnDlK+vUPEzV1h+yIV7UbWM5vP7E9p8hjg1WHazoTU+ZFI/AEB0NraejcymPwutmZAChZ/EwlNkI=
+Message-ID: <443FF181.6000004@gmail.com>
+Date: Fri, 14 Apr 2006 22:01:21 +0300
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+User-Agent: Mail/News 1.5 (X11/20060401)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [PATCH][TAKE 3] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
+ limit
+References: <443EE4C3.5040409@gmail.com> <443FE1AF.8050507@zytor.com> <443FE560.6010805@gmail.com> <443FEDF9.6050203@zytor.com>
+In-Reply-To: <443FEDF9.6050203@zytor.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20060414175018.GD23222@vasa.acc.umu.se>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Fri, 14 Apr 2006 11:53:06 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Fri, 14 Apr 2006 11:53:07 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin wrote:
+> 
+> Well, obviously, since apparently LILO doesn't properly null-terminate 
+> long command line.
+> 
+> Thinking about it a bit, the way to deal with the LILO problem is 
+> probably to actually *usw* the boot loader ID byte we've had in there 
+> since the 2.00 protocol.  In other words, if the boot loader ID is 0x1X 
+> where X <= current version (I don't know how LILO manages this ID) then 
+> truncate the command line to 255 bytes; when this is fixed in LILO then 
+> LILO gets to bump its boot loader ID version number.
+> 
+>     -hpa
 
-> Ahhh, but you're missing the whole point of the GPL.  The GPL is
-> not really a normal license, it's a copyright license.  Basically,
-> copyright law doesn't allow you to do *anything* with someone elses
-> work without permission.  The GPL grants you such rights.
-> However, in exchange for this, you agree to follow the license when
-> redistributing your software that you built against the GPL:ed
-> software.
+I don't understand...
 
-	Bluntly, you're just completely wrong. If this were so, I could put up a
-billboard with a poem and then sue everyone who read it.
+If LILO worked until now, it should continue to work after 
+applying this patch, since nothing was changed from its 
+perspective. It will continue to provide 255 characters + 
+null command line, so even if you have 1024 max 
+command-line, then you will still receive truncated to 255 
+chars.
 
-	You should read http://www.copyright.gov/circs/circ1.html
+What I think is that the boot.txt should be clearer... But 
+if you think that this patch can be applied without making 
+any change to the documentation that's will also be great! I 
+will try to deal with boot loaders developers afterwards...
 
-	Notice, for example, that the rights granted under copyright do *not*
-include the right to restrict the *use* of a work.
-
-	Far from copyright law starting out with the premise that you can do
-nothing with a work, it basically restricts copying or distribution of a
-work and the production of works based on that work other than what's
-necessary for ordinary use.
-
-	Specifically, copyright does not protect ordinary use. If you buy a CD, you
-get the right to use that CD simply by virtue of the fact that you lawfully
-possess a lawfully made of the music on that CD.
-
-	DS
-
-
+Best Regards,
+Alon Bar-Lev.

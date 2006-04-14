@@ -1,156 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965039AbWDNCdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbWDNCfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965039AbWDNCdd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 22:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWDNCdd
+	id S965104AbWDNCfA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 22:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWDNCe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 22:33:33 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:18093 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S965039AbWDNCdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 22:33:32 -0400
-Date: Fri, 14 Apr 2006 11:34:55 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
-       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
-Message-Id: <20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
-References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
-	<20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
-	<20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Thu, 13 Apr 2006 22:34:59 -0400
+Received: from mga03.intel.com ([143.182.124.21]:10574 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S965046AbWDNCe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 22:34:58 -0400
+X-IronPort-AV: i="4.04,119,1144047600"; 
+   d="scan'208"; a="23049856:sNHT18343612"
+Subject: Re: [PATCH 6/8] IA64 various hugepage size - introduce prctl
+	options to set/get hugepage size
+From: Zou Nan hai <nanhai.zou@intel.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linux-IA64 <linux-ia64@vger.kernel.org>, Tony <tony.luck@intel.com>,
+       Kenneth W <kenneth.w.chen@intel.com>
+In-Reply-To: <1144975746.5817.94.camel@linux-znh>
+References: <1144974367.5817.39.camel@linux-znh>
+	 <1144974667.5817.51.camel@linux-znh>  <1144974881.5817.59.camel@linux-znh>
+	 <1144975292.5817.74.camel@linux-znh>  <1144975523.5817.84.camel@linux-znh>
+	 <1144975746.5817.94.camel@linux-znh>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1144975953.5817.102.camel@linux-znh>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 14 Apr 2006 08:52:33 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Apr 2006 18:33:07 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
+Introduce 2 prctl option to set/get hugepage size.
 
-> On Fri, 14 Apr 2006, KAMEZAWA Hiroyuki wrote:
-> 
-> > For hotremove (I stops it now..), we should fix this later (if we can do).
-> > If new SWP_TYPE_MIGRATION swp entry can contain write protect bit,
-> > hotremove can avoid copy-on-write but things will be more complicated.
-> 
-> This is a known issue.I'd be glad if you could come up with a working 
-> scheme to solve this that is simple.
-> 
 
-This patch can fix copy-on-write problem.
-I just compiled this patch (because I cannot use NUMA now.)
+Signed-off-by: Zou Nan hai <nanhai.zou@intel.com>
 
-BTW, why MAX_SWAPFILES_SHIFT==5 now ? required by some arch ?
-
--Kame
-==
-
-This patch removes unnecessary copy-on-write after page migraiton.
-
-This patch preserve writable(write-protection) bit in swap entry,
-and make pte writable/protected when push it back.
-
-Because I don't understand why MAX_SWAPFILES_SHIFT==5 now,
-This patch uses one more swap type for migration.
-(By this patch, available swp type goes down to 30.)
-
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
-Index: Christoph-New-Migration/include/linux/swap.h
-===================================================================
---- Christoph-New-Migration.orig/include/linux/swap.h	2006-04-14 11:13:38.000000000 +0900
-+++ Christoph-New-Migration/include/linux/swap.h	2006-04-14 11:13:55.000000000 +0900
-@@ -33,8 +33,11 @@
- #define MAX_SWAPFILES		(1 << MAX_SWAPFILES_SHIFT)
- #else
- /* Use last entry for page migration swap entries */
--#define MAX_SWAPFILES		((1 << MAX_SWAPFILES_SHIFT)-1)
--#define SWP_TYPE_MIGRATION	MAX_SWAPFILES
-+#define MAX_SWAPFILES		((1 << MAX_SWAPFILES_SHIFT)-2)
-+/* write protected page under migration*/
-+#define SWP_TYPE_MIGRATION_WP	(MAX_SWAPFILES - 1)
-+/* write enabled migration type */
-+#define SWP_TYPE_MIGRATION_WE	(MAX_SWAPFILES)
+diff -Nraup a/arch/ia64/mm/hugetlbpage.c b/arch/ia64/mm/hugetlbpage.c
+--- a/arch/ia64/mm/hugetlbpage.c	2006-04-13 08:41:37.000000000 +0800
++++ b/arch/ia64/mm/hugetlbpage.c	2006-04-13 08:34:57.000000000 +0800
+@@ -194,3 +194,25 @@ int is_valid_hpage_size(unsigned long lo
+         return 1;
+ }
+ 
++int set_hugepagesize(struct task_struct *task,unsigned long size)
++{
++	struct mm_struct *mm = task->mm;
++	struct vm_area_struct *vma;
++	unsigned int shift;
++	if (!is_valid_hpage_size(size))
++		return -EINVAL;
++	shift = __ffs(size);
++	if (shift == mm->hugepage_shift)
++		return 0;
++	down_write(&mm->mmap_sem);
++	for (vma = mm->mmap; vma ; vma = vma->vm_next) {
++		if (vma->vm_flags & VM_HUGETLB) {
++			up_write(&mm->mmap_sem);
++			return -EPERM;
++		}
++	}
++	mm->hugepage_shift = shift;
++	activate_mm(mm, mm);
++	up_write(&mm->mmap_sem);
++	return 0;
++}
+diff -Nraup a/include/asm-ia64/page.h b/include/asm-ia64/page.h
+--- a/include/asm-ia64/page.h	2006-04-13 08:41:37.000000000 +0800
++++ b/include/asm-ia64/page.h	2006-04-13 08:30:21.000000000 +0800
+@@ -166,6 +166,8 @@ typedef union ia64_va {
+ 	 (REGION_NUMBER(addr) == RGN_HPAGE ||	\
+ 	  REGION_NUMBER((addr)+(len)-1) == RGN_HPAGE)
+ extern unsigned int init_hpage_shift;
++struct task_struct;
++extern int set_hugepagesize(struct task_struct *,unsigned long);
  #endif
  
+ static __inline__ int
+diff -Nraup a/include/asm-ia64/processor.h b/include/asm-ia64/processor.h
+--- a/include/asm-ia64/processor.h	2006-04-13 08:41:37.000000000 +0800
++++ b/include/asm-ia64/processor.h	2006-04-13 08:30:13.000000000 +0800
+@@ -211,6 +211,14 @@ typedef struct {
+ 		 (int __user *) (addr));							\
+ })
+ 
++#ifdef CONFIG_HUGETLB_PAGE
++#define	GET_HUGEPAGESIZE(task,addr) \
++({	put_user((1UL<<(task)->mm->hugepage_shift), \
++		(unsigned long __user *)(addr)); \
++})
++#define SET_HUGEPAGESIZE(task,size) set_hugepagesize(task,size)
++#endif
++
+ #ifdef CONFIG_IA32_SUPPORT
+ struct desc_struct {
+ 	unsigned int a, b;
+diff -Nraup a/include/linux/prctl.h b/include/linux/prctl.h
+--- a/include/linux/prctl.h	2006-03-20 13:53:29.000000000 +0800
++++ b/include/linux/prctl.h	2006-04-13 08:43:37.000000000 +0800
+@@ -52,4 +52,8 @@
+ #define PR_SET_NAME    15		/* Set process name */
+ #define PR_GET_NAME    16		/* Get process name */
+ 
++/* Get/set task huge page size (if meaningful) */
++#define PR_SET_HUGEPAGE_SIZE	17
++#define PR_GET_HUGEPAGE_SIZE	18
++
+ #endif /* _LINUX_PRCTL_H */
+diff -Nraup a/kernel/sys.c b/kernel/sys.c
+--- a/kernel/sys.c	2006-04-13 08:41:37.000000000 +0800
++++ b/kernel/sys.c	2006-04-13 08:47:41.000000000 +0800
+@@ -57,6 +57,12 @@
+ #ifndef GET_FPEXC_CTL
+ # define GET_FPEXC_CTL(a,b)	(-EINVAL)
+ #endif
++#ifndef GET_HUGEPAGESIZE
++# define GET_HUGEPAGESIZE(a,b)  (-EINVAL)
++#endif
++#ifndef SET_HUGEPAGESIZE
++# define SET_HUGEPAGESIZE(a,b)  (-EINVAL)
++#endif
+ 
  /*
-Index: Christoph-New-Migration/include/linux/swapops.h
-===================================================================
---- Christoph-New-Migration.orig/include/linux/swapops.h	2006-04-14 11:13:38.000000000 +0900
-+++ Christoph-New-Migration/include/linux/swapops.h	2006-04-14 11:13:55.000000000 +0900
-@@ -69,17 +69,32 @@
- }
- 
- #ifdef CONFIG_MIGRATION
--static inline swp_entry_t make_migration_entry(struct page *page)
-+static inline swp_entry_t make_migration_entry(struct page *page, int writable)
- {
- 	BUG_ON(!PageLocked(page));
--	return swp_entry(SWP_TYPE_MIGRATION, page_to_pfn(page));
-+	if (writable)
-+		return swp_entry(SWP_TYPE_MIGRATION_WE, page_to_pfn(page));
-+	else
-+		return swp_entry(SWP_TYPE_MIGRATION_WP, page_to_pfn(page));
- }
- 
- static inline int is_migration_entry(swp_entry_t entry)
- {
--	return swp_type(entry) == SWP_TYPE_MIGRATION;
-+	return (swp_type(entry) == SWP_TYPE_MIGRATION_WP) ||
-+	       (swp_type(entry) == SWP_TYPE_MIGRATION_WE);
- }
- 
-+static inline int is_migration_entry_wp(swp_entry_t entry)
-+{
-+	return (swp_type(entry) == SWP_TYPE_MIGRATION_WP);
-+}
-+
-+static inline int is_migration_entry_we(swp_entry_t entry)
-+{
-+	return (swp_type(entry) == SWP_TYPE_MIGRATION_WE);
-+}
-+
-+
- static inline struct page *migration_entry_to_page(swp_entry_t entry)
- {
- 	struct page *p = pfn_to_page(swp_offset(entry));
-Index: Christoph-New-Migration/mm/migrate.c
-===================================================================
---- Christoph-New-Migration.orig/mm/migrate.c	2006-04-14 11:13:49.000000000 +0900
-+++ Christoph-New-Migration/mm/migrate.c	2006-04-14 11:13:55.000000000 +0900
-@@ -167,7 +167,11 @@
- 
- 	inc_mm_counter(mm, anon_rss);
- 	get_page(new);
--	set_pte_at(mm, addr, ptep, pte_mkold(mk_pte(new, vma->vm_page_prot)));
-+	pte = pte_mkold(mk_pte(new, vma->vm_page_prot));
-+	if (is_migration_entry_we(entry)) {
-+		pte = pte_mkwrite(pte);
-+	}
-+	set_pte_at(mm, addr, ptep, pte);
- 	page_add_anon_rmap(new, vma, addr);
- out:
- 	pte_unmap_unlock(pte, ptl);
-Index: Christoph-New-Migration/mm/rmap.c
-===================================================================
---- Christoph-New-Migration.orig/mm/rmap.c	2006-04-14 11:13:45.000000000 +0900
-+++ Christoph-New-Migration/mm/rmap.c	2006-04-14 11:13:55.000000000 +0900
-@@ -602,7 +602,10 @@
- 			 * pte is removed and then restart fault handling.
- 			 */
- 			BUG_ON(!migration);
--			entry = make_migration_entry(page);
-+			if (pte_write(pteval))
-+				entry = make_migration_entry(page, 1);
-+			else
-+				entry = make_migration_entry(page, 0);
+  * this is where the system-wide overflow UID and GID are defined, for
+@@ -2057,6 +2063,12 @@ asmlinkage long sys_prctl(int option, un
+ 				return -EFAULT;
+ 			return 0;
  		}
- 		set_pte_at(mm, address, pte, swp_entry_to_pte(entry));
- 		BUG_ON(pte_file(*pte));
++		case PR_SET_HUGEPAGE_SIZE:
++			error = SET_HUGEPAGESIZE(current, arg2);
++			break;
++		case PR_GET_HUGEPAGE_SIZE:
++			error = GET_HUGEPAGESIZE(current, arg2);
++			break;
+ 		default:
+ 			error = -EINVAL;
+ 			break;
 

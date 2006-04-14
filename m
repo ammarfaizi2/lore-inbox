@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWDNRWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWDNRX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWDNRWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 13:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWDNRWK
+	id S1751311AbWDNRX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 13:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWDNRX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 13:22:10 -0400
-Received: from ns1.siteground.net ([207.218.208.2]:63881 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1751310AbWDNRWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 13:22:08 -0400
-Date: Fri, 14 Apr 2006 10:23:01 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Laurent Vivier <Laurent.Vivier@bull.net>
-Cc: Mingming Cao <cmm@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Takashi Sato <sho@tnes.nec.co.jp>, linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [Ext2-devel] Re: [RFC][PATCH 0/2]Extend ext3 filesystem limit from 8TB to 16TB
-Message-ID: <20060414172301.GB3740@localhost.localdomain>
-References: <20060327225847.GC3756@localhost.localdomain> <1143530126.11560.6.camel@openx2.frec.bull.fr> <1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com> <1143623605.5046.11.camel@openx2.frec.bull.fr> <1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com> <20060329175446.67149f32.akpm@osdl.org> <1144660270.5816.3.camel@openx2.frec.bull.fr> <1144688279.3964.7.camel@dyn9047017067.beaverton.ibm.com> <1144696012.3964.76.camel@dyn9047017067.beaverton.ibm.com> <1144739259.9786.5.camel@openx2.frec.bull.fr>
-Mime-Version: 1.0
+	Fri, 14 Apr 2006 13:23:29 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41481 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751311AbWDNRX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 13:23:28 -0400
+Date: Fri, 14 Apr 2006 19:23:26 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Samuel.Ortiz@nokia.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] net/irda/irias_object.c: remove unused exports
+Message-ID: <20060414172326.GA15022@stusta.de>
+References: <20060414114446.GL4162@stusta.de> <20060414164203.GA24146@bougret.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1144739259.9786.5.camel@openx2.frec.bull.fr>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20060414164203.GA24146@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Laurent,
+On Fri, Apr 14, 2006 at 09:42:03AM -0700, Jean Tourrilhes wrote:
 
-On Tue, Apr 11, 2006 at 09:07:39AM +0200, Laurent Vivier wrote:
-> ...  
-> I made some tests with iozone on 2 CPU hyperthreaded computer (= 4 CPUs,
-> Bull Express 5800 120 Lh), and it seems atomic_t is faster than
-> "percpu_counter". I'll try to make some tests on IBM x440 (8 CPUs, 16 if
-> hyperthreaded) with iozone and sysbench.
-> Moreover, I think percpu_counter uses a lot of memory...
+> 	Hi,
 
-Was this just one iozone thread doing io?  What was the performance
-difference?  Please let me know what kind of test you are doing, and I can 
-run the same on an IBM x460 with 16 cores here.
+Hi Jean,
 
-Thanks,
-Kiran
+> 	You now need to send those patches to :
+> 		Samuel.Ortiz@nokia.com
+
+Samuel, please send a patch to update MAINTAINERS.
+
+> 	Personally, I don't see what this patch buy us...
+
+It makes the kernel image smaller.
+
+> 	Jean
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

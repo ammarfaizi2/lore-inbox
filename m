@@ -1,247 +1,226 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbWDNCgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965097AbWDNCkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbWDNCgO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 22:36:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWDNCgN
+	id S965097AbWDNCkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 22:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbWDNCkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 22:36:13 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:24251 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965101AbWDNCgM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 22:36:12 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 1/2] Makefile: export-symbol usage report generator.
-Cc: akpm@osdl.org, arjan@infradead.org, greg@kroah.com, hch@infradead.org,
-       linuxram@us.ibm.com
-Message-Id: <20060413123826.52D94470030@localhost>
-Date: Thu, 13 Apr 2006 05:38:26 -0700 (PDT)
-From: linuxram@us.ibm.com (Ram Pai)
+	Thu, 13 Apr 2006 22:40:09 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:56738 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S965097AbWDNCkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 22:40:07 -0400
+Subject: Re: [PATCH 7/8] IA64 various hugepage size - Add proc control to
+	reserve and free
+From: Zou Nan hai <nanhai.zou@intel.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linux-IA64 <linux-ia64@vger.kernel.org>, Tony <tony.luck@intel.com>,
+       Kenneth W <kenneth.w.chen@intel.com>
+In-Reply-To: <1144975953.5817.102.camel@linux-znh>
+References: <1144974367.5817.39.camel@linux-znh>
+	 <1144974667.5817.51.camel@linux-znh>  <1144974881.5817.59.camel@linux-znh>
+	 <1144975292.5817.74.camel@linux-znh>  <1144975523.5817.84.camel@linux-znh>
+	 <1144975746.5817.94.camel@linux-znh>  <1144975953.5817.102.camel@linux-znh>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1144976261.5817.114.camel@linux-znh>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 14 Apr 2006 08:57:41 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran a report to extract export-symbol usage by kernel modules.  The results
-are at http://www.sudhaa.com/~ram/misc/export_report.txt
+Add proc control to reserve and free various sized hugepages
 
-The report lists:
-1. All the exported symbols and their usage counts by in-kernel modules.
-2. for each in-kernel module, lists the modules and the exported symbols
-	from those modules, that it depends on.
+cat /proc/hugetlb/hugepages will show huge pages information
 
-Highlights: 
-	On x86 architecture
- 	(1) 880 exported symbols not used by any in-kernel modules.
-        (2) 1792 exported symbols used only once.
+echo "size nr" > /proc/hugetlb/hugepages will modify the page number for size.
 
-I hope this report/tool shall help all inkernel modules to revisit their usage
-of kernel interfaces.
+e.g 
+echo "64k 1000" > /proc/hugetlb/hugepages will allocate 1000 pages of 64k page.
 
-This patch integrates the report-generator into the kernel build process. After
-applying this patch, invoke 'make export_report'  and it creates the report in
-Documentation/export_report.txt
+echo "64k 0" > /proc/hugetlb/hugepages will free all the 64k pages
 
-Signed-off-by Ram Pai (linuxram@us.ibm.com)
+Signed-off-by: Zou Nan hai <nanhai.zou@intel.com>
 
- Makefile                 |   12 ++++
- scripts/Makefile.modpost |    7 ++
- scripts/export_report.pl    |  135 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 154 insertions(+)
 
-Index: 2617rc1/scripts/Makefile.modpost
-===================================================================
---- 2617rc1.orig/scripts/Makefile.modpost	2006-04-12 17:20:35.000000000 -0700
-+++ 2617rc1/scripts/Makefile.modpost	2006-04-12 17:21:11.000000000 -0700
-@@ -60,9 +60,16 @@
- 	$(if $(KBUILD_EXTMOD),-o $(modulesymfile)) \
- 	$(filter-out FORCE,$^)
+diff -Nraup a/mm/hugetlb.c b/mm/hugetlb.c
+--- a/mm/hugetlb.c	2006-04-13 08:36:16.000000000 +0800
++++ b/mm/hugetlb.c	2006-04-13 08:31:38.000000000 +0800
+@@ -15,6 +15,9 @@
+ #include <linux/cpuset.h>
+ #include <linux/mutex.h>
  
-+quiet_cmd_importfile = IMPORT_EXTRACT
-+      cmd_importfile =  perl $(objtree)/scripts/export_report.pl  \
-+	-k $(kernelsymfile) \
-+	-o $(objtree)/Documentation/export_report.txt	\
-+	$(patsubst %.o,%.mod.c,$(filter-out vmlinux FORCE, $^))
++#include <linux/proc_fs.h>
++#include <linux/seq_file.h>
 +
- PHONY += __modpost
- __modpost: $(wildcard vmlinux) $(modules:.ko=.o) FORCE
- 	$(call cmd,modpost)
-+	$(if $(KBUILD_EXPORT_REPORT), $(call cmd,importfile))
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
  
- # Declare generated files as targets for modpost
- $(symverfile):         __modpost ;
-Index: 2617rc1/scripts/export_report.pl
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ 2617rc1/scripts/export_report.pl	2006-04-12 17:21:29.000000000 -0700
-@@ -0,0 +1,134 @@
-+#!/usr/bin/perl
-+#
-+# (C) Copyright IBM Corporation 2006.
-+#	Released under GPL v2.
-+#	Author : Ram Pai (linuxram@us.ibm.com)
-+#
-+# Usage: export_report.pl -k Module.symvers [-o report_file ] *.mod.c
-+# 
+@@ -259,38 +262,6 @@ void hugetlb_truncate_reservation(struct
+ 	spin_unlock(&hugetlb_lock);
+ }
+ 
+-static int __init hugetlb_init(void)
+-{
+-	unsigned long i, j;
+-
+-#ifndef ARCH_HAS_VARIABLE_HUGEPAGE_SIZE
+-	if (HPAGE_SHIFT(0) == 0)
+-		return 0;
+-#endif
+-
+-	for (i = 0; i < MAX_NUMNODES; ++i)
+-		for (j = 0; j < MAX_ORDER; ++j)
+-			INIT_LIST_HEAD(&hugepage_freelists[i][j]);
+-
+-	for (i = 0; i < max_huge_pages; ++i) {
+-		if (!alloc_fresh_huge_page(HUGETLB_INIT_PAGE_ORDER))
+-			break;
+-	}
+-	max_huge_pages = free_huge_pages[HUGETLB_INIT_PAGE_ORDER] =
+nr_huge_pages[HUGETLB_INIT_PAGE_ORDER] = i;
+-	printk("Total HugeTLB memory allocated, %ld\n", 
+-		free_huge_pages[HUGETLB_INIT_PAGE_ORDER]);
+-	return 0;
+-}
+-module_init(hugetlb_init);
+-
+-static int __init hugetlb_setup(char *s)
+-{
+-	if (sscanf(s, "%lu", &max_huge_pages) <= 0)
+-		max_huge_pages = 0;
+-	return 1;
+-}
+-__setup("hugepages=", hugetlb_setup);
+-
+ #ifdef CONFIG_SYSCTL
+ static void update_and_free_page(struct page *page, int order)
+ {
+@@ -364,8 +335,120 @@ int hugetlb_sysctl_handler(struct ctl_ta
+ 		HUGETLB_INIT_PAGE_ORDER);
+ 	return 0;
+ }
++#ifdef ARCH_HAS_VARIABLE_HUGEPAGE_SIZE
++static char *
++bitvector_process(char *p, unsigned long vector)
++{
++	int i,j;
++	const char *units[]={ "", "K", "M", "G", "T" };
 +
-+use Getopt::Std;
-+
-+sub numerically {
-+	($sym, $no1) = split / /, $a;
-+	($sym, $no2) = split / /, $b;
-+	return $no1 <=> $no2;
-+}
-+
-+sub alphabetically {
-+	($module1, $value1, undef) = split / /, "@{$a}";
-+	($module2, $value2, undef) = split / /, "@{$b}";
-+	if ($value1 == $value2) {
-+		if ($module1 lt $module2) {
-+			return 1;
-+		} elsif ($module1 eq $module2) {
-+			return 0;
-+		} 
-+		return -1;
-+	}
-+	return $value1 <=> $value2;
-+}
-+
-+sub print_depends_on {
-+	my ($href) = @_;
-+	print "\n";
-+	while (($mod, $list) = each %$href) {
-+		print "\t$mod:\n";
-+		foreach $sym (sort numerically @{$list}) {
-+			($symbol, $no) = split / /, $sym;
-+			printf("\t\t%-25s\t%-25d\n", $symbol, $no);
++	for (i=0, j=0; i < 64; i++ , j=i/10) {
++		if (vector & 0x1) {
++			p += sprintf(p, "%d%s ", 1 << (i-j*10), units[j]);
 +		}
-+		print "\n";
++		vector >>= 1;
 +	}
-+	print "\n";
-+	print "~"x80 , "\n";
++	return p;
 +}
 +
-+sub usage {
-+        die "Usage: @_ -h -k Module.symvers  [ -o outputfile ] \n";
-+}
-+
-+
-+if (not getopts('hk:o:') or defined $opt_h or not defined $opt_k) {
-+        usage($0);
-+}
-+
-+unless (open(MODULE_SYMVERS, $opt_k)) {
-+	die "Sorry, cannot open $opt_k: $!\n";
-+}
-+
-+if (defined $opt_o) {
-+	unless (open(OUTPUT_HANDLE, ">$opt_o")) {
-+		die "Sorry, cannot open $opt_o: $!\n";
++static int proc_hugetlb_pagesizes_show(struct seq_file *s, void *p)
++{
++	int order;
++	char buf[32];
++	for (order = 0; order < MAX_ORDER; order++) {
++		if (!is_valid_hpage_size(1UL<<(order+PAGE_SHIFT)))
++			continue;
++		bitvector_process(buf, (1UL<<(order+PAGE_SHIFT)));
++		seq_printf(s, "%s\t%ld\t%ld\t%ld\n",
++				buf, nr_huge_pages[order],
++				free_huge_pages[order],
++				reserved_huge_pages[order]);
 +	}
-+	select OUTPUT_HANDLE;
++
++	return 0;
 +}
 +
-+#
-+# collect all the symbols and their attributes from the 
-+# Module.symvers file
-+#
-+while ( <MODULE_SYMVERS> ) {
-+	chomp;
-+	($crc, $symbol, $module, $gpl) = split;
-+	$SYMBOL { $symbol } =  [ $module , "0" , $symbol, $gpl];
-+}
-+close(MODULE_SYMVERS);
++static ssize_t proc_hugetlb_pagesizes_write(struct file *file,
++	const char __user *buffer, size_t length, loff_t *ppos)
++{
++	char buf[64];
++	unsigned long nr, order;
++	unsigned long long size;
++	char *rest;
++	if (!buffer || length >= sizeof(buf))
++		return -EINVAL;
++	if (copy_from_user(buf, buffer, length))
++		return -EFAULT;
++	buf[length] = 0;
 +
-+#
-+# collect the usage count of each symbol.
-+#
-+for ($i = 0; $i <= $#ARGV; $i++) {
-+	$thismod = $ARGV[$i];
-+	unless (open(MODULE_MODULE, $thismod)) {
-+		print "Sorry, cannot open $kernel: $!\n";
-+		next;
-+	}
-+	while ( <MODULE_MODULE> ) {
-+		chomp;
-+		if ( $_ !~ /0x[0-9a-f]{7,8},/ ) {
-+			next;
-+		}
-+		(undef, undef, undef, undef, $symbol) = split /([,"])/, $_;
-+		($module, $value, $symbol, $gpl) = @{$SYMBOL{$symbol}};
-+		$SYMBOL{ $symbol } =  [ $module , $value+1 , $symbol, $gpl];
-+		push(@{$MODULE{$thismod}} , $symbol);
-+	}
-+	close(MODULE_MODULE);
++	size = memparse(buf, &rest);
++	order = __ffs(size) - PAGE_SHIFT;
++	if (order >= MAX_ORDER || !is_valid_hpage_size(size))
++		return -EINVAL;
++	if (sscanf(rest, "%ld", &nr) != 1)
++		return -EINVAL;
++	set_max_huge_pages(nr, order);
++	return length;
 +}
 +
-+
-+print "\tTHIS FILE REPORTS THE USAGE PATTERNS OF EXPORTED SYMBOLS BY IN_TREE\n";
-+print "\t\t\t\tMODULES\n";
-+printf("%s\n\n\n","x"x80);
-+printf("\t\t\t\INDEX\n\n\n");
-+printf("SECTION 1: USAGE COUNTS OF ALL EXPORTED SYMBOLS\n");
-+printf("SECTION 2: LIST OF MODULES AND THE EXPORTED SYMBOLS THEY USE\n");
-+printf("%s\n\n\n","x"x80);
-+printf("SECTION 1:\tTHE EXPORTED SYMBOLS AND THEIR USAGE COUNT\n\n");
-+printf("%-25s\t%-25s\t%-5s\t%-25s\n", "SYMBOL", "MODULE", "USAGE COUNT", "EXPORT TYPE");
-+#
-+# print the list of unused exported symbols
-+#
-+foreach $list (sort alphabetically values(%SYMBOL)) {
-+	($module, $value, $symbol, $gpl) = split / /, "@{$list}";
-+	printf("%-25s\t%-25s\t%-10s\t%-25s\n", $symbol, $module, $value, $gpl);
++static int proc_hugetlb_pagesizes_open(struct inode *inode, struct file
+*file)
++{
++	return single_open(file, proc_hugetlb_pagesizes_show, NULL);
 +}
-+printf("%s\n\n\n","x"x80);
 +
-+
-+printf("SECTION 2:\n\tThis section reports export-symbol-usage of in-kernel
-+modules. Each module lists all the modules, and the symbols from the module it
-+depends on.  Each listed symbol reports the number of modules using that
-+symbols.\n");
-+
-+print "~"x80 , "\n";
-+while (($thismod, $list) = each %MODULE) {
-+	undef %depends;
-+	print "\t\t\t$thismod\n";
-+	foreach $symbol (@{$list}) {
-+		($module, $value, undef, $gpl) = @{$SYMBOL{$symbol}};
-+		push (@{$depends{"$module"}}, "$symbol $value");
-+	}
-+	print_depends_on(\%depends);
-+}
-Index: 2617rc1/Makefile
-===================================================================
---- 2617rc1.orig/Makefile	2006-04-12 17:20:35.000000000 -0700
-+++ 2617rc1/Makefile	2006-04-12 17:21:11.000000000 -0700
-@@ -363,7 +363,7 @@
- # Detect when mixed targets is specified, and make a second invocation
- # of make so .config is not included in this case either (for *config).
++static struct file_operations proc_hugetlb_pagesizes_operations = {
++        .open           = proc_hugetlb_pagesizes_open,
++        .read           = seq_read,
++        .write          = proc_hugetlb_pagesizes_write,
++        .llseek         = seq_lseek,
++        .release        = single_release,
++};
++#endif /* ARCH_HAS_VARIABLE_HUGEPAGE_SIZE */
+ #endif /* CONFIG_SYSCTL */
  
--no-dot-config-targets := clean mrproper distclean \
-+no-dot-config-targets := clean mrproper distclean export_report\
- 			 cscope TAGS tags help %docs check%
- 
- config-targets := 0
-@@ -433,6 +433,16 @@
- core-y		:= usr/
- endif # KBUILD_EXTMOD
- 
-+ifeq ($(MAKECMDGOALS), export_report)
-+  	KBUILD_EXPORT_REPORT := 1
-+	export KBUILD_EXPORT_REPORT
-+endif
++static int __init hugetlb_init(void)
++{
++	unsigned long i, j;
++	struct proc_dir_entry *pde;
 +
-+PHONY += export_report
-+export_report: FORCE
-+	$(Q)$(MAKE) allmodconfig 
-+	$(Q)$(MAKE) vmlinux modules
++#ifndef ARCH_HAS_VARIABLE_HUGEPAGE_SIZE
++	if (HPAGE_SHIFT(0) == 0)
++		return 0;
++#endif
 +
- ifeq ($(dot-config),1)
- # In this section, we need .config
- 
-@@ -1029,6 +1039,8 @@
- 	@echo  '  cscope	  - Generate cscope index'
- 	@echo  '  kernelrelease	  - Output the release version string'
- 	@echo  '  kernelversion	  - Output the version stored in Makefile'
-+	@echo  '  export_report	  - Output the export symbol usage '
-+	@echo  '		 	in Documentation/export_symbol.txt'
- 	@echo  ''
- 	@echo  'Static analysers'
- 	@echo  '  checkstack      - Generate a list of stack hogs'
++	for (i = 0; i < MAX_NUMNODES; ++i)
++		for (j = 0; j < MAX_ORDER; ++j)
++			INIT_LIST_HEAD(&hugepage_freelists[i][j]);
++
++	for (i = 0; i < max_huge_pages; ++i) {
++		if (!alloc_fresh_huge_page(HUGETLB_INIT_PAGE_ORDER))
++			break;
++	}
++	max_huge_pages = free_huge_pages[HUGETLB_INIT_PAGE_ORDER] =
+nr_huge_pages[HUGETLB_INIT_PAGE_ORDER] = i;
++	printk("Total HugeTLB memory allocated, %ld\n",
++		free_huge_pages[HUGETLB_INIT_PAGE_ORDER]);
++
++#ifdef ARCH_HAS_VARIABLE_HUGEPAGE_SIZE
++        if (!proc_mkdir("hugetlb", NULL))
++		return 1;
++        pde = create_proc_entry("hugetlb/hugepages", 0, NULL);
++        if (!pde)
++                return 1;
++        pde->proc_fops = &proc_hugetlb_pagesizes_operations;
++#endif
++	return 0;
++}
++module_init(hugetlb_init);
++
++static int __init hugetlb_setup(char *s)
++{
++	if (sscanf(s, "%lu", &max_huge_pages) <= 0)
++		max_huge_pages = 0;
++	return 1;
++}
++__setup("hugepages=", hugetlb_setup);
++
++
+ int hugetlb_report_meminfo(char *buf)
+ {
+ 	return sprintf(buf,
+
+
+
+

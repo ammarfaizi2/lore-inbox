@@ -1,83 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWDNH1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbWDNHew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965111AbWDNH1q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 03:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWDNH1q
+	id S965116AbWDNHew (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 03:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWDNHew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 03:27:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:10658 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965111AbWDNH1p (ORCPT
+	Fri, 14 Apr 2006 03:34:52 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:47881 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965116AbWDNHev (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 03:27:45 -0400
-Date: Fri, 14 Apr 2006 00:26:54 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, riel@surriel.com
-Subject: Re: [PATCH 2/2] mm: fix mm_struct reference counting bugs in
- mm/oom_kill.c
-Message-Id: <20060414002654.76d1a6bc.akpm@osdl.org>
-In-Reply-To: <200604131744.02114.dsp@llnl.gov>
-References: <200604131452.08292.dsp@llnl.gov>
-	<20060413162432.41892d3a.akpm@osdl.org>
-	<200604131744.02114.dsp@llnl.gov>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 14 Apr 2006 03:34:51 -0400
+Message-ID: <443F5245.9000400@sw.ru>
+Date: Fri, 14 Apr 2006 11:41:57 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: devel@openvz.org
+CC: Cedric Le Goater <clg@fr.ibm.com>, Kirill Korotaev <dev@openvz.org>,
+       Kir Kolyshkin <kir@sacred.ru>, Sam Vilain <sam@vilain.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <1143588501.6325.75.camel@localhost.localdomain>	<442A4FAA.4010505@openvz.org>	<20060329134524.GA14522@MAIL.13thfloor.at> <442A9E1E.4030707@sw.ru>	<1143668273.9969.19.camel@localhost.localdomain>	<443CBA48.7020301@sw.ru> <20060413010506.GA16864@MAIL.13thfloor.at>	<443DF523.3060906@openvz.org>	<20060413134239.GA6663@MAIL.13thfloor.at>	<443EC399.2040307@fr.ibm.com> <20060413224533.GA11178@MAIL.13thfloor.at>
+In-Reply-To: <20060413224533.GA11178@MAIL.13thfloor.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Peterson <dsp@llnl.gov> wrote:
->
-> On Thursday 13 April 2006 16:24, Andrew Morton wrote:
-> > Dave Peterson <dsp@llnl.gov> wrote:
-> > > The patch below fixes some mm_struct reference counting bugs in
-> > > badness().
-> >
-> > hm, OK, afaict the code _is_ racy.
-> >
-> > But you're now calling mmput() inside read_lock(&tasklist_lock), and
-> > mmput() can sleep in exit_aio() or in exit_mmap()->unmap_vmas().  So
-> > sterner stuff will be needed.
-> >
-> > I'll put a might_sleep() into mmput - it's a bit unexpected.
+> I would be really interested in getting comparisons
+> between vanilla kernels and linux-vserver patched
+> versions, especially vs2.1.1 and vs2.0.2 on the
+> same test setup with a minimum difference in config
 > 
-> Hmm... fixing this looks rather tricky.  If get_task_mm()/mmput() was
-> only being done on a single mm_struct then I suppose badness() could
-> do something a bit ugly like passing the reference back to its caller
-> and letting the caller do the mmput() once tasklist_lock is no longer
-> held.  However here we are iterating over a bunch of child tasks,
-> potentially doing a get_task_mm()/mmput() for a number of them.
-> 
-> I have a suggestion for a possible solution.  Currently mmput() is
-> implemented as follows:
-> 
->     01 void mmput(struct mm_struct *mm)
->     02 {
->     03         if (atomic_dec_and_lock(&mm->mm_users, &mmlist_lock)) {
->     04                 list_del(&mm->mmlist);
->     05                 mmlist_nr--;
->     06                 spin_unlock(&mmlist_lock);
->     07                 exit_aio(mm);
->     08                 exit_mmap(mm);
->     09                 put_swap_token(mm);
->     10                 mmdrop(mm);
->     11         }
->     12 }
-> 
-> Suppose we replace lines 07-10 with a little piece of code that adds
-> the mm_struct to a list.  Then a kernel thread empties the list
-> (perhaps via the work queue mechanism), doing the stuff in lines
-> 07-10 for each mm_struct.  This would eliminate the possibility of
-> mmput() sleeping, potentially making things easier for other callers
-> of mmput() and causing fewer surprises.  Any comments?
+> I doubt that you can really compare across the
+> existing virtualization technologies, as it really
+> depends on the setup and hardware 
+and kernel .config's :)
+for example, I'm pretty sure, OVZ smp kernel is not the same as any of 
+prebuilt vserver kernels.
 
-task_lock() can be used to pin a task's ->mm.  To use task_lock() in
-badness() we'd need to either
+> In my experience it is extremely hard to do 'proper'
+> comparisons, because the slightest change of the
+> environment can cause big differences ...
+> 
+> here as example, a kernel build (-j99) on 2.6.16
+> on a test host, with and without a chroot:
+> 
+> without:
+> 
+>  451.03user 26.27system 2:00.38elapsed 396%CPU
+>  449.39user 26.21system 1:59.95elapsed 396%CPU
+>  447.40user 25.86system 1:59.79elapsed 395%CPU
+> 
+> now with:
+> 
+>  490.77user 24.45system 2:13.35elapsed 386%CPU
+>  489.69user 24.50system 2:12.60elapsed 387%CPU
+>  490.41user 24.99system 2:12.22elapsed 389%CPU
+> 
+> now is chroot() that imperformant? no, but the change
+> in /tmp being on a partition vs. tmpfs makes quite
+> some difference here
+filesystem performance also very much depends on disk layout.
+If you use different partitions of the same disk for Xen, vserver and OVZ,
+one of them will be quickest while others can be significantly slower 
+and slower :/
 
-a) nest task_lock()s.  I don't know if we're doing that anywhere else,
-   but the parent->child ordering is a natural one.  or
+Thanks,
+Kirill
 
-b) take a ref on the parent's mm_struct, drop the parent's task_lock()
-   while we walk the children, then do mmput() on the parent's mm outside
-   tasklist_lock.  This is probably better.

@@ -1,105 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbWDMXy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbWDNACo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965054AbWDMXy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 19:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWDMXyg
+	id S965022AbWDNACo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 20:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbWDNACo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 19:54:36 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:10883 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965055AbWDMXyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 19:54:33 -0400
-Date: Thu, 13 Apr 2006 16:54:06 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-       Lee Schermerhorn <lee.schermerhorn@hp.com>, linux-mm@kvack.org,
-       Christoph Lameter <clameter@sgi.com>,
-       Hirokazu Takahashi <taka@valinux.co.jp>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Message-Id: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 0/5] Swapless page migration V2: Overview
+	Thu, 13 Apr 2006 20:02:44 -0400
+Received: from gate.crashing.org ([63.228.1.57]:63137 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965022AbWDNACo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 20:02:44 -0400
+Subject: Current linus git bcm4xxx broken for me
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: bcm43xx-dev@lists.berlios.de
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 14 Apr 2006 10:02:36 +1000
+Message-Id: <1144972957.5006.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Swapless Page migration V2
+I get that with current upstream git :
 
-Currently page migration is depending on the ability to assign swap entries
-to pages. However, those entries will only be to identify anonymous pages.
-Page migration will not work without swap although swap space is never
-really used.
+[   34.127738] bcm43xx: Chip ID 0x4318, rev 0x2
+[   34.136739] bcm43xx: Number of cores: 4
+[   34.145660] bcm43xx: Core 0: ID 0x800, rev 0xd, vendor 0x4243, enabled
+[   34.154658] bcm43xx: Core 1: ID 0x812, rev 0x9, vendor 0x4243, disabled
+[   34.163560] bcm43xx: Core 2: ID 0x804, rev 0xc, vendor 0x4243, enabled
+[   34.172422] bcm43xx: Core 3: ID 0x80d, rev 0x7, vendor 0x4243, enabled
+[   34.184508] bcm43xx: PHY connected
+[   34.193390] bcm43xx: Detected PHY: Version: 3, Type 2, Revision 7
+[   34.202256] bcm43xx: Detected Radio: ID: 8205017f (Manuf: 17f Ver: 2050 Rev: 8)
+[   34.211067] bcm43xx: Radio turned off
+[   34.219814] bcm43xx: Radio turned off
+[   35.158260] bcm43xx: PHY connected
+[   35.315532] bcm43xx: Radio turned on
+[   35.340646] bcm43xx: ASSERTION FAILED (radio_attenuation < 10) at: drivers/net/wireless/bcm43xx/bcm43xx_phy.c:1485:bcm43xx_find_lopair()
+[   35.350611] bcm43xx: WARNING: Writing invalid LOpair (low: 58, high: 32, index: 130)
+[   35.360642] Call Trace:
+[   35.370672] [8F8AFBE0] [800080AC] show_stack+0x5c/0x1a0 (unreliable)
+[   35.380875] [8F8AFC10] [C24D394C] bcm43xx_phy_lo_adjust+0xcc/0x390 [bcm43xx]
+[   35.391054] [8F8AFC30] [C24CA19C] bcm43xx_radio_set_txpower_bg+0x18c/0x310 [bcm43xx]
+[   35.401223] [8F8AFC50] [C24D2314] bcm43xx_phy_initb6+0x264/0x920 [bcm43xx]
+[   35.411399] [8F8AFC70] [C24D4BD8] bcm43xx_phy_initg+0x428/0xff0 [bcm43xx]
+[   35.421520] [8F8AFCE0] [C24D5864] bcm43xx_phy_init+0xc4/0x7b0 [bcm43xx]
+[   35.431634] [8F8AFD00] [C24C4554] bcm43xx_wireless_core_init+0xaa4/0x12c0 [bcm43xx]
+[   35.441842] [8F8AFDA0] [C24C5FA0] bcm43xx_init_board+0x300/0x690 [bcm43xx]
+[   35.452092] [8F8AFDF0] [8027C3D8] dev_open+0x88/0xe0
+[   35.462274] [8F8AFE10] [8027B124] dev_change_flags+0x144/0x180
+[   35.472505] [8F8AFE30] [802C4D98] devinet_ioctl+0x628/0x760
+[   35.482661] [8F8AFEA0] [802C5174] inet_ioctl+0xb4/0xe0
+[   35.492743] [8F8AFEB0] [8026E28C] sock_ioctl+0xfc/0x270
+[   35.502832] [8F8AFED0] [80094B7C] do_ioctl+0x3c/0x90
+[   35.512837] [8F8AFEE0] [80094C5C] vfs_ioctl+0x8c/0x460
+[   35.522718] [8F8AFF10] [80095070] sys_ioctl+0x40/0x80
+[   35.532524] [8F8AFF40] [8000FBB4] ret_from_syscall+0x0/0x38
 
-This patchset removes that dependency by introducing a special type of
-swap entry that encodes a pfn number of the page being migrated. If that
-swap pte (a migration entry) is encountered then do_swap_page() will redo the
-fault until the migration entry has been removed.
+The error (with backtrace) is repeated every second or so. The card doesn't appear to associate.
+It used to work with real old versions of the driver (though I never had it working above 11Mbits),
+and I haven't tried again in the past few monthes mostly because I was too busy and couldn't be
+bothered to try the new git based stuff.
 
-Migration entries have a very short lifetime and exist only while the page is
-locked. Only a few supporting functions are needed.
+Ben.
 
-To some extend this covers the same ground as Marcelo's migration
-cache. However, I hope that this approach is simpler and less intrusive.
-
-The migration functions will still be able to use swap entries if a page
-is already on the swap cache. But migration functions will no longer assign
-swap entries to pages or remove them. Maybe lazy migration can then manage
-its own swap cache or migration cache if needed?
-
-Efficiency of migration is increased by:
-
-1. Avoiding useless retries
-   The use of migration entries avoids raising the page count in do_swap_page().
-   The existing approach can increase the page count between the unmapping
-   of the ptes for a page and the page migration page count check resulting
-   in having to retry migration although all accesses have been stopped.
-
-2. Swap entries do not have to be assigned and removed from pages.
-
-3. No swap space has to be setup for page migration. Page migration
-   will never use swap.
-
-The patchset will allow later patches to enable migration of VM_LOCKED vmas,
-the ability to exempt vmas from page migration, and allow the implementation
-of a another userland migration API for handling batches of pages.
-
-This patchset was first discussed here:
-
-http://marc.theaimsgroup.com/?l=linux-mm&m=114413402522102&w=2
-
-Changes from V1->V2:
-- Make this even lighter on the VM by moving the migration removal
-  code into mm/migrate.c
-- Do not increase pagecount in do_swap_page()
-- Make this work and build correctly for non swap and non migration
-  cases.
-- Stress testing and work out (hopefully) all kinks.
-
-The patchset consists of five patches:
-
-1. try_to_unmap(): Rename ignrefs to "migration"
-
-   We will be using that try_to_unmap flag in the next patch to
-   mean that page migration has called try_to_unmap().
-
-2. Add migration swap entries
-
-   Add the SWP_TYPE_MIGRATION and a few necessary handlers for this
-   type of entry. Also modify do_swap_page() to repeat fault if
-   a migration entry is encountered.
-
-3. try_to_unmap(): Create migration entries if migration calls
-   try_to_unmap for pages without PageSwapCache() but with the
-   migration flag set.
-
-4. Rip out old swap migration code
-
-   Remove all the old swap based code. Note that this also removes the fallback
-   to swap if all other attempts to migrate fail and also the ability to
-   migrate to swap (which was never used)
-
-5. Revise main migration code
-
-   Revise the migration logic to use the new migration entries. Add
-   functions to convert migration entries to regular ptes.
 

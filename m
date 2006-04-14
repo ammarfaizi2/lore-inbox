@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWDNWyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWDNXAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751346AbWDNWyW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 18:54:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWDNWyW
+	id S1751417AbWDNXAy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 19:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWDNXAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 18:54:22 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:2497 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751346AbWDNWyV (ORCPT
+	Fri, 14 Apr 2006 19:00:54 -0400
+Received: from ishtar.tlinx.org ([64.81.245.74]:38109 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1751417AbWDNXAy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 18:54:21 -0400
-Date: Fri, 14 Apr 2006 23:54:07 +0100 (IST)
-From: Mel Gorman <mel@skynet.ie>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: davej@codemonkey.org.uk, linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bob.picco@hp.com, ak@suse.de,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture
- independent manner V2
-In-Reply-To: <20060414205345.GA1258@agluck-lia64.sc.intel.com>
-Message-ID: <Pine.LNX.4.64.0604142353460.22940@skynet.skynet.ie>
-References: <20060412232036.18862.84118.sendpatchset@skynet>
- <20060413095207.GA4047@skynet.ie> <20060413171942.GA15047@agluck-lia64.sc.intel.com>
- <20060413173008.GA19402@skynet.ie> <20060413174720.GA15183@agluck-lia64.sc.intel.com>
- <20060413191402.GA20606@skynet.ie> <20060413215358.GA15957@agluck-lia64.sc.intel.com>
- <20060414131235.GA19064@skynet.ie> <20060414205345.GA1258@agluck-lia64.sc.intel.com>
+	Fri, 14 Apr 2006 19:00:54 -0400
+Message-ID: <444029A2.3060702@tlinx.org>
+Date: Fri, 14 Apr 2006 16:00:50 -0700
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Andreas Schnaiter <schnaiter@gmx.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16 -  SATA read performance drop ~50% on Intel 82801GB/GR/GH
+References: <200604120136.28681.schnaiter@gmx.net>
+In-Reply-To: <200604120136.28681.schnaiter@gmx.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Apr 2006, Luck, Tony wrote:
-
-> On Fri, Apr 14, 2006 at 02:12:35PM +0100, Mel Gorman wrote:
->> That appears fine, but I call add_active_range() after a GRANULEROUNDUP and
->> GRANULEROUNDDOWN has taken place so that might be the problem, especially as
->> all those ranges are aligned on a 16MiB boundary. The following patch calls
->> add_active_range() before the rounding takes place. Can you try it out please?
+Andreas Schnaiter wrote:
+> The two affected disks are connected to the Intel 82801GB/GR/GH (ICH7 Family)  
+> Serial ATA Controller.
+> Disks on the Silicon Image/Intel IDE Controllers are not affected.
 >
-> That's good.  Now I see identical output before/after your patch for
-> the generic (DISCONTIG=y) kernel:
+> Linux 2.6.15.7
+> ---
+> # time dd if=/benchfile of=/dev/null bs=1M
+> 8192+0 records in, 8192+0 records out
+> 8589934592 bytes (8.6 GB) copied, 130.547 seconds, 65.8 MB/s
+> real	2m10.670s user	0m0.023s sys	0m14.238s
 >
-> On node 0 totalpages: 259873
->  DMA zone: 128931 pages, LIFO batch:7
->  Normal zone: 130942 pages, LIFO batch:7
->
+> Linux 2.6.16.2
+> ---
+> # time dd if=/benchfile of=/dev/null bs=1M
+> 8192+0 records in, 8192+0 records out
+> 8589934592 bytes (8.6 GB) copied, 302.452 seconds, 28.4 MB/s
+> real	5m3.100s user	0m0.021s sys	0m40.521s
+---
+    Slightly echoing Jeff G's question, but rephrasing for read,
+could you try a read on the actual device?  I.e. without
+destroying your partition, you could try a direct read
+from the device:
 
-Very very cool. Thanks for all the testing.
+     time dd if=/dev/sda of=/dev/null bs=1M count=8192.
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+BTW, how much memory do you have on the system?
+
+    Not that I have know much about block-i/o, but it
+might narrow things down.
+
+    Have you tried the tests in single-user or run-level 1 to
+help rule out other noise?
+
+Linda
+
+
+

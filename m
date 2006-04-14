@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWDNQIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWDNQUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbWDNQIK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 12:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWDNQIK
+	id S1751269AbWDNQUb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 12:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbWDNQUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 12:08:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59297 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751256AbWDNQIJ (ORCPT
+	Fri, 14 Apr 2006 12:20:30 -0400
+Received: from mail.suse.de ([195.135.220.2]:54979 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751267AbWDNQU3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 12:08:09 -0400
-Date: Fri, 14 Apr 2006 17:07:56 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-rc1-mm1
-Message-ID: <20060414160756.GG10725@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Heiko Carstens <heiko.carstens@de.ibm.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20060404014504.564bf45a.akpm@osdl.org> <20060413073958.GB9428@osiris.boeblingen.de.ibm.com> <20060413011303.668fe5c1.akpm@osdl.org>
+	Fri, 14 Apr 2006 12:20:29 -0400
+Date: Fri, 14 Apr 2006 09:19:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kay.sievers@vrfy.org, linux-kernel@vger.kernel.org
+Subject: Re: modprobe bug for aliases with regular expressions
+Message-ID: <20060414161927.GA15830@kroah.com>
+References: <20060413233518.GA7597@kroah.com> <1144990770.31267.29.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060413011303.668fe5c1.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1144990770.31267.29.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 01:13:03AM -0700, Andrew Morton wrote:
-> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-> >
-> > > +md-dm-reduce-stack-usage-with-stacked-block-devices.patch
-> > >  MD update.
-> > 
-> > Any chance to see this merged? I think this one is pending for quite a while.
+On Fri, Apr 14, 2006 at 02:59:30PM +1000, Rusty Russell wrote:
+> On Thu, 2006-04-13 at 16:35 -0700, Greg KH wrote:
+> > Recently it's been pointed out to me that the modprobe functionality
+> > with aliases doesn't quite work properly for some USB modules.
+> 
+> Sorry, my bad.  I got a patch for this a while ago from Sam Morris.
+> Originally noone was using ranges in [].
+> 
+> This is fixed in 3.3-pre1.  I should release 3.3 proper sometime this
+> weekend.
+
+So, the patch that fixes it is the patch below? (needed for distros that
+don't want to rev the whole package...)
+
+thanks,
+
+greg k-h
+
+
+diff -Naur module-init-tools-3.2.2/modprobe.c module-init-tools-3.3-pre1/modprobe.c
+--- module-init-tools-3.2.2/modprobe.c	2005-12-01 15:42:09.000000000 -0800
++++ module-init-tools-3.3-pre1/modprobe.c	2006-02-04 15:18:07.000000000 -0800
+@@ -990,13 +990,27 @@
+ 	return ret;
+ }
  
-I looked at this in detail last month, hoping to get it
-out of the way, but unfortunately found that, in dm-crypt:
-
-  Instead of the stack growing, we'll be allocating successive
-  bios out of the *same* mempool and, without the recursion, we'll
-  have lost the possibility of a later allocation waiting for an
-  earlier one to be released after its endio.
-
-In other words, I think part of dm-crypt needs re-writing to avoid problems
-under memory pressure after this patch is applied.  And on the face of it,
-__clone_and_map() may suffer from similar problems should a bio need to be
-split into several pieces.
-
-Alasdair
--- 
-agk@redhat.com
++/* Careful!  Don't munge - in [ ] as per Debian Bug#350915 */
+ static char *underscores(char *string)
+ {
+ 	if (string) {
+ 		unsigned int i;
+-		for (i = 0; string[i]; i++)
+-			if (string[i] == '-')
+-				string[i] = '_';
++		int inbracket = 0;
++		for (i = 0; string[i]; i++) {
++			switch (string[i]) {
++			case '[':
++				inbracket++;
++				break;
++			case ']':
++				inbracket--;
++				break;
++			case '-':
++				if (!inbracket)
++					string[i] = '_';
++			}
++		}
++		if (inbracket)
++			warn("Unmatched bracket in %s\n", string);
+ 	}
+ 	return string;
+ }

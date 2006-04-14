@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWDNXPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWDNXN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751441AbWDNXPs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 19:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWDNXPs
+	id S1751317AbWDNXN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 19:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWDNXN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 19:15:48 -0400
-Received: from modeemi.modeemi.cs.tut.fi ([130.230.72.134]:39098 "EHLO
-	modeemi.modeemi.cs.tut.fi") by vger.kernel.org with ESMTP
-	id S1751441AbWDNXPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 19:15:48 -0400
-Date: Sat, 15 Apr 2006 02:15:41 +0300
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/1] Open IPMI BT overflow
-Message-ID: <20060414231541.GR3988@jolt.modeemi.cs.tut.fi>
+	Fri, 14 Apr 2006 19:13:59 -0400
+Received: from main.gmane.org ([80.91.229.2]:8898 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751317AbWDNXN7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 19:13:59 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Orion Poplawski <orion@cora.nwra.com>
+Subject: Problems (lockup/hang) with PCI-X slot on X5DPL motherboard
+Date: Fri, 14 Apr 2006 17:13:38 -0600
+Message-ID: <e1pab8$22t$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="wxDdMuZNg1r63Hyj"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: shd@jolt.modeemi.cs.tut.fi (Heikki Orsila)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: inferno.cora.nwra.com
+User-Agent: Thunderbird 1.5 (X11/20060313)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm getting to my wits end, so any help would be greatly appreciated.
 
---wxDdMuZNg1r63Hyj
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+I've got two disk servers, on with SuperMicro X5DPL-iGM motherboard, the 
+other with a X5DPL-TGM board.  These system use the E7501 chipset, and 
+provide to PCI-X buses.  One for slots 4 and 5, the other for slot 6 and 
+the embedded Intel 82545EM GigE NIC.
 
-I was looking into random driver code and found a suspicious looking 
-memcpy() in drivers/char/ipmi/ipmi_bt_sm.c on 2.6.17-rc1:
+I have had nothing but trouble trying to use slot 6 on these machines. 
+Recently I've been trying with a MV88SX6081 133MHz PCI-X card.  In both 
+machines I get lockups when trying to use the controller.  I also see 
+corruption on the on-board NIC on the TGM (though not on the iGM) with 
+the card in slot 6.
 
-	if ((size < 2) || (size > IPMI_MAX_MSG_LENGTH))
-		return -1;
-	...
-	memcpy(bt->write_data + 3, data + 1, size - 1);
+I'm running Fedora Core 4 with kernel 2.6.12-1.1456_FC4smp and mv_sata 
+driver 3.6.1.  I'm stuck on the older kernel because of the mv_sata driver.
 
-where sizeof bt->write_data is IPMI_MAX_MSG_LENGTH. It looks like the 
-memcpy would overflow by 2 bytes if size == IPMI_MAX_MSG_LENGTH. A patch 
-attached to limit size to (IPMI_MAX_LENGTH - 2). I'm unfamiliar with the 
-driver and interface so it's very possible I'm wrong.
+Now, maybe this is all the fault of the mv_sata driver, but I believe I 
+had problems on the iGM machine with a Intel 82545GM PCI-X nic in slot 6 
+as well which does not use the mv_sata driver at all normally.
+
+Thoughts?
+
+- Orion
 
 -- 
-Heikki Orsila			Barbie's law:
-heikki.orsila@iki.fi		"Math is hard, let's go shopping!"
-http://www.iki.fi/shd
+Orion Poplawski
+System Administrator                   303-415-9701 x222
+Colorado Research Associates/NWRA      FAX: 303-415-9702
+3380 Mitchell Lane, Boulder CO 80301   http://www.co-ra.com
 
---wxDdMuZNg1r63Hyj
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: attachment; filename="ipmi_bt_sm-overflow.diff"
-
-diff -urp linux-2.6.17-rc1-org/drivers/char/ipmi/ipmi_bt_sm.c linux-2.6.17-rc1/drivers/char/ipmi/ipmi_bt_sm.c
---- linux-2.6.17-rc1-org/drivers/char/ipmi/ipmi_bt_sm.c	2006-04-03 06:22:10.000000000 +0300
-+++ linux-2.6.17-rc1/drivers/char/ipmi/ipmi_bt_sm.c	2006-04-15 02:05:29.000000000 +0300
-@@ -165,7 +165,7 @@ static int bt_start_transaction(struct s
- {
- 	unsigned int i;
- 
--	if ((size < 2) || (size > IPMI_MAX_MSG_LENGTH))
-+	if ((size < 2) || (size > (IPMI_MAX_MSG_LENGTH - 2)))
- 	       return -1;
- 
- 	if ((bt->state != BT_STATE_IDLE) && (bt->state != BT_STATE_HOSED))
-
---wxDdMuZNg1r63Hyj--

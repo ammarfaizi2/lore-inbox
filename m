@@ -1,64 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbWDNAhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbWDNAin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965020AbWDNAhO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 20:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965078AbWDNAhN
+	id S965079AbWDNAin (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 20:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbWDNAim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 20:37:13 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:906 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965020AbWDNAhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 20:37:12 -0400
-Date: Thu, 13 Apr 2006 17:36:53 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
-       linux-mm@kvack.org, taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
-       kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: [PATCH 2/5] Swapless V2: Add migration swap entries
-In-Reply-To: <20060413171331.1752e21f.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0604131735550.15910@schroedinger.engr.sgi.com>
-References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
- <20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
- <20060413171331.1752e21f.akpm@osdl.org>
+	Thu, 13 Apr 2006 20:38:42 -0400
+Received: from pproxy.gmail.com ([64.233.166.177]:57562 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965079AbWDNAil convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 20:38:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l6FeTg83QHhm9sWcEcEInkirdGUYcYgMwlL+EwKejZj5qwNxeNHQVEhEMxy/ShCHoP//u2n2ck1ArqvIvB9e0b4TEfcp3mQVg+luGyOeBaloDitrMgKyQmIp9jmf/z785etDjQ8EVy1JppAbJsmCi8+gODOYZix194XBaqKgFWw=
+Message-ID: <bda6d13a0604131738u16f3899drece530f84ca41a6e@mail.gmail.com>
+Date: Thu, 13 Apr 2006 17:38:41 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][TAKE 3] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit
+In-Reply-To: <443EE4C3.5040409@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <443EE4C3.5040409@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. Add explanation for the yield
+I've hit that limit once. Got around it by using rdev to set root
+directory and ramdisk
+paramiters.
 
-2. Move unlikely to is_migration_entry (Does that really work??)
+What made the command line so big is that initrd was broken on that box (kernel
+was too close to the size of the floppy), so I had to use load_ramdisk.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.17-rc1-mm2/mm/memory.c
-===================================================================
---- linux-2.6.17-rc1-mm2.orig/mm/memory.c	2006-04-13 16:43:10.000000000 -0700
-+++ linux-2.6.17-rc1-mm2/mm/memory.c	2006-04-13 17:32:36.000000000 -0700
-@@ -1880,7 +1880,11 @@ static int do_swap_page(struct mm_struct
- 
- 	entry = pte_to_swp_entry(orig_pte);
- 
--	if (unlikely(is_migration_entry(entry))) {
-+	if (is_migration_entry(entry)) {
-+		/*
-+		 * We cannot access the page because of ongoing page
-+		 * migration. See if we can do something else.
-+		 */
- 		yield();
- 		goto out;
- 	}
-Index: linux-2.6.17-rc1-mm2/include/linux/swapops.h
-===================================================================
---- linux-2.6.17-rc1-mm2.orig/include/linux/swapops.h	2006-04-13 16:43:10.000000000 -0700
-+++ linux-2.6.17-rc1-mm2/include/linux/swapops.h	2006-04-13 17:32:58.000000000 -0700
-@@ -77,7 +77,7 @@ static inline swp_entry_t make_migration
- 
- static inline int is_migration_entry(swp_entry_t entry)
- {
--	return swp_type(entry) == SWP_TYPE_MIGRATION;
-+	return unlikely(swp_type(entry) == SWP_TYPE_MIGRATION);
- }
- 
- static inline struct page *migration_entry_to_page(swp_entry_t entry)
+Stupid box couldn't boot from CD, so that was the source of the trouble.

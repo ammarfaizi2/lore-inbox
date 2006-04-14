@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWDNS7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWDNTAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWDNS7s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 14:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWDNS7s
+	id S1751414AbWDNTAW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 15:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWDNTAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 14:59:48 -0400
-Received: from nproxy.gmail.com ([64.233.182.187]:10659 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751413AbWDNS7s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 14:59:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:disposition-notification-to:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=OF6QPlG2TClbcBC29+VMHVY0z9a31QWsiXFYMHm5iwKHMDHQi0T9/8JuUVEncl1bnKKkZJqsncWtA+Pa6aA8NTn/JpA8Au5BnDlK+vUPEzV1h+yIV7UbWM5vP7E9p8hjg1WHazoTU+ZFI/AEB0NraejcymPwutmZAChZ/EwlNkI=
-Message-ID: <443FF181.6000004@gmail.com>
-Date: Fri, 14 Apr 2006 22:01:21 +0300
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Mail/News 1.5 (X11/20060401)
+	Fri, 14 Apr 2006 15:00:22 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:18054 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1751414AbWDNTAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 15:00:21 -0400
+Date: Fri, 14 Apr 2006 11:00:12 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Michael Madore <michael.madore@gmail.com>
+cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: Lockup/reboots on multiple dual core Opteron systems
+In-Reply-To: <d4b6d3ea0604141102i7e50cfbdna04485fe2ae5c1d8@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0604141058570.17345@qynat.qvtvafvgr.pbz>
+References: <d4b6d3ea0604140948l36c8048ha819a6611c8fdad3@mail.gmail.com> 
+ <Pine.LNX.4.62.0604140937440.17345@qynat.qvtvafvgr.pbz>
+ <d4b6d3ea0604141102i7e50cfbdna04485fe2ae5c1d8@mail.gmail.com>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: [PATCH][TAKE 3] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
- limit
-References: <443EE4C3.5040409@gmail.com> <443FE1AF.8050507@zytor.com> <443FE560.6010805@gmail.com> <443FEDF9.6050203@zytor.com>
-In-Reply-To: <443FEDF9.6050203@zytor.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> 
-> Well, obviously, since apparently LILO doesn't properly null-terminate 
-> long command line.
-> 
-> Thinking about it a bit, the way to deal with the LILO problem is 
-> probably to actually *usw* the boot loader ID byte we've had in there 
-> since the 2.00 protocol.  In other words, if the boot loader ID is 0x1X 
-> where X <= current version (I don't know how LILO manages this ID) then 
-> truncate the command line to 255 bytes; when this is fixed in LILO then 
-> LILO gets to bump its boot loader ID version number.
-> 
->     -hpa
+On Fri, 14 Apr 2006, Michael Madore wrote:
 
-I don't understand...
+>>
+>> I'm fighting similar problems on one machine at home (single dual core, 4G
+>> ram nforce 939 motherboard, 1 ide, 10 3ware, 1 adaptec controlled drives).
+        ^^^^^^^^^^^^^^^^^^^^^^
 
-If LILO worked until now, it should continue to work after 
-applying this patch, since nothing was changed from its 
-perspective. It will continue to provide 255 characters + 
-null command line, so even if you have 1024 max 
-command-line, then you will still receive truncated to 255 
-chars.
+>> It's locked up under the ubuntu and gentoo install disk kernels. I did
+>> have it running for a day and a half under 2.6.17-rc1, but I managed to
+>> corrupt the install and haven't gotten back to that kernel yet to confirm
+>> it's long-term stability.
+>
+> Who makes your motherboard?  Also, how do you trigger the lockup?
 
-What I think is that the boot.txt should be clearer... But 
-if you think that this patch can be applied without making 
-any change to the documentation that's will also be great! I 
-will try to deal with boot loaders developers afterwards...
+I've triggered the lockups by doing large compile sessions, but the lockup 
+seems to happen much quicker if I'm running under X (more memory 
+allocated)
 
-Best Regards,
-Alon Bar-Lev.
+David Lang
+
+> Mike
+>
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
+

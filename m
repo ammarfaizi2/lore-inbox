@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWDNVqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWDNVra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbWDNVqE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 17:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWDNVqD
+	id S965051AbWDNVra (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 17:47:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWDNVra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 17:46:03 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:26838 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751436AbWDNVqB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 17:46:01 -0400
-Date: Fri, 14 Apr 2006 23:45:56 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Ram Gupta <ram.gupta5@gmail.com>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: select takes too much time
-In-Reply-To: <Pine.LNX.4.61.0604141056120.11151@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0604142344000.4238@yvahk01.tjqt.qr>
-References: <728201270604130801l377d7285y531133ee9ee56e8c@mail.gmail.com>
- <443E9A17.4070805@stud.feec.vutbr.cz> <728201270604131251h5296dd41o7d0e0dd8f2f1ac63@mail.gmail.com>
- <Pine.LNX.4.61.0604131701030.7732@chaos.analogic.com> <443EC09C.2050409@stud.feec.vutbr.cz>
- <728201270604140754g7bf955d6y5e06bc5ce4f86c7b@mail.gmail.com>
- <Pine.LNX.4.61.0604141056120.11151@chaos.analogic.com>
+	Fri, 14 Apr 2006 17:47:30 -0400
+Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:27818 "EHLO
+	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S965051AbWDNVra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 17:47:30 -0400
+Date: Fri, 14 Apr 2006 14:47:29 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Poll microoptimizations.
+In-Reply-To: <20060414143820.6a04b696.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0604141440180.30907@shell2.speakeasy.net>
+References: <Pine.LNX.4.58.0604132115290.29982@shell3.speakeasy.net>
+ <20060414123118.0a8fb24c.akpm@osdl.org> <Pine.LNX.4.58.0604141413260.21335@shell2.speakeasy.net>
+ <20060414143820.6a04b696.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> So it seems that the only solution to return back right away after
->> timeout is to play around with the scheduler or put the process doing
->> select at the front of the queue so it get a chance to run first.
->> Is there any other better way to do it?
->>
-> 	nice(-19);
+On Fri, 14 Apr 2006, Andrew Morton wrote:
 
-	sched_setscheduler(0, SCHED_FIFO,
-		(struct sched_param){.sched_priority = 99});
+> Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+> >
+> > I can put in a comment to explain what the code is doing, or if you
+> > think that the bitmasking itself is "yuk", then I can easily transform
+> > the code into an explicit "if () {}" block. :)
+>
+> yes please.
+>
+> > > Yuk.  Sorry, no.
+> >
+> > Thank you for the review. The comments above are easy to address. Do you
+> > like the main concept behind the patch? Should I correct and resubmit?
+>
+> I don't really understand it yet.
 
-That should probably beat anything, with the exception of IRQs.
+It's really a bit of (subjective) cleanup, that just incidentally
+happens to save us a few extra clock cycles here and there. In the
+current code, the "count" and "pt" variables are modified both in the
+function where they're declared (do_poll()), AND also indirectly in a
+different function (do_pollfd()). The patch moves all handling of these
+variables to the function that declares and "owns" them (do_poll()).
 
-Jan Engelhardt
--- 
+> Yes, please resend and feel free to a) add comments in places where we can
+> help people to understand the code and b) convert any code which gets
+> touched to be coding-style-friendly.  (I usually recommend that we do that
+> even if the surrounding code uses different conventions - eventually
+> everything will be fixed ;))
+
+I couldn't agree more on this particular point. The only thing that
+stops me is that noone can ever agree on the coding style, even if it is
+spelled out in the Documentation/ directory (witness the periodic flame
+wars on this list). Helps to have a thick skin, and I'm slowly getting
+to that point. ;)
+
+I'll correct, comment, and resend the patch when I get a chance.
+
+- Vadim Lobanov

@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWDNTAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWDNTC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751414AbWDNTAW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 15:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWDNTAW
+	id S1751416AbWDNTC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 15:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWDNTC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 15:00:22 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:18054 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1751414AbWDNTAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 15:00:21 -0400
-Date: Fri, 14 Apr 2006 11:00:12 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Michael Madore <michael.madore@gmail.com>
-cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: Lockup/reboots on multiple dual core Opteron systems
-In-Reply-To: <d4b6d3ea0604141102i7e50cfbdna04485fe2ae5c1d8@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0604141058570.17345@qynat.qvtvafvgr.pbz>
-References: <d4b6d3ea0604140948l36c8048ha819a6611c8fdad3@mail.gmail.com> 
- <Pine.LNX.4.62.0604140937440.17345@qynat.qvtvafvgr.pbz>
- <d4b6d3ea0604141102i7e50cfbdna04485fe2ae5c1d8@mail.gmail.com>
+	Fri, 14 Apr 2006 15:02:59 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:9744 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751416AbWDNTC7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 15:02:59 -0400
+Message-ID: <443FF1D9.4060904@argo.co.il>
+Date: Fri, 14 Apr 2006 22:02:49 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Dustin Kirkland <dustin.kirkland@us.ibm.com>
+CC: "Theodore Ts'o" <tytso@mit.edu>, Kylene Jo Hall <kjhall@us.ibm.com>,
+       kbuild-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make: add modules_update target
+References: <1145027216.12054.164.camel@localhost.localdomain>	 <20060414170222.GA19172@thunk.org>  <443FE350.5040502@argo.co.il> <1145039347.3074.11.camel@localhost.localdomain>
+In-Reply-To: <1145039347.3074.11.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Apr 2006 19:02:54.0593 (UTC) FILETIME=[0919FF10:01C65FF6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Apr 2006, Michael Madore wrote:
-
->>
->> I'm fighting similar problems on one machine at home (single dual core, 4G
->> ram nforce 939 motherboard, 1 ide, 10 3ware, 1 adaptec controlled drives).
-        ^^^^^^^^^^^^^^^^^^^^^^
-
->> It's locked up under the ubuntu and gentoo install disk kernels. I did
->> have it running for a day and a half under 2.6.17-rc1, but I managed to
->> corrupt the install and haven't gotten back to that kernel yet to confirm
->> it's long-term stability.
+Dustin Kirkland wrote:
+> On Fri, 2006-04-14 at 21:00 +0300, Avi Kivity wrote:
+>   
+>> How about using rsync with --delete as a substitute for cp (if rsync is 
+>> available)?
+>>     
 >
-> Who makes your motherboard?  Also, how do you trigger the lockup?
+> I thought about this, but a "grep -r rsync" didn't turn up any previous
+> hits in the kernel build process.  I didn't want to introduce this as a
+> new dependency for kernel building, if it's possible to avoid...
+>   
+Use rsync only if it is available:
 
-I've triggered the lockups by doing large compile sessions, but the lockup 
-seems to happen much quicker if I'm running under X (more memory 
-allocated)
+    rsync-available := $(shell rsync --version > /dev/null 2>&1 && echo y)
+    copy := $(if $(rsync-available), rsync --delete, cp)
 
-David Lang
-
-> Mike
->
+    modules_install:
+               [...]
+               $(copy) source target
 
 -- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

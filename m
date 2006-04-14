@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbWDNULd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbWDNUNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965149AbWDNULd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 16:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWDNULL
+	id S965153AbWDNUNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 16:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbWDNUNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 16:11:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:3469 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965145AbWDNULG (ORCPT
+	Fri, 14 Apr 2006 16:13:18 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:5816 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965145AbWDNUNQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 16:11:06 -0400
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 2/7] driver core: safely unbind drivers for devices not on a bus
-In-Reply-To: <11450453963619-git-send-email-greg@kroah.com>
-X-Mailer: git-send-email
-Date: Fri, 14 Apr 2006 13:09:56 -0700
-Message-Id: <11450453961549-git-send-email-greg@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Fri, 14 Apr 2006 16:13:16 -0400
+Date: Fri, 14 Apr 2006 13:12:39 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
+       linux-mm@kvack.org, taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: Implement lookup_swap_cache for migration entries
+In-Reply-To: <20060414125320.72599c7e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0604141309520.22852@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413171331.1752e21f.akpm@osdl.org> <Pine.LNX.4.64.0604131728150.15802@schroedinger.engr.sgi.com>
+ <20060413174232.57d02343.akpm@osdl.org> <Pine.LNX.4.64.0604131743180.15965@schroedinger.engr.sgi.com>
+ <20060413180159.0c01beb7.akpm@osdl.org> <Pine.LNX.4.64.0604131827210.16220@schroedinger.engr.sgi.com>
+ <20060413222921.2834d897.akpm@osdl.org> <Pine.LNX.4.64.0604141025310.18575@schroedinger.engr.sgi.com>
+ <20060414113104.72a5059b.akpm@osdl.org> <Pine.LNX.4.64.0604141143520.22475@schroedinger.engr.sgi.com>
+ <20060414121537.11134d26.akpm@osdl.org> <Pine.LNX.4.64.0604141214060.22652@schroedinger.engr.sgi.com>
+ <20060414125320.72599c7e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch (as667) changes the __device_release_driver() routine to
-prevent it from crashing when it runs across a device not on any bus.
-This seems logical, inasmuch as the corresponding bus_add_device()
-routine has an explicit check allowing it to accept such devices.
+On Fri, 14 Apr 2006, Andrew Morton wrote:
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> So we're doing a get_page() on a random page which could be in any state -
+> it could be on the freelists, or in the per-cpu pages arrays, it could have
+> been reused for something else.
 
----
+Hmmm... Yes, Ahh! The tree_lock prohibits this sort of thing from 
+happening to regular pages. Right.... Yuck this could be expensive to fix.
 
- drivers/base/dd.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-0f836ca4c122f4ef096110d652a6326fe34e6961
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 730a9ce..889c711 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -209,7 +209,7 @@ static void __device_release_driver(stru
- 		sysfs_remove_link(&dev->kobj, "driver");
- 		klist_remove(&dev->knode_driver);
- 
--		if (dev->bus->remove)
-+		if (dev->bus && dev->bus->remove)
- 			dev->bus->remove(dev);
- 		else if (drv->remove)
- 			drv->remove(dev);
--- 
-1.2.6
-
-
+We are holding the anon_vma lock while remapping migration ptes. So we 
+could take the anonvma lock, check to see if the pte is still a migration
+pte if so then it cannot change and we can safely increase page 
+count.

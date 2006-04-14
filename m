@@ -1,77 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWDNL1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWDNLeL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWDNL1U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 07:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWDNL1T
+	id S1750781AbWDNLeL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 07:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWDNLeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 07:27:19 -0400
-Received: from mail.gmx.net ([213.165.64.20]:28862 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751095AbWDNL1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 07:27:19 -0400
-X-Authenticated: #2277123
-Message-ID: <443F86EB.8060903@gmx.de>
-Date: Fri, 14 Apr 2006 13:26:35 +0200
-From: Christian Heimanns <ch.heimanns@gmx.de>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Fri, 14 Apr 2006 07:34:11 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36359 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750781AbWDNLeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 07:34:10 -0400
+Date: Fri, 14 Apr 2006 13:34:09 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: mark.fasheh@oracle.com, kurt.hackel@oracle.com
+Cc: ocfs2-devel@oss.oracle.com, linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] fs/ocfs2/: remove unused exports
+Message-ID: <20060414113409.GJ4162@stusta.de>
 MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, pavel@suse.cz
-Subject: Re: Suspend to disk
-References: <443C0C2D.1020207@gmx.de> <200604112235.18943.rjw@sisk.pl> <200604112238.07166.rjw@sisk.pl>
-In-Reply-To: <200604112238.07166.rjw@sisk.pl>
-X-Enigmail-Version: 0.93.2.0
-OpenPGP: id=94079F4C
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the delay, I was on the road...
+This patch removes the following unused EXPORT_SYMBOL_GPL's:
+- cluster/heartbeat.c: o2hb_check_node_heartbeating_from_callback
+- cluster/heartbeat.c: o2hb_stop_all_regions
+- cluster/nodemanager.c: o2nm_get_node_by_num
+- cluster/nodemanager.c: o2nm_configured_node_map
+- cluster/nodemanager.c: o2nm_get_node_by_ip
+- cluster/nodemanager.c: o2nm_node_put
+- cluster/nodemanager.c: o2nm_node_get
+- dlm/dlmmaster.c: dlm_migrate_lockres
 
-Rafael J. Wysocki wrote:
-> [update]
-> 
-> On Tuesday 11 April 2006 22:35, Rafael J. Wysocki wrote:
->> On Tuesday 11 April 2006 22:06, Christian Heimanns wrote:
->>> Hello to all,
->>> following situation:
->>> On my notebook Samsung X20 1730V I'm running Slackware 10.2 current with
->>> kernel 2.6.15.6. Suspend to RAM and suspend to disk works fine.
->>> Since kernel >= 2.6.16 suspend to disk breaks the restore of the
->>> X-Server. That means that the current sessions is lost and the X-Server
->>> restarts.
->> Does it resume successfully without X (ie. runlevel 3)?
->>
->>> No problems with suspend to RAM. Please find attached the 
->>> dmesg output for kernel 2.6.15.6 and 2.6.16.2. As well there is the
->>> output frpm lspci. The only difference I can find is that I have with
->>> kernel 2.6.16 some
->> Do you use a framebuffer driver and if so, is it modular?
-> 
-> Sorry, I see in the logs that you do.  Could you please boot with vga=normal
-> and see if that helps?
-> 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I tried kernel 2.6.16.2 with vga=normal. No changes. Suspend to RAM
-works well, suspend to disk not. It's just the X-Server who restarts and
- I lose the suspended X-session. The following messages I've found in
-the dmesg output after resume:
-
-pnp: Device 00:08 does not supported activation.
-pnp: Device 00:09 does not supported activation.
-Restarting tasks... done
-
-No idea what pnp device 00:08 and 00:09 is! These problems I have only
-with the kernel >= 2.6.16
-
-Regards,
-Christian
--- 
 ---
-Christian Heimanns
-ch.heimanns<at>gmx<dot>de
 
-### Pinguine können nicht fliegen
-- Pinguine stürzen auch nicht ab! ###
+ fs/ocfs2/cluster/heartbeat.c   |    2 --
+ fs/ocfs2/cluster/nodemanager.c |    5 -----
+ fs/ocfs2/dlm/dlmmaster.c       |    1 -
+ 3 files changed, 8 deletions(-)
+
+--- linux-2.6.17-rc1-mm2-full/fs/ocfs2/cluster/heartbeat.c.old	2006-04-14 12:42:05.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/fs/ocfs2/cluster/heartbeat.c	2006-04-14 12:42:30.000000000 +0200
+@@ -1785,7 +1785,6 @@
+ 
+ 	return 1;
+ }
+-EXPORT_SYMBOL_GPL(o2hb_check_node_heartbeating_from_callback);
+ 
+ /* Makes sure our local node is configured with a node number, and is
+  * heartbeating. */
+@@ -1821,4 +1820,3 @@
+ 
+ 	spin_unlock(&o2hb_live_lock);
+ }
+-EXPORT_SYMBOL_GPL(o2hb_stop_all_regions);
+--- linux-2.6.17-rc1-mm2-full/fs/ocfs2/cluster/nodemanager.c.old	2006-04-14 12:42:49.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/fs/ocfs2/cluster/nodemanager.c	2006-04-14 12:43:40.000000000 +0200
+@@ -123,7 +123,6 @@
+ out:
+ 	return node;
+ }
+-EXPORT_SYMBOL_GPL(o2nm_get_node_by_num);
+ 
+ int o2nm_configured_node_map(unsigned long *map, unsigned bytes)
+ {
+@@ -140,7 +139,6 @@
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(o2nm_configured_node_map);
+ 
+ static struct o2nm_node *o2nm_node_ip_tree_lookup(struct o2nm_cluster *cluster,
+ 						  __be32 ip_needle,
+@@ -192,19 +190,16 @@
+ out:
+ 	return node;
+ }
+-EXPORT_SYMBOL_GPL(o2nm_get_node_by_ip);
+ 
+ void o2nm_node_put(struct o2nm_node *node)
+ {
+ 	config_item_put(&node->nd_item);
+ }
+-EXPORT_SYMBOL_GPL(o2nm_node_put);
+ 
+ void o2nm_node_get(struct o2nm_node *node)
+ {
+ 	config_item_get(&node->nd_item);
+ }
+-EXPORT_SYMBOL_GPL(o2nm_node_get);
+ 
+ u8 o2nm_this_node(void)
+ {
+--- linux-2.6.17-rc1-mm2-full/fs/ocfs2/dlm/dlmmaster.c.old	2006-04-14 12:44:19.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/fs/ocfs2/dlm/dlmmaster.c	2006-04-14 12:44:25.000000000 +0200
+@@ -2208,7 +2208,6 @@
+ 	mlog(0, "returning %d\n", ret);
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(dlm_migrate_lockres);
+ 
+ int dlm_lock_basts_flushed(struct dlm_ctxt *dlm, struct dlm_lock *lock)
+ {
+

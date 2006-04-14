@@ -1,379 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbWDNVTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbWDNVTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965176AbWDNVTj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 17:19:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbWDNVTP
+	id S965173AbWDNVTN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 17:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965172AbWDNVTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 17:19:15 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:23202 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965170AbWDNVTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 17:19:12 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:1708 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965168AbWDNVTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 14 Apr 2006 17:19:11 -0400
-Subject: [PATCH 02/05] percpu module insertion
+Subject: [PATCH 00/05] robust per_cpu allocation for modules
 From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
+To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
+       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
+       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
+       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
+       Joe Taylor <joe@tensilica.com>,
+       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
+       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
+       linux-mips@linux-mips.org, grundler@parisc-linux.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       paulus@samba.org, linux390@de.ibm.com, lethal@linux-sh.org,
+       davem@davemloft.net, chris@zankel.net
 Content-Type: text/plain
-Date: Fri, 14 Apr 2006 17:19:09 -0400
-Message-Id: <1145049549.1336.130.camel@localhost.localdomain>
+Date: Fri, 14 Apr 2006 17:18:55 -0400
+Message-Id: <1145049535.1336.128.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simplify module.c handling of the per_cpu variables of modules.
-Instead of copying the variables into a preallocated space in the
-kernel, create the modules own area for per_cpu variables and update
-the per_cpu_offset__##var section of the module to point to the
-offset.
+The current method of allocating space for per_cpu variables in modules
+is not robust and consumes quite a bit of space.
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+per_cpu variables:
 
-Index: linux-2.6.17-rc1/kernel/module.c
-===================================================================
---- linux-2.6.17-rc1.orig/kernel/module.c	2006-04-13 22:37:57.000000000 -0400
-+++ linux-2.6.17-rc1/kernel/module.c	2006-04-14 15:40:20.000000000 -0400
-@@ -2,6 +2,10 @@
-    Copyright (C) 2002 Richard Henderson
-    Copyright (C) 2001 Rusty Russell, 2002 Rusty Russell IBM.
- 
-+   Modification of per_cpu variables such that modules contain
-+   their own sections of these variables.
-+     -  Copyright(C) 2006 Steven Rostedt, Kihon Technologies Inc.
-+
-     This program is free software; you can redistribute it and/or modify
-     it under the terms of the GNU General Public License as published by
-     the Free Software Foundation; either version 2 of the License, or
-@@ -237,36 +241,6 @@ static struct module *find_module(const 
- }
- 
- #ifdef CONFIG_SMP
--/* Number of blocks used and allocated. */
--static unsigned int pcpu_num_used, pcpu_num_allocated;
--/* Size of each block.  -ve means used. */
--static int *pcpu_size;
--
--static int split_block(unsigned int i, unsigned short size)
--{
--	/* Reallocation required? */
--	if (pcpu_num_used + 1 > pcpu_num_allocated) {
--		int *new = kmalloc(sizeof(new[0]) * pcpu_num_allocated*2,
--				   GFP_KERNEL);
--		if (!new)
--			return 0;
--
--		memcpy(new, pcpu_size, sizeof(new[0])*pcpu_num_allocated);
--		pcpu_num_allocated *= 2;
--		kfree(pcpu_size);
--		pcpu_size = new;
--	}
--
--	/* Insert a new subblock */
--	memmove(&pcpu_size[i+1], &pcpu_size[i],
--		sizeof(pcpu_size[0]) * (pcpu_num_used - i));
--	pcpu_num_used++;
--
--	pcpu_size[i+1] -= size;
--	pcpu_size[i] = size;
--	return 1;
--}
--
- static inline unsigned int block_size(int val)
- {
- 	if (val < 0)
-@@ -280,8 +254,6 @@ extern char __per_cpu_start[], __per_cpu
- static void *percpu_modalloc(unsigned long size, unsigned long align,
- 			     const char *name)
- {
--	unsigned long extra;
--	unsigned int i;
- 	void *ptr;
- 
- 	if (align > SMP_CACHE_BYTES) {
-@@ -289,68 +261,65 @@ static void *percpu_modalloc(unsigned lo
- 		       name, align, SMP_CACHE_BYTES);
- 		align = SMP_CACHE_BYTES;
- 	}
-+	size = ALIGN(size, SMP_CACHE_BYTES);
-+
-+	ptr = kmalloc(size * NR_CPUS, GFP_KERNEL);
-+	if (!ptr)
-+		printk(KERN_WARNING "Could not allocate %lu bytes percpu data\n",
-+		       size);
-+	return ptr;
-+}
- 
--	ptr = __per_cpu_start;
--	for (i = 0; i < pcpu_num_used; ptr += block_size(pcpu_size[i]), i++) {
--		/* Extra for alignment requirement. */
--		extra = ALIGN((unsigned long)ptr, align) - (unsigned long)ptr;
--		BUG_ON(i == 0 && extra != 0);
-+static void percpu_modfree(void *freeme, void *freemetoo)
-+{
-+	kfree(freeme);
-+	kfree(freemetoo);
-+}
- 
--		if (pcpu_size[i] < 0 || pcpu_size[i] < extra + size)
--			continue;
-+static void *percpu_offset_setup(void *dest,
-+				 unsigned long var_size,
-+				 unsigned long sect_size)
-+{
-+	unsigned long *ptr = dest;
-+	unsigned long *per_cpu_offset;
-+	int i;
- 
--		/* Transfer extra to previous block. */
--		if (pcpu_size[i-1] < 0)
--			pcpu_size[i-1] -= extra;
--		else
--			pcpu_size[i-1] += extra;
--		pcpu_size[i] -= extra;
--		ptr += extra;
--
--		/* Split block if warranted */
--		if (pcpu_size[i] - size > sizeof(unsigned long))
--			if (!split_block(i, size))
--				return NULL;
--
--		/* Mark allocated */
--		pcpu_size[i] = -pcpu_size[i];
--		return ptr;
--	}
-+	/* make sure everything is smp cache aligned */
-+	var_size = ALIGN(var_size, SMP_CACHE_BYTES);
- 
--	printk(KERN_WARNING "Could not allocate %lu bytes percpu data\n",
--	       size);
--	return NULL;
-+	/* allocate the modules own per_cpu_offset pointer */
-+	per_cpu_offset = kmalloc(sizeof(unsigned long) * NR_CPUS, GFP_KERNEL);
-+	if (!per_cpu_offset)
-+		return NULL;
-+
-+	/* Set the pointer to the index of each CPU area */
-+	for (i = 0; i < NR_CPUS; i++)
-+		per_cpu_offset[i] = (i * var_size);
-+
-+	/*
-+	 * Now copy this offset to all of the percpu_offset pointers in the
-+	 * percpu_offset section. This is how the per_cpu variables can find
-+	 * the offset into this section from the per_cpu macros.
-+	 */
-+	for (i=0; i < sect_size; i++, ptr++)
-+		*ptr = (unsigned long)per_cpu_offset;
-+
-+	return per_cpu_offset;
- }
- 
--static void percpu_modfree(void *freeme)
-+static void percpu_modcopy(void *pcpudst, const void *src,
-+			   unsigned long size,
-+			   unsigned long *per_cpu_offset)
- {
- 	unsigned int i;
--	void *ptr = __per_cpu_start + block_size(pcpu_size[0]);
- 
--	/* First entry is core kernel percpu data. */
--	for (i = 1; i < pcpu_num_used; ptr += block_size(pcpu_size[i]), i++) {
--		if (ptr == freeme) {
--			pcpu_size[i] = -pcpu_size[i];
--			goto free;
--		}
--	}
--	BUG();
-+	if (!pcpudst)
-+		return;
- 
-- free:
--	/* Merge with previous? */
--	if (pcpu_size[i-1] >= 0) {
--		pcpu_size[i-1] += pcpu_size[i];
--		pcpu_num_used--;
--		memmove(&pcpu_size[i], &pcpu_size[i+1],
--			(pcpu_num_used - i) * sizeof(pcpu_size[0]));
--		i--;
--	}
--	/* Merge with next? */
--	if (i+1 < pcpu_num_used && pcpu_size[i+1] >= 0) {
--		pcpu_size[i] += pcpu_size[i+1];
--		pcpu_num_used--;
--		memmove(&pcpu_size[i+1], &pcpu_size[i+2],
--			(pcpu_num_used - (i+1)) * sizeof(pcpu_size[0]));
-+	for (i=0; i < NR_CPUS; i++) {
-+		if (cpu_possible(i))
-+			memcpy(pcpudst + per_cpu_offset[i],
-+			       src, size);
- 	}
- }
- 
-@@ -361,24 +330,13 @@ static unsigned int find_pcpusec(Elf_Ehd
- 	return find_sec(hdr, sechdrs, secstrings, ".data.percpu");
- }
- 
--static int percpu_modinit(void)
-+static unsigned int find_pcpuoffsetsec(Elf_Ehdr *hdr,
-+				       Elf_Shdr *sechdrs,
-+				       const char *secstrings)
- {
--	pcpu_num_used = 2;
--	pcpu_num_allocated = 2;
--	pcpu_size = kmalloc(sizeof(pcpu_size[0]) * pcpu_num_allocated,
--			    GFP_KERNEL);
--	/* Static in-kernel percpu data (used). */
--	pcpu_size[0] = -ALIGN(__per_cpu_end-__per_cpu_start, SMP_CACHE_BYTES);
--	/* Free room. */
--	pcpu_size[1] = PERCPU_ENOUGH_ROOM + pcpu_size[0];
--	if (pcpu_size[1] < 0) {
--		printk(KERN_ERR "No per-cpu room for modules.\n");
--		pcpu_num_used = 1;
--	}
-+	return find_sec(hdr, sechdrs, secstrings, ".data.percpu_offset");
-+}
- 
--	return 0;
--}	
--__initcall(percpu_modinit);
- #else /* ... !CONFIG_SMP */
- static inline void *percpu_modalloc(unsigned long size, unsigned long align,
- 				    const char *name)
-@@ -389,14 +347,29 @@ static inline void percpu_modfree(void *
- {
- 	BUG();
- }
-+
-+static inline void *percpu_offset_setup(void *dest,
-+					unsigned long var_size,
-+					unsigned long sect_size)
-+{
-+	return NULL;
-+}
-+
- static inline unsigned int find_pcpusec(Elf_Ehdr *hdr,
- 					Elf_Shdr *sechdrs,
- 					const char *secstrings)
- {
- 	return 0;
- }
-+static inline unsigned int find_pcpuoffsetsec(Elf_Ehdr *hdr,
-+					      Elf_Shdr *sechdrs,
-+					      const char *secstrings)
-+{
-+	return 0;
-+}
- static inline void percpu_modcopy(void *pcpudst, const void *src,
--				  unsigned long size)
-+				  unsigned long size,
-+				  unsigned long *per_cpu_offset)
- {
- 	/* pcpusec should be 0, and size of that section should be 0. */
- 	BUG_ON(size != 0);
-@@ -1061,7 +1034,7 @@ static void free_module(struct module *m
- 	module_free(mod, mod->module_init);
- 	kfree(mod->args);
- 	if (mod->percpu)
--		percpu_modfree(mod->percpu);
-+		percpu_modfree(mod->percpu, mod->percpu_offset);
- 
- 	/* Finally, free the core (containing the module structure) */
- 	module_free(mod, mod->module_core);
-@@ -1411,13 +1384,14 @@ static struct module *load_module(void _
- 	char *secstrings, *args, *modmagic, *strtab = NULL;
- 	unsigned int i, symindex = 0, strindex = 0, setupindex, exindex,
- 		exportindex, modindex, obsparmindex, infoindex, gplindex,
--		crcindex, gplcrcindex, versindex, pcpuindex, gplfutureindex,
--		gplfuturecrcindex;
-+		crcindex, gplcrcindex, versindex, pcpuindex, pcpuoffsetindex,
-+		gplfutureindex,	gplfuturecrcindex;
- 	struct module *mod;
- 	long err = 0;
- 	void *percpu = NULL, *ptr = NULL; /* Stops spurious gcc warning */
- 	struct exception_table_entry *extable;
- 	mm_segment_t old_fs;
-+	unsigned long *percpu_offset = NULL;
- 
- 	DEBUGP("load_module: umod=%p, len=%lu, uargs=%p\n",
- 	       umod, len, uargs);
-@@ -1502,6 +1476,7 @@ static struct module *load_module(void _
- 	versindex = find_sec(hdr, sechdrs, secstrings, "__versions");
- 	infoindex = find_sec(hdr, sechdrs, secstrings, ".modinfo");
- 	pcpuindex = find_pcpusec(hdr, sechdrs, secstrings);
-+	pcpuoffsetindex = find_pcpuoffsetsec(hdr, sechdrs, secstrings);
- 
- 	/* Don't keep modinfo section */
- 	sechdrs[infoindex].sh_flags &= ~(unsigned long)SHF_ALLOC;
-@@ -1550,6 +1525,7 @@ static struct module *load_module(void _
- 		goto free_mod;
- 
- 	if (pcpuindex) {
-+		BUG_ON(!pcpuoffsetindex);
- 		/* We have a special allocation for this section. */
- 		percpu = percpu_modalloc(sechdrs[pcpuindex].sh_size,
- 					 sechdrs[pcpuindex].sh_addralign,
-@@ -1598,9 +1574,20 @@ static struct module *load_module(void _
- 		else
- 			dest = mod->module_core + sechdrs[i].sh_entsize;
- 
--		if (sechdrs[i].sh_type != SHT_NOBITS)
--			memcpy(dest, (void *)sechdrs[i].sh_addr,
--			       sechdrs[i].sh_size);
-+		if (sechdrs[i].sh_type != SHT_NOBITS) {
-+			if (i && i == pcpuoffsetindex) {
-+				unsigned long *ret;
-+				BUG_ON(!pcpuindex);
-+				ret = percpu_offset_setup(dest,
-+							  sechdrs[pcpuindex].sh_size,
-+							  sechdrs[i].sh_size);
-+				if (!ret)
-+					goto cleanup; /* is this right? */
-+				percpu_offset = ret;
-+			} else
-+				memcpy(dest, (void *)sechdrs[i].sh_addr,
-+				       sechdrs[i].sh_size);
-+		}
- 		/* Update sh_addr to point to copy in image. */
- 		sechdrs[i].sh_addr = (unsigned long)dest;
- 		DEBUGP("\t0x%lx %s\n", sechdrs[i].sh_addr, secstrings + sechdrs[i].sh_name);
-@@ -1608,6 +1595,9 @@ static struct module *load_module(void _
- 	/* Module has been moved. */
- 	mod = (void *)sechdrs[modindex].sh_addr;
- 
-+	/* Update the percpu_offset here since we might miss it when copying */
-+	mod->percpu_offset = percpu_offset;
-+
- 	/* Now we've moved module, initialize linked lists, etc. */
- 	module_unload_init(mod);
- 
-@@ -1688,7 +1678,7 @@ static struct module *load_module(void _
- 
- 	/* Finally, copy percpu area over. */
- 	percpu_modcopy(mod->percpu, (void *)sechdrs[pcpuindex].sh_addr,
--		       sechdrs[pcpuindex].sh_size);
-+		       sechdrs[pcpuindex].sh_size, mod->percpu_offset);
- 
- 	add_kallsyms(mod, sechdrs, symindex, strindex, secstrings);
- 
-@@ -1753,7 +1743,7 @@ static struct module *load_module(void _
- 	module_free(mod, mod->module_core);
-  free_percpu:
- 	if (percpu)
--		percpu_modfree(percpu);
-+		percpu_modfree(percpu, percpu_offset);
-  free_mod:
- 	kfree(args);
-  free_hdr:
-Index: linux-2.6.17-rc1/include/linux/module.h
-===================================================================
---- linux-2.6.17-rc1.orig/include/linux/module.h	2006-04-13 22:37:57.000000000 -0400
-+++ linux-2.6.17-rc1/include/linux/module.h	2006-04-13 22:38:07.000000000 -0400
-@@ -319,6 +319,7 @@ struct module
- 
- 	/* Per-cpu data. */
- 	void *percpu;
-+	unsigned long *percpu_offset;
- 
- 	/* The command line arguments (may be mangled).  People like
- 	   keeping pointers to this stuff */
+The per_cpu variables are declared by code that needs to have variables
+spaced out by cache lines on SMP machines, such that, writing to any of
+these variables on one CPU wont be in danger of writing into a cache
+line of a global variable shared by other CPUs.  If this were to happen,
+the performance would go down by having the CPUs unnecessarily needing
+to update cache lines across CPUs for even read only global variables.
 
+To solve this, a developer needs only to declare a per_cpu variable
+using the DECLARE_PER_CPU(type, var) macro.  This would then place the
+variable into the .data.percpu section.  On boot up, an area is
+allocated by the size of this section + PERCPU_ENOUGH_ROOM (mentioned
+later) times NR_CPUS.  Then the .data.percpu section is copied into this
+area once for NR_CPUS.  The .data.percpu section is later discarded (the
+variables now exist in the allocated area).
+
+The __per_cpu_offset[] array holds the difference between
+the .data.percpu section and the location where the data is actually
+stored. __per_cpu_offset[0] holds the difference for the variables
+assigned to cpu 0, __per_cpu_offset[1] holds the difference for the
+variables to cpu 1, and so on.
+
+To access a per_cpu variable, the per_cpu(var, cpu) macro is used.  This
+macro returns the address of the variable (still pointing to the
+discarded .data.percpu section) plus the __per_cpu_offset[cpu]. So the
+result is the location to the actual variable for the specified CPU
+located in the allocated area.
+
+Modules:
+
+Since there is no way to know from per_cpu if the variable was part of a
+module, or part of the kernel, the variables for the module need to be
+located in the same allocated area as the per_cpu variables created in
+the kernel.
+
+Why is that?
+
+The per_cpu variables are used in the kernel basically like normal
+variables.  For example:
+
+with:
+  DEFINE_PER_CPU(int, myint);
+
+we can do the following:
+  per_cpu(myint, cpu) = 4;
+  int i = per_cpu(myint, cpu);
+  int *i = &per_cpu(myint, cpu);
+
+Not to mention that we can export these variables as well so that a
+module can be using a per_cpu variable from the kernel, or even declared
+in another module and exported (the net code does this).
+
+Now remember, the variables are still located in the discarded sections,
+but their content is in allocated space offset per cpu.  We have a
+single array storing these offsets (__per_cpu_offset).  So this makes it
+very difficult to define special DEFINE/DECLARE_PER_CPU macros and use
+the CONFIG_MODULE to play magic in figuring things out.  Mainly because
+we have one per_cpu macro that can be used in a module referencing
+per_cpu variables declared in the kernel, declared in the given module,
+or even declared in another module.
+
+PERCPU_ENOUGH_ROOM:
+
+When you configure an SMP kernel with loadable modules, the kernel needs
+to take an aggressive stance and preallocate enough room to hold the
+per_cpu variables in all the modules that could be loaded.  To make
+matters worst, this space is allocated per cpu!  So if you have a 64
+processor machine with loadable modules, you are allocating extra space
+for each of the 64 CPUs even if you never load a module that has a
+per_cpu variable in it!
+
+Currently PERCPU_ENOUGH_ROOM is defined as 32768 (32K).  On my 2x intel
+SMP machine, with my normal configuration, using 2.6.17-rc1, the size
+of .data.percpu is 17892 (17K).  So the extra space for the modules is
+32768 - 17892 = 14876 (14K).  Now this is needed for every CPU so I am
+actually using 
+14876 * 2 = 29752 (or 29K).
+
+Now looking at the modules that I have loaded, none of them had
+a .data.percpu section defined, so that 29K was a complete waste!
+
+
+So the current solution has two flaws:
+1. not robust. If we someday add more modules that together take up
+   more than 14K, we need to manually update the PERCPU_ENOUGH_ROOM.
+2. waste of memory.  We have 14K of memory wasted per CPU. Remember
+   a 64 processor machine would be wasting 896K of memory!
+
+
+A solution:
+
+I spent some time trying to come up with a solution to all this.
+Something that wouldn't be too intrusive to the way things already work.
+I received nice input from Andi Kleen and Thomas Gleixner.  I first
+tried to use the __builtin_choose_expr and __builtin_types_compatible_p
+to determine if a variable is from the kernel or modules at compile
+time. But unfortunately, I've been told that makes things too complex,
+but even worst it had "show stopping" flaws.
+
+Ideally this could be resolved at link time of the module, but that too
+would require looking into the relocation tables which are different for
+every architecture.  This would be too intrusive, and prone to bugs.
+
+So I went for a much simpler solution.  This solution is not optimal in
+saving space, but it does much better than what is currently
+implemented, and is still easy to understand and manage, which alone may
+outweigh an optimal space solution.
+
+First off, if CONFIG_SMP or CONFIG_MODULES is not set, the solution is
+the same as it currently is.  So my solution only affects the kernel if
+both CONFIG_SMP and CONFIG_MODULES are set (this is the same
+configuration that wastes the memory in the current implementation).
+
+I created a new section called, .data.percpu_offset.  This section will
+hold a pointer for every variable that is declared as per_cpu with
+DEFINE_PER_CPU.  Although this wastes space too, the amount of space
+needed for my setup (the same configuration that wastes 14K per cpu) is
+4368 (4K).  Since this section is not copied for every CPU, this saves
+us 10K for the first cpu (14 - 4) and 14K for every CPU after that! So
+this saves on my setup 24K. (Note: I noticed that I used the default
+NR_CPUS which is 8, so this really saved me 108K).
+
+The data in .data.percpu_offset holds is referenced by the per_cpu
+variable name which points to the __per_cpu_offset array.  For modules,
+it will point to the per_cpu_offset array of the module.
+
+Example:
+
+ DEFINE_PER_CPU(int, myint);
+
+ would now create a variable called per_cpu_offset__myint in
+the .data.percpu_offset section.  This variable will point to the (if
+defined in the kernel) __per_cpu_offset[] array.  If this was a module
+variable, it would point to the module per_cpu_offset[] array which is
+created when the modules is loaded.
+
+So now I get rid of the PERCPU_ENOUGH_ROOM constant and some of the
+complexity in kernel/module.c that shares code with the kernel, and each
+module has it's own allocation of per_cpu data. And this means the
+per_cpu data is more robust (can handle future changes in the modules)
+and saves up space.
+
+
+Draw backs:
+
+The one draw back I have on this, is because the DECLARE_PER_CPU macro
+declares two variables now, you can't declare a "static DEFINE_PER_CPU".
+So instead I created a DEFINE_STATIC_PER_CPU macro to handle this case.
+
+The following patch set is against 2.6.17-rc1, but this patch set is
+currently only for i386.  I have a x86_64 that I can work on to port,
+but I will need the help of others to port to some other archs, mostly
+the other 64 bit archs.  I tried to CC the maintainers of the other
+archs (those listed in the vmlinux.lds, include/asm-<arch>/percpu.h
+files and the MAINTAINER file).
+
+I'm not going to spam the CC list (nor Andrew) with the rest of the
+patches (only 5).  Please see LKML for the rest.
+
+-- Steve
 

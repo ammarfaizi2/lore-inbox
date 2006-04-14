@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWDNXCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWDNXPs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWDNXCY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 19:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWDNXCY
+	id S1751441AbWDNXPs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 19:15:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWDNXPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 19:02:24 -0400
-Received: from mga02.intel.com ([134.134.136.20]:58647 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751296AbWDNXCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 19:02:22 -0400
-X-IronPort-AV: i="4.04,121,1144047600"; 
-   d="scan'208"; a="23419961:sNHT15985431"
-Subject: RE: [patch 1/3] acpi: dock driver
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, linux-acpi@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       mochel@linux.intel.com, arjan@linux.intel.com,
-       muneda.takahiro@jp.fujitsu.com, pavel@ucw.cz, temnota@kmv.ru
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6300EE2@hdsmsx411.amr.corp.intel.com>
-References: <CFF307C98FEABE47A452B27C06B85BB6300EE2@hdsmsx411.amr.corp.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 14 Apr 2006 16:11:00 -0700
-Message-Id: <1145056260.29319.55.camel@whizzy>
+	Fri, 14 Apr 2006 19:15:48 -0400
+Received: from modeemi.modeemi.cs.tut.fi ([130.230.72.134]:39098 "EHLO
+	modeemi.modeemi.cs.tut.fi") by vger.kernel.org with ESMTP
+	id S1751441AbWDNXPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 19:15:48 -0400
+Date: Sat, 15 Apr 2006 02:15:41 +0300
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/1] Open IPMI BT overflow
+Message-ID: <20060414231541.GR3988@jolt.modeemi.cs.tut.fi>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-X-OriginalArrivalTime: 14 Apr 2006 23:02:21.0174 (UTC) FILETIME=[7C404960:01C66017]
+Content-Type: multipart/mixed; boundary="wxDdMuZNg1r63Hyj"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: shd@jolt.modeemi.cs.tut.fi (Heikki Orsila)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-14 at 15:42 -0700, Brown, Len wrote:
->  Re: indenting & white-space
-> 
-> Please run the whole thing through the latest Lindent.
-> It will delete the white space.
-> It will do a couple of stupid things with indenting --
-> such as with MODULE_AUTHOR --
-> feel free to hand tweak those by hand.
-> 
-> Re: acpi_os_free()
-> Please call kfree() instead, that wrapper is intended
-> just for the ACPICA core and although it appears symmetric,
-> it really shouldn't be used outside drivers/acpi/*/*.c
 
-Really?  why is it exported then?  We use this in drivers/pci/hotplug as
-well, and it is all over the place in drivers/acpi.  Should I be
-modifying the hotplug drivers to not use this call?
+--wxDdMuZNg1r63Hyj
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+
+I was looking into random driver code and found a suspicious looking 
+memcpy() in drivers/char/ipmi/ipmi_bt_sm.c on 2.6.17-rc1:
+
+	if ((size < 2) || (size > IPMI_MAX_MSG_LENGTH))
+		return -1;
+	...
+	memcpy(bt->write_data + 3, data + 1, size - 1);
+
+where sizeof bt->write_data is IPMI_MAX_MSG_LENGTH. It looks like the 
+memcpy would overflow by 2 bytes if size == IPMI_MAX_MSG_LENGTH. A patch 
+attached to limit size to (IPMI_MAX_LENGTH - 2). I'm unfamiliar with the 
+driver and interface so it's very possible I'm wrong.
+
+-- 
+Heikki Orsila			Barbie's law:
+heikki.orsila@iki.fi		"Math is hard, let's go shopping!"
+http://www.iki.fi/shd
+
+--wxDdMuZNg1r63Hyj
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: attachment; filename="ipmi_bt_sm-overflow.diff"
+
+diff -urp linux-2.6.17-rc1-org/drivers/char/ipmi/ipmi_bt_sm.c linux-2.6.17-rc1/drivers/char/ipmi/ipmi_bt_sm.c
+--- linux-2.6.17-rc1-org/drivers/char/ipmi/ipmi_bt_sm.c	2006-04-03 06:22:10.000000000 +0300
++++ linux-2.6.17-rc1/drivers/char/ipmi/ipmi_bt_sm.c	2006-04-15 02:05:29.000000000 +0300
+@@ -165,7 +165,7 @@ static int bt_start_transaction(struct s
+ {
+ 	unsigned int i;
+ 
+-	if ((size < 2) || (size > IPMI_MAX_MSG_LENGTH))
++	if ((size < 2) || (size > (IPMI_MAX_MSG_LENGTH - 2)))
+ 	       return -1;
+ 
+ 	if ((bt->state != BT_STATE_IDLE) && (bt->state != BT_STATE_HOSED))
+
+--wxDdMuZNg1r63Hyj--

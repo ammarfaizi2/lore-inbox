@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWDNTC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWDNTHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbWDNTC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 15:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWDNTC7
+	id S1751392AbWDNTHK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 15:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWDNTHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 15:02:59 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:9744 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1751416AbWDNTC7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 15:02:59 -0400
-Message-ID: <443FF1D9.4060904@argo.co.il>
-Date: Fri, 14 Apr 2006 22:02:49 +0300
-From: Avi Kivity <avi@argo.co.il>
+	Fri, 14 Apr 2006 15:07:10 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:55481 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751392AbWDNTHH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 15:07:07 -0400
+Message-ID: <443FF23B.8020209@zytor.com>
+Date: Fri, 14 Apr 2006 12:04:27 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
 User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Dustin Kirkland <dustin.kirkland@us.ibm.com>
-CC: "Theodore Ts'o" <tytso@mit.edu>, Kylene Jo Hall <kjhall@us.ibm.com>,
-       kbuild-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make: add modules_update target
-References: <1145027216.12054.164.camel@localhost.localdomain>	 <20060414170222.GA19172@thunk.org>  <443FE350.5040502@argo.co.il> <1145039347.3074.11.camel@localhost.localdomain>
-In-Reply-To: <1145039347.3074.11.camel@localhost.localdomain>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [PATCH][TAKE 3] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
+ limit
+References: <443EE4C3.5040409@gmail.com> <443FE1AF.8050507@zytor.com> <443FE560.6010805@gmail.com> <443FEDF9.6050203@zytor.com> <443FF181.6000004@gmail.com>
+In-Reply-To: <443FF181.6000004@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Apr 2006 19:02:54.0593 (UTC) FILETIME=[0919FF10:01C65FF6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dustin Kirkland wrote:
-> On Fri, 2006-04-14 at 21:00 +0300, Avi Kivity wrote:
->   
->> How about using rsync with --delete as a substitute for cp (if rsync is 
->> available)?
->>     
->
-> I thought about this, but a "grep -r rsync" didn't turn up any previous
-> hits in the kernel build process.  I didn't want to introduce this as a
-> new dependency for kernel building, if it's possible to avoid...
->   
-Use rsync only if it is available:
+Alon Bar-Lev wrote:
+> H. Peter Anvin wrote:
+>>
+>> Well, obviously, since apparently LILO doesn't properly null-terminate 
+>> long command line.
+>>
+>> Thinking about it a bit, the way to deal with the LILO problem is 
+>> probably to actually *usw* the boot loader ID byte we've had in there 
+>> since the 2.00 protocol.  In other words, if the boot loader ID is 
+>> 0x1X where X <= current version (I don't know how LILO manages this 
+>> ID) then truncate the command line to 255 bytes; when this is fixed in 
+>> LILO then LILO gets to bump its boot loader ID version number.
+>>
+>>     -hpa
+> 
+> I don't understand...
+> 
+> If LILO worked until now, it should continue to work after applying this 
+> patch, since nothing was changed from its perspective. It will continue 
+> to provide 255 characters + null command line, so even if you have 1024 
+> max command-line, then you will still receive truncated to 255 chars.
+> 
 
-    rsync-available := $(shell rsync --version > /dev/null 2>&1 && echo y)
-    copy := $(if $(rsync-available), rsync --delete, cp)
+Does anyone know the actual details of the LILO breakage?  If the 
+problem is that LILO doesn't null-terminate the string when it's too 
+long, then we can deal with this automatically, without introducing 
+compile-time options (which were already once rejected.)
 
-    modules_install:
-               [...]
-               $(copy) source target
+If the problem is with LILO booting *old* kernels, then that's going to 
+have to require some LILO changes, and probably a boot revision bump.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+	-hpa

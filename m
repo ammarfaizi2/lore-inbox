@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbWDNUBn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWDNUBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965096AbWDNUBn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 16:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWDNUBn
+	id S965073AbWDNUBd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 16:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWDNUBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 16:01:43 -0400
-Received: from cantor.suse.de ([195.135.220.2]:39388 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965096AbWDNUBm (ORCPT
+	Fri, 14 Apr 2006 16:01:33 -0400
+Received: from ns2.suse.de ([195.135.220.15]:25036 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965073AbWDNUBc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 16:01:42 -0400
-Date: Fri, 14 Apr 2006 13:00:37 -0700
+	Fri, 14 Apr 2006 16:01:32 -0400
+Date: Fri, 14 Apr 2006 13:00:30 -0700
 From: Greg KH <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PATCH] Driver Core and sysfs patches for 2.6.17-rc1
-Message-ID: <20060414200037.GA5478@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [GIT PATCH] USB fixes and patches for 2.6.17-rc1
+Message-ID: <20060414200030.GA5693@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,80 +22,152 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some driver core and sysfs patches for 2.6.17-rc1.  They contain
-the following changes:
-	- allow sysfs files to be polled (this missed the initial
-	  2.6.16-git merge due to the patch being reworked by Neil.  It
-	  has been included in the -mm tree for a number of months now
-	  with no reported issues.  Sorry for missing this one the first
-	  time around this cycle)
-	- fix bug in manual binding of devices to drivers.
-	- report the offending driver when suspend fails
-	- fix partition scanning and reporting to userspace (was being
-	  reported before the scanning was finished, which isn't very
-	  nice.)
-	- few other minor bugfixes and build fixes.
+Here are some USB fixes for 2.6.17-rc1.  They consist of the following
+changes:
+	- unified touchscreen driver, fixing issues in the older ones
+	- new usb-serial driver (fixing an issue it had with the generic
+	  driver).
+	- move a header file so a wireless usb driver can be added to
+	  the kernel.
+	- usb gadget updates and fixes
+	- new device ids added
+	- other random bugfixes.
 
-All of these patches have been in the -mm tree for a number of weeks, if
-not months (in the case of the sysfs poll patch).
+All of these changes have been in the -mm tree for a number of weeks.
 
 Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
 or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
 
-Patches will be sent as a follow-on to this message to lkml for people
-to see.
+The full patches will be sent to the linux-usb-devel mailing list, if
+anyone wants to see them.
 
 thanks,
 
 greg k-h
 
 
- arch/i386/kernel/Makefile    |    2 -
- arch/ia64/kernel/Makefile    |    3 -
- arch/x86_64/kernel/Makefile  |    4 --
- drivers/base/bus.c           |    5 ++
- drivers/base/class.c         |   13 +++----
- drivers/base/dd.c            |    2 -
- drivers/base/power/suspend.c |   12 ++++++
- drivers/firmware/Makefile    |    3 +
- drivers/firmware/dmi_scan.c  |   12 +++---
- drivers/md/md.c              |    1 
- drivers/pci/pci-driver.c     |    6 ++-
- drivers/pci/pci.c            |    6 ++-
- drivers/usb/core/hcd-pci.c   |    7 +--
- fs/partitions/check.c        |   38 ++++++++++++++++-----
- fs/sysfs/dir.c               |    1 
- fs/sysfs/file.c              |   76 +++++++++++++++++++++++++++++++++++++++++++
- fs/sysfs/sysfs.h             |    1 
- include/linux/genhd.h        |    1 
- include/linux/kobject.h      |    2 +
- include/linux/pm.h           |    8 ++++
- include/linux/sysfs.h        |    6 +++
- lib/kobject.c                |    1 
- 22 files changed, 173 insertions(+), 37 deletions(-)
+ drivers/usb/atm/ueagle-atm.c       |   52 ++-
+ drivers/usb/core/Kconfig           |    7 
+ drivers/usb/core/hub.c             |    8 
+ drivers/usb/core/usb.c             |    2 
+ drivers/usb/gadget/Kconfig         |    4 
+ drivers/usb/gadget/at91_udc.c      |    4 
+ drivers/usb/gadget/ether.c         |    6 
+ drivers/usb/gadget/file_storage.c  |   38 +-
+ drivers/usb/gadget/gadget_chips.h  |    6 
+ drivers/usb/gadget/inode.c         |   24 -
+ drivers/usb/gadget/net2280.c       |   93 ++++-
+ drivers/usb/gadget/net2280.h       |  415 -------------------------
+ drivers/usb/gadget/zero.c          |    7 
+ drivers/usb/host/ohci-at91.c       |   35 +-
+ drivers/usb/host/ohci-s3c2410.c    |   41 +-
+ drivers/usb/host/pci-quirks.c      |    1 
+ drivers/usb/host/pci-quirks.h      |    7 
+ drivers/usb/host/uhci-hcd.c        |    7 
+ drivers/usb/host/uhci-hcd.h        |    1 
+ drivers/usb/host/uhci-hub.c        |   18 -
+ drivers/usb/input/Kconfig          |   60 +--
+ drivers/usb/input/Makefile         |    1 
+ drivers/usb/input/hid-core.c       |   14 
+ drivers/usb/input/hid-ff.c         |    6 
+ drivers/usb/input/hid.h            |    5 
+ drivers/usb/input/keyspan_remote.c |    2 
+ drivers/usb/input/usbtouchscreen.c |  605 +++++++++++++++++++++++++++++++++++++
+ drivers/usb/input/wacom.c          |  136 +++++---
+ drivers/usb/misc/usbtest.c         |   13 
+ drivers/usb/net/asix.c             |  327 +++++++++----------
+ drivers/usb/net/pegasus.c          |    2 
+ drivers/usb/net/rndis_host.c       |   28 +
+ drivers/usb/serial/Kconfig         |    9 
+ drivers/usb/serial/Makefile        |    1 
+ drivers/usb/serial/console.c       |    2 
+ drivers/usb/serial/ftdi_sio.c      |    2 
+ drivers/usb/serial/ftdi_sio.h      |   15 
+ drivers/usb/serial/funsoft.c       |   65 +++
+ drivers/usb/serial/pl2303.c        |    1 
+ drivers/usb/serial/pl2303.h        |    4 
+ drivers/usb/serial/usb-serial.c    |   16 
+ drivers/usb/serial/usb-serial.h    |    6 
+ include/linux/usb/net2280.h        |  444 +++++++++++++++++++++++++++
+ 43 files changed, 1741 insertions(+), 799 deletions(-)
 
 ---------------
 
+Adrian Bunk:
+      USB: pci-quirks.c: proper prototypes
+      USB: input/: proper prototypes
+      USB: drivers/usb/core/: remove unused exports
+
 Alan Stern:
-      driver core: safely unbind drivers for devices not on a bus
+      USB: g_file_storage: Set short_not_ok for bulk-out transfers
+      USB: g_file_storage: add comment about buffer allocation
+      USB: g_file_storage: use module_param_array_named macro
+      USB: UHCI: don't track suspended ports
 
-Andrew Morton:
-      pm: print name of failed suspend function
+Ben Dooks:
+      USB: cleanups for ohci-s3c2410.c
+      USB: S3C2410: use clk_enable() to ensure 48MHz to OHCI core
 
-Bjorn Helgaas:
-      DMI: move dmi_scan.c from arch/i386 to drivers/firmware/
+Daniel Ritz:
+      USB: usbtouchscreen: unified USB touchscreen driver
+      usb/input: remove Kconfig entries of old touchscreen drivers in favour of usbtouchscreen
 
-Jayachandran C:
-      driver core: fix unnecessary NULL check in drivers/base/class.c
+David Brownell:
+      USB: otg hub support is optional
+      USB: fix gadget_is_musbhdrc()
+      USB: net2280 short rx status fix
+      USB: rndis_host whitespace/comment updates
+      USB: gadgetfs highspeed bugfix
+      USB: gadget zero poisons OUT buffers
+      USB: at91 usb driver supend/resume fixes
+      USB: usbtest: scatterlist OUT data pattern testing
+      USB: g_ether, highspeed conformance fix
 
-Kay Sievers:
-      BLOCK: delay all uevents until partition table is scanned
+David Hollis:
+      USB: Rename ax8817x_func() to asix_func() and add utility functions to reduce bloat
 
-NeilBrown:
-      sysfs: Allow sysfs attribute files to be pollable
+Folkert van Heusden:
+      USB: add support for Papouch TMU (USB thermometer)
 
-Ryan Wilson:
-      driver core: driver_bind attribute returns incorrect value
+Greg Kroah-Hartman:
+      USB: add driver for funsoft usb serial device
+
+Guennadi Liakhovetski:
+      USB: net2282 and net2280 software compatibility
+
+Ian Abbott:
+      USB: ftdi_sio: add support for Eclo COM to 1-Wire USB adapter
+
+Jeffrey Vandenbroucke sign:
+      hid-core.c: fix "input irq status -32 received" for Silvercrest USB Keyboard
+
+Luiz Fernando Capitulino:
+      USB serial: Converts port semaphore to mutexes.
+
+matthieu castet:
+      USB: UEAGLE : cosmetic
+      USB: UEAGLE : support geode
+      USB: UEAGLE : null pointer dereference fix
+      USB: UEAGLE : memory leack fix
+
+Michael Downey:
+      USB: keyspan-remote bugfix
+
+Paul Fulghum:
+      USB: remove __init from usb_console_setup
+
+Pete Zaitcev:
+      USB: linux/usb/net2280.h common definitions
+
+Petko Manolov:
+      USB: pegasus driver bugfix
+
+Ping Cheng:
+      USB: wacom tablet driver update
+      USB: add new wacom devices to usb hid-core list
+
+Tomasz Kazmierczak:
+      USB: pl2303: added support for OTi's DKU-5 clone cable
 

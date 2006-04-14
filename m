@@ -1,141 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWDNLSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWDNL1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbWDNLSz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 07:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWDNLSz
+	id S1751095AbWDNL1U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 07:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWDNL1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 07:18:55 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23815 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751064AbWDNLSy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 07:18:54 -0400
-Date: Fri, 14 Apr 2006 13:18:53 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] DEBUG_KERNEL menu cleanups
-Message-ID: <20060414111853.GG4162@stusta.de>
+	Fri, 14 Apr 2006 07:27:19 -0400
+Received: from mail.gmx.net ([213.165.64.20]:28862 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751095AbWDNL1T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 07:27:19 -0400
+X-Authenticated: #2277123
+Message-ID: <443F86EB.8060903@gmx.de>
+Date: Fri, 14 Apr 2006 13:26:35 +0200
+From: Christian Heimanns <ch.heimanns@gmx.de>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+CC: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, pavel@suse.cz
+Subject: Re: Suspend to disk
+References: <443C0C2D.1020207@gmx.de> <200604112235.18943.rjw@sisk.pl> <200604112238.07166.rjw@sisk.pl>
+In-Reply-To: <200604112238.07166.rjw@sisk.pl>
+X-Enigmail-Version: 0.93.2.0
+OpenPGP: id=94079F4C
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- move DEBUG_FS above the DEBUG_KERNEL options (it did break the menu)
-- let the following options depend on DEBUG_KERNEL:
-  - PRINTK_TIME
-  - DEBUG_SHIRQ
-  - RT_MUTEX_TESTER
-  - UNWIND_INFO
-- fix the formatting of the DEBUG_SHIRQ help text
+Sorry for the delay, I was on the road...
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Rafael J. Wysocki wrote:
+> [update]
+> 
+> On Tuesday 11 April 2006 22:35, Rafael J. Wysocki wrote:
+>> On Tuesday 11 April 2006 22:06, Christian Heimanns wrote:
+>>> Hello to all,
+>>> following situation:
+>>> On my notebook Samsung X20 1730V I'm running Slackware 10.2 current with
+>>> kernel 2.6.15.6. Suspend to RAM and suspend to disk works fine.
+>>> Since kernel >= 2.6.16 suspend to disk breaks the restore of the
+>>> X-Server. That means that the current sessions is lost and the X-Server
+>>> restarts.
+>> Does it resume successfully without X (ie. runlevel 3)?
+>>
+>>> No problems with suspend to RAM. Please find attached the 
+>>> dmesg output for kernel 2.6.15.6 and 2.6.16.2. As well there is the
+>>> output frpm lspci. The only difference I can find is that I have with
+>>> kernel 2.6.16 some
+>> Do you use a framebuffer driver and if so, is it modular?
+> 
+> Sorry, I see in the logs that you do.  Could you please boot with vga=normal
+> and see if that helps?
+> 
 
+I tried kernel 2.6.16.2 with vga=normal. No changes. Suspend to RAM
+works well, suspend to disk not. It's just the X-Server who restarts and
+ I lose the suspended X-session. The following messages I've found in
+the dmesg output after resume:
+
+pnp: Device 00:08 does not supported activation.
+pnp: Device 00:09 does not supported activation.
+Restarting tasks... done
+
+No idea what pnp device 00:08 and 00:09 is! These problems I have only
+with the kernel >= 2.6.16
+
+Regards,
+Christian
+-- 
 ---
+Christian Heimanns
+ch.heimanns<at>gmx<dot>de
 
- lib/Kconfig.debug |   59 +++++++++++++++++++++++-----------------------
- 1 file changed, 30 insertions(+), 29 deletions(-)
-
---- linux-2.6.17-rc1-mm2-full/lib/Kconfig.debug.old	2006-04-14 13:05:39.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/lib/Kconfig.debug	2006-04-14 13:13:10.000000000 +0200
-@@ -1,14 +1,4 @@
- 
--config PRINTK_TIME
--	bool "Show timing information on printks"
--	help
--	  Selecting this option causes timing information to be
--	  included in printk output.  This allows you to measure
--	  the interval between kernel operations, including bootup
--	  operations.  This is useful for identifying long delays
--	  in kernel startup.
--
--
- config MAGIC_SYSRQ
- 	bool "Magic SysRq key"
- 	depends on !UML
-@@ -23,14 +13,15 @@
- 	  keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
- 	  unless you really know what this hack does.
- 
--config DEBUG_SHIRQ
--       bool "Debug shared IRQ handlers"
--       depends on GENERIC_HARDIRQS
--       help
--         Enable this to generate a spurious interrupt as soon as a shared interrupt
--	 handler is registered, and just before one is deregistered. Drivers ought
--	 to be able to handle interrupts coming in at those points; some don't and
--	 need to be caught.
-+config DEBUG_FS
-+	bool "Debug Filesystem"
-+	depends on SYSFS
-+	help
-+	  debugfs is a virtual file system that kernel developers use to put
-+	  debugging files into.  Enable this option to be able to read and
-+	  write to these files.
-+
-+	  If unsure, say N.
- 
- config DEBUG_KERNEL
- 	bool "Kernel debugging"
-@@ -38,6 +29,25 @@
- 	  Say Y here if you are developing drivers or trying to debug and
- 	  identify kernel problems.
- 
-+config PRINTK_TIME
-+	bool "Show timing information on printks"
-+	depends on DEBUG_KERNEL
-+	help
-+	  Selecting this option causes timing information to be
-+	  included in printk output.  This allows you to measure
-+	  the interval between kernel operations, including bootup
-+	  operations.  This is useful for identifying long delays
-+	  in kernel startup.
-+
-+config DEBUG_SHIRQ
-+       bool "Debug shared IRQ handlers"
-+       depends on GENERIC_HARDIRQS && DEBUG_KERNEL
-+       help
-+         Enable this to generate a spurious interrupt as soon as a shared
-+	 interrupt handler is registered, and just before one is deregistered.
-+	 Drivers ought to be able to handle interrupts coming in at those
-+	 points; some don't and need to be caught.
-+
- config LOG_BUF_SHIFT
- 	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
- 	range 12 21
-@@ -136,7 +146,7 @@
- 
- config RT_MUTEX_TESTER
- 	bool "Built-in scriptable tester for rt-mutexes"
--	depends on RT_MUTEXES
-+	depends on RT_MUTEXES && DEBUG_KERNEL
- 	default n
- 	help
- 	  This option enables a rt-mutex tester.
-@@ -201,16 +211,6 @@
- 
- 	  If unsure, say N.
- 
--config DEBUG_FS
--	bool "Debug Filesystem"
--	depends on SYSFS
--	help
--	  debugfs is a virtual file system that kernel developers use to put
--	  debugging files into.  Enable this option to be able to read and
--	  write to these files.
--
--	  If unsure, say N.
--
- config DEBUG_VM
- 	bool "Debug VM"
- 	depends on DEBUG_KERNEL
-@@ -232,6 +232,7 @@
- 
- config UNWIND_INFO
- 	bool "Compile the kernel with frame unwind information"
-+	depends on DEBUG_KERNEL
- 	depends on !IA64
- 	depends on !MODULES || !(MIPS || PARISC || PPC || SUPERH || SPARC64 || V850)
- 	help
-
+### Pinguine können nicht fliegen
+- Pinguine stürzen auch nicht ab! ###

@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbWDNFRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWDNFZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965099AbWDNFRE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 01:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWDNFRE
+	id S965108AbWDNFZr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 01:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWDNFZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 01:17:04 -0400
-Received: from wproxy.gmail.com ([64.233.184.230]:42442 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965099AbWDNFRD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 01:17:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WZcKrnhRjMaZy8Rf6IznZlHpnBWD3YhHs41Lf4L5g5hRC148JJVNsfGB/nxG4jJ+7FtypvF4SEADbQFa1gp1R0yDyuvGXkpriJSubR/ICn1S0/Tgb3EwRkXpLwzMD2CFOq1ldWH1h59mB7JuuNy7bOXjYRqIP3yZdBGycEEmAN8=
-Message-ID: <3b8510d80604132217h4f889b4dved183444559cc3ba@mail.gmail.com>
-Date: Fri, 14 Apr 2006 10:47:02 +0530
-From: "Thayumanavar Sachithanantham" <thayumk@gmail.com>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: modprobe bug for aliases with regular expressions
-Cc: "Rusty Russell" <rusty@rustcorp.com.au>, kay.sievers@vrfy.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060413233518.GA7597@kroah.com>
-MIME-Version: 1.0
+	Fri, 14 Apr 2006 01:25:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33929 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965108AbWDNFZq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 01:25:46 -0400
+Date: Thu, 13 Apr 2006 22:25:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
+       linux-mm@kvack.org, taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 2/5] Swapless V2: Add migration swap entries
+Message-Id: <20060413222516.4cb5885c.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604131831150.16220@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+	<20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
+	<20060413171331.1752e21f.akpm@osdl.org>
+	<Pine.LNX.4.64.0604131728150.15802@schroedinger.engr.sgi.com>
+	<20060413174232.57d02343.akpm@osdl.org>
+	<Pine.LNX.4.64.0604131743180.15965@schroedinger.engr.sgi.com>
+	<20060413180159.0c01beb7.akpm@osdl.org>
+	<20060413181716.152493b8.akpm@osdl.org>
+	<Pine.LNX.4.64.0604131831150.16220@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060413233518.GA7597@kroah.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/14/06, Greg KH <greg@kroah.com> wrote:
-> Recently it's been pointed out to me that the modprobe functionality
-> with aliases doesn't quite work properly for some USB modules.
-> Specifically, the usb-storage driver has a lot of aliases with regular
-> expressions for the bcd ranges.  Here's an example of it failing with a
-> real device:
+Christoph Lameter <clameter@sgi.com> wrote:
 >
-> $ modprobe -n -v --first-time usb:v054Cp0010d0410dc00dsc00dp00ic08iscFFip01
-> FATAL: Module usb:v054Cp0010d0410dc00dsc00dp00ic08iscFFip01 not found.
->
-> yet if we change the bcd range by replacing the first 0 with a 1 it
-> somehow works:
->
-> $ modprobe -n -v --first-time usb:v054Cp0010d0400dc00dsc00dp00ic08iscFFip01
-> insmod /lib/modules/2.6.17-rc1-gkh/kernel/drivers/usb/storage/libusual.ko
->
-> (yet this isn't a solution as the device does not have a 1 in that
-> position...)
+> On Thu, 13 Apr 2006, Andrew Morton wrote:
+> 
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > Perhaps it would be better to go to
+> > >  sleep on some global queue, poke that queue each time a page migration
+> > >  completes?
+> > 
+> > Or take mmap_sem for writing in do_migrate_pages()?  That takes the whole
+> > pagefault path out of the picture.
+> 
+> We would have to take that for each task mapping the page. Very expensive 
+> operation.
 
-      It's because in modprobe.c, in the read_config_file , in the
-wildcard , the "-" (hyphen) is turned into underscore (_) causing the
-fnmatch not to match the first RE.
-  a quick change to check this issue is
-following change in read_config_file function of modprobe.c should fix it.
-                if (strcmp(cmd, "alias") == 0) {
-                        char *wildcard
-                                = strsep_skipspace(&ptr, "\t ");
-                        char *realname
-                                = strsep_skipspace(&ptr, "\t ");
+So...  why does do_migrate_pages() take mmap_sem at all?
 
-
-S.Thayumanavar
+And the code we're talking about here deals with anonymous pages, which are
+not shared betweem mm's.

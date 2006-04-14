@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWDNON1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWDNOTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWDNON1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 10:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWDNON1
+	id S1751251AbWDNOTj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 10:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWDNOTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 10:13:27 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:55224 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1750752AbWDNON0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 10:13:26 -0400
-Subject: Re: [PATCH 0/5] Swapless page migration V2: Overview
-From: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
-       kamezawa.hiroyu@jp.fujitsu.com
-In-Reply-To: <Pine.LNX.4.64.0604131721340.15802@schroedinger.engr.sgi.com>
-References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
-	 <20060413170853.0757af41.akpm@osdl.org>
-	 <Pine.LNX.4.64.0604131721340.15802@schroedinger.engr.sgi.com>
+	Fri, 14 Apr 2006 10:19:39 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:491 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751251AbWDNOTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 10:19:38 -0400
+Subject: Re: Direct writing to the IDE on panic?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1144936547.1336.20.camel@localhost.localdomain>
+References: <1144936547.1336.20.camel@localhost.localdomain>
 Content-Type: text/plain
-Organization: HP/OSLO
-Date: Fri, 14 Apr 2006 10:14:43 -0400
-Message-Id: <1145024083.5211.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 14 Apr 2006 15:28:34 +0100
+Message-Id: <1145024914.17531.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-13 at 17:27 -0700, Christoph Lameter wrote:
-> On Thu, 13 Apr 2006, Andrew Morton wrote:
+On Iau, 2006-04-13 at 09:55 -0400, Steven Rostedt wrote:
+> Hi,
 > 
-> > > Currently page migration is depending on the ability to assign swap entries
-> > > to pages. However, those entries will only be to identify anonymous pages.
-> > > Page migration will not work without swap although swap space is never
-> > > really used.
-> > 
-> > That strikes me as a fairly minor limitation?
+> I was wondering if anyone has done some work to directly write and poll
+> to the IDE?  This is to store data on a panic or oops.  So it would need
+> to bypass pretty much all the normal Linux mechanisms to do low lever
+> IDE work.
+
+I've seen some 2.4 work here. For 2.6 the current focus is kexec of
+course
+
+> Obviously, this would be a slow process, but the system has crashed and
+> we care more about retrieving information than speed.
 > 
-> Some people want never ever to use swap. Systems that have no swap defined 
-> will currently not be able to migrate pages. Its kind of difficult to 
-> comprehend that you need to have swap for migration, but then its not 
-> going to be used. 
-> 
-> > > The patchset will allow later patches to enable migration of VM_LOCKED vmas,
-> > > the ability to exempt vmas from page migration, and allow the implementation
-> > > of a another userland migration API for handling batches of pages.
-> > 
-> > These seem like more important justifications.  Would you agree with that
-> > judgement?
-> 
-> The swapless thing is the most important for us because many of our 
-> customers do not have swap setup. Then follow the above 
-> features then the efficiency consideration.
+> Has this already been done and what issues need to be addressed?
 
-I do have the migration cache working against 17-rc1-mm2.  I tried to
-address Christoph's prior comments.  I just haven't posted yet, as I was
-working the migrate-on-fault/auto-migration series.  If one accepts lazy
-migration, then the migration cache becomes more important because anon
-pages can/will stay in the swap cache until the page is finally freed
-[or maybe gets evicted from the swap cache?].
-
-The migration cache still uses the swap infrastructure, so must
-configure SWAP.  But, no swap devices need be configured.  Should
-address that particular concern w/o major surgery to the existing
-migration code.  
-
- Let me know if I should repost the patches.  Meanwhile, they're
-available at:  
-http://free.linux.hp.com/~lts/Patches/PageMigration/ [which seems
-temporarily, I hope, unavailable].  Look for the migcache tarball.
-
-Lee
+The big issue is 'how am I sure the partition data and code I run are
+valid post crash'. You don't want the risk of dumping to the wrong part
+of the disk and making a crash into a disaster.
 
 

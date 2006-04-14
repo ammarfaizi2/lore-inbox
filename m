@@ -1,61 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWDNRIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWDNRQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWDNRIh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 13:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWDNRIh
+	id S1751298AbWDNRQK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 13:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWDNRQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 13:08:37 -0400
-Received: from threatwall.zlynx.org ([199.45.143.218]:42133 "EHLO zlynx.org")
-	by vger.kernel.org with ESMTP id S1751266AbWDNRIh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 13:08:37 -0400
-Subject: Re: Where to call L2 cache enabling code from?
-From: Zan Lynx <zlynx@acm.org>
-To: Dave Jones <davej@redhat.com>
-Cc: Steve Snyder <swsnyder@insightbb.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060414170052.GA22463@redhat.com>
-References: <200604141105.43216.swsnyder@insightbb.com>
-	 <1145029574.17531.26.camel@localhost.localdomain>
-	 <200604141249.49366.swsnyder@insightbb.com>
-	 <20060414170052.GA22463@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jPjSPtJLA7FHUOiHEzRC"
-Date: Fri, 14 Apr 2006 11:08:26 -0600
-Message-Id: <1145034507.9218.4.camel@localhost>
+	Fri, 14 Apr 2006 13:16:10 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:33029
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751298AbWDNRQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 13:16:09 -0400
+Message-Id: <443FE6E00200007800015D6E@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Fri, 14 Apr 2006 19:16:00 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andreas Kleen" <ak@suse.de>
+Cc: <tom.l.nguyen@intel.com>, <linux-kernel@vger.kernel.org>,
+       <discuss@x86-64.org>
+Subject: Re: [i386, x86-64] ioapic_register_intr() and
+	assign_irq_vector() questions
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-X-Envelope-From: zlynx@acm.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> Looking at the call paths assign_irq_vector() can get called from, I
+>> would think this function, namely as it's using static variables,
+>> lacks synchronization - is there any (hidden) reason this is not
+>> needed here?
 
---=-jPjSPtJLA7FHUOiHEzRC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>It is only called during system initialization which is single threaded. 
+>If someone added ioapic hotplug they would need to do something about 
+>this.
 
-On Fri, 2006-04-14 at 12:00 -0500, Dave Jones wrote:
-[snip]
-> arch/i386/kernel/cpu/intel.c has a bunch of workarounds for various
-> issues.  Is there a valid use-case for ever booting with cache disabled
-> though? If so, this should probably be a boot-time option to enable it.
+Hmm, as I looked through this I expected this to be possibly called also later, as it seems to be on paths reachable
+from exported functions (which clearly can be called only after the single-threaded phase is over.
 
-Yes, disabling the cache is useful to debug bad hardware.  If the CPU
-cache is bad, then disabling it might make things work again and you
-know what needs to be replaced.
---=20
-Zan Lynx <zlynx@acm.org>
-
---=-jPjSPtJLA7FHUOiHEzRC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEP9cJG8fHaOLTWwgRAmwGAJ4hYvUo7alf+eFGbSXfJXxgIx1G1wCgnV4H
-rvVgI5pbwAf2KogbeUMR140=
-=Y95u
------END PGP SIGNATURE-----
-
---=-jPjSPtJLA7FHUOiHEzRC--
-
+Jan

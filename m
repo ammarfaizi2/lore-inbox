@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWDNVra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWDNVsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWDNVra (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 17:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWDNVra
+	id S1030184AbWDNVsX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 17:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965187AbWDNVsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 17:47:30 -0400
-Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:27818 "EHLO
-	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S965051AbWDNVra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 17:47:30 -0400
-Date: Fri, 14 Apr 2006 14:47:29 -0700 (PDT)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Poll microoptimizations.
-In-Reply-To: <20060414143820.6a04b696.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0604141440180.30907@shell2.speakeasy.net>
-References: <Pine.LNX.4.58.0604132115290.29982@shell3.speakeasy.net>
- <20060414123118.0a8fb24c.akpm@osdl.org> <Pine.LNX.4.58.0604141413260.21335@shell2.speakeasy.net>
- <20060414143820.6a04b696.akpm@osdl.org>
+	Fri, 14 Apr 2006 17:48:23 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.192.82]:5086 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S965186AbWDNVsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 17:48:22 -0400
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: ALSA devel <alsa-devel@alsa-project.org>
+Subject: ALSA CVS - pcm_oss.c:1872: BUG?
+Date: Fri, 14 Apr 2006 17:48:15 -0400
+User-Agent: KMail/1.9.1
+Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604141748.15367.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Apr 2006, Andrew Morton wrote:
+I get the below BUG in dmesg once or twice a day. Running snd_hda_intel on 
+2.6.16 along with yesterday's ALSA CVS. 
 
-> Vadim Lobanov <vlobanov@speakeasy.net> wrote:
-> >
-> > I can put in a comment to explain what the code is doing, or if you
-> > think that the bitmasking itself is "yuk", then I can easily transform
-> > the code into an explicit "if () {}" block. :)
->
-> yes please.
->
-> > > Yuk.  Sorry, no.
-> >
-> > Thank you for the review. The comments above are easy to address. Do you
-> > like the main concept behind the patch? Should I correct and resubmit?
->
-> I don't really understand it yet.
+Parag
 
-It's really a bit of (subjective) cleanup, that just incidentally
-happens to save us a few extra clock cycles here and there. In the
-current code, the "count" and "pt" variables are modified both in the
-function where they're declared (do_poll()), AND also indirectly in a
-different function (do_pollfd()). The patch moves all handling of these
-variables to the function that declares and "owns" them (do_poll()).
+[17197574.124000]  [<f89d8ad3>] snd_pcm_oss_get_active_substream+0x5d/0x7e 
+[snd_pcm_oss]
+[17197574.124000]  [<f89d9011>] snd_pcm_oss_ioctl+0x346/0x9c9 [snd_pcm_oss]
+[17197574.128000]  [<7815ca79>] do_ioctl+0x21/0x5f
+[17197574.128000]  [<7815cd07>] vfs_ioctl+0x250/0x263
+[17197574.128000]  [<7815cd60>] sys_ioctl+0x46/0x62
+[17197574.128000]  [<78102797>] sysenter_past_esp+0x54/0x75
+[17197574.128000] ALSA /root/alsa/alsa-driver/acore/oss/pcm_oss.c:1872: BUG? 
+(substream != ((void *)0))
+[17197574.128000]  [<f89d8376>] snd_pcm_oss_release+0x37/0xda [snd_pcm_oss]
+[17197574.128000]  [<7814df15>] __fput+0x86/0x14a
+[17197574.128000]  [<7814baaa>] filp_close+0x4e/0x57
+[17197574.128000]  [<7814c4a7>] sys_close+0x6b/0x80
+[17197574.128000]  [<78102797>] sysenter_past_esp+0x54/0x75
 
-> Yes, please resend and feel free to a) add comments in places where we can
-> help people to understand the code and b) convert any code which gets
-> touched to be coding-style-friendly.  (I usually recommend that we do that
-> even if the surrounding code uses different conventions - eventually
-> everything will be fixed ;))
-
-I couldn't agree more on this particular point. The only thing that
-stops me is that noone can ever agree on the coding style, even if it is
-spelled out in the Documentation/ directory (witness the periodic flame
-wars on this list). Helps to have a thick skin, and I'm slowly getting
-to that point. ;)
-
-I'll correct, comment, and resend the patch when I get a chance.
-
-- Vadim Lobanov

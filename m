@@ -1,166 +1,276 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbWDNVvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWDNVxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965186AbWDNVvt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 17:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWDNVvt
+	id S1030190AbWDNVxg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 17:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965187AbWDNVxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 17:51:49 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:49051 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965186AbWDNVvs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 17:51:48 -0400
-Date: Fri, 14 Apr 2006 14:51:04 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
+	Fri, 14 Apr 2006 17:53:36 -0400
+Received: from mga02.intel.com ([134.134.136.20]:30893 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S965120AbWDNVxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 17:53:34 -0400
+X-IronPort-AV: i="4.04,121,1144047600"; 
+   d="scan'208"; a="23400319:sNHT28991347"
+Subject: Re: [patch 1/3] acpi: dock driver
+From: Kristen Accardi <kristen.c.accardi@intel.com>
 To: Andrew Morton <akpm@osdl.org>
-cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
-       linux-mm@kvack.org, taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
-       kamezawa.hiroyu@jp.fujitsu.com
-Subject: Wait for migrating page after incr of page count under anon_vma lock
-In-Reply-To: <20060414125320.72599c7e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0604141417170.22852@schroedinger.engr.sgi.com>
-References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
- <20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
- <20060413171331.1752e21f.akpm@osdl.org> <Pine.LNX.4.64.0604131728150.15802@schroedinger.engr.sgi.com>
- <20060413174232.57d02343.akpm@osdl.org> <Pine.LNX.4.64.0604131743180.15965@schroedinger.engr.sgi.com>
- <20060413180159.0c01beb7.akpm@osdl.org> <Pine.LNX.4.64.0604131827210.16220@schroedinger.engr.sgi.com>
- <20060413222921.2834d897.akpm@osdl.org> <Pine.LNX.4.64.0604141025310.18575@schroedinger.engr.sgi.com>
- <20060414113104.72a5059b.akpm@osdl.org> <Pine.LNX.4.64.0604141143520.22475@schroedinger.engr.sgi.com>
- <20060414121537.11134d26.akpm@osdl.org> <Pine.LNX.4.64.0604141214060.22652@schroedinger.engr.sgi.com>
- <20060414125320.72599c7e.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: len.brown@intel.com, greg@kroah.com, linux-acpi@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       mochel@linux.intel.com, arjan@linux.intel.com,
+       muneda.takahiro@jp.fujitsu.com, pavel@ucw.cz, temnota@kmv.ru
+In-Reply-To: <20060412222735.38aa0f58.akpm@osdl.org>
+References: <20060412221027.472109000@intel.com>
+	 <1144880322.11215.44.camel@whizzy>  <20060412222735.38aa0f58.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 14 Apr 2006 15:02:13 -0700
+Message-Id: <1145052133.29319.44.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 14 Apr 2006 21:53:33.0788 (UTC) FILETIME=[E02329C0:01C6600D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Another patch that considers the need to prevent the freeing of the page 
-and the pte while incrementing the page count.
+On Wed, 2006-04-12 at 22:27 -0700, Andrew Morton wrote:
+> Kristen Accardi <kristen.c.accardi@intel.com> wrote:
+> >
+> > Create a driver which lives in the acpi subsystem to handle dock events.  This 
+> > driver is not an acpi driver, because acpi drivers require that the object
+> > be present when the driver is loaded.
+> > 
+> > ...
+> >
+> > +/**
+> > + * add_dock_dependent_device - associate a device with the dock station
+> > + * @ds: The dock station
+> > + * @dd: The dependent device
+> > + *
+> > + * Add the dependent device to the dock's dependent device list.
+> > + */
+> > +static void
+> > +add_dock_dependent_device(struct dock_station *ds,
+> > +			  struct dock_dependent_device *dd)
+> > +{
+> > +	list_add_tail(&dd->list, &ds->dependent_devices);
+> > +}
+> > +
+> 
+> Does this not need any locking?
 
+yes, I'll fix this.
 
+> 
+> > +/**
+> > + * find_dock_dependent_device - get a device dependent on this dock
+> > + * @ds: the dock station
+> > + * @handle: the acpi_handle of the device we want
+> > + *
+> > + * iterate over the dependent device list for this dock.  If the
+> > + * dependent device matches the handle, return.
+> > + */
+> > +static struct dock_dependent_device *
+> > +find_dock_dependent_device(struct dock_station *ds, acpi_handle handle)
+> > +{
+> > +	struct dock_dependent_device *dd;
+> > +
+> > +	list_for_each_entry(dd, &ds->dependent_devices, list) {
+> > +		if (handle == dd->handle)
+> > +			return dd;
+> > +	}
+> > +	return NULL;
+> > +}
+> 
+> Nor this?
 
-Wait for migrating page after incr of page count under anon_vma lock
+yes, I'll fix this too.
 
-This patch replaces the yield() in do_swap_page with a call to
-migration_entry_wait() in the migration code.
+> 
+> > +
+> > +
+> > +
+> > +
+> 
+> The driver has a lot of blank lines between functions.  I don't think this
+> adds any benefit - it just makes less of the code visible.
+> 
+> > +EXPORT_SYMBOL_GPL(is_dock_device);
+> 
+> I assume all these exports are used?
+> 
 
-migration_entry_wait() locks the anonymous vma of the page and then
-safely increments page count before waiting for the page to become
-unlocked.
+Yes, they are.
 
-Migration entries are only removed while holding the anon_vma lock
-(See remove_migration_ptes). Therefore we can be sure that the
-migration pte is not modified and the underlying page is not
-removed while holding this lock.
+> > +
+> > +
+> > +
+> > +
+> > +/**
+> > + * hotplug_devices - insert or remove devices on the dock station
+> > + * @ds: the dock station
+> > + * @event: either bus check or eject request
+> > + *
+> > + * Some devices on the dock station need to have drivers called
+> > + * to perform hotplug operations after a dock event has occurred.
+> > + * Traverse the list of dock devices that have registered a
+> > + * hotplug handler, and call the handler.
+> > + */
+> > +static void hotplug_devices(struct dock_station *ds, u32 event)
+> > +{
+> > +	struct dock_dependent_device *dd;
+> > +
+> > +	list_for_each_entry(dd, &ds->hotplug_devices, hotplug_list) {
+> > +		if (dd->handler)
+> > +			dd->handler(dd->handle, event, dd->context);
+> > +	}
+> > +}
+> > +
+> > +
+> > +
+> > +
+> 
+> There's a reasonable chance that someone else will choose identifiers such
+> as `hotplug_devices' and `hotplug_list'.  Let's hope they're not put in a
+> header file which gets included here...
+> 
 
-Also make is_migration_entry() unlikely and clean up a unnecessary
-BUG_ON.
+No, they aren't included, however, I'll change the function name just in
+case the function is ever exported.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> 
+> > +/**
+> > + * dock_in_progress - see if we are in the middle of handling a dock event
+> > + * @ds: the dock station
+> > + *
+> > + * Sometimes while docking, false dock events can be sent to the driver
+> > + * because good connections aren't made or some other reason.  Ignore these
+> > + * if we are in the middle of doing something.
+> > + */
+> > +static int dock_in_progress(struct dock_station *ds)
+> > +{
+> > +	if (ds->flags & DOCK_DOCKING ||
+> > +		(jiffies < (ds->last_dock_time + 10))) {
+> 
+> Peculiar mixture of paranoid and trusting parenthesisation there..
+> 
+> It'll malfunction if jiffies happens to wrap - use time_before() or
+> time_after() to fix.
+> 
 
-Index: linux-2.6.17-rc1-mm2/mm/memory.c
-===================================================================
---- linux-2.6.17-rc1-mm2.orig/mm/memory.c	2006-04-13 16:43:10.000000000 -0700
-+++ linux-2.6.17-rc1-mm2/mm/memory.c	2006-04-14 13:57:44.000000000 -0700
-@@ -1880,8 +1880,8 @@ static int do_swap_page(struct mm_struct
- 
- 	entry = pte_to_swp_entry(orig_pte);
- 
--	if (unlikely(is_migration_entry(entry))) {
--		yield();
-+	if (is_migration_entry(entry)) {
-+		migration_entry_wait(entry, page_table);
- 		goto out;
- 	}
- 
-Index: linux-2.6.17-rc1-mm2/include/linux/swapops.h
-===================================================================
---- linux-2.6.17-rc1-mm2.orig/include/linux/swapops.h	2006-04-13 16:43:10.000000000 -0700
-+++ linux-2.6.17-rc1-mm2/include/linux/swapops.h	2006-04-14 13:57:44.000000000 -0700
-@@ -77,7 +77,7 @@ static inline swp_entry_t make_migration
- 
- static inline int is_migration_entry(swp_entry_t entry)
- {
--	return swp_type(entry) == SWP_TYPE_MIGRATION;
-+	return unlikely(swp_type(entry) == SWP_TYPE_MIGRATION);
- }
- 
- static inline struct page *migration_entry_to_page(swp_entry_t entry)
-@@ -88,14 +88,16 @@ static inline struct page *migration_ent
- 	 * corresponding page is locked
- 	 */
- 	BUG_ON(!PageLocked(p));
--	BUG_ON(!is_migration_entry(entry));
- 	return p;
- }
-+
-+extern void migration_entry_wait(swp_entry_t, pte_t *);
- #else
- 
- #define make_migration_entry(page) swp_entry(0, 0)
- #define is_migration_entry(swp) 0
- #define migration_entry_to_page(swp) NULL
-+static inline void migration_entry_wait(swp_entry_t entry, pte_t *ptep) { }
- 
- #endif
- 
-Index: linux-2.6.17-rc1-mm2/mm/migrate.c
-===================================================================
---- linux-2.6.17-rc1-mm2.orig/mm/migrate.c	2006-04-13 16:44:07.000000000 -0700
-+++ linux-2.6.17-rc1-mm2/mm/migrate.c	2006-04-14 14:27:06.000000000 -0700
-@@ -174,6 +174,57 @@ out:
- }
- 
- /*
-+ * Something used the pte of a page under migration. We need to
-+ * get to the page and wait until migration is finished.
-+ * When we return from this function the fault will be retried.
-+ *
-+ * This function is called from do_swap_page().
-+ */
-+void migration_entry_wait(swp_entry_t entry, pte_t *ptep)
-+{
-+	struct page *page = migration_entry_to_page(entry);
-+	unsigned long mapping = (unsigned long)page->mapping;
-+	struct anon_vma *anon_vma;
-+	pte_t pte;
-+
-+	if (!mapping ||
-+		(mapping & PAGE_MAPPING_ANON) == 0)
-+			return;
-+	/*
-+	 * We hold the mmap_sem lock.
-+	 */
-+	anon_vma = (struct anon_vma *) (mapping - PAGE_MAPPING_ANON);
-+
-+	/*
-+	 * The anon_vma lock is also taken while removing the migration
-+	 * entries. Take the lock here to insure that the migration pte
-+	 * is not modified while we increment the page count.
-+	 * This is similar to find_get_page().
-+	 */
-+	spin_lock(&anon_vma->lock);
-+	pte = *ptep;
-+	if (pte_present(pte) || pte_none(pte) || pte_file(pte)) {
-+		spin_unlock(&anon_vma->lock);
-+		return;
-+	}
-+	entry = pte_to_swp_entry(pte);
-+	if (!is_migration_entry(entry) ||
-+		migration_entry_to_page(entry) != page) {
-+			/* Migration entry is gone */
-+			spin_unlock(&anon_vma->lock);
-+			return;
-+	}
-+	/* Pages with migration entries must be locked */
-+	BUG_ON(!PageLocked(page));
-+
-+	/* Phew. Finally we can increment the refcount */
-+	get_page(page);
-+	spin_unlock(&anon_vma->lock);
-+	wait_on_page_locked(page);
-+	put_page(page);
-+}
-+
-+/*
-  * Get rid of all migration entries and replace them by
-  * references to the indicated page.
-  *
+Thanks, I'll fix this.
+
+> > +static void acpi_dock_notify(acpi_handle handle, u32 event, void *data)
+> > +{
+> > +	struct dock_station *ds = (struct dock_station *)data;
+> > +	struct acpi_device *device;
+> > +
+> > +	ACPI_FUNCTION_TRACE("acpi_dock_notify");
+> > +
+> > +	switch (event) {
+> > +		case ACPI_NOTIFY_BUS_CHECK:
+> 
+> We normally indent thusly:
+> 
+> 	switch (event) {
+> 	case ACPI_NOTIFY_BUS_CHECK:
+> 
+> > +			if (!dock_in_progress(ds) && dock_present(ds)) {
+> > +				begin_dock(ds);
+> > +				dock(ds);
+> > +				if (!dock_present(ds)) {
+> > +					printk(KERN_ERR PREFIX "Unable to dock!\n");
+> > +					break;
+> > +				}
+> > +				atomic_notifier_call_chain(&dock_notifier_list,
+> > +					 event, NULL);
+> > +				hotplug_devices(ds, event);
+> > +				complete_dock(ds);
+> > +				if (acpi_bus_get_device(ds->handle, &device))
+> > +					acpi_bus_generate_event(device,
+> > +						event, 0);
+> > +			}
+> 
+> and if you do that here, this code will look nicer.
+> 
+> > +
+> > +/**
+> > + * acpi_dock_add - add a new dock station
+> > + * @handle: the dock station handle
+> > + *
+> > + * allocated and initialize a new dock station device.  Find all devices
+> > + * that are on the dock station, and register for dock event notifications.
+> > + */
+> > +static int acpi_dock_add(acpi_handle handle)
+> > +{
+> > +	int ret;
+> > +	acpi_status status;
+> > +
+> > +	ACPI_FUNCTION_TRACE("acpi_dock_add");
+> > +
+> > +	/* allocate & initialize the dock_station private data */
+> > +	ds = kzalloc(sizeof(*ds), GFP_KERNEL);
+> 
+> <wonders what ds is>
+> 
+> Oh, it's a file-wide `struct dock_station *'.
+> 
+> Suggest that it be given a more file-widey name.
+> 
+> Would it be better if `ds' be defined at compile time?  Perhaps not..
+> 
+
+Probably not.
+
+> > +	if (!ds)
+> > +		return_VALUE(-ENOMEM);
+> > +	ds->handle = handle;
+> > +	INIT_LIST_HEAD(&ds->dependent_devices);
+> > +	INIT_LIST_HEAD(&ds->hotplug_devices);
+> > +
+> > +	/* Find dependent devices */
+> > +	acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
+> > +			ACPI_UINT32_MAX, find_dock_devices, ds, NULL);
+> > +
+> > +	/* register for dock events */
+> > +	status = acpi_install_notify_handler(ds->handle, ACPI_SYSTEM_NOTIFY,
+> > +				acpi_dock_notify, ds);
+> > +	if (ACPI_FAILURE(status)) {
+> > +		ACPI_DEBUG_PRINT((ACPI_DB_ERROR,
+> > +			"Error installing notify handler\n"));
+> > +		ret = -ENODEV;
+> > +		goto dock_add_err;
+> > +	}
+> > +
+> > +	printk(KERN_INFO PREFIX "%s \n", ACPI_DOCK_DRIVER_NAME);
+> > +
+> > +	return_VALUE(0);
+> > +dock_add_err:
+> > +	kfree(ds);
+> > +	return_VALUE(ret);
+> > +}
+> > +
+> >
+> > ...
+> >
+> > --- 2.6-git-kca2.orig/drivers/acpi/Kconfig
+> > +++ 2.6-git-kca2/drivers/acpi/Kconfig
+> > @@ -134,6 +134,12 @@ config ACPI_FAN
+> >  	  This driver adds support for ACPI fan devices, allowing user-mode 
+> >  	  applications to perform basic fan control (on, off, status).
+> >  
+> > +config ACPI_DOCK
+> > +	tristate "Dock"
+> > +	default y
+> > +	help
+> > +	  This driver adds support for ACPI controlled docking stations
+> 
+> It doesn't depend upon anything else?
+
+It doesn't have to.  If you want to be able to hotplug any PCI devices
+on the dock station, then it does depend on HOTPLUG_PCI, however, there
+are dock stations which have no PCI devices on them which would not need
+to do this.
+
+I'll send a new version which incorporates your feedback soon.  Thanks
+for reviewing, I really appreciate it.
+
+Kristen

@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWDNBbx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWDNBd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965091AbWDNBbx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 21:31:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWDNBbw
+	id S932090AbWDNBd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 21:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWDNBdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 21:31:52 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:4498 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932451AbWDNBbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 21:31:51 -0400
-Date: Thu, 13 Apr 2006 18:31:38 -0700 (PDT)
+	Thu, 13 Apr 2006 21:33:25 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:45275 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932090AbWDNBdY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 21:33:24 -0400
+Date: Thu, 13 Apr 2006 18:33:07 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
-       linux-mm@kvack.org, taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
-       kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: [PATCH 2/5] Swapless V2: Add migration swap entries
-In-Reply-To: <20060413181716.152493b8.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0604131831150.16220@schroedinger.engr.sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+In-Reply-To: <20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
 References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
- <20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
- <20060413171331.1752e21f.akpm@osdl.org> <Pine.LNX.4.64.0604131728150.15802@schroedinger.engr.sgi.com>
- <20060413174232.57d02343.akpm@osdl.org> <Pine.LNX.4.64.0604131743180.15965@schroedinger.engr.sgi.com>
- <20060413180159.0c01beb7.akpm@osdl.org> <20060413181716.152493b8.akpm@osdl.org>
+ <20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
+ <20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Apr 2006, Andrew Morton wrote:
+On Fri, 14 Apr 2006, KAMEZAWA Hiroyuki wrote:
 
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > Perhaps it would be better to go to
-> >  sleep on some global queue, poke that queue each time a page migration
-> >  completes?
-> 
-> Or take mmap_sem for writing in do_migrate_pages()?  That takes the whole
-> pagefault path out of the picture.
+> For hotremove (I stops it now..), we should fix this later (if we can do).
+> If new SWP_TYPE_MIGRATION swp entry can contain write protect bit,
+> hotremove can avoid copy-on-write but things will be more complicated.
 
-We would have to take that for each task mapping the page. Very expensive 
-operation.
+This is a known issue.I'd be glad if you could come up with a working 
+scheme to solve this that is simple.
 

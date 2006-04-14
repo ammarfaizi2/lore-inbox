@@ -1,97 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWDNUAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965096AbWDNUBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbWDNUAo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 16:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbWDNUAo
+	id S965096AbWDNUBn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 16:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWDNUBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 16:00:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14047 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965067AbWDNUAo (ORCPT
+	Fri, 14 Apr 2006 16:01:43 -0400
+Received: from cantor.suse.de ([195.135.220.2]:39388 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965096AbWDNUBm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 16:00:44 -0400
-Date: Fri, 14 Apr 2006 12:53:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
-       linux-mm@kvack.org, taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
-       kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: Implement lookup_swap_cache for migration entries
-Message-Id: <20060414125320.72599c7e.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0604141214060.22652@schroedinger.engr.sgi.com>
-References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
-	<20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
-	<20060413171331.1752e21f.akpm@osdl.org>
-	<Pine.LNX.4.64.0604131728150.15802@schroedinger.engr.sgi.com>
-	<20060413174232.57d02343.akpm@osdl.org>
-	<Pine.LNX.4.64.0604131743180.15965@schroedinger.engr.sgi.com>
-	<20060413180159.0c01beb7.akpm@osdl.org>
-	<Pine.LNX.4.64.0604131827210.16220@schroedinger.engr.sgi.com>
-	<20060413222921.2834d897.akpm@osdl.org>
-	<Pine.LNX.4.64.0604141025310.18575@schroedinger.engr.sgi.com>
-	<20060414113104.72a5059b.akpm@osdl.org>
-	<Pine.LNX.4.64.0604141143520.22475@schroedinger.engr.sgi.com>
-	<20060414121537.11134d26.akpm@osdl.org>
-	<Pine.LNX.4.64.0604141214060.22652@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 14 Apr 2006 16:01:42 -0400
+Date: Fri, 14 Apr 2006 13:00:37 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [GIT PATCH] Driver Core and sysfs patches for 2.6.17-rc1
+Message-ID: <20060414200037.GA5478@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
->
-> On Fri, 14 Apr 2006, Andrew Morton wrote:
-> 
-> > > > What locking ensures that the state of `entry' remains unaltered across the
-> > > > is_migration_entry() and migration_entry_to_page() calls?
-> > > 
-> > > entry is a variable passed by value to the function.
-> > 
-> > Sigh.
-> > 
-> > What locking ensures that the state of the page referred to by `entry' is
-> > stable?
-> 
-> Oh, that.
-> 
-> Well, there is no locking when retrieving a pte atomically from the page 
-> table. In do_swap_cache we figure out the page from the pte, lock the page 
-> and then check that the pte has not changed. If it has changed then we 
-> redo the fault. If the pte is still the same then we know that the page 
-> was stable in the sense that it is still mapped the same way. So it was 
-> not freed.
-> 
-> This applies to all pages handled by do_swap_page().
-> 
-> The differences are:
-> 
-> 1. A migration entry does not take the tree_lock in lookup_swap_cache().
-> 
-> 2. The migration thread will restore the regular pte before 
->    dropping the page lock.
-> 
-> So after we succeed with the page lock we know that the pte has been 
-> changed. The fault will be redone with the regular pte.\
+Here are some driver core and sysfs patches for 2.6.17-rc1.  They contain
+the following changes:
+	- allow sysfs files to be polled (this missed the initial
+	  2.6.16-git merge due to the patch being reworked by Neil.  It
+	  has been included in the -mm tree for a number of months now
+	  with no reported issues.  Sorry for missing this one the first
+	  time around this cycle)
+	- fix bug in manual binding of devices to drivers.
+	- report the offending driver when suspend fails
+	- fix partition scanning and reporting to userspace (was being
+	  reported before the scanning was finished, which isn't very
+	  nice.)
+	- few other minor bugfixes and build fixes.
 
-So we're doing a get_page() on a random page which could be in any state -
-it could be on the freelists, or in the per-cpu pages arrays, it could have
-been reused for something else.
+All of these patches have been in the -mm tree for a number of weeks, if
+not months (in the case of the sysfs poll patch).
 
-There's code in the kernel which assumes that we don't do that sort of
-thing.  For example:
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
 
-static inline int page_is_buddy(struct page *page, int order)
-{
-#ifdef CONFIG_HOLES_IN_ZONE
-	if (!pfn_valid(page_to_pfn(page)))
-		return 0;
-#endif
+Patches will be sent as a follow-on to this message to lkml for people
+to see.
 
-	if (PageBuddy(page) && page_order(page) == order) {
-		BUG_ON(page_count(page) != 0);
-               return 1;
-	}
-       return 0;
-}
+thanks,
+
+greg k-h
+
+
+ arch/i386/kernel/Makefile    |    2 -
+ arch/ia64/kernel/Makefile    |    3 -
+ arch/x86_64/kernel/Makefile  |    4 --
+ drivers/base/bus.c           |    5 ++
+ drivers/base/class.c         |   13 +++----
+ drivers/base/dd.c            |    2 -
+ drivers/base/power/suspend.c |   12 ++++++
+ drivers/firmware/Makefile    |    3 +
+ drivers/firmware/dmi_scan.c  |   12 +++---
+ drivers/md/md.c              |    1 
+ drivers/pci/pci-driver.c     |    6 ++-
+ drivers/pci/pci.c            |    6 ++-
+ drivers/usb/core/hcd-pci.c   |    7 +--
+ fs/partitions/check.c        |   38 ++++++++++++++++-----
+ fs/sysfs/dir.c               |    1 
+ fs/sysfs/file.c              |   76 +++++++++++++++++++++++++++++++++++++++++++
+ fs/sysfs/sysfs.h             |    1 
+ include/linux/genhd.h        |    1 
+ include/linux/kobject.h      |    2 +
+ include/linux/pm.h           |    8 ++++
+ include/linux/sysfs.h        |    6 +++
+ lib/kobject.c                |    1 
+ 22 files changed, 173 insertions(+), 37 deletions(-)
+
+---------------
+
+Alan Stern:
+      driver core: safely unbind drivers for devices not on a bus
+
+Andrew Morton:
+      pm: print name of failed suspend function
+
+Bjorn Helgaas:
+      DMI: move dmi_scan.c from arch/i386 to drivers/firmware/
+
+Jayachandran C:
+      driver core: fix unnecessary NULL check in drivers/base/class.c
+
+Kay Sievers:
+      BLOCK: delay all uevents until partition table is scanned
+
+NeilBrown:
+      sysfs: Allow sysfs attribute files to be pollable
+
+Ryan Wilson:
+      driver core: driver_bind attribute returns incorrect value
 

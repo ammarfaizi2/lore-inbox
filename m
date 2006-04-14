@@ -1,71 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbWDNAJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbWDNAJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbWDNAJL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 20:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbWDNAJK
+	id S965023AbWDNAJV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 20:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965066AbWDNAJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 20:09:10 -0400
-Received: from ns2.suse.de ([195.135.220.15]:5591 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965059AbWDNAJJ (ORCPT
+	Thu, 13 Apr 2006 20:09:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57008 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965023AbWDNAJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 20:09:09 -0400
-Message-ID: <443EE817.5000404@suse.com>
-Date: Thu, 13 Apr 2006 20:08:55 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 01/08] idr: add idr_replace method for replacing pointers
-References: <20060413203546.GA3170@locomotive.unixthugs.org> <20060413150527.0028bc88.akpm@osdl.org>
-In-Reply-To: <20060413150527.0028bc88.akpm@osdl.org>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 13 Apr 2006 20:09:20 -0400
+Date: Thu, 13 Apr 2006 17:08:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
+       linux-mm@kvack.org, clameter@sgi.com, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com, kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 0/5] Swapless page migration V2: Overview
+Message-Id: <20060413170853.0757af41.akpm@osdl.org>
+In-Reply-To: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Andrew Morton wrote:
-> Jeff Mahoney <jeffm@suse.com> wrote:
->> +/**
->> + * idr_replace - replace pointer for given id
->> + * @idp: idr handle
->> + * @ptr: pointer you want associated with the ide
->> + * @id: lookup key
->> + *
->> + * Replace the pointer registered with the id.  A -ENOENT
->> + * return indicates that @id was not found.
->> + *
->> + * The caller must serialize vs idr_find(), idr_get_new(), and idr_remove().
->> + */
->> +int idr_replace(struct idr *idp, void *ptr, int id)
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> Swapless Page migration V2
 > 
-> I'd have thought it would be more flexible were this to return the old
-> pointer.
+> Currently page migration is depending on the ability to assign swap entries
+> to pages. However, those entries will only be to identify anonymous pages.
+> Page migration will not work without swap although swap space is never
+> really used.
+
+That strikes me as a fairly minor limitation?
+
+> ...
+>
+> Efficiency of migration is increased by:
 > 
-> If there was no old item, we could return NULL and "succeed".  But that gets
-> a bit ill-defined, because lack of an old pointer can occur if either a)
-> there was a layer, but the slot was empty or b) there wasn't a layer for
-> this new item.  So perhaps it's best to continue considering lack of an old
-> pointer as an error, with ERR_PTR(-ENOENT).
+> 1. Avoiding useless retries
+>    The use of migration entries avoids raising the page count in do_swap_page().
+>    The existing approach can increase the page count between the unmapping
+>    of the ptes for a page and the page migration page count check resulting
+>    in having to retry migration although all accesses have been stopped.
 
-Sure, I'll make those changes now.
+Minor.
 
-- -Jeff
+> 2. Swap entries do not have to be assigned and removed from pages.
+
+Minor.
+
+> 3. No swap space has to be setup for page migration. Page migration
+>    will never use swap.
+
+Minor.
+
+> The patchset will allow later patches to enable migration of VM_LOCKED vmas,
+> the ability to exempt vmas from page migration, and allow the implementation
+> of a another userland migration API for handling batches of pages.
+
+These seem like more important justifications.  Would you agree with that
+judgement?
+
+Is it not possible to implement some or all of these new things without
+this work?
 
 
-- --
-Jeff Mahoney
-SUSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFEPugXLPWxlyuTD7IRAswwAJ0XVEBu/kRp4RNcW3JNeNRTqCYEowCfR01q
-0hPOY5g0V8WEaOU8lWBfG/U=
-=iJrK
------END PGP SIGNATURE-----
+That all being said, this patchset is pretty low-impact:
+
+ include/linux/rmap.h    |    1 
+ include/linux/swap.h    |    6 
+ include/linux/swapops.h |   32 +++++
+ mm/Kconfig              |    4 
+ mm/memory.c             |    6 
+ mm/migrate.c            |  242 ++++++++++++++++++++------------------
+ mm/rmap.c               |   88 ++++---------
+ mm/swapfile.c           |   15 --
+ 8 files changed, 212 insertions(+), 182 deletions(-)
+

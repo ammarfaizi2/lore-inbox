@@ -1,66 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWDNTXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWDNT3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbWDNTXV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 15:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWDNTXU
+	id S1751430AbWDNT3O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 15:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWDNT3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 15:23:20 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:45711 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751425AbWDNTXU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 15:23:20 -0400
-Date: Fri, 14 Apr 2006 12:22:45 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
-       linux-mm@kvack.org, taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
-       kamezawa.hiroyu@jp.fujitsu.com
-Subject: Re: Implement lookup_swap_cache for migration entries
-In-Reply-To: <20060414121537.11134d26.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0604141214060.22652@schroedinger.engr.sgi.com>
-References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
- <20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
- <20060413171331.1752e21f.akpm@osdl.org> <Pine.LNX.4.64.0604131728150.15802@schroedinger.engr.sgi.com>
- <20060413174232.57d02343.akpm@osdl.org> <Pine.LNX.4.64.0604131743180.15965@schroedinger.engr.sgi.com>
- <20060413180159.0c01beb7.akpm@osdl.org> <Pine.LNX.4.64.0604131827210.16220@schroedinger.engr.sgi.com>
- <20060413222921.2834d897.akpm@osdl.org> <Pine.LNX.4.64.0604141025310.18575@schroedinger.engr.sgi.com>
- <20060414113104.72a5059b.akpm@osdl.org> <Pine.LNX.4.64.0604141143520.22475@schroedinger.engr.sgi.com>
- <20060414121537.11134d26.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Apr 2006 15:29:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19670 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751430AbWDNT3N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 15:29:13 -0400
+Date: Fri, 14 Apr 2006 12:31:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Poll microoptimizations.
+Message-Id: <20060414123118.0a8fb24c.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0604132115290.29982@shell3.speakeasy.net>
+References: <Pine.LNX.4.58.0604132115290.29982@shell3.speakeasy.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Apr 2006, Andrew Morton wrote:
-
-> > > What locking ensures that the state of `entry' remains unaltered across the
-> > > is_migration_entry() and migration_entry_to_page() calls?
-> > 
-> > entry is a variable passed by value to the function.
+Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+>
+> Patch to provide some microoptimizations for the poll() system call
+> implementation. The loop that traverses over the "struct pollfd" entries
+> was moved from do_pollfd() to its single caller do_poll(), so that
+> do_pollfd() no longer mucks around with the "count" and the "pt"
+> variables that should belong to do_poll() alone. This saves unnecessary
+> levels of indirection. Modifications were run tested.
 > 
-> Sigh.
 > 
-> What locking ensures that the state of the page referred to by `entry' is
-> stable?
+> diff -Npru linux-2.6.17-rc1/fs/select.c linux-new/fs/select.c
+> --- linux-2.6.17-rc1/fs/select.c	2006-04-12 20:31:54.000000000 -0700
+> +++ linux-new/fs/select.c	2006-04-13 18:54:14.000000000 -0700
+> @@ -544,37 +544,30 @@ struct poll_list {
+> 
+>  #define POLLFD_PER_PAGE  ((PAGE_SIZE-sizeof(struct poll_list)) / sizeof(struct pollfd))
+> 
+> -static void do_pollfd(unsigned int num, struct pollfd * fdpage,
+> -	poll_table ** pwait, int *count)
+> +static int do_pollfd(struct pollfd * pollfd, poll_table * pwait)
 
-Oh, that.
+Please omit the space after the asterisk:
 
-Well, there is no locking when retrieving a pte atomically from the page 
-table. In do_swap_cache we figure out the page from the pte, lock the page 
-and then check that the pte has not changed. If it has changed then we 
-redo the fault. If the pte is still the same then we know that the page 
-was stable in the sense that it is still mapped the same way. So it was 
-not freed.
+	static int do_pollfd(struct pollfd *pollfd, poll_table *pwait)
 
-This applies to all pages handled by do_swap_page().
+because it doesn't impart any information, it is sightly misleading, it
+wastes screen real-estate and we should be consistent.
 
-The differences are:
+>  {
+> -	int i;
+> +	unsigned int mask;
+> +	int fd;
+> 
+> -	for (i = 0; i < num; i++) {
+> -		int fd;
+> -		unsigned int mask;
+> -		struct pollfd *fdp;
+> -
+> -		mask = 0;
+> -		fdp = fdpage+i;
+> -		fd = fdp->fd;
+> -		if (fd >= 0) {
+> -			int fput_needed;
+> -			struct file * file = fget_light(fd, &fput_needed);
+> -			mask = POLLNVAL;
+> -			if (file != NULL) {
+> -				mask = DEFAULT_POLLMASK;
+> -				if (file->f_op && file->f_op->poll)
+> -					mask = file->f_op->poll(file, *pwait);
+> -				mask &= fdp->events | POLLERR | POLLHUP;
+> -				fput_light(file, fput_needed);
+> -			}
+> -			if (mask) {
+> -				*pwait = NULL;
+> -				(*count)++;
+> -			}
+> +	mask = 0;
+> +	fd = pollfd->fd;
+> +	if (fd >= 0) {
+> +		int fput_needed;
+> +		struct file * file;
+> +
+> +		file = fget_light(fd, &fput_needed);
+> +		mask = POLLNVAL;
+> +		if (file != NULL) {
+> +			mask = DEFAULT_POLLMASK;
+> +			if (file->f_op && file->f_op->poll)
+> +				mask = file->f_op->poll(file, pwait);
+> +			mask &= pollfd->events | POLLERR | POLLHUP;
+> +			fput_light(file, fput_needed);
+>  		}
+> -		fdp->revents = mask;
+>  	}
+> +	pollfd->revents = mask;
+> +
+> +	return (mask != 0);
+>  }
 
-1. A migration entry does not take the tree_lock in lookup_swap_cache().
+So do_poll_fd() returns either 0 or 1.
 
-2. The migration thread will restore the regular pte before 
-   dropping the page lock.
+>  static int do_poll(unsigned int nfds,  struct poll_list *list,
+> @@ -592,10 +585,19 @@ static int do_poll(unsigned int nfds,  s
+>  		long __timeout;
+> 
+>  		set_current_state(TASK_INTERRUPTIBLE);
+> -		walk = list;
+> -		while(walk != NULL) {
+> -			do_pollfd( walk->len, walk->entries, &pt, &count);
+> -			walk = walk->next;
+> +		for (walk = list; walk != NULL; walk = walk->next) {
+> +			struct pollfd * pfd, * pfd_end;
+> +
+> +			pfd = walk->entries;
+> +			pfd_end = pfd + walk->len;
+> +			for (; pfd != pfd_end; pfd++) {
+> +				int ev;
+> +
+> +				ev = do_pollfd(pfd, pt);
 
-So after we succeed with the page lock we know that the pte has been 
-changed. The fault will be redone with the regular pte.
+`ev' is either 0 or 1.
+
+> +				count += ev;
+> +				ev--;
+
+`ev' is either -1 or 0.
+
+> +				pt = (poll_table*)((unsigned long)pt & ev);
+
+So as long as the sign-extension works as we hope (which I think it will),
+`pt' is either unaltered or is NULL.
+
+Yuk.  Sorry, no.
 

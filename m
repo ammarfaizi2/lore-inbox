@@ -1,131 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWDNCbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965039AbWDNCdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbWDNCbe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 22:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965097AbWDNCbe
+	id S965039AbWDNCdd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 22:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWDNCdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 22:31:34 -0400
-Received: from mga02.intel.com ([134.134.136.20]:23210 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S965094AbWDNCbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 22:31:33 -0400
-X-IronPort-AV: i="4.04,119,1144047600"; 
-   d="scan'208"; a="23099607:sNHT16019339"
-Subject: Re: [PATCH 5/8] IA64 various hugepage size - mount more hugetlb fs
-	for SHM
-From: Zou Nan hai <nanhai.zou@intel.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linux-IA64 <linux-ia64@vger.kernel.org>, Tony <tony.luck@intel.com>,
-       Kenneth W <kenneth.w.chen@intel.com>
-In-Reply-To: <1144975523.5817.84.camel@linux-znh>
-References: <1144974367.5817.39.camel@linux-znh>
-	 <1144974667.5817.51.camel@linux-znh>  <1144974881.5817.59.camel@linux-znh>
-	 <1144975292.5817.74.camel@linux-znh>  <1144975523.5817.84.camel@linux-znh>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1144975746.5817.94.camel@linux-znh>
+	Thu, 13 Apr 2006 22:33:33 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:18093 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S965039AbWDNCdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 22:33:32 -0400
+Date: Fri, 14 Apr 2006 11:34:55 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+Message-Id: <20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+	<20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
+	<20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 14 Apr 2006 08:49:07 +0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mount more hugetlbfs for SHM to support various hugepage size
-in SHM.
+On Thu, 13 Apr 2006 18:33:07 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-Signed-off-by: Zou Nan hai <nanhai.zou@intel.com>
+> On Fri, 14 Apr 2006, KAMEZAWA Hiroyuki wrote:
+> 
+> > For hotremove (I stops it now..), we should fix this later (if we can do).
+> > If new SWP_TYPE_MIGRATION swp entry can contain write protect bit,
+> > hotremove can avoid copy-on-write but things will be more complicated.
+> 
+> This is a known issue.I'd be glad if you could come up with a working 
+> scheme to solve this that is simple.
+> 
 
-diff -Nraup a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
---- a/fs/hugetlbfs/inode.c	2006-04-12 10:15:03.000000000 +0800
-+++ b/fs/hugetlbfs/inode.c	2006-04-12 10:17:23.000000000 +0800
-@@ -759,7 +759,7 @@ static struct file_system_type hugetlbfs
- 	.kill_sb	= kill_litter_super,
- };
+This patch can fix copy-on-write problem.
+I just compiled this patch (because I cannot use NUMA now.)
+
+BTW, why MAX_SWAPFILES_SHIFT==5 now ? required by some arch ?
+
+-Kame
+==
+
+This patch removes unnecessary copy-on-write after page migraiton.
+
+This patch preserve writable(write-protection) bit in swap entry,
+and make pte writable/protected when push it back.
+
+Because I don't understand why MAX_SWAPFILES_SHIFT==5 now,
+This patch uses one more swap type for migration.
+(By this patch, available swp type goes down to 30.)
+
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+Index: Christoph-New-Migration/include/linux/swap.h
+===================================================================
+--- Christoph-New-Migration.orig/include/linux/swap.h	2006-04-14 11:13:38.000000000 +0900
++++ Christoph-New-Migration/include/linux/swap.h	2006-04-14 11:13:55.000000000 +0900
+@@ -33,8 +33,11 @@
+ #define MAX_SWAPFILES		(1 << MAX_SWAPFILES_SHIFT)
+ #else
+ /* Use last entry for page migration swap entries */
+-#define MAX_SWAPFILES		((1 << MAX_SWAPFILES_SHIFT)-1)
+-#define SWP_TYPE_MIGRATION	MAX_SWAPFILES
++#define MAX_SWAPFILES		((1 << MAX_SWAPFILES_SHIFT)-2)
++/* write protected page under migration*/
++#define SWP_TYPE_MIGRATION_WP	(MAX_SWAPFILES - 1)
++/* write enabled migration type */
++#define SWP_TYPE_MIGRATION_WE	(MAX_SWAPFILES)
+ #endif
  
--static struct vfsmount *hugetlbfs_vfsmount;
-+static struct vfsmount *hugetlbfs_vfsmount[MAX_ORDER];
+ /*
+Index: Christoph-New-Migration/include/linux/swapops.h
+===================================================================
+--- Christoph-New-Migration.orig/include/linux/swapops.h	2006-04-14 11:13:38.000000000 +0900
++++ Christoph-New-Migration/include/linux/swapops.h	2006-04-14 11:13:55.000000000 +0900
+@@ -69,17 +69,32 @@
+ }
  
- static int can_do_hugetlb_shm(void)
+ #ifdef CONFIG_MIGRATION
+-static inline swp_entry_t make_migration_entry(struct page *page)
++static inline swp_entry_t make_migration_entry(struct page *page, int writable)
  {
-@@ -784,7 +784,7 @@ struct file *hugetlb_zero_setup(size_t s
- 	if (!user_shm_lock(size, current->user))
- 		return ERR_PTR(-ENOMEM);
+ 	BUG_ON(!PageLocked(page));
+-	return swp_entry(SWP_TYPE_MIGRATION, page_to_pfn(page));
++	if (writable)
++		return swp_entry(SWP_TYPE_MIGRATION_WE, page_to_pfn(page));
++	else
++		return swp_entry(SWP_TYPE_MIGRATION_WP, page_to_pfn(page));
+ }
  
--	root = hugetlbfs_vfsmount->mnt_root;
-+	root = hugetlbfs_vfsmount[order]->mnt_root;
- 	snprintf(buf, 16, "%u", atomic_inc_return(&counter));
- 	quick_string.name = buf;
- 	quick_string.len = strlen(quick_string.name);
-@@ -812,7 +812,7 @@ struct file *hugetlb_zero_setup(size_t s
- 	d_instantiate(dentry, inode);
- 	inode->i_size = size;
- 	inode->i_nlink = 0;
--	file->f_vfsmnt = mntget(hugetlbfs_vfsmount);
-+	file->f_vfsmnt = mntget(hugetlbfs_vfsmount[order]);
- 	file->f_dentry = dentry;
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &hugetlbfs_file_operations;
-@@ -834,27 +834,49 @@ static int __init init_hugetlbfs_fs(void
+ static inline int is_migration_entry(swp_entry_t entry)
  {
- 	int error;
- 	struct vfsmount *vfsmount;
--
- 	hugetlbfs_inode_cachep = kmem_cache_create("hugetlbfs_inode_cache",
--					sizeof(struct hugetlbfs_inode_info),
--					0, 0, init_once, NULL);
-+			sizeof(struct hugetlbfs_inode_info),
-+			0, 0, init_once, NULL);
- 	if (hugetlbfs_inode_cachep == NULL)
- 		return -ENOMEM;
+-	return swp_type(entry) == SWP_TYPE_MIGRATION;
++	return (swp_type(entry) == SWP_TYPE_MIGRATION_WP) ||
++	       (swp_type(entry) == SWP_TYPE_MIGRATION_WE);
+ }
  
- 	error = register_filesystem(&hugetlbfs_fs_type);
- 	if (error)
- 		goto out;
--
--	vfsmount = kern_mount(&hugetlbfs_fs_type);
--
--	if (!IS_ERR(vfsmount)) {
--		hugetlbfs_vfsmount = vfsmount;
--		return 0;
-+#ifdef ARCH_HAS_VARIABLE_HUGEPAGE_SIZE
-+	{
-+		int order;
-+		char fsname[64], data[64];
-+		for (order = 0; order < MAX_ORDER; order++) {
-+			if (is_valid_hpage_size(1UL<<(PAGE_SHIFT+order))) {
-+				sprintf(fsname, "%s%d", hugetlbfs_fs_type.name, order);
-+				sprintf(data, "page_size=%ld", (1UL<<(PAGE_SHIFT+order)));
-+				vfsmount = do_kern_mount(hugetlbfs_fs_type.name, 0,
-+						fsname, data);
++static inline int is_migration_entry_wp(swp_entry_t entry)
++{
++	return (swp_type(entry) == SWP_TYPE_MIGRATION_WP);
++}
 +
-+				if (!IS_ERR(vfsmount))
-+					hugetlbfs_vfsmount[order] = vfsmount;
-+				else {
-+					error = PTR_ERR(vfsmount);
-+					goto out;
-+				}
-+			}
-+		}
- 	}
-+#else
-+        vfsmount = kern_mount(&hugetlbfs_fs_type);
- 
--	error = PTR_ERR(vfsmount);
-+        if (!IS_ERR(vfsmount)) {
-+                hugetlbfs_vfsmount[HUGETLB_INIT_PAGE_ORDER] = vfsmount;
-+                return 0;
-+        }
++static inline int is_migration_entry_we(swp_entry_t entry)
++{
++	return (swp_type(entry) == SWP_TYPE_MIGRATION_WE);
++}
 +
-+        error = PTR_ERR(vfsmount);
-+        goto out;
-+#endif
-+	return 0;
++
+ static inline struct page *migration_entry_to_page(swp_entry_t entry)
+ {
+ 	struct page *p = pfn_to_page(swp_offset(entry));
+Index: Christoph-New-Migration/mm/migrate.c
+===================================================================
+--- Christoph-New-Migration.orig/mm/migrate.c	2006-04-14 11:13:49.000000000 +0900
++++ Christoph-New-Migration/mm/migrate.c	2006-04-14 11:13:55.000000000 +0900
+@@ -167,7 +167,11 @@
  
-- out:
-+out:
- 	if (error)
- 		kmem_cache_destroy(hugetlbfs_inode_cachep);
- 	return error;
-
+ 	inc_mm_counter(mm, anon_rss);
+ 	get_page(new);
+-	set_pte_at(mm, addr, ptep, pte_mkold(mk_pte(new, vma->vm_page_prot)));
++	pte = pte_mkold(mk_pte(new, vma->vm_page_prot));
++	if (is_migration_entry_we(entry)) {
++		pte = pte_mkwrite(pte);
++	}
++	set_pte_at(mm, addr, ptep, pte);
+ 	page_add_anon_rmap(new, vma, addr);
+ out:
+ 	pte_unmap_unlock(pte, ptl);
+Index: Christoph-New-Migration/mm/rmap.c
+===================================================================
+--- Christoph-New-Migration.orig/mm/rmap.c	2006-04-14 11:13:45.000000000 +0900
++++ Christoph-New-Migration/mm/rmap.c	2006-04-14 11:13:55.000000000 +0900
+@@ -602,7 +602,10 @@
+ 			 * pte is removed and then restart fault handling.
+ 			 */
+ 			BUG_ON(!migration);
+-			entry = make_migration_entry(page);
++			if (pte_write(pteval))
++				entry = make_migration_entry(page, 1);
++			else
++				entry = make_migration_entry(page, 0);
+ 		}
+ 		set_pte_at(mm, address, pte, swp_entry_to_pte(entry));
+ 		BUG_ON(pte_file(*pte));
 

@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWDNBaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWDNBbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWDNBaP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 21:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWDNBaP
+	id S965091AbWDNBbx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 21:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWDNBbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 21:30:15 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:39831 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S932438AbWDNBaN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 21:30:13 -0400
-Date: Fri, 14 Apr 2006 03:30:12 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Jes Sorensen <jes@sgi.com>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com, stern@rowland.harvard.edu, sekharan@us.ibm.com,
-       akpm@osdl.org, David Chinner <dgc@sgi.com>
-Subject: Re: notifier chain problem? (was Re: 2.6.17-rc1 did break XFS)
-Message-ID: <20060414013012.GB11178@MAIL.13thfloor.at>
-Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Jes Sorensen <jes@sgi.com>, Con Kolivas <kernel@kolivas.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>,
-	linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
-	stern@rowland.harvard.edu, sekharan@us.ibm.com, akpm@osdl.org,
-	David Chinner <dgc@sgi.com>
-References: <20060413052145.GA31435@MAIL.13thfloor.at> <20060413072325.GF2732@melbourne.sgi.com> <yq0k69tuauh.fsf@jaguar.mkp.net> <20060413135000.GB6663@MAIL.13thfloor.at> <Pine.LNX.4.61.0604131618350.17374@yvahk01.tjqt.qr> <20060413175342.GF6663@MAIL.13thfloor.at> <Pine.LNX.4.61.0604132049110.20938@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0604132049110.20938@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.6i
+	Thu, 13 Apr 2006 21:31:52 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:4498 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932451AbWDNBbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 21:31:51 -0400
+Date: Thu, 13 Apr 2006 18:31:38 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: hugh@veritas.com, linux-kernel@vger.kernel.org, lee.schermerhorn@hp.com,
+       linux-mm@kvack.org, taka@valinux.co.jp, marcelo.tosatti@cyclades.com,
+       kamezawa.hiroyu@jp.fujitsu.com
+Subject: Re: [PATCH 2/5] Swapless V2: Add migration swap entries
+In-Reply-To: <20060413181716.152493b8.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0604131831150.16220@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413235416.15398.49978.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413171331.1752e21f.akpm@osdl.org> <Pine.LNX.4.64.0604131728150.15802@schroedinger.engr.sgi.com>
+ <20060413174232.57d02343.akpm@osdl.org> <Pine.LNX.4.64.0604131743180.15965@schroedinger.engr.sgi.com>
+ <20060413180159.0c01beb7.akpm@osdl.org> <20060413181716.152493b8.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 08:52:05PM +0200, Jan Engelhardt wrote:
+On Thu, 13 Apr 2006, Andrew Morton wrote:
+
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Perhaps it would be better to go to
+> >  sleep on some global queue, poke that queue each time a page migration
+> >  completes?
 > 
-> >[    3.583356] hda: QEMU HARDDISK, ATA DISK drive
-> >[    5.021521] hdc: QEMU HARDDISK, ATA DISK drive
-> 
-> Maybe QEMU is involved in the Oops? What if used on a normal system?
+> Or take mmap_sem for writing in do_migrate_pages()?  That takes the whole
+> pagefault path out of the picture.
 
-well, might be, but a) it works perfectly fine with
-2.6.16 and many older kernels, and b) sorry, I don't
-have a real system for xfs crash testing right now
+We would have to take that for each task mapping the page. Very expensive 
+operation.
 
-find the config in my reply to the previous email
-
-best,
-Herbert
-
-> Jan Engelhardt
-> -- 

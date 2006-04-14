@@ -1,107 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWDNLeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWDNLgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWDNLeL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 07:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWDNLeL
+	id S1751144AbWDNLgh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 07:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWDNLgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 07:34:11 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36359 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750781AbWDNLeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 07:34:10 -0400
-Date: Fri, 14 Apr 2006 13:34:09 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: mark.fasheh@oracle.com, kurt.hackel@oracle.com
-Cc: ocfs2-devel@oss.oracle.com, linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] fs/ocfs2/: remove unused exports
-Message-ID: <20060414113409.GJ4162@stusta.de>
-MIME-Version: 1.0
+	Fri, 14 Apr 2006 07:36:37 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:31445 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751144AbWDNLgh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 07:36:37 -0400
+Date: Fri, 14 Apr 2006 19:33:36 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [PATCH rc1-mm 2/3] coredump: shutdown current process first
+Message-ID: <20060414153336.GB131@oleg>
+References: <20060409001127.GA101@oleg> <20060410070840.26AE41809D1@magilla.sf.frob.com> <20060410140131.GB85@oleg> <m1hd4w4m84.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <m1hd4w4m84.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the following unused EXPORT_SYMBOL_GPL's:
-- cluster/heartbeat.c: o2hb_check_node_heartbeating_from_callback
-- cluster/heartbeat.c: o2hb_stop_all_regions
-- cluster/nodemanager.c: o2nm_get_node_by_num
-- cluster/nodemanager.c: o2nm_configured_node_map
-- cluster/nodemanager.c: o2nm_get_node_by_ip
-- cluster/nodemanager.c: o2nm_node_put
-- cluster/nodemanager.c: o2nm_node_get
-- dlm/dlmmaster.c: dlm_migrate_lockres
+On 04/14, Eric W. Biederman wrote:
+>
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
+> 
+> > On 04/10, Roland McGrath wrote:
+> >>
+> >> I would be inclined to restructure the inner loop something like this:
+> >> 
+> >> 		p = g;
+> >> 		while (unlikely(p->mm == NULL)) {
+> >> 			p = next_thread(p);
+> >> 			if (p == g)
+> >> 				break;
+> >> 		}
+> >> 		if (p->mm == mm) {
+> >> 			/*
+> >> 			 * p->sighand can't disappear, but
+> >> 			 * may be changed by de_thread()
+> >> 			 */
+> >> 			lock_task_sighand(p, &flags);
+> >> 			zap_process(p);
+> >> 			unlock_task_sighand(p, &flags);
+> >> 		}
+> >
+> > Yes, I agree, this is much more understandable.
+> 
+> There is one piece of zap_threads that still makes me uncomfortable.
+> 
+> task_lock is used to protect p->mm.
+> Therefore killing a process based upon p->mm == mm is racy
+> with respect to sys_unshare I believe if we don't take
+> task_lock.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Well, unshare(CLONE_VM) is not yet supported. Currently (as I see
+it) mm->mmap_sem is enough to protect against changing ->mm. Yes,
+exit_mm/exec_mmap take task_lock too, so it can be used as well.
+Please correct my understanding.
 
----
+I think it is better to take ->mmap_sem in sys_unshare, this path
+is rare.
 
- fs/ocfs2/cluster/heartbeat.c   |    2 --
- fs/ocfs2/cluster/nodemanager.c |    5 -----
- fs/ocfs2/dlm/dlmmaster.c       |    1 -
- 3 files changed, 8 deletions(-)
-
---- linux-2.6.17-rc1-mm2-full/fs/ocfs2/cluster/heartbeat.c.old	2006-04-14 12:42:05.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/fs/ocfs2/cluster/heartbeat.c	2006-04-14 12:42:30.000000000 +0200
-@@ -1785,7 +1785,6 @@
- 
- 	return 1;
- }
--EXPORT_SYMBOL_GPL(o2hb_check_node_heartbeating_from_callback);
- 
- /* Makes sure our local node is configured with a node number, and is
-  * heartbeating. */
-@@ -1821,4 +1820,3 @@
- 
- 	spin_unlock(&o2hb_live_lock);
- }
--EXPORT_SYMBOL_GPL(o2hb_stop_all_regions);
---- linux-2.6.17-rc1-mm2-full/fs/ocfs2/cluster/nodemanager.c.old	2006-04-14 12:42:49.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/fs/ocfs2/cluster/nodemanager.c	2006-04-14 12:43:40.000000000 +0200
-@@ -123,7 +123,6 @@
- out:
- 	return node;
- }
--EXPORT_SYMBOL_GPL(o2nm_get_node_by_num);
- 
- int o2nm_configured_node_map(unsigned long *map, unsigned bytes)
- {
-@@ -140,7 +139,6 @@
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(o2nm_configured_node_map);
- 
- static struct o2nm_node *o2nm_node_ip_tree_lookup(struct o2nm_cluster *cluster,
- 						  __be32 ip_needle,
-@@ -192,19 +190,16 @@
- out:
- 	return node;
- }
--EXPORT_SYMBOL_GPL(o2nm_get_node_by_ip);
- 
- void o2nm_node_put(struct o2nm_node *node)
- {
- 	config_item_put(&node->nd_item);
- }
--EXPORT_SYMBOL_GPL(o2nm_node_put);
- 
- void o2nm_node_get(struct o2nm_node *node)
- {
- 	config_item_get(&node->nd_item);
- }
--EXPORT_SYMBOL_GPL(o2nm_node_get);
- 
- u8 o2nm_this_node(void)
- {
---- linux-2.6.17-rc1-mm2-full/fs/ocfs2/dlm/dlmmaster.c.old	2006-04-14 12:44:19.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/fs/ocfs2/dlm/dlmmaster.c	2006-04-14 12:44:25.000000000 +0200
-@@ -2208,7 +2208,6 @@
- 	mlog(0, "returning %d\n", ret);
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(dlm_migrate_lockres);
- 
- int dlm_lock_basts_flushed(struct dlm_ctxt *dlm, struct dlm_lock *lock)
- {
+Oleg.
 

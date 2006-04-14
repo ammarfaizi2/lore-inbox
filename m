@@ -1,58 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWDNCmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWDNCtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbWDNCmp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Apr 2006 22:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWDNCmp
+	id S1751214AbWDNCtP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Apr 2006 22:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWDNCtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Apr 2006 22:42:45 -0400
-Received: from mga01.intel.com ([192.55.52.88]:32869 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751110AbWDNCmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Apr 2006 22:42:44 -0400
-X-IronPort-AV: i="4.04,119,1144047600"; 
-   d="scan'208"; a="23811233:sNHT16231299"
-Subject: Re: [PATCH 8/8] IA64 various hugepage size - Modify kernel document
-From: Zou Nan hai <nanhai.zou@intel.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Linux-IA64 <linux-ia64@vger.kernel.org>, Tony <tony.luck@intel.com>,
-       Kenneth W <kenneth.w.chen@intel.com>
-In-Reply-To: <1144976261.5817.114.camel@linux-znh>
-References: <1144974367.5817.39.camel@linux-znh>
-	 <1144974667.5817.51.camel@linux-znh>  <1144974881.5817.59.camel@linux-znh>
-	 <1144975292.5817.74.camel@linux-znh>  <1144975523.5817.84.camel@linux-znh>
-	 <1144975746.5817.94.camel@linux-znh>  <1144975953.5817.102.camel@linux-znh>
-	 <1144976261.5817.114.camel@linux-znh>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1144976418.5817.122.camel@linux-znh>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 14 Apr 2006 09:00:18 +0800
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Apr 2006 22:49:15 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:17292 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751214AbWDNCtP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Apr 2006 22:49:15 -0400
+From: Magnus Damm <magnus@valinux.co.jp>
+To: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Cc: Magnus Damm <magnus@valinux.co.jp>, ebiederm@xmission.com
+Message-Id: <20060414025017.15979.43301.sendpatchset@cherry.local>
+Subject: [PATCH] Kexec: Remove order for x86_64
+Date: Fri, 14 Apr 2006 11:49:13 +0900 (JST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Modify the kernel document about hugetlb
+Kexec: Remove order for x86_64
 
-Signed-off-by: Zou Nan hai <nanhai.zou@intel.com>
+This patch converts the x86_64 specific kexec code to 0-order allocations.
+Instead of having two contiguous pages at image->control_code_page we now 
+allocate two 0-order pages. One page is pointed to by image->control_code_page
+and the other page is pointed to by the new member image->arch_private.
 
-diff -Nraup a/Documentation/vm/hugetlbpage.txt b/Documentation/vm/hugetlbpage.txt
---- a/Documentation/vm/hugetlbpage.txt	2006-03-20 13:53:29.000000000 +0800
-+++ b/Documentation/vm/hugetlbpage.txt	2006-04-12 06:13:50.000000000 +0800
-@@ -68,9 +68,12 @@ If the user applications are going to re
- call, then it is required that system administrator mount a file system of
- type hugetlbfs:
+The main purpose of this modification is to simplify Xen porting work.
+
+Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
+---
+
+The patch has been tested on x86_64. Apply on top of linux-2.6.17-rc1-git8.
+
+ arch/x86_64/kernel/machine_kexec.c |   33 ++++++++++++++++++++++-----------
+ include/asm-x86_64/kexec.h         |    3 +--
+ include/linux/kexec.h              |    1 +
+ 3 files changed, 24 insertions(+), 13 deletions(-)
+
+--- 0001/arch/x86_64/kernel/machine_kexec.c
++++ work/arch/x86_64/kernel/machine_kexec.c	2006-04-14 11:25:25.000000000 +0900
+@@ -154,12 +154,20 @@ const extern unsigned long relocate_new_
  
--	mount none /mnt/huge -t hugetlbfs <uid=value> <gid=value> <mode=value>
-+	mount none /mnt/huge -t hugetlbfs -o <uid=value> <gid=value> <mode=value>
- 		 <size=value> <nr_inodes=value>
+ int machine_kexec_prepare(struct kimage *image)
+ {
+-	unsigned long start_pgtable, control_code_buffer;
++	unsigned long start_pgtable, control_code;
++	struct page *page;
+ 	int result;
  
-+on IA64 there is another mount option page_size=value which could
-+mount a hugetlbfs with given huge page size;
+-	/* Calculate the offsets */
+-	start_pgtable = page_to_pfn(image->control_code_page) << PAGE_SHIFT;
+-	control_code_buffer = start_pgtable + PAGE_SIZE;
++	page = kimage_alloc_control_pages(image, 0);
++	if (!page) {
++		printk(KERN_ERR "Could not allocate start_pgtable\n");
++		return -ENOMEM;
++	}
 +
- This command mounts a (pseudo) filesystem of type hugetlbfs on the directory
- /mnt/huge.  Any files created on /mnt/huge uses hugepages.  The uid and gid
- options sets the owner and group of the root of the file system.  By default
-
-
-
++	image->arch_private = page;
++
++	control_code = page_to_pfn(image->control_code_page) << PAGE_SHIFT;
++	start_pgtable = page_to_pfn(page) << PAGE_SHIFT;
+ 
+ 	/* Setup the identity mapped 64bit page table */
+ 	result = init_pgtable(image, start_pgtable);
+@@ -167,7 +175,7 @@ int machine_kexec_prepare(struct kimage 
+ 		return result;
+ 
+ 	/* Place the code in the reboot code buffer */
+-	memcpy(__va(control_code_buffer), relocate_new_kernel,
++	memcpy(__va(control_code), relocate_new_kernel,
+ 						relocate_new_kernel_size);
+ 
+ 	return 0;
+@@ -185,17 +193,20 @@ void machine_kexec_cleanup(struct kimage
+ NORET_TYPE void machine_kexec(struct kimage *image)
+ {
+ 	unsigned long page_list;
+-	unsigned long control_code_buffer;
++	unsigned long control_code;
+ 	unsigned long start_pgtable;
++	struct page *page;
+ 	relocate_new_kernel_t rnk;
+ 
++	page = image->arch_private;
++	BUG_ON(!page);
++
+ 	/* Interrupts aren't acceptable while we reboot */
+ 	local_irq_disable();
+ 
+-	/* Calculate the offsets */
++	control_code = page_to_pfn(image->control_code_page) << PAGE_SHIFT;
++	start_pgtable = page_to_pfn(page) << PAGE_SHIFT;
+ 	page_list = image->head;
+-	start_pgtable = page_to_pfn(image->control_code_page) << PAGE_SHIFT;
+-	control_code_buffer = start_pgtable + PAGE_SIZE;
+ 
+ 	/* Set the low half of the page table to my identity mapped
+ 	 * page table for kexec.  Leave the high half pointing at the
+@@ -226,6 +237,6 @@ NORET_TYPE void machine_kexec(struct kim
+ 	set_gdt(phys_to_virt(0),0);
+ 	set_idt(phys_to_virt(0),0);
+ 	/* now call it */
+-	rnk = (relocate_new_kernel_t) control_code_buffer;
+-	(*rnk)(page_list, control_code_buffer, image->start, start_pgtable);
++	rnk = (relocate_new_kernel_t) control_code;
++	(*rnk)(page_list, control_code, image->start, start_pgtable);
+ }
+--- 0001/include/asm-x86_64/kexec.h
++++ work/include/asm-x86_64/kexec.h	2006-04-14 11:25:25.000000000 +0900
+@@ -21,8 +21,7 @@
+ /* Maximum address we can use for the control pages */
+ #define KEXEC_CONTROL_MEMORY_LIMIT     (0xFFFFFFFFFFUL)
+ 
+-/* Allocate one page for the pdp and the second for the code */
+-#define KEXEC_CONTROL_CODE_SIZE  (4096UL + 4096UL)
++#define KEXEC_CONTROL_CODE_SIZE 4096
+ 
+ /* The native architecture */
+ #define KEXEC_ARCH KEXEC_ARCH_X86_64
+--- 0001/include/linux/kexec.h
++++ work/include/linux/kexec.h	2006-04-14 11:25:25.000000000 +0900
+@@ -68,6 +68,7 @@ struct kimage {
+ 
+ 	unsigned long start;
+ 	struct page *control_code_page;
++	void *arch_private;
+ 
+ 	unsigned long nr_segments;
+ 	struct kexec_segment segment[KEXEC_SEGMENT_MAX];

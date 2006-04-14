@@ -1,22 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWDNT3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWDNTnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbWDNT3O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 15:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWDNT3O
+	id S1751432AbWDNTnW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 15:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWDNTnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 15:29:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19670 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751430AbWDNT3N (ORCPT
+	Fri, 14 Apr 2006 15:43:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24282 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751432AbWDNTnV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 15:29:13 -0400
-Date: Fri, 14 Apr 2006 12:31:18 -0700
+	Fri, 14 Apr 2006 15:43:21 -0400
+Date: Fri, 14 Apr 2006 12:45:30 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Poll microoptimizations.
-Message-Id: <20060414123118.0a8fb24c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0604132115290.29982@shell3.speakeasy.net>
-References: <Pine.LNX.4.58.0604132115290.29982@shell3.speakeasy.net>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, riel@surriel.com
+Subject: Re: [PATCH 2/2] mm: fix mm_struct reference counting bugs in
+ mm/oom_kill.c
+Message-Id: <20060414124530.24a36d51.akpm@osdl.org>
+In-Reply-To: <200604141214.35806.dsp@llnl.gov>
+References: <200604131452.08292.dsp@llnl.gov>
+	<200604131744.02114.dsp@llnl.gov>
+	<20060414002654.76d1a6bc.akpm@osdl.org>
+	<200604141214.35806.dsp@llnl.gov>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,116 +28,91 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+Dave Peterson <dsp@llnl.gov> wrote:
 >
-> Patch to provide some microoptimizations for the poll() system call
-> implementation. The loop that traverses over the "struct pollfd" entries
-> was moved from do_pollfd() to its single caller do_poll(), so that
-> do_pollfd() no longer mucks around with the "count" and the "pt"
-> variables that should belong to do_poll() alone. This saves unnecessary
-> levels of indirection. Modifications were run tested.
+> On Friday 14 April 2006 00:26, Andrew Morton wrote:
+> > task_lock() can be used to pin a task's ->mm.  To use task_lock() in
+> > badness() we'd need to either
+> >
+> > a) nest task_lock()s.  I don't know if we're doing that anywhere else,
+> >    but the parent->child ordering is a natural one.  or
+> >
+> > b) take a ref on the parent's mm_struct, drop the parent's task_lock()
+> >    while we walk the children, then do mmput() on the parent's mm outside
+> >    tasklist_lock.  This is probably better.
 > 
+> Looking a bit more closely at the code, I see that
+> select_bad_process() iterates over all tasks, repeatedly calling
+> badness().  This would complicate option 'b' since the iteration is
+> done while holding tasklist_lock.  An alternative to option 'a' that
+> avoids nesting task_lock()s would be to define a couple of new
+> functions that might look something like this:
 > 
-> diff -Npru linux-2.6.17-rc1/fs/select.c linux-new/fs/select.c
-> --- linux-2.6.17-rc1/fs/select.c	2006-04-12 20:31:54.000000000 -0700
-> +++ linux-new/fs/select.c	2006-04-13 18:54:14.000000000 -0700
-> @@ -544,37 +544,30 @@ struct poll_list {
+>     void mmput_atomic(struct mm_struct *mm)
+>     {
+>             if (atomic_dec_and_test(&mm->mm_users)) {
+>                     add mm to a global list of expired mm_structs
+>             }
+>     }
 > 
->  #define POLLFD_PER_PAGE  ((PAGE_SIZE-sizeof(struct poll_list)) / sizeof(struct pollfd))
-> 
-> -static void do_pollfd(unsigned int num, struct pollfd * fdpage,
-> -	poll_table ** pwait, int *count)
-> +static int do_pollfd(struct pollfd * pollfd, poll_table * pwait)
+>     void mmput_atomic_cleanup(void)
+>     {
+>             empty the global list of expired mm_structs and do
+>             cleanup stuff for each one
+>     }
 
-Please omit the space after the asterisk:
+I think that's way too elaborate.
 
-	static int do_pollfd(struct pollfd *pollfd, poll_table *pwait)
+What's wrong with this?
 
-because it doesn't impart any information, it is sightly misleading, it
-wastes screen real-estate and we should be consistent.
 
->  {
-> -	int i;
-> +	unsigned int mask;
-> +	int fd;
-> 
-> -	for (i = 0; i < num; i++) {
-> -		int fd;
-> -		unsigned int mask;
-> -		struct pollfd *fdp;
-> -
-> -		mask = 0;
-> -		fdp = fdpage+i;
-> -		fd = fdp->fd;
-> -		if (fd >= 0) {
-> -			int fput_needed;
-> -			struct file * file = fget_light(fd, &fput_needed);
-> -			mask = POLLNVAL;
-> -			if (file != NULL) {
-> -				mask = DEFAULT_POLLMASK;
-> -				if (file->f_op && file->f_op->poll)
-> -					mask = file->f_op->poll(file, *pwait);
-> -				mask &= fdp->events | POLLERR | POLLHUP;
-> -				fput_light(file, fput_needed);
-> -			}
-> -			if (mask) {
-> -				*pwait = NULL;
-> -				(*count)++;
-> -			}
-> +	mask = 0;
-> +	fd = pollfd->fd;
-> +	if (fd >= 0) {
-> +		int fput_needed;
-> +		struct file * file;
-> +
-> +		file = fget_light(fd, &fput_needed);
-> +		mask = POLLNVAL;
-> +		if (file != NULL) {
-> +			mask = DEFAULT_POLLMASK;
-> +			if (file->f_op && file->f_op->poll)
-> +				mask = file->f_op->poll(file, pwait);
-> +			mask &= pollfd->events | POLLERR | POLLHUP;
-> +			fput_light(file, fput_needed);
->  		}
-> -		fdp->revents = mask;
->  	}
-> +	pollfd->revents = mask;
-> +
-> +	return (mask != 0);
->  }
-
-So do_poll_fd() returns either 0 or 1.
-
->  static int do_poll(unsigned int nfds,  struct poll_list *list,
-> @@ -592,10 +585,19 @@ static int do_poll(unsigned int nfds,  s
->  		long __timeout;
-> 
->  		set_current_state(TASK_INTERRUPTIBLE);
-> -		walk = list;
-> -		while(walk != NULL) {
-> -			do_pollfd( walk->len, walk->entries, &pt, &count);
-> -			walk = walk->next;
-> +		for (walk = list; walk != NULL; walk = walk->next) {
-> +			struct pollfd * pfd, * pfd_end;
-> +
-> +			pfd = walk->entries;
-> +			pfd_end = pfd + walk->len;
-> +			for (; pfd != pfd_end; pfd++) {
-> +				int ev;
-> +
-> +				ev = do_pollfd(pfd, pt);
-
-`ev' is either 0 or 1.
-
-> +				count += ev;
-> +				ev--;
-
-`ev' is either -1 or 0.
-
-> +				pt = (poll_table*)((unsigned long)pt & ev);
-
-So as long as the sign-extension works as we hope (which I think it will),
-`pt' is either unaltered or is NULL.
-
-Yuk.  Sorry, no.
+--- 25/mm/oom_kill.c~a	Fri Apr 14 12:37:51 2006
++++ 25-akpm/mm/oom_kill.c	Fri Apr 14 12:44:49 2006
+@@ -47,15 +47,25 @@ int sysctl_panic_on_oom;
+ unsigned long badness(struct task_struct *p, unsigned long uptime)
+ {
+ 	unsigned long points, cpu_time, run_time, s;
+-	struct list_head *tsk;
++	struct mm_struct *mm;
++	struct task_struct *child;
+ 
+-	if (!p->mm)
++	task_lock(p);
++	mm = p->mm;
++	if (!mm) {
++		task_unlock(p);
+ 		return 0;
++	}
+ 
+ 	/*
+ 	 * The memory size of the process is the basis for the badness.
+ 	 */
+-	points = p->mm->total_vm;
++	points = mm->total_vm;
++
++	/*
++	 * After this unlock we can no longer dereference local variable `mm'
++	 */
++	task_unlock(p);
+ 
+ 	/*
+ 	 * Processes which fork a lot of child processes are likely
+@@ -65,11 +75,11 @@ unsigned long badness(struct task_struct
+ 	 * child is eating the vast majority of memory, adding only half
+ 	 * to the parents will make the child our kill candidate of choice.
+ 	 */
+-	list_for_each(tsk, &p->children) {
+-		struct task_struct *chld;
+-		chld = list_entry(tsk, struct task_struct, sibling);
+-		if (chld->mm != p->mm && chld->mm)
+-			points += chld->mm->total_vm/2 + 1;
++	list_for_each_entry(child, &p->children, sibling) {
++		task_lock(child);
++		if (child->mm != mm && child->mm)
++			points += child->mm->total_vm/2 + 1;
++		task_unlock(child);
+ 	}
+ 
+ 	/*
+_
 

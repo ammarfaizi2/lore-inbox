@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWDNVgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWDNVgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbWDNVgI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 17:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbWDNVgI
+	id S1751428AbWDNVgn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 17:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWDNVgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 17:36:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64389 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030190AbWDNVgH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 17:36:07 -0400
-Date: Fri, 14 Apr 2006 14:38:20 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Poll microoptimizations.
-Message-Id: <20060414143820.6a04b696.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0604141413260.21335@shell2.speakeasy.net>
-References: <Pine.LNX.4.58.0604132115290.29982@shell3.speakeasy.net>
-	<20060414123118.0a8fb24c.akpm@osdl.org>
-	<Pine.LNX.4.58.0604141413260.21335@shell2.speakeasy.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 14 Apr 2006 17:36:43 -0400
+Received: from cpe-66-24-229-232.stny.res.rr.com ([66.24.229.232]:38328 "EHLO
+	stargate.lab.yourst.com") by vger.kernel.org with ESMTP
+	id S1751428AbWDNVgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 17:36:42 -0400
+From: "Matt T. Yourst" <yourst@yourst.com>
+To: Bastian Blank <bastian@waldi.eu.org>
+Subject: Re: i386 - msr support for xen
+Date: Fri, 14 Apr 2006 17:36:34 -0400
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, davej@redhat.com
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604141736.34352.yourst@yourst.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+Bastian Blank wrote:
+> Hi folks
 >
-> I can put in a comment to explain what the code is doing, or if you
-> think that the bitmasking itself is "yuk", then I can easily transform
-> the code into an explicit "if () {}" block. :)
+>The speedstep modules uses MSR to do its work. XEN can't allow this and
+>the calls needs to be done via a hypercall into xen.
+>
+>I only found a hacky patch in
+>http://article.gmane.org/gmane.comp.emulators.xen.devel/22282, which
+>converts one of the speedstep modules to use xen. Does someone know if
+>there is another solution raising?
+>
 
-yes please.
+I submitted a better patch to xen-devel that removes the need to modify any 
+cpufreq modules - it directly traps the MSR writes and updates Xen's internal 
+timers, something the patch above did not do correctly.
 
-> > Yuk.  Sorry, no.
-> 
-> Thank you for the review. The comments above are easy to address. Do you
-> like the main concept behind the patch? Should I correct and resubmit?
+Please ignore the previous patch and update to the latest devel version of 
+Xen, which should be incorporating the updated code in the next few days.
 
-I don't really understand it yet.
+- Matt Yourst
 
-Yes, please resend and feel free to a) add comments in places where we can
-help people to understand the code and b) convert any code which gets
-touched to be coding-style-friendly.  (I usually recommend that we do that
-even if the surrounding code uses different conventions - eventually
-everything will be fixed ;))
+-------------------------------------------------------
+ Matt T. Yourst               yourst@cs.binghamton.edu
+ Binghamton University, Department of Computer Science
+-------------------------------------------------------

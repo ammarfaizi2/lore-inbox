@@ -1,43 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWDNMgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWDNMun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWDNMgr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 08:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWDNMgr
+	id S1750737AbWDNMun (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 08:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWDNMun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 08:36:47 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:59911 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932415AbWDNMgr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 08:36:47 -0400
-Date: Fri, 14 Apr 2006 14:36:31 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] DEBUG_KERNEL menu cleanups
-Message-ID: <20060414123631.GA14263@mars.ravnborg.org>
-References: <20060414111853.GG4162@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060414111853.GG4162@stusta.de>
-User-Agent: Mutt/1.5.11
+	Fri, 14 Apr 2006 08:50:43 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:28636 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1750737AbWDNMun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 08:50:43 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Fri, 14 Apr 2006 14:50:06 +0200 (CEST)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 0/4] sbp2: improved handling of device quirks
+To: linux1394-devel@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org, Jody McIntyre <scjody@modernduck.com>,
+       Andrew Morton <akpm@osdl.org>
+Message-ID: <tkrat.c5c36090a52cc591@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (0.863) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 14, 2006 at 01:18:53PM +0200, Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - move DEBUG_FS above the DEBUG_KERNEL options (it did break the menu)
-> - let the following options depend on DEBUG_KERNEL:
->   - PRINTK_TIME
->   - DEBUG_SHIRQ
->   - RT_MUTEX_TESTER
->   - UNWIND_INFO
+Hi all,
 
-A simpler solution would be to wrap everything inside
-if DEBUG_KERNEL
-...
-...
-...
-endif
+the following series of patches reworks and adds to sbp2's handling of
+buggy SBP-2 hardware:
 
-	Sam
+
+[PATCH 1/4] sbp2: consolidate workarounds
+-----------------------------------------
+Basically a refactoring, eases the integration of further workarounds.
+This patch was posted on linux1394-devel before.
+
+
+[PATCH 2/4] sbp2: add read_capacity workaround for iPod
+-------------------------------------------------------
+There is a bug in newer iPod firmwares which causes IO errors as soon
+as an iPod is plugged in, making it inaccessible. Usb-storage, which
+has to deal with the same problem, already has the same workaround we
+are adding here. The issue has only recently become known to also
+affect FireWire iPods.
+
+This patch of the series is actually the reason why I'm Cc'ing LKML
+and AKPM: It'd be nice to have this merged sooner than later since
+distribution kernels ship in configurations now which uncover this
+device bug (particularly when EFI partion support is enabled).
+
+This patch was posted on linux1394-devel before but I updated it
+today to cover two more affected iPod models.
+Requires PATCH 1/4.
+
+
+[PATCH 3/4] sbp2: make TSB42AA9 workaround specific to Momobay CX-1
+-------------------------------------------------------------------
+Makes an existing blacklist entry more specific, although no actual
+harm was done when this workaround caught devices which did not
+really need it.
+
+This patch was posted on linux1394-devel before.
+Requires PATCH 1/4.
+
+
+[PATCH 4/4] sbp2: add ability to override hardwired blacklist
+-------------------------------------------------------------
+Some of the workarounds which are triggered by sbp2's built-in
+blacklist may be degrading or even disruptive if unintentionally
+applied to devices which don't require the workaround. As a quick
+countermeasure which does not require users to recompile the driver,
+a new flag for sbp2's respective module load parameter is provided
+which disables the blacklist lookup.
+
+Note: There has no such problem occured in the past, however as we
+are adding more workarounds, such setbacks could become more likely.
+
+This is a new patch.
+Requires PATCH 1/4, also needs PATCH 2/4 to apply without rejects.
+
+-- 
+Stefan Richter
+-=====-=-==- -=-- -===-
+http://arcgraph.de/sr/
+

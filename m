@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWDOVcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbWDOVsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751629AbWDOVcS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 17:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751627AbWDOVcR
+	id S965152AbWDOVsR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 17:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWDOVsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 17:32:17 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35600 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751189AbWDOVcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 17:32:16 -0400
-Date: Sat, 15 Apr 2006 23:32:15 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Lever, Charles" <Charles.Lever@netapp.com>
-Cc: David Miller <davem@davemloft.net>, neilb@cse.unsw.edu.au,
-       trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-       nfs@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: Re: [NFS] [RFC: 2.6 patch] net/sunrpc/: possible cleanups
-Message-ID: <20060415213215.GN15022@stusta.de>
-References: <044B81DE141D7443BCE91E8F44B3C1E288E4FC@exsvl02.hq.netapp.com>
+	Sat, 15 Apr 2006 17:48:17 -0400
+Received: from pproxy.gmail.com ([64.233.166.176]:32199 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965152AbWDOVsR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 17:48:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ujstl1yilo3ZPXqXfp428f8E/v7mfCXoGlyh4PhbD+CYDJW8Vos89WfyTOOhyrOhrcegumNC02+dMWozPp5ZlAK/pjyO5We5Eex2shUGWHshe4V1oAUoZLquHgOTaSAONja431ySHzHU1mwAF++zpFlUsKqGhKcj1LtZrpm3NTo=
+Message-ID: <35fb2e590604151448h35169b78s4b62105d462f5b9a@mail.gmail.com>
+Date: Sat, 15 Apr 2006 22:48:16 +0100
+From: "Jon Masters" <jonathan@jonmasters.org>
+To: "Libor Vanek" <libor.vanek@gmail.com>
+Subject: Re: Connector - how to start?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <044B81DE141D7443BCE91E8F44B3C1E288E4FC@exsvl02.hq.netapp.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 06, 2005 at 07:13:14AM -0700, Lever, Charles wrote:
+On 4/15/06, Libor Vanek <libor.vanek@gmail.com> wrote:
 
-> actually, can we hold off on this change?  the RPC transport switch will
-> eventually need most of those EXPORT_SYMBOLs.
->...
-> > This patch was already sent on:
-> > - 30 May 2005
-> > - 7 May 2005
->...
+> I'd like to start writing some small module using connector to send
+> messages to/from user-space. Unfortunately I'm absolutely not familiar
+> with netlink/connector API usage and I couldn't find any usefull
+> documentation (yes, I read Documentation/connector/ and tried Google).
 
-One year has passed since I sent this patch the first time, and with the 
-exception that it needs re-diff'ing it still applies.
+So, time to ask the question.
 
-Charles, are the changes you are talking about that might need them 
-available in the very near future?
+I've been thinking for the past couple of weeks of hacking at the
+different users of netlink and trying to get everyone to play nicely
+together - if we're pushing things like connector, why can't we make
+this a general solution? (read: why do uevents have to be seperate?
+why are we forced to a particular protocol number with connector?
+etc.?).
 
-If not, I'd suggest to remove them and re-add them when code using them 
-will be included in the kernel (reverting parts or all of my patch 
-should be trivial).
-
-This way, they'll not continue to uselessly making the kernel image 
-larger.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Jon.

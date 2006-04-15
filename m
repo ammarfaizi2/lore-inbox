@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWDOOai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWDOPDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbWDOOai (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 10:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWDOOai
+	id S1030256AbWDOPDz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 11:03:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWDOPDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 10:30:38 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:44046 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030267AbWDOOah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 10:30:37 -0400
-Date: Sat, 15 Apr 2006 16:30:36 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: jdike@karaya.com
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Jean-Luc Leger <reiga@dspnet.fr.eu.org>
-Subject: [RFC: 2.6 patch] fix the INIT_ENV_ARG_LIMIT dependencies
-Message-ID: <20060415143036.GI15022@stusta.de>
+	Sat, 15 Apr 2006 11:03:55 -0400
+Received: from mail48.e.nsc.no ([193.213.115.48]:55698 "EHLO mail48.e.nsc.no")
+	by vger.kernel.org with ESMTP id S1030256AbWDOPDz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 11:03:55 -0400
+To: linux-kernel@vger.kernel.org
+Subject: SATA Conflict with PATA DMA
+From: Esben Stien <b0ef@esben-stien.name>
+Date: Sat, 15 Apr 2006 19:02:35 +0200
+Message-ID: <87odz2kc0k.fsf@esben-stien.name>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the INIT_ENV_ARG_LIMIT dependencies to what seems to 
-have been intended.
+I'm having problems enabling DMA for my PATA HD.
 
-Spotted by Jean-Luc Leger.
+hdparm -d1 /dev/hdb reports: 
+HDIO_SET_DMA failed: Operation not permitted
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Of course, I'm super user. Nothing is printed in dmesg. 
 
---- linux-2.6.17-rc1-mm2-full/init/Kconfig.old	2006-04-15 16:26:46.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/init/Kconfig	2006-04-15 16:27:12.000000000 +0200
-@@ -46,8 +46,8 @@
- 
- config INIT_ENV_ARG_LIMIT
- 	int
--	default 32 if !USERMODE
--	default 128 if USERMODE
-+	default 32 if !UML
-+	default 128 if UML
- 	help
- 	  Maximum of each of the number of arguments and environment
- 	  variables passed to init from the kernel command line.
+I'm on linux-2.6.16 and motherboard is Fujitsu Siemens D1561 with an
+ICH5. I also have a SATA hd in the computer and this only happens when
+the SATA hd is there. If I remove the SATA HD, then I can enable DMA
+for the PATA hd.
+
+Both the SATA and the PATA are very new. 
+
+# zcat /proc/config.gz |grep -i dma
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_ISA_DMA_API=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_SCSI_PDC_ADMA is not set
+
+Any pointers as to what I can try?
+
+-- 
+Esben Stien is b0ef@e     s      a             
+         http://www. s     t    n m
+          irc://irc.  b  -  i  .   e/%23contact
+          [sip|iax]:   e     e 
+           jid:b0ef@    n     n

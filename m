@@ -1,59 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWDOHzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWDOIKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751568AbWDOHzc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 03:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWDOHzc
+	id S1751588AbWDOIKm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 04:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbWDOIKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 03:55:32 -0400
-Received: from pproxy.gmail.com ([64.233.166.176]:52616 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751568AbWDOHzb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 03:55:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=J7I+fNqEJsPN/x3El1AJ8qvA7tZx8On5wnulKZErcIALcv4JxVu5qZFBrSAzoOzRa8pxMcRve1C9OBd0kqFq5+TfpFLIcXsiz5fOO8PPu1u6eeNiJLnbQPjshqKn5qQvxhtsC+R5B9vAtgASa+4ITDI42vF/UxjFhQaDDgoOAEQ=
-Message-ID: <35fb2e590604150055t29422445k20b5f95d3dce634d@mail.gmail.com>
-Date: Sat, 15 Apr 2006 08:55:30 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
-Subject: Re: Data about Apple iPod, Mac, Powerbook, iBook needed
-Cc: linux1394-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <4437F493.9000803@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4437F493.9000803@s5r6.in-berlin.de>
+	Sat, 15 Apr 2006 04:10:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11404 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751585AbWDOIKl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 04:10:41 -0400
+Subject: [RFC] binary firmware and modules
+From: Jon Masters <jcm@redhat.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-WfFg/Wf1lsHWTiSt+/iv"
+Date: Sat, 15 Apr 2006 09:10:55 +0100
+Message-Id: <1145088656.23134.54.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/8/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
 
-> Therefore I need help from people who have a FireWire iPod and a Linux
-> box with FireWire port:
->
-> 1. Please plug it in via FireWire and report the output of
->     $ cat /sys/bus/ieee1394/devices/000a27*-0/model_id
+--=-WfFg/Wf1lsHWTiSt+/iv
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Reported ID is 0x000000.
+Hi folks,
 
->     and of
->     $ dmesg | grep "hdwr sectors"
+Right now, various kernel modules are being migrated over to use
+request_firmware in order to pull in binary firmware blobs from userland
+when the module is loaded. This makes sense.
 
-I don't have that output in my logs, but hdparm tells me:
+However, there is right now little mechanism in place to automatically
+determine which binary firmware blobs must be included with a kernel in
+order to satisfy the prerequisites of these drivers. This affects
+vendors, but also regular users to a certain extent too.
 
-/dev/sda:
- readonly = 0 (off)
- readahead = 256 (on)
- geometry = 38147/64/32, sectors = 40000536576, start = 0
+The attached patch introduces MODULE_FIRMWARE as one way of advertising
+that a particular firmware file is to be loaded - it will then show up
+via modinfo and could be used e.g. when packaging a kernel. I've also
+given an example via the QLogic gla2xxx driver.
 
-> I would also like to know the model of iPod (i.e. generation of iPod)
-> and the version of the Linux kernel.
-
-It's a 3G iPod and the box in question is a Powerbook[0] running a
-rawhide (Fedora) kernel based on 2.6.16.1.
+I expect that there are better ways to do this, so I'd like comments
+from those closer to the ground on this problem. In particular, it would
+be better if drivers didn't have to list the firmware twice - once in
+request_firmware and then via MODULE_FIRMWARE. Maybe API change time?
 
 Jon.
 
-[0] All the Powerbooks here run only Linux.
+P.S. Until I fix evolution again, I'm using an attachment.
+
+
+--=-WfFg/Wf1lsHWTiSt+/iv
+Content-Disposition: attachment; filename=module_firmware.patch
+Content-Type: text/x-patch; name=module_firmware.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -urN linux-2.6.16.2_orig/drivers/scsi/qla2xxx/qla_os.c linux-2.6.16.2_dev/drivers/scsi/qla2xxx/qla_os.c
+--- linux-2.6.16.2_orig/drivers/scsi/qla2xxx/qla_os.c   2006-04-07 17:56:47.000000000 +0100
++++ linux-2.6.16.2_dev/drivers/scsi/qla2xxx/qla_os.c    2006-04-12 20:22:15.000000000 +0100
+@@ -2765,3 +2765,9 @@
+ MODULE_DESCRIPTION("QLogic Fibre Channel HBA Driver");
+ MODULE_LICENSE("GPL");
+ MODULE_VERSION(QLA2XXX_VERSION);
++MODULE_FIRMWARE("ql2100_fw.bin");
++MODULE_FIRMWARE("ql2200_fw.bin");
++MODULE_FIRMWARE("ql2300_fw.bin");
++MODULE_FIRMWARE("ql2322_fw.bin");
++MODULE_FIRMWARE("ql6312_fw.bin");
++MODULE_FIRMWARE("ql2400_fw.bin");
+diff -urN linux-2.6.16.2_orig/include/linux/module.h linux-2.6.16.2_dev/include/linux/module.h
+--- linux-2.6.16.2_orig/include/linux/module.h  2006-04-07 17:56:47.000000000 +0100
++++ linux-2.6.16.2_dev/include/linux/module.h   2006-04-12 13:51:56.000000000 +0100
+@@ -155,6 +155,8 @@
+ */
+ #define MODULE_VERSION(_version) MODULE_INFO(version, _version)
+
++#define MODULE_FIRMWARE(_firmware) MODULE_INFO(firmware, _firmware)
++
+ /* Given an address, look for it in the exception tables */
+ const struct exception_table_entry *search_exception_tables(unsigned long add);
+
+--=-WfFg/Wf1lsHWTiSt+/iv--
+

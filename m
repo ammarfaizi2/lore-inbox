@@ -1,84 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWDOTta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWDOTuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWDOTta (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 15:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWDOTta
+	id S1751325AbWDOTuE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 15:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWDOTuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 15:49:30 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3088 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751313AbWDOTt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 15:49:29 -0400
-Date: Sat, 15 Apr 2006 21:49:28 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: dwmw2@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] drivers/char/applicom.c: proper module_{init,exit}
-Message-ID: <20060415194928.GL15022@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+	Sat, 15 Apr 2006 15:50:03 -0400
+Received: from main.gmane.org ([80.91.229.2]:47065 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751325AbWDOTuB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 15:50:01 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Norbert Kiesel <nkiesel@tbdnetworks.com>
+Subject: Re: HP Pavilion dv5320us, amd64 'turion' cpu
+Date: Sat, 15 Apr 2006 21:49:49 +0200
+Message-ID: <pan.2006.04.15.19.49.48.997414@tbdnetworks.com>
+References: <200604151457.12508.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: d213-101-247-76.cust.tele2.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch:
-- converts the driver to use module_{init,exit}
-- let the driver print a warning if the old __setup is used
+On Sat, 15 Apr 2006 14:57:12 -0400, Gene Heskett wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Greetings;
+> 
+> I've been dl'ing and burning cd's and dvd's at a furious rate for 
+> several days now, looking for a 64 bit distribution that will actually 
+> boot on this thing, apparently in vain.  i386 stuff works fine.
+> The kubuntu 'breezy' 5.10 locks up at the ACPI line regardless of what 
+> kernel options you pass trying to disable it.
+> 
+> The dapper, 6.06, amd64 cd outputs nothing on screen after "Booting the 
+> kernel".  I let it sit there for 20 minutes while I caught up on some 
+> email.
 
----
+Try booting with "noapic", that did the trick for me for a HP dv8000z. 
+BTW, the latest dapper kernel does not need the noapicc anymore.
 
- drivers/char/applicom.c |   17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+</nk>
 
---- linux-2.6.17-rc1-mm2-full/drivers/char/applicom.c.old	2006-04-15 21:19:31.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/drivers/char/applicom.c	2006-04-15 21:23:36.000000000 +0200
-@@ -166,11 +166,7 @@ static int ac_register_board(unsigned lo
- 	return boardno + 1;
- }
- 
--#ifdef MODULE
--
--#define applicom_init init_module
--
--void cleanup_module(void)
-+static void __exit applicom_exit(void)
- {
- 	unsigned int i;
- 
-@@ -188,9 +184,7 @@ void cleanup_module(void)
- 	}
- }
- 
--#endif				/* MODULE */
--
--int __init applicom_init(void)
-+static int __init applicom_init(void)
- {
- 	int i, numisa = 0;
- 	struct pci_dev *dev = NULL;
-@@ -358,10 +352,9 @@ out:
- 	return ret;
- }
- 
-+module_init(applicom_init);
-+module_exit(applicom_exit);
- 
--#ifndef MODULE
--__initcall(applicom_init);
--#endif
- 
- static ssize_t ac_write(struct file *file, const char __user *buf, size_t count, loff_t * ppos)
- {
-@@ -870,6 +863,8 @@ static int __init applicom_setup(char *s
- 		return 0;
- 	}
- 
-+	printk(KERN_WARNING "applicom= is deprecated\n  please use applicom.irq= and applicom.mem=\n");
-+
- 	mem = ints[1];
- 	irq = ints[2];
- 	return 1;
 

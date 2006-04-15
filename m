@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751583AbWDOIlX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbWDOIzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751583AbWDOIlX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 04:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWDOIlX
+	id S1751587AbWDOIzf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 04:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWDOIzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 04:41:23 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:15890 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751577AbWDOIlW (ORCPT
+	Sat, 15 Apr 2006 04:55:35 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:14311 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751584AbWDOIze (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 04:41:22 -0400
-Date: Sat, 15 Apr 2006 10:40:58 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Dustin Kirkland <dustin.kirkland@us.ibm.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Kylene Jo Hall <kjhall@us.ibm.com>,
-       kbuild-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make: add modules_update target
-Message-ID: <20060415084058.GA29502@mars.ravnborg.org>
-References: <1145027216.12054.164.camel@localhost.localdomain> <20060414170222.GA19172@thunk.org> <1145061219.4001.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145061219.4001.25.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Sat, 15 Apr 2006 04:55:34 -0400
+Message-Id: <200604150855.k3F8soQi008120@zeus1.kernel.org>
+From: Pls.fax.instead.of.e-mail@zeus1.kernel.org
+To: linux-kernel@vger.kernel.org
+Subject: To make various molded parts for you(Small Q'ty OK)(cmb+wlw)
+Date: Fri, 14 Apr 06 21:43:46 Taipei Standard Time
+MIME-Version: 1.0
+Content-Type: multipart/mixed;boundary= "----=_NextPart_000_00EC_CBCC5360.F690B528"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 14, 2006 at 07:33:39PM -0500, Dustin Kirkland wrote:
-> It looks like it may not be easy to drop in modules_update as a more
-> efficient alternative to modules_install, but note that is not the patch
-> that Kylie submitted...
-The problem to be solved is the long time it takes to do
-"make modules_install" when working on a single module.
-Instead of bringing in more or less complex solutions what about
-extending "make dir/module.ko" to include the installation of the
-module.
+------=_NextPart_000_00EC_CBCC5360.F690B528
+Content-Type: text/plain; charset= "US-ASCII"
+Content-Transfer-Encoding: base64
 
-Something like:
-"make MI=1 dir/module.ko"
-where MI=1 tells us to install the said module.
-
-I'm not particular found of the syntax - anyone with a better proposal?
-
-Untested sample patch below.
-
-	Sam
-
-diff --git a/Makefile b/Makefile
-index fc8e08c..0c0649c 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1312,6 +1312,11 @@ # Modules
- 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1)   \
- 	$(build)=$(build-dir) $(@:.ko=.o)
- 	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost
-+ifneq ($(MI),)
-+	cp $@ $(MODLIB)/kernel/$(dir $@)
-+	if [ -r System.map -a -x $(DEPMOD) ]; then \
-+            $(DEPMOD) -ae -F System.map $(depmod_opts) $(KERNELRELEASE); fi
-+endif
- 
- # FIXME Should go into a make.lib or something 
- # ===========================================================================
+RGVhciBTaXIvTWFkYW0sDQoNCldlIGxlYXJudCB5b3VyIGUtbWFpbCBhZGQuZnJvbSBpbnRl
+cm5ldC4NCiANCkZJUlNUIE9GIEFMTCxQTEVBU0UgS0lORExZIE5PVEUgVEhJUyBFLU1BSUwg
+SVMgU0VOVCBCWQ0KT1VSICJBRFZFUlRJU0lORyBDT01QQU5ZIiBBTkQgVEhFIEUtTUFJTCBB
+RERSRVNTIElTDQpOT1QgIlJFQUwiKFZJUlRVQUwpLFRIRVJFRk9SRSxQTEVBU0UgQ09OVEFD
+VCBVUw0KVklBICJGQVgiICBPUiAiUE9TVCIuRE9OJ1QgRElSRUNUTFkgUkVTUE9OU0UgVklB
+ICIgRS1NQUlMIg0KQkVDQVVTRSBXRSBDQU4nVCBSRUNFSVZFIFlPVVIgRS1NQUlMLg0KSUYg
+WU9VIFdBTlQgVE8gQkUgUkVNT1ZFRCBGUk9NIFRIRSBMSVNULFBMRUFTRSBBRFZJU0UNCllP
+VVIgRS1NQUlMIEFERFJFU1MgJiBUSElTIEUtTUFJTCBDT05URU5UIE9SIFNVQkpFQ1QgVklB
+ICJGQVgiIE9SICJQT1NUIi4NCg0KV2UgYXJlIHRoZSBwcm9mZXNzaW9uYWwgbW9sZCAmIGRp
+ZSBtYWtlciBhbmQgbW9sZGVkIHBhcnRzKG1vbGRpbmdzKSBzdXBwbGllcg0KZm9yIHRoZSBm
+b2xsb3dpbmcgcGFydHM6DQoNCiogQ2FzdGluZ3Moc2FuZCBjYXN0aW5ncykgZm9yIGlyb24g
+JiBhbHVtaW5pdW0NCiogKFByZXNzdXJlKSBEaWUgQ2FzdGluZyBmb3IgWmluYyBvciBhbHVt
+aW5pdW0NCiogUGxhc3RpYyBJbmplY3Rpb24gbW9sZGluZ3MuDQoqIFNoZWV0IE1ldGFsIFN0
+YW1waW5ncy4NCiogT2lsIFNlYWxzICYgb3RoZXIgUnViYmVyIE1vbGRpbmdzKGJvdGggZm9y
+IGluZHVzdHJpYWwgb3IgZ2VuZXJhbCB1c2VzKS4NCiogVmFyaW91cyBNYWduZXRzLg0KKiBN
+YWNoaW5pbmdzKE1hY2hpbmVkIHBhcnRzKQ0KKiBBc3NlbWJsZWQgdW5pdChjb21wb25lbnRz
+IGFzc2VtYmxlZCkNCg0KU01BTEwgT1JERVIgSVMgT0ssUExFQVNFIENPTlRBQ1QgVVMgVE8g
+U0FWRSBZT1VSIENPU1QhDQoNClRoYW5rIHlvdQ0KDQpCZXN0IFJlZ2FyZHMNClJvYmVydCBM
+aW4NClAuTy5Cb3ggMS0xMjAgWXVuZy1IbyxUYWlwZWksVGFpd2FuDQpGYXg6ODg2LTQtODc4
+MzMxMCAoODg2IGlzIHRoZSBjb3VudHJ5IGNvZGUpDQoNCg0KDQpQLk8uQm94IDEtMTIwIFl1
+bmctSG8sVGFpcGVpIEhzaWVuLFRhaXdhbg0KRmF4OiA4ODYtNC04ODc1ODY2ICg4ODYgaXMg
+dGhlIGNvdW50cnkgY29kZSkgICAg
+------=_NextPart_000_00EC_CBCC5360.F690B528--

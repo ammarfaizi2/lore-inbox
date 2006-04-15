@@ -1,144 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWDOREd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWDORmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbWDOREd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 13:04:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbWDOREd
+	id S1030297AbWDORmo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 13:42:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWDORmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 13:04:33 -0400
-Received: from xenotime.net ([66.160.160.81]:63210 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030294AbWDOREd (ORCPT
+	Sat, 15 Apr 2006 13:42:44 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37531 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030297AbWDORmn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 13:04:33 -0400
-Date: Sat, 15 Apr 2006 10:06:58 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] parport_pc: fix section mismatch warnings (v2)
-Message-Id: <20060415100658.a680d6b4.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Apr 2006 13:42:43 -0400
+Date: Sat, 15 Apr 2006 10:41:59 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+In-Reply-To: <20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
+ <20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+ <20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
+ <20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Note that there is an issue with your approach. If a migration entry is 
+copied during fork then SWP_MIGRATION_WRITE must become SWP_MIGRATION_READ 
+for some cases. Would you look into fixing this?
 
-Fix all modpost section mismatch warnings in parport_pc:
-
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x230)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x283)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x3e6)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x400)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x463)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x488)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.data:superios from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x54c)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.data: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x56a)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.data: from .text.parport_pc_pci_probe after 'parport_pc_pci_probe' (at offset 0x67)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.data: from .text.parport_pc_pci_probe after 'parport_pc_pci_probe' (at offset 0x9f)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.data: from .text.parport_pc_pci_probe after 'parport_pc_pci_probe' (at offset 0xa7)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.data:cards from .text.parport_pc_pci_probe after 'parport_pc_pci_probe' (at offset 0x132)
-WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.data: from .text.parport_pc_pci_probe after 'parport_pc_pci_probe' (at offset 0x142)
-
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/parport/parport_pc.c |   20 ++++++++++----------
- 1 files changed, 10 insertions(+), 10 deletions(-)
-
---- linux-2617-rc1g8.orig/drivers/parport/parport_pc.c
-+++ linux-2617-rc1g8/drivers/parport/parport_pc.c
-@@ -97,7 +97,7 @@ static struct superio_struct {	/* For Su
- 	int io;
- 	int irq;
- 	int dma;
--} superios[NR_SUPERIOS] __devinitdata = { {0,},};
-+} superios[NR_SUPERIOS] = { {0,},};
- 
- static int user_specified;
- #if defined(CONFIG_PARPORT_PC_SUPERIO) || \
-@@ -1557,7 +1557,7 @@ static int __devinit get_superio_dma (st
- 	return PARPORT_DMA_NONE;
- }
- 
--static int __devinit get_superio_irq (struct parport *p)
-+static int get_superio_irq (struct parport *p)
- {
- 	int i=0;
-         while( (superios[i].io != p->base) && (i<NR_SUPERIOS))
-@@ -1579,7 +1579,7 @@ static int __devinit get_superio_irq (st
-  *                         this shall always be the case!)
-  *
-  */
--static int __devinit parport_SPP_supported(struct parport *pb)
-+static int parport_SPP_supported(struct parport *pb)
- {
- 	unsigned char r, w;
- 
-@@ -1660,7 +1660,7 @@ static int __devinit parport_SPP_support
-  * two bits of ECR aren't writable, so we check by writing ECR and
-  * reading it back to see if it's what we expect.
-  */
--static int __devinit parport_ECR_present(struct parport *pb)
-+static int parport_ECR_present(struct parport *pb)
- {
- 	struct parport_pc_private *priv = pb->private_data;
- 	unsigned char r = 0xc;
-@@ -1712,7 +1712,7 @@ static int __devinit parport_ECR_present
-  * be misdetected here is rather academic. 
-  */
- 
--static int __devinit parport_PS2_supported(struct parport *pb)
-+static int parport_PS2_supported(struct parport *pb)
- {
- 	int ok = 0;
-   
-@@ -1868,7 +1868,7 @@ static int __devinit parport_ECP_support
- }
- #endif
- 
--static int __devinit parport_ECPPS2_supported(struct parport *pb)
-+static int parport_ECPPS2_supported(struct parport *pb)
- {
- 	const struct parport_pc_private *priv = pb->private_data;
- 	int result;
-@@ -1886,7 +1886,7 @@ static int __devinit parport_ECPPS2_supp
- 
- /* EPP mode detection  */
- 
--static int __devinit parport_EPP_supported(struct parport *pb)
-+static int parport_EPP_supported(struct parport *pb)
- {
- 	const struct parport_pc_private *priv = pb->private_data;
- 
-@@ -1931,7 +1931,7 @@ static int __devinit parport_EPP_support
- 	return 1;
- }
- 
--static int __devinit parport_ECPEPP_supported(struct parport *pb)
-+static int parport_ECPEPP_supported(struct parport *pb)
- {
- 	struct parport_pc_private *priv = pb->private_data;
- 	int result;
-@@ -2073,7 +2073,7 @@ static int __devinit irq_probe_SPP(struc
-  * When ECP is available we can autoprobe for IRQs.
-  * NOTE: If we can autoprobe it, we can register the IRQ.
-  */
--static int __devinit parport_irq_probe(struct parport *pb)
-+static int parport_irq_probe(struct parport *pb)
- {
- 	struct parport_pc_private *priv = pb->private_data;
- 
-@@ -2779,7 +2779,7 @@ static struct parport_pc_pci {
- 	/* If set, this is called after probing for ports.  If 'failed'
- 	 * is non-zero we couldn't use any of the ports. */
- 	void (*postinit_hook) (struct pci_dev *pdev, int failed);
--} cards[] __devinitdata = {
-+} cards[] = {
- 	/* siig_1p_10x */		{ 1, { { 2, 3 }, } },
- 	/* siig_2p_10x */		{ 2, { { 2, 3 }, { 4, 5 }, } },
- 	/* siig_1p_20x */		{ 1, { { 0, 1 }, } },
-
-
----

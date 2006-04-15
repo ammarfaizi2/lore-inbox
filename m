@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWDOCgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWDODKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbWDOCgb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 22:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWDOCga
+	id S1030218AbWDODKk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 23:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbWDODKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 22:36:30 -0400
-Received: from xenotime.net ([66.160.160.81]:26521 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030205AbWDOCga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 22:36:30 -0400
-Date: Fri, 14 Apr 2006 19:38:56 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, kjhall@us.ibm.com
-Subject: [PATCH] tpm_infineon section fixup
-Message-Id: <20060414193856.917a35dc.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Fri, 14 Apr 2006 23:10:40 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:37612 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030215AbWDODKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 23:10:40 -0400
+Subject: [PATCH 01/08] percpu -v2 main.c setup
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 14 Apr 2006 23:10:35 -0400
+Message-Id: <1145070635.27407.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+Copy the __per_cpu_offset array into the per_cpu_offset__##var variables.
 
-Use __devexit_p() for the exit/remove function to protect
-against discarding it.
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-WARNING: drivers/char/tpm/tpm_infineon.o - Section mismatch: reference to .exit.text:tpm_inf_pnp_remove from .data between 'tpm_inf_pnp' (at offset 0x20) and 'tpm_inf'
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/char/tpm/tpm_infineon.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
---- linux-2617-rc1g8.orig/drivers/char/tpm/tpm_infineon.c
-+++ linux-2617-rc1g8/drivers/char/tpm/tpm_infineon.c
-@@ -15,6 +15,7 @@
-  * License.
-  */
+Index: linux-2.6.17-rc1/init/main.c
+===================================================================
+--- linux-2.6.17-rc1.orig/init/main.c	2006-04-13 22:37:57.000000000 -0400
++++ linux-2.6.17-rc1/init/main.c	2006-04-14 11:46:51.000000000 -0400
+@@ -324,9 +324,11 @@ static inline void smp_prepare_cpus(unsi
  
-+#include <linux/init.h>
- #include <linux/pnp.h>
- #include "tpm.h"
+ #ifdef __GENERIC_PER_CPU
+ unsigned long __per_cpu_offset[NR_CPUS] __read_mostly;
+-
+ EXPORT_SYMBOL(__per_cpu_offset);
  
-@@ -520,7 +521,7 @@ static struct pnp_driver tpm_inf_pnp = {
- 	},
- 	.id_table = tpm_pnp_tbl,
- 	.probe = tpm_inf_pnp_probe,
--	.remove = tpm_inf_pnp_remove,
-+	.remove = __devexit_p(tpm_inf_pnp_remove),
- };
++extern unsigned long *__per_cpu_offset_start,
++		*__per_cpu_offset_end;
++
+ static void __init setup_per_cpu_areas(void)
+ {
+ 	unsigned long size, i;
+@@ -335,12 +337,18 @@ static void __init setup_per_cpu_areas(v
  
- static int __init init_inf(void)
+ 	/* Copy section for each CPU (we discard the original) */
+ 	size = ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES);
+-#ifdef CONFIG_MODULES
+-	if (size < PERCPU_ENOUGH_ROOM)
+-		size = PERCPU_ENOUGH_ROOM;
+-#endif
+ 	ptr = alloc_bootmem(size * nr_possible_cpus);
+ 
++#ifdef CONFIG_MODULES
++	{
++		unsigned long **offsets = &__per_cpu_offset_start;
++		printk("setting up percpu from %p to %p with %p\n",
++		       &__per_cpu_offset_start, &__per_cpu_offset_end,
++		       &__per_cpu_offset[0]);
++		for ( ; offsets < &__per_cpu_offset_end; offsets++)
++			*offsets = &__per_cpu_offset[0];
++	}
++#endif
+ 	for_each_possible_cpu(i) {
+ 		__per_cpu_offset[i] = ptr - __per_cpu_start;
+ 		memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
 
 
----

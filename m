@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWDOJbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWDOJlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbWDOJbM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 05:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWDOJbM
+	id S932435AbWDOJlf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 05:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751612AbWDOJlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 05:31:12 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31456
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932354AbWDOJbK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 05:31:10 -0400
-Date: Sat, 15 Apr 2006 02:27:02 -0700 (PDT)
-Message-Id: <20060415.022702.120267858.davem@davemloft.net>
-To: samuel.ortiz@nokia.com
-Cc: bunk@stusta.de, jt@hpl.hp.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] net/irda/irias_object.c: remove unused exports
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.58.0604151157320.1032@irie>
-References: <20060414114446.GL4162@stusta.de>
-	<Pine.LNX.4.58.0604151157320.1032@irie>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sat, 15 Apr 2006 05:41:35 -0400
+Received: from smtpq2.groni1.gr.home.nl ([213.51.130.201]:1988 "EHLO
+	smtpq2.groni1.gr.home.nl") by vger.kernel.org with ESMTP
+	id S1751086AbWDOJle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 05:41:34 -0400
+Message-ID: <4440C03F.4080709@keyaccess.nl>
+Date: Sat, 15 Apr 2006 11:43:27 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+CC: linux-kernel@vger.kernel.org, Matt_Domsch@dell.com
+Subject: Re: Which device did I boot from?
+References: <200604151059.47733.arvidjaar@mail.ru>
+In-Reply-To: <200604151059.47733.arvidjaar@mail.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Samuel Ortiz <samuel.ortiz@nokia.com>
-Date: Sat, 15 Apr 2006 11:58:21 +0300 (EEST)
+Andrey Borzenkov wrote:
 
-> On Fri, 14 Apr 2006, ext Adrian Bunk wrote:
+>> If you choose the (experimental) CONFIG_EDD option in your kernel then,
+>> with cooperation of your BIOS, you'll have a /sys/firmware/edd with at
+>> least some info about the BIOS boot device. For me:
 > 
-> > This patch removes the following unused EXPORT_SYMBOL's:
-> > - irias_find_attrib
-> > - irias_new_string_value
-> > - irias_new_octseq_value
-> >
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> Looks good to me.
-> 
-> Signed-off-by: Samuel Ortiz <samuel.ortiz@nokia.com>
+> I am sorry but it does not tell about boot device. It contains all hard disks 
+> enumerated via EDD interface. I do not see any information 
+> under /sys/firmware/edd that would have allowed to guess boot device.
 
-Sam, just add this to your IRDA queue.  Ok?
+int13_dev80 is the bootdevice. Or that used to be the case with things 
+such as booting from SCSI at least. Don't know about booting from, say, USB.
+
+Rene.

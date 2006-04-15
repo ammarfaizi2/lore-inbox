@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWDOXBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWDOXGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbWDOXBz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 19:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWDOXBz
+	id S932161AbWDOXGm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 19:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWDOXGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 19:01:55 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:39684 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932513AbWDOXBy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 19:01:54 -0400
-Date: Sun, 16 Apr 2006 01:01:53 +0200
-From: Jean-Luc =?iso-8859-1?Q?L=E9ger?= 
-	<jean-luc.leger@dspnet.fr.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] cleanup default value of DVB_CINERGYT2_ENABLE_RC_INPUT_DEVICE
-Message-ID: <20060415230153.GH47644@dspnet.fr.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 15 Apr 2006 19:06:42 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62992 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932161AbWDOXGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 19:06:42 -0400
+Date: Sun, 16 Apr 2006 01:06:40 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "Martin J. Bligh" <mbligh@google.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Default CONFIG_DEBUG_MUTEXES to n
+Message-ID: <20060415230640.GP15022@stusta.de>
+References: <44417792.2070900@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <44417792.2070900@google.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Default values for boolean and tristate options can only be 'y', 'm' or 'n'.
-This patch updates default value for DVB_CINERGYT2_ENABLE_RC_INPUT_DEVICE.
+On Sat, Apr 15, 2006 at 03:45:38PM -0700, Martin J. Bligh wrote:
+> CONFIG_DEBUG_MUTEXES has a significant performant impact (reduced perf
+> of reaim by 50% on ia32 NUMA boxes). It should not be on by default.
+> 
+> Signed-off-by: Martin J. Bligh <mbligh@google.com>
+> 
+> 
 
-Signed-off-by: Jean-Luc Léger <jean-luc.leger@dspnet.fr.eu.org>
+> diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.17-rc1/lib/Kconfig.debug 2.6.17-rc1_no_mutex_dbg/lib/Kconfig.debug
+> --- linux-2.6.17-rc1/lib/Kconfig.debug	2006-04-15 15:28:54.000000000 -0700
+> +++ 2.6.17-rc1_no_mutex_dbg/lib/Kconfig.debug	2006-04-15 15:44:14.000000000 -0700
+> @@ -101,7 +101,7 @@ config DEBUG_PREEMPT
+>  
+>  config DEBUG_MUTEXES
+>  	bool "Mutex debugging, deadlock detection"
+> -	default y
+> +	default n
+>...
+>  config DEBUG_SPINLOCK
+>  	bool "Spinlock debugging"
+> +	default n
+>...
 
-Index: linux-2.6.17-rc1/drivers/media/dvb/cinergyT2/Kconfig
-===================================================================
---- linux-2.6.17-rc1/drivers/media/dvb/cinergyT2/Kconfig.old    2006-04-15 22:14:43.000000000 +0200
-+++ linux-2.6.17-rc1/drivers/media/dvb/cinergyT2/Kconfig        2006-04-15 22:16:02.000000000 +0200
-@@ -64,7 +64,7 @@
- config DVB_CINERGYT2_ENABLE_RC_INPUT_DEVICE
- 	bool "Register the onboard IR Remote Control Receiver as Input Device"
- 	depends on DVB_CINERGYT2_TUNING
--	default "yes"
-+	default y
- 	help
- 	  Enable this option if you want to use the onboard Infrared Remote
- 	  Control Receiver as Linux-Input device.
+"default n" has no effect and can be removed.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

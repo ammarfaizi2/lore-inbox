@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWDOQnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWDOQzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbWDOQnR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 12:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWDOQnR
+	id S1030290AbWDOQzw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 12:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWDOQzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 12:43:17 -0400
-Received: from xenotime.net ([66.160.160.81]:28371 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030289AbWDOQnR (ORCPT
+	Sat, 15 Apr 2006 12:55:51 -0400
+Received: from mx7.mail.ru ([194.67.23.27]:20560 "EHLO mx7.mail.ru")
+	by vger.kernel.org with ESMTP id S1030290AbWDOQzv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 12:43:17 -0400
-Date: Sat, 15 Apr 2006 09:45:42 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Direct writing to the IDE on panic?
-Message-Id: <20060415094542.5a0ff8c2.rdunlap@xenotime.net>
-In-Reply-To: <1145113505.27407.40.camel@localhost.localdomain>
-References: <1144936547.1336.20.camel@localhost.localdomain>
-	<1145024914.17531.21.camel@localhost.localdomain>
-	<Pine.LNX.4.58.0604141023240.11098@gandalf.stny.rr.com>
-	<1145026327.17531.24.camel@localhost.localdomain>
-	<Pine.LNX.4.58.0604141048260.11438@gandalf.stny.rr.com>
-	<20060414085227.83f73176.rdunlap@xenotime.net>
-	<1145113505.27407.40.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 15 Apr 2006 12:55:51 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Patrick McHardy <kaber@trash.net>
+Subject: Re: Openswan, iptables (fiaif) and 2.6.16 kernel
+Date: Sat, 15 Apr 2006 20:55:47 +0400
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604152055.48130.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Apr 2006 11:05:05 -0400 Steven Rostedt wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Fri, 2006-04-14 at 08:52 -0700, Randy.Dunlap wrote:
-> > O
-> > Rusty Russell had an IDE block dump patch during the 2.4
-> > timeframe IIRC.  I don't know where it could be found now.
-> > Maybe in old LKCD tarballs or archives?
-> 
-> Hi Randy,
-> 
-> Thanks for the tip.  Is this what you are talking about?
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103217825112169&w=2
+> 2.6.16 does a second policy lookup after SNAT, you probably SNAT
+> the packets to an address that doesn't match the policy anymore.
 
-Yes, that's it.  Thanks for the URL.
+Could you please give pointers where is it documented? All documents I have 
+suggest that SNAT is done as the last step, so any rule should use real and 
+not SNAT'ed address.
 
----
-~Randy
+Thank you
+
+Andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEQSWUR6LMutpd94wRAtJ0AJ45p5p54hDdyyjBPWejRtlr+DoNdQCgy1/3
+H2MtVmha+rE6vRxzkdSrrI8=
+=RHjq
+-----END PGP SIGNATURE-----

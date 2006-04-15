@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWDOTuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWDOTyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWDOTuE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 15:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWDOTuD
+	id S1751388AbWDOTyh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 15:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWDOTyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 15:50:03 -0400
-Received: from main.gmane.org ([80.91.229.2]:47065 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751325AbWDOTuB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 15:50:01 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Norbert Kiesel <nkiesel@tbdnetworks.com>
-Subject: Re: HP Pavilion dv5320us, amd64 'turion' cpu
-Date: Sat, 15 Apr 2006 21:49:49 +0200
-Message-ID: <pan.2006.04.15.19.49.48.997414@tbdnetworks.com>
-References: <200604151457.12508.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: d213-101-247-76.cust.tele2.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+	Sat, 15 Apr 2006 15:54:37 -0400
+Received: from mgw-ext13.nokia.com ([131.228.20.172]:26007 "EHLO
+	mgw-ext13.nokia.com") by vger.kernel.org with ESMTP
+	id S1751388AbWDOTyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 15:54:36 -0400
+Date: Sat, 15 Apr 2006 22:35:33 +0300 (EEST)
+From: Samuel Ortiz <samuel.ortiz@nokia.com>
+X-X-Sender: samuel@irie
+Reply-To: samuel.ortiz@nokia.com
+To: "ext David S. Miller" <davem@davemloft.net>
+cc: bunk@stusta.de, ext Jean Tourrilhes <jt@hpl.hp.com>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] net/irda/irias_object.c: remove unused exports
+In-Reply-To: <20060415.022702.120267858.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.58.0604152235001.1212@irie>
+References: <20060414114446.GL4162@stusta.de> <Pine.LNX.4.58.0604151157320.1032@irie>
+ <20060415.022702.120267858.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 15 Apr 2006 19:35:33.0372 (UTC) FILETIME=[C309B3C0:01C660C3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Apr 2006 14:57:12 -0400, Gene Heskett wrote:
+On Sat, 15 Apr 2006, ext David S. Miller wrote:
 
-> Greetings;
-> 
-> I've been dl'ing and burning cd's and dvd's at a furious rate for 
-> several days now, looking for a 64 bit distribution that will actually 
-> boot on this thing, apparently in vain.  i386 stuff works fine.
-> The kubuntu 'breezy' 5.10 locks up at the ACPI line regardless of what 
-> kernel options you pass trying to disable it.
-> 
-> The dapper, 6.06, amd64 cd outputs nothing on screen after "Booting the 
-> kernel".  I let it sit there for 20 minutes while I caught up on some 
-> email.
-
-Try booting with "noapic", that did the trick for me for a HP dv8000z. 
-BTW, the latest dapper kernel does not need the noapicc anymore.
-
-</nk>
-
-
+> From: Samuel Ortiz <samuel.ortiz@nokia.com>
+> Date: Sat, 15 Apr 2006 11:58:21 +0300 (EEST)
+>
+> > On Fri, 14 Apr 2006, ext Adrian Bunk wrote:
+> >
+> > > This patch removes the following unused EXPORT_SYMBOL's:
+> > > - irias_find_attrib
+> > > - irias_new_string_value
+> > > - irias_new_octseq_value
+> > >
+> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > Looks good to me.
+> >
+> > Signed-off-by: Samuel Ortiz <samuel.ortiz@nokia.com>
+>
+> Sam, just add this to your IRDA queue.  Ok?
+Sure, I will.

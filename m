@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWDOXOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWDOXXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932514AbWDOXOl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 19:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWDOXOl
+	id S932147AbWDOXXN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 19:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWDOXXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 19:14:41 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:6162 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932514AbWDOXOk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 19:14:40 -0400
-Date: Sun, 16 Apr 2006 01:14:32 +0200
-From: Jean-Luc =?iso-8859-1?Q?L=E9ger?= 
-	<jean-luc.leger@dspnet.fr.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fix dependencies of W1_SLAVE_DS2433_CRC
-Message-ID: <20060415231432.GI47644@dspnet.fr.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 15 Apr 2006 19:23:12 -0400
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:3210 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932147AbWDOXXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 19:23:12 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Al Boldi <a1426z@gawab.com>
+Subject: Re: [patch][rfc] quell interactive feeding frenzy
+Date: Sun, 16 Apr 2006 09:22:59 +1000
+User-Agent: KMail/1.9.1
+Cc: ck list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org,
+       Mike Galbraith <efault@gmx.de>
+References: <200604112100.28725.kernel@kolivas.org> <200604151705.18786.kernel@kolivas.org> <200604152345.39850.a1426z@gawab.com>
+In-Reply-To: <200604152345.39850.a1426z@gawab.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200604160923.00047.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Default values for boolean and tristate options can only be 'y', 'm' or 'n'.
-This patch fixes dependencies of W1_SLAVE_DS2433_CRC.
+On Sunday 16 April 2006 06:45, Al Boldi wrote:
+> Con Kolivas wrote:
+> > Thanks for bringing this to my attention. A while back I had different
+> > management of forked tasks and merged it with PF_NONSLEEP. Since then
+> > I've changed the management of NONSLEEP tasks and didn't realise it had
+> > adversely affected the accounting of forking tasks. This patch should
+> > rectify it.
+>
+> Congrats!
+>
+> Much smoother, but I still get this choke w/ 2 eatm 9999 loops running:
 
-Signed-off-by: Jean-Luc Léger <jean-luc.leger@dspnet.fr.eu.org>
+> 9 MB 783 KB eaten in 130 msec (74 MB/s)
+> 9 MB 783 KB eaten in 2416 msec (3 MB/s)		<<<<<<<<<<<<<
+> 9 MB 783 KB eaten in 197 msec (48 MB/s)
 
-Index: linux-2.6.17-rc1/drivers/w1/slaves/Kconfig
-===================================================================
---- linux-2.6.17-rc1/drivers/w1/slaves/Kconfig.old      2006-04-15 21:55:44.000000000 +0200
-+++ linux-2.6.17-rc1/drivers/w1/slaves/Kconfig  2006-04-15 21:56:37.000000000 +0200
-@@ -28,7 +28,7 @@
- 
- config W1_SLAVE_DS2433_CRC
- 	bool "Protect DS2433 data with a CRC16"
--	depends on W1_DS2433
-+	depends on W1_SLAVE_DS2433
- 	select CRC16
- 	help
- 	  Say Y here to protect DS2433 data with a CRC16.
+> You may have to adjust the kb to get the same effect.
 
+I've seen it. It's an artefact of timekeeping that it takes an accumulation of 
+data to get all the information. Not much I can do about it except to have 
+timeslices so small that they thrash the crap out of cpu caches and 
+completely destroy throughput.
+
+The current value, 6ms at 1000HZ, is chosen because it's the largest value 
+that can schedule a task in less than normal human perceptible range when two 
+competing heavily cpu bound tasks are the same priority. At 250HZ it works 
+out to 7.5ms and 10ms at 100HZ. Ironically in my experimenting I found the 
+cpu cache improvements become much less significant above 7ms so I'm very 
+happy with this compromise.
+
+Thanks!
+
+-- 
+-ck

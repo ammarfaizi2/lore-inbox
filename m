@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWDOX21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWDOXdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbWDOX21 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 19:28:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWDOX21
+	id S932164AbWDOXdK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 19:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWDOXdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 19:28:27 -0400
-Received: from dvhart.com ([64.146.134.43]:10702 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S932119AbWDOX20 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 19:28:26 -0400
-Message-ID: <44418197.7030900@mbligh.org>
-Date: Sat, 15 Apr 2006 16:28:23 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@google.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       apw@shadowen.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Clear performance regression on reaim7 in 2.6.15-git6
-References: <4441452F.3060009@google.com>	<20060415141744.042231a8.akpm@osdl.org>	<44416616.10908@google.com>	<20060415145227.5d1249bd.akpm@osdl.org>	<444173EE.4060602@google.com> <20060415154518.6a5a0c52.akpm@osdl.org> <44417ADB.4070104@google.com>
-In-Reply-To: <44417ADB.4070104@google.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Apr 2006 19:33:09 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:62801 "EHLO
+	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932164AbWDOXdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 19:33:08 -0400
+Date: Sat, 15 Apr 2006 17:33:07 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: SATA Conflict with PATA DMA
+In-reply-to: <61Y0s-AN-21@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Bill Waddington <william.waddington@beezmo.com>
+Message-id: <444182B3.4050608@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <61Y0s-AN-23@gated-at.bofh.it> <61UzA-43O-5@gated-at.bofh.it>
+ <61Y0s-AN-25@gated-at.bofh.it> <61Y0s-AN-21@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
->>> It's still broken in 17-rc1 ... will send you a patch in a sec.
->>
->>
->>
->> I already have kconfigdebug-set-debug_mutex-to-off-by-default.patch 
->> queued up.
+Bill Waddington wrote:
+> On Sat, 15 Apr 2006 16:42:22 UTC, in fa.linux.kernel you wrote:
 > 
+>> Esben Stien wrote:
+>>> I'm having problems enabling DMA for my PATA HD.
+>>>
+>>> hdparm -d1 /dev/hdb reports: 
+>>> HDIO_SET_DMA failed: Operation not permitted
+>>>
+>>> Of course, I'm super user. Nothing is printed in dmesg. 
+>>>
+>>> I'm on linux-2.6.16 and motherboard is Fujitsu Siemens D1561 with an
+>>> ICH5. I also have a SATA hd in the computer and this only happens when
+>>> the SATA hd is there. If I remove the SATA HD, then I can enable DMA
+>>> for the PATA hd.
+>> Disabled combined mode in BIOS.
 > 
-> OK. That explains why -mm2 bounced back at the end of this graph:
-> http://test.kernel.org/perf/reaim.moe.png
-> 
-> But ... it's still way below what 2.6.15 was. There's another thunk
-> down between 2.6.16 and 2.6.16-git18, AFAICS.
+> If only that was possible on my fscking T43.  *sigh*
 
-OK, I futzed with the graphs a bit. -git2 to -git3 definitely drops
-off. I think -git6 to git7 does as well, though that's much more
-difficult to discern amongst the noise. I'll take a look more.
+The other way around is to make libata handle the PATA devices. I'm not 
+sure if the support for that on combined mode is in mainline or if you 
+need Alan's libata PATA patch for that?
 
-Andy, if there's any way you could rerun all the -git ones on moe
-with the CONFIG_DEBUG_MUTEXES stuff disabled, might be easier to see ...
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-M.

@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751615AbWDOVOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbWDOVRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751615AbWDOVOs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 17:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751617AbWDOVOs
+	id S1751617AbWDOVRM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 17:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751618AbWDOVRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 17:14:48 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:29706 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751615AbWDOVOr (ORCPT
+	Sat, 15 Apr 2006 17:17:12 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:12168 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751612AbWDOVRL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 17:14:47 -0400
-Date: Sat, 15 Apr 2006 23:14:35 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rmk+serial@arm.linux.org.uk
-Subject: Re: modpost: serial/8250_pci warnings
-Message-ID: <20060415211435.GA24887@mars.ravnborg.org>
-References: <20060415111712.311372aa.rdunlap@xenotime.net> <20060415132343.544357a2.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 15 Apr 2006 17:17:11 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] pnp: fix two messages in manager.c
+Date: Sat, 15 Apr 2006 23:15:53 +0200
+User-Agent: KMail/1.9.1
+Cc: LKML <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060415132343.544357a2.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+Message-Id: <200604152315.54088.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 15, 2006 at 01:23:43PM -0700, Randy.Dunlap wrote:
-> 
-> drivers/serial/8250_pci.o has 23 section mismatch warnings.
-> They are all related to (come from) this struct:
-> 
-> static struct pci_serial_quirk pci_serial_quirks[] = {
-> 
-> so maybe either "quirk" can go into the whitelist, or
-> Russell can tell us if these are false positives or need to be
-> fixed.
-.init is referenced from pciserial_init_ports() which is NOT marked
-__devinit.
-And pciserial_init_ports() is exported - so it cannot be marked
-__devinit => it is a bug.
+From: Jan Engelhardt <jengelh@gmx.de>
 
-	Sam
+The wording of two messages in drivers/pnp/manager.c is incorrect.  Fix that.
+
+Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
+Acked-by: Pavel Machek <pavel@suse.cz>
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ drivers/pnp/manager.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux-2.6.17-rc1-mm2/drivers/pnp/manager.c
+===================================================================
+--- linux-2.6.17-rc1-mm2.orig/drivers/pnp/manager.c
++++ linux-2.6.17-rc1-mm2/drivers/pnp/manager.c
+@@ -483,7 +483,7 @@ int pnp_auto_config_dev(struct pnp_dev *
+ int pnp_start_dev(struct pnp_dev *dev)
+ {
+ 	if (!pnp_can_write(dev)) {
+-		pnp_info("Device %s does not supported activation.", dev->dev.bus_id);
++		pnp_info("Device %s does not support activation.", dev->dev.bus_id);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -507,7 +507,7 @@ int pnp_start_dev(struct pnp_dev *dev)
+ int pnp_stop_dev(struct pnp_dev *dev)
+ {
+ 	if (!pnp_can_disable(dev)) {
+-		pnp_info("Device %s does not supported disabling.", dev->dev.bus_id);
++		pnp_info("Device %s does not support disabling.", dev->dev.bus_id);
+ 		return -EINVAL;
+ 	}
+ 	if (dev->protocol->disable(dev)<0) {

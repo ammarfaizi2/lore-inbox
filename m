@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWDOMZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbWDOMfb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbWDOMZM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 08:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWDOMZM
+	id S932504AbWDOMfb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 08:35:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWDOMfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 08:25:12 -0400
-Received: from jenny.ondioline.org ([66.220.1.122]:29967 "EHLO
-	jenny.ondioline.org") by vger.kernel.org with ESMTP id S932500AbWDOMZK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 08:25:10 -0400
-From: Paul Collins <paul@briny.ondioline.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Libor Vanek <libor.vanek@gmail.com>, Matt Helsley <matthltc@us.ibm.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Connector - how to start?
-References: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com>
-	<20060414192634.697cd2e3.rdunlap@xenotime.net>
-	<1145070437.28705.73.camel@stark> <20060415091801.GA4782@2ka.mipt.ru>
-	<369a7ef40604150350x8e7dea1sbf1f83cb800dd1c3@mail.gmail.com>
-	<20060415111443.GA4079@2ka.mipt.ru>
-Mail-Followup-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Libor Vanek
-	<libor.vanek@gmail.com>, Matt Helsley <matthltc@us.ibm.com>,
-	"Randy.Dunlap" <rdunlap@xenotime.net>, LKML
-	<linux-kernel@vger.kernel.org>
-Date: Sat, 15 Apr 2006 22:18:31 +1000
-In-Reply-To: <20060415111443.GA4079@2ka.mipt.ru> (Evgeniy Polyakov's message
-	of "Sat, 15 Apr 2006 15:14:43 +0400")
-Message-ID: <87hd4vvxpk.fsf@briny.internal.ondioline.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50 (gnu/linux)
+	Sat, 15 Apr 2006 08:35:31 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17166 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932504AbWDOMfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 08:35:30 -0400
+Date: Sat, 15 Apr 2006 14:35:27 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: adaplas@pol.net
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/video/: remove duplicate #include's
+Message-ID: <20060415123527.GG15022@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> writes:
+This patch removes unneeded duplicate #include's of the same header 
+file.
 
-> On Sat, Apr 15, 2006 at 12:50:46PM +0200, Libor Vanek (libor.vanek@gmail.com) wrote:
->> Hi
->
-> Hello.
->
->> > Why do you want to send big messages over netlink?
->> > Netlink is fast but not faster than char device for example, or read
->> > from mapped area, although it is much more convenient to use.
->> >
->> > Well, I can increase CONNECTOR_MAX_MSG_SIZE to maximum allowed 64k, if
->> > there is really strong justification.
->> 
->> I need to send messages containing several (1 to 3) file names. And
->> "MAXPATHLEN" is 1024b (usually it's much less but I can't rely on
->> that).
->
-> $ touch `perl -e 'print "A"x1024'`
-> touch: cannot touch
-> `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA':
-> File name too long
->
-> Only 255 is allowed in my system.
+In the case of fbmon.c linux/pci.h is now #include'd unconditional, but 
+this should be safe.
 
-There are two limits though, the component length limit (NAME_MAX),
-and the overall length limit (PATH_MAX).  For example:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-$ mkdir -p `perl -e 'print "A"x255'`/`perl -e 'print "B"x255'`/`perl -e 'print "C"x255'`/`perl -e 'print "D"x255'`
+---
 
-works fine here.
+ drivers/video/fbmem.c |    2 --
+ drivers/video/fbmon.c |    3 +--
+ drivers/video/tgafb.c |    1 -
+ 3 files changed, 1 insertion(+), 5 deletions(-)
 
-However, with 256 I get "File name too long", as you did.
+--- linux-2.6.17-rc1-mm2-full/drivers/video/fbmem.c.old	2006-04-15 14:07:45.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/drivers/video/fbmem.c	2006-04-15 14:08:09.000000000 +0200
+@@ -34,7 +34,6 @@
+ #endif
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/err.h>
+-#include <linux/kernel.h>
+ #include <linux/device.h>
+ #include <linux/efi.h>
+ 
+@@ -162,7 +161,6 @@
+ }
+ 
+ #ifdef CONFIG_LOGO
+-#include <linux/linux_logo.h>
+ 
+ static inline unsigned safe_shift(unsigned d, int n)
+ {
+--- linux-2.6.17-rc1-mm2-full/drivers/video/fbmon.c.old	2006-04-15 14:08:24.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/drivers/video/fbmon.c	2006-04-15 14:09:17.000000000 +0200
+@@ -29,9 +29,9 @@
+ #include <linux/tty.h>
+ #include <linux/fb.h>
+ #include <linux/module.h>
++#include <linux/pci.h>
+ #include <video/edid.h>
+ #ifdef CONFIG_PPC_OF
+-#include <linux/pci.h>
+ #include <asm/prom.h>
+ #include <asm/pci-bridge.h>
+ #endif
+@@ -1282,7 +1282,6 @@
+ }
+ 
+ #if defined(CONFIG_FB_FIRMWARE_EDID) && defined(__i386__)
+-#include <linux/pci.h>
+ 
+ /*
+  * We need to ensure that the EDID block is only returned for
+--- linux-2.6.17-rc1-mm2-full/drivers/video/tgafb.c.old	2006-04-15 14:12:38.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/drivers/video/tgafb.c	2006-04-15 14:12:47.000000000 +0200
+@@ -26,7 +26,6 @@
+ #include <linux/selection.h>
+ #include <asm/io.h>
+ #include <video/tgafb.h>
+-#include <linux/selection.h>
+ 
+ /*
+  * Local functions.
 
--- 
-Dag vijandelijk luchtschip de huismeester is dood

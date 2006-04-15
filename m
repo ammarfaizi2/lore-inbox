@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWDOLAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWDOLPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932483AbWDOLAe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 07:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWDOLAd
+	id S932485AbWDOLPM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 07:15:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWDOLPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 07:00:33 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:7177 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932483AbWDOLAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 07:00:32 -0400
-Date: Sat, 15 Apr 2006 13:00:25 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: jesse.brandeburg@intel.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Cc: rol@as2917.net
-Subject: [PATCH-2.6] e1000: fix media_type <-> phy_type thinko
-Message-ID: <20060415110025.GA6266@w.ods.org>
+	Sat, 15 Apr 2006 07:15:12 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:11177 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932485AbWDOLPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 07:15:10 -0400
+Subject: Re: GPL issues
+From: Arjan van de Ven <arjan@infradead.org>
+To: Mark Lord <lkml@rtr.ca>
+Cc: jdow <jdow@earthlink.net>, Joshua Hudson <joshudson@gmail.com>,
+       Ramakanth Gunuganti <rgunugan@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <443ECB9C.10000@rtr.ca>
+References: <20060411063127.97362.qmail@web54314.mail.yahoo.com>
+	 <20060411230642.GV23222@vasa.acc.umu.se>
+	 <bda6d13a0604111938j5ece401cid364582fe9d6cf76@mail.gmail.com>
+	 <443C716C.1060103@rtr.ca> <1144819887.3089.0.camel@laptopd505.fenrus.org>
+	 <004101c65df4$5eb71ce0$0225a8c0@Wednesday>
+	 <1144853492.3091.2.camel@laptopd505.fenrus.org>  <443ECB9C.10000@rtr.ca>
+Content-Type: text/plain
+Date: Sat, 15 Apr 2006 13:14:36 +0200
+Message-Id: <1145099676.3046.1.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-04-13 at 18:07 -0400, Mark Lord wrote:
+> /usr/src/linux/COPYING:
+> 
+> NOTE! This copyright does *not* cover user programs that use kernel
+>  services by normal system calls - this is merely considered normal use
+>  of the kernel, and does *not* fall under the heading of "derived work".
 
-Recent patch cb764326dff0ee51aca0d450e1a292de65661055 introduced
-a thinko in e1000_main.c : e1000_media_type_copper is compared
-to hw.phy_type instead of hw.media_type. Original patch proposed
-by Jesse Brandeburg was correct, but what has been merged is not.
+emphasis on "normal"
 
----
-
- drivers/net/e1000/e1000_main.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-3df8a180d50c89a72c28abf37151e38ffda75f39
-diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
-index add8dc4..590a456 100644
---- a/drivers/net/e1000/e1000_main.c
-+++ b/drivers/net/e1000/e1000_main.c
-@@ -4156,7 +4156,7 @@ e1000_mii_ioctl(struct net_device *netde
- 			spin_unlock_irqrestore(&adapter->stats_lock, flags);
- 			return -EIO;
- 		}
--		if (adapter->hw.phy_type == e1000_media_type_copper) {
-+		if (adapter->hw.media_type == e1000_media_type_copper) {
- 			switch (data->reg_num) {
- 			case PHY_CTRL:
- 				if (mii_reg & MII_CR_POWER_DOWN)
--- 
-1.2.4
 

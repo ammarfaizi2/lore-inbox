@@ -1,56 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWDOAeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWDOAx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbWDOAeE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 20:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWDOAeD
+	id S1751452AbWDOAx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 20:53:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWDOAx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 20:34:03 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:52920 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751447AbWDOAeC (ORCPT
+	Fri, 14 Apr 2006 20:53:58 -0400
+Received: from pproxy.gmail.com ([64.233.166.181]:35994 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751452AbWDOAx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 20:34:02 -0400
-Subject: Re: [PATCH] make: add modules_update target
-From: Dustin Kirkland <dustin.kirkland@us.ibm.com>
-Reply-To: Dustin Kirkland <dustin.kirkland@us.ibm.com>
-To: Avi Kivity <avi@argo.co.il>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Kylene Jo Hall <kjhall@us.ibm.com>,
-       kbuild-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <443FF1D9.4060904@argo.co.il>
-References: <1145027216.12054.164.camel@localhost.localdomain>
-	 <20060414170222.GA19172@thunk.org>  <443FE350.5040502@argo.co.il>
-	 <1145039347.3074.11.camel@localhost.localdomain>
-	 <443FF1D9.4060904@argo.co.il>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 14 Apr 2006 19:33:37 -0500
-Message-Id: <1145061217.4001.24.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 14 Apr 2006 20:53:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=cK5PNSSci4NwcWFa8jPqlwpDTS7hotzh7hYElKdEqy4odul9P4YcHMmxpTTKMO3bBwDCaYFndtf2b8GWAgt1L5ELwlq2riTm+k8OaZNI1KbyT6nbamPvQPUUZ2d9ylLEVQ2ZNm6l/RQVlHlmw02GPwhQmNpNN7UvQBnpkbqryqU=
+Message-ID: <44404401.3030702@gmail.com>
+Date: Sat, 15 Apr 2006 08:53:21 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-fbdev-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [Linux-fbdev-devel] Behaviour change of /dev/fb0?
+References: <1145009768.6179.7.camel@localhost.localdomain>
+In-Reply-To: <1145009768.6179.7.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-14 at 22:02 +0300, Avi Kivity wrote:
-> Use rsync only if it is available:
+Richard Purdie wrote:
+> Ignoring whether this is a good idea or not, under 2.6.15 you could run
 > 
->     rsync-available := $(shell rsync --version > /dev/null 2>&1 && echo y)
->     copy := $(if $(rsync-available), rsync --delete, cp)
+> dd if=/dev/zero of=/dev/fb0
 > 
->     modules_install:
->                [...]
->                $(copy) source target
+> which would clear the framebuffer. It would end up saying "dd: /dev/fb0:
+> No space left on device".
+> 
+> Under 2.6.16 (and a recent git kernel), the same command clears the
+> screen but then hangs. Was the change in behaviour intentional? 
+> 
+> I've noticed this on a couple of ARM based Zaurus handhelds under both
+> w100fb and pxafb.
+> 
 
-Actually, rsync --delete is not a viable option either.  If you first
-build a kernel with a particular item built as a module, and then
-afterward rebuild with the same item as built-in (or not at all),
-the .ko file remains in your kernel build tree (ie, it won't be deleted
-on the source such that the --delete would have your desired effect).
+After reading 'man 2 read' more thoroughly, I've adjusted fb_write()'s
+return codes  appropriately.  Can you try this patch and let me know if it
+fixes your problem.
 
-Furthermore, rsync's performance is considerably worse in my testing
-than "cp -u", almost back to the original performance of the "rm -rf, cp
-all" of the original modules_install.  (Note that I tested, rsync's
-default, checksum, mod-times, and size-only.)
+Tony
 
-:-Dustin
+fbdev: Fix return error of fb_write()
 
+- return -EFBIG if file offset is past the maximum allowable offset
+- return -EFBIG and write to end of framebuffer if size is bigger than the
+  framebuffer length
+- return -ENOSPC and write to end of framebuffer if size is bigger than the
+  framebuffer length - file offset
+
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
+---
+
+ drivers/video/fbmem.c |   12 +++++++++---
+ 1 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
+index 944855b..8a643bf 100644
+--- a/drivers/video/fbmem.c
++++ b/drivers/video/fbmem.c
+@@ -669,13 +669,19 @@ fb_write(struct file *file, const char _
+ 		total_size = info->fix.smem_len;
+ 
+ 	if (p > total_size)
+-		return 0;
++		return -EFBIG;
+ 
+-	if (count >= total_size)
++	if (count >= total_size) {
++		err = -EFBIG;
+ 		count = total_size;
++	}
++
++	if (count + p > total_size) {
++		if (!err)
++			err = -ENOSPC;
+ 
+-	if (count + p > total_size)
+ 		count = total_size - p;
++	}
+ 
+ 	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count,
+ 			 GFP_KERNEL);

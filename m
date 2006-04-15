@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbWDOVsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbWDOVuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965152AbWDOVsR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 17:48:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbWDOVsR
+	id S965154AbWDOVuF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 17:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWDOVuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 17:48:17 -0400
-Received: from pproxy.gmail.com ([64.233.166.176]:32199 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965152AbWDOVsR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 17:48:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ujstl1yilo3ZPXqXfp428f8E/v7mfCXoGlyh4PhbD+CYDJW8Vos89WfyTOOhyrOhrcegumNC02+dMWozPp5ZlAK/pjyO5We5Eex2shUGWHshe4V1oAUoZLquHgOTaSAONja431ySHzHU1mwAF++zpFlUsKqGhKcj1LtZrpm3NTo=
-Message-ID: <35fb2e590604151448h35169b78s4b62105d462f5b9a@mail.gmail.com>
-Date: Sat, 15 Apr 2006 22:48:16 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "Libor Vanek" <libor.vanek@gmail.com>
-Subject: Re: Connector - how to start?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com>
-MIME-Version: 1.0
+	Sat, 15 Apr 2006 17:50:05 -0400
+Received: from xenotime.net ([66.160.160.81]:4001 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965154AbWDOVuE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 17:50:04 -0400
+Date: Sat, 15 Apr 2006 14:52:31 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: sam@ravnborg.org
+Subject: some remaining section mismatches
+Message-Id: <20060415145231.cbe2e8db.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/15/06, Libor Vanek <libor.vanek@gmail.com> wrote:
 
-> I'd like to start writing some small module using connector to send
-> messages to/from user-space. Unfortunately I'm absolutely not familiar
-> with netlink/connector API usage and I couldn't find any usefull
-> documentation (yes, I read Documentation/connector/ and tried Google).
+1.  I don't understand this one.  Can you look at it?
 
-So, time to ask the question.
+WARNING: drivers/video/macmodes.o - Section mismatch: reference to .init.text:mac_find_mode from __ksymtab between '__ksymtab_mac_find_mode' (at offset 0x0) and '__ksymtab_mac_map_monitor_sense'
 
-I've been thinking for the past couple of weeks of hacking at the
-different users of netlink and trying to get everyone to play nicely
-together - if we're pushing things like connector, why can't we make
-this a general solution? (read: why do uevents have to be seperate?
-why are we forced to a particular protocol number with connector?
-etc.?).
 
-Jon.
+2.  This is requires either a whitelist addition or a change to the
+struct name in the driver:
+
+WARNING: drivers/scsi/megaraid/megaraid_mbox.o - Section mismatch: reference to .init.text:megaraid_probe_one from .data between 'megaraid_pci_driver_g' (at offset 0x2e0) and 'megaraid_mbox_version'
+
+
+3.  drivers/char/tpm_infineon.c:
+
+WARNING: drivers/char/tpm/tpm_infineon.o - Section mismatch: reference to .init.text:tpm_inf_pnp_probe from .data between 'tpm_inf_pnp' (at offset 0x18) and 'tpm_inf'
+WARNING: drivers/char/tpm/tpm_infineon.o - Section mismatch: reference to .exit.text:tpm_inf_pnp_remove from .data between 'tpm_inf_pnp' (at offset 0x20) and 'tpm_inf'
+
+I don't see a problem here, the driver just isn't using the whitelisted
+struct name(s).
+
+
+4.  drivers/rtc/: rtc-sysfs.c and rtc-test.c:
+
+WARNING: drivers/rtc/rtc-sysfs.o - Section mismatch: reference to .init.text:rtc_sysfs_add_device from .data between 'rtc_sysfs_interface' (at offset 0x18) and 'rtc_attr_group'
+
+This could be OK, hopefully someone can say yes/no.
+
+WARNING: drivers/rtc/rtc-test.o - Section mismatch: reference to .exit.text:test_remove from .data between 'test_drv' (at offset 0x8) and 'dev_attr_irq'
+
+Looks OK, struct name is just not in the whitelist.
+Changing the struct name removes the warning.
+
+---
+~Randy

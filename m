@@ -1,65 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWDNX7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWDOADc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWDNX7x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 19:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWDNX7x
+	id S1751333AbWDOADc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 20:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWDOADc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 19:59:53 -0400
-Received: from xenotime.net ([66.160.160.81]:32725 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751296AbWDNX7x (ORCPT
+	Fri, 14 Apr 2006 20:03:32 -0400
+Received: from smtp-3.llnl.gov ([128.115.41.83]:37509 "EHLO smtp-3.llnl.gov")
+	by vger.kernel.org with ESMTP id S1751333AbWDOADb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 19:59:53 -0400
-Date: Fri, 14 Apr 2006 17:02:19 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, hpa@zytor.com
-Subject: [PATCH] x86 cpuid and msr notifier callback section mismatches
-Message-Id: <20060414170219.5de714de.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 14 Apr 2006 20:03:31 -0400
+From: Dave Peterson <dsp@llnl.gov>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/2] mm: fix mm_struct reference counting bugs in mm/oom_kill.c
+Date: Fri, 14 Apr 2006 17:00:21 -0700
+User-Agent: KMail/1.5.3
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, riel@surriel.com
+References: <200604131452.08292.dsp@llnl.gov> <20060414143109.5d537091.akpm@osdl.org> <200604141652.59909.dsp@llnl.gov>
+In-Reply-To: <200604141652.59909.dsp@llnl.gov>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604141700.21128.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+The patch below fixes oom_kill_task() so it doesn't call mmput()
+(which may sleep) while holding tasklist_lock.
 
-Fix section mismatch warnings in x86 cpuid and msr
-notifier callback functions.
-We can't have these as init (discarded) code.
-
-WARNING: arch/x86_64/kernel/cpuid.o - Section mismatch: reference to .init.text: from .data between 'cpuid_class_cpu_notifier' (at offset 0x0) and 'cpuid_fops'
-WARNING: arch/x86_64/kernel/msr.o - Section mismatch: reference to .init.text: from .data between 'msr_class_cpu_notifier' (at offset 0x0) and 'msr_fops'
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+Signed-Off-By: David S. Peterson <dsp@llnl.gov>
 ---
- arch/i386/kernel/cpuid.c |    2 +-
- arch/i386/kernel/msr.c   |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2617-rc1g8.orig/arch/i386/kernel/cpuid.c
-+++ linux-2617-rc1g8/arch/i386/kernel/cpuid.c
-@@ -168,7 +168,7 @@ static int cpuid_class_device_create(int
- 	return err;
+On Friday 14 April 2006 16:52, I wrote:
+> Below is a revised version of my previous OOM killer patch.  I expect
+> to be away from my computer until Monday, 4/24.  If you have any
+> problems merging this into your tree, let me know and I'll fix things
+> up when I get back.
+
+Arrgghh... I sent the wrong patch by mistake.  Please ignore the previous
+one and merge the patch below instead.
+
+Thanks,
+Dave
+
+
+
+Index: work/mm/oom_kill.c
+===================================================================
+--- work.orig/mm/oom_kill.c	2006-04-14 16:21:05.000000000 -0700
++++ work/mm/oom_kill.c	2006-04-14 16:34:31.000000000 -0700
+@@ -254,17 +254,24 @@ static void __oom_kill_task(task_t *p, c
+ 	force_sig(SIGKILL, p);
  }
  
--static int __devinit cpuid_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
-+static int cpuid_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
+-static struct mm_struct *oom_kill_task(task_t *p, const char *message)
++static int oom_kill_task(task_t *p, const char *message)
  {
- 	unsigned int cpu = (unsigned long)hcpu;
+-	struct mm_struct *mm = get_task_mm(p);
++	struct mm_struct *mm;
+ 	task_t * g, * q;
  
---- linux-2617-rc1g8.orig/arch/i386/kernel/msr.c
-+++ linux-2617-rc1g8/arch/i386/kernel/msr.c
-@@ -251,7 +251,7 @@ static int msr_class_device_create(int i
- 	return err;
+-	if (!mm)
+-		return NULL;
+-	if (mm == &init_mm) {
+-		mmput(mm);
+-		return NULL;
+-	}
++	mm = p->mm;
++
++	/* WARNING: mm may not be dereferenced since we did not obtain its
++	 * value from get_task_mm(p).  This is OK since all we need to do is
++	 * compare mm to q->mm below.
++	 *
++	 * Furthermore, even if mm contains a non-NULL value, p->mm may
++	 * change to NULL at any time since we do not hold task_lock(p).
++	 * However, this is of no concern to us.
++	 */
++
++	if (mm == NULL || mm == &init_mm)
++		return 1;
+ 
+ 	__oom_kill_task(p, message);
+ 	/*
+@@ -276,13 +283,12 @@ static struct mm_struct *oom_kill_task(t
+ 			__oom_kill_task(q, message);
+ 	while_each_thread(g, q);
+ 
+-	return mm;
++	return 0;
  }
  
--static int __devinit msr_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
-+static int msr_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
+-static struct mm_struct *oom_kill_process(struct task_struct *p,
+-				unsigned long points, const char *message)
++static int oom_kill_process(struct task_struct *p, unsigned long points,
++		const char *message)
  {
- 	unsigned int cpu = (unsigned long)hcpu;
+- 	struct mm_struct *mm;
+ 	struct task_struct *c;
+ 	struct list_head *tsk;
  
+@@ -293,9 +299,8 @@ static struct mm_struct *oom_kill_proces
+ 		c = list_entry(tsk, struct task_struct, sibling);
+ 		if (c->mm == p->mm)
+ 			continue;
+-		mm = oom_kill_task(c, message);
+-		if (mm)
+-			return mm;
++		if (!oom_kill_task(c, message))
++			return 0;
+ 	}
+ 	return oom_kill_task(p, message);
+ }
+@@ -310,7 +315,6 @@ static struct mm_struct *oom_kill_proces
+  */
+ void out_of_memory(struct zonelist *zonelist, gfp_t gfp_mask, int order)
+ {
+-	struct mm_struct *mm = NULL;
+ 	task_t *p;
+ 	unsigned long points = 0;
+ 
+@@ -330,12 +334,12 @@ void out_of_memory(struct zonelist *zone
+ 	 */
+ 	switch (constrained_alloc(zonelist, gfp_mask)) {
+ 	case CONSTRAINT_MEMORY_POLICY:
+-		mm = oom_kill_process(current, points,
++		oom_kill_process(current, points,
+ 				"No available memory (MPOL_BIND)");
+ 		break;
+ 
+ 	case CONSTRAINT_CPUSET:
+-		mm = oom_kill_process(current, points,
++		oom_kill_process(current, points,
+ 				"No available memory in cpuset");
+ 		break;
+ 
+@@ -357,8 +361,7 @@ retry:
+ 			panic("Out of memory and no killable processes...\n");
+ 		}
+ 
+-		mm = oom_kill_process(p, points, "Out of memory");
+-		if (!mm)
++		if (oom_kill_process(p, points, "Out of memory"))
+ 			goto retry;
+ 
+ 		break;
+@@ -367,8 +370,6 @@ retry:
+ out:
+ 	read_unlock(&tasklist_lock);
+ 	cpuset_unlock();
+-	if (mm)
+-		mmput(mm);
+ 
+ 	/*
+ 	 * Give "p" a good chance of killing itself before we
 
 
----

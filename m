@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWDOXGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWDOXHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWDOXGm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 19:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWDOXGm
+	id S932515AbWDOXHP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 19:07:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWDOXHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 19:06:42 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62992 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932161AbWDOXGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 19:06:42 -0400
-Date: Sun, 16 Apr 2006 01:06:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Martin J. Bligh" <mbligh@google.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Default CONFIG_DEBUG_MUTEXES to n
-Message-ID: <20060415230640.GP15022@stusta.de>
-References: <44417792.2070900@google.com>
+	Sat, 15 Apr 2006 19:07:15 -0400
+Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:30409 "EHLO
+	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932515AbWDOXHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 19:07:13 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: jos poortvliet <jos@mijnkamer.nl>
+Subject: Re: [ck] Re: [patch][rfc] quell interactive feeding frenzy
+Date: Sun, 16 Apr 2006 09:06:57 +1000
+User-Agent: KMail/1.9.1
+Cc: ck@vds.kolivas.org, Al Boldi <a1426z@gawab.com>,
+       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+References: <200604112100.28725.kernel@kolivas.org> <200604151705.18786.kernel@kolivas.org> <200604160032.49845.jos@mijnkamer.nl>
+In-Reply-To: <200604160032.49845.jos@mijnkamer.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44417792.2070900@google.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+Message-Id: <200604160906.57723.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 15, 2006 at 03:45:38PM -0700, Martin J. Bligh wrote:
-> CONFIG_DEBUG_MUTEXES has a significant performant impact (reduced perf
-> of reaim by 50% on ia32 NUMA boxes). It should not be on by default.
-> 
-> Signed-off-by: Martin J. Bligh <mbligh@google.com>
-> 
-> 
+On Sunday 16 April 2006 08:32, jos poortvliet wrote:
+> Op zaterdag 15 april 2006 09:05, schreef Con Kolivas:
+> > Thanks for bringing this to my attention. A while back I had different
+> > management of forked tasks and merged it with PF_NONSLEEP. Since then
+> > I've changed the management of NONSLEEP tasks and didn't realise it had
+> > adversely affected the accounting of forking tasks. This patch should
+> > rectify it.
+> >
+> > Thanks!
+>
+> hey con, i get this:
+>
+> can't find file to patch at input line 9
+> Perhaps you used the wrong -p or --strip option?
+> The text leading up to this was:
 
-> diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.17-rc1/lib/Kconfig.debug 2.6.17-rc1_no_mutex_dbg/lib/Kconfig.debug
-> --- linux-2.6.17-rc1/lib/Kconfig.debug	2006-04-15 15:28:54.000000000 -0700
-> +++ 2.6.17-rc1_no_mutex_dbg/lib/Kconfig.debug	2006-04-15 15:44:14.000000000 -0700
-> @@ -101,7 +101,7 @@ config DEBUG_PREEMPT
->  
->  config DEBUG_MUTEXES
->  	bool "Mutex debugging, deadlock detection"
-> -	default y
-> +	default n
->...
->  config DEBUG_SPINLOCK
->  	bool "Spinlock debugging"
-> +	default n
->...
-
-"default n" has no effect and can be removed.
-
-cu
-Adrian
+That's because it's not an attachment but inserted into the mail and your 
+mailer is mangling it on extraction. Save the whole email unmodified (eg with 
+a "save as" function) and use that as the patch. Don't fret as it's a 
+non-critical fix since it's a corner case only and it will be in the next -ck 
+anyway.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-ck

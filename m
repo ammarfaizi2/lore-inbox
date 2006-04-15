@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWDOL1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWDOLhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbWDOL1R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 07:27:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbWDOL1R
+	id S932491AbWDOLhD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 07:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWDOLhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 07:27:17 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:52358 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932488AbWDOL1Q (ORCPT
+	Sat, 15 Apr 2006 07:37:03 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:37349 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932488AbWDOLhB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 07:27:16 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Suspend to disk (some PATCH)
-Date: Sat, 15 Apr 2006 13:25:58 +0200
-User-Agent: KMail/1.9.1
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Christian Heimanns <ch.heimanns@gmx.de>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-References: <443C0C2D.1020207@gmx.de> <Pine.LNX.4.61.0604142354390.4238@yvahk01.tjqt.qr> <20060414220254.GA20944@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060414220254.GA20944@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Apr 2006 07:37:01 -0400
+Date: Sat, 15 Apr 2006 15:36:56 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.16 ESP4 IPsec processing ported to acrypto.
+Message-ID: <20060415113656.GA1357@2ka.mipt.ru>
+References: <20060412095017.GA14530@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200604151325.59347.rjw@sisk.pl>
+In-Reply-To: <20060412095017.GA14530@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 15 Apr 2006 15:36:56 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 April 2006 00:02, Pavel Machek wrote:
-> > >> 
-> > >> pnp: Device 00:08 does not supported activation.
-> > >> pnp: Device 00:09 does not supported activation.
-> > 
-> > Signed-off-by: Jan Engelhardt <jengelh@gmx.de>
-> 
-> ACK, but I guess you need to add an changelog and mail it to akpm.
+New acrypto combined patch for 2.6.16 kernel tree has been released,
+which includes asynchronous crypto layer [1] acrypto, dm-crypt, 
+ESP4 IPsec processing and software crypto provider ported to acrypto.
+Patch [2] and other acrypto drivers are available in archive [3].
 
-Well, I can do that if you don't mind.
+1. http://tservice.net.ru/~s0mbre/old/?section=projects&item=acrypto
+2. http://tservice.net.ru/~s0mbre/archive/acrypto/drivers/acrypto-combined-2.6.16.diff.1
+3. http://tservice.net.ru/~s0mbre/archive/acrypto
 
-Rafael
+-- 
+	Evgeniy Polyakov

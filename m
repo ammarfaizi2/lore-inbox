@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWDOXHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWDOXOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932515AbWDOXHP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 19:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWDOXHP
+	id S932514AbWDOXOl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 19:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWDOXOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 19:07:15 -0400
-Received: from mail17.syd.optusnet.com.au ([211.29.132.198]:30409 "EHLO
-	mail17.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932515AbWDOXHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 19:07:13 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: jos poortvliet <jos@mijnkamer.nl>
-Subject: Re: [ck] Re: [patch][rfc] quell interactive feeding frenzy
-Date: Sun, 16 Apr 2006 09:06:57 +1000
-User-Agent: KMail/1.9.1
-Cc: ck@vds.kolivas.org, Al Boldi <a1426z@gawab.com>,
-       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-References: <200604112100.28725.kernel@kolivas.org> <200604151705.18786.kernel@kolivas.org> <200604160032.49845.jos@mijnkamer.nl>
-In-Reply-To: <200604160032.49845.jos@mijnkamer.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Apr 2006 19:14:41 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:6162 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S932514AbWDOXOk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 19:14:40 -0400
+Date: Sun, 16 Apr 2006 01:14:32 +0200
+From: Jean-Luc =?iso-8859-1?Q?L=E9ger?= 
+	<jean-luc.leger@dspnet.fr.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fix dependencies of W1_SLAVE_DS2433_CRC
+Message-ID: <20060415231432.GI47644@dspnet.fr.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200604160906.57723.kernel@kolivas.org>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 April 2006 08:32, jos poortvliet wrote:
-> Op zaterdag 15 april 2006 09:05, schreef Con Kolivas:
-> > Thanks for bringing this to my attention. A while back I had different
-> > management of forked tasks and merged it with PF_NONSLEEP. Since then
-> > I've changed the management of NONSLEEP tasks and didn't realise it had
-> > adversely affected the accounting of forking tasks. This patch should
-> > rectify it.
-> >
-> > Thanks!
->
-> hey con, i get this:
->
-> can't find file to patch at input line 9
-> Perhaps you used the wrong -p or --strip option?
-> The text leading up to this was:
+Default values for boolean and tristate options can only be 'y', 'm' or 'n'.
+This patch fixes dependencies of W1_SLAVE_DS2433_CRC.
 
-That's because it's not an attachment but inserted into the mail and your 
-mailer is mangling it on extraction. Save the whole email unmodified (eg with 
-a "save as" function) and use that as the patch. Don't fret as it's a 
-non-critical fix since it's a corner case only and it will be in the next -ck 
-anyway.
+Signed-off-by: Jean-Luc Léger <jean-luc.leger@dspnet.fr.eu.org>
 
--- 
--ck
+Index: linux-2.6.17-rc1/drivers/w1/slaves/Kconfig
+===================================================================
+--- linux-2.6.17-rc1/drivers/w1/slaves/Kconfig.old      2006-04-15 21:55:44.000000000 +0200
++++ linux-2.6.17-rc1/drivers/w1/slaves/Kconfig  2006-04-15 21:56:37.000000000 +0200
+@@ -28,7 +28,7 @@
+ 
+ config W1_SLAVE_DS2433_CRC
+ 	bool "Protect DS2433 data with a CRC16"
+-	depends on W1_DS2433
++	depends on W1_SLAVE_DS2433
+ 	select CRC16
+ 	help
+ 	  Say Y here to protect DS2433 data with a CRC16.
+

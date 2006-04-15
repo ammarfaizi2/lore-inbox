@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWDONeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWDOOAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbWDONeE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 09:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWDONeE
+	id S1030261AbWDOOAn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 10:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbWDOOAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 09:34:04 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:47004 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030240AbWDONeD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 09:34:03 -0400
-Date: Sat, 15 Apr 2006 08:37:52 -0500
-From: Jon Mason <jdmason@us.ibm.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Olof Johansson <olof@lixom.net>,
-       linuxppc-dev@ozlabs.org, paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2/2] POWERPC: Lower threshold for DART enablement to 1GB, V2
-Message-ID: <20060415133752.GB7712@us.ibm.com>
-References: <20060413020559.GC24769@pb15.lixom.net> <20060413022809.GD24769@pb15.lixom.net> <20060413025233.GE24769@pb15.lixom.net> <20060413064027.GH10412@granada.merseine.nu> <1144925149.4935.14.camel@localhost.localdomain> <20060413160712.GG24769@pb15.lixom.net> <20060413173121.GJ10412@granada.merseine.nu> <1144961564.4935.24.camel@localhost.localdomain> <20060414144830.GQ10412@granada.merseine.nu> <1145048275.4223.32.camel@localhost.localdomain>
+	Sat, 15 Apr 2006 10:00:43 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:30612 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1030250AbWDOOAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 10:00:42 -0400
+Subject: Re: [PATCH 1/1] megaraid_{mm,mbox}: fix a bug in reset handler
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Ju, Seokmann" <Seokmann.Ju@lsil.com>, Seokmann.Ju@engenio.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <20060412220011.2ddd6f63.akpm@osdl.org>
+References: <890BF3111FB9484E9526987D912B261901BCC2@NAMAIL3.ad.lsil.com>
+	 <20060412220011.2ddd6f63.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 15 Apr 2006 09:00:23 -0500
+Message-Id: <1145109623.3573.7.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145048275.4223.32.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 15, 2006 at 06:57:55AM +1000, Benjamin Herrenschmidt wrote:
+On Wed, 2006-04-12 at 22:00 -0700, Andrew Morton wrote:
+> Oh my.  That's an awfully long interrupts-off spin.  1.7e7 operations with
+> an NMI watchdog timeout of five seconds - I'm surprised it doesn't trigger.
 > 
-> > What I had in mind is an interface that given a PCI bridge will tell
-> > you what's the most restrictive DMA mask for a device on that bridge,
-> > so that you'll know whether you need to enable the IOMMU for that
-> > bridge. I'll even settle for a function that tells you what's the most
-> > restrictive DMA mask in the system, period. There's nothing inherently
-> > arch specific about this.
-> >
-> > (and as a side note, the IOMMU we are working on on x86-64 is Calgary,
-> > which is actually roughly the same chipset used in some PPC
-> > machines...)
-> 
-> Not sure I ever heard about that... What chipsets ?
+> Is that reading from a PCI register there?   Or main memory?
 
-The pSeries POWER4 based systems (Regatta) had Calgary, and the 
-RS/6000 POWER3 based systems (Condor) had Winnipeg (a precursor to
-Calgary, with many of the same features).
+It's a "mailbox" region, which is a piece of main memory shared between
+the driver and the card (allocated using dma_alloc_coherent).
 
-Thanks,
-Jon
+> I'm somewhat surprised that the compiler never "optimises" this into a
+> lockup, actually.  That's what `volatile' is for.
 
-> 
-> Ben.
-> 
-> 
-> _______________________________________________
-> Linuxppc-dev mailing list
-> Linuxppc-dev@ozlabs.org
-> https://ozlabs.org/mailman/listinfo/linuxppc-dev
+The rmb(); below ensures the compiler can't optimise.  However, I do
+agree; tagging the mailbox as volatile would show the compiler better
+what the intent is.
+
+> Is it not possible to do this with an interrupt?
+
+I'd guess not.  A lot of these types of driver have what's called a
+doorbell/mailbox interface which means that as long as there's a command
+slot you get access to the device (or wait for an interrupt to tell you
+one's free) but you have to post the command to the device, so you wait
+at the mailbox to see that it's taken (usually because the device has to
+assign things like tracking numbers or indexes).  The intent is for
+there to be a fairly instantaneous response however firmware doesn't
+always see it that way ...
+
+> A `cpu_relax()' in that loop would help cool things down a bit.
+
+Actually, I think a simple udelay(25) might help in a lot of these
+loops.
+
+James
+
+

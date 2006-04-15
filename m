@@ -1,51 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWDOHqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751564AbWDOHza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751461AbWDOHqa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 03:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWDOHqa
+	id S1751564AbWDOHza (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 03:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWDOHza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 03:46:30 -0400
-Received: from mtaout3.012.net.il ([84.95.2.7]:23359 "EHLO mtaout3.012.net.il")
-	by vger.kernel.org with ESMTP id S1750974AbWDOHqa (ORCPT
+	Sat, 15 Apr 2006 03:55:30 -0400
+Received: from mail.gmx.net ([213.165.64.20]:39849 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750974AbWDOHz3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 03:46:30 -0400
-Date: Sat, 15 Apr 2006 10:45:38 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: [PATCH] [2/2] POWERPC: Lower threshold for DART enablement to 1GB,
- V2
-In-reply-to: <1145048275.4223.32.camel@localhost.localdomain>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Olof Johansson <olof@lixom.net>, paulus@samba.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Jon Mason <jdmason@us.ibm.com>
-Message-id: <20060415074538.GW10412@granada.merseine.nu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20060413020559.GC24769@pb15.lixom.net>
- <20060413022809.GD24769@pb15.lixom.net>
- <20060413025233.GE24769@pb15.lixom.net>
- <20060413064027.GH10412@granada.merseine.nu>
- <1144925149.4935.14.camel@localhost.localdomain>
- <20060413160712.GG24769@pb15.lixom.net>
- <20060413173121.GJ10412@granada.merseine.nu>
- <1144961564.4935.24.camel@localhost.localdomain>
- <20060414144830.GQ10412@granada.merseine.nu>
- <1145048275.4223.32.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 15 Apr 2006 03:55:29 -0400
+X-Authenticated: #2277123
+Message-ID: <4440A6EA.7040606@gmx.de>
+Date: Sat, 15 Apr 2006 09:55:22 +0200
+From: Christian Heimanns <ch.heimanns@gmx.de>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+CC: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, pavel@suse.cz
+Subject: Re: Suspend to disk
+References: <443C0C2D.1020207@gmx.de> <200604112238.07166.rjw@sisk.pl> <443F86EB.8060903@gmx.de> <200604141611.50740.rjw@sisk.pl>
+In-Reply-To: <200604141611.50740.rjw@sisk.pl>
+X-Enigmail-Version: 0.93.2.0
+OpenPGP: id=94079F4C
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 15, 2006 at 06:57:55AM +1000, Benjamin Herrenschmidt wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Not sure I ever heard about that... What chipsets ?
+Rafael J. Wysocki wrote:
+> On Friday 14 April 2006 13:26, Christian Heimanns wrote:
+>> Sorry for the delay, I was on the road...
+>>
+>> Rafael J. Wysocki wrote:
+>>> [update]
 
-I'm not sure which IBM pSeries modesl have Calgary in them. Perhaps
-Jon or Olof know?
+> You can try to do something like this: change the runlevel to 3 (eg. init 3),
+> the start the X server manually (ie. "X" as root), switch to a text terminal
+> and try to suspend.  Then, after resume, see if the X server is still running
+> and if not, look into its log.
+> 
+Thank you Rafael,
+I think I've found a solution: Not the kernel or ACPI is guilty, just my
+Notebook :-) I changed my acpi scripts a little and now it's working
+again. I had to play around with vbetool and 915resolution called in
+proper order.
+You pointed me to this solution and I already signed off from the
+mailing lists. Thanks again,
 
-Cheers,
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+Christian
 
+My new suspend/resume part:
+/sbin/hwclock --systohc
+/usr/bin/chvt 1
+/usr/local/sbin/vbetool vbestate save > /tmp/vbestate-save
+/usr/bin/sync
+echo shutdown > /sys/power/disk
+echo disk > /sys/power/state
+/sbin/hwclock --hctosys
+/usr/local/sbin/vbetool vbestate restore < /tmp/vbestate-save
+/usr/sbin/915resolution 3c 1400 1050
+/usr/bin/chvt 2 #my X vt
+
+The old one was just:
+echo shutdown > /sys/power/disk
+echo disk > /sys/power/state
+/usr/sbin/915resolution 3c 1400 1050
+
+- --
+- ---
+Christian Heimanns
+ch.heimanns<at>gmx<dot>de
+
+### Pinguine können nicht fliegen
+- - Pinguine stürzen auch nicht ab! ###
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEQKbmABNhR5QHn0wRAm6XAJ9+E9rQRdfYy3h6E+D01puulN85zQCeL+nA
+EuHA1Q6ojlv7KRu+/j5XeBU=
+=cCwH
+-----END PGP SIGNATURE-----

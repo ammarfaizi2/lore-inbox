@@ -1,87 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751564AbWDOHza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWDOHzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751564AbWDOHza (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 03:55:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWDOHza
+	id S1751568AbWDOHzc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 03:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbWDOHzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 03:55:30 -0400
-Received: from mail.gmx.net ([213.165.64.20]:39849 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750974AbWDOHz3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 03:55:29 -0400
-X-Authenticated: #2277123
-Message-ID: <4440A6EA.7040606@gmx.de>
-Date: Sat, 15 Apr 2006 09:55:22 +0200
-From: Christian Heimanns <ch.heimanns@gmx.de>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Sat, 15 Apr 2006 03:55:32 -0400
+Received: from pproxy.gmail.com ([64.233.166.176]:52616 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751568AbWDOHzb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 03:55:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=J7I+fNqEJsPN/x3El1AJ8qvA7tZx8On5wnulKZErcIALcv4JxVu5qZFBrSAzoOzRa8pxMcRve1C9OBd0kqFq5+TfpFLIcXsiz5fOO8PPu1u6eeNiJLnbQPjshqKn5qQvxhtsC+R5B9vAtgASa+4ITDI42vF/UxjFhQaDDgoOAEQ=
+Message-ID: <35fb2e590604150055t29422445k20b5f95d3dce634d@mail.gmail.com>
+Date: Sat, 15 Apr 2006 08:55:30 +0100
+From: "Jon Masters" <jonathan@jonmasters.org>
+To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
+Subject: Re: Data about Apple iPod, Mac, Powerbook, iBook needed
+Cc: linux1394-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <4437F493.9000803@s5r6.in-berlin.de>
 MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, pavel@suse.cz
-Subject: Re: Suspend to disk
-References: <443C0C2D.1020207@gmx.de> <200604112238.07166.rjw@sisk.pl> <443F86EB.8060903@gmx.de> <200604141611.50740.rjw@sisk.pl>
-In-Reply-To: <200604141611.50740.rjw@sisk.pl>
-X-Enigmail-Version: 0.93.2.0
-OpenPGP: id=94079F4C
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4437F493.9000803@s5r6.in-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 4/8/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
 
-Rafael J. Wysocki wrote:
-> On Friday 14 April 2006 13:26, Christian Heimanns wrote:
->> Sorry for the delay, I was on the road...
->>
->> Rafael J. Wysocki wrote:
->>> [update]
+> Therefore I need help from people who have a FireWire iPod and a Linux
+> box with FireWire port:
+>
+> 1. Please plug it in via FireWire and report the output of
+>     $ cat /sys/bus/ieee1394/devices/000a27*-0/model_id
 
-> You can try to do something like this: change the runlevel to 3 (eg. init 3),
-> the start the X server manually (ie. "X" as root), switch to a text terminal
-> and try to suspend.  Then, after resume, see if the X server is still running
-> and if not, look into its log.
-> 
-Thank you Rafael,
-I think I've found a solution: Not the kernel or ACPI is guilty, just my
-Notebook :-) I changed my acpi scripts a little and now it's working
-again. I had to play around with vbetool and 915resolution called in
-proper order.
-You pointed me to this solution and I already signed off from the
-mailing lists. Thanks again,
+Reported ID is 0x000000.
 
-Christian
+>     and of
+>     $ dmesg | grep "hdwr sectors"
 
-My new suspend/resume part:
-/sbin/hwclock --systohc
-/usr/bin/chvt 1
-/usr/local/sbin/vbetool vbestate save > /tmp/vbestate-save
-/usr/bin/sync
-echo shutdown > /sys/power/disk
-echo disk > /sys/power/state
-/sbin/hwclock --hctosys
-/usr/local/sbin/vbetool vbestate restore < /tmp/vbestate-save
-/usr/sbin/915resolution 3c 1400 1050
-/usr/bin/chvt 2 #my X vt
+I don't have that output in my logs, but hdparm tells me:
 
-The old one was just:
-echo shutdown > /sys/power/disk
-echo disk > /sys/power/state
-/usr/sbin/915resolution 3c 1400 1050
+/dev/sda:
+ readonly = 0 (off)
+ readahead = 256 (on)
+ geometry = 38147/64/32, sectors = 40000536576, start = 0
 
-- --
-- ---
-Christian Heimanns
-ch.heimanns<at>gmx<dot>de
+> I would also like to know the model of iPod (i.e. generation of iPod)
+> and the version of the Linux kernel.
 
-### Pinguine können nicht fliegen
-- - Pinguine stürzen auch nicht ab! ###
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+It's a 3G iPod and the box in question is a Powerbook[0] running a
+rawhide (Fedora) kernel based on 2.6.16.1.
 
-iD8DBQFEQKbmABNhR5QHn0wRAm6XAJ9+E9rQRdfYy3h6E+D01puulN85zQCeL+nA
-EuHA1Q6ojlv7KRu+/j5XeBU=
-=cCwH
------END PGP SIGNATURE-----
+Jon.
+
+[0] All the Powerbooks here run only Linux.

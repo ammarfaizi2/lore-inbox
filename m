@@ -1,70 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWDOAHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWDOAN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWDOAHY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 20:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWDOAHY
+	id S1751423AbWDOAN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 20:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWDOAN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 20:07:24 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:30688 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751344AbWDOAHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 20:07:24 -0400
-Date: Sat, 15 Apr 2006 09:06:39 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
-       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
-Message-Id: <20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
-References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
-	<20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
-	<20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
-	<20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Fri, 14 Apr 2006 20:13:27 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:18101 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751423AbWDOAN0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 20:13:26 -0400
+Subject: Re: [Linux-fbdev-devel] Behaviour change of /dev/fb0?
+From: Richard Purdie <rpurdie@rpsys.net>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <44403068.3020909@gmail.com>
+References: <1145009768.6179.7.camel@localhost.localdomain>
+	 <44403068.3020909@gmail.com>
+Content-Type: text/plain
+Date: Sat, 15 Apr 2006 01:13:14 +0100
+Message-Id: <1145059994.6179.33.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-On Fri, 14 Apr 2006 09:48:25 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
-> > +/* write protected page under migration*/
-> > +#define SWP_TYPE_MIGRATION_WP	(MAX_SWAPFILES - 1)
-> > +/* write enabled migration type */
-> > +#define SWP_TYPE_MIGRATION_WE	(MAX_SWAPFILES)
+On Sat, 2006-04-15 at 07:29 +0800, Antonino A. Daplas wrote:
+> Richard Purdie wrote:
+> > Ignoring whether this is a good idea or not, under 2.6.15 you could run
+> > 
+> > dd if=/dev/zero of=/dev/fb0
+> > 
+> > which would clear the framebuffer. It would end up saying "dd: /dev/fb0:
+> > No space left on device".
+> > 
+> > Under 2.6.16 (and a recent git kernel), the same command clears the
+> > screen but then hangs. Was the change in behaviour intentional? 
+> > 
+> > I've noticed this on a couple of ARM based Zaurus handhelds under both
+> > w100fb and pxafb.
+> > 
 > 
-> Could we call this SWP_TYPE_MIGRATION_READ / WRITE?
+> There is a change in behavior of fb_read and fb_write committed Jan 2006.
+> They return the number of bytes read or written if the requested size
+> is bigger than the remaining space.  Previously, they returned -ENOSPC.
 > 
-ok, it looks better.
+> But I haven't experienced hangs...
 
-> > +	pte = pte_mkold(mk_pte(new, vma->vm_page_prot));
-> > +	if (is_migration_entry_we(entry)) {
-> is_write_migration_entry?
-> 
-> > +		pte = pte_mkwrite(pte);
-> > +	}
-> 
-> No {} needed.
-> 
-> > -			entry = make_migration_entry(page);
-> > +			if (pte_write(pteval))
-> > +				entry = make_migration_entry(page, 1);
-> > +			else
-> > +				entry = make_migration_entry(page, 0);
-> >  		}
-> 
-> entry = make_migration_entry(page, pte_write(pteval))
-> 
-> ?
-Ah, O.K.
+The change in question is:
 
-Thanks,
--Kame
+@@ -661,19 +664,19 @@ fb_write(struct file *file, const char _
+ 		return info->fbops->fb_write(file, buf, count, ppos);
+ 	
+ 	total_size = info->screen_size;
++
+ 	if (total_size == 0)
+ 		total_size = info->fix.smem_len;
+ 
+ 	if (p > total_size)
+-	    return -ENOSPC;
++		return 0;
++
+ 	if (count >= total_size)
+-	    count = total_size;
+-	err = 0;
+-	if (count + p > total_size) {
+-	    count = total_size - p;
+-	    err = -ENOSPC;
+-	}
+-	cnt = 0;
++		count = total_size;
++
++	if (count + p > total_size)
++		count = total_size - p;
++
+ 	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count,
+ 			 GFP_KERNEL);
+ 	if (!buffer)
+
+I agree with the latter part of this but not the change for the "if (p >
+total_size)" case. If we return zero here, the writer will just keep
+retrying to write to the device indefinitely and therefore hang. Would
+it make sense to revert that part of the change?:
+
+
+
+If we reach the end of the framebuffer, we should return an out of space
+error, not zero. Returning zero implies we might be able to write
+further bytes at some future time which isn't true.
+
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+
+Index: git/drivers/video/fbmem.c
+===================================================================
+--- git.orig/drivers/video/fbmem.c	2006-04-13 00:22:28.000000000 +0100
++++ git/drivers/video/fbmem.c	2006-04-15 01:04:37.000000000 +0100
+@@ -674,7 +674,7 @@
+ 		total_size = info->fix.smem_len;
+ 
+ 	if (p > total_size)
+-		return 0;
++		return -ENOSPC;
+ 
+ 	if (count >= total_size)
+ 		count = total_size;
+
+
+
 
 

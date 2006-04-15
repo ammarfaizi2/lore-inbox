@@ -1,54 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWDOLqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWDOLvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932494AbWDOLqN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 07:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWDOLqN
+	id S932503AbWDOLvI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 07:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbWDOLvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 07:46:13 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:408 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932494AbWDOLqM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 07:46:12 -0400
-Subject: RE: GPL issues
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: davids@webmaster.com
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEHDLFAB.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKAEHDLFAB.davids@webmaster.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 15 Apr 2006 12:55:31 +0100
-Message-Id: <1145102131.28279.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 15 Apr 2006 07:51:07 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60429 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932499AbWDOLvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 07:51:06 -0400
+Date: Sat, 15 Apr 2006 13:51:03 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Greg KH <gregkh@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+       mdharm-usb@one-eyed-alien.net, usb-storage@lists.one-eyed-alien.net,
+       B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org
+Subject: Re: [patch 04/22] isd200: limit to BLK_DEV_IDE
+Message-ID: <20060415115103.GD15022@stusta.de>
+References: <20060413230141.330705000@quad.kroah.org> <20060413230714.GE5613@kroah.com> <443F01CC.3080609@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <443F01CC.3080609@garzik.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2006-04-14 at 11:56 -0700, David Schwartz wrote:
-> 	Specifically, copyright does not protect ordinary use. If you buy a CD, you
-> get the right to use that CD simply by virtue of the fact that you lawfully
-> possess a lawfully made of the music on that CD.
+On Thu, Apr 13, 2006 at 09:58:36PM -0400, Jeff Garzik wrote:
+> Greg KH wrote:
+> >-stable review patch.  If anyone has any objections, please let us know.
+> >
+> >------------------
+> >
+> >From: Randy Dunlap <rdunlap@xenotime.net>
+> >
+> >Limit USB_STORAGE_ISD200 to whatever BLK_DEV_IDE and USB_STORAGE
+> >are set to (y, m) since isd200 calls ide_fix_driveid() in the
+> >BLK_DEV_IDE code.
+> >
+> >Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> >Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> >
+> >---
+> > drivers/usb/storage/Kconfig |    3 ++-
+> > 1 file changed, 2 insertions(+), 1 deletion(-)
+> >
+> >--- linux-2.6.16.5.orig/drivers/usb/storage/Kconfig
+> >+++ linux-2.6.16.5/drivers/usb/storage/Kconfig
+> >@@ -48,7 +48,8 @@ config USB_STORAGE_FREECOM
+> > 
+> > config USB_STORAGE_ISD200
+> > 	bool "ISD-200 USB/ATA Bridge support"
+> >-	depends on USB_STORAGE && BLK_DEV_IDE
+> >+	depends on USB_STORAGE
+> >+	depends on BLK_DEV_IDE=y || BLK_DEV_IDE=USB_STORAGE
+> 
+> Wouldn't 'select' be more appropriate for IDE?
 
-The rights you get automatically for "use" depend a lot on the actual
-thing itself and also the jurisdiction (local and national) and may even
-in some ludicrous cases depend on even the size of the cark park your
-building has.
+Your suggestion sounds like a good idea for 2.6.17, but for -stable I'd 
+prefer this patch.
 
-To lawfully use the CD you must also not be violating the DMCA, own any
-appropriate patent rights, not be using it for the purpose of committing
-a crime, not using it to incite violence and on and on and on, down to
-not using it loudly enough to disturb your neighbours excessively.
+What bothers me more is that this doesn't seem to be fixed in any way in 
+Linus' tree...
 
-To "use" it for a public performance also generally falls under
-copyright license restrictions (performance rights).
+> 	Jeff
 
-What you say may have been true two hundred years ago but the IPR laws
-of the world have been growing ever more tangled and self contradictory
-since then, like a badly maintained perl script.
+cu
+Adrian
 
-Alan
+-- 
 
---
-Sick of rip off UK rail fares ? Learn how to get far cheaper fares
-                http://zeniv.linux.org.uk/~alan/GTR/
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

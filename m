@@ -1,44 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWDOWwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWDOW4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWDOWwx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 18:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWDOWwx
+	id S932108AbWDOW4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 18:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWDOW4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 18:52:53 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:36356 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932153AbWDOWwx (ORCPT
+	Sat, 15 Apr 2006 18:56:43 -0400
+Received: from mail.parknet.jp ([210.171.160.80]:18694 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S932108AbWDOW4m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 18:52:53 -0400
-Date: Sun, 16 Apr 2006 00:52:44 +0200
-From: Jean-Luc =?iso-8859-1?Q?L=E9ger?= 
-	<jean-luc.leger@dspnet.fr.eu.org>
-To: linux-kernel@vger.kernel.org, ultralinux@vger.kernel.org
-Subject: [2.6 patch] fix dependencies of HUGETLB_PAGE_SIZE_64K
-Message-ID: <20060415225244.GG47644@dspnet.fr.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org, ultralinux@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
+	Sat, 15 Apr 2006 18:56:42 -0400
+X-AuthUser: hirofumi@parknet.jp
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@google.com>, linux-kernel@vger.kernel.org,
+       apw@shadowen.org
+Subject: Re: Clear performance regression on reaim7 in 2.6.15-git6
+References: <4441452F.3060009@google.com>
+	<20060415141744.042231a8.akpm@osdl.org> <44416616.10908@google.com>
+	<20060415145227.5d1249bd.akpm@osdl.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 16 Apr 2006 07:56:34 +0900
+In-Reply-To: <20060415145227.5d1249bd.akpm@osdl.org> (Andrew Morton's message of "Sat, 15 Apr 2006 14:52:27 -0700")
+Message-ID: <87mzem78il.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes dependencies of HUGETLB_PAGE_SIZE_64K
+Andrew Morton <akpm@osdl.org> writes:
 
-Signed-off-by: Jean-Luc Léger <jean-luc.leger@dspnet.fr.eu.org>
+> "Martin J. Bligh" <mbligh@google.com> wrote:
+>>
+>> drilling down into the results directories can get you the command line,
+>>  looks like "reaim -f workfile.short -s 1 -e 10 -i 2" to me. Buggered if
+>>  I can recall what that did though.
+>> 
+>>  (http://test.kernel.org/abat/20229/004.reaim.test/results/cmdline)
+>> 
+>>  I *think* it's only ia32 NUMA boxes, at least as far as I can see from
+>>  a quick poke around. Which would make me guess at scheduler code. Gitweb
+>>  would be nice to use, but it doesn't tag the -git snapshots, AFAICS, 
+>>  which is a real shame. Nor does the git snapshot include the git tag,
+>>  as far as I know. Grrrr. I guess I'll download the snapshots and diff
+>>  them, and try to pull out the sched changes by hand. Much suckage.
+>
+> The diffstat for 2.6.15-git5 -> 2.6.15-git6 is at
+> http://www.zip.com.au/~akpm/linux/patches/stuff/2 - only a single line
+> changed in sched.c:
+>
+> diff -uNr 2.6.15-git5/kernel/sched.c 2.6.15-git6/kernel/sched.c
+> --- 2.6.15-git5/kernel/sched.c	2006-04-15 14:10:43.000000000 -0700
+> +++ 2.6.15-git6/kernel/sched.c	2006-04-15 14:10:52.000000000 -0700
+> @@ -4386,6 +4386,7 @@
+>  	} while_each_thread(g, p);
+>  
+>  	read_unlock(&tasklist_lock);
+> +	mutex_debug_show_all_locks();
+>  }
+>  
+>  /**
+>
+> The below patches went from -mm into mainline on that day.  It'll be pretty
+> simple to bisection search these once we have a testcase.
 
-Index: linux-2.6.17-rc1/arch/sparc64/Kconfig
-===================================================================
---- linux-2.6.17-rc1/arch/sparc64/Kconfig.old   2006-04-15 21:57:30.000000000 +0200
-+++ linux-2.6.17-rc1/arch/sparc64/Kconfig       2006-04-15 21:58:38.000000000 +0200
-@@ -187,7 +187,7 @@
- 	bool "512K"
- 
- config HUGETLB_PAGE_SIZE_64K
--	depends on !SPARC64_PAGE_SIZE_4MB && !SPARC64_PAGE_SIZE_512KB && !SPARC64_PAGE_SIZE_64K
-+	depends on !SPARC64_PAGE_SIZE_4MB && !SPARC64_PAGE_SIZE_512KB && !SPARC64_PAGE_SIZE_64KB
- 	bool "64K"
- 
- endchoice
+config DEBUG_MUTEXES
+	bool "Mutex debugging, deadlock detection"
+	default y
+	depends on DEBUG_KERNEL
+	help
+	 This allows mutex semantics violations and mutex related deadlocks
+	 (lockups) to be detected and reported automatically.
 
+?
+
+By default, it's y, so it seems likely.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

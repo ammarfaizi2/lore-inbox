@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWDOGEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWDOGT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbWDOGEp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 02:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWDOGEp
+	id S1030268AbWDOGT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 02:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWDOGT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 02:04:45 -0400
-Received: from xenotime.net ([66.160.160.81]:51913 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030255AbWDOGEo (ORCPT
+	Sat, 15 Apr 2006 02:19:57 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:48581 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1030268AbWDOGT5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 02:04:44 -0400
-Date: Fri, 14 Apr 2006 23:07:09 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] parport_pc: fix section mismatch warnings
-Message-Id: <20060414230709.33b2f877.rdunlap@xenotime.net>
-In-Reply-To: <20060414225528.4ec40510.akpm@osdl.org>
-References: <20060414224439.b9a91323.rdunlap@xenotime.net>
-	<20060414225528.4ec40510.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sat, 15 Apr 2006 02:19:57 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: Robin Holt <holt@sgi.com>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Dean Nelson <dcn@sgi.com>
+Subject: Re: Is notify_die being overloaded? 
+In-reply-to: Your message of "Thu, 13 Apr 2006 14:46:44 EST."
+             <20060413194643.GC25701@lnx-holt.americas.sgi.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 15 Apr 2006 16:19:55 +1000
+Message-ID: <22910.1145081995@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Apr 2006 22:55:28 -0700 Andrew Morton wrote:
+Robin Holt (on Thu, 13 Apr 2006 14:46:44 -0500) wrote:
+>notify_die seems to be called to indicate the machine is going down as
+>well as there are trapped events for the process.
+>
+>Specifically, the following call notify_die when there are machine
+>related events:
+>ia64_mca_rendez_int_handler (DIE_MCA_RENDZVOUS_ENTER,
+>	DIE_MCA_RENDZVOUS_PROCESS, DIE_MCA_RENDZVOUS_LEAVE)
+>ia64_mca_handler (DIE_MCA_MONARCH_ENTER, DIE_MCA_MONARCH_PROCESS,
+>	DIE_MCA_MONARCH_LEAVE)
+>ia64_init_handler (DIE_INIT_ENTER,
+>	DIE_INIT_{SLAVE|MONARCH}_{ENTER|PROCESS|LEAVE})
+>ia64_mca_init (DIE_MCA_NEW_TIMEOUT)
+>machine_restart (DIE_MACHINE_RESTART)
+>machine_halt (DIE_MACHINE_HALT)
+>die (DIE_OOPS)
+>
+>
+>The following seem to be process related:
+>ia64_bad_break (DIE_BREAK, DIE_FAULT)
+>ia64_do_page_fault (DIE_PAGE_FAULT)
+>
+>
+>Shouldn't these really be seperated into two seperate notifier chains?
+>One for OS level die() type activity and another for process faults
+>which a debugger et. al. would want to know about?
 
-> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
-> >
-> > This still leaves 5 other PCI-related section mismatches, but I
-> >  don't think that they are a real problem unless there are some
-> >  hotplug-parport cards out there.  If needed, I'll fix those too.
-> 
-> It would be good to do so, please.  Ideally we'll end up with zero such
-> warnings, so any ones which newly appear will be obvious, so nobody will
-> ever submit a patch which generates new warnings (hah).
+The only real problem is the page fault handler event.  All the other
+calls to notify_die() are for rare events (MCA, INIT, restarts, halt,
+oops) or for debugging events, none of which are performance critical.
+DIE_PAGE_FAULT is only called because kprobes needs it, but that call
+is on a performance critical path and it can significantly slow down
+the rest of the system.
 
-OK, just drop this one, please, and I'll send a replacement
-patch.
+kprobes should be using its own notify chain to trap page faults, and
+the handler for that chain should be optimized away when
+CONFIG_KPROBES=n or there are no active probes.
 
----
-~Randy

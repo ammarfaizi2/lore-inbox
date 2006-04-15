@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWDOLhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWDOLqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbWDOLhD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 07:37:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWDOLhD
+	id S932494AbWDOLqN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 07:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWDOLqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 07:37:03 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:37349 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932488AbWDOLhB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 07:37:01 -0400
-Date: Sat, 15 Apr 2006 15:36:56 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.16 ESP4 IPsec processing ported to acrypto.
-Message-ID: <20060415113656.GA1357@2ka.mipt.ru>
-References: <20060412095017.GA14530@2ka.mipt.ru>
+	Sat, 15 Apr 2006 07:46:13 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:408 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932494AbWDOLqM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 07:46:12 -0400
+Subject: RE: GPL issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: davids@webmaster.com
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEHDLFAB.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKAEHDLFAB.davids@webmaster.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 15 Apr 2006 12:55:31 +0100
+Message-Id: <1145102131.28279.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060412095017.GA14530@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 15 Apr 2006 15:36:56 +0400 (MSD)
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New acrypto combined patch for 2.6.16 kernel tree has been released,
-which includes asynchronous crypto layer [1] acrypto, dm-crypt, 
-ESP4 IPsec processing and software crypto provider ported to acrypto.
-Patch [2] and other acrypto drivers are available in archive [3].
+On Gwe, 2006-04-14 at 11:56 -0700, David Schwartz wrote:
+> 	Specifically, copyright does not protect ordinary use. If you buy a CD, you
+> get the right to use that CD simply by virtue of the fact that you lawfully
+> possess a lawfully made of the music on that CD.
 
-1. http://tservice.net.ru/~s0mbre/old/?section=projects&item=acrypto
-2. http://tservice.net.ru/~s0mbre/archive/acrypto/drivers/acrypto-combined-2.6.16.diff.1
-3. http://tservice.net.ru/~s0mbre/archive/acrypto
+The rights you get automatically for "use" depend a lot on the actual
+thing itself and also the jurisdiction (local and national) and may even
+in some ludicrous cases depend on even the size of the cark park your
+building has.
 
--- 
-	Evgeniy Polyakov
+To lawfully use the CD you must also not be violating the DMCA, own any
+appropriate patent rights, not be using it for the purpose of committing
+a crime, not using it to incite violence and on and on and on, down to
+not using it loudly enough to disturb your neighbours excessively.
+
+To "use" it for a public performance also generally falls under
+copyright license restrictions (performance rights).
+
+What you say may have been true two hundred years ago but the IPR laws
+of the world have been growing ever more tangled and self contradictory
+since then, like a badly maintained perl script.
+
+Alan
+
+--
+Sick of rip off UK rail fares ? Learn how to get far cheaper fares
+                http://zeniv.linux.org.uk/~alan/GTR/
+

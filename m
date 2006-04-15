@@ -1,109 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWDOFi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWDOFmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030257AbWDOFi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 01:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWDOFi4
+	id S1030260AbWDOFmO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 01:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWDOFmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 01:38:56 -0400
-Received: from pproxy.gmail.com ([64.233.166.177]:8424 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030257AbWDOFiz (ORCPT
+	Sat, 15 Apr 2006 01:42:14 -0400
+Received: from xenotime.net ([66.160.160.81]:20160 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030260AbWDOFmN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 01:38:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=p6G3d6TU0MmeL1zvbWjcwVpv4OwSpN4qhd0WBx685U/eDMZUFM4UAb8ODqMDVhRRcOYaGSbCLh56dFHt2Wfg1oPCt9KRV/+kg2vkYI8d91DaqTuU9HHsP1xuzKLXPp3FagFppD3MDzNn802RTTfTt5FVOgAD6SQWHN/bYwe55Mk=
-Message-ID: <444086CB.2000700@gmail.com>
-Date: Sat, 15 Apr 2006 13:38:19 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       rpurdie@rpsys.net
-Subject: [PATCH] fbdev: Fix return error of fb_write
-References: <1145009768.6179.7.camel@localhost.localdomain>	<44404401.3030702@gmail.com> <20060414213105.09f0dd8d.akpm@osdl.org>
-In-Reply-To: <20060414213105.09f0dd8d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 15 Apr 2006 01:42:13 -0400
+Date: Fri, 14 Apr 2006 22:44:39 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] parport_pc: fix section mismatch warnings
+Message-Id: <20060414224439.b9a91323.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix return code of fb_write():
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-If at least 1 byte was transferred to the device, return number of bytes,
-otherwise:
+Fix modpost section mismatch warnings in parport_pc:
 
-    - return -EFBIG - if file offset is past the maximum allowable offset or
-      size is greater than framebuffer length
-    - return -ENOSPC - if size is greater than framebuffer length - offset
+WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x230)
+WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x283)
+WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x3e6)
+WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x400)
+WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x463)
+WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.text: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x488)
+WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.data:superios from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x54c)
+WARNING: drivers/parport/parport_pc.o - Section mismatch: reference to .init.data: from .text.parport_pc_probe_port after 'parport_pc_probe_port' (at offset 0x56a)
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
+This still leaves 5 other PCI-related section mismatches, but I
+don't think that they are a real problem unless there are some
+hotplug-parport cards out there.  If needed, I'll fix those too.
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
+ drivers/parport/parport_pc.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
 
-Andrew Morton wrote:
-> "Antonino A. Daplas" <adaplas@gmail.com> wrote:
->> Richard Purdie wrote:
->>
->> - return -EFBIG if file offset is past the maximum allowable offset
-> 
-> OK.
-> 
->> - return -EFBIG and write to end of framebuffer if size is bigger than the
->>   framebuffer length
-> 
-> We should return the number of bytes written in this case.
-> 
->> - return -ENOSPC and write to end of framebuffer if size is bigger than the
->>   framebuffer length - file offset
-> 
-> Also here.
-> 
-> 
-> If we can transfer _any_ bytes, we should do so, then return the number of
-> bytes transferred.  If no bytes were transferrable then we should return
-> -Ewhatever.
-> 
-> 
-
-Okay, here's try #2:
-
- drivers/video/fbmem.c |   14 ++++++++++----
- 1 files changed, 10 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
-index 944855b..a4b6776 100644
---- a/drivers/video/fbmem.c
-+++ b/drivers/video/fbmem.c
-@@ -669,13 +669,19 @@ fb_write(struct file *file, const char _
- 		total_size = info->fix.smem_len;
+--- linux-2617-rc1g8.orig/drivers/parport/parport_pc.c
++++ linux-2617-rc1g8/drivers/parport/parport_pc.c
+@@ -97,7 +97,7 @@ static struct superio_struct {	/* For Su
+ 	int io;
+ 	int irq;
+ 	int dma;
+-} superios[NR_SUPERIOS] __devinitdata = { {0,},};
++} superios[NR_SUPERIOS] = { {0,},};
  
- 	if (p > total_size)
--		return 0;
-+		return -EFBIG;
- 
--	if (count >= total_size)
-+	if (count > total_size) {
-+		err = -EFBIG;
- 		count = total_size;
-+	}
-+
-+	if (count + p > total_size) {
-+		if (!err)
-+			err = -ENOSPC;
- 
--	if (count + p > total_size)
- 		count = total_size - p;
-+	}
- 
- 	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count,
- 			 GFP_KERNEL);
-@@ -717,7 +723,7 @@ fb_write(struct file *file, const char _
- 
- 	kfree(buffer);
- 
--	return (err) ? err : cnt;
-+	return (cnt) ? cnt : err;
+ static int user_specified;
+ #if defined(CONFIG_PARPORT_PC_SUPERIO) || \
+@@ -1557,7 +1557,7 @@ static int __devinit get_superio_dma (st
+ 	return PARPORT_DMA_NONE;
  }
  
- #ifdef CONFIG_KMOD
+-static int __devinit get_superio_irq (struct parport *p)
++static int get_superio_irq (struct parport *p)
+ {
+ 	int i=0;
+         while( (superios[i].io != p->base) && (i<NR_SUPERIOS))
+@@ -1579,7 +1579,7 @@ static int __devinit get_superio_irq (st
+  *                         this shall always be the case!)
+  *
+  */
+-static int __devinit parport_SPP_supported(struct parport *pb)
++static int parport_SPP_supported(struct parport *pb)
+ {
+ 	unsigned char r, w;
+ 
+@@ -1660,7 +1660,7 @@ static int __devinit parport_SPP_support
+  * two bits of ECR aren't writable, so we check by writing ECR and
+  * reading it back to see if it's what we expect.
+  */
+-static int __devinit parport_ECR_present(struct parport *pb)
++static int parport_ECR_present(struct parport *pb)
+ {
+ 	struct parport_pc_private *priv = pb->private_data;
+ 	unsigned char r = 0xc;
+@@ -1712,7 +1712,7 @@ static int __devinit parport_ECR_present
+  * be misdetected here is rather academic. 
+  */
+ 
+-static int __devinit parport_PS2_supported(struct parport *pb)
++static int parport_PS2_supported(struct parport *pb)
+ {
+ 	int ok = 0;
+   
+@@ -1868,7 +1868,7 @@ static int __devinit parport_ECP_support
+ }
+ #endif
+ 
+-static int __devinit parport_ECPPS2_supported(struct parport *pb)
++static int parport_ECPPS2_supported(struct parport *pb)
+ {
+ 	const struct parport_pc_private *priv = pb->private_data;
+ 	int result;
+@@ -1886,7 +1886,7 @@ static int __devinit parport_ECPPS2_supp
+ 
+ /* EPP mode detection  */
+ 
+-static int __devinit parport_EPP_supported(struct parport *pb)
++static int parport_EPP_supported(struct parport *pb)
+ {
+ 	const struct parport_pc_private *priv = pb->private_data;
+ 
+@@ -1931,7 +1931,7 @@ static int __devinit parport_EPP_support
+ 	return 1;
+ }
+ 
+-static int __devinit parport_ECPEPP_supported(struct parport *pb)
++static int parport_ECPEPP_supported(struct parport *pb)
+ {
+ 	struct parport_pc_private *priv = pb->private_data;
+ 	int result;
+@@ -2073,7 +2073,7 @@ static int __devinit irq_probe_SPP(struc
+  * When ECP is available we can autoprobe for IRQs.
+  * NOTE: If we can autoprobe it, we can register the IRQ.
+  */
+-static int __devinit parport_irq_probe(struct parport *pb)
++static int parport_irq_probe(struct parport *pb)
+ {
+ 	struct parport_pc_private *priv = pb->private_data;
+ 
+
+
+---

@@ -1,85 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWDOIKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751583AbWDOIlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbWDOIKm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 04:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751590AbWDOIKl
+	id S1751583AbWDOIlX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 04:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWDOIlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 04:10:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11404 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751585AbWDOIKl (ORCPT
+	Sat, 15 Apr 2006 04:41:23 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:15890 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751577AbWDOIlW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 04:10:41 -0400
-Subject: [RFC] binary firmware and modules
-From: Jon Masters <jcm@redhat.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-WfFg/Wf1lsHWTiSt+/iv"
-Date: Sat, 15 Apr 2006 09:10:55 +0100
-Message-Id: <1145088656.23134.54.camel@localhost.localdomain>
+	Sat, 15 Apr 2006 04:41:22 -0400
+Date: Sat, 15 Apr 2006 10:40:58 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Dustin Kirkland <dustin.kirkland@us.ibm.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Kylene Jo Hall <kjhall@us.ibm.com>,
+       kbuild-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make: add modules_update target
+Message-ID: <20060415084058.GA29502@mars.ravnborg.org>
+References: <1145027216.12054.164.camel@localhost.localdomain> <20060414170222.GA19172@thunk.org> <1145061219.4001.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145061219.4001.25.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 14, 2006 at 07:33:39PM -0500, Dustin Kirkland wrote:
+> It looks like it may not be easy to drop in modules_update as a more
+> efficient alternative to modules_install, but note that is not the patch
+> that Kylie submitted...
+The problem to be solved is the long time it takes to do
+"make modules_install" when working on a single module.
+Instead of bringing in more or less complex solutions what about
+extending "make dir/module.ko" to include the installation of the
+module.
 
---=-WfFg/Wf1lsHWTiSt+/iv
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Something like:
+"make MI=1 dir/module.ko"
+where MI=1 tells us to install the said module.
 
-Hi folks,
+I'm not particular found of the syntax - anyone with a better proposal?
 
-Right now, various kernel modules are being migrated over to use
-request_firmware in order to pull in binary firmware blobs from userland
-when the module is loaded. This makes sense.
+Untested sample patch below.
 
-However, there is right now little mechanism in place to automatically
-determine which binary firmware blobs must be included with a kernel in
-order to satisfy the prerequisites of these drivers. This affects
-vendors, but also regular users to a certain extent too.
+	Sam
 
-The attached patch introduces MODULE_FIRMWARE as one way of advertising
-that a particular firmware file is to be loaded - it will then show up
-via modinfo and could be used e.g. when packaging a kernel. I've also
-given an example via the QLogic gla2xxx driver.
-
-I expect that there are better ways to do this, so I'd like comments
-from those closer to the ground on this problem. In particular, it would
-be better if drivers didn't have to list the firmware twice - once in
-request_firmware and then via MODULE_FIRMWARE. Maybe API change time?
-
-Jon.
-
-P.S. Until I fix evolution again, I'm using an attachment.
-
-
---=-WfFg/Wf1lsHWTiSt+/iv
-Content-Disposition: attachment; filename=module_firmware.patch
-Content-Type: text/x-patch; name=module_firmware.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -urN linux-2.6.16.2_orig/drivers/scsi/qla2xxx/qla_os.c linux-2.6.16.2_dev/drivers/scsi/qla2xxx/qla_os.c
---- linux-2.6.16.2_orig/drivers/scsi/qla2xxx/qla_os.c   2006-04-07 17:56:47.000000000 +0100
-+++ linux-2.6.16.2_dev/drivers/scsi/qla2xxx/qla_os.c    2006-04-12 20:22:15.000000000 +0100
-@@ -2765,3 +2765,9 @@
- MODULE_DESCRIPTION("QLogic Fibre Channel HBA Driver");
- MODULE_LICENSE("GPL");
- MODULE_VERSION(QLA2XXX_VERSION);
-+MODULE_FIRMWARE("ql2100_fw.bin");
-+MODULE_FIRMWARE("ql2200_fw.bin");
-+MODULE_FIRMWARE("ql2300_fw.bin");
-+MODULE_FIRMWARE("ql2322_fw.bin");
-+MODULE_FIRMWARE("ql6312_fw.bin");
-+MODULE_FIRMWARE("ql2400_fw.bin");
-diff -urN linux-2.6.16.2_orig/include/linux/module.h linux-2.6.16.2_dev/include/linux/module.h
---- linux-2.6.16.2_orig/include/linux/module.h  2006-04-07 17:56:47.000000000 +0100
-+++ linux-2.6.16.2_dev/include/linux/module.h   2006-04-12 13:51:56.000000000 +0100
-@@ -155,6 +155,8 @@
- */
- #define MODULE_VERSION(_version) MODULE_INFO(version, _version)
-
-+#define MODULE_FIRMWARE(_firmware) MODULE_INFO(firmware, _firmware)
-+
- /* Given an address, look for it in the exception tables */
- const struct exception_table_entry *search_exception_tables(unsigned long add);
-
---=-WfFg/Wf1lsHWTiSt+/iv--
-
+diff --git a/Makefile b/Makefile
+index fc8e08c..0c0649c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1312,6 +1312,11 @@ # Modules
+ 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1)   \
+ 	$(build)=$(build-dir) $(@:.ko=.o)
+ 	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost
++ifneq ($(MI),)
++	cp $@ $(MODLIB)/kernel/$(dir $@)
++	if [ -r System.map -a -x $(DEPMOD) ]; then \
++            $(DEPMOD) -ae -F System.map $(depmod_opts) $(KERNELRELEASE); fi
++endif
+ 
+ # FIXME Should go into a make.lib or something 
+ # ===========================================================================

@@ -1,243 +1,474 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWDOJR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751609AbWDOJSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751454AbWDOJR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 05:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWDOJR3
+	id S1751609AbWDOJSR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 05:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751610AbWDOJSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 05:17:29 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10253 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751454AbWDOJR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 05:17:28 -0400
-Date: Sat, 15 Apr 2006 11:17:27 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: thomas@winischhofer.net
-Cc: gregkh@suse.de, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/usb/misc/sisusbvga/: possible cleanups
-Message-ID: <20060415091726.GC15022@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 15 Apr 2006 05:18:17 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:46473 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751606AbWDOJSQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 05:18:16 -0400
+Date: Sat, 15 Apr 2006 13:18:02 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Libor Vanek <libor.vanek@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Connector - how to start?
+Message-ID: <20060415091801.GA4782@2ka.mipt.ru>
+References: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com> <20060414192634.697cd2e3.rdunlap@xenotime.net> <1145070437.28705.73.camel@stark>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <1145070437.28705.73.camel@stark>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 15 Apr 2006 13:18:03 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global functions static
-- function and struct declarations belong into header files
-- make SiS_VCLKData const
-- #if 0 the following unused global functions:
-  - sisusb.c: sisusb_writew()
-  - sisusb.c: sisusb_readw()
-  - sisusb_init.c: SiSUSB_GetModeID()
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
 
----
+On Fri, Apr 14, 2006 at 08:07:17PM -0700, Matt Helsley (matthltc@us.ibm.com) wrote:
+> On Fri, 2006-04-14 at 19:26 -0700, Randy.Dunlap wrote:
+> > On Sat, 15 Apr 2006 03:09:05 +0200 Libor Vanek wrote:
+> > 
+> > > Hi,
+> > > I'd like to start writing some small module using connector to send
+> > > messages to/from user-space. Unfortunately I'm absolutely not familiar
+> > > with netlink/connector API usage and I couldn't find any usefull
+> > > documentation (yes, I read Documentation/connector/ and tried Google).
+> > > 
+> > > So here's things which are not clear to me:
+> > > - the Documentation/connector containts only kernel-space example -
+> > > don't anybody have also "user-space client example"?
+> > > - how do I ACK message sent to/from user-space?
+> > > - in case of multiple clients listening how do I send message just to
+> > > (random) one (simple load balancing) or to all of them? (broadcasting)
+> > > - is there some "easy" way how to send longer messages then
+> > > CONNECTOR_MAX_MSG_SIZE?
+> > 
+> > There was a connector userspace example posted to lkml on
+> > 2005-SEP-28:
+> > 
+> > Subject: [RFC] Process Events Connector (test program)
+> > From:	Matthew Helsley <matthltc@us.ibm.com>
+> > 
+> > 
+> > It seems like one of the Red Hat guys had some netlink documentation
+> > and sample programs at people.redhat.com, but I can't find that
+> > just now.
+> > 
+> > ---
+> > ~Randy
+> 
+> Subject:[ANNOUNCE] Test Program for Filesystem Events Reporter
+>                               From: 
+> Yi Yang <yang.y.yi@gmail.com>
+> 
+> might demonstrate what you're looking for as well.
+> 
+> 	I don't believe there is an existing way to send messages longer than
+> CONNECTOR_MAX_MSG_SIZE. Perhaps you could send multiple messages with
+> the same sequence number but a different "fragment number" in the
+> message.
+> 
+> 	However, if you're sending messages much larger than
+> CONNECTOR_MAX_MSG_SIZE perhaps the medium of communication is not
+> appropriate. Have you considered relay files?
 
-This patch was already sent on:
-- 19 Jan 2006
+I've attached simple userspace program used with w1, which sends
+and receives connector messages. It can be also used as example of
+netlink usage from userspace point of view.
+If you want to use rtnetlink extensions, iproute2 is the best source.
 
- drivers/usb/misc/sisusbvga/sisusb.c        |   35 +++------------------
- drivers/usb/misc/sisusbvga/sisusb_con.c    |   24 +-------------
- drivers/usb/misc/sisusbvga/sisusb_init.c   |    4 +-
- drivers/usb/misc/sisusbvga/sisusb_init.h   |   20 ++++++++++--
- drivers/usb/misc/sisusbvga/sisusb_struct.h |    2 -
- 5 files changed, 28 insertions(+), 57 deletions(-)
+Why do you want to send big messages over netlink?
+Netlink is fast but not faster than char device for example, or read
+from mapped area, although it is much more convenient to use.
 
---- linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb_struct.h.old	2006-01-18 23:56:05.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb_struct.h	2006-01-18 23:56:20.000000000 +0100
-@@ -161,7 +161,7 @@
- 	const struct SiS_Ext		*SiS_EModeIDTable;
- 	const struct SiS_Ext2		*SiS_RefIndex;
- 	const struct SiS_CRT1Table	*SiS_CRT1Table;
--	struct SiS_VCLKData		*SiS_VCLKData;
-+	const struct SiS_VCLKData	*SiS_VCLKData;
- 	const struct SiS_ModeResInfo	*SiS_ModeResInfo;
- };
- 
---- linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb_init.h.old	2006-01-18 23:23:03.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb_init.h	2006-01-18 23:53:06.000000000 +0100
-@@ -690,7 +690,7 @@
-    0x41}}   /* 0x54 */
- };
- 
--static struct SiS_VCLKData SiSUSB_VCLKData[] =
-+static const struct SiS_VCLKData SiSUSB_VCLKData[] =
- {
- 	{ 0x1b,0xe1, 25}, /* 0x00 */
- 	{ 0x4e,0xe4, 28}, /* 0x01 */
-@@ -808,8 +808,8 @@
- 	{ 0x2b,0xc2, 35}  /* 0x71 768@576@60 */
- };
- 
--void		SiSUSBRegInit(struct SiS_Private *SiS_Pr, unsigned long BaseAddr);
--unsigned short	SiSUSB_GetModeID(int HDisplay, int VDisplay, int Depth);
-+extern struct mutex disconnect_mutex;
-+
- int		SiSUSBSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo);
- int		SiSUSBSetVESAMode(struct SiS_Private *SiS_Pr, unsigned short VModeNo);
- 
-@@ -826,5 +826,19 @@
- extern int	sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port,
- 					u8 idx, u8 myand);
- 
-+void sisusb_delete(struct kref *kref);
-+int sisusb_writeb(struct sisusb_usb_data *sisusb, u32 adr, u8 data);
-+int sisusb_readb(struct sisusb_usb_data *sisusb, u32 adr, u8 *data);
-+int sisusb_copy_memory(struct sisusb_usb_data *sisusb, char *src,
-+		       u32 dest, int length, size_t *bytes_written);
-+int sisusb_reset_text_mode(struct sisusb_usb_data *sisusb, int init);
-+int sisusbcon_do_font_op(struct sisusb_usb_data *sisusb, int set, int slot,
-+			 u8 *arg, int cmapsz, int ch512, int dorecalc,
-+			 struct vc_data *c, int fh, int uplock); 
-+void sisusb_set_cursor(struct sisusb_usb_data *sisusb, unsigned int location);
-+int sisusb_console_init(struct sisusb_usb_data *sisusb, int first, int last);
-+void sisusb_console_exit(struct sisusb_usb_data *sisusb);
-+void sisusb_init_concode(void);
-+
- #endif
- 
---- linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb_con.c.old	2006-01-18 23:23:51.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb_con.c	2006-01-18 23:31:59.000000000 +0100
-@@ -70,27 +70,9 @@
- #include <linux/vmalloc.h>
- 
- #include "sisusb.h"
-+#include "sisusb_init.h"
- 
- #ifdef INCL_SISUSB_CON
--extern int sisusb_setreg(struct sisusb_usb_data *, int, u8);
--extern int sisusb_getreg(struct sisusb_usb_data *, int, u8 *);
--extern int sisusb_setidxreg(struct sisusb_usb_data *, int, u8, u8);
--extern int sisusb_getidxreg(struct sisusb_usb_data *, int, u8, u8 *);
--extern int sisusb_setidxregor(struct sisusb_usb_data *, int, u8, u8);
--extern int sisusb_setidxregand(struct sisusb_usb_data *, int, u8, u8);
--extern int sisusb_setidxregandor(struct sisusb_usb_data *, int, u8, u8, u8);
--
--extern int sisusb_writeb(struct sisusb_usb_data *sisusb, u32 adr, u8 data);
--extern int sisusb_readb(struct sisusb_usb_data *sisusb, u32 adr, u8 *data);
--extern int sisusb_writew(struct sisusb_usb_data *sisusb, u32 adr, u16 data);
--extern int sisusb_readw(struct sisusb_usb_data *sisusb, u32 adr, u16 *data);
--extern int sisusb_copy_memory(struct sisusb_usb_data *sisusb, char *src,
--			u32 dest, int length, size_t *bytes_written);
--
--extern void sisusb_delete(struct kref *kref);
--extern int sisusb_reset_text_mode(struct sisusb_usb_data *sisusb, int init);
--
--extern int SiSUSBSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo);
- 
- #define sisusbcon_writew(val, addr)	(*(addr) = (val))
- #define sisusbcon_readw(addr)		(*(addr))
-@@ -103,8 +85,6 @@
- /* Forward declaration */
- static const struct consw sisusb_con;
- 
--extern struct mutex disconnect_mutex;
--
- static inline void
- sisusbcon_memsetw(u16 *s, u16 c, unsigned int count)
- {
-@@ -1487,7 +1467,7 @@
- 
- #define SISUSBCONDUMMY	(void *)sisusbdummycon_dummy
- 
--const struct consw sisusb_dummy_con = {
-+static const struct consw sisusb_dummy_con = {
- 	.owner =		THIS_MODULE,
- 	.con_startup =		sisusbdummycon_startup,
- 	.con_init =		sisusbdummycon_init,
---- linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb.c.old	2006-01-18 23:24:40.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb.c	2006-01-18 23:28:46.000000000 +0100
-@@ -53,6 +53,7 @@
- #include <linux/vmalloc.h>
- 
- #include "sisusb.h"
-+#include "sisusb_init.h"
- 
- #ifdef INCL_SISUSB_CON
- #include <linux/font.h>
-@@ -63,36 +64,6 @@
- /* Forward declarations / clean-up routines */
- 
- #ifdef INCL_SISUSB_CON
--int	sisusb_setreg(struct sisusb_usb_data *sisusb, int port, u8 data);
--int	sisusb_getreg(struct sisusb_usb_data *sisusb, int port, u8 *data);
--int	sisusb_setidxreg(struct sisusb_usb_data *sisusb, int port, u8 index, u8 data);
--int	sisusb_getidxreg(struct sisusb_usb_data *sisusb, int port, u8 index, u8 *data);
--int	sisusb_setidxregandor(struct sisusb_usb_data *sisusb, int port, u8 idx,	u8 myand, u8 myor);
--int	sisusb_setidxregor(struct sisusb_usb_data *sisusb, int port, u8 index, u8 myor);
--int	sisusb_setidxregand(struct sisusb_usb_data *sisusb, int port, u8 idx, u8 myand);
--
--int	sisusb_writeb(struct sisusb_usb_data *sisusb, u32 adr, u8 data);
--int	sisusb_readb(struct sisusb_usb_data *sisusb, u32 adr, u8 *data);
--int	sisusb_writew(struct sisusb_usb_data *sisusb, u32 adr, u16 data);
--int	sisusb_readw(struct sisusb_usb_data *sisusb, u32 adr, u16 *data);
--int	sisusb_copy_memory(struct sisusb_usb_data *sisusb, char *src,
--			u32 dest, int length, size_t *bytes_written);
--
--int	sisusb_reset_text_mode(struct sisusb_usb_data *sisusb, int init);
--
--extern int  SiSUSBSetMode(struct SiS_Private *SiS_Pr, unsigned short ModeNo);
--extern int  SiSUSBSetVESAMode(struct SiS_Private *SiS_Pr, unsigned short VModeNo);
--
--extern void sisusb_init_concode(void);
--extern int  sisusb_console_init(struct sisusb_usb_data *sisusb, int first, int last);
--extern void sisusb_console_exit(struct sisusb_usb_data *sisusb);
--
--extern void sisusb_set_cursor(struct sisusb_usb_data *sisusb, unsigned int location);
--
--extern int  sisusbcon_do_font_op(struct sisusb_usb_data *sisusb, int set, int slot,
--		u8 *arg, int cmapsz, int ch512, int dorecalc,
--		struct vc_data *c, int fh, int uplock);
--
- static int sisusb_first_vc = 0;
- static int sisusb_last_vc = 0;
- module_param_named(first, sisusb_first_vc, int, 0);
-@@ -1449,6 +1420,8 @@
- 	return(sisusb_read_memio_byte(sisusb, SISUSB_TYPE_MEM, adr, data));
- }
- 
-+#if 0
-+
- int
- sisusb_writew(struct sisusb_usb_data *sisusb, u32 adr, u16 data)
- {
-@@ -1461,6 +1434,8 @@
- 	return(sisusb_read_memio_word(sisusb, SISUSB_TYPE_MEM, adr, data));
- }
- 
-+#endif  /*  0  */
-+
- int
- sisusb_copy_memory(struct sisusb_usb_data *sisusb, char *src,
- 			u32 dest, int length, size_t *bytes_written)
---- linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb_init.c.old	2006-01-18 23:32:34.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/usb/misc/sisusbvga/sisusb_init.c	2006-01-18 23:33:14.000000000 +0100
-@@ -74,6 +74,7 @@
- /*            HELPER: Get ModeID             */
- /*********************************************/
- 
-+#if 0
- unsigned short
- SiSUSB_GetModeID(int HDisplay, int VDisplay, int Depth)
- {
-@@ -157,6 +158,7 @@
- 
- 	return ModeIndex;
- }
-+#endif  /*  0  */
- 
- /*********************************************/
- /*          HELPER: SetReg, GetReg           */
-@@ -233,7 +235,7 @@
- /*        HELPER: Init Port Addresses        */
- /*********************************************/
- 
--void
-+static void
- SiSUSBRegInit(struct SiS_Private *SiS_Pr, unsigned long BaseAddr)
- {
- 	SiS_Pr->SiS_P3c4 = BaseAddr + 0x14;
+Well, I can increase CONNECTOR_MAX_MSG_SIZE to maximum allowed 64k, if
+there is really strong justification.
 
+> Cheers,
+> 	-Matt Helsley
+
+-- 
+	Evgeniy Polyakov
+
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: attachment; filename="w1d.c"
+
+/*
+ * 	w1d.c
+ *
+ * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+ * 
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <time.h>
+
+#include <asm/byteorder.h>
+#include <asm/types.h>
+
+#include <sys/socket.h>
+#include <sys/poll.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+
+#include "w1_netlink.h"
+
+static int need_exit;
+static int send_seq;
+
+static int send_cmd(FILE *out, int s, struct w1_netlink_msg *msg)
+{
+	struct cn_msg *cmsg;
+	struct w1_netlink_msg *m;
+	struct nlmsghdr *nlh;
+	int size, err;
+	
+	size = NLMSG_SPACE(sizeof(struct cn_msg) + sizeof(struct w1_netlink_msg) + msg->len);
+
+	nlh = malloc(size);
+	if (!nlh)
+		return -ENOMEM;
+	
+	memset(nlh, 0, size);
+	
+	nlh->nlmsg_seq = send_seq++;
+	nlh->nlmsg_pid = getpid();
+	nlh->nlmsg_type = NLMSG_DONE;
+	nlh->nlmsg_len = NLMSG_LENGTH(size - sizeof(struct nlmsghdr));
+	nlh->nlmsg_flags = 0;
+
+	cmsg = NLMSG_DATA(nlh);
+	
+	cmsg->id.idx = CN_W1_IDX;
+	cmsg->id.val = CN_W1_VAL;
+	cmsg->seq = nlh->nlmsg_seq;
+	cmsg->ack = 0;
+	cmsg->len = sizeof(struct w1_netlink_msg) + msg->len;
+
+	m = (struct w1_netlink_msg *)(cmsg + 1);
+	memcpy(m, msg, sizeof(struct w1_netlink_msg));
+	memcpy(m+1, msg->data, msg->len);
+	
+	err = send(s, nlh, size, 0);
+	if (err == -1) {
+		fprintf(out, "Failed to send: %s [%d].\n", strerror(errno), errno);
+		free(nlh);
+		return err;
+	}
+	free(nlh);
+
+	return err;
+}
+
+static int w1_test_create_cmd(struct w1_netlink_msg *m, __u16 maxlen)
+{
+	char *cmd_data;
+	__u16 i, newlen;
+	struct w1_netlink_cmd *cmd;
+
+	cmd_data = (char *)m->data;
+	
+	for (i=0; i<3; ++i) {
+		newlen = (i+1)*10;
+
+		if (newlen + sizeof(struct w1_netlink_cmd) + m->len > maxlen)
+			break;
+
+		cmd = (struct w1_netlink_cmd *)cmd_data;
+
+		cmd->cmd = i;
+		cmd->len = newlen;
+
+		cmd_data += cmd->len + sizeof(struct w1_netlink_cmd);
+		m->len += cmd->len + sizeof(struct w1_netlink_cmd);
+	}
+
+	return m->len;
+}
+
+static int w1_test_cmd_master(FILE *out, int s, __u32 id)
+{
+	char buf[1024];
+	struct w1_netlink_msg *m;
+	
+	memset(buf, 0, sizeof(buf));
+
+	m = (struct w1_netlink_msg *)buf;
+	
+	m->type = W1_MASTER_CMD;
+	m->len = 0;
+	m->id.mst.id = id;
+
+	w1_test_create_cmd(m, sizeof(buf) - sizeof(struct w1_netlink_msg));
+
+	return send_cmd(out, s, m);
+}
+
+static int w1_test_cmd_slave(FILE *out, int s, struct w1_reg_num *id)
+{
+	char buf[1024];
+	struct w1_netlink_msg *m;
+	struct w1_netlink_cmd *cmd;
+	char *cmd_data;
+	int i;
+	
+	memset(buf, 0, sizeof(buf));
+
+	m = (struct w1_netlink_msg *)buf;
+	
+	m->type = W1_SLAVE_CMD;
+	m->len = 0;
+	memcpy(m->id.id, id, sizeof(m->id.id));
+
+	cmd_data = (char *)m->data;
+	
+	for (i=0; i<3; ++i) {
+		cmd = (struct w1_netlink_cmd *)cmd_data;
+
+		cmd->cmd = i;
+		cmd->len = (i+1)*10;
+		
+		cmd_data += cmd->len + sizeof(struct w1_netlink_cmd);
+
+		m->len += cmd->len + sizeof(struct w1_netlink_cmd);
+	}
+
+	return send_cmd(out, s, m);
+}
+
+static void w1_dump_reply(FILE *out, char *prefix, struct w1_netlink_msg *hdr)
+{
+	struct w1_netlink_cmd *cmd;
+	unsigned char *hdr_data = hdr->data;
+	unsigned int hdr_len = hdr->len;
+	time_t tm;
+	int i;
+
+	time(&tm);
+	
+	while (hdr_len) {
+		cmd = (struct w1_netlink_cmd *)hdr_data;
+	
+		fprintf(out, "%.24s : %s ", ctime(&tm), prefix);
+
+		if (cmd->len + sizeof(struct w1_netlink_cmd) > hdr_len) {
+			fprintf(out, "Malformed message.\n");
+			break;
+		}
+
+		switch (cmd->cmd) {
+			case W1_CMD_READ:
+				fprintf(out, "READ: ");
+				for (i=0; i<cmd->len; ++i)
+					fprintf(out, "%02x ", cmd->data[i]);
+				fprintf(out, "\n");
+				break;
+			default:
+				fprintf(out, "cmd=%02x, len=%u.\n", cmd->cmd, cmd->len);
+				break;
+		}
+
+		hdr_data += cmd->len + sizeof(struct w1_netlink_cmd);
+		hdr_len -= cmd->len + sizeof(struct w1_netlink_cmd);
+	}
+}
+
+static void w1_parse_master_reply(FILE *out, struct w1_netlink_msg *hdr)
+{
+	char prefix[128];
+
+	snprintf(prefix, sizeof(prefix), "master: id=%08x", hdr->id.mst.id);
+	w1_dump_reply(out, prefix, hdr);
+}
+
+static void w1_parse_slave_reply(FILE *out, struct w1_netlink_msg *hdr)
+{
+	char prefix[128];
+	struct w1_reg_num id;
+				
+	memcpy(&id, hdr->id.id, sizeof(id));
+
+	snprintf(prefix, sizeof(prefix), "slave: id=%02x.%012llx.%02x",
+		id.family, (unsigned long long)id.id, id.crc); 
+	w1_dump_reply(out, prefix, hdr);
+}
+
+void w1_dump_message(FILE *out, int s, struct cn_msg *msg)
+{
+	time_t tm;
+	struct w1_netlink_msg *data = (struct w1_netlink_msg *)(msg + 1);
+	unsigned int i;
+	
+	while (msg->len) {
+		struct w1_reg_num id;
+		
+		time(&tm);
+#if 0
+		fprintf(out, "%.24s : %08x.%08x, len=%u, seq=%u, ack=%u, data->len=%u.\n", 
+				ctime(&tm), msg->id.idx, msg->id.val, msg->len, msg->seq, msg->ack, data->len);
+#endif
+		switch (data->type) {
+			case W1_MASTER_ADD:
+			case W1_MASTER_REMOVE:
+				if (data->type == W1_MASTER_ADD)
+					w1_test_cmd_master(out, s, data->id.mst.id);
+				
+				fprintf(out, "%.24s : master has been %.8s: id=%08x.\n", 
+					ctime(&tm), 
+					(data->type == W1_MASTER_ADD)?"added":"removed",
+					data->id.mst.id);
+				break;
+			
+			case W1_SLAVE_ADD:
+			case W1_SLAVE_REMOVE:
+				memcpy(&id, data->id.id, sizeof(id));
+
+				if (data->type == W1_SLAVE_ADD)
+					w1_test_cmd_slave(out, s, &id);
+				
+				fprintf(out, "%.24s :  slave has been %.8s: id=%02x.%012llx.%02x\n", 
+					ctime(&tm), 
+					(data->type == W1_SLAVE_ADD)?"added":"removed",
+					id.family, (unsigned long long)id.id, id.crc); 
+				break;
+			case W1_MASTER_CMD:
+				w1_parse_master_reply(out, data);
+				break;
+			case W1_SLAVE_CMD:
+				w1_parse_slave_reply(out, data);
+				break;
+			default:
+				fprintf(out, "%.24s : type=%02x", ctime(&tm), data->type);
+				
+				for (i=0; i<sizeof(data->id.id); ++i)
+					fprintf(out, "%02x.", data->id.id[i]);
+				fprintf(out, "\n");
+		}
+		fflush(out);
+
+		msg->len -= sizeof(struct w1_netlink_msg) + data->len;
+		data = (struct w1_netlink_msg *)(((char *)data) + sizeof(struct w1_netlink_msg) + data->len);
+	}
+}
+
+int main(int argc, char *argv[])
+{
+	int s;
+	unsigned char buf[1024];
+	int len;
+	struct sockaddr_nl l_local;
+	struct cn_msg *msg;
+	FILE *out;
+	struct pollfd pfd;
+	struct nlmsghdr *reply;
+	
+	if (argc < 2)
+		out = stdout;
+	else {
+		out = fopen(argv[1], "a+");
+		if (!out) {
+			fprintf(stderr, "Unable to open %s for writing: %s\n", 
+					argv[1], strerror(errno));
+			out = stdout;
+		}
+	}
+	
+	memset(buf, 0, sizeof(buf));
+	
+	s = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR);
+	if (s == -1) {
+		perror("socket");
+		return -1;
+	}
+	
+	l_local.nl_family = AF_NETLINK;
+	l_local.nl_groups = 23;
+	l_local.nl_pid    = getpid();
+	
+	if (bind(s, (struct sockaddr *)&l_local, sizeof(struct sockaddr_nl)) == -1) {
+		perror("bind");
+		close(s);
+		return -1;
+	}
+
+	pfd.fd = s;
+
+	while (!need_exit)
+	{
+		pfd.events = POLLIN;
+		pfd.revents = 0;
+		switch (poll(&pfd, 1, -1)) {
+			case 0:
+				need_exit = 1;
+				break;
+			case -1:
+				if (errno != EINTR) {
+					need_exit = 1;
+					break;
+				}
+				continue;
+			default:
+				break;
+		}
+		if (need_exit)
+			break;
+
+		len = recv(s, buf, sizeof(buf), 0);
+		if (len == -1) {
+			perror("recv buf");
+			close(s);
+			return -1;
+		}
+
+		reply = (struct nlmsghdr *)buf;
+
+		switch (reply->nlmsg_type) {
+			case NLMSG_ERROR:
+				fprintf(out, "Error message received.\n");
+				fflush(out);
+				break;
+			case NLMSG_DONE:
+				msg = (struct cn_msg *)NLMSG_DATA(reply);
+				w1_dump_message(out, s, msg);
+				break;
+			default:
+				break;
+		}
+
+	}
+	
+	close(s);
+	return 0;
+}
+
+
+--4Ckj6UjgE2iN1+kY--

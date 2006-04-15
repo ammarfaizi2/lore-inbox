@@ -1,120 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWDOCib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWDOCgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbWDOCib (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Apr 2006 22:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWDOCib
+	id S1030205AbWDOCgb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Apr 2006 22:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWDOCga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Apr 2006 22:38:31 -0400
-Received: from uproxy.gmail.com ([66.249.92.172]:5838 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030207AbWDOCia convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Apr 2006 22:38:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=LtuafFpfbf4kAjxCtQcKK8ZAKHpkmxBb+PWKCTexhnqZrosAr1cllfWZf7CBA46R1BiiZr50MUR1+DOuTxL2O1BclMyVfMUNyp1ipHLefq+IfMugGQLc/Bl5TGD0bFv+y/J6X/ZiqwZtfsfAV1mM0MOAK/3K+QzdvG0H7PVn5FE=
-Message-ID: <82ecf08e0604141938w4b29259av797e3115b79042a0@mail.gmail.com>
-Date: Fri, 14 Apr 2006 23:38:29 -0300
-From: "Thiago Galesi" <thiagogalesi@gmail.com>
-To: "David Woodhouse" <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-Subject: [PATCH] Remove unnecessary kmalloc/kfree calls in mtdchar
-MIME-Version: 1.0
+	Fri, 14 Apr 2006 22:36:30 -0400
+Received: from xenotime.net ([66.160.160.81]:26521 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030205AbWDOCga (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Apr 2006 22:36:30 -0400
+Date: Fri, 14 Apr 2006 19:38:56 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, kjhall@us.ibm.com
+Subject: [PATCH] tpm_infineon section fixup
+Message-Id: <20060414193856.917a35dc.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the use of repeated calls to kmalloc / kfree when
-writing / reading from a MTD char device. Not the ideal solution
-mentioned in the driver, but nonetheless better.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Signed-off by Thiago Galesi <thiagogalesi@gmail.com>
+Use __devexit_p() for the exit/remove function to protect
+against discarding it.
+
+WARNING: drivers/char/tpm/tpm_infineon.o - Section mismatch: reference to .exit.text:tpm_inf_pnp_remove from .data between 'tpm_inf_pnp' (at offset 0x20) and 'tpm_inf'
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/char/tpm/tpm_infineon.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+--- linux-2617-rc1g8.orig/drivers/char/tpm/tpm_infineon.c
++++ linux-2617-rc1g8/drivers/char/tpm/tpm_infineon.c
+@@ -15,6 +15,7 @@
+  * License.
+  */
+ 
++#include <linux/init.h>
+ #include <linux/pnp.h>
+ #include "tpm.h"
+ 
+@@ -520,7 +521,7 @@ static struct pnp_driver tpm_inf_pnp = {
+ 	},
+ 	.id_table = tpm_pnp_tbl,
+ 	.probe = tpm_inf_pnp_probe,
+-	.remove = tpm_inf_pnp_remove,
++	.remove = __devexit_p(tpm_inf_pnp_remove),
+ };
+ 
+ static int __init init_inf(void)
+
 
 ---
-
-(Please CC me as I'm not subscribed to linux-mtd)
-
-Index: linux-2.6.16.2/drivers/mtd/mtdchar.c
-===================================================================
---- linux-2.6.16.2.orig/drivers/mtd/mtdchar.c
-+++ linux-2.6.16.2/drivers/mtd/mtdchar.c
-@@ -170,15 +170,18 @@ static ssize_t mtd_read(struct file *fil
-
- 	/* FIXME: Use kiovec in 2.5 to lock down the user's buffers
- 	   and pass them directly to the MTD functions */
--	while (count) {
--		if (count > MAX_KMALLOC_SIZE)
--			len = MAX_KMALLOC_SIZE;
--		else
--			len = count;
-
--		kbuf=kmalloc(len,GFP_KERNEL);
--		if (!kbuf)
--			return -ENOMEM;
-+	if (count > MAX_KMALLOC_SIZE)
-+		len = MAX_KMALLOC_SIZE;
-+	else
-+		len = count;
-+
-+	kbuf=kmalloc(len,GFP_KERNEL);
-+
-+	if (!kbuf)
-+		return -ENOMEM;
-+
-+	while (count) {
-
- 		switch (MTD_MODE(file)) {
- 		case MTD_MODE_OTP_FACT:
-@@ -215,9 +218,9 @@ static ssize_t mtd_read(struct file *fil
- 			return ret;
- 		}
-
--		kfree(kbuf);
- 	}
-
-+	kfree(kbuf);
- 	return total_retlen;
- } /* mtd_read */
-
-@@ -241,17 +244,18 @@ static ssize_t mtd_write(struct file *fi
- 	if (!count)
- 		return 0;
-
--	while (count) {
--		if (count > MAX_KMALLOC_SIZE)
--			len = MAX_KMALLOC_SIZE;
--		else
--			len = count;
-+	if (count > MAX_KMALLOC_SIZE)
-+		len = MAX_KMALLOC_SIZE;
-+	else
-+		len = count;
-+
-+	kbuf=kmalloc(len,GFP_KERNEL);
-+	if (!kbuf) {
-+		printk("kmalloc is null\n");
-+		return -ENOMEM;
-+	}
-
--		kbuf=kmalloc(len,GFP_KERNEL);
--		if (!kbuf) {
--			printk("kmalloc is null\n");
--			return -ENOMEM;
--		}
-+	while (count) {
-
- 		if (copy_from_user(kbuf, buf, len)) {
- 			kfree(kbuf);
-@@ -282,10 +286,9 @@ static ssize_t mtd_write(struct file *fi
- 			kfree(kbuf);
- 			return ret;
- 		}
--
--		kfree(kbuf);
- 	}
-
-+	kfree(kbuf);
- 	return total_retlen;
- } /* mtd_write */

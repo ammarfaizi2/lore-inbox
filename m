@@ -1,89 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbWDOMfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWDOMip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbWDOMfb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 08:35:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbWDOMfb
+	id S932507AbWDOMip (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 08:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWDOMio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 08:35:31 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17166 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932504AbWDOMfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 08:35:30 -0400
-Date: Sat, 15 Apr 2006 14:35:27 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/video/: remove duplicate #include's
-Message-ID: <20060415123527.GG15022@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 15 Apr 2006 08:38:44 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:62144 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932507AbWDOMio (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 08:38:44 -0400
+Date: Sat, 15 Apr 2006 16:38:34 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Libor Vanek <libor.vanek@gmail.com>, Matt Helsley <matthltc@us.ibm.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Connector - how to start?
+Message-ID: <20060415123832.GA19850@2ka.mipt.ru>
+References: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com> <20060414192634.697cd2e3.rdunlap@xenotime.net> <1145070437.28705.73.camel@stark> <20060415091801.GA4782@2ka.mipt.ru> <369a7ef40604150350x8e7dea1sbf1f83cb800dd1c3@mail.gmail.com> <20060415111443.GA4079@2ka.mipt.ru> <87hd4vvxpk.fsf@briny.internal.ondioline.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <87hd4vvxpk.fsf@briny.internal.ondioline.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sat, 15 Apr 2006 16:38:35 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes unneeded duplicate #include's of the same header 
-file.
+On Sat, Apr 15, 2006 at 10:18:31PM +1000, Paul Collins (paul@briny.ondioline.org) wrote:
+> Evgeniy Polyakov <johnpol@2ka.mipt.ru> writes:
+> 
+> > On Sat, Apr 15, 2006 at 12:50:46PM +0200, Libor Vanek (libor.vanek@gmail.com) wrote:
+> >> Hi
+> >
+> > Hello.
+> >
+> >> > Why do you want to send big messages over netlink?
+> >> > Netlink is fast but not faster than char device for example, or read
+> >> > from mapped area, although it is much more convenient to use.
+> >> >
+> >> > Well, I can increase CONNECTOR_MAX_MSG_SIZE to maximum allowed 64k, if
+> >> > there is really strong justification.
+> >> 
+> >> I need to send messages containing several (1 to 3) file names. And
+> >> "MAXPATHLEN" is 1024b (usually it's much less but I can't rely on
+> >> that).
+> >
+> > $ touch `perl -e 'print "A"x1024'`
+> > touch: cannot touch
+> > `AA...AA':
+> > File name too long
+> >
+> > Only 255 is allowed in my system.
+> 
+> There are two limits though, the component length limit (NAME_MAX),
+> and the overall length limit (PATH_MAX).  For example:
+> 
+> $ mkdir -p `perl -e 'print "A"x255'`/`perl -e 'print "B"x255'`/`perl -e 'print "C"x255'`/`perl -e 'print "D"x255'`
+> 
+> works fine here.
+> 
+> However, with 256 I get "File name too long", as you did.
 
-In the case of fbmon.c linux/pci.h is now #include'd unconditional, but 
-this should be safe.
+Sure, as pointed in previous e-mail, several concatenated directories can exceed any resonable limit,
+even PATH_MAX (4k):
+$ pwd | wc
+      1       1    4113
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+So it is wrong idea to transfer the whole name in one message, which
+will not only add huge overhead (for each subdir one must transfer the
+whole path for the parent dir), but can be impossible to allocate such a
+buffer in kernelspace to store the whole pathname.
 
----
+> -- 
+> Dag vijandelijk luchtschip de huismeester is dood
 
- drivers/video/fbmem.c |    2 --
- drivers/video/fbmon.c |    3 +--
- drivers/video/tgafb.c |    1 -
- 3 files changed, 1 insertion(+), 5 deletions(-)
-
---- linux-2.6.17-rc1-mm2-full/drivers/video/fbmem.c.old	2006-04-15 14:07:45.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/drivers/video/fbmem.c	2006-04-15 14:08:09.000000000 +0200
-@@ -34,7 +34,6 @@
- #endif
- #include <linux/devfs_fs_kernel.h>
- #include <linux/err.h>
--#include <linux/kernel.h>
- #include <linux/device.h>
- #include <linux/efi.h>
- 
-@@ -162,7 +161,6 @@
- }
- 
- #ifdef CONFIG_LOGO
--#include <linux/linux_logo.h>
- 
- static inline unsigned safe_shift(unsigned d, int n)
- {
---- linux-2.6.17-rc1-mm2-full/drivers/video/fbmon.c.old	2006-04-15 14:08:24.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/drivers/video/fbmon.c	2006-04-15 14:09:17.000000000 +0200
-@@ -29,9 +29,9 @@
- #include <linux/tty.h>
- #include <linux/fb.h>
- #include <linux/module.h>
-+#include <linux/pci.h>
- #include <video/edid.h>
- #ifdef CONFIG_PPC_OF
--#include <linux/pci.h>
- #include <asm/prom.h>
- #include <asm/pci-bridge.h>
- #endif
-@@ -1282,7 +1282,6 @@
- }
- 
- #if defined(CONFIG_FB_FIRMWARE_EDID) && defined(__i386__)
--#include <linux/pci.h>
- 
- /*
-  * We need to ensure that the EDID block is only returned for
---- linux-2.6.17-rc1-mm2-full/drivers/video/tgafb.c.old	2006-04-15 14:12:38.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/drivers/video/tgafb.c	2006-04-15 14:12:47.000000000 +0200
-@@ -26,7 +26,6 @@
- #include <linux/selection.h>
- #include <asm/io.h>
- #include <video/tgafb.h>
--#include <linux/selection.h>
- 
- /*
-  * Local functions.
-
+-- 
+	Evgeniy Polyakov

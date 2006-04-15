@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWDOWja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWDOWpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWDOWja (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 18:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWDOWja
+	id S932132AbWDOWpu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 18:45:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWDOWpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 18:39:30 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:13320 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932140AbWDOWja (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 18:39:30 -0400
-Date: Sun, 16 Apr 2006 00:39:22 +0200
-From: Jean-Luc =?iso-8859-1?Q?L=E9ger?= 
-	<jean-luc.leger@dspnet.fr.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] cleanup default value of IP_DCCP_ACKVEC
-Message-ID: <20060415223921.GF47644@dspnet.fr.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
+	Sat, 15 Apr 2006 18:45:50 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:9538 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932132AbWDOWpt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 18:45:49 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:content-type;
+	b=JNomSo0ba9g+aEMj+34yBnLu338FezkwW42DHLN374w//wX0LyT1iDQ3bah+fhAS4
+	vuTamxrv1AWz9d+08Hwsg==
+Message-ID: <44417792.2070900@google.com>
+Date: Sat, 15 Apr 2006 15:45:38 -0700
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Default CONFIG_DEBUG_MUTEXES to n
+Content-Type: multipart/mixed;
+ boundary="------------020104020700020002020903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Default values for boolean and tristate options can only be 'y', 'm' or 'n'.
-This patch removes wrong default for IP_DCCP_ACKVEC.
+This is a multi-part message in MIME format.
+--------------020104020700020002020903
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Jean-Luc Léger <jean-luc.leger@dspnet.fr.eu.org>
+CONFIG_DEBUG_MUTEXES has a significant performant impact (reduced perf
+of reaim by 50% on ia32 NUMA boxes). It should not be on by default.
 
-Index: linux-2.6.17-rc1/net/dccp/Kconfig
-===================================================================
---- linux-2.6.17-rc1/net/dccp/Kconfig.old       2006-04-15 22:48:36.000000000 +0200
-+++ linux-2.6.17-rc1/net/dccp/Kconfig   2006-04-15 22:50:48.000000000 +0200
-@@ -26,7 +26,7 @@
- 
- config IP_DCCP_ACKVEC
- 	depends on IP_DCCP
--	def_bool N
-+	bool
- 
- source "net/dccp/ccids/Kconfig"
- 
+Signed-off-by: Martin J. Bligh <mbligh@google.com>
 
+
+
+--------------020104020700020002020903
+Content-Type: text/plain;
+ name="2.6.17-rc1_no_mutex_dbg"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.6.17-rc1_no_mutex_dbg"
+
+diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.17-rc1/lib/Kconfig.debug 2.6.17-rc1_no_mutex_dbg/lib/Kconfig.debug
+--- linux-2.6.17-rc1/lib/Kconfig.debug	2006-04-15 15:28:54.000000000 -0700
++++ 2.6.17-rc1_no_mutex_dbg/lib/Kconfig.debug	2006-04-15 15:44:14.000000000 -0700
+@@ -101,7 +101,7 @@ config DEBUG_PREEMPT
+ 
+ config DEBUG_MUTEXES
+ 	bool "Mutex debugging, deadlock detection"
+-	default y
++	default n
+ 	depends on DEBUG_KERNEL
+ 	help
+ 	 This allows mutex semantics violations and mutex related deadlocks
+@@ -109,6 +109,7 @@ config DEBUG_MUTEXES
+ 
+ config DEBUG_SPINLOCK
+ 	bool "Spinlock debugging"
++	default n
+ 	depends on DEBUG_KERNEL
+ 	help
+ 	  Say Y here and build SMP to catch missing spinlock initialization
+
+--------------020104020700020002020903--

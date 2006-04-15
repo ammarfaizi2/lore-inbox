@@ -1,71 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWDOWpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWDOWqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932132AbWDOWpu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 18:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWDOWpu
+	id S932510AbWDOWqF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 18:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWDOWqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 18:45:50 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:9538 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932132AbWDOWpt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 18:45:49 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:content-type;
-	b=JNomSo0ba9g+aEMj+34yBnLu338FezkwW42DHLN374w//wX0LyT1iDQ3bah+fhAS4
-	vuTamxrv1AWz9d+08Hwsg==
-Message-ID: <44417792.2070900@google.com>
-Date: Sat, 15 Apr 2006 15:45:38 -0700
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Default CONFIG_DEBUG_MUTEXES to n
-Content-Type: multipart/mixed;
- boundary="------------020104020700020002020903"
+	Sat, 15 Apr 2006 18:46:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6322 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932510AbWDOWqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 18:46:03 -0400
+Date: Sat, 15 Apr 2006 15:45:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@google.com>
+Cc: linux-kernel@vger.kernel.org, apw@shadowen.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: Clear performance regression on reaim7 in 2.6.15-git6
+Message-Id: <20060415154518.6a5a0c52.akpm@osdl.org>
+In-Reply-To: <444173EE.4060602@google.com>
+References: <4441452F.3060009@google.com>
+	<20060415141744.042231a8.akpm@osdl.org>
+	<44416616.10908@google.com>
+	<20060415145227.5d1249bd.akpm@osdl.org>
+	<444173EE.4060602@google.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020104020700020002020903
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+"Martin J. Bligh" <mbligh@google.com> wrote:
+>
+> Andrew Morton wrote:
+> > "Martin J. Bligh" <mbligh@google.com> wrote:
+> > 
+> >>drilling down into the results directories can get you the command line,
+> >> looks like "reaim -f workfile.short -s 1 -e 10 -i 2" to me. Buggered if
+> >> I can recall what that did though.
+> >>
+> >> (http://test.kernel.org/abat/20229/004.reaim.test/results/cmdline)
+> >>
+> >> I *think* it's only ia32 NUMA boxes, at least as far as I can see from
+> >> a quick poke around. Which would make me guess at scheduler code. Gitweb
+> >> would be nice to use, but it doesn't tag the -git snapshots, AFAICS, 
+> >> which is a real shame. Nor does the git snapshot include the git tag,
+> >> as far as I know. Grrrr. I guess I'll download the snapshots and diff
+> >> them, and try to pull out the sched changes by hand. Much suckage.
+> > 
+> > 
+> > The diffstat for 2.6.15-git5 -> 2.6.15-git6 is at
+> > http://www.zip.com.au/~akpm/linux/patches/stuff/2 - only a single line
+> > changed in sched.c:
+> > 
+> > diff -uNr 2.6.15-git5/kernel/sched.c 2.6.15-git6/kernel/sched.c
+> > --- 2.6.15-git5/kernel/sched.c	2006-04-15 14:10:43.000000000 -0700
+> > +++ 2.6.15-git6/kernel/sched.c	2006-04-15 14:10:52.000000000 -0700
+> > @@ -4386,6 +4386,7 @@
+> >  	} while_each_thread(g, p);
+> >  
+> >  	read_unlock(&tasklist_lock);
+> > +	mutex_debug_show_all_locks();
+> >  }
+> 
+> Hmm. whilst it's probably not that call, it does look like mutex 
+> debugging. Look at the profiles from reaim between -git5 and -git6:
+> 
+> before:
+> http://test.kernel.org/abat/20115/004.reaim.test/profiling/profile.text
+> 
+> after:
+> http://test.kernel.org/abat/20229/004.reaim.test/profiling/profile.text
+> 
+>   1262 kfree                                      3.5056
+>     820 mutex_lock_interruptible                 164.0000
+>     752 __mutex_lock_slowpath                      0.8754
+>      43 schedule                                   0.0284
+>      35 _spin_lock                                 2.3333
+>      25 debug_mutex_set_owner                      0.1613
+>      23 debug_mutex_add_waiter                     0.1586
 
-CONFIG_DEBUG_MUTEXES has a significant performant impact (reduced perf
-of reaim by 50% on ia32 NUMA boxes). It should not be on by default.
+hm.
 
-Signed-off-by: Martin J. Bligh <mbligh@google.com>
+> /me hugs his huge stacks of data.
+> 
+> --------------------------------
+> 
+> config DEBUG_MUTEXES
+>          bool "Mutex debugging, deadlock detection"
+>          default y
+>          depends on DEBUG_KERNEL
+>          help
+>           This allows mutex semantics violations and mutex related deadlocks
+>           (lockups) to be detected and reported automatically.
+> 
+> --------------------------------
+> 
+> Hmmm. Who the hell thought defaulting that to 'y' was a good plan????
 
+Ingo ;)
 
+> It's still broken in 17-rc1 ... will send you a patch in a sec.
 
---------------020104020700020002020903
-Content-Type: text/plain;
- name="2.6.17-rc1_no_mutex_dbg"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.6.17-rc1_no_mutex_dbg"
-
-diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.17-rc1/lib/Kconfig.debug 2.6.17-rc1_no_mutex_dbg/lib/Kconfig.debug
---- linux-2.6.17-rc1/lib/Kconfig.debug	2006-04-15 15:28:54.000000000 -0700
-+++ 2.6.17-rc1_no_mutex_dbg/lib/Kconfig.debug	2006-04-15 15:44:14.000000000 -0700
-@@ -101,7 +101,7 @@ config DEBUG_PREEMPT
- 
- config DEBUG_MUTEXES
- 	bool "Mutex debugging, deadlock detection"
--	default y
-+	default n
- 	depends on DEBUG_KERNEL
- 	help
- 	 This allows mutex semantics violations and mutex related deadlocks
-@@ -109,6 +109,7 @@ config DEBUG_MUTEXES
- 
- config DEBUG_SPINLOCK
- 	bool "Spinlock debugging"
-+	default n
- 	depends on DEBUG_KERNEL
- 	help
- 	  Say Y here and build SMP to catch missing spinlock initialization
-
---------------020104020700020002020903--
+I already have kconfigdebug-set-debug_mutex-to-off-by-default.patch queued up.

@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWDPP2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWDPPel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWDPP2b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 11:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWDPP2a
+	id S1750746AbWDPPel (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 11:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWDPPek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 11:28:30 -0400
-Received: from naig.caltech.edu ([131.215.239.125]:57803 "EHLO
-	naig.caltech.edu") by vger.kernel.org with ESMTP id S1750738AbWDPP2a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 11:28:30 -0400
-Message-Id: <200604161528.k3GFS2Ab000843@naig.caltech.edu>
-From: Pls.fax.instead.of.e-mail@nntp-server.caltech.edu
-To: mlist-linux-kernel@nntp-server.caltech.edu
-Subject: To make various molded parts for you(Small Q'ty OK)(cmb+wlw)
-Date: Fri, 14 Apr 06 21:43:46 Taipei Standard Time
+	Sun, 16 Apr 2006 11:34:40 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:51661 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750743AbWDPPej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 11:34:39 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH 00/05] robust per_cpu allocation for modules
+Date: Sun, 16 Apr 2006 17:34:18 +0200
+User-Agent: KMail/1.9.1
+Cc: Paul Mackerras <paulus@samba.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
+       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
+       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
+       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
+       Joe Taylor <joe@tensilica.com>,
+       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
+       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
+       linux-mips@linux-mips.org, grundler@parisc-linux.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, davem@davemloft.net, rusty@rustcorp.com.au
+References: <1145049535.1336.128.camel@localhost.localdomain> <17473.60411.690686.714791@cargo.ozlabs.ibm.com> <1145194804.27407.103.camel@localhost.localdomain>
+In-Reply-To: <1145194804.27407.103.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary= "----=_NextPart_000_00EC_CBCC5360.F690B528"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000 
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604161734.20256.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_00EC_CBCC5360.F690B528
-Content-Type: text/plain; charset= "US-ASCII"
-Content-Transfer-Encoding: base64
+On Sunday 16 April 2006 15:40, Steven Rostedt wrote:
+> I'll think more about this, but maybe someone else has some crazy ideas
+> that can find a solution to this that is both fast and robust.
 
-RGVhciBTaXIvTWFkYW0sDQoNCldlIGxlYXJudCB5b3VyIGUtbWFpbCBhZGQuZnJvbSBpbnRl
-cm5ldC4NCiANCkZJUlNUIE9GIEFMTCxQTEVBU0UgS0lORExZIE5PVEUgVEhJUyBFLU1BSUwg
-SVMgU0VOVCBCWQ0KT1VSICJBRFZFUlRJU0lORyBDT01QQU5ZIiBBTkQgVEhFIEUtTUFJTCBB
-RERSRVNTIElTDQpOT1QgIlJFQUwiKFZJUlRVQUwpLFRIRVJFRk9SRSxQTEVBU0UgQ09OVEFD
-VCBVUw0KVklBICJGQVgiICBPUiAiUE9TVCIuRE9OJ1QgRElSRUNUTFkgUkVTUE9OU0UgVklB
-ICIgRS1NQUlMIg0KQkVDQVVTRSBXRSBDQU4nVCBSRUNFSVZFIFlPVVIgRS1NQUlMLg0KSUYg
-WU9VIFdBTlQgVE8gQkUgUkVNT1ZFRCBGUk9NIFRIRSBMSVNULFBMRUFTRSBBRFZJU0UNCllP
-VVIgRS1NQUlMIEFERFJFU1MgJiBUSElTIEUtTUFJTCBDT05URU5UIE9SIFNVQkpFQ1QgVklB
-ICJGQVgiIE9SICJQT1NUIi4NCg0KV2UgYXJlIHRoZSBwcm9mZXNzaW9uYWwgbW9sZCAmIGRp
-ZSBtYWtlciBhbmQgbW9sZGVkIHBhcnRzKG1vbGRpbmdzKSBzdXBwbGllcg0KZm9yIHRoZSBm
-b2xsb3dpbmcgcGFydHM6DQoNCiogQ2FzdGluZ3Moc2FuZCBjYXN0aW5ncykgZm9yIGlyb24g
-JiBhbHVtaW5pdW0NCiogKFByZXNzdXJlKSBEaWUgQ2FzdGluZyBmb3IgWmluYyBvciBhbHVt
-aW5pdW0NCiogUGxhc3RpYyBJbmplY3Rpb24gbW9sZGluZ3MuDQoqIFNoZWV0IE1ldGFsIFN0
-YW1waW5ncy4NCiogT2lsIFNlYWxzICYgb3RoZXIgUnViYmVyIE1vbGRpbmdzKGJvdGggZm9y
-IGluZHVzdHJpYWwgb3IgZ2VuZXJhbCB1c2VzKS4NCiogVmFyaW91cyBNYWduZXRzLg0KKiBN
-YWNoaW5pbmdzKE1hY2hpbmVkIHBhcnRzKQ0KKiBBc3NlbWJsZWQgdW5pdChjb21wb25lbnRz
-IGFzc2VtYmxlZCkNCg0KU01BTEwgT1JERVIgSVMgT0ssUExFQVNFIENPTlRBQ1QgVVMgVE8g
-U0FWRSBZT1VSIENPU1QhDQoNClRoYW5rIHlvdQ0KDQpCZXN0IFJlZ2FyZHMNClJvYmVydCBM
-aW4NClAuTy5Cb3ggMS0xMjAgWXVuZy1IbyxUYWlwZWksVGFpd2FuDQpGYXg6ODg2LTQtODc4
-MzMxMCAoODg2IGlzIHRoZSBjb3VudHJ5IGNvZGUpDQoNCg0KDQpQLk8uQm94IDEtMTIwIFl1
-bmctSG8sVGFpcGVpIEhzaWVuLFRhaXdhbg0KRmF4OiA4ODYtNC04ODc1ODY2ICg4ODYgaXMg
-dGhlIGNvdW50cnkgY29kZSkgICAg
-------=_NextPart_000_00EC_CBCC5360.F690B528--
+Ok, you asked for a crazy idea, you're going to get it ;-)
+
+You could take a fixed range from the vmalloc area (e.g. 1MB per cpu)
+and use that to remap pages on demand when you need per cpu data.
+
+#define PER_CPU_BASE 0xe000000000000000UL /* arch dependant */
+#define PER_CPU_SHIFT 0x100000UL
+#define __per_cpu_offset(__cpu) (PER_CPU_BASE + PER_CPU_STRIDE * (__cpu))
+#define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset(cpu)))
+#define __get_cpu_var(var) per_cpu(var, smp_processor_id())
+
+This is a lot like the current sparc64 implementation already is.
+
+The tricky part here is the remapping of pages. You'd need to 
+alloc_pages_node() new pages whenever the already reserved space is
+not enough for the module you want to load and then map_vm_area()
+them into the space reserved for them.
+
+Advantages of this solution are:
+- no dependant load access for per_cpu()
+- might be flexible enough to implement a faster per_cpu_ptr()
+- can be combined with ia64-style per-cpu remapping
+
+Disadvantages are:
+- you can't use huge tlbs for mapping per cpu data like the
+  regular linear mapping -> may be slower on some archs
+- does not work in real mode, so percpu data can't be used
+  inside exception handlers on some architectures.
+- memory consumption is rather high when PAGE_SIZE is large
+
+	Arnd <><

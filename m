@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWDPRKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWDPRs0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWDPRKT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 13:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWDPRKS
+	id S1750767AbWDPRs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 13:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWDPRs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 13:10:18 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:52950 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1750759AbWDPRKS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 13:10:18 -0400
-Date: Sun, 16 Apr 2006 21:09:47 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Libor Vanek <libor.vanek@gmail.com>
-Cc: Matt Helsley <matthltc@us.ibm.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Connector - how to start?
-Message-ID: <20060416170947.GA9202@2ka.mipt.ru>
-References: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com> <20060414192634.697cd2e3.rdunlap@xenotime.net> <1145070437.28705.73.camel@stark> <20060415091801.GA4782@2ka.mipt.ru> <369a7ef40604150350x8e7dea1sbf1f83cb800dd1c3@mail.gmail.com> <20060415111443.GA4079@2ka.mipt.ru> <87hd4vvxpk.fsf@briny.internal.ondioline.org> <20060415123832.GA19850@2ka.mipt.ru> <369a7ef40604150624n28da8895if158a2c13cac2b9e@mail.gmail.com> <20060416075323.GB6101@2ka.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060416075323.GB6101@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 16 Apr 2006 21:09:51 +0400 (MSD)
+	Sun, 16 Apr 2006 13:48:26 -0400
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:54164 "EHLO
+	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750771AbWDPRsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 13:48:25 -0400
+Message-ID: <44428368.2000703@foo-projects.org>
+Date: Sun, 16 Apr 2006 10:48:24 -0700
+From: Auke Kok <sofar@foo-projects.org>
+User-Agent: Mail/News 1.5 (X11/20060331)
+MIME-Version: 1.0
+To: Willy TARREAU <willy@w.ods.org>
+CC: jesse.brandeburg@intel.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, rol@as2917.net
+Subject: Re: [PATCH-2.6] e1000: fix media_type <-> phy_type thinko
+References: <20060415110025.GA6266@w.ods.org>
+In-Reply-To: <20060415110025.GA6266@w.ods.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 16, 2006 at 11:53:23AM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> On Sat, Apr 15, 2006 at 03:24:26PM +0200, Libor Vanek (libor.vanek@gmail.com) wrote:
-> > OK, so what would you suggest as the right "tool" to transfer these
-> > (full path text) information?
-> > 
-> > I see these options:
-> > 1, Keep using procfs (I don't like it)
-> > 2, Use connector and create such "communication protocol" that it'll
-> > be able to transfer such long messages in more datagrams (even if
-> > 99.99% of messages will fit 1 datagram)
-> > 3, Some other API to transfer information to user-space and back?
-> > 
-> > I'll probably go with 2, but I'd be more then happy to hear any
-> > comments about this...
+Willy TARREAU wrote:
+> Recent patch cb764326dff0ee51aca0d450e1a292de65661055 introduced
+> a thinko in e1000_main.c : e1000_media_type_copper is compared
+> to hw.phy_type instead of hw.media_type. Original patch proposed
+> by Jesse Brandeburg was correct, but what has been merged is not.
 
-Btw, I forgot to say, that CONNECTOR_MAX_MSG_SIZE restriction to maximum
-allowed message size is only applicable for userspace->kernelspace
-direction. Messages, emmited by kernel, can have any size you want.
+Indeed this seems like a mistake to me. I'll make sure this is checked 
+tomorrow with Jeff Kirsher who submitted the original patch.
 
--- 
-	Evgeniy Polyakov
+Auke Kok
+
+
+> ---
+> 
+>  drivers/net/e1000/e1000_main.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> 3df8a180d50c89a72c28abf37151e38ffda75f39
+> diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
+> index add8dc4..590a456 100644
+> --- a/drivers/net/e1000/e1000_main.c
+> +++ b/drivers/net/e1000/e1000_main.c
+> @@ -4156,7 +4156,7 @@ e1000_mii_ioctl(struct net_device *netde
+>  			spin_unlock_irqrestore(&adapter->stats_lock, flags);
+>  			return -EIO;
+>  		}
+> -		if (adapter->hw.phy_type == e1000_media_type_copper) {
+> +		if (adapter->hw.media_type == e1000_media_type_copper) {
+>  			switch (data->reg_num) {
+>  			case PHY_CTRL:
+>  				if (mii_reg & MII_CR_POWER_DOWN)
+

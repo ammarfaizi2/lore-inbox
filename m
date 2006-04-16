@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWDPE2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWDPFNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWDPE2A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 00:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWDPE2A
+	id S1751202AbWDPFNb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 01:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWDPFNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 00:28:00 -0400
-Received: from xenotime.net ([66.160.160.81]:64662 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751209AbWDPE2A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 00:28:00 -0400
-Date: Sat, 15 Apr 2006 21:30:25 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org, william.waddington@beezmo.com
-Subject: Re: SATA Conflict with PATA DMA
-Message-Id: <20060415213025.28c958b1.rdunlap@xenotime.net>
-In-Reply-To: <200604160448.47225.s0348365@sms.ed.ac.uk>
-References: <fa.m9JwGQvLBixssS4UodPQfih6Ygk@ifi.uio.no>
-	<fa.foo0W8w4UdiDztK9eBiA9awyAi8@ifi.uio.no>
-	<p9f2425uijetlpcq49m08cto9la898l80f@4ax.com>
-	<200604160448.47225.s0348365@sms.ed.ac.uk>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 16 Apr 2006 01:13:31 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:30150 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751202AbWDPFNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 01:13:30 -0400
+Date: Sun, 16 Apr 2006 01:13:18 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: HP Pavilion dv5320us, amd64 'turion' cpu
+In-reply-to: <200604160446.18861.s0348365@sms.ed.ac.uk>
+To: linux-kernel@vger.kernel.org
+Message-id: <200604160113.21644.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200604151457.12508.gene.heskett@verizon.net>
+ <200604160446.18861.s0348365@sms.ed.ac.uk>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Apr 2006 04:48:47 +0100 Alistair John Strachan wrote:
+On Saturday 15 April 2006 23:46, Alistair John Strachan wrote:
+>On Saturday 15 April 2006 19:57, Gene Heskett wrote:
+>> Greetings;
+>>
+>> I've been dl'ing and burning cd's and dvd's at a furious rate for
+>> several days now, looking for a 64 bit distribution that will
+>> actually boot on this thing, apparently in vain.  i386 stuff works
+>> fine. The kubuntu 'breezy' 5.10 locks up at the ACPI line regardless
+>> of what kernel options you pass trying to disable it.
+>
+>If you really can't get it working, building an AMD64 cross compiler
+> and an AMD64 kernel on a 32bit only distribution is surprisingly
+> easy. It would allow you to debug any 64bit specific problems whilst
+> allowing you to fall back on the comforts of a working kernel..
 
-> On Saturday 15 April 2006 19:38, Bill Waddington wrote:
-> > On Sat, 15 Apr 2006 16:42:22 UTC, in fa.linux.kernel you wrote:
-> > >Esben Stien wrote:
-> > >> I'm having problems enabling DMA for my PATA HD.
-> > >>
-> > >> hdparm -d1 /dev/hdb reports:
-> > >> HDIO_SET_DMA failed: Operation not permitted
-> > >>
-> > >> Of course, I'm super user. Nothing is printed in dmesg.
-> > >>
-> > >> I'm on linux-2.6.16 and motherboard is Fujitsu Siemens D1561 with an
-> > >> ICH5. I also have a SATA hd in the computer and this only happens when
-> > >> the SATA hd is there. If I remove the SATA HD, then I can enable DMA
-> > >> for the PATA hd.
-> > >
-> > >Disabled combined mode in BIOS.
-> >
-> > If only that was possible on my fscking T43.  *sigh*
-> 
-> Not sure if this is universal, but if Linux doesn't claim the PATA interface, 
-> the SATA seems to drive optical drives on (presumably) the other channel 
-> (ICH7 here, on a Dell laptop with a similar BIOS limitation).
-> 
-> Try CONFIG_IDE=n and boot with libata.atapi_enable=1 and see what happens...
+I finally got kubuntu dapper to boot and run quite nicely, but the added 
+command line arguments to the boot added about 6 new arguments.  That 
+allowed me to run gparted and although it didn't act like it did, it 
+did shrink the ntfs partition down to about 27GB, and got rid of the 
+other 2 partitions.  I've already made the backup dvd's of course.  XP 
+is still happy in the reduced space.  But kubuntu subscribes to the Joe 
+Sixpack theory a bit too firmly, not even supplying an accessable 
+shell, just the run thingy, so I just burnt the FC5 x86-64 dvd iso, and 
+k3b says the checksum is fubar but every disk it said that about has 
+passed the disks own mediatests (so far).
 
-make that libata.atapi_enabled=1
+So tomorrow, after church, and if the height of the yard doesn't call me 
+first, I'm gonna try installing that puppy.
 
----
-~Randy
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWDPSeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWDPSoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWDPSeW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 14:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWDPSeW
+	id S1750792AbWDPSoe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 14:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWDPSod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 14:34:22 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:8370 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750785AbWDPSeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 14:34:21 -0400
-Subject: Re: [RFC: 2.6 patch] net/irda/irias_object.c: remove unused exports
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: jt@hpl.hp.com, Adrian Bunk <bunk@stusta.de>, Samuel.Ortiz@nokia.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1145209616.3809.14.camel@laptopd505.fenrus.org>
-References: <20060414114446.GL4162@stusta.de>
-	 <20060414164203.GA24146@bougret.hpl.hp.com>
-	 <1145209616.3809.14.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 16 Apr 2006 19:37:19 +0100
-Message-Id: <1145212639.5656.3.camel@localhost.localdomain>
+	Sun, 16 Apr 2006 14:44:33 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:25521 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1750792AbWDPSod (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 14:44:33 -0400
+Date: Sun, 16 Apr 2006 20:44:26 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Al Boldi <a1426z@gawab.com>, ck list <ck@vds.kolivas.org>,
+       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [ck] Re: [patch][rfc] quell interactive feeding frenzy
+Message-ID: <20060416184426.GA15642@rhlx01.fht-esslingen.de>
+References: <200604112100.28725.kernel@kolivas.org> <200604151705.18786.kernel@kolivas.org> <200604152345.39850.a1426z@gawab.com> <200604160923.00047.kernel@kolivas.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604160923.00047.kernel@kolivas.org>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2006-04-16 at 19:46 +0200, Arjan van de Ven wrote:
-> > 	Personally, I don't see what this patch buy us...
-> 
-> all the unused exports in the kernel together make a binary kernel 100Kb
-> bigger. It's a case of a lot of little steps I suppose (each export
-> taking like 100 to 150 bytes depending on the size of the function name)
+Hi,
 
+On Sun, Apr 16, 2006 at 09:22:59AM +1000, Con Kolivas wrote:
+> The current value, 6ms at 1000HZ, is chosen because it's the largest value 
+> that can schedule a task in less than normal human perceptible range when two 
+> competing heavily cpu bound tasks are the same priority. At 250HZ it works 
+> out to 7.5ms and 10ms at 100HZ. Ironically in my experimenting I found the 
+> cpu cache improvements become much less significant above 7ms so I'm very 
+> happy with this compromise.
 
-So why are exports taking us 100-150 bytes, not say 20 which is what I'd
-expect ?
+Heh, this part is *EXACTLY* a fully sufficient explanation of what I was
+wondering about myself just these days ;)
+(I'm experimenting with different timeslice values on my P3/450 to verify
+what performance impact exactly it has)
+However with a measly 256kB cache it probably doesn't matter too much,
+I think.
 
+But I think it's still important to mention that your perception might be
+twisted by your P4 limitation (no testing with slower and really slow
+machines).
+
+Andreas

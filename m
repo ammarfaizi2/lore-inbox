@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWDPRvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWDPSDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWDPRvy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 13:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWDPRvy
+	id S1750780AbWDPSDG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 14:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWDPSDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 13:51:54 -0400
-Received: from mail14.bluewin.ch ([195.186.19.62]:50369 "EHLO
-	mail14.bluewin.ch") by vger.kernel.org with ESMTP id S1750775AbWDPRvx
+	Sun, 16 Apr 2006 14:03:06 -0400
+Received: from uproxy.gmail.com ([66.249.92.174]:58083 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750780AbWDPSDE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 13:51:53 -0400
-Date: Sun, 16 Apr 2006 13:46:50 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] hugetlbfs: add Kconfig help text
-Message-ID: <20060416174650.GA26124@krypton>
+	Sun, 16 Apr 2006 14:03:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XsJOhvzZ+2UaFIE3BGl6tmZNQcYbZ0gMOmNZVhsF3DsVarouTDFdkIA8puoO1ZrnwkWORPIczK+KjlnBxheDVE5drWZJNjLgYzSXLMeqhs+4ly34eZ6Lzcrsc9M/A7S8dUCCAN3T2lDhBXN2iEO37pBa1Ds2eJ2uB1u75HckXd4=
+Message-ID: <12c511ca0604161103l3013f5f1t99c93ee38f102e95@mail.gmail.com>
+Date: Sun, 16 Apr 2006 11:03:03 -0700
+From: "Tony Luck" <tony.luck@intel.com>
+To: "Arnd Bergmann" <arnd@arndb.de>
+Subject: Re: [PATCH 00/05] robust per_cpu allocation for modules
+Cc: "Steven Rostedt" <rostedt@goodmis.org>,
+       "Paul Mackerras" <paulus@samba.org>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Linus Torvalds" <torvalds@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
+       "Thomas Gleixner" <tglx@linutronix.de>, "Andi Kleen" <ak@suse.de>,
+       "Martin Mares" <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
+       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
+       "Chris Zankel" <chris@zankel.net>, "Marc Gauthier" <marc@tensilica.com>,
+       "Joe Taylor" <joe@tensilica.com>,
+       "David Mosberger-Tang" <davidm@hpl.hp.com>, rth@twiddle.net,
+       spyro@f2s.com, starvik@axis.com, linux-ia64@vger.kernel.org,
+       ralf@linux-mips.org, linux-mips@linux-mips.org,
+       grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
+       linuxppc-dev@ozlabs.org, linux390@de.ibm.com, davem@davemloft.net,
+       rusty@rustcorp.com.au
+In-Reply-To: <200604161734.20256.arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
-From: apgo@patchbomb.org (Arthur Othieno)
+References: <1145049535.1336.128.camel@localhost.localdomain>
+	 <17473.60411.690686.714791@cargo.ozlabs.ibm.com>
+	 <1145194804.27407.103.camel@localhost.localdomain>
+	 <200604161734.20256.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel bugzilla #6248 (http://bugzilla.kernel.org/show_bug.cgi?id=6248),
-Adrian Bunk <bunk@stusta.de> notes that CONFIG_HUGETLBFS is missing Kconfig
-help text.
+On 4/16/06, Arnd Bergmann <arnd@arndb.de> wrote:
+> #define PER_CPU_BASE 0xe000000000000000UL /* arch dependant */
 
-Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
+On ia64 the percpu area is at 0xffffffffffff0000 so that it can be
+addressed without tying up another register (all percpu addresses
+are small negative offsets from "r0").  When David Mosberger
+chose this address he said that gcc 4 would actually make
+ue of this, but I haven't checked the generated code to see
+whether it really is doing so.
 
----
-
- fs/Kconfig |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
-
-72dcc1ea8198fe2545e1674f6658edd5aa4e77a5
-diff --git a/fs/Kconfig b/fs/Kconfig
-index 2524629..f9b5842 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -842,6 +842,12 @@ config TMPFS
- config HUGETLBFS
- 	bool "HugeTLB file system support"
- 	depends X86 || IA64 || PPC64 || SPARC64 || SUPERH || BROKEN
-+	help
-+	  hugetlbfs is a filesystem backing for HugeTLB pages, based on
-+	  ramfs. For architectures that support it, say Y here and read
-+	  <file:Documentation/vm/hugetlbpage.txt> for details.
-+
-+	  If unsure, say N.
- 
- config HUGETLB_PAGE
- 	def_bool HUGETLBFS
--- 
-1.2.4
+-Tony

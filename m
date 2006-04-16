@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWDPRuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWDPRvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWDPRuX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 13:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWDPRuX
+	id S1750775AbWDPRvy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 13:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWDPRvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 13:50:23 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:59589 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750773AbWDPRuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 13:50:21 -0400
-Subject: Re: [RFC: 2.6 patch] net/irda/irias_object.c: remove unused exports
-From: Arjan van de Ven <arjan@infradead.org>
-To: jt@hpl.hp.com
-Cc: Adrian Bunk <bunk@stusta.de>, Samuel.Ortiz@nokia.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060414164203.GA24146@bougret.hpl.hp.com>
-References: <20060414114446.GL4162@stusta.de>
-	 <20060414164203.GA24146@bougret.hpl.hp.com>
-Content-Type: text/plain
-Date: Sun, 16 Apr 2006 19:46:50 +0200
-Message-Id: <1145209616.3809.14.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 16 Apr 2006 13:51:54 -0400
+Received: from mail14.bluewin.ch ([195.186.19.62]:50369 "EHLO
+	mail14.bluewin.ch") by vger.kernel.org with ESMTP id S1750775AbWDPRvx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 13:51:53 -0400
+Date: Sun, 16 Apr 2006 13:46:50 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] hugetlbfs: add Kconfig help text
+Message-ID: <20060416174650.GA26124@krypton>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
+From: apgo@patchbomb.org (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In kernel bugzilla #6248 (http://bugzilla.kernel.org/show_bug.cgi?id=6248),
+Adrian Bunk <bunk@stusta.de> notes that CONFIG_HUGETLBFS is missing Kconfig
+help text.
 
-> 	Personally, I don't see what this patch buy us...
+Signed-off-by: Arthur Othieno <apgo@patchbomb.org>
 
-all the unused exports in the kernel together make a binary kernel 100Kb
-bigger. It's a case of a lot of little steps I suppose (each export
-taking like 100 to 150 bytes depending on the size of the function name)
+---
 
+ fs/Kconfig |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+72dcc1ea8198fe2545e1674f6658edd5aa4e77a5
+diff --git a/fs/Kconfig b/fs/Kconfig
+index 2524629..f9b5842 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -842,6 +842,12 @@ config TMPFS
+ config HUGETLBFS
+ 	bool "HugeTLB file system support"
+ 	depends X86 || IA64 || PPC64 || SPARC64 || SUPERH || BROKEN
++	help
++	  hugetlbfs is a filesystem backing for HugeTLB pages, based on
++	  ramfs. For architectures that support it, say Y here and read
++	  <file:Documentation/vm/hugetlbpage.txt> for details.
++
++	  If unsure, say N.
+ 
+ config HUGETLB_PAGE
+ 	def_bool HUGETLBFS
+-- 
+1.2.4

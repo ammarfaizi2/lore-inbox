@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWDPSDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWDPSZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWDPSDG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 14:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWDPSDG
+	id S1750784AbWDPSZF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 14:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWDPSZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 14:03:06 -0400
-Received: from uproxy.gmail.com ([66.249.92.174]:58083 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750780AbWDPSDE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 14:03:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XsJOhvzZ+2UaFIE3BGl6tmZNQcYbZ0gMOmNZVhsF3DsVarouTDFdkIA8puoO1ZrnwkWORPIczK+KjlnBxheDVE5drWZJNjLgYzSXLMeqhs+4ly34eZ6Lzcrsc9M/A7S8dUCCAN3T2lDhBXN2iEO37pBa1Ds2eJ2uB1u75HckXd4=
-Message-ID: <12c511ca0604161103l3013f5f1t99c93ee38f102e95@mail.gmail.com>
-Date: Sun, 16 Apr 2006 11:03:03 -0700
-From: "Tony Luck" <tony.luck@intel.com>
-To: "Arnd Bergmann" <arnd@arndb.de>
-Subject: Re: [PATCH 00/05] robust per_cpu allocation for modules
-Cc: "Steven Rostedt" <rostedt@goodmis.org>,
-       "Paul Mackerras" <paulus@samba.org>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Linus Torvalds" <torvalds@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
-       "Thomas Gleixner" <tglx@linutronix.de>, "Andi Kleen" <ak@suse.de>,
-       "Martin Mares" <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
-       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
-       "Chris Zankel" <chris@zankel.net>, "Marc Gauthier" <marc@tensilica.com>,
-       "Joe Taylor" <joe@tensilica.com>,
-       "David Mosberger-Tang" <davidm@hpl.hp.com>, rth@twiddle.net,
-       spyro@f2s.com, starvik@axis.com, linux-ia64@vger.kernel.org,
-       ralf@linux-mips.org, linux-mips@linux-mips.org,
-       grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
-       linuxppc-dev@ozlabs.org, linux390@de.ibm.com, davem@davemloft.net,
-       rusty@rustcorp.com.au
-In-Reply-To: <200604161734.20256.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 16 Apr 2006 14:25:05 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:1029 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750784AbWDPSZE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 14:25:04 -0400
+Date: Sun, 16 Apr 2006 20:24:59 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Theodore Ts'o" <tytso@mit.edu>,
+       Dustin Kirkland <dustin.kirkland@us.ibm.com>,
+       Kylene Jo Hall <kjhall@us.ibm.com>, kbuild-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make: add modules_update target
+Message-ID: <20060416182459.GA4409@mars.ravnborg.org>
+References: <1145027216.12054.164.camel@localhost.localdomain> <20060414170222.GA19172@thunk.org> <1145061219.4001.25.camel@localhost.localdomain> <20060415084058.GA29502@mars.ravnborg.org> <20060415150208.GB19708@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1145049535.1336.128.camel@localhost.localdomain>
-	 <17473.60411.690686.714791@cargo.ozlabs.ibm.com>
-	 <1145194804.27407.103.camel@localhost.localdomain>
-	 <200604161734.20256.arnd@arndb.de>
+In-Reply-To: <20060415150208.GB19708@thunk.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/16/06, Arnd Bergmann <arnd@arndb.de> wrote:
-> #define PER_CPU_BASE 0xe000000000000000UL /* arch dependant */
+On Sat, Apr 15, 2006 at 11:02:08AM -0400, Theodore Ts'o wrote:
+> On Sat, Apr 15, 2006 at 10:40:58AM +0200, Sam Ravnborg wrote:
+> > The problem to be solved is the long time it takes to do
+> > "make modules_install" when working on a single module.
+> > Instead of bringing in more or less complex solutions what about
+> > extending "make dir/module.ko" to include the installation of the
+> > module.
+> > 
+> > Something like:
+> > "make MI=1 dir/module.ko"
+> > where MI=1 tells us to install the said module.
+> 
+> Um, wouldn't that imply that either (a) the compile is being done as
+> root, or (b) the /lib/modules/* is writeable by a non-root userid?  I
+> suppose the install command could be prefixed by sudo, but that seems
+> awkward (and not everyone uses sudo).
 
-On ia64 the percpu area is at 0xffffffffffff0000 so that it can be
-addressed without tying up another register (all percpu addresses
-are small negative offsets from "r0").  When David Mosberger
-chose this address he said that gcc 4 would actually make
-ue of this, but I haven't checked the generated code to see
-whether it really is doing so.
+kbuild has support for the above scenario already - I just forgot.
+Say you are hacking ext3.
+Do a successfull make and install all modules.
+Manually remove the ext3 module from /lib/modules/...
+And use the external module support in kbuild like this:
 
--Tony
+# Got to relevant directory
+$> cd fs/ext3
+
+# To build the module:
+$> make -C ../.. M=`pwd`
+
+# To install the module:
+$> make -C ../.. M=`pwd` modules_install
+
+	Sam

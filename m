@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWDPTFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWDPTKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbWDPTFX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 15:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWDPTFX
+	id S1750801AbWDPTKm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 15:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWDPTKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 15:05:23 -0400
-Received: from [212.33.166.183] ([212.33.166.183]:53255 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1750789AbWDPTFX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 15:05:23 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: was Re: quell interactive feeding frenzy
-Date: Sun, 16 Apr 2006 22:03:31 +0300
-User-Agent: KMail/1.5
-Cc: ck list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org
-References: <200604112100.28725.kernel@kolivas.org> <200604161131.02585.a1426z@gawab.com> <200604162037.02044.kernel@kolivas.org>
-In-Reply-To: <200604162037.02044.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
+	Sun, 16 Apr 2006 15:10:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:23007 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750796AbWDPTKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 15:10:41 -0400
+Subject: Re: [RFC: 2.6 patch] net/irda/irias_object.c: remove unused exports
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: jt@hpl.hp.com, Adrian Bunk <bunk@stusta.de>, Samuel.Ortiz@nokia.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1145212639.5656.3.camel@localhost.localdomain>
+References: <20060414114446.GL4162@stusta.de>
+	 <20060414164203.GA24146@bougret.hpl.hp.com>
+	 <1145209616.3809.14.camel@laptopd505.fenrus.org>
+	 <1145212639.5656.3.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 16 Apr 2006 21:07:26 +0200
+Message-Id: <1145214446.3809.26.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604162203.32193.a1426z@gawab.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> Al Since you have an unhealthy interest in cpu schedulers you may also
-> want to look at my ultimate fairness with mild interactivity builtin cpu
-> scheduler I hacked on briefly. I was bored for a couple of days and came
-> up with the design and hacked it together. I never got around to finishing
-> it to live up fully to its design intent but it's working embarassingly
-> well at the moment. It makes no effort to optimise for interactivity in
-> anyw way. Maybe if I ever find some spare time I'll give it more polish
-> and port it to plugsched. Ignore the lovely name I give it; the patch is
-> for 2.6.16. It's a dual priority array rr scheduler that iterates over all
-> priorities. This is as opposed to staircase which is a single priority
-> array scheduler where the tasks themselves iterate over all priorities.
+On Sun, 2006-04-16 at 19:37 +0100, Alan Cox wrote:
+> On Sul, 2006-04-16 at 19:46 +0200, Arjan van de Ven wrote:
+> > > 	Personally, I don't see what this patch buy us...
+> > 
+> > all the unused exports in the kernel together make a binary kernel 100Kb
+> > bigger. It's a case of a lot of little steps I suppose (each export
+> > taking like 100 to 150 bytes depending on the size of the function name)
+> 
+> 
+> So why are exports taking us 100-150 bytes, not say 20 which is what I'd
+> expect ?
 
-It's not bad, but it seems to allow cpu-hogs to steal left-over timeslices, 
-which increases unfairness as the proc load increases.  Conditionalizing 
-prio-boosting based on hogginess maybe one way to compensate for this.  This 
-would involve resisting any prio-change unless hogged, which should be 
-scaled by hogginess, something like SleepAVG but much simpler and less 
-fluctuating.
+there is the name, the crc, the address, a module name thingy (which I
+think is only filled for non-built-in symbols) and I'm sure there's some
+padding here and there... 
 
-Really, the key to a successful scheduler would be to build it step by step 
-by way of abstraction, modularization, and extension.  Starting w/ a 
-noop/RR-scheduler, each step would need to be analyzed for stability and 
-efficiency, before moving to the next step, thus exposing problems as you 
-move from step to step.
+About 1/3rd of all exports is unused, so killing those is an easy way to
+gain back the space...
 
-Thanks!
 
---
-Al
+
 

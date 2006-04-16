@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWDPKnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWDPLkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWDPKnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 06:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWDPKnZ
+	id S1750721AbWDPLkm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 07:40:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWDPLkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 06:43:25 -0400
-Received: from mx2.mail.ru ([194.67.23.122]:16763 "EHLO mx2.mail.ru")
-	by vger.kernel.org with ESMTP id S1750703AbWDPKnZ (ORCPT
+	Sun, 16 Apr 2006 07:40:41 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:9450 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750721AbWDPLkl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 06:43:25 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: zhiyi huang <hzy@cs.otago.ac.nz>
-Subject: Re: Slab corruption after unloading a module
-Date: Sun, 16 Apr 2006 14:43:20 +0400
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 16 Apr 2006 07:40:41 -0400
+Date: Sun, 16 Apr 2006 15:40:18 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Libor Vanek <libor.vanek@gmail.com>
+Cc: Matt Helsley <matthltc@us.ibm.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Connector - how to start?
+Message-ID: <20060416114017.GA30180@2ka.mipt.ru>
+References: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com> <20060414192634.697cd2e3.rdunlap@xenotime.net> <1145070437.28705.73.camel@stark> <20060415091801.GA4782@2ka.mipt.ru> <369a7ef40604160426s301dcd52r4c9826698d3d2f79@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Message-Id: <200604161443.21653.arvidjaar@mail.ru>
+In-Reply-To: <369a7ef40604160426s301dcd52r4c9826698d3d2f79@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 16 Apr 2006 15:40:18 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Apr 16, 2006 at 01:26:10PM +0200, Libor Vanek (libor.vanek@gmail.com) wrote:
+> Hi,
+> 
+> > I've attached simple userspace program used with w1, which sends
+> > and receives connector messages. It can be also used as example of
+> > netlink usage from userspace point of view.
+> 
+> Maybe I'm really stupid and/or blind but I can't find in this example
+> (from my point of view) quite important features:
+> 
+> - there is no way how can user-space part say what "cb_id.idx" and
+> "cb_id.val" it should accept (as far as I understand these are used
+> for settings "message type" - what SW is using these)
 
-> There was no problem if I just load and unload the module. But if I
-> write to the device using "ls > /dev/temp" and then unload the
-> module, I would get slab corruption.
+"idx" field is a group number userspace binds to, "val" is a private
+identificator which is used as you like.
 
-you return different value as what has really been consumed:
+> - I can't find neither in cn_test.c nor w1_netlink.c (which is the
+> only part I found connector used in) any way of detecting if message
+> was delivered to/from user-space
 
->         if (*f_pos + count > MAX_DSIZE)
->                 count1 = MAX_DSIZE - *f_pos;
->
->         if (copy_from_user (temp_dev->data+*f_pos, buf, count1)) {
->                 rv = -EFAULT;
->                 goto wrap_up;
->         }
->         up (&temp_dev->sem);
->         *f_pos += count1;
->         return count;
+If cn_netlink_send() returns zero this means message was queued into
+userspace socket. In case of error negative value is returned.
 
-may be it confuses the rest of kernel a bit?
+> - the very same is for detecting if there is some user-space
+> "reciever" (there is some mention about this in
+> Documentantation/connector/connector.txt but it's not working to
+> myself - I got 2.6.17-pre1-mm2)
 
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+connector uses netlink_has_listeners(), but it can produce false
+positives, in this case netlink_broadcast() will say the final word.
+If message has been added into socket's queue netlink_broadcast(), which
+is used in connector, returns zero, and it's return value is propagated
+back to original caller of cn_netlink_send().
 
-iD8DBQFEQh/JR6LMutpd94wRAgn/AKCapb6QcSSeHn1X7qD1TxLBs2OCSACgnGg7
-o7fTn3l6DTnLEr5EwqL7hjk=
-=bHLf
------END PGP SIGNATURE-----
+Message from userspace is always delivered, and in this case appropriate
+callback is called.
+
+> Maybe connector doesn't support these things... ?
+> 
+> Libor Vanek
+
+-- 
+	Evgeniy Polyakov

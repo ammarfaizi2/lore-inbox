@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWDPIz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWDPJiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbWDPIz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 04:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWDPIz6
+	id S1751457AbWDPJiS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 05:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWDPJiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 04:55:58 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:34570 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750934AbWDPIz6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 04:55:58 -0400
-Date: Sun, 16 Apr 2006 10:55:43 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
+	Sun, 16 Apr 2006 05:38:18 -0400
+Received: from mailhub1.otago.ac.nz ([139.80.64.218]:46250 "EHLO
+	mailhub1.otago.ac.nz") by vger.kernel.org with ESMTP
+	id S1751457AbWDPJiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 05:38:16 -0400
+In-Reply-To: <20060415212147.6e9b0c11.rdunlap@xenotime.net>
+References: <20060412230439.WMCC8268.mta4-rme.xtra.co.nz@[202.27.184.228]> <20060415212147.6e9b0c11.rdunlap@xenotime.net>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0829C3E1-F140-4561-9DFA-F865C7DECBB6@cs.otago.ac.nz>
+Cc: penberg@cs.helsinki.fi, hnagar2@gmail.com, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: zhiyi huang <hzy@cs.otago.ac.nz>
+Subject: Re: Slab corruption after unloading a module
+Date: Sun, 16 Apr 2006 21:38:44 +1200
 To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] modpost: relax driver data name
-Message-ID: <20060416085543.GA5943@mars.ravnborg.org>
-References: <20060415111712.311372aa.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060415111712.311372aa.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 15, 2006 at 11:17:12AM -0700, Randy.Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
-> 
-> modpost:  Relax driver data name from *_driver to *driver.
-> This fixes the 26 section mismatch warnings in drivers/ide/pci.
 
-For an allmodconfig build with CONFIG_HOTPLUG=n this killed
-118 warnings out of 245 warnings in total.
-Applied.
+On 16/04/2006, at 4:21 PM, Randy.Dunlap wrote:
 
-To turn off CONFIG_HOTPLUG I simply changed the Kconfig files like
-this:
+> On Thu, 13 Apr 2006 11:04:39 +1200 Zhiyi Huang wrote:
+>
+>>> 2.6.8 is an old kernel, you could very well be hitting a kernel bug
+>>> that has been fixed already. Can you reproduce this with 2.6.16?
+>>
+>> I will try that soon.
+>>
+>>> Also,
+>>> you're not including sources to your module so it's impossible to  
+>>> tell
+>>> whether you're doing something wrong.
+>>>
+>>>                                                          Pekka
+>>
+>> Below is my baby module which only uses kmalloc and kfree for my  
+>> device
+>> structure. I found the slab corruption address is the address of  
+>> the structure.
+>> It seems to be a bug for kmalloc and kfree.
+>
+>> /* The parameter for testing */
+>> int major=0;
+>> MODULE_PARM(major, "i");
+>> MODULE_PARM_DESC(major, "device major number");
+>
+> Hi,
+> I had no problem loading and unloading your module on
+> 2.6.17-rc1 [after changing MODULE_PARM() to
+> module_param(major, int, 0644);
+> ].
+>
+> ---
+> ~Randy
 
-diff --git a/drivers/base/Kconfig b/drivers/base/Kconfig
-index f0eff3d..1e25fc2 100644
---- a/drivers/base/Kconfig
-+++ b/drivers/base/Kconfig
-@@ -20,7 +20,6 @@ config PREVENT_FIRMWARE_BUILD
- 
- config FW_LOADER
- 	tristate "Userspace firmware loading support"
--	select HOTPLUG
- 	---help---
- 	  This option is provided for the case where no in-kernel-tree modules
- 	  require userspace firmware loading support, but a module built outside
-
-Then it became trivial to turn off CONFIG_HOTPLUG.
-
-	Sam
+There was no problem if I just load and unload the module. But if I  
+write to the device using "ls > /dev/temp" and then unload the  
+module, I would get slab corruption.  I tried to install 2.6.16.5 at  
+the moment but got stuck when I was making an initrd image file (no  
+output file produced! and no errors displayed). Once I get around  
+this problem, I should be able to test it on the new kernel.
+Zhiyi

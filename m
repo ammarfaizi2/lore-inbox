@@ -1,92 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWDPCrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWDPDT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWDPCrc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Apr 2006 22:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWDPCrb
+	id S932172AbWDPDT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Apr 2006 23:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWDPDT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Apr 2006 22:47:31 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:58750 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932196AbWDPCra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Apr 2006 22:47:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=0Y0ORF1oarZ8AXm1g7Pizo0yBb+ji4fqmn0ipmML1auVaaYFtidM2OXa+tJRz02rr56cdfJ5I9Mw0ZoXbxwr38/WwDPN9eshOTe8q/u06tvAtk2U6+rh69sp0ptLAC2ERqxB27SWYwmn7qyXppBsQBpjVYyXuDnhaP+mpt3Po3U=  ;
-Message-ID: <4441B02D.4000405@yahoo.com.au>
-Date: Sun, 16 Apr 2006 12:47:09 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
-       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
-       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
-       Joe Taylor <joe@tensilica.com>,
-       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
-       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
-       linux-mips@linux-mips.org, grundler@parisc-linux.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       paulus@samba.org, linux390@de.ibm.com, davem@davemloft.net
-Subject: Re: [PATCH 00/05] robust per_cpu allocation for modules
-References: <1145049535.1336.128.camel@localhost.localdomain> <4440855A.7040203@yahoo.com.au> <Pine.LNX.4.58.0604151609340.11302@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0604151609340.11302@gandalf.stny.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Apr 2006 23:19:29 -0400
+Received: from dmesg.printk.net ([212.13.197.101]:42387 "EHLO dmesg.printk.net")
+	by vger.kernel.org with ESMTP id S932172AbWDPDT3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Apr 2006 23:19:29 -0400
+Date: Sun, 16 Apr 2006 04:12:36 +0100
+From: Jon Masters <jonathan@jonmasters.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sound: fix hang in mpu401_uart.c
+Message-ID: <20060416031235.GA6741@apogee.jonmasters.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> On Sat, 15 Apr 2006, Nick Piggin wrote:
-> 
-> 
->>Steven Rostedt wrote:
->>
->>
->>> would now create a variable called per_cpu_offset__myint in
->>>the .data.percpu_offset section.  This variable will point to the (if
->>>defined in the kernel) __per_cpu_offset[] array.  If this was a module
->>>variable, it would point to the module per_cpu_offset[] array which is
->>>created when the modules is loaded.
->>
->>If I'm following you correctly, this adds another dependent load
->>to a per-CPU data access, and from memory that isn't node-affine.
->>
->>If so, I think people with SMP and NUMA kernels would care more
->>about performance and scalability than the few k of memory this
->>saves.
-> 
-> 
-> It's not just about saving memory, but also to make it more robust. But
-> that's another story.
+From: Jon Masters <jcm@jonmasters.org>
 
-But making it slower isn't going to be popular.
+This fixes a hang in mpu401_uart.c that can occur when the mpu401
+interface is non-existent or otherwise doesn't respond to commands but
+we issue IO anyway. snd_mpu401_uart_cmd now returns an error code that is
+passed up the stack so that an open() will fail immediately in such cases.
 
-Why is your module using so much per-cpu memory, anyway?
+Eventually discovered after wine/cxoffice would constantly cause hard
+lockups on my desktop immediately after loading (emulating Windows too
+well). Turned out that I'd recently moved my sound cards around and
+using /dev/sequencer now talks to a sound card with a broken MPU.
 
-> 
-> Since both the offset array, and the variables are mainly read only (only
-> written on boot up), added the fact that the added variables are in their
-> own section.  Couldn't something be done to help pre load this in a local
-> cache, or something similar?
+Signed-off-by: Jon Masters <jcm@jonmasters.org>
 
-It it would still add to the dependent loads on the critical path, so
-it now prevents the compiler/programmer/oooe engine from speculatively
-loading the __per_cpu_offset.
-
-And it does increase cache footprint of per-cpu accesses, which are
-supposed to be really light and substitute for [NR_CPUS] arrays.
-
-I don't think it would have been hard for the original author to make
-it robust... just not both fast and robust. PERCPU_ENOUGH_ROOM seems
-like an ugly hack at first glance, but I'm fairly sure it was a result
-of design choices.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+diff -urN linux-2.6.16.2_orig/sound/drivers/mpu401/mpu401_uart.c linux-2.6.16.2_dev/sound/drivers/mpu401/mpu401_uart.c
+--- linux-2.6.16.2_orig/sound/drivers/mpu401/mpu401_uart.c	2006-04-07 17:56:47.000000000 +0100
++++ linux-2.6.16.2_dev/sound/drivers/mpu401/mpu401_uart.c	2006-04-16 03:33:15.000000000 +0100
+@@ -183,7 +183,7 @@
+ 
+  */
+ 
+-static void snd_mpu401_uart_cmd(struct snd_mpu401 * mpu, unsigned char cmd, int ack)
++static int snd_mpu401_uart_cmd(struct snd_mpu401 * mpu, unsigned char cmd, int ack)
+ {
+ 	unsigned long flags;
+ 	int timeout, ok;
+@@ -218,9 +218,12 @@
+ 		ok = 1;
+ 	}
+ 	spin_unlock_irqrestore(&mpu->input_lock, flags);
+-	if (! ok)
++	if (ok)
++		return 0;
++	else {
+ 		snd_printk("cmd: 0x%x failed at 0x%lx (status = 0x%x, data = 0x%x)\n", cmd, mpu->port, mpu->read(mpu, MPU401C(mpu)), mpu->read(mpu, MPU401D(mpu)));
+-	// snd_printk("cmd: 0x%x at 0x%lx (status = 0x%x, data = 0x%x)\n", cmd, mpu->port, mpu->read(mpu, MPU401C(mpu)), mpu->read(mpu, MPU401D(mpu)));
++		return 1;
++	}
+ }
+ 
+ /*
+@@ -235,8 +238,12 @@
+ 	if (mpu->open_input && (err = mpu->open_input(mpu)) < 0)
+ 		return err;
+ 	if (! test_bit(MPU401_MODE_BIT_OUTPUT, &mpu->mode)) {
+-		snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1);
+-		snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1);
++		if ((err = snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1))) {
++			return -EFAULT;
++		}
++		if ((err = snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1))) {
++			return -EFAULT;
++		}
+ 	}
+ 	mpu->substream_input = substream;
+ 	set_bit(MPU401_MODE_BIT_INPUT, &mpu->mode);
+@@ -252,8 +259,10 @@
+ 	if (mpu->open_output && (err = mpu->open_output(mpu)) < 0)
+ 		return err;
+ 	if (! test_bit(MPU401_MODE_BIT_INPUT, &mpu->mode)) {
+-		snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1);
+-		snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1);
++		if ((err = snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1)))
++			return -EFAULT;
++		if ((err = snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1)))
++			return -EFAULT;
+ 	}
+ 	mpu->substream_output = substream;
+ 	set_bit(MPU401_MODE_BIT_OUTPUT, &mpu->mode);
+@@ -263,28 +272,34 @@
+ static int snd_mpu401_uart_input_close(struct snd_rawmidi_substream *substream)
+ {
+ 	struct snd_mpu401 *mpu;
+-
++	int err = 0;
++	
+ 	mpu = substream->rmidi->private_data;
+ 	clear_bit(MPU401_MODE_BIT_INPUT, &mpu->mode);
+ 	mpu->substream_input = NULL;
+ 	if (! test_bit(MPU401_MODE_BIT_OUTPUT, &mpu->mode))
+-		snd_mpu401_uart_cmd(mpu, MPU401_RESET, 0);
++		err = snd_mpu401_uart_cmd(mpu, MPU401_RESET, 0);
+ 	if (mpu->close_input)
+ 		mpu->close_input(mpu);
++	if (err)
++		return -EFAULT;
+ 	return 0;
+ }
+ 
+ static int snd_mpu401_uart_output_close(struct snd_rawmidi_substream *substream)
+ {
+ 	struct snd_mpu401 *mpu;
++	int err = 0;
+ 
+ 	mpu = substream->rmidi->private_data;
+ 	clear_bit(MPU401_MODE_BIT_OUTPUT, &mpu->mode);
+ 	mpu->substream_output = NULL;
+ 	if (! test_bit(MPU401_MODE_BIT_INPUT, &mpu->mode))
+-		snd_mpu401_uart_cmd(mpu, MPU401_RESET, 0);
++		err = snd_mpu401_uart_cmd(mpu, MPU401_RESET, 0);
+ 	if (mpu->close_output)
+ 		mpu->close_output(mpu);
++	if (err)
++		return -EFAULT;
+ 	return 0;
+ }
+ 
+@@ -316,6 +331,7 @@
+ 			snd_mpu401_uart_remove_timer(mpu, 1);
+ 		clear_bit(MPU401_MODE_BIT_INPUT_TRIGGER, &mpu->mode);
+ 	}
++
+ }
+ 
+ /*

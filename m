@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWDPSoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWDPTFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWDPSoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 14:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWDPSoL
+	id S1750789AbWDPTFX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 15:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWDPTFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 14:44:11 -0400
-Received: from natlemon.rzone.de ([81.169.145.170]:20899 "EHLO
-	natlemon.rzone.de") by vger.kernel.org with ESMTP id S1750788AbWDPSoJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 14:44:09 -0400
-From: Wolfgang Hoffmann <woho@woho.de>
-Reply-To: woho@woho.de
-To: linux-kernel@vger.kernel.org
-Subject: [-rt] time-related problems with CPU frequency scaling
-Date: Sun, 16 Apr 2006 20:41:10 +0200
-User-Agent: KMail/1.8
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+	Sun, 16 Apr 2006 15:05:23 -0400
+Received: from [212.33.166.183] ([212.33.166.183]:53255 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1750789AbWDPTFX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 15:05:23 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: was Re: quell interactive feeding frenzy
+Date: Sun, 16 Apr 2006 22:03:31 +0300
+User-Agent: KMail/1.5
+Cc: ck list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org
+References: <200604112100.28725.kernel@kolivas.org> <200604161131.02585.a1426z@gawab.com> <200604162037.02044.kernel@kolivas.org>
+In-Reply-To: <200604162037.02044.kernel@kolivas.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200604162041.10844.woho@woho.de>
+Message-Id: <200604162203.32193.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of all a big thank you for your great work on the -rt patchset.
-I'm running 2.6.16-rt16 on a Pentium-M based machine, and basically it runs 
-fine, as long as I disable speedstep.
+Con Kolivas wrote:
+> Al Since you have an unhealthy interest in cpu schedulers you may also
+> want to look at my ultimate fairness with mild interactivity builtin cpu
+> scheduler I hacked on briefly. I was bored for a couple of days and came
+> up with the design and hacked it together. I never got around to finishing
+> it to live up fully to its design intent but it's working embarassingly
+> well at the moment. It makes no effort to optimise for interactivity in
+> anyw way. Maybe if I ever find some spare time I'll give it more polish
+> and port it to plugsched. Ignore the lovely name I give it; the patch is
+> for 2.6.16. It's a dual priority array rr scheduler that iterates over all
+> priorities. This is as opposed to staircase which is a single priority
+> array scheduler where the tasks themselves iterate over all priorities.
 
-Now with speedstep enabled and CONFIG_HIGH_RES_TIMERS=y, I see some anomalies:
-- time-of-day lags gradually behind wallclock time
-- if CPU frequency is low when jackd is started, it complains:
-    "delay of 2915.000 usecs exceeds estimated spare
-    time of 2847.000; restart ..."
-  as soon as frequency is scaled up. Seems that jackd gets confused by some
-  influence of CPU frequency on timekeeping? No problems as long as CPU
-  frequency isn't scaled up, though.
-- values in /proc/sys/kernel/preempt_max_latency scales inverse to
-    CPU frequency, i.e. 24us with CPU @ 800MHz and 12us with CPU @ 1,6GHz
+It's not bad, but it seems to allow cpu-hogs to steal left-over timeslices, 
+which increases unfairness as the proc load increases.  Conditionalizing 
+prio-boosting based on hogginess maybe one way to compensate for this.  This 
+would involve resisting any prio-change unless hogged, which should be 
+scaled by hogginess, something like SleepAVG but much simpler and less 
+fluctuating.
 
-Are my speedstep-problems known issues? If so, is there work going on to 
-address these? Or is it generally not recommended to run -rt with active 
-speedstep?
+Really, the key to a successful scheduler would be to build it step by step 
+by way of abstraction, modularization, and extension.  Starting w/ a 
+noop/RR-scheduler, each step would need to be analyzed for stability and 
+efficiency, before moving to the next step, thus exposing problems as you 
+move from step to step.
 
-To see if it makes a difference, I tried CONFIG_HIGH_RES_TIMERS=n, but then I 
-run into deeper troubles, caused by the softirq-timer/0 kernel thread. If I 
-leave it at it's default priority of FIFO 1, high-prio threads don't wake up 
-from sleep() as long as mid-prio theads preempt softirq-timer/0. If I boost 
-softirq-timer/0 priority (as suggested on various places on the net), I'm 
-getting bad latencies (> 40 ms) every 10 minutes due to some routing-related 
-action (rt_secret_rebuild) being run by softirq-timer/0.
+Thanks!
 
-So I switched back to CONFIG_HIGH_RES_TIMERS=y, since softirq-timer/0 can be 
-left at low priority and wakeup from sleep() seems to work fine.
+--
+Al
 
-Btw, is there any documentation on what's run in the various kernel threads? 
-It would be very helpful for adjusting the priority setup.
-
-Wolfgang

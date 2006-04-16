@@ -1,73 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWDPHxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWDPIcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWDPHxk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 03:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWDPHxk
+	id S1751085AbWDPIcx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 04:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWDPIcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 03:53:40 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:15020 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751232AbWDPHxk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 03:53:40 -0400
-Date: Sun, 16 Apr 2006 11:53:23 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Libor Vanek <libor.vanek@gmail.com>
-Cc: Matt Helsley <matthltc@us.ibm.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Connector - how to start?
-Message-ID: <20060416075323.GB6101@2ka.mipt.ru>
-References: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com> <20060414192634.697cd2e3.rdunlap@xenotime.net> <1145070437.28705.73.camel@stark> <20060415091801.GA4782@2ka.mipt.ru> <369a7ef40604150350x8e7dea1sbf1f83cb800dd1c3@mail.gmail.com> <20060415111443.GA4079@2ka.mipt.ru> <87hd4vvxpk.fsf@briny.internal.ondioline.org> <20060415123832.GA19850@2ka.mipt.ru> <369a7ef40604150624n28da8895if158a2c13cac2b9e@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Sun, 16 Apr 2006 04:32:53 -0400
+Received: from dial169-143.awalnet.net ([213.184.169.143]:40199 "EHLO
+	raad.intranet") by vger.kernel.org with ESMTP id S1751085AbWDPIcx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 04:32:53 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [patch][rfc] quell interactive feeding frenzy
+Date: Sun, 16 Apr 2006 11:31:02 +0300
+User-Agent: KMail/1.5
+Cc: ck list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org,
+       Mike Galbraith <efault@gmx.de>
+References: <200604112100.28725.kernel@kolivas.org> <200604121825.55054.a1426z@gawab.com> <200604161602.22177.kernel@kolivas.org>
+In-Reply-To: <200604161602.22177.kernel@kolivas.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <369a7ef40604150624n28da8895if158a2c13cac2b9e@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 16 Apr 2006 11:53:25 +0400 (MSD)
+Content-Type: text/plain;
+  charset="windows-1256"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604161131.02585.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 15, 2006 at 03:24:26PM +0200, Libor Vanek (libor.vanek@gmail.com) wrote:
-> > > However, with 256 I get "File name too long", as you did.
+Con Kolivas wrote:
+> On Thursday 13 April 2006 01:25, Al Boldi wrote:
+> > Con Kolivas wrote:
+> > > mean 68.7 seconds
+> > >
+> > > range 63-73 seconds.
 > >
-> > Sure, as pointed in previous e-mail, several concatenated directories can exceed any resonable limit,
-> > even PATH_MAX (4k):
-> > $ pwd | wc
-> >       1       1    4113
+> > Could this 10s skew be improved to around 1s to aid smoothness?
+>
+> It turns out to be dependant on accounting of system time which only
+> staircase does at the moment btw. Currently it's done on a jiffy basis. To
+> increase the accuracy of this would incur incredible cost which I don't
+> consider worth it.
+
+Is this also related to that?
+
+> > Much smoother, but I still get this choke w/ 2 eatm 9999 loops running:
 > >
-> > So it is wrong idea to transfer the whole name in one message, which
-> > will not only add huge overhead (for each subdir one must transfer the
-> > whole path for the parent dir), but can be impossible to allocate such a
-> > buffer in kernelspace to store the whole pathname.
-> 
-> OK, so what would you suggest as the right "tool" to transfer these
-> (full path text) information?
-> 
-> I see these options:
-> 1, Keep using procfs (I don't like it)
-> 2, Use connector and create such "communication protocol" that it'll
-> be able to transfer such long messages in more datagrams (even if
-> 99.99% of messages will fit 1 datagram)
-> 3, Some other API to transfer information to user-space and back?
-> 
-> I'll probably go with 2, but I'd be more then happy to hear any
-> comments about this...
+> > 9 MB 783 KB eaten in 130 msec (74 MB/s)
+> > 9 MB 783 KB eaten in 2416 msec (3 MB/s)		<<<<<<<<<<<<<
+> > 9 MB 783 KB eaten in 197 msec (48 MB/s)
+> >
+> > You may have to adjust the kb to get the same effect.
+>
+> I've seen it. It's an artefact of timekeeping that it takes an
+> accumulation of data to get all the information. Not much I can do about
+> it except to have timeslices so small that they thrash the crap out of cpu
+> caches and completely destroy throughput.
 
+So why is this not visible in other schedulers?
 
-In general case using any tool you will be unable to transfer the whole
-path in one shot, consider low memory condition and you try to allocate
-a page with high order.
-So it is required to split your path into multiple blocks, I would
-recommend to use messages with names between slashes, i.e.
-/home/test/aaa/bbb/ccc will be sent as 5 messages with /home, test, aaa,
-bbb and ccc data, this will also reduce overhead when there are several
-files or directories in one parent dir. Each message should also include
-some reference to which parent dir it belongs. This will also speed
-things up noticebly, since you will not rescan the whole path when new
-file is created, only parent dir.
+Are you sure this is not a priority boost problem?
 
-I wish you success in this hacking journey.
+> The current value, 6ms at 1000HZ, is chosen because it's the largest value
+> that can schedule a task in less than normal human perceptible range when
+> two competing heavily cpu bound tasks are the same priority. At 250HZ it
+> works out to 7.5ms and 10ms at 100HZ. Ironically in my experimenting I
+> found the cpu cache improvements become much less significant above 7ms so
+> I'm very happy with this compromise.
 
-> Libor Vanek
+Would you think this is dependent on cache-size and cpu-speed?
 
--- 
-	Evgeniy Polyakov
+Also, what's this iso_cpu thing?
+
+> Thanks!
+
+Thank you!
+
+--
+Al
+

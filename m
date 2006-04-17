@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWDQT6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWDQUAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbWDQT6V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 15:58:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWDQT6U
+	id S1750834AbWDQUAm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 16:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWDQUAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 15:58:20 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:45724 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1750830AbWDQT6T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 15:58:19 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: James Morris <jmorris@namei.org>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       David Safford <safford@watson.ibm.com>
-In-Reply-To: <20060417194759.GD18990@sergelap.austin.ibm.com>
-References: <20060417180231.71328.qmail@web36606.mail.mud.yahoo.com>
-	 <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417192634.GB18990@sergelap.austin.ibm.com>
-	 <Pine.LNX.4.64.0604171528340.17923@d.namei>
-	 <20060417194759.GD18990@sergelap.austin.ibm.com>
+	Mon, 17 Apr 2006 16:00:42 -0400
+Received: from sc-outsmtp2.homechoice.co.uk ([81.1.65.36]:19721 "HELO
+	sc-outsmtp2.homechoice.co.uk") by vger.kernel.org with SMTP
+	id S1750834AbWDQUAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 16:00:41 -0400
+Subject: Re: [linuxsh-dev] [PATCH] ALSA driver for Yamaa AICA on Sega
+	Dreamcast
+From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: Alsa-devel <alsa-devel@lists.sourceforge.net>,
+       linux-sh <linuxsh-dev@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060417012913.GA16821@linux-sh.org>
+References: <1145232784.12804.2.camel@localhost.localdomain>
+	 <20060417012913.GA16821@linux-sh.org>
 Content-Type: text/plain
-Organization: National Security Agency
-Date: Mon, 17 Apr 2006 16:02:26 -0400
-Message-Id: <1145304146.8542.251.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 17 Apr 2006 21:00:36 +0100
+Message-Id: <1145304037.9244.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-17 at 14:47 -0500, Serge E. Hallyn wrote:
-> Quoting James Morris (jmorris@namei.org):
-> > Last I recall on this issue, we asked if you could look at providing 
-> > integrity measurement as a distinct API, and integrity control as either 
-> > integrated with SELinux or a distinct component which SELinux could use.
+
 > 
-> And those are what I believe the next patchset will provide.
+> > +	/* AICA has no capture ability */
+> > +	if ((err =
+> > +	     snd_pcm_new(dreamcastcard->card, "AICA PCM", pcm_index, 1, 0,
+> > +			 &pcm)) < 0)
+> > +		return err;
+> 
+> Weird notation, linux kernel style would be:
+> 
+> 	err = snc_pcm_new(...);
+> 	if (unlikely(err < 0))
+> 		return err;
+> 
+> please refactor accordingly.
+> 
 
-At the conclusion of the last round of discussions on slim-evm-ima on
-list, it was the case that:
-- ima was no longer an issue, as it had already ceased being a separate
-LSM,
-- it was demonstrated that evm needed to be tightly coupled with any LSM
-in order to work correctly and efficiently, and it seemed to be accepted
-that evm needed to be turned from a separate LSM into a set of support
-functions for use by a LSM (as well as having many other design and
-implementation problems to resolve to be truly useable),
-- it was argued that slim was broken-by-design and no one was willing or
-able to refute that position.
+Actually this sort of formulation is common in the kernel as any grep
+will show. In fact I copied it directly from the guide to writing ALSA
+drivers:
 
-Hardly a strong case for LSM...
+http://www.alsa-project.org/~iwai/writing-an-alsa-driver/x447.htm
 
--- 
-Stephen Smalley
-National Security Agency
+But I am happy to change it.
 

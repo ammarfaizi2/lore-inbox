@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWDQOvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWDQOwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWDQOvA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 10:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWDQOvA
+	id S1751066AbWDQOwP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 10:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWDQOwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 10:51:00 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:62158 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751052AbWDQOu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 10:50:59 -0400
-Subject: Re: [PATCH] Remove unnecessary kmalloc/kfree calls in mtdchar
-From: David Woodhouse <dwmw2@infradead.org>
-To: Thiago Galesi <thiagogalesi@gmail.com>
-Cc: Josh Boyer <jwboyer@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <82ecf08e0604170619i582bfa19r19a3da0d7d0904b1@mail.gmail.com>
-References: <82ecf08e0604141938w4b29259av797e3115b79042a0@mail.gmail.com>
-	 <625fc13d0604170506n53147772vec944cdd7f2daef7@mail.gmail.com>
-	 <82ecf08e0604170619i582bfa19r19a3da0d7d0904b1@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 17 Apr 2006 15:50:34 +0100
-Message-Id: <1145285434.13200.9.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 17 Apr 2006 10:52:15 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29451 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751060AbWDQOwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 10:52:15 -0400
+Date: Mon, 17 Apr 2006 16:52:14 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: spyro@f2s.com, rmk@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] show Acorn-specific block devices menu only when required
+Message-ID: <20060417145214.GD7429@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-17 at 10:19 -0300, Thiago Galesi wrote:
-> 
-> +       if (!kbuf) {
-> +               printk("kmalloc is null\n");
-> +               return -ENOMEM;
-> +       }
+Don't show a menu that can't be entered due to lack of contents on arm
+(the options are only available on arm26).
 
-Don't printk -- especially without a priority. Either just bail out with
--ENOMEM or try a smaller size.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-dwmw2
+--- linux-2.6.17-rc1-mm2-arm/drivers/acorn/block/Kconfig.old	2006-04-17 16:40:13.000000000 +0200
++++ linux-2.6.17-rc1-mm2-arm/drivers/acorn/block/Kconfig	2006-04-17 16:40:50.000000000 +0200
+@@ -3,7 +3,7 @@
+ #
+ 
+ menu "Acorn-specific block devices"
+-	depends on ARCH_ACORN
++	depends on ARCH_ARC || ARCH_A5K
+ 
+ config BLK_DEV_FD1772
+ 	tristate "Old Archimedes floppy (1772) support"
 

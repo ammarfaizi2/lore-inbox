@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWDQNDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWDQNCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWDQNDW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 09:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWDQNDW
+	id S1750768AbWDQNCE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 09:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWDQNCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 09:03:22 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3237 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1750785AbWDQNDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 09:03:22 -0400
-Date: Mon, 17 Apr 2006 15:03:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [PATCH][urgent fix] swsusp: prevent possible image corruption on resume
-Message-ID: <20060417130307.GC1886@elf.ucw.cz>
-References: <200604171449.24548.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604171449.24548.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 17 Apr 2006 09:02:04 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44758 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750768AbWDQNCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 09:02:02 -0400
+Subject: Re: [Ext2-devel] [RFC][15/21]e2fsprogs modify variables for bitmap
+	to exceed 2G
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: sho@tnes.nec.co.jp, Ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060413162028.GA23452@thunk.org>
+References: <20060413161227sho@rifu.tnes.nec.co.jp>
+	 <20060413162028.GA23452@thunk.org>
+Content-Type: text/plain
+Date: Mon, 17 Apr 2006 15:01:53 +0200
+Message-Id: <1145278913.2847.40.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2006-04-13 at 12:20 -0400, Theodore Ts'o wrote:
+> On Thu, Apr 13, 2006 at 04:12:27PM +0900, sho@tnes.nec.co.jp wrote:
+> > Summary of this patch:
+> >   [15/21] change the type of variables which manipulate bitmap
+> >           - Change the type of 4byte variables manipulating bitmap
+> >             from signed to unsigned.
+> 
+> Generalized NACK.  We can't just blindly change function signatures of
+> pre-existing functions in libext2fs, since this breaks the ABI with
+> pre-existing applications linked with current shared libraries of
+> libext2fs.
+> 
+> We could bump the major version number, but what I'd much rather do is
+> to create new functions which use the 64-bit blk64_t (i.e.,
+> ext2fs_mark_block_bitmap2).  This will make the patches much bigger,
+> but it allows us to preserve backwards compatibility.
 
-> The function free_pagedir() used by swsusp for freeing its internal data
-> structures clears the PG_nosave and PG_nosave_free flags for each page being
-> freed.  However, during resume PG_nosave_free set means that the page
-> in question is "unsafe" (ie. it will be overwritten in the process of restoring the
-> saved system state from the image), so it should not be used for the image
-> data.  Therefore free_pagedir() should not clear PG_nosave_free if it's
-> called during resume (otherwise "unsafe" pages freed by it may be used for
-> storing the image data and the data may get corrupted later on).
+would this be a time to consider using ELF function versioning (similar
+to what glibc and others use for abi comat) in libext2fs ?
 
-Okay with me.
-								Pavel
-
--- 
-Thanks for all the (sleeping) penguins.

@@ -1,108 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWDQPPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWDQPQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbWDQPPs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 11:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWDQPPs
+	id S1751100AbWDQPQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 11:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWDQPQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 11:15:48 -0400
-Received: from smtp5-g19.free.fr ([212.27.42.35]:17123 "EHLO smtp5-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751094AbWDQPPs (ORCPT
+	Mon, 17 Apr 2006 11:16:56 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:57573 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751100AbWDQPQ4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 11:15:48 -0400
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [RFC] binary firmware and modules
-Date: Mon, 17 Apr 2006 17:15:44 +0200
-User-Agent: KMail/1.9.1
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       Oliver Neukum <oliver@neukum.org>, Jon Masters <jcm@redhat.com>,
-       linux-kernel@vger.kernel.org
-References: <1145088656.23134.54.camel@localhost.localdomain> <20060417142214.GI5042@tuxdriver.com> <1145284193.2847.53.camel@laptopd505.fenrus.org>
-In-Reply-To: <1145284193.2847.53.camel@laptopd505.fenrus.org>
+	Mon, 17 Apr 2006 11:16:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JlkhrTrvlP+fZSAko8tawqIhH176H15kEe6iASH2Y9k4AMeK30/SPJ0u/rmXjKhh3XKf4qAtRC6t8v3oK/t42ySoNeyJXSfVF+kSLb0usL5DM3c10sUJIJX0F+FXVz6uLOF19dbySfZv3rDI/6ZnpFKkxkz6hBhJOZtlfgJ+jaU=
+Message-ID: <d120d5000604170816i5ea3d0b8m71e454dd5e49b6cd@mail.gmail.com>
+Date: Mon, 17 Apr 2006 11:16:55 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Brad Campbell" <brad@wasp.net.au>
+Subject: Re: 2.6.16.1 psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1 and ACPI
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <44439FCE.50809@wasp.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200604171715.45252.duncan.sands@math.u-psud.fr>
+References: <44437793.20908@wasp.net.au>
+	 <d120d5000604170522q54b4b6ftc263f16a649a99e7@mail.gmail.com>
+	 <44439FCE.50809@wasp.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 April 2006 16:29, Arjan van de Ven wrote:
-> On Mon, 2006-04-17 at 10:22 -0400, John W. Linville wrote:
-> > On Sat, Apr 15, 2006 at 11:54:22AM +0200, Oliver Neukum wrote:
-> > > Am Samstag, 15. April 2006 10:10 schrieb Jon Masters:
-> > > > The attached patch introduces MODULE_FIRMWARE as one way of advertising
-> >  
-> > > Strictly speaking, what is the connection with modules? Statically
-> > 
-> > The same as MODULE_AUTHOR, MODULE_LICENSE, etc.  The divide is more
-> > logical than physical.
-> > 
-> > > compiled drivers need their firmware, too. Secondly, do all drivers
-> > > know at compile time which firmware they'll need?
-> > 
-> > They have to know what they will request, do they not?
-> 
-> 
-> in order to not fall in the naming-policy trap: do we need a translation
-> layer here? eg the module asks for firmware-<modulename>
-> and userspace then somehow maps that to a full filename via a lookup
-> table?
+On 4/17/06, Brad Campbell <brad@wasp.net.au> wrote:
+> Dmitry Torokhov wrote:
+> > On 4/17/06, Brad Campbell <brad@wasp.net.au> wrote:
+> >> Apr 17 14:12:30 bklaptop kernel: psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> >> Apr 17 14:12:30 bklaptop last message repeated 4 times
+> >> Apr 17 14:12:30 bklaptop kernel: psmouse.c: issuing reconnect request
+> >>
+> >> I know it's related to ACPI as if I kill all apps that poll the acpi interface the problem goes
+> >> away. My issue is that when I do that, I sometimes forget to plug the machine in when it needs it
+> >> (or suspend it to change the battery) and it winds up dead with no warning. So I *really* need my
+> >> battery monitoring.
+> >>
+> >> I just don't recall having these problems, to this extent with earlier kernels. It's always been
+> >> there, but I guess since I passed about 2.6.13 or thereabouts it has just gotten worse. 2.6.16.1 is
+> >> almost unusable for serious work if I have anything monitoring the battery.
+> >>
+> >
+> > I often do you have your apps polling battery? Changing to 1 or 2
+> > minutes might help.
+>
+> All in all I have three apps that poll.. I've slowed them down a little and it still seems to
+> co-incide with me typing or using the touchpad (Murphy is a swine like that). One polls once per
+> minute, one polls every 30 seconds and one polls every 2 seconds!! (that one I can kill without
+> losing any major functionality)
+>
 
-Hi Arjan, since the same module can handle different devices which need
-different firmware, firmware-<modulename> is not sufficient.  An example
-is the speedtouch USB modems, which need different firmware depending on
-the modem revision.  In fact each modem needs two blobs uploaded, a small
-one (stage 1 blob) followed by a large one (stage 2 blob).  These blobs
-are fairly independant, for example a given stage 1 blob can work for a
-wider range of modem revisions than a given stage 2 blob.  Also, the
-manufacturer made a bunch of exotic variations on the modem (all with
-the same product ids, but different revisions); I don't have a complete
-list, and I don't know which ones require special firmware.  That means
-that the driver does not have a complete list of different firmware names.
-It could always use the same names "stage1" and "stage2", regardless of
-the revision, and expect the user to place the right firmware there; but
-then what about people who have multiple modems with different revisions
-(like me)?  As a result of all this, the driver needs to export the following
-to userspace, to let user-space find the right firmware:
+Would you mind telling me what these applications are? Hopefully they
+only poll "status" and not "info" file. And 2 seconds is definitely
+too high. It would be nice if you could reduce "pollers" to just 1
+application though.
 
-(0) module name
-(1) stage 1 or stage 2
-(2) modem major revision number
-(3) modem minor revision number (I don't know if this is really needed,
-but I heard a rumour that it was: ISDN modems needing special firmware
-but only varying in their minor revision from non-ISDN modems IIRC).
-
-This is all exported in the hotplug environment.  However, current hotplug
-scripts don't have any cleverness in them for handling this kind of thing
-(I don't know about udev).  So the driver uses the following rather nasty
-but effective scheme: first it looks for the following file:
-
-	speedtch-<stage>.bin.<major_revision>.<minor_revision>
-
-for example speedtch-1.bin.4.0
-
-If that is not found, it looks for
-
-	speedtch-<stage>.bin.<major_revision>
-
-If that is not found, it looks for
-
-	speedtch-<stage>.bin
-
-If that is not found, then it gives up.
-
-This allows people with only one modem to put their firmware in
-speedtch-1.bin and speedtch-2.bin and not have to think about
-revisions.  But at the same time it allows distributions to
-distribute multiple firmware blobs, for example a blob for
-general revision 4 modems, but with a special blob for revision 4.1
-modems (this could be the ISDN kind; I made up the minor revision 1),
-simply by providing files speedtouch-2.bin.4 and speedtouch-2.bin.4.1
-It's got to be said that no distribution that I know of actually does
-this.
-
-All the best,
-
-Duncan.
+--
+Dmitry

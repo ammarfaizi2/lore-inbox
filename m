@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWDQOwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWDQO5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWDQOwP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 10:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWDQOwP
+	id S1751074AbWDQO5v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 10:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWDQO5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 10:52:15 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29451 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751060AbWDQOwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 10:52:15 -0400
-Date: Mon, 17 Apr 2006 16:52:14 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: spyro@f2s.com, rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] show Acorn-specific block devices menu only when required
-Message-ID: <20060417145214.GD7429@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+	Mon, 17 Apr 2006 10:57:51 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:59803 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1751073AbWDQO5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 10:57:50 -0400
+Subject: Re: [RFC: 2.6 patch] let arm use drivers/Kconfig
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       linux-mtd@lists.infradead.org
+In-Reply-To: <20060417144823.GC7429@stusta.de>
+References: <20060417144823.GC7429@stusta.de>
+Content-Type: text/plain
+Date: Mon, 17 Apr 2006 15:55:54 +0100
+Message-Id: <1145285754.13200.15.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't show a menu that can't be entered due to lack of contents on arm
-(the options are only available on arm26).
+On Mon, 2006-04-17 at 16:48 +0200, Adrian Bunk wrote:
+> --- linux-2.6.17-rc1-mm2-arm/drivers/mtd/Kconfig.old    2006-04-17 14:32:35.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-arm/drivers/mtd/Kconfig        2006-04-17 15:00:57.000000000 +0200
+> @@ -1,6 +1,7 @@
+>  # $Id: Kconfig,v 1.11 2005/11/07 11:14:19 gleixner Exp $
+>  
+>  menu "Memory Technology Devices (MTD)"
+> +       depends on (ALIGNMENT_TRAP || !ARM)
+>  
+>  config MTD
+>         tristate "Memory Technology Device (MTD) support"
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+This dependency is incorrect. It's only one or two chip-specific drivers
+which require that the architecture correctly handle alignment traps,
+and even then it's only actually apparent when used with JFFS2 which
+actually _gives_ it an unaligned buffer occasionally. Everything else
+works fine.
 
---- linux-2.6.17-rc1-mm2-arm/drivers/acorn/block/Kconfig.old	2006-04-17 16:40:13.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-arm/drivers/acorn/block/Kconfig	2006-04-17 16:40:50.000000000 +0200
-@@ -3,7 +3,7 @@
- #
- 
- menu "Acorn-specific block devices"
--	depends on ARCH_ACORN
-+	depends on ARCH_ARC || ARCH_A5K
- 
- config BLK_DEV_FD1772
- 	tristate "Old Archimedes floppy (1772) support"
+Also, I don't want to see this dependency expressed in the MTD Kconfig
+file unless it's not arch-specific. Please make a generic
+BROKEN_UNALIGNED config option, and set it on all architectures which
+need it. Then propose a saner place to put the restriction instead of on
+CONFIG_MTD.
+
+-- 
+dwmw2
 

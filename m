@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWDQXzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWDQX4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWDQXzH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 19:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWDQXzG
+	id S932072AbWDQX4R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 19:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWDQX4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 19:55:06 -0400
-Received: from smtpout.mac.com ([17.250.248.174]:22727 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932070AbWDQXzF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 19:55:05 -0400
-In-Reply-To: <200604180052.19361.mb@bu3sch.de>
-References: <20060417211128.GA6861@kroah.com> <20060417211206.GB6861@kroah.com> <200604180052.19361.mb@bu3sch.de>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <3C8DBC09-D9F7-4790-BBE0-268B93FF907E@mac.com>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
-       torvalds@osdl.org
+	Mon, 17 Apr 2006 19:56:17 -0400
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:4571 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932072AbWDQX4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 19:56:16 -0400
+Message-ID: <44442B1E.10308@bigpond.net.au>
+Date: Tue, 18 Apr 2006 09:56:14 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Ingo Molnar <mingo@elte.hu>, Mike Galbraith <efault@gmx.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: modify move_tasks() to improve load balancing
+ outcomes
+References: <443DF64B.5060305@bigpond.net.au> <20060413165117.A15723@unix-os.sc.intel.com> <443EFFD2.4080400@bigpond.net.au> <20060414112750.A21908@unix-os.sc.intel.com> <44404455.8090304@bigpond.net.au> <20060417095920.A19931@unix-os.sc.intel.com>
+In-Reply-To: <20060417095920.A19931@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Linux 2.6.16.6
-Date: Mon, 17 Apr 2006 19:54:37 -0400
-To: Michael Buesch <mb@bu3sch.de>
-X-Mailer: Apple Mail (2.746.3)
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 17 Apr 2006 23:56:14 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 17, 2006, at 18:52:18, Michael Buesch wrote:
-> Is only one / possible, or better something like this?
->
-> 	/* ewww... some of these buggers have / in name... */
-> 	s = name;
-> 	while ((s = strchr(s, '/')) != NULL)
-> 		*s = '!';
+Siddha, Suresh B wrote:
+> On Sat, Apr 15, 2006 at 10:54:45AM +1000, Peter Williams wrote:
+>> If you have a better suggestion for how move_tasks() does its job, how 
+>> about providing a patch and with supporting arguments as to why its 
+>> better.  If it is better then we can use it.
+> 
+> I think we can have a second pass(if the first pass fails to move any),
+> in which we will not skip those tasks which will become highest priority
+> on the target runqueue...
 
-Or perhaps the more obvious, efficient, and function-call-free:
-for (s = name; *s; s++)
-	if (*s == '/')
-		*s = '!';
+That won't solve the problem that this patch is intended to address.  As 
+a reminder the problem is that a low priority task is being moved when 
+we would prefer a high priority task to be moved.  I.e. we want to move 
+the high priority task because it's the best one to move not because we 
+couldn't move any tasks.
 
-Cheers,
-Kyle Moffett
+NB (ignoring races and can_migrate_task() vetoing a task being moved) 
+there should always be a task that can be moved as the minimum value of 
+imbalance is the average load per task of the source queue and there 
+must be tasks whose load weight is less than or equal to the average 
+(it's axiomatic).
 
+To put that another way, only a change in the state of the source queue 
+since imbalance was determined (possible because that's all done without 
+locks) or can_migrate_task() will stop at least one task being moved.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

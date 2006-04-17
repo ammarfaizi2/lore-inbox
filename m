@@ -1,67 +1,509 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWDQBmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWDQBmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750936AbWDQBmx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 21:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWDQBmx
+	id S1750932AbWDQBmu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 21:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWDQBmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 21:42:53 -0400
-Received: from nproxy.gmail.com ([64.233.182.185]:20206 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750936AbWDQBmv (ORCPT
+	Sun, 16 Apr 2006 21:42:50 -0400
+Received: from nproxy.gmail.com ([64.233.182.188]:2798 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750932AbWDQBms (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 21:42:51 -0400
+	Sun, 16 Apr 2006 21:42:48 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:message-id:content-type:content-transfer-encoding;
-        b=qeTu9IDspqQLgzROWOx60KGiRQ3vYt4qamFkwMsVnkVz/7ROAdMLP931ZTGOAfcqCR6s/0v1yboxA00A8KluUR/FVOmOIwQm3DgTRQSNrL4O4+Wb+5JRZ3S4NAVjlsF5/G17IGamW5X6P8ddxsyWgLuCWjithYMF/A0rrIbVLdg=
+        b=T/G5eKxXpAODqGUcyl8SVixgeoUe0rFhyns9gYEbSihUHCJRR3HvxYcC8EmitIn7D72yzhcV+Su8nsSI9j4NLyfsn+j0TzNkhoGdCiJ/e+iJHmR7dbMexpS1nLmbf4jZoVTAYgyeSNHcrFyqxNPhtw3N+61xBOIz7oWJgI8t4Rs=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/5] Remove redundant NULL checks before [kv]free - in fs/
-Date: Mon, 17 Apr 2006 03:29:11 +0200
+Subject: [PATCH 3/5] Remove redundant NULL checks before [kv]free - in  arch/
+Date: Mon, 17 Apr 2006 03:28:42 +0200
 User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Mark Fasheh <mark.fasheh@oracle.com>,
-       Kurt Hackel <kurt.hackel@oracle.com>, ocfs2-devel@oss.oracle.com,
+Cc: Andrew Morton <akpm@osdl.org>, Erich Focht <efocht@ess.nec.de>,
+       Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
+       eranian@hpl.hp.com, davidm@hpl.hp.com,
+       Ben Herrenschmidt <benh@kernel.crashing.org>, paulus@samba.org,
+       Jeff Dike <jdike@karaya.com>,
+       user-mode-linux-devel@lists.sourceforge.net,
        Jan Engelhardt <jengelh@linux01.gwdg.de>,
        Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-Message-Id: <200604170329.11589.jesper.juhl@gmail.com>
+Message-Id: <200604170328.42599.jesper.juhl@gmail.com>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove redundant NULL checks before kfree
-for fs/
+Remove redundant NULL checks before [kv]free + small CodingStyle cleanup
+for arch/
 
 Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
 
- fs/ocfs2/vote.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
+ arch/ia64/kernel/topology.c               |    7 --
+ arch/ia64/sn/kernel/xpc_partition.c       |    8 --
+ arch/powerpc/platforms/powermac/low_i2c.c |    3
+ arch/um/kernel/irq.c                      |   93 +++++++++++++++---------------
+ arch/um/os-Linux/irq.c                    |   47 +++++++--------
+ 5 files changed, 74 insertions(+), 84 deletions(-)
 
-diff -upr linux-2.6.17-rc1-git12-orig/fs/ocfs2/vote.c linux-2.6.17-rc1-git12/fs/ocfs2/vote.c
---- linux-2.6.17-rc1-git12-orig/fs/ocfs2/vote.c	2006-04-09 13:58:32.000000000 +0200
-+++ linux-2.6.17-rc1-git12/fs/ocfs2/vote.c	2006-04-16 15:03:05.000000000 +0200
-@@ -988,9 +988,7 @@ int ocfs2_request_mount_vote(struct ocfs
- 	}
+diff -upr linux-2.6.17-rc1-git12-orig/arch/ia64/kernel/topology.c linux-2.6.17-rc1-git12/arch/ia64/kernel/topology.c
+--- linux-2.6.17-rc1-git12-orig/arch/ia64/kernel/topology.c	2006-04-09 13:58:12.000000000 +0200
++++ linux-2.6.17-rc1-git12/arch/ia64/kernel/topology.c	2006-04-16 15:18:24.000000000 +0200
+@@ -305,13 +305,10 @@ static struct kobj_type cache_ktype_perc
  
- bail:
--	if (request)
--		kfree(request);
+ static void __cpuinit cpu_cache_sysfs_exit(unsigned int cpu)
+ {
+-	if (all_cpu_cache_info[cpu].cache_leaves) {
+-		kfree(all_cpu_cache_info[cpu].cache_leaves);
+-		all_cpu_cache_info[cpu].cache_leaves = NULL;
+-	}
++	kfree(all_cpu_cache_info[cpu].cache_leaves);
++	all_cpu_cache_info[cpu].cache_leaves = NULL;
+ 	all_cpu_cache_info[cpu].num_cache_leaves = 0;
+ 	memset(&all_cpu_cache_info[cpu].kobj, 0, sizeof(struct kobject));
 -
-+	kfree(request);
- 	return status;
+ 	return;
  }
  
-@@ -1021,9 +1019,7 @@ int ocfs2_request_umount_vote(struct ocf
+diff -upr linux-2.6.17-rc1-git12-orig/arch/ia64/sn/kernel/xpc_partition.c linux-2.6.17-rc1-git12/arch/ia64/sn/kernel/xpc_partition.c
+--- linux-2.6.17-rc1-git12-orig/arch/ia64/sn/kernel/xpc_partition.c	2006-04-09 13:58:12.000000000 +0200
++++ linux-2.6.17-rc1-git12/arch/ia64/sn/kernel/xpc_partition.c	2006-04-16 15:17:38.000000000 +0200
+@@ -136,9 +136,7 @@ xpc_get_rsvd_page_pa(int nasid)
+ 		}
+ 
+ 		if (L1_CACHE_ALIGN(len) > buf_len) {
+-			if (buf_base != NULL) {
+-				kfree(buf_base);
+-			}
++			kfree(buf_base);
+ 			buf_len = L1_CACHE_ALIGN(len);
+ 			buf = (u64) xpc_kmalloc_cacheline_aligned(buf_len,
+ 							GFP_KERNEL, &buf_base);
+@@ -159,9 +157,7 @@ xpc_get_rsvd_page_pa(int nasid)
+ 		}
  	}
  
- bail:
--	if (request)
--		kfree(request);
--
-+	kfree(request);
- 	return status;
+-	if (buf_base != NULL) {
+-		kfree(buf_base);
+-	}
++	kfree(buf_base);
+ 
+ 	if (status != SALRET_OK) {
+ 		rp_pa = 0;
+diff -upr linux-2.6.17-rc1-git12-orig/arch/powerpc/platforms/powermac/low_i2c.c linux-2.6.17-rc1-git12/arch/powerpc/platforms/powermac/low_i2c.c
+--- linux-2.6.17-rc1-git12-orig/arch/powerpc/platforms/powermac/low_i2c.c	2006-04-09 13:58:12.000000000 +0200
++++ linux-2.6.17-rc1-git12/arch/powerpc/platforms/powermac/low_i2c.c	2006-04-16 15:19:56.000000000 +0200
+@@ -1265,8 +1265,7 @@ static void pmac_i2c_do_end(struct pmf_f
+ 	if (inst == NULL)
+ 		return;
+ 	pmac_i2c_close(inst->bus);
+-	if (inst)
+-		kfree(inst);
++	kfree(inst);
  }
  
+ static int pmac_i2c_do_read(PMF_STD_ARGS, u32 len)
+diff -upr linux-2.6.17-rc1-git12-orig/arch/um/kernel/irq.c linux-2.6.17-rc1-git12/arch/um/kernel/irq.c
+--- linux-2.6.17-rc1-git12-orig/arch/um/kernel/irq.c	2006-04-09 13:58:13.000000000 +0200
++++ linux-2.6.17-rc1-git12/arch/um/kernel/irq.c	2006-04-17 02:34:38.000000000 +0200
+@@ -89,16 +89,18 @@ void sigio_handler(int sig, union uml_pt
+ 	struct irq_fd *irq_fd;
+ 	int n;
+ 
+-	if(smp_sigio_handler()) return;
+-	while(1){
++	if (smp_sigio_handler())
++		return;
++
++	while (1) {
+ 		n = os_waiting_for_events(active_fds);
+ 		if (n <= 0) {
+ 			if(n == -EINTR) continue;
+ 			else break;
+ 		}
+ 
+-		for(irq_fd = active_fds; irq_fd != NULL; irq_fd = irq_fd->next){
+-			if(irq_fd->current_events != 0){
++		for (irq_fd = active_fds; irq_fd != NULL; irq_fd = irq_fd->next) {
++			if (irq_fd->current_events != 0) {
+ 				irq_fd->current_events = 0;
+ 				do_IRQ(irq_fd->irq, regs);
+ 			}
+@@ -110,19 +112,17 @@ void sigio_handler(int sig, union uml_pt
+ 
+ static void maybe_sigio_broken(int fd, int type)
+ {
+-	if(os_isatty(fd)){
+-		if((type == IRQ_WRITE) && !pty_output_sigio){
++	if (os_isatty(fd)) {
++		if ((type == IRQ_WRITE) && !pty_output_sigio) {
+ 			write_sigio_workaround();
+ 			add_sigio_fd(fd, 0);
+-		}
+-		else if((type == IRQ_READ) && !pty_close_sigio){
++		} else if ((type == IRQ_READ) && !pty_close_sigio) {
+ 			write_sigio_workaround();
+ 			add_sigio_fd(fd, 1);
+ 		}
+ 	}
+ }
+ 
+-
+ int activate_fd(int irq, int fd, int type, void *dev_id)
+ {
+ 	struct pollfd *tmp_pfd;
+@@ -132,16 +132,18 @@ int activate_fd(int irq, int fd, int typ
+ 
+ 	pid = os_getpid();
+ 	err = os_set_fd_async(fd, pid);
+-	if(err < 0)
++	if (err < 0)
+ 		goto out;
+ 
+ 	new_fd = um_kmalloc(sizeof(*new_fd));
+ 	err = -ENOMEM;
+-	if(new_fd == NULL)
++	if (new_fd == NULL)
+ 		goto out;
+ 
+-	if(type == IRQ_READ) events = UM_POLLIN | UM_POLLPRI;
+-	else events = UM_POLLOUT;
++	if (type == IRQ_READ)
++		events = UM_POLLIN | UM_POLLPRI;
++	else
++		events = UM_POLLOUT;
+ 	*new_fd = ((struct irq_fd) { .next  		= NULL,
+ 				     .id 		= dev_id,
+ 				     .fd 		= fd,
+@@ -165,8 +167,8 @@ int activate_fd(int irq, int fd, int typ
+ 	 * a semaphore.
+ 	 */
+ 	flags = irq_lock();
+-	for(irq_fd = active_fds; irq_fd != NULL; irq_fd = irq_fd->next){
+-		if((irq_fd->fd == fd) && (irq_fd->type == type)){
++	for (irq_fd = active_fds; irq_fd != NULL; irq_fd = irq_fd->next) {
++		if ((irq_fd->fd == fd) && (irq_fd->type == type)) {
+ 			printk("Registering fd %d twice\n", fd);
+ 			printk("Irqs : %d, %d\n", irq_fd->irq, irq);
+ 			printk("Ids : 0x%p, 0x%p\n", irq_fd->id, dev_id);
+@@ -175,13 +177,13 @@ int activate_fd(int irq, int fd, int typ
+ 	}
+ 
+ 	/*-------------*/
+-	if(type == IRQ_WRITE)
++	if (type == IRQ_WRITE)
+ 		fd = -1;
+ 
+ 	tmp_pfd = NULL;
+ 	n = 0;
+ 
+-	while(1){
++	while (1) {
+ 		n = os_create_pollfd(fd, events, tmp_pfd, n);
+ 		if (n == 0)
+ 			break;
+@@ -198,10 +200,8 @@ int activate_fd(int irq, int fd, int typ
+ 		 * then we free the buffer tmp_fds and try again.
+ 		 */
+ 		irq_unlock(flags);
+-		if (tmp_pfd != NULL) {
+-			kfree(tmp_pfd);
+-			tmp_pfd = NULL;
+-		}
++		kfree(tmp_pfd);
++		tmp_pfd = NULL;
+ 
+ 		tmp_pfd = um_kmalloc(n);
+ 		if (tmp_pfd == NULL)
+@@ -249,7 +249,7 @@ static int same_irq_and_dev(struct irq_f
+ {
+ 	struct irq_and_dev *data = d;
+ 
+-	return((irq->irq == data->irq) && (irq->id == data->dev));
++	return ((irq->irq == data->irq) && (irq->id == data->dev));
+ }
+ 
+ void free_irq_by_irq_and_dev(unsigned int irq, void *dev)
+@@ -262,7 +262,7 @@ void free_irq_by_irq_and_dev(unsigned in
+ 
+ static int same_fd(struct irq_fd *irq, void *fd)
+ {
+-	return(irq->fd == *((int *) fd));
++	return (irq->fd == *((int *)fd));
+ }
+ 
+ void free_irq_by_fd(int fd)
+@@ -276,16 +276,17 @@ static struct irq_fd *find_irq_by_fd(int
+ 	int i = 0;
+ 	int fdi;
+ 
+-	for(irq=active_fds; irq != NULL; irq = irq->next){
+-		if((irq->fd == fd) && (irq->irq == irqnum)) break;
++	for (irq = active_fds; irq != NULL; irq = irq->next) {
++		if ((irq->fd == fd) && (irq->irq == irqnum))
++			break;
+ 		i++;
+ 	}
+-	if(irq == NULL){
++	if (irq == NULL) {
+ 		printk("find_irq_by_fd doesn't have descriptor %d\n", fd);
+ 		goto out;
+ 	}
+ 	fdi = os_get_pollfd(i);
+-	if((fdi != -1) && (fdi != fd)){
++	if ((fdi != -1) && (fdi != fd)) {
+ 		printk("find_irq_by_fd - mismatch between active_fds and "
+ 		       "pollfds, fd %d vs %d, need %d\n", irq->fd,
+ 		       fdi, fd);
+@@ -294,7 +295,7 @@ static struct irq_fd *find_irq_by_fd(int
+ 	}
+ 	*index_out = i;
+  out:
+-	return(irq);
++	return irq;
+ }
+ 
+ void reactivate_fd(int fd, int irqnum)
+@@ -305,7 +306,7 @@ void reactivate_fd(int fd, int irqnum)
+ 
+ 	flags = irq_lock();
+ 	irq = find_irq_by_fd(fd, irqnum, &i);
+-	if(irq == NULL){
++	if (irq == NULL) {
+ 		irq_unlock(flags);
+ 		return;
+ 	}
+@@ -326,7 +327,7 @@ void deactivate_fd(int fd, int irqnum)
+ 
+ 	flags = irq_lock();
+ 	irq = find_irq_by_fd(fd, irqnum, &i);
+-	if(irq == NULL)
++	if (irq == NULL)
+ 		goto out;
+ 	os_set_pollfd(i, -1);
+  out:
+@@ -338,15 +339,15 @@ int deactivate_all_fds(void)
+ 	struct irq_fd *irq;
+ 	int err;
+ 
+-	for(irq=active_fds;irq != NULL;irq = irq->next){
++	for (irq = active_fds; irq != NULL; irq = irq->next) {
+ 		err = os_clear_fd_async(irq->fd);
+-		if(err)
+-			return(err);
++		if (err)
++			return err;
+ 	}
+ 	/* If there is a signal already queued, after unblocking ignore it */
+ 	os_set_ioignore();
+ 
+-	return(0);
++	return 0;
+ }
+ 
+ void forward_interrupts(int pid)
+@@ -356,9 +357,9 @@ void forward_interrupts(int pid)
+ 	int err;
+ 
+ 	flags = irq_lock();
+-	for(irq=active_fds;irq != NULL;irq = irq->next){
++	for (irq = active_fds; irq != NULL; irq = irq->next) {
+ 		err = os_set_owner(irq->fd, pid);
+-		if(err < 0){
++		if (err < 0) {
+ 			/* XXX Just remove the irq rather than
+ 			 * print out an infinite stream of these
+ 			 */
+@@ -379,7 +380,7 @@ void forward_interrupts(int pid)
+ unsigned int do_IRQ(int irq, union uml_pt_regs *regs)
+ {
+        irq_enter();
+-       __do_IRQ(irq, (struct pt_regs *) regs);
++       __do_IRQ(irq, (struct pt_regs *)regs);
+        irq_exit();
+        return 1;
+ }
+@@ -392,12 +393,12 @@ int um_request_irq(unsigned int irq, int
+ 	int err;
+ 
+ 	err = request_irq(irq, handler, irqflags, devname, dev_id);
+-	if(err)
+-		return(err);
++	if (err)
++		return err;
+ 
+-	if(fd != -1)
++	if (fd != -1)
+ 		err = activate_fd(irq, fd, type, dev_id);
+-	return(err);
++	return err;
+ }
+ EXPORT_SYMBOL(um_request_irq);
+ EXPORT_SYMBOL(reactivate_fd);
+@@ -409,7 +410,7 @@ unsigned long irq_lock(void)
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&irq_spinlock, flags);
+-	return(flags);
++	return flags;
+ }
+ 
+ void irq_unlock(unsigned long flags)
+@@ -452,7 +453,7 @@ void __init init_IRQ(void)
+ 	irq_desc[TIMER_IRQ].depth = 1;
+ 	irq_desc[TIMER_IRQ].handler = &SIGVTALRM_irq_type;
+ 	enable_irq(TIMER_IRQ);
+-	for(i=1;i<NR_IRQS;i++){
++	for (i = 1; i < NR_IRQS; i++) {
+ 		irq_desc[i].status = IRQ_DISABLED;
+ 		irq_desc[i].action = NULL;
+ 		irq_desc[i].depth = 1;
+@@ -467,7 +468,7 @@ int init_aio_irq(int irq, char *name, ir
+ 	int fds[2], err;
+ 
+ 	err = os_pipe(fds, 1, 1);
+-	if(err){
++	if (err) {
+ 		printk("init_aio_irq - os_pipe failed, err = %d\n", -err);
+ 		goto out;
+ 	}
+@@ -475,7 +476,7 @@ int init_aio_irq(int irq, char *name, ir
+ 	err = um_request_irq(irq, fds[0], IRQ_READ, handler,
+ 			     SA_INTERRUPT | SA_SAMPLE_RANDOM, name,
+ 			     (void *) (long) fds[0]);
+-	if(err){
++	if (err) {
+ 		printk("init_aio_irq - : um_request_irq failed, err = %d\n",
+ 		       err);
+ 		goto out_close;
+@@ -488,5 +489,5 @@ int init_aio_irq(int irq, char *name, ir
+ 	os_close_file(fds[0]);
+ 	os_close_file(fds[1]);
+  out:
+-	return(err);
++	return err;
+ }
+diff -upr linux-2.6.17-rc1-git12-orig/arch/um/os-Linux/irq.c linux-2.6.17-rc1-git12/arch/um/os-Linux/irq.c
+--- linux-2.6.17-rc1-git12-orig/arch/um/os-Linux/irq.c	2006-04-09 13:58:13.000000000 +0200
++++ linux-2.6.17-rc1-git12/arch/um/os-Linux/irq.c	2006-04-17 02:42:13.000000000 +0200
+@@ -29,21 +29,21 @@ int os_waiting_for_events(struct irq_fd 
+ 	int i, n, err;
+ 
+ 	n = poll(pollfds, pollfds_num, 0);
+-	if(n < 0){
++	if (n < 0) {
+ 		err = -errno;
+-		if(errno != EINTR)
++		if (errno != EINTR)
+ 			printk("sigio_handler: os_waiting_for_events:"
+ 			       " poll returned %d, errno = %d\n", n, errno);
+ 		return err;
+ 	}
+ 
+-	if(n == 0)
++	if (n == 0)
+ 		return 0;
+ 
+ 	irq_fd = active_fds;
+ 
+-	for(i = 0; i < pollfds_num; i++){
+-		if(pollfds[i].revents != 0){
++	for (i = 0; i < pollfds_num; i++) {
++		if (pollfds[i].revents != 0) {
+ 			irq_fd->current_events = pollfds[i].revents;
+ 			pollfds[i].fd = -1;
+ 		}
+@@ -54,7 +54,7 @@ int os_waiting_for_events(struct irq_fd 
+ 
+ int os_isatty(int fd)
+ {
+-	return(isatty(fd));
++	return isatty(fd);
+ }
+ 
+ int os_create_pollfd(int fd, int events, void *tmp_pfd, int size_tmpfds)
+@@ -65,7 +65,7 @@ int os_create_pollfd(int fd, int events,
+ 			return((pollfds_size + 1) * sizeof(pollfds[0]));
+ 		}
+ 
+-		if(pollfds != NULL){
++		if (pollfds != NULL) {
+ 			memcpy(tmp_pfd, pollfds,
+ 			       sizeof(pollfds[0]) * pollfds_size);
+ 			/* remove old pollfds */
+@@ -73,18 +73,15 @@ int os_create_pollfd(int fd, int events,
+ 		}
+ 		pollfds = tmp_pfd;
+ 		pollfds_size++;
+-	} else {
+-		/* remove not used tmp_pfd */
+-		if (tmp_pfd != NULL)
+-			kfree(tmp_pfd);
+-	}
++	} else
++		kfree(tmp_pfd);	/* remove not used tmp_pfd */
+ 
+-	pollfds[pollfds_num] = ((struct pollfd) { .fd 	= fd,
+-						  .events 	= events,
+-						  .revents 	= 0 });
++	pollfds[pollfds_num] = ((struct pollfd) { .fd		= fd,
++						  .events	= events,
++						  .revents	= 0 });
+ 	pollfds_num++;
+ 
+-	return(0);
++	return 0;
+ }
+ 
+ void os_free_irq_by_cb(int (*test)(struct irq_fd *, void *), void *arg,
+@@ -94,11 +91,11 @@ void os_free_irq_by_cb(int (*test)(struc
+ 	int i = 0;
+ 
+ 	prev = &active_fds;
+-	while(*prev != NULL){
+-		if((*test)(*prev, arg)){
++	while (*prev != NULL) {
++		if ((*test)(*prev, arg)) {
+ 			struct irq_fd *old_fd = *prev;
+-			if((pollfds[i].fd != -1) &&
+-			   (pollfds[i].fd != (*prev)->fd)){
++			if ((pollfds[i].fd != -1) &&
++			    (pollfds[i].fd != (*prev)->fd)) {
+ 				printk("os_free_irq_by_cb - mismatch between "
+ 				       "active_fds and pollfds, fd %d vs %d\n",
+ 				       (*prev)->fd, pollfds[i].fd);
+@@ -110,7 +107,6 @@ void os_free_irq_by_cb(int (*test)(struc
+ 			/* This moves the *whole* array after pollfds[i]
+ 			 * (though it doesn't spot as such)!
+ 			 */
+-
+ 			memmove(&pollfds[i], &pollfds[i + 1],
+ 			       (pollfds_num - i) * sizeof(pollfds[0]));
+ 			if(*last_irq_ptr2 == &old_fd->next)
+@@ -129,10 +125,9 @@ void os_free_irq_by_cb(int (*test)(struc
+ 	return;
+ }
+ 
+-
+ int os_get_pollfd(int i)
+ {
+-	return(pollfds[i].fd);
++	return pollfds[i].fd;
+ }
+ 
+ void os_set_pollfd(int i, int fd)
+@@ -151,8 +146,10 @@ void init_irq_signals(int on_sigstack)
+ 	int flags;
+ 
+ 	flags = on_sigstack ? SA_ONSTACK : 0;
+-	if(timer_irq_inited) h = (__sighandler_t) alarm_handler;
+-	else h = boot_timer_handler;
++	if (timer_irq_inited)
++		h = (__sighandler_t)alarm_handler;
++	else
++		h = boot_timer_handler;
+ 
+ 	set_handler(SIGVTALRM, h, flags | SA_RESTART,
+ 		    SIGUSR1, SIGIO, SIGWINCH, SIGALRM, -1);

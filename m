@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWDQNVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWDQNZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWDQNVu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 09:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWDQNVu
+	id S1750870AbWDQNZt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 09:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWDQNZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 09:21:50 -0400
-Received: from 216-54-166-5.gen.twtelecom.net ([216.54.166.5]:11396 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S1750855AbWDQNVu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 09:21:50 -0400
-Message-ID: <4443966B.8020802@compro.net>
-Date: Mon, 17 Apr 2006 09:21:47 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
+	Mon, 17 Apr 2006 09:25:49 -0400
+Received: from nz-out-0102.google.com ([64.233.162.194]:51755 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750854AbWDQNZs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 09:25:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ffRSefrhvP+l9d2cZHCiSyij81/1SujCbmv3tTxJrhVygDoUbMGC7NG1AyDrGvYEd7UUdHhwT6JnRwfPKP753HhojSgHf/VhRlMdo2Ox0ueD13T5GX5UtpfMIG6ujSWpTjuHREjB+IOgFFABb3iqP+ZKrB6EuuzhwG5oOMWKk6s=
+Message-ID: <85e0e3140604170625k112680f8qd4ef96f7d3d3ea98@mail.gmail.com>
+Date: Mon, 17 Apr 2006 18:55:48 +0530
+From: Niklaus <niklaus@gmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-Subject: Re: RT question : softirq and minimal user RT priority
-References: <200601131527.00828.Serge.Noiraud@bull.net> <1137167600.7241.22.camel@localhost.localdomain>
-In-Reply-To: <1137167600.7241.22.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Boot CDrom from grub
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
->> Is the smallest usable real-time priority greater than the highest real-time softirq ?
-> 
-> Nope, you can use any rt priority you want.  It's up to you whether you
-> want to preempt the softirqs or not. Be careful, timers may be preempted
-> from delivering signals to high priority processes.  I have a patch to
-> fix this, but I'm waiting on input from either Thomas Gleixner or Ingo.
-> 
-> -- Steve
+Hi,
+ I have a bootable CD and normal ISO9660 data CD (linux non-bootable)
+, both has linux on it.
+ I don't have the BIOS password and hence cannot change the bios
+startup options.
 
-I know this is an old thread but I seem to be having a problem similar
-to this and I didn't find any real resolution in the archives.
+1) Is there any way to boot the CD from grub command line ?
 
-I'm using the rt16 patch on 2.6.16.5 with complete preemption. I have a
-high priority rt compute bound task that isn't getting signals from a
-pci cards interrupt handler. Only when I insure the rt priority of the
-task is lower than the rt priority of the irq thread ([IRQ 193]) will my
-task receive signals.
+ 2) Can i access the data in ISO9660 from grub command line ?
 
-Is this a bug? Is the bug in my interrupt handler? Or is this expected
-and acceptable?
+I can boot a floppy like root(fd0)
+chainloader +1
+boot
 
-Thanks
-Mark
+simlarly windows partition like root(hd0,2)
+chainloader +1
+boot
 
+Is there anything for bootable CD .
+
+How to access data in ISO CD . Can we do it like ext2 of harddisk.
+
+Regards
+Nik

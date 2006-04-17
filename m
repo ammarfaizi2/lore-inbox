@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWDQRId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWDQRLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWDQRId (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 13:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWDQRId
+	id S1751166AbWDQRLm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 13:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWDQRLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 13:08:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:38056 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751165AbWDQRIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 13:08:32 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Christoph Hellwig <hch@infradead.org>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org, James Morris <jmorris@namei.org>,
-       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
-In-Reply-To: <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
-References: <200604021240.21290.edwin@gurde.com>
-	 <200604072138.35201.edwin@gurde.com>
-	 <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil>
-	 <200604142301.10188.edwin@gurde.com>
-	 <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417162345.GA9609@infradead.org>
-	 <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 17 Apr 2006 19:08:26 +0200
-Message-Id: <1145293707.2847.80.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 17 Apr 2006 13:11:42 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:50096 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751166AbWDQRLl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 13:11:41 -0400
+From: Andi Kleen <ak@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH 00/05] robust per_cpu allocation for modules
+Date: Mon, 17 Apr 2006 19:10:46 +0200
+User-Agent: KMail/1.9.1
+Cc: Steven Rostedt <rostedt@goodmis.org>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
+       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
+       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
+       Joe Taylor <joe@tensilica.com>,
+       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
+       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
+       linux-mips@linux-mips.org, grundler@parisc-linux.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       paulus@samba.org, linux390@de.ibm.com, davem@davemloft.net
+References: <1145049535.1336.128.camel@localhost.localdomain> <Pine.LNX.4.58.0604152323560.16853@gandalf.stny.rr.com> <4441ECE6.5010709@yahoo.com.au>
+In-Reply-To: <4441ECE6.5010709@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200604171910.48838.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-17 at 13:03 -0400, Stephen Smalley wrote:
-> On Mon, 2006-04-17 at 17:23 +0100, Christoph Hellwig wrote:
-> > On Mon, Apr 17, 2006 at 12:06:53PM -0400, Stephen Smalley wrote:
-> > > > I thought of this, see label_all_processes. Unfortunately I found no way of 
-> > > > actually doing this. I would need to iterate through the tasklist structure, 
-> > > > but the task_lock export is going to be removed from the kernel.
-> > > 
-> > > So, if built-in isn't an option, propose an interface to the core
-> > > security framework to allow security modules to perform such
-> > > initialization without needing to directly touch the lock themselves
-> > 
-> > NACK.  The whole idea of loading security modules after bootup is flawed.
-> > Any scheme that tries to enumerate process and other entinity after the
-> > fact for access control purposes is fundamentally flawed.  We're not going
-> > to add helpers or exports for it, I'd rather remove the ability to build
-> > lsm hook clients modular completely.
-> 
-> Or, better, remove LSM itself ;)
-> 
+On Sunday 16 April 2006 09:06, Nick Piggin wrote:
 
-at minimum I can see the point to make the lsm hooks compile directly to
-the selinux functions in question when selinux is the security module of
-choice; that'll save quite a bit of performance already
+> I still don't understand what the justification is for slowing down
+> this critical bit of infrastructure for something that is only a
+> problem in the -rt patchset, and even then only a problem when tracing
+> is enabled.
+
+There are actually problems outside -rt. e.g. the Xen kernel was running
+into a near overflow and as more and more code is using per cpu variables
+others might too.
+
+I'm confident the problem can be solved without adding more variables
+though - e.g. in the way rusty proposed.
+
+-Andi
 
 

@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWDQAIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWDQART@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750839AbWDQAIa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 20:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWDQAIa
+	id S1750861AbWDQART (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 20:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWDQART
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 20:08:30 -0400
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:26852 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750857AbWDQAI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 20:08:29 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Subject: Re: [ck] Re: [patch][rfc] quell interactive feeding frenzy
-Date: Mon, 17 Apr 2006 10:08:08 +1000
-User-Agent: KMail/1.9.1
-Cc: Al Boldi <a1426z@gawab.com>, ck list <ck@vds.kolivas.org>,
-       Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org
-References: <200604112100.28725.kernel@kolivas.org> <200604160923.00047.kernel@kolivas.org> <20060416184426.GA15642@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060416184426.GA15642@rhlx01.fht-esslingen.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 16 Apr 2006 20:17:19 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:8618 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750860AbWDQART (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 20:17:19 -0400
+Date: Mon, 17 Apr 2006 09:18:30 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+Message-Id: <20060417091830.bca60006.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+	<20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
+	<20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+	<20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
+	<20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604171008.10067.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 April 2006 04:44, Andreas Mohr wrote:
-> Hi,
->
-> On Sun, Apr 16, 2006 at 09:22:59AM +1000, Con Kolivas wrote:
-> > The current value, 6ms at 1000HZ, is chosen because it's the largest
-> > value that can schedule a task in less than normal human perceptible
-> > range when two competing heavily cpu bound tasks are the same priority.
-> > At 250HZ it works out to 7.5ms and 10ms at 100HZ. Ironically in my
-> > experimenting I found the cpu cache improvements become much less
-> > significant above 7ms so I'm very happy with this compromise.
->
-> Heh, this part is *EXACTLY* a fully sufficient explanation of what I was
-> wondering about myself just these days ;)
-> (I'm experimenting with different timeslice values on my P3/450 to verify
-> what performance impact exactly it has)
-> However with a measly 256kB cache it probably doesn't matter too much,
-> I think.
->
-> But I think it's still important to mention that your perception might be
-> twisted by your P4 limitation (no testing with slower and really slow
-> machines).
+On Sat, 15 Apr 2006 10:41:59 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-You underestimate me. Those cpu cache effects were performance effects 
-measured down to a PII 233, but all were i386 architecture. As for 
-"perception" this isn't my testing I'm talking about; these are 
-neuropsychiatric tests that have nothing to do with pcs or what processor you 
-use ;)
+> Note that there is an issue with your approach. If a migration entry is 
+> copied during fork then SWP_MIGRATION_WRITE must become SWP_MIGRATION_READ 
+> for some cases. Would you look into fixing this?
+> 
 
--- 
--ck
+Thank you for pointing out the issue.
+
+In my understanding, copy_page_range() is used at fork().
+This finally calls copy_one_pte() and copies ptes one by one.
+
+Maybe, I'll do like this.
+==
+ 438         if (unlikely(!pte_present(pte)) {
+ 439                 if (!pte_file(pte)) {
+ 440                         swap_duplicate(pte_to_swp_entry(pte));
+ 			     entry = pte_to_swp_entry(pte);
+#ifdef CONFIG_MIGRATION
+			     if (is_migration_entry(entry)) {
+				......always copy as MIGRATION_READ.
+			     }
+#endif
+ 441                         /* make sure dst_mm is on swapoff's mmlist. */
+ 442                         if (unlikely(list_empty(&dst_mm->mmlist))) {
+ 443                                 spin_lock(&mmlist_lock);
+ 444                                 if (list_empty(&dst_mm->mmlist))
+ 445                                         list_add(&dst_mm->mmlist,
+ 446                                                  &src_mm->mmlist);
+ 447                                 spin_unlock(&mmlist_lock);
+ 448                         }
+ 449                 }
+ 450                 goto out_set_pte;
+ 451         }
+==
+
+Thanks,
+-Kame
+

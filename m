@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWDQTbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWDQTfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWDQTbM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 15:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWDQTbM
+	id S1750744AbWDQTfL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 15:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWDQTfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 15:31:12 -0400
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:33511 "EHLO
-	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751234AbWDQTbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 15:31:11 -0400
-Date: Mon, 17 Apr 2006 15:31:08 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
+	Mon, 17 Apr 2006 15:35:11 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:39336 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750744AbWDQTfK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 15:35:10 -0400
 Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
+       James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
 In-Reply-To: <20060417192634.GB18990@sergelap.austin.ibm.com>
-Message-ID: <Pine.LNX.4.64.0604171528340.17923@d.namei>
 References: <20060417180231.71328.qmail@web36606.mail.mud.yahoo.com>
- <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil>
- <20060417192634.GB18990@sergelap.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060417192634.GB18990@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Mon, 17 Apr 2006 15:37:13 -0400
+Message-Id: <1145302633.8542.233.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Apr 2006, Serge E. Hallyn wrote:
-
+On Mon, 2006-04-17 at 14:26 -0500, Serge E. Hallyn wrote:
+> Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> > Then provide a counterexample.
+> 
 > Hopefully a new version of evm+slim+ima will be ready for distribution
 > soon.
 
-Why are you still trying to introduce yet another access control model 
-into the kernel, when SELinux is already there?
+IIRC, upon their last submission (at which time they were severely
+broken in design and implementation), it was demonstrated that they
+didn't make sense as separate LSMs, and that their separation was
+actually harmful to a correct and efficient implementation.
 
-Last I recall on this issue, we asked if you could look at providing 
-integrity measurement as a distinct API, and integrity control as either 
-integrated with SELinux or a distinct component which SELinux could use.
-
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+

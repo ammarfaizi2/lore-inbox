@@ -1,53 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWDQPBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWDQPDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWDQPBj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 11:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWDQPBj
+	id S1751075AbWDQPDV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 11:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWDQPDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 11:01:39 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:42395 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751065AbWDQPBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 11:01:39 -0400
-Subject: Re: irqbalance mandatory on SMP kernels?
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
-       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
-       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
-       Kamal Deen <kamal@kdeen.net>
-In-Reply-To: <4443A6D9.6040706@mbligh.org>
-References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net>
-	 <4443A6D9.6040706@mbligh.org>
-Content-Type: text/plain
-Date: Mon, 17 Apr 2006 11:01:33 -0400
-Message-Id: <1145286094.16138.22.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Apr 2006 11:03:21 -0400
+Received: from uproxy.gmail.com ([66.249.92.171]:36590 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751076AbWDQPDU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 11:03:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KeCdV127fWa7pOC1W3rsH8g/IlLQiqjyRntMtvrXOvpVo7HRyVdqj40ke9De3ajjqO/9TgyqQiFld9e8jofVguBYQ1uzgYLxDTVi/waeLuszRD0G6W3Ej9yIokhCDPA3zTW/01it9x78Lgk5svYf0aW70HwZ+/ZTbUXDYRaLTg0=
+Message-ID: <82ecf08e0604170803u620c67e0nf98312bd90e1e14c@mail.gmail.com>
+Date: Mon, 17 Apr 2006 12:03:18 -0300
+From: "Thiago Galesi" <thiagogalesi@gmail.com>
+To: "David Woodhouse" <dwmw2@infradead.org>
+Subject: Re: [PATCH] Remove unnecessary kmalloc/kfree calls in mtdchar
+Cc: "Josh Boyer" <jwboyer@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1145285434.13200.9.camel@pmac.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <82ecf08e0604141938w4b29259av797e3115b79042a0@mail.gmail.com>
+	 <625fc13d0604170506n53147772vec944cdd7f2daef7@mail.gmail.com>
+	 <82ecf08e0604170619i582bfa19r19a3da0d7d0904b1@mail.gmail.com>
+	 <1145285434.13200.9.camel@pmac.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-17 at 07:31 -0700, Martin J. Bligh wrote:
-> Robert M. Stockmann wrote:
-> > Hi,
-> > 
-> > I noticed that the latest editions of RedHat EL 4.3 and direct
-> > descendants today need a program called irqbalance to activate
-> > true SMP IRQ load balancing for your machine's hardware.
-> > 
-> > If one boots a SMP kernel (2.4.xx or 2.6.xx) kernel on a machine
-> > which either has 2 or more physical CPU's (also dual-core CPU's) 
-> > , and one does not start up the irqbalance util from the
-> > kernel-utils package ( see e.g. 
-> 
-> There is an in-kernel IRQ balancer. Redhat just choose to turn it
-> off, and do it in userspace instead. You can re-enable it if you
-> compile your own kernel.
+Silly me. Ok, the original had it already, but it has to go...
 
-Round-robin IRQ balancing is inefficient anyway.  You'd get better cache
-utilization letting one CPU take them all.
+On 4/17/06, David Woodhouse <dwmw2@infradead.org> wrote:
+> Don't printk -- especially without a priority. Either just bail out with
+> -ENOMEM or try a smaller size.
+>
 
-Lee
+Index: linux-2.6.16.2/drivers/mtd/mtdchar.c
+===================================================================
+--- linux-2.6.16.2.orig/drivers/mtd/mtdchar.c
++++ linux-2.6.16.2/drivers/mtd/mtdchar.c
+@@ -170,16 +170,22 @@ static ssize_t mtd_read(struct file *fil
 
+ 	/* FIXME: Use kiovec in 2.5 to lock down the user's buffers
+ 	   and pass them directly to the MTD functions */
++
++	if (count > MAX_KMALLOC_SIZE)
++		kbuf=kmalloc(MAX_KMALLOC_SIZE, GFP_KERNEL);
++	else
++		kbuf=kmalloc(count, GFP_KERNEL);
++
++	if (!kbuf)
++		return -ENOMEM;
++
+ 	while (count) {
++
+ 		if (count > MAX_KMALLOC_SIZE)
+ 			len = MAX_KMALLOC_SIZE;
+ 		else
+ 			len = count;
+
+-		kbuf=kmalloc(len,GFP_KERNEL);
+-		if (!kbuf)
+-			return -ENOMEM;
+-
+ 		switch (MTD_MODE(file)) {
+ 		case MTD_MODE_OTP_FACT:
+ 			ret = mtd->read_fact_prot_reg(mtd, *ppos, len, &retlen, kbuf);
+@@ -215,9 +221,9 @@ static ssize_t mtd_read(struct file *fil
+ 			return ret;
+ 		}
+
+-		kfree(kbuf);
+ 	}
+
++	kfree(kbuf);
+ 	return total_retlen;
+ } /* mtd_read */
+
+@@ -241,18 +247,21 @@ static ssize_t mtd_write(struct file *fi
+ 	if (!count)
+ 		return 0;
+
++	if (count > MAX_KMALLOC_SIZE)
++		kbuf=kmalloc(MAX_KMALLOC_SIZE, GFP_KERNEL);
++	else
++		kbuf=kmalloc(count, GFP_KERNEL);
++
++	if (!kbuf)
++		return -ENOMEM;
++
+ 	while (count) {
++
+ 		if (count > MAX_KMALLOC_SIZE)
+ 			len = MAX_KMALLOC_SIZE;
+ 		else
+ 			len = count;
+
+-		kbuf=kmalloc(len,GFP_KERNEL);
+-		if (!kbuf) {
+-			printk("kmalloc is null\n");
+-			return -ENOMEM;
+-		}
+-
+ 		if (copy_from_user(kbuf, buf, len)) {
+ 			kfree(kbuf);
+ 			return -EFAULT;
+@@ -282,10 +291,9 @@ static ssize_t mtd_write(struct file *fi
+ 			kfree(kbuf);
+ 			return ret;
+ 		}
+-
+-		kfree(kbuf);
+ 	}
+
++	kfree(kbuf);
+ 	return total_retlen;
+ } /* mtd_write */
+
+Signed-off-by Thiago Galesi <thiagogalesi@gmail.com>

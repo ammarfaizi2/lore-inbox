@@ -1,87 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWDQOPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWDQOWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbWDQOPn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 10:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWDQOPn
+	id S1751012AbWDQOWE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 10:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWDQOWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 10:15:43 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:60384 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S1751004AbWDQOPn (ORCPT
+	Mon, 17 Apr 2006 10:22:04 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:51693 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751011AbWDQOWB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 10:15:43 -0400
-Date: Mon, 17 Apr 2006 16:15:16 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: linux-kernel@vger.kernel.org, Randy Dunlap <rddunlap@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
-       Kamal Deen <kamal@kdeen.net>
-Subject: Re: irqbalance mandatory on SMP kernels?
-In-Reply-To: <1145279422.2847.44.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.44.0604171608400.28728-100000@hubble.stokkie.net>
+	Mon, 17 Apr 2006 10:22:01 -0400
+Date: Mon, 17 Apr 2006 16:21:58 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: George Nychis <gnychis@cmu.edu>
+cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: want to randomly drop packets based on percent
+In-Reply-To: <444345F9.4090100@cmu.edu>
+Message-ID: <Pine.LNX.4.61.0604171618590.7579@yvahk01.tjqt.qr>
+References: <444345F9.4090100@cmu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.3 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Apr 2006, Arjan van de Ven wrote:
+>
+> I'm using the 2.4.32 kernel with madwifi and iproute2 version
+> 2-2.6.16-060323.tar.gz
+>
+> I wanted to insert artificial packet loss based on a percent so i found:
+> network emulab qdisc could do it, so i compiled support into the kernel and
+> tried:
+> tc qdisc change dev eth0 root netem loss .1%
 
-> Date: Mon, 17 Apr 2006 15:10:22 +0200
-> 
-> > [jackson:stock]:(/usr/src/linux)$ cat /proc/interrupts 
-> >            CPU0       CPU1       
-> >   0:    3139568          0    IO-APIC-edge  timer
-> >   1:       8923          0    IO-APIC-edge  i8042
-> >   3:         10          0    IO-APIC-edge  serial
-> >   4:         37          0    IO-APIC-edge  serial
-> >   8:          0          0    IO-APIC-edge  rtc
-> >   9:        240          0   IO-APIC-level  acpi
-> >  12:      75316          0    IO-APIC-edge  i8042
-> >  14:      64291          0    IO-APIC-edge  ide0
-> >  15:      64291          0    IO-APIC-edge  ide1
-> >  16:     235408          0   IO-APIC-level  HiSax, nvidia
-> >  17:      15823          0   IO-APIC-level  libata, AMD AMD8111
-> >  19:        241          0   IO-APIC-level  ohci_hcd, ohci_hcd, ohci1394
-> >  24:      50761          0   IO-APIC-level  eth0
-> > NMI:         89         28 
-> > LOC:    3139042    3139125 
-> > ERR:          0
-> > MIS:          0
-> > [jackson:stock]:(/usr/src/linux)$ 
-> 
-> this may or may not be a problem depending on how long a time you used
-> to collect this. Based on your timer tick count it really looks like
-> your irq rates are so low that it really doesn't matter much
-> 
-> > 
-> > Only when firing up the irqbalance util at boot time will activate
-> > true SMP, distributing IRQ's across CPU's. Is this on purpose?
-> > Because afaik a Linux SMP kernel, 2.4.xx or 2.6.xx should always
-> > result in distributed IRQ loads across CPU's.
-> 
-> that is a chipset feature if it happens; not all chipsets do this (and
-> most that do, do it badly). 
-> 
-> I'm not sure what your actual problem is btw, the irqbalance tool is
-> supposed to automatically start at boot, did it not do that ?
-> (and no the kernel doesn't need to do everything, something like this
-> can perfectly well be done in userspace as irqbalance shows)
+You could just use the 'random' match module from netfilter/POMng, but I 
+doubt it will compile out-of-the-box on 2.4.32. It would then be as simple 
+as
+	iptables -t mangle -I PREROUTING -m random --average 1 -j DROP
 
-My question is if the irqbalance util is really needed to activate IRQ 
-balancing these days. Which kernel versions and higher (2.4xx and 
-2.6.xx) do need this tool? 
+> I really only need to drop random packets being forwarded through ip_forward
+> ... however randomly dropping any packet based on a % is sufficient so I
+> figured netem would be great.
 
-To my understanding can a Linux/UNIX kernel not be called SMP if it 
-does not activate Symmetric IRQ balancing out of the box. Why was 
-irqbalance introduced as a tool inside kernel-utils in the 1st place?  
-In other words: What happened to the Linux kernel that we today now 
-need a tool called irqbalance ?
-
-Robert
+Jan Engelhardt
 -- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
-

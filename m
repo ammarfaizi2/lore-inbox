@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWDQUIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWDQUJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWDQUIi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 16:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbWDQUIi
+	id S1750873AbWDQUJY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 16:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWDQUJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 16:08:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:46290 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750848AbWDQUIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 16:08:37 -0400
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
-	implementation of LSM hooks)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20060417195146.GA8875@kroah.com>
-References: <200604021240.21290.edwin@gurde.com>
-	 <200604072138.35201.edwin@gurde.com>
-	 <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil>
-	 <200604142301.10188.edwin@gurde.com>
-	 <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417162345.GA9609@infradead.org>
-	 <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417173319.GA11506@infradead.org>
-	 <Pine.LNX.4.64.0604171454070.17563@d.namei>
-	 <20060417195146.GA8875@kroah.com>
-Content-Type: text/plain
-Date: Mon, 17 Apr 2006 22:08:23 +0200
-Message-Id: <1145304503.2847.83.camel@laptopd505.fenrus.org>
+	Mon, 17 Apr 2006 16:09:24 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:38304
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750853AbWDQUJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 16:09:23 -0400
+Date: Mon, 17 Apr 2006 13:08:21 -0700 (PDT)
+Message-Id: <20060417.130821.119879392.davem@davemloft.net>
+To: hch@infradead.org
+Cc: sds@tycho.nsa.gov, edwin@gurde.com, linux-security-module@vger.kernel.org,
+       jmorris@namei.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060417173319.GA11506@infradead.org>
+References: <20060417162345.GA9609@infradead.org>
+	<1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
+	<20060417173319.GA11506@infradead.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Christoph Hellwig <hch@infradead.org>
+Date: Mon, 17 Apr 2006 18:33:19 +0100
 
+> On Mon, Apr 17, 2006 at 01:03:24PM -0400, Stephen Smalley wrote:
+> > > fact for access control purposes is fundamentally flawed.  We're not going
+> > > to add helpers or exports for it, I'd rather remove the ability to build
+> > > lsm hook clients modular completely.
+> > 
+> > Or, better, remove LSM itself ;)
 > 
-> But for removing LSM entirely, I'm starting to like your patch.  It's
-> been a very long time and so far, only out-of-tree LSMs are present,
-> with no public statements about getting them submitted into the main
-> kernel tree.  And, I think almost all of the out-of-tree modules already
-> need other kernel patches to get their code working properly, so what's
-> a few more hooks needed...
+> Seriously that makes a lot of sense.  All other modules people have come up
+> with over the last years are irrelevant and/or broken by design.
 
-and if it really cripples the one real user of the API.. then it's
-clearly a wrong thing and it should be fixed (by going away and going
-direct instead).
-
-As for your argument about the bickering... well... afaics most of the
-people who originally in the game quietly went away once it was clear
-that LSM exports were _GPL only .. or when their modules were reviewed
-and shown to be architecturally broken.
-
-Who's left today?
-
+I totally agree, let's get rid of LSM while we can.

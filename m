@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWDQO5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWDQPBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbWDQO5v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 10:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWDQO5v
+	id S1751067AbWDQPBj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 11:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWDQPBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 10:57:51 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:59803 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751073AbWDQO5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 10:57:50 -0400
-Subject: Re: [RFC: 2.6 patch] let arm use drivers/Kconfig
-From: David Woodhouse <dwmw2@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-In-Reply-To: <20060417144823.GC7429@stusta.de>
-References: <20060417144823.GC7429@stusta.de>
+	Mon, 17 Apr 2006 11:01:39 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:42395 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751065AbWDQPBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 11:01:39 -0400
+Subject: Re: irqbalance mandatory on SMP kernels?
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
+       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
+       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
+       Kamal Deen <kamal@kdeen.net>
+In-Reply-To: <4443A6D9.6040706@mbligh.org>
+References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net>
+	 <4443A6D9.6040706@mbligh.org>
 Content-Type: text/plain
-Date: Mon, 17 Apr 2006 15:55:54 +0100
-Message-Id: <1145285754.13200.15.camel@pmac.infradead.org>
+Date: Mon, 17 Apr 2006 11:01:33 -0400
+Message-Id: <1145286094.16138.22.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-17 at 16:48 +0200, Adrian Bunk wrote:
-> --- linux-2.6.17-rc1-mm2-arm/drivers/mtd/Kconfig.old    2006-04-17 14:32:35.000000000 +0200
-> +++ linux-2.6.17-rc1-mm2-arm/drivers/mtd/Kconfig        2006-04-17 15:00:57.000000000 +0200
-> @@ -1,6 +1,7 @@
->  # $Id: Kconfig,v 1.11 2005/11/07 11:14:19 gleixner Exp $
->  
->  menu "Memory Technology Devices (MTD)"
-> +       depends on (ALIGNMENT_TRAP || !ARM)
->  
->  config MTD
->         tristate "Memory Technology Device (MTD) support"
+On Mon, 2006-04-17 at 07:31 -0700, Martin J. Bligh wrote:
+> Robert M. Stockmann wrote:
+> > Hi,
+> > 
+> > I noticed that the latest editions of RedHat EL 4.3 and direct
+> > descendants today need a program called irqbalance to activate
+> > true SMP IRQ load balancing for your machine's hardware.
+> > 
+> > If one boots a SMP kernel (2.4.xx or 2.6.xx) kernel on a machine
+> > which either has 2 or more physical CPU's (also dual-core CPU's) 
+> > , and one does not start up the irqbalance util from the
+> > kernel-utils package ( see e.g. 
+> 
+> There is an in-kernel IRQ balancer. Redhat just choose to turn it
+> off, and do it in userspace instead. You can re-enable it if you
+> compile your own kernel.
 
-This dependency is incorrect. It's only one or two chip-specific drivers
-which require that the architecture correctly handle alignment traps,
-and even then it's only actually apparent when used with JFFS2 which
-actually _gives_ it an unaligned buffer occasionally. Everything else
-works fine.
+Round-robin IRQ balancing is inefficient anyway.  You'd get better cache
+utilization letting one CPU take them all.
 
-Also, I don't want to see this dependency expressed in the MTD Kconfig
-file unless it's not arch-specific. Please make a generic
-BROKEN_UNALIGNED config option, and set it on all architectures which
-need it. Then propose a saner place to put the restriction instead of on
-CONFIG_MTD.
-
--- 
-dwmw2
+Lee
 

@@ -1,30 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWDQWQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWDQWUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWDQWQm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 18:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWDQWQm
+	id S1751355AbWDQWUx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 18:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWDQWUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 18:16:42 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:55512 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751350AbWDQWQk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 18:16:40 -0400
+	Mon, 17 Apr 2006 18:20:53 -0400
+Received: from over.ny.us.ibm.com ([32.97.182.150]:28066 "EHLO
+	over.ny.us.ibm.com") by vger.kernel.org with ESMTP id S1751349AbWDQWUv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 18:20:51 -0400
+Date: Mon, 17 Apr 2006 14:47:59 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: James Morris <jmorris@namei.org>
-cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
        casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks 
-In-reply-to: Your message of Mon, 17 Apr 2006 15:31:08 EDT.
-             <Pine.LNX.4.64.0604171528340.17923@d.namei> 
-Date: Mon, 17 Apr 2006 15:15:29 -0700
-Message-Id: <E1FVc0H-00077d-00@w-gerrit.beaverton.ibm.com>
+       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net,
+       David Safford <safford@watson.ibm.com>
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+Message-ID: <20060417194759.GD18990@sergelap.austin.ibm.com>
+References: <20060417180231.71328.qmail@web36606.mail.mud.yahoo.com> <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil> <20060417192634.GB18990@sergelap.austin.ibm.com> <Pine.LNX.4.64.0604171528340.17923@d.namei>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604171528340.17923@d.namei>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 17 Apr 2006 15:31:08 EDT, James Morris wrote:
+Quoting James Morris (jmorris@namei.org):
 > On Mon, 17 Apr 2006, Serge E. Hallyn wrote:
 > 
 > > Hopefully a new version of evm+slim+ima will be ready for distribution
@@ -33,12 +36,12 @@ On Mon, 17 Apr 2006 15:31:08 EDT, James Morris wrote:
 > Why are you still trying to introduce yet another access control model 
 > into the kernel, when SELinux is already there?
 
-I get the impression from customers that SELinux is so painful to
-configure correctly that most of them disable it.  In theory, LSM +
-something like AppArmour provides a much simpler security model for
-normal human beings who want some level of configuration.  Also,
-the current SELinux config in RH is starting to have a measureable
-performance impact.  I'm not sure this particular battle of the
-security models is quite over from a real user perspective.
+Well actually I'm really not much involved.
 
-gerrit
+> Last I recall on this issue, we asked if you could look at providing 
+> integrity measurement as a distinct API, and integrity control as either 
+> integrated with SELinux or a distinct component which SELinux could use.
+
+And those are what I believe the next patchset will provide.
+
+-serge

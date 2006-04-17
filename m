@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWDQOAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWDQOPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWDQOAd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 10:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWDQOAc
+	id S1751006AbWDQOPn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 10:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWDQOPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 10:00:32 -0400
-Received: from wasp.net.au ([203.190.192.17]:4075 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S1750966AbWDQOAc (ORCPT
+	Mon, 17 Apr 2006 10:15:43 -0400
+Received: from stokkie.demon.nl ([82.161.49.184]:60384 "HELO stokkie.net")
+	by vger.kernel.org with SMTP id S1751004AbWDQOPn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 10:00:32 -0400
-Message-ID: <44439FCE.50809@wasp.net.au>
-Date: Mon, 17 Apr 2006 18:01:50 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Thunderbird 3.0a1 (X11/20060414)
+	Mon, 17 Apr 2006 10:15:43 -0400
+Date: Mon, 17 Apr 2006 16:15:16 +0200 (CEST)
+From: "Robert M. Stockmann" <stock@stokkie.net>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: linux-kernel@vger.kernel.org, Randy Dunlap <rddunlap@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
+       Kamal Deen <kamal@kdeen.net>
+Subject: Re: irqbalance mandatory on SMP kernels?
+In-Reply-To: <1145279422.2847.44.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.44.0604171608400.28728-100000@hubble.stokkie.net>
 MIME-Version: 1.0
-To: dtor_core@ameritech.net
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16.1 psmouse.c: TouchPad at isa0060/serio4/input0 lost sync
- at byte 1 and ACPI
-References: <44437793.20908@wasp.net.au> <d120d5000604170522q54b4b6ftc263f16a649a99e7@mail.gmail.com>
-In-Reply-To: <d120d5000604170522q54b4b6ftc263f16a649a99e7@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.3 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On 4/17/06, Brad Campbell <brad@wasp.net.au> wrote:
->> Apr 17 14:12:30 bklaptop kernel: psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
->> Apr 17 14:12:30 bklaptop last message repeated 4 times
->> Apr 17 14:12:30 bklaptop kernel: psmouse.c: issuing reconnect request
->>
->> I know it's related to ACPI as if I kill all apps that poll the acpi interface the problem goes
->> away. My issue is that when I do that, I sometimes forget to plug the machine in when it needs it
->> (or suspend it to change the battery) and it winds up dead with no warning. So I *really* need my
->> battery monitoring.
->>
->> I just don't recall having these problems, to this extent with earlier kernels. It's always been
->> there, but I guess since I passed about 2.6.13 or thereabouts it has just gotten worse. 2.6.16.1 is
->> almost unusable for serious work if I have anything monitoring the battery.
->>
+On Mon, 17 Apr 2006, Arjan van de Ven wrote:
+
+> Date: Mon, 17 Apr 2006 15:10:22 +0200
 > 
-> I often do you have your apps polling battery? Changing to 1 or 2
-> minutes might help.
-
-All in all I have three apps that poll.. I've slowed them down a little and it still seems to 
-co-incide with me typing or using the touchpad (Murphy is a swine like that). One polls once per 
-minute, one polls every 30 seconds and one polls every 2 seconds!! (that one I can kill without 
-losing any major functionality)
-
->> ACPI: Embedded Controller [EC0] (gpe 29) interrupt mode.
+> > [jackson:stock]:(/usr/src/linux)$ cat /proc/interrupts 
+> >            CPU0       CPU1       
+> >   0:    3139568          0    IO-APIC-edge  timer
+> >   1:       8923          0    IO-APIC-edge  i8042
+> >   3:         10          0    IO-APIC-edge  serial
+> >   4:         37          0    IO-APIC-edge  serial
+> >   8:          0          0    IO-APIC-edge  rtc
+> >   9:        240          0   IO-APIC-level  acpi
+> >  12:      75316          0    IO-APIC-edge  i8042
+> >  14:      64291          0    IO-APIC-edge  ide0
+> >  15:      64291          0    IO-APIC-edge  ide1
+> >  16:     235408          0   IO-APIC-level  HiSax, nvidia
+> >  17:      15823          0   IO-APIC-level  libata, AMD AMD8111
+> >  19:        241          0   IO-APIC-level  ohci_hcd, ohci_hcd, ohci1394
+> >  24:      50761          0   IO-APIC-level  eth0
+> > NMI:         89         28 
+> > LOC:    3139042    3139125 
+> > ERR:          0
+> > MIS:          0
+> > [jackson:stock]:(/usr/src/linux)$ 
 > 
-> You can try changing EC to use polling mode (ec_intr=0) or even try disablig it.
+> this may or may not be a problem depending on how long a time you used
+> to collect this. Based on your timer tick count it really looks like
+> your irq rates are so low that it really doesn't matter much
+> 
+> > 
+> > Only when firing up the irqbalance util at boot time will activate
+> > true SMP, distributing IRQ's across CPU's. Is this on purpose?
+> > Because afaik a Linux SMP kernel, 2.4.xx or 2.6.xx should always
+> > result in distributed IRQ loads across CPU's.
+> 
+> that is a chipset feature if it happens; not all chipsets do this (and
+> most that do, do it badly). 
+> 
+> I'm not sure what your actual problem is btw, the irqbalance tool is
+> supposed to automatically start at boot, did it not do that ?
+> (and no the kernel doesn't need to do everything, something like this
+> can perfectly well be done in userspace as irqbalance shows)
 
-I've used ec_intr=0 now and it has appeared to increase the reliability somewhat..
-Just got my 1st set in dmesg while composing this e-mail, however I did not notice the mouse lockup 
-or any keys stick. I did have a key stick about 15 mins ago, but it left no messages in the logs.
+My question is if the irqbalance util is really needed to activate IRQ 
+balancing these days. Which kernel versions and higher (2.4xx and 
+2.6.xx) do need this tool? 
 
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: issuing reconnect request
+To my understanding can a Linux/UNIX kernel not be called SMP if it 
+does not activate Symmetric IRQ balancing out of the box. Why was 
+irqbalance introduced as a tool inside kernel-utils in the 1st place?  
+In other words: What happened to the Linux kernel that we today now 
+need a tool called irqbalance ?
 
-Have not figured out how to disable the ACPI ec yet, but I'll get my head in that code tonight and 
-have a look around.
-
-All in all it looks like a definite improvement. I'll keep playing. Many thanks!
-
-(just had another key stick but again, nothing in the logs)
-
-Regards,
-Brad
+Robert
 -- 
-"Human beings, who are almost unique in having the ability
-to learn from the experience of others, are also remarkable
-for their apparent disinclination to do so." -- Douglas Adams
+Robert M. Stockmann - RHCE
+Network Engineer - UNIX/Linux Specialist
+crashrecovery.org  stock@stokkie.net
+

@@ -1,119 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWDQCww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWDQDJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbWDQCww (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 22:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWDQCww
+	id S1750997AbWDQDJR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 23:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWDQDJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 22:52:52 -0400
-Received: from xenotime.net ([66.160.160.81]:45008 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750981AbWDQCww (ORCPT
+	Sun, 16 Apr 2006 23:09:17 -0400
+Received: from mga03.intel.com ([143.182.124.21]:49010 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1750995AbWDQDJQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 22:52:52 -0400
-Date: Sun, 16 Apr 2006 19:55:17 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: hzy@cs.otago.ac.nz, penberg@cs.helsinki.fi, hnagar2@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Slab corruption after unloading a module
-Message-Id: <20060416195517.e078f4db.rdunlap@xenotime.net>
-In-Reply-To: <20060416191741.f859ed90.rdunlap@xenotime.net>
-References: <20060412230439.WMCC8268.mta4-rme.xtra.co.nz@[202.27.184.228]>
-	<20060415212147.6e9b0c11.rdunlap@xenotime.net>
-	<0829C3E1-F140-4561-9DFA-F865C7DECBB6@cs.otago.ac.nz>
-	<20060416191741.f859ed90.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 16 Apr 2006 23:09:16 -0400
+X-IronPort-AV: i="4.04,124,1144047600"; 
+   d="scan'208"; a="23832420:sNHT20817468"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: acpi hotkey sysfs support
+Date: Mon, 17 Apr 2006 11:09:10 +0800
+Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD1223969@pdsmsx411.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: acpi hotkey sysfs support
+Thread-Index: AcZhzEw0AYA4Z1cfQzi+7tvZpSa+Vg==
+From: "Yu, Luming" <luming.yu@intel.com>
+To: <sziwan@hell.org.pl>, "Stelian Pop" <stelian@popies.net>,
+       <thoenig@suse.de>, <borislav@users.sourceforge.net>, <john@neggie.net>,
+       <tauber@informatik.hu-berlin.de>
+Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Apr 2006 03:09:11.0555 (UTC) FILETIME=[4CC09530:01C661CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Apr 2006 19:17:41 -0700 Randy.Dunlap wrote:
+Hello all,
 
-> On Sun, 16 Apr 2006 21:38:44 +1200 zhiyi huang wrote:
-> 
-> > 
-> > On 16/04/2006, at 4:21 PM, Randy.Dunlap wrote:
-> > 
-> > > On Thu, 13 Apr 2006 11:04:39 +1200 Zhiyi Huang wrote:
-> > >
-> > >>> 2.6.8 is an old kernel, you could very well be hitting a kernel bug
-> > >>> that has been fixed already. Can you reproduce this with 2.6.16?
-> > >>
-> > >> I will try that soon.
-> > >>
-> > >>> Also,
-> > >>> you're not including sources to your module so it's impossible to  
-> > >>> tell
-> > >>> whether you're doing something wrong.
-> > >>>
-> > >>>                                                          Pekka
-> > >>
-> > >> Below is my baby module which only uses kmalloc and kfree for my  
-> > >> device
-> > >> structure. I found the slab corruption address is the address of  
-> > >> the structure.
-> > >> It seems to be a bug for kmalloc and kfree.
-> > >
-> > >> /* The parameter for testing */
-> > >> int major=0;
-> > >> MODULE_PARM(major, "i");
-> > >> MODULE_PARM_DESC(major, "device major number");
-> > >
-> > > Hi,
-> > > I had no problem loading and unloading your module on
-> > > 2.6.17-rc1 [after changing MODULE_PARM() to
-> > > module_param(major, int, 0644);
-> > > ].
-> > >
-> > > ---
-> > > ~Randy
-> > 
-> > There was no problem if I just load and unload the module. But if I  
-> > write to the device using "ls > /dev/temp" and then unload the  
-> > module, I would get slab corruption.  I tried to install 2.6.16.5 at  
-> > the moment but got stuck when I was making an initrd image file (no  
-> > output file produced! and no errors displayed). Once I get around  
-> > this problem, I should be able to test it on the new kernel.
-> > Zhiyi
-> 
-> Hm, OK, somehow I missed that crucial part.  Yes, my kernel now dies
-> a horrible death after I unload the tem module, but not with slab
-> corruption, just with invalid memory pointers.  Anyway, the most
-> obvious hint in your earlier email was the data values that were
-> printed:
-> 
-> Slab corruption: start=c7933c38, len=192
-> Redzone: 0x5a2cf071/0x5a2cf071.
-> Last user: [<c01ac52d>](load_elf_interp+0xdd/0x2d0)
-> 070: 6b 6b 6b 6b ac 3c 93 c7 ac 3c 93 c7 6b 6b 6b 6b
-> Prev obj: start=c7933b6c, len=192
-> Redzone: 0x5a2cf071/0x5a2cf071.
-> Last user: [<00000000>](0x0)
-> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> Next obj: start=c7933d04, len=192
-> Redzone: 0x5a2cf071/0x5a2cf071.
-> Last user: [<c01e58fa>](__journal_remove_checkpoint+0x4a/0xa0)
-> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> 
-> Aside from the obvious slab corruption and redzone error,
-> the 0x6b value is what mm/slab.c uses for use-after-free
-> poisoning, so it seems that there are some pointers out in
-> never-never land somewhere.
-> 
-> 
-> from mm/slab.c:
-> #define	POISON_INUSE	0x5a	/* for use-uninitialised poisoning */
-> #define POISON_FREE	0x6b	/* for use-after-free poisoning */
-> #define	POISON_END	0xa5	/* end-byte of poisoning */
+I have created a place under sysfs to have a unified place
+to gather user input for common hotkey features. 
+http://bugzilla.kernel.org/show_bug.cgi?id=5749#c10
 
+All of you are owner of a specific acpi hotkey driver. 
+Would you like to use that sysfs support to reduce the
+unnecessary interface complexity.
 
-I don't see problems after I move the kfree() to after the call
-to unregister_chrdev_region().  Sounds like a good plan to make
-that change.
-
----
-~Randy
+Thanks a lot
+Luming

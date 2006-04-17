@@ -1,44 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWDQUJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWDQUVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbWDQUJY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 16:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWDQUJY
+	id S1750862AbWDQUVK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 16:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWDQUVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 16:09:24 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:38304
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750853AbWDQUJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 16:09:23 -0400
-Date: Mon, 17 Apr 2006 13:08:21 -0700 (PDT)
-Message-Id: <20060417.130821.119879392.davem@davemloft.net>
-To: hch@infradead.org
-Cc: sds@tycho.nsa.gov, edwin@gurde.com, linux-security-module@vger.kernel.org,
-       jmorris@namei.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060417173319.GA11506@infradead.org>
-References: <20060417162345.GA9609@infradead.org>
-	<1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
-	<20060417173319.GA11506@infradead.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 17 Apr 2006 16:21:10 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:2179 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750862AbWDQUVI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 16:21:08 -0400
+Date: Mon, 17 Apr 2006 13:20:37 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: James Morris <jmorris@namei.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060417202037.GB3615@sorel.sous-sol.org>
+References: <200604021240.21290.edwin@gurde.com> <200604072138.35201.edwin@gurde.com> <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil> <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604171454070.17563@d.namei>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christoph Hellwig <hch@infradead.org>
-Date: Mon, 17 Apr 2006 18:33:19 +0100
+* James Morris (jmorris@namei.org) wrote:
+> How about enough time to get us to 2.6.18, say, two months?
 
-> On Mon, Apr 17, 2006 at 01:03:24PM -0400, Stephen Smalley wrote:
-> > > fact for access control purposes is fundamentally flawed.  We're not going
-> > > to add helpers or exports for it, I'd rather remove the ability to build
-> > > lsm hook clients modular completely.
-> > 
-> > Or, better, remove LSM itself ;)
-> 
-> Seriously that makes a lot of sense.  All other modules people have come up
-> with over the last years are irrelevant and/or broken by design.
-
-I totally agree, let's get rid of LSM while we can.
+Based on the discussions we had last year, I think the fair date would
+be August not June.

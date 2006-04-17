@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWDQXEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWDQXIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWDQXEq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 19:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWDQXEq
+	id S1750881AbWDQXIV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 19:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWDQXIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 19:04:46 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:40621 "EHLO
+	Mon, 17 Apr 2006 19:08:21 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:25312 "EHLO
 	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1751376AbWDQXEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 19:04:45 -0400
-Message-ID: <44441F01.5010002@cmu.edu>
-Date: Mon, 17 Apr 2006 19:04:33 -0400
+	id S1750705AbWDQXIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 19:08:20 -0400
+Message-ID: <44441FE0.6080908@cmu.edu>
+Date: Mon, 17 Apr 2006 19:08:16 -0400
 From: George Nychis <gnychis@cmu.edu>
 User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060323)
 X-Accept-Language: en-us, en
@@ -78,7 +78,8 @@ Stephen Hemminger wrote:
 >
 >  
 >
-Okay I'm slightly confused... I would like to have the traffic  traverse 
-both the XCP qdisc and the netem qdisc... looking through the wiki it 
-shows me how to classify two sets of traffic, but how do i push all 
-traffic through both?
+Sorry, I was looking at the LARTC guide, completely skipped over the 
+blatently obvious block of commands you were pointing me too :P
+
+Thanks!
+George

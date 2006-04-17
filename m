@@ -1,86 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWDQTuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWDQTxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWDQTuP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 15:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWDQTuP
+	id S1750811AbWDQTxR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 15:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWDQTxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 15:50:15 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:40328 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750808AbWDQTuN (ORCPT
+	Mon, 17 Apr 2006 15:53:17 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:35521 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750811AbWDQTxR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 15:50:13 -0400
-Date: Mon, 17 Apr 2006 15:49:14 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] kdump: x86_64 add crashdump trigger points
-Message-ID: <20060417194914.GC6576@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
+	Mon, 17 Apr 2006 15:53:17 -0400
+Date: Mon, 17 Apr 2006 12:51:46 -0700
+From: Greg KH <greg@kroah.com>
+To: James Morris <jmorris@namei.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060417195146.GA8875@kroah.com>
+References: <200604021240.21290.edwin@gurde.com> <200604072138.35201.edwin@gurde.com> <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil> <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604171454070.17563@d.namei>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Apr 17, 2006 at 03:20:55PM -0400, James Morris wrote:
+> On Mon, 17 Apr 2006, Christoph Hellwig wrote:
+> 
+> > > Or, better, remove LSM itself ;)
+> > 
+> > Seriously that makes a lot of sense.  All other modules people have come up
+> > with over the last years are irrelevant and/or broken by design.
+> 
+> It's been nearly a year since I proposed this, and we've not seen any 
+> appropriate LSM modules submitted in that time.
+> 
+> See
+> http://thread.gmane.org/gmane.linux.kernel.lsm/1120
+> http://thread.gmane.org/gmane.linux.kernel.lsm/1088
+> 
+> The only reason I can see to not delete it immediately is to give BSD 
+> secure levels users a heads-up, although I thought it was already slated 
+> for removal.  BSD secure levels is fundamentally broken and should 
+> never have gone into mainline.
 
-I am reposting this patch as there was no response after I modified the
-patch based on feedback. Is there a problem with the patch? If yes please
-let me know, I shall rectify that.
+I agree about the BSD secure levels code, it has a known reported
+security problem, with no response by its maintainers.  On that aspect
+alone, it should be removed.
 
-We need this patch to trigger the booting of capture kernel if system is
-hung and die_nmi() hits or some thread oopses and panic_on_oops is set.
+But for removing LSM entirely, I'm starting to like your patch.  It's
+been a very long time and so far, only out-of-tree LSMs are present,
+with no public statements about getting them submitted into the main
+kernel tree.  And, I think almost all of the out-of-tree modules already
+need other kernel patches to get their code working properly, so what's
+a few more hooks needed...
 
-System starts booting into capture kernel only if it is pre-loaded otherwise
-normal operation continues and existing functionality is not impacted. 
+/me pokes the bushes to flush out the people lurking
 
-o Start booting into the capture kernel after an Oops if system is in a
-  unrecoverable state. System will boot into the capture kernel, if one is
-  pre-loaded by the user, and capture the kernel core dump.
+Oh, but do remember, the main goal of LSM was to stop people from
+arguing about different security models.  Now that it is in, we haven't
+had any bickering about different types of things that should go into
+mainline, all with different models and usages.  Everyone gets to play
+in their own sandbox and not worry about anyone else.  If the LSM
+interface was to go away, that problem would start happening again, and
+I don't think we want to go there.
 
-o One of the following conditions should be true to trigger the booting of
-  capture kernel.
-        - panic_on_oops is set.
-        - pid of current thread is 0
-        - pid of current thread is 1
-        - Oops happened inside interrupt context.
+So, I think the only way to be able to realisticly keep the LSM
+interface, is for a valid, working, maintained LSM-based security model
+to go into the kernel tree.  So far, I haven't seen any public posting
+of patches that meet this requirement :(
 
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
+thanks,
 
- arch/x86_64/kernel/traps.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
-diff -puN arch/x86_64/kernel/traps.c~kdump-x86_64-add-crashdump-trigger-points arch/x86_64/kernel/traps.c
---- linux-2.6.17-rc1-1M/arch/x86_64/kernel/traps.c~kdump-x86_64-add-crashdump-trigger-points	2006-04-11 08:37:08.000000000 -0400
-+++ linux-2.6.17-rc1-1M-root/arch/x86_64/kernel/traps.c	2006-04-11 09:03:26.000000000 -0400
-@@ -30,6 +30,7 @@
- #include <linux/moduleparam.h>
- #include <linux/nmi.h>
- #include <linux/kprobes.h>
-+#include <linux/kexec.h>
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -433,6 +434,8 @@ void __kprobes __die(const char * str, s
- 	printk(KERN_ALERT "RIP ");
- 	printk_address(regs->rip); 
- 	printk(" RSP <%016lx>\n", regs->rsp); 
-+	if (kexec_should_crash(current))
-+		crash_kexec(regs);
- }
- 
- void die(const char * str, struct pt_regs * regs, long err)
-@@ -455,6 +458,8 @@ void __kprobes die_nmi(char *str, struct
- 	 */
- 	printk(str, safe_smp_processor_id());
- 	show_registers(regs);
-+	if (kexec_should_crash(current))
-+		crash_kexec(regs);
- 	if (panic_on_timeout || panic_on_oops)
- 		panic("nmi watchdog");
- 	printk("console shuts up ...\n");
-_
+greg k-h

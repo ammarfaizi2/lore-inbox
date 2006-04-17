@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWDQOWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWDQOWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWDQOWE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 10:22:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWDQOWE
+	id S1751015AbWDQOWc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 10:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWDQOWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 10:22:04 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:51693 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751011AbWDQOWB (ORCPT
+	Mon, 17 Apr 2006 10:22:32 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:6930 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751014AbWDQOWb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 10:22:01 -0400
-Date: Mon, 17 Apr 2006 16:21:58 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: George Nychis <gnychis@cmu.edu>
-cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: want to randomly drop packets based on percent
-In-Reply-To: <444345F9.4090100@cmu.edu>
-Message-ID: <Pine.LNX.4.61.0604171618590.7579@yvahk01.tjqt.qr>
-References: <444345F9.4090100@cmu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Apr 2006 10:22:31 -0400
+Date: Mon, 17 Apr 2006 10:22:19 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Jon Masters <jcm@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] binary firmware and modules
+Message-ID: <20060417142214.GI5042@tuxdriver.com>
+Mail-Followup-To: Oliver Neukum <oliver@neukum.org>,
+	Jon Masters <jcm@redhat.com>, linux-kernel@vger.kernel.org
+References: <1145088656.23134.54.camel@localhost.localdomain> <200604151154.22787.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604151154.22787.oliver@neukum.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> I'm using the 2.4.32 kernel with madwifi and iproute2 version
-> 2-2.6.16-060323.tar.gz
->
-> I wanted to insert artificial packet loss based on a percent so i found:
-> network emulab qdisc could do it, so i compiled support into the kernel and
-> tried:
-> tc qdisc change dev eth0 root netem loss .1%
+On Sat, Apr 15, 2006 at 11:54:22AM +0200, Oliver Neukum wrote:
+> Am Samstag, 15. April 2006 10:10 schrieb Jon Masters:
+> > The attached patch introduces MODULE_FIRMWARE as one way of advertising
+ 
+> Strictly speaking, what is the connection with modules? Statically
 
-You could just use the 'random' match module from netfilter/POMng, but I 
-doubt it will compile out-of-the-box on 2.4.32. It would then be as simple 
-as
-	iptables -t mangle -I PREROUTING -m random --average 1 -j DROP
+The same as MODULE_AUTHOR, MODULE_LICENSE, etc.  The divide is more
+logical than physical.
 
-> I really only need to drop random packets being forwarded through ip_forward
-> ... however randomly dropping any packet based on a % is sufficient so I
-> figured netem would be great.
+> compiled drivers need their firmware, too. Secondly, do all drivers
+> know at compile time which firmware they'll need?
 
-Jan Engelhardt
+They have to know what they will request, do they not?
+
+John
 -- 
+John W. Linville
+linville@tuxdriver.com

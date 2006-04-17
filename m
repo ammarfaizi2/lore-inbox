@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWDQWKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWDQWQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWDQWKz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 18:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWDQWKz
+	id S1751300AbWDQWQA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 18:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWDQWQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 18:10:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:46570 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751348AbWDQWKy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 18:10:54 -0400
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
-	implementation of LSM hooks)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Emily Ratliff <ejratl@gmail.com>, James Morris <jmorris@namei.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20060417220713.GF3615@sorel.sous-sol.org>
-References: <200604072138.35201.edwin@gurde.com>
-	 <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil>
-	 <200604142301.10188.edwin@gurde.com>
-	 <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417162345.GA9609@infradead.org>
-	 <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417173319.GA11506@infradead.org>
-	 <Pine.LNX.4.64.0604171454070.17563@d.namei>
-	 <20060417202037.GB3615@sorel.sous-sol.org>
-	 <2e00cdfd0604171437g1d6c6923w5db82f317ed0f56@mail.gmail.com>
-	 <20060417220713.GF3615@sorel.sous-sol.org>
+	Mon, 17 Apr 2006 18:16:00 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:3017 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751300AbWDQWQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 18:16:00 -0400
+Subject: Re: [Alsa-devel] Re: [linuxsh-dev] [PATCH] ALSA driver for Yamaa
+	AICA on Sega Dreamcast
+From: Lee Revell <rlrevell@joe-job.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Adrian McMenamin <adrian@mcmen.demon.co.uk>,
+       Paul Mundt <lethal@linux-sh.org>,
+       Alsa-devel <alsa-devel@lists.sourceforge.net>,
+       linux-sh <linuxsh-dev@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060417220512.GA16119@infradead.org>
+References: <1145232784.12804.2.camel@localhost.localdomain>
+	 <20060417012913.GA16821@linux-sh.org>
+	 <1145304037.9244.27.camel@localhost.localdomain>
+	 <1145310435.16138.83.camel@mindpipe> <20060417220512.GA16119@infradead.org>
 Content-Type: text/plain
-Date: Tue, 18 Apr 2006 00:10:46 +0200
-Message-Id: <1145311846.2847.99.camel@laptopd505.fenrus.org>
+Date: Mon, 17 Apr 2006 18:15:56 -0400
+Message-Id: <1145312157.16138.87.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-17 at 15:07 -0700, Chris Wright wrote:
-> * Emily Ratliff (ejratl@gmail.com) wrote:
-> > On 4/17/06, Chris Wright <chrisw@sous-sol.org> wrote:> Based on the
-> > discussions we had last year, I think the fair date would
-> > > be August not June.
-> > Was the one year deadline announced on LKML or the security module mailing
-> > list or anywhere that someone who did not attend OLS might have had an
-> > opportunity to hear about it? In searching the archives, I can't find this
-> > announcement.
+On Mon, 2006-04-17 at 23:05 +0100, Christoph Hellwig wrote:
+> On Mon, Apr 17, 2006 at 05:47:15PM -0400, Lee Revell wrote:
+> > On Mon, 2006-04-17 at 21:00 +0100, Adrian McMenamin wrote:
+> > > But I am happy to change it.
+> > > 
+> > > 
+> > 
+> > Please don't - when adding code to a subsystem with different
+> > conventions than mainline the FAQ says to follow the subsystem
+> > conventions.
 > 
-> I thought there was something written about it, but I can't find it now.
+> Nope.  Alsa needs to gradually converted from something that looks like
+> cat puke to normal kernel style.  Every new driver that's written properly
+> helps.
 
-jamesm posted the LSM mailings he did about this...
-which were from may 2005
+OK thanks.  I was certain I saw this in the FAQ at some point but now I
+can't find it.
 
+Lee
 

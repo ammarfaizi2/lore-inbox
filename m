@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWDQDJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWDQDjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWDQDJR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Apr 2006 23:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWDQDJR
+	id S1750995AbWDQDjN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Apr 2006 23:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWDQDjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Apr 2006 23:09:17 -0400
-Received: from mga03.intel.com ([143.182.124.21]:49010 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1750995AbWDQDJQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Apr 2006 23:09:16 -0400
-X-IronPort-AV: i="4.04,124,1144047600"; 
-   d="scan'208"; a="23832420:sNHT20817468"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Sun, 16 Apr 2006 23:39:13 -0400
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:18632 "EHLO
+	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750995AbWDQDjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Apr 2006 23:39:13 -0400
+Date: Sun, 16 Apr 2006 23:39:06 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       James Morris <jmorris@intercode.com.au>,
+       "David S. Miller" <davem@davemloft.net>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Per Liden <per.liden@ericsson.com>, Jon Maloy <jon.maloy@ericsson.com>,
+       Allan Stephens <allan.stephens@windriver.com>,
+       tipc-discussion@lists.sourceforge.net,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: [PATCH 2/5] Remove redundant NULL checks before [kv]free - in 
+ net/
+In-Reply-To: <200604170328.56646.jesper.juhl@gmail.com>
+Message-ID: <Pine.LNX.4.64.0604162338480.11613@d.namei>
+References: <200604170328.56646.jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: acpi hotkey sysfs support
-Date: Mon, 17 Apr 2006 11:09:10 +0800
-Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD1223969@pdsmsx411.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: acpi hotkey sysfs support
-Thread-Index: AcZhzEw0AYA4Z1cfQzi+7tvZpSa+Vg==
-From: "Yu, Luming" <luming.yu@intel.com>
-To: <sziwan@hell.org.pl>, "Stelian Pop" <stelian@popies.net>,
-       <thoenig@suse.de>, <borislav@users.sourceforge.net>, <john@neggie.net>,
-       <tauber@informatik.hu-berlin.de>
-Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 Apr 2006 03:09:11.0555 (UTC) FILETIME=[4CC09530:01C661CC]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Mon, 17 Apr 2006, Jesper Juhl wrote:
 
-I have created a place under sysfs to have a unified place
-to gather user input for common hotkey features. 
-http://bugzilla.kernel.org/show_bug.cgi?id=5749#c10
+> Redundant NULL check before kfree removal
+> from net/
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 
-All of you are owner of a specific acpi hotkey driver. 
-Would you like to use that sysfs support to reduce the
-unnecessary interface complexity.
 
-Thanks a lot
-Luming
+Acked-by: James Morris <jmorris@namei.org>
+
+
+
+-- 
+James Morris
+<jmorris@namei.org>

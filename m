@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWDQWQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWDQWQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWDQWQA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 18:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWDQWQA
+	id S1751350AbWDQWQm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 18:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWDQWQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 18:16:00 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:3017 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751300AbWDQWQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 18:16:00 -0400
-Subject: Re: [Alsa-devel] Re: [linuxsh-dev] [PATCH] ALSA driver for Yamaa
-	AICA on Sega Dreamcast
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Adrian McMenamin <adrian@mcmen.demon.co.uk>,
-       Paul Mundt <lethal@linux-sh.org>,
-       Alsa-devel <alsa-devel@lists.sourceforge.net>,
-       linux-sh <linuxsh-dev@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060417220512.GA16119@infradead.org>
-References: <1145232784.12804.2.camel@localhost.localdomain>
-	 <20060417012913.GA16821@linux-sh.org>
-	 <1145304037.9244.27.camel@localhost.localdomain>
-	 <1145310435.16138.83.camel@mindpipe> <20060417220512.GA16119@infradead.org>
-Content-Type: text/plain
-Date: Mon, 17 Apr 2006 18:15:56 -0400
-Message-Id: <1145312157.16138.87.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Apr 2006 18:16:42 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:55512 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751350AbWDQWQk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 18:16:40 -0400
+To: James Morris <jmorris@namei.org>
+cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+       casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks 
+In-reply-to: Your message of Mon, 17 Apr 2006 15:31:08 EDT.
+             <Pine.LNX.4.64.0604171528340.17923@d.namei> 
+Date: Mon, 17 Apr 2006 15:15:29 -0700
+Message-Id: <E1FVc0H-00077d-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-17 at 23:05 +0100, Christoph Hellwig wrote:
-> On Mon, Apr 17, 2006 at 05:47:15PM -0400, Lee Revell wrote:
-> > On Mon, 2006-04-17 at 21:00 +0100, Adrian McMenamin wrote:
-> > > But I am happy to change it.
-> > > 
-> > > 
-> > 
-> > Please don't - when adding code to a subsystem with different
-> > conventions than mainline the FAQ says to follow the subsystem
-> > conventions.
+
+On Mon, 17 Apr 2006 15:31:08 EDT, James Morris wrote:
+> On Mon, 17 Apr 2006, Serge E. Hallyn wrote:
 > 
-> Nope.  Alsa needs to gradually converted from something that looks like
-> cat puke to normal kernel style.  Every new driver that's written properly
-> helps.
+> > Hopefully a new version of evm+slim+ima will be ready for distribution
+> > soon.
+> 
+> Why are you still trying to introduce yet another access control model 
+> into the kernel, when SELinux is already there?
 
-OK thanks.  I was certain I saw this in the FAQ at some point but now I
-can't find it.
+I get the impression from customers that SELinux is so painful to
+configure correctly that most of them disable it.  In theory, LSM +
+something like AppArmour provides a much simpler security model for
+normal human beings who want some level of configuration.  Also,
+the current SELinux config in RH is starting to have a measureable
+performance impact.  I'm not sure this particular battle of the
+security models is quite over from a real user perspective.
 
-Lee
-
+gerrit

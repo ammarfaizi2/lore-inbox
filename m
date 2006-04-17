@@ -1,59 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWDQPF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWDQPPs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWDQPF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 11:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWDQPF2
+	id S1751094AbWDQPPs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 11:15:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWDQPPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 11:05:28 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:21404 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751077AbWDQPF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 11:05:27 -0400
-Subject: Re: RT question : softirq and minimal user RT priority
-From: Lee Revell <rlrevell@joe-job.com>
-To: markh@compro.net
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <4443966B.8020802@compro.net>
-References: <200601131527.00828.Serge.Noiraud@bull.net>
-	 <1137167600.7241.22.camel@localhost.localdomain>
-	 <4443966B.8020802@compro.net>
-Content-Type: text/plain
-Date: Mon, 17 Apr 2006 11:05:24 -0400
-Message-Id: <1145286325.16138.26.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 17 Apr 2006 11:15:48 -0400
+Received: from smtp5-g19.free.fr ([212.27.42.35]:17123 "EHLO smtp5-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751094AbWDQPPs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 11:15:48 -0400
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [RFC] binary firmware and modules
+Date: Mon, 17 Apr 2006 17:15:44 +0200
+User-Agent: KMail/1.9.1
+Cc: "John W. Linville" <linville@tuxdriver.com>,
+       Oliver Neukum <oliver@neukum.org>, Jon Masters <jcm@redhat.com>,
+       linux-kernel@vger.kernel.org
+References: <1145088656.23134.54.camel@localhost.localdomain> <20060417142214.GI5042@tuxdriver.com> <1145284193.2847.53.camel@laptopd505.fenrus.org>
+In-Reply-To: <1145284193.2847.53.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604171715.45252.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please don't trim CC lists
-
-On Mon, 2006-04-17 at 09:21 -0400, Mark Hounschell wrote:
-> Steven Rostedt wrote:
-> >> Is the smallest usable real-time priority greater than the highest real-time softirq ?
+On Monday 17 April 2006 16:29, Arjan van de Ven wrote:
+> On Mon, 2006-04-17 at 10:22 -0400, John W. Linville wrote:
+> > On Sat, Apr 15, 2006 at 11:54:22AM +0200, Oliver Neukum wrote:
+> > > Am Samstag, 15. April 2006 10:10 schrieb Jon Masters:
+> > > > The attached patch introduces MODULE_FIRMWARE as one way of advertising
+> >  
+> > > Strictly speaking, what is the connection with modules? Statically
 > > 
-> > Nope, you can use any rt priority you want.  It's up to you whether you
-> > want to preempt the softirqs or not. Be careful, timers may be preempted
-> > from delivering signals to high priority processes.  I have a patch to
-> > fix this, but I'm waiting on input from either Thomas Gleixner or Ingo.
+> > The same as MODULE_AUTHOR, MODULE_LICENSE, etc.  The divide is more
+> > logical than physical.
 > > 
-> > -- Steve
+> > > compiled drivers need their firmware, too. Secondly, do all drivers
+> > > know at compile time which firmware they'll need?
+> > 
+> > They have to know what they will request, do they not?
 > 
-> I know this is an old thread but I seem to be having a problem similar
-> to this and I didn't find any real resolution in the archives.
 > 
-> I'm using the rt16 patch on 2.6.16.5 with complete preemption. I have a
-> high priority rt compute bound task that isn't getting signals from a
-> pci cards interrupt handler. Only when I insure the rt priority of the
-> task is lower than the rt priority of the irq thread ([IRQ 193]) will my
-> task receive signals.
-> 
-> Is this a bug? Is the bug in my interrupt handler? Or is this expected
-> and acceptable?
+> in order to not fall in the naming-policy trap: do we need a translation
+> layer here? eg the module asks for firmware-<modulename>
+> and userspace then somehow maps that to a full filename via a lookup
+> table?
 
-It's expected if your high priority RT task never gives up the CPU - if
-this is the case the IRQ thread should have higher priority.
+Hi Arjan, since the same module can handle different devices which need
+different firmware, firmware-<modulename> is not sufficient.  An example
+is the speedtouch USB modems, which need different firmware depending on
+the modem revision.  In fact each modem needs two blobs uploaded, a small
+one (stage 1 blob) followed by a large one (stage 2 blob).  These blobs
+are fairly independant, for example a given stage 1 blob can work for a
+wider range of modem revisions than a given stage 2 blob.  Also, the
+manufacturer made a bunch of exotic variations on the modem (all with
+the same product ids, but different revisions); I don't have a complete
+list, and I don't know which ones require special firmware.  That means
+that the driver does not have a complete list of different firmware names.
+It could always use the same names "stage1" and "stage2", regardless of
+the revision, and expect the user to place the right firmware there; but
+then what about people who have multiple modems with different revisions
+(like me)?  As a result of all this, the driver needs to export the following
+to userspace, to let user-space find the right firmware:
 
-Lee
+(0) module name
+(1) stage 1 or stage 2
+(2) modem major revision number
+(3) modem minor revision number (I don't know if this is really needed,
+but I heard a rumour that it was: ISDN modems needing special firmware
+but only varying in their minor revision from non-ISDN modems IIRC).
 
+This is all exported in the hotplug environment.  However, current hotplug
+scripts don't have any cleverness in them for handling this kind of thing
+(I don't know about udev).  So the driver uses the following rather nasty
+but effective scheme: first it looks for the following file:
+
+	speedtch-<stage>.bin.<major_revision>.<minor_revision>
+
+for example speedtch-1.bin.4.0
+
+If that is not found, it looks for
+
+	speedtch-<stage>.bin.<major_revision>
+
+If that is not found, it looks for
+
+	speedtch-<stage>.bin
+
+If that is not found, then it gives up.
+
+This allows people with only one modem to put their firmware in
+speedtch-1.bin and speedtch-2.bin and not have to think about
+revisions.  But at the same time it allows distributions to
+distribute multiple firmware blobs, for example a blob for
+general revision 4 modems, but with a special blob for revision 4.1
+modems (this could be the ISDN kind; I made up the minor revision 1),
+simply by providing files speedtouch-2.bin.4 and speedtouch-2.bin.4.1
+It's got to be said that no distribution that I know of actually does
+this.
+
+All the best,
+
+Duncan.

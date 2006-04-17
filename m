@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWDQOcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWDQOiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbWDQOcW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 10:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWDQOcW
+	id S1751004AbWDQOiI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 10:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWDQOiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 10:32:22 -0400
-Received: from dvhart.com ([64.146.134.43]:17103 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751022AbWDQOcW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 10:32:22 -0400
-Message-ID: <4443A6D9.6040706@mbligh.org>
-Date: Mon, 17 Apr 2006 07:31:53 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Robert M. Stockmann" <stock@stokkie.net>
-Cc: linux-kernel@vger.kernel.org, Randy Dunlap <rddunlap@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
-       Kamal Deen <kamal@kdeen.net>
-Subject: Re: irqbalance mandatory on SMP kernels?
-References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net>
-In-Reply-To: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 17 Apr 2006 10:38:08 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:9913 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751004AbWDQOiH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 10:38:07 -0400
+Subject: Re: [RFC] binary firmware and modules
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "John W. Linville" <linville@tuxdriver.com>,
+       Oliver Neukum <oliver@neukum.org>, Jon Masters <jcm@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1145284193.2847.53.camel@laptopd505.fenrus.org>
+References: <1145088656.23134.54.camel@localhost.localdomain>
+	 <200604151154.22787.oliver@neukum.org>
+	 <20060417142214.GI5042@tuxdriver.com>
+	 <1145284193.2847.53.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Mon, 17 Apr 2006 16:38:12 +0200
+Message-Id: <1145284692.26498.16.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert M. Stockmann wrote:
-> Hi,
-> 
-> I noticed that the latest editions of RedHat EL 4.3 and direct
-> descendants today need a program called irqbalance to activate
-> true SMP IRQ load balancing for your machine's hardware.
-> 
-> If one boots a SMP kernel (2.4.xx or 2.6.xx) kernel on a machine
-> which either has 2 or more physical CPU's (also dual-core CPU's) 
-> , and one does not start up the irqbalance util from the
-> kernel-utils package ( see e.g. 
+Hi Arjan,
 
-There is an in-kernel IRQ balancer. Redhat just choose to turn it
-off, and do it in userspace instead. You can re-enable it if you
-compile your own kernel.
+> > > compiled drivers need their firmware, too. Secondly, do all drivers
+> > > know at compile time which firmware they'll need?
+> > 
+> > They have to know what they will request, do they not?
+> 
+> in order to not fall in the naming-policy trap: do we need a translation
+> layer here? eg the module asks for firmware-<modulename>
+> and userspace then somehow maps that to a full filename via a lookup
+> table?
 
-M.
+why do we need that? Currently it is not needed and I don't see a reason
+to make it more complicated.
+
+The important thing is to export the used firmware names to the
+userspace, because this piece of information is only stored inside the
+kernel source code right now.
+
+Regards
+
+Marcel
+
+

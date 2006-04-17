@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWDQHgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWDQHwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWDQHgX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 03:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWDQHgX
+	id S1751002AbWDQHwM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 03:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbWDQHwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 03:36:23 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:50307 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1750726AbWDQHgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 03:36:23 -0400
-Message-ID: <444345F9.4090100@cmu.edu>
-Date: Mon, 17 Apr 2006 03:38:33 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Mail/News 1.5 (X11/20060408)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: netdev@vger.kernel.org
-Subject: want to randomly drop packets based on percent
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Apr 2006 03:52:12 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:64453 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1750720AbWDQHwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 03:52:11 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: Robin Holt <holt@sgi.com>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Dean Nelson <dcn@sgi.com>
+Subject: Re: Is notify_die being overloaded? 
+In-reply-to: Your message of "Sat, 15 Apr 2006 05:43:56 EST."
+             <20060415104355.GA7156@lnx-holt.americas.sgi.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 17 Apr 2006 17:52:10 +1000
+Message-ID: <2059.1145260330@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+Robin Holt (on Sat, 15 Apr 2006 05:43:56 -0500) wrote:
+>On Sat, Apr 15, 2006 at 04:19:55PM +1000, Keith Owens wrote:
+>> Robin Holt (on Thu, 13 Apr 2006 14:46:44 -0500) wrote:
+>> >notify_die seems to be called to indicate the machine is going down as
+>> >well as there are trapped events for the process.
+>...
+>> The only real problem is the page fault handler event.  All the other
+>...
+>> 
+>> kprobes should be using its own notify chain to trap page faults, and
+>> the handler for that chain should be optimized away when
+>> CONFIG_KPROBES=n or there are no active probes.
+>
+>I realize the page fault handler is the only performance critical event,
+>but don't all the debugging events _REALLY_ deserve a seperate call chain?
+>They are _completely_ seperate and isolated events.  One is a minor event
+>which a small number of other userland processes are concerned with.
+>The other is indicating the machine is about stop running and is only
+>relevant to critical system infrastructure.
 
-I'm using the 2.4.32 kernel with madwifi and iproute2 version 
-2-2.6.16-060323.tar.gz
+Unfortunately the ebents are ambiguous.  On IA64 BUG() maps to break 0,
+but break 0 is also used for debugging[*].  Which makes it awkward to
+differentiate between a kernel error and a debug event, we have to
+first ask the debuggers if the event if for them then, if the debuggers
+do not want the event, drop into the die_if_kernel event.
 
-I wanted to insert artificial packet loss based on a percent so i found:
-network emulab qdisc could do it, so i compiled support into the kernel 
-and tried:
-tc qdisc change dev eth0 root netem loss .1%
+[*] It does not help that IA64 break.b <n> does not store the value of
+    <n> in cr.iim.  All break.b values look like break.b 0.  There used
+    to be code in traps.c to detect this and extract the value of
+    break.b, but a kprobes patch removed that code.
 
-however i keep getting the error
-RTNETLINK answer: Invalid argument
-
-I am not sure how to go about solving this problem for now, so if anyone 
-has any suggestions i'd greatly appreciate it.
-
-I really only need to drop random packets being forwarded through 
-ip_forward ... however randomly dropping any packet based on a % is 
-sufficient so I figured netem would be great.
-
-So in the meantime I figured I would try to insert packet loss in 
-ip_forward.c by generating a random number and dropping based on that. 
-I could goto drop; depending on the number in the function int 
-ip_forward(struct sk_buff *skb)
-
-But then I ran into the problem of properly seeding the random number 
-generator... srand(time(0)) is one way... however time() returns 
-seconds, therefore i would drop multiple packets in a single second if I 
-used this method which is very undesirable.  What is the proper way to 
-generate a random number here?
-
-Thanks!
-George

@@ -1,111 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWDRU74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWDRVAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWDRU74 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 16:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWDRU74
+	id S932240AbWDRVAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 17:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWDRVAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 16:59:56 -0400
-Received: from service.sh.cvut.cz ([147.32.127.214]:63132 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S932230AbWDRU7z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 16:59:55 -0400
-Message-ID: <4445533D.9010000@sh.cvut.cz>
-Date: Tue, 18 Apr 2006 22:59:41 +0200
-From: Rudolf Marek <r.marek@sh.cvut.cz>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Watchdog device class
-References: <4443EED9.30603@sh.cvut.cz> <20060418195751.GA6968@infomag.infomag.iguana.be>
-In-Reply-To: <20060418195751.GA6968@infomag.infomag.iguana.be>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 18 Apr 2006 17:00:09 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:4040 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932240AbWDRVAH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 17:00:07 -0400
+Subject: [PATCH] tpm: spacing cleanups
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
+Content-Type: text/plain
+Date: Tue, 18 Apr 2006 15:56:11 -0500
+Message-Id: <1145393772.4829.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Wim,
+Fixes minor spacing issues.
 
-> I was doing some stuff for the ICH6 & ICH7 I/O chipsets first and was then 
-> planning to resume working on my generic watchdog code again. (It used to be
-> stored in a bitkeeper tree, but I didn't convert it to a git tree yet).
-> I'll make sure that the code get's stored in the linux-2.6-watchdog-experimental
-> git tree in the coming days.
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+---
+ drivers/char/tpm/tpm_tis.c |   22 +++++++++-------------
+ 1 files changed, 9 insertions(+), 13 deletions(-)
 
-Aha good. I will check it later.
+--- linux-2.6.17-rc1-mm2/drivers/char/tpm/tpm_tis.c	2006-04-18 14:54:17.025607500 -0500
++++ linux-2.6.17-rc1/drivers/char/tpm/tpm_tis.c	2006-04-18 14:59:51.510511500 -0500
+@@ -54,8 +57,8 @@ enum tis_int_flags {
+ enum tis_defaults {
+ 	TIS_MEM_BASE = 0xFED4000,
+ 	TIS_MEM_LEN = 0x5000,
+-	TIS_SHORT_TIMEOUT = 750, /* ms */
+-	TIS_LONG_TIMEOUT = 2000, /* 2 sec */
++	TIS_SHORT_TIMEOUT = 750,	/* ms */
++	TIS_LONG_TIMEOUT = 2000,	/* 2 sec */
+ };
+ 
+ #define	TPM_ACCESS(l)			(0x0000 | ((l) << 12))
+@@ -188,7 +191,7 @@ static int wait_for_stat(struct tpm_chip
+ 	return -ETIME;
+ }
+ 
+-static int recv_data(struct tpm_chip *chip, u8 * buf, size_t count)
++static int recv_data(struct tpm_chip *chip, u8 *buf, size_t count)
+ {
+ 	int size = 0, burstcnt;
+ 	while (size < count &&
+@@ -206,7 +209,7 @@ static int recv_data(struct tpm_chip *ch
+ 	return size;
+ }
+ 
+-static int tpm_tis_recv(struct tpm_chip *chip, u8 * buf, size_t count)
++static int tpm_tis_recv(struct tpm_chip *chip, u8 *buf, size_t count)
+ {
+ 	int size = 0;
+ 	int expected, status;
+@@ -257,7 +260,7 @@ out:
+  * tpm.c can skip polling for the data to be available as the interrupt is
+  * waited for here
+  */
+-static int tpm_tis_send(struct tpm_chip *chip, u8 * buf, size_t len)
++static int tpm_tis_send(struct tpm_chip *chip, u8 *buf, size_t len)
+ {
+ 	int rc, status, burstcnt;
+ 	size_t count = 0;
+@@ -374,8 +377,7 @@ static struct tpm_vendor_specific tpm_ti
+ 		    .fops = &tis_ops,},
+ };
+ 
+-static irqreturn_t tis_int_probe(int irq, void *dev_id, struct pt_regs
+-				 *regs)
++static irqreturn_t tis_int_probe(int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	struct tpm_chip *chip = (struct tpm_chip *) dev_id;
+ 	u32 interrupt;
+@@ -395,8 +397,7 @@ static irqreturn_t tis_int_probe(int irq
+ 	return IRQ_HANDLED;
+ }
+ 
+-static irqreturn_t tis_int_handler(int irq, void *dev_id, struct pt_regs
+-				   *regs)
++static irqreturn_t tis_int_handler(int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	struct tpm_chip *chip = (struct tpm_chip *) dev_id;
+ 	u32 interrupt;
+@@ -426,10 +427,8 @@ static irqreturn_t tis_int_handler(int i
+ 	return IRQ_HANDLED;
+ }
+ 
+-static int __devinit tpm_tis_pnp_init(struct pnp_dev
+-				      *pnp_dev, const struct
+-				      pnp_device_id
+-				      *pnp_id)
++static int __devinit tpm_tis_pnp_init(struct pnp_dev *pnp_dev,
++				      const struct pnp_device_id *pnp_id)
+ {
+ 	u32 vendor, intfcaps, intmask;
+ 	int rc, i;
+ 
 
-> 	int	(*get_timervalue)(struct watchdog_device *, int *);
-Good one.
 
-> 	int	(*sys_restart)(struct watchdog_device *);		/* operation = force a
-system_restart for rebooting */
-
-Aha as for the cobalt stuff?
-
-> 	int	(*get_status)(struct watchdog_device *,int *);		/* operation = get the watchdog's status */
-> 	int	(*get_temperature)(struct watchdog_device *, int *);	/* operation = get the temperature in °F */
-
-I had those there too but I eliminated them. I used following methods:
-For the status stuff I did a variable boot_status and status. I have
-a handler for this in the common IOCTL handling code.
-
-I have no such thing for the temp IOCTL but the new "ioctl" operation
-could be created to catch it.
-(and get called when no standard ioctl in watchdog-dev is used)
-
-As for sysfs, I would like to have the temps handled with the hwmon class
-and have some sort of "symlink" from the watchdog directory to corresponding
-hwmon directory. The status stuff might be handled via standard format sysfs file.
-
-> struct watchdog_device {
-> 	unsigned char name[32];				/* The watchdog's 'identity' */
-> 	unsigned long options;				/* The supported capabilities/options */
-> 	unsigned long firmware;				/* The watchdog's Firmware version */
-> 	int heartbeat;					/* The watchdog's heartbeat */
-> 	int nowayout;					/* The nowayout setting for this watchdog */
-> 	int bootstatus;					/* The watchdog's bootstatus */
-got the unsigned long to have more space...
-> 	int temppanic;					/* wether or not to panic on temperature trip's */
-> 	struct watchdog_ops *watchdog_ops;		/* link to watchdog_ops */
-> 
-> 	/* watchdog status state machine */
-> 	enum { WATCHDOG_UNINITIALIZED=0,
->                WATCHDOG_INITIALIZED,
->                WATCHDOG_STARTED,
->                WATCHDOG_STOPPED,
->                WATCHDOG_UNREGISTERED,
-> 	} watchdog_state;
-
-I dont have the state machine but something like this is implemented in the dev
-device handling.
-
-Additionaly I have the self ping stuff in the class too.
-
-> 	/* From here on everything is device dependent */
-> 	void	*private;
-
-In the w83792d I used different approach, because the device is not only a
-watchog, the struct watchdog_device was a part of the common device structure,
-and for single purpose devices this *private makes sense. But I think there
-some per device private data pointer somewhere.
-
-> you don't need an operation for the notify_reboot. This is only necessary to
-> make sure that you either stop the watchdog or force it to reboot (because
-> the hardware isn't capable of rebooting itself. See the cobalt server)).
-
-Alan already did a hint about the device driver callback that may handle this.
-
-Now it seems we have two different approaches and a code, so which one will wim
-? ;) If you want to talk to me you may find me on #linux-sensors on freenode.net.
-
-Also I would like to know your ideas about the sysfs file structure for
-watchdogs and also If you like to have more watchdogs active in the system or
-just one.
-
-Thanks,
-Regards
-Rudolf
-
-PS: CC me please.

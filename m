@@ -1,45 +1,57 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbWDRMsi (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 18 Apr 2006 08:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWDRMsi
+	id S1751095AbWDRQrY (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 18 Apr 2006 12:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWDRQrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 08:48:38 -0400
-Received: from w130.z064000082.was-dc.dsl.cnc.net ([64.0.82.130]:59652 "helo
-	localhost") by vger.kernel.org with SMTP id S1751035AbWDRMsh (ORCPT
+	Tue, 18 Apr 2006 12:47:24 -0400
+Received: from vsmtp4.tin.it ([212.216.176.224]:27052 "EHLO vsmtp4.tin.it")
+	by vger.kernel.org with ESMTP id S1751095AbWDRQrX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 08:48:37 -0400
-Message-ID: <000001c66311$1b48fd80$0100007f@localhost>
-From: "Anthony Perez" <lnnie@azulhotels.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Academic Qualifications available from prestigious NON-ACCREDITED universities
-Date: Tue, 18 Apr 2006 08:58:17 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="windows-1251"
+	Tue, 18 Apr 2006 12:47:23 -0400
+Message-ID: <10aade09f94.jason_reed@virgilio.it>
+Date: Tue, 18 Apr 2006 17:41:20 +0100 (GMT+01:00)
+From: <jason_reed@virgilio.it>
+Reply-To: <jason_reed@virgilio.it>
+Subject: Please Respond
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-Originating-IP: 213.31.40.116
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751039AbWDRMsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751095AbWDRQrY@vger.kernel.org>
 
-
-NO ONE is turned down.
-
-According to the U.S. Census Bureau, with the following degrees, 
-here's how much you can  expect to make in your lifetime:
-
-High School Diploma:  $1,100,000
-Bachelor's Degree:    $2,100,000
-Master's Degree:      $2,500,000
-Doctorate:            $4,400,000
-
-You Need a Better Degree, and we can Help!
-Obtain degrees from Prestigious non-accredited
-Universities based on you life experience.
-NO ONE is turned down.
-
-Call Now 7 days a week.
-"1-718-504-5376"
+Dear Friend,
+I am Mr Jason Reed, a computer programmer/ software
+engineer based in Africa. My company was established
+in 2001. I am 
+interested in employing your services,
+to work with me as my payment 
+agent who can help me
+establish a medium of recieving payment on my 
+behalf
+for Goods and services I supplied to my customers in
+Europe, 
+America or Australia as the case need may
+arise.
+If you are interested 
+in transacting business with me.
+I will be very glad. Subject to your 
+satisfaction you
+will be given the opportunity to negotiate your mode
+of payment which we will pay[10%] for your services as
+my 
+representative in your country. Please if you are
+interested forward 
+to 
+me your phone/fax number and
+your full contact address.
+Thank you 
+as I 
+await your further response.
+Hoping to hear from you.
+Faithfully 
+Yours,
+Mr Jason Reed.
 

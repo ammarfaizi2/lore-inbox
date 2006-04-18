@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWDRHMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWDRHXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbWDRHMg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 03:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWDRHMg
+	id S1751400AbWDRHXD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 03:23:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWDRHXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 03:12:36 -0400
-Received: from pproxy.gmail.com ([64.233.166.180]:48322 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751003AbWDRHMg convert rfc822-to-8bit
+	Tue, 18 Apr 2006 03:23:03 -0400
+Received: from pproxy.gmail.com ([64.233.166.176]:26581 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751400AbWDRHXC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 03:12:36 -0400
+	Tue, 18 Apr 2006 03:23:02 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=VilBR7xCmtuuYoCqRRzGJKWl5Lfv4j2+n8hPNpLR719jZBpmHtmaOdAJTFCowlbMC2swiKetPBw40vO/g3I2eMFYx24vvjn0UMbND47oIjq6v0P4Db6BpmklpsEKyqbmD49QYIGo1t1KK14QVPUc7xXT4RViOKiTqMbuJE5/y8A=
-Message-ID: <bf3792800604180012s4c96fae2g3725f52690af9a0d@mail.gmail.com>
-Date: Tue, 18 Apr 2006 15:12:35 +0800
+        b=onYcyADe98F1+iVGFrsCCDcsJ0vx/RXaUGgMp/FzXW4n5fKiLoeNGiyhNztVV1QHsDWVpgJd7csUu5/uZ4qaAAe80TxysrGVMSOkQwwXQUP0cS2cPMO0cJu4RKLoBK9aODGKEh71449UCaPJRvdL+ceJoUa9CbRmfvVi9cO2a6c=
+Message-ID: <bf3792800604180023r2a2111b4ude5ef15f9dd855a@mail.gmail.com>
+Date: Tue, 18 Apr 2006 15:23:01 +0800
 From: "Liu haixiang" <liu.haixiang@gmail.com>
 To: linux-kernel@vger.kernel.org
 Subject: Question on Schedule and Preemption
@@ -27,14 +27,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi All,
 
-Now I am developing drivers on Linux 2.6.
+Now I am developing the driver on Linux kernel 2.6.11. And I met the
+problem that kernel will dump my stack from time to time. And the
+kernel log will give me messages like "scheduling while atomic: ...".
 
-My problem is that from time to time, I will get log meesage from
-kernel: "scheduling while atomic ..." and the stack will be dumped by
-the kernel.
-
-Then I investigate the code in sched.c but don't understand. Anybody
-can clarify this piece of code for me?
+Then I found the code in sched.c:
 
 if (likely(!current->exit_state)) {
 	if (unlikely(in_atomic())) {
@@ -45,6 +42,10 @@ if (likely(!current->exit_state)) {
 	}
 }
 
-Thanks a lot
+Anybody can explain above code for me?
 
-Haixiang
+Thanks
+
+best regards
+
+Haixiang Liu

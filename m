@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWDRLtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWDRLtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWDRLtB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 07:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWDRLtB
+	id S932208AbWDRLtl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 07:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWDRLtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 07:49:01 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:38847 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932206AbWDRLtA (ORCPT
+	Tue, 18 Apr 2006 07:49:41 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:32198 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932208AbWDRLtk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 07:49:00 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Tue, 18 Apr 2006 07:49:40 -0400
+Date: Tue, 18 Apr 2006 12:45:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH -mm] swsusp: rework memory shrinker
-Date: Tue, 18 Apr 2006 13:47:54 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, kernel@kolivas.org
-References: <200604181201.53430.rjw@sisk.pl> <20060418031355.7370b1e6.akpm@osdl.org>
-In-Reply-To: <20060418031355.7370b1e6.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] cond-resched-might-sleep-fix.patch
+Message-ID: <20060418104554.GA2395@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604181347.55259.rjw@sisk.pl>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 April 2006 12:13, Andrew Morton wrote:
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> >
-> > Rework the swsusp's memory shrinker in the following way:
-> 
-> And what was the observed effect of all this?
+From: Ingo Molnar <mingo@elte.hu>
 
-Measurable effects:
-1) It tends to free only as much memory as required, eg. if the image_size
-is set to 450 MB, the actual image sizes are almost always well above
-400 MB and they tended to be below that number without the patch
-(~5-10% of a difference, but still :-)).
-2) If image_size = 0, it frees everything that can be freed without any
-workarounds (we had to add the additional loop checking for
-ret >= nr_pages with the additional blk_congestion_wait() to the
-"original" shrinker to achieve this).
+add the __might_sleep() check back to cond_resched().
 
-A non-measurable effect is that with the patch applied  the system seems to
-be more responsive after resume, but of course this may be an illusion.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-> 
-> > +		/* Force reclaiming mapped pages in the passes #3 and #4 */
-> > +		if (pass > 2) {
-> > +			sc.may_swap = 1;
-> > +			vm_swappiness = 100;
-> > +		}
-> 
-> That's a bit klunky.   Maybe we should move swappiness into scan_control.
+----
 
-Alternatively we can temporarily set zone->prev_priority to 100 in
-shrink_all_zones() if pass > 2?
+ kernel/sched.c |    3 +++
+ 1 files changed, 3 insertions(+)
+
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -4072,6 +4072,9 @@ asmlinkage long sys_sched_yield(void)
+ 
+ static inline void __cond_resched(void)
+ {
++#ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
++	__might_sleep(__FILE__, __LINE__);
++#endif
+ 	/*
+ 	 * The BKS might be reacquired before we have dropped
+ 	 * PREEMPT_ACTIVE, which could trigger a second

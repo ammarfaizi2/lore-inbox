@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWDRO7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWDRPF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbWDRO7M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 10:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWDRO7M
+	id S932248AbWDRPF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 11:05:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWDRPF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 10:59:12 -0400
-Received: from smtp3-g19.free.fr ([212.27.42.29]:43479 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751041AbWDRO7L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 10:59:11 -0400
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [RFC] binary firmware and modules
-Date: Tue, 18 Apr 2006 16:59:04 +0200
-User-Agent: KMail/1.9.1
-Cc: Jon Masters <jonathan@jonmasters.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1145088656.23134.54.camel@localhost.localdomain> <200604181537.47183.duncan.sands@math.u-psud.fr> <1145370171.10255.58.camel@localhost>
-In-Reply-To: <1145370171.10255.58.camel@localhost>
+	Tue, 18 Apr 2006 11:05:59 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48901 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932248AbWDRPF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 11:05:59 -0400
+Date: Tue, 18 Apr 2006 17:05:57 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] kernel/printk.c: remove unused exports
+Message-ID: <20060418150557.GD11582@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604181659.04657.duncan.sands@math.u-psud.fr>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcel,
+This patch removes the following unused EXPORT_SYMBOL's:
+- console_printk
+- is_console_locked
+- __printk_ratelimit
 
-> we have two kind of devices that need firmware download. The easy and
-> clean ones which need one or two files and these basically change not
-> that often. In most cases these are the network or storage devices and
-> for exactly these we need the MODULE_FIRMWARE() support to know which
-> files have to be put into initrd.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> The messed up devices like the Speedtouch and maybe even some WiFi
-> dongles are another story.
+---
 
-I don't know why you consider the speedtouch to be messed up.  What's
-messed up is not the modems themselves, but the fact that we don't know
-what modems exist, and how they differ in their firmware requirements.
+This patch was already sent on:
+- 11 Apr 2006
 
-Anyway, speedtouch users also need their firmware to end up in any initrd.
-Since the driver expects all firmware files to start with "speedtch",
-the MODULE_FIRMWARE scheme would work for the speedtouch driver too as
-long as it allows the driver to specify just the initial part of a file
-name.  You could go all the way to regular expressions, but that seems
-a bit ridiculous.
+ kernel/printk.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-Ciao,
+--- linux-2.6.17-rc1-mm2-full/kernel/printk.c.old	2006-04-11 01:20:32.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/kernel/printk.c	2006-04-11 01:21:54.000000000 +0200
+@@ -52,8 +52,6 @@
+ 	DEFAULT_CONSOLE_LOGLEVEL,	/* default_console_loglevel */
+ };
+ 
+-EXPORT_SYMBOL(console_printk);
+-
+ /*
+  * Low lever drivers may need that to know if they can schedule in
+  * their unblank() callback or not. So let's export it.
+@@ -728,7 +726,6 @@
+ {
+ 	return console_locked;
+ }
+-EXPORT_SYMBOL(is_console_locked);
+ 
+ /**
+  * release_console_sem - unlock the console system
+@@ -1033,7 +1030,6 @@
+ 	spin_unlock_irqrestore(&ratelimit_lock, flags);
+ 	return 0;
+ }
+-EXPORT_SYMBOL(__printk_ratelimit);
+ 
+ /* minimum time in jiffies between messages */
+ int printk_ratelimit_jiffies = 5 * HZ;
 
-Duncan.

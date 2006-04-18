@@ -1,80 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWDRWkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWDRWqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWDRWkK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 18:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWDRWkK
+	id S1750777AbWDRWqF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 18:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWDRWqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 18:40:10 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:48088 "EHLO
+	Tue, 18 Apr 2006 18:46:05 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:51107 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1750776AbWDRWkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 18:40:08 -0400
+	id S1750777AbWDRWqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 18:46:04 -0400
 From: Nigel Cunningham <ncunningham@cyclades.com>
 Organization: Cyclades Corporation
-To: Shaohua Li <shaohua.li@intel.com>
-Subject: Re: [PATCH 2/3] swsusp i386 mark special saveable/unsaveable pages
-Date: Wed, 19 Apr 2006 08:38:19 +1000
+To: Greg KH <gregkh@suse.de>
+Subject: [PATCH] Kernel doesn't compile with CONFIG_HOTPLUG && !CONFIG_NET
+Date: Wed, 19 Apr 2006 08:44:21 +1000
 User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>
-References: <1144809501.2865.40.camel@sli10-desk.sh.intel.com>
-In-Reply-To: <1144809501.2865.40.camel@sli10-desk.sh.intel.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart1471791.E1dyOlr3Ju";
+  boundary="nextPart2097297.5xyEGRXhtZ";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604190838.29247.ncunningham@cyclades.com>
+Message-Id: <200604190844.25476.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1471791.E1dyOlr3Ju
+--nextPart2097297.5xyEGRXhtZ
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
 Hi.
 
-On Wednesday 12 April 2006 12:38, Shaohua Li wrote:
-> @@ -1400,6 +1401,111 @@ static void set_mca_bus(int x)
->  static void set_mca_bus(int x) { }
->  #endif
->
-> +#ifdef CONFIG_SOFTWARE_SUSPEND
-> +static void __init mark_nosave_page_range(unsigned long start, unsigned
-> long end) +{
-> +	struct page *page;
-> +	while (start <=3D end) {
+2.6.17-rc1 doesn't compile if networking support is disabled but hotplug is
+enabled. This patch addresses that issue.
 
-Should this be start < end? (End is usually the first byte of the next zone=
-=20
-IIUC).
+Please consider applying.
 
-> +		page =3D pfn_to_page(start);
-> +		SetPageNosave(page);
-> +		start++;
-> +	}
-> +}
-> +
-> +static void __init e820_nosave_reserved_pages(void)
-> +{
-> +	int i;
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-Regards,
+ sysctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff -ruNp 9904.patch-old/kernel/sysctl.c 9904.patch-new/kernel/sysctl.c
+--- 9904.patch-old/kernel/sysctl.c	2006-04-19 08:40:47.000000000 +1000
++++ 9904.patch-new/kernel/sysctl.c	2006-04-17 21:06:23.000000000 +1000
+@@ -401,7 +401,7 @@ static ctl_table kern_table[] = {
+ 		.strategy	= &sysctl_string,
+ 	},
+ #endif
+-#ifdef CONFIG_HOTPLUG
++#if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
+ 	{
+ 		.ctl_name	= KERN_HOTPLUG,
+ 		.procname	= "hotplug",
 
-Nigel
-
---nextPart1471791.E1dyOlr3Ju
+--nextPart2097297.5xyEGRXhtZ
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBERWplN0y+n1M3mo0RAk+0AKDkLuFfuIrLfOvJzDKPoeLpOyqVuQCcDOVN
-2jhTvMNC2hAdZo7c/eUS9Z4=
-=GqHJ
+iD8DBQBERWvJN0y+n1M3mo0RAsmzAKCMD6Se3/GE20hzVtStl9V8knCzsgCeJ6u7
++a9KX9SRdAQbs4YYA11qBOI=
+=WD5G
 -----END PGP SIGNATURE-----
 
---nextPart1471791.E1dyOlr3Ju--
+--nextPart2097297.5xyEGRXhtZ--

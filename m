@@ -1,108 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWDRMzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWDRM4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWDRMzO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 08:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWDRMzO
+	id S1750770AbWDRM4e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 08:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWDRM4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 08:55:14 -0400
-Received: from pproxy.gmail.com ([64.233.166.176]:20622 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750737AbWDRMzN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 08:55:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KlQ/rGmCFOiw74fgTZ7YzinwKTcLuQXRYKFjJ5KdqIvGrp/TkwkeIpFEw6MEMcZ2uBfMy3YoXkpVfkn5orh7u3qtd6dUTS+oIZSVslHvZPfRoAIHUCDtYvcAgI7INYjT5cl7xAT//7KOJOhoYjrZ4m4OzFLP67J/qD4/1iYWIuI=
-Message-ID: <bf3792800604180555n6569a355tc55e850064ea1551@mail.gmail.com>
-Date: Tue, 18 Apr 2006 20:55:12 +0800
-From: "Liu haixiang" <liu.haixiang@gmail.com>
-To: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>
-Subject: Re: Question on Schedule and Preemption
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060418091724.GA7258@rhlx01.fht-esslingen.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bf3792800604180023r2a2111b4ude5ef15f9dd855a@mail.gmail.com>
-	 <20060418091724.GA7258@rhlx01.fht-esslingen.de>
+	Tue, 18 Apr 2006 08:56:33 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:60899 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750750AbWDRM4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 08:56:32 -0400
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
+	implementation of LSM hooks)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Valdis.Kletnieks@vt.edu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Greg KH <greg@kroah.com>, James Morris <jmorris@namei.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20060418122206.GC7562@sergelap.austin.ibm.com>
+References: <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil>
+	 <200604142301.10188.edwin@gurde.com>
+	 <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060417162345.GA9609@infradead.org>
+	 <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060417173319.GA11506@infradead.org>
+	 <Pine.LNX.4.64.0604171454070.17563@d.namei>
+	 <20060417195146.GA8875@kroah.com>
+	 <1145309184.14497.1.camel@localhost.localdomain>
+	 <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
+	 <20060418122206.GC7562@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Tue, 18 Apr 2006 08:59:46 -0400
+Message-Id: <1145365186.16632.43.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas Mohr,
+On Tue, 2006-04-18 at 07:22 -0500, Serge E. Hallyn wrote:
+> Quoting Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu):
+> > On Mon, 17 Apr 2006 22:26:24 BST, Alan Cox said:
+> > 
+> > (Two replies to this paragraph, addressing 2 separate issues....)
+> > 
+> > > You can implement a BSD securelevel model in SELinux as far as I can see
+> > > from looking at it, and do it better than the code today, so its not
+> > > really a feature drop anyway just a migration away from some fossils
+> > 
+> > If we heave the LSM stuff overboard, there's one thing that *will* need
+> > addressing - what to do with kernel support of Posix-y capabilities.  Currently
+> > some of the heavy lifting is done by security/commoncap.c.
+> > 
+> > Frankly, that's *another* thing that we need to either *fix* so it works right,
+> > or rip out of the kernel entirely.  As far as I know, there's no in-tree way
+> > to make /usr/bin/ping be set-CAP_NET_RAW and have it DTRT.
 
-Thanks for your explanation. And now I am clear on above code.
+As far as the capability module is concerned, ping can be setuid and can
+drop all other capabilities at startup, so you can approximate the
+above.  As far as SELinux is concerned, you can bound the capabilities
+that ping can exercise based on its security context even if ping runs
+as uid 0 and is granted full capabilities by the capability module,
+regardless of whether ping ever drops capabilities itself.  So there are
+in-tree ways to achieve what you want.
 
-Please see my problem below. It seemed that there is one code to add
-preempt count [<8440de20>], which means that the kernel can not be
-preemptied. Then the code call switch_to (which contains the code
-__switch_to_end).
+> Sigh...  it's such a cool idea, and yet such a dangerously easy thing to
+> get wrong, ie dropping the ability for a root process to drop it's root
+> privs.
+> 
+> If we were to drop posix caps, how would selinux change correspondingly?
+> Would it just drop the capability class altogether, perhaps beef up the
+> task or security class?  Just wondering whether anyone had thought about
+> this.
 
-And it's problem becuase the code already in the atomic status and can
-not be scheduled.
+I doubt you'd drop capability altogether.  You could incrementally
+enable the direct granting of capabilities based on SELinux security
+context by defining a new class in its policy (cap_override) that
+mirrors the existing capability class, and modifying SELinux to
+authoritatively grant the capability if it is allowed in that class for
+the process' security context; otherwise, you fall back to the existing
+combined behavior of requiring both SELinux+capability (or SELinux
++dummy) to grant the capability.  That is simple enough from a code
+perspective.  You just need to be careful about the implications for
+userspace and policy configuration, to avoid introducing security holes
+in this manner.
 
-My understanding is correct? And how to know which process or code
-call add_preempt_count? Is there any good way to find the clue?
+> Alternatively, we could try yet again to get support for fs caps
+> upstream...
 
-===================================
-scheduling while atomic: TUNER0/0x04000001/611
+Given the extensible nature of the security xattr namespace, it is
+already possible to store the capability bits in the filesystem (just by
+beginning to use security.effcap, security.inhcap, ...).  The code
+modifications to the capability module should be simple.  But modifying
+userspace to set and preserve those attributes would take some work,
+work which has already been done for the SELinux attributes, and you'd
+have to figure out the right set of capability bits for each program,
+which doesn't scale very well (vs. using equivalence classes as in
+SELinux types).  And the capability evolution logic has always been
+problematic, vs. explicit transition definitions as in SELinux.  So fs
+caps doesn't seem very promising to me as a path forward.
 
-Call trace:
-[<846532b4>] __switch_to_end+0x2fe/0x38a
-[<8440de20>] add_preempt_count+0x0/0xa0
-[<84652c80>] schedule+0x0/0x300
-[<8440dd80>] sub_preempt_count+0x0/0xa0
-[<84653ef8>] cond_resched+0x38/0x80
-[<84405096>] ret_from_irq+0x0/0x12
-[<845145e0>] __delay+0x0/0x20
-[<84653ef8>] cond_resched+0x38/0x80
-[<8440de20>] add_preempt_count+0x0/0xa0
-[<84652c80>] schedule+0x0/0x300
-[<8440dd80>] sub_preempt_count+0x0/0xa0
-[<845d9a16>] bit_xfer+0x256/0x8c0
-[<845d6d36>] i2c_transfer+0x56/0xe0
-[<c042382e>] STI2C_Read+0x2e/0x80 [sti2c_ioctl]
-[<c046af32>] I2C_ReadWrite+0x72/0x1a0 [sttuner_core]
-[<c0487d7c>] IOARCH_Handle+0x10/0xffff49a0 [sttuner_core]
-[<84653ec0>] cond_resched+0x0/0x80
-[<845d9cac>] bit_xfer+0x4ec/0x8c0
-[<c046b398>] IOARCH_ReadWrite+0x118/0x180 [sttuner_core]
-[<c05cb000>] 0xc05cb000
-[<c046b456>] STTUNER_IOARCH_ReadWrite+0x16/0x40 [sttuner_core]
-[<c05c300c>] 0xc05c300c
-[<c0477482>] STTUNER_IOREG_GetContigousRegisters+0x142/0x1c0 [sttuner_core]
-[<c046fd1a>] Drv0299_GetNoiseEstimator+0x1a/0x120 [sttuner_core]
-[<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-[<c0483798>] STTUNER_DrvInst+0x1a8/0xffff911c [sttuner_core]
-[<c048379c>] STTUNER_DrvInst+0x1ac/0xffff911c [sttuner_core]
-[<c048379c>] STTUNER_DrvInst+0x1ac/0xffff911c [sttuner_core]
-[<c05c300c>] 0xc05c300c
-[<c05c3000>] 0xc05c3000
-[<c0470960>] demod_d0299_GetSignalQuality+0x20/0x40 [sttuner_core]
-[<c048379c>] STTUNER_DrvInst+0x1ac/0xffff911c [sttuner_core]
-[<c0483798>] STTUNER_DrvInst+0x1a8/0xffff911c [sttuner_core]
-[<c05c3000>] 0xc05c3000
-[<c046c826>] SATTASK_GetTunerInfo+0x46/0xe0 [sttuner_core]
-[<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-[<c04837ac>] STTUNER_DrvInst+0x1bc/0xffff911c [sttuner_core]
-[<c046c9fa>] SATTASK_ProcessTracking+0x13a/0x1c0 [sttuner_core]
-[<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-[<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-[<c046d388>] SATTASK_ScanTask+0x3e8/0x620 [sttuner_core]
-[<c046ca80>] SATTASK_ProcessScanExact+0x0/0x340 [sttuner_core]
-[<c0483800>] STTUNER_DrvInst+0x210/0xffff911c [sttuner_core]
-[<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-[<c048482c>] STTUNER_DrvInst+0x123c/0xffff911c [sttuner_core]
-[<c048492c>] STTUNER_DrvInst+0x133c/0xffff911c [sttuner_core]
-[<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-[<c04836ec>] STTUNER_DrvInst+0xfc/0xffff911c [sttuner_core]
-[<c04836ec>] STTUNER_DrvInst+0xfc/0xffff911c [sttuner_core]
-[<c04848ec>] STTUNER_DrvInst+0x12fc/0xffff911c [sttuner_core]
-[<c04848ec>] STTUNER_DrvInst+0x12fc/0xffff911c [sttuner_core]
-[<c048492c>] STTUNER_DrvInst+0x133c/0xffff911c [sttuner_core]
-[<8442b4e4>] kthread+0xe4/0x140
-[<c046cfa0>] SATTASK_ScanTask+0x0/0x620 [sttuner_core]
-[<c0483800>] STTUNER_DrvInst+0x210/0xffff911c [sttuner_core]
-[<8440f4a0>] complete+0x0/0xc0
-[<8442b3e0>] kthread_should_stop+0x0/0x20
-[<84403004>] kernel_thread_helper+0x4/0x20
+-- 
+Stephen Smalley
+National Security Agency
+

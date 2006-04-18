@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWDRADU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWDRASv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWDRADU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 20:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWDRADU
+	id S932076AbWDRASv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 20:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWDRASv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 20:03:20 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:20195 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932066AbWDRADT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 20:03:19 -0400
-Date: Tue, 18 Apr 2006 09:04:39 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
-       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
-Message-Id: <20060418090439.3e2f0df4.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <Pine.LNX.4.64.0604170958100.29732@schroedinger.engr.sgi.com>
-References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
-	<20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
-	<20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
-	<20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
-	<20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
-	<20060417091830.bca60006.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604170958100.29732@schroedinger.engr.sgi.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 17 Apr 2006 20:18:51 -0400
+Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:33671 "EHLO
+	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751334AbWDRASu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 20:18:50 -0400
+Message-ID: <44443063.7020503@bigpond.net.au>
+Date: Tue, 18 Apr 2006 10:18:43 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Ingo Molnar <mingo@elte.hu>, Mike Galbraith <efault@gmx.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: modify move_tasks() to improve load balancing
+ outcomes
+References: <443DF64B.5060305@bigpond.net.au> <20060413165117.A15723@unix-os.sc.intel.com> <443EFFD2.4080400@bigpond.net.au> <20060414112750.A21908@unix-os.sc.intel.com> <44404455.8090304@bigpond.net.au> <20060417095920.A19931@unix-os.sc.intel.com>
+In-Reply-To: <20060417095920.A19931@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 18 Apr 2006 00:18:43 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Apr 2006 10:00:02 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
-
-> On Mon, 17 Apr 2006, KAMEZAWA Hiroyuki wrote:
+Siddha, Suresh B wrote:
+> On Sat, Apr 15, 2006 at 10:54:45AM +1000, Peter Williams wrote:
+>> Yes, there are problems with the active/expired arrays but they're no 
+>> worse with smpnice than they are without it.
 > 
-> > > Note that there is an issue with your approach. If a migration entry is 
-> > > copied during fork then SWP_MIGRATION_WRITE must become SWP_MIGRATION_READ 
-> > > for some cases. Would you look into fixing this?
-> > Thank you for pointing out the issue.
-> > 
-> > In my understanding, copy_page_range() is used at fork().
-> > This finally calls copy_one_pte() and copies ptes one by one.
-> 
-> Right this is one spot but the ptes in the original mm must also be marked 
-> read. Are there any additional races?
-> 
-Ah, yes. you are right.
+> With smpnice, if we make any wrong decision while moving the high and
+> low priority tasks, we will enter an endless loop(as load balance
+> will keep on showing the imbalance and move_tasks will always move
+> the wrong tasks, instead of the correct ones pointed by imbalance..)
 
+This will only happen if the load weight for the task moved is larger 
+than the difference between the weighted loads for the two queues.  So a 
+check based on this observation can be used to prevent the loop.
 
-> > Maybe, I'll do like this.
-> > ==
-> >  438         if (unlikely(!pte_present(pte)) {
-> >  439                 if (!pte_file(pte)) {
-> >  440                         swap_duplicate(pte_to_swp_entry(pte));
-> >  			     entry = pte_to_swp_entry(pte);
-> > #ifdef CONFIG_MIGRATION
-> > 			     if (is_migration_entry(entry)) {
-> > 				......always copy as MIGRATION_READ.
-> > 			     }
-> > #endif
-> >  441                         /* make sure dst_mm is on swapoff's mmlist. */
-> 
-> Looks okay for this one location.
-> 
-Then,
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-if (is_migration_entry(entry)) {
-	change_to_read_migration_entry(entry);
-	copy_entry(entry);
-}
-
-is sane.
-
--Kame
-
-
- 
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

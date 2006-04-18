@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWDRUM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWDRUNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbWDRUM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 16:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWDRUM0
+	id S932309AbWDRUNj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 16:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWDRUNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 16:12:26 -0400
-Received: from ns2.suse.de ([195.135.220.15]:63618 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932310AbWDRUMZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 16:12:25 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] Re: [PATCH] [6/6] i386: Move CONFIG_DOUBLEFAULT into arch/i386 where it belongs.
-Date: Tue, 18 Apr 2006 22:12:13 +0200
-User-Agent: KMail/1.9.1
-Cc: Adrian Bunk <bunk@stusta.de>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@xenotime.net>
-References: <4444C0EA.mailKK411J5GA@suse.de> <20060418190528.GL11582@stusta.de>
-In-Reply-To: <20060418190528.GL11582@stusta.de>
+	Tue, 18 Apr 2006 16:13:39 -0400
+Received: from victor.provo.novell.com ([137.65.250.26]:35720 "EHLO
+	victor.provo.novell.com") by vger.kernel.org with ESMTP
+	id S932309AbWDRUNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 16:13:38 -0400
+Message-ID: <4445484F.1050006@novell.com>
+Date: Tue, 18 Apr 2006 13:13:03 -0700
+From: Crispin Cowan <crispin@novell.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Valdis.Kletnieks@vt.edu
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+       James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation
+ of LSM hooks)
+References: <200604021240.21290.edwin@gurde.com> <200604072138.35201.edwin@gurde.com> <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil> <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com>            <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
+In-Reply-To: <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604182212.13835.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 April 2006 21:05, Adrian Bunk wrote:
-> On Tue, Apr 18, 2006 at 12:35:22PM +0200, Andi Kleen wrote:
-> > 
-> > Signed-off-by: Andi Kleen <ak@suse.de>
-> >...
-> 
-> NAK.
-> 
-> When submitting a patch that is the revert of a patch that went 
-> into Linus' tree just 8 days ago [1], I'd expect at least:
-> - a Cc to the people involved with the patch you are reverting
-> - a note that you are reverting a recent patch in your patch
->   description
-> - an explanation why you disagree with the patch you are reverting
+Valdis.Kletnieks@vt.edu wrote:
+> If we heave the LSM stuff overboard, there's one thing that *will* need
+> addressing - what to do with kernel support of Posix-y capabilities.  Currently
+> some of the heavy lifting is done by security/commoncap.c.
+>
+> Frankly, that's *another* thing that we need to either *fix* so it works right,
+> or rip out of the kernel entirely.  As far as I know, there's no in-tree way
+> to make /usr/bin/ping be set-CAP_NET_RAW and have it DTRT.
+>   
+This has actually been one of the interesting developments in AppArmor.
+I also had no use for POSIX.1e capabilities; I thought they were so
+awkward as to be useless. That is, until we integrated capabilities into
+AppArmor profiles.
 
-The subject was very clear. i386 options belong into arch/i386.
+Consider this profile for /bin/stty
+/bin/stty {
+  #include <abstractions/base>
 
-> If you disagree with a patch, please speak up when it's submitted or 
-> discuss it after you've seen it in the tree. But don't play such silly
-> revert-and-hope-they-don't-notice-I've-reverted-it games.
+  capability sys_tty_config,
 
-I moved it because I noticed that my x86-64 configuration files 
-had this strange new symbol. I also did a grep and no other architecture
-other than i386 uses it.
+  /bin/stty r,
+}
 
-i386 specific hacks belong into arch/i386
+This policy basically allows stty to run, read its own text file, and
+use the capability sys_tty_config. Even though it may run as root, this
+profile confines it to *only* have sys_tty_config.
 
--Andi (who actually thinks the whole thing was always a bad idea - saving
-a few K but giving up such debugging is a poor trade off)
+This gives the system administrator the ability to force applications to
+"drop" privs even when the application developer didn't bother, or (as
+was the case in a Sendmail vulnerability several years ago) the
+application *tried* to drop privs and got it wrong, so was running as
+full root anyway.
+
+Capabilities are very easy and natural to use in an AppArmor system. And
+they don't require any upstream filesystem support. SELinux provides
+similar support for Capabilities, so they are worth keeping even without
+upstream filesystem support.
+
+Crispin
+
+-- 
+Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
+Director of Software Engineering, Novell  http://novell.com
+

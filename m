@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWDRRnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWDRRrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWDRRnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 13:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWDRRnR
+	id S932213AbWDRRrp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 13:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWDRRrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 13:43:17 -0400
-Received: from mx1.suse.de ([195.135.220.2]:24967 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932220AbWDRRnP (ORCPT
+	Tue, 18 Apr 2006 13:47:45 -0400
+Received: from iona.labri.fr ([147.210.8.143]:21436 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S932213AbWDRRro (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 13:43:15 -0400
-Date: Tue, 18 Apr 2006 10:42:05 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Fixes in the -stable tree, but not in mainline
-Message-ID: <20060418174205.GA684@suse.de>
-References: <20060417212946.GA3118@kroah.com> <20060418160610.GA10933@thunk.org>
+	Tue, 18 Apr 2006 13:47:44 -0400
+Date: Tue, 18 Apr 2006 19:47:28 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Enhancing accessibility of lxdialog
+Message-ID: <20060418174728.GA4407@implementation>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20060412002125.GG5491@bouh.residence.ens-lyon.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060418160610.GA10933@thunk.org>
+In-Reply-To: <20060412002125.GG5491@bouh.residence.ens-lyon.fr>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 18, 2006 at 12:06:10PM -0400, Theodore Ts'o wrote:
-> On Mon, Apr 17, 2006 at 02:29:46PM -0700, Greg KH wrote:
-> > Here are 5 patches that are in the -stable tree, yet not currently fixed
-> > in your mainline tree.  One of them is a security fix, so it probably
-> > would be a good idea to get it into there :)
-> 
-> I thought one of the requirements for accepting a patch into -stable
-> was that it was already in mainline.  Was this a change in policy that
-> I missed, or just an oversight when we vetted these patches?
-> 
-> Not that I have anything against these patches, just curious in the
-> future if we should NACK patches proposed for -stable if we notice
-> that they aren't yet in mainline.
+Hi,
 
-Sometimes some of these patches don't make it into Linus's tree because
-they get lost in the shuffle (like the Kconfig one), or because they
-were security issues that hit -stable first (like another one in there).
+Some fix that I forgot for good accessibility of lxdialog (the cursor
+should always be left at the focus location):
 
-Either way, yes, the rule is that it should be in mainline, or in the
-pipe to get into mainline (as was the 5 in this patchset.)  I just
-wanted to make sure they made it into there, and didn't get lost.
 
-thanks,
+Have the checklist display the currently highlighted entry last, for
+having the cursor left on it (rather than on the last line of the list).
 
-greg k-h
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+
+diff --git a/scripts/kconfig/lxdialog/checklist.c b/scripts/kconfig/lxdialog/checklist.c
+index be0200e..7988641 100644
+--- a/scripts/kconfig/lxdialog/checklist.c
++++ b/scripts/kconfig/lxdialog/checklist.c
+@@ -187,9 +187,12 @@ int dialog_checklist(const char *title, 
+ 
+ 	/* Print the list */
+ 	for (i = 0; i < max_choice; i++) {
+-		print_item(list, items[(scroll + i) * 3 + 1],
+-			   status[i + scroll], i, i == choice);
++		if (i != choice)
++			print_item(list, items[(scroll + i) * 3 + 1],
++				   status[i + scroll], i, 0);
+ 	}
++	print_item(list, items[(scroll + choice) * 3 + 1],
++		   status[choice + scroll], choice, 1);
+ 
+ 	print_arrows(dialog, choice, item_no, scroll,
+ 		     box_y, box_x + check_x + 5, list_height);

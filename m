@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWDRWHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWDRWHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWDRWHn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 18:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWDRWHY
+	id S1750725AbWDRWHW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 18:07:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWDRWHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 18:07:24 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3338 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750744AbWDRWHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 18 Apr 2006 18:07:21 -0400
-Date: Wed, 19 Apr 2006 00:07:20 +0200
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2570 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750725AbWDRWHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 18:07:20 -0400
+Date: Wed, 19 Apr 2006 00:07:18 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: philb@gnu.org, tim@cyberelk.net, andrea@suse.de,
-       linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/parport/share.: unexport parport_get_port
-Message-ID: <20060418220720.GQ11582@stusta.de>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] drivers/ide/: possible cleanups
+Message-ID: <20060418220718.GP11582@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,23 +23,75 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the unused EXPORT_SYMBOL(parport_get_port).
+This patch contains the following possible clenups:
+- setup-pci.c: #if 0 the unused ide_pci_unregister_driver()
+- ide.c: remove the unused EXPORT_SYMBOL(ide_register_hw)
+- ide-dma.c: remove the unused EXPORT_SYMBOL_GPL(ide_in_drive_list)
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 5 Apr 2006
+- 11 Apr 2006
 
---- linux-2.6.17-rc1-mm1-full/drivers/parport/share.c.old	2006-04-05 17:12:05.000000000 +0200
-+++ linux-2.6.17-rc1-mm1-full/drivers/parport/share.c	2006-04-05 17:12:42.000000000 +0200
-@@ -1003,7 +1003,6 @@
- EXPORT_SYMBOL(parport_unregister_driver);
- EXPORT_SYMBOL(parport_register_device);
- EXPORT_SYMBOL(parport_unregister_device);
--EXPORT_SYMBOL(parport_get_port);
- EXPORT_SYMBOL(parport_put_port);
- EXPORT_SYMBOL(parport_find_number);
- EXPORT_SYMBOL(parport_find_base);
+ drivers/ide/ide-dma.c   |    2 --
+ drivers/ide/ide.c       |    2 --
+ drivers/ide/setup-pci.c |    4 +++-
+ include/linux/ide.h     |    1 -
+ 4 files changed, 3 insertions(+), 6 deletions(-)
+
+--- linux-2.6.17-rc1-mm2-full/include/linux/ide.h.old	2006-04-10 22:46:27.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/include/linux/ide.h	2006-04-10 22:46:36.000000000 +0200
+@@ -1188,7 +1188,6 @@
+ extern void ide_scan_pcibus(int scan_direction) __init;
+ extern int __ide_pci_register_driver(struct pci_driver *driver, struct module *owner);
+ #define ide_pci_register_driver(d) __ide_pci_register_driver(d, THIS_MODULE)
+-extern void ide_pci_unregister_driver(struct pci_driver *driver);
+ void ide_pci_setup_ports(struct pci_dev *, struct ide_pci_device_s *, int, ata_index_t *);
+ extern void ide_setup_pci_noise (struct pci_dev *dev, struct ide_pci_device_s *d);
+ 
+--- linux-2.6.17-rc1-mm2-full/drivers/ide/ide.c.old	2006-04-10 22:43:31.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/drivers/ide/ide.c	2006-04-10 22:43:41.000000000 +0200
+@@ -826,8 +826,6 @@
+ 	return ide_register_hw_with_fixup(hw, hwifp, NULL);
+ }
+ 
+-EXPORT_SYMBOL(ide_register_hw);
+-
+ /*
+  *	Locks for IDE setting functionality
+  */
+--- linux-2.6.17-rc1-mm2-full/drivers/ide/ide-dma.c.old	2006-04-10 22:44:21.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/drivers/ide/ide-dma.c	2006-04-10 22:44:28.000000000 +0200
+@@ -152,8 +152,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL_GPL(ide_in_drive_list);
+-
+ /**
+  *	ide_dma_intr	-	IDE DMA interrupt handler
+  *	@drive: the drive the interrupt is for
+--- linux-2.6.17-rc1-mm2-full/drivers/ide/setup-pci.c.old	2006-04-10 22:46:46.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/drivers/ide/setup-pci.c	2006-04-10 22:47:03.000000000 +0200
+@@ -807,7 +807,8 @@
+  *	Unregister a currently installed IDE driver. Returns are the same
+  *	as for pci_unregister_driver
+  */
+- 
++
++#if 0
+ void ide_pci_unregister_driver(struct pci_driver *driver)
+ {
+ 	if(!pre_init)
+@@ -817,6 +818,7 @@
+ }
+ 
+ EXPORT_SYMBOL_GPL(ide_pci_unregister_driver);
++#endif  /*  0  */
+ 
+ /**
+  *	ide_scan_pcidev		-	find an IDE driver for a device
+
 

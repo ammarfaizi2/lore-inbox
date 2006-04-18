@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWDREYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWDREhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWDREYz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 00:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWDREYz
+	id S932173AbWDREhb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 00:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWDREhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 00:24:55 -0400
-Received: from cantor.suse.de ([195.135.220.2]:59522 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932186AbWDREYy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 00:24:54 -0400
-Date: Mon, 17 Apr 2006 21:23:45 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.16.7
-Message-ID: <20060418042345.GB11061@kroah.com>
-References: <20060418042300.GA11061@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060418042300.GA11061@kroah.com>
-User-Agent: Mutt/1.5.11
+	Tue, 18 Apr 2006 00:37:31 -0400
+Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:46279 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S932173AbWDREha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 00:37:30 -0400
+Message-ID: <00d701c662a1$cbace440$4168010a@bsd.tnes.nec.co.jp>
+From: "Takashi Sato" <sho@bsd.tnes.nec.co.jp>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, <linux-kernel@vger.kernel.org>,
+       <Ext2-devel@lists.sourceforge.net>
+References: <20060413161227sho@rifu.tnes.nec.co.jp> <20060413162028.GA23452@thunk.org> <020501c6621a$bf158c50$4168010a@bsd.tnes.nec.co.jp> <20060417124807.GB7429@stusta.de>
+Subject: Re: [Ext2-devel] [RFC][15/21]e2fsprogs modify variables for bitmap to exceed 2G
+Date: Tue, 18 Apr 2006 13:37:22 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 7959505..06a8926 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 16
--EXTRAVERSION = .6
-+EXTRAVERSION = .7
- NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
-diff --git a/mm/madvise.c b/mm/madvise.c
-index af3d573..4e19615 100644
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -168,6 +168,9 @@ static long madvise_remove(struct vm_are
- 			return -EINVAL;
- 	}
- 
-+	if ((vma->vm_flags & (VM_SHARED|VM_WRITE)) != (VM_SHARED|VM_WRITE))
-+		return -EACCES;
-+
- 	mapping = vma->vm_file->f_mapping;
- 
- 	offset = (loff_t)(start - vma->vm_start)
+Thanks for your info, Adrian.
+
+>> Though I checked if there are any commands which use the following
+>> functions in RHEL4, no such commands were found except in e2fsprogs
+>> itself.
+>>...
+>> ext2fs_test_block_bitmap()
+>>...
+> 
+> Used by e2undel [1].
+
+The function is certainly used in this command.  Then I'll consider
+adding new functions which use blk64_t.
+
+Cheers, sho

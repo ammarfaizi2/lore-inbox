@@ -1,31 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWDRKSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWDRKTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWDRKSB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 06:18:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWDRKSB
+	id S1751001AbWDRKTd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 06:19:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWDRKTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 06:18:01 -0400
-Received: from mx1.suse.de ([195.135.220.2]:2988 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750987AbWDRKSA (ORCPT
+	Tue, 18 Apr 2006 06:19:32 -0400
+Received: from mx2.suse.de ([195.135.220.15]:7331 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750987AbWDRKTc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 06:18:00 -0400
-Date: Tue, 18 Apr 2006 12:17:46 +0200
-Message-ID: <s5hhd4r9ohh.wl%tiwai@suse.de>
+	Tue, 18 Apr 2006 06:19:32 -0400
+Date: Tue, 18 Apr 2006 12:19:22 +0200
+Message-ID: <s5hfykb9oet.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Adrian McMenamin <adrian@mcmen.demon.co.uk>,
-       Paul Mundt <lethal@linux-sh.org>,
-       Alsa-devel <alsa-devel@lists.sourceforge.net>,
-       linux-sh <linuxsh-dev@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Re: [linuxsh-dev] [PATCH] ALSA driver for Yamaa AICA on Sega Dreamcast
-In-Reply-To: <20060417220512.GA16119@infradead.org>
-References: <1145232784.12804.2.camel@localhost.localdomain>
-	<20060417012913.GA16821@linux-sh.org>
-	<1145304037.9244.27.camel@localhost.localdomain>
-	<1145310435.16138.83.camel@mindpipe>
-	<20060417220512.GA16119@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] [2.6 patch] sound/pci/: remove duplicate #include's
+In-Reply-To: <20060417010341.GA7429@stusta.de>
+References: <20060417010341.GA7429@stusta.de>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta25)
  (eggplant) (+CVS-20060326) (i386-suse-linux)
@@ -34,25 +25,139 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Mon, 17 Apr 2006 23:05:12 +0100,
-Christoph Hellwig wrote:
+At Mon, 17 Apr 2006 03:03:41 +0200,
+Adrian Bunk wrote:
 > 
-> On Mon, Apr 17, 2006 at 05:47:15PM -0400, Lee Revell wrote:
-> > On Mon, 2006-04-17 at 21:00 +0100, Adrian McMenamin wrote:
-> > > But I am happy to change it.
-> > > 
-> > > 
-> > 
-> > Please don't - when adding code to a subsystem with different
-> > conventions than mainline the FAQ says to follow the subsystem
-> > conventions.
-> 
-> Nope.  Alsa needs to gradually converted from something that looks like
-> cat puke to normal kernel style.  Every new driver that's written properly
-> helps.
+> There's no reason for #include'ing linux/dma-mapping.h more than once.
 
-Heh, the suggested line is what CondingStyle suggets -- the output of
-indent program.  Yeah, but better to fix "bad programming" :)
+Looks like a side-effect of a weird merge at some stage.
+I'll apply it to ALSA tree.
 
+Thanks,
 
 Takashi
+
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  sound/pci/ad1889.c           |    1 -
+>  sound/pci/emu10k1/emu10k1x.c |    1 -
+>  sound/pci/es1968.c           |    1 -
+>  sound/pci/ice1712/ice1712.c  |    1 -
+>  sound/pci/maestro3.c         |    1 -
+>  sound/pci/mixart/mixart.c    |    1 -
+>  sound/pci/pcxhr/pcxhr.c      |    1 -
+>  7 files changed, 7 deletions(-)
+> 
+> --- linux-2.6.17-rc1-mm2-full/sound/pci/ad1889.c.old	2006-04-17 02:51:46.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/sound/pci/ad1889.c	2006-04-17 02:51:55.000000000 +0200
+> @@ -37,11 +37,10 @@
+>  #include <linux/dma-mapping.h>
+>  #include <linux/slab.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/compiler.h>
+>  #include <linux/delay.h>
+> -#include <linux/dma-mapping.h>
+>  
+>  #include <sound/driver.h>
+>  #include <sound/core.h>
+>  #include <sound/pcm.h>
+>  #include <sound/initval.h>
+> --- linux-2.6.17-rc1-mm2-full/sound/pci/emu10k1/emu10k1x.c.old	2006-04-17 02:52:04.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/sound/pci/emu10k1/emu10k1x.c	2006-04-17 02:52:07.000000000 +0200
+> @@ -34,11 +34,10 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/pci.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/slab.h>
+>  #include <linux/moduleparam.h>
+> -#include <linux/dma-mapping.h>
+>  #include <sound/core.h>
+>  #include <sound/initval.h>
+>  #include <sound/pcm.h>
+>  #include <sound/ac97_codec.h>
+>  #include <sound/info.h>
+> --- linux-2.6.17-rc1-mm2-full/sound/pci/es1968.c.old	2006-04-17 02:52:16.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/sound/pci/es1968.c	2006-04-17 02:52:27.000000000 +0200
+> @@ -102,11 +102,10 @@
+>  #include <linux/pci.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/slab.h>
+>  #include <linux/gameport.h>
+>  #include <linux/moduleparam.h>
+> -#include <linux/dma-mapping.h>
+>  #include <linux/mutex.h>
+>  
+>  #include <sound/core.h>
+>  #include <sound/pcm.h>
+>  #include <sound/mpu401.h>
+> --- linux-2.6.17-rc1-mm2-full/sound/pci/ice1712/ice1712.c.old	2006-04-17 02:52:31.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/sound/pci/ice1712/ice1712.c	2006-04-17 02:52:34.000000000 +0200
+> @@ -54,11 +54,10 @@
+>  #include <linux/init.h>
+>  #include <linux/pci.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/slab.h>
+>  #include <linux/moduleparam.h>
+> -#include <linux/dma-mapping.h>
+>  #include <linux/mutex.h>
+>  
+>  #include <sound/core.h>
+>  #include <sound/cs8427.h>
+>  #include <sound/info.h>
+> --- linux-2.6.17-rc1-mm2-full/sound/pci/maestro3.c.old	2006-04-17 02:52:43.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/sound/pci/maestro3.c	2006-04-17 02:52:47.000000000 +0200
+> @@ -39,11 +39,10 @@
+>  #include <linux/pci.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/slab.h>
+>  #include <linux/vmalloc.h>
+>  #include <linux/moduleparam.h>
+> -#include <linux/dma-mapping.h>
+>  #include <sound/core.h>
+>  #include <sound/info.h>
+>  #include <sound/control.h>
+>  #include <sound/pcm.h>
+>  #include <sound/mpu401.h>
+> --- linux-2.6.17-rc1-mm2-full/sound/pci/mixart/mixart.c.old	2006-04-17 02:53:06.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/sound/pci/mixart/mixart.c	2006-04-17 02:53:09.000000000 +0200
+> @@ -26,11 +26,10 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/pci.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/moduleparam.h>
+>  #include <linux/mutex.h>
+> -#include <linux/dma-mapping.h>
+>  
+>  #include <sound/core.h>
+>  #include <sound/initval.h>
+>  #include <sound/info.h>
+>  #include <sound/control.h>
+> --- linux-2.6.17-rc1-mm2-full/sound/pci/pcxhr/pcxhr.c.old	2006-04-17 02:53:18.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/sound/pci/pcxhr/pcxhr.c	2006-04-17 02:53:21.000000000 +0200
+> @@ -28,11 +28,10 @@
+>  #include <linux/pci.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/delay.h>
+>  #include <linux/moduleparam.h>
+>  #include <linux/mutex.h>
+> -#include <linux/dma-mapping.h>
+>  
+>  #include <sound/core.h>
+>  #include <sound/initval.h>
+>  #include <sound/info.h>
+>  #include <sound/control.h>
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by xPML, a groundbreaking scripting language
+> that extends applications into web and mobile media. Attend the live webcast
+> and join the prime developer group breaking into this new coding territory!
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
+> _______________________________________________
+> Alsa-devel mailing list
+> Alsa-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/alsa-devel
+> 

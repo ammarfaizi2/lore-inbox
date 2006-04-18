@@ -1,35 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWDRGIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWDRGOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWDRGIB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 02:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWDRGIA
+	id S932246AbWDRGOI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 02:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWDRGOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 02:08:00 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:51171 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932243AbWDRGIA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 02:08:00 -0400
-Date: Tue, 18 Apr 2006 10:07:44 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Libor Vanek <libor.vanek@gmail.com>
-Cc: Matt Helsley <matthltc@us.ibm.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Connector - how to start?
-Message-ID: <20060418060744.GA20715@2ka.mipt.ru>
-References: <369a7ef40604141809u45b7b37ay27dfb74778a91893@mail.gmail.com> <20060414192634.697cd2e3.rdunlap@xenotime.net> <1145070437.28705.73.camel@stark> <20060415091801.GA4782@2ka.mipt.ru> <369a7ef40604160426s301dcd52r4c9826698d3d2f79@mail.gmail.com> <20060416114017.GA30180@2ka.mipt.ru> <369a7ef40604160509xcf2caadi782b90da956639d5@mail.gmail.com> <20060416132515.GA25602@2ka.mipt.ru> <369a7ef40604160632t16f6aab9u687a6b359997d7ea@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Tue, 18 Apr 2006 02:14:08 -0400
+Received: from natipslore.rzone.de ([81.169.145.179]:24244 "EHLO
+	natipslore.rzone.de") by vger.kernel.org with ESMTP id S932246AbWDRGOH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 02:14:07 -0400
+From: Wolfgang Hoffmann <woho@woho.de>
+Reply-To: woho@woho.de
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [-rt] time-related problems with CPU frequency scaling
+Date: Tue, 18 Apr 2006 08:11:13 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>
+References: <200604162041.10844.woho@woho.de> <1145313317.16138.90.camel@mindpipe>
+In-Reply-To: <1145313317.16138.90.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <369a7ef40604160632t16f6aab9u687a6b359997d7ea@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 18 Apr 2006 10:07:45 +0400 (MSD)
+Message-Id: <200604180811.13110.woho@woho.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bind() nladdr value is a bitmask of groups, not a single group number,
-it was done for backward compatibility, so bind(5) is equal to
-subscribe(1) and subscribe(3). That is why you saw messages without
-subscription.
+On Tuesday 18 April 2006 00:35, Lee Revell wrote:
+> On Sun, 2006-04-16 at 20:41 +0200, Wolfgang Hoffmann wrote:
+> > - if CPU frequency is low when jackd is started, it complains:
+> >     "delay of 2915.000 usecs exceeds estimated spare
+> >     time of 2847.000; restart ..."
+> >   as soon as frequency is scaled up. Seems that jackd gets confused by
+> > some influence of CPU frequency on timekeeping? No problems as long as
+> > CPU frequency isn't scaled up, though.
+>
+> JACK still uses the TSC for timing and thus is incompatible with CPU
+> frequency scaling.  You must use the -clockfix branch from CVS.
 
--- 
-	Evgeniy Polyakov
+Ok, so that's a userspace issue? Thanks for the pointer, I'll try the CVS 
+branch.
+
+> > - values in /proc/sys/kernel/preempt_max_latency scales inverse to
+> >     CPU frequency, i.e. 24us with CPU @ 800MHz and 12us with CPU @ 1,6GHz
+>
+> This is normal - code that takes 12us to run at 1.6 GHz will take 24us
+> at 800MHz.  TANSTAAFL ;-)
+
+So I misunderstood preempt_max_latency. I thought it to be absolute time, but 
+it actually is codepath cycles, translated to microseconds using the current 
+CPU frequency. Thanks for clarifying. 
+
+Wolfgang

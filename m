@@ -1,146 +1,280 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWDRNAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWDRNCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWDRNAY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 09:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWDRNAY
+	id S1750752AbWDRNCE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 09:02:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWDRNCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 09:00:24 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:54988 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750772AbWDRNAY (ORCPT
+	Tue, 18 Apr 2006 09:02:04 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:18125 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1750752AbWDRNCC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 09:00:24 -0400
+	Tue, 18 Apr 2006 09:02:02 -0400
 From: Mel Gorman <mel@csn.ul.ie>
-To: davej@codemonkey.org.uk, tony.luck@intel.com, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
-       linux-mm@kvack.org
+To: davej@codemonkey.org.uk, tony.luck@intel.com, linux-mm@kvack.org,
+       ak@suse.de, bob.picco@hp.com, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
 Cc: Mel Gorman <mel@csn.ul.ie>
-Message-Id: <20060418130015.28928.10163.sendpatchset@skynet>
-Subject: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture independent manner V3
-Date: Tue, 18 Apr 2006 14:00:15 +0100 (IST)
+Message-Id: <20060418130156.28928.81461.sendpatchset@skynet>
+In-Reply-To: <20060418130015.28928.10163.sendpatchset@skynet>
+References: <20060418130015.28928.10163.sendpatchset@skynet>
+Subject: [PATCH 5/7] Have ia64 use add_active_range() and free_area_init_nodes
+Date: Tue, 18 Apr 2006 14:01:56 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is V3 of the patchset to size zones and memory holes in an
-architecture-independent manner. A number of bugs have been fixed in the
-IA64 changes and it is now known to boot with the correct zone sizes. In
-this release, 98 lines of x86_64 arch-specific code is removed because
-it used similar initialisation functions to powerpc. In the last release,
-only 34 lines were removed.
 
-Andi, in light of the x86_64 changes since the last release, can you take
-another look at the x86_64 changes please? Does this release make a bit
-more sense for x86_64 now?
+Size zones and holes in an architecture independent manner for ia64.
 
-Changelog since V2
-o Fix a bug where holes in lower zones get double counted
-o Catch the case where a new range is registered that is within an range
-o Catch the case where a zone boundary is within a hole
-o Use the EFI map for registering ranges on x86_64+numa
-o On IA64+NUMA, add the active ranges before rounding for granules
-o On x86_64, remove e820_hole_size and e820_bootmem_free and use
-  arch-independent equivalents
-o On x86_64, remove the map walk in e820_end_of_ram()
-o Rename memory_present_with_active_regions, name ambiguous
-o Add absent_pages_in_range() for arches to call
+This has only been compile-tested due to lack of a suitable test machine.
 
-Changelog since V1
-o Correctly convert virtual and physical addresses to PFNs on ia64
-o Correctly convert physical addresses to PFN on older ppc 
-o When add_active_range() is called with overlapping pfn ranges, merge them
-o When a zone boundary occurs within a memory hole, account correctly
-o Minor whitespace damage cleanup
-o Debugging patch temporarily included
 
-At a basic level, architectures define structures to record where active
-ranges of page frames are located. Once located, the code to calculate
-zone sizes and holes in each architecture is very similar.  Some of this
-zone and hole sizing code is difficult to read for no good reason. This
-set of patches eliminates the similar-looking architecture-specific code.
+ arch/ia64/Kconfig           |    3 +
+ arch/ia64/mm/contig.c       |   60 +++++----------------------------------
+ arch/ia64/mm/discontig.c    |   41 +++-----------------------
+ arch/ia64/mm/init.c         |   12 +++++++
+ arch/x86_64/mm/k8topology.c |    3 -
+ include/asm-ia64/meminit.h  |    1 
+ 6 files changed, 30 insertions(+), 90 deletions(-)
 
-The patches introduce a mechanism where architectures register where the
-active ranges of page frames are with add_active_range(). When all areas
-have been discovered, free_area_init_nodes() is called to initialise
-the pgdat and zones. The zone sizes and holes are then calculated in an
-architecture independent manner.
-
-Patch 1 introduces the mechanism for registering and initialising PFN ranges
-Patch 2 changes ppc to use the mechanism - 128 arch-specific LOC removed
-Patch 3 changes x86 to use the mechanism - 150 arch-specific LOC removed
-Patch 4 changes x86_64 to use the mechanism - 98 arch-specific LOC removed
-Patch 5 changes ia64 to use the mechanism - 60 arch-specific LOC removed
-
-At this point, there is a net reduction of 62 lines of code and the
-arch-independent code is a lot easier to read in comparison to some of
-the arch-specific stuff, particularly in arch/i386/ .
-
-For Patch 6, it was also noted that page_alloc.c has a *lot* of
-initialisation code which makes the file harder to read than it needs to
-be. Patch 6 creates a new file mem_init.c and moves a lot of initialisation
-code from page_alloc.c to it. After the patch is applied, there is still a net
-loss of 43 lines.
-
-The patches have been successfully boot tested and verified that the
-zones are the correct size on
-
-o x86, flatmem
-o x86, NUMAQ
-o PPC64, NUMA
-o PPC64, CONFIG_NUMA=n
-o x86_64, NUMA with SRAT
-o x86_64, CONFIG_NUMA=n
-
-There are differences in the zone sizes for x86_64 as the arch-specific code
-for x86_64 accounts the kernel image and the starting mem_maps as memory
-holes but the architecture-specific code accounts the memory as present.
-The patches have been compile tested for ia64 for flatmem and sparsemem
-configurations. At attempt was made to boot test on an ancient RS/6000
-but the vanilla kernel does not boot so I have to investigate there.
-
-The net reduction seems small but the big benefit of this set of patches
-is the reduction of 437 lines of architecture-specific code, some of
-which is very hairy. There should be a greater net reduction when other
-architectures use the same mechanisms for zone and hole sizing but I lack
-the hardware to test on.
-
-Comments?
-
-Additional credit;
-	Dave Hansen for the initial suggestion and comments on early patches
-	Andy Whitcroft for reviewing early versions and catching numerous errors
-	Tony Luck and Yasunori Goto for testing and debugging on IA64
-	Bob Picco for testing and fixing bugs related to pfn registration
-
- arch/i386/Kconfig          |    8 
- arch/i386/kernel/setup.c   |   19 
- arch/i386/kernel/srat.c    |   98 ----
- arch/i386/mm/discontig.c   |   59 --
- arch/ia64/Kconfig          |    3 
- arch/ia64/mm/contig.c      |   60 --
- arch/ia64/mm/discontig.c   |   41 -
- arch/ia64/mm/init.c        |   12 
- arch/powerpc/Kconfig       |   13 
- arch/powerpc/mm/mem.c      |   53 --
- arch/powerpc/mm/numa.c     |  157 ------
- arch/ppc/Kconfig           |    3 
- arch/ppc/mm/init.c         |   26 -
- arch/x86_64/Kconfig        |    3 
- arch/x86_64/kernel/e820.c  |  109 +---
- arch/x86_64/kernel/setup.c |    3 
- arch/x86_64/mm/init.c      |   62 --
- arch/x86_64/mm/numa.c      |   18 
- arch/x86_64/mm/srat.c      |    7 
- include/asm-ia64/meminit.h |    1 
- include/asm-x86_64/e820.h  |    5 
- include/asm-x86_64/proto.h |    2 
- include/linux/mm.h         |   18 
- include/linux/mmzone.h     |   15 
- mm/Makefile                |    2 
- mm/mem_init.c              | 1040 +++++++++++++++++++++++++++++++++++++++++++++
- mm/page_alloc.c            |  678 -----------------------------
- 27 files changed, 1236 insertions(+), 1279 deletions(-)
-
--- 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/Kconfig linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/Kconfig
+--- linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/Kconfig	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/Kconfig	2006-04-18 10:21:13.000000000 +0100
+@@ -352,6 +352,9 @@ config NUMA
+ 	  Access).  This option is for configuring high-end multiprocessor
+ 	  server systems.  If in doubt, say N.
+ 
++config ARCH_POPULATES_NODE_MAP
++	def_bool y
++
+ # VIRTUAL_MEM_MAP and FLAT_NODE_MEM_MAP are functionally equivalent.
+ # VIRTUAL_MEM_MAP has been retained for historical reasons.
+ config VIRTUAL_MEM_MAP
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/mm/contig.c linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/mm/contig.c
+--- linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/mm/contig.c	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/mm/contig.c	2006-04-18 10:21:13.000000000 +0100
+@@ -26,10 +26,6 @@
+ #include <asm/sections.h>
+ #include <asm/mca.h>
+ 
+-#ifdef CONFIG_VIRTUAL_MEM_MAP
+-static unsigned long num_dma_physpages;
+-#endif
+-
+ /**
+  * show_mem - display a memory statistics summary
+  *
+@@ -212,18 +208,6 @@ count_pages (u64 start, u64 end, void *a
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_VIRTUAL_MEM_MAP
+-static int
+-count_dma_pages (u64 start, u64 end, void *arg)
+-{
+-	unsigned long *count = arg;
+-
+-	if (start < MAX_DMA_ADDRESS)
+-		*count += (min(end, MAX_DMA_ADDRESS) - start) >> PAGE_SHIFT;
+-	return 0;
+-}
+-#endif
+-
+ /*
+  * Set up the page tables.
+  */
+@@ -232,47 +216,24 @@ void __init
+ paging_init (void)
+ {
+ 	unsigned long max_dma;
+-	unsigned long zones_size[MAX_NR_ZONES];
+ #ifdef CONFIG_VIRTUAL_MEM_MAP
+-	unsigned long zholes_size[MAX_NR_ZONES];
++	unsigned long nid = 0;
+ 	unsigned long max_gap;
+ #endif
+ 
+-	/* initialize mem_map[] */
+-
+-	memset(zones_size, 0, sizeof(zones_size));
+-
+ 	num_physpages = 0;
+ 	efi_memmap_walk(count_pages, &num_physpages);
+ 
+ 	max_dma = virt_to_phys((void *) MAX_DMA_ADDRESS) >> PAGE_SHIFT;
+ 
+ #ifdef CONFIG_VIRTUAL_MEM_MAP
+-	memset(zholes_size, 0, sizeof(zholes_size));
+-
+-	num_dma_physpages = 0;
+-	efi_memmap_walk(count_dma_pages, &num_dma_physpages);
+-
+-	if (max_low_pfn < max_dma) {
+-		zones_size[ZONE_DMA] = max_low_pfn;
+-		zholes_size[ZONE_DMA] = max_low_pfn - num_dma_physpages;
+-	} else {
+-		zones_size[ZONE_DMA] = max_dma;
+-		zholes_size[ZONE_DMA] = max_dma - num_dma_physpages;
+-		if (num_physpages > num_dma_physpages) {
+-			zones_size[ZONE_NORMAL] = max_low_pfn - max_dma;
+-			zholes_size[ZONE_NORMAL] =
+-				((max_low_pfn - max_dma) -
+-				 (num_physpages - num_dma_physpages));
+-		}
+-	}
+-
+ 	max_gap = 0;
++	efi_memmap_walk(register_active_ranges, &nid);
+ 	efi_memmap_walk(find_largest_hole, (u64 *)&max_gap);
+ 	if (max_gap < LARGE_GAP) {
+ 		vmem_map = (struct page *) 0;
+-		free_area_init_node(0, NODE_DATA(0), zones_size, 0,
+-				    zholes_size);
++		free_area_init_nodes(max_dma, max_dma,
++				max_low_pfn, max_low_pfn);
+ 	} else {
+ 		unsigned long map_size;
+ 
+@@ -284,19 +245,14 @@ paging_init (void)
+ 		efi_memmap_walk(create_mem_map_page_table, NULL);
+ 
+ 		NODE_DATA(0)->node_mem_map = vmem_map;
+-		free_area_init_node(0, NODE_DATA(0), zones_size,
+-				    0, zholes_size);
++		free_area_init_nodes(max_dma, max_dma,
++				max_low_pfn, max_low_pfn);
+ 
+ 		printk("Virtual mem_map starts at 0x%p\n", mem_map);
+ 	}
+ #else /* !CONFIG_VIRTUAL_MEM_MAP */
+-	if (max_low_pfn < max_dma)
+-		zones_size[ZONE_DMA] = max_low_pfn;
+-	else {
+-		zones_size[ZONE_DMA] = max_dma;
+-		zones_size[ZONE_NORMAL] = max_low_pfn - max_dma;
+-	}
+-	free_area_init(zones_size);
++	add_active_range(0, 0, max_low_pfn);
++	free_area_init_nodes(max_dma, max_dma, max_low_pfn, max_low_pfn);
+ #endif /* !CONFIG_VIRTUAL_MEM_MAP */
+ 	zero_page_memmap_ptr = virt_to_page(ia64_imva(empty_zero_page));
+ }
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/mm/discontig.c linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/mm/discontig.c
+--- linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/mm/discontig.c	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/mm/discontig.c	2006-04-18 10:21:13.000000000 +0100
+@@ -636,6 +636,7 @@ static __init int count_node_pages(unsig
+ {
+ 	unsigned long end = start + len;
+ 
++	add_active_range(node, start >> PAGE_SHIFT, end >> PAGE_SHIFT);
+ 	mem_data[node].num_physpages += len >> PAGE_SHIFT;
+ 	if (start <= __pa(MAX_DMA_ADDRESS))
+ 		mem_data[node].num_dma_physpages +=
+@@ -660,9 +661,8 @@ static __init int count_node_pages(unsig
+ void __init paging_init(void)
+ {
+ 	unsigned long max_dma;
+-	unsigned long zones_size[MAX_NR_ZONES];
+-	unsigned long zholes_size[MAX_NR_ZONES];
+ 	unsigned long pfn_offset = 0;
++	unsigned long max_pfn = 0;
+ 	int node;
+ 
+ 	max_dma = virt_to_phys((void *) MAX_DMA_ADDRESS) >> PAGE_SHIFT;
+@@ -679,46 +679,17 @@ void __init paging_init(void)
+ #endif
+ 
+ 	for_each_online_node(node) {
+-		memset(zones_size, 0, sizeof(zones_size));
+-		memset(zholes_size, 0, sizeof(zholes_size));
+-
+ 		num_physpages += mem_data[node].num_physpages;
+-
+-		if (mem_data[node].min_pfn >= max_dma) {
+-			/* All of this node's memory is above ZONE_DMA */
+-			zones_size[ZONE_NORMAL] = mem_data[node].max_pfn -
+-				mem_data[node].min_pfn;
+-			zholes_size[ZONE_NORMAL] = mem_data[node].max_pfn -
+-				mem_data[node].min_pfn -
+-				mem_data[node].num_physpages;
+-		} else if (mem_data[node].max_pfn < max_dma) {
+-			/* All of this node's memory is in ZONE_DMA */
+-			zones_size[ZONE_DMA] = mem_data[node].max_pfn -
+-				mem_data[node].min_pfn;
+-			zholes_size[ZONE_DMA] = mem_data[node].max_pfn -
+-				mem_data[node].min_pfn -
+-				mem_data[node].num_dma_physpages;
+-		} else {
+-			/* This node has memory in both zones */
+-			zones_size[ZONE_DMA] = max_dma -
+-				mem_data[node].min_pfn;
+-			zholes_size[ZONE_DMA] = zones_size[ZONE_DMA] -
+-				mem_data[node].num_dma_physpages;
+-			zones_size[ZONE_NORMAL] = mem_data[node].max_pfn -
+-				max_dma;
+-			zholes_size[ZONE_NORMAL] = zones_size[ZONE_NORMAL] -
+-				(mem_data[node].num_physpages -
+-				 mem_data[node].num_dma_physpages);
+-		}
+-
+ 		pfn_offset = mem_data[node].min_pfn;
+ 
+ #ifdef CONFIG_VIRTUAL_MEM_MAP
+ 		NODE_DATA(node)->node_mem_map = vmem_map + pfn_offset;
+ #endif
+-		free_area_init_node(node, NODE_DATA(node), zones_size,
+-				    pfn_offset, zholes_size);
++		if (mem_data[node].max_pfn > max_pfn)
++			max_pfn = mem_data[node].max_pfn;
+ 	}
+ 
++	free_area_init_nodes(max_dma, max_dma, max_pfn, max_pfn);
++
+ 	zero_page_memmap_ptr = virt_to_page(ia64_imva(empty_zero_page));
+ }
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/mm/init.c linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/mm/init.c
+--- linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/ia64/mm/init.c	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/ia64/mm/init.c	2006-04-18 10:21:13.000000000 +0100
+@@ -539,6 +539,18 @@ find_largest_hole (u64 start, u64 end, v
+ 	last_end = end;
+ 	return 0;
+ }
++
++int __init
++register_active_ranges(u64 start, u64 end, void *nid)
++{
++	BUG_ON(nid == NULL);
++	BUG_ON(*(unsigned long *)nid >= MAX_NUMNODES);
++
++	add_active_range(*(unsigned long *)nid,
++				__pa(start) >> PAGE_SHIFT,
++				__pa(end) >> PAGE_SHIFT);
++	return 0;
++}
+ #endif /* CONFIG_VIRTUAL_MEM_MAP */
+ 
+ static int __init
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/mm/k8topology.c linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/x86_64/mm/k8topology.c
+--- linux-2.6.17-rc1-104-x86_64_use_init_nodes/arch/x86_64/mm/k8topology.c	2006-04-18 10:20:25.000000000 +0100
++++ linux-2.6.17-rc1-105-ia64_use_init_nodes/arch/x86_64/mm/k8topology.c	2006-04-18 10:21:13.000000000 +0100
+@@ -149,9 +149,6 @@ int __init k8_scan_nodes(unsigned long s
+ 
+ 		prevbase = base;
+ 
+-		e820_register_active_regions(nodeid,
+-				nodes[nodeid].start >> PAGE_SHIFT,
+-				nodes[nodeid].end >> PAGE_SHIFT);
+ 		node_set(nodeid, nodes_parsed);
+ 	} 
+ 
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc1-104-x86_64_use_init_nodes/include/asm-ia64/meminit.h linux-2.6.17-rc1-105-ia64_use_init_nodes/include/asm-ia64/meminit.h
+--- linux-2.6.17-rc1-104-x86_64_use_init_nodes/include/asm-ia64/meminit.h	2006-04-03 04:22:10.000000000 +0100
++++ linux-2.6.17-rc1-105-ia64_use_init_nodes/include/asm-ia64/meminit.h	2006-04-18 10:21:13.000000000 +0100
+@@ -56,6 +56,7 @@ extern void efi_memmap_init(unsigned lon
+   extern unsigned long vmalloc_end;
+   extern struct page *vmem_map;
+   extern int find_largest_hole (u64 start, u64 end, void *arg);
++  extern int register_active_ranges (u64 start, u64 end, void *arg);
+   extern int create_mem_map_page_table (u64 start, u64 end, void *arg);
+ #endif
+ 

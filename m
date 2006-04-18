@@ -1,58 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWDRAXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWDRA2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWDRAXy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 20:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWDRAXy
+	id S932082AbWDRA2E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 20:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWDRA2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 20:23:54 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:6341 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751380AbWDRAXx (ORCPT
+	Mon, 17 Apr 2006 20:28:04 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:54962 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751380AbWDRA2D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 20:23:53 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@sgi.com>
-To: Robin Holt <holt@sgi.com>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       Dean Nelson <dcn@sgi.com>
-Subject: Re: Is notify_die being overloaded? 
-In-reply-to: Your message of "Mon, 17 Apr 2006 06:25:52 EST."
-             <20060417112552.GB4929@lnx-holt.americas.sgi.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 18 Apr 2006 10:23:52 +1000
-Message-ID: <9758.1145319832@ocs3.ocs.com.au>
+	Mon, 17 Apr 2006 20:28:03 -0400
+Date: Mon, 17 Apr 2006 17:27:48 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+In-Reply-To: <20060418090439.3e2f0df4.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0604171724070.2752@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
+ <20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+ <20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
+ <20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
+ <20060417091830.bca60006.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604170958100.29732@schroedinger.engr.sgi.com>
+ <20060418090439.3e2f0df4.kamezawa.hiroyu@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Holt (on Mon, 17 Apr 2006 06:25:52 -0500) wrote:
->On Mon, Apr 17, 2006 at 05:51:44AM -0500, Robin Holt wrote:
->> On Mon, Apr 17, 2006 at 05:52:10PM +1000, Keith Owens wrote:
->> > Robin Holt (on Sat, 15 Apr 2006 05:43:56 -0500) wrote:
->...
->> > Unfortunately the ebents are ambiguous.  On IA64 BUG() maps to break 0,
->> > but break 0 is also used for debugging[*].  Which makes it awkward to
->> > differentiate between a kernel error and a debug event, we have to
->> > first ask the debuggers if the event if for them then, if the debuggers
->> > do not want the event, drop into the die_if_kernel event.
->> 
->> I think this still would argue for a notify_debugger() sort of callout
->> which would read something like:
->
->I finally think I understand your point.  You are saying that kdb would
->have to register for the notify_debugger() chain and would therefore
->get in the way of handle_page_fault().  What about changing notify_die()
->callout in handle_page_fault() into a notify_page_fault().  That actually
->feels a lot better now that you got me to think about it.
+On Tue, 18 Apr 2006, KAMEZAWA Hiroyuki wrote:
 
-I thought that is what I said in my original response, "kprobes should
-be using its own notify chain to trap page faults, and the handler for
-that chain should be optimized away when CONFIG_KPROBES=n or there are
-no active probes".
+> Then,
+> 
+> if (is_migration_entry(entry)) {
+> 	change_to_read_migration_entry(entry);
+> 	copy_entry(entry);
+> }
+> 
+> is sane.
 
-Even the overhead of calling into a notify_page_fault() routine just to
-do nothing adds a measurable overhead to the page fault handler
-(according to Jack Steiner).  Since kprobes is the only code that needs
-a callback on a page fault, it is up to kprobes to minimize the impact
-of that callback on the normal processing.
+Hmmm... Looks like I need to do the patch. Is the following okay? This 
+will also only work on cow mappings.
 
+
+
+Read/Write migration entries: Implement correct behavior in copy_one_pte
+
+Migration entries with write permission must become SWP_MIGRATION_READ
+entries if a COW mapping is processed. The migration entries from which
+the copy is being made must also become SWP_MIGRATION_READ. This mimicks
+the copying of pte for an anonymous page.
+
+Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.17-rc1-mm2/mm/memory.c
+===================================================================
+--- linux-2.6.17-rc1-mm2.orig/mm/memory.c	2006-04-17 16:23:50.000000000 -0700
++++ linux-2.6.17-rc1-mm2/mm/memory.c	2006-04-17 17:25:50.000000000 -0700
+@@ -434,7 +434,9 @@ copy_one_pte(struct mm_struct *dst_mm, s
+ 	/* pte contains position in swap or file, so copy. */
+ 	if (unlikely(!pte_present(pte))) {
+ 		if (!pte_file(pte)) {
+-			swap_duplicate(pte_to_swp_entry(pte));
++			swp_entry_t entry = pte_to_swp_entry(pte);
++
++			swap_duplicate(entry);
+ 			/* make sure dst_mm is on swapoff's mmlist. */
+ 			if (unlikely(list_empty(&dst_mm->mmlist))) {
+ 				spin_lock(&mmlist_lock);
+@@ -443,6 +445,19 @@ copy_one_pte(struct mm_struct *dst_mm, s
+ 						 &src_mm->mmlist);
+ 				spin_unlock(&mmlist_lock);
+ 			}
++			if (is_migration_entry(entry) &&
++					is_cow_mapping(vm_flags)) {
++				page = migration_entry_to_page(entry);
++
++				/*
++				 * COW mappings require pages in both parent
++				*  and child to be set to read.
++				 */
++				entry = make_migration_entry(page,
++	`					SWP_MIGRATION_READ);
++				pte = swp_entry_to_pte(entry);
++				set_pte_at(src_mm, addr, src_pte, pte);
++			}
+ 		}
+ 		goto out_set_pte;
+ 	}

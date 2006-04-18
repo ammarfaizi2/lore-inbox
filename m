@@ -1,98 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWDRRja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWDRRmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWDRRja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 13:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWDRRja
+	id S932149AbWDRRmx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 13:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWDRRmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 13:39:30 -0400
-Received: from apis.di.unipi.it ([131.114.3.6]:16797 "EHLO
-	mailserver.di.unipi.it") by vger.kernel.org with ESMTP
-	id S932181AbWDRRj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 13:39:29 -0400
-Organization: Dipartimento di Informatica
-From: Claudio Scordino <cloud.of.andor@gmail.com>
+	Tue, 18 Apr 2006 13:42:53 -0400
+Received: from hera.kernel.org ([140.211.167.34]:64733 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932149AbWDRRmw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 13:42:52 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Improved getrusage
-Date: Tue, 18 Apr 2006 19:37:07 +0200
-User-Agent: KMail/1.8
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, kernel-janitors@lists.osdl.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_EPSREUVu70oG9/n"
-Message-Id: <200604181937.08224.cloud.of.andor@gmail.com>
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: non spam, SpamAssassin (punteggio=-1.44,
-	necessario 5, autolearn=disabled, ALL_TRUSTED -1.44)
-X-MailScanner-From: cloud.of.andor@gmail.com
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: irqbalance mandatory on SMP kernels?
+Date: Tue, 18 Apr 2006 10:42:25 -0700
+Organization: OSDL
+Message-ID: <20060418104225.09cd05cd@localhost.localdomain>
+References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net>
+	<4443A6D9.6040706@mbligh.org>
+	<1145286094.16138.22.camel@mindpipe>
+	<20060418163539.GB10933@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1145382146 12679 10.8.0.54 (18 Apr 2006 17:42:26 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 18 Apr 2006 17:42:26 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_EPSREUVu70oG9/n
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 18 Apr 2006 12:35:39 -0400
+"Theodore Ts'o" <tytso@mit.edu> wrote:
 
-Hi all!
+> On Mon, Apr 17, 2006 at 11:01:33AM -0400, Lee Revell wrote:
+> > > There is an in-kernel IRQ balancer. Redhat just choose to turn it
+> > > off, and do it in userspace instead. You can re-enable it if you
+> > > compile your own kernel.
+> > 
+> > Round-robin IRQ balancing is inefficient anyway.  You'd get better cache
+> > utilization letting one CPU take them all.
+> 
+> IIRC, Van Jacobsen at his Linux.conf.au presentation made a pretty
+> strong argument that irq balancing was never a good idea, describing
+> them as a George Bush-like policy.  "Ooh, interrupts are hurting one
+> CPU --- let's hurt them **all** and trash everybody's cache!"
+> 
+> Which brings up an interesting question --- why do we have an IRQ
+> balancer in the kernel at all?  Maybe the scheduler's load balancer
+> should take this into account so that processes that have the
+> misfortune of getting assigned to the wrong CPU don't get hurt too
+> badly (or maybe if we have enough cores/CPU's we can afford to
+> dedicate one or two CPU's to doing nothing but handling interrupts);
+> but spreading IRQ's across all of the CPU's doesn't seem like it's
+> ever the right answer.
+> 
+> 						- Ted
 
-A couple of months ago we discussed the possibility of improving the getrusage 
-syscall to read usage information about tasks belonging to the same owner 
-(not just about current and children).
+There are two problems.  First the scheduler probably doesn't account
+for the reduced capacity of a CPU getting hammer with interrupts. Second,
+it does make sense to balance different device's interrupts to different
+CPU's. A longer term user mode IRQ balancer can make those decisions.
 
-After an extensive discussion on the mailing list, some of us agreed about the 
-following patch. Some others, instead, said that it is too permissive. 
-
-Should we definitely drop this idea ??
-
-Thanks,
-
-           Claudio
-
---Boundary-00=_EPSREUVu70oG9/n
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="patch.diff"
-
-Signed-off-by: Claudio Scordino <cloud.of.andor@gmail.com>
---- sys.c	2006-04-18 12:54:38.000000000 -0400
-+++ sys.new.c	2006-04-18 12:58:41.000000000 -0400
-@@ -1767,9 +1767,29 @@
- 
- asmlinkage long sys_getrusage(int who, struct rusage __user *ru)
- {
--	if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN)
--		return -EINVAL;
--	return getrusage(current, who, ru);
-+	struct rusage r;
-+	struct task_struct* tsk = current;
-+	read_lock(&tasklist_lock);
-+	if ((who != RUSAGE_SELF) && (who != RUSAGE_CHILDREN)) {
-+		tsk = find_task_by_pid(who);
-+		if ((tsk == NULL) || (who <=0)) 
-+			goto bad;
-+		if (((current->uid != tsk->euid) ||
-+			(current->uid != tsk->suid) ||
-+			(current->uid != tsk->uid) ||
-+			(current->gid != tsk->egid) ||
-+			(current->gid != tsk->sgid) ||
-+			(current->gid != tsk->gid)) && !capable(CAP_SYS_PTRACE))
-+				goto bad;
-+		who = RUSAGE_SELF;
-+	}
-+	k_getrusage(tsk, who, &r);
-+	read_unlock(&tasklist_lock);
-+	return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
-+
-+bad:
-+	read_unlock(&tasklist_lock);
-+	return tsk ? -EPERM : -EINVAL;
- }
- 
- asmlinkage long sys_umask(int mask)
-
---Boundary-00=_EPSREUVu70oG9/n--
+For the networking case, there is a real win if the application code runs
+on the same CPU as the interrupt. Otherwise, you end up cache thrashing
+control block structures and headers.

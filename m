@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWDRXDD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWDRXFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWDRXDD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 19:03:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWDRXDD
+	id S1750793AbWDRXFy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 19:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWDRXFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 19:03:03 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:17545 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750791AbWDRXDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 19:03:00 -0400
-Message-Id: <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Crispin Cowan <crispin@novell.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks) 
-In-Reply-To: Your message of "Tue, 18 Apr 2006 13:13:03 PDT."
-             <4445484F.1050006@novell.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200604021240.21290.edwin@gurde.com> <200604072138.35201.edwin@gurde.com> <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil> <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
-            <4445484F.1050006@novell.com>
+	Tue, 18 Apr 2006 19:05:54 -0400
+Received: from mga06.intel.com ([134.134.136.21]:14359 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750793AbWDRXFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 19:05:53 -0400
+X-IronPort-AV: i="4.04,131,1144047600"; 
+   d="scan'208"; a="24682565:sNHT49362236"
+X-IronPort-AV: i="4.04,131,1144047600"; 
+   d="scan'208"; a="24682559:sNHT54584810"
+TrustExchangeSourcedMail: True
+X-IronPort-AV: i="4.04,131,1144047600"; 
+   d="scan'208"; a="25459515:sNHT61761231"
+Date: Tue, 18 Apr 2006 16:03:31 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Robin Holt <holt@sgi.com>
+Cc: Keith Owens <kaos@americas.sgi.com>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       prasanna@in.ibm.com, ananth@in.ibm.com, davem@davemloft.net,
+       tony.luck@intel.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ia64_do_page_fault shows 19.4% slowdown from notify_die.
+Message-ID: <20060418160331.A29518@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20060417112552.GB4929@lnx-holt.americas.sgi.com> <9758.1145319832@ocs3.ocs.com.au> <20060418221623.GB22514@lnx-holt.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1145401312_3146P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 18 Apr 2006 19:01:52 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060418221623.GB22514@lnx-holt.americas.sgi.com>; from holt@sgi.com on Tue, Apr 18, 2006 at 05:16:23PM -0500
+X-OriginalArrivalTime: 18 Apr 2006 23:05:50.0942 (UTC) FILETIME=[A2EF57E0:01C6633C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1145401312_3146P
-Content-Type: text/plain; charset=us-ascii
+On Tue, Apr 18, 2006 at 05:16:23PM -0500, Robin Holt wrote:
+> On Tue, Apr 18, 2006 at 10:23:52AM +1000, Keith Owens wrote:
+> > I thought that is what I said in my original response, "kprobes should
+> 
+> I was a little dense and had forgotten that KDB would still need to
+> register as a debugger.
+> 
+> 
+> Some micro-benchmarking has shown this to be very painful.  The average
+> of 128 iterations with 4194304 faults per iteration using the attached
+> micro-benchmark showed the following:
+> 
+> 499 nSec/fault ia64_do_page_fault notify_die commented out.
+> 501 nSec/fault ia64_do_page_fault with nobody registered.
+> 533 nSec/fault notify_die in and just kprobes.
+> 596 nSec/fault notify_die in and kdb, kprobes, mca, and xpc loaded.
+> 
+> The 596 nSec/fault is a 19.4% slowdown.  This is an upcoming OSD beta
+> kernel.  It will be representative of what our typical customer will
+> have loaded.
+> 
+> Is this enough justification for breaking notify_die into
+> notify_page_fault for the fault path?
 
-On Tue, 18 Apr 2006 13:13:03 PDT, Crispin Cowan said:
-> This gives the system administrator the ability to force applications to
-> "drop" privs even when the application developer didn't bother, or (as
-> was the case in a Sendmail vulnerability several years ago) the
-> application *tried* to drop privs and got it wrong, so was running as
-> full root anyway.
+Yes sir, I am convinced 100%.
 
-Interestingly enough, the Sendmail bug was a case where it was forced to "drop"
-some privs, and then it didn't have enough privs to drop the rest of the privs.
+> 
+> 
+> > that chain should be optimized away when CONFIG_KPROBES=n or there are
+> > no active probes".
+> 
+> Having the notify_page_fault() without anybody registered was only a
+> 0.4% slowdown.  I am not sure that justifies the optimize away, but I
+> would certainly not object.
+> 
+> I think the second and third numbers also indicate strongly that kprobes
+> should only be registering the notify_page_fault when it actually is
+> monitoring for a memory access.  I know so little about how kprobes works,
+> I will stop right there.  Is there anybody who is willing to take that
+> task or explain why it is impossible?
 
-In other words, it's quite possible to accidentally introduce a vulnerability
-that wasn't exploitable before, by artificially restricting the privs in a way
-the designer didn't expect.  So this is really just handing the sysadmin
-a loaded gun and waiting.
+I will take it up and submit a path soon.
+Thanks for your analysis.
 
-(Incidentally, both SELinux and presumably AppArmor have the same problem - it
-is really hard to convince yourself that you've identified *all* the access that
-a given program needs.  People keep finding ways to excersize previously untested
-code paths and error handlers, resulting in a game of whack-a-mole as the program
-fails due to a lack of permissions.  This is especially fun to debug when the
-program is already in an error handler... ;)
-
-
---==_Exmh_1145401312_3146P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFERW/fcC3lWbTT17ARAhruAKD5PIVmZOVGogjnIBEvx6xzahGMigCdHHF4
-JlFrpXkgYqlKaOKpweIutFk=
-=3Uar
------END PGP SIGNATURE-----
-
---==_Exmh_1145401312_3146P--
+-Anil

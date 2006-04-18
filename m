@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWDROqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWDROrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWDROqp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 10:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWDROqp
+	id S932211AbWDROrx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 10:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWDROrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 10:46:45 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49609 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932185AbWDROqo (ORCPT
+	Tue, 18 Apr 2006 10:47:53 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:33425 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932211AbWDROrx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 10:46:44 -0400
-Date: Tue, 18 Apr 2006 07:45:13 -0700
-From: Greg KH <greg@kroah.com>
-To: "Kazuki Omo(Company)" <k-omo@10art-ni.co.jp>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, James Morris <jmorris@namei.org>,
-       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-Message-ID: <20060418144513.GA29780@kroah.com>
-References: <20060417180231.71328.qmail@web36606.mail.mud.yahoo.com> <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil> <4444E428.6070503@10art-ni.co.jp>
+	Tue, 18 Apr 2006 10:47:53 -0400
+Date: Tue, 18 Apr 2006 15:44:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -rt] Remove double history
+Message-ID: <20060418134408.GA12153@elte.hu>
+References: <200604181425.k3IEPTAC027793@dhcp153.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4444E428.6070503@10art-ni.co.jp>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200604181425.k3IEPTAC027793@dhcp153.mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 18, 2006 at 10:05:44PM +0900, Kazuki Omo(Company) wrote:
-> Hi,
-> 
-> This is my first post. My name is OMO, member of LIDS development team.
-> (LIDS is not IDS. I think the name sometime will cause
->  misunderstanding.)
-> 
-> Actually, LIDS is using LSM Framework from kernel-2.6.0 and
-> keeps developing new one.
-> http://marc.theaimsgroup.com/?l=linux-security-module&m=113472048023966&w=2
 
-That's great.  But why haven't you submitted LIDS for acceptance into
-the main kernel tree?
+* Daniel Walker <dwalker@mvista.com> wrote:
 
-thanks,
+> 	Assuming you don't want it in there twice .
 
-greg k-h
+indeed - applied.
+
+	Ingo

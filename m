@@ -1,71 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWDRSoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWDRSsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWDRSoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 14:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWDRSoQ
+	id S932277AbWDRSsz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 14:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWDRSsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 14:44:16 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:1476 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932244AbWDRSoP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 14:44:15 -0400
-Date: Tue, 18 Apr 2006 20:44:13 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-acpi@vger.kernel.org, Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] -mm: make pmtmr_ioport __read_mostly
-Message-ID: <20060418184413.GA23331@rhlx01.fht-esslingen.de>
+	Tue, 18 Apr 2006 14:48:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:58534 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932277AbWDRSsy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 14:48:54 -0400
+Date: Tue, 18 Apr 2006 11:48:44 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Greg KH <greg@kroah.com>, Andi Kleen <ak@suse.de>,
+       linux-pci@atrey.karlin.mff.cuni.cz, acurrid@nvidia.com,
+       amartin@nvidia.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: MSI failure on Nvidia nForce
+Message-ID: <20060418114844.49f79773@localhost.localdomain>
+In-Reply-To: <444531F8.3040109@garzik.org>
+References: <20060418111944.6ed0505e@localhost.localdomain>
+	<444531F8.3040109@garzik.org>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Tue, 18 Apr 2006 14:37:44 -0400
+Jeff Garzik <jeff@garzik.org> wrote:
 
-- written on init only, accessed for every timer read --> __read_mostly
-- fix broken sentence
+> Stephen Hemminger wrote:
+> > I got a report of sky2 driver irq test failing on x86_64 using
+> > the following configuration.  Is this a known problem?
+> > Should workaround be done at PCI layer?
+> > 
+> > What the driver does is setup MSI handler, then do a software generated
+> > IRQ and check that it was received (similar to tg3).  If IRQ test fails
+> > it falls back to INTx.
+> 
+> Please describe precisely -how- it fails.
+> 
+> pci_enable_msi() does not fail properly on systems that do not support 
+> MSI.  This is a major unresolved problem that is preventing MSI 
+> deployment, and causing every driver writer to include a does-MSI-work 
+> test in their driver.
+> 
+> We need to find a good generic test, or if that fails, adopt an 
+> ACPI-like rule:  whitelist systems with working MSI before $X date, and 
+> blacklist systems with broken MSI after $X date.
+> 
+> 	Jeff
+> 
 
-Patch tested on 2.6.17-rc1-mm2, rediffed against 2.6.17-rc1-mm3.
-I did not test the x86_64 part, though, for obvious reasons.
+The message from the driver reported was:
 
-Signed-off-by: Andreas Mohr <andi@lisas.de>
+> I'me currently getting a lot of hang up with my computer (x86_64,
+> ati,...). I've saw this message in my dmesg :
+> 
+> sky2: 0000:02:00.0: No interupt was generated using MSI, switching to
+> INTx mode. Please report this failure to the PCI maintener and include
+> system chipset information.
 
+Which means that. pci_enable_msi succeeded, but the IRQ routing was
+screwed up.. There maybe more of a BIOS problem on this system because
+the IRQ is showing up as edge triggered as well. Edge triggered interrupts
+don't work with NAPI.
 
-diff -urN linux-2.6.17-rc1-mm3.orig/drivers/clocksource/acpi_pm.c linux-2.6.17-rc1-mm3/drivers/clocksource/acpi_pm.c
---- linux-2.6.17-rc1-mm3.orig/drivers/clocksource/acpi_pm.c	2006-04-18 20:06:57.000000000 +0200
-+++ linux-2.6.17-rc1-mm3/drivers/clocksource/acpi_pm.c	2006-04-18 20:08:19.000000000 +0200
-@@ -30,7 +30,7 @@
-  * The location is detected during setup_arch(),
-  * in arch/i386/acpi/boot.c
-  */
--u32 pmtmr_ioport;
-+u32 pmtmr_ioport __read_mostly;
- 
- #define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
- 
-@@ -47,7 +47,7 @@
- 	/*
- 	 * It has been reported that because of various broken
- 	 * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM clock
--	 * source is not latched, so you must read it multiple
-+	 * source is not latched, you must read it multiple
- 	 * times to ensure a safe value is read:
- 	 */
- 	do {
-
-diff -urN linux-2.6.17-rc1-mm3.orig/arch/x86_64/kernel/pmtimer.c linux-2.6.17-rc1-mm3/arch/x86_64/kernel/pmtimer.c
---- linux-2.6.17-rc1-mm3.orig/arch/x86_64/kernel/pmtimer.c	2006-04-03 05:22:10.000000000 +0200
-+++ linux-2.6.17-rc1-mm3/arch/x86_64/kernel/pmtimer.c	2006-04-18 20:36:35.000000000 +0200
-@@ -27,7 +27,7 @@
- /* The I/O port the PMTMR resides at.
-  * The location is detected during setup_arch(),
-  * in arch/i386/kernel/acpi/boot.c */
--u32 pmtmr_ioport;
-+u32 pmtmr_ioport __read_mostly;
- 
- /* value of the Power timer at last timer interrupt */
- static u32 offset_delay;
+cat /proc/interrupts
+           CPU0
+  0:     333581    IO-APIC-edge  timer
+  1:       1461    IO-APIC-edge  i8042
+  2:          0          XT-PIC  cascade
+  7:          2    IO-APIC-edge  ehci_hcd:usb1, NVidia CK804
+  8:          0    IO-APIC-edge  rtc
+  9:          0    IO-APIC-edge  acpi
+ 10:      55872    IO-APIC-edge  sky2
+ 11:      21025    IO-APIC-edge  libata
+ 15:         49    IO-APIC-edge  ide1
+NMI:        587
+LOC:     333569
+ERR:          0
+MIS:          0

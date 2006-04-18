@@ -1,120 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWDRU2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWDRUec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbWDRU2A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 16:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWDRU2A
+	id S932318AbWDRUec (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 16:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWDRUec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 16:28:00 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:40078 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932325AbWDRU17 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 16:27:59 -0400
-Date: Tue, 18 Apr 2006 21:27:47 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Jack Steiner <steiner@sgi.com>
-Cc: davej@codemonkey.org.uk, tony.luck@intel.com, linuxppc-dev@ozlabs.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bob.picco@hp.com, ak@suse.de,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture
- independent manner V3
-In-Reply-To: <20060418195644.GA30911@sgi.com>
-Message-ID: <Pine.LNX.4.64.0604182113470.5601@skynet.skynet.ie>
-References: <20060418130015.28928.10163.sendpatchset@skynet>
- <20060418195644.GA30911@sgi.com>
+	Tue, 18 Apr 2006 16:34:32 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:25769 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932304AbWDRUeb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 16:34:31 -0400
+Date: Tue, 18 Apr 2006 12:33:14 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: =?ISO-8859-1?Q?T=F6r=F6k?= Edwin <edwin@gurde.com>,
+       fireflier-devel@lists.sourceforge.net,
+       Arjan van de Ven <arjan@infradead.org>,
+       Crispin Cowan <crispin@novell.com>,
+       Karl MacMillan <kmacmillan@tresys.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fireflier-devel] Re: [RESEND][RFC][PATCH 2/7] implementationof
+ LSM hooks
+In-Reply-To: <1145392307.21723.44.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0604181230390.22439@qynat.qvtvafvgr.pbz>
+References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com>  <44453E7B.1090009@novell.com>
+  <1145389813.2976.47.camel@laptopd505.fenrus.org>  <200604182313.05604.edwin@gurde.com>
+ <1145392307.21723.44.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Apr 2006, Jack Steiner wrote:
+On Tue, 18 Apr 2006, Alan Cox wrote:
 
-> On Tue, Apr 18, 2006 at 02:00:15PM +0100, Mel Gorman wrote:
->> This is V3 of the patchset to size zones and memory holes in an
-> ...
+> Subject: Re: [Fireflier-devel] Re: [RESEND][RFC][PATCH 2/7] implementationof
+>     LSM hooks
+> 
+> On Maw, 2006-04-18 at 23:13 +0300, Török Edwin wrote:
+>> In the current version we intended to use mountpoint+inode to identify
+>> programs. This reduces the potential problems from your list to: fd passing.
 >
->
->
-> FYI, I applied the patches to a recent kernel & booted on a large
-> SGI system.
+> Inode numbers are not constant on all file systems unless the file is
+> currently open. That is a pain in the butt when you want to describe a
+> file as well but it is how things work out.
 
-Very cool, thanks for testing. I'm glad to see the assumptions related to 
-the size of node_map held up for a large machine.
+could you take an approach similar to git, store the length and a hash of 
+the first X amount of the file (for good performance say the first block, 
+for best security say the entire file)? is there a hash that's cheap 
+enough to calculate that this is reasonable? (although it would end up 
+trashing the cpu cache in any case, loosing a bunch of the benifits of 
+DMA)
 
-> No problem aside from what I assume is a very large number
-> of debug messages.
->
-
-The debug messages are all in patch 7/7 and will be dropped before I try 
-and push this to -mm. The patch was included here in case a machine failed 
-to boot so I could figure out what went wrong.
-
->
-> ------
-> Linux version 2.6.17-tony (steiner@attica) (gcc version 4.1.0 (SUSE Linux)) #5 SMP PREEMPT Tue Apr 18 14:01:54 CDT 2006
-> EFI v1.10 by INTEL: SALsystab=0x6002c51df0 ACPI 2.0=0x6002c51ee0
-> Number of logical nodes in system = 512
-> Number of memory chunks in system = 512
-> SAL 2.9: SGI SN2 version 1.10
-> SAL Platform features: ITC_Drift
-> SAL: AP wakeup using external interrupt vector 0x12
-> No logical to physical processor mapping available
-> ACPI: Local APIC address c0000000fee00000
-> ACPI: Error parsing MADT - no IOSAPIC entries
-> register_intr: No IOSAPIC for GSI 52
-> 512 CPUs available, 512 CPUs total
-> MCA related initialization done
-> SGI SAL version 1.10
-> add_active_range(0, 25168900, 25235456): New
-> add_active_range(0, 25236375, 25419776): New
-> add_active_range(0, 27262976, 27516927): New
-> add_active_range(0, 29360128, 29614080): New
-> add_active_range(1, 92277760, 92528640): New
-> ...
-> add_active_range(511, 34322242024, 34322242047): New
-> add_active_range(511, 34322243072, 34322243417): New
-> add_active_range(511, 34322243432, 34322243460): New
-> add_active_range(511, 34322243488, 34322243500): New
-> Virtual mem_map starts at 0xa0007e407d270000
-> free_area_init_nodes(68719476736, 68719476736, 34322243584, 34322243584)
-> free_area_init_nodes(): find_min_pfn = 25168900
-> Dumping sorted node map
-> entry 0: 0  25168900 -> 25235456
-> entry 1: 0  25236375 -> 25419776
-> entry 2: 0  27262976 -> 27516927
-> entry 3: 0  29360128 -> 29614080
-> entry 4: 1  92277760 -> 92528640
-> entry 5: 1  94371840 -> 94625792
-> entry 6: 1  96468992 -> 96722944
-> ...
-> entry 1536: 511	 34321989632 -> 34322242001
-> entry 1537: 511	 34322242016 -> 34322242022
-> entry 1538: 511	 34322242024 -> 34322242047
-> entry 1539: 511	 34322243072 -> 34322243417
-> entry 1540: 511	 34322243432 -> 34322243460
-> entry 1541: 511	 34322243488 -> 34322243500
-> __absent_pages_in_range(0, 25168900, 68719476736) = 3687320
-> __absent_pages_in_range(0, 68719476736, 68719476736) = 0
-> __absent_pages_in_range(0, 68719476736, 34322243584) = 0
-> __absent_pages_in_range(0, 34322243584, 34322243584) = 0
-> __absent_pages_in_range(0, 25168900, 68719476736) = 3687320
-> ...
-> __absent_pages_in_range(511, 34322243584, 34322243584) = 0
-> __absent_pages_in_range(511, 25168900, 68719476736) = 3687485
-> __absent_pages_in_range(511, 68719476736, 68719476736) = 0
-> __absent_pages_in_range(511, 68719476736, 34322243584) = 0
-> __absent_pages_in_range(511, 34322243584, 34322243584) = 0
-> Built 512 zonelists
-> Kernel command line: BOOT_IMAGE=net0:jfs/tonys	ro hashdist=1 dhash_entries=2097152 ihash_entries=2097152 rhash_entries=2097152 thash_entries=2097152 console=ttySG0,38400n8 kdb=on noprobe root=/dev/sda5
-> PID hash table entries: 4096 (order: 12, 32768 bytes)
-> Console: colour dummy device 80x25
-> Memory: 4639378784k/4655642784k available (7021k code, 16279040k reserved, 4361k data, 736k init)
-> 	(essentially the same numbers as with a kernel w/o the patches)
-> McKinley Errata 9 workaround not needed; disabling it
->
+David Lang
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
+

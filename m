@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWDRUjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWDRUmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbWDRUjw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 16:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWDRUjw
+	id S932335AbWDRUmi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 16:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWDRUmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 16:39:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27092 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932304AbWDRUjv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 16:39:51 -0400
-Date: Tue, 18 Apr 2006 13:39:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <gregkh@suse.de>
-Cc: tytso@mit.edu, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [GIT PATCH] Fixes in the -stable tree, but not in mainline
-Message-Id: <20060418133900.5e09cb23.akpm@osdl.org>
-In-Reply-To: <20060418174205.GA684@suse.de>
-References: <20060417212946.GA3118@kroah.com>
-	<20060418160610.GA10933@thunk.org>
-	<20060418174205.GA684@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 18 Apr 2006 16:42:37 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:32178 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932331AbWDRUmg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 16:42:36 -0400
+Date: Tue, 18 Apr 2006 15:42:27 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: T?r?k Edwin <edwin@gurde.com>
+Cc: fireflier-devel@lists.sourceforge.net,
+       Arjan van de Ven <arjan@infradead.org>,
+       Crispin Cowan <crispin@novell.com>,
+       Karl MacMillan <kmacmillan@tresys.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fireflier-devel] Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+Message-ID: <20060418204227.GK29302@sergelap.austin.ibm.com>
+References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com> <44453E7B.1090009@novell.com> <1145389813.2976.47.camel@laptopd505.fenrus.org> <200604182313.05604.edwin@gurde.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604182313.05604.edwin@gurde.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <gregkh@suse.de> wrote:
->
-> On Tue, Apr 18, 2006 at 12:06:10PM -0400, Theodore Ts'o wrote:
-> > On Mon, Apr 17, 2006 at 02:29:46PM -0700, Greg KH wrote:
-> > > Here are 5 patches that are in the -stable tree, yet not currently fixed
-> > > in your mainline tree.  One of them is a security fix, so it probably
-> > > would be a good idea to get it into there :)
-> > 
-> > I thought one of the requirements for accepting a patch into -stable
-> > was that it was already in mainline.  Was this a change in policy that
-> > I missed, or just an oversight when we vetted these patches?
-> > 
-> > Not that I have anything against these patches, just curious in the
-> > future if we should NACK patches proposed for -stable if we notice
-> > that they aren't yet in mainline.
+Quoting T?r?k Edwin (edwin@gurde.com):
+> On Tuesday 18 April 2006 22:50, Arjan van de Ven wrote:
+> >
+> > I would suspect that the "filename" thing will be the biggest achilles
+> > heel...
+> > after all what does filename mean in a linux world with
+> > * hardlinks
+> > * chroot
+> > * namespaces
+> > * bind mounts
+> > * unlink of open files
+> > * fd passing over unix sockets
+> > * relative pathnames
+> > * multiple threads (where one can unlink+replace file while the other is
+> > in the validation code)
 > 
-> Sometimes some of these patches don't make it into Linus's tree because
-> they get lost in the shuffle (like the Kconfig one), or because they
-> were security issues that hit -stable first (like another one in there).
+> FYI fireflier v1.1.x created rules based on filenames.
+> In the current version we intended to use mountpoint+inode to identify 
+> programs. This reduces the potential problems from your list to: fd passing.
 > 
-> Either way, yes, the rule is that it should be in mainline, or in the
-> pipe to get into mainline (as was the 5 in this patchset.)  I just
-> wanted to make sure they made it into there, and didn't get lost.
-> 
+> Can't AppArmor use inodes in addition to filenames to implement its rules? 
+> The user could still make its choice based on a "filename" (in an interactive 
 
-I had them queued up as well, but I'm being sluggish and Greg got there first.
+Doesn't help with, for instance, /etc/shadow.  Run passwd once and the
+inode number is obsolete.
+
+So either you find a way to decisively use the pathname to identify it,
+or you make sure that anyone who can replace it, labels it.
+
+> - use extended attributes to label files, using selinux's setfiles. Most 
+> secure option IMHO
+
+Again, xattrs alone may be insufficient if the file can be replaced.
+
+> - store rules based on mountpoint+inode+program hash/checksum, and then get 
+> selinux to label files according to this. Not sure how to do this, and if it 
+> is worth at all
+
+Again, you're only addressing initial labeling.  But I guess you're
+labeling executables so that should be fine.
+
+-serge

@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWDRNnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWDRNum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750979AbWDRNnw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 09:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWDRNnw
+	id S1751027AbWDRNum (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 09:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWDRNum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 09:43:52 -0400
-Received: from smtp1-g19.free.fr ([212.27.42.27]:8135 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750979AbWDRNnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 09:43:51 -0400
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: "Jon Masters" <jonathan@jonmasters.org>
-Subject: Re: [RFC] binary firmware and modules
-Date: Tue, 18 Apr 2006 15:37:46 +0200
-User-Agent: KMail/1.9.1
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-References: <1145088656.23134.54.camel@localhost.localdomain> <35fb2e590604180616r33a05380p65c0e1c26ae276de@mail.gmail.com>
-In-Reply-To: <35fb2e590604180616r33a05380p65c0e1c26ae276de@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 18 Apr 2006 09:50:42 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:3274 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750825AbWDRNum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 09:50:42 -0400
+Subject: Re: [RT] bad BUG_ON in rtmutex.c
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1145365886.5447.28.camel@localhost.localdomain>
+References: <1145324887.17085.35.camel@localhost.localdomain>
+	 <1145362851.5447.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0604180831390.9005@gandalf.stny.rr.com>
+	 <1145365886.5447.28.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 18 Apr 2006 09:50:28 -0400
+Message-Id: <1145368228.17085.85.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604181537.47183.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 April 2006 15:16, Jon Masters wrote:
-> On 4/15/06, Jon Masters <jcm@redhat.com> wrote:
+On Tue, 2006-04-18 at 06:11 -0700, Daniel Walker wrote:
+
 > 
-> > The attached patch introduces MODULE_FIRMWARE as one way of advertising
-> > that a particular firmware file is to be loaded - it will then show up
-> > via modinfo and could be used e.g. when packaging a kernel. I've also
-> > given an example via the QLogic gla2xxx driver.
+> Something in the code bothered me right around the block you
+> referenced. 
 > 
-> Ok. If nobody shouts today I'm going to suggest this go into 2.6.17. I
-> think more ellaborate schemes will come up later, but we also need
-> something usable out there now.
+> Specifically when it drops the pi_lock , then takes it again, then does
+> plist_add to the pi_waiters ( during the "Boost the owner" section in
+> rt_mutex_adjust_prio_chain() ). Since the pi_lock was dropped you could
+> get an priority change which would lead to a bogus value in
+> waiter->pi_list_entry.prio .
+
+It's not really bogus. It just wont match the task->prio.  The
+waiter->pi_list_entry.prio is set to waiter->list_entry.prio and that's
+what you really need to match.  But you are right that the prio could
+have changed.  But whoever changed the prio should also be updating the
+chain, so whoever finishes, should have the chain setup properly.
+
 > 
-> As others have pointed out, cunning schemes to hack how
-> request_firmware et al work are all very well and good, but often we
-> just don't know what firmware we'll need until runtime. Unless or
-> until there's a good way to address that, I think modules will need to
-> advertise every firmware and distros will have to package all possible
-> firmwares, just in case.
+> I was looking over the code, and it seems like once all the chain
+> adjusting bottoms out you would end up with the correct priorities in
+> the waiter structures .. Cause whatever task made the priority
+> adjustment would just end up resetting the pi_waiters during it's
+> adjustment process. (Seems like there's room for optimization
+> though ..) 
 
-Hi Jon, this approach seems mistaken to me.  If I understand it right, 
-your mental model is that the driver has a list of file names for firmware
-files, and calls user-space with the right file-name for the device in
-question.  Given that model, having drivers tell the world about their
-firmware file list is reasonable; but I think the model is a bad one.
-Much better would be to have drivers work at a higher level of abstraction,
-and have user-space map the driver's abstract firmware request to a
-particular firmware file.  The kernel should say: I am the x driver,
-I want firmware for the y device, my version is v, the device version
-is r, etc etc.  Userspace should work out that the appropriate file
-is ql2322_fw.bin and upload it.  This is similar to the way the kernel
-handles other requests for services, such as loading modules (the kernel
-can ask for a particular module, but it can also ask for a module which
-provides a certain functionality).  Of course this requires making udev
-firmware handling more intelligent.
+I guess I just reiterated above what you are saying here.  Not sure if
+this can be optimized.  You're talking about optimizing a case that
+would seldom happen, but in doing so you stand a great chance of slowing
+down the normal case.
 
-I gave the example of the speedtouch driver to show how complicated
-things can be.  I didn't mean to suggest that the scheme it uses is
-a good one - it is a bad one, in that the real solution is to make
-userspace smarter.  In any case, I don't see how your suggested patch
-could reasonably work with the speedtouch driver - after all, the
-driver doesn't have a list of possible firmware files, and can't
-have one because no-one knows exactly which files exist or may be
-needed; and even if I had a decent list, I think it would be a mistake
-to hardwire it into the kernel.
+To keep latencies down, we are letting the PI chain walk be preempted,
+by releasing locks.  It's understood that the chain can then change
+while walking (big debate about this between Ingo, tglx and Esben).  But
+at the end, we decided on it being better to have latencies down, and
+just make adjustments when they arise.  This also keeps the latencies
+bounded, since the old way was harder to know the worst case (PI chain
+creep).
 
-Ciao,
+BUT!  I need to take another good look at the code, and maybe my
+previous example of the failed BUG_ON is really a clue that there exists
+a deeper bug.  If the processes D and E from my last example were of
+different priorities, but still higher than A, could the end result be
+setting A to the lower of the two?  This would be a bug, because then A
+would not inherit the correct priority!
 
-D.
+-- Steve
+
+

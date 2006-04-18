@@ -1,116 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWDSABq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWDSABs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWDSABq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 20:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWDSABq
+	id S1750882AbWDSABs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 20:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWDSABr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 20:01:46 -0400
-Received: from pproxy.gmail.com ([64.233.166.179]:3296 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750877AbWDSABp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 20:01:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lB6rnvDH7EF8MiKjWs+9g1wYKvXV1i+XRkU8usU8ki/JK3bVX6YAQZz4nluHCGIICFJwwmBi5LttibNUmbVyyZWomsv7a4p1xCyDmDmCs5VwKr9xizQ04G39QaWgVse015ia3KwIpQbstuEhpM1S6ZTiz9aTiu/oMCwGzy6BGss=
-Message-ID: <35fb2e590604181701x3ec461dap9887e3a7ce83e29a@mail.gmail.com>
-Date: Wed, 19 Apr 2006 01:01:43 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "Duncan Sands" <duncan.sands@math.u-psud.fr>
-Subject: Re: [RFC] binary firmware and modules
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200604181714.12293.duncan.sands@math.u-psud.fr>
+	Tue, 18 Apr 2006 20:01:47 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:54933 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1750882AbWDSABr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 20:01:47 -0400
+Date: Tue, 18 Apr 2006 16:01:30 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Jon Masters <jonathan@jonmasters.org>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+In-Reply-To: <20060418234156.GA28346@apogee.jonmasters.org>
+Message-ID: <Pine.LNX.4.62.0604181550380.22439@qynat.qvtvafvgr.pbz>
+References: <20060418234156.GA28346@apogee.jonmasters.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1145088656.23134.54.camel@localhost.localdomain>
-	 <200604181537.47183.duncan.sands@math.u-psud.fr>
-	 <35fb2e590604180714u9bdad58j6c15760404eff330@mail.gmail.com>
-	 <200604181714.12293.duncan.sands@math.u-psud.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/18/06, Duncan Sands <duncan.sands@math.u-psud.fr> wrote:
+Jon,
+   would it be possible to have something less then an initrd that would 
+allow the firmware blob to be packaged with the kernel? Your approach is 
+just fine if the things that will need firmware are compiled as modules 
+(the firmware can be placed on the same filesystem image as the modules 
+that need it) but some people prefer to build monolithic kernel images, 
+and in those cases there is no way for the kernel to get the firmware as 
+there is no filesystem available yet.
 
-> > > Given that model, having drivers tell the world about their
-> > > firmware file list is reasonable; but I think the model is a bad one.
+I know that Rob Landley is doing some tricks with firmware linux to append 
+an initramfs to the kernel image (http://www.landley.net/code/firmware/). 
+There is already support in the kconfig for specifying the initramfs 
+source, why culdn't we have the build process fetch any firmware needed by 
+the non-modular portions and store them at the end of the kernel image so 
+that they can be found during boot.
 
-jcm>> Yes, perhaps it is, but that's how it is now. The point of my mail was
-jcm>> that right now we have zero way to package up a kernel when the
-jcm>> firmware is out-of-tree and this is rapidly becoming reality so we
-jcm>> need a solution right away.
+if nothing else make a skeleton initramfs that contains the modules and 
+just enough other logic to continue the boot process as if the initramfs 
+wasn't involved.
 
-> This is a problem for speedtouch users too - I get regular reports from users
-> that their modem failed to find the firmware, usually because it wasn't in the
-> initrd.
+right now I have a laptop that's not working on wireless due to this exact 
+problem (ipw2200 driver, and I haven't taken the time to setup modules for 
+it yet)
 
-Yes. As we've already said, it's unlikely that's going to change any
-time soon for those shipping kernels - licensing on the speedtouch
-firmware isn't conducive AFAIK.
+David Lang
 
-> > > Much better would be to have drivers work at a higher level of abstraction
 
-jcm>> Do you really expect to push updated logic into udev every time you
-jcm>> update your driver for a quick hardware change? really?
+On Wed, 19 Apr 2006, Jon Masters wrote:
 
-> I don't understand what you're saying here - what kind of situation are
-> you thinking of when you talk about "update your driver for a quick hardware
-> change"?
+> Date: Wed, 19 Apr 2006 00:41:56 +0100
+> From: Jon Masters <jonathan@jonmasters.org>
+> To: akpm@osdl.org, linux-kernel@vger.kernel.org
+> Subject: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+> 
+> From: Jon Masters <jcm@redhat.com>
+>
+> Right now, various kernel modules are being migrated over to use
+> request_firmware in order to pull in binary firmware blobs from userland
+> when the module is loaded. This makes sense.
+>
+> However, there is right now little mechanism in place to automatically
+> determine which binary firmware blobs must be included with a kernel in
+> order to satisfy the prerequisites of these drivers. This affects
+> vendors, but also regular users to a certain extent too.
+>
+> The attached patch introduces MODULE_FIRMWARE as a mechanism for
+> advertising that a particular firmware file is to be loaded - it will
+> then show up via modinfo and could be used e.g. when packaging a kernel.
+>
+> Signed-off-by: Jon Masters <jcm@redhat.com>
+>
+> diff -urN linux-2.6.16.2_orig/include/linux/module.h linux-2.6.16.2_dev/include/linux/module.h
+> --- linux-2.6.16.2_orig/include/linux/module.h  2006-04-07 17:56:47.000000000 +0100
+> +++ linux-2.6.16.2_dev/include/linux/module.h   2006-04-12 13:51:56.000000000 +0100
+> @@ -155,6 +155,8 @@
+> */
+> #define MODULE_VERSION(_version) MODULE_INFO(version, _version)
+>
+> +#define MODULE_FIRMWARE(_firmware) MODULE_INFO(firmware, _firmware)
+> +
+> /* Given an address, look for it in the exception tables */
+> const struct exception_table_entry *search_exception_tables(unsigned long add);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Piece of hardware you always thought worked one way, but doesn't.
-Quick hacks for new devices/fixes for old ones, etc. etc. There are
-lots of reasons you might want to change firmware logic and the idea
-of doing it in two places seems a bad one to me.
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 
-jcm>> so let's just have a way to export that filename
-jcm>> for the moment at least.
-
-> You're creating a new kernel API here, so it needs to be good from the
-> word go: "for the moment at least" could easily become "needs to be
-> supported forever".  It's a pity if the scheme can't handle even mildly
-> complicated situations.
-
-I'm creating a new internal API, yes. One that I think solves the
-problem for most drivers and can stick around for a while - when I say
-"for the moment at least" I mean that in the same sense that any part
-of the kernel stays around until someone comes along with something
-new that everyone jumps at. But I think it's a useful one line patch
-:-)
-
-> > > In any case, I don't see how your suggested patch
-> > > could reasonably work with the speedtouch driver
-
-jcm>> I own a speedtouch here myself. I had to extract the firmware by hand
-jcm>> and install it. Unless something has changed, this means that we're
-jcm>> not going to get into a situation where that firmware is being shipped
-jcm>> out due to the licensing on it.
-
-> There's no reason to think that Thomson is dead set against having
-> distributions distribute firmware.
-
-But there's no reason to think any different either - and I don't
-think it's likely vendors are going to go out of their way for every
-driver to have lengthy legal debates over licensing. If these folks
-want their firmware to be distributed, then they need to facilitate
-that. To be fair to QLogic, their firmware has a specific license on
-it and they seem to be a player.
-
-> Maybe one day distributions will ship with speedtouch firmware.  If
-> so, it would be sad to then discover that the kernel+tools are too
-> unsophisticated to handle the situation.
-
-What's the problem? Really? It's just a file list of firmwares - if
-you really can't have a list then you just have to special case the
-speedtouch driver. Meanwhile, other folks are able to happily use
-MODULE_FIRMWARE to advertise their firmware requirements :-)
-
-> As I remarked in another email, MODULE_FIRMWARE could be made to work
-> with the speedtouch driver as long as it is possible to specify patterns,
-> or at least initial parts of filenames.
-
-You can specify whatever filename you like - it's down to whatever
-parses the modinfo sections to rip this out in the right way at
-packaging time. I strongly prefer file names.
-
-Jon.

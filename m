@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWDROJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWDROJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWDROJp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 10:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWDROJp
+	id S932095AbWDROJa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 10:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWDROJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 10:09:45 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:8710 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932105AbWDROJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 10:09:43 -0400
-Subject: Re: [RT] bad BUG_ON in rtmutex.c
-From: Daniel Walker <dwalker@mvista.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1145368228.17085.85.camel@localhost.localdomain>
-References: <1145324887.17085.35.camel@localhost.localdomain>
-	 <1145362851.5447.12.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0604180831390.9005@gandalf.stny.rr.com>
-	 <1145365886.5447.28.camel@localhost.localdomain>
-	 <1145368228.17085.85.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 18 Apr 2006 07:09:40 -0700
-Message-Id: <1145369381.5447.40.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Apr 2006 10:09:30 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:15109 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932095AbWDROJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 10:09:29 -0400
+Date: Tue, 18 Apr 2006 16:09:27 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, arjan@infradead.org,
+       greg@kroah.com, hch@infradead.org
+Subject: Re: [RFC PATCH 1/2] Makefile: export-symbol usage report generator.
+Message-ID: <20060418140927.GB11582@stusta.de>
+References: <20060413123826.52D94470030@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060413123826.52D94470030@localhost>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-18 at 09:50 -0400, Steven Rostedt wrote:
-> On Tue, 2006-04-18 at 06:11 -0700, Daniel Walker wrote:
+On Thu, Apr 13, 2006 at 05:38:26AM -0700, Ram Pai wrote:
+
+> I ran a report to extract export-symbol usage by kernel modules.  The results
+> are at http://www.sudhaa.com/~ram/misc/export_report.txt
 > 
-
+> The report lists:
+> 1. All the exported symbols and their usage counts by in-kernel modules.
+> 2. for each in-kernel module, lists the modules and the exported symbols
+> 	from those modules, that it depends on.
 > 
-> > 
-> > I was looking over the code, and it seems like once all the chain
-> > adjusting bottoms out you would end up with the correct priorities in
-> > the waiter structures .. Cause whatever task made the priority
-> > adjustment would just end up resetting the pi_waiters during it's
-> > adjustment process. (Seems like there's room for optimization
-> > though ..) 
+> Highlights: 
+> 	On x86 architecture
+>  	(1) 880 exported symbols not used by any in-kernel modules.
+>         (2) 1792 exported symbols used only once.
 > 
-> I guess I just reiterated above what you are saying here.  Not sure if
-> this can be optimized.  You're talking about optimizing a case that
-> would seldom happen, but in doing so you stand a great chance of slowing
-> down the normal case.
+> I hope this report/tool shall help all inkernel modules to revisit their usage
+> of kernel interfaces.
+> 
+> This patch integrates the report-generator into the kernel build process. After
+> applying this patch, invoke 'make export_report'  and it creates the report in
+> Documentation/export_report.txt
+>...
 
-I'm not really working on it, but on a bigger SMP machine it might not
-be that uncommon .. PI is running on all tasks now isn't it? It seems
-like a simple check could be at the same point as the BUG_ON() we're
-talking about .. <speculation> If that BUG_ON() triggers , it means the
-task is walking the lock chain at the same time as another task on the
-same chain, so you could make the lower prio chain stop at that point ..
-no?
+I like your patch, but I have observed two issues:
+- please don't force an allmodconfig, simply use the currently compiled
+  kernel 
+- please output to stdout instead of a fixed file
 
-> To keep latencies down, we are letting the PI chain walk be preempted,
-> by releasing locks.  It's understood that the chain can then change
-> while walking (big debate about this between Ingo, tglx and Esben).  But
-> at the end, we decided on it being better to have latencies down, and
-> just make adjustments when they arise.  This also keeps the latencies
-> bounded, since the old way was harder to know the worst case (PI chain
-> creep).
+This way, it would also be consistent with other Makefile targets like 
+namespacecheck.
 
-I can imagine. Seems like PI is always a point of controversy .
+cu
+Adrian
 
-> BUT!  I need to take another good look at the code, and maybe my
-> previous example of the failed BUG_ON is really a clue that there exists
-> a deeper bug.  If the processes D and E from my last example were of
-> different priorities, but still higher than A, could the end result be
-> setting A to the lower of the two?  This would be a bug, because then A
-> would not inherit the correct priority!
+-- 
 
-Did that BUG_ON ever trigger for you? I don't know how you would end up
-in that state without at least two chain walkers on different cpu's ..
-
-Daniel
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

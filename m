@@ -1,114 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWDRAkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWDRAuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWDRAkc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 20:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWDRAkc
+	id S932091AbWDRAuN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 20:50:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWDRAuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 20:40:32 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:64965 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751334AbWDRAkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 20:40:31 -0400
-Date: Tue, 18 Apr 2006 09:42:12 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
-       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
-       marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
-Message-Id: <20060418094212.3ece222f.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <Pine.LNX.4.64.0604171724070.2752@schroedinger.engr.sgi.com>
-References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
-	<20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
-	<20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
-	<20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
-	<20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
-	<20060417091830.bca60006.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604170958100.29732@schroedinger.engr.sgi.com>
-	<20060418090439.3e2f0df4.kamezawa.hiroyu@jp.fujitsu.com>
-	<Pine.LNX.4.64.0604171724070.2752@schroedinger.engr.sgi.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 17 Apr 2006 20:50:13 -0400
+Received: from smtpout.mac.com ([17.250.248.174]:58314 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932091AbWDRAuL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 20:50:11 -0400
+In-Reply-To: <200604171741.k3HHfx5G006341@turing-police.cc.vt.edu>
+References: <85e0e3140604170625k112680f8qd4ef96f7d3d3ea98@mail.gmail.com> <200604171741.k3HHfx5G006341@turing-police.cc.vt.edu>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <2FAC7488-8B72-45DF-9335-E6C6C25CFDF2@mac.com>
+Cc: Niklaus <niklaus@gmail.com>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Boot CDrom from grub
+Date: Mon, 17 Apr 2006 20:50:06 -0400
+To: Valdis.Kletnieks@vt.edu
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Apr 2006 17:27:48 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
+On Apr 17, 2006, at 13:41:59, Valdis.Kletnieks@vt.edu wrote:
+> If you have enough physical access to boot the machine from a CD,  
+> you have enough access to work around the BIOS password problem.   
+> In almost all cases, cracking the case and changing/removing a  
+> jumper on the motherboard will bypass/reset the password, and  
+> Google will tell you which jumper it is.
 
-> On Tue, 18 Apr 2006, KAMEZAWA Hiroyuki wrote:
-> 
-> > Then,
-> > 
-> > if (is_migration_entry(entry)) {
-> > 	change_to_read_migration_entry(entry);
-> > 	copy_entry(entry);
-> > }
-> > 
-> > is sane.
-> 
-> Hmmm... Looks like I need to do the patch. Is the following okay? This 
-> will also only work on cow mappings.
-> 
-I think okay.
+This is true; with the exception of some incredibly poorly designed  
+HP desktops I once had the misfortune of administrating.  For some  
+insane reason HP decided to store the BIOS password in flash RAM and  
+declined to provide any method for resetting it.  In the manual, they  
+specified "If you for any reason forget your BIOS password, please  
+ship the computer to a certified service station to have it reset".   
+The only other known way is to unsolder the surface-mount flash chip  
+from the MB and place it in a flash writer.
 
-BTW, when copying mm, mm->mmap_sem is held. Is mm->mmap_sem is not held while 
-page migraion now ? I'm sorry I can't catch up all changes.
-or Is this needed for lazy migration (migration-on-fault) ?
+We've since managed to lose the passwords for a few of those  
+desktops; is there any way to get linux to overwrite the flash RAM  
+soldered to the motherboard?
 
--Kame
-
-> 
-> 
-> Read/Write migration entries: Implement correct behavior in copy_one_pte
-> 
-> Migration entries with write permission must become SWP_MIGRATION_READ
-> entries if a COW mapping is processed. The migration entries from which
-> the copy is being made must also become SWP_MIGRATION_READ. This mimicks
-> the copying of pte for an anonymous page.
-> 
-> Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> 
-> Index: linux-2.6.17-rc1-mm2/mm/memory.c
-> ===================================================================
-> --- linux-2.6.17-rc1-mm2.orig/mm/memory.c	2006-04-17 16:23:50.000000000 -0700
-> +++ linux-2.6.17-rc1-mm2/mm/memory.c	2006-04-17 17:25:50.000000000 -0700
-> @@ -434,7 +434,9 @@ copy_one_pte(struct mm_struct *dst_mm, s
->  	/* pte contains position in swap or file, so copy. */
->  	if (unlikely(!pte_present(pte))) {
->  		if (!pte_file(pte)) {
-> -			swap_duplicate(pte_to_swp_entry(pte));
-> +			swp_entry_t entry = pte_to_swp_entry(pte);
-> +
-> +			swap_duplicate(entry);
->  			/* make sure dst_mm is on swapoff's mmlist. */
->  			if (unlikely(list_empty(&dst_mm->mmlist))) {
->  				spin_lock(&mmlist_lock);
-> @@ -443,6 +445,19 @@ copy_one_pte(struct mm_struct *dst_mm, s
->  						 &src_mm->mmlist);
->  				spin_unlock(&mmlist_lock);
->  			}
-> +			if (is_migration_entry(entry) &&
-> +					is_cow_mapping(vm_flags)) {
-> +				page = migration_entry_to_page(entry);
-> +
-> +				/*
-> +				 * COW mappings require pages in both parent
-> +				*  and child to be set to read.
-> +				 */
-> +				entry = make_migration_entry(page,
-> +	`					SWP_MIGRATION_READ);
-> +				pte = swp_entry_to_pte(entry);
-> +				set_pte_at(src_mm, addr, src_pte, pte);
-> +			}
->  		}
->  		goto out_set_pte;
->  	}
-> 
+Cheers,
+Kyle Moffett
 

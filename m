@@ -1,91 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWDRU6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWDRU74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWDRU6A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 16:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWDRU57
+	id S932230AbWDRU74 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 16:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWDRU74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 16:57:59 -0400
-Received: from victor.provo.novell.com ([137.65.250.26]:907 "EHLO
-	victor.provo.novell.com") by vger.kernel.org with ESMTP
-	id S1750837AbWDRU57 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 16:57:59 -0400
-Message-ID: <444552A7.2020606@novell.com>
-Date: Tue, 18 Apr 2006 13:57:11 -0700
-From: Crispin Cowan <crispin@novell.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+	Tue, 18 Apr 2006 16:59:56 -0400
+Received: from service.sh.cvut.cz ([147.32.127.214]:63132 "EHLO
+	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S932230AbWDRU7z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 16:59:55 -0400
+Message-ID: <4445533D.9010000@sh.cvut.cz>
+Date: Tue, 18 Apr 2006 22:59:41 +0200
+From: Rudolf Marek <r.marek@sh.cvut.cz>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Karl MacMillan <kmacmillan@tresys.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com>	 <1145381250.19997.23.camel@jackjack.columbia.tresys.com>	 <44453E7B.1090009@novell.com> <1145391969.21723.41.camel@localhost.localdomain>
-In-Reply-To: <1145391969.21723.41.camel@localhost.localdomain>
-X-Enigmail-Version: 0.91.0.0
+To: Wim Van Sebroeck <wim@iguana.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Watchdog device class
+References: <4443EED9.30603@sh.cvut.cz> <20060418195751.GA6968@infomag.infomag.iguana.be>
+In-Reply-To: <20060418195751.GA6968@infomag.infomag.iguana.be>
+X-Enigmail-Version: 0.93.0.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2006-04-18 at 12:31 -0700, Crispin Cowan wrote:
->   
->> implements an approximation to the AppArmor security model, but does it
->> with domains and types instead of path names, imposing a substantial
->> cost in ease-of-use on the user.
->>     
-> I don't think thats true. A file name is a pretty meaningless object in
-> Unixspace let alone Linux after Al Plan9ified it somewhat.
-Not quite; data contents and file names have *different* meanings.
-Mediating the contents of the shadow file is good for preserving the
-secrecy of the file. Mediating the contents of the thing named
-/etc/hosts.allow has impact with respect to what answers to that name,
-regardless of what happened to the previous contents.
+Hi Wim,
 
-SELinux has NSA legacy, and that is reflected in their inode design: it
-is much better at protecting secrecy, which is the NSA's historic
-mission. AppArmor has legacy in intrusion prevention, and so its primary
-design goal was to prevent compromised programs from compromising the
-host. Name-based access control is better at that, because it lets you
-directly control which programs can change the contents of path names
-that have critical semantic meaning in UNIX/Linux, such as /etc/shadow,
-/etc/hosts.allow, /srv/www/htdocs/index.html and so forth.
+> I was doing some stuff for the ICH6 & ICH7 I/O chipsets first and was then 
+> planning to resume working on my generic watchdog code again. (It used to be
+> stored in a bitkeeper tree, but I didn't convert it to a git tree yet).
+> I'll make sure that the code get's stored in the linux-2.6-watchdog-experimental
+> git tree in the coming days.
 
->  It has an
-> impact on policy design but if anything it makes it slightly harder for
-> the policy design work and _easier_ for users, who no longer have to
-> follow magic path rules.
->   
-Try out AppArmor and see if you still believe that :)
+Aha good. I will check it later.
 
-> Can you answer the "when are you submitting it upstream" question ?
-It is a small number of hours away. We are polishing our submission now.
+> 	int	(*get_timervalue)(struct watchdog_device *, int *);
+Good one.
 
->  I've
-> certainly not got any fundamental objection to another security system.
-> I doubt we'd all use it but we don't all use sys5 file systems or
-> reiserfs either.
->   
-I very much appreciate that. AppArmor is fundamentally different than
-SELinux, in goals and in the resulting design, and we believe it is
-important for users to be able to choose the system they want, both in
-file systems and security systems.
+> 	int	(*sys_restart)(struct watchdog_device *);		/* operation = force a
+system_restart for rebooting */
 
-Note: I'm assuming that LSM will not be removed while we are in the
-process of being reviewed. I seem to recall it took SELinux six months
-to go from initial submission to acceptance and I'm sure we will have to
-fix issues and we don't have illusions that AppArmor will be accepted in
-a matter of weeks.
+Aha as for the cobalt stuff?
 
-We had actually planned to submit AppArmor next week, and this thread
-has accelerated the submission by a few days.
+> 	int	(*get_status)(struct watchdog_device *,int *);		/* operation = get the watchdog's status */
+> 	int	(*get_temperature)(struct watchdog_device *, int *);	/* operation = get the temperature in °F */
 
-Crispin
--- 
-Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
-Director of Software Engineering, Novell  http://novell.com
+I had those there too but I eliminated them. I used following methods:
+For the status stuff I did a variable boot_status and status. I have
+a handler for this in the common IOCTL handling code.
 
+I have no such thing for the temp IOCTL but the new "ioctl" operation
+could be created to catch it.
+(and get called when no standard ioctl in watchdog-dev is used)
+
+As for sysfs, I would like to have the temps handled with the hwmon class
+and have some sort of "symlink" from the watchdog directory to corresponding
+hwmon directory. The status stuff might be handled via standard format sysfs file.
+
+> struct watchdog_device {
+> 	unsigned char name[32];				/* The watchdog's 'identity' */
+> 	unsigned long options;				/* The supported capabilities/options */
+> 	unsigned long firmware;				/* The watchdog's Firmware version */
+> 	int heartbeat;					/* The watchdog's heartbeat */
+> 	int nowayout;					/* The nowayout setting for this watchdog */
+> 	int bootstatus;					/* The watchdog's bootstatus */
+got the unsigned long to have more space...
+> 	int temppanic;					/* wether or not to panic on temperature trip's */
+> 	struct watchdog_ops *watchdog_ops;		/* link to watchdog_ops */
+> 
+> 	/* watchdog status state machine */
+> 	enum { WATCHDOG_UNINITIALIZED=0,
+>                WATCHDOG_INITIALIZED,
+>                WATCHDOG_STARTED,
+>                WATCHDOG_STOPPED,
+>                WATCHDOG_UNREGISTERED,
+> 	} watchdog_state;
+
+I dont have the state machine but something like this is implemented in the dev
+device handling.
+
+Additionaly I have the self ping stuff in the class too.
+
+> 	/* From here on everything is device dependent */
+> 	void	*private;
+
+In the w83792d I used different approach, because the device is not only a
+watchog, the struct watchdog_device was a part of the common device structure,
+and for single purpose devices this *private makes sense. But I think there
+some per device private data pointer somewhere.
+
+> you don't need an operation for the notify_reboot. This is only necessary to
+> make sure that you either stop the watchdog or force it to reboot (because
+> the hardware isn't capable of rebooting itself. See the cobalt server)).
+
+Alan already did a hint about the device driver callback that may handle this.
+
+Now it seems we have two different approaches and a code, so which one will wim
+? ;) If you want to talk to me you may find me on #linux-sensors on freenode.net.
+
+Also I would like to know your ideas about the sysfs file structure for
+watchdogs and also If you like to have more watchdogs active in the system or
+just one.
+
+Thanks,
+Regards
+Rudolf
+
+PS: CC me please.

@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWDROZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWDROZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWDROZh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 10:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWDROZh
+	id S932195AbWDROZR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 10:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWDROZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 10:25:37 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:30477 "EHLO
-	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S932179AbWDROZg
+	Tue, 18 Apr 2006 10:25:16 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:48319 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932195AbWDROZP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 10:25:36 -0400
-Date: Tue, 18 Apr 2006 07:25:29 -0700
-Message-Id: <200604181425.k3IEPTAC027793@dhcp153.mvista.com>
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH -rt] Remove double history 
+	Tue, 18 Apr 2006 10:25:15 -0400
+Subject: Re: [RFC] binary firmware and modules
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Jon Masters <jonathan@jonmasters.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <35fb2e590604180616r33a05380p65c0e1c26ae276de@mail.gmail.com>
+References: <1145088656.23134.54.camel@localhost.localdomain>
+	 <35fb2e590604180616r33a05380p65c0e1c26ae276de@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 18 Apr 2006 16:25:27 +0200
+Message-Id: <1145370327.10255.62.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Assuming you don't want it in there twice .
+Hi Jon,
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+> > The attached patch introduces MODULE_FIRMWARE as one way of advertising
+> > that a particular firmware file is to be loaded - it will then show up
+> > via modinfo and could be used e.g. when packaging a kernel. I've also
+> > given an example via the QLogic gla2xxx driver.
+> 
+> Ok. If nobody shouts today I'm going to suggest this go into 2.6.17. I
+> think more ellaborate schemes will come up later, but we also need
+> something usable out there now.
 
-Index: linux-2.6.16/kernel/rt.c
-===================================================================
---- linux-2.6.16.orig/kernel/rt.c
-+++ linux-2.6.16/kernel/rt.c
-@@ -19,17 +19,6 @@
-  * This code is a from-scratch implementation and is not based on pmutexes,
-  * but the idea of converting spinlocks to mutexes is used here too.
-  *
-- * historic credit for proving that Linux spinlocks can be implemented via
-- * RT-aware mutexes goes to many people: The Pmutex project (Dirk Grambow
-- * and others) who prototyped it on 2.4 and did lots of comparative
-- * research and analysis; TimeSys, for proving that you can implement a
-- * fully preemptible kernel via the use of IRQ threading and mutexes;
-- * Bill Huey for persuasively arguing on lkml that the mutex model is the
-- * right one; and to MontaVista, who ported pmutexes to 2.6.
-- *
-- * This code is a from-scratch implementation and is not based on pmutexes,
-- * but the idea of converting spinlocks to mutexes is used here too.
-- *
-  * lock debugging, locking tree, deadlock detection:
-  *
-  *  Copyright (C) 2004, LynuxWorks, Inc., Igor Manyilov, Bill Huey
+I like to see this in 2.6.17, too. I also think that it would be a good
+idea if we can add a description to each firmware file. Like we do with
+the module parameters.
+
+> As others have pointed out, cunning schemes to hack how
+> request_firmware et al work are all very well and good, but often we
+> just don't know what firmware we'll need until runtime. Unless or
+> until there's a good way to address that, I think modules will need to
+> advertise every firmware and distros will have to package all possible
+> firmwares, just in case.
+
+And remember that request_firmware() is also used for overriding CIS
+tables for PCMCIA cards.
+
+Regards
+
+Marcel
+
+

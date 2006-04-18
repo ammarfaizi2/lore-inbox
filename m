@@ -1,74 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWDRRLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWDRRVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbWDRRLT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 13:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWDRRLT
+	id S932090AbWDRRVR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 13:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWDRRVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 13:11:19 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:4060 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932099AbWDRRLS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 13:11:18 -0400
-From: Andi Kleen <ak@suse.de>
-To: Martin Bligh <mbligh@mbligh.org>
-Subject: Re: 2.6.17-rc1-mm3 dies in LTP on amd64
-Date: Tue, 18 Apr 2006 19:11:12 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       jbeulich@novell.com
-References: <44451AD5.9070709@mbligh.org>
-In-Reply-To: <44451AD5.9070709@mbligh.org>
+	Tue, 18 Apr 2006 13:21:17 -0400
+Received: from pproxy.gmail.com ([64.233.166.183]:31334 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932090AbWDRRVQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 13:21:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EtR2vvT/9Xzf4+fwRpfW157ZNkXf9ZhBQ+pwMl94nkiufpIVlXGqMedlSmpPsTBik5Gy0noQUrfp0pxwQl/BngeuYZce8AoCbstQElrqugfA/QzEmi3mkdcGt+DKZ5ohVYPJgRDM4pBGye3l0EmJrlbUNzyz9QwZ0O2DHxSIjf4=
+Message-ID: <bf3792800604181021y4d985dedk19c7d94707c0cd8d@mail.gmail.com>
+Date: Wed, 19 Apr 2006 01:21:15 +0800
+From: "Liu haixiang" <liu.haixiang@gmail.com>
+To: "Steven Rostedt" <rostedt@kihontech.com>
+Subject: Re: Question on Schedule and Preemption
+Cc: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1145372205.17085.123.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200604181911.13012.ak@suse.de>
+References: <bf3792800604180023r2a2111b4ude5ef15f9dd855a@mail.gmail.com>
+	 <20060418091724.GA7258@rhlx01.fht-esslingen.de>
+	 <bf3792800604180555n6569a355tc55e850064ea1551@mail.gmail.com>
+	 <1145372205.17085.123.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 April 2006 18:59, Martin Bligh wrote:
-> Runs most tests just fine, but not LTP.
-> -mm2 ran LTP fine.
+2006/4/18, Steven Rostedt <rostedt@kihontech.com>:
+> On Tue, 2006-04-18 at 20:55 +0800, Liu haixiang wrote:
+> > Hi Andreas Mohr,
+> >
+> > Thanks for your explanation. And now I am clear on above code.
+> >
+> > Please see my problem below. It seemed that there is one code to add
+> > preempt count [<8440de20>], which means that the kernel can not be
+> > preemptied. Then the code call switch_to (which contains the code
+> > __switch_to_end).
+>
+> Your stack trace looks fishy, I recommend doing a "make menuconfig", go
+> to "Kernel Hacking" and turn on "Compile the kernel with frame pointers"
+> This will give you a better and cleaner stack dump.
+>
 
-I don't think it's my patchkit - currently only has harmless things.
+Thank  you. And I will try it later.
 
-> Full log here:
-> http://test.kernel.org/abat/28728/debug/console.log
-> 
-> The trainwreck starts with:
-> 
-> Modules linked in:
-> Pid: 228, comm: kswapd0 Not tainted 2.6.17-rc1-mm3-autokern1 #1
-> RIP: 0010:[<ffffffff8047a8dc>] <ffffffff8047a8dc>{__sched_text_start+1852}
-> RSP: 0000:0000000000000000  EFLAGS: 00010046
-> RAX: 0000000000000001 RBX: 0000000000000000 RCX: ffffffff805d9338
-> RDX: ffff8100010c5090 RSI: ffffffff805d9338 RDI: ffff8100010c5090
-> RBP: ffffffff805d9338 R08: 0000000000000010 R09: ffff8100e3e63d28
-> R10: ffff8100e3e63a88 R11: 000000000000000b R12: ffff810000011280
-> R13: ffff81007e186f40 R14: ffff810008003620 R15: 000002b9f81aa1c4
-> FS:  0000000000000000(0000) GS:ffffffff805fa000(0000) knlGS:00000000f7ea7460
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: fffffffffffffff8 CR3: 000000007174a000 CR4: 00000000000006e0
-> Process kswapd0 (pid: 228, threadinfo ffff8100e3e62000, task 
-> ffff8100010c5090)
-> Stack: ffffffff80578e20 ffff8100010c5090 0000000000000001 ffffffff80578f58
->         0000000000000000 ffffffff80578e78 ffffffff8020b082 ffffffff80578f58
->         0000000000000000 ffffffff80483520
-> Call Trace: <#DF> <ffffffff8020b082>{show_registers+140}
->         <ffffffff8020b30b>{__die+159} <ffffffff8020b380>{die+50}
->         <ffffffff8020bb46>{do_double_fault+115} 
-> <ffffffff8020aa61>{double_fault+125}
->         <ffffffff8047a8dc>{__sched_text_start+1852} <EOE>
+> >
+> > And it's problem becuase the code already in the atomic status and can
+> > not be scheduled.
+> >
+> > My understanding is correct? And how to know which process or code
+> > call add_preempt_count? Is there any good way to find the clue?
+>
+> Well according to your output, it was the task "TURNER0" with the pid
+> 611.  After you recompile the kernel with CONFIG_FRAME_POINTERS you will
+> need to follow the stack trace and see what function turned off
+> preemption.  This can happen calling a spin_lock and not unlocking it
+> before calling something that would schedule.
+>
 
+If it's true, it is a great help for me.
 
-Not very useful.  Something double faulted, but it's not on the stack
-[I wonder if the stack walker over double faults is broken. Jan - did you
-ever test that after you redid the walker?]
+> If you also turn on in "Kernel Hacking" -> "Compile the kernel with
+> debug info", you can then do a "gdb vmlinux" in the root directory of
+> the compile, and pass in the stack address with the command
+> "li *0xc042382e" to show where that function would return. (replace the
+> c042382e with the location you are looking for).
+>
+> Also, what arch are you using to get a 0x04000000 in the preempt_count
+> (the 0x1 is the depth). Of course I'm looking at 2.6.17-rc1 and not the
+> one you are using.  Hmm, your arch may not even support frame pointers.
+>
+> -- Steve
+>
 
-If you can reproduce it on a Intel machine it might be possible to find
-it using the last branch registers (patch for that available on request).
+The arch is SH4.
 
-Otherwise binary search I guess.
-
--Andi
+> >
+> > ===================================
+> > scheduling while atomic: TUNER0/0x04000001/611
+> >
+> > Call trace:
+> > [<846532b4>] __switch_to_end+0x2fe/0x38a
+> > [<8440de20>] add_preempt_count+0x0/0xa0
+> > [<84652c80>] schedule+0x0/0x300
+> > [<8440dd80>] sub_preempt_count+0x0/0xa0
+> > [<84653ef8>] cond_resched+0x38/0x80
+> > [<84405096>] ret_from_irq+0x0/0x12
+> > [<845145e0>] __delay+0x0/0x20
+> > [<84653ef8>] cond_resched+0x38/0x80
+> > [<8440de20>] add_preempt_count+0x0/0xa0
+> > [<84652c80>] schedule+0x0/0x300
+> > [<8440dd80>] sub_preempt_count+0x0/0xa0
+> > [<845d9a16>] bit_xfer+0x256/0x8c0
+> > [<845d6d36>] i2c_transfer+0x56/0xe0
+> > [<c042382e>] STI2C_Read+0x2e/0x80 [sti2c_ioctl]
+> > [<c046af32>] I2C_ReadWrite+0x72/0x1a0 [sttuner_core]
+> > [<c0487d7c>] IOARCH_Handle+0x10/0xffff49a0 [sttuner_core]
+> > [<84653ec0>] cond_resched+0x0/0x80
+> > [<845d9cac>] bit_xfer+0x4ec/0x8c0
+> > [<c046b398>] IOARCH_ReadWrite+0x118/0x180 [sttuner_core]
+> > [<c05cb000>] 0xc05cb000
+> > [<c046b456>] STTUNER_IOARCH_ReadWrite+0x16/0x40 [sttuner_core]
+> > [<c05c300c>] 0xc05c300c
+> > [<c0477482>] STTUNER_IOREG_GetContigousRegisters+0x142/0x1c0 [sttuner_core]
+> > [<c046fd1a>] Drv0299_GetNoiseEstimator+0x1a/0x120 [sttuner_core]
+> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
+> > [<c0483798>] STTUNER_DrvInst+0x1a8/0xffff911c [sttuner_core]
+> > [<c048379c>] STTUNER_DrvInst+0x1ac/0xffff911c [sttuner_core]
+> > [<c048379c>] STTUNER_DrvInst+0x1ac/0xffff911c [sttuner_core]
+> > [<c05c300c>] 0xc05c300c
+> > [<c05c3000>] 0xc05c3000
+> > [<c0470960>] demod_d0299_GetSignalQuality+0x20/0x40 [sttuner_core]
+> > [<c048379c>] STTUNER_DrvInst+0x1ac/0xffff911c [sttuner_core]
+> > [<c0483798>] STTUNER_DrvInst+0x1a8/0xffff911c [sttuner_core]
+> > [<c05c3000>] 0xc05c3000
+> > [<c046c826>] SATTASK_GetTunerInfo+0x46/0xe0 [sttuner_core]
+> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
+> > [<c04837ac>] STTUNER_DrvInst+0x1bc/0xffff911c [sttuner_core]
+> > [<c046c9fa>] SATTASK_ProcessTracking+0x13a/0x1c0 [sttuner_core]
+> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
+> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
+> > [<c046d388>] SATTASK_ScanTask+0x3e8/0x620 [sttuner_core]
+> > [<c046ca80>] SATTASK_ProcessScanExact+0x0/0x340 [sttuner_core]
+> > [<c0483800>] STTUNER_DrvInst+0x210/0xffff911c [sttuner_core]
+> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
+> > [<c048482c>] STTUNER_DrvInst+0x123c/0xffff911c [sttuner_core]
+> > [<c048492c>] STTUNER_DrvInst+0x133c/0xffff911c [sttuner_core]
+> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
+> > [<c04836ec>] STTUNER_DrvInst+0xfc/0xffff911c [sttuner_core]
+> > [<c04836ec>] STTUNER_DrvInst+0xfc/0xffff911c [sttuner_core]
+> > [<c04848ec>] STTUNER_DrvInst+0x12fc/0xffff911c [sttuner_core]
+> > [<c04848ec>] STTUNER_DrvInst+0x12fc/0xffff911c [sttuner_core]
+> > [<c048492c>] STTUNER_DrvInst+0x133c/0xffff911c [sttuner_core]
+> > [<8442b4e4>] kthread+0xe4/0x140
+> > [<c046cfa0>] SATTASK_ScanTask+0x0/0x620 [sttuner_core]
+> > [<c0483800>] STTUNER_DrvInst+0x210/0xffff911c [sttuner_core]
+> > [<8440f4a0>] complete+0x0/0xc0
+> > [<8442b3e0>] kthread_should_stop+0x0/0x20
+> > [<84403004>] kernel_thread_helper+0x4/0x20
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> --
+> Steven Rostedt
+> Senior Programmer
+> Kihon Technologies
+> (607)786-4830
+>
+>

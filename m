@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWDRRdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWDRRdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbWDRRdD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 13:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWDRRdD
+	id S1750951AbWDRRdt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 13:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWDRRdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 13:33:03 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:63726 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932152AbWDRRdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 13:33:02 -0400
-Subject: Re: Question on Schedule and Preemption
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Liu haixiang <liu.haixiang@gmail.com>
-Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <bf3792800604181021y4d985dedk19c7d94707c0cd8d@mail.gmail.com>
-References: <bf3792800604180023r2a2111b4ude5ef15f9dd855a@mail.gmail.com>
-	 <20060418091724.GA7258@rhlx01.fht-esslingen.de>
-	 <bf3792800604180555n6569a355tc55e850064ea1551@mail.gmail.com>
-	 <1145372205.17085.123.camel@localhost.localdomain>
-	 <bf3792800604181021y4d985dedk19c7d94707c0cd8d@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 18 Apr 2006 13:32:56 -0400
-Message-Id: <1145381576.17085.138.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Apr 2006 13:33:49 -0400
+Received: from thunk.org ([69.25.196.29]:51872 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750951AbWDRRds (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 13:33:48 -0400
+Date: Tue, 18 Apr 2006 12:35:39 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
+       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
+       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
+       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
+       Kamal Deen <kamal@kdeen.net>
+Subject: Re: irqbalance mandatory on SMP kernels?
+Message-ID: <20060418163539.GB10933@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Lee Revell <rlrevell@joe-job.com>,
+	"Martin J. Bligh" <mbligh@mbligh.org>,
+	"Robert M. Stockmann" <stock@stokkie.net>,
+	linux-kernel@vger.kernel.org, Randy Dunlap <rddunlap@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Manfred Spraul <manfreds@colorfullife.com>,
+	Alan Cox <alan@redhat.com>, Kamal Deen <kamal@kdeen.net>
+References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net> <4443A6D9.6040706@mbligh.org> <1145286094.16138.22.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145286094.16138.22.camel@mindpipe>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-19 at 01:21 +0800, Liu haixiang wrote:
-> 2006/4/18, Steven Rostedt <rostedt@xxxxxx.com>:
-
-Damn! I used my work email account to send that. I try to keep the spam
-down on that account, so I don't publish it as much. Darn Evolution
-keeps picking the wrong account.
-
-> > On Tue, 2006-04-18 at 20:55 +0800, Liu haixiang wrote:
-> >
-> > Well according to your output, it was the task "TURNER0" with the pid
-> > 611.  After you recompile the kernel with CONFIG_FRAME_POINTERS you will
-> > need to follow the stack trace and see what function turned off
-> > preemption.  This can happen calling a spin_lock and not unlocking it
-> > before calling something that would schedule.
-> >
+On Mon, Apr 17, 2006 at 11:01:33AM -0400, Lee Revell wrote:
+> > There is an in-kernel IRQ balancer. Redhat just choose to turn it
+> > off, and do it in userspace instead. You can re-enable it if you
+> > compile your own kernel.
 > 
-> If it's true, it is a great help for me.
-> 
-> > If you also turn on in "Kernel Hacking" -> "Compile the kernel with
-> > debug info", you can then do a "gdb vmlinux" in the root directory of
-> > the compile, and pass in the stack address with the command
-> > "li *0xc042382e" to show where that function would return. (replace the
-> > c042382e with the location you are looking for).
-> >
-> > Also, what arch are you using to get a 0x04000000 in the preempt_count
-> > (the 0x1 is the depth). Of course I'm looking at 2.6.17-rc1 and not the
-> > one you are using.  Hmm, your arch may not even support frame pointers.
-> >
-> > -- Steve
-> >
-> 
-> The arch is SH4.
+> Round-robin IRQ balancing is inefficient anyway.  You'd get better cache
+> utilization letting one CPU take them all.
 
-Well I just tried a "make ARCH=sh menuconfig" and the
-CONFIG_FRAME_POINTERS option is there.  Whether it makes a difference or
-not, I haven't the foggiest clue.
+IIRC, Van Jacobsen at his Linux.conf.au presentation made a pretty
+strong argument that irq balancing was never a good idea, describing
+them as a George Bush-like policy.  "Ooh, interrupts are hurting one
+CPU --- let's hurt them **all** and trash everybody's cache!"
 
--- Steve
+Which brings up an interesting question --- why do we have an IRQ
+balancer in the kernel at all?  Maybe the scheduler's load balancer
+should take this into account so that processes that have the
+misfortune of getting assigned to the wrong CPU don't get hurt too
+badly (or maybe if we have enough cores/CPU's we can afford to
+dedicate one or two CPU's to doing nothing but handling interrupts);
+but spreading IRQ's across all of the CPU's doesn't seem like it's
+ever the right answer.
 
-
+						- Ted

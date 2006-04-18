@@ -1,70 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWDRClk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWDRC6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWDRClk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 22:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWDRClk
+	id S932163AbWDRC6j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 22:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWDRC6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 22:41:40 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:10933 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751359AbWDRClj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 22:41:39 -0400
-Message-Id: <200604180238.k3I2cHmD018076@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, James Morris <jmorris@namei.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks) 
-In-Reply-To: Your message of "Mon, 17 Apr 2006 22:26:24 BST."
-             <1145309184.14497.1.camel@localhost.localdomain> 
-From: Valdis.Kletnieks@vt.edu
-References: <200604021240.21290.edwin@gurde.com> <200604072138.35201.edwin@gurde.com> <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil> <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com>
-            <1145309184.14497.1.camel@localhost.localdomain>
+	Mon, 17 Apr 2006 22:58:39 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:15281 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751395AbWDRC6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 22:58:38 -0400
+Date: Tue, 18 Apr 2006 12:00:16 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+Message-Id: <20060418120016.14419e02.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <Pine.LNX.4.64.0604171856290.2986@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+	<20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
+	<20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+	<20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
+	<20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
+	<20060417091830.bca60006.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604170958100.29732@schroedinger.engr.sgi.com>
+	<20060418090439.3e2f0df4.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604171724070.2752@schroedinger.engr.sgi.com>
+	<20060418094212.3ece222f.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604171856290.2986@schroedinger.engr.sgi.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1145327897_2737P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Mon, 17 Apr 2006 22:38:17 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1145327897_2737P
-Content-Type: text/plain; charset=us-ascii
+On Mon, 17 Apr 2006 18:57:40 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-On Mon, 17 Apr 2006 22:26:24 BST, Alan Cox said:
+> On Tue, 18 Apr 2006, KAMEZAWA Hiroyuki wrote:
+> 
+> > BTW, when copying mm, mm->mmap_sem is held. Is mm->mmap_sem is not held while 
+> > page migraion now ? I'm sorry I can't catch up all changes.
+> > or Is this needed for lazy migration (migration-on-fault) ?
+> 
+> mmap_sem must be held during page migration due to the way we retrieve the 
+> anonymous vma.
+> 
+> I think you would want to get rid of that requirement for the hotplug 
+> remove.
+yes.
 
-> You can implement a BSD securelevel model in SELinux as far as I can see
-> from looking at it, and do it better than the code today, so its not
-> really a feature drop anyway just a migration away from some fossils
+> But how do we reliably get to the anon_vma of the page without mmap_sem?
+> 
+> 
 
-For a while, I had some LSM code that implemented a large chunk of the
-OpenWall/PAX restrictions.  But it never stacked well with SELinux, and in
-time the SELinux code got more expressive and allowed doing almost everything
-that the OpenWall stuff did.
+I think following patch will help. but this increases complexity...
 
-The best case I can make for it today is "somebody might want to harden the
-box a little bit, but not have the resources (mostly liveware) to do SELinux".
-On the other hand, that also can be read as "Cargo-cult security is better
-than no security at all".
+-Kame
 
-If somebody wants to carry that banner, they're welcome to it.  At this point,
-I'd be willing to heave most of the LSM framework over the side as long as we
-keep the right to add a new SELinux hook if we can defend its existence (see
-the recent additions to allow SELinux mediation of network stuff as an example).
+=
+hold anon_vma->lock under migration.
 
---==_Exmh_1145327897_2737P
-Content-Type: application/pgp-signature
+While migration, page_mapcount(page) goes down to 0 and page->mapping is valid.
+This breaks assumptions around page_mapcount() and page->mapping.
+(See rmap.c, page_remove_rmap())
+If mmap->sem is held while migration, there is no problem. But if mmap->sem is
+not held, this is a race.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+This patch locks anon_vma under migration.
 
-iD8DBQFERFEZcC3lWbTT17ARArn7AJ0WfAs82mMXSc14duGuJ61yHYVljgCfU/4h
-axKPEhmBT0Rzacb6Sg6aueE=
-=gtjz
------END PGP SIGNATURE-----
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
---==_Exmh_1145327897_2737P--
+Index: Christoph-NewMigrationV2/mm/migrate.c
+===================================================================
+--- Christoph-NewMigrationV2.orig/mm/migrate.c
++++ Christoph-NewMigrationV2/mm/migrate.c
+@@ -178,6 +178,20 @@ out:
+ }
+ 
+ /*
++ * When mmap->sem is not held, we have to guarantee anon_vma is not freed.
++ */
++static void migrate_lock_anon_vma(struct page *page)
++{
++	unsigned long mapping;
++	struct anon_vma *anon_vma;
++	struct vm_area_struct *vma;
++
++	if (PageAnon(page))
++		page_lock_anon_vma(page);
++	/* remove migration ptes will unlock */
++}
++
++/*
+  * Get rid of all migration entries and replace them by
+  * references to the indicated page.
+  *
+@@ -196,10 +210,9 @@ static void remove_migration_ptes(struct
+ 		return;
+ 
+ 	/*
+-	 * We hold the mmap_sem lock. So no need to call page_lock_anon_vma.
++	 * anon_vma is preserved and locked while migration.
+ 	 */
+ 	anon_vma = (struct anon_vma *) (mapping - PAGE_MAPPING_ANON);
+-	spin_lock(&anon_vma->lock);
+ 
+ 	list_for_each_entry(vma, &anon_vma->head, anon_vma_node)
+ 		remove_migration_pte(vma, page_address_in_vma(new, vma),
+@@ -371,6 +384,7 @@ int migrate_page(struct page *newpage, s
+ 
+ 	BUG_ON(PageWriteback(page));	/* Writeback must be complete */
+ 
++	migrate_lock_anon_vma(page);
+ 	rc = migrate_page_remove_references(newpage, page,
+ 			page_mapping(page) ? 2 : 1);
+ 
+@@ -378,7 +392,6 @@ int migrate_page(struct page *newpage, s
+ 		remove_migration_ptes(page, page);
+ 		return rc;
+ 	}
+-
+ 	migrate_page_copy(newpage, page);
+ 	remove_migration_ptes(page, newpage);
+ 	return 0;
+Index: Christoph-NewMigrationV2/mm/rmap.c
+===================================================================
+--- Christoph-NewMigrationV2.orig/mm/rmap.c
++++ Christoph-NewMigrationV2/mm/rmap.c
+@@ -160,7 +160,7 @@ void anon_vma_unlink(struct vm_area_stru
+ 	empty = list_empty(&anon_vma->head);
+ 	spin_unlock(&anon_vma->lock);
+ 
+-	if (empty)
++	if (empty && !anon_vma->async_refernece)
+ 		anon_vma_free(anon_vma);
+ }
+ 
+@@ -717,7 +717,13 @@ static int try_to_unmap_anon(struct page
+ 	struct vm_area_struct *vma;
+ 	int ret = SWAP_AGAIN;
+ 
+-	anon_vma = page_lock_anon_vma(page);
++	if (migration) { /* anon_vma->lock is held under migration */
++		unsigned long mapping;
++		mapping = (unsigned long)page->mapping - PAGE_MAPPING_ANON;
++		anon_vma = (struct anon_vma *)mapping;
++	} else {
++		anon_vma = page_lock_anon_vma(page);
++	}
+ 	if (!anon_vma)
+ 		return ret;
+ 
+@@ -726,7 +732,8 @@ static int try_to_unmap_anon(struct page
+ 		if (ret == SWAP_FAIL || !page_mapped(page))
+ 			break;
+ 	}
+-	spin_unlock(&anon_vma->lock);
++	if (!migration)
++		spin_unlock(&anon_vma->lock);
+ 	return ret;
+ }
+ 
+

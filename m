@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWDRPex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWDRPlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbWDRPex (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 11:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWDRPex
+	id S932272AbWDRPlB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 11:41:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWDRPlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 11:34:53 -0400
-Received: from mail.gmx.net ([213.165.64.20]:21688 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932137AbWDRPew (ORCPT
+	Tue, 18 Apr 2006 11:41:01 -0400
+Received: from ns2.suse.de ([195.135.220.15]:22480 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932272AbWDRPlA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 11:34:52 -0400
-X-Authenticated: #13409387
-Message-ID: <444503D1.50705@gmx.net>
-Date: Tue, 18 Apr 2006 17:20:49 +0200
-From: Gunther Mayer <gunther.mayer@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zinx Verituse <zinx@epicsol.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd.c, "MEDIUM_ERROR" handling
-References: <20060418011839.GA10619@atlantis.chaos>
-In-Reply-To: <20060418011839.GA10619@atlantis.chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Tue, 18 Apr 2006 11:41:00 -0400
+Date: Tue, 18 Apr 2006 08:39:51 -0700
+From: Greg KH <greg@kroah.com>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16.7
+Message-ID: <20060418153951.GC30485@kroah.com>
+References: <20060418042300.GA11061@kroah.com> <20060418042345.GB11061@kroah.com> <44448DFF.3080108@ums.usu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44448DFF.3080108@ums.usu.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zinx Verituse wrote:
+On Tue, Apr 18, 2006 at 12:58:07PM +0600, Alexander E. Patrakov wrote:
+> Greg KH wrote:
+> >-EXTRAVERSION = .6
+> >+EXTRAVERSION = .7
+> 
+> Hello, I would like to know if there is a plan to include this in the next 
+> -stable update?
+> 
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff;h=2731570eba5b35a21c311dd587057c39805082f1;hp=dfb62998866ae2e298139164a85ec0757b7f3fc7;hb=9469d458b90bfb9117cbb488cfa645d94c3921b1;f=net/core/dev.c
 
->I recently bought a DVD drive which appears to not retry enough when it's
->having trouble reading a disc - I'm requesting an option (or changing the
->default behavior) so that this drive is actually usable with the Linux
->ide-cd drivers - specificly, the code:
->	} else if (sense_key == MEDIUM_ERROR) {
->		/* No point in re-trying a zillion times on a bad
->		 * sector...  If we got here the error is not correctable */
->		ide_dump_status (drive, "media error (bad sector)", stat);
->		do_end_request = 1;
->	}
->needs to be disabled for my drive to read CDs properly.
->
->With this code enabled, no retries are made, and the kernel sees medium errors
->and returns bad data to the application reading; 
->
-It would be a kernel bug if it returns bad data. It should return an 
-error code to the application.
+No one has submitted it to the stable@kernel.org mail address from what
+I can see, so no, it is not in the queue.  If you think otherwise,
+please send it.
 
-- The device should implement a decent retry strategy.
-- There are special forensic applications which can be tuned to re-read 
-bad sectors multiple times if needed.
+thanks,
+
+greg k-h

@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWDRX2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWDRXk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWDRX2n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 19:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWDRX2n
+	id S1750813AbWDRXk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 19:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWDRXk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 19:28:43 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:47745 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750788AbWDRX2m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 19:28:42 -0400
-Date: Tue, 18 Apr 2006 16:27:43 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Crispin Cowan <crispin@novell.com>
-Cc: James Morris <jmorris@namei.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Karl MacMillan <kmacmillan@tresys.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-Message-ID: <20060418232743.GA3077@sorel.sous-sol.org>
-References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com> <1145381250.19997.23.camel@jackjack.columbia.tresys.com> <44453E7B.1090009@novell.com> <1145391969.21723.41.camel@localhost.localdomain> <444552A7.2020606@novell.com> <Pine.LNX.4.64.0604181709160.28128@d.namei> <4445719E.8020300@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4445719E.8020300@novell.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 18 Apr 2006 19:40:27 -0400
+Received: from mga02.intel.com ([134.134.136.20]:2059 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750813AbWDRXk0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 19:40:26 -0400
+X-IronPort-AV: i="4.04,132,1144047600"; 
+   d="scan'208"; a="24694722:sNHT16005934"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: ia64_do_page_fault shows 19.4% slowdown from notify_die.
+Date: Tue, 18 Apr 2006 16:40:24 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0642FB26@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ia64_do_page_fault shows 19.4% slowdown from notify_die.
+Thread-Index: AcZjPKTWFXP+9pBGSq+uldbGXfZBwwAAloTg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
+       "Robin Holt" <holt@sgi.com>
+Cc: "Keith Owens" <kaos@americas.sgi.com>, <prasanna@in.ibm.com>,
+       <ananth@in.ibm.com>, <davem@davemloft.net>,
+       <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 18 Apr 2006 23:40:25.0366 (UTC) FILETIME=[77635360:01C66341]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Crispin Cowan (crispin@novell.com) wrote:
-> However, I assert (emphatically :) that the broader user community has
-> integrity and availability as higher priorities than secrecy, and that
-> pathname-based access control is a better way to achieve that. I want to
-> offer Linux users the choice of pathname-based access control if they
-> want it. Why do you want to prevent them from having that choice?
+> 499 nSec/fault ia64_do_page_fault notify_die commented out.
+> 501 nSec/fault ia64_do_page_fault with nobody registered.
+> 533 nSec/fault notify_die in and just kprobes.
+> 596 nSec/fault notify_die in and kdb, kprobes, mca, and xpc loaded.
+> 
+> The 596 nSec/fault is a 19.4% slowdown.  This is an upcoming OSD beta
+> kernel.  It will be representative of what our typical customer will
+> have loaded.
+> 
+> Is this enough justification for breaking notify_die into
+> notify_page_fault for the fault path?
 
-I'm in favor of choice.  And it's no doubt that users appreciate the
-intuitiveness of pathname based security.  The real question is the
-actual security of the system.  What we don't want is a choice that
-embodies any false sense of security.  So that is why it's important to
-understand how AppArmor protects from the pathname based attacks.
+I didn't see quite the stability from run to run that your results
+suggest.  Running the benchmark five times on the same kernel, I saw
+the mean value of the 128 results go from as low as 439 to as high
+as 445.  So the difference between commenting in/out the notify_die
+call is in the noise.
 
-thanks,
--chris
+But comparing the first and last of your results shows that there
+is significant slowdown when the notify chain is loaded up with a
+ton of stuff, way more than the noise that I see, and I'm glad to see
+Anil jumping in to fix this.
+
+-Tony

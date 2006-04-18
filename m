@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWDRNIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWDRNL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbWDRNIN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 09:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWDRNIN
+	id S1750892AbWDRNL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 09:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbWDRNL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 09:08:13 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20618 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750797AbWDRNIM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 09:08:12 -0400
-Date: Tue, 18 Apr 2006 15:07:55 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM <linux-pm@osdl.org>
-Subject: Re: [RFC][PATCH -mm] swsusp: use less memory during resume
-Message-ID: <20060418130755.GB26668@elf.ucw.cz>
-References: <200604181319.47400.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604181319.47400.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 18 Apr 2006 09:11:28 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:21997 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1750852AbWDRNL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 09:11:28 -0400
+Subject: Re: [RT] bad BUG_ON in rtmutex.c
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0604180831390.9005@gandalf.stny.rr.com>
+References: <1145324887.17085.35.camel@localhost.localdomain>
+	 <1145362851.5447.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0604180831390.9005@gandalf.stny.rr.com>
+Content-Type: text/plain
+Date: Tue, 18 Apr 2006 06:11:25 -0700
+Message-Id: <1145365886.5447.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Currently during resume swsusp puts the image data in the page frames that
-> don't conflict with the original locations of the data (ie. the locations the
-> data will be put in when the saved system state is restored from the image).
-> These page frames are considered as "safe" and the other page frames are
-> treadet as "unsafe".
+On Tue, 2006-04-18 at 08:34 -0400, Steven Rostedt wrote:
+> On Tue, 18 Apr 2006, Daniel Walker wrote:
 > 
-> Of course we cannot force the memory allocator to allocate "safe" pages only,
-> so if an "unsafe" page is allocated, swsusp treats it as an "eaten page" and
-> attempts to allocate another page in the hope that it'll be "safe" etc.
-> swsusp tries to allocate as many "safe" pages as necessary to store the
-> image data, so it "eats" a considerable number of "unsafe" pages in the
-> process.  Next, it reads the image and puts the data into the allocated "safe"
-> pages.  Finally, the data are copied to their "original" locations.
+> > On Mon, 2006-04-17 at 21:48 -0400, Steven Rostedt wrote:
+> > ...
+> > >
+> > > So the question now is: is this a real bug?
+> >
+> > It seems like a possible scenario . So if the false BUG_ON() needlessly
+> > kills a perfectly running system, then it must be a bug. It's the case
+> > of the buggy BUG_ON ;) !
+> >
 > 
-> This approach, although it works nicely, is quite inefficient from the memory
-> utilization point of view and it also turns out to be unnecessary.  Namely,
-> for each "unsafe" page frame returned by the memory allocator there's exactly
-> one page in the image that finally should be placed in this page frame.
-> Therefore we can put the right data into this page frame as soon as they're
-> read from the image and we won't have to copy these data later on.  This way
-> we'll only need to allocate as many pages as necessary to store the image
-> data and we won't have to "eat" the "unsafe" pages.
+> It was late when I was writing that.  I reread my email today, and realize
+> that there's a few confusing statements there.  That last one being one :)
 
-Looks good to me. Clever hack, I'd say.
-									Pavel
--- 
-Thanks for all the (sleeping) penguins.
+Yeah , it was a bit confusing .
+
+> I meant to say:
+> 
+>   So the question is now: Is that case in BUG_ON a real bug?
+> 
+> The BUG_ON bugging a normal system _is_ a bug.
+
+Something in the code bothered me right around the block you
+referenced. 
+
+Specifically when it drops the pi_lock , then takes it again, then does
+plist_add to the pi_waiters ( during the "Boost the owner" section in
+rt_mutex_adjust_prio_chain() ). Since the pi_lock was dropped you could
+get an priority change which would lead to a bogus value in
+waiter->pi_list_entry.prio .
+
+I was looking over the code, and it seems like once all the chain
+adjusting bottoms out you would end up with the correct priorities in
+the waiter structures .. Cause whatever task made the priority
+adjustment would just end up resetting the pi_waiters during it's
+adjustment process. (Seems like there's room for optimization
+though ..) 
+
+Daniel
+

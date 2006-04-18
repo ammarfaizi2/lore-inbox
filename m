@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWDRXk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWDRXpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWDRXk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 19:40:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWDRXk1
+	id S1750817AbWDRXpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 19:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWDRXpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 19:40:27 -0400
-Received: from mga02.intel.com ([134.134.136.20]:2059 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750813AbWDRXk0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 19:40:26 -0400
-X-IronPort-AV: i="4.04,132,1144047600"; 
-   d="scan'208"; a="24694722:sNHT16005934"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 18 Apr 2006 19:45:16 -0400
+Received: from pproxy.gmail.com ([64.233.166.180]:9924 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750817AbWDRXpO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 19:45:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rnH1ZfQp4PJ1Vk6IU1v9HbcCs2f19XosTRU5ki6+yyzf3sImf/D292IXKxML9lTTMn3XzF/i5/jnguGxwtrlK4Ht49SUuSNIb/3YI+imKAYvt9nSXq0vhFxMesCpQ+BW5DMl3csaJEx1JOMVQpD0o7XberMpDZfLqKTijOjfpJg=
+Message-ID: <35fb2e590604181645h32107d4fma13ddd8c7649bc13@mail.gmail.com>
+Date: Wed, 19 Apr 2006 00:45:14 +0100
+From: "Jon Masters" <jonathan@jonmasters.org>
+To: "Takashi Iwai" <tiwai@suse.de>
+Subject: Re: [PATCH] sound: fix hang in mpu401_uart.c
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <s5hbquzxbsm.wl%tiwai@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Subject: RE: ia64_do_page_fault shows 19.4% slowdown from notify_die.
-Date: Tue, 18 Apr 2006 16:40:24 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0642FB26@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ia64_do_page_fault shows 19.4% slowdown from notify_die.
-Thread-Index: AcZjPKTWFXP+9pBGSq+uldbGXfZBwwAAloTg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
-       "Robin Holt" <holt@sgi.com>
-Cc: "Keith Owens" <kaos@americas.sgi.com>, <prasanna@in.ibm.com>,
-       <ananth@in.ibm.com>, <davem@davemloft.net>,
-       <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 18 Apr 2006 23:40:25.0366 (UTC) FILETIME=[77635360:01C66341]
+Content-Disposition: inline
+References: <20060416031235.GA6741@apogee.jonmasters.org>
+	 <s5hbquzxbsm.wl%tiwai@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 499 nSec/fault ia64_do_page_fault notify_die commented out.
-> 501 nSec/fault ia64_do_page_fault with nobody registered.
-> 533 nSec/fault notify_die in and just kprobes.
-> 596 nSec/fault notify_die in and kdb, kprobes, mca, and xpc loaded.
-> 
-> The 596 nSec/fault is a 19.4% slowdown.  This is an upcoming OSD beta
-> kernel.  It will be representative of what our typical customer will
-> have loaded.
-> 
-> Is this enough justification for breaking notify_die into
-> notify_page_fault for the fault path?
+On 4/18/06, Takashi Iwai <tiwai@suse.de> wrote:
 
-I didn't see quite the stability from run to run that your results
-suggest.  Running the benchmark five times on the same kernel, I saw
-the mean value of the 128 results go from as low as 439 to as high
-as 445.  So the difference between commenting in/out the notify_die
-call is in the noise.
+> > +             if ((err = snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1))) {
+> > +                     return -EFAULT;
+>
+> IMO, -EFAULT isn't a good choice for this kind of error.
 
-But comparing the first and last of your results shows that there
-is significant slowdown when the notify chain is loaded up with a
-ton of stuff, way more than the noise that I see, and I'm glad to see
-Anil jumping in to fix this.
+What would you suggest?
 
--Tony
+> >       if (mpu->open_output && (err = mpu->open_output(mpu)) < 0)
+> >               return err;
+> >       if (! test_bit(MPU401_MODE_BIT_INPUT, &mpu->mode)) {
+> > -             snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1);
+> > -             snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1);
+> > +             if ((err = snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1)))
+> > +                     return -EFAULT;
+> > +             if ((err = snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1)))
+> > +                     return -EFAULT;
+
+> Missing close in the error path?
+
+I'll respin the patch later, but first, what should I return on open
+when the underlying hardware is not there?
+
+Jon.

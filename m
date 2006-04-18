@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWDRPlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWDRPlU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWDRPlB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 11:41:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWDRPlB
+	id S932286AbWDRPlU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 11:41:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWDRPlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 11:41:01 -0400
-Received: from ns2.suse.de ([195.135.220.15]:22480 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932272AbWDRPlA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 11:41:00 -0400
-Date: Tue, 18 Apr 2006 08:39:51 -0700
-From: Greg KH <greg@kroah.com>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16.7
-Message-ID: <20060418153951.GC30485@kroah.com>
-References: <20060418042300.GA11061@kroah.com> <20060418042345.GB11061@kroah.com> <44448DFF.3080108@ums.usu.ru>
+	Tue, 18 Apr 2006 11:41:20 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:9408 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932282AbWDRPlR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 11:41:17 -0400
+Subject: Re: [RFC] binary firmware and modules
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: Jon Masters <jonathan@jonmasters.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200604181659.04657.duncan.sands@math.u-psud.fr>
+References: <1145088656.23134.54.camel@localhost.localdomain>
+	 <200604181537.47183.duncan.sands@math.u-psud.fr>
+	 <1145370171.10255.58.camel@localhost>
+	 <200604181659.04657.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain
+Date: Tue, 18 Apr 2006 17:41:18 +0200
+Message-Id: <1145374878.10255.69.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44448DFF.3080108@ums.usu.ru>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 18, 2006 at 12:58:07PM +0600, Alexander E. Patrakov wrote:
-> Greg KH wrote:
-> >-EXTRAVERSION = .6
-> >+EXTRAVERSION = .7
+Hi Duncan,
+
+> > we have two kind of devices that need firmware download. The easy and
+> > clean ones which need one or two files and these basically change not
+> > that often. In most cases these are the network or storage devices and
+> > for exactly these we need the MODULE_FIRMWARE() support to know which
+> > files have to be put into initrd.
 > 
-> Hello, I would like to know if there is a plan to include this in the next 
-> -stable update?
+> > The messed up devices like the Speedtouch and maybe even some WiFi
+> > dongles are another story.
 > 
-> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff;h=2731570eba5b35a21c311dd587057c39805082f1;hp=dfb62998866ae2e298139164a85ec0757b7f3fc7;hb=9469d458b90bfb9117cbb488cfa645d94c3921b1;f=net/core/dev.c
+> I don't know why you consider the speedtouch to be messed up.  What's
+> messed up is not the modems themselves, but the fact that we don't know
+> what modems exist, and how they differ in their firmware requirements.
 
-No one has submitted it to the stable@kernel.org mail address from what
-I can see, so no, it is not in the queue.  If you think otherwise,
-please send it.
+if you don't know the firmware requirements, then this is what I call
+messed up. I now that this is basically the fault of the manufacturer or
+missing specifications, but wild guessing on the firmware doesn't really
+help. A kernel driver should know which firmware it needs.
 
-thanks,
+> Anyway, speedtouch users also need their firmware to end up in any initrd.
+> Since the driver expects all firmware files to start with "speedtch",
+> the MODULE_FIRMWARE scheme would work for the speedtouch driver too as
+> long as it allows the driver to specify just the initial part of a file
+> name.  You could go all the way to regular expressions, but that seems
+> a bit ridiculous.
 
-greg k-h
+I personally prefer full firmware names. This makes the dependency easy
+and even an end user can call modinfo and see what firmware is expected
+by a certain driver (without looking at the source code).
+
+Regards
+
+Marcel
+
+

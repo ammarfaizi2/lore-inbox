@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWDRXqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWDRXtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbWDRXqc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 19:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWDRXqc
+	id S1750839AbWDRXtE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 19:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWDRXtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 19:46:32 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:30340 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1750833AbWDRXqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 19:46:31 -0400
-X-IronPort-AV: i="4.04,132,1144047600"; 
-   d="scan'208"; a="1796296609:sNHT30608032"
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: class_device_create() and class_interfaces ?
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 18 Apr 2006 16:46:27 -0700
-Message-ID: <adafykacur0.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Tue, 18 Apr 2006 19:49:03 -0400
+Received: from dmesg.printk.net ([212.13.197.101]:30908 "EHLO dmesg.printk.net")
+	by vger.kernel.org with ESMTP id S1750839AbWDRXtB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 19:49:01 -0400
+Date: Wed, 19 Apr 2006 00:41:56 +0100
+From: Jon Masters <jonathan@jonmasters.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+Message-ID: <20060418234156.GA28346@apogee.jonmasters.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 18 Apr 2006 23:46:28.0620 (UTC) FILETIME=[4FE77CC0:01C66342]
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+From: Jon Masters <jcm@redhat.com>
 
-I'm trying to write some code that uses struct class_interface to do
-something when a class device appears.  However, if I follow the new
-world order of class_create() and class_device_create(), I seem to run
-into a problem.
+Right now, various kernel modules are being migrated over to use
+request_firmware in order to pull in binary firmware blobs from userland
+when the module is loaded. This makes sense.
 
-Because class_device_create() allocates its own struct class_device
-memory, one can't use container_of() to get back to the original
-driver-specific device information.  The standard solution is to use
-class_set_devdata() to stash a pointer back.
+However, there is right now little mechanism in place to automatically
+determine which binary firmware blobs must be included with a kernel in
+order to satisfy the prerequisites of these drivers. This affects
+vendors, but also regular users to a certain extent too.
 
-However, if one has a class_interface registered for the class, then
-the class_interface.add() method gets called before class_device_create()
-even returns, so there's no chance to call class_set_devdata().  This
-means that the class_interface can't really do much with the class_device
-that it got, because it has no way to get to any interesting information
-about the real device.
+The attached patch introduces MODULE_FIRMWARE as a mechanism for
+advertising that a particular firmware file is to be loaded - it will
+then show up via modinfo and could be used e.g. when packaging a kernel.
 
-The situation I'm thinking of is one device that implements multiple
-completely different functions -- for example an MPEG codec and a
-thermometer -- through the exact same registers etc.  So I want to
-have a core driver that manages real hardware access, and then
-separate MPEG codec and thermometer drivers.  The design I have in
-mind is that the MPEG and thermometer sub-drivers register class
-interfaces with the core driver, which creates a class device for each
-real hardware device it finds.  But the sub-drivers need some way of
-getting from the class device to a structure that lets them call back
-into the core driver.
+Signed-off-by: Jon Masters <jcm@redhat.com>
 
-I see several solutions:
+diff -urN linux-2.6.16.2_orig/include/linux/module.h linux-2.6.16.2_dev/include/linux/module.h
+--- linux-2.6.16.2_orig/include/linux/module.h  2006-04-07 17:56:47.000000000 +0100
++++ linux-2.6.16.2_dev/include/linux/module.h   2006-04-12 13:51:56.000000000 +0100
+@@ -155,6 +155,8 @@
+ */
+ #define MODULE_VERSION(_version) MODULE_INFO(version, _version)
 
- - Add a devdata parameter to class_device_create() so that devdata
-   can be set before class_interfaces are called.
- - Create a new class_device_create_with_devdata() function to do the
-   same thing without churning a bunch of existing drivers...
- - Solve the core driver/sub-driver problem in a better way that
-   doesn't use class_devices or class_interfaces -- I'm open to
-   suggestions here.  I could implement my own registration handling
-   -- it's pretty trivial -- but duplicating what the driver model
-   already has seems silly.
-
-What are your thoughts?  I'm happy to code up a patch for 2.6.18 for
-either of the first two solutions above.
-
-Thanks,
-  Roland
++#define MODULE_FIRMWARE(_firmware) MODULE_INFO(firmware, _firmware)
++
+ /* Given an address, look for it in the exception tables */
+ const struct exception_table_entry *search_exception_tables(unsigned long add);

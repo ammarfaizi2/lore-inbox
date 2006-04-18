@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWDRNzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWDRN56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWDRNzp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 09:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbWDRNzo
+	id S932079AbWDRN56 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 09:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbWDRN56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 09:55:44 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:30418 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751021AbWDRNzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 09:55:44 -0400
-Subject: Re: [RT] bad BUG_ON in rtmutex.c
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1145368228.17085.85.camel@localhost.localdomain>
-References: <1145324887.17085.35.camel@localhost.localdomain>
-	 <1145362851.5447.12.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0604180831390.9005@gandalf.stny.rr.com>
-	 <1145365886.5447.28.camel@localhost.localdomain>
-	 <1145368228.17085.85.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 18 Apr 2006 09:55:32 -0400
-Message-Id: <1145368532.17085.88.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Tue, 18 Apr 2006 09:57:58 -0400
+Received: from mail1-new.vianetworks.nl ([212.61.9.28]:53519 "EHLO
+	mail1-new.vianetworks.nl") by vger.kernel.org with ESMTP
+	id S932079AbWDRN56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 09:57:58 -0400
+Message-ID: <4444F060.1090503@vianetworks.nl>
+Date: Tue, 18 Apr 2006 15:57:52 +0200
+From: Axel Scheepers <ascheepers@vianetworks.nl>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: ascheepers@vianetworks.nl
+Subject: oops at reboot/shutdown in device_shutdown
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-18 at 09:50 -0400, Steven Rostedt wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> BUT!  I need to take another good look at the code, and maybe my
-> previous example of the failed BUG_ON is really a clue that there exists
-> a deeper bug.  If the processes D and E from my last example were of
-> different priorities, but still higher than A, could the end result be
-> setting A to the lower of the two?  This would be a bug, because then A
-> would not inherit the correct priority!
+Hi All,
 
-OK, this shouldn't be a problem (answering my own question ;).
+I don't know if this is the right list to report this, if not excuse me
+for posting.
+Since kernel 2.6.16 I experience panics on reboot/shutdown in
+device_shutdown on my dell laptop (pentium-m).
 
-The setting of the task's prio is done by __rt_mutex_adjust_prio(task)
-and this sets the task's prio to the highest prio task that is blocked
-on a lock own by "task", or to "task"s original prio if that is higher.
+I've fixed this by commenting all references to device_shutdown in
+kernel/sys.c which solves the problem for me, strange thing however is
+that this machine is the only one I can reproduce this, both a dual
+athlon and several pentium III machines run fine with the latest 2.6.16.7
 
-So nevermind.
+Here's the patch to fix it in case someone else experiences the same
+problems but I wonder what could cause this and if disabling
+device_shutdown as I did could cause any problems?
+(I'm not subscribed to this list, please Cc me)
 
--- Steve
+Patch:
+- --- sys.c       2006-04-18 15:55:09.858532000 +0200
++++ ../linux/kernel/sys.c       2006-04-18 15:10:22.768255500 +0200
+@@ -394,7 +394,9 @@
+ {
+        notifier_call_chain(&reboot_notifier_list, SYS_RESTART, cmd);
+        system_state = SYSTEM_RESTART;
++        /* don't shutdown devices
+        device_shutdown();
++        */
+ }
+
+ /**
+@@ -445,7 +447,9 @@
+        notifier_call_chain(&reboot_notifier_list,
+                (state == SYSTEM_HALT)?SYS_HALT:SYS_POWER_OFF, NULL);
+        system_state = state;
++        /* don't shutdown devices
+        device_shutdown();
++        */
+ }
+ /**
+  *     kernel_halt - halt the system
+
+- --- [snip] ---
 
 
+Kind regards,
+
+Axel Scheepers
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFERPBgvOFCXiGjP+ARAmGbAJ9tCuRYDXX02GB2i8+mGKD6Lism4gCfaBUo
+kjbteBLY0PCt1+pMLne4X3I=
+=T42q
+-----END PGP SIGNATURE-----

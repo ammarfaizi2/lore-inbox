@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWDRG6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWDRG7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWDRG6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 02:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWDRG6Y
+	id S932262AbWDRG7M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 02:59:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWDRG7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 02:58:24 -0400
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:54627 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932253AbWDRG6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 02:58:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=dJPbW3t6xPNCfvF6yqd1GCrNucJLx6TBPHnc78OkIR11SlIiNv7iThiodhX8cMBfax80X22ISPEab+ZhthQXDGunPGx4j3/dPw2Q0Bg7P2PcBjUKyqe7jco/laGmdrwvONv2v4kEGGN69+11G4tEh6VtqzxKyq9vXw2TSlK9UBU=  ;
-Message-ID: <44448A60.4040903@yahoo.com.au>
-Date: Tue, 18 Apr 2006 16:42:40 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 18 Apr 2006 02:59:11 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:28349 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932260AbWDRG7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 02:59:10 -0400
+Date: Mon, 17 Apr 2006 23:58:41 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+In-Reply-To: <20060418123256.41eb56af.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0604172353570.4352@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+ <20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+ <20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
+ <20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
+ <20060417091830.bca60006.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604170958100.29732@schroedinger.engr.sgi.com>
+ <20060418090439.3e2f0df4.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604171724070.2752@schroedinger.engr.sgi.com>
+ <20060418094212.3ece222f.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604171856290.2986@schroedinger.engr.sgi.com>
+ <20060418120016.14419e02.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604172011490.3624@schroedinger.engr.sgi.com>
+ <20060418123256.41eb56af.kamezawa.hiroyu@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Christoph Lameter <clameter@sgi.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
-       schwidefsky@de.ibm.com, benedict.gaster@superh.com, lethal@linux-sh.org,
-       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
-       Joe Taylor <joe@tensilica.com>,
-       David Mosberger-Tang <davidm@hpl.hp.com>, rth@twiddle.net,
-       spyro@f2s.com, starvik@axis.com, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, ralf@linux-mips.org,
-       linux-mips@linux-mips.org, grundler@parisc-linux.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       paulus@samba.org, linux390@de.ibm.com, davem@davemloft.net
-Subject: Re: [PATCH 00/05] robust per_cpu allocation for modules
-References: <1145049535.1336.128.camel@localhost.localdomain> <4440855A.7040203@yahoo.com.au> <Pine.LNX.4.64.0604170953390.29732@schroedinger.engr.sgi.com> <20060417220238.GD3945@localhost.localdomain> <Pine.LNX.4.58.0604171936040.24264@gandalf.stny.rr.com>
-In-Reply-To: <Pine.LNX.4.58.0604171936040.24264@gandalf.stny.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
+Hmmm... Good ideas. I think it could be much simpler like the following 
+patch.
 
-> Understood, but I'm going to start looking in the way Rusty and Arnd
-> suggested with the vmalloc approach. This would allow for saving of
-> memory and dynamic allocation of module memory making it more robust. And
-> all this without that evil extra indirection!
+However, the problem here is how to know that we really took the anon_vma 
+lock and what to do about a page being unmmapped while migrating. This 
+could cause the anon_vma not to be unlocked.
 
-Remember that this approach could effectively just move the indirection to
-the TLB / page tables (well, I say "moves" because large kernel mappings
-are effectively free compared with 4K mappings).
+I guess we would need to have try_to_unmap return some state information.
+I also toyed around with writing an "install_migration_ptes" function 
+which would be called only for anonymous pages and would reduce the 
+changes to try_to_unmap(). However, that also got too complicated.
 
-So be careful about coding up a large amount of work before unleashing it:
-I doubt you'll be able to find a solution that doesn't involve tradeoffs
-somewhere (but wohoo if you can).
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Index: linux-2.6.17-rc1-mm2/mm/migrate.c
+===================================================================
+--- linux-2.6.17-rc1-mm2.orig/mm/migrate.c	2006-04-17 17:21:08.000000000 -0700
++++ linux-2.6.17-rc1-mm2/mm/migrate.c	2006-04-17 23:53:32.000000000 -0700
+@@ -236,7 +233,6 @@ static void remove_migration_ptes(struct
+ 	 * We hold the mmap_sem lock. So no need to call page_lock_anon_vma.
+ 	 */
+ 	anon_vma = (struct anon_vma *) (mapping - PAGE_MAPPING_ANON);
+-	spin_lock(&anon_vma->lock);
+ 
+ 	list_for_each_entry(vma, &anon_vma->head, anon_vma_node)
+ 		remove_migration_pte(vma, page_address_in_vma(new, vma),
+Index: linux-2.6.17-rc1-mm2/mm/rmap.c
+===================================================================
+--- linux-2.6.17-rc1-mm2.orig/mm/rmap.c	2006-04-17 17:21:08.000000000 -0700
++++ linux-2.6.17-rc1-mm2/mm/rmap.c	2006-04-17 23:53:39.000000000 -0700
+@@ -723,7 +723,8 @@ static int try_to_unmap_anon(struct page
+ 		if (ret == SWAP_FAIL || !page_mapped(page))
+ 			break;
+ 	}
+-	spin_unlock(&anon_vma->lock);
++	if (!migration)
++		spin_unlock(&anon_vma->lock);
+ 	return ret;
+ }
+ 

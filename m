@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWDRTPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWDRTby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWDRTPu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 15:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWDRTPu
+	id S932296AbWDRTby (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 15:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWDRTby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 15:15:50 -0400
-Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:53004 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932298AbWDRTPt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 15:15:49 -0400
-Date: Tue, 18 Apr 2006 21:15:46 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: "Mark M. Hoffman" <mhoffman@lightlink.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
-Subject: Re: [PATCH] i2c-i801: Fix resume when PEC is used
-Message-Id: <20060418211546.fa5a76df.khali@linux-fr.org>
-In-Reply-To: <20060418170331.GA3915@jupiter.solarsys.private>
-References: <20060418140629.7cb21736.khali@linux-fr.org>
-	<20060418170331.GA3915@jupiter.solarsys.private>
-Reply-To: LM Sensors <lm-sensors@lm-sensors.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 18 Apr 2006 15:31:54 -0400
+Received: from victor.provo.novell.com ([137.65.250.26]:30854 "EHLO
+	victor.provo.novell.com") by vger.kernel.org with ESMTP
+	id S932280AbWDRTbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 15:31:53 -0400
+Message-ID: <44453E7B.1090009@novell.com>
+Date: Tue, 18 Apr 2006 12:31:07 -0700
+From: Crispin Cowan <crispin@novell.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Karl MacMillan <kmacmillan@tresys.com>
+CC: Gerrit Huizenga <gh@us.ibm.com>, Christoph Hellwig <hch@infradead.org>,
+       James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com> <1145381250.19997.23.camel@jackjack.columbia.tresys.com>
+In-Reply-To: <1145381250.19997.23.camel@jackjack.columbia.tresys.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
+Karl MacMillan wrote:
+> Which is one reason why SELinux has types (equivalence classes) - it
+> makes it possible to group large numbers of applications or resources
+> into the same security category. The targeted policy that ships with
+> RHEL / Fedora shows how this works in practice.
+>   
+AppArmor (then called "SubDomain") showed how this worked in practice
+years before the Targeted Policy came along. The Targeted Policy
+implements an approximation to the AppArmor security model, but does it
+with domains and types instead of path names, imposing a substantial
+cost in ease-of-use on the user.
 
-> * Jean Delvare <khali@linux-fr.org> [2006-04-18 14:06:29 +0200]:
-> > Fix for bug #6395:
-> > Fail to resume on Tecra M2 with ADM1032 and Intel 82801DBM
-> > 
-> > The BIOS of the Tecra M2 doesn't like it when it has to reboot or
-> > resume after the i2c-i801 driver has left the SMBus in PEC mode. So we
-> > need to add proper .suspend, .resume and .shutdown callbacks to that
-> > driver, where we clear and restore the PEC mode bit appropriately.
-> 
-> NACK: saved_auxctl is uninitialized in this patch (what happened to
-> the patch I looked at last night?)
-
-Doh! You're right, and I am so glad you caught it. I tried to refactor
-some code from the original patch and one line was lost in the battle :(
-
-> Also, now that I look at it again... wouldn't it be much easier to just
-> disable PEC again after every transfer?  That's safer too:  the call-
-> backs might not be enough e.g. if the user hits the reset button after
-> a PEC transfer.
-
-This is exactly the patch I sent for -stable (as 2.6.16 is affected
-too.) This is also what the i2c-i801 driver was doing up to 2.6.15,
-inclusive.
-
-However I thought using the proper driver model callbacks would be
-better for 2.6.17, for the following reasons:
-* Nothing currently prevents the user from suspending or rebooting the
-system while there is a transaction in progress. If this happens, the
-callbacks are needed to clear and restore the PEC bit; resetting at the
-end of the transaction won't work.
-* Small performance benefit, although I admit it's a last resort
-consideration.
-
-Also note that, even if we disable PEC after each transaction, the user
-can still leave the system in a broken state by hitting the reset
-button during a transaction. This is less likely to happen than if we
-disable PEC in .suspend and .shutdown, but it can still happen. The
-only way to fix that is to get the BIOS itself fixed, which is out of
-our hands.
-
-Anyway, on second thought I believe you're right, the most simple
-approach will be fine for 2.6.17 too. There's little point in trying
-to handle suspend/resume if we don't prevent it from happening in the
-middle of a transaction. Fixing that is beyond the scope of 2.6.17.
-
-I'll send a new patch soon.
-
+Crispin
 -- 
-Jean Delvare
+Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
+Director of Software Engineering, Novell  http://novell.com
+

@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWDRUKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWDRUM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWDRUKY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 16:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWDRUKY
+	id S932310AbWDRUM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 16:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWDRUM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 16:10:24 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:61692 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932309AbWDRUKW (ORCPT
+	Tue, 18 Apr 2006 16:12:26 -0400
+Received: from ns2.suse.de ([195.135.220.15]:63618 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932310AbWDRUMZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 16:10:22 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Crispin Cowan <crispin@novell.com>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-In-Reply-To: <44453E7B.1090009@novell.com>
-References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com>
-	 <1145381250.19997.23.camel@jackjack.columbia.tresys.com>
-	 <44453E7B.1090009@novell.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Tue, 18 Apr 2006 16:14:12 -0400
-Message-Id: <1145391252.16632.231.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 18 Apr 2006 16:12:25 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: [PATCH] [6/6] i386: Move CONFIG_DOUBLEFAULT into arch/i386 where it belongs.
+Date: Tue, 18 Apr 2006 22:12:13 +0200
+User-Agent: KMail/1.9.1
+Cc: Adrian Bunk <bunk@stusta.de>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@xenotime.net>
+References: <4444C0EA.mailKK411J5GA@suse.de> <20060418190528.GL11582@stusta.de>
+In-Reply-To: <20060418190528.GL11582@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604182212.13835.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-18 at 12:31 -0700, Crispin Cowan wrote:
-> Karl MacMillan wrote:
-> > Which is one reason why SELinux has types (equivalence classes) - it
-> > makes it possible to group large numbers of applications or resources
-> > into the same security category. The targeted policy that ships with
-> > RHEL / Fedora shows how this works in practice.
-> >   
-> AppArmor (then called "SubDomain") showed how this worked in practice
-> years before the Targeted Policy came along. The Targeted Policy
-> implements an approximation to the AppArmor security model, but does it
-> with domains and types instead of path names, imposing a substantial
-> cost in ease-of-use on the user.
+On Tuesday 18 April 2006 21:05, Adrian Bunk wrote:
+> On Tue, Apr 18, 2006 at 12:35:22PM +0200, Andi Kleen wrote:
+> > 
+> > Signed-off-by: Andi Kleen <ak@suse.de>
+> >...
+> 
+> NAK.
+> 
+> When submitting a patch that is the revert of a patch that went 
+> into Linus' tree just 8 days ago [1], I'd expect at least:
+> - a Cc to the people involved with the patch you are reverting
+> - a note that you are reverting a recent patch in your patch
+>   description
+> - an explanation why you disagree with the patch you are reverting
 
-Just to clarify a few points:
-- It is true that both AppArmor and SELinux with targeted policy only
-(effectively) restrict a subset of processes, but SELinux with targeted
-policy provides complete mediation of all objects and operations for
-those processes, not just capabilities and files like AppArmor.
-   
-- Targeted policy demonstrates that a general purpose mechanism that is
-capable of complete mediation of all processes, objects, and operations
-(SELinux) can be applied to selective control if that is your goal.  The
-reverse is not true; AppArmor is limited by its design.
+The subject was very clear. i386 options belong into arch/i386.
 
-- Ease of use should be addressed in the user interface, not by using a
-broken kernel mechanism.   There is ongoing work to address the
-useability of SELinux in userspace; it doesn't require changing the
-kernel mechanism to rely on pathnames (which is broken).
+> If you disagree with a patch, please speak up when it's submitted or 
+> discuss it after you've seen it in the tree. But don't play such silly
+> revert-and-hope-they-don't-notice-I've-reverted-it games.
 
--- 
-Stephen Smalley
-National Security Agency
+I moved it because I noticed that my x86-64 configuration files 
+had this strange new symbol. I also did a grep and no other architecture
+other than i386 uses it.
 
+i386 specific hacks belong into arch/i386
+
+-Andi (who actually thinks the whole thing was always a bad idea - saving
+a few K but giving up such debugging is a poor trade off)

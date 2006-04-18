@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWDRNGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWDRNGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbWDRNGo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 09:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWDRNGo
+	id S1750842AbWDRNGh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 09:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWDRNGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 09:06:44 -0400
-Received: from pproxy.gmail.com ([64.233.166.177]:9386 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750843AbWDRNGn convert rfc822-to-8bit
+	Tue, 18 Apr 2006 09:06:37 -0400
+Received: from bay105-f28.bay105.hotmail.com ([65.54.224.38]:22137 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750842AbWDRNGg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 09:06:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LQ3Q6IBiMPYmPhgtcFXd8qbJqlYRvxjYkpqTduDmNk9QkCM+ZZ/wWSZ5qibXvUeCIpg+rKjGeexSkqUeE9K9RIddF3TE0YV1kjJ7R+4zhnIMm8EWmEsZBsT2gbHJj+Oyhto4PAnUNzdkEFWHpu3AeWvBAU6Tzetzb9BWBXcVmHY=
-Message-ID: <35fb2e590604180606w53cda64fn72c0720c846c8ba2@mail.gmail.com>
-Date: Tue, 18 Apr 2006 14:06:42 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "Jody McIntyre" <scjody@modernduck.com>
-Subject: Re: Data about Apple iPod, Mac, Powerbook, iBook needed
-Cc: "Stefan Richter" <stefanr@s5r6.in-berlin.de>,
-       linux1394-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20060418094126.GH5346@conscoop.ottawa.on.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4437F493.9000803@s5r6.in-berlin.de>
-	 <35fb2e590604150055t29422445k20b5f95d3dce634d@mail.gmail.com>
-	 <20060418094126.GH5346@conscoop.ottawa.on.ca>
+	Tue, 18 Apr 2006 09:06:36 -0400
+Message-ID: <BAY105-F2814461145B361479E76BDA3C40@phx.gbl>
+X-Originating-IP: [82.226.72.184]
+X-Originating-Email: [tobiasoed@hotmail.com]
+From: "Tobias Oed" <tobiasoed@hotmail.com>
+To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Cc: tobiasoed@hotmail.com, andre@linux-ide.org
+Subject: [patch] Kill useless fcn call
+Date: Tue, 18 Apr 2006 09:06:32 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 18 Apr 2006 13:06:35.0537 (UTC) FILETIME=[EBD7F010:01C662E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/18/06, Jody McIntyre <scjody@modernduck.com> wrote:
-> On Sat, Apr 15, 2006 at 08:55:30AM +0100, Jon Masters wrote:
->
-> > [0] All the Powerbooks here run only Linux.
->
-> You can still do the 't' thing.  It's in the firmware.  However, Stefan
-> has already sent me a patch so he probably doesn't need this information
-> anymore.
+Hello,
+this patch against 2.6.17-mm3 for pdc202xx_old.c removes a call
+to hwif->tuneproc() on the error path of config_chipset_for_dma(),
+as its single caller (pdc202xx_config_drive_xfer_rate()) will do the call
+in that case.
+Tobias
 
-Sure. I was just hinting that the original post implied one owned a
-Mac and/or a Linux box and that the two weren't necessarily the same
-thing :-)
+Signed-off-by: Tobias Oed <tobiasoed@hotmail.com>
 
-Jon.
+--- pdc202xx_old.c.orig 2006-04-18 13:10:54.000000000 +0200
++++ pdc202xx_old.c    2006-04-18 13:12:47.000000000 +0200
+@@ -370,7 +370,6 @@
+        if (!(speed)) {
+                /* restore original pci-config space */
+                pci_write_config_dword(dev, drive_pci, drive_conf);
+-               hwif->tuneproc(drive, 5);
+                return 0;
+        }
+
+_________________________________________________________________
+On the road to retirement? Check out MSN Life Events for advice on how to 
+get there! http://lifeevents.msn.com/category.aspx?cid=Retirement
+

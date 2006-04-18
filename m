@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWDRBSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWDRB26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWDRBSn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 21:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWDRBSn
+	id S932129AbWDRB26 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 21:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWDRB26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 21:18:43 -0400
-Received: from wproxy.gmail.com ([64.233.184.239]:49624 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932102AbWDRBSm (ORCPT
+	Mon, 17 Apr 2006 21:28:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8600 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932129AbWDRB25 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 21:18:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent:sender;
-        b=n8JqVUwthgnmApbk2tXe211FzjrpW7yTAq1JAsm+7CKmN5VuefBQ4lRWj/3R6y0caXNX2UlkOJcZpDVuOHaGkq50CFQQOzgMxFXtWNnTESZRFX55fCAGZ+k/8Hi655CtUIdvNU+iI1w6BjVL/st/MEbHuO0nRlG7DTx0hKCPST0=
-Date: Mon, 17 Apr 2006 20:18:39 -0500
-From: Zinx Verituse <zinx@epicsol.org>
-To: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: ide-cd.c, "MEDIUM_ERROR" handling
-Message-ID: <20060418011839.GA10619@atlantis.chaos>
+	Mon, 17 Apr 2006 21:28:57 -0400
+Date: Mon, 17 Apr 2006 18:28:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Michael Buesch <mb@bu3sch.de>
+cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: Linux 2.6.16.6
+In-Reply-To: <200604180052.19361.mb@bu3sch.de>
+Message-ID: <Pine.LNX.4.64.0604171824020.3701@g5.osdl.org>
+References: <20060417211128.GA6861@kroah.com> <20060417211206.GB6861@kroah.com>
+ <200604180052.19361.mb@bu3sch.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently bought a DVD drive which appears to not retry enough when it's
-having trouble reading a disc - I'm requesting an option (or changing the
-default behavior) so that this drive is actually usable with the Linux
-ide-cd drivers - specificly, the code:
-	} else if (sense_key == MEDIUM_ERROR) {
-		/* No point in re-trying a zillion times on a bad
-		 * sector...  If we got here the error is not correctable */
-		ide_dump_status (drive, "media error (bad sector)", stat);
-		do_end_request = 1;
-	}
-needs to be disabled for my drive to read CDs properly.
 
-With this code enabled, no retries are made, and the kernel sees medium errors
-and returns bad data to the application reading; without it, the kernel retries
-transparently and reads the data perfectly.  So, I think the comment is
-assuming decent hardware, which unfortunately isn't always what we have :/
 
-I can make the patch for conditionally enabling/disabling it if needed.
-I think it may make more sense to retry by default, but I don't know the
-general state of modern cheap CD/DVD drives either.  It seems like it's
-a corner case on hardware that does re-try a zillion times, though, so
-probably won't greatly affect that hardware like it does the hardware
-that doesn't re-try a zillion times.
+On Tue, 18 Apr 2006, Michael Buesch wrote:
 
-I'm not on the list currently, so please CC me with any replies.
+> On Monday 17 April 2006 23:12, you wrote:
+> > @@ -352,6 +353,10 @@ static char *make_block_name(struct gend
+> >  		return NULL;
+> >  	strcpy(name, block_str);
+> >  	strcat(name, disk->disk_name);
+> > +	/* ewww... some of these buggers have / in name... */
+> > +	s = strchr(name, '/');
+> > +	if (s)
+> > +		*s = '!';
+> >  	return name;
+> >  }
+> 
+> Is only one / possible, or better something like this?
+> 
+> 	/* ewww... some of these buggers have / in name... */
+> 	s = name;
+> 	while ((s = strchr(s, '/')) != NULL)
+> 		*s = '!';
 
--- 
-Zinx Verituse                                    http://zinx.xmms.org/
+I wonder why people like '!' as a replacement for '/'. It's nasty for 
+shell expansion, and it looks visually strange too (at least to me). 
+Wouldn't it be a lot nicer to just use something like '.' or ':' instead, 
+which is not as visually! distracting! and! screaming!
+
+As to whether it's simpler to just use a character-at-a-time comparison 
+over strchr, I dunno. Maybe.
+
+		Linus

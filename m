@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWDRCGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWDRCZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWDRCGP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 22:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWDRCGP
+	id S932084AbWDRCZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 22:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWDRCZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 22:06:15 -0400
-Received: from uproxy.gmail.com ([66.249.92.168]:4823 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932083AbWDRCGO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 22:06:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nRONsWyWmIAjS2x6RgKRkQ0vdl+ONqVRvtudE2h+i21BEKSyJkcHF+xBFQRjfQTyEkCKEqBe0ikv7+5pE4SIHSfJinnfR6yP20FPCBWZKJsS6zguUBbg3EfwzJ58s5Lea3tzSNMvxfMweEg0HR6oQGAxv/Unys3TRmqWGlO+PQI=
-Message-ID: <625fc13d0604171906r27617e01jdf486977176a6a75@mail.gmail.com>
-Date: Mon, 17 Apr 2006 21:06:13 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "Thiago Galesi" <thiagogalesi@gmail.com>
-Subject: Re: [PATCH] Remove unnecessary kmalloc/kfree calls in mtdchar
-Cc: "David Woodhouse" <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <82ecf08e0604170924y48deb5d1n1fdcfaaac9e257fe@mail.gmail.com>
+	Mon, 17 Apr 2006 22:25:27 -0400
+Received: from web5.treasury.qld.gov.au ([203.56.182.50]:9427 "EHLO
+	web5.treasury.qld.gov.au") by vger.kernel.org with ESMTP
+	id S932084AbWDRCZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 22:25:27 -0400
+Subject: No kernel message when filesystem full
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 6.5.3 September 14, 2004
+Message-ID: <OFC430CAEE.2A513C3F-ON4A257154.000C8284-4A257154.000D5E15@treasury.qld.gov.au>
+From: Danny.Weldon@treasury.qld.gov.au
+Date: Tue, 18 Apr 2006 12:26:37 +1000
+X-MIMETrack: Serialize by Router on 
+    SMTP1/Servers/QTreasury(Release 6.5.3FP1|December 15, 2004) at 
+    18/04/2006 12:26:01 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <82ecf08e0604141938w4b29259av797e3115b79042a0@mail.gmail.com>
-	 <625fc13d0604170506n53147772vec944cdd7f2daef7@mail.gmail.com>
-	 <82ecf08e0604170619i582bfa19r19a3da0d7d0904b1@mail.gmail.com>
-	 <1145285434.13200.9.camel@pmac.infradead.org>
-	 <82ecf08e0604170803u620c67e0nf98312bd90e1e14c@mail.gmail.com>
-	 <1145290249.13200.17.camel@pmac.infradead.org>
-	 <82ecf08e0604170924y48deb5d1n1fdcfaaac9e257fe@mail.gmail.com>
+Content-type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Trs-Check-Ext: web9.treasury.qld.gov.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/17/06, Thiago Galesi <thiagogalesi@gmail.com> wrote:
-> This patch removes repeated calls to kmalloc / kfree in mtd_write /
-> mtd_read functions, replacing them by a single kmalloc / kfree pair.
->
-> Signed-off-by: Thiago Galesi <thiagogalesi@gmail.com>
+I am not getting any kernel messages when a filesystem fills up.  Is this
+facility still available or is it now configurable?
 
-This version is in the MTD git tree now.  Thanks!
+# uname -r
+2.6.13-15-smp
+#
+# /sbin/klogd -c 1 -f /tmp/out
+#
+#
+# cat /tmp/out
+klogd 1.4.1, log source = /proc/kmsg started.
+Inspecting /boot/System.map-2.6.13-15-smp
+Loaded 24953 symbols from /boot/System.map-2.6.13-15-smp.
+Symbols match kernel version 2.6.13.
+No module symbols loaded - kernel modules not enabled.
 
-josh
+#
+# dd if=/dev/zero of=/opt/xx
+dd: writing to `/opt/xx': No space left on device
+152449+0 records in
+152448+0 records out
+78053376 bytes (78 MB) copied, 2.75729 seconds, 28.3 MB/s
+#
+# tail /tmp/out
+klogd 1.4.1, log source = /proc/kmsg started.
+Inspecting /boot/System.map-2.6.13-15-smp
+Loaded 24953 symbols from /boot/System.map-2.6.13-15-smp.
+Symbols match kernel version 2.6.13.
+No module symbols loaded - kernel modules not enabled.
+
+#
+
+Please CC any replies to me directly as well.
+
+Regards
+
+Danny Weldon
+Technology Officer (Internet & Data Comms)
+Information Technology/Queensland Treasury
+Ground Floor, 317 Edward Street, Brisbane, QLD, 4000
+Phone +617 3405 6581
+
+
+******************************************************************************************************************************************************
+
+Only an individual or entity who is intended to be a recipient of this e-mail may access or use the information contained in this e-mail or any of its attachments.  Opinions contained in this e-mail or any of its attachments do not necessarily reflect the opinions of Queensland Treasury.
+
+The contents of this e-mail and any attachments are confidential and may be legally privileged and the subject of copyright.  If you have received this e-mail in error, please notify Queensland Treasury immediately and erase all copies of the e-mail and the attachments.  Queensland Treasury uses virus scanning software.  However, it is not liable for viruses present in this e-mail or in any attachment.  
+
+******************************************************************************************************************************************************
+

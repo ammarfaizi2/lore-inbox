@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWDRL4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWDRL6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932218AbWDRL4t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 07:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWDRL4t
+	id S932199AbWDRL6a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 07:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWDRL63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 07:56:49 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:55487 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932218AbWDRL4s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 07:56:48 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH -mm] swsusp: rework memory shrinker
-Date: Tue, 18 Apr 2006 13:55:50 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, kernel@kolivas.org
-References: <200604181201.53430.rjw@sisk.pl> <20060418031355.7370b1e6.akpm@osdl.org> <200604181347.55259.rjw@sisk.pl>
-In-Reply-To: <200604181347.55259.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Apr 2006 07:58:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:21729 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932199AbWDRL62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 07:58:28 -0400
+Date: Tue, 18 Apr 2006 12:58:19 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+Message-ID: <20060418115819.GB8591@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Gerrit Huizenga <gh@us.ibm.com>, James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serue@us.ibm.com>,
+	Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
+	linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+	fireflier-devel@lists.sourceforge.net
+References: <20060417225525.GA17463@infradead.org> <E1FVfGt-0003Wy-00@w-gerrit.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604181355.51318.rjw@sisk.pl>
+In-Reply-To: <E1FVfGt-0003Wy-00@w-gerrit.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 April 2006 13:47, Rafael J. Wysocki wrote:
-> On Tuesday 18 April 2006 12:13, Andrew Morton wrote:
-> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> > >
-> > > Rework the swsusp's memory shrinker in the following way:
+On Mon, Apr 17, 2006 at 06:44:51PM -0700, Gerrit Huizenga wrote:
+> 
+> On Mon, 17 Apr 2006 23:55:25 BST, Christoph Hellwig wrote:
+> > On Mon, Apr 17, 2006 at 03:15:29PM -0700, Gerrit Huizenga wrote:
+> > > configure correctly that most of them disable it.  In theory, LSM +
+> > > something like AppArmour provides a much simpler security model for
 > > 
-> > And what was the observed effect of all this?
+> > apparmor falls into the findamentally broken category above, so it's
+> > totally uninteresting except as marketing candy for the big red company.
 > 
-> Measurable effects:
-> 1) It tends to free only as much memory as required, eg. if the image_size
-> is set to 450 MB, the actual image sizes are almost always well above
-> 400 MB and they tended to be below that number without the patch
-> (~5-10% of a difference, but still :-)).
-> 2) If image_size = 0, it frees everything that can be freed without any
-> workarounds (we had to add the additional loop checking for
-> ret >= nr_pages with the additional blk_congestion_wait() to the
-> "original" shrinker to achieve this).
-> 
-> A non-measurable effect is that with the patch applied  the system seems to
-> be more responsive after resume, but of course this may be an illusion.
-> 
-> > 
-> > > +		/* Force reclaiming mapped pages in the passes #3 and #4 */
-> > > +		if (pass > 2) {
-> > > +			sc.may_swap = 1;
-> > > +			vm_swappiness = 100;
-> > > +		}
-> > 
-> > That's a bit klunky.   Maybe we should move swappiness into scan_control.
-> 
-> Alternatively we can temporarily set zone->prev_priority to 100 in
-> shrink_all_zones() if pass > 2?
+> Is there a pointer to why it is fundamentally broken?  I haven't seen
+> such comments before but it may be that I've been hanging out on the
+> wrong lists or spending too much time inhaling air at 30,000 feet.
 
-s/100/0/
+It's doing access control on pathnames, which can't work in unix enviroments.
+It's following the default permit behaviour which causes pain in anything
+security-related (compare [1]).
 
-Sorry.
+
+[1] http://www.ranum.com/security/computer_security/editorials/dumb/

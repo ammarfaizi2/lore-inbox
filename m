@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWDRJRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWDRJTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWDRJRb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 05:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWDRJRb
+	id S932176AbWDRJTE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 05:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWDRJTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 05:17:31 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:14791 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1750878AbWDRJRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 05:17:31 -0400
-Date: Tue, 18 Apr 2006 11:17:24 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Liu haixiang <liu.haixiang@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question on Schedule and Preemption
-Message-ID: <20060418091724.GA7258@rhlx01.fht-esslingen.de>
-References: <bf3792800604180023r2a2111b4ude5ef15f9dd855a@mail.gmail.com>
+	Tue, 18 Apr 2006 05:19:04 -0400
+Received: from smtp.gentoo.org ([134.68.220.30]:10183 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S932097AbWDRJTB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 05:19:01 -0400
+Date: Tue, 18 Apr 2006 11:18:57 +0200
+From: Henrik Brix Andersen <brix@gentoo.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: PATCH [2/3]: Provide generic backlight support in IBM ACPI driver
+Message-ID: <20060418091857.GB30628@osgiliath>
+Mail-Followup-To: Matthew Garrett <mjg59@srcf.ucam.org>,
+	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+References: <20060418082952.GA13811@srcf.ucam.org> <20060418083056.GA13846@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1LKvkjL3sHcu1TtY"
 Content-Disposition: inline
-In-Reply-To: <bf3792800604180023r2a2111b4ude5ef15f9dd855a@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+In-Reply-To: <20060418083056.GA13846@srcf.ucam.org>
+X-PGP-Key: http://dev.gentoo.org/~brix/files/HenrikBrixAndersen.asc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, Apr 18, 2006 at 03:23:01PM +0800, Liu haixiang wrote:
-> Hi All,
-> 
-> Now I am developing the driver on Linux kernel 2.6.11. And I met the
-> problem that kernel will dump my stack from time to time. And the
-> kernel log will give me messages like "scheduling while atomic: ...".
-> 
-> Then I found the code in sched.c:
-> 
-> if (likely(!current->exit_state)) {
-> 	if (unlikely(in_atomic())) {
-> 		printk(KERN_ERR "scheduling while atomic: "
-> 			"%s/0x%08x/%d\n",
-> 			current->comm, preempt_count(), current->pid);
-> 		dump_stack();
-> 	}
-> }
-> 
-> Anybody can explain above code for me?
+--1LKvkjL3sHcu1TtY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK, I'll try, but there should be many references and explanations to it
-on the internet already (did you look?).
+On Tue, Apr 18, 2006 at 09:30:56AM +0100, Matthew Garrett wrote:
+> diff -urp drivers/acpi.bak/Kconfig drivers/acpi/Kconfig
+> --- drivers/acpi.bak/Kconfig	2006-04-18 08:51:49 +0100
+> +++ a/drivers/acpi/Kconfig	2006-04-18 09:13:09 +0100
+> @@ -195,7 +195,7 @@ config ACPI_ASUS
+>           =20
+>  config ACPI_IBM
+>  	tristate "IBM ThinkPad Laptop Extras"
+> -	depends on X86
+> +	depends on X86 && BACKLIGHT_DEVICE
 
-If the current task is running and thus not yet exiting (!current->exit_state)
-and is also in an atomic code section (i.e. under lock), it shouldn't call
-any reschedule function (which also happens by just calling msleep(): use
-mdelay() instead in that case!).
+Wouldn't it be better to have ACPI_IBM and friends select
+BACKLIGHT_DEVICE?
 
-Generally spoken you should leave locked code sections ASAP (don't waste
-too much time in there), and not call any functions that schedule to the
-next task in there (msleep(), ...).
+Regards,
+Brix
+--=20
+Henrik Brix Andersen <brix@gentoo.org>
+Gentoo Metadistribution | Mobile computing herd
 
-BTW, the code above is an old unoptimized version, fixed by me recently.
+--1LKvkjL3sHcu1TtY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Andreas Mohr
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: GnuPG signed
+
+iD8DBQFERK8Bv+Q4flTiePgRAmPrAKCa+dWrBOikaRt1m8O3hxg6BpcP+wCgv+cv
+PcVS80WBwLmAkIU9OYa0chQ=
+=4Bnj
+-----END PGP SIGNATURE-----
+
+--1LKvkjL3sHcu1TtY--

@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWDRQvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWDRQyg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWDRQvI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 12:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWDRQvH
+	id S1751113AbWDRQyg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 12:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWDRQyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 12:51:07 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:37539 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751108AbWDRQvF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 12:51:05 -0400
-To: Christoph Hellwig <hch@infradead.org>
-cc: James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks 
-In-reply-to: Your message of Tue, 18 Apr 2006 12:58:19 BST.
-             <20060418115819.GB8591@infradead.org> 
-Date: Tue, 18 Apr 2006 09:50:41 -0700
-Message-Id: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com>
+	Tue, 18 Apr 2006 12:54:35 -0400
+Received: from codepoet.org ([166.70.99.138]:8165 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S1751113AbWDRQyf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 12:54:35 -0400
+Date: Tue, 18 Apr 2006 10:54:34 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Zinx Verituse <zinx@epicsol.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: ide-cd.c, "MEDIUM_ERROR" handling
+Message-ID: <20060418165434.GA27182@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	Zinx Verituse <zinx@epicsol.org>,
+	lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+References: <20060418011839.GA10619@atlantis.chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060418011839.GA10619@atlantis.chaos>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon Apr 17, 2006 at 08:18:39PM -0500, Zinx Verituse wrote:
+> I recently bought a DVD drive which appears to not retry enough when it's
+> having trouble reading a disc - I'm requesting an option (or changing the
+> default behavior) so that this drive is actually usable with the Linux
+> ide-cd drivers - specificly, the code:
+> 	} else if (sense_key == MEDIUM_ERROR) {
+> 		/* No point in re-trying a zillion times on a bad
+> 		 * sector...  If we got here the error is not correctable */
+> 		ide_dump_status (drive, "media error (bad sector)", stat);
+> 		do_end_request = 1;
+> 	}
+> needs to be disabled for my drive to read CDs properly.
 
-On Tue, 18 Apr 2006 12:58:19 BST, Christoph Hellwig wrote:
-> On Mon, Apr 17, 2006 at 06:44:51PM -0700, Gerrit Huizenga wrote:
-> > 
-> > On Mon, 17 Apr 2006 23:55:25 BST, Christoph Hellwig wrote:
-> > > On Mon, Apr 17, 2006 at 03:15:29PM -0700, Gerrit Huizenga wrote:
-> > > > configure correctly that most of them disable it.  In theory, LSM +
-> > > > something like AppArmour provides a much simpler security model for
-> > > 
-> > > apparmor falls into the findamentally broken category above, so it's
-> > > totally uninteresting except as marketing candy for the big red company.
-> > 
-> > Is there a pointer to why it is fundamentally broken?  I haven't seen
-> > such comments before but it may be that I've been hanging out on the
-> > wrong lists or spending too much time inhaling air at 30,000 feet.
-> 
-> It's doing access control on pathnames, which can't work in unix enviroments.
-> It's following the default permit behaviour which causes pain in anything
-> security-related (compare [1]).
-> 
-> 
-> [1] http://www.ranum.com/security/computer_security/editorials/dumb/
+When I originally added this code, the problem I was seeing was
+the ide layer was doing 8 retires before it returned to ide-cd,
+which then did 8 retries itself.  Thus processing a bad sector
+caused no less than 64 reads of the bad sector, all of which
+failed, and each of which took a fair amount of time, thereby
+keeping user space stuck in D state for over 10 minutes on a
+single syscall, which seemed rather bad form...
 
-Interesting but I'm not impressed by the article.  I think Stephen's
-reference has a bit more meat to it.  According to this article my
-laptop should set so I have a white list of apps (which would be
-really really long, ergo why make a list?  I run much more than
-5 apps on a day to day basis).  Even on a general purpose machine
-that is shared by many users will have a large number of apps.  When
-your white list is a large percentage of the apps that are on the
-machine, these two approaches start to converge.  In the end it always
-comes down to "how much security are you prepared to endure, given
-that security almost always limits user capability".
+When I added this code, I was relying on the ide layer to
+continue to do its ritualistic 8 retries, after which I assumed
+that no further retries would be likely to help and there was no
+reason for ide-cd to keep thrashing on the already proven to be
+dead sector.  For my purposes, this helped considerably reduce
+the amount of time stuck in D state while processing CDs with bad
+sectors (such as trying to recover the data off my kid's
+massively scratched up game CDs).
 
-Based on what this article says, it sounds like MACs and ACLs would be
-required because without them they permit you to share data with people
-that may not need that data, people should only have access to the
-limited set of applications and data that they need, and the machine
-should be tightened down to the point where the security approaches
-absolute security.
+ -Erik
 
-While that might fit in with "perfect" security, most people aren't
-interested in that level of perfection.  "Default permit" was so popular
-because it caught the obvious exploits without overly limiting people's
-ability to use a machine.  It is still pretty commonly used today.
-Also, any security protection has a whole range of protections, from
-firewalls, limiting which packages are installed, accounts/passwords,
-validation of users, etc.  Does everyone have to have "perfect" security
-or are there places where a "less than perfect, easy to use, good enough"
-security policy?  I believe there is room for both based on the end
-users' needs and desires.  But that is just my opinion.
-
-gerrit
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

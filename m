@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWDRTJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWDRTPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWDRTJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 15:09:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWDRTJ4
+	id S932298AbWDRTPu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 15:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbWDRTPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 15:09:56 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29192 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932294AbWDRTJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 15:09:55 -0400
-Date: Tue, 18 Apr 2006 21:09:54 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] net/netlink/: possible cleanups
-Message-ID: <20060418190954.GM11582@stusta.de>
-References: <20060413162710.GE4162@stusta.de> <20060413.132603.94193712.davem@davemloft.net> <20060414103202.GF4162@stusta.de> <20060414105610.GA18149@2ka.mipt.ru> <20060418141946.GC11582@stusta.de> <1145386121.21723.28.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145386121.21723.28.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11+cvs20060403
+	Tue, 18 Apr 2006 15:15:50 -0400
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:53004 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932298AbWDRTPt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 15:15:49 -0400
+Date: Tue, 18 Apr 2006 21:15:46 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Subject: Re: [PATCH] i2c-i801: Fix resume when PEC is used
+Message-Id: <20060418211546.fa5a76df.khali@linux-fr.org>
+In-Reply-To: <20060418170331.GA3915@jupiter.solarsys.private>
+References: <20060418140629.7cb21736.khali@linux-fr.org>
+	<20060418170331.GA3915@jupiter.solarsys.private>
+Reply-To: LM Sensors <lm-sensors@lm-sensors.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 18, 2006 at 07:48:41PM +0100, Alan Cox wrote:
-> On Maw, 2006-04-18 at 16:19 +0200, Adrian Bunk wrote:
-> > OTOH, we also have to always check whether users are expected soon (and 
-> > recheck whether there are really users after some time) since every 
-> > single export makes the kernel larger for nearly everyone.
+Hi Mark,
+
+> * Jean Delvare <khali@linux-fr.org> [2006-04-18 14:06:29 +0200]:
+> > Fix for bug #6395:
+> > Fail to resume on Tecra M2 with ADM1032 and Intel 82801DBM
+> > 
+> > The BIOS of the Tecra M2 doesn't like it when it has to reboot or
+> > resume after the i2c-i801 driver has left the SMBus in PEC mode. So we
+> > need to add proper .suspend, .resume and .shutdown callbacks to that
+> > driver, where we clear and restore the PEC mode bit appropriately.
 > 
-> Of course fixing the amount of memory used by an EXPORT_SYMBOL would be
-> far more productive.
+> NACK: saved_auxctl is uninitialized in this patch (what happened to
+> the patch I looked at last night?)
 
-Both is productive.
-You can decrease the amount of memory used by an EXPORT_SYMBOL, but you 
-can't get it down to 0.
+Doh! You're right, and I am so glad you caught it. I tried to refactor
+some code from the original patch and one line was lost in the battle :(
 
-And in some cases the memory used by an EXPORT_SYMBOL mostly consists of 
-an otherwise unused function...
+> Also, now that I look at it again... wouldn't it be much easier to just
+> disable PEC again after every transfer?  That's safer too:  the call-
+> backs might not be enough e.g. if the user hits the reset button after
+> a PEC transfer.
 
-cu
-Adrian
+This is exactly the patch I sent for -stable (as 2.6.16 is affected
+too.) This is also what the i2c-i801 driver was doing up to 2.6.15,
+inclusive.
+
+However I thought using the proper driver model callbacks would be
+better for 2.6.17, for the following reasons:
+* Nothing currently prevents the user from suspending or rebooting the
+system while there is a transaction in progress. If this happens, the
+callbacks are needed to clear and restore the PEC bit; resetting at the
+end of the transaction won't work.
+* Small performance benefit, although I admit it's a last resort
+consideration.
+
+Also note that, even if we disable PEC after each transaction, the user
+can still leave the system in a broken state by hitting the reset
+button during a transaction. This is less likely to happen than if we
+disable PEC in .suspend and .shutdown, but it can still happen. The
+only way to fix that is to get the BIOS itself fixed, which is out of
+our hands.
+
+Anyway, on second thought I believe you're right, the most simple
+approach will be fine for 2.6.17 too. There's little point in trying
+to handle suspend/resume if we don't prevent it from happening in the
+middle of a transaction. Fixing that is beyond the scope of 2.6.17.
+
+I'll send a new patch soon.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Jean Delvare

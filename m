@@ -1,91 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWDRQOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWDRQYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWDRQOf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 12:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWDRQOf
+	id S1750807AbWDRQYk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 12:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWDRQYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 12:14:35 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:62149 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750769AbWDRQOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 12:14:34 -0400
-Date: Tue, 18 Apr 2006 09:11:00 -0700
-From: Patrick Mochel <mochel@linux.intel.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: PATCH [1/3]: Provide generic backlight support in Asus ACPI driver
-Message-ID: <20060418161100.GA31763@linux.intel.com>
-References: <20060418082952.GA13811@srcf.ucam.org>
+	Tue, 18 Apr 2006 12:24:40 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:13969 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750807AbWDRQYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 12:24:39 -0400
+Subject: Re: [RT] bad BUG_ON in rtmutex.c
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1145376876.5447.58.camel@localhost.localdomain>
+References: <1145324887.17085.35.camel@localhost.localdomain>
+	 <1145362851.5447.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0604180831390.9005@gandalf.stny.rr.com>
+	 <1145365886.5447.28.camel@localhost.localdomain>
+	 <1145368228.17085.85.camel@localhost.localdomain>
+	 <1145369381.5447.40.camel@localhost.localdomain>
+	 <1145370733.17085.110.camel@localhost.localdomain>
+	 <1145371913.5447.48.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0604181058430.12720@gandalf.stny.rr.com>
+	 <1145376876.5447.58.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 18 Apr 2006 12:24:27 -0400
+Message-Id: <1145377467.17085.133.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060418082952.GA13811@srcf.ucam.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 18, 2006 at 09:29:52AM +0100, Matthew Garrett wrote:
-> This allows Asus backlight control to be performed via 
-> /sys/class/backlight. It does not currently remove the legacy /proc 
-> interface.
+On Tue, 2006-04-18 at 09:14 -0700, Daniel Walker wrote:
 
-Neat, though a few questions that apply to each of the three ACPI platform drivers..
+> 
+> > Actually, I always thought that running PREEMPT_DESKTOP with soft and hard
+> > IRQS as threads was priority ceiling.  It's just that all locks have the
+> > priority of MAX_RT_PRIO (no preemption allowed).  OK, this doesn't apply
+> > to mutexes, but it does apply for spin_locks. :)
+> 
+> Interesting way to look at it .
+> 
+> Reminds me of the RT read/write locks, only one read or one writer at a
+> time, so it's really just a mutex ..
+> 
 
+We'll read/write doesn't work well with PI (or latencies for that
+matter).  But rw_locks have one advantage over normal rt_mutex, and that
+is they are self recursive.  i.e. one rw_lock can be taken over and over
+again (as read) by the same process, as long as it releases it the same
+amount of times.
 
-> diff -urp drivers/acpi.bak/asus_acpi.c drivers/acpi/asus_acpi.c
-
-> +static struct backlight_device *asus_backlight_device;
-> +
-
-Why is this dynamically allocated? If there is only one per driver, then the
-register() function could take that as a parameter -- instead of passing various
-variable to initialize it with -- and return an error. 
-
-> -static int read_brightness(void)
-> +static int read_brightness(struct backlight_device *bd)
-
-It seems that you're always passing NULL to this. And, if you're not passing NULL,
-aren't you always referencing the single global instance above? 
-
-> -static void set_brightness(int value)
-> +static int set_brightness(struct backlight_device *bd, int value)
->  {
->  	acpi_status status = 0;
->  
-> +	value = (0 < value) ? ((15 < value) ? 15 : value) : 0;
-> +	/* 0 <= value <= 15 */
-
-Is there something wrong with:
-
-	if (value < 0)
-		value = 0;
-	else if (value > 15)
-		value = 15;
-
-? Or, could you just make the parameter an unsigned int and just keep the 2nd check? 
-
-> -		value = (0 < value) ? ((15 < value) ? 15 : value) : 0;
-> -		/* 0 <= value <= 15 */
-> -		set_brightness(value);
-> +		set_brightness(NULL,value);
-
-There should be a space between parameters. 
-
-> +	asus_backlight_device = backlight_device_register ("asus_bl", NULL,
-> +							   &asusbl_data);
-> +
-> +	if (IS_ERR (asus_backlight_device)) {
-> +		printk("Unable to register backlight\n");
-
-Could you print the name of the driver? 
-
-> +		acpi_bus_unregister_driver(&asus_hotk_driver);
-> +		remove_proc_entry(PROC_ASUS, acpi_root_dir);
-
-If the backlight fails to register, does it mean that these must also fail? 
+-- Steve
 
 
-Thanks,
-
-
-	Patrick

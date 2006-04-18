@@ -1,80 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWDRMsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWDRMty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbWDRMsU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 08:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbWDRMsT
+	id S1751048AbWDRMty (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 08:49:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWDRMty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 08:48:19 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:50575 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750987AbWDRMsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 08:48:17 -0400
-Subject: Re: [PATCH 00/05] robust per_cpu allocation for modules
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Christoph Lameter <clameter@sgi.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Martin Mares <mj@atrey.karlin.mff.cuni.cz>, bjornw@axis.com,
-       schwidefsky@de.ibm.com, lethal@linux-sh.org,
-       Chris Zankel <chris@zankel.net>, Marc Gauthier <marc@tensilica.com>,
-       Joe Taylor <joe@tensilica.com>, rth@twiddle.net, spyro@f2s.com,
-       starvik@axis.com, tony.luck@intel.com, linux-ia64@vger.kernel.org,
-       ralf@linux-mips.org, linux-mips@linux-mips.org,
-       grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
-       linuxppc-dev@ozlabs.org, paulus@samba.org, linux390@de.ibm.com,
-       davem@davemloft.net
-In-Reply-To: <44448A60.4040903@yahoo.com.au>
-References: <1145049535.1336.128.camel@localhost.localdomain>
-	 <4440855A.7040203@yahoo.com.au>
-	 <Pine.LNX.4.64.0604170953390.29732@schroedinger.engr.sgi.com>
-	 <20060417220238.GD3945@localhost.localdomain>
-	 <Pine.LNX.4.58.0604171936040.24264@gandalf.stny.rr.com>
-	 <44448A60.4040903@yahoo.com.au>
-Content-Type: text/plain
-Date: Tue, 18 Apr 2006 08:47:57 -0400
-Message-Id: <1145364477.17085.54.camel@localhost.localdomain>
+	Tue, 18 Apr 2006 08:49:54 -0400
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:6160 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751048AbWDRMtx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 08:49:53 -0400
+Date: Tue, 18 Apr 2006 14:49:56 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [PATCH] PCI: Error handling on PCI device resume
+Message-Id: <20060418144956.7643e844.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Removed from CC davidm@hpl.hp.com and benedict.gaster@superh.com
-because I keep getting "unknown user" bounces from them]
+We currently don't handle errors properly when resuming a PCI device:
+* In pci_default_resume() we capture the error code returned by
+  pci_enable_device() but don't pass it up to the caller.
+  Introduced by commit 95a629657dbe28e44a312c47815b3dc3f1ce0970
+* In pci_resume_device(), the errors possibly returned by the driver's
+  .resume method or by the generic pci_default_resume() function are
+  ignored.
 
-On Tue, 2006-04-18 at 16:42 +1000, Nick Piggin wrote:
-> Steven Rostedt wrote:
-> 
-> > Understood, but I'm going to start looking in the way Rusty and Arnd
-> > suggested with the vmalloc approach. This would allow for saving of
-> > memory and dynamic allocation of module memory making it more robust. And
-> > all this without that evil extra indirection!
-> 
-> Remember that this approach could effectively just move the indirection to
-> the TLB / page tables (well, I say "moves" because large kernel mappings
-> are effectively free compared with 4K mappings).
+This patch fixes both issues.
 
-Yeah, I thought about the paging latencies when it was first mentioned.
-And this is something that's going to be very hard to know the impact,
-because it will be different on every system.
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+---
+ drivers/pci/pci-driver.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-> 
-> So be careful about coding up a large amount of work before unleashing it:
-> I doubt you'll be able to find a solution that doesn't involve tradeoffs
-> somewhere (but wohoo if you can).
-> 
+--- linux-2.6.17-rc1.orig/drivers/pci/pci-driver.c	2006-04-16 09:29:58.000000000 +0200
++++ linux-2.6.17-rc1/drivers/pci/pci-driver.c	2006-04-18 08:45:32.000000000 +0200
+@@ -285,9 +285,9 @@
+  * Default resume method for devices that have no driver provided resume,
+  * or not even a driver at all.
+  */
+-static void pci_default_resume(struct pci_dev *pci_dev)
++static int pci_default_resume(struct pci_dev *pci_dev)
+ {
+-	int retval;
++	int retval = 0;
+ 
+ 	/* restore the PCI config space */
+ 	pci_restore_state(pci_dev);
+@@ -297,18 +297,21 @@
+ 	/* if the device was busmaster before the suspend, make it busmaster again */
+ 	if (pci_dev->is_busmaster)
+ 		pci_set_master(pci_dev);
++
++	return retval;
+ }
+ 
+ static int pci_device_resume(struct device * dev)
+ {
++	int error;
+ 	struct pci_dev * pci_dev = to_pci_dev(dev);
+ 	struct pci_driver * drv = pci_dev->driver;
+ 
+ 	if (drv && drv->resume)
+-		drv->resume(pci_dev);
++		error = drv->resume(pci_dev);
+ 	else
+-		pci_default_resume(pci_dev);
+-	return 0;
++		error = pci_default_resume(pci_dev);
++	return error;
+ }
+ 
+ static void pci_device_shutdown(struct device *dev)
 
-OK, but as I mentioned that this is now more of a side project, so a
-month of work is not really going to be a month of work ;)  I'll first
-try to get something that just "works" and then post an RFC PATCH set,
-to get more ideas.  Since obviously there's a lot of people out there
-that know their systems much better than I do ;)
 
-Thanks,
-
--- Steve
-
-
+-- 
+Jean Delvare

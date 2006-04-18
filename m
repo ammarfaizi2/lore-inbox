@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWDRKfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWDRK4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWDRKfN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 06:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWDRKfN
+	id S932078AbWDRK4T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 06:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWDRK4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 06:35:13 -0400
-Received: from cantor.suse.de ([195.135.220.2]:6063 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932071AbWDRKfL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 06:35:11 -0400
-Date: Tue, 18 Apr 2006 12:35:10 +0200
-From: "Andi Kleen" <ak@suse.de>
-To: torvalds@osdl.org
-Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       len.brown@intel.com
-Subject: [PATCH] [2/6] i386/x86-64: Fix ACPI disabled LAPIC handling 
- mismerge
-Message-ID: <4444C0DE.mailKGB1ZDB5C@suse.de>
-User-Agent: nail 10.6 11/15/03
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 18 Apr 2006 06:56:19 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:52120 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932078AbWDRK4T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 06:56:19 -0400
+Subject: Re: ide-cd.c, "MEDIUM_ERROR" handling
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Zinx Verituse <zinx@epicsol.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+In-Reply-To: <20060418011839.GA10619@atlantis.chaos>
+References: <20060418011839.GA10619@atlantis.chaos>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 18 Apr 2006 12:04:40 +0100
+Message-Id: <1145358280.18736.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2006-04-17 at 20:18 -0500, Zinx Verituse wrote:
+> I recently bought a DVD drive which appears to not retry enough when it's
+> having trouble reading a disc 
 
+Different to everything else I've ever met. You might want to check if
+its got PC firmware or is actually from a set of drives that were meant
+to be supplied in DVD players and similar.
 
-The patch I submitted earlier to fix disabled LAPIC handling in ACPI
-was mismerged for some reason I still don't quite understand. Parts
-of it was applied to the wrong function.
+> With this code enabled, no retries are made, and the kernel sees medium errors
+> and returns bad data to the application reading; without it, the kernel retries
+> transparently and reads the data perfectly.  So, I think the comment is
+> assuming decent hardware, which unfortunately isn't always what we have :/
 
-This patch fixes it up.
+Use ide-scsi or the new libata drivers, either will do retries on medium
+errors.
 
-Cc: len.brown@intel.com
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
----
- arch/i386/kernel/acpi/boot.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
-
-Index: linux/arch/i386/kernel/acpi/boot.c
-===================================================================
---- linux.orig/arch/i386/kernel/acpi/boot.c
-+++ linux/arch/i386/kernel/acpi/boot.c
-@@ -168,7 +168,7 @@ int __init acpi_parse_mcfg(unsigned long
- 	unsigned long i;
- 	int config_size;
- 
--	if (!phys_addr || !size || !cpu_has_apic)
-+	if (!phys_addr || !size)
- 		return -EINVAL;
- 
- 	mcfg = (struct acpi_table_mcfg *)__acpi_map_table(phys_addr, size);
-@@ -1102,6 +1102,9 @@ int __init acpi_boot_table_init(void)
- 	dmi_check_system(acpi_dmi_table);
- #endif
- 
-+	if (!cpu_has_apic)
-+		return -ENODEV;
-+
- 	/*
- 	 * If acpi_disabled, bail out
- 	 * One exception: acpi=ht continues far enough to enumerate LAPICs
+Alan

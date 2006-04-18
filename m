@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWDRWNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWDRWO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWDRWNz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 18:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWDRWNz
+	id S1750765AbWDRWO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 18:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWDRWO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 18:13:55 -0400
-Received: from mx1.suse.de ([195.135.220.2]:37803 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750759AbWDRWNy (ORCPT
+	Tue, 18 Apr 2006 18:14:28 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:10128 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750767AbWDRWO0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 18:13:54 -0400
-Date: Tue, 18 Apr 2006 15:12:42 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.16.8
-Message-ID: <20060418221242.GB506@kroah.com>
-References: <20060418221134.GA506@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 18 Apr 2006 18:14:26 -0400
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] arch/i386/kernel/cpu/cpufreq/powernow-k8.c: fix a check-after-use
+Date: Wed, 19 Apr 2006 00:14:15 +0200
+User-Agent: KMail/1.9.1
+Cc: Jacob Shin <jacob.shin@amd.com>, Dave Jones <davej@redhat.com>,
+       Thomas Renninger <trenn@suse.de>, linux-kernel@vger.kernel.org
+References: <20060418220728.GU11582@stusta.de>
+In-Reply-To: <20060418220728.GU11582@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060418221134.GA506@kroah.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200604190014.15515.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 06a8926..6346bb6 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 16
--EXTRAVERSION = .7
-+EXTRAVERSION = .8
- NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index fca5fe0..a67955e 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -2750,7 +2750,10 @@ int inet_rtm_getroute(struct sk_buff *in
- 	/* Reserve room for dummy headers, this skb can pass
- 	   through good chunk of routing engine.
- 	 */
--	skb->mac.raw = skb->data;
-+	skb->mac.raw = skb->nh.raw = skb->data;
-+
-+	/* Bugfix: need to give ip_route_input enough of an IP header to not gag. */
-+	skb->nh.iph->protocol = IPPROTO_ICMP;
- 	skb_reserve(skb, MAX_HEADER + sizeof(struct iphdr));
- 
- 	if (rta[RTA_SRC - 1])
+On Wednesday 19 April 2006 00:07, Adrian Bunk wrote:
+> This patch fixes a check-after-use introduced by commit 
+> 4211a30349e8d2b724cfb4ce2584604f5e59c299 and spotted by the Coverity 
+> checker.
+
+Good catch. Should probably go into 2.6.17
+
+-Andi
+
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  arch/i386/kernel/cpu/cpufreq/powernow-k8.c |    7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.17-rc1-mm3-full/arch/i386/kernel/cpu/cpufreq/powernow-k8.c.old	2006-04-18 20:32:27.000000000 +0200
+> +++ linux-2.6.17-rc1-mm3-full/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2006-04-18 20:33:02.000000000 +0200
+> @@ -905,14 +905,17 @@ static int powernowk8_target(struct cpuf
+>  {
+>  	cpumask_t oldmask = CPU_MASK_ALL;
+>  	struct powernow_k8_data *data = powernow_data[pol->cpu];
+> -	u32 checkfid = data->currfid;
+> -	u32 checkvid = data->currvid;
+> +	u32 checkfid;
+> +	u32 checkvid;
+>  	unsigned int newstate;
+>  	int ret = -EIO;
+>  
+>  	if (!data)
+>  		return -EINVAL;
+>  
+> +	checkfid = data->currfid;
+> +	checkvid = data->currvid;
+> +
+>  	/* only run on specific CPU from here on */
+>  	oldmask = current->cpus_allowed;
+>  	set_cpus_allowed(current, cpumask_of_cpu(pol->cpu));
+> 
+> 

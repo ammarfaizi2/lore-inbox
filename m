@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWDRUSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWDRUV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWDRUSi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 16:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWDRUSi
+	id S932320AbWDRUV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 16:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWDRUV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 16:18:38 -0400
-Received: from mail.linicks.net ([217.204.244.146]:10985 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S932319AbWDRUSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 16:18:37 -0400
-From: Nick Warne <nick@linicks.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Linux 2.6.16.7
-Date: Tue, 18 Apr 2006 21:18:01 +0100
-User-Agent: KMail/1.9.1
-Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
-       linux-kernel@vger.kernel.org
-References: <20060418042300.GA11061@kroah.com> <7c3341450604181152w654a1084s8924e19224f6053@mail.gmail.com> <20060418190638.GA2992@kroah.com>
-In-Reply-To: <20060418190638.GA2992@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 18 Apr 2006 16:21:26 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:20397 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932304AbWDRUVZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 16:21:25 -0400
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Crispin Cowan <crispin@novell.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+In-Reply-To: <44453E7B.1090009@novell.com>
+References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com>
+	 <1145381250.19997.23.camel@jackjack.columbia.tresys.com>
+	 <44453E7B.1090009@novell.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604182118.01490.nick@linicks.net>
+Date: Tue, 18 Apr 2006 21:26:09 +0100
+Message-Id: <1145391969.21723.41.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 April 2006 20:06, Greg KH wrote:
-> On Tue, Apr 18, 2006 at 07:52:19PM +0100, Nick Warne wrote:
-> > > No one has submitted it to the stable@kernel.org mail address from what
-> > > I can see, so no, it is not in the queue.  If you think otherwise,
-> > > please send it.
-> > >
-> > > thanks,
-> > >
-> > > greg k-h
-> >
-> > I thought the 2.6.xx.n series was the 'stable' (as per kernel.org)?
->
-> Yes it is.  Did I say otherwise in those sentences?
+On Maw, 2006-04-18 at 12:31 -0700, Crispin Cowan wrote:
+> implements an approximation to the AppArmor security model, but does it
+> with domains and types instead of path names, imposing a substantial
+> cost in ease-of-use on the user.
 
-Argh, I see... Alexander said:
+I don't think thats true. A file name is a pretty meaningless object in
+Unixspace let alone Linux after Al Plan9ified it somewhat. It has an
+impact on policy design but if anything it makes it slightly harder for
+the policy design work and _easier_ for users, who no longer have to
+follow magic path rules.
 
-> Greg KH wrote:
->>  -EXTRAVERSION = .6
->> +EXTRAVERSION = .7
+If you think about it, what matters is the object not the name. Who
+cares what a 'cool executable' file from the internet is called. If I'm
+doing policy for a large corporate then I wan't it not to be executable
+unless someone has blessed it. It can be in /tmp in a users home
+directory or in /var/spool/mail. Either way I don't care what it is
+called just what it *is*.
 
-> Hello, I would like to know if there is a plan to include this in the next
-> -stable update?
+Can you answer the "when are you submitting it upstream" question ? I've
+certainly not got any fundamental objection to another security system.
+I doubt we'd all use it but we don't all use sys5 file systems or
+reiserfs either.
 
-I misread the ref. to the different link/patch referred too...
+Alan
 
-Sorry for the noise.
-
-Nick
-
-
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb

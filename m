@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWDRJXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWDRJ0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbWDRJXx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 05:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWDRJXw
+	id S1750724AbWDRJ0H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 05:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWDRJ0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 05:23:52 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:44517 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750719AbWDRJXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 05:23:52 -0400
-Subject: Re: Question on Schedule and Preemption
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Liu haixiang <liu.haixiang@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060418091724.GA7258@rhlx01.fht-esslingen.de>
-References: <bf3792800604180023r2a2111b4ude5ef15f9dd855a@mail.gmail.com>
-	 <20060418091724.GA7258@rhlx01.fht-esslingen.de>
-Content-Type: text/plain
-Date: Tue, 18 Apr 2006 11:23:47 +0200
-Message-Id: <1145352228.2976.18.camel@laptopd505.fenrus.org>
+	Tue, 18 Apr 2006 05:26:06 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:54691 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1750724AbWDRJ0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 05:26:05 -0400
+Date: Tue, 18 Apr 2006 10:26:01 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: PATCH [2/3]: Provide generic backlight support in IBM ACPI driver
+Message-ID: <20060418092601.GA14121@srcf.ucam.org>
+References: <20060418082952.GA13811@srcf.ucam.org> <20060418083056.GA13846@srcf.ucam.org> <20060418091857.GB30628@osgiliath>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060418091857.GB30628@osgiliath>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 18, 2006 at 11:18:57AM +0200, Henrik Brix Andersen wrote:
 
-> If the current task is running and thus not yet exiting (!current->exit_state)
-> and is also in an atomic code section (i.e. under lock), it shouldn't call
-> any reschedule function (which also happens by just calling msleep(): use
-> mdelay() instead in that case!).
-> 
+> Wouldn't it be better to have ACPI_IBM and friends select
+> BACKLIGHT_DEVICE?
 
-actually don't use mdelay, but change your code so that you CAN sleep :)
+Hmm. Probably, yes.
 
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

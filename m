@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWDRTAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWDRTES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbWDRTAs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 15:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWDRTAs
+	id S932290AbWDRTES (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 15:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWDRTES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 15:00:48 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:20874 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932283AbWDRTAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 15:00:47 -0400
-Date: Tue, 18 Apr 2006 21:00:45 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-acpi@vger.kernel.org, Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] -mm: acpi idle __read_mostly and de-init static var
-Message-ID: <20060418190045.GA25749@rhlx01.fht-esslingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+	Tue, 18 Apr 2006 15:04:18 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:40279 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932284AbWDRTER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 15:04:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=AmXsgR8Ahd9QM0fPyWFpFclJM8t5XLMKwmsNGmIBo6rKtwBmu+PjIKXqQndq7sBzTcGhx61hYWGuwvISdRcvIyRJ8/EdUOTq4iKmWuuTPPLhZiOJkvjaDgOJuwFqnJcigOfnB4Ch2DnsLSu84tRO2k6vVHXmWGXjkOwl69JdCJU=  ;
+Message-ID: <4444D2D1.3010200@yahoo.com.au>
+Date: Tue, 18 Apr 2006 21:51:45 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Brian D. McGrew" <brian@visionpro.com>, linux-kernel@vger.kernel.org
+Subject: Re: PCI Device Driver / remap_pfn_range()
+References: <14CFC56C96D8554AA0B8969DB825FEA0012B2F38@chicken.machinevisionproducts.com>	 <4443DC09.20606@yahoo.com.au> <1145359275.18736.22.camel@localhost.localdomain>
+In-Reply-To: <1145359275.18736.22.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Alan Cox wrote:
+> On Maw, 2006-04-18 at 04:18 +1000, Nick Piggin wrote:
+> 
+>>I'm pretty sure you can't remap_pfn_range vmalloced memory because
+>>it doesn't use contiguous page frames.
+> 
+> 
+> To remap vmalloc memory you need something like this. Note that vmalloc
+> memory may not be DMA accessible, vmalloc_32 memory maybe. Alternatively
+> you can build your own scatter gather  lists from pages subject to
+> hardware limits.
+> 
+> The following GPL code from various drivers shows how to do vmalloc
+> mapping into an application. Having a common helper for this is a
+> discussion/todo item when that area of the vm gets future adjustments
+> but for now this code should do the trick:
 
-- make pm_idle_save, nocst and bm_history __read_mostly
-- static first_run is initialized to 0 by default already
-- don't remove static init value of nocst and bm_history
-  since __read_mostly may be special
-  (see e.g. http://www.ussg.iu.edu/hypermail/linux/kernel/0010.0/0771.html)
+Yep, that would be a good option, thanks Alan.
 
-Patch tested on 2.6.17-rc1-mm2, rediffed against 2.6.17-rc1-mm3.
+You can look through the tree at how drivers remap their rvmalloced
+memory -- (here's a snippet from drivers/media/video/meye.c):
 
-Signed-off-by: Andreas Mohr <andi@lisas.de>
+while (size > 0) {
+     page = vmalloc_to_pfn((void *)pos);
+     if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
+         mutex_unlock(&meye.lock);
+         return -EAGAIN;
+     }
+     start += PAGE_SIZE;
+     pos += PAGE_SIZE;
+     if (size > PAGE_SIZE)
+         size -= PAGE_SIZE;
+     else
+         size = 0;
+}
 
+The trick is to get the underlying pfns and remap one at a time.
 
-diff -urN linux-2.6.17-rc1-mm3.orig/drivers/acpi/processor_idle.c linux-2.6.17-rc1-mm3/drivers/acpi/processor_idle.c
---- linux-2.6.17-rc1-mm3.orig/drivers/acpi/processor_idle.c	2006-04-18 20:06:57.000000000 +0200
-+++ linux-2.6.17-rc1-mm3/drivers/acpi/processor_idle.c	2006-04-18 20:11:16.000000000 +0200
-@@ -54,10 +54,10 @@
- #define US_TO_PM_TIMER_TICKS(t)		((t * (PM_TIMER_FREQUENCY/1000)) / 1000)
- #define C2_OVERHEAD			4	/* 1us (3.579 ticks per us) */
- #define C3_OVERHEAD			4	/* 1us (3.579 ticks per us) */
--static void (*pm_idle_save) (void);
-+static void (*pm_idle_save) (void) __read_mostly;
- module_param(max_cstate, uint, 0644);
- 
--static unsigned int nocst = 0;
-+static unsigned int nocst __read_mostly = 0;
- module_param(nocst, uint, 0000);
- 
- /*
-@@ -67,7 +67,7 @@
-  * 100 HZ: 0x0000000F: 4 jiffies = 40ms
-  * reduce history for more aggressive entry into C3
-  */
--static unsigned int bm_history =
-+static unsigned int bm_history __read_mostly =
-     (HZ >= 800 ? 0xFFFFFFFF : ((1U << (HZ / 25)) - 1));
- module_param(bm_history, uint, 0644);
- /* --------------------------------------------------------------------------
-@@ -1088,7 +1088,7 @@
- 			      struct acpi_device *device)
- {
- 	acpi_status status = 0;
--	static int first_run = 0;
-+	static int first_run; /* static: = 0 */
- 	struct proc_dir_entry *entry = NULL;
- 	unsigned int i;
- 
+You could also tinker with vmalloc_to_page+vm_insert_page, although
+that might not yet be the best option for an out of tree driver.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

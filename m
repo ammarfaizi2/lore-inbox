@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWDRASv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWDRAXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWDRASv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 20:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWDRASv
+	id S932077AbWDRAXy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 20:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWDRAXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 20:18:51 -0400
-Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:33671 "EHLO
-	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751334AbWDRASu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 20:18:50 -0400
-Message-ID: <44443063.7020503@bigpond.net.au>
-Date: Tue, 18 Apr 2006 10:18:43 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Ingo Molnar <mingo@elte.hu>, Mike Galbraith <efault@gmx.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched: modify move_tasks() to improve load balancing
- outcomes
-References: <443DF64B.5060305@bigpond.net.au> <20060413165117.A15723@unix-os.sc.intel.com> <443EFFD2.4080400@bigpond.net.au> <20060414112750.A21908@unix-os.sc.intel.com> <44404455.8090304@bigpond.net.au> <20060417095920.A19931@unix-os.sc.intel.com>
-In-Reply-To: <20060417095920.A19931@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 18 Apr 2006 00:18:43 +0000
+	Mon, 17 Apr 2006 20:23:54 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:6341 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751380AbWDRAXx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 20:23:53 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: Robin Holt <holt@sgi.com>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Dean Nelson <dcn@sgi.com>
+Subject: Re: Is notify_die being overloaded? 
+In-reply-to: Your message of "Mon, 17 Apr 2006 06:25:52 EST."
+             <20060417112552.GB4929@lnx-holt.americas.sgi.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 18 Apr 2006 10:23:52 +1000
+Message-ID: <9758.1145319832@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> On Sat, Apr 15, 2006 at 10:54:45AM +1000, Peter Williams wrote:
->> Yes, there are problems with the active/expired arrays but they're no 
->> worse with smpnice than they are without it.
-> 
-> With smpnice, if we make any wrong decision while moving the high and
-> low priority tasks, we will enter an endless loop(as load balance
-> will keep on showing the imbalance and move_tasks will always move
-> the wrong tasks, instead of the correct ones pointed by imbalance..)
+Robin Holt (on Mon, 17 Apr 2006 06:25:52 -0500) wrote:
+>On Mon, Apr 17, 2006 at 05:51:44AM -0500, Robin Holt wrote:
+>> On Mon, Apr 17, 2006 at 05:52:10PM +1000, Keith Owens wrote:
+>> > Robin Holt (on Sat, 15 Apr 2006 05:43:56 -0500) wrote:
+>...
+>> > Unfortunately the ebents are ambiguous.  On IA64 BUG() maps to break 0,
+>> > but break 0 is also used for debugging[*].  Which makes it awkward to
+>> > differentiate between a kernel error and a debug event, we have to
+>> > first ask the debuggers if the event if for them then, if the debuggers
+>> > do not want the event, drop into the die_if_kernel event.
+>> 
+>> I think this still would argue for a notify_debugger() sort of callout
+>> which would read something like:
+>
+>I finally think I understand your point.  You are saying that kdb would
+>have to register for the notify_debugger() chain and would therefore
+>get in the way of handle_page_fault().  What about changing notify_die()
+>callout in handle_page_fault() into a notify_page_fault().  That actually
+>feels a lot better now that you got me to think about it.
 
-This will only happen if the load weight for the task moved is larger 
-than the difference between the weighted loads for the two queues.  So a 
-check based on this observation can be used to prevent the loop.
+I thought that is what I said in my original response, "kprobes should
+be using its own notify chain to trap page faults, and the handler for
+that chain should be optimized away when CONFIG_KPROBES=n or there are
+no active probes".
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Even the overhead of calling into a notify_page_fault() routine just to
+do nothing adds a measurable overhead to the page fault handler
+(according to Jack Steiner).  Since kprobes is the only code that needs
+a callback on a page fault, it is up to kprobes to minimize the impact
+of that callback on the normal processing.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

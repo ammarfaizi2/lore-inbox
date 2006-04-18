@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWDREhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWDREk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbWDREhb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 00:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWDREhb
+	id S932207AbWDREk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 00:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWDREk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 00:37:31 -0400
-Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:46279 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S932173AbWDREha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 00:37:30 -0400
-Message-ID: <00d701c662a1$cbace440$4168010a@bsd.tnes.nec.co.jp>
-From: "Takashi Sato" <sho@bsd.tnes.nec.co.jp>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, <linux-kernel@vger.kernel.org>,
-       <Ext2-devel@lists.sourceforge.net>
-References: <20060413161227sho@rifu.tnes.nec.co.jp> <20060413162028.GA23452@thunk.org> <020501c6621a$bf158c50$4168010a@bsd.tnes.nec.co.jp> <20060417124807.GB7429@stusta.de>
-Subject: Re: [Ext2-devel] [RFC][15/21]e2fsprogs modify variables for bitmap to exceed 2G
-Date: Tue, 18 Apr 2006 13:37:22 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 18 Apr 2006 00:40:28 -0400
+Received: from colin.muc.de ([193.149.48.1]:16644 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S932207AbWDREk1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 00:40:27 -0400
+Date: 18 Apr 2006 06:40:20 +0200
+Date: Tue, 18 Apr 2006 06:40:20 +0200
+From: Andi Kleen <ak@muc.de>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Morton Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] kdump: x86_64 add crashdump trigger points
+Message-ID: <20060418044020.GA98630@muc.de>
+References: <20060417194914.GC6576@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060417194914.GC6576@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your info, Adrian.
-
->> Though I checked if there are any commands which use the following
->> functions in RHEL4, no such commands were found except in e2fsprogs
->> itself.
->>...
->> ext2fs_test_block_bitmap()
->>...
+On Mon, Apr 17, 2006 at 03:49:14PM -0400, Vivek Goyal wrote:
+> Hi,
 > 
-> Used by e2undel [1].
+> I am reposting this patch as there was no response after I modified the
+> patch based on feedback. Is there a problem with the patch? If yes please
+> let me know, I shall rectify that.
 
-The function is certainly used in this command.  Then I'll consider
-adding new functions which use blk64_t.
+It's already queued for .18
 
-Cheers, sho
+
+See ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/patches/
+for my current queue
+
+-Andi

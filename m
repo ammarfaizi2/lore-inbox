@@ -1,82 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWDRNFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWDRNGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWDRNFv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 09:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWDRNFu
+	id S1750843AbWDRNGo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 09:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWDRNGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 09:05:50 -0400
-Received: from ns1.10art-ni.co.jp ([218.223.154.218]:27034 "EHLO
-	tenpost3.10art-ni.co.jp") by vger.kernel.org with ESMTP
-	id S1750837AbWDRNFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 09:05:49 -0400
-Message-ID: <4444E428.6070503@10art-ni.co.jp>
-Date: Tue, 18 Apr 2006 22:05:44 +0900
-From: "Kazuki Omo(Company)" <k-omo@10art-ni.co.jp>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 18 Apr 2006 09:06:44 -0400
+Received: from pproxy.gmail.com ([64.233.166.177]:9386 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750843AbWDRNGn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 09:06:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LQ3Q6IBiMPYmPhgtcFXd8qbJqlYRvxjYkpqTduDmNk9QkCM+ZZ/wWSZ5qibXvUeCIpg+rKjGeexSkqUeE9K9RIddF3TE0YV1kjJ7R+4zhnIMm8EWmEsZBsT2gbHJj+Oyhto4PAnUNzdkEFWHpu3AeWvBAU6Tzetzb9BWBXcVmHY=
+Message-ID: <35fb2e590604180606w53cda64fn72c0720c846c8ba2@mail.gmail.com>
+Date: Tue, 18 Apr 2006 14:06:42 +0100
+From: "Jon Masters" <jonathan@jonmasters.org>
+To: "Jody McIntyre" <scjody@modernduck.com>
+Subject: Re: Data about Apple iPod, Mac, Powerbook, iBook needed
+Cc: "Stefan Richter" <stefanr@s5r6.in-berlin.de>,
+       linux1394-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20060418094126.GH5346@conscoop.ottawa.on.ca>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
-       James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-References: <20060417180231.71328.qmail@web36606.mail.mud.yahoo.com> <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
-X-Sagator-Scanner: 0.5.4-1 at tenpost3.10art-ni.co.jp;
-	log(deliver(SpamAssassinD()))
-X-Sagator-id: 20060418-220546-0001-01930-JvVYrk
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4437F493.9000803@s5r6.in-berlin.de>
+	 <35fb2e590604150055t29422445k20b5f95d3dce634d@mail.gmail.com>
+	 <20060418094126.GH5346@conscoop.ottawa.on.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 4/18/06, Jody McIntyre <scjody@modernduck.com> wrote:
+> On Sat, Apr 15, 2006 at 08:55:30AM +0100, Jon Masters wrote:
+>
+> > [0] All the Powerbooks here run only Linux.
+>
+> You can still do the 't' thing.  It's in the firmware.  However, Stefan
+> has already sent me a patch so he probably doesn't need this information
+> anymore.
 
-This is my first post. My name is OMO, member of LIDS development team.
-(LIDS is not IDS. I think the name sometime will cause
- misunderstanding.)
+Sure. I was just hinting that the original post implied one owned a
+Mac and/or a Linux box and that the two weren't necessarily the same
+thing :-)
 
-Actually, LIDS is using LSM Framework from kernel-2.6.0 and
-keeps developing new one.
-http://marc.theaimsgroup.com/?l=linux-security-module&m=113472048023966&w=2
-
-OMO
-
-Stephen Smalley wrote: (2006/04/18 03:15):
-> On Mon, 2006-04-17 at 11:02 -0700, Casey Schaufler wrote:
-> 
->>--- Christoph Hellwig <hch@infradead.org> wrote:
->>
->>
->>>>Or, better, remove LSM itself ;)
->>>
->>>Seriously that makes a lot of sense.  All other
->>>modules people have come up
->>>with over the last years are irrelevant and/or
->>>broken by design.
->>
->>Didn't you mean "Bah!" (waves paw)?
->>
->>I understand the enthusiasm that the SELinux
->>following demonstrates for the technology.
->>I do not appreciate the bashing of alternatives.
-> 
-> 
-> Then provide a counterexample.
-> 
-
-
--- 
-Kazuki Omo: k-omo@10art-ni.co.jp
-Group Manager, OSS Technology Group, Linux Technology
-LIDS Japanese Information:
-Japanese: http://www.selinux.gr.jp/LIDS-JP/index.html
-English:  http://www.selinux.gr.jp/LIDS-JP/LIDS_en/index.html
-
-
-
-
-
-
-
-
+Jon.

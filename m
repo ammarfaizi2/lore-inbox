@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWDRUg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWDRUiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWDRUg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 16:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWDRUg5
+	id S932334AbWDRUiR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 16:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWDRUiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 16:36:57 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:42669 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932326AbWDRUg4 (ORCPT
+	Tue, 18 Apr 2006 16:38:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4308 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932328AbWDRUiQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 16:36:56 -0400
-Date: Tue, 18 Apr 2006 15:36:53 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Gerrit Huizenga <gh@us.ibm.com>, Christoph Hellwig <hch@infradead.org>,
-       James Morris <jmorris@namei.org>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-Message-ID: <20060418203653.GJ29302@sergelap.austin.ibm.com>
-References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com> <1145386009.21723.27.camel@localhost.localdomain> <20060418195956.GH29302@sergelap.austin.ibm.com> <1145391612.16632.236.camel@moss-spartans.epoch.ncsc.mil>
+	Tue, 18 Apr 2006 16:38:16 -0400
+Date: Tue, 18 Apr 2006 13:37:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+Cc: Seokmann.Ju@engenio.com, andre@linux-ide.org, James.Bottomley@SteelEye.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 1/1] megaraid_{mm,mbox}: fix a bug in reset handler
+Message-Id: <20060418133722.7af041e3.akpm@osdl.org>
+In-Reply-To: <890BF3111FB9484E9526987D912B261901BCDA@NAMAIL3.ad.lsil.com>
+References: <890BF3111FB9484E9526987D912B261901BCDA@NAMAIL3.ad.lsil.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145391612.16632.236.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> On Tue, 2006-04-18 at 14:59 -0500, Serge E. Hallyn wrote:
-> > Quoting Alan Cox (alan@lxorguk.ukuu.org.uk):
-> > > On Maw, 2006-04-18 at 09:50 -0700, Gerrit Huizenga wrote:
-> > > > or are there places where a "less than perfect, easy to use, good enough"
-> > > > security policy?  I believe there is room for both based on the end
-> > > > users' needs and desires.  But that is just my opinion.
-> > > 
-> > > Poor security systems lead to less security than no security because it
-> > > lulls people into a false sense of security. Someone who knows their
-> > 
-> > Not wanting to make any digs one way or another, but because the culture
-> > right now refuses to admit it I must point out:
-> > 
-> > So does "security" which is too complicated and therefore ends up
-> > misconfigured (or disabled).
+"Ju, Seokmann" <Seokmann.Ju@lsil.com> wrote:
+>
+> I've seen the patch (megaraid_mmmbox_fix_a_bug_in_reset_handler.patch) available on 2.6.17-rc1-mm3 under "SCSI warning fix" section.
+>  What should I do to remove "warning" tag on the patch.
+>  I've attached another patch in previous email that has 'udelay()' in the loop to remove NMI concern, and waiting for confirmation on it. Will this change remove the "warning"?
 > 
-> Not sure who refuses to admit it, but there is plenty of work in
-> progress to improve SELinux useability.  But that doesn't require
+>  I'll submit the patch officially by end of today.
 
-Yes, absolutely, some very good work.
+There are four megaraid-specific patches in -mm:
 
-I used to think I'd want selinux protecting the TCB, but worried about
-user customizations threatening the integrity of the TCB policy.  But
-the namespace extension (.) may even allay that fear.
+megaraid-unused-variable.patch
+drivers-scsi-megaraidc-add-a-dummy-mega_create_proc_entry-for-proc_fs=y.patch
+scsi-megaraid-megaraid_mmc-fix-a-null-pointer-dereference.patch
+megaraid_mmmbox-fix-a-bug-in-reset-handler.patch
 
--serge
+The final one is your latest patch.
+
+I'll periodically send such patches to the subsystem maintainer until
+something happens.  

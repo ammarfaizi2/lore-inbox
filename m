@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWDRL6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWDRL6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWDRL6a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 07:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWDRL63
+	id S932217AbWDRL6s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 07:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWDRL6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 07:58:29 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:21729 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932199AbWDRL62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 07:58:28 -0400
-Date: Tue, 18 Apr 2006 12:58:19 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-Message-ID: <20060418115819.GB8591@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Gerrit Huizenga <gh@us.ibm.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serue@us.ibm.com>,
-	Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
-	linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-	fireflier-devel@lists.sourceforge.net
-References: <20060417225525.GA17463@infradead.org> <E1FVfGt-0003Wy-00@w-gerrit.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1FVfGt-0003Wy-00@w-gerrit.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 18 Apr 2006 07:58:48 -0400
+Received: from zit-mailfront1.uni-paderborn.de ([131.234.200.2]:21162 "EHLO
+	zitmail.uni-paderborn.de") by vger.kernel.org with ESMTP
+	id S932217AbWDRL6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 07:58:47 -0400
+Message-ID: <4444D46F.7010902@uni-paderborn.de>
+Date: Tue, 18 Apr 2006 13:58:39 +0200
+From: Bjoern Schmidt <bj-schmidt@uni-paderborn.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-AT; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: problem with completion object
+X-Enigmail-Version: 0.92.0.0
+OpenPGP: id=53D27ADB
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 17, 2006 at 06:44:51PM -0700, Gerrit Huizenga wrote:
-> 
-> On Mon, 17 Apr 2006 23:55:25 BST, Christoph Hellwig wrote:
-> > On Mon, Apr 17, 2006 at 03:15:29PM -0700, Gerrit Huizenga wrote:
-> > > configure correctly that most of them disable it.  In theory, LSM +
-> > > something like AppArmour provides a much simpler security model for
-> > 
-> > apparmor falls into the findamentally broken category above, so it's
-> > totally uninteresting except as marketing candy for the big red company.
-> 
-> Is there a pointer to why it is fundamentally broken?  I haven't seen
-> such comments before but it may be that I've been hanging out on the
-> wrong lists or spending too much time inhaling air at 30,000 feet.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It's doing access control on pathnames, which can't work in unix enviroments.
-It's following the default permit behaviour which causes pain in anything
-security-related (compare [1]).
+Hello,
+
+i wrote a kernel (2.6.16) module that creates 10 kernelthreads 0-9. That
+works great but if i kill and recreate i.e. thread #4, unloading of the
+module hangs at wait_for_completion() for thread #4. If i don't kill and
+recreate a thread, unloading works fine. What did i wrong?
+
+Please cc!
+
+- --
+Greets
+Björn Schmidt
 
 
-[1] http://www.ranum.com/security/computer_security/editorials/dumb/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
+
+iD8DBQFERNRvLR9iDVPSetsRAjYjAJ9pIwAdBPMwFV6xFkvgNmT2YIsw7gCdGXmh
+4LZGYuhMWspmMeRcqzPhhJ4=
+=8tSR
+-----END PGP SIGNATURE-----

@@ -1,158 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWDRRVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWDRR26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWDRRVR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 13:21:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWDRRVR
+	id S932154AbWDRR26 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 13:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWDRR26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 13:21:17 -0400
-Received: from pproxy.gmail.com ([64.233.166.183]:31334 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932090AbWDRRVQ convert rfc822-to-8bit
+	Tue, 18 Apr 2006 13:28:58 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:54977 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S932101AbWDRR25 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 13:21:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EtR2vvT/9Xzf4+fwRpfW157ZNkXf9ZhBQ+pwMl94nkiufpIVlXGqMedlSmpPsTBik5Gy0noQUrfp0pxwQl/BngeuYZce8AoCbstQElrqugfA/QzEmi3mkdcGt+DKZ5ohVYPJgRDM4pBGye3l0EmJrlbUNzyz9QwZ0O2DHxSIjf4=
-Message-ID: <bf3792800604181021y4d985dedk19c7d94707c0cd8d@mail.gmail.com>
-Date: Wed, 19 Apr 2006 01:21:15 +0800
-From: "Liu haixiang" <liu.haixiang@gmail.com>
-To: "Steven Rostedt" <rostedt@kihontech.com>
-Subject: Re: Question on Schedule and Preemption
-Cc: "Andreas Mohr" <andi@rhlx01.fht-esslingen.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1145372205.17085.123.camel@localhost.localdomain>
+	Tue, 18 Apr 2006 13:28:57 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bf3792800604180023r2a2111b4ude5ef15f9dd855a@mail.gmail.com>
-	 <20060418091724.GA7258@rhlx01.fht-esslingen.de>
-	 <bf3792800604180555n6569a355tc55e850064ea1551@mail.gmail.com>
-	 <1145372205.17085.123.camel@localhost.localdomain>
+Subject: RE: [PATCH 1/1] megaraid_{mm,mbox}: fix a bug in reset handler
+Date: Tue, 18 Apr 2006 11:28:43 -0600
+Message-ID: <890BF3111FB9484E9526987D912B261901BCDD@NAMAIL3.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 1/1] megaraid_{mm,mbox}: fix a bug in reset handler
+Thread-Index: AcZjBk73uOJHITdfSD+nqBB3ufOvZgAA72hw
+From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+To: "Andre Hedrick" <andre@linux-ide.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, <James.Bottomley@SteelEye.com>,
+       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 18 Apr 2006 17:28:43.0192 (UTC) FILETIME=[8A41A380:01C6630D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/4/18, Steven Rostedt <rostedt@kihontech.com>:
-> On Tue, 2006-04-18 at 20:55 +0800, Liu haixiang wrote:
-> > Hi Andreas Mohr,
-> >
-> > Thanks for your explanation. And now I am clear on above code.
-> >
-> > Please see my problem below. It seemed that there is one code to add
-> > preempt count [<8440de20>], which means that the kernel can not be
-> > preemptied. Then the code call switch_to (which contains the code
-> > __switch_to_end).
->
-> Your stack trace looks fishy, I recommend doing a "make menuconfig", go
-> to "Kernel Hacking" and turn on "Compile the kernel with frame pointers"
-> This will give you a better and cleaner stack dump.
->
+Hi Andre,
 
-Thank  you. And I will try it later.
+> In the case where the card or the host issues a pci master abort that
+> wedges the adapter and marks adapter->hw_error = 1 and then 
+> never recovers
+> again, where is the code to bring the card back online?  I 
+> know first hand
+> this is a problem because I am working with the firmware folk 
+> to address
+> this issue.
+That is because driver made decision to announce the controller as dead after waiting for the F/W honored timeout value which is 300 seconds.
+As long as F/W comes back before the timeout, hw_error flag never set to 1.
+Once it pass the timeout, it means that the F/W will not come back.
 
-> >
-> > And it's problem becuase the code already in the atomic status and can
-> > not be scheduled.
-> >
-> > My understanding is correct? And how to know which process or code
-> > call add_preempt_count? Is there any good way to find the clue?
->
-> Well according to your output, it was the task "TURNER0" with the pid
-> 611.  After you recompile the kernel with CONFIG_FRAME_POINTERS you will
-> need to follow the stack trace and see what function turned off
-> preemption.  This can happen calling a spin_lock and not unlocking it
-> before calling something that would schedule.
->
+> Also please explain how changing the number of times one 
+> loops from 5 F's
+> to 6 F's allows the FW to continue?  I am betting it I take 
+> the new driver
+> and the firmware posted on LSI's websight it will still crash 
+> in the same
+> conditions.  Anybody up for lunch paid by the non-winning 
+> party?  I have
+> not tested it yet but everything I see does not address the 
+> fundamental
+> issues.
+This is one of request made by developer and you can track down further from the link specified in the patch ( change history 2 in ChangeLog.megaraid file).
+Basically, under certain situation which the customer has, the F/W took longer than usual so that driver could exits from the loop before the command (for clustering support) returns. To address this with minimal changes in the driver, I've accepted the request.
+Also, as Andrew pointed out, I've modified this section of the code and added 'udelay()' so that there is NO possible NMI concern. I'm not sure what make you to think the system will crash. Can you please explain to me?
 
-If it's true, it is a great help for me.
+Thank you,
 
-> If you also turn on in "Kernel Hacking" -> "Compile the kernel with
-> debug info", you can then do a "gdb vmlinux" in the root directory of
-> the compile, and pass in the stack address with the command
-> "li *0xc042382e" to show where that function would return. (replace the
-> c042382e with the location you are looking for).
->
-> Also, what arch are you using to get a 0x04000000 in the preempt_count
-> (the 0x1 is the depth). Of course I'm looking at 2.6.17-rc1 and not the
-> one you are using.  Hmm, your arch may not even support frame pointers.
->
-> -- Steve
->
-
-The arch is SH4.
-
-> >
-> > ===================================
-> > scheduling while atomic: TUNER0/0x04000001/611
-> >
-> > Call trace:
-> > [<846532b4>] __switch_to_end+0x2fe/0x38a
-> > [<8440de20>] add_preempt_count+0x0/0xa0
-> > [<84652c80>] schedule+0x0/0x300
-> > [<8440dd80>] sub_preempt_count+0x0/0xa0
-> > [<84653ef8>] cond_resched+0x38/0x80
-> > [<84405096>] ret_from_irq+0x0/0x12
-> > [<845145e0>] __delay+0x0/0x20
-> > [<84653ef8>] cond_resched+0x38/0x80
-> > [<8440de20>] add_preempt_count+0x0/0xa0
-> > [<84652c80>] schedule+0x0/0x300
-> > [<8440dd80>] sub_preempt_count+0x0/0xa0
-> > [<845d9a16>] bit_xfer+0x256/0x8c0
-> > [<845d6d36>] i2c_transfer+0x56/0xe0
-> > [<c042382e>] STI2C_Read+0x2e/0x80 [sti2c_ioctl]
-> > [<c046af32>] I2C_ReadWrite+0x72/0x1a0 [sttuner_core]
-> > [<c0487d7c>] IOARCH_Handle+0x10/0xffff49a0 [sttuner_core]
-> > [<84653ec0>] cond_resched+0x0/0x80
-> > [<845d9cac>] bit_xfer+0x4ec/0x8c0
-> > [<c046b398>] IOARCH_ReadWrite+0x118/0x180 [sttuner_core]
-> > [<c05cb000>] 0xc05cb000
-> > [<c046b456>] STTUNER_IOARCH_ReadWrite+0x16/0x40 [sttuner_core]
-> > [<c05c300c>] 0xc05c300c
-> > [<c0477482>] STTUNER_IOREG_GetContigousRegisters+0x142/0x1c0 [sttuner_core]
-> > [<c046fd1a>] Drv0299_GetNoiseEstimator+0x1a/0x120 [sttuner_core]
-> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-> > [<c0483798>] STTUNER_DrvInst+0x1a8/0xffff911c [sttuner_core]
-> > [<c048379c>] STTUNER_DrvInst+0x1ac/0xffff911c [sttuner_core]
-> > [<c048379c>] STTUNER_DrvInst+0x1ac/0xffff911c [sttuner_core]
-> > [<c05c300c>] 0xc05c300c
-> > [<c05c3000>] 0xc05c3000
-> > [<c0470960>] demod_d0299_GetSignalQuality+0x20/0x40 [sttuner_core]
-> > [<c048379c>] STTUNER_DrvInst+0x1ac/0xffff911c [sttuner_core]
-> > [<c0483798>] STTUNER_DrvInst+0x1a8/0xffff911c [sttuner_core]
-> > [<c05c3000>] 0xc05c3000
-> > [<c046c826>] SATTASK_GetTunerInfo+0x46/0xe0 [sttuner_core]
-> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-> > [<c04837ac>] STTUNER_DrvInst+0x1bc/0xffff911c [sttuner_core]
-> > [<c046c9fa>] SATTASK_ProcessTracking+0x13a/0x1c0 [sttuner_core]
-> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-> > [<c046d388>] SATTASK_ScanTask+0x3e8/0x620 [sttuner_core]
-> > [<c046ca80>] SATTASK_ProcessScanExact+0x0/0x340 [sttuner_core]
-> > [<c0483800>] STTUNER_DrvInst+0x210/0xffff911c [sttuner_core]
-> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-> > [<c048482c>] STTUNER_DrvInst+0x123c/0xffff911c [sttuner_core]
-> > [<c048492c>] STTUNER_DrvInst+0x133c/0xffff911c [sttuner_core]
-> > [<c04835f0>] STTUNER_DrvInst+0x0/0xffff911c [sttuner_core]
-> > [<c04836ec>] STTUNER_DrvInst+0xfc/0xffff911c [sttuner_core]
-> > [<c04836ec>] STTUNER_DrvInst+0xfc/0xffff911c [sttuner_core]
-> > [<c04848ec>] STTUNER_DrvInst+0x12fc/0xffff911c [sttuner_core]
-> > [<c04848ec>] STTUNER_DrvInst+0x12fc/0xffff911c [sttuner_core]
-> > [<c048492c>] STTUNER_DrvInst+0x133c/0xffff911c [sttuner_core]
-> > [<8442b4e4>] kthread+0xe4/0x140
-> > [<c046cfa0>] SATTASK_ScanTask+0x0/0x620 [sttuner_core]
-> > [<c0483800>] STTUNER_DrvInst+0x210/0xffff911c [sttuner_core]
-> > [<8440f4a0>] complete+0x0/0xc0
-> > [<8442b3e0>] kthread_should_stop+0x0/0x20
-> > [<84403004>] kernel_thread_helper+0x4/0x20
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> --
-> Steven Rostedt
-> Senior Programmer
-> Kihon Technologies
-> (607)786-4830
->
->
+> -----Original Message-----
+> From: Andre Hedrick [mailto:andre@linux-ide.org] 
+> Sent: Tuesday, April 18, 2006 12:33 PM
+> To: Ju, Seokmann
+> Cc: Ju, Seokmann; Andrew Morton; 
+> James.Bottomley@SteelEye.com; linux-kernel@vger.kernel.org; 
+> linux-scsi@vger.kernel.org
+> Subject: RE: [PATCH 1/1] megaraid_{mm,mbox}: fix a bug in 
+> reset handler
+> 
+> 
+> Seokmann,
+> 
+> In the case where the card or the host issues a pci master abort that
+> wedges the adapter and marks adapter->hw_error = 1 and then 
+> never recovers
+> again, where is the code to bring the card back online?  I 
+> know first hand
+> this is a problem because I am working with the firmware folk 
+> to address
+> this issue.
+> 
+> Also please explain how changing the number of times one 
+> loops from 5 F's
+> to 6 F's allows the FW to continue?  I am betting it I take 
+> the new driver
+> and the firmware posted on LSI's websight it will still crash 
+> in the same
+> conditions.  Anybody up for lunch paid by the non-winning 
+> party?  I have
+> not tested it yet but everything I see does not address the 
+> fundamental
+> issues.
+> 
+> Cheers,
+> 
+> Andre Hedrick
+> LAD Storage Consulting Group
+> 
+> On Tue, 18 Apr 2006, Ju, Seokmann wrote:
+> 
+> > Hi,
+> > 
+> > I've seen the patch 
+> (megaraid_mmmbox_fix_a_bug_in_reset_handler.patch) available 
+> on 2.6.17-rc1-mm3 under "SCSI warning fix" section.
+> > What should I do to remove "warning" tag on the patch.
+> > I've attached another patch in previous email that has 
+> 'udelay()' in the loop to remove NMI concern, and waiting for 
+> confirmation on it. Will this change remove the "warning"?
+> > 
+> > I'll submit the patch officially by end of today.
+> > 
+> > Any comment would be appreciated.
+> > 
+> > Thank you,
+> > 
+> > 
+> > > -----Original Message-----
+> > > From: Ju, Seokmann 
+> > > Sent: Monday, April 17, 2006 9:13 AM
+> > > To: 'Andre Hedrick'; Andrew Morton
+> > > Cc: James.Bottomley@SteelEye.com; 
+> > > linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
+> > > Subject: RE: [PATCH 1/1] megaraid_{mm,mbox}: fix a bug in 
+> > > reset handler
+> > > 
+> > > Hi,
+> > > 
+> > > Thank you all for comment on the issue.
+> > > From the comment, it looks having 'ndelay/udelay' would be 
+> > > right way to address the issue.
+> > > I've attached a patch for just review purpose.
+> > > Once it confirmed, I'll post the patch officially.
+> > > 
+> > > Thank you,
+> > > 
+> > > > -----Original Message-----
+> > > > From: Andre Hedrick [mailto:andre@linux-ide.org] 
+> > > > Sent: Saturday, April 15, 2006 3:10 AM
+> > > > To: Andrew Morton
+> > > > Cc: Ju, Seokmann; Ju, Seokmann; James.Bottomley@SteelEye.com; 
+> > > > linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
+> > > > Subject: Re: [PATCH 1/1] megaraid_{mm,mbox}: fix a bug in 
+> > > > reset handler
+> > > > 
+> > > > 
+> > > > Andrew,
+> > > > 
+> > > > This is real, and is a known bug which is 100% 
+> reproducable (sp).
+> > > > There are other harry issues too, but this is as much 
+> as I can say.
+> > > > 
+> > > > cpu_relax() will not work, already tried some time ago.
+> > > > 
+> > > > 
+> > > > Andre Hedrick
+> > > > LAD Storage Consulting Group
+> > > > 
+> > > > On Wed, 12 Apr 2006, Andrew Morton wrote:
+> > > > 
+> > > > > "Ju, Seokmann" <Seokmann.Ju@lsil.com> wrote:
+> > > > > >
+> > > > > > This patch has fix for a bug in the 
+> 'megaraid_reset_handler()'.
+> > > > > > 
+> > > > > >  When abort failed, the driver gets reset handleer 
+> > > > called. In the reset
+> > > > > >  handler, driver calls 'scsi_done()' callback for same 
+> > > > SCSI command
+> > > > > >  packet (struct scsi_cmnd) multiple times if there are 
+> > > > multiple SCSI
+> > > > > >  command packet in the pend_list. More over, if there are 
+> > > > entry in the
+> > > > > >  pend_lsit with IOCTL packet associated, the driver 
+> > > > returns it to wrong
+> > > > > >  free_list so that, in turn, the driver could end up with 
+> > > > 'NULL pointer
+> > > > > >  dereference..' during I/O command building with 
+> > > > incorrect resource.
+> > > > > > 
+> > > > > >  Also, the patch contains several minor/cosmetic changes 
+> > > > besides this.
+> > > > > >
+> > > > > > ..
+> > > > > >
+> > > > > > @@ -2655,32 +2655,48 @@
+> > > > > >  	// Also, reset all the commands currently owned 
+> > > by the driver
+> > > > > >  	spin_lock_irqsave(PENDING_LIST_LOCK(adapter), flags);
+> > > > > >  	list_for_each_entry_safe(scb, tmp, 
+> > > &adapter->pend_list, list) {
+> > > > > > -
+> > > > > >  		list_del_init(&scb->list);	// from 
+> > > pending list
+> > > > > >  
+> > > > > > -		con_log(CL_ANN, (KERN_WARNING
+> > > > > > -			"megaraid: %ld:%d[%d:%d], reset from 
+> > > > pending list\n",
+> > > > > > -				scp->serial_number, scb->sno,
+> > > > > > -				scb->dev_channel, 
+> > > scb->dev_target));
+> > > > > > +		if (scb->sno >= MBOX_MAX_SCSI_CMDS) {
+> > > > > > +			con_log(CL_ANN, (KERN_WARNING 
+> > > > > > +			"megaraid: IOCTL packet with %d[%d:%d] 
+> > > > being reset\n",
+> > > > > > +			scb->sno, scb->dev_channel, 
+> > > scb->dev_target));
+> > > > > >  
+> > > > > > -		scp->result = (DID_RESET << 16);
+> > > > > > -		scp->scsi_done(scp);
+> > > > > > +			scb->status = -EFAULT;
+> > > > > 
+> > > > > What is the significance of -EFAULT here?  Seems 
+> inappropriate?
+> > > > > 
+> > > > > > @@ -2918,12 +2933,12 @@
+> > > > > >  	wmb();
+> > > > > >  	WRINDOOR(raid_dev, raid_dev->mbox_dma | 0x1);
+> > > > > >  
+> > > > > > -	for (i = 0; i < 0xFFFFF; i++) {
+> > > > > > +	for (i = 0; i < 0xFFFFFF; i++) {
+> > > > > >  		if (mbox->numstatus != 0xFF) break;
+> > > > > >  		rmb();
+> > > > > >  	}
+> > > > > 
+> > > > > Oh my.  That's an awfully long interrupts-off spin.  1.7e7 
+> > > > operations with
+> > > > > an NMI watchdog timeout of five seconds - I'm surprised it 
+> > > > doesn't trigger.
+> > > > > 
+> > > > > Is that reading from a PCI register there?   Or main memory?
+> > > > > 
+> > > > > I'm somewhat surprised that the compiler never "optimises" 
+> > > > this into a
+> > > > > lockup, actually.  That's what `volatile' is for.
+> > > > > 
+> > > > > Is it not possible to do this with an interrupt?
+> > > > > 
+> > > > > A `cpu_relax()' in that loop would help cool things 
+> down a bit.
+> > > > > 
+> > > > > 
+> > > > > -
+> > > > > To unsubscribe from this list: send the line "unsubscribe 
+> > > > linux-scsi" in
+> > > > > the body of a message to majordomo@vger.kernel.org
+> > > > > More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> > > > > 
+> > > > 
+> > > > 
+> > 
+> 
+> 

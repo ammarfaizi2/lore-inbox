@@ -1,56 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWDRPMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWDRPOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWDRPMX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 11:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWDRPMX
+	id S932260AbWDRPOH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 11:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWDRPOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 11:12:23 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:13086 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932225AbWDRPMW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 11:12:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=un7VRWmMKQh+UCfnuqzHwBaiHrheOmdvuPOMAzYCeznLjSnZq8wx+KyuUCeMzONCxJcXC0lIcqaa7vjODatTDLNAQVFUP6y85RX+ViSnXrwcIb36CIPBaTi9VTfkzdNKGTD7HdZh8Z35Ns37c9oV1RdXt1MEuy1tp2X5Rbxsj8k=
-Message-ID: <9a8748490604180812i7368fdd3w9e345165d886239@mail.gmail.com>
-Date: Tue, 18 Apr 2006 17:12:21 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Axel Scheepers" <ascheepers@vianetworks.nl>
-Subject: Re: oops at reboot/shutdown in device_shutdown
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4444F060.1090503@vianetworks.nl>
+	Tue, 18 Apr 2006 11:14:07 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:35364 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S932260AbWDRPOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 11:14:06 -0400
+Message-ID: <44450238.8090701@mvista.com>
+Date: Tue, 18 Apr 2006 10:14:00 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4444F060.1090503@vianetworks.nl>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, minyard@mvista.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/char/ipmi/ipmi_msghandler.c: make proc_ipmi_root
+ static
+References: <20060418150609.GF11582@stusta.de>
+In-Reply-To: <20060418150609.GF11582@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/18/06, Axel Scheepers <ascheepers@vianetworks.nl> wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+Yes, I thought this had already been added.  Please add it.
+
+Thanks,
+
+-Corey
+
+Adrian Bunk wrote:
+
+>This patch makes the needlessly global struct proc_ipmi_root static.
 >
-> Hi All,
+>Besides this, it removes an unused #ifdef CONFIG_PROC_FS from 
+>include/linux/ipmi.h.
 >
-> I don't know if this is the right list to report this, if not excuse me
-> for posting.
-> Since kernel 2.6.16 I experience panics on reboot/shutdown in
-> device_shutdown on my dell laptop (pentium-m).
+>---
+>
+>This patch was already sent on:
+>- 13 Apr 2006
+>
+>BTW: Please add an entry for IPMI to MAINTAINERS.
+>
+> drivers/char/ipmi/ipmi_msghandler.c |    3 +--
+> include/linux/ipmi.h                |    4 ----
+> 2 files changed, 1 insertion(+), 6 deletions(-)
+>
+>--- linux-2.6.17-rc1-mm2-full/include/linux/ipmi.h.old	2006-04-12 22:32:08.000000000 +0200
+>+++ linux-2.6.17-rc1-mm2-full/include/linux/ipmi.h	2006-04-12 22:32:20.000000000 +0200
+>@@ -210,11 +210,7 @@
+>  */
+> #include <linux/list.h>
+> #include <linux/module.h>
+>-
+>-#ifdef CONFIG_PROC_FS
+> #include <linux/proc_fs.h>
+>-extern struct proc_dir_entry *proc_ipmi_root;
+>-#endif /* CONFIG_PROC_FS */
+> 
+> /* Opaque type for a IPMI message user.  One of these is needed to
+>    send and receive messages. */
+>--- linux-2.6.17-rc1-mm2-full/drivers/char/ipmi/ipmi_msghandler.c.old	2006-04-12 22:32:29.000000000 +0200
+>+++ linux-2.6.17-rc1-mm2-full/drivers/char/ipmi/ipmi_msghandler.c	2006-04-12 22:32:45.000000000 +0200
+>@@ -57,8 +57,7 @@
+> static int initialized = 0;
+> 
+> #ifdef CONFIG_PROC_FS
+>-struct proc_dir_entry *proc_ipmi_root = NULL;
+>-EXPORT_SYMBOL(proc_ipmi_root);
+>+static struct proc_dir_entry *proc_ipmi_root = NULL;
+> #endif /* CONFIG_PROC_FS */
+> 
+> #define MAX_EVENTS_IN_QUEUE	25
+>
+>  
 >
 
-Please post those panic messages (complete ones).
-It's hard to help you and/or track down the problem without them.
-
-Please also read the REPORTING-BUGS document in the kernel source for
-more info that it is usually good to provide. The more detailed info
-from you, the greater the chance that someone will find and fix the
-bug.
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

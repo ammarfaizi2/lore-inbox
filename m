@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWDRWIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWDRWK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWDRWIf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 18:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWDRWHo
+	id S1750749AbWDRWK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 18:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWDRWK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 18:07:44 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7178 "HELO
+	Tue, 18 Apr 2006 18:10:28 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9226 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750751AbWDRWH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 18:07:29 -0400
-Date: Wed, 19 Apr 2006 00:07:28 +0200
+	id S1750749AbWDRWK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 18:10:27 -0400
+Date: Wed, 19 Apr 2006 00:10:26 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Jacob Shin <jacob.shin@amd.com>
-Cc: Dave Jones <davej@redhat.com>, Thomas Renninger <trenn@suse.de>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] arch/i386/kernel/cpu/cpufreq/powernow-k8.c: fix a check-after-use
-Message-ID: <20060418220728.GU11582@stusta.de>
+To: Andrew Morton <akpm@osdl.org>,
+       Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: [-mm patch] make pci/hotplug/acpiphp_glue.c:handle_hotplug_event_func() static
+Message-ID: <20060418221026.GV11582@stusta.de>
+References: <20060418031423.3cbef2f7.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060418031423.3cbef2f7.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a check-after-use introduced by commit 
-4211a30349e8d2b724cfb4ce2584604f5e59c299 and spotted by the Coverity 
-checker.
+On Tue, Apr 18, 2006 at 03:14:23AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.17-rc1-mm2:
+>...
+> +acpiphp-use-new-dock-driver.patch
+>...
+>  ACPI fixes and features
+>...
+
+handle_hotplug_event_func() can now become static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- arch/i386/kernel/cpu/cpufreq/powernow-k8.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/pci/hotplug/acpiphp.h      |    1 -
+ drivers/pci/hotplug/acpiphp_glue.c |    5 ++++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- linux-2.6.17-rc1-mm3-full/arch/i386/kernel/cpu/cpufreq/powernow-k8.c.old	2006-04-18 20:32:27.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2006-04-18 20:33:02.000000000 +0200
-@@ -905,14 +905,17 @@ static int powernowk8_target(struct cpuf
+--- linux-2.6.17-rc1-mm3-full/drivers/pci/hotplug/acpiphp.h.old	2006-04-18 22:09:47.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/drivers/pci/hotplug/acpiphp.h	2006-04-18 22:09:58.000000000 +0200
+@@ -203,7 +203,6 @@
+ extern void acpiphp_glue_exit (void);
+ extern int acpiphp_get_num_slots (void);
+ typedef int (*acpiphp_callback)(struct acpiphp_slot *slot, void *data);
+-void handle_hotplug_event_func(acpi_handle, u32, void*);
+ 
+ extern int acpiphp_enable_slot (struct acpiphp_slot *slot);
+ extern int acpiphp_disable_slot (struct acpiphp_slot *slot);
+--- linux-2.6.17-rc1-mm3-full/drivers/pci/hotplug/acpiphp_glue.c.old	2006-04-18 22:10:26.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/drivers/pci/hotplug/acpiphp_glue.c	2006-04-18 22:11:01.000000000 +0200
+@@ -59,6 +59,8 @@
+ static void handle_hotplug_event_bridge (acpi_handle, u32, void *);
+ static void acpiphp_sanitize_bus(struct pci_bus *bus);
+ static void acpiphp_set_hpp_values(acpi_handle handle, struct pci_bus *bus);
++static void handle_hotplug_event_func(acpi_handle handle, u32 type,
++				      void *context);
+ 
+ 
+ /*
+@@ -1493,7 +1495,8 @@
+  * handles ACPI event notification on slots
+  *
+  */
+-void handle_hotplug_event_func(acpi_handle handle, u32 type, void *context)
++static void handle_hotplug_event_func(acpi_handle handle, u32 type,
++				      void *context)
  {
- 	cpumask_t oldmask = CPU_MASK_ALL;
- 	struct powernow_k8_data *data = powernow_data[pol->cpu];
--	u32 checkfid = data->currfid;
--	u32 checkvid = data->currvid;
-+	u32 checkfid;
-+	u32 checkvid;
- 	unsigned int newstate;
- 	int ret = -EIO;
- 
- 	if (!data)
- 		return -EINVAL;
- 
-+	checkfid = data->currfid;
-+	checkvid = data->currvid;
-+
- 	/* only run on specific CPU from here on */
- 	oldmask = current->cpus_allowed;
- 	set_cpus_allowed(current, cpumask_of_cpu(pol->cpu));
+ 	struct acpiphp_func *func;
+ 	char objname[64];
 

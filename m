@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWDRDQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWDRDQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWDRDQe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 23:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWDRDQe
+	id S932136AbWDRDQa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 23:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWDRDQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 23:16:34 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:39049 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751396AbWDRDQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 23:16:33 -0400
-Message-Id: <200604180316.k3I3GIvQ018967@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Danny.Weldon@treasury.qld.gov.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: No kernel message when filesystem full 
-In-Reply-To: Your message of "Tue, 18 Apr 2006 12:26:37 +1000."
-             <OFC430CAEE.2A513C3F-ON4A257154.000C8284-4A257154.000D5E15@treasury.qld.gov.au> 
-From: Valdis.Kletnieks@vt.edu
-References: <OFC430CAEE.2A513C3F-ON4A257154.000C8284-4A257154.000D5E15@treasury.qld.gov.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1145330178_2737P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 17 Apr 2006 23:16:18 -0400
+	Mon, 17 Apr 2006 23:16:30 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:5296 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751395AbWDRDQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 23:16:29 -0400
+Date: Mon, 17 Apr 2006 20:16:11 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+In-Reply-To: <20060418120016.14419e02.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0604172011490.3624@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+ <20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
+ <20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+ <20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
+ <20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
+ <20060417091830.bca60006.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604170958100.29732@schroedinger.engr.sgi.com>
+ <20060418090439.3e2f0df4.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604171724070.2752@schroedinger.engr.sgi.com>
+ <20060418094212.3ece222f.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604171856290.2986@schroedinger.engr.sgi.com>
+ <20060418120016.14419e02.kamezawa.hiroyu@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1145330178_2737P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 18 Apr 2006, KAMEZAWA Hiroyuki wrote:
 
-On Tue, 18 Apr 2006 12:26:37 +1000, Danny.Weldon@treasury.qld.gov.au said:
-> I am not getting any kernel messages when a filesystem fills up.  Is this
-> facility still available or is it now configurable?
+> I think following patch will help. but this increases complexity...
 
-> # dd if=/dev/zero of=/opt/xx
-> dd: writing to `/opt/xx': No space left on device
+Hmm... So the idea is to lock the anon vma before removing the ptes and 
+keep it until we are finished migrating. I like it! That would also reduce 
+the locking overhead.
 
-The kernel hands the program a ENOSPC back.  The program decides what to do.
-Emitting a kernel message as well just means that instead of /home being full,
-in a few minutes /home *and* /var will be full... ;)
+>  /*
+> + * When mmap->sem is not held, we have to guarantee anon_vma is not freed.
+> + */
+> +static void migrate_lock_anon_vma(struct page *page)
+> +{
+> +	unsigned long mapping;
+> +	struct anon_vma *anon_vma;
+> +	struct vm_area_struct *vma;
+> +
+> +	if (PageAnon(page))
+> +		page_lock_anon_vma(page);
+> +	/* remove migration ptes will unlock */
+> +}
 
-If you have an actual concern about a full file system, the *RIGHT* thing to do
-is to run a userspace program that does a statfs() every once in a while and
-issues a warning when the partition is at 97% or so - so that you can act
-*before* it gets full.  This is a case where proactive can actually *do*
-something, but being reactive really can't.
+We need a whole function for two statements?
 
-Yes, the kernel does issue printk()s for other things like I/O errors.  But you
-can *see* a "disk full" coming, whereas you can't (usually) predict an I/O
-error (except for at the end of a CDROM with a buggy ide-cd.c ;)
+>  	 */
+>  	anon_vma = (struct anon_vma *) (mapping - PAGE_MAPPING_ANON);
+> -	spin_lock(&anon_vma->lock);
 
+Maybe we better pass the anon_vma as a parameter?
 
---==_Exmh_1145330178_2737P
-Content-Type: application/pgp-signature
+> +++ Christoph-NewMigrationV2/mm/rmap.c
+> @@ -160,7 +160,7 @@ void anon_vma_unlink(struct vm_area_stru
+>  	empty = list_empty(&anon_vma->head);
+>  	spin_unlock(&anon_vma->lock);
+>  
+> -	if (empty)
+> +	if (empty && !anon_vma->async_refernece)
+>  		anon_vma_free(anon_vma);
+>  }
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+async_reference? What is this for? This does not exist in Linus' 
+tree.
 
-iD8DBQFERFoCcC3lWbTT17ARAnHaAJ0Sr1CqsZfUpSkXn5LzXFrLzNHhWACgrO29
-lu0wgCXWIDmUCZInxPSkym0=
-=5bYF
------END PGP SIGNATURE-----
-
---==_Exmh_1145330178_2737P--

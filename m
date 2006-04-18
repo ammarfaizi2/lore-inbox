@@ -1,85 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWDRSsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWDRSwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWDRSsz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 14:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWDRSsz
+	id S932239AbWDRSwW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 14:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWDRSwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 14:48:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58534 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932277AbWDRSsy (ORCPT
+	Tue, 18 Apr 2006 14:52:22 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:17482 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932239AbWDRSwV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 14:48:54 -0400
-Date: Tue, 18 Apr 2006 11:48:44 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Greg KH <greg@kroah.com>, Andi Kleen <ak@suse.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz, acurrid@nvidia.com,
-       amartin@nvidia.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: MSI failure on Nvidia nForce
-Message-ID: <20060418114844.49f79773@localhost.localdomain>
-In-Reply-To: <444531F8.3040109@garzik.org>
-References: <20060418111944.6ed0505e@localhost.localdomain>
-	<444531F8.3040109@garzik.org>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
-Mime-Version: 1.0
+	Tue, 18 Apr 2006 14:52:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cwZgaNkB3IO/BdYjaf4e/Yh4w90dPYM5rRt8sJ8XNsFhsCmx0nLKn1xOU0i9ZkWAucq4fqqFBRjaX7ICZHY83mWs+D93RCnpgPADXWVyQtLTcufZGSvWAUEFu+Y9Je+zon5kXTqutuPa+1J+XdeB6xNrqmSnr10se0MKi1AtNuU=
+Message-ID: <7c3341450604181152w654a1084s8924e19224f6053@mail.gmail.com>
+Date: Tue, 18 Apr 2006 19:52:19 +0100
+From: "Nick Warne" <nick.warne@gmail.com>
+Reply-To: nick@linicks.net
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: Linux 2.6.16.7
+Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060418153951.GC30485@kroah.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060418042300.GA11061@kroah.com>
+	 <20060418042345.GB11061@kroah.com> <44448DFF.3080108@ums.usu.ru>
+	 <20060418153951.GC30485@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Apr 2006 14:37:44 -0400
-Jeff Garzik <jeff@garzik.org> wrote:
+> No one has submitted it to the stable@kernel.org mail address from what
+> I can see, so no, it is not in the queue.  If you think otherwise,
+> please send it.
+>
+> thanks,
+>
+> greg k-h
 
-> Stephen Hemminger wrote:
-> > I got a report of sky2 driver irq test failing on x86_64 using
-> > the following configuration.  Is this a known problem?
-> > Should workaround be done at PCI layer?
-> > 
-> > What the driver does is setup MSI handler, then do a software generated
-> > IRQ and check that it was received (similar to tg3).  If IRQ test fails
-> > it falls back to INTx.
-> 
-> Please describe precisely -how- it fails.
-> 
-> pci_enable_msi() does not fail properly on systems that do not support 
-> MSI.  This is a major unresolved problem that is preventing MSI 
-> deployment, and causing every driver writer to include a does-MSI-work 
-> test in their driver.
-> 
-> We need to find a good generic test, or if that fails, adopt an 
-> ACPI-like rule:  whitelist systems with working MSI before $X date, and 
-> blacklist systems with broken MSI after $X date.
-> 
-> 	Jeff
-> 
+I thought the 2.6.xx.n series was the 'stable' (as per kernel.org)?
 
-The message from the driver reported was:
-
-> I'me currently getting a lot of hang up with my computer (x86_64,
-> ati,...). I've saw this message in my dmesg :
-> 
-> sky2: 0000:02:00.0: No interupt was generated using MSI, switching to
-> INTx mode. Please report this failure to the PCI maintener and include
-> system chipset information.
-
-Which means that. pci_enable_msi succeeded, but the IRQ routing was
-screwed up.. There maybe more of a BIOS problem on this system because
-the IRQ is showing up as edge triggered as well. Edge triggered interrupts
-don't work with NAPI.
-
-cat /proc/interrupts
-           CPU0
-  0:     333581    IO-APIC-edge  timer
-  1:       1461    IO-APIC-edge  i8042
-  2:          0          XT-PIC  cascade
-  7:          2    IO-APIC-edge  ehci_hcd:usb1, NVidia CK804
-  8:          0    IO-APIC-edge  rtc
-  9:          0    IO-APIC-edge  acpi
- 10:      55872    IO-APIC-edge  sky2
- 11:      21025    IO-APIC-edge  libata
- 15:         49    IO-APIC-edge  ide1
-NMI:        587
-LOC:     333569
-ERR:          0
-MIS:          0
+Nick

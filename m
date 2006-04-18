@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWDRLrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWDRLtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWDRLrr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 07:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWDRLrr
+	id S932206AbWDRLtB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 07:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWDRLtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 07:47:47 -0400
-Received: from rubis.org ([82.230.33.161]:60104 "EHLO rubis.org")
-	by vger.kernel.org with ESMTP id S932201AbWDRLrr (ORCPT
+	Tue, 18 Apr 2006 07:49:01 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:38847 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932206AbWDRLtA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 07:47:47 -0400
-Message-ID: <4444D1D5.6070903@rubis.org>
-Date: Tue, 18 Apr 2006 13:47:33 +0200
-From: =?ISO-8859-15?Q?St=E9phane_Jourdois?= <kwisatz-lkml@rubis.org>
-User-Agent: Mail/News 1.5 (X11/20060228)
+	Tue, 18 Apr 2006 07:49:00 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH -mm] swsusp: rework memory shrinker
+Date: Tue, 18 Apr 2006 13:47:54 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, kernel@kolivas.org
+References: <200604181201.53430.rjw@sisk.pl> <20060418031355.7370b1e6.akpm@osdl.org>
+In-Reply-To: <20060418031355.7370b1e6.akpm@osdl.org>
 MIME-Version: 1.0
-To: Adam Radford <linuxraid@amcc.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: 3w-9xxx status in kernel
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604181347.55259.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday 18 April 2006 12:13, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > Rework the swsusp's memory shrinker in the following way:
+> 
+> And what was the observed effect of all this?
 
-I have a question about 3w-9xxx driver versions :
+Measurable effects:
+1) It tends to free only as much memory as required, eg. if the image_size
+is set to 450 MB, the actual image sizes are almost always well above
+400 MB and they tended to be below that number without the patch
+(~5-10% of a difference, but still :-)).
+2) If image_size = 0, it frees everything that can be freed without any
+workarounds (we had to add the additional loop checking for
+ret >= nr_pages with the additional blk_congestion_wait() to the
+"original" shrinker to achieve this).
 
-3w-9xxx version in vanilla 2.6.16 is 2.26.02.005
-3w-9xxx version in 2.6.17-rc1-mm2 is 2.26.02.006
+A non-measurable effect is that with the patch applied  the system seems to
+be more responsive after resume, but of course this may be an illusion.
 
-but :
-3w-9xxx version in 3ware.com 9.3.0.3 codebase is 2.26.04.007
+> 
+> > +		/* Force reclaiming mapped pages in the passes #3 and #4 */
+> > +		if (pass > 2) {
+> > +			sc.may_swap = 1;
+> > +			vm_swappiness = 100;
+> > +		}
+> 
+> That's a bit klunky.   Maybe we should move swappiness into scan_control.
 
-
-The documentation with 9.3.0.3 codebase says it will not works with
-kernel driver <2.26.04.004. But I observe it works fine with codebase
-9.3.0.2 (the documentation says it should not).
-
-What is current status of 3w-9xxx driver in 2.6 ?
-Will it works on a 9550SX using 9.3.0.3 firmware ?
-Could you update documentation about that somewhere, for exemple in
-3w-9xxx.c header ?
-
-Thanks very much.
-
--- 
- ///  Stephane Jourdois     /"\  ASCII RIBBON CAMPAIGN \\\
-(((    Consultant securite  \ /    AGAINST HTML MAIL    )))
- \\\   24 rue Cauchy         X                         ///
-  \\\  75015  Paris         / \    +33 6 8643 3085    ///
+Alternatively we can temporarily set zone->prev_priority to 100 in
+shrink_all_zones() if pass > 2?

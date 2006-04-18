@@ -1,111 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWDRA3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWDRAkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWDRA3g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Apr 2006 20:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWDRA3g
+	id S1751334AbWDRAkc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Apr 2006 20:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWDRAkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Apr 2006 20:29:36 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:62898 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751382AbWDRA3f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Apr 2006 20:29:35 -0400
-Date: Tue, 18 Apr 2006 10:29:28 +1000
-From: David Chinner <dgc@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: shrink_dcache_sb scalability problem.
-Message-ID: <20060418002928.GB7574742@melbourne.sgi.com>
-References: <20060413082210.GM1484909@melbourne.sgi.com> <20060413015257.5b9d0972.akpm@osdl.org> <20060414034332.GN1484909@melbourne.sgi.com> <20060413222325.77f9ec9b.akpm@osdl.org>
+	Mon, 17 Apr 2006 20:40:32 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:64965 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751334AbWDRAkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Apr 2006 20:40:31 -0400
+Date: Tue, 18 Apr 2006 09:42:12 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       lee.schermerhorn@hp.com, linux-mm@kvack.org, taka@valinux.co.jp,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 5/5] Swapless V2: Revise main migration logic
+Message-Id: <20060418094212.3ece222f.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <Pine.LNX.4.64.0604171724070.2752@schroedinger.engr.sgi.com>
+References: <20060413235406.15398.42233.sendpatchset@schroedinger.engr.sgi.com>
+	<20060413235432.15398.23912.sendpatchset@schroedinger.engr.sgi.com>
+	<20060414101959.d59ac82d.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604131832020.16220@schroedinger.engr.sgi.com>
+	<20060414113455.15fd5162.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604140945320.18453@schroedinger.engr.sgi.com>
+	<20060415090639.dde469e8.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604151040450.25886@schroedinger.engr.sgi.com>
+	<20060417091830.bca60006.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604170958100.29732@schroedinger.engr.sgi.com>
+	<20060418090439.3e2f0df4.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604171724070.2752@schroedinger.engr.sgi.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060413222325.77f9ec9b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 13, 2006 at 10:23:25PM -0700, Andrew Morton wrote:
-> David Chinner <dgc@sgi.com> wrote:
-> >  I've already fixed that problem with:
-> > 
-> >  http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=1fc5d959d88a5f77aa7e4435f6c9d0e2d2236704
-> > 
-> >  and the machine showing the shrink_dcache_sb() problems is
-> >  already running that fix. That problem masked the shrink_dcache_sb
-> >  one - who notices a 10s hang when the machine has been really,
-> >  really slow for 20 minutes?
+On Mon, 17 Apr 2006 17:27:48 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
+
+> On Tue, 18 Apr 2006, KAMEZAWA Hiroyuki wrote:
 > 
-> So the problem is shrink_dcache_sb() and not regular memory reclaim?
+> > Then,
+> > 
+> > if (is_migration_entry(entry)) {
+> > 	change_to_read_migration_entry(entry);
+> > 	copy_entry(entry);
+> > }
+> > 
+> > is sane.
+> 
+> Hmmm... Looks like I need to do the patch. Is the following okay? This 
+> will also only work on cow mappings.
+> 
+I think okay.
 
-*nod*
+BTW, when copying mm, mm->mmap_sem is held. Is mm->mmap_sem is not held while 
+page migraion now ? I'm sorry I can't catch up all changes.
+or Is this needed for lazy migration (migration-on-fault) ?
 
-> What is happening on that machine to be triggering shrink_dcache_sb()? 
-> automounts?
+-Kame
 
-That was what i first suspected as themachine has lots of automounted
-directories. however, breaking into kdb when the problem occurred
-showed mounts of sysfs and /dev/pts.
+> 
+> 
+> Read/Write migration entries: Implement correct behavior in copy_one_pte
+> 
+> Migration entries with write permission must become SWP_MIGRATION_READ
+> entries if a COW mapping is processed. The migration entries from which
+> the copy is being made must also become SWP_MIGRATION_READ. This mimicks
+> the copying of pte for an anonymous page.
+> 
+> Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> 
+> Index: linux-2.6.17-rc1-mm2/mm/memory.c
+> ===================================================================
+> --- linux-2.6.17-rc1-mm2.orig/mm/memory.c	2006-04-17 16:23:50.000000000 -0700
+> +++ linux-2.6.17-rc1-mm2/mm/memory.c	2006-04-17 17:25:50.000000000 -0700
+> @@ -434,7 +434,9 @@ copy_one_pte(struct mm_struct *dst_mm, s
+>  	/* pte contains position in swap or file, so copy. */
+>  	if (unlikely(!pte_present(pte))) {
+>  		if (!pte_file(pte)) {
+> -			swap_duplicate(pte_to_swp_entry(pte));
+> +			swp_entry_t entry = pte_to_swp_entry(pte);
+> +
+> +			swap_duplicate(entry);
+>  			/* make sure dst_mm is on swapoff's mmlist. */
+>  			if (unlikely(list_empty(&dst_mm->mmlist))) {
+>  				spin_lock(&mmlist_lock);
+> @@ -443,6 +445,19 @@ copy_one_pte(struct mm_struct *dst_mm, s
+>  						 &src_mm->mmlist);
+>  				spin_unlock(&mmlist_lock);
+>  			}
+> +			if (is_migration_entry(entry) &&
+> +					is_cow_mapping(vm_flags)) {
+> +				page = migration_entry_to_page(entry);
+> +
+> +				/*
+> +				 * COW mappings require pages in both parent
+> +				*  and child to be set to read.
+> +				 */
+> +				entry = make_migration_entry(page,
+> +	`					SWP_MIGRATION_READ);
+> +				pte = swp_entry_to_pte(entry);
+> +				set_pte_at(src_mm, addr, src_pte, pte);
+> +			}
+>  		}
+>  		goto out_set_pte;
+>  	}
+> 
 
->From what I've been told, the chroot package build environment being
-used (not something we control) mounts /proc, /sys, /dev/pts, etc
-when the chroot is entered, and unmounts them after the build is
-complete. hence for every package build an engineer kicks off, we
-get multiple mounts and unmounts occurring.
-
-> We fixed a similar problem in the inode cache a year or so back by creating
-> per-superblock inode lists, so that
-> search-a-global-list-for-objects-belonging-to-this-superblock thing went
-> away.  Presumably we could fix this in the same manner.  But adding two
-> more pointers to struct dentry would hurt.
-
-*nod*
-
-I can't see æny fields we'd be able to overload, either.
-
-> An alternative might be to remove the global LRU altogether, make it
-> per-superblock.  That would reduce the quality of the LRUing, but that
-> probably wouldn't hurt a lot.
-
-That makes reclaim an interesting problem. You'd have to walk the
-superblock list to get to each lru, and then how would you ensure
-that you fairly reclaim inodes from each filesystem?
-
-> Another idea would be to take shrinker_sem for writing when running
-> shrink_dcache_sb() - that would prevent tasks from coming in and getting
-> stuck on dcache_lock, but there are plentry of other places which want
-> dcache_lock.
-
-Yeah, the contention we are seeing is from all those other places, so I
-can't see how taking the shrinker semaphore reall helps us here.
-
-> I don't immediately see any simple tweaks which would allow us to avoid that
-> long lock hold time.  Perhaps the scanning in shrink_dcache_sb() could use
-> just rcu_read_lock()...
-
-We're modifying the list as we scan it, so I can't see how we can do
-this without an exclusive lock.
-
-The other thing that I thought of over the weekend is per-node LRU
-lists and a lock per node This will reduce the length of the lists,
-allow some parallelism even while we scan and purge each list
-using the existing algorithm, and not completely destroy the LRU-ness
-of the dcache.
-
-It would also allow parallelising prune_dcache() and allow the
-shrinker to prune the local node first (i.e. where we really need
-the memory).
-
-FWIW, this is a showstopper for us. The only thing that is allowing
-us to keep running a recent kernel on this machine is the fact that
-someone is running `echo 3 > /proc/sys/vm/drop_caches` as soon
-as the slowdown manifests to blow away the dentry cache....
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group

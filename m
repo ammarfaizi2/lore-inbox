@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWDRUQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWDRUSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbWDRUQR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 16:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWDRUQR
+	id S932319AbWDRUSi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 16:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWDRUSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 16:16:17 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:11262 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932316AbWDRUQQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 16:16:16 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Gerrit Huizenga <gh@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
-       casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
-In-Reply-To: <20060418195956.GH29302@sergelap.austin.ibm.com>
-References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com>
-	 <1145386009.21723.27.camel@localhost.localdomain>
-	 <20060418195956.GH29302@sergelap.austin.ibm.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Tue, 18 Apr 2006 16:20:11 -0400
-Message-Id: <1145391612.16632.236.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 18 Apr 2006 16:18:38 -0400
+Received: from mail.linicks.net ([217.204.244.146]:10985 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S932319AbWDRUSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 16:18:37 -0400
+From: Nick Warne <nick@linicks.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Linux 2.6.16.7
+Date: Tue, 18 Apr 2006 21:18:01 +0100
+User-Agent: KMail/1.9.1
+Cc: "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+References: <20060418042300.GA11061@kroah.com> <7c3341450604181152w654a1084s8924e19224f6053@mail.gmail.com> <20060418190638.GA2992@kroah.com>
+In-Reply-To: <20060418190638.GA2992@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604182118.01490.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-18 at 14:59 -0500, Serge E. Hallyn wrote:
-> Quoting Alan Cox (alan@lxorguk.ukuu.org.uk):
-> > On Maw, 2006-04-18 at 09:50 -0700, Gerrit Huizenga wrote:
-> > > or are there places where a "less than perfect, easy to use, good enough"
-> > > security policy?  I believe there is room for both based on the end
-> > > users' needs and desires.  But that is just my opinion.
-> > 
-> > Poor security systems lead to less security than no security because it
-> > lulls people into a false sense of security. Someone who knows their
-> 
-> Not wanting to make any digs one way or another, but because the culture
-> right now refuses to admit it I must point out:
-> 
-> So does "security" which is too complicated and therefore ends up
-> misconfigured (or disabled).
+On Tuesday 18 April 2006 20:06, Greg KH wrote:
+> On Tue, Apr 18, 2006 at 07:52:19PM +0100, Nick Warne wrote:
+> > > No one has submitted it to the stable@kernel.org mail address from what
+> > > I can see, so no, it is not in the queue.  If you think otherwise,
+> > > please send it.
+> > >
+> > > thanks,
+> > >
+> > > greg k-h
+> >
+> > I thought the 2.6.xx.n series was the 'stable' (as per kernel.org)?
+>
+> Yes it is.  Did I say otherwise in those sentences?
 
-Not sure who refuses to admit it, but there is plenty of work in
-progress to improve SELinux useability.  But that doesn't require
-crippling the kernel mechanism, nor would that help.  Keep in mind as
-well that SELinux "complexity" is purely a reflection of complexity in
-Linux; SELinux just exposes the existing interactions and provides a way
-to control them.  The SELinux mechanism itself is fairly simple.  
+Argh, I see... Alexander said:
 
-> The posix caps sendmail fiasco is one example.
+> Greg KH wrote:
+>>  -EXTRAVERSION = .6
+>> +EXTRAVERSION = .7
+
+> Hello, I would like to know if there is a plan to include this in the next
+> -stable update?
+
+I misread the ref. to the different link/patch referred too...
+
+Sorry for the noise.
+
+Nick
 
 
 -- 
-Stephen Smalley
-National Security Agency
-
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb

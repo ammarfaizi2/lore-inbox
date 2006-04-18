@@ -1,39 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWDRRdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWDRRdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWDRRdt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 13:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWDRRdt
+	id S932205AbWDRRdx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 13:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWDRRdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 13:33:49 -0400
-Received: from thunk.org ([69.25.196.29]:51872 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750951AbWDRRds (ORCPT
+	Tue, 18 Apr 2006 13:33:53 -0400
+Received: from thunk.org ([69.25.196.29]:54688 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932181AbWDRRdw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 13:33:48 -0400
-Date: Tue, 18 Apr 2006 12:35:39 -0400
+	Tue, 18 Apr 2006 13:33:52 -0400
+Date: Tue, 18 Apr 2006 12:06:10 -0400
 From: "Theodore Ts'o" <tytso@mit.edu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
-       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
-       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
-       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
-       Kamal Deen <kamal@kdeen.net>
-Subject: Re: irqbalance mandatory on SMP kernels?
-Message-ID: <20060418163539.GB10933@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Lee Revell <rlrevell@joe-job.com>,
-	"Martin J. Bligh" <mbligh@mbligh.org>,
-	"Robert M. Stockmann" <stock@stokkie.net>,
-	linux-kernel@vger.kernel.org, Randy Dunlap <rddunlap@osdl.org>,
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [GIT PATCH] Fixes in the -stable tree, but not in mainline
+Message-ID: <20060418160610.GA10933@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Greg KH <gregkh@suse.de>,
 	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Manfred Spraul <manfreds@colorfullife.com>,
-	Alan Cox <alan@redhat.com>, Kamal Deen <kamal@kdeen.net>
-References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net> <4443A6D9.6040706@mbligh.org> <1145286094.16138.22.camel@mindpipe>
+	linux-kernel@vger.kernel.org
+References: <20060417212946.GA3118@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1145286094.16138.22.camel@mindpipe>
+In-Reply-To: <20060417212946.GA3118@kroah.com>
 User-Agent: Mutt/1.5.11+cvs20060126
 X-SA-Exim-Connect-IP: <locally generated>
 X-SA-Exim-Mail-From: tytso@thunk.org
@@ -41,26 +31,17 @@ X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 17, 2006 at 11:01:33AM -0400, Lee Revell wrote:
-> > There is an in-kernel IRQ balancer. Redhat just choose to turn it
-> > off, and do it in userspace instead. You can re-enable it if you
-> > compile your own kernel.
-> 
-> Round-robin IRQ balancing is inefficient anyway.  You'd get better cache
-> utilization letting one CPU take them all.
+On Mon, Apr 17, 2006 at 02:29:46PM -0700, Greg KH wrote:
+> Here are 5 patches that are in the -stable tree, yet not currently fixed
+> in your mainline tree.  One of them is a security fix, so it probably
+> would be a good idea to get it into there :)
 
-IIRC, Van Jacobsen at his Linux.conf.au presentation made a pretty
-strong argument that irq balancing was never a good idea, describing
-them as a George Bush-like policy.  "Ooh, interrupts are hurting one
-CPU --- let's hurt them **all** and trash everybody's cache!"
+I thought one of the requirements for accepting a patch into -stable
+was that it was already in mainline.  Was this a change in policy that
+I missed, or just an oversight when we vetted these patches?
 
-Which brings up an interesting question --- why do we have an IRQ
-balancer in the kernel at all?  Maybe the scheduler's load balancer
-should take this into account so that processes that have the
-misfortune of getting assigned to the wrong CPU don't get hurt too
-badly (or maybe if we have enough cores/CPU's we can afford to
-dedicate one or two CPU's to doing nothing but handling interrupts);
-but spreading IRQ's across all of the CPU's doesn't seem like it's
-ever the right answer.
+Not that I have anything against these patches, just curious in the
+future if we should NACK patches proposed for -stable if we notice
+that they aren't yet in mainline.
 
 						- Ted

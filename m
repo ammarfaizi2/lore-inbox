@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWDSQBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWDSQCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWDSQBy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 12:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbWDSQBy
+	id S1750956AbWDSQCg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 12:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWDSQCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 12:01:54 -0400
-Received: from pproxy.gmail.com ([64.233.166.183]:13590 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750962AbWDSQBx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 12:01:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SWcdnTiGjzKNj8oHk4LSGITSZrnxtPhDAr10bWoGAmsA3WKRn7LK3lXrx84JFEGlf4xEqB6+1dIvDQQtRU8TDZNmR128p1EUrI/Wg0oAzLqs5ej/GUCUaAiQevYMMplvwE2MUjFI9hVlyYOehhMDhkIhAYrrPoixWG+D1stjvqg=
-Message-ID: <35fb2e590604190901o784bfb8cj65d87d4ac354d785@mail.gmail.com>
-Date: Wed, 19 Apr 2006 17:01:52 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "androi@inwind.it" <androi@inwind.it>
-Subject: Re: Problems ejecting 4th-generation iPod with 2.6.15
-Cc: greg <greg@kroah.com>, joshk <joshk@triplehelix.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-In-Reply-To: <IXZ7WS$7C97ED4495AB8E41BB97FB4821D58030@libero.it>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <IXZ7WS$7C97ED4495AB8E41BB97FB4821D58030@libero.it>
+	Wed, 19 Apr 2006 12:02:36 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:35039 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750982AbWDSQCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 12:02:34 -0400
+Subject: RE: searching exported symbols from modules
+From: Arjan van de Ven <arjan@infradead.org>
+To: Antti Halonen <antti.halonen@secgo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <963E9E15184E2648A8BBE83CF91F5FAF5154E1@titanium.secgo.net>
+References: <963E9E15184E2648A8BBE83CF91F5FAF5154E1@titanium.secgo.net>
+Content-Type: text/plain
+Date: Wed, 19 Apr 2006 18:02:31 +0200
+Message-Id: <1145462551.3085.64.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+On Wed, 2006-04-19 at 18:59 +0300, Antti Halonen wrote:
+> > a better way would be then to have a "core" module which is basically
+> > collecting these algorithms, and then have the algorithm modules, when
+> > they are loaded, register themselves with this core module. (and
+> > unregister at unload). It's sort of inside-out with they way you're
+> > trying to do it, but it'll work out a lot nicer. Obviously the user of
+> > the algorithms can be another module in addition to this core module.
+> > (and even register algorithms itself)
+> 
+> Exactly, I agree 100%. But here's the catch: it's not an option at this
+> point in time. 
 
-On a related note, on my powerbooks here if I do an eject /dev/sda on
-the iPod then I get a choice of failure - either the process blocks
-and I pull the iPod, or the system locks hard.
+eh why not? For your module to be ever merged into mainline this change
+will need to be done anyway (and it'll save you time as well even on the
+short term)
 
-Who else is getting weird behavior when they use "eject" and don't just yank it?
-
-Jon.

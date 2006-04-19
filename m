@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWDSPwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWDSPx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750933AbWDSPwj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 11:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWDSPwj
+	id S1750958AbWDSPx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 11:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWDSPx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 11:52:39 -0400
-Received: from outgoing2.smtp.agnat.pl ([193.239.44.84]:28433 "EHLO
-	outgoing2.smtp.agnat.pl") by vger.kernel.org with ESMTP
-	id S1750940AbWDSPwi convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 11:52:38 -0400
-From: Arkadiusz Miskiewicz <arekm@maven.pl>
-Organization: SelfOrganizing
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Subject: Re: sata suspend resume ...
-Date: Wed, 19 Apr 2006 17:52:18 +0200
-User-Agent: KMail/1.9.1
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0604192324040.29606@indiana.corp.fedex.com>
-In-Reply-To: <Pine.LNX.4.64.0604192324040.29606@indiana.corp.fedex.com>
-MIME-Version: 1.0
+	Wed, 19 Apr 2006 11:53:27 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:11757 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750951AbWDSPx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 11:53:26 -0400
+Date: Wed, 19 Apr 2006 10:53:19 -0500
+From: Robin Holt <holt@sgi.com>
+To: Antti Halonen <antti.halonen@secgo.com>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: searching exported symbols from modules
+Message-ID: <20060419155318.GA31409@lnx-holt.americas.sgi.com>
+References: <963E9E15184E2648A8BBE83CF91F5FAF43619A@titanium.secgo.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200604191752.18797.arekm@maven.pl>
-X-Authenticated-Id: arekm
+In-Reply-To: <963E9E15184E2648A8BBE83CF91F5FAF43619A@titanium.secgo.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 April 2006 17:26, Jeff Chua wrote:
-> Any change of getting suspend/resume to work on my IBM X60s notebook.
->
-> Disk model is ...
->
->  	MODEL="ATA HTS541060G9SA00"
->  	FW_REV="MB3I"
->
-> Linux 2.6.17-rc2.
->
-> System suspends ok. Resume ok. but no disk access after that.
+On Wed, Apr 19, 2006 at 04:08:37PM +0300, Antti Halonen wrote:
+> 
+> Hi Dick,
+> 
+> Thanks for your response.
+> 
+> > `insmod` (or modprobe) does all this automatically. Anything that's
+> > 'extern' will get resolved. You don't do anything special. You can
+> > also use `depmod` to verify that you won't have any problems loading.
+> > `man depmod`.
+> 
+> Yes, I know insmod and herein the problem lies. I have a module where
+> I want to use functions provided by another module, _if_ it is present, 
+> otherwise use modules internal functions. 
+> 
+> So if I hardcode the function calls statically in my module, the insmod
+> goes trough of course, if the service module is present. But, it fails
+> if it's not. 
+> 
+> So, I want to load up, check if the service module is present, and use
+> it's servides.
 
-It contains AHCI, right? Then try 
-http://www.spinnaker.de/linux/c1320/sata-resume-2.6.16.5.patch
+xpc does something similar to this.  We have a module (xp.ko) which gets
+loaded.  The client modules (xpnet.ko and xpmem.ko) register with xp.ko.
+If xpc.ko is not loaded, the modules can not do any communication with
+the other partitions of an SGI machine.  If xpc gets loaded, connections
+are made to the other partitions and the modules begin to work across
+the boundaries.
 
-For some others like ata_piix ,,SATA ACPI objects support'' patch by Randy 
-Dunlap is needed AFAIK. See http://www.xenotime.net/linux/SATA for old 
-versions of these. It seems that nothing happened in this area in last 2 
-months. It no longer applies (parts of it are already in mailine, other parts 
-changed too much). Z60* ThinkPads probably need that patch.
-
-> Thanks,
-> Jeff
-
--- 
-Arkadiusz Mi¶kiewicz        PLD/Linux Team
-arekm / maven.pl            http://ftp.pld-linux.org/
+Hope that helps,
+Robin Holt

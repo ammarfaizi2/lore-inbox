@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWDSAPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWDSA27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbWDSAPh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 20:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWDSAPh
+	id S1750808AbWDSA27 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 20:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWDSA27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 20:15:37 -0400
-Received: from pproxy.gmail.com ([64.233.166.176]:46327 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750924AbWDSAPg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 20:15:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iRhkhmF2B3lkgA2JQJ21k6XG3mvkdvsx2b9HXzg9LGiNIZQNyyCGHX8bC7Ezr+NYvVItneOLjUggMtww8wa77naiXi3w1UGOlcJQq/M1oy1GgPQ2qEi051OBOmW6tt1RSGUwYCyhjls/9e4YQyN91XeifnhDjXcHJJRBbL5jVWA=
-Message-ID: <35fb2e590604181715o5c381407ya80bdc3beedc5b68@mail.gmail.com>
-Date: Wed, 19 Apr 2006 01:15:34 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "David Lang" <dlang@digitalinsight.com>
-Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0604181550380.22439@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 18 Apr 2006 20:28:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:20151 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750808AbWDSA27 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 20:28:59 -0400
+Date: Tue, 18 Apr 2006 17:25:13 -0700
+From: Greg KH <gregkh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Kernel doesn't compile with CONFIG_HOTPLUG && !CONFIG_NET
+Message-ID: <20060419002513.GA8204@suse.de>
+References: <200604190844.25476.ncunningham@cyclades.com> <20060418161614.321b61e7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060418234156.GA28346@apogee.jonmasters.org>
-	 <Pine.LNX.4.62.0604181550380.22439@qynat.qvtvafvgr.pbz>
+In-Reply-To: <20060418161614.321b61e7.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/19/06, David Lang <dlang@digitalinsight.com> wrote:
+On Tue, Apr 18, 2006 at 04:16:14PM -0700, Andrew Morton wrote:
+> Nigel Cunningham <ncunningham@cyclades.com> wrote:
+> >
+> > --- 9904.patch-old/kernel/sysctl.c	2006-04-19 08:40:47.000000000 +1000
+> > +++ 9904.patch-new/kernel/sysctl.c	2006-04-17 21:06:23.000000000 +1000
+> > @@ -401,7 +401,7 @@ static ctl_table kern_table[] = {
+> >  		.strategy	= &sysctl_string,
+> >  	},
+> >  #endif
+> > -#ifdef CONFIG_HOTPLUG
+> > +#if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
+> 
+> I've had this in -mm for a couple of weeks now but rmk points out that it's
+> rather silly.  Because if you have CONFIG_HOTPLUG=y, CONFIG_NET=n then the
+> kernel cannot deliver hotplug events to userspace..
+> 
+> So perhaps CONFIG_HOTPLUG should depend upon CONFIG_NET or, better,
+> CONFIG_NETLINK.
 
->    would it be possible to have something less then an initrd that would
-> allow the firmware blob to be packaged with the kernel?
+I have a patch in the queue from Kay that should fix this.  Hopefully...
+Will get to it tomorrow.
 
-With some modifications perhaps. I don't know if I see the value tbh :-)
+> Dunno.  I left this in Greg's lap, but he's hiding.
 
-> Your approach is just fine if the things that will need firmware are
-> compiled as modules
+Hiding?  A -stable release a day sure isn't hiding :)
 
-Hmmm. Yeah. I'm not sure what the general feeling is on this - I'm
-tempted to say that we expect modules to be used and that if they're
-not then the vendor/user has to do the hoop jumping for themselves.
-This code won't stop you from making a monolithic kernel and
-satisfying any module requirements for yourself :-)
+thanks,
 
-Jon.
+greg k-h

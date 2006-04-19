@@ -1,135 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWDSTSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWDSTSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbWDSTSe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 15:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWDSTSO
+	id S1751194AbWDSTSL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 15:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWDSTSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 15:18:14 -0400
-Received: from hera.kernel.org ([140.211.167.34]:19139 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751190AbWDSTSI (ORCPT
+	Wed, 19 Apr 2006 15:18:10 -0400
+Received: from mga03.intel.com ([143.182.124.21]:37436 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751189AbWDSTSG convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 15:18:08 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [RFC][PATCH 7/11] security: AppArmor - Misc (capabilities, data
- structures)
-Date: Wed, 19 Apr 2006 11:16:30 -0700
-Organization: OSDL
-Message-ID: <20060419111630.5643b398@localhost.localdomain>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	<20060419175002.29149.86725.sendpatchset@ermintrude.int.wirex.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1145470588 19858 10.8.0.54 (19 Apr 2006 18:16:28 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Wed, 19 Apr 2006 18:16:28 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+	Wed, 19 Apr 2006 15:18:06 -0400
+X-IronPort-AV: i="4.04,136,1144047600"; 
+   d="scan'208"; a="25145158:sNHT52056326"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 1/3] acpi: dock driver
+Date: Wed, 19 Apr 2006 12:17:49 -0700
+Message-ID: <B28E9812BAF6E2498B7EC5C427F293A4200CB5@orsmsx415.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 1/3] acpi: dock driver
+Thread-Index: AcZj2FLq0fmpNPXRRBGbcaHkkKaOCQADFeUA
+From: "Moore, Robert" <robert.moore@intel.com>
+To: "Patrick Mochel" <mochel@linux.intel.com>
+Cc: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
+       "Prarit Bhargava" <prarit@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Brown, Len" <len.brown@intel.com>, <greg@kroah.com>,
+       <linux-acpi@vger.kernel.org>, <pcihpd-discuss@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>, <arjan@linux.intel.com>,
+       <muneda.takahiro@jp.fujitsu.com>, <pavel@ucw.cz>, <temnota@kmv.ru>
+X-OriginalArrivalTime: 19 Apr 2006 19:17:50.0715 (UTC) FILETIME=[F34C1CB0:01C663E5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Apr 2006 10:50:02 -0700
-Tony Jones <tonyj@suse.de> wrote:
+Whatever makes the most sense for the host OS.
 
-> This patch implements three distinct chunks.
-> - list management, for profiles loaded into the system (profile_list) and for 
->   the set of confined tasks (subdomain_list)
-> - the proc/pid/attr interface used by userspace for setprofile (forcing
->   a task into a new profile) and changehat (switching a task into one of it's
->   defined sub profiles).  Access to change_hat is normally via code provided
->   in libapparmor. See the overview posting for more information in change hat.
-> - capability utility functions (for displaying capability names)
-> 
-> 
-> Signed-off-by: Tony Jones <tonyj@suse.de>
-> 
-> ---
->  security/apparmor/capabilities.c |   54 ++++++
->  security/apparmor/list.c         |  268 +++++++++++++++++++++++++++++++
->  security/apparmor/procattr.c     |  327 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 649 insertions(+)
-> 
-> --- /dev/null
-> +++ linux-2.6.17-rc1/security/apparmor/capabilities.c
-> @@ -0,0 +1,54 @@
-> +/*
-> + *	Copyright (C) 2005 Novell/SUSE
-> + *
-> + *	This program is free software; you can redistribute it and/or
-> + *	modify it under the terms of the GNU General Public License as
-> + *	published by the Free Software Foundation, version 2 of the
-> + *	License.
-> + *
-> + *	AppArmor capability definitions
-> + */
-> +
-> +#include "apparmor.h"
-> +
-> +static const char *cap_names[] = {
-> +	"chown",
-> +	"dac_override",
-> +	"dac_read_search",
-> +	"fowner",
-> +	"fsetid",
-> +	"kill",
-> +	"setgid",
-> +	"setuid",
-> +	"setpcap",
-> +	"linux_immutable",
-> +	"net_bind_service",
-> +	"net_broadcast",
-> +	"net_admin",
-> +	"net_raw",
-> +	"ipc_lock",
-> +	"ipc_owner",
-> +	"sys_module",
-> +	"sys_rawio",
-> +	"sys_chroot",
-> +	"sys_ptrace",
-> +	"sys_pacct",
-> +	"sys_admin",
-> +	"sys_boot",
-> +	"sys_nice",
-> +	"sys_resource",
-> +	"sys_time",
-> +	"sys_tty_config",
-> +	"mknod",
-> +	"lease"
-> +};
-> +
-> +const char *capability_to_name(unsigned int cap)
-> +{
-> +	const char *name;
-> +
-> +	name = (cap < (sizeof(cap_names) / sizeof(char *))
-> +		   ? cap_names[cap] : "invalid-capability");
-> +
-> +	return name;
-> +}
-> --- /dev/null
-> +++ linux-2.6.17-rc1/security/apparmor/list.c
-> @@ -0,0 +1,268 @@
-> +/*
-> + *	Copyright (C) 1998-2005 Novell/SUSE
-> + *
-> + *	This program is free software; you can redistribute it and/or
-> + *	modify it under the terms of the GNU General Public License as
-> + *	published by the Free Software Foundation, version 2 of the
-> + *	License.
-> + *
-> + *	AppArmor Profile List Management
-> + */
-> +
-> +#include <linux/seq_file.h>
-> +#include "apparmor.h"
-> +#include "inline.h"
-> +
-> +/* list of all profiles and lock */
-> +static LIST_HEAD(profile_list);
-> +static rwlock_t profile_lock = RW_LOCK_UNLOCKED;
-> +
-> +/* list of all subdomains and lock */
-> +static LIST_HEAD(subdomain_list);
-> +static rwlock_t subdomain_lock = RW_LOCK_UNLOCKED;
+I think the original linux/acpi drivers were developed and debugged at
+the same time we were debugging the ACPICA core code, and it became very
+convenient to use the ACPI tracing and debugging mechanism to grab
+information about everything that was going on, ACPI-wise. This may or
+may not be important today.
 
-This would be a good candidate for RCU.
+Also, there may come a time when we will decide to remove the tracing
+mechanism in ACPICA. However, over the years, this mechanism has proven
+very useful in finding problems. The execution trace is very helpful
+because of the nature of the AML interpretation and internal state
+changes.
+
+Bob
+
+
+> -----Original Message-----
+> From: Patrick Mochel [mailto:mochel@linux.intel.com]
+> Sent: Wednesday, April 19, 2006 10:37 AM
+> To: Moore, Robert
+> Cc: Accardi, Kristen C; Prarit Bhargava; Andrew Morton; Brown, Len;
+> greg@kroah.com; linux-acpi@vger.kernel.org; pcihpd-
+> discuss@lists.sourceforge.net; linux-kernel@vger.kernel.org;
+> arjan@linux.intel.com; muneda.takahiro@jp.fujitsu.com; pavel@ucw.cz;
+> temnota@kmv.ru
+> Subject: Re: [patch 1/3] acpi: dock driver
+> 
+> On Wed, Apr 19, 2006 at 10:14:46AM -0700, Moore, Robert wrote:
+> > This is something to think about before we rip out all the ACPI
+> > core-style debug stuff.
+> 
+> Not sure which part you're referring to, but maybe these:
+> 
+> > > > > --- /dev/null
+> > > > > +++ 2.6-git-kca2/drivers/acpi/dock.c
+> > > > > @@ -0,0 +1,652 @@
+> > > >
+> > > > > +#define ACPI_DOCK_COMPONENT 0x10000000
+> > > > > +#define ACPI_DOCK_DRIVER_NAME "ACPI Dock Station Driver"
+> > > > > +#define _COMPONENT		ACPI_DOCK_COMPONENT
+> > > >
+> > > > These aren't necessary for code that is outside of the ACPI-CA.
+> > >
+> > > Originally I did not include these, but it turns out if you wish
+to
+> > use
+> > > the ACPI_DEBUG macro, you need to have these things defined.  I
+did go
+> > > ahead and use this macro in a couple places, mainly because I felt
+> > that
+> > > even though this isn't strictly an acpi driver (using the acpi
+driver
+> > > model), it does live in drivers/acpi and perhaps people might
+expect
+> > to
+> > > be able to debug it the same way.
+> 
+> 
+> Some of us have already thought about it. :-)
+> 
+> We have standard debugging macros that are used in many driver
+subsystems
+> defined in include/linux/device.h (dev_printk(), dev_dbg(), dev_err(),
+and
+> friends). The ACPI drivers are not very different than other Linux
+driver
+> subsystems (at a very basic level). They are very Linux-specific (not
+> portable like the CA), and should be using Linux-specific constructs
+as
+> much as possible to match the rest of the kernel. This makes it much
+> eaiser for people to understand exactly what those drivers are doing..
+> 
+> 
+> 	Pat

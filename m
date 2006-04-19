@@ -1,217 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWDSHJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWDSHQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWDSHJv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 03:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWDSHJv
+	id S1750735AbWDSHQs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 03:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWDSHQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 03:09:51 -0400
-Received: from mail.kroah.org ([69.55.234.183]:40852 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750715AbWDSHJu (ORCPT
+	Wed, 19 Apr 2006 03:16:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:905 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750735AbWDSHQr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 03:09:50 -0400
-Date: Wed, 19 Apr 2006 00:06:12 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: stable@kernel.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.16.9
-Message-ID: <20060419070612.GB31743@kroah.com>
-References: <20060419070547.GA31743@kroah.com>
+	Wed, 19 Apr 2006 03:16:47 -0400
+Date: Wed, 19 Apr 2006 00:15:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Thayumanavar Sachithanantham" <thayumk@gmail.com>
+Cc: info-linux@geode.amd.com, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net
+Subject: Re: [PATCH]drivers/char/cs5535_gpio.c:call cdev_del during
+ module_exit to unmap kobject references and other cleanups.
+Message-Id: <20060419001547.320684bf.akpm@osdl.org>
+In-Reply-To: <3b8510d80604182352v11fea186lde1b9987447a3318@mail.gmail.com>
+References: <3b8510d80604182352v11fea186lde1b9987447a3318@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060419070547.GA31743@kroah.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 6346bb6..5696ad2 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 16
--EXTRAVERSION = .8
-+EXTRAVERSION = .9
- NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
-diff --git a/arch/i386/kernel/cpu/amd.c b/arch/i386/kernel/cpu/amd.c
-index 0810f81..d2d50cb 100644
---- a/arch/i386/kernel/cpu/amd.c
-+++ b/arch/i386/kernel/cpu/amd.c
-@@ -207,6 +207,8 @@ #define CBAR_KEY	(0X000000CB)
- 		set_bit(X86_FEATURE_K7, c->x86_capability); 
- 		break;
- 	}
-+	if (c->x86 >= 6)
-+		set_bit(X86_FEATURE_FXSAVE_LEAK, c->x86_capability);
- 
- 	display_cacheinfo(c);
- 
-diff --git a/arch/x86_64/kernel/process.c b/arch/x86_64/kernel/process.c
-index 22a05de..818ab9e 100644
---- a/arch/x86_64/kernel/process.c
-+++ b/arch/x86_64/kernel/process.c
-@@ -527,8 +527,6 @@ __switch_to(struct task_struct *prev_p, 
- 	int cpu = smp_processor_id();  
- 	struct tss_struct *tss = &per_cpu(init_tss, cpu);
- 
--	unlazy_fpu(prev_p);
--
- 	/*
- 	 * Reload esp0, LDT and the page table pointer:
- 	 */
-@@ -591,6 +589,12 @@ __switch_to(struct task_struct *prev_p, 
- 	prev->userrsp = read_pda(oldrsp); 
- 	write_pda(oldrsp, next->userrsp); 
- 	write_pda(pcurrent, next_p); 
-+
-+ 	/* This must be here to ensure both math_state_restore() and
-+	   kernel_fpu_begin() work consistently.
-+	   And the AMD workaround requires it to be after DS reload. */
-+	unlazy_fpu(prev_p);
-+
- 	write_pda(kernelstack,
- 		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
- 
-diff --git a/arch/x86_64/kernel/setup.c b/arch/x86_64/kernel/setup.c
-index aa55e3c..a4a0bb5 100644
---- a/arch/x86_64/kernel/setup.c
-+++ b/arch/x86_64/kernel/setup.c
-@@ -909,6 +909,10 @@ #endif
- 	if (c->x86 == 15 && ((level >= 0x0f48 && level < 0x0f50) || level >= 0x0f58))
- 		set_bit(X86_FEATURE_REP_GOOD, &c->x86_capability);
- 
-+	/* Enable workaround for FXSAVE leak */
-+	if (c->x86 >= 6)
-+		set_bit(X86_FEATURE_FXSAVE_LEAK, &c->x86_capability);
-+
- 	r = get_model_name(c);
- 	if (!r) { 
- 		switch (c->x86) { 
-diff --git a/include/asm-i386/cpufeature.h b/include/asm-i386/cpufeature.h
-index c4ec2a4..9d15eec 100644
---- a/include/asm-i386/cpufeature.h
-+++ b/include/asm-i386/cpufeature.h
-@@ -70,6 +70,7 @@ #define X86_FEATURE_K7		(3*32+ 5) /* Ath
- #define X86_FEATURE_P3		(3*32+ 6) /* P3 */
- #define X86_FEATURE_P4		(3*32+ 7) /* P4 */
- #define X86_FEATURE_CONSTANT_TSC (3*32+ 8) /* TSC ticks at a constant rate */
-+#define X86_FEATURE_FXSAVE_LEAK (3*32+10) /* FXSAVE leaks FOP/FIP/FOP */
- 
- /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
- #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
-diff --git a/include/asm-i386/i387.h b/include/asm-i386/i387.h
-index 152d0ba..7b1f011 100644
---- a/include/asm-i386/i387.h
-+++ b/include/asm-i386/i387.h
-@@ -13,6 +13,7 @@ #define __ASM_I386_I387_H
- 
- #include <linux/sched.h>
- #include <linux/init.h>
-+#include <linux/kernel_stat.h>
- #include <asm/processor.h>
- #include <asm/sigcontext.h>
- #include <asm/user.h>
-@@ -38,17 +39,38 @@ #define restore_fpu(tsk)			\
- extern void kernel_fpu_begin(void);
- #define kernel_fpu_end() do { stts(); preempt_enable(); } while(0)
- 
-+/* We need a safe address that is cheap to find and that is already
-+   in L1 during context switch. The best choices are unfortunately
-+   different for UP and SMP */
-+#ifdef CONFIG_SMP
-+#define safe_address (__per_cpu_offset[0])
-+#else
-+#define safe_address (kstat_cpu(0).cpustat.user)
-+#endif
-+
- /*
-  * These must be called with preempt disabled
-  */
- static inline void __save_init_fpu( struct task_struct *tsk )
- {
-+	/* Use more nops than strictly needed in case the compiler
-+	   varies code */
- 	alternative_input(
--		"fnsave %1 ; fwait ;" GENERIC_NOP2,
--		"fxsave %1 ; fnclex",
-+		"fnsave %[fx] ;fwait;" GENERIC_NOP8 GENERIC_NOP4,
-+		"fxsave %[fx]\n"
-+		"bt $7,%[fsw] ; jc 1f ; fnclex\n1:",
- 		X86_FEATURE_FXSR,
--		"m" (tsk->thread.i387.fxsave)
--		:"memory");
-+		[fx] "m" (tsk->thread.i387.fxsave),
-+		[fsw] "m" (tsk->thread.i387.fxsave.swd) : "memory");
-+	/* AMD K7/K8 CPUs don't save/restore FDP/FIP/FOP unless an exception
-+	   is pending.  Clear the x87 state here by setting it to fixed
-+   	   values. __per_cpu_offset[0] is a random variable that should be in L1 */
-+	alternative_input(
-+		GENERIC_NOP8 GENERIC_NOP2,
-+		"emms\n\t"	  	/* clear stack tags */
-+		"fildl %[addr]", 	/* set F?P to defined value */
-+		X86_FEATURE_FXSAVE_LEAK,
-+		[addr] "m" (safe_address));
- 	task_thread_info(tsk)->status &= ~TS_USEDFPU;
- }
- 
-diff --git a/include/asm-x86_64/cpufeature.h b/include/asm-x86_64/cpufeature.h
-index 76bb619..662964b 100644
---- a/include/asm-x86_64/cpufeature.h
-+++ b/include/asm-x86_64/cpufeature.h
-@@ -64,6 +64,7 @@ #define X86_FEATURE_CENTAUR_MCR	(3*32+ 3
- #define X86_FEATURE_REP_GOOD	(3*32+ 4) /* rep microcode works well on this CPU */
- #define X86_FEATURE_CONSTANT_TSC (3*32+5) /* TSC runs at constant rate */
- #define X86_FEATURE_SYNC_RDTSC  (3*32+6)  /* RDTSC syncs CPU core */
-+#define X86_FEATURE_FXSAVE_LEAK (3*32+7)  /* FIP/FOP/FDP leaks through FXSAVE */
- 
- /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
- #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
-diff --git a/include/asm-x86_64/i387.h b/include/asm-x86_64/i387.h
-index 876eb9a..cba8a3b 100644
---- a/include/asm-x86_64/i387.h
-+++ b/include/asm-x86_64/i387.h
-@@ -72,6 +72,23 @@ #define set_fpu_cwd(t,val) ((t)->thread.
- #define set_fpu_swd(t,val) ((t)->thread.i387.fxsave.swd = (val))
- #define set_fpu_fxsr_twd(t,val) ((t)->thread.i387.fxsave.twd = (val))
- 
-+#define X87_FSW_ES (1 << 7)	/* Exception Summary */
-+
-+/* AMD CPUs don't save/restore FDP/FIP/FOP unless an exception
-+   is pending. Clear the x87 state here by setting it to fixed
-+   values. The kernel data segment can be sometimes 0 and sometimes
-+   new user value. Both should be ok.
-+   Use the PDA as safe address because it should be already in L1. */
-+static inline void clear_fpu_state(struct i387_fxsave_struct *fx)
-+{
-+	if (unlikely(fx->swd & X87_FSW_ES))
-+		 asm volatile("fnclex");
-+	alternative_input(ASM_NOP8 ASM_NOP2,
-+	     	     "    emms\n"		/* clear stack tags */
-+	     	     "    fildl %%gs:0",	/* load to clear state */
-+		     X86_FEATURE_FXSAVE_LEAK);
-+}
-+
- static inline int restore_fpu_checking(struct i387_fxsave_struct *fx) 
- { 
- 	int err;
-@@ -119,6 +136,7 @@ #else
- #endif
- 	if (unlikely(err))
- 		__clear_user(fx, sizeof(struct i387_fxsave_struct));
-+	/* No need to clear here because the caller clears USED_MATH */
- 	return err;
- } 
- 
-@@ -149,7 +167,7 @@ #else
- 				"i" (offsetof(__typeof__(*tsk),
- 					      thread.i387.fxsave)));
- #endif
--	__asm__ __volatile__("fnclex");
-+	clear_fpu_state(&tsk->thread.i387.fxsave);
- }
- 
- static inline void kernel_fpu_begin(void)
+"Thayumanavar Sachithanantham" <thayumk@gmail.com> wrote:
+>
+> During module unloading, cdev_del be called to unmap cdev related
+> kobject references and other cleanups(such as inode->i_cdev being set
+> to NULL) which prevents the OOPS upon subsequent loading ,usage and
+> unloading of modules(as
+> seen in the mail thread
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114533640609018&w=2).
+> Patch against 2.6.17-rc1
+> 
+> Signed-off-by: Thayumanavar Sachithanantham <thayumk@gmail.com>
+> 
+> --- linux-2.6/drivers/char/cs5535_gpio.c.orig   2006-04-17
+> 21:37:25.000000000 -0700
+> +++ linux-2.6/drivers/char/cs5535_gpio.c        2006-04-17
+> 21:38:24.000000000 -0700
+> @@ -241,6 +241,7 @@ static int __init cs5535_gpio_init(void)
+>  static void __exit cs5535_gpio_cleanup(void)
+>  {
+>         dev_t dev_id = MKDEV(major, 0);
+> +        cdev_del(&cs5535_gpio_cdev);
+>         unregister_chrdev_region(dev_id, CS5535_GPIO_COUNT);
+
+Fair enough.  Please note that your patch was wordwrapped and had its tabs
+replaced with spaces.
+
+
+>         if (gpio_base != 0)
+>                 release_region(gpio_base, CS5535_GPIO_SIZE);
+
+>From my reading, this test of gpio_base is unneeded and wrong, btw. 
+Probably it can't be zero anyway...

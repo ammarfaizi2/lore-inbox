@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWDSDpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWDSEUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWDSDpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 23:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWDSDpZ
+	id S1750808AbWDSEUt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 00:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWDSEUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 23:45:25 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:20380 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750731AbWDSDpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 23:45:25 -0400
-Subject: Re: [PATCH 2/3] swsusp i386 mark special saveable/unsaveable pages
-From: Shaohua Li <shaohua.li@intel.com>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200604191259.57951.ncunningham@cyclades.com>
-References: <1144809501.2865.40.camel@sli10-desk.sh.intel.com>
-	 <200604191208.49386.ncunningham@cyclades.com>
-	 <1145415212.19994.15.camel@sli10-desk.sh.intel.com>
-	 <200604191259.57951.ncunningham@cyclades.com>
-Content-Type: text/plain
-Date: Wed, 19 Apr 2006 11:28:54 +0800
-Message-Id: <1145417334.19994.24.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Wed, 19 Apr 2006 00:20:49 -0400
+Received: from relay4.usu.ru ([194.226.235.39]:490 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S1750808AbWDSEUs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 00:20:48 -0400
+Message-ID: <4445BB0F.6010305@ums.usu.ru>
+Date: Wed, 19 Apr 2006 10:22:39 +0600
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, stable@kernel.org
+Subject: Re: Linux 2.6.16.7
+References: <20060418042300.GA11061@kroah.com> <20060418042345.GB11061@kroah.com> <44448DFF.3080108@ums.usu.ru> <20060418153951.GC30485@kroah.com>
+In-Reply-To: <20060418153951.GC30485@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.34.0.24; VDF: 6.34.0.200; host: usu2.usu.ru)
+X-AV-Checked: ClamAV using ClamSMTP@relay4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-19 at 12:59 +1000, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Wednesday 19 April 2006 12:53, Shaohua Li wrote:
-> > On Wed, 2006-04-19 at 12:08 +1000, Nigel Cunningham wrote:
-> > > Hi.
-> > >
-> > > On Wednesday 19 April 2006 11:51, Shaohua Li wrote:
-> > > > On Wed, 2006-04-19 at 11:41 +1000, Nigel Cunningham wrote:
-> > > > > Oh, and while we're on the topic, if only part of a page is NVS,
-> > > > > what's the right behaviour? My e820 table has:
-> > > > >
-> > > > > BIOS-e820: 000000003dff0000 - 000000003dffffc0 (ACPI data)
-> > > > > BIOS-e820: 000000003dffffc0 - 000000003e000000 (ACPI NVS)
-> > > >
-> > > > If only part of a page is NVS, my patch will save the whole page. Any
-> > > > other idea?
-> > >
-> > > A device model driver that handles saving just the part of the page,
-> > > using preallocated buffers to avoid the potential allocation problems?
-> > > (The whole page could then safely be Nosave).
-> >
-> > The allocation might not be a problem, this just needs one or two extra
-> > pages. A problem is if just part of the page is NVS, could we touch
-> > other part (save/restore) the page.
-> 
-> Yes, so I was thinking of treating it with a pseudo driver that could save and 
-> restore just that portion of the page.
-Sounds like a good idea. If NVS is already aligned to page size, do you
-still use the pseudo driver to save/restore the pages? In my system, the
-NVS memory is 512k. 
-In the other way, we could let the 'swsusp_add_arch_pages' accept
-address instead of a pfn and let snapshot.c handle the partial page
-issue.
+Greg KH wrote:
+> On Tue, Apr 18, 2006 at 12:58:07PM +0600, Alexander E. Patrakov wrote:
+>   
+>> Greg KH wrote:
+>>     
+>>> -EXTRAVERSION = .6
+>>> +EXTRAVERSION = .7
+>>>       
+>> Hello, I would like to know if there is a plan to include this in the next 
+>> -stable update?
+>>
+>> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff;h=2731570eba5b35a21c311dd587057c39805082f1;hp=dfb62998866ae2e298139164a85ec0757b7f3fc7;hb=9469d458b90bfb9117cbb488cfa645d94c3921b1;f=net/core/dev.c
+>>     
+>
+> No one has submitted it to the stable@kernel.org mail address from what
+> I can see, so no, it is not in the queue.  If you think otherwise,
+> please send it.
+>   
+Without that patch, there is a race when registering network interfaces 
+and renaming it with udev rules, because initially the "address" in 
+sysfs doesn't contain useful data. See 
+http://marc.theaimsgroup.com/?t=114460338900002&r=1&w=2
 
-> Regarding the allocation, I was originally thinking of that other ACPI 
-> allocation while atomic issue, and trying to avoid another one. I guess this 
-> is simpler though because we know ahead of time how much is needed (am I 
-> right in thinking that in the other case, the amount of memory needed isn't 
-> known ahead of time?).
-Yes, we can get the amount of memory needed ahead per the e820 map.
+Breaking the recommended way of assigning persistent network interface 
+names is, IMHO, a bug serious enough to be fixed in -stable.
 
-Thanks,
-Shaohua
+Signed-off-by: Alexander E. Patrakov <patrakov@ums.usu.ru>
+
+---
+
+--- linux-2.6.16.5/net/core/dev.c
++++ linux-2.6.16.5/net/core/dev.c
+@@ -2932,11 +2932,11 @@
+ 
+ 		switch(dev->reg_state) {
+ 		case NETREG_REGISTERING:
++			dev->reg_state = NETREG_REGISTERED;
+ 			err = netdev_register_sysfs(dev);
+ 			if (err)
+ 				printk(KERN_ERR "%s: failed sysfs registration (%d)\n",
+ 				       dev->name, err);
+-			dev->reg_state = NETREG_REGISTERED;
+ 			break;
+ 
+ 		case NETREG_UNREGISTERING:
+
+-- 
+Alexander E. Patrakov
 

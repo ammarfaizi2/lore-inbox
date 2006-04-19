@@ -1,63 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWDSMS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWDSMYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWDSMS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 08:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWDSMS2
+	id S1750755AbWDSMYo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 08:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWDSMYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 08:18:28 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:3046 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S1750709AbWDSMS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 08:18:27 -0400
-Date: Wed, 19 Apr 2006 06:18:26 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: A missing i_mutex in rename? (Linux kernel 2.6.latest)
-Message-ID: <20060419121826.GI24104@parisc-linux.org>
-References: <Pine.LNX.4.64.0604191102260.17373@hermes-1.csi.cam.ac.uk>
+	Wed, 19 Apr 2006 08:24:44 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:63404 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750726AbWDSMYn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 08:24:43 -0400
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Crispin Cowan <crispin@novell.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, casey@schaufler-ca.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+In-Reply-To: <44454DA4.90902@novell.com>
+References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com>
+	 <1145381250.19997.23.camel@jackjack.columbia.tresys.com>
+	 <44453E7B.1090009@novell.com>
+	 <1145391252.16632.231.camel@moss-spartans.epoch.ncsc.mil>
+	 <44454DA4.90902@novell.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Wed, 19 Apr 2006 08:22:55 -0400
+Message-Id: <1145449375.24289.25.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604191102260.17373@hermes-1.csi.cam.ac.uk>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 11:50:00AM +0100, Anton Altaparmakov wrote:
-> Both sys_unlink()/sys_rmdir() and sys_link() all end up taking the i_mutex 
-> on all parent directories and source/destination inodes before calling 
-> into the file system inode operations.
-> 
-> sys_rename() OTOH, does not take i_mutex on the old inode.  It only takes 
-> i_mutex on the two parent directories and on the target inode if it 
-> exists.
-> 
-> Why is this?  To me it seems that either sys_rename() must take i_mutex on 
-> the old inode or sys_unlink()/sys_rmdir(), sys_link(), etc do not need to 
-> hold the i_mutex.
-> 
-> What am I missing?
+On Tue, 2006-04-18 at 13:35 -0700, Crispin Cowan wrote:
+> Agreed, with the caveat that mediating all those things comes with
+> expense, and AppArmor doesn't mediate them by design, because our goal
+> is to keep the host from being compromised by a hacked application, not
+> to control all information flow. Different goals produce different designs.
 
-I believe the current locking scheme to be correct.  Reading
-Documentation/filesystems/directory-locking and pondering for a few
-minutes leads me to the following conclusions:
+It isn't just a matter of information flow control, although that is
+foundational to higher level confidentiality _and_ integrity guarantees.
+Perhaps a more specific example would be helpful.  Attacker compromises
+network-exposed client or server program on your system that you are
+"confining" via AppArmor.  Assume that the attacker knows that your
+system is protected by AppArmor, and has studied the AppArmor
+implementation and default configurations (no security through
+obscurity).  Knowing that AppArmor does nothing to control inter-process
+operations or IPC beyond capability checks (which are only applied when
+the base DAC checks fail or for "privileged" ops), he proceeds to
+subvert another local process via such an inter-process mechanism,
+completely unrestricted by AppArmor.  As that other local process wasn't
+"confined" by AppArmor (or protected by it against such subversion),
+attacker now has unrestricted access to the machine.  Now go back to
+your thunderbird profile that you posted elsewhere and think hard about
+the real implications of your having given it cap_setuid, without even
+knowing why. 
 
- - sys_rmdir() must take the lock on the parent directory and on the
-   victim.  If a different process is trying to create a file in the
-   victim, sys_rmdir() mustn't race with it.
- - I don't immediately see a race that taking the lock on the victim of
-   sys_unlink() solves; however, for symmetry with sys_rmdir(), it seems
-   desirable.
- - sys_link() needs to lock the target to be sure it isn't removed and
-   replaced with a directory in the meantime.
- - sys_rename() does not need to lock the old inode.  Since the parent
-   is already locked, the old inode can't be removed/renamed by a racing
-   process.  It doesn't matter if something's created or deleted from
-   within the old inode (if it's a directory), unlike rmdir().  It
-   doesn't need to be protected from a sys_link() race.
+> Also agreed, and also caveated that the general purpose system emulating
+> the simple system is much more complex than the simple system itself,
+> and simplicity is a critical part of secure design. In this case, the
+> most expensive impact on simplicity is the complexity of the policy that
+> users have to manage.
 
-If you need to lock the old inode inside ntfs for your own consistency
-purposes, that looks like it should be fine, but the VFS doesn't need to
-lock it for you.
+Assurance in the base mechanism is crucial, and it isn't possible when
+the base mechanism is relying on incomplete and inaccurate information.
+Ala pathnames.  Policy does get complex, but that is just because what
+is happening on the system is complex, and SELinux policy is analyzable,
+with open source tools available to perform extensive analysis of it.
+At the end of the day, you can say that a SELinux policy does or does
+not achieve a higher level security goal.  You can never do that with
+the AppArmor mechanism; you just never know.
+
+> Mediating by file names rather than inodes is the fundamental place
+> where we disagree. I am delighted with LSM, because it allows us to
+> disagree without having to fight about it.
+
+Here I fear you will be disappointed, as I have looked at the LSM hook
+interfaces, and I have looked at AppArmor's implementation, and it is
+clear that LSM is the wrong implementation approach for AppArmor, even
+assuming that AppArmor's technical approach is sound.  LSM just doesn't
+fit with your needs, because the hooks are at the wrong places and take
+the wrong inputs for pathname-based control.  You don't get the
+(vfsmount, dentry) pairs you need from the LSM inode hooks.  What I find
+particularly puzzling about this is that your team was involved in LSM
+development, and could have sought at the time to get that information,
+either by putting the hooks at different locations or by seeking to
+propagate the information down to the callers (although there are issues
+there).  But they didn't.  Instead, AppArmor goes through great
+contortions to get pathnames (often having to iterate through all
+possibilities) for its purposes.
+
+-- 
+Stephen Smalley
+National Security Agency
+

@@ -1,145 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWDSMCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWDSMKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWDSMCe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 08:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWDSMCe
+	id S1750746AbWDSMKl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 08:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWDSMKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 08:02:34 -0400
-Received: from main.gmane.org ([80.91.229.2]:53899 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750708AbWDSMCd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 08:02:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Martin Honermeyer <maze@strahlungsfrei.de>
-Subject: Re: [Fwd: Re: 3w-9xxx status in kernel]
-Date: Wed, 19 Apr 2006 14:04:19 +0200
-Message-ID: <e258sa$5n1$1@sea.gmane.org>
-References: <1145445387.3085.27.camel@laptopd505.fenrus.org>
+	Wed, 19 Apr 2006 08:10:41 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:20916 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750718AbWDSMKk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 08:10:40 -0400
+Date: Wed, 19 Apr 2006 07:10:34 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Kurt Garloff <garloff@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Gerrit Huizenga <gh@us.ibm.com>, James Morris <jmorris@namei.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+Message-ID: <20060419121034.GE20481@sergelap.austin.ibm.com>
+References: <20060417225525.GA17463@infradead.org> <E1FVfGt-0003Wy-00@w-gerrit.beaverton.ibm.com> <20060418115819.GB8591@infradead.org> <20060418213833.GC5741@tpkurt.garloff.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: mail.school-scout.de
-Mail-Copies-To: maze@strahlungsfrei.de
-User-Agent: KNode/0.10.2
+Content-Disposition: inline
+In-Reply-To: <20060418213833.GC5741@tpkurt.garloff.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-
-> -------- Forwarded Message --------
->> From: Martin Honermeyer <maze@strahlungsfrei.de>
->> To: linux-kernel@vger.kernel.org
->> Subject: Re: 3w-9xxx status in kernel
->> Date: Wed, 19 Apr 2006 13:02:42 +0200
->> 
->> Hi,
->> 
->> same problem over here. Why does the newest kernel contain an old version
->> of the 3w-9xxx driver?
+Quoting Kurt Garloff (garloff@suse.de):
+> Hi,
 > 
-> because nobody bothered to submit it??
-
-Okay, now I know how it works.
-
+> On Tue, Apr 18, 2006 at 12:58:19PM +0100, Christoph Hellwig wrote:
+> > It's doing access control on pathnames, which can't work in unix enviroments.
+> > It's following the default permit behaviour which causes pain in anything
+> > security-related (compare [1]).
 > 
->> 
->> We are having performance problems using a 9550SX controller. Read
->> throughput (measured with hdparm)
+> Pathnames are problematic, no doubt.
+> So AppArmor does currently do some less-than-nice things to get around
+> this.
+> On the other side, pathnames is what the admins see and use, so it is
+> the right abstraction for the sysadmin, if you want to make a higher
+> level of security available to people without the need to get them
+> a large amount of extra training.
+> So that gap needs to be bridged somehow.
+> Maybe there are better ways compared to what AA does currently, and
+> constructive suggestions are very welcome!
 > 
-> hdparm is not a good measurement tool at all for performance.
-> At least use something like tiobench (tiobench.sf.net)
+> And no, just claiming that AA is useless or crap is not constructive
+> AFAICT. And saying that is should be better done as part of SElinux
+> is not either.
 
-Thanks for the hint. Here is tiobench output:
+Ok, but...  why not?
 
-$ tiobench
-No size specified, using 2000 MB
-Run #1: /usr/bin/tiotest -t 8 -f 250 -r 500 -b 4096 -d . -TTT
+Have you ever tried, at 4pm some afternoon, sitting in a room with some
+paper and implementing the AA user interface on top of selinux?
 
+An initial selinux policy can basically be:
 
-Unit information
-================
-File size = megabytes
-Blk Size  = bytes
-Rate      = megabytes per second
-CPU%      = percentage of CPU used during the test
-Latency   = milliseconds
-Lat%      = percent of requests that took longer than X seconds
-CPU Eff   = Rate divided by CPU% - throughput per cpu load
+print "type base_t;"
 
-Sequential Reads
-                              File  Blk   Num                   Avg     
-Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency   
-Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ ---------
------------  -------- -------- -----
-2.6.15-19-amd64-xeon          2000  4096    1   46.63 7.159%     0.083     
-484.49   0.00000  0.00000   651
-2.6.15-19-amd64-xeon          2000  4096    2   34.65 10.11%     0.223     
-386.04   0.00000  0.00000   343
-2.6.15-19-amd64-xeon          2000  4096    4   15.14 8.629%     1.016    
-1128.07   0.00000  0.00000   175
-2.6.15-19-amd64-xeon          2000  4096    8   23.56 23.09%     1.209    
-2051.28   0.00020  0.00000   102
+for c in object_class:
+	"allow base_t base_t:c *;"
 
-Random Reads
-                              File  Blk   Num                   Avg     
-Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency   
-Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ ---------
------------  -------- -------- -----
-2.6.15-19-amd64-xeon          2000  4096    1    3.76 0.626%     1.037      
-99.77   0.00000  0.00000   601
-2.6.15-19-amd64-xeon          2000  4096    2    4.88 1.654%     1.545      
-97.82   0.00000  0.00000   295
-2.6.15-19-amd64-xeon          2000  4096    4    5.40 3.389%     2.673     
-208.84   0.00000  0.00000   159
-2.6.15-19-amd64-xeon          2000  4096    8    6.51 11.20%     4.013     
-261.38   0.00000  0.00000    58
+Then, if the AA user has a profile
 
-Sequential Writes
-                              File  Blk   Num                   Avg     
-Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency   
-Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ ---------
------------  -------- -------- -----
-2.6.15-19-amd64-xeon          2000  4096    1   13.05 6.946%     0.274   
-34488.77   0.00098  0.00039   188
-2.6.15-19-amd64-xeon          2000  4096    2    6.99 14.91%     0.432   
-57601.25   0.00352  0.00039    47
-2.6.15-19-amd64-xeon          2000  4096    4    7.10 53.92%     1.360   
-69873.41   0.00957  0.00176    13
-2.6.15-19-amd64-xeon          2000  4096    8    7.07 78.44%     2.813   
-71698.67   0.02441  0.00684     9
+	/bin/login {
+		/etc/shadow r
+	}
 
-Random Writes
-                              File  Blk   Num                   Avg     
-Maximum      Lat%     Lat%    CPU
-Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency   
-Latency      >2s      >10s    Eff
----------------------------- ------ ----- ---  ------ ------ ---------
------------  -------- -------- -----
-2.6.15-19-amd64-xeon          2000  4096    1    0.44 0.142%     0.010      
-11.50   0.00000  0.00000   306
-2.6.15-19-amd64-xeon          2000  4096    2    0.43 0.324%     0.009       
-0.07   0.00000  0.00000   131
-2.6.15-19-amd64-xeon          2000  4096    4    0.42 1.979%     0.031       
-0.50   0.00000  0.00000    21
-2.6.15-19-amd64-xeon          2000  4096    8    0.41 4.640%     0.077       
-1.33   0.00000  0.00000     9
+it creates domain login_t, entry type login_et assigned to /bin/login,
+and shadow_t as a type which login_t can only read, but non-restricted
+domains (i.e. base_t) can read and write.  It also makes read and write
+macros for a bunch of selinux perms (i.e. ioctl, etc), the way the
+Tresys CDE tool does.
 
+I do want LSM to survive, and am reserving my judgement of AA until
+I see the code, but if it really is just about ease of use, then
+perhaps it should be a pure userspace thing?
 
-I am especially scared of the high CPU usage in sequential writes! Btw: this
-server sits idle at the moment. Just some webserver processes running!
+OTOH perhaps there are reasons why you can't do this, and you can
+explain why the above won't work.
 
-Specs:
-Dual-Xeon 3 GHz, Ubuntu Dapper 64bit with 2.6.15 Ubuntu kernel.
-
-
-Martin
-
-
+-serge

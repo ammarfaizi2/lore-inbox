@@ -1,193 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWDSSt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWDSStK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbWDSSt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 14:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWDSSt1
+	id S1751003AbWDSStK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 14:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWDSStK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 14:49:27 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:61610 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1751118AbWDSStZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 14:49:25 -0400
-Date: Wed, 19 Apr 2006 19:49:09 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Patrick Mochel <mochel@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: PATCH [1/3]: Provide generic backlight support in Asus ACPI driver
-Message-ID: <20060419184909.GB23513@srcf.ucam.org>
-References: <20060418082952.GA13811@srcf.ucam.org> <20060418161100.GA31763@linux.intel.com>
+	Wed, 19 Apr 2006 14:49:10 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:64448 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751003AbWDSStJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 14:49:09 -0400
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Crispin Cowan <crispin@novell.com>
+Cc: Karl MacMillan <kmacmillan@tresys.com>, Gerrit Huizenga <gh@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+In-Reply-To: <44468258.1020608@novell.com>
+References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com>
+	 <1145381250.19997.23.camel@jackjack.columbia.tresys.com>
+	 <44453E7B.1090009@novell.com>
+	 <1145389813.2976.47.camel@laptopd505.fenrus.org>
+	 <44468258.1020608@novell.com>
+Content-Type: text/plain
+Date: Wed, 19 Apr 2006 20:48:55 +0200
+Message-Id: <1145472535.3085.94.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060418161100.GA31763@linux.intel.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some fixed-up versions of my patches to move acpi drivers 
-towards using the standard backlight interface. I've kept the dynamic 
-allocation of backlight_device for now, since changing that would also 
-mean changing the backlight core code and updating other drivers.
+On Wed, 2006-04-19 at 11:32 -0700, Crispin Cowan wrote:
+> Arjan van de Ven wrote:
+> > On Tue, 2006-04-18 at 12:31 -0700, Crispin Cowan wrote:
+> >   
+> >> AppArmor (then called "SubDomain") showed how this worked in practice
+> >> years before the Targeted Policy came along. The Targeted Policy
+> >> implements an approximation to the AppArmor security model, but does it
+> >> with domains and types instead of path names, imposing a substantial
+> >> cost in ease-of-use on the user.
+> >>     
+> > I would suspect that the "filename" thing will be the biggest achilles
+> > heel...
+> >   
+> The filename thing is the core point of AppArmor that distinguishes it
+> from SELinux. We argue that the work required to make pathname-based
+> access controls work in the Linux kernel is worth the effort, and we are
+> putting up the effort to achieve it.
 
-Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
+if you mean "to make it user manageable" I don't buy your argument. If
+you would have made the policy using path names, but a policy compiler
+that turns it into file object attributes + a compiled policy using
+attributes you achieve the same ease of use. However you get the
+security on the object rather than on the pointers to the object.
+ 
+> 
+> > after all what does filename mean in a linux world with
+> > * hardlinks
+> >   
+> If the policy lets you access /foo/bar/baz then you get to access
+> /foo/bar/baz, even if it is a hard link to /foo/bif.
+> 
+> Some allege that this is a security hole in AppArmor. However,
+> AppArmor's design is that you only get to create that hard link if you
+> are either unconfined or your profile says you get to create it.
+> AppArmor implicitly trusts all non-confined processes, so anything they
+> do is ok, by definition. Confined processes can create hard links, but
+> only if the policy allows them to, and you need access rights greater
+> than or equal to the access rights of the link source. In order to
+> create the source, you need to have write access, so in principal you
+> need write access to the target of your link. So, if you've subverted
+> the process and you can create the link, you already had write access
+> *anyway*.
 
-diff -ur drivers/acpi.bak/asus_acpi.c drivers/acpi/asus_acpi.c
---- drivers/acpi.bak/asus_acpi.c	2006-04-03 04:22:10 +0100
-+++ a/drivers/acpi/asus_acpi.c	2006-04-19 19:29:50 +0100
-@@ -38,6 +38,8 @@
- #include <linux/init.h>
- #include <linux/types.h>
- #include <linux/proc_fs.h>
-+#include <linux/backlight.h>
-+#include <linux/err.h>
- #include <acpi/acpi_drivers.h>
- #include <acpi/acpi_bus.h>
- #include <asm/uaccess.h>
-@@ -82,6 +84,8 @@
- module_param(asus_gid, uint, 0);
- MODULE_PARM_DESC(asus_gid, "GID for entries in /proc/acpi/asus.\n");
- 
-+static struct backlight_device *asus_backlight_device;
-+
- /* For each model, all features implemented, 
-  * those marked with R are relative to HOTK, A for absolute */
- struct model_data {
-@@ -689,7 +693,7 @@
- 	return count;
- }
- 
--static int read_brightness(void)
-+static int read_brightness(struct backlight_device *bd)
- {
- 	int value;
- 
-@@ -711,39 +715,50 @@
- /*
-  * Change the brightness level
-  */
--static void set_brightness(int value)
-+static int set_brightness(unsigned int value)
- {
- 	acpi_status status = 0;
- 
-+	if (value > 15)
-+		value = 15;
-+
- 	/* SPLV laptop */
- 	if (hotk->methods->brightness_set) {
- 		if (!write_acpi_int(hotk->handle, hotk->methods->brightness_set,
- 				    value, NULL))
- 			printk(KERN_WARNING
- 			       "Asus ACPI: Error changing brightness\n");
--		return;
-+		return -EINVAL;
- 	}
- 
- 	/* No SPLV method if we are here, act as appropriate */
--	value -= read_brightness();
-+	value -= read_brightness(NULL);
- 	while (value != 0) {
- 		status = acpi_evaluate_object(NULL, (value > 0) ?
- 					      hotk->methods->brightness_up :
- 					      hotk->methods->brightness_down,
- 					      NULL, NULL);
- 		(value > 0) ? value-- : value++;
--		if (ACPI_FAILURE(status))
-+		if (ACPI_FAILURE(status)) {
- 			printk(KERN_WARNING
- 			       "Asus ACPI: Error changing brightness\n");
-+			return -EINVAL;
-+		}		
- 	}
--	return;
-+	return 0;
-+}
-+
-+static int update_brightness(struct backlight_device *bd)
-+{
-+	int value = bd->props->brightness;
-+	return set_brightness (value);
- }
- 
- static int
- proc_read_brn(char *page, char **start, off_t off, int count, int *eof,
- 	      void *data)
- {
--	return sprintf(page, "%d\n", read_brightness());
-+	return sprintf(page, "%d\n", read_brightness(NULL));
- }
- 
- static int
-@@ -754,9 +769,7 @@
- 
- 	count = parse_arg(buffer, count, &value);
- 	if (count > 0) {
--		value = (0 < value) ? ((15 < value) ? 15 : value) : 0;
--		/* 0 <= value <= 15 */
--		set_brightness(value);
-+		set_brightness(value);
- 	} else if (count < 0) {
- 		printk(KERN_WARNING "Asus ACPI: Error reading user input\n");
- 	}
-@@ -1207,6 +1220,13 @@
- 	return 0;
- }
- 
-+static struct backlight_properties asusbl_data = {
-+	.owner          = THIS_MODULE,
-+	.get_brightness = read_brightness,
-+	.update_status  = update_brightness,
-+	.max_brightness = 15,
-+};
-+
- static int __init asus_acpi_init(void)
- {
- 	int result;
-@@ -1232,15 +1252,26 @@
- 		return -ENODEV;
- 	}
- 
-+	asus_backlight_device = backlight_device_register("asus_bl", NULL,
-+							   &asusbl_data);
-+
-+	if (IS_ERR (asus_backlight_device)) {
-+		printk("Unable to register ASUS backlight\n");
-+		asus_backlight_device = NULL;
-+	}
-+
- 	return 0;
- }
- 
- static void __exit asus_acpi_exit(void)
- {
--	acpi_bus_unregister_driver(&asus_hotk_driver);
--	remove_proc_entry(PROC_ASUS, acpi_root_dir);
-+	if (asus_backlight_device)
-+		backlight_device_unregister(asus_backlight_device);
-+
-+	acpi_bus_unregister_driver (&asus_hotk_driver);
-+	remove_proc_entry (PROC_ASUS, acpi_root_dir);
- 
--	acpi_os_free(asus_info);
-+	acpi_os_free (asus_info);
- 
- 	return;
- }
-diff -ur drivers/acpi.bak/Kconfig drivers/acpi/Kconfig
---- drivers/acpi.bak/Kconfig	2006-04-18 08:51:49 +0100
-+++ a/drivers/acpi/Kconfig	2006-04-19 19:27:08 +0100
-@@ -168,6 +168,7 @@
- config ACPI_ASUS
-         tristate "ASUS/Medion Laptop Extras"
- 	depends on X86
-+	select BACKLIGHT_DEVICE
-         ---help---
-           This driver provides support for extra features of ACPI-compatible
-           ASUS laptops. As some of Medion laptops are made by ASUS, it may also
+and this falls appart if you can compromise 2 daemons with
+non-overlapping permissions. or in many other situations ;)
+
+> 
+> > * chroot
+> >   
+> In the currently shipping AppArmor, the names AppArmor sees are
+> chroot-relative. The patch we are about to submit fixes that and the
+> names AppArmor sees are now absolute, regardless of chroot jailing.
+
+what is an absolute path? How does that work if you have namespaces or
+floating mounts? (eg after lazy umount for example)
+
+> 
+> > * namespaces
+> > * bind mounts
+> >   
+> As far as we know, our namespace support is fine; we mediate attempts to
+> modify namespaces (such as denying mount and umount)
+
+but you can trick other parts in the system to mount/umount stuff anyway
+(hal for example)
+and still clone is the part that plays with namespaces most
+
+>  and requiring
+> cap_sys_chroot to modify the root of the namespace. If there are
+> instances where we are incorrect we would greatly appreciate a detailed
+> description of the issue (or better a testcase) so we can look at
+> resolving it.
+
+you don't get to control it. Simple example: hal doing a lazy umount on
+your usb stick.
 
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+> > * unlink of open files
+> > * fd passing over unix sockets
+
+> >    you get passed
+> the fd from another process, or you call our change_hat() API.
+
+how do you validate the fd? the there no longer is a filename for that
+file (it may be unlinked, renamed, lazy umounted etc etc)
+
+> Note that d_path still returns pathnames for files that have been
+> removed from the filesystem (that are open)
+
+it does return "something". It just doesn't return meaningful pathnames.
+At all.
+
+
+> > * relative pathnames
+> >   
+> If you access "../hosts.allow" AppArmor will canonicalize your path name
+> to /etc/hosts.allow before checking the policy.
+
+and does it do that for recursive symlinks? And what if I'm dynamically
+playing with the symlink tree while you're resolving?
+
+

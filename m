@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWDSMlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWDSMof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWDSMlP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 08:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWDSMlP
+	id S1750767AbWDSMof (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 08:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWDSMof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 08:41:15 -0400
-Received: from pproxy.gmail.com ([64.233.166.177]:62662 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750731AbWDSMlO convert rfc822-to-8bit
+	Wed, 19 Apr 2006 08:44:35 -0400
+Received: from smtp.tele.fi ([192.89.123.25]:7093 "EHLO smtp.tele.fi")
+	by vger.kernel.org with ESMTP id S1750767AbWDSMoe convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 08:41:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JK/yRttg9L9Ec7p87Ueug3LUGSWag773guyxJMLyI2vFLcIIw8uep3oiA8enOmk66EKo++6rd52fRbWPVM1QqFAr6JaM6iVZNziJTwOz3Ro9h35PUj6tRjrR1oxj14swPT6p17VWkKU0dQ8tNP0rtCejJdfCu7O3IT3YMSj6rkM=
-Message-ID: <35fb2e590604190541v714d3604w544a83876e5db14a@mail.gmail.com>
-Date: Wed, 19 Apr 2006 13:41:13 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "Duncan Sands" <duncan.sands@math.u-psud.fr>
-Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200604191107.10562.duncan.sands@math.u-psud.fr>
+	Wed, 19 Apr 2006 08:44:34 -0400
+Content-class: urn:content-classes:message
+Subject: searching exported symbols from modules
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060418234156.GA28346@apogee.jonmasters.org>
-	 <200604191107.10562.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 19 Apr 2006 15:44:32 +0300
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Message-ID: <963E9E15184E2648A8BBE83CF91F5FAF436197@titanium.secgo.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: searching exported symbols from modules
+Thread-Index: AcZjrwH++7qErxWaSeGzXsRrc+xaiA==
+From: "Antti Halonen" <antti.halonen@secgo.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/19/06, Duncan Sands <duncan.sands@math.u-psud.fr> wrote:
 
-> Hi Jon,
+Hi,
 
-Hi Duncan.
+Apologies if I posted this question to wrong place.
 
-> > However, there is right now little mechanism in place to automatically
-> > determine which binary firmware blobs must be included with a kernel in
-> > order to satisfy the prerequisites of these drivers. This affects
-> > vendors, but also regular users to a certain extent too.
-> >
-> > The attached patch introduces MODULE_FIRMWARE as a mechanism for
-> > advertising that a particular firmware file is to be loaded - it will
-> > then show up via modinfo and could be used e.g. when packaging a kernel.
+Here's the thing: when loading my module 'a', I want to search modules
+list to check if module 'b' is presents, and if it is, initialize my
+function pointers to the functions module b has exported. Or at least
+search symbols from module b, whatever. The main question is; how to
+locate modules 
+by name from my module a?
 
-> I haven't really understood what problem this solves.  Is this just a
-> standardised form of documentation, or are you imagining that an automatic
-> tool will use this to auto include a minimal set of firmware files in an
-> initrd?
+Is this doable? Can anyone give me pointers? 
 
-I'm imagining that the resultant modinfo output can be used by a tool
-for anyone to package up the correct firmware to go with a given
-driver. Right now, there's no way to do that - i.e. we've gone
-backwards from a standpoint of coupling a kernel with firmware. I
-completely understand why firmware doesn't really belong in the
-kernel, so let's add this :-)
+Sorry for posting such a stupid question, but I didn't run into
+satisfactory when searching the archive & many of the functions which
+would have resolved this are apparently not exported anymore.
 
-> I'm thinking of something like this: (1) redhat (or whoever) ships
-> firmware files for every driver under the sun in /lib/firmware; (2) redhat
-> wants to allow users to have a customized initrd with only essential drivers;
-> (3) the tool goes through the list of essential drivers, looks up the firmware
-> string via MODULE_FIRMWARE, finds the file in /lib/firmware, and includes it
-> in the initrd.
+Any comments are really appreciated!
 
-That kind of thing. It's not just Red Hat who benefit - anyone who
-wants to package up a kernel and do something with it will want to
-know about firmware they might need. Including everything in
-/lib/firmware "just in case" is as ugly as having userspace tools with
-duplicated logic that need to understand about the internals of a
-driver module.
+Thanking in advance,
+antti
 
-Jon.
+

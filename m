@@ -1,39 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWDSTgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWDSTkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWDSTgN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 15:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWDSTgM
+	id S1751198AbWDSTkq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 15:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWDSTkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 15:36:12 -0400
-Received: from mail.protest.com.pl ([213.241.45.210]:1503 "EHLO
-	mail.protest.com.pl") by vger.kernel.org with ESMTP
-	id S1751185AbWDSTgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 15:36:11 -0400
-Date: Wed, 19 Apr 2006 21:36:09 +0200 (CEST)
-From: =?iso-8859-2?Q?Pawe=B3_Kowalski?= <pk@protest.com.pl>
+	Wed, 19 Apr 2006 15:40:46 -0400
+Received: from vena.lwn.net ([206.168.112.25]:36558 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S1751198AbWDSTkq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 15:40:46 -0400
+Message-ID: <20060419194045.14994.qmail@lwn.net>
 To: linux-kernel@vger.kernel.org
-Subject: problem with cache size
-Message-ID: <Pine.LNX.4.58.0604192134240.9362@filer.protest.com.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: "Hua Zhong" <hzhong@gmail.com>, "'Diego Calleja'" <diegocg@gmail.com>,
+       "'Linus Torvalds'" <torvalds@osdl.org>
+Subject: Re: splice and tee [was Linux 2.6.17-rc2]
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Wed, 19 Apr 2006 11:04:47 PDT."
+             <00ad01c663db$bf50d090$0200a8c0@nuitysystems.com> 
+Date: Wed, 19 Apr 2006 13:40:45 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm using RedHat Linux 7.2 with compiled kernel 2.4.25.
-My serwer has one cpu "Intel(R) Pentium(R) 4 CPU 3.20GHz" with HT flag so
-there are two processors in cpuinfo.
-The processor has 2MB cache but `cat /proc/cpuinfo` shows only 16KB.
-When I try to use 2.4.17 kernel, there is 2048KB cache but cpuinfo shows
-only one cpu :)
-I don't know where I should send my question, maybe You could help me.
-I'll be very thankful for any answer.
+> http://lwn.net/Articles/178199/ 
 
-Best Regards,
+Additionally, the article on tee() can be found at:
 
----
-Pawel Kowalski
+	http://lwn.net/SubscriberLink/179492/14a99324520b744f/
 
-
----
-pk
+jon

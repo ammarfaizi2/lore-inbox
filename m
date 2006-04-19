@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWDSJ4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWDSKCB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWDSJ4a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 05:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWDSJ4a
+	id S1750882AbWDSKCB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 06:02:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWDSKCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 05:56:30 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:7370 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750867AbWDSJ4a (ORCPT
+	Wed, 19 Apr 2006 06:02:01 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:30100 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750872AbWDSKCB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 05:56:30 -0400
-Message-ID: <4446094B.3070809@garzik.org>
-Date: Wed, 19 Apr 2006 05:56:27 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Wed, 19 Apr 2006 06:02:01 -0400
+Date: Wed, 19 Apr 2006 12:01:45 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>, linux-acpi@vger.kernel.org,
+       linux@dominikbrodowski.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] -mm: acpi idle __read_mostly and de-init static var
+In-Reply-To: <20060418233041.272264b6.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0604191144380.32445@scrub.home>
+References: <20060418190045.GA25749@rhlx01.fht-esslingen.de>
+ <20060418233041.272264b6.akpm@osdl.org>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] PCI quirk: VIA IRQ fixup should only run for VIA southbridges
-References: <20060419065709.GA8075@taniwha.stupidest.org>
-In-Reply-To: <20060419065709.GA8075@taniwha.stupidest.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.0 (----)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.0 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> Alan Cox pointed out that the VIA 'IRQ fixup' was erroneously running
-> on my system which has no VIA southbridge (but I do have a VIA IEEE
-> 1394 device).
+Hi,
+
+On Tue, 18 Apr 2006, Andrew Morton wrote:
+
+> Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+> >
+> > - don't remove static init value of nocst and bm_history
+> >    since __read_mostly may be special
+> >    (see e.g. http://www.ussg.iu.edu/hypermail/linux/kernel/0010.0/0771.html)
+> > 
 > 
-> This should address that.  I also changed "Via IRQ" to "VIA IRQ"
-> (initially I read Via as a capitalized via (by way/means of).
+> hm, that was six years ago.  I'm vaguely surprised that the initialisation
+> was needed even then.  It isn't needed now.  Or if it is, we need to find
+> out why and fix it.
 
-ACK
+I guess 2.7.2 was still a valid compiler then. :)
+All later versions don't behave like this, although it's still documented 
+like this: http://gcc.gnu.org/onlinedocs/gcc/Variable-Attributes.html
 
-
+bye, Roman

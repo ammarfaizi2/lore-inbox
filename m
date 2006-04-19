@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWDSOlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWDSOqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbWDSOlI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 10:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWDSOlI
+	id S1750807AbWDSOqH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 10:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWDSOqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 10:41:08 -0400
-Received: from el02.a5.com ([216.201.112.39]:913 "EHLO el02.a5.com")
-	by vger.kernel.org with ESMTP id S1750805AbWDSOlG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 10:41:06 -0400
-X-ClientAddr: 207.179.227.39
-Message-ID: <44464BD3.3060708@billgatliff.com>
-Date: Wed, 19 Apr 2006 09:40:19 -0500
-From: Bill Gatliff <bgat@billgatliff.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: RFC: rename arch/arm/mach-s3c2410 to arch/arm/mach-s3c24xx
-References: <20060418165204.GG2516@trinity.fluff.org> <4446187C.2090603@andric.com>
-In-Reply-To: <4446187C.2090603@andric.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 19 Apr 2006 10:46:07 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:1760 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750807AbWDSOqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 10:46:05 -0400
+Subject: Re: irqbalance mandatory on SMP kernels?
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Erik Mouw <erik@harddisk-recovery.com>, Lee Revell <rlrevell@joe-job.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
+       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
+       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
+       Kamal Deen <kamal@kdeen.net>
+In-Reply-To: <20060419143815.GH706@thunk.org>
+References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net>
+	 <4443A6D9.6040706@mbligh.org> <1145286094.16138.22.camel@mindpipe>
+	 <20060418163539.GB10933@thunk.org>
+	 <1145384357.2976.39.camel@laptopd505.fenrus.org>
+	 <20060419124210.GB24807@harddisk-recovery.com>
+	 <1145456594.3085.42.camel@laptopd505.fenrus.org>
+	 <20060419143815.GH706@thunk.org>
+Content-Type: text/plain
+Date: Wed, 19 Apr 2006 16:45:36 +0200
+Message-Id: <1145457937.3085.49.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-A5COM-MailScanner-Information: Please contact the ISP for more information
-X-A5COM-MailScanner: Found to be clean
-X-MailScanner-From: bgat@billgatliff.com
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimitry:
+On Wed, 2006-04-19 at 10:38 -0400, Theodore Ts'o wrote:
+> On Wed, Apr 19, 2006 at 04:23:14PM +0200, Arjan van de Ven wrote:
+> > as long as the irqs are spread the apaches will (on average) follow your
+> > irq to the right cpu. Only if you put both irqs on the same cpu you have
+> > an issue
+> 
+> Maybe I'm being stupid but I don't see how the Apache's will follow
+> the IRQ's to the right CPU.  I agree this would be a good thing to do,
+> but how does the scheduler accomplish this?
 
-Dimitry Andric wrote:
-
->Ben Dooks wrote:
->  
->
->>With the advent of the s3c2410 port adding support for
->>more of the samsung SoC product line (s3c2440, s3c2442,
->>s3c2400) there have been several requests by other people
->>to rename the (in their opinion) increasingly inaccurate
->>arch/arm/mach-s3c2410 to arch/arm/mach-s3c24xx.
->>    
->>
->
->Well, if you start this way, you might also consider renaming it to
->mach-s3cxxxx, since Samsung also seems to have S3C3410, S3C44B0 and who
->knows what else.  Otherwise you'd maybe have to do such an operation
->again in the future...
->
->Also, I've always found the dichotomy of having
->"include/asm-arm/arch-s3c2410" and "arch/arm/mach-s3c2410" rather weird.
->Isn't s3cxxxx an "architecture", instead of a specific machine?  If so,
->arch/arm/arch-s3cxxxx would be more logical.
->  
->
-
-I always interpreted the arch/arm directories to be "machines based on 
-the s3cxxxx", etc.  Thus, in my world there's no dichotomy.  But hey, 
-that's just one person's world.  :)
-
->Anyway, by starting to rename directories, you start a never-ending
->quest, and you'll stress the abilities of most version control systems
->too.  Your huge diff for just one rename operation already shows this.
->  
->
-
-It doesn't stress GNU Arch, and I bet it doesn't stress SVN or Cogito.  
-What it does do is make the kernel code appear more obvious and better 
-organized, which I see as being a good thing for future 
-maintainability's sake alone.  So I'm all for these changes.
-
->There are certainly a lot more directories (also not specifically
->arm-related ones) in the Linux kernel source that could be renamed to be
->more logical, but I'd say the cost is rather large.  E.g. difficulty
->merging patches on older kernels and other version control difficulties.
->  
->
-
-Well, now's our chance to find out whose VC systems we break.  :)  And I 
-don't see the "moving patches forward from older kernels" as being an 
-argument for locking down the current/future state of the kernel sources.
-
-
-Respectfully,
-
-
-b.g.
-
--- 
-Bill Gatliff
-bgat@billgatliff.com
+iirc this part of the kernel uses wake_up_sync() and such, which tend to
+pull the apache to the cpu (if it's idle) in the long term
+(or it ought to; at one point it did)
 

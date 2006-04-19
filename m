@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWDSElZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWDSEnC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbWDSElZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 00:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWDSElZ
+	id S1750807AbWDSEnC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 00:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWDSEnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 00:41:25 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62642
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750814AbWDSElY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 00:41:24 -0400
-Date: Tue, 18 Apr 2006 21:41:21 -0700 (PDT)
-Message-Id: <20060418.214121.80350811.davem@davemloft.net>
-To: patrakov@ums.usu.ru
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: Linux 2.6.16.7
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <4445BB0F.6010305@ums.usu.ru>
-References: <44448DFF.3080108@ums.usu.ru>
-	<20060418153951.GC30485@kroah.com>
-	<4445BB0F.6010305@ums.usu.ru>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Apr 2006 00:43:01 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:2170 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1750706AbWDSEnA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 00:43:00 -0400
+Date: Tue, 18 Apr 2006 21:42:43 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kurt Hackel <kurt.hackel@oracle.com>, ocfs2-devel@oss.oracle.com,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: [PATCH 1/5] Remove redundant NULL checks before [kv]free - in fs/
+Message-ID: <20060419044243.GJ25194@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <200604170329.11589.jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604170329.11589.jesper.juhl@gmail.com>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Date: Wed, 19 Apr 2006 10:22:39 +0600
-
-> Without that patch, there is a race when registering network interfaces 
-> and renaming it with udev rules, because initially the "address" in 
-> sysfs doesn't contain useful data. See 
-> http://marc.theaimsgroup.com/?t=114460338900002&r=1&w=2
+On Mon, Apr 17, 2006 at 03:29:11AM +0200, Jesper Juhl wrote:
+> Remove redundant NULL checks before kfree
+> for fs/
 > 
-> Breaking the recommended way of assigning persistent network interface 
-> names is, IMHO, a bug serious enough to be fixed in -stable.
-> 
-> Signed-off-by: Alexander E. Patrakov <patrakov@ums.usu.ru>
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+Acked-by: Mark Fasheh <mark.fasheh@oracle.com>
+	--Mark
 
-I've been waiting to see if there is any negative fallout
-from this change, but I guess it's OK for stable.
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com
+

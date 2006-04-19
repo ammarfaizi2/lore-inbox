@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWDSLBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWDSLFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWDSLBe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 07:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWDSLBd
+	id S1750830AbWDSLFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 07:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWDSLFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 07:01:33 -0400
-Received: from tensor.andric.com ([213.154.244.69]:17384 "EHLO
-	tensor.andric.com") by vger.kernel.org with ESMTP id S1750885AbWDSLBc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 07:01:32 -0400
-Message-ID: <4446187C.2090603@andric.com>
-Date: Wed, 19 Apr 2006 13:01:16 +0200
-From: Dimitry Andric <dimitry@andric.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060418)
-MIME-Version: 1.0
-To: Ben Dooks <ben-linux-arm@fluff.org>
-CC: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: RFC: rename arch/arm/mach-s3c2410 to arch/arm/mach-s3c24xx
-References: <20060418165204.GG2516@trinity.fluff.org>
-In-Reply-To: <20060418165204.GG2516@trinity.fluff.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Apr 2006 07:05:16 -0400
+Received: from main.gmane.org ([80.91.229.2]:35749 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750830AbWDSLFO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 07:05:14 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Martin Honermeyer <maze@strahlungsfrei.de>
+Subject: Re: 3w-9xxx status in kernel
+Date: Wed, 19 Apr 2006 13:02:42 +0200
+Message-ID: <e2558p$o5f$2@sea.gmane.org>
+References: <4444D1D5.6070903@rubis.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: mail.school-scout.de
+Mail-Copies-To: maze@strahlungsfrei.de
+User-Agent: KNode/0.10.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Dooks wrote:
-> With the advent of the s3c2410 port adding support for
-> more of the samsung SoC product line (s3c2440, s3c2442,
-> s3c2400) there have been several requests by other people
-> to rename the (in their opinion) increasingly inaccurate
-> arch/arm/mach-s3c2410 to arch/arm/mach-s3c24xx.
+Hi,
 
-Well, if you start this way, you might also consider renaming it to
-mach-s3cxxxx, since Samsung also seems to have S3C3410, S3C44B0 and who
-knows what else.  Otherwise you'd maybe have to do such an operation
-again in the future...
+same problem over here. Why does the newest kernel contain an old version of
+the 3w-9xxx driver? 
 
-Also, I've always found the dichotomy of having
-"include/asm-arm/arch-s3c2410" and "arch/arm/mach-s3c2410" rather weird.
-Isn't s3cxxxx an "architecture", instead of a specific machine?  If so,
-arch/arm/arch-s3cxxxx would be more logical.
+We are having performance problems using a 9550SX controller. Read
+throughput (measured with hdparm) is worse than on a Desktop system. We are
+considering trying to replace it with the newest driver from 3ware.com.
 
-Anyway, by starting to rename directories, you start a never-ending
-quest, and you'll stress the abilities of most version control systems
-too.  Your huge diff for just one rename operation already shows this.
+Greetz,
+Martin
 
-There are certainly a lot more directories (also not specifically
-arm-related ones) in the Linux kernel source that could be renamed to be
-more logical, but I'd say the cost is rather large.  E.g. difficulty
-merging patches on older kernels and other version control difficulties.
 
-Cheers,
-Dimitry
+Stéphane Jourdois wrote:
+
+> Hi,
+> 
+> I have a question about 3w-9xxx driver versions :
+> 
+> 3w-9xxx version in vanilla 2.6.16 is 2.26.02.005
+> 3w-9xxx version in 2.6.17-rc1-mm2 is 2.26.02.006
+> 
+> but :
+> 3w-9xxx version in 3ware.com 9.3.0.3 codebase is 2.26.04.007
+> 
+> 
+> The documentation with 9.3.0.3 codebase says it will not works with
+> kernel driver <2.26.04.004. But I observe it works fine with codebase
+> 9.3.0.2 (the documentation says it should not).
+> 
+> What is current status of 3w-9xxx driver in 2.6 ?
+> Will it works on a 9550SX using 9.3.0.3 firmware ?
+> Could you update documentation about that somewhere, for exemple in
+> 3w-9xxx.c header ?
+> 
+> Thanks very much.
+> 
+
+

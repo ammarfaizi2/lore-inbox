@@ -1,51 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWDSGwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWDSG4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWDSGwF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 02:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWDSGwF
+	id S1750840AbWDSG4k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 02:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWDSG4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 02:52:05 -0400
-Received: from nz-out-0102.google.com ([64.233.162.206]:33243 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750824AbWDSGwE convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 02:52:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=d9zJlUycf6Fzyk8+32cV2tD0vO+am/b94oLgjJ4+/tsFiBvHZCjKPu9/JMzle1J1tgReglIJiVeU/1Z2TUOpUh+V0DfMA0j68WbcazdrWSdfUyRLkMya1zqGr0gVR7pBK7D8ilg6N3a+rcn6fH2k89HHoUhe1o1HEt4EDYpE/HA=
-Message-ID: <3b8510d80604182352v11fea186lde1b9987447a3318@mail.gmail.com>
-Date: Wed, 19 Apr 2006 12:22:03 +0530
-From: "Thayumanavar Sachithanantham" <thayumk@gmail.com>
-To: akpm@osdl.org, info-linux@geode.amd.com, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net
-Subject: [PATCH]drivers/char/cs5535_gpio.c:call cdev_del during module_exit to unmap kobject references and other cleanups.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 19 Apr 2006 02:56:40 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:10630 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750824AbWDSG4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 02:56:39 -0400
+Message-Id: <200604190656.k3J6uSGW010288@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: casey@schaufler-ca.com, James Morris <jmorris@namei.org>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks 
+In-Reply-To: Your message of "Wed, 19 Apr 2006 02:40:25 EDT."
+             <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060419014857.35628.qmail@web36606.mail.mud.yahoo.com>
+            <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1145429788_10003P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 19 Apr 2006 02:56:28 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During module unloading, cdev_del be called to unmap cdev related
-kobject references and other cleanups(such as inode->i_cdev being set
-to NULL) which prevents the OOPS upon subsequent loading ,usage and
-unloading of modules(as
-seen in the mail thread
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114533640609018&w=2).
-Patch against 2.6.17-rc1
+--==_Exmh_1145429788_10003P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-off-by: Thayumanavar Sachithanantham <thayumk@gmail.com>
+On Wed, 19 Apr 2006 02:40:25 EDT, Kyle Moffett said:
+> Perhaps the SELinux model should be extended to handle (dir-inode,
+> path-entry) pairs.  For example, if I want to protect the /etc/shadow
+> file regardless of what tool is used to safely modify it, I would set
 
---- linux-2.6/drivers/char/cs5535_gpio.c.orig   2006-04-17
-21:37:25.000000000 -0700
-+++ linux-2.6/drivers/char/cs5535_gpio.c        2006-04-17
-21:38:24.000000000 -0700
-@@ -241,6 +241,7 @@ static int __init cs5535_gpio_init(void)
- static void __exit cs5535_gpio_cleanup(void)
- {
-        dev_t dev_id = MKDEV(major, 0);
-+        cdev_del(&cs5535_gpio_cdev);
-        unregister_chrdev_region(dev_id, CS5535_GPIO_COUNT);
-        if (gpio_base != 0)
-                release_region(gpio_base, CS5535_GPIO_SIZE);
+Some of us think that the tools can protect /etc/shadow just fine on their
+own, and are concerned with rogue software that abuses /etc/shadow without
+bothering to safely modify it..
+
+> up security as follows:
+> 
+> o  Protect the "/" and "/etc" directory inodes as usual under SELinux  
+> (with attributes on directory inodes).
+> o  Create pairs with (etc_inode,"shadow") and (etc_inode,"gshadow")  
+> and apply security attributes to those potentially nonexistent pairs.
+
+*bzzt* wrong.  Why should "gshadow" matter? (Think carefully about what
+happens when a setUID program gets exploited and used to scribble on /etc/shadow -
+black hats rarely bother to do locking and other such niceties....)
+
+> I'm not terribly familiar with the exact internal semantics of
+> SELinux, but that should provide a 90% solution (it fixes bind mounts
+
+90% doesn't give the security guys warm-and-fuzzies....
+
+> and namespaces).  The remaining 2 issues are hardlinks and fd-
+> passing.  For hardlinks you don't care about other links to that
+> data, you're concerned with protecting a particular filesystem
+> location, not particular contents, so you just need to prevent _new_
+> hardlinks to a protected (dir_inode, path_elem) pair, which doesn't 
+> seem very hard.
+
+It's not. include/linux/security.h:
+
+ * @inode_link:
+ *      Check permission before creating a new hard link to a file.
+ *      @old_dentry contains the dentry structure for an existing link to the file.
+ *      @dir contains the inode structure of the parent directory of the new link.
+ *      @new_dentry contains the dentry structure for the new link.
+ *      Return 0 if permission is granted.
+
+>                 For fd-passing, I don't know what to do.  Perhaps  
+> nothing.
+
+include/linux/security.h:
+
+ * @file_receive:
+ *      This hook allows security modules to control the ability of a process
+ *      to receive an open file descriptor via socket IPC.
+ *      @file contains the file structure being received.
+ *      Return 0 if permission is granted.
+
+Already a solved problem.
+
+
+
+--==_Exmh_1145429788_10003P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFERd8ccC3lWbTT17ARAvPtAJ4uGqjuSkQBG6/lYzieZkwWfjnGkwCfYe0T
+0sASB6BI4hCWt0TyRA+rMgI=
+=4mov
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1145429788_10003P--

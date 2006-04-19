@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWDSRSw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWDSRT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWDSRSw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 13:18:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWDSRSv
+	id S1751123AbWDSRT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 13:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWDSRT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 13:18:51 -0400
-Received: from mx2.suse.de ([195.135.220.15]:40089 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751115AbWDSRSv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 13:18:51 -0400
-From: Chris Mason <mason@suse.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, andrea@suse.de
-Subject: [RFC] copy_from_user races with readpage
-Date: Wed, 19 Apr 2006 13:18:45 -0400
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 19 Apr 2006 13:19:27 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:15769 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751123AbWDSRT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 13:19:26 -0400
+Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
+       sam@vilain.net, xemul@sw.ru, James Morris <jmorris@namei.org>
+In-Reply-To: <m1u08pld7d.fsf@ebiederm.dsl.xmission.com>
+References: <20060407095132.455784000@sergelap>
+	 <20060407183600.E40C119B902@sergelap.hallyn.com> <4446547B.4080206@sw.ru>
+	 <20060419152129.GA14756@sergelap.austin.ibm.com>
+	 <m1bquxmuk5.fsf@ebiederm.dsl.xmission.com>
+	 <1145463814.31812.13.camel@localhost.localdomain>
+	 <m1u08pld7d.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Wed, 19 Apr 2006 10:19:18 -0700
+Message-Id: <1145467159.31812.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604191318.45738.mason@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
+On Wed, 2006-04-19 at 10:52 -0600, Eric W. Biederman wrote:
+> Dave Hansen <haveblue@us.ibm.com> writes:
+> 
+> > Besides ipc and utsnames, can anybody think of some other things in
+> > sysctl that we really need to virtualize?
+> 
+> All of the networking entries.
+...
+> Only in that you attacked the wrong piece of the puzzle.
+> The strategy table entries simply need to die, or be rewritten
+> to use the appropriate proc entries.
 
-I've been working with IBM on a long standing bug where zeros unexpectedly pop 
-up during a disk certification test.  We tracked it down to copy_from_user.  
-A simplified form of the test works like this:
+If we are limited to ipc, utsname, and network, I'd be worried trying to
+justify _too_ much infrastructure.  The network namespaces are not going
+to be solved any time soon.  Why not have something like this which is a
+quite simple, understandable, minor hack?
 
-memset(buffer, 0x5a, 4096);
-fd = open("/dev/some_disk", O_RDWR);
-write(fd, buffer, 4096);
-pid = fork();
-if (pid) {
-    while(1) {
-        lseek(fd, 0, 0);
-        read(fd, buf2, 4096);
-    }
-} else {
-    while(1) {
-        lseek(fd, 0, 0);
-        write(fd, buffer, 4096);
-    }
-}
+> The proc entries are the real interface, and the two pieces
+> don't share an implementation unfortunately.
 
-First we fill a given block in the file with a specific pattern.  Then we 
-fork.  One proc writes that exact same pattern over and over, and the other 
-proc reads from the block over and over.
+You're saying that the proc interface doesn't use the ->strategy entry?
+That isn't what I remember, but I could be completely wrong.
 
-The reads and writes race, but you would expect the read to always see the 
-0x5a pattern.  If we introduce enough memory pressure, sometimes the read 
-sees zeros instead of the pattern because of kmap_atomic:
+-- Dave
 
-cpu1                                            cpu2
-file_write 
-(page now up to date)
-file_write                                     file_read
-__copy_from_user (atomic)
-                                                   file_read_actor
-                                                   copy_to_user
-__copy_from_user (non-atomic)
-
-The first copy_from_user fails because of a page fault.  So, the destination
-page is zero filled, which is the data found by file_read_actor().  The second 
-copy_from_user succeeds and puts the proper data in the page.
-
-The solution seems to be a non-zeroing copy_from_user, but this is only 
-required on arches where kmap_atomic incs the preemption count.  Andrea has a 
-patch for i386 that does this (small and obvious), along with some memsets to 
-zero out the kernel page when copy_from_user fails.
-
-This feature has been present for quite a while, and I think it should be 
-fixed.  But before we go through making a patch for ppc (any other arches 
-affected?) I wanted to poll here and make sure people agreed the zeros are 
-not correct.
-
--chris

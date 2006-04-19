@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWDSMjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWDSMmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWDSMjU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 08:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWDSMjU
+	id S1750747AbWDSMmN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 08:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWDSMmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 08:39:20 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:55218 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1750731AbWDSMjT (ORCPT
+	Wed, 19 Apr 2006 08:42:13 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:36230 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1750747AbWDSMmM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 08:39:19 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Crispin Cowan <crispin@novell.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Karl MacMillan <kmacmillan@tresys.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@namei.org>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-In-Reply-To: <444552A7.2020606@novell.com>
-References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com>
-	 <1145381250.19997.23.camel@jackjack.columbia.tresys.com>
-	 <44453E7B.1090009@novell.com>
-	 <1145391969.21723.41.camel@localhost.localdomain>
-	 <444552A7.2020606@novell.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Wed, 19 Apr 2006 08:40:36 -0400
-Message-Id: <1145450436.24289.39.camel@moss-spartans.epoch.ncsc.mil>
+	Wed, 19 Apr 2006 08:42:12 -0400
+Date: Wed, 19 Apr 2006 14:42:10 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Lee Revell <rlrevell@joe-job.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
+       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
+       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
+       Kamal Deen <kamal@kdeen.net>
+Subject: Re: irqbalance mandatory on SMP kernels?
+Message-ID: <20060419124210.GB24807@harddisk-recovery.com>
+References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net> <4443A6D9.6040706@mbligh.org> <1145286094.16138.22.camel@mindpipe> <20060418163539.GB10933@thunk.org> <1145384357.2976.39.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145384357.2976.39.camel@laptopd505.fenrus.org>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-18 at 13:57 -0700, Crispin Cowan wrote:
-> SELinux has NSA legacy, and that is reflected in their inode design: it
-> is much better at protecting secrecy, which is the NSA's historic
-> mission. AppArmor has legacy in intrusion prevention, and so its primary
-> design goal was to prevent compromised programs from compromising the
-> host. Name-based access control is better at that, because it lets you
-> directly control which programs can change the contents of path names
-> that have critical semantic meaning in UNIX/Linux, such as /etc/shadow,
-> /etc/hosts.allow, /srv/www/htdocs/index.html and so forth.
+On Tue, Apr 18, 2006 at 08:19:17PM +0200, Arjan van de Ven wrote:
+> > but spreading IRQ's across all of the CPU's doesn't seem like it's
+> > ever the right answer.
+> 
+> well it is in some cases, imagine having 2 cpus and 2 gige nics that are
+> very busy doing webserving. That's an obvious case where 1-nic-per-cpu
+> ends up doing the right thing... the way it ends up is that each nic has
+> a full cpu for itself and it's own apaches... almost fully independent
+> of the other one. Now if you moved both irqs to the same cpu, the
+> apaches would follow, because if they didn't then you'd be bouncing
+> their data *all the time*. And at that point the other cpu will become
+> bored ;)
 
-This is bunk, pure and simple.  The core security model of SELinux is
-Type Enforcement, and Type Enforcement was originally used for
-integrity, as a mechanism for complementing and filling in the gaps left
-by the MLS (secrecy/confidentiality) model.  Type Enforcement can be
-used for confidentiality as well, as it is just a simplification of the
-Lampson access matrix, but its original goals were integrity oriented.
-Name-based access control is _not_ better for integrity.  You don't want
-trusted program FOO (e.g. /bin/su) to accept data from an untrustworthy
-file that happens to be named /etc/shadow in your namespace, so you want
-your integrity controls to be governed by the real security attributes
-of the real object, not just its name.  The only argument I've seen
-regarding "names are better for integrity" is that it is easier to
-preserve the association when the object is re-created at that location.
-But that association may be fallacious - if an untrustworthy process
-re-created /etc/shadow, I don't want it to retain an association with
-high integrity data.
+So what happens with a dual amd64 system where each CPU has its "own"
+NIC? Something like this:
+
+
+MEM0 <--> CPU0 <--- HT ---> CPU1 <--> MEM1
+           ^                 ^
+           |                 |
+           HT                HT
+           |                 |
+           v                 v
+      PCI bridge0      PCI1 bridge
+           ^                 ^
+           |                 |
+          PCI               PCI
+           |                 |
+           v                 v
+       GigE NIC0         GigE NIC1
+
+The "best" approach would be to run an Apache on each CPU using local
+memory and NIC and having the IRQs handled by the local CPU. Does the
+irq balancer allow such a configuraion, or would it be hamperd by the
+process scheduler deciding to run both Apaches on a single CPU?
+
+
+Erik
 
 -- 
-Stephen Smalley
-National Security Agency
-
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

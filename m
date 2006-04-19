@@ -1,81 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWDSPs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWDSPvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWDSPs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 11:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbWDSPs4
+	id S1750808AbWDSPvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 11:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWDSPvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 11:48:56 -0400
-Received: from smtp6.libero.it ([193.70.192.59]:19612 "EHLO smtp6.libero.it")
-	by vger.kernel.org with ESMTP id S1750937AbWDSPsz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 11:48:55 -0400
-Date: Wed, 19 Apr 2006 17:48:28 +0200
-Message-Id: <IXZ7WS$7C97ED4495AB8E41BB97FB4821D58030@libero.it>
-Subject: Re: Problems ejecting 4th-generation iPod with 2.6.15
-MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "androi\@inwind\.it" <androi@inwind.it>
-To: "greg" <greg@kroah.com>
-Cc: "joshk" <joshk@triplehelix.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-usb-devel" <linux-usb-devel@lists.sourceforge.net>
-X-XaM3-API-Version: 4.3 (R1) (B3pl15)
-X-SenderIP: 217.220.29.248
-X-Scanned: with antispam and antivirus automated system at libero.it
+	Wed, 19 Apr 2006 11:51:09 -0400
+Received: from mail.kroah.org ([69.55.234.183]:2212 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750808AbWDSPvH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 11:51:07 -0400
+Date: Wed, 19 Apr 2006 08:44:19 -0700
+From: Greg KH <greg@kroah.com>
+To: Yuichi Nakamura <ynakam@gwu.edu>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Kurt Garloff <garloff@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, Gerrit Huizenga <gh@us.ibm.com>,
+       James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+Message-ID: <20060419154419.GB26635@kroah.com>
+References: <20060417225525.GA17463@infradead.org> <E1FVfGt-0003Wy-00@w-gerrit.beaverton.ibm.com> <20060418115819.GB8591@infradead.org> <20060418213833.GC5741@tpkurt.garloff.de> <20060419121034.GE20481@sergelap.austin.ibm.com> <e133c9da8fcba.8fcbae133c9da@gwu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e133c9da8fcba.8fcbae133c9da@gwu.edu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------- Initial Header -----------
+On Wed, Apr 19, 2006 at 08:55:56AM -0400, Yuichi Nakamura wrote:
+> However, path-name based configuration can not be achieved on SELinux in
+> following cases.
+> 1) Files on file system that does not support xattr(such as sysfs)
+>    SELinux policy editor handles all files as same on such file systems.
 
->From      : linux-kernel-owner@vger.kernel.org
-To          : "Joshua Kwan" joshk@triplehelix.org
-Cc          : linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Date      : Fri, 10 Mar 2006 08:17:06 -0800
-Subject : Re: Problems ejecting 4th-generation iPod with 2.6.15
+Hm, I've thought about this in the past and wonder if we should add
+xattr support to sysfs.  Would it be useful for things like SELinux?
+The files would not be created with any xattrs, but would be able to
+have them once they are set.  Would that be good enough?
 
+thanks,
 
-
-
-
-
-
-> On Fri, Mar 10, 2006 at 12:43:19AM -0800, Joshua Kwan wrote:
-> > Hi,
-> > 
-> > When I plug my iPod in via USB, and later eject it, I more often than
-> > not get this:
-> > 
-> > usb 5-5: reset high speed USB device using ehci_hcd and address 20
-> > usb 5-5: reset high speed USB device using ehci_hcd and address 20
-> > usb 5-5: reset high speed USB device using ehci_hcd and address 20
-> > usb 5-5: reset high speed USB device using ehci_hcd and address 20
-> > usb 5-5: reset high speed USB device using ehci_hcd and address 20
-> > sd 14:0:0:0: scsi: Device offlined - not ready after error recovery
-> > usb 5-5: USB disconnect, address 20
-> > 
-> > What's going on here?
-> 
-> Can you try 2.6.16-rc5 and let us know if that works better for you
-> here?
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
-
-
-I've the same problem, I also tried with kernel 2.6.17.rc1 but nothing :(.
-
-Any helps will be very appreciate.
-
-Thanks in advance
-
+greg k-h

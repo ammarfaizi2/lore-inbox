@@ -1,39 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWDSUZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWDSUjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWDSUZI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 16:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWDSUZH
+	id S1751207AbWDSUjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 16:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWDSUjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 16:25:07 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:30162 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1751242AbWDSUZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 16:25:05 -0400
-Date: Wed, 19 Apr 2006 21:25:00 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Patrick Mochel <mochel@linux.intel.com>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: PATCH [1/3]: Provide generic backlight support in Asus ACPI driver
-Message-ID: <20060419202500.GB24318@srcf.ucam.org>
-References: <20060418082952.GA13811@srcf.ucam.org> <20060418161100.GA31763@linux.intel.com> <20060419184909.GB23513@srcf.ucam.org> <20060419201323.GA26861@osgiliath>
+	Wed, 19 Apr 2006 16:39:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30109 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751207AbWDSUjZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 16:39:25 -0400
+Date: Wed, 19 Apr 2006 13:41:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: [RFC] copy_from_user races with readpage
+Message-Id: <20060419134148.262c61cd.akpm@osdl.org>
+In-Reply-To: <200604191318.45738.mason@suse.com>
+References: <200604191318.45738.mason@suse.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060419201323.GA26861@osgiliath>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 10:13:23PM +0200, Henrik Brix Andersen wrote:
+Chris Mason <mason@suse.com> wrote:
+>
+> Hello everyone,
+> 
+> I've been working with IBM on a long standing bug where zeros unexpectedly pop 
+> up during a disk certification test.  We tracked it down to copy_from_user.  
+> A simplified form of the test works like this:
+> 
+> memset(buffer, 0x5a, 4096);
+> fd = open("/dev/some_disk", O_RDWR);
+> write(fd, buffer, 4096);
+> pid = fork();
+> if (pid) {
+>     while(1) {
+>         lseek(fd, 0, 0);
+>         read(fd, buf2, 4096);
+>     }
+> } else {
+>     while(1) {
+>         lseek(fd, 0, 0);
+>         write(fd, buffer, 4096);
+>     }
+> }
+> 
+> First we fill a given block in the file with a specific pattern.  Then we 
+> fork.  One proc writes that exact same pattern over and over, and the other 
+> proc reads from the block over and over.
+> 
+> The reads and writes race, but you would expect the read to always see the 
+> 0x5a pattern.  If we introduce enough memory pressure, sometimes the read 
+> sees zeros instead of the pattern because of kmap_atomic:
+> 
+> cpu1                                            cpu2
+> file_write 
+> (page now up to date)
+> file_write                                     file_read
+> __copy_from_user (atomic)
+>                                                    file_read_actor
+>                                                    copy_to_user
+> __copy_from_user (non-atomic)
+> 
+> The first copy_from_user fails because of a page fault.  So, the destination
+> page is zero filled, which is the data found by file_read_actor().  The second 
+> copy_from_user succeeds and puts the proper data in the page.
 
-> Great stuff, I very much welcome these patches. Any plans for doing
-> the same for the sony_acpi.c driver found in -mm?
+Yeah.
 
-I have a half-finished one lying around - I'll check it against the -mm 
-code at some stage.
+> The solution seems to be a non-zeroing copy_from_user, but this is only 
+> required on arches where kmap_atomic incs the preemption count.  Andrea has a 
+> patch for i386 that does this (small and obvious), along with some memsets to 
+> zero out the kernel page when copy_from_user fails.
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+We need to be careful not to convert a temporarily-is-zero into
+temporarily-is-uninitialised, but that looks to be OK.
+
+> This feature has been present for quite a while, and I think it should be 
+> fixed.  But before we go through making a patch for ppc (any other arches 
+> affected?) I wanted to poll here and make sure people agreed the zeros are 
+> not correct.
+
+The application is being a bit silly, because the read will return
+indeterminate results depending on whether it gets there before or after
+the write.  But that's assuming that the read is reading the part of the
+page which the writer is writing.  If the reader is reading bytes 1000-1010
+and the writer is writing bytes 990-1000 then the reader is being non-silly
+and would be justifiably surprised to see zeroes.
+
+
+I'd have thought that a sufficient fix would be to change
+__copy_from_user_inatomic() to not do the zeroing, then review all users to
+make sure that they cannot leak uninitialised memory.

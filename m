@@ -1,146 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750919AbWDSPnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWDSPpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750919AbWDSPnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 11:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWDSPnZ
+	id S1750916AbWDSPpN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 11:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWDSPpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 11:43:25 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:6308 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750919AbWDSPnY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 11:43:24 -0400
-Message-ID: <44465C47.9050706@sw.ru>
-Date: Wed, 19 Apr 2006 19:50:31 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Wed, 19 Apr 2006 11:45:12 -0400
+Received: from pproxy.gmail.com ([64.233.166.177]:21466 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750916AbWDSPpK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 11:45:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GhuuKUrF+Us1jIlIUSjRVhOIjhCysAD3vmN0a8p0OtEK3L1goXu9S+2TsF0w5999kGwm0ND8VZdjU7r8xCJOD1eVpUUhKUY47r6L/Y+zp1GsoFJ+tt9o+azeZu+Ft5KslF1UK6eVyj0qkddJBk5K7C5DbRI1RIfF1eYRaMOe11g=
+Message-ID: <35fb2e590604190845o309f8075t1d419d625906646b@mail.gmail.com>
+Date: Wed, 19 Apr 2006 16:45:10 +0100
+From: "Jon Masters" <jonathan@jonmasters.org>
+To: "Duncan Sands" <duncan.sands@math.u-psud.fr>
+Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200604191732.08640.duncan.sands@math.u-psud.fr>
 MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       sam@vilain.net, "Eric W. Biederman" <ebiederm@xmission.com>,
-       xemul@sw.ru, James Morris <jmorris@namei.org>
-Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
-References: <20060407095132.455784000@sergelap> <20060407183600.E40C119B902@sergelap.hallyn.com> <4446547B.4080206@sw.ru> <20060419152129.GA14756@sergelap.austin.ibm.com>
-In-Reply-To: <20060419152129.GA14756@sergelap.austin.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060418234156.GA28346@apogee.jonmasters.org>
+	 <200604191107.10562.duncan.sands@math.u-psud.fr>
+	 <35fb2e590604190541v714d3604w544a83876e5db14a@mail.gmail.com>
+	 <200604191732.08640.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge,
+On 4/19/06, Duncan Sands <duncan.sands@math.u-psud.fr> wrote:
 
-> Please look closer at the patch.
-> I *am* doing nothing with sysctls.
- >
-> system_utsname no longer exists, and the way to get to that is by using
-> init_uts_ns.name.  That's all this does.
-Sorry for being not concrete enough.
-I mean switch () in the code. Until we decided how to virtualize 
-sysctls/proc, I believe no dead code/hacks should be commited. IMHO.
+> > > I haven't really understood what problem this solves.  Is this just a
+> > > standardised form of documentation, or are you imagining that an automatic
+> > > tool will use this to auto include a minimal set of firmware files in an
+> > > initrd?
+> >
+> > I'm imagining that the resultant modinfo output can be used by a tool
+> > for anyone to package up the correct firmware to go with a given
+> > driver.
 
-FYI, I strongly object against virtualizing sysctls this way as it is 
-not flexible and is a real hack from my POV.
+> If a tool is to do the packaging, then this means that the firmware must
+> already be present on the machine, for example in /lib/firmware.
 
-Sure, change of system_utsname.sysname -> init_uts_ns.name.sysname is Ok.
+Yes. Although, potentially more clever things could happen in
+userspace in the future.
 
-Thanks,
-Kirill
+> that means the role of any tool is to select a subset of the files
+> in /lib/firmware, for example a minimal set for inclusion in an initrd.
 
->>>Sysctl uts patch.  This clearly will need to be done another way, but
->>>since sysctl itself needs to be container aware, 'the right thing' is
->>>a separate patchset.
->>>
->>>Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
->>>---
->>>kernel/sysctl.c |   38 ++++++++++++++++++++++++++++----------
->>>1 files changed, 28 insertions(+), 10 deletions(-)
->>>
->>>40f7e1320c82efb6e875fc3bf44408cdfd093f21
->>>diff --git a/kernel/sysctl.c b/kernel/sysctl.c
->>>index e82726f..c2b18ef 100644
->>>--- a/kernel/sysctl.c
->>>+++ b/kernel/sysctl.c
->>>@@ -233,8 +233,8 @@ static ctl_table kern_table[] = {
->>>	{
->>>		.ctl_name	= KERN_OSTYPE,
->>>		.procname	= "ostype",
->>>-		.data		= system_utsname.sysname,
->>>-		.maxlen		= sizeof(system_utsname.sysname),
->>>+		.data		= init_uts_ns.name.sysname,
->>>+		.maxlen		= sizeof(init_uts_ns.name.sysname),
->>>		.mode		= 0444,
->>>		.proc_handler	= &proc_doutsstring,
->>>		.strategy	= &sysctl_string,
->>>@@ -242,8 +242,8 @@ static ctl_table kern_table[] = {
->>>	{
->>>		.ctl_name	= KERN_OSRELEASE,
->>>		.procname	= "osrelease",
->>>-		.data		= system_utsname.release,
->>>-		.maxlen		= sizeof(system_utsname.release),
->>>+		.data		= init_uts_ns.name.release,
->>>+		.maxlen		= sizeof(init_uts_ns.name.release),
->>>		.mode		= 0444,
->>>		.proc_handler	= &proc_doutsstring,
->>>		.strategy	= &sysctl_string,
->>>@@ -251,8 +251,8 @@ static ctl_table kern_table[] = {
->>>	{
->>>		.ctl_name	= KERN_VERSION,
->>>		.procname	= "version",
->>>-		.data		= system_utsname.version,
->>>-		.maxlen		= sizeof(system_utsname.version),
->>>+		.data		= init_uts_ns.name.version,
->>>+		.maxlen		= sizeof(init_uts_ns.name.version),
->>>		.mode		= 0444,
->>>		.proc_handler	= &proc_doutsstring,
->>>		.strategy	= &sysctl_string,
->>>@@ -260,8 +260,8 @@ static ctl_table kern_table[] = {
->>>	{
->>>		.ctl_name	= KERN_NODENAME,
->>>		.procname	= "hostname",
->>>-		.data		= system_utsname.nodename,
->>>-		.maxlen		= sizeof(system_utsname.nodename),
->>>+		.data		= init_uts_ns.name.nodename,
->>>+		.maxlen		= sizeof(init_uts_ns.name.nodename),
->>>		.mode		= 0644,
->>>		.proc_handler	= &proc_doutsstring,
->>>		.strategy	= &sysctl_string,
->>>@@ -269,8 +269,8 @@ static ctl_table kern_table[] = {
->>>	{
->>>		.ctl_name	= KERN_DOMAINNAME,
->>>		.procname	= "domainname",
->>>-		.data		= system_utsname.domainname,
->>>-		.maxlen		= sizeof(system_utsname.domainname),
->>>+		.data		= init_uts_ns.name.domainname,
->>>+		.maxlen		= sizeof(init_uts_ns.name.domainname),
->>>		.mode		= 0644,
->>>		.proc_handler	= &proc_doutsstring,
->>>		.strategy	= &sysctl_string,
->>>@@ -1619,6 +1619,24 @@ static int proc_doutsstring(ctl_table *t
->>>{
->>>	int r;
->>>
->>>+	switch (table->ctl_name) {
->>>+		case KERN_OSTYPE:
->>>+			table->data = utsname()->sysname;
->>>+			break;
->>>+		case KERN_OSRELEASE:
->>>+			table->data = utsname()->release;
->>>+			break;
->>>+		case KERN_VERSION:
->>>+			table->data = utsname()->version;
->>>+			break;
->>>+		case KERN_NODENAME:
->>>+			table->data = utsname()->nodename;
->>>+			break;
->>>+		case KERN_DOMAINNAME:
->>>+			table->data = utsname()->domainname;
->>>+			break;
->>>+	}
->>>+
->>>	if (!write) {
->>>		down_read(&uts_sem);
->>>		r=proc_dostring(table,0,filp,buffer,lenp, ppos);
->>
-> 
+For example.
 
+> Is there really any reason not to simply throw everything in
+> /lib/firmware into any initrd that is created?
 
+You /could/ just build every driver into the initrd too, and every
+firmware, and... but it might be nice if it was possible to know what
+should be where. Right now, we've lost that because decoupling
+firmware from the kernel means that tools outside of the kernel can't
+tell what firmware files should be around.
+
+> > Right now, there's no way to do that - i.e. we've gone
+> > backwards from a standpoint of coupling a kernel with firmware. I
+> > completely understand why firmware doesn't really belong in the
+> > kernel, so let's add this :-)
+>
+> I guess a big difference between the speedtouch and the kinds of drivers
+> you seem to be thinking of, is that in your case there is a fairly tight
+> coupling between firmware and driver versions: a given driver version will
+> only work with a certain version of the firmware and vice-versa.  In the case
+> of the speedtouch, we have no control over (and not much knowledge about)
+> which firmware gets given to people along with their modems, so there is really
+> no coupling at all between firmware versions and driver versions.
+
+I've also repeatedly said that I don't think this really helps with
+things like speedtouch since you can't distribute that firmware
+anyway. This patch does help people who play nicely with the kernel
+who are migrating away from shoving blobs into the kernel (quite
+rightly) and who supply redistributable firmware. One example might be
+the QLogic driver in my RFC.
+
+> > That kind of thing. It's not just Red Hat who benefit - anyone who
+> > wants to package up a kernel and do something with it will want to
+> > know about firmware they might need.
+>
+> For this they could just read the documentation.  They'll need to anyway
+> just to find out where they are supposed to get the firmware from.
+
+You're assuming firmware is always on some random vendor website under
+a questionable license and can't be redistributed. That wasn't my
+first consideration - this doesn't really help much there, except you
+get to know what you don't have :-)
+
+Jon.

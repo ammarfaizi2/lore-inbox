@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWDSUDb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWDSUEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWDSUDb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 16:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWDSUDa
+	id S1751217AbWDSUEu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 16:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWDSUEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 16:03:30 -0400
-Received: from blaster.systems.pipex.net ([62.241.163.7]:43959 "EHLO
-	blaster.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S1751214AbWDSUDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 16:03:30 -0400
-From: Adam Baker <parport@baker-net.org.uk>
-To: linux-parport@lists.infradead.org
-Subject: Re: [Linux-parport] [2.6 patch] drivers/parport/share.: unexport parport_get_port
-Date: Wed, 19 Apr 2006 21:03:17 +0100
-User-Agent: KMail/1.8
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>, philb@gnu.org,
-       andrea@suse.de, tim@cyberelk.net, linux-kernel@vger.kernel.org
-References: <20060418220720.GQ11582@stusta.de>
-In-Reply-To: <20060418220720.GQ11582@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Apr 2006 16:04:50 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:7581 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1751217AbWDSUEt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 16:04:49 -0400
+Date: Wed, 19 Apr 2006 22:04:47 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+Message-ID: <20060419200447.GA2459@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Matthew Garrett <mjg59@srcf.ucam.org>, linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060419195356.GA24122@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604192103.17854.parport@baker-net.org.uk>
+In-Reply-To: <20060419195356.GA24122@srcf.ucam.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 April 2006 23:07, Adrian Bunk wrote:
-> This patch removes the unused EXPORT_SYMBOL(parport_get_port).
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
+On Wed, Apr 19, 2006 at 08:53:58PM +0100, Matthew Garrett wrote:
+> +++ a/include/linux/input.h	2006-04-19 20:49:18 +0100
+> @@ -344,6 +344,7 @@
+>  #define KEY_FORWARDMAIL		233
+>  #define KEY_SAVE		234
+>  #define KEY_DOCUMENTS		235
+> +#define KEY_LID			237
 
-It may be unused by any drivers that ship with the kernel but it is used by 
-the ppscsi patch to support SCSI over parallel port devices. This export was 
-removed in 2.6.10 and put back in in 2.6.16 so someone else obviously thinks 
-it should be exported.
+What about 236?
 
-> ---
->
-> This patch was already sent on:
-> - 5 Apr 2006
->
-> --- linux-2.6.17-rc1-mm1-full/drivers/parport/share.c.old	2006-04-05
-> 17:12:05.000000000 +0200 +++
-> linux-2.6.17-rc1-mm1-full/drivers/parport/share.c	2006-04-05
-> 17:12:42.000000000 +0200 @@ -1003,7 +1003,6 @@
->  EXPORT_SYMBOL(parport_unregister_driver);
->  EXPORT_SYMBOL(parport_register_device);
->  EXPORT_SYMBOL(parport_unregister_device);
-> -EXPORT_SYMBOL(parport_get_port);
->  EXPORT_SYMBOL(parport_put_port);
->  EXPORT_SYMBOL(parport_find_number);
->  EXPORT_SYMBOL(parport_find_base);
->
-
+	Dominik

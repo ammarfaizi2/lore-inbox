@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWDSRnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbWDSRoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbWDSRnH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 13:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWDSRnH
+	id S1751008AbWDSRoK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 13:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWDSRoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 13:43:07 -0400
-Received: from nz-out-0102.google.com ([64.233.162.205]:22983 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751013AbWDSRnG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 13:43:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=V1x3v/hgqsbjWE2yNnihY2sBtySt0ErOp8TSPS7zGNLCLyri74hlC70I9L9670d7EIDjDzg6XSQyQRI/xjldSop51ctnZfXrRWMTjNc3nE0xRBIeJQhrbMqDDYqKk0e/7xtbrghpyNDU8AmZiCtTKqcsH+CPEh5/KknImsD+834=
-Message-ID: <84144f020604191043s5da78a69m8207b8145989eb62@mail.gmail.com>
-Date: Wed, 19 Apr 2006 20:43:05 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Thiago Galesi" <thiagogalesi@gmail.com>
-Subject: Re: Possible MTD bug in 2.6.15
-Cc: "Jim Ramsay" <kernel@jimramsay.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <82ecf08e0604191006r26d8eab0n2c0a425809dea6ac@mail.gmail.com>
+	Wed, 19 Apr 2006 13:44:09 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:25519 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751008AbWDSRoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 13:44:08 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: A missing i_mutex in rename? (Linux kernel 2.6.latest)
+Date: Wed, 19 Apr 2006 19:41:53 +0200
+User-Agent: KMail/1.9.1
+References: <Pine.LNX.4.64.0604191102260.17373@hermes-1.csi.cam.ac.uk> <20060419121826.GI24104@parisc-linux.org> <Pine.LNX.4.64.0604191328160.12158@hermes-1.csi.cam.ac.uk>
+In-Reply-To: <Pine.LNX.4.64.0604191328160.12158@hermes-1.csi.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <4789af9e0604190949t42677b35mcba4ee57b92ffff9@mail.gmail.com>
-	 <82ecf08e0604191006r26d8eab0n2c0a425809dea6ac@mail.gmail.com>
+Message-Id: <200604191941.54398.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/19/06, Thiago Galesi <thiagogalesi@gmail.com> wrote:
-> Ok, a couple of comments/questions
->
-> 1 - Wouldn't it be better to map all flash, and leave the unneeded
-> part as read only?
->
-> 2 - Please follow  Documentation/SubmittingPatches format for sending
-> patches (especially the signed-off part and sending patches inline)
->
-> 3 - No C++ style comments, please
+On Wednesday, 19. April 2006 14:51, you wrote:
+> [...] I 
+> doubt sys_rename() is a very often invoked system call.
 
-4 - Read Documentation/CodingStyle before resubmitting the patch.
+Not if you are handling emails.
 
-                                     Pekka
+install courier-imapd and type
+man maildir
+
+
+Regards
+
+Ingo Oeser

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWDSTOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWDSTOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWDSTOE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 15:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWDSTOA
+	id S1751180AbWDSTOq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 15:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWDSTN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 15:14:00 -0400
-Received: from mga06.intel.com ([134.134.136.21]:60840 "EHLO
+	Wed, 19 Apr 2006 15:13:58 -0400
+Received: from mga06.intel.com ([134.134.136.21]:7281 "EHLO
 	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751184AbWDSTNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751180AbWDSTNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 19 Apr 2006 15:13:35 -0400
 X-IronPort-AV: i="4.04,136,1144047600"; 
-   d="scan'208"; a="25113904:sNHT32705638"
+   d="scan'208"; a="25113903:sNHT31954692"
 X-IronPort-AV: i="4.04,136,1144047600"; 
-   d="scan'208"; a="25113886:sNHT45595046"
+   d="scan'208"; a="25113881:sNHT42656866"
 TrustExchangeSourcedMail: True
 X-IronPort-AV: i="4.04,136,1144047600"; 
-   d="scan'208"; a="25902694:sNHT32351718"
-Message-Id: <20060419190135.215455186@csdlinux-2.jf.intel.com>
+   d="scan'208"; a="25141602:sNHT17016335"
+Message-Id: <20060419190135.561415342@csdlinux-2.jf.intel.com>
 References: <20060419190059.452500615@csdlinux-2.jf.intel.com>
-Date: Wed, 19 Apr 2006 12:01:03 -0700
+Date: Wed, 19 Apr 2006 12:01:05 -0700
 From: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
 To: Anderw Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Keith Owens <kaos@americas.sgi.com>,
@@ -26,86 +26,43 @@ Cc: LKML <linux-kernel@vger.kernel.org>, Keith Owens <kaos@americas.sgi.com>,
        Ananth Mavinakayanahalli <ananth@in.ibm.com>,
        Prasanna Panchamukhi <prasanna@in.ibm.com>,
        Dave M <davem@davemloft.net>
-Subject: [patch 4/6] Notify page fault call chain for powerpc
-Content-Disposition: inline; filename=notify_page_fault_powerpc.patch
-X-OriginalArrivalTime: 19 Apr 2006 19:10:24.0290 (UTC) FILETIME=[E9351020:01C663E4]
+Subject: [patch 6/6] Kprobes registers for notify page fault
+Content-Disposition: inline; filename=notify_page_fault_kprobes.patch
+X-OriginalArrivalTime: 19 Apr 2006 19:10:23.0805 (UTC) FILETIME=[E8EB0ED0:01C663E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----
- arch/powerpc/kernel/traps.c  |   11 +++++++++++
- arch/powerpc/mm/fault.c      |    2 +-
- include/asm-powerpc/kdebug.h |    9 +++++++++
- 3 files changed, 21 insertions(+), 1 deletion(-)
+Kprobes now registers for the page fault notifications.
 
-Index: linux-2.6.17-rc1-mm3/arch/powerpc/kernel/traps.c
+---
+ kernel/kprobes.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+Index: linux-2.6.17-rc1-mm3/kernel/kprobes.c
 ===================================================================
---- linux-2.6.17-rc1-mm3.orig/arch/powerpc/kernel/traps.c
-+++ linux-2.6.17-rc1-mm3/arch/powerpc/kernel/traps.c
-@@ -75,6 +75,7 @@ EXPORT_SYMBOL(__debugger_fault_handler);
- #endif
+--- linux-2.6.17-rc1-mm3.orig/kernel/kprobes.c
++++ linux-2.6.17-rc1-mm3/kernel/kprobes.c
+@@ -544,6 +544,11 @@ static struct notifier_block kprobe_exce
+ 	.priority = 0x7fffffff /* we need to notified first */
+ };
  
- ATOMIC_NOTIFIER_HEAD(powerpc_die_chain);
-+ATOMIC_NOTIFIER_HEAD(notify_page_fault_chain);
- 
- int register_die_notifier(struct notifier_block *nb)
++static struct notifier_block kprobe_page_fault_nb = {
++	.notifier_call = kprobe_exceptions_notify,
++	.priority = 0x7fffffff /* we need to notified first */
++};
++
+ int __kprobes register_jprobe(struct jprobe *jp)
  {
-@@ -88,6 +89,16 @@ int unregister_die_notifier(struct notif
- }
- EXPORT_SYMBOL(unregister_die_notifier);
+ 	/* Todo: Verify probepoint is a function entry point */
+@@ -654,6 +659,9 @@ static int __init init_kprobes(void)
+ 	if (!err)
+ 		err = register_die_notifier(&kprobe_exceptions_nb);
  
-+int register_page_fault_notifier(struct notifier_block *nb)
-+{
-+	return atomic_notifier_chain_register(&notify_page_fault_chain, nb);
-+}
++	if (!err)
++		err = register_page_fault_notifier(&kprobe_page_fault_nb);
 +
-+int unregister_page_fault_notifier(struct notifier_block *nb)
-+{
-+	return atomic_notifier_chain_unregister(&notify_page_fault_chain, nb);
-+}
-+
- /*
-  * Trap & Exception support
-  */
-Index: linux-2.6.17-rc1-mm3/arch/powerpc/mm/fault.c
-===================================================================
---- linux-2.6.17-rc1-mm3.orig/arch/powerpc/mm/fault.c
-+++ linux-2.6.17-rc1-mm3/arch/powerpc/mm/fault.c
-@@ -142,7 +142,7 @@ int __kprobes do_page_fault(struct pt_re
- 	is_write = error_code & ESR_DST;
- #endif /* CONFIG_4xx || CONFIG_BOOKE */
- 
--	if (notify_die(DIE_PAGE_FAULT, "page_fault", regs, error_code,
-+	if (notify_page_fault(DIE_PAGE_FAULT, "page_fault", regs, error_code,
- 				11, SIGSEGV) == NOTIFY_STOP)
- 		return 0;
- 
-Index: linux-2.6.17-rc1-mm3/include/asm-powerpc/kdebug.h
-===================================================================
---- linux-2.6.17-rc1-mm3.orig/include/asm-powerpc/kdebug.h
-+++ linux-2.6.17-rc1-mm3/include/asm-powerpc/kdebug.h
-@@ -18,7 +18,10 @@ struct die_args {
- 
- extern int register_die_notifier(struct notifier_block *);
- extern int unregister_die_notifier(struct notifier_block *);
-+extern int register_page_fault_notifier(struct notifier_block *);
-+extern int unregister_page_fault_notifier(struct notifier_block *);
- extern struct atomic_notifier_head powerpc_die_chain;
-+extern struct atomic_notifier_head notify_page_fault_chain;
- 
- /* Grossly misnamed. */
- enum die_val {
-@@ -36,5 +39,11 @@ static inline int notify_die(enum die_va
- 	return atomic_notifier_call_chain(&powerpc_die_chain, val, &args);
+ 	return err;
  }
  
-+static inline int notify_page_fault(enum die_val val,char *str,struct pt_regs *regs,long err,int trap, int sig)
-+{
-+	struct die_args args = { .regs=regs, .str=str, .err=err, .trapnr=trap,.signr=sig };
-+	return atomic_notifier_call_chain(&notify_page_fault_chain, val, &args);
-+}
-+
- #endif /* __KERNEL__ */
- #endif /* _ASM_POWERPC_KDEBUG_H */
 
 --

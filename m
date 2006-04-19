@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWDST3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWDSTc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWDST3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 15:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWDST3Z
+	id S1751099AbWDSTc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 15:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWDSTc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 15:29:25 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:60587 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751017AbWDST3Y (ORCPT
+	Wed, 19 Apr 2006 15:32:29 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:25512 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751099AbWDSTc2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 15:29:24 -0400
-Date: Wed, 19 Apr 2006 12:28:03 -0700
-From: Greg KH <greg@kroah.com>
-To: David Wilk <davidwilk@gmail.com>, hugh@veritas.com
-Cc: stable@kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [stable] 2.6.16.6 breaks java... sort of
-Message-ID: <20060419192803.GA19852@kroah.com>
-References: <a4403ff60604191152u5a71e70fr9f54c104a654fc99@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a4403ff60604191152u5a71e70fr9f54c104a654fc99@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Wed, 19 Apr 2006 15:32:28 -0400
+Date: Wed, 19 Apr 2006 21:32:16 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Tony Jones <tonyj@suse.de>
+cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
+       linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 4/11] security: AppArmor - Core access controls
+In-Reply-To: <20060419174937.29149.97733.sendpatchset@ermintrude.int.wirex.com>
+Message-ID: <Pine.LNX.4.61.0604192131010.7177@yvahk01.tjqt.qr>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+ <20060419174937.29149.97733.sendpatchset@ermintrude.int.wirex.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 12:52:33PM -0600, David Wilk wrote:
-> Howdy folks.  thanks for the great work on the stable series, btw.
-> 
-> I think an issue was introduced with mprotect (the first patch in
-> 2.6.16.6).  With 2.6.16.5, tomcat runs fine (in sun-1.5), but in
-> 2.6.16.7, the JVM bails out complaining that it couldn't allocate
-> enough heap space.
-> 
-> If I remove '-Xmx768m' from JAVA_OPTS, then the JVM is able to
-> startup.  The machine had 1GB of RAM and 2GB of swap, so it should
-> have had plenty to give the JVM the 1GB it expects to get with an Xmx
-> of 768MB, and this worked in 2.6.16.5 and below.
-> 
-> I don't know if this is expected and satisfactory behavior, but I
-> figured I should give ya'll the heads up.
 
-Odds are it isn't "expected", but Hugh would be the best judge of that.
-Hugh?
+>+/**
+>+ * _aa_perm_dentry
+[...]
+>+ * Return %0 (success), +ve (mask of permissions not satisfied) or -ve (system
+>+ * error, most likely -%ENOMEM).
+>+ */
 
-thanks for letting us know about this,
+This was probably meant to read %-ENOMEM. (Applies anywhere else too!)
 
-greg k-h
+
+
+Jan Engelhardt
+-- 

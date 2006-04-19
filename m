@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWDSS6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWDSTCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWDSS6I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 14:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWDSS6I
+	id S1751177AbWDSTCF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 15:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWDSTCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 14:58:08 -0400
-Received: from victor.provo.novell.com ([137.65.250.26]:55244 "EHLO
-	victor.provo.novell.com") by vger.kernel.org with ESMTP
-	id S1751152AbWDSS6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 14:58:06 -0400
-Message-ID: <44468817.5060106@novell.com>
-Date: Wed, 19 Apr 2006 11:57:27 -0700
-From: Crispin Cowan <crispin@novell.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Wed, 19 Apr 2006 15:02:05 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:42891 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751176AbWDSTCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 15:02:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=R5+DX9NAl7EDkc3PB8o33j47dGdbNuQQZHs8POQVvJp/4cWF/19BqdBYx4PrN00KSUl/6w5sZGWK9aMi0MMmKrND0zdG1BGgWbrIi8MmKMAJpxOpkbqDVaW3i7FOXgMREGg2DFcE51O8yKrKsfM3YhkzGHjrXsnB0uIslmgG3+c=
+Message-ID: <444688F2.5060909@gmail.com>
+Date: Wed, 19 Apr 2006 12:01:06 -0700
+From: Hua Zhong <hzhong@gmail.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Tony Jones <tonyj@suse.de>, linux-kernel@vger.kernel.org,
-       chrisw@sous-sol.org, linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 4/11] security: AppArmor - Core access controls
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>	 <20060419174937.29149.97733.sendpatchset@ermintrude.int.wirex.com> <1145470230.3085.84.camel@laptopd505.fenrus.org>
-In-Reply-To: <1145470230.3085.84.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       torvalds@osdl.org, davem@davemloft.net, akpm@osdl.org
+Subject: [PATCH] sockfd_lookup_light() returns random error for -EBADFD
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Wed, 2006-04-19 at 10:49 -0700, Tony Jones wrote:
->   
->> Verify if profile
->> + * authorizes mask operations on pathname (due to lack of vfsmnt it is sadly
->> + * necessary to search mountpoints in namespace -- when nameidata is passed
->> + * more fully, this code can go away).  If more than one mountpoint matches
->> + * but none satisfy the profile, only the first pathname (mountpoint) is
->> + * returned for subsequent logging.
->>     
-> that sounds too bad ;) 
-> If I manage to mount /etc/passwd as /tmp/passwd, you'll only find the
-> later and your entire security system seems to be down the drain.
->   
-If you are a confined process, then you don't get to mount things, for
-this reason, among others.
+This applies to 2.6.17-rc2.
 
-Crispin
--- 
-Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
-Director of Software Engineering, Novell  http://novell.com
+There is a missing initialization of err in sockfd_lookup_light() that could return random error for an invalid file handle.
 
+Signed-off-by: Hua Zhong <hzhong@gmail.com>
+
+diff --git a/net/socket.c b/net/socket.c
+index 23898f4..0ce12df 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -490,6 +490,7 @@ static struct socket *sockfd_lookup_ligh
+ 	struct file *file;
+ 	struct socket *sock;
+ 
++	*err = -EBADF;
+ 	file = fget_light(fd, fput_needed);
+ 	if (file) {
+ 		sock = sock_from_file(file, err);

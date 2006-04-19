@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWDSFXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWDSGKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWDSFXA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 01:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWDSFXA
+	id S1750755AbWDSGKE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 02:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWDSGKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 01:23:00 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:23006 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750757AbWDSFW7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 01:22:59 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: Arjan van de Ven <arjan@infradead.org>
-To: casey@schaufler-ca.com
-Cc: James Morris <jmorris@namei.org>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
-In-Reply-To: <20060418231657.68869.qmail@web36613.mail.mud.yahoo.com>
-References: <20060418231657.68869.qmail@web36613.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Wed, 19 Apr 2006 07:22:55 +0200
-Message-Id: <1145424176.3058.0.camel@laptopd505.fenrus.org>
+	Wed, 19 Apr 2006 02:10:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5349 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750755AbWDSGKB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 02:10:01 -0400
+Date: Tue, 18 Apr 2006 23:06:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: markus.lidel@shadowconnect.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/message/i2o/iop.c: static inline functions
+ mustn't be exported
+Message-Id: <20060418230600.4bccd221.akpm@osdl.org>
+In-Reply-To: <20060418150615.GH11582@stusta.de>
+References: <20060418150615.GH11582@stusta.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-18 at 16:16 -0700, Casey Schaufler wrote:
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> static inline functions mustn't be exported.
 > 
-> --- James Morris <jmorris@namei.org> wrote:
-> 
-> 
-> > No.  The inode design is simply correct.
-> 
-> If this were true audit records would not be required
-> to contain path names. Names are important. To meet
-> EAL requirements path names are demonstrably
-> insufficient, but so too are inode numbers. Unless
-> you want to argue that Linux is unevaluateable
-> (a pretty tough position to defend) because it
-> requires both in an audit record you cannot claim
-> either is definitive.
 
-audit != SELinux, simple as that
-And yes audit on filenames is not too useful, but it is in some cases:
-Consider the case where you want to log that someone tried to unlink
-a file that doesn't exist. Inodes aren't going to do you any good ;)
+Actually, exports of static inlines work OK.  The compiler will emit an
+out-of-line copy to satisfy EXPORT_SYMBOL's reference and the module
+namespace is separate from the compiler&linker's namespace.
 
+Of course, things will screw up when we're using the compiler&linker
+namespace (ie: the driver is statically linked).
 
+> --- linux-2.6.17-rc1-mm2-full/drivers/message/i2o/iop.c.old	2006-04-13 17:30:41.000000000 +0200
+> +++ linux-2.6.17-rc1-mm2-full/drivers/message/i2o/iop.c	2006-04-13 17:30:57.000000000 +0200
+> @@ -1243,7 +1243,6 @@
+>  EXPORT_SYMBOL(i2o_cntxt_list_get_ptr);
+>  #endif
+>  EXPORT_SYMBOL(i2o_msg_get_wait);
+> -EXPORT_SYMBOL(i2o_msg_nop);
+>  EXPORT_SYMBOL(i2o_find_iop);
+>  EXPORT_SYMBOL(i2o_iop_find_device);
+>  EXPORT_SYMBOL(i2o_event_register);
+
+It depends whether Markus thinks this symbol is something which the driver
+should be exporting.  If so, we should uninline i2o_msg_nop().  But given
+that it's in a header, nobody should be linking to it anyway...
+
+(why on earth does i2o put semicolons after its function definitions?)

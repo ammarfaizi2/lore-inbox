@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWDSQWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWDSQUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWDSQWT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 12:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWDSQWS
+	id S1750891AbWDSQUX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 12:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWDSQUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 12:22:18 -0400
-Received: from nproxy.gmail.com ([64.233.182.186]:12354 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750932AbWDSQWS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 12:22:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Y1ASgKpa4qKIj1ZnYR+myvQ8wyK0714iTOh8WQGMnrhyHPFkhN0s93tGNC6W5srbCeQRpAitJT8SifoW/BKXGT0Zz2rRfpUaqB71loBsBrT9M47yBez98SgLmFDwG/DTMbPl62UxcseUtxjZRyRuOmRSr5R6Xsln+JmT93va4m8=
-Message-ID: <6d6a94c50604190922m189b9d99gdd428a870e12c2c3@mail.gmail.com>
-Date: Thu, 20 Apr 2006 00:22:16 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Netpoll checksum issue
+	Wed, 19 Apr 2006 12:20:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10934 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750891AbWDSQUW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 12:20:22 -0400
+Date: Wed, 19 Apr 2006 09:19:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jean Delvare <khali@linux-fr.org>
+cc: Greg KH <greg@kroah.com>, "Mark M. Hoffman" <mhoffman@lightlink.com>,
+       linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+Subject: Re: [PATCH] i2c-i801: Fix resume when PEC is used
+In-Reply-To: <20060419130857.7f2db2d4.khali@linux-fr.org>
+Message-ID: <Pine.LNX.4.64.0604190918210.3701@g5.osdl.org>
+References: <20060418140629.7cb21736.khali@linux-fr.org>
+ <20060418170331.GA3915@jupiter.solarsys.private> <20060418211546.fa5a76df.khali@linux-fr.org>
+ <20060419130857.7f2db2d4.khali@linux-fr.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I'm porting my network driver from 2.6.12 to 2.6.16. It almostly work
-without any change, except the netpoll mode. When I use kgdb to debug
-kernel, gdb client can not establish the connection with gdb server.
-Then I digged into the code, and I found in the routine "__netpoll_rx"
-in the file "net/core/netpoll.c", the "checksum_udp" call always
-failed, but it works on 2.6.12.
-Could you please give me some suggestions?
-Thanks a lot.
 
-Regards,
--Aubrey
+
+On Wed, 19 Apr 2006, Jean Delvare wrote:
+> 
+> The BIOS of the Tecra M2 doesn't like it when it has to reboot or
+> resume after the i2c-i801 driver has left the SMBus in PEC mode. The
+> most simple fix is to clear the PEC bit after after every transaction.
+
+Just wondering.. Wouldn't it make more sense to clear it when closing the 
+device or when shutting down, rather than after each transaction?
+
+		Linus

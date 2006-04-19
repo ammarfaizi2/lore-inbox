@@ -1,38 +1,34 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWDSNPQ (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 19 Apr 2006 09:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWDSNPP
+	id S1750784AbWDSNpH (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 19 Apr 2006 09:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWDSNpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 09:15:15 -0400
-Received: from [221.217.143.225] ([221.217.143.225]:41735 "HELO
-	209.132.176.167") by vger.kernel.org with SMTP id S1750773AbWDSNPO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 09:15:14 -0400
-X-Apparently-To: linux-ide@vger.kernel.org
-Date: Wed, 19 Apr 2006 13:06:15 -0100
-Message-Id: <68ES87FE.0M24.jzetprpeiogns@hotmail.com>
-From: "Jay Kidd" <jzetprpeiogns@hotmail.com>
-To: <linux-ide@vger.kernel.org>
-Subject: Ladies n Mens Love This MD
-X-Mailer: Evolution/1.0-5mdk
+	Wed, 19 Apr 2006 09:45:06 -0400
+Received: from ccj184.neoplus.adsl.tpnet.pl ([83.30.133.184]:41739 "HELO
+	ccj184.neoplus.adsl.tpnet.pl") by vger.kernel.org with SMTP
+	id S1750771AbWDSNpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 09:45:03 -0400
+Date: Wed, 19 Apr 2006 17:40:03 +0300
+Message-Id: <CFE4.9A2.3069098B8C@mopalinux.com>
+From: "Marc Pendleton" <ijnedhz@msn.com>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+	linux-laptop@vger.kernel.org
+Subject: Look...Here HEUlgW
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750737AbWDSNPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750784AbWDSNpH@vger.kernel.org>
 
 
+The most complete Phar macy Online
+We carry all major medds at bargain price
+Viggra, Ci ialis, Cod-deine,
+VaIium, Xa naax, Phantermiine, 
+Ulltraam and etc...
+SatiisfactIon Gua ranteeed
 
-Suffering from short penniss?
-Introduce revolution "Longz" formula which
-gauranteees sizes increase or moneey baack.
-
-Users reported:
-- 2 inches extra in size
-- 3x pleasurable orgasms
-- 27% thicker
-
-Why waiting?
-
-http://youleftourarmsfor.com
+http://hothopkins.com
 
 
-mNk6
+IoW
+

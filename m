@@ -1,58 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWDSSKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWDSSKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWDSSKM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 14:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWDSSKM
+	id S1750773AbWDSSKe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 14:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWDSSKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 14:10:12 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:35561 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750725AbWDSSKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 14:10:10 -0400
-Date: Wed, 19 Apr 2006 11:06:22 -0700
-From: Patrick Mochel <mochel@linux.intel.com>
-To: "Moore, Robert" <robert.moore@intel.com>
-Cc: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
-       Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
-       greg@kroah.com, linux-acpi@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       arjan@linux.intel.com, muneda.takahiro@jp.fujitsu.com, pavel@ucw.cz,
-       temnota@kmv.ru
-Subject: Re: [patch 1/3] acpi: dock driver
-Message-ID: <20060419180621.GA15072@linux.intel.com>
-References: <B28E9812BAF6E2498B7EC5C427F293A4200B79@orsmsx415.amr.corp.intel.com>
+	Wed, 19 Apr 2006 14:10:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:48062 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750773AbWDSSKd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 14:10:33 -0400
+Subject: Re: [RFC][PATCH 4/11] security: AppArmor - Core access controls
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tony Jones <tonyj@suse.de>
+Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
+       linux-security-module@vger.kernel.org
+In-Reply-To: <20060419174937.29149.97733.sendpatchset@ermintrude.int.wirex.com>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <20060419174937.29149.97733.sendpatchset@ermintrude.int.wirex.com>
+Content-Type: text/plain
+Date: Wed, 19 Apr 2006 20:10:30 +0200
+Message-Id: <1145470230.3085.84.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B28E9812BAF6E2498B7EC5C427F293A4200B79@orsmsx415.amr.corp.intel.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Bouncing sgi address dropped. ] 
+On Wed, 2006-04-19 at 10:49 -0700, Tony Jones wrote:
+> +/**
+> + * _aa_perm_dentry
+> + * @active: profile to check against
+> + * @dentry: requested dentry
+> + * @mask: mask of requested operations
+> + * @pname: pointer to hold matched pathname (if any)
+> + *
+> + * Helper function.  Obtain pathname for specified dentry. 
 
-On Wed, Apr 19, 2006 at 10:51:18AM -0700, Moore, Robert wrote:
-> 
-> Architecturally, this was the design of ACPICA -- that anything
-> OS-dependent would be written in whatever format/style/exception
-> model/threading model/blah as the host OS.
-> 
-> We even discussed having an interface layer in order to translate
-> incoming requests (to ACPICA) from the host drivers to ACPICA requests,
-> and then translate the output (such as exception codes) back to the host
-> format, but we ended up deciding that this was overkill. 
+which namespace will this be in?
 
-I don't think it needs to be formally defined, but it happens by default with
-e.g. drivers/acpi/utils.c. But, they don't do any translation per se; they 
-keep the same semantics that the CA exposes. Over time, these can be converted
-to provide a stronger barrier between the CA and the Linuxy stuff, but I
-don't think we much formality beyond a few rules of guidance. 
+> Verify if profile
+> + * authorizes mask operations on pathname (due to lack of vfsmnt it is sadly
+> + * necessary to search mountpoints in namespace -- when nameidata is passed
+> + * more fully, this code can go away).  If more than one mountpoint matches
+> + * but none satisfy the profile, only the first pathname (mountpoint) is
+> + * returned for subsequent logging.
 
-Besides the error namespace and the debug functions, what are other things
-off the top of your head that should be contained within the CA and the OSL
-layers?
+that sounds too bad ;) 
+If I manage to mount /etc/passwd as /tmp/passwd, you'll only find the
+later and your entire security system seems to be down the drain.
+> +/**
+> + * aa_register - register a new program
+> + * @filp: file of program being registered
+> + *
+> + * Try to register a new program during execve().  This should give the
+> + * new program a valid subdomain.
+> + */
+> +int aa_register(struct file *filp)
+> +{
+> +	char *filename;
+> +	struct subdomain *sd;
+> +	struct aaprofile *active;
+> +	struct aaprofile *newprofile = NULL, unconstrained_flag;
+> +	int 	error = -ENOMEM,
+> +		exec_mode = 0,
+> +		find_profile = 0,
+> +		find_profile_mandatory = 0,
+> +		complain = 0;
+> +
+> +	AA_DEBUG("%s\n", __FUNCTION__);
+> +
+> +	sd = AA_SUBDOMAIN(current->security);
+> +
+> +	if (sd) {
+> +		complain = SUBDOMAIN_COMPLAIN(sd);
+> +	} else {
+> +		/* task has no subdomain.  This can happen when a task is
+> +		 * created when subdomain is not loaded.  Allocate and
+> +		 * attach a subdomain to the task
+> +		 */
+> +		sd = alloc_subdomain(current);
+> +		if (!sd) {
+> +			AA_WARN("%s: Failed to allocate subdomain\n",
+> +				__FUNCTION__);
+> +			goto out;
+> +		}
+> +
+> +		current->security = sd;
+> +	}
+> +
+> +	filename = aa_get_name(filp->f_dentry, filp->f_vfsmnt);
 
-Thanks,
+what if filp->f_dentry is NULL ?
+like when the file got unlinked under you?
 
 
-	Pat

@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWDSSL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWDSSO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbWDSSL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 14:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbWDSSL7
+	id S1750976AbWDSSO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 14:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbWDSSO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 14:11:59 -0400
-Received: from mx1.suse.de ([195.135.220.2]:32469 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750947AbWDSSL6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 14:11:58 -0400
-Date: Wed, 19 Apr 2006 11:10:15 -0700
-From: Greg KH <greg@kroah.com>
-To: James Morris <jmorris@namei.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
-Message-ID: <20060419181015.GC11091@kroah.com>
-References: <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr> <20060419154011.GA26635@kroah.com> <Pine.LNX.4.64.0604191221100.4408@d.namei>
+	Wed, 19 Apr 2006 14:14:26 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:51902 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750947AbWDSSOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 14:14:25 -0400
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tony Jones <tonyj@suse.de>
+Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
+       linux-security-module@vger.kernel.org
+In-Reply-To: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+Content-Type: text/plain
+Date: Wed, 19 Apr 2006 20:14:22 +0200
+Message-Id: <1145470463.3085.86.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604191221100.4408@d.namei>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 12:33:24PM -0400, James Morris wrote:
-> The LSM interface is also being abused by several proprietary kernel 
-> modules, some of which are not even security related.  In one case, 
-> there's code which dangerously revectors SELinux with a shim layer 
-> designed to try and bypass the GPL.  Some of this is a response to 
-> unexporting the syscall table, where projects which abused that have now 
-> switched to LSM.
+On Wed, 2006-04-19 at 10:49 -0700, Tony Jones wrote:
+> Attached patches to include the AppArmor application security module in
+> the linux kernel.
 
-I agree that this is happening today.  Which makes me wonder, why is the
-variable "security_ops" exported through "EXPORT_SYMBOL()" and not
-"EXPORT_SYMBOL_GPL()"?  It seems that people are taking advantage of
-this and changing it would help slow them down a bit.
 
-Chris, would you take a patch to change this?
+can you at least comment on the discussion that happened on lkml the
+past few days where basically most people understood and agreed that a
+path-based approach is just not possible in linux anymore...
 
-thanks,
+you must have a good defense against that argument, so I'm curious to
+hear what it is
 
-greg k-h

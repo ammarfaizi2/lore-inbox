@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWDSSFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWDSSH0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWDSSFv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 14:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWDSSFv
+	id S1750748AbWDSSH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 14:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWDSSH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 14:05:51 -0400
-Received: from xproxy.gmail.com ([66.249.82.204]:63309 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751131AbWDSSFu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 14:05:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:thread-index:x-mimeole;
-        b=OACxVcu8YsbBwDI/lMeqvRY8cA3+vcGnP6rZrdpAIqIIFHrbIGBR2msdSviyB/SOcyGeTzRtrkIlB/bQU+ZpVaYjxYARt+AseJiLBIVRgpQjzti79yaBEIH9YsrLYCiaidM0X9B68bnXyX01rUpZ+rAm1mu1qcjCM6dWQRUtf2A=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Diego Calleja'" <diegocg@gmail.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.6.17-rc2
-Date: Wed, 19 Apr 2006 11:04:47 -0700
-Message-ID: <00ad01c663db$bf50d090$0200a8c0@nuitysystems.com>
+	Wed, 19 Apr 2006 14:07:26 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4371 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750748AbWDSSHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 14:07:25 -0400
+Date: Wed, 19 Apr 2006 20:07:24 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+Message-ID: <20060419180724.GD25047@stusta.de>
+References: <20060418220715.GO11582@stusta.de> <20060419051355.GI4825@rhun.haifa.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <20060419200001.fe2385f4.diegocg@gmail.com>
-Thread-Index: AcZj25hAeTcoMgjQTdK7mfBjt6rUhwAACJjw
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060419051355.GI4825@rhun.haifa.ibm.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://lwn.net/Articles/178199/ 
+On Wed, Apr 19, 2006 at 08:13:55AM +0300, Muli Ben-Yehuda wrote:
+> On Wed, Apr 19, 2006 at 12:07:15AM +0200, Adrian Bunk wrote:
+> > virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated 
+> > on i386.
+> 
+> You should probably update Documentation/ while you're at it.
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Diego Calleja
-> Sent: Wednesday, April 19, 2006 11:00 AM
-> To: Linus Torvalds
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Linux 2.6.17-rc2
-> 
-> Could someone give a long high-level description of what 
-> splice() and tee() are? I need a description for 
-> wiki.kernelnewbies.org/Linux_2_6_17 (while we're it, it'd be 
-> nice if some people can review it in case it's missing 
-> something ;) I've named it "generic zero-copy mechanism" but 
-> I bet there's a better description, if it's so cool as people 
-> says it'd be nice to do some "advertising" of it (notifying 
-> people of new features is not something linux has done too 
-> well historically :)
-> 
-> What kind of apps available today could get performance 
-> benefits by using this? Is there a new class of "processes" 
-> (or apps) that couldn't be done and can be done now using 
-> splice, or are there some kind of apps that become too 
-> complex internally today because they try to avoid extra copy 
-> of data and they can get much simpler by using splice? Why 
-> people sees it as a "radical" improvement in some cases over 
-> the typical way of doing I/O in Unix. Is this similar or can 
-> be compared with ritchie's/SYSV STREAMS?
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Which file under Documentation/ are you referring to?
+
+> Also, IIRC Xen uses virt_to_phys to return guest physical addresses
+> and virt_to_bus to return machine physical addresses, so the
+> difference is useful at least in some scenarios.
+
+Solving this should be easy.
+
+And this still doesn't make it right for architecture independent 
+drivers to use virt_to_bus/bus_to_virt.
+
+> Cheers,
+> Muli
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

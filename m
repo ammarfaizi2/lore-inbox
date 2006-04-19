@@ -1,103 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWDSG4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWDSG5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbWDSG4k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 02:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWDSG4k
+	id S1750843AbWDSG5O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 02:57:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWDSG5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 02:56:40 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:10630 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750824AbWDSG4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 02:56:39 -0400
-Message-Id: <200604190656.k3J6uSGW010288@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: casey@schaufler-ca.com, James Morris <jmorris@namei.org>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks 
-In-Reply-To: Your message of "Wed, 19 Apr 2006 02:40:25 EDT."
-             <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20060419014857.35628.qmail@web36606.mail.mud.yahoo.com>
-            <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1145429788_10003P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 19 Apr 2006 02:56:28 -0400
+	Wed, 19 Apr 2006 02:57:14 -0400
+Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:7591 "HELO
+	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750824AbWDSG5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 02:57:13 -0400
+Date: Tue, 18 Apr 2006 23:57:09 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] PCI quirk: VIA IRQ fixup should only run for VIA southbridges
+Message-ID: <20060419065709.GA8075@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1145429788_10003P
-Content-Type: text/plain; charset=us-ascii
+Alan Cox pointed out that the VIA 'IRQ fixup' was erroneously running
+on my system which has no VIA southbridge (but I do have a VIA IEEE
+1394 device).
 
-On Wed, 19 Apr 2006 02:40:25 EDT, Kyle Moffett said:
-> Perhaps the SELinux model should be extended to handle (dir-inode,
-> path-entry) pairs.  For example, if I want to protect the /etc/shadow
-> file regardless of what tool is used to safely modify it, I would set
-
-Some of us think that the tools can protect /etc/shadow just fine on their
-own, and are concerned with rogue software that abuses /etc/shadow without
-bothering to safely modify it..
-
-> up security as follows:
-> 
-> o  Protect the "/" and "/etc" directory inodes as usual under SELinux  
-> (with attributes on directory inodes).
-> o  Create pairs with (etc_inode,"shadow") and (etc_inode,"gshadow")  
-> and apply security attributes to those potentially nonexistent pairs.
-
-*bzzt* wrong.  Why should "gshadow" matter? (Think carefully about what
-happens when a setUID program gets exploited and used to scribble on /etc/shadow -
-black hats rarely bother to do locking and other such niceties....)
-
-> I'm not terribly familiar with the exact internal semantics of
-> SELinux, but that should provide a 90% solution (it fixes bind mounts
-
-90% doesn't give the security guys warm-and-fuzzies....
-
-> and namespaces).  The remaining 2 issues are hardlinks and fd-
-> passing.  For hardlinks you don't care about other links to that
-> data, you're concerned with protecting a particular filesystem
-> location, not particular contents, so you just need to prevent _new_
-> hardlinks to a protected (dir_inode, path_elem) pair, which doesn't 
-> seem very hard.
-
-It's not. include/linux/security.h:
-
- * @inode_link:
- *      Check permission before creating a new hard link to a file.
- *      @old_dentry contains the dentry structure for an existing link to the file.
- *      @dir contains the inode structure of the parent directory of the new link.
- *      @new_dentry contains the dentry structure for the new link.
- *      Return 0 if permission is granted.
-
->                 For fd-passing, I don't know what to do.  Perhaps  
-> nothing.
-
-include/linux/security.h:
-
- * @file_receive:
- *      This hook allows security modules to control the ability of a process
- *      to receive an open file descriptor via socket IPC.
- *      @file contains the file structure being received.
- *      Return 0 if permission is granted.
-
-Already a solved problem.
+This should address that.  I also changed "Via IRQ" to "VIA IRQ"
+(initially I read Via as a capitalized via (by way/means of).
 
 
+Signed-off-by: Chris Wedgwood <cw@f00f.org>
 
---==_Exmh_1145429788_10003P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFERd8ccC3lWbTT17ARAvPtAJ4uGqjuSkQBG6/lYzieZkwWfjnGkwCfYe0T
-0sASB6BI4hCWt0TyRA+rMgI=
-=4mov
------END PGP SIGNATURE-----
-
---==_Exmh_1145429788_10003P--
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 827550d..59a9e21 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -642,13 +642,15 @@ static void quirk_via_irq(struct pci_dev
+ 	new_irq = dev->irq & 0xf;
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
+ 	if (new_irq != irq) {
+-		printk(KERN_INFO "PCI: Via IRQ fixup for %s, from %d to %d\n",
++		printk(KERN_INFO "PCI: VIA IRQ fixup for %s, from %d to %d\n",
+ 			pci_name(dev), irq, new_irq);
+ 		udelay(15);	/* unknown if delay really needed */
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686, quirk_via_irq);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_4, quirk_via_irq);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, quirk_via_irq);
+ 
+ /*
+  * VIA VT82C598 has its device ID settable and many BIOSes

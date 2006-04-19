@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWDSRJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWDSRLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWDSRJK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 13:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWDSRJJ
+	id S1751117AbWDSRLA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 13:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWDSRLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 13:09:09 -0400
-Received: from silver.veritas.com ([143.127.12.111]:38449 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751104AbWDSRJD
+	Wed, 19 Apr 2006 13:11:00 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:10692 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751113AbWDSRK7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 13:09:03 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.04,136,1144047600"; 
-   d="scan'208"; a="37359003:sNHT24667080"
-Date: Wed, 19 Apr 2006 18:08:56 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Arkadiusz Miskiewicz <arekm@maven.pl>
-cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, Jeff Garzik <jeff@garzik.org>,
-       Matt Mackall <mpm@selenic.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sata suspend resume ...
-In-Reply-To: <200604191856.16026.arekm@maven.pl>
-Message-ID: <Pine.LNX.4.64.0604191803020.11787@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0604192324040.29606@indiana.corp.fedex.com>
- <Pine.LNX.4.64.0604191659230.7660@blonde.wat.veritas.com>
- <200604191856.16026.arekm@maven.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 19 Apr 2006 17:09:03.0062 (UTC) FILETIME=[F541D760:01C663D3]
+	Wed, 19 Apr 2006 13:10:59 -0400
+Date: Wed, 19 Apr 2006 12:10:56 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
+       "Eric W. Biederman" <ebiederm@xmission.com>, xemul@sw.ru,
+       James Morris <jmorris@namei.org>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
+Message-ID: <20060419171056.GB1238@sergelap.austin.ibm.com>
+References: <20060407095132.455784000@sergelap> <20060407183600.E40C119B902@sergelap.hallyn.com> <4446547B.4080206@sw.ru> <20060419152129.GA14756@sergelap.austin.ibm.com> <44465C47.9050706@sw.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44465C47.9050706@sw.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Apr 2006, Arkadiusz Miskiewicz wrote:
-> On Wednesday 19 April 2006 18:13, Hugh Dickins wrote:
+Quoting Kirill Korotaev (dev@sw.ru):
+> Serge,
+> 
+> >Please look closer at the patch.
+> >I *am* doing nothing with sysctls.
 > >
-> > I was delighted to see the MSI suspend/resume fix go into 2.6.17-rc2,
-> > but then disappointed. 
+> >system_utsname no longer exists, and the way to get to that is by using
+> >init_uts_ns.name.  That's all this does.
+> Sorry for being not concrete enough.
+> I mean switch () in the code. Until we decided how to virtualize 
+> sysctls/proc, I believe no dead code/hacks should be commited. IMHO.
 > 
-> Are you using ahci or ata_piix? It seem that people have success with AHCI
-> but not with ata_piix. 
+> FYI, I strongly object against virtualizing sysctls this way as it is 
+> not flexible and is a real hack from my POV.
 
-I'm using ata_piix.  But I may have misled you.  I didn't mean to imply
-any deficiency in the MSI suspend/resume fix: it's just that it sounded
-like the answer to whatever my problem was, and probably is a good part
-of the answer, but it now looks like I had more than one problem.
+Oops, I forgot that was there!
 
-> My ThinkPad Z60m has
-> 00:1f.2 IDE interface: Intel Corporation 82801FBM (ICH6M) SATA Controller (rev 
-> 03)
-> which afaik is AHCI capable but only if BIOS initializes it in ahci mode ;-/
-> Unfortunately there is no such option in BIOS (I've checked latest available 
-> bios - 1.14).
-> 
-> Is it possible to initialize this controller in AHCI mode by Linux itself 
-> without BIOS help? (where possible means ,,possible but not implemented'', 
-> too)
+Sorry.
 
-Someone else will have to answer that one: sorry, I've no idea.
+Yup, I'm fine with leaving that out.  After all, nothing in the
+non-debugging patchset allows userspace to clone the utsnamespace yet,
+so it's tough to argue that leaving out that switch impacts
+functionality :)
 
-Hugh
+I believe Dave is working on a more acceptable sysctl adaptation, though
+I'm not sure when he'll have a patch to submit.  In any case, one clear
+concise piece at a time.
+
+thanks,
+-serge

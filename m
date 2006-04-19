@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWDSSWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWDSSYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWDSSWp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 14:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWDSSWo
+	id S1751140AbWDSSYq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 14:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWDSSYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 14:22:44 -0400
-Received: from mail.polishnetwork.com ([69.222.0.23]:62731 "EHLO usfltd.com")
-	by vger.kernel.org with ESMTP id S1750943AbWDSSWo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 14:22:44 -0400
-Date: Wed, 19 Apr 2006 13:22:01 -0500
-Message-Id: <200604191322.AA197460092@usfltd.com>
+	Wed, 19 Apr 2006 14:24:46 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:23266 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751097AbWDSSYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 14:24:45 -0400
+Date: Wed, 19 Apr 2006 11:20:58 -0700
+From: Patrick Mochel <mochel@linux.intel.com>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, len.brown@intel.com, greg@kroah.com,
+       linux-acpi@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, arjan@linux.intel.com,
+       muneda.takahiro@jp.fujitsu.com, pavel@ucw.cz, temnota@kmv.ru
+Subject: Re: [patch 1/3] acpi: dock driver
+Message-ID: <20060419182058.GB15072@linux.intel.com>
+References: <20060412221027.472109000@intel.com> <1144880322.11215.44.camel@whizzy> <20060412222735.38aa0f58.akpm@osdl.org> <1145054985.29319.51.camel@whizzy> <44410360.6090003@sgi.com> <1145383396.10783.32.camel@whizzy> <20060418225427.GE4556@linux.intel.com> <1145466537.21185.24.camel@whizzy> <20060419172816.GA14304@linux.intel.com> <1145471322.21185.55.camel@whizzy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-From: "art" <art@usfltd.com>
-Reply-To: <art@usfltd.com>
-To: <linux-kernel@vger.kernel.org>
-CC: <jonathan@jonmasters.org>
-Subject: Re: is this GPL v2 violation - konica-minolta or EFI ?
-X-Mailer: <IMail v8.05>
+Content-Disposition: inline
+In-Reply-To: <1145471322.21185.55.camel@whizzy>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------- Original Message ----------------------------------
-From: "Jon Masters" <jonathan@jonmasters.org>
-Date:  Wed, 19 Apr 2006 09:52:36 +0100
+On Wed, Apr 19, 2006 at 11:28:42AM -0700, Kristen Accardi wrote:
 
->On 4/19/06, art <art@usfltd.com> wrote:
->
->> is this GPL v2 violation - konica-minolta or EFI ?
->
->> << NO SOURCE CODE FOR LINUX >> on media/web
->
->Did you:
->
->a). Buy the product.
->b). Ask them for the source?
->
->Jon.
->
+> Well, I will certainly change the dock code, but pulling this stuff out
+> of the hotplug drivers will take longer since it would require changing
+> the offending acpi interfaces.  
 
-i have offer to buy the product - bizhub c351 with
+If you ever decide to do this, you can make it much easier on yourself 
+by doing a "bait and switch": create a new function that wraps the
+currently exported one and exposes a clean, sane interface. Then, 
+convert the users to call this new function. When they're all converted,
+un-export the old one, then take it out back and do away with it. This
+allows a step-by-step conversion without having to coordinate a big
+"flag day" cutover.. 
 
-product: option for konica-minolta bizhub c351
-IC-402 Embedded Fiery Print Controller
 
-operating system:
-Linux
-
-i call them to check if they will include source code
-or offer me other option like in COPYING file
-
-".......
-3. You may copy and distribute the Program (or a work based on it,
-under Section 2) in object code or executable form under the terms of
-Sections 1 and 2 above provided that you also do one of the following:
-
-    a) Accompany it with the complete corresponding machine-readable
-    source code, which must be distributed under the terms of Sections
-    1 and 2 above on a medium customarily used for software interchange; or,
-
-    b) Accompany it with a written offer, valid for at least three
-    years, to give any third party, for a charge no more than your
-    cost of physically performing source distribution, a complete
-    machine-readable copy of the corresponding source code, to be
-    distributed under the terms of Sections 1 and 2 above on a medium
-    customarily used for software interchange; or,
-
-    c) Accompany it with the information you received as to the offer
-    to distribute corresponding source code.  (This alternative is
-    allowed only for noncommercial distribution and only if you
-    received the program in object code or executable form with such
-    an offer, in accord with Subsection b above.)
-......"
-
-xboom
+	Pat

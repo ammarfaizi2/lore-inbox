@@ -1,58 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWDSRT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWDSRcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbWDSRT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 13:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWDSRT1
+	id S1750895AbWDSRcV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 13:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWDSRcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 13:19:27 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:15769 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751123AbWDSRT0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 13:19:26 -0400
-Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       sam@vilain.net, xemul@sw.ru, James Morris <jmorris@namei.org>
-In-Reply-To: <m1u08pld7d.fsf@ebiederm.dsl.xmission.com>
-References: <20060407095132.455784000@sergelap>
-	 <20060407183600.E40C119B902@sergelap.hallyn.com> <4446547B.4080206@sw.ru>
-	 <20060419152129.GA14756@sergelap.austin.ibm.com>
-	 <m1bquxmuk5.fsf@ebiederm.dsl.xmission.com>
-	 <1145463814.31812.13.camel@localhost.localdomain>
-	 <m1u08pld7d.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Wed, 19 Apr 2006 10:19:18 -0700
-Message-Id: <1145467159.31812.21.camel@localhost.localdomain>
+	Wed, 19 Apr 2006 13:32:21 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:1510 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750895AbWDSRcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 13:32:16 -0400
+Date: Wed, 19 Apr 2006 10:28:16 -0700
+From: Patrick Mochel <mochel@linux.intel.com>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: Prarit Bhargava <prarit@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       len.brown@intel.com, greg@kroah.com, linux-acpi@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       arjan@linux.intel.com, muneda.takahiro@jp.fujitsu.com, pavel@ucw.cz,
+       temnota@kmv.ru
+Subject: Re: [patch 1/3] acpi: dock driver
+Message-ID: <20060419172816.GA14304@linux.intel.com>
+References: <20060412221027.472109000@intel.com> <1144880322.11215.44.camel@whizzy> <20060412222735.38aa0f58.akpm@osdl.org> <1145054985.29319.51.camel@whizzy> <44410360.6090003@sgi.com> <1145383396.10783.32.camel@whizzy> <20060418225427.GE4556@linux.intel.com> <1145466537.21185.24.camel@whizzy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145466537.21185.24.camel@whizzy>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-19 at 10:52 -0600, Eric W. Biederman wrote:
-> Dave Hansen <haveblue@us.ibm.com> writes:
+On Wed, Apr 19, 2006 at 10:08:57AM -0700, Kristen Accardi wrote:
+> On Tue, 2006-04-18 at 15:54 -0700, Patrick Mochel wrote:
+
+> > > +acpi_status
+> > > +register_hotplug_dock_device(acpi_handle handle, acpi_notify_handler handler,
+> > > +			     void *context)
+> > 
+> > If this is called from outside drivers/acpi/, you should return an int with a 
+> > real errno value. The AE_* values shouldn't be used outside of the ACPI CA. 
+> > 
 > 
-> > Besides ipc and utsnames, can anybody think of some other things in
-> > sysctl that we really need to virtualize?
+> Really?  We use these all over the place in drivers/pci/hotplug.  In
+> fact, you kinda have to use them if you are calling certain acpi
+> symbols, since they return these types.
 > 
-> All of the networking entries.
-...
-> Only in that you attacked the wrong piece of the puzzle.
-> The strategy table entries simply need to die, or be rewritten
-> to use the appropriate proc entries.
+> For example, here are some functions will return acpi_status that we use
+> in hotplug land.
+> 
+> pci_osc_control_set() 
+> acpi_run_oshp()
+> acpi_walk_namespace requires its use.
 
-If we are limited to ipc, utsname, and network, I'd be worried trying to
-justify _too_ much infrastructure.  The network namespaces are not going
-to be solved any time soon.  Why not have something like this which is a
-quite simple, understandable, minor hack?
+Well, it's one thing to use a function that returns a non-standard error-value,
+but it's another to add more functions that do. :-) 
 
-> The proc entries are the real interface, and the two pieces
-> don't share an implementation unfortunately.
+> I felt that by returning acpi_status I was being consistent with how
+> other acpi calls acted.  Is this another example of the iceberg that Len
+> was talking about in a previous email?? (ugh.)
 
-You're saying that the proc interface doesn't use the ->strategy entry?
-That isn't what I remember, but I could be completely wrong.
+I believe so. 
 
--- Dave
+We have a standard, well-defined error namespace that lives in include/*/errno.h.
+ACPI defines its own error namespace because it must be portable, and even though
+most OSes will define the standard errno values, some do not, so it cannot 
+assume that it will be there. I'm not sure why the choice was to redefine similar
+error values instead of reusing the errno values, but that's moot at this point..
+
+The only place where the ACPI error values need to be used is in the ACPI CA. The
+functions exposed to the OS from the CA will return AE_* because the same source
+runs everywhere. However, Linux-specific code doesn't need to do that. It is free
+to use Linux-specific error reporting (except in the OSL layer that the CA uses,
+because it is expecting well-defined return values, as specified in the CA 
+Programmers Reference). 
+
+My standpoint is that Linux-specific code should not be using any ACPI CAisms at
+all because since the code is Linux-specific, it doesn't need to be portable in 
+the same manner that the CA is. This is true for all of drivers/acpi/*.c, with the
+exception of drivers/acpi/osl.c, but even some of that source can be cleaned up
+to be more Linux-friendly.
+
+Further rationale is that there is no way to enforce the CAisms in Linux-specific
+code. You will frequently find mixed return values. Sometimes a function is 
+declared as 
+
+	acpi_status acpi_foo()
+
+and return -1 and 0. Or vice versa. 
+
+The ACPI drivers were initially written in the same style that the CA was written,
+which makes it confusing when you look at them. But, they don't need to be that
+way. They can look like real Linux drivers and become a lot more palatable. 
+
+Eventually, all of the CAisms should be pushed down to the thin layer that sits 
+above the interpreter. All exported functions should return ints, and those that
+deal directly with the CA interface should simply translate the AE_* error
+values into an errno return. 
+
+Thanks,
+
+
+	Pat
 

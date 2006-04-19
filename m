@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWDSTuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWDSTwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWDSTuw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 15:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWDSTuw
+	id S1751204AbWDSTwU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 15:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWDSTwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 15:50:52 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:25796 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751092AbWDSTuv (ORCPT
+	Wed, 19 Apr 2006 15:52:20 -0400
+Received: from cantor.suse.de ([195.135.220.2]:42470 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751204AbWDSTwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 15:50:51 -0400
-Date: Wed, 19 Apr 2006 21:50:24 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Crispin Cowan <crispin@novell.com>, Karl MacMillan <kmacmillan@tresys.com>,
-       Gerrit Huizenga <gh@us.ibm.com>, Christoph Hellwig <hch@infradead.org>,
-       James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-In-Reply-To: <1145472535.3085.94.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.61.0604192143190.7177@yvahk01.tjqt.qr>
-References: <E1FVtPV-0005zu-00@w-gerrit.beaverton.ibm.com> 
- <1145381250.19997.23.camel@jackjack.columbia.tresys.com>  <44453E7B.1090009@novell.com>
-  <1145389813.2976.47.camel@laptopd505.fenrus.org>  <44468258.1020608@novell.com>
- <1145472535.3085.94.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 19 Apr 2006 15:52:19 -0400
+Date: Wed, 19 Apr 2006 12:50:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Nicolas Boichat <nicolas@boichat.ch>
+Cc: Stelian Pop <stelian@popies.net>,
+       YOSHIFUJI Hideaki / ???????????? <yoshfuji@linux-ipv6.org>,
+       linux-usb-devel@lists.sourceforge.net, johannes@sipsolutions.net,
+       mactel-linux-devel@lists.sourceforge.net, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org, frank@scirocco-5v-turbo.de,
+       petero2@telia.com, linux-kernel@hansmi.ch
+Subject: Re: [PATCH] MacBook Pro touchpad support
+Message-ID: <20060419195038.GD19969@kroah.com>
+References: <1145358431.14816.18.camel@localhost> <20060418.212525.21076744.yoshfuji@linux-ipv6.org> <1145373471.23139.10.camel@localhost.localdomain> <20060418164137.GA31841@kroah.com> <1145446432.5493.3.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145446432.5493.3.camel@localhost>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->> Note that d_path still returns pathnames for files that have been
->> removed from the filesystem (that are open)
->
->it does return "something". It just doesn't return meaningful pathnames.
->At all.
->
-Exactly. It currently appends " (deleted)", which may even match an
-existing file!
+On Wed, Apr 19, 2006 at 01:33:52PM +0200, Nicolas Boichat wrote:
+> -		dprintk("appletouch: incomplete data package.\n");
+> +		dprintk("appletouch: incomplete data package (first byte: %d, length: %d).\n", dev->data[0], dev->urb->actual_length);
 
-E.g.:
-$ touch blah "blah (deleted)"
-$ perl -e 'open I,blah;unlink blah;sleep 60' &
-$ ls -l /proc/`echo $! `/fd/
-lr-x------  1 jengelh root 64 Apr 19 21:48 3 -> /dev/shm/blah (deleted)
+This line is a bit long, please fix things to follow the kernel coding
+style to fit within 80 columns.
 
-Note that ls will not colorize the part after ->, since that file actually
-exists!
+thanks,
 
-
-Jan Engelhardt
--- 
+greg k-h

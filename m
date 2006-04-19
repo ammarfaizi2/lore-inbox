@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWDSKpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWDSKqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbWDSKpx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 06:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWDSKpx
+	id S1750753AbWDSKqN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 06:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWDSKqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 06:45:53 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:62779 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750727AbWDSKpw convert rfc822-to-8bit (ORCPT
+	Wed, 19 Apr 2006 06:46:13 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:13243 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1750702AbWDSKqL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 06:45:52 -0400
-From: Christian Borntraeger <borntrae@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] ipv4: initialize arp_tbl rw lock
-Date: Wed, 19 Apr 2006 12:45:48 +0200
-User-Agent: KMail/1.9.1
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, shemminger@osdl.org,
-       jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fpavlic@de.ibm.com, davem@sunset.davemloft.net
-References: <20060407081533.GC11353@osiris.boeblingen.de.ibm.com> <20060408100213.GA9412@osiris.boeblingen.de.ibm.com> <20060408031235.5d1989df.akpm@osdl.org>
-In-Reply-To: <20060408031235.5d1989df.akpm@osdl.org>
+	Wed, 19 Apr 2006 06:46:11 -0400
+Message-ID: <444614F2.4030607@dgreaves.com>
+Date: Wed, 19 Apr 2006 11:46:10 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Mail/News 1.5 (X11/20060228)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200604191245.48458.borntrae@de.ibm.com>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Very strange RAID failure
+References: <20060419070522.GL10304@vitelus.com>
+In-Reply-To: <20060419070522.GL10304@vitelus.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As spinlock debugging still does not work with the qeth driver I want to pick 
-up the discussion.
-
-On Saturday 08 April 2006 12:12, Andrew Morton wrote:
-> Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
-[...]
-> >  -vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)
-> >  +vmlinux-main := $(core-y) $(libs-y) $(net-y) $(drivers-y)
+Aaron Lehmann wrote:
+> I came back to my machine a few days ago and noticed strange behavior,
+> and then found this in the logs:
 >
-> <wonders what this will break>
-
-What about putting this patch into mm and find out?
 >
-> I have a bad feeling that one day we're going to come unstuck with this
-> practice.  Is there anything which dictates that the linker has to lay
-> sections out in .o-file-order?
->
-> Perhaps net initcalls should be using something higher priority than
-> device_initcall().
+> Apr 16 07:02:50 annexia kernel: ata1: command 0x35 timeout, stat 0x51 host_stat 0x60
+> Apr 16 07:02:50 annexia kernel: ata1: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+> Apr 16 07:02:50 annexia kernel: ata1: status=0x51 { DriveReady SeekComplete Error }
+> Apr 16 07:02:50 annexia kernel: ata1: error=0x04 { DriveStatusError }
+> Apr 16 07:02:50 annexia kernel: sd 0:0:0:0: SCSI error: return code = 0x8000002
+> Apr 16 07:02:50 annexia kernel: sda: Current: sense key: Aborted Command
+> Apr 16 07:02:50 annexia kernel:     Additional sense: No additional sense information
+> Apr 16 07:02:50 annexia kernel: end_request: I/O error, dev sda, sector 625137194
+> Apr 16 07:02:50 annexia kernel: raid5: Disk failure on sda4, disabling device. Operation continuing on 3 devices
+> Apr 16 07:02:50 annexia kernel: RAID5 conf printout:
+> Apr 16 07:02:50 annexia kernel:  --- rd:4 wd:3 fd:1
+> Apr 16 07:02:50 annexia kernel:  disk 0, o:0, dev:sda4
+> Apr 16 07:02:50 annexia kernel:  disk 1, o:1, dev:sdd4
+> Apr 16 07:02:50 annexia kernel:  disk 2, o:1, dev:sdb4
+> Apr 16 07:02:50 annexia kernel:  disk 3, o:1, dev:sdc4
+go and search linux-ide for messages from me.
+It looks similar to problems I've had that turned out to be 2.6.15
+libata/fua bug.
 
-I agree that the initcall order offers a lot of room for improvement (like 
-dependencies). Is anybody aware of any work into this direction?
+David
 
 -- 
-Mit freundlichen Grüßen / Best Regards
-
-Christian Borntraeger
-Linux Software Engineer zSeries Linux & Virtualization
-
-
 

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWDSOkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWDSOit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWDSOkL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 10:40:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWDSOkL
+	id S1750800AbWDSOit (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 10:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWDSOit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 10:40:11 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:3249 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1750803AbWDSOkK (ORCPT
+	Wed, 19 Apr 2006 10:38:49 -0400
+Received: from THUNK.ORG ([69.25.196.29]:15825 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750800AbWDSOit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 10:40:10 -0400
-Date: Wed, 19 Apr 2006 16:40:08 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.17-rc2] ALSA: PCMCIA sound devices shouldn't depend on ISA
-Message-ID: <20060419144008.GD24807@harddisk-recovery.com>
-Mime-Version: 1.0
+	Wed, 19 Apr 2006 10:38:49 -0400
+Date: Wed, 19 Apr 2006 10:38:15 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Erik Mouw <erik@harddisk-recovery.com>, Lee Revell <rlrevell@joe-job.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
+       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
+       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
+       Kamal Deen <kamal@kdeen.net>
+Subject: Re: irqbalance mandatory on SMP kernels?
+Message-ID: <20060419143815.GH706@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Erik Mouw <erik@harddisk-recovery.com>,
+	Lee Revell <rlrevell@joe-job.com>,
+	"Martin J. Bligh" <mbligh@mbligh.org>,
+	"Robert M. Stockmann" <stock@stokkie.net>,
+	linux-kernel@vger.kernel.org, Randy Dunlap <rddunlap@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Manfred Spraul <manfreds@colorfullife.com>,
+	Alan Cox <alan@redhat.com>, Kamal Deen <kamal@kdeen.net>
+References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net> <4443A6D9.6040706@mbligh.org> <1145286094.16138.22.camel@mindpipe> <20060418163539.GB10933@thunk.org> <1145384357.2976.39.camel@laptopd505.fenrus.org> <20060419124210.GB24807@harddisk-recovery.com> <1145456594.3085.42.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1145456594.3085.42.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ALSA drivers for PCMCIA devices depend on ISA, but modern
-laptops can have PCMCIA support without ISA. This patch removes
-the dependency.
+On Wed, Apr 19, 2006 at 04:23:14PM +0200, Arjan van de Ven wrote:
+> as long as the irqs are spread the apaches will (on average) follow your
+> irq to the right cpu. Only if you put both irqs on the same cpu you have
+> an issue
 
-Signed-off-by: Erik Mouw <erik@harddisk-recovery.com>
+Maybe I'm being stupid but I don't see how the Apache's will follow
+the IRQ's to the right CPU.  I agree this would be a good thing to do,
+but how does the scheduler accomplish this?
 
-diff --git a/sound/pcmcia/Kconfig b/sound/pcmcia/Kconfig
-index 5d1b0b7..c9fa1a2 100644
---- a/sound/pcmcia/Kconfig
-+++ b/sound/pcmcia/Kconfig
-@@ -5,7 +5,7 @@ menu "PCMCIA devices"
- 
- config SND_VXPOCKET
- 	tristate "Digigram VXpocket"
--	depends on SND && PCMCIA && ISA
-+	depends on SND && PCMCIA
- 	select SND_VX_LIB
- 	help
- 	  Say Y here to include support for Digigram VXpocket and
-@@ -16,7 +16,7 @@ config SND_VXPOCKET
- 
- config SND_PDAUDIOCF
- 	tristate "Sound Core PDAudioCF"
--	depends on SND && PCMCIA && ISA
-+	depends on SND && PCMCIA
- 	select SND_PCM
- 	help
- 	  Say Y here to include support for Sound Core PDAudioCF
+						- Ted

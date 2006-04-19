@@ -1,24 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWDSHQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWDSH0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWDSHQs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 03:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWDSHQs
+	id S1750716AbWDSH0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 03:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWDSH0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 03:16:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:905 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750735AbWDSHQr (ORCPT
+	Wed, 19 Apr 2006 03:26:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26507 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750716AbWDSH0Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 03:16:47 -0400
-Date: Wed, 19 Apr 2006 00:15:47 -0700
+	Wed, 19 Apr 2006 03:26:16 -0400
+Date: Wed, 19 Apr 2006 00:25:27 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: "Thayumanavar Sachithanantham" <thayumk@gmail.com>
-Cc: info-linux@geode.amd.com, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net
-Subject: Re: [PATCH]drivers/char/cs5535_gpio.c:call cdev_del during
- module_exit to unmap kobject references and other cleanups.
-Message-Id: <20060419001547.320684bf.akpm@osdl.org>
-In-Reply-To: <3b8510d80604182352v11fea186lde1b9987447a3318@mail.gmail.com>
-References: <3b8510d80604182352v11fea186lde1b9987447a3318@mail.gmail.com>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc1-mm3] doesn't compile (msi/smp.h compile error)
+Message-Id: <20060419002527.185503d9.akpm@osdl.org>
+In-Reply-To: <20060419045734.GA30172@amd64.of.nowhere>
+References: <20060419045734.GA30172@amd64.of.nowhere>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,35 +24,26 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Thayumanavar Sachithanantham" <thayumk@gmail.com> wrote:
+jurriaan <thunder7@xs4all.nl> wrote:
 >
-> During module unloading, cdev_del be called to unmap cdev related
-> kobject references and other cleanups(such as inode->i_cdev being set
-> to NULL) which prevents the OOPS upon subsequent loading ,usage and
-> unloading of modules(as
-> seen in the mail thread
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114533640609018&w=2).
-> Patch against 2.6.17-rc1
+> INTEL :make bzImage
+>    CHK     include/linux/version.h
+>    CHK     include/linux/compile.h
+>    CC      drivers/pci/msi-apic.o
+>  In file included from include/asm/msi.h:11,
+>                   from drivers/pci/msi.h:71,
+>                   from drivers/pci/msi-apic.c:8:
+>  include/asm/smp.h:104: error: syntax error before '->' token
+>  make[2]: *** [drivers/pci/msi-apic.o] Error 1
+>  make[1]: *** [drivers/pci] Error 2
+>  make: *** [drivers] Error 2
 > 
-> Signed-off-by: Thayumanavar Sachithanantham <thayumk@gmail.com>
-> 
-> --- linux-2.6/drivers/char/cs5535_gpio.c.orig   2006-04-17
-> 21:37:25.000000000 -0700
-> +++ linux-2.6/drivers/char/cs5535_gpio.c        2006-04-17
-> 21:38:24.000000000 -0700
-> @@ -241,6 +241,7 @@ static int __init cs5535_gpio_init(void)
->  static void __exit cs5535_gpio_cleanup(void)
->  {
->         dev_t dev_id = MKDEV(major, 0);
-> +        cdev_del(&cs5535_gpio_cdev);
->         unregister_chrdev_region(dev_id, CS5535_GPIO_COUNT);
+>  #
+>  # Automatically generated make config: don't edit
 
-Fair enough.  Please note that your patch was wordwrapped and had its tabs
-replaced with spaces.
+There's something wrong with the .config you've sent.  When I put it into a
+2.6.17-rc1-mm3 tree and do `make oldconfig' there are a huge number of
+promptings and CONFIG_PCI_MSI ends up getting disabled, so
+drivers/pci/msi-apic.c won't be compiled anyway.
 
-
->         if (gpio_base != 0)
->                 release_region(gpio_base, CS5535_GPIO_SIZE);
-
->From my reading, this test of gpio_base is unneeded and wrong, btw. 
-Probably it can't be zero anyway...
+So I think you need to send the real .config, please.

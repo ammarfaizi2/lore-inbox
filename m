@@ -1,101 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWDSNLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWDSNIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWDSNLo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 09:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWDSNLo
+	id S1750719AbWDSNIk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 09:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWDSNIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 09:11:44 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:30910 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1750735AbWDSNLn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 09:11:43 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kurt Garloff <garloff@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>, Gerrit Huizenga <gh@us.ibm.com>,
-       James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
-In-Reply-To: <20060418213833.GC5741@tpkurt.garloff.de>
-References: <20060417225525.GA17463@infradead.org>
-	 <E1FVfGt-0003Wy-00@w-gerrit.beaverton.ibm.com>
-	 <20060418115819.GB8591@infradead.org>
-	 <20060418213833.GC5741@tpkurt.garloff.de>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Wed, 19 Apr 2006 09:09:34 -0400
-Message-Id: <1145452174.24289.67.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Apr 2006 09:08:39 -0400
+Received: from smtp.tele.fi ([192.89.123.25]:48340 "EHLO smtp.tele.fi")
+	by vger.kernel.org with ESMTP id S1750719AbWDSNIj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 09:08:39 -0400
+Content-class: urn:content-classes:message
+Subject: RE: searching exported symbols from modules
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 19 Apr 2006 16:08:37 +0300
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Message-ID: <963E9E15184E2648A8BBE83CF91F5FAF43619A@titanium.secgo.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: searching exported symbols from modules
+Thread-Index: AcZjsQ73+MAmhsxjT/CqSBg95Y/ULQAADXsg
+From: "Antti Halonen" <antti.halonen@secgo.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-18 at 23:38 +0200, Kurt Garloff wrote:
-> Hi,
-> 
-> On Tue, Apr 18, 2006 at 12:58:19PM +0100, Christoph Hellwig wrote:
-> > It's doing access control on pathnames, which can't work in unix enviroments.
-> > It's following the default permit behaviour which causes pain in anything
-> > security-related (compare [1]).
-> 
-> Pathnames are problematic, no doubt.
-> So AppArmor does currently do some less-than-nice things to get around
-> this.
-> On the other side, pathnames is what the admins see and use, so it is
-> the right abstraction for the sysadmin, if you want to make a higher
-> level of security available to people without the need to get them
-> a large amount of extra training.
-> So that gap needs to be bridged somehow.
 
-The gap should be bridged in userspace.  Not by having the kernel rely
-on pathnames.
+Hi Dick,
 
-> Maybe there are better ways compared to what AA does currently, and
-> constructive suggestions are very welcome!
-> 
-> And no, just claiming that AA is useless or crap is not constructive
-> AFAICT. And saying that is should be better done as part of SElinux
-> is not either.
-> 
-> The goals are quite different. SElinux is a solution that wants to
-> implement policies that cover lots of things. It's accordingly powerful
-> and complex.
+Thanks for your response.
 
-Sorry, what precisely does AppArmor want to do?  SELinux wants to
-provide a mechanism that can support higher level confidentiality and
-integrity goals with _confidence_ and can support application security
-requirements as well (recognizing that security doesn't end with the
-OS).
+> `insmod` (or modprobe) does all this automatically. Anything that's
+> 'extern' will get resolved. You don't do anything special. You can
+> also use `depmod` to verify that you won't have any problems loading.
+> `man depmod`.
 
-> AppArmor is easy. Everyone with a little background in Un*x can
-> understand what it does and how it needs to be configured.
-> Eventually, most sysadmins of the world can configure it correctly
-> and thus make their systems more secure.
+Yes, I know insmod and herein the problem lies. I have a module where
+I want to use functions provided by another module, _if_ it is present, 
+otherwise use modules internal functions. 
 
-Userspace, userspace, userspace.  That is where ease-of-use is handled.
-Making their systems more secure is open to debate.  And remember that
-if ease-of-use is your sole or primary criteria, then anyone can always
-beat AppArmor at that game.
+So if I hardcode the function calls statically in my module, the insmod
+goes trough of course, if the service module is present. But, it fails
+if it's not. 
 
-> I don't want to judge, but I think the approaches and goals are 
-> different enough to grant both (and evetually others) the right 
-> to live.
-> 
-> Actually, I'm a bit worried about the discussion.
-> When I chose Linux, it was about the freedom of choice.
-> And we have a nice abstraction (LSM) that allows this freedom. At
-> a small price. It's not pleasant to see that some people want to move
-> away from that.
+So, I want to load up, check if the service module is present, and use
+it's servides.
+ 
+> If you are accessing functions or other objects that are not exported
+> anymore, how do you know that they even exist? 
 
-I've seen no shortage of times on linux-fsdevel and linux-kernel where a
-kernel developer has explained to someone that trying to rely on
-pathnames is broken.  Why should AppArmor be exempted from the same
-criteria?  And even if we assume that pathnames are a sound basis, it is
-very clear from the code (last I looked) that LSM is not a good fit for
-what AppArmor is trying to do, so why should AppArmor be using LSM?
-  
--- 
-Stephen Smalley
-National Security Agency
+I meant that in previous kernel version, some module symbol searching
+functions were available.
 
+Br,
+antti

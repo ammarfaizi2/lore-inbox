@@ -1,62 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWDSWVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWDSWZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWDSWVm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 18:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWDSWVm
+	id S1751289AbWDSWZe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 18:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWDSWZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 18:21:42 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:10266 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751172AbWDSWVl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 18:21:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=t6OKV3bqGgjWqsFBLcNm63+IUZ1l1z2ZQtOULB07rEo3JOoE9xaRa2LFtLABEdWb1MZHAL4rj46yiWeC7H4f7glY7ZjVakX0neZSY9grQSLkrrKe9iF9mXYlLcLAczbpHhRB80E+n8/om8y4oJ7I2wErMXZymJgg937DTiZIutk=
-Message-ID: <9a8748490604191521g7e4b49e8mcf01996d3b2c4e21@mail.gmail.com>
-Date: Thu, 20 Apr 2006 00:21:33 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Tilman Schmidt" <tilman@imap.cc>
-Subject: Re: [PATCH] ISDN: unsafe interaction between isdn_write and isdn_writebuf_stub
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44457350.4040802@imap.cc>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <60xlD-5Y2-13@gated-at.bofh.it> <62rF9-2nN-7@gated-at.bofh.it>
-	 <44457350.4040802@imap.cc>
+	Wed, 19 Apr 2006 18:25:33 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:34785
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751286AbWDSWZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 18:25:33 -0400
+Date: Wed, 19 Apr 2006 15:25:34 -0700 (PDT)
+Message-Id: <20060419.152534.02098739.davem@davemloft.net>
+To: hzhong@gmail.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, torvalds@osdl.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] sockfd_lookup_light() returns random error for -EBADFD
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <444688F2.5060909@gmail.com>
+References: <444688F2.5060909@gmail.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/19/06, Tilman Schmidt <tilman@imap.cc> wrote:
-> On 17.04.2006 04:30, Jesper Juhl wrote:
-> > No replies to this patch (below) at all, despite lots of people and
-> > lists on CC :-(
-> > Ohh well, adding akpm to CC so that perhaps the patch can make it into
-> > -mm and at least get some testing.
->
-> Yeah, apparently nobody wants to put much work into i4l anymore.
+From: Hua Zhong <hzhong@gmail.com>
+Date: Wed, 19 Apr 2006 12:01:06 -0700
 
-So it would seem.
+> There is a missing initialization of err in sockfd_lookup_light() that could return random error for an invalid file handle.
+> 
+> Signed-off-by: Hua Zhong <hzhong@gmail.com>
 
-> Everybody's waiting for it to be replaced by CAPI, only we don't quite
-> seem to be there yet.
->
-I don't know the state of that, but as long as the i4l stuff is in the
-kernel I think we should try to fix bugs when we find them, so I'll
-just try to push the patch again in a while.
-
-
-> Anyway, my development machine has been running with your patch for a
-> while, with no apparent ill effects. Although this hardly qualifies as
-> exhaustive testing, it does seem do indicate that the patch is on the
-> right track.
->
-Thanks a lot for trying the patch and your feedback, I really appreciate it.
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Applied, thanks a lot for this bug fix.

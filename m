@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWDSWTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWDSWVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWDSWTK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 18:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWDSWTJ
+	id S1751172AbWDSWVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 18:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWDSWVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 18:19:09 -0400
-Received: from mx1.suse.de ([195.135.220.2]:63883 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751278AbWDSWTH (ORCPT
+	Wed, 19 Apr 2006 18:21:42 -0400
+Received: from nz-out-0102.google.com ([64.233.162.196]:10266 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751172AbWDSWVl convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 18:19:07 -0400
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 20 Apr 2006 08:18:52 +1000
+	Wed, 19 Apr 2006 18:21:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=t6OKV3bqGgjWqsFBLcNm63+IUZ1l1z2ZQtOULB07rEo3JOoE9xaRa2LFtLABEdWb1MZHAL4rj46yiWeC7H4f7glY7ZjVakX0neZSY9grQSLkrrKe9iF9mXYlLcLAczbpHhRB80E+n8/om8y4oJ7I2wErMXZymJgg937DTiZIutk=
+Message-ID: <9a8748490604191521g7e4b49e8mcf01996d3b2c4e21@mail.gmail.com>
+Date: Thu, 20 Apr 2006 00:21:33 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Tilman Schmidt" <tilman@imap.cc>
+Subject: Re: [PATCH] ISDN: unsafe interaction between isdn_write and isdn_writebuf_stub
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <44457350.4040802@imap.cc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17478.46924.439611.402803@cse.unsw.edu.au>
-Cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [RFC] copy_from_user races with readpage
-In-Reply-To: message from Andrew Morton on Wednesday April 19
-References: <200604191318.45738.mason@suse.com>
-	<20060419134148.262c61cd.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <60xlD-5Y2-13@gated-at.bofh.it> <62rF9-2nN-7@gated-at.bofh.it>
+	 <44457350.4040802@imap.cc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday April 19, akpm@osdl.org wrote:
-> 
-> The application is being a bit silly, because the read will return
-> indeterminate results depending on whether it gets there before or after
-> the write.  But that's assuming that the read is reading the part of the
-> page which the writer is writing.  If the reader is reading bytes 1000-1010
-> and the writer is writing bytes 990-1000 then the reader is being non-silly
-> and would be justifiably surprised to see zeroes.
+On 4/19/06, Tilman Schmidt <tilman@imap.cc> wrote:
+> On 17.04.2006 04:30, Jesper Juhl wrote:
+> > No replies to this patch (below) at all, despite lots of people and
+> > lists on CC :-(
+> > Ohh well, adding akpm to CC so that perhaps the patch can make it into
+> > -mm and at least get some testing.
+>
+> Yeah, apparently nobody wants to put much work into i4l anymore.
 
-However this non-silly case will not cause a problem.  If the write is
-writing bytes 990-1000, then only those bytes risk being zeroed by
-__copy_from_user.  Bytes 1000-1010 (assuming those ranges are intended
-not to overlap) will not be at risk.
+So it would seem.
 
-> 
-> 
-> I'd have thought that a sufficient fix would be to change
-> __copy_from_user_inatomic() to not do the zeroing, then review all users to
-> make sure that they cannot leak uninitialised memory.
+> Everybody's waiting for it to be replaced by CAPI, only we don't quite
+> seem to be there yet.
+>
+I don't know the state of that, but as long as the i4l stuff is in the
+kernel I think we should try to fix bugs when we find them, so I'll
+just try to push the patch again in a while.
 
-I would agree with this.
 
-NeilBrown
+> Anyway, my development machine has been running with your patch for a
+> while, with no apparent ill effects. Although this hardly qualifies as
+> exhaustive testing, it does seem do indicate that the patch is on the
+> right track.
+>
+Thanks a lot for trying the patch and your feedback, I really appreciate it.
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

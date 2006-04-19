@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWDSHoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWDSHvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWDSHoK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 03:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWDSHoK
+	id S1750730AbWDSHvw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 03:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWDSHvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 03:44:10 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:33731 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750736AbWDSHoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 03:44:09 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: casey@schaufler-ca.com, James Morris <jmorris@namei.org>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fireflier-devel@lists.sourceforge.net
-In-Reply-To: <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com>
-References: <20060419014857.35628.qmail@web36606.mail.mud.yahoo.com>
-	 <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com>
-Content-Type: text/plain
-Date: Wed, 19 Apr 2006 09:44:05 +0200
-Message-Id: <1145432645.3085.9.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 19 Apr 2006 03:51:52 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:60940 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750730AbWDSHvw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 03:51:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NZbL8U7ETkSbCHorOrA+75KUJRgLYgipGQzev/sXeDMXeKQ6g7NeX+s9M3UAJb/J5Lp+mFmb+Eu9YJPDaYyLd9wFOjL3r00eIUV4wdsTKa7eYW6rDUNUtjMtuK8WJc380sUJ6vHbiK6rxMUUg3iP5ejcZvj4uAxvYNVUMN76k4k=
+Message-ID: <3b8510d80604190051v78c8757fibd30a5abf3efa24f@mail.gmail.com>
+Date: Wed, 19 Apr 2006 13:21:51 +0530
+From: "Thayumanavar Sachithanantham" <thayumk@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH]drivers/char/cs5535_gpio.c:call cdev_del during module_exit to unmap kobject references and other cleanups.
+Cc: info-linux@geode.amd.com, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net
+In-Reply-To: <20060419001547.320684bf.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3b8510d80604182352v11fea186lde1b9987447a3318@mail.gmail.com>
+	 <20060419001547.320684bf.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-19 at 02:40 -0400, Kyle Moffett wrote:
-> On Apr 18, 2006, at 21:48:56, Casey Schaufler wrote:
-> > --- James Morris <jmorris@namei.org> wrote:
-> >> With pathnames, there is an unbounded and unknown number of  
-> >> effective security policies on the system, as there are an
-> >> unbounded and unknown number of ways of viewing the files via  
-> >> pathnames.
-> >
-> > I agree that for traditional DAC and MAC (including the flavors  
-> > supported by SELinux) inodes is the only way to go. SELinux is a  
-> > traditional Trusted OS architecture and addresses the traditional  
-> > Trusted OS issues.
-> 
-> Perhaps the SELinux model should be extended to handle (dir-inode,  
-> path-entry) pairs.  For example, if I want to protect the /etc/shadow  
-> file regardless of what tool is used to safely modify it, I would set  
-> up security as follows:
-> 
-> o  Protect the "/" and "/etc" directory inodes as usual under SELinux  
-> (with attributes on directory inodes).
+During module unloading, cdev_del be called to unmap cdev related
+kobject references and other cleanups(such as inode->i_cdev being set
+to NULL) which prevents the OOPS upon subsequent loading ,usage and
+unloading of modules(as seen in the mail thread:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114533640609018&w=2).
 
-in which namespace are these? And are they in a chroot?
-And what if someone makes /etd a symlink to /etc :)
-And what if I bind-mount something on top of /etc/shadow ?
-or unlink the file while holding it open? Should the security suddenly
-go away? There's no "directory" for this file anymore at that point.
-Or if I hardlink /etc/shadhow to /tmp/shad ... what then?
+Removed test of gpio_base as it is unneeded and will not be zero at
+module unload time.
 
+Signed-off-by: Thayumanavar Sachithanantham <thayumk@gmail.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-> o  Create pairs with (etc_inode,"shadow") and (etc_inode,"gshadow")  
-> and apply security attributes to those potentially nonexistent pairs
+--- linux-2.6/drivers/char/cs5535_gpio.c.orig	2006-04-17
+21:37:25.000000000 -0700
++++ linux-2.6/drivers/char/cs5535_gpio.c	2006-04-17 23:05:49.000000000 -0700
+@@ -241,9 +241,9 @@ static int __init cs5535_gpio_init(void)
+ static void __exit cs5535_gpio_cleanup(void)
+ {
+ 	dev_t dev_id = MKDEV(major, 0);
++        cdev_del(&cs5535_gpio_cdev);
+ 	unregister_chrdev_region(dev_id, CS5535_GPIO_COUNT);
+-	if (gpio_base != 0)
+-		release_region(gpio_base, CS5535_GPIO_SIZE);
++	release_region(gpio_base, CS5535_GPIO_SIZE);
+ }
 
-again see above ;_)
-
-> .
-> 
-> I'm not terribly familiar with the exact internal semantics of  
-> SELinux, but that should provide a 90% solution (it fixes bind mounts  
-> and namespaces).
-
-how does this fix namespaces or even bind mounts?
-(or even symlinks for that matter)
-
-
+ module_init(cs5535_gpio_init);

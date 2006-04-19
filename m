@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWDSV6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWDSWKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWDSV6S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 17:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWDSV6R
+	id S1751281AbWDSWKm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 18:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWDSWKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 17:58:17 -0400
-Received: from smtp.uaf.edu ([137.229.34.30]:16146 "EHLO smtp.uaf.edu")
-	by vger.kernel.org with ESMTP id S1751266AbWDSV6Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 17:58:16 -0400
-From: Joshua Kugler <joshua.kugler@uaf.edu>
-Organization: UAF Center for Distance Education - IT
-To: linux-kernel@vger.kernel.org
-Subject: Patch for removing 2TB RAID1 component limit (for pre 2.6.16)
-Date: Wed, 19 Apr 2006 13:58:09 -0800
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Apr 2006 18:10:42 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:20377 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751278AbWDSWKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 18:10:41 -0400
+Date: Wed, 19 Apr 2006 23:10:38 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Tony Jones <tonyj@suse.de>
+Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
+       linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export namespace semaphore
+Message-ID: <20060419221038.GA26694@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tony Jones <tonyj@suse.de>, linux-kernel@vger.kernel.org,
+	chrisw@sous-sol.org, linux-security-module@vger.kernel.org
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604191358.09551.joshua.kugler@uaf.edu>
+In-Reply-To: <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have googled, looked through release notes, and investigated everywhere I 
-know to investigate, so I'm hoping this short note will find the help I need.
+On Wed, Apr 19, 2006 at 10:50:34AM -0700, Tony Jones wrote:
+> This patch exports the namespace_sem semaphore.
+> 
+> The shared subtree patches which went into 2.6.15-rc1 replaced the old
+> namespace semaphore which used to be per namespace (and visible) with a
+> new single static semaphore.
+> 
+> The reason for this change is that currently visibility of vfsmount information
+> to the LSM hooks is fairly patchy.  Either there is no passed parameter or
+> it can be NULL.  For the case of the former,  several LSM hooks that we
+> require to mediate have no vfsmount/nameidata passed.  We previously (mis)used
+> the visibility of the old per namespace semaphore to walk the processes 
+> namespace looking for vfsmounts with a root dentry matching the dentry we were 
+> trying to mediate.  
+> 
+> Clearly this is not viable long term strategy and changes working towards 
+> passing a vfsmount to all relevant LSM hooks would seem necessary (and also 
+> useful for other users of LSM). Alternative suggestions and ideas are welcomed.
 
-I am working on a Redhat-based system (CentOS) and would like to compile the 
-kernel to support RAID1 components larger than 2TB (5.1TB in this case).  I 
-know the 2TB limitation went away somewhere in 2.6.16, but I cannot find any 
-reference to the patch or the change in the ChangeLogs.  Is it as simple as 
-replacing everything in /md, or is there more involved?
-
-I've tried experiment with 5.6 TB sparse files, but even on systems where I 
-have 5.1TB raid components working, try to do this:
-
-mdadm -C /dev/md10 --auto=yes -l raid1 -n2 sparsefile1 sparsefile2
-
-returns:
-
-mdadm: Cannot open sparsefile1: File too large
-mdadm: Cannot open sparsefile2: File too large
-mdadm: create aborted
-
-So, I can't determine experimentally whether or not the patch has been 
-included, nor whether or not a 5.1TB component would work.
-
-So, any tips, pointers, or patches for the large MD devices?
-
-Thanks!
-
-j----- k-----
-
--- 
-Joshua Kugler                 PGP Key: http://pgp.mit.edu/
-CDE System Administrator             ID 0xDB26D7CE
-http://distance.uaf.edu/
+Just don't do it.  No module has any business looking in there, and no
+non-modular code outside a few files in fs/ either.

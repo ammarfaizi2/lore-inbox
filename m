@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWDSOwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWDSOyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWDSOwW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 10:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWDSOwV
+	id S1750819AbWDSOyf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 10:54:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWDSOyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 10:52:21 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:57565 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
-	id S1750815AbWDSOwU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 10:52:20 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: David Safford <safford@watson.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, James Morris <jmorris@namei.org>,
-       casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1145304146.8542.251.camel@moss-spartans.epoch.ncsc.mil>
-References: <20060417180231.71328.qmail@web36606.mail.mud.yahoo.com>
-	 <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417192634.GB18990@sergelap.austin.ibm.com>
-	 <Pine.LNX.4.64.0604171528340.17923@d.namei>
-	 <20060417194759.GD18990@sergelap.austin.ibm.com>
-	 <1145304146.8542.251.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 19 Apr 2006 10:52:02 -0400
-Message-Id: <1145458322.2377.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Apr 2006 10:54:35 -0400
+Received: from smtp.tele.fi ([192.89.123.25]:26805 "EHLO smtp.tele.fi")
+	by vger.kernel.org with ESMTP id S1750819AbWDSOye convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 10:54:34 -0400
+Content-class: urn:content-classes:message
+Subject: RE: searching exported symbols from modules
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 19 Apr 2006 17:54:28 +0300
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Message-ID: <963E9E15184E2648A8BBE83CF91F5FAF5154DF@titanium.secgo.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: searching exported symbols from modules
+Thread-Index: AcZjvLWkc0b/IIHCQ9qTBxhwGHvCrAAAlEkg
+From: "Antti Halonen" <antti.halonen@secgo.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-17 at 16:02 -0400, Stephen Smalley wrote: 
-> At the conclusion of the last round of discussions on slim-evm-ima on
-> list, it was the case that:
 
-> ima was no longer an issue, as it had already ceased being a separate
-> LSM,
+Hi Arjan,
 
-Agreed. Integrity attestation clearly needed to be tightly coupled with
-integrity measurement.
+Thanks for your response.
 
-> it was demonstrated that evm needed to be tightly coupled with any LSM
-> in order to work correctly and efficiently, and it seemed to be accepted
-> that evm needed to be turned from a separate LSM into a set of support
-> functions for use by a LSM (as well as having many other design and
-> implementation problems to resolve to be truly useable),
+> they still are... but.. very often if you want to do this you have a
+> crooked design, you were very vague about what you are really trying
+to
+> achieve (you only described your solution, not the problem)
 
-It was certainly agreed that integrity needed to be a separate service
-available to any access control module, with nothing specific to SLIM, 
-and that a number of design and implementation problems had to be fixed. 
-During testing we also found a number of other bugs which weren't raised 
-on the list, which had to be fixed. (That's what has taken us so long to 
-post a new version.) As to whether it should be tightly coupled to an
-LSM module, or should be a separate service with its own kernel hooks,
-I think was not settled. 
+The problem is that I cannot seem to have access to the module linked
+list. Ie. I want to traverse the linked list who's nodes contain module
+structures.
 
-> - it was argued that slim was broken-by-design and no one was willing or
-> able to refute that position.
-> 
-> Hardly a strong case for LSM...
+Or
 
-I seem to recall a number of people arguing for the low water-mark 
-integrity policy as one which provides a simple, user friendly 
-policy, one which has been demonstrated and tested not only by
-SLIM, but also with predecessors, such as LOMAC. 
+Access to some global symbol table would be helpful as well. Where's
+listed the symbol address and name. Same stuff which is found at
+/proc/kallsyms.
 
-I do understand and respect the selinux position against dynamic 
-labels, since they require revocation, and particularly since at 
-that time, we had not implemented revocation of mmap access. We 
-have been quietly studying, fixing, and testing the design and
-implementation errors pointed out earlier, and still feel strongly 
-that low water-mark policies have a place, particularly in client
-systems. 
-
-Since selinux (by choice) cannot implement policies with dynamic labels,
-I believe LSM is important for work in alternative access control
-models, like low water-mark, to continue.
-
-dave safford
-
-
-
-
+Br,
+Antti

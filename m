@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWDSQBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWDSQBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWDSQBj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 12:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWDSQBj
+	id S1750959AbWDSQBy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 12:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbWDSQBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 12:01:39 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:34015 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750772AbWDSQBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 12:01:38 -0400
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
-	implementation of LSM hooks)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Greg KH <greg@kroah.com>, James Morris <jmorris@namei.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
-References: <200604021240.21290.edwin@gurde.com>
-	 <200604072138.35201.edwin@gurde.com>
-	 <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil>
-	 <200604142301.10188.edwin@gurde.com>
-	 <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417162345.GA9609@infradead.org>
-	 <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417173319.GA11506@infradead.org>
-	 <Pine.LNX.4.64.0604171454070.17563@d.namei>
-	 <20060417195146.GA8875@kroah.com>
-	 <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Wed, 19 Apr 2006 18:00:54 +0200
-Message-Id: <1145462454.3085.62.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 19 Apr 2006 12:01:54 -0400
+Received: from pproxy.gmail.com ([64.233.166.183]:13590 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750962AbWDSQBx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 12:01:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SWcdnTiGjzKNj8oHk4LSGITSZrnxtPhDAr10bWoGAmsA3WKRn7LK3lXrx84JFEGlf4xEqB6+1dIvDQQtRU8TDZNmR128p1EUrI/Wg0oAzLqs5ej/GUCUaAiQevYMMplvwE2MUjFI9hVlyYOehhMDhkIhAYrrPoixWG+D1stjvqg=
+Message-ID: <35fb2e590604190901o784bfb8cj65d87d4ac354d785@mail.gmail.com>
+Date: Wed, 19 Apr 2006 17:01:52 +0100
+From: "Jon Masters" <jonathan@jonmasters.org>
+To: "androi@inwind.it" <androi@inwind.it>
+Subject: Re: Problems ejecting 4th-generation iPod with 2.6.15
+Cc: greg <greg@kroah.com>, joshk <joshk@triplehelix.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <IXZ7WS$7C97ED4495AB8E41BB97FB4821D58030@libero.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <IXZ7WS$7C97ED4495AB8E41BB97FB4821D58030@libero.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-19 at 10:16 +0200, Jan Engelhardt wrote:
-> 
-> Well then, have a look at http://alphagate.hopto.org/multiadm/
-> 
+Folks,
 
-hmm on first sight that seems to be basically an extension to the
-existing capability() code... rather than a 'real' LSM module. Am I
-missing something here?
+On a related note, on my powerbooks here if I do an eject /dev/sda on
+the iPod then I get a choice of failure - either the process blocks
+and I pull the iPod, or the system locks hard.
 
+Who else is getting weird behavior when they use "eject" and don't just yank it?
+
+Jon.

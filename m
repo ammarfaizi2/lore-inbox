@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWDSXhk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWDSXjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWDSXhk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 19:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWDSXhk
+	id S1751335AbWDSXjK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 19:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWDSXjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 19:37:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24485 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751241AbWDSXhj (ORCPT
+	Wed, 19 Apr 2006 19:39:10 -0400
+Received: from cantor.suse.de ([195.135.220.2]:3477 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751330AbWDSXjJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 19:37:39 -0400
-Date: Wed, 19 Apr 2006 19:37:29 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: =?iso-8859-2?Q?Pawe=B3_Kowalski?= <pk@protest.com.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: problem with cache size
-In-Reply-To: <Pine.LNX.4.58.0604192134240.9362@filer.protest.com.pl>
-Message-ID: <Pine.LNX.4.63.0604191936310.11063@cuia.boston.redhat.com>
-References: <Pine.LNX.4.58.0604192134240.9362@filer.protest.com.pl>
+	Wed, 19 Apr 2006 19:39:09 -0400
+From: Andi Kleen <ak@suse.de>
+To: grundig <grundig@teleline.es>
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+Date: Thu, 20 Apr 2006 01:38:00 +0200
+User-Agent: KMail/1.9.1
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
+       linux-security-module@vger.kernel.org
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <p73mzeh2o38.fsf@bragg.suse.de> <20060420011037.6b2c5891.grundig@teleline.es>
+In-Reply-To: <20060420011037.6b2c5891.grundig@teleline.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604200138.00857.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Apr 2006, Pawe? Kowalski wrote:
+On Thursday 20 April 2006 01:00, grundig wrote:
 
-> I'm using RedHat Linux 7.2 with compiled kernel 2.4.25.
-> My serwer has one cpu "Intel(R) Pentium(R) 4 CPU 3.20GHz" with HT flag so
-> there are two processors in cpuinfo.
-> The processor has 2MB cache but `cat /proc/cpuinfo` shows only 16KB.
+> From my user POV it seems
+> really weird that a feature forbids you from using another unrelated feature
 
-That's cosmetic.  The CPU will still use all the cache,
-since this is controlled entirely by hardware and the
-OS has no influence.
+e.g. using a firewall usually prevents some applications
+from working. Or using hugepages is not compatible with a lot of other VM
+features. Or some locking doesn't work over NFS.
 
-> When I try to use 2.4.17 kernel, there is 2048KB cache but cpuinfo shows
-> only one cpu :)
-> I don't know where I should send my question, maybe You could help me.
-> I'll be very thankful for any answer.
+There are lots of things like this in the kernel like in any 
+complex system.
 
-If you have the time, you could try to find the changeset
-that caused the problem and send Marcelo a patch ;)
-
--- 
-All Rights Reversed
+-Andi

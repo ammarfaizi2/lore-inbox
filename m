@@ -1,101 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWDSJsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWDSJtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWDSJsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 05:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWDSJsZ
+	id S1750858AbWDSJtD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 05:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWDSJtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 05:48:25 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:47243 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750848AbWDSJsY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 05:48:24 -0400
-Date: Wed, 19 Apr 2006 10:44:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-Subject: [patch] md: locking fix
-Message-ID: <20060419084435.GA490@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Apr 2006 05:49:03 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:36466 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750858AbWDSJtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 05:49:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Date:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=KU0R/Cw7VMwwDzOk8BF3C3w50u8o5Gy36RZv+ro0/k5o4ZG5T1M2O6mEGIuaO/E9nVn22YGPpnMHdLvMdwqJQzmLyI6BSfEGCOPZyPMn2C9w7oFH2RFrn+IY4l1nVBt25TXaQk6CZ+RLl0kJPHkC2iGdXFEPD+/KFC8AFh+oTpc=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH 1/3] UML - Change sigjmp_buf to jmp_buf
+User-Agent: KMail/1.8.3
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+References: <200604102337.k3ANb659006843@ccure.user-mode-linux.org>
+In-Reply-To: <200604102337.k3ANb659006843@ccure.user-mode-linux.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Date: Wed, 19 Apr 2006 11:51:52 +0200
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604191151.53281.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- fix mddev_lock() usage bugs in md_attr_show() and md_attr_store(). 
-  [they did not anticipate the possibility of getting a signal]
+On Tuesday 11 April 2006 01:37, Jeff Dike wrote:
+> Clean up the jmpbuf code.  Since softints, we no longer use sig_setjmp, so
+> the UML_SIGSETJMP wrapper now has a misleading name.  Also, I forgot to
+> change the buffers from sigjmp_buf to jmp_buf.
 
-- remove mddev_lock_uninterruptible() [unused]
+> Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Can I request (additionally) a look at remaining calls to {sig,}setjmp() and 
+sigprocmask(), like the below one and the one in (IIRC) thread_wait()?
 
-----
+I think that probably some of them are valid because signal handlers modify 
+the signal mask, so we may still need to play with it, but:
 
- drivers/md/md.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+* I don't remember (I may be wrong) mention of this in the changelog of the 
+softints patch,
 
-Index: linux/drivers/md/md.c
-===================================================================
---- linux.orig/drivers/md/md.c
-+++ linux/drivers/md/md.c
-@@ -279,11 +279,6 @@ static inline int mddev_lock(mddev_t * m
- 	return mutex_lock_interruptible(&mddev->reconfig_mutex);
- }
- 
--static inline void mddev_lock_uninterruptible(mddev_t * mddev)
--{
--	mutex_lock(&mddev->reconfig_mutex);
--}
--
- static inline int mddev_trylock(mddev_t * mddev)
- {
- 	return mutex_trylock(&mddev->reconfig_mutex);
-@@ -2458,9 +2453,11 @@ md_attr_show(struct kobject *kobj, struc
- 
- 	if (!entry->show)
- 		return -EIO;
--	mddev_lock(mddev);
--	rv = entry->show(mddev, page);
--	mddev_unlock(mddev);
-+	rv = mddev_lock(mddev);
-+	if (!rv) {
-+		rv = entry->show(mddev, page);
-+		mddev_unlock(mddev);
-+	}
- 	return rv;
- }
- 
-@@ -2474,9 +2471,11 @@ md_attr_store(struct kobject *kobj, stru
- 
- 	if (!entry->store)
- 		return -EIO;
--	mddev_lock(mddev);
--	rv = entry->store(mddev, page, length);
--	mddev_unlock(mddev);
-+	rv = mddev_lock(mddev);
-+	if (!rv) {
-+		rv = entry->store(mddev, page, length);
-+		mddev_unlock(mddev);
-+	}
- 	return rv;
- }
- 
-@@ -4341,8 +4340,9 @@ static int md_seq_show(struct seq_file *
- 		return 0;
- 	}
- 
--	if (mddev_lock(mddev)!=0) 
-+	if (mddev_lock(mddev))
- 		return -EINTR;
-+
- 	if (mddev->pers || mddev->raid_disks || !list_empty(&mddev->disks)) {
- 		seq_printf(seq, "%s : %sactive", mdname(mddev),
- 						mddev->pers ? "" : "in");
+* you had IIRC doubts on the current code (when I noted thread_wait())
+
+* an analysis of what is correct should end up in a comment somewhere 
+describing the results.
+
+I won't have the time to work on this soon, at least not this week, and I 
+didn't write the code.
+
+When I'll get time, I'll work on merging RemapFilePages in -mm (I'm reasonably 
+near to resend it, but I can't until I've made sure all changelogs are 
+up-to-date and clear enough).
+
+> Index: linux-2.6.16-mm/arch/um/os-Linux/util.c
+> ===================================================================
+
+>  int setjmp_wrapper(void (*proc)(void *, void *), ...)
+>  {
+>  	va_list args;
+> -	sigjmp_buf buf;
+> +	jmp_buf buf;
+>  	int n;
+>
+>  	n = sigsetjmp(buf, 1);
+
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+
+		
+___________________________________ 
+Yahoo! Messenger with Voice: chiama da PC a telefono a tariffe esclusive 
+http://it.messenger.yahoo.com

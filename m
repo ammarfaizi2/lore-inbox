@@ -1,55 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWDSXad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWDSXgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbWDSXad (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 19:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWDSXad
+	id S1751328AbWDSXgH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 19:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWDSXgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 19:30:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20440 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751236AbWDSXac (ORCPT
+	Wed, 19 Apr 2006 19:36:07 -0400
+Received: from ns2.suse.de ([195.135.220.15]:29382 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751328AbWDSXgG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 19:30:32 -0400
-Date: Wed, 19 Apr 2006 16:32:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ken Witherow <ken@krwtech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Advansys SCSI driver and 2.6.16
-Message-Id: <20060419163247.6986a87c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0604191444200.1841@death>
-References: <Pine.LNX.4.64.0604191444200.1841@death>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 19 Apr 2006 19:36:06 -0400
+Date: Thu, 20 Apr 2006 01:36:01 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Neil Brown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Mason <mason@suse.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] copy_from_user races with readpage
+Message-ID: <20060419233601.GO20834@opteron.random>
+References: <200604191318.45738.mason@suse.com> <20060419134148.262c61cd.akpm@osdl.org> <17478.46924.439611.402803@cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17478.46924.439611.402803@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ken Witherow <ken@krwtech.com> wrote:
->
-> I use an Advansys controller for an old, slow SCSI drive and my flatbed 
-> scanner. I noticed that upon trying to boot 2.6.16, my Advansys controller 
-> wasn't detected. Further investigation shows that the driver has been 
-> fairly silently disappearing over the last couple releases.
-> 
-> Is this a permanent change or is the Advansys driver just in need of some 
-> updating to current APIs? I'd hate to have to replace this controller and 
-> I don't want to be stuck at 2.6.15 forever. If someone could point me in 
-> the right direction about what the problem is, I'd be glad to take a look 
-> at seeing if I could fix it.
+On Thu, Apr 20, 2006 at 08:18:52AM +1000, Neil Brown wrote:
+> I would agree with this.
 
-There have been no changes in the advansys driver since November 2005, and
-nothing substantial in over a year.  So I'd say what we have here is either
-a faulty .config or a bug.
-
-Please check the .config and if it looks OK, provide a full description of
-the problem.  It may be useful to do
-
-boot (2.6.15)
-dmesg -s 1000000 > 1
-boot (2.6.16)
-dmesg -s 1000000 > 2
-diff -u 1 2 > 3
-
-and include `3' in the report.
-
-Thanks.
+Me too. My patch was more relaxed, but there's no need to alter the real
+sigsegv case.

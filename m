@@ -1,97 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWDSSVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWDSSWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750944AbWDSSVO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 14:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWDSSVO
+	id S1750943AbWDSSWp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 14:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWDSSWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 14:21:14 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:53256 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1750944AbWDSSVN convert rfc822-to-8bit (ORCPT
+	Wed, 19 Apr 2006 14:22:44 -0400
+Received: from mail.polishnetwork.com ([69.222.0.23]:62731 "EHLO usfltd.com")
+	by vger.kernel.org with ESMTP id S1750943AbWDSSWo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 14:21:13 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <20060419180724.GD25047@stusta.de>
-x-originalarrivaltime: 19 Apr 2006 18:21:12.0171 (UTC) FILETIME=[099B73B0:01C663DE]
-Content-class: urn:content-classes:message
-Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
-Date: Wed, 19 Apr 2006 14:21:12 -0400
-Message-ID: <Pine.LNX.4.61.0604191415590.28421@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
-Thread-Index: AcZj3gmioSzxIBIrQYSUoIbveewcIw==
-References: <20060418220715.GO11582@stusta.de> <20060419051355.GI4825@rhun.haifa.ibm.com> <20060419180724.GD25047@stusta.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: "Muli Ben-Yehuda" <muli@il.ibm.com>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 19 Apr 2006 14:22:44 -0400
+Date: Wed, 19 Apr 2006 13:22:01 -0500
+Message-Id: <200604191322.AA197460092@usfltd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+From: "art" <art@usfltd.com>
+Reply-To: <art@usfltd.com>
+To: <linux-kernel@vger.kernel.org>
+CC: <jonathan@jonmasters.org>
+Subject: Re: is this GPL v2 violation - konica-minolta or EFI ?
+X-Mailer: <IMail v8.05>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+---------- Original Message ----------------------------------
+From: "Jon Masters" <jonathan@jonmasters.org>
+Date:  Wed, 19 Apr 2006 09:52:36 +0100
 
-On Wed, 19 Apr 2006, Adrian Bunk wrote:
-
-> On Wed, Apr 19, 2006 at 08:13:55AM +0300, Muli Ben-Yehuda wrote:
->> On Wed, Apr 19, 2006 at 12:07:15AM +0200, Adrian Bunk wrote:
->>> virt_to_bus/bus_to_virt are long deprecated, mark them as __deprecated
->>> on i386.
->>
->> You should probably update Documentation/ while you're at it.
+>On 4/19/06, art <art@usfltd.com> wrote:
 >
-> Which file under Documentation/ are you referring to?
+>> is this GPL v2 violation - konica-minolta or EFI ?
 >
->> Also, IIRC Xen uses virt_to_phys to return guest physical addresses
->> and virt_to_bus to return machine physical addresses, so the
->> difference is useful at least in some scenarios.
+>> << NO SOURCE CODE FOR LINUX >> on media/web
 >
-> Solving this should be easy.
+>Did you:
 >
-> And this still doesn't make it right for architecture independent
-> drivers to use virt_to_bus/bus_to_virt.
-
-Then what would you use to return the proper bus address to put
-into a DMA scatter list and, conversely, how would you convert
-those bus addresses into something a virtual mode CPU could
-access?  These macros used to be the link that made such driver
-coding architecture independent. You cannot just claim that
-one can't make such conversions anymore. The CPU uses virtual
-addresses and the DMA uses physical (bus) addresses. Do we
-throw away DMA altogether?
-
+>a). Buy the product.
+>b). Ask them for the source?
 >
->> Cheers,
->> Muli
->
-> cu
-> Adrian
->
-> --
->
->       "Is there not promise of rain?" Ling Tan asked suddenly out
->        of the darkness. There had been need of rain for many days.
->       "Only a promise," Lao Er said.
->                                       Pearl S. Buck - Dragon Seed
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>Jon.
 >
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.53 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+i have offer to buy the product - bizhub c351 with
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+product: option for konica-minolta bizhub c351
+IC-402 Embedded Fiery Print Controller
 
-Thank you.
+operating system:
+Linux
+
+i call them to check if they will include source code
+or offer me other option like in COPYING file
+
+".......
+3. You may copy and distribute the Program (or a work based on it,
+under Section 2) in object code or executable form under the terms of
+Sections 1 and 2 above provided that you also do one of the following:
+
+    a) Accompany it with the complete corresponding machine-readable
+    source code, which must be distributed under the terms of Sections
+    1 and 2 above on a medium customarily used for software interchange; or,
+
+    b) Accompany it with a written offer, valid for at least three
+    years, to give any third party, for a charge no more than your
+    cost of physically performing source distribution, a complete
+    machine-readable copy of the corresponding source code, to be
+    distributed under the terms of Sections 1 and 2 above on a medium
+    customarily used for software interchange; or,
+
+    c) Accompany it with the information you received as to the offer
+    to distribute corresponding source code.  (This alternative is
+    allowed only for noncommercial distribution and only if you
+    received the program in object code or executable form with such
+    an offer, in accord with Subsection b above.)
+......"
+
+xboom

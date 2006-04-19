@@ -1,109 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWDSOzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWDSPAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbWDSOzh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 10:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWDSOzh
+	id S1750828AbWDSPAG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 11:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWDSPAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 10:55:37 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:30224 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750820AbWDSOzg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 10:55:36 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <963E9E15184E2648A8BBE83CF91F5FAF43619A@titanium.secgo.net>
-x-originalarrivaltime: 19 Apr 2006 14:55:35.0363 (UTC) FILETIME=[504BF130:01C663C1]
-Content-class: urn:content-classes:message
-Subject: RE: searching exported symbols from modules
-Date: Wed, 19 Apr 2006 10:55:35 -0400
-Message-ID: <Pine.LNX.4.61.0604191020530.27688@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: searching exported symbols from modules
-Thread-Index: AcZjwVBTziJb6bXETpWkQ3zSEGzsGg==
-References: <963E9E15184E2648A8BBE83CF91F5FAF43619A@titanium.secgo.net>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Antti Halonen" <antti.halonen@secgo.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 19 Apr 2006 11:00:06 -0400
+Received: from bay114-f27.bay114.hotmail.com ([65.54.169.37]:28421 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750828AbWDSPAD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 11:00:03 -0400
+Message-ID: <BAY114-F27D0D25E7FF85033ED93D2C7C50@phx.gbl>
+X-Originating-IP: [152.14.96.222]
+X-Originating-Email: [fbarsoba@hotmail.com]
+In-Reply-To: <20060419142442.GC24807@harddisk-recovery.com>
+From: "Fernando Barsoba" <fbarsoba@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems compiling kernel module
+Date: Wed, 19 Apr 2006 10:59:58 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 19 Apr 2006 15:00:03.0006 (UTC) FILETIME=[EFD305E0:01C663C1]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks a lot for your makefile. It worked nicely. I wasn't sure if the 
+question was too basic for this mailing list.
 
-On Wed, 19 Apr 2006, Antti Halonen wrote:
+Thanks also for Arjan's reference to 
+http://fxr.watson.org/fxr/source/Documentation/kbuild/makefiles.txt?v=linux-2.6.9
 
+I am new in kernel programming...
+
+tnx,
+Fernando
+
+>From: Erik Mouw <erik@harddisk-recovery.com>
+>To: Fernando Barsoba <fbarsoba@hotmail.com>
+>CC: linux-kernel@vger.kernel.org
+>Subject: Re: problems compiling kernel module
+>Date: Wed, 19 Apr 2006 16:24:42 +0200
 >
-> Hi Dick,
+>On Wed, Apr 19, 2006 at 09:44:08AM -0400, Fernando Barsoba wrote:
+> > I am really stuck with this thing.. For couple of days i have been
+> > trying to compile a kernel module. I have been following the info in
+> > http://www.faqs.org/docs/kernel/x204.html. But no success... i
+> > recompiled the latest kernel version, and i think i trying to compile
+> > the module against the source code for that kernel.. however, strange
+> > errors appear.
 >
-> Thanks for your response.
+>That way just doesn't work. Use kbuild instead of brewing your own
+>Makefiles. See http://lwn.net/Articles/21823/ .
 >
->> `insmod` (or modprobe) does all this automatically. Anything that's
->> 'extern' will get resolved. You don't do anything special. You can
->> also use `depmod` to verify that you won't have any problems loading.
->> `man depmod`.
+> > And here are the files:
+> >
+> > Code:
+> >
+> > /* hello-1.c - The simplest kernel module.
+> > */ #include <linux/module.h> /* Needed by all modules
 >
-> Yes, I know insmod and herein the problem lies. I have a module where
-> I want to use functions provided by another module, _if_ it is present,
-> otherwise use modules internal functions.
+>Not necessary, IIRC.
 >
-> So if I hardcode the function calls statically in my module, the insmod
-> goes trough of course, if the service module is present. But, it fails
-> if it's not.
-
-/proc/kallsyms contains the offset and names of all the global kernel
-symbols. This is not supposed to be accessed from inside the kernel,
-but it could tell a program loader, that you write, if the required
-symbols exist. If not, you can link in the required procedures
-before you load your module. Note that 'module.ko' is just an
-object file and you can use `ld` to link in other objects.
-
-You could even do this with a shell-script (not tested):
-
-SYMS="printk foo bar"
-BASE="mymodule.ko"
-FINAL="final.ko"
-
-for x in $SYMS ; do if ! grep $x /proc/kallsyms>/dev/null ;
-  then echo $x ; ld -o tmp.o mymodule.ko $x.o ; mv tmp.o mymodule.ko;
-  fi;
-  done
-
+> > */ #include <linux/kernel.h> /* Needed for KERN_ALERT */
 >
-> So, I want to load up, check if the service module is present, and use
-> it's servides.
+>OK...
 >
-
-Another thing you may be able to use are 'weak' symbols. I don't
-know if the new `insmod` handles these. Weak symbols are used in
-linking if globals are not found (which is what you want). You can
-try "# pragma weak" or __attribute__((weak)) for all functions you
-want to use if globals are not found. You can see if that works.
-If it works, you are home free, if not you can contact the module-
-tools people and see if they could add handling weak symbols.
-
- 	Rusty Russell <rusty@rustcorp.com.au>
- 	Adam J. Richter <adam@yggdrasil.com>
-
-
->> If you are accessing functions or other objects that are not exported
->> anymore, how do you know that they even exist?
+> > int init_module(void) {
+> > printk("<1>Hello world 1.\n"); // A non 0 return means init_module
 >
-> I meant that in previous kernel version, some module symbol searching
-> functions were available.
+>... so why don't you use KERN_ALERT instead of <1>?
 >
+>Make that printk(KERN_ALERT "Hello, world!\n");
+>
+> > failed; module can't be loaded.
+> > return 0;
+> > }
+> >
+> > void cleanup_module(void) {
+> > printk(KERN_ALERT "Goodbye world 1.\n");
+> > }
+> >
+> >
+> > Code:
+> >
+> > TARGET := hello-1
+> > WARN := -W -Wall -Wstrict-prototypes -Wmissing-prototypes
+> > INCLUDE := -isystem /lib/modules/`uname -r`/build/include
+> > CFLAGS := -O2 -DMODULE -D__KERNEL__ ${WARN} ${INCLUDE} CC := gcc
+> > ${TARGET}.o: ${TARGET}.c
+> > .PHONY: clean
+> > clean: rm -rf {TARGET}.o
+>
+>You want something like:
+>
+>ifneq ($(KERNELRELEASE),)
+>obj-m	:= hello.o
+>else
+>KDIR	:= /lib/modules/$(shell uname -r)/build
+>PWD		:= $(shell pwd)
+>
+>default:
+>	$(MAKE) -C $(KDIR) M=$(PWD) modules
+>endif
+>
+>
+>Erik
+>
+>--
+>+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+>| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.53 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

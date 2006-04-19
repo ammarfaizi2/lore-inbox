@@ -1,188 +1,490 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWDSRy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWDSRy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbWDSRy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 13:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWDSRy5
+	id S1751079AbWDSRy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 13:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWDSRyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 13:54:57 -0400
-Received: from mx2.suse.de ([195.135.220.15]:1438 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751073AbWDSRyu (ORCPT
+	Wed, 19 Apr 2006 13:54:23 -0400
+Received: from ns1.suse.de ([195.135.220.2]:19153 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751059AbWDSRyL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 13:54:50 -0400
+	Wed, 19 Apr 2006 13:54:11 -0400
 From: Tony Jones <tonyj@suse.de>
 To: linux-kernel@vger.kernel.org
 Cc: chrisw@sous-sol.org, Tony Jones <tonyj@suse.de>,
        linux-security-module@vger.kernel.org
-Date: Wed, 19 Apr 2006 10:50:26 -0700
-Message-Id: <20060419175026.29149.23661.sendpatchset@ermintrude.int.wirex.com>
+Date: Wed, 19 Apr 2006 10:49:46 -0700
+Message-Id: <20060419174946.29149.40949.sendpatchset@ermintrude.int.wirex.com>
 In-Reply-To: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
 References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-Subject: [RFC][PATCH 10/11] security: AppArmor - Add flags to d_path
+Subject: [RFC][PATCH 5/11] security: AppArmor - Filesystem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a new function d_path_flags which takes an additional flags
-parameter.   Adding a new function rather than ammending the existing d_path
-was done to avoid impact on the current users.
+This patch implements the AppArmor file structure underneath securityfs.
+Securityfs is normally mounted as /sys/kernel/security
 
-It is not essential for inclusion with AppArmor (the apparmor_mediation.patch
-can easily be revised to use plain d_path) but it enables cleaner code 
-["(delete)" handling] and closes a loophole with pathname generation for 
-chrooted tasks. 
+The following files are created under /sys/kernel/security/apparmor
+	control
+		audit	   - Controls the global setting for auditing all
+			     accesses.
+		complain   - Controls the global setting for learning mode
+			     (usually this is set per profile rather than
+			     globally)
+		debug	   - Controls whether debugging is enabled.
+			     This needs to be made more fine grained
+		logsyscall - Controls whether when logging to the audit 
+			     subsystem full syscall auditing is enabled.
 
-It currently adds two flags:
+		The values by default for all of the above are 0.
 
-DPATH_SYSROOT:
-	d_path should generate a path from the system root rather than the
-	task's current root. 
+	matching - Returns the features of the installed matching submodule
+	profiles - Returns the profiles currently loaded and for each whether
+		   it is in complain (learning) or enforce mode.
+	.load
+	.remove
+	.replace - Used by userspace tools to load, remove and replace new 
+		   profiles.
 
-	For AppArmor this enables generation of absolute pathnames in all
-	cases.  Currently when a task is chrooted, file access is reported
-	relative to the chroot.  Because it is currently not possible to 
-	obtain the absolute path in an SMP safe way, without this patch 
-	AppArmor will have to report chroot-relative pathnames.
-	
-DPATH_NODELETED:
-	d_path should not append "(deleted)" to unhashed entries. Sometimes
-	this information is not useful for the caller and the string can
-	exist as the suffix of a valid pathname.
 
 Signed-off-by: Tony Jones <tonyj@suse.de>
 
 ---
- fs/dcache.c            |   48 ++++++++++++++++++++++++++++++++----------------
- include/linux/dcache.h |    7 +++++++
- 2 files changed, 39 insertions(+), 16 deletions(-)
+ security/apparmor/apparmorfs.c |  432 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 432 insertions(+)
 
---- linux-2.6.17-rc1.orig/fs/dcache.c
-+++ linux-2.6.17-rc1/fs/dcache.c
-@@ -1381,9 +1381,11 @@
-  * @rootmnt: vfsmnt to which the root dentry belongs
-  * @buffer: buffer to return value in
-  * @buflen: buffer length
-+ * @flags: control flags
-  *
-  * Convert a dentry into an ASCII path name. If the entry has been deleted
-- * the string " (deleted)" is appended. Note that this is ambiguous.
-+ * and DPATH_NODELETED is not specified in flags then the string " (deleted)"
-+ * is appended. Note that this is ambiguous.
-  *
-  * Returns the buffer or an error code if the path was too long.
-  *
-@@ -1391,7 +1393,7 @@
-  */
- static char * __d_path( struct dentry *dentry, struct vfsmount *vfsmnt,
- 			struct dentry *root, struct vfsmount *rootmnt,
--			char *buffer, int buflen)
-+			char *buffer, int buflen, unsigned int flags)
- {
- 	char * end = buffer+buflen;
- 	char * retval;
-@@ -1399,7 +1401,8 @@
- 
- 	*--end = '\0';
- 	buflen--;
--	if (!IS_ROOT(dentry) && d_unhashed(dentry)) {
-+	if (!(flags & DPATH_NODELETED) &&
-+	    !IS_ROOT(dentry) && d_unhashed(dentry)) {
- 		buflen -= 10;
- 		end -= 10;
- 		if (buflen < 0)
-@@ -1416,7 +1419,8 @@
- 	for (;;) {
- 		struct dentry * parent;
- 
--		if (dentry == root && vfsmnt == rootmnt)
-+		if (!(flags & DPATH_SYSROOT) &&
-+		    dentry == root && vfsmnt == rootmnt)
- 			break;
- 		if (dentry == vfsmnt->mnt_root || IS_ROOT(dentry)) {
- 			/* Global root? */
-@@ -1458,25 +1462,36 @@
- }
- 
- /* write full pathname into buffer and return start of pathname */
--char * d_path(struct dentry *dentry, struct vfsmount *vfsmnt,
--				char *buf, int buflen)
-+char * d_path_flags(struct dentry *dentry, struct vfsmount *vfsmnt,
-+		    char *buf, int buflen, unsigned int flags)
- {
- 	char *res;
--	struct vfsmount *rootmnt;
--	struct dentry *root;
-+	struct vfsmount *rootmnt = NULL;
-+	struct dentry *root = NULL;
- 
--	read_lock(&current->fs->lock);
--	rootmnt = mntget(current->fs->rootmnt);
--	root = dget(current->fs->root);
--	read_unlock(&current->fs->lock);
-+	if (!(flags & DPATH_SYSROOT)){
-+		read_lock(&current->fs->lock);
-+		rootmnt = mntget(current->fs->rootmnt);
-+		root = dget(current->fs->root);
-+		read_unlock(&current->fs->lock);
-+	}
- 	spin_lock(&dcache_lock);
--	res = __d_path(dentry, vfsmnt, root, rootmnt, buf, buflen);
-+	res = __d_path(dentry, vfsmnt, root, rootmnt, buf, buflen, flags);
- 	spin_unlock(&dcache_lock);
--	dput(root);
--	mntput(rootmnt);
-+	if (!(flags & DPATH_SYSROOT)){
-+		dput(root);
-+		mntput(rootmnt);
-+	}
- 	return res;
- }
- 
-+/* original d_path without support for flags */
-+char * d_path(struct dentry *dentry, struct vfsmount *vfsmnt,
-+	      char *buf, int buflen)
+--- /dev/null
++++ linux-2.6.17-rc1/security/apparmor/apparmorfs.c
+@@ -0,0 +1,432 @@
++/*
++ *	Copyright (C) 2005 Novell/SUSE
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License as
++ *	published by the Free Software Foundation, version 2 of the
++ *	License.
++ *
++ *	AppArmor filesystem (part of securityfs)
++ */
++
++#include <linux/security.h>
++#include <linux/vmalloc.h>
++#include <linux/module.h>
++#include <linux/seq_file.h>
++#include <asm/uaccess.h>
++
++#include "apparmor.h"
++#include "inline.h"
++#include "match/match.h"
++
++#define SECFS_AA "apparmor"
++static struct dentry *aafs_dentry = NULL;
++
++/* profile */
++extern struct seq_operations apparmorfs_profiles_op;
++static int aa_prof_open(struct inode *inode, struct file *file);
++static int aa_prof_release(struct inode *inode, struct file *file);
++
++static struct file_operations apparmorfs_profiles_fops = {
++	.open =		aa_prof_open,
++	.read =		seq_read,
++	.llseek =	seq_lseek,
++	.release =	aa_prof_release,
++};
++
++/* matching */
++static ssize_t aa_matching_read(struct file *file, char __user *buf,
++			       size_t size, loff_t *ppos);
++
++static struct file_operations apparmorfs_matching_fops = {
++	.read = 	aa_matching_read,
++};
++
++
++/* interface */
++static ssize_t aa_profile_load(struct file *f, const char __user *buf,
++			       size_t size, loff_t *pos);
++static ssize_t aa_profile_replace(struct file *f, const char __user *buf,
++				  size_t size, loff_t *pos);
++static ssize_t aa_profile_remove(struct file *f, const char __user *buf,
++				 size_t size, loff_t *pos);
++
++static struct file_operations apparmorfs_profile_load = {
++	.write = aa_profile_load
++};
++
++static struct file_operations apparmorfs_profile_replace = {
++	.write = aa_profile_replace
++};
++
++static struct file_operations apparmorfs_profile_remove = {
++	.write = aa_profile_remove
++};
++
++
++/* control */
++static u64 aa_control_get(void *data);
++static void aa_control_set(void *data, u64 val);
++
++DEFINE_SIMPLE_ATTRIBUTE(apparmorfs_control_fops, aa_control_get,
++			aa_control_set, "%lld\n");
++
++
++
++/* table of static entries */
++
++static struct root_entry {
++	const char *name;
++	int mode;
++	int access;
++	struct file_operations *fops;
++	void *data;
++
++	/* internal fields */
++	struct dentry *dentry;
++	int parent_index;
++} root_entries[] = {
++	/* our root, normally /sys/kernel/security/apparmor */
++	{SECFS_AA, 	S_IFDIR, 0550},	/* DO NOT EDIT/MOVE */
++
++	/* interface for obtaining list of profiles currently loaded */
++	{"profiles", 	S_IFREG, 0440, &apparmorfs_profiles_fops,
++				       NULL},
++
++	/* interface for obtaining matching features supported */
++	{"matching",  	S_IFREG, 0440, &apparmorfs_matching_fops,
++				       NULL},
++
++	/* interface for loading/removing/replacing profiles */
++	{".load",    	S_IFREG, 0640, &apparmorfs_profile_load,
++				       NULL},
++	{".replace", 	S_IFREG, 0640, &apparmorfs_profile_replace,
++				       NULL},
++	{".remove",  	S_IFREG, 0640, &apparmorfs_profile_remove,
++				       NULL},
++
++	/* interface for setting binary config values */
++	{"control",  	S_IFDIR, 0550},
++	{"complain", 	S_IFREG, 0640, &apparmorfs_control_fops,
++				       &apparmor_complain},
++	{"audit",    	S_IFREG, 0640, &apparmorfs_control_fops,
++				       &apparmor_audit},
++	{"debug",    	S_IFREG, 0640, &apparmorfs_control_fops,
++				       &apparmor_debug},
++	{"logsyscall", 	S_IFREG, 0640, &apparmorfs_control_fops,
++				       &apparmor_logsyscall},
++	{NULL,       	S_IFDIR, 0},
++
++	/* root end */
++	{NULL,       	S_IFDIR, 0}
++};
++
++#define AAFS_DENTRY root_entries[0].dentry
++
++static const unsigned int num_entries =
++	sizeof(root_entries) / sizeof(struct root_entry);
++
++
++
++static int aa_prof_open(struct inode *inode, struct file *file)
 +{
-+	return d_path_flags(dentry, vfsmnt, buf, buflen, 0);
++	return seq_open(file, &apparmorfs_profiles_op);
 +}
 +
- /*
-  * NOTE! The user-level library version returns a
-  * character pointer. The kernel system call just
-@@ -1519,7 +1534,7 @@
- 		unsigned long len;
- 		char * cwd;
- 
--		cwd = __d_path(pwd, pwdmnt, root, rootmnt, page, PAGE_SIZE);
-+		cwd = __d_path(pwd, pwdmnt, root, rootmnt, page, PAGE_SIZE, 0);
- 		spin_unlock(&dcache_lock);
- 
- 		error = PTR_ERR(cwd);
-@@ -1771,6 +1786,7 @@
- EXPORT_SYMBOL(d_invalidate);
- EXPORT_SYMBOL(d_lookup);
- EXPORT_SYMBOL(d_move);
-+EXPORT_SYMBOL(d_path_flags);
- EXPORT_SYMBOL(d_path);
- EXPORT_SYMBOL(d_prune_aliases);
- EXPORT_SYMBOL(d_rehash);
---- linux-2.6.17-rc1.orig/include/linux/dcache.h
-+++ linux-2.6.17-rc1/include/linux/dcache.h
-@@ -164,6 +164,10 @@
- 
- #define DCACHE_INOTIFY_PARENT_WATCHED	0x0020 /* Parent inode is watched */
- 
-+/* dpath flags */
-+#define DPATH_SYSROOT		0x0001	/* continue past fsroot (chroot) */
-+#define DPATH_NODELETED		0x0002	/* do not append " (deleted)" */
 +
- extern spinlock_t dcache_lock;
- 
- /**
-@@ -281,6 +285,9 @@
- extern int d_validate(struct dentry *, struct dentry *);
- 
- extern char * d_path(struct dentry *, struct vfsmount *, char *, int);
++static int aa_prof_release(struct inode *inode, struct file *file)
++{
++	return seq_release(inode, file);
++}
 +
-+extern char * d_path_flags(struct dentry *, struct vfsmount *, char *, int,
-+		     unsigned int);
-   
- /* Allocation counts.. */
- 
++static ssize_t aa_matching_read(struct file *file, char __user *buf,
++			       size_t size, loff_t *ppos)
++{
++	const char *matching = aamatch_features();
++
++	return simple_read_from_buffer(buf, size, ppos, matching,
++				       strlen(matching));
++}
++
++static char *aa_simple_write_to_buffer(const char __user *userbuf,
++				       size_t alloc_size, size_t copy_size,
++				       loff_t *pos, const char *msg)
++{
++	struct aaprofile *active;
++	char *data;
++
++	if (*pos != 0) {
++		/* only writes from pos 0, that is complete writes */
++		data = ERR_PTR(-ESPIPE);
++		goto out;
++	}
++
++	/* Don't allow confined processes to load/replace/remove profiles.
++	 * No sane person would add rules allowing this to a profile
++	 * but we enforce the restriction anyways.
++	 */
++	rcu_read_lock();
++	active = get_activeptr_rcu();
++	if (active) {
++		AA_WARN("REJECTING access to profile %s (%s(%d) "
++			"profile %s active %s)\n",
++			msg, current->comm, current->pid,
++			BASE_PROFILE(active)->name, active->name);
++
++		data = ERR_PTR(-EPERM);
++		goto out;
++	}
++	rcu_read_unlock();
++
++	data = vmalloc(alloc_size);
++	if (data == NULL) {
++		data = ERR_PTR(-ENOMEM);
++		goto out;
++	}
++
++	if (copy_from_user(data, userbuf, copy_size)) {
++		vfree(data);
++		data = ERR_PTR(-EFAULT);
++		goto out;
++	}
++
++out:
++	return data;
++}
++
++static ssize_t aa_profile_load(struct file *f, const char __user *buf,
++			       size_t size, loff_t *pos)
++{
++	char *data;
++	ssize_t error;
++
++	data = aa_simple_write_to_buffer(buf, size, size, pos, "load");
++
++	if (!IS_ERR(data)) {
++		error = aa_file_prof_add(data, size);
++		vfree(data);
++	} else {
++		error = PTR_ERR(data);
++	}
++
++	return error;
++}
++
++static ssize_t aa_profile_replace(struct file *f, const char __user *buf,
++				  size_t size, loff_t *pos)
++{
++	char *data;
++	ssize_t error;
++
++	data = aa_simple_write_to_buffer(buf, size, size, pos, "replacement");
++
++	if (!IS_ERR(data)) {
++		error = aa_file_prof_repl(data, size);
++		vfree(data);
++	} else {
++		error = PTR_ERR(data);
++	}
++
++	return error;
++}
++
++static ssize_t aa_profile_remove(struct file *f, const char __user *buf,
++				  size_t size, loff_t *pos)
++{
++	char *data;
++	ssize_t error;
++
++	/* aa_file_prof_remove needs a null terminated string so 1 extra
++	 * byte is allocated and null the copied data is then null terminated
++	 */
++	data = aa_simple_write_to_buffer(buf, size+1, size, pos, "removal");
++
++	if (!IS_ERR(data)) {
++		data[size] = 0;
++		error = aa_file_prof_remove(data, size);
++		vfree(data);
++	} else {
++		error = PTR_ERR(data);
++	}
++
++	return error;
++}
++
++static u64 aa_control_get(void *data)
++{
++	return *(int *)data;
++}
++
++static void aa_control_set(void *data, u64 val)
++{
++	if (val > 1)
++		val = 1;
++
++	*(int*)data = (int)val;
++}
++
++static void clear_apparmorfs(void)
++{
++	unsigned int i;
++
++	for (i=0; i < num_entries;i++) {
++		unsigned int index;
++
++		if (root_entries[i].mode == S_IFDIR) {
++			if (root_entries[i].name)
++				/* defer dir free till all sub-entries freed */
++				continue;
++			else
++				/* cleanup parent */
++				index = root_entries[i].parent_index;
++		} else {
++			index = i;
++		}
++
++		if (root_entries[index].dentry) {
++			securityfs_remove(root_entries[index].dentry);
++
++			AA_DEBUG("%s: deleted apparmorfs entry name=%s "
++				 "dentry=%p\n",
++				__FUNCTION__,
++				root_entries[index].name,
++				root_entries[index].dentry);
++
++			root_entries[index].dentry = NULL;
++			root_entries[index].parent_index = 0;
++		}
++	}
++}
++
++static int populate_apparmorfs(struct dentry *root)
++{
++	unsigned int i, parent_index, depth;
++
++	for (i = 0; i < num_entries; i++) {
++		root_entries[i].dentry = NULL;
++		root_entries[i].parent_index = 0;
++	}
++
++	/* 1. Verify entry 0 is valid [sanity check] */
++	if (num_entries == 0 ||
++	    !root_entries[0].name ||
++	    strcmp(root_entries[0].name, SECFS_AA) != 0 ||
++	    root_entries[0].mode != S_IFDIR) {
++		AA_ERROR("%s: root entry 0 is not SECFS_AA/dir\n",
++			__FUNCTION__);
++		goto error;
++	}
++
++	/* 2. Build back pointers */
++	parent_index = 0;
++	depth = 1;
++
++	for (i = 1; i < num_entries; i++) {
++		root_entries[i].parent_index = parent_index;
++
++		if (root_entries[i].name &&
++		    root_entries[i].mode == S_IFDIR) {
++			depth++;
++			parent_index = i;
++		} else if (!root_entries[i].name) {
++			if (root_entries[i].mode != S_IFDIR || depth == 0) {
++				AA_ERROR("%s: root_entry %d invalid (%u %d)",
++					 __FUNCTION__, i,
++					 root_entries[i].mode,
++					 root_entries[i].parent_index);
++				goto error;
++			}
++
++			depth--;
++			parent_index = root_entries[parent_index].parent_index;
++		}
++	}
++
++	if (depth != 0) {
++		AA_ERROR("%s: root_entry table not correctly terminated\n",
++			__FUNCTION__);
++		goto error;
++	}
++
++	/* 3. Create root (parent=NULL) */
++	root_entries[0].dentry = securityfs_create_file(
++					root_entries[0].name,
++					root_entries[0].mode |
++						root_entries[0].access,
++					NULL, NULL, NULL);
++
++	if (IS_ERR(root_entries[0].dentry))
++		goto error;
++	else
++		AA_DEBUG("%s: created securityfs/apparmor [dentry=%p]\n",
++			__FUNCTION__, root_entries[0].dentry);
++
++
++	/* 4. create remaining nodes */
++	for (i = 1; i < num_entries; i++) {
++		struct dentry *parent;
++		void *data = NULL;
++		struct file_operations *fops = NULL;
++
++		/* end of directory ? */
++		if (!root_entries[i].name)
++			continue;
++
++		parent = root_entries[root_entries[i].parent_index].dentry;
++
++		if (root_entries[i].mode != S_IFDIR) {
++			data = root_entries[i].data;
++			fops = root_entries[i].fops;
++		}
++
++		root_entries[i].dentry = securityfs_create_file(
++						root_entries[i].name,
++						root_entries[i].mode |
++							root_entries[i].access,
++						parent,
++						data,
++						fops);
++
++		if (IS_ERR(root_entries[i].dentry))
++			goto cleanup_error;
++
++		AA_DEBUG("%s: added apparmorfs entry "
++			 "name=%s mode=%x dentry=%p [parent %p]\n",
++			__FUNCTION__, root_entries[i].name,
++			root_entries[i].mode|root_entries[i].access,
++			root_entries[i].dentry, parent);
++	}
++
++	return 0;
++
++cleanup_error:
++	clear_apparmorfs();
++
++error:
++	return -EINVAL;
++}
++
++int create_apparmorfs(void)
++{
++	int error = 0;
++
++	if (AAFS_DENTRY) {
++		error = -EEXIST;
++		AA_ERROR("%s: Subdomain securityfs already exists\n",
++			__FUNCTION__);
++	} else {
++		error = populate_apparmorfs(aafs_dentry);
++		if (error != 0) {
++			AA_ERROR("%s: Error populating Subdomain securityfs\n",
++				__FUNCTION__);
++		}
++	}
++
++	return error;
++}
++
++void destroy_apparmorfs(void)
++{
++	if (AAFS_DENTRY)
++		clear_apparmorfs();
++}

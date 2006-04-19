@@ -1,225 +1,284 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWDSRAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWDSRCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWDSRAY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 13:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWDSRAX
+	id S1750942AbWDSRCU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 13:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWDSRCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 13:00:23 -0400
-Received: from mga03.intel.com ([143.182.124.21]:19978 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751044AbWDSRAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 13:00:21 -0400
-X-IronPort-AV: i="4.04,136,1144047600"; 
-   d="scan'208"; a="25079282:sNHT1134798028"
-Subject: Re: [patch 1/3] acpi: dock driver
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: Patrick Mochel <mochel@linux.intel.com>
-Cc: Prarit Bhargava <prarit@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       len.brown@intel.com, greg@kroah.com, linux-acpi@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       arjan@linux.intel.com, muneda.takahiro@jp.fujitsu.com, pavel@ucw.cz,
-       temnota@kmv.ru
-In-Reply-To: <20060418225427.GE4556@linux.intel.com>
-References: <20060412221027.472109000@intel.com>
-	 <1144880322.11215.44.camel@whizzy> <20060412222735.38aa0f58.akpm@osdl.org>
-	 <1145054985.29319.51.camel@whizzy> <44410360.6090003@sgi.com>
-	 <1145383396.10783.32.camel@whizzy>  <20060418225427.GE4556@linux.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 19 Apr 2006 10:08:57 -0700
-Message-Id: <1145466537.21185.24.camel@whizzy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-X-OriginalArrivalTime: 19 Apr 2006 16:59:59.0252 (UTC) FILETIME=[B11F0540:01C663D2]
+	Wed, 19 Apr 2006 13:02:20 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:29667 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750942AbWDSRCT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 13:02:19 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH -mm] swsusp: use less memory during resume
+Date: Wed, 19 Apr 2006 19:01:25 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200604191901.25485.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-18 at 15:54 -0700, Patrick Mochel wrote:
-> On Tue, Apr 18, 2006 at 11:03:16AM -0700, Kristen Accardi wrote:
-> > Create a driver which lives in the acpi subsystem to handle dock events.  This 
-> > driver is not an acpi driver, because acpi drivers require that the object
-> > be present when the driver is loaded.
-> 
-> A few comments.. 
-> 
-> 
-> > --- /dev/null
-> > +++ 2.6-git-kca2/drivers/acpi/dock.c
-> > @@ -0,0 +1,652 @@
-> 
-> > +#define ACPI_DOCK_COMPONENT 0x10000000
-> > +#define ACPI_DOCK_DRIVER_NAME "ACPI Dock Station Driver"
-> > +#define _COMPONENT		ACPI_DOCK_COMPONENT
-> 
-> These aren't necessary for code that is outside of the ACPI-CA. 
+Make swsusp allocate only as much memory as needed to store the image data
+and metadata during resume.
 
-Originally I did not include these, but it turns out if you wish to use
-the ACPI_DEBUG macro, you need to have these things defined.  I did go
-ahead and use this macro in a couple places, mainly because I felt that
-even though this isn't strictly an acpi driver (using the acpi driver
-model), it does live in drivers/acpi and perhaps people might expect to
-be able to debug it the same way.
+Without this patch swsusp additionally allocates many page frames that will
+conflict with the "original" locations of the image data and are considered
+as "unsafe", treating them as "eaten" pages (ie. allocated but unusable).
 
-> 
-> > +struct dock_station {
-> > +	acpi_handle handle;
-> > +	unsigned long last_dock_time;
-> > +	u32 flags;
-> > +	spinlock_t dd_lock;
-> > +	spinlock_t hp_lock;
-> > +	struct list_head dependent_devices;
-> > +	struct list_head hotplug_devices;
-> > +};
-> > +
-> > +struct dock_dependent_device {
-> > +	struct list_head list;
-> > +	struct list_head hotplug_list;
-> > +	acpi_handle handle;
-> > +	acpi_notify_handler handler;
-> > +	void *context;
-> > +};
-> > +
-> > +#define DOCK_DOCKING	0x00000001
-> > +
-> > +static struct dock_station *dock_station;
-> 
-> Does this need to be dynamically allocated? Static initialization
-> would be a bit cleaner and obviate the need for the NULL checks in
-> several of the functions below. 
-> 
+The patch makes swsusp allocate as many pages as it'll need to store the
+data read from the image in one shot, creating a list of allocated "safe"
+pages, and use the observation that all pages allocated by it are marked with
+the PG_nosave and PG_nosave_free flags set.  Namely, when it's about to load
+an image page, swsusp can check whether the page frame corresponding to the
+"original" location of this page has been allocated (ie. if the page frame has
+the PG_nosave and PG_nosave_free flags set) and if so, it can load the page
+directly into this page frame.  Otherwise it uses an allocated "safe" page
+from the list to store the data that will be copied to their "original"
+location later on.
 
-It could be statically allocated, but I have a preference towards not
-allocating statically in this case.  I will consider the option of
-making it static.
+This allows us to save many page copyings and page allocations during
+resume and in the future it may allow us to load images greater than 50%
+of the normal zone.
 
-> > +/**
-> > + * eject_dock - respond to a dock eject request
-> > + * @ds: the dock station
-> > + *
-> > + * This is called after _DCK is called, to execute the dock station's
-> > + * _EJ0 method.
-> > + */
-> > +static void eject_dock(struct dock_station *ds)
-> > +{
-> > +	struct acpi_object_list arg_list;
-> > +	union acpi_object arg;
-> > +	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
-> > +	union acpi_object *obj;
-> > +
-> > +	acpi_get_name(ds->handle, ACPI_FULL_PATHNAME, &buffer);
-> > +	obj = buffer.pointer;
-> > +
-> > +	arg_list.count = 1;
-> > +	arg_list.pointer = &arg;
-> > +	arg.type = ACPI_TYPE_INTEGER;
-> > +	arg.integer.value = 1;
-> 
-> Minor nit (that is replicated in many of the ACPI drivers). This can be
-> done by just describing the data better: 
-> 
-> 	struct acpi_object arg = {
-> 		.type		= ACPI_TYPE_INTEGER,
-> 		.integer	= {
-> 			.value	= 1,
-> 		},
-> 	};
-> 	struct acpi_object_list arg_list = {
-> 		.count		= 1,
-> 		.pointer	= &arg,
-> 	};
-> 
-> 	... 
-> 
-> In the long run, since the same exact code exists in dozens of places
-> in the ACPI drivers, there should just be a helper for it. E.g.: 
-> 
-> 
-> 	int ret;
-> 	unsigned long value;
-> 
-> 	ret = acpi_get_int(ds->handle, "_EJO", &value);
-> 	if (!ret)
-> 		/* Use Value */
-> 	else
-> 		/* Error */
-> 
-> ...and get rid of the awkward object/object list handling. 
-> 
-> > +static inline void begin_dock(struct dock_station *ds)
-> > +{
-> > +	ds->flags |= DOCK_DOCKING;
-> > +}
-> > +
-> > +static inline void complete_dock(struct dock_station *ds)
-> > +{
-> > +	ds->flags &= ~(DOCK_DOCKING);
-> > +	ds->last_dock_time = jiffies;
-> > +}
-> > +
-> > +/**
-> > + * dock_in_progress - see if we are in the middle of handling a dock event
-> > + * @ds: the dock station
-> > + *
-> > + * Sometimes while docking, false dock events can be sent to the driver
-> > + * because good connections aren't made or some other reason.  Ignore these
-> > + * if we are in the middle of doing something.
-> > + */
-> > +static int dock_in_progress(struct dock_station *ds)
-> > +{
-> > +	if ((ds->flags & DOCK_DOCKING) ||
-> > +	    time_before(jiffies, (ds->last_dock_time + HZ)))
-> > +		return 1;
-> > +	return 0;
-> > +}
-> 
-> These seem racy. It seems the flag should should at least be an atomic_t. But,
-> if it's that, then it might as well be a mutex, eh? And, if it's a mutex, then
-> do we need the other spinlocks? 
-> 
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ kernel/power/power.h    |    2 
+ kernel/power/snapshot.c |  141 ++++++++++++++++++++++++++++--------------------
+ 2 files changed, 85 insertions(+), 58 deletions(-)
 
-yes, the flag might be racy.  we do need the other spinlocks however,
-because they are locking lists within the dock_station struct, but not
-the entire struct (unless I just change to something that locks the
-entire struct).
-
-> > +acpi_status
-> > +register_hotplug_dock_device(acpi_handle handle, acpi_notify_handler handler,
-> > +			     void *context)
-> 
-> If this is called from outside drivers/acpi/, you should return an int with a 
-> real errno value. The AE_* values shouldn't be used outside of the ACPI CA. 
-> 
-
-Really?  We use these all over the place in drivers/pci/hotplug.  In
-fact, you kinda have to use them if you are calling certain acpi
-symbols, since they return these types.
-
-For example, here are some functions will return acpi_status that we use
-in hotplug land.
-
-pci_osc_control_set() 
-acpi_run_oshp()
-acpi_walk_namespace requires its use.
-
-I felt that by returning acpi_status I was being consistent with how
-other acpi calls acted.  Is this another example of the iceberg that Len
-was talking about in a previous email?? (ugh.)
-
-
-> 
-> > +acpi_status unregister_hotplug_dock_device(acpi_handle handle)
-> 
-> Does unregister need to return an error? 
-> 
-
-No probably not.
-
-> 
-> Thanks,
-> 
-> 
-> 	Pat
-
-thanks for reviewing again :).
-
-Kristen
+Index: linux-2.6.17-rc1-mm3/kernel/power/power.h
+===================================================================
+--- linux-2.6.17-rc1-mm3.orig/kernel/power/power.h
++++ linux-2.6.17-rc1-mm3/kernel/power/power.h
+@@ -55,7 +55,7 @@ struct snapshot_handle {
+ 	unsigned int	page;
+ 	unsigned int	page_offset;
+ 	unsigned int	prev;
+-	struct pbe	*pbe;
++	struct pbe	*pbe, *last_pbe;
+ 	void		*buffer;
+ 	unsigned int	buf_offset;
+ };
+Index: linux-2.6.17-rc1-mm3/kernel/power/snapshot.c
+===================================================================
+--- linux-2.6.17-rc1-mm3.orig/kernel/power/snapshot.c
++++ linux-2.6.17-rc1-mm3/kernel/power/snapshot.c
+@@ -391,62 +391,29 @@ static inline void create_pbe_list(struc
+ 	}
+ }
+ 
+-/**
+- *	On resume it is necessary to trace and eventually free the unsafe
+- *	pages that have been allocated, because they are needed for I/O
+- *	(on x86-64 we likely will "eat" these pages once again while
+- *	creating the temporary page translation tables)
+- */
+-
+-struct eaten_page {
+-	struct eaten_page *next;
+-	char padding[PAGE_SIZE - sizeof(void *)];
+-};
+-
+-static struct eaten_page *eaten_pages = NULL;
+-
+-static void release_eaten_pages(void)
+-{
+-	struct eaten_page *p, *q;
+-
+-	p = eaten_pages;
+-	while (p) {
+-		q = p->next;
+-		/* We don't want swsusp_free() to free this page again */
+-		ClearPageNosave(virt_to_page(p));
+-		free_page((unsigned long)p);
+-		p = q;
+-	}
+-	eaten_pages = NULL;
+-}
++static unsigned int unsafe_pages;
+ 
+ /**
+  *	@safe_needed - on resume, for storing the PBE list and the image,
+  *	we can only use memory pages that do not conflict with the pages
+- *	which had been used before suspend.
++ *	used before suspend.
+  *
+  *	The unsafe pages are marked with the PG_nosave_free flag
+- *
+- *	Allocated but unusable (ie eaten) memory pages should be marked
+- *	so that swsusp_free() can release them
++ *	and we count them using unsafe_pages
+  */
+ 
+ static inline void *alloc_image_page(gfp_t gfp_mask, int safe_needed)
+ {
+ 	void *res;
+ 
++	res = (void *)get_zeroed_page(gfp_mask);
+ 	if (safe_needed)
+-		do {
++		while (res && PageNosaveFree(virt_to_page(res))) {
++			/* The page is unsafe, mark it for swsusp_free() */
++			SetPageNosave(virt_to_page(res));
++			unsafe_pages++;
+ 			res = (void *)get_zeroed_page(gfp_mask);
+-			if (res && PageNosaveFree(virt_to_page(res))) {
+-				/* This is for swsusp_free() */
+-				SetPageNosave(virt_to_page(res));
+-				((struct eaten_page *)res)->next = eaten_pages;
+-				eaten_pages = res;
+-			}
+-		} while (res && PageNosaveFree(virt_to_page(res)));
+-	else
+-		res = (void *)get_zeroed_page(gfp_mask);
++		}
+ 	if (res) {
+ 		SetPageNosave(virt_to_page(res));
+ 		SetPageNosaveFree(virt_to_page(res));
+@@ -740,6 +707,8 @@ static int mark_unsafe_pages(struct pbe 
+ 			return -EFAULT;
+ 	}
+ 
++	unsafe_pages = 0;
++
+ 	return 0;
+ }
+ 
+@@ -817,42 +786,99 @@ static inline struct pbe *unpack_orig_ad
+ }
+ 
+ /**
+- *	create_image - use metadata contained in the PBE list
++ *	prepare_image - use metadata contained in the PBE list
+  *	pointed to by pagedir_nosave to mark the pages that will
+  *	be overwritten in the process of restoring the system
+- *	memory state from the image and allocate memory for
+- *	the image avoiding these pages
++ *	memory state from the image ("unsafe" pages) and allocate
++ *	memory for the image
++ *
++ *	The idea is to allocate the PBE list first and then
++ *	allocate as many pages as it's needed for the image data,
++ *	but not to assign these pages to the PBEs initially.
++ *	Instead, we just mark them as allocated and create a list
++ *	of "safe" which will be used later
+  */
+ 
+-static int create_image(struct snapshot_handle *handle)
++struct safe_page {
++	struct safe_page *next;
++	char padding[PAGE_SIZE - sizeof(void *)];
++};
++
++static struct safe_page *safe_pages;
++
++static int prepare_image(struct snapshot_handle *handle)
+ {
+ 	int error = 0;
+-	struct pbe *p, *pblist;
++	unsigned int nr_pages = nr_copy_pages;
++	struct pbe *p, *pblist = NULL;
+ 
+ 	p = pagedir_nosave;
+ 	error = mark_unsafe_pages(p);
+ 	if (!error) {
+-		pblist = alloc_pagedir(nr_copy_pages, GFP_ATOMIC, 1);
++		pblist = alloc_pagedir(nr_pages, GFP_ATOMIC, 1);
+ 		if (pblist)
+ 			copy_page_backup_list(pblist, p);
+ 		free_pagedir(p, 0);
+ 		if (!pblist)
+ 			error = -ENOMEM;
+ 	}
+-	if (!error)
+-		error = alloc_data_pages(pblist, GFP_ATOMIC, 1);
++	safe_pages = NULL;
++	if (!error && nr_pages > unsafe_pages) {
++		nr_pages -= unsafe_pages;
++		while (nr_pages--) {
++			struct safe_page *ptr;
++
++			ptr = (struct safe_page *)get_zeroed_page(GFP_ATOMIC);
++			if (!ptr) {
++				error = -ENOMEM;
++				break;
++			}
++			if (!PageNosaveFree(virt_to_page(ptr))) {
++				/* The page is "safe", add it to the list */
++				ptr->next = safe_pages;
++				safe_pages = ptr;
++			}
++			/* Mark the page as allocated */
++			SetPageNosave(virt_to_page(ptr));
++			SetPageNosaveFree(virt_to_page(ptr));
++		}
++	}
+ 	if (!error) {
+-		release_eaten_pages();
+ 		pagedir_nosave = pblist;
+ 	} else {
+-		pagedir_nosave = NULL;
+ 		handle->pbe = NULL;
+-		nr_copy_pages = 0;
+-		nr_meta_pages = 0;
++		swsusp_free();
+ 	}
+ 	return error;
+ }
+ 
++static void *get_buffer(struct snapshot_handle *handle)
++{
++	struct pbe *pbe = handle->pbe, *last = handle->last_pbe;
++	struct page *page = virt_to_page(pbe->orig_address);
++
++	if (PageNosave(page) && PageNosaveFree(page)) {
++		/*
++		 * We have allocated the "original" page frame and we can
++		 * use it directly to store the read page
++		 */
++		pbe->address = 0;
++		if (last && last->next)
++			last->next = NULL;
++		return (void *)pbe->orig_address;
++	}
++	/*
++	 * The "original" page frame has not been allocated and we have to
++	 * use a "safe" page frame to store the read page
++	 */
++	pbe->address = (unsigned long)safe_pages;
++	safe_pages = safe_pages->next;
++	if (last)
++		last->next = pbe;
++	handle->last_pbe = pbe;
++	return (void *)pbe->address;
++}
++
+ /**
+  *	snapshot_write_next - used for writing the system memory snapshot.
+  *
+@@ -897,15 +923,16 @@ int snapshot_write_next(struct snapshot_
+ 		} else if (handle->prev <= nr_meta_pages) {
+ 			handle->pbe = unpack_orig_addresses(buffer, handle->pbe);
+ 			if (!handle->pbe) {
+-				error = create_image(handle);
++				error = prepare_image(handle);
+ 				if (error)
+ 					return error;
+ 				handle->pbe = pagedir_nosave;
+-				handle->buffer = (void *)handle->pbe->address;
++				handle->last_pbe = NULL;
++				handle->buffer = get_buffer(handle);
+ 			}
+ 		} else {
+ 			handle->pbe = handle->pbe->next;
+-			handle->buffer = (void *)handle->pbe->address;
++			handle->buffer = get_buffer(handle);
+ 		}
+ 		handle->prev = handle->page;
+ 	}

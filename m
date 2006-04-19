@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWDSMof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWDSMps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWDSMof (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 08:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWDSMof
+	id S1750768AbWDSMps (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 08:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWDSMpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 08:44:35 -0400
-Received: from smtp.tele.fi ([192.89.123.25]:7093 "EHLO smtp.tele.fi")
-	by vger.kernel.org with ESMTP id S1750767AbWDSMoe convert rfc822-to-8bit
+	Wed, 19 Apr 2006 08:45:47 -0400
+Received: from pproxy.gmail.com ([64.233.166.179]:53713 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750768AbWDSMpr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 08:44:34 -0400
-Content-class: urn:content-classes:message
-Subject: searching exported symbols from modules
+	Wed, 19 Apr 2006 08:45:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=m1enriwFKn573v2PEsKtNNjFaaIpw4hV10WaILT7Mm7yEwUF2wawIlKpej1XWhZGdFVnWPn1qaCJ0g3O73hA0RPrfX1QKoYuXt80VrFXdM3jkKpqZ4IR78Zd7PwN7e68Fw2hr3VGKoUQ3HnzvVtuGlxI/g+KZ3sSJmyskkQUUaA=
+Message-ID: <35fb2e590604190545j10598ba3g36414f5dd804c00f@mail.gmail.com>
+Date: Wed, 19 Apr 2006 13:45:46 +0100
+From: "Jon Masters" <jonathan@jonmasters.org>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: [RFC] Connector vs. other netlink users
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Wed, 19 Apr 2006 15:44:32 +0300
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Message-ID: <963E9E15184E2648A8BBE83CF91F5FAF436197@titanium.secgo.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: searching exported symbols from modules
-Thread-Index: AcZjrwH++7qErxWaSeGzXsRrc+xaiA==
-From: "Antti Halonen" <antti.halonen@secgo.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi folks,
 
-Hi,
+A quick question for y'all about in-kernel uses of netlink.
 
-Apologies if I posted this question to wrong place.
+What's the current collective view about unifying all users behind
+some common abstraction? Right now, we have things like connector,
+uevent, etc. doing their own thing. I'm not even going to think about
+the network code (the real reason this exists in the first place!) for
+a moment.
 
-Here's the thing: when loading my module 'a', I want to search modules
-list to check if module 'b' is presents, and if it is, initialize my
-function pointers to the functions module b has exported. Or at least
-search symbols from module b, whatever. The main question is; how to
-locate modules 
-by name from my module a?
-
-Is this doable? Can anyone give me pointers? 
-
-Sorry for posting such a stupid question, but I didn't run into
-satisfactory when searching the archive & many of the functions which
-would have resolved this are apparently not exported anymore.
-
-Any comments are really appreciated!
-
-Thanking in advance,
-antti
-
-
+Jon.

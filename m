@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWDSV6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWDSV6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWDSV6G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 17:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWDSV6G
+	id S1751266AbWDSV6S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 17:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWDSV6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 17:58:06 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:27912 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S1751265AbWDSV6F (ORCPT
+	Wed, 19 Apr 2006 17:58:17 -0400
+Received: from smtp.uaf.edu ([137.229.34.30]:16146 "EHLO smtp.uaf.edu")
+	by vger.kernel.org with ESMTP id S1751266AbWDSV6Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 17:58:05 -0400
-Subject: Re: class_device_add error in SCSI with 2.6.17-rc2-g52824b6b
-In-Reply-To: <20060419213129.GA9148@localhost> "from Mathieu Chouquet-Stringer
- at Apr 19, 2006 11:31:29 pm"
-To: Mathieu Chouquet-Stringer <mchouque@free.fr>
-Date: Wed, 19 Apr 2006 16:58:03 -0500 (CDT)
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	Wed, 19 Apr 2006 17:58:16 -0400
+From: Joshua Kugler <joshua.kugler@uaf.edu>
+Organization: UAF Center for Distance Education - IT
+To: linux-kernel@vger.kernel.org
+Subject: Patch for removing 2TB RAID1 component limit (for pre 2.6.16)
+Date: Wed, 19 Apr 2006 13:58:09 -0800
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20060419215803.6DE5BDBA1@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+Content-Disposition: inline
+Message-Id: <200604191358.09551.joshua.kugler@uaf.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Chouquet-Stringer wrote:
-> While booting 2.6.17-rc2-g52824b6b on an alpha (a 164LX clone), I get
-> the following error messages for every sd devices that get registered:
-> 
-> sd 0:0:0:0: Attached scsi disk sda
-> kobject_add failed for 0:0: with -EEXIST, don't try to register things with the same name in the same directory.
+I have googled, looked through release notes, and investigated everywhere I 
+know to investigate, so I'm hoping this short note will find the help I need.
 
-Similar error previously reported by me for 2.6.17-rc1, except sda got
-added fine: error occurred when attempting to add/register sdb. 
-Thankfully, you were able to append a trace...
+I am working on a Redhat-based system (CentOS) and would like to compile the 
+kernel to support RAID1 components larger than 2TB (5.1TB in this case).  I 
+know the 2TB limitation went away somewhere in 2.6.16, but I cannot find any 
+reference to the patch or the change in the ChangeLogs.  Is it as simple as 
+replacing everything in /md, or is there more involved?
 
-I'll be trying the just-released 2.6.17-rc2 this evening.  Report to
-follow, and if there's a problem, I'll attempt to provide the trace
-(will have to be transcribed by hand, as system won't come up far
-enough for syslog to capture anything).
+I've tried experiment with 5.6 TB sparse files, but even on systems where I 
+have 5.1TB raid components working, try to do this:
+
+mdadm -C /dev/md10 --auto=yes -l raid1 -n2 sparsefile1 sparsefile2
+
+returns:
+
+mdadm: Cannot open sparsefile1: File too large
+mdadm: Cannot open sparsefile2: File too large
+mdadm: create aborted
+
+So, I can't determine experimentally whether or not the patch has been 
+included, nor whether or not a 5.1TB component would work.
+
+So, any tips, pointers, or patches for the large MD devices?
+
+Thanks!
+
+j----- k-----
 
 -- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Joshua Kugler                 PGP Key: http://pgp.mit.edu/
+CDE System Administrator             ID 0xDB26D7CE
+http://distance.uaf.edu/

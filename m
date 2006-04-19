@@ -1,82 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWDSJtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWDSJ4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWDSJtD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 05:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWDSJtD
+	id S1750877AbWDSJ4s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 05:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWDSJ4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 05:49:03 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:36466 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750858AbWDSJtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 05:49:01 -0400
+	Wed, 19 Apr 2006 05:56:48 -0400
+Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:65396 "HELO
+	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750872AbWDSJ4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 05:56:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Date:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=KU0R/Cw7VMwwDzOk8BF3C3w50u8o5Gy36RZv+ro0/k5o4ZG5T1M2O6mEGIuaO/E9nVn22YGPpnMHdLvMdwqJQzmLyI6BSfEGCOPZyPMn2C9w7oFH2RFrn+IY4l1nVBt25TXaQk6CZ+RLl0kJPHkC2iGdXFEPD+/KFC8AFh+oTpc=  ;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=kqyX5edToRpKRZfHtdFk7QV429AIc4gjjCquqs/0eB1ReksMjuksT1K6YKqe2kzoFTHx3Xnui9ba5Z0x6NI/WuwNG+hN+hcI5pcJqlZuGXQmSuAtj+jxNPiBhqjU7dbgkbuJ8nAyBQoe9Vt6lKuKjELfnqx2HPhs/jJZIt5cTWw=  ;
 From: Blaisorblade <blaisorblade@yahoo.it>
 To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 1/3] UML - Change sigjmp_buf to jmp_buf
+Subject: Re: [uml-devel] [RFC: 2.6 patch] fix the INIT_ENV_ARG_LIMIT dependencies
+Date: Wed, 19 Apr 2006 11:59:40 +0200
 User-Agent: KMail/1.8.3
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
-References: <200604102337.k3ANb659006843@ccure.user-mode-linux.org>
-In-Reply-To: <200604102337.k3ANb659006843@ccure.user-mode-linux.org>
+Cc: Adrian Bunk <bunk@stusta.de>, jdike@karaya.com,
+       linux-kernel@vger.kernel.org, Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+References: <20060415143036.GI15022@stusta.de>
+In-Reply-To: <20060415143036.GI15022@stusta.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Date: Wed, 19 Apr 2006 11:51:52 +0200
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604191151.53281.blaisorblade@yahoo.it>
+Content-Disposition: inline
+Message-Id: <200604191159.41148.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 April 2006 01:37, Jeff Dike wrote:
-> Clean up the jmpbuf code.  Since softints, we no longer use sig_setjmp, so
-> the UML_SIGSETJMP wrapper now has a misleading name.  Also, I forgot to
-> change the buffers from sigjmp_buf to jmp_buf.
+On Saturday 15 April 2006 16:30, Adrian Bunk wrote:
+> This patch fixes the INIT_ENV_ARG_LIMIT dependencies to what seems to
+> have been intended.
 
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
+Yes, the global rename USERMODE -> UML in Kconfig missed something, it seems. 
+My bad.
 
-Can I request (additionally) a look at remaining calls to {sig,}setjmp() and 
-sigprocmask(), like the below one and the one in (IIRC) thread_wait()?
+Acked-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-I think that probably some of them are valid because signal handlers modify 
-the signal mask, so we may still need to play with it, but:
+> Spotted by Jean-Luc Leger.
 
-* I don't remember (I may be wrong) mention of this in the changelog of the 
-softints patch,
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-* you had IIRC doubts on the current code (when I noted thread_wait())
-
-* an analysis of what is correct should end up in a comment somewhere 
-describing the results.
-
-I won't have the time to work on this soon, at least not this week, and I 
-didn't write the code.
-
-When I'll get time, I'll work on merging RemapFilePages in -mm (I'm reasonably 
-near to resend it, but I can't until I've made sure all changelogs are 
-up-to-date and clear enough).
-
-> Index: linux-2.6.16-mm/arch/um/os-Linux/util.c
-> ===================================================================
-
->  int setjmp_wrapper(void (*proc)(void *, void *), ...)
->  {
->  	va_list args;
-> -	sigjmp_buf buf;
-> +	jmp_buf buf;
->  	int n;
+> --- linux-2.6.17-rc1-mm2-full/init/Kconfig.old	2006-04-15
+> 16:26:46.000000000 +0200 +++
+> linux-2.6.17-rc1-mm2-full/init/Kconfig	2006-04-15 16:27:12.000000000 +0200
+> @@ -46,8 +46,8 @@
 >
->  	n = sigsetjmp(buf, 1);
+>  config INIT_ENV_ARG_LIMIT
+>  	int
+> -	default 32 if !USERMODE
+> -	default 128 if USERMODE
+> +	default 32 if !UML
+> +	default 128 if UML
+>  	help
+>  	  Maximum of each of the number of arguments and environment
+>  	  variables passed to init from the kernel command line.
+>
+>
+> -------------------------------------------------------
+> This SF.Net email is sponsored by xPML, a groundbreaking scripting language
+> that extends applications into web and mobile media. Attend the live
+> webcast and join the prime developer group breaking into this new coding
+> territory!
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
+> _______________________________________________
+> User-mode-linux-devel mailing list
+> User-mode-linux-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/user-mode-linux-devel
 
 -- 
 Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
 Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
 http://www.user-mode-linux.org/~blaisorblade
 
-
 		
 ___________________________________ 
-Yahoo! Messenger with Voice: chiama da PC a telefono a tariffe esclusive 
+Bolletta salata? Passa a Yahoo! Messenger with Voice 
 http://it.messenger.yahoo.com

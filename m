@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWDSRjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWDSRk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbWDSRjY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 13:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWDSRjY
+	id S1750984AbWDSRk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 13:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWDSRk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 13:39:24 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8586 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750903AbWDSRjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 13:39:23 -0400
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
-       sam@vilain.net, xemul@sw.ru, James Morris <jmorris@namei.org>
-Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
-References: <20060407095132.455784000@sergelap>
-	<20060407183600.E40C119B902@sergelap.hallyn.com>
-	<4446547B.4080206@sw.ru>
-	<20060419152129.GA14756@sergelap.austin.ibm.com>
-	<m1bquxmuk5.fsf@ebiederm.dsl.xmission.com>
-	<1145463814.31812.13.camel@localhost.localdomain>
-	<m1u08pld7d.fsf@ebiederm.dsl.xmission.com>
-	<1145467159.31812.21.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 19 Apr 2006 11:37:00 -0600
-In-Reply-To: <1145467159.31812.21.camel@localhost.localdomain> (Dave
- Hansen's message of "Wed, 19 Apr 2006 10:19:18 -0700")
-Message-ID: <m1zmihjwlf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 19 Apr 2006 13:40:27 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:62377 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750984AbWDSRk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 13:40:26 -0400
+Date: Wed, 19 Apr 2006 10:36:34 -0700
+From: Patrick Mochel <mochel@linux.intel.com>
+To: "Moore, Robert" <robert.moore@intel.com>
+Cc: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
+       Prarit Bhargava <prarit@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       "Brown, Len" <len.brown@intel.com>, greg@kroah.com,
+       linux-acpi@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, arjan@linux.intel.com,
+       muneda.takahiro@jp.fujitsu.com, pavel@ucw.cz, temnota@kmv.ru
+Subject: Re: [patch 1/3] acpi: dock driver
+Message-ID: <20060419173634.GB14304@linux.intel.com>
+References: <B28E9812BAF6E2498B7EC5C427F293A4200AD4@orsmsx415.amr.corp.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B28E9812BAF6E2498B7EC5C427F293A4200AD4@orsmsx415.amr.corp.intel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+On Wed, Apr 19, 2006 at 10:14:46AM -0700, Moore, Robert wrote:
+> This is something to think about before we rip out all the ACPI
+> core-style debug stuff.
 
-> On Wed, 2006-04-19 at 10:52 -0600, Eric W. Biederman wrote:
->> Dave Hansen <haveblue@us.ibm.com> writes:
->> 
->> > Besides ipc and utsnames, can anybody think of some other things in
->> > sysctl that we really need to virtualize?
->> 
->> All of the networking entries.
-> ...
->> Only in that you attacked the wrong piece of the puzzle.
->> The strategy table entries simply need to die, or be rewritten
->> to use the appropriate proc entries.
->
-> If we are limited to ipc, utsname, and network, I'd be worried trying to
-> justify _too_ much infrastructure.  The network namespaces are not going
-> to be solved any time soon.  Why not have something like this which is a
-> quite simple, understandable, minor hack?
+Not sure which part you're referring to, but maybe these: 
 
-Because it doesn't affect what happens in /proc/sys !
-Strategy routines only affect sys_sysctl.
+> > > > --- /dev/null
+> > > > +++ 2.6-git-kca2/drivers/acpi/dock.c
+> > > > @@ -0,0 +1,652 @@
+> > >
+> > > > +#define ACPI_DOCK_COMPONENT 0x10000000
+> > > > +#define ACPI_DOCK_DRIVER_NAME "ACPI Dock Station Driver"
+> > > > +#define _COMPONENT		ACPI_DOCK_COMPONENT
+> > >
+> > > These aren't necessary for code that is outside of the ACPI-CA.
+> > 
+> > Originally I did not include these, but it turns out if you wish to
+> use
+> > the ACPI_DEBUG macro, you need to have these things defined.  I did go
+> > ahead and use this macro in a couple places, mainly because I felt
+> that
+> > even though this isn't strictly an acpi driver (using the acpi driver
+> > model), it does live in drivers/acpi and perhaps people might expect
+> to
+> > be able to debug it the same way.
 
-As strategy routines I have no real problems with them.
-I haven't looked terribly closely yet.
 
->> The proc entries are the real interface, and the two pieces
->> don't share an implementation unfortunately.
->
-> You're saying that the proc interface doesn't use the ->strategy entry?
-> That isn't what I remember, but I could be completely wrong.
+Some of us have already thought about it. :-) 
 
-Exactly.   I have a patch I will be sending out shortly that
-make sys_sysctl a compile time option (so we can seriously start killing it)
-and it compiles out the strategy routines and /proc/sys still works :)
+We have standard debugging macros that are used in many driver subsystems
+defined in include/linux/device.h (dev_printk(), dev_dbg(), dev_err(), and
+friends). The ACPI drivers are not very different than other Linux driver
+subsystems (at a very basic level). They are very Linux-specific (not 
+portable like the CA), and should be using Linux-specific constructs as
+much as possible to match the rest of the kernel. This makes it much 
+eaiser for people to understand exactly what those drivers are doing.. 
 
-Eric
+
+	Pat

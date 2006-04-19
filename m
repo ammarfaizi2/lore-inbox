@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWDSXAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWDSXCd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751315AbWDSXAq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 19:00:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWDSXAq
+	id S1751310AbWDSXCd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 19:02:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWDSXCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 19:00:46 -0400
-Received: from waste.org ([64.81.244.121]:8356 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751315AbWDSXAp (ORCPT
+	Wed, 19 Apr 2006 19:02:33 -0400
+Received: from khc.piap.pl ([195.187.100.11]:40204 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1751310AbWDSXCc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 19:00:45 -0400
-Date: Wed, 19 Apr 2006 17:57:59 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, Jeff Garzik <jeff@garzik.org>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sata suspend resume ...
-Message-ID: <20060419225759.GV15445@waste.org>
-References: <Pine.LNX.4.64.0604192324040.29606@indiana.corp.fedex.com> <Pine.LNX.4.64.0604191659230.7660@blonde.wat.veritas.com> <20060419214959.GR15445@waste.org> <Pine.LNX.4.64.0604192332050.28312@blonde.wat.veritas.com>
-Mime-Version: 1.0
+	Wed, 19 Apr 2006 19:02:32 -0400
+To: Rudolf Marek <r.marek@sh.cvut.cz>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andy Green <andy@warmcat.com>,
+       lm-sensors@lm-sensors.org
+Subject: Re: [lm-sensors] Black box flight recorder for Linux
+References: <44379AB8.6050808@superbug.co.uk>
+	<m3psjqeeor.fsf@defiant.localdomain> <443A4927.5040801@warmcat.com>
+	<m3odz9kze6.fsf@defiant.localdomain>
+	<m364l5dep9.fsf@defiant.localdomain> <44469BA3.2090309@sh.cvut.cz>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 20 Apr 2006 01:02:25 +0200
+In-Reply-To: <44469BA3.2090309@sh.cvut.cz> (Rudolf Marek's message of "Wed, 19 Apr 2006 22:20:51 +0200")
+Message-ID: <m3r73t6uf2.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604192332050.28312@blonde.wat.veritas.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 11:50:55PM +0100, Hugh Dickins wrote:
-> On Wed, 19 Apr 2006, Matt Mackall wrote:
-> > On Wed, Apr 19, 2006 at 05:13:27PM +0100, Hugh Dickins wrote:
-> > > On Wed, 19 Apr 2006, Jeff Chua wrote:
-> > > > 
-> > > > System suspends ok. Resume ok. but no disk access after that.
-> > > 
-> > > Not the same disk model, but I've been having similar trouble on a T43p.
-> 
-> I should have mentioned before, it's suspend to RAM I'm using, by the way.
-> 
-> > > I was delighted to see the MSI suspend/resume fix go into 2.6.17-rc2,
-> > > but then disappointed.  A bisection found that Matt Mackall's sensible
-> > > rc1 patch, to speed up get_cmos_time, has removed what often used to be
-> > > a 2 second delay in resuming: things work well when I reinstate that
-> > > delay (1 second has proved not enough).  Below is the patch I'm using -
-> > > where I've failed to resist mucking around to avoid those double calls
-> > > to get_cmos_time, sorry: really it's just mdelay(2000) needed somewhere
-> > > (until someone who knows puts in something more scientific).
-> > 
-> > That's interesting.
-> > 
-> > Just to be clear, with my changes we should never fire timers early.
-> 
-> Yes, the only reservation I have about your patch, entirely unrelated to
-> this resume issue, is that those systems which "hwclock -w" on shutdown
-> (do they on suspend too? haven't looked) will slowly tend to lose time.
+Rudolf Marek <r.marek@sh.cvut.cz> writes:
 
-If they weren't already using NTP, they were losing time anyway.
- 
-> > Is the problem that we have a timer that didn't get deleted at suspend
-> > time?
-> 
-> I don't think so, but I don't really know.  On resume, the disk
-> goes into ata_exec_internal's 30 second timeout which ends with
-> "ata1: qc timeout (cmd 0xef)": nothing wrong with that timeout, anyway.
-> 
-> I tend to assume that it's not anything subtle, just that something
-> there needs a delay which it accidentally happened to get (most of
-> the time) from the CMOS reading, and with that gone now falls over.
-> 
-> I'd be able to test patches from anyone who knows what they're
-> doing SATA-wise, but probably not until Friday.
+>> No wonder my first attempt with 24C16 which occupies all 0x50 - 0x57
+>> addresses had to fail.
+>
+> Hm that should work, because Asus most likely multiplexes physical lines
+> instead of devices (using 74HC4052 IIRC)
 
-I'm puzzled by 1 second not being enough. The former code should have
-taken between 1+e and 2 seconds, so I'd think mdelay(1000) would work.
+No, the motherboard thought that my 24C16 was a set of 3 DIMMs
+(answering at 0x50 - 0x57, and DIMMs seem to be at 0x50, 0x51 and 0x52).
+Of course the data read back was some product of both DIMM EEPROM and
+my 24C16 but the machine didn't pass POST.
 
+I think anyone trying to connect an EEPROM to SMBus has to make sure
+there is nothing there, and nothing is expected by things like BIOS.
+Not a very plug and play.
+
+> What about to connect the device to parallel port, there are some adapter
+> schematics in kernel docs.
+
+Sure, that's one of the options.
 -- 
-Mathematics is the supreme nostalgia of our time.
+Krzysztof Halasa

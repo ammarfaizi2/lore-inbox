@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWDSKuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWDSKrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWDSKuL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 06:50:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWDSKuL
+	id S1750713AbWDSKrw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 06:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWDSKrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 06:50:11 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:43411 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1750759AbWDSKuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 06:50:09 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Wed, 19 Apr 2006 11:50:00 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: A missing i_mutex in rename? (Linux kernel 2.6.latest)
-Message-ID: <Pine.LNX.4.64.0604191102260.17373@hermes-1.csi.cam.ac.uk>
+	Wed, 19 Apr 2006 06:47:52 -0400
+Received: from khc.piap.pl ([195.187.100.11]:3347 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1750713AbWDSKrv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 06:47:51 -0400
+To: lkml <linux-kernel@vger.kernel.org>, Andy Green <andy@warmcat.com>
+Cc: lm-sensors@lm-sensors.org
+Subject: Re: Black box flight recorder for Linux
+References: <44379AB8.6050808@superbug.co.uk>
+	<m3psjqeeor.fsf@defiant.localdomain> <443A4927.5040801@warmcat.com>
+	<m3odz9kze6.fsf@defiant.localdomain>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 19 Apr 2006 12:47:46 +0200
+In-Reply-To: <m3odz9kze6.fsf@defiant.localdomain> (Krzysztof Halasa's message of "Mon, 10 Apr 2006 21:24:01 +0200")
+Message-ID: <m364l5dep9.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al and other fs developers,
+Hi,
 
-Both sys_unlink()/sys_rmdir() and sys_link() all end up taking the i_mutex 
-on all parent directories and source/destination inodes before calling 
-into the file system inode operations.
+(Cc to lm-sensors list).
 
-sys_rename() OTOH, does not take i_mutex on the old inode.  It only takes 
-i_mutex on the two parent directories and on the target inode if it 
-exists.
+> Yes, that could be used, too. It would be a bit more complicated as
+> different VGA cards use different access methods (i.e., different
+> I/O port and bit numbers). X11 drivers probably know how to drive it.
 
-Why is this?  To me it seems that either sys_rename() must take i_mutex on 
-the old inode or sys_unlink()/sys_rmdir(), sys_link(), etc do not need to 
-hold the i_mutex.
+BTW: I just soldered a 24C64 I^2C EEPROM (the largest I could find
+at home but 24C512 (64 KB) and even 24C1024 (128 KB) are available
+on the market) to a connector and connected it to SMBus on my Asus
+A7V333 mobo. I don't have code to write "printk" messages to it yet
+but will look at it sometime.
 
-What am I missing?
+Interesting: i2cdetect and friends can only find a custom Asus sensors
+chip on this bus (ASB100 chip at addresses 0x2D, 0x48 and 0x49) - and
+now my 24C64 at 0x57 (config address 7 = all ones). But the BIOS POST
+searches and finds more devices: there is something at 0x2F, 0x69, and
+there are (I think) DDR SDRAM EEPROMs and 0x51 and 0x52 (0x50 is an
+empty DIMM slot). Got this info with my "DIY" logic analyzer. I think
+the BIOS POST disconnects somehow the devices before loading the OS
+(in order to prevent data damage?).
 
-ps. I verified my reading of the code by inserting a 
-mutex_is_locked(old_dent->d_inode) in ->rename in ntfs and it returns 
-negative no matter how I invoke the rename (i.e. it does not matter if 
-source is a file or directory or whether a target exists, etc).
+No wonder my first attempt with 24C16 which occupies all 0x50 - 0x57
+addresses had to fail.
 
-pps. If indeed sys_rename() is correct in not needing the mutex and 
-sys_unlink()/sys_rmdir(), sys_link(), etc are correct in needing the 
-mutex, would it be safe if I just take old_dentry->d_inode->i_mutex on 
-entry to ntfs_rename()?  I would assume that there is no deadlock risk 
-because the parent is already locked, correct?
-
-Thanks a lot in advance!
-
-Best regards,
-
-	Anton
+I think VGA monitors respond (at least?) at 0x50 address so
+a 16-bit-addressable EEPROM (at least not larger than 24C2048 which
+IMHO aren't yet available) with all-ones I^2C address selected
+should do as well if connected to VGA/DVI I^2C/ACCESS.bus.
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer, http://www.linux-ntfs.org/
+Krzysztof Halasa

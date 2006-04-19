@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWDSUMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWDSUNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWDSUMt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 16:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWDSUMt
+	id S1751232AbWDSUNd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 16:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWDSUNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 16:12:49 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:21959
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751187AbWDSUMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 16:12:48 -0400
-Date: Wed, 19 Apr 2006 13:12:37 -0700 (PDT)
-Message-Id: <20060419.131237.49371772.davem@davemloft.net>
-To: borntrae@de.ibm.com
-Cc: akpm@osdl.org, heiko.carstens@de.ibm.com, shemminger@osdl.org,
-       jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fpavlic@de.ibm.com, davem@sunset.davemloft.net
-Subject: Re: [patch] ipv4: initialize arp_tbl rw lock
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200604191245.48458.borntrae@de.ibm.com>
-References: <20060408100213.GA9412@osiris.boeblingen.de.ibm.com>
-	<20060408031235.5d1989df.akpm@osdl.org>
-	<200604191245.48458.borntrae@de.ibm.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 19 Apr 2006 16:13:33 -0400
+Received: from smtp.gentoo.org ([134.68.220.30]:64946 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S1751229AbWDSUNb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 16:13:31 -0400
+Date: Wed, 19 Apr 2006 22:13:23 +0200
+From: Henrik Brix Andersen <brix@gentoo.org>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Patrick Mochel <mochel@linux.intel.com>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+Subject: Re: PATCH [1/3]: Provide generic backlight support in Asus ACPI driver
+Message-ID: <20060419201323.GA26861@osgiliath>
+Mail-Followup-To: Matthew Garrett <mjg59@srcf.ucam.org>,
+	Patrick Mochel <mochel@linux.intel.com>,
+	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+References: <20060418082952.GA13811@srcf.ucam.org> <20060418161100.GA31763@linux.intel.com> <20060419184909.GB23513@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Content-Disposition: inline
+In-Reply-To: <20060419184909.GB23513@srcf.ucam.org>
+X-PGP-Key: http://dev.gentoo.org/~brix/files/HenrikBrixAndersen.asc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christian Borntraeger <borntrae@de.ibm.com>
-Date: Wed, 19 Apr 2006 12:45:48 +0200
 
-> As spinlock debugging still does not work with the qeth driver I
-> want to pick up the discussion.
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Does something like the patch below work?
+On Wed, Apr 19, 2006 at 07:49:09PM +0100, Matthew Garrett wrote:
+> Here are some fixed-up versions of my patches to move acpi drivers=20
+> towards using the standard backlight interface. I've kept the dynamic=20
+> allocation of backlight_device for now, since changing that would also=20
+> mean changing the backlight core code and updating other drivers.
 
-But this all begs the question, what happens if you want to
-dig into the internals of a protocol which is built modular and
-hasn't been loaded yet?
+Great stuff, I very much welcome these patches. Any plans for doing
+the same for the sony_acpi.c driver found in -mm?
 
-diff --git a/include/linux/init.h b/include/linux/init.h
-index 93dcbe1..8169f25 100644
---- a/include/linux/init.h
-+++ b/include/linux/init.h
-@@ -95,8 +95,9 @@ #define postcore_initcall(fn)		__define_
- #define arch_initcall(fn)		__define_initcall("3",fn)
- #define subsys_initcall(fn)		__define_initcall("4",fn)
- #define fs_initcall(fn)			__define_initcall("5",fn)
--#define device_initcall(fn)		__define_initcall("6",fn)
--#define late_initcall(fn)		__define_initcall("7",fn)
-+#define net_initcall(fn)		__define_initcall("6",fn)
-+#define device_initcall(fn)		__define_initcall("7",fn)
-+#define late_initcall(fn)		__define_initcall("8",fn)
- 
- #define __initcall(fn) device_initcall(fn)
- 
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index dc206f1..9803a57 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -1257,7 +1257,7 @@ out_unregister_udp_proto:
- 	goto out;
- }
- 
--module_init(inet_init);
-+net_initcall(inet_init);
- 
- /* ------------------------------------------------------------------------ */
- 
+Regards,
+Brix
+--=20
+Henrik Brix Andersen <brix@gentoo.org>
+Gentoo Metadistribution | Mobile computing herd
+
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: GnuPG signed
+
+iD8DBQFERpnjv+Q4flTiePgRAv8jAKCspz80sCcQOPeb1O8W6HLL5jWvmwCfbYhP
+R/IT7eJxkaJzpie9HmXvOdM=
+=z1jT
+-----END PGP SIGNATURE-----
+
+--0F1p//8PRICkK4MW--

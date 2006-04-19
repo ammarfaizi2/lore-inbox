@@ -1,97 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWDSUjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWDSUtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWDSUjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 16:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWDSUjZ
+	id S1751223AbWDSUtn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 16:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWDSUtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 16:39:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30109 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751207AbWDSUjZ (ORCPT
+	Wed, 19 Apr 2006 16:49:43 -0400
+Received: from xenotime.net ([66.160.160.81]:33465 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751223AbWDSUtl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 16:39:25 -0400
-Date: Wed, 19 Apr 2006 13:41:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [RFC] copy_from_user races with readpage
-Message-Id: <20060419134148.262c61cd.akpm@osdl.org>
-In-Reply-To: <200604191318.45738.mason@suse.com>
-References: <200604191318.45738.mason@suse.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 19 Apr 2006 16:49:41 -0400
+Date: Wed, 19 Apr 2006 13:52:07 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Greg KH <greg@kroah.com>
+Cc: jengelh@linux01.gwdg.de, arjan@infradead.org, jmorris@namei.org,
+       hch@infradead.org, akpm@osdl.org, sds@tycho.nsa.gov, edwin@gurde.com,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       chrisw@sous-sol.org, torvalds@osdl.org
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
+ implementation of LSM hooks)
+Message-Id: <20060419135207.dfc2d8ee.rdunlap@xenotime.net>
+In-Reply-To: <20060419201154.GB20545@kroah.com>
+References: <200604142301.10188.edwin@gurde.com>
+	<1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil>
+	<20060417162345.GA9609@infradead.org>
+	<1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
+	<20060417173319.GA11506@infradead.org>
+	<Pine.LNX.4.64.0604171454070.17563@d.namei>
+	<20060417195146.GA8875@kroah.com>
+	<Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+	<1145462454.3085.62.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
+	<20060419201154.GB20545@kroah.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason <mason@suse.com> wrote:
->
-> Hello everyone,
+On Wed, 19 Apr 2006 13:11:54 -0700 Greg KH wrote:
+
+> On Wed, Apr 19, 2006 at 09:06:57PM +0200, Jan Engelhardt wrote:
+> > >> 
+> > >> Well then, have a look at http://alphagate.hopto.org/multiadm/
+> > >> 
+> > >
+> > >hmm on first sight that seems to be basically an extension to the
+> > >existing capability() code... rather than a 'real' LSM module. Am I
+> > >missing something here?
+> > >
+> > 
+> > (So what's the definition for a "real" LSM module?)
 > 
-> I've been working with IBM on a long standing bug where zeros unexpectedly pop 
-> up during a disk certification test.  We tracked it down to copy_from_user.  
-> A simplified form of the test works like this:
-> 
-> memset(buffer, 0x5a, 4096);
-> fd = open("/dev/some_disk", O_RDWR);
-> write(fd, buffer, 4096);
-> pid = fork();
-> if (pid) {
->     while(1) {
->         lseek(fd, 0, 0);
->         read(fd, buf2, 4096);
->     }
-> } else {
->     while(1) {
->         lseek(fd, 0, 0);
->         write(fd, buffer, 4096);
->     }
-> }
-> 
-> First we fill a given block in the file with a specific pattern.  Then we 
-> fork.  One proc writes that exact same pattern over and over, and the other 
-> proc reads from the block over and over.
-> 
-> The reads and writes race, but you would expect the read to always see the 
-> 0x5a pattern.  If we introduce enough memory pressure, sometimes the read 
-> sees zeros instead of the pattern because of kmap_atomic:
-> 
-> cpu1                                            cpu2
-> file_write 
-> (page now up to date)
-> file_write                                     file_read
-> __copy_from_user (atomic)
->                                                    file_read_actor
->                                                    copy_to_user
-> __copy_from_user (non-atomic)
-> 
-> The first copy_from_user fails because of a page fault.  So, the destination
-> page is zero filled, which is the data found by file_read_actor().  The second 
-> copy_from_user succeeds and puts the proper data in the page.
+> No idea, try submitting the patch :)
 
-Yeah.
+hrm, I guess the smiley is supposed to help??
 
-> The solution seems to be a non-zeroing copy_from_user, but this is only 
-> required on arches where kmap_atomic incs the preemption count.  Andrea has a 
-> patch for i386 that does this (small and obvious), along with some memsets to 
-> zero out the kernel page when copy_from_user fails.
+surely someone knows that it takes to qualify as a "real"
+LSM module.  I would have expected Greg to be in that group
+of people.
 
-We need to be careful not to convert a temporarily-is-zero into
-temporarily-is-uninitialised, but that looks to be OK.
-
-> This feature has been present for quite a while, and I think it should be 
-> fixed.  But before we go through making a patch for ppc (any other arches 
-> affected?) I wanted to poll here and make sure people agreed the zeros are 
-> not correct.
-
-The application is being a bit silly, because the read will return
-indeterminate results depending on whether it gets there before or after
-the write.  But that's assuming that the read is reading the part of the
-page which the writer is writing.  If the reader is reading bytes 1000-1010
-and the writer is writing bytes 990-1000 then the reader is being non-silly
-and would be justifiably surprised to see zeroes.
-
-
-I'd have thought that a sufficient fix would be to change
-__copy_from_user_inatomic() to not do the zeroing, then review all users to
-make sure that they cannot leak uninitialised memory.
+---
+~Randy

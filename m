@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWDSBsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWDSBtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWDSBsn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 21:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWDSBsn
+	id S1750708AbWDSBtE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 21:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWDSBtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 21:48:43 -0400
-Received: from mga01.intel.com ([192.55.52.88]:39482 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750712AbWDSBsm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 21:48:42 -0400
-X-IronPort-AV: i="4.04,132,1144047600"; 
-   d="scan'208"; a="25517169:sNHT18963042"
-Content-class: urn:content-classes:message
+	Tue, 18 Apr 2006 21:49:04 -0400
+Received: from web36606.mail.mud.yahoo.com ([209.191.85.23]:50575 "HELO
+	web36606.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750708AbWDSBtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 21:49:01 -0400
+Message-ID: <20060419014857.35628.qmail@web36606.mail.mud.yahoo.com>
+X-RocketYMMF: rancidfat
+Date: Tue, 18 Apr 2006 18:48:56 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+To: James Morris <jmorris@namei.org>
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.64.0604181933290.29123@d.namei>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: acpi hotkey sysfs support
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Date: Wed, 19 Apr 2006 09:48:37 +0800
-Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD1331CCB@pdsmsx411.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: acpi hotkey sysfs support
-Thread-Index: AcZhzEw0AYA4Z1cfQzi+7tvZpSa+VgBhDFLA
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Matthew Garrett" <mjg59@srcf.ucam.org>
-Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "Stelian Pop" <stelian@popies.net>, <thoenig@suse.de>,
-       <borislav@users.sourceforge.net>, <john@neggie.net>,
-       <tauber@informatik.hu-berlin.de>, <sziwan@hell.org.pl>,
-       "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 19 Apr 2006 01:48:38.0313 (UTC) FILETIME=[60BDE190:01C66353]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Garrett,
 
-Since you have provided generic backlight support for ASUS/IBM/Toshiba
-acpi driver, which can reduce the unnecessary interface complexity in
-platform specific acpi driver for brightness control, do you plan to do
-same
-thing for Ouptput switch, sound volume control..?  Moreover, do you
-think the proposal below still make sense?
 
---Luming
- 
->Subject: acpi hotkey sysfs support
->
->Hello all,
->
->I have created a place under sysfs to have a unified place
->to gather user input for common hotkey features. 
->http://bugzilla.kernel.org/show_bug.cgi?id=5749#c10
->
->All of you are owner of a specific acpi hotkey driver. 
->Would you like to use that sysfs support to reduce the
->unnecessary interface complexity.
->
->Thanks a lot
->Luming
->-
+--- James Morris <jmorris@namei.org> wrote:
+
+
+> With pathnames, there is an unbounded and unknown
+> number of effective 
+> security policies on the system, as there are an
+> unbounded and unknown 
+> number of ways of viewing the files via pathnames.
+
+I agree that for traditional DAC and MAC (including
+the flavors supported by SELinux) inodes is the
+only way to go. SELinux is a traditional Trusted OS
+architecture and addresses the traditional Trusted
+OS issues. 
+
+But as someone demonstrated earlier, not everyone
+believes that an EAL makes them feel secure and that
+is what LSM is really all about, allowing people
+who don't care about Protection Profiles but who do
+care about security to do something about it. How
+many of you have lambasted me over the years because
+I bled Orange? If SELinux is the only "secure" Linux
+haven't the Orange Book/Common Criteria people proven
+right in the end?
+
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com

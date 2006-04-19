@@ -1,86 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWDSVZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWDSV1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWDSVZL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 17:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWDSVZK
+	id S1751163AbWDSV1a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 17:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWDSV1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 17:25:10 -0400
-Received: from service.sh.cvut.cz ([147.32.127.214]:61366 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S1751160AbWDSVZJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 17:25:09 -0400
-Message-ID: <4446AAA8.70907@sh.cvut.cz>
-Date: Wed, 19 Apr 2006 23:24:56 +0200
-From: Rudolf Marek <r.marek@sh.cvut.cz>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Watchdog device class
-References: <4443EED9.30603@sh.cvut.cz> <20060418195751.GA6968@infomag.infomag.iguana.be> <4445533D.9010000@sh.cvut.cz> <20060419210204.GA4205@infomag.infomag.iguana.be>
-In-Reply-To: <20060419210204.GA4205@infomag.infomag.iguana.be>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 19 Apr 2006 17:27:30 -0400
+Received: from mga05.intel.com ([192.55.52.89]:57684 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751163AbWDSV13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 17:27:29 -0400
+X-IronPort-AV: i="4.04,136,1144047600"; 
+   d="scan'208"; a="25961009:sNHT45444399"
+X-IronPort-AV: i="4.04,136,1144047600"; 
+   d="scan'208"; a="25960998:sNHT49266469"
+TrustExchangeSourcedMail: True
+X-IronPort-AV: i="4.04,136,1144047600"; 
+   d="scan'208"; a="25960996:sNHT53506320"
+Date: Wed, 19 Apr 2006 14:25:09 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Anderw Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Keith Owens <kaos@americas.sgi.com>, Dean Nelson <dnc@americas.sgi.com>,
+       Tony Luck <tony.luck@intel.com>,
+       Ananth Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna Panchamukhi <prasanna@in.ibm.com>,
+       Dave M <davem@davemloft.net>
+Subject: Re: [patch 2/6] Notify page fault call chain for x86_64
+Message-ID: <20060419142508.A3957@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20060419190059.452500615@csdlinux-2.jf.intel.com> <20060419190134.862282078@csdlinux-2.jf.intel.com> <200604192307.03772.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200604192307.03772.ak@suse.de>; from ak@suse.de on Wed, Apr 19, 2006 at 11:07:03PM +0200
+X-OriginalArrivalTime: 19 Apr 2006 21:27:27.0377 (UTC) FILETIME=[0E8C9010:01C663F8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Wim,
-
-> You can have a check now. I uploaded some code. Need to retest it, but it
-> has been working on my v2.6.5 test machine.
-
-Good I will check. I have one test machine provided by Asus, Winbond and me :)
-(I'm using it for lm-sensors stuff) I can give you access if you give me ssh key.
-
-> Don't agree here: boot_status is a copy of the status at boot. the status
-> itself can change during normal operation. and thus get_status must return
-> the "devices status" at that moment.
-
-Ah correct, not always updated via async event, maybe the register is to be
-polled only.
-
->>I have no such thing for the temp IOCTL but the new "ioctl" operation
->>could be created to catch it.
->>(and get called when no standard ioctl in watchdog-dev is used)
+On Wed, Apr 19, 2006 at 11:07:03PM +0200, Andi Kleen wrote:
+> On Wednesday 19 April 2006 21:01, Anil S Keshavamurthy wrote:
 > 
-> 
-> I think we want to review the temperature stuff in the kernel in general.
+> You seem to be missing a description/rationale here.
+Sorry about that, I had the description in [patch 0/6] and looks like 
+I missed you cc'ing in that patch. Any way I am copying it again here.
 
-If you mean in watchdog class, the yes. Otherwise no. The hwmon class has well
-defined interface for a while...
+   "Currently    in    the    do_page_fault()    code    path,   we   call
+   notify_die(DIE_PAGE_FAULT, ...) to notify the page fault. The only 
+   interested components for this page fault notifications  are  Kprobes  
+   and/or  kdb. Since notify_die() is highly overloaded, this  page  fault  
+   notification  is  currently  being  sent  to  other components
+   registered   with  register_die_notification()  which  uses  the  same
+   die_chain to loop for all the registered components.
 
-> I still have to look at your driver in detail, but my first thought would
-> be that the private part here would be a link to this common device structure.
-> (see what I did with the example softdog implementation in the experimental tree).
+   In order to optimize the do_page_fault() code path, this critical page
+   fault notification is now moved to different call chain and the 
+   test results showed great improvements.
 
-Ok.
+   Patches for i386, x86_64, ia64, powerpc and sparc64 follows this mail."
 
-> It's not about different approaches: we have to find the best thing for watchdog
-> devicesi, so the best thing is to talk about pro's and con's and see what we should 
-> do best. (I for instance didn't come to the sysfs part yet of my code (which would
-> be in watchdog_sysfs.c)
+This patch introduces the exclusive {register/unregister}_page_fault_notifier()
+for use by Kprobes and kdb.
 
-Ok I will look into your code.
 
->>Also I would like to know your ideas about the sysfs file structure for
->>watchdogs and also If you like to have more watchdogs active in the system or
->>just one.
-> 
-> 
-> My view:
-> to start we should keep one /dev/watchdog, but we should create/define a suitable
-> sysfs interface that makes it possible to have multiple watchdog devices running 
-> in parallel. We will need this functionality in the future when a system will 
-> consist of different processors that all have their own memory and some basic
-> I/O interfacing.
-> Later on we will then see what we will do with /dev/watchdog.
-
-I will let you know when I'm done with the studying of your code. I hope that I
-will have some time in near fututure, got lot of stuff to do.
-
-Regards
-Rudolf
-
-PS: CC me please.
+-Anil

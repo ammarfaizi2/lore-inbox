@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWDSMmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWDSMlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWDSMmN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 08:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWDSMmN
+	id S1750731AbWDSMlP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 08:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWDSMlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 08:42:13 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:36230 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1750747AbWDSMmM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 08:42:12 -0400
-Date: Wed, 19 Apr 2006 14:42:10 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Lee Revell <rlrevell@joe-job.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
-       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
-       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
-       Kamal Deen <kamal@kdeen.net>
-Subject: Re: irqbalance mandatory on SMP kernels?
-Message-ID: <20060419124210.GB24807@harddisk-recovery.com>
-References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net> <4443A6D9.6040706@mbligh.org> <1145286094.16138.22.camel@mindpipe> <20060418163539.GB10933@thunk.org> <1145384357.2976.39.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Apr 2006 08:41:15 -0400
+Received: from pproxy.gmail.com ([64.233.166.177]:62662 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750731AbWDSMlO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 08:41:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JK/yRttg9L9Ec7p87Ueug3LUGSWag773guyxJMLyI2vFLcIIw8uep3oiA8enOmk66EKo++6rd52fRbWPVM1QqFAr6JaM6iVZNziJTwOz3Ro9h35PUj6tRjrR1oxj14swPT6p17VWkKU0dQ8tNP0rtCejJdfCu7O3IT3YMSj6rkM=
+Message-ID: <35fb2e590604190541v714d3604w544a83876e5db14a@mail.gmail.com>
+Date: Wed, 19 Apr 2006 13:41:13 +0100
+From: "Jon Masters" <jonathan@jonmasters.org>
+To: "Duncan Sands" <duncan.sands@math.u-psud.fr>
+Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200604191107.10562.duncan.sands@math.u-psud.fr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1145384357.2976.39.camel@laptopd505.fenrus.org>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+References: <20060418234156.GA28346@apogee.jonmasters.org>
+	 <200604191107.10562.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 18, 2006 at 08:19:17PM +0200, Arjan van de Ven wrote:
-> > but spreading IRQ's across all of the CPU's doesn't seem like it's
-> > ever the right answer.
-> 
-> well it is in some cases, imagine having 2 cpus and 2 gige nics that are
-> very busy doing webserving. That's an obvious case where 1-nic-per-cpu
-> ends up doing the right thing... the way it ends up is that each nic has
-> a full cpu for itself and it's own apaches... almost fully independent
-> of the other one. Now if you moved both irqs to the same cpu, the
-> apaches would follow, because if they didn't then you'd be bouncing
-> their data *all the time*. And at that point the other cpu will become
-> bored ;)
+On 4/19/06, Duncan Sands <duncan.sands@math.u-psud.fr> wrote:
 
-So what happens with a dual amd64 system where each CPU has its "own"
-NIC? Something like this:
+> Hi Jon,
 
+Hi Duncan.
 
-MEM0 <--> CPU0 <--- HT ---> CPU1 <--> MEM1
-           ^                 ^
-           |                 |
-           HT                HT
-           |                 |
-           v                 v
-      PCI bridge0      PCI1 bridge
-           ^                 ^
-           |                 |
-          PCI               PCI
-           |                 |
-           v                 v
-       GigE NIC0         GigE NIC1
+> > However, there is right now little mechanism in place to automatically
+> > determine which binary firmware blobs must be included with a kernel in
+> > order to satisfy the prerequisites of these drivers. This affects
+> > vendors, but also regular users to a certain extent too.
+> >
+> > The attached patch introduces MODULE_FIRMWARE as a mechanism for
+> > advertising that a particular firmware file is to be loaded - it will
+> > then show up via modinfo and could be used e.g. when packaging a kernel.
 
-The "best" approach would be to run an Apache on each CPU using local
-memory and NIC and having the IRQs handled by the local CPU. Does the
-irq balancer allow such a configuraion, or would it be hamperd by the
-process scheduler deciding to run both Apaches on a single CPU?
+> I haven't really understood what problem this solves.  Is this just a
+> standardised form of documentation, or are you imagining that an automatic
+> tool will use this to auto include a minimal set of firmware files in an
+> initrd?
 
+I'm imagining that the resultant modinfo output can be used by a tool
+for anyone to package up the correct firmware to go with a given
+driver. Right now, there's no way to do that - i.e. we've gone
+backwards from a standpoint of coupling a kernel with firmware. I
+completely understand why firmware doesn't really belong in the
+kernel, so let's add this :-)
 
-Erik
+> I'm thinking of something like this: (1) redhat (or whoever) ships
+> firmware files for every driver under the sun in /lib/firmware; (2) redhat
+> wants to allow users to have a customized initrd with only essential drivers;
+> (3) the tool goes through the list of essential drivers, looks up the firmware
+> string via MODULE_FIRMWARE, finds the file in /lib/firmware, and includes it
+> in the initrd.
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+That kind of thing. It's not just Red Hat who benefit - anyone who
+wants to package up a kernel and do something with it will want to
+know about firmware they might need. Including everything in
+/lib/firmware "just in case" is as ugly as having userspace tools with
+duplicated logic that need to understand about the internals of a
+driver module.
+
+Jon.

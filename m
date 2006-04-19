@@ -1,97 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWDSPpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWDSPp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbWDSPpN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 11:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWDSPpM
+	id S1750936AbWDSPp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 11:45:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbWDSPp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 11:45:12 -0400
-Received: from pproxy.gmail.com ([64.233.166.177]:21466 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750916AbWDSPpK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 11:45:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GhuuKUrF+Us1jIlIUSjRVhOIjhCysAD3vmN0a8p0OtEK3L1goXu9S+2TsF0w5999kGwm0ND8VZdjU7r8xCJOD1eVpUUhKUY47r6L/Y+zp1GsoFJ+tt9o+azeZu+Ft5KslF1UK6eVyj0qkddJBk5K7C5DbRI1RIfF1eYRaMOe11g=
-Message-ID: <35fb2e590604190845o309f8075t1d419d625906646b@mail.gmail.com>
-Date: Wed, 19 Apr 2006 16:45:10 +0100
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: "Duncan Sands" <duncan.sands@math.u-psud.fr>
-Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200604191732.08640.duncan.sands@math.u-psud.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 19 Apr 2006 11:45:28 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52128 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750928AbWDSPp1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 11:45:27 -0400
+Date: Wed, 19 Apr 2006 08:40:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060419154011.GA26635@kroah.com>
+References: <200604072138.35201.edwin@gurde.com> <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil> <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060418234156.GA28346@apogee.jonmasters.org>
-	 <200604191107.10562.duncan.sands@math.u-psud.fr>
-	 <35fb2e590604190541v714d3604w544a83876e5db14a@mail.gmail.com>
-	 <200604191732.08640.duncan.sands@math.u-psud.fr>
+In-Reply-To: <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/19/06, Duncan Sands <duncan.sands@math.u-psud.fr> wrote:
-
-> > > I haven't really understood what problem this solves.  Is this just a
-> > > standardised form of documentation, or are you imagining that an automatic
-> > > tool will use this to auto include a minimal set of firmware files in an
-> > > initrd?
+On Wed, Apr 19, 2006 at 10:16:46AM +0200, Jan Engelhardt wrote:
+> >> > Seriously that makes a lot of sense.  All other modules people have come up
+> >> > with over the last years are irrelevant and/or broken by design.
+> >> 
+> >> It's been nearly a year since I proposed this, and we've not seen any 
+> >> appropriate LSM modules submitted in that time.
+> >> 
+> >> See
+> >> http://thread.gmane.org/gmane.linux.kernel.lsm/1120
+> >> http://thread.gmane.org/gmane.linux.kernel.lsm/1088
+> >> 
+> >> The only reason I can see to not delete it immediately is to give BSD 
+> >> secure levels users a heads-up, although I thought it was already slated 
+> >> for removal.  BSD secure levels is fundamentally broken and should 
+> >> never have gone into mainline.
 > >
-> > I'm imagining that the resultant modinfo output can be used by a tool
-> > for anyone to package up the correct firmware to go with a given
-> > driver.
+> >been a very long time and so far, only out-of-tree LSMs are present,
+> >with no public statements about getting them submitted into the main
+> >kernel tree.  And, I think almost all of the out-of-tree modules already
+> >need other kernel patches to get their code working properly, so what's
+> >a few more hooks needed...
+> >
+> >/me pokes the bushes to flush out the people lurking
+> >
+> 
+> Well then, have a look at http://alphagate.hopto.org/multiadm/
+> 
+> There is a reason to why people [read: I] do not submit out-of-tree (OOT)
+> modules; because I think chances are low that they get in. Sad fact about the
+> Linux kernel.
 
-> If a tool is to do the packaging, then this means that the firmware must
-> already be present on the machine, for example in /lib/firmware.
+Why do you feel this way.  We document how to get patches applied very
+well (look in Documentation/SubmittingPatches and Documentation/HOWTO),
+and provide good review comments on anything that is posted.
 
-Yes. Although, potentially more clever things could happen in
-userspace in the future.
+We also have a kernel-mentors mailing list that people use to vet their
+patches to get them into shape for submission.
 
-> that means the role of any tool is to select a subset of the files
-> in /lib/firmware, for example a minimal set for inclusion in an initrd.
+So please feel free to submit your patch, especially as without another
+LSM user in the kernel tree, the interface will probably go away.
 
-For example.
+thanks,
 
-> Is there really any reason not to simply throw everything in
-> /lib/firmware into any initrd that is created?
-
-You /could/ just build every driver into the initrd too, and every
-firmware, and... but it might be nice if it was possible to know what
-should be where. Right now, we've lost that because decoupling
-firmware from the kernel means that tools outside of the kernel can't
-tell what firmware files should be around.
-
-> > Right now, there's no way to do that - i.e. we've gone
-> > backwards from a standpoint of coupling a kernel with firmware. I
-> > completely understand why firmware doesn't really belong in the
-> > kernel, so let's add this :-)
->
-> I guess a big difference between the speedtouch and the kinds of drivers
-> you seem to be thinking of, is that in your case there is a fairly tight
-> coupling between firmware and driver versions: a given driver version will
-> only work with a certain version of the firmware and vice-versa.  In the case
-> of the speedtouch, we have no control over (and not much knowledge about)
-> which firmware gets given to people along with their modems, so there is really
-> no coupling at all between firmware versions and driver versions.
-
-I've also repeatedly said that I don't think this really helps with
-things like speedtouch since you can't distribute that firmware
-anyway. This patch does help people who play nicely with the kernel
-who are migrating away from shoving blobs into the kernel (quite
-rightly) and who supply redistributable firmware. One example might be
-the QLogic driver in my RFC.
-
-> > That kind of thing. It's not just Red Hat who benefit - anyone who
-> > wants to package up a kernel and do something with it will want to
-> > know about firmware they might need.
->
-> For this they could just read the documentation.  They'll need to anyway
-> just to find out where they are supposed to get the firmware from.
-
-You're assuming firmware is always on some random vendor website under
-a questionable license and can't be redistributed. That wasn't my
-first consideration - this doesn't really help much there, except you
-get to know what you don't have :-)
-
-Jon.
+greg k-h

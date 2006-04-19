@@ -1,35 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWDSACQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWDSAEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbWDSACQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 20:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWDSACP
+	id S1750907AbWDSAEI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 20:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWDSAEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 20:02:15 -0400
-Received: from bne.snapgear.com ([203.143.235.140]:34825 "EHLO
-	cyberguard.com.au") by vger.kernel.org with ESMTP id S1750861AbWDSACL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 20:02:11 -0400
-Message-ID: <44457E00.1030504@snapgear.com>
-Date: Wed, 19 Apr 2006 10:02:08 +1000
-From: Philip Craig <philipc@snapgear.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Tue, 18 Apr 2006 20:04:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13465 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750907AbWDSAEG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 20:04:06 -0400
+Date: Tue, 18 Apr 2006 17:04:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: art <art@usfltd.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: is this GPL v2 violation - konica-minolta or EFI ?
+In-Reply-To: <200604181824.AA3736200@usfltd.com>
+Message-ID: <Pine.LNX.4.64.0604181653080.3701@g5.osdl.org>
+References: <200604181824.AA3736200@usfltd.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: bunk@stusta.de, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] net/netlink/: possible cleanups
-References: <20060413162710.GE4162@stusta.de> <20060413.132603.94193712.davem@davemloft.net>
-In-Reply-To: <20060413.132603.94193712.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04/14/2006 06:26 AM, David S. Miller wrote:
-> These interfaces were added so that new users of netlink could
-> write their code more easily.
->
-> Unused does not equate to "comment out or delete".
 
-Does a GENETLINK Kconfig option make sense (possibly dependant on
-EMBEDDED)?  I'm unsure whether these interfaces are going to be used
-in core networking code that can't be disabled anyway.
+
+On Tue, 18 Apr 2006, art wrote:
+>
+> is this GPL v2 violation - konica-minolta or EFI ?
+> 
+> http://www.konicaminolta.us
+> http://www.efi.com/
+> 
+> product: option for konica-minolta bizhub c351
+> IC-402 Embedded Fiery Print Controller
+> 
+> product: EFI - Fiery System 6e system 6e X3e CONTROLLER SOLUTIONS
+> 
+> product: EFI - PrintMe
+
+Probably not, but it's hard to tell. 
+
+When they sell you the system, they have to tell you how to get sources if 
+those things run Linux, but they don't actually have to make the sources 
+available otherwise.
+
+(I didn't look the things up, but it's also pretty unlikely that they'd 
+have a custom kernel on them. I don't see why they should - at least the 
+IC-402 thing seems to be basically just an embedded PC. So I suspect they 
+have little incentive to keep anything secret).
+
+		Linus

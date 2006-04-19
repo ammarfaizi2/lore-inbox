@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWDSXlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWDSXv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWDSXlN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 19:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWDSXlN
+	id S1751334AbWDSXv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 19:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWDSXv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 19:41:13 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20486 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751242AbWDSXlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 19:41:13 -0400
-Date: Thu, 20 Apr 2006 01:41:12 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Ram Pai <linuxram@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, arjan@infradead.org,
-       greg@kroah.com, hch@infradead.org
-Subject: Re: [RFC PATCH 1/2] Makefile: export-symbol usage report generator.
-Message-ID: <20060419234112.GI25047@stusta.de>
-References: <20060413123826.52D94470030@localhost> <20060418140927.GB11582@stusta.de> <1145489158.7323.169.camel@localhost>
+	Wed, 19 Apr 2006 19:51:29 -0400
+Received: from victor.provo.novell.com ([137.65.250.26]:54237 "EHLO
+	victor.provo.novell.com") by vger.kernel.org with ESMTP
+	id S1751284AbWDSXv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 19:51:28 -0400
+Message-ID: <4446CCD8.1020608@novell.com>
+Date: Wed, 19 Apr 2006 16:50:48 -0700
+From: Crispin Cowan <crispin@novell.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145489158.7323.169.camel@localhost>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Rik van Riel <riel@redhat.com>
+CC: Seth Arnold <seth.arnold@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+       Tony Jones <tonyj@suse.de>, linux-kernel@vger.kernel.org,
+       chrisw@sous-sol.org, linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 4/11] security: AppArmor - Core access controls
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419174937.29149.97733.sendpatchset@ermintrude.int.wirex.com> <1145470230.3085.84.camel@laptopd505.fenrus.org> <44468817.5060106@novell.com> <Pine.LNX.4.63.0604191904370.11063@cuia.boston.redhat.com> <20060419231831.GE13761@suse.de> <Pine.LNX.4.63.0604191920290.11063@cuia.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0604191920290.11063@cuia.boston.redhat.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 04:25:58PM -0700, Ram Pai wrote:
-> On Tue, 2006-04-18 at 16:09 +0200, Adrian Bunk wrote:
-> > On Thu, Apr 13, 2006 at 05:38:26AM -0700, Ram Pai wrote:
-> > 
-> > > I ran a report to extract export-symbol usage by kernel modules.  The results
-> > > are at http://www.sudhaa.com/~ram/misc/export_report.txt
-> > > 
-> > > The report lists:
-> > > 1. All the exported symbols and their usage counts by in-kernel modules.
-> > > 2. for each in-kernel module, lists the modules and the exported symbols
-> > > 	from those modules, that it depends on.
-> > > 
-> > > Highlights: 
-> > > 	On x86 architecture
-> > >  	(1) 880 exported symbols not used by any in-kernel modules.
-> > >         (2) 1792 exported symbols used only once.
-> > > 
-> > > I hope this report/tool shall help all inkernel modules to revisit their usage
-> > > of kernel interfaces.
-> > > 
-> > > This patch integrates the report-generator into the kernel build process. After
-> > > applying this patch, invoke 'make export_report'  and it creates the report in
-> > > Documentation/export_report.txt
-> > >...
-> > 
-> > I like your patch, but I have observed two issues:
-> > - please don't force an allmodconfig, simply use the currently compiled
-> >   kernel 
-> 
-> Looking for ideas. Its hard to extract out the imported symbols unless
-> they are compiled as modules. Running the report on a currently compiled
-> kernel will miss most of the subsystems that are not compile as modules.
-> Hence the report wont be complete.  Any suggestions?
->...
+Rik van Riel wrote:
+> On Wed, 19 Apr 2006, Seth Arnold wrote:
+>   
+>> On Wed, Apr 19, 2006 at 07:05:08PM -0400, Rik van Riel wrote:
+>>     
+>>> Are confined processes always restricted from starting
+>>> non-confined processes?
+>>>       
+>> It is specified in policy via an unconstrained execution flag: 'ux'. Any 
+>> unconfined children can of course do whatever they wish.
+>>     
+> And the default is for the children to inherit the security
+> policy from the parent process, like in SELinux ?
+>
+> How do apparmor and selinux differ in how they contain bad
+> things?
+>   
+To be able to execute any child, the confined process must have explicit
+permission to execute it:
 
-- it's a tool for kernel hackers who know what they are doing
-- it's a tool to help you finding unused exports, but each one still
-  requires manual verification
+    * "/bin/foo px" says that the child will execute with its own
+      policy. The policy must exist, or access is denied. This is useful
+      if, say, xinetd wants to exec Sendmail.
+    * "/bin/foo ix" says that the child will execute with its parent's
+      policy, "inherit". This is useful if, say, a shell script wants to
+      exec cp.
+    * "/bin/foo ux" says that the child will exec with no confinement at
+      all. This should be used carefully, say, if sshd wants to exec
+      bash to allow an administrator to have an unconfined shell.
 
-Besides this, e.g. CONFIG_SMP=n brings you more modules and therefore a 
-better coverage than allmodconfig.
+You can also say something like "/bin/** ix" which would let you run
+anything in /bin, but all subject to the parent's policy. You could say
+"/bin/** px" but that would mostly cause exec() failures except to the
+extent that policies exist. You could say "/bin/** ux" but that would
+not be wise :)
 
-cu
-Adrian
-
+Crispin
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
+Director of Software Engineering, Novell  http://novell.com
 

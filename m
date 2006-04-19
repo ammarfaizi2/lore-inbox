@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWDSWcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWDSWbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWDSWcL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 18:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWDSWbs
+	id S1751030AbWDSWbo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 18:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWDSWbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 18:31:48 -0400
-Received: from mga07.intel.com ([143.182.124.22]:51563 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751195AbWDSWbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 18:31:46 -0400
+	Wed, 19 Apr 2006 18:31:44 -0400
+Received: from mga05.intel.com ([192.55.52.89]:54347 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751030AbWDSWbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 18:31:44 -0400
 X-IronPort-AV: i="4.04,137,1144047600"; 
-   d="scan'208"; a="25223907:sNHT65314515"
+   d="scan'208"; a="25987163:sNHT40501069"
 X-IronPort-AV: i="4.04,137,1144047600"; 
-   d="scan'208"; a="25223891:sNHT143565681"
+   d="scan'208"; a="25223858:sNHT51366427"
 TrustExchangeSourcedMail: True
 X-IronPort-AV: i="4.04,137,1144047600"; 
-   d="scan'208"; a="25987149:sNHT51435503"
-Message-Id: <20060419221948.507988202@csdlinux-2.jf.intel.com>
-References: <20060419221419.382297865@csdlinux-2.jf.intel.com>
-Date: Wed, 19 Apr 2006 15:14:25 -0700
+   d="scan'208"; a="25223853:sNHT41948424"
+Message-Id: <20060419221419.382297865@csdlinux-2.jf.intel.com>
+Date: Wed, 19 Apr 2006 15:14:19 -0700
 From: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
 To: Anderw Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Keith Owens <kaos@americas.sgi.com>,
@@ -26,47 +25,34 @@ Cc: LKML <linux-kernel@vger.kernel.org>, Keith Owens <kaos@americas.sgi.com>,
        Ananth Mavinakayanahalli <ananth@in.ibm.com>,
        Prasanna Panchamukhi <prasanna@in.ibm.com>,
        Dave M <davem@davemloft.net>, Andi Kleen <ak@suse.de>,
-       Robin Holt <holt@sgi.com>,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Subject: [(resend)patch 6/7] Kprobes registers for notify page fault
-Content-Disposition: inline; filename=notify_page_fault_kprobes.patch
-X-OriginalArrivalTime: 19 Apr 2006 22:31:44.0295 (UTC) FILETIME=[09738B70:01C66401]
+       Robin Holt <holt@sgi.com>
+Subject: [(resend)patch 0/7] Notify page fault call chain 
+X-OriginalArrivalTime: 19 Apr 2006 22:31:41.0795 (UTC) FILETIME=[07F61330:01C66401]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kprobes now registers for the page fault notifications.
+Hi Andrew,
 
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Currently in the do_page_fault() code path, we call
+notify_die(DIE_PAGE_FAULT, ...) to notify the page fault. 
+The only interested components for this page fault 
+notifications  are  Kprobes  and/or  kdb. Since 
+notify_die() is highly overloaded, this  page  fault  
+notification  is  currently  being  sent  to  other
+components registered with register_die_notifier()  
+which  uses  the  same die_chain to loop for all 
+the registered components.
 
----
- kernel/kprobes.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+In order to optimize the do_page_fault() code path, 
+this critical page fault notification is now moved 
+to different call chain and the test results conducted
+by Robin Holt showed great improvements.
 
-Index: linux-2.6.17-rc1-mm3/kernel/kprobes.c
-===================================================================
---- linux-2.6.17-rc1-mm3.orig/kernel/kprobes.c
-+++ linux-2.6.17-rc1-mm3/kernel/kprobes.c
-@@ -544,6 +544,11 @@ static struct notifier_block kprobe_exce
- 	.priority = 0x7fffffff /* we need to notified first */
- };
- 
-+static struct notifier_block kprobe_page_fault_nb = {
-+	.notifier_call = kprobe_exceptions_notify,
-+	.priority = 0x7fffffff /* we need to notified first */
-+};
-+
- int __kprobes register_jprobe(struct jprobe *jp)
- {
- 	/* Todo: Verify probepoint is a function entry point */
-@@ -654,6 +659,9 @@ static int __init init_kprobes(void)
- 	if (!err)
- 		err = register_die_notifier(&kprobe_exceptions_nb);
- 
-+	if (!err)
-+		err = register_page_fault_notifier(&kprobe_page_fault_nb);
-+
- 	return err;
- }
- 
+Patches for i386, x86_64, ia64, powerpc and sparc64 follows this mail.
+
+Please apply.
+
+Thanks,
+Anil Keshavamurthy
 
 --

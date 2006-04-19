@@ -1,56 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWDSOit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWDSOlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWDSOit (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 10:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWDSOit
+	id S1750809AbWDSOlf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 10:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWDSOlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 10:38:49 -0400
-Received: from THUNK.ORG ([69.25.196.29]:15825 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750800AbWDSOit (ORCPT
+	Wed, 19 Apr 2006 10:41:35 -0400
+Received: from dmesg.printk.net ([212.13.197.101]:60863 "EHLO dmesg.printk.net")
+	by vger.kernel.org with ESMTP id S1750807AbWDSOle (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 10:38:49 -0400
-Date: Wed, 19 Apr 2006 10:38:15 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Erik Mouw <erik@harddisk-recovery.com>, Lee Revell <rlrevell@joe-job.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
-       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
-       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
-       Kamal Deen <kamal@kdeen.net>
-Subject: Re: irqbalance mandatory on SMP kernels?
-Message-ID: <20060419143815.GH706@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Erik Mouw <erik@harddisk-recovery.com>,
-	Lee Revell <rlrevell@joe-job.com>,
-	"Martin J. Bligh" <mbligh@mbligh.org>,
-	"Robert M. Stockmann" <stock@stokkie.net>,
-	linux-kernel@vger.kernel.org, Randy Dunlap <rddunlap@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Manfred Spraul <manfreds@colorfullife.com>,
-	Alan Cox <alan@redhat.com>, Kamal Deen <kamal@kdeen.net>
-References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net> <4443A6D9.6040706@mbligh.org> <1145286094.16138.22.camel@mindpipe> <20060418163539.GB10933@thunk.org> <1145384357.2976.39.camel@laptopd505.fenrus.org> <20060419124210.GB24807@harddisk-recovery.com> <1145456594.3085.42.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
+	Wed, 19 Apr 2006 10:41:34 -0400
+Date: Wed, 19 Apr 2006 15:34:26 +0100
+From: Jon Masters <jonathan@jonmasters.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] sound: fix hang in mpu401_uart.c (version 2)
+Message-ID: <20060419143426.GA18514@apogee.jonmasters.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1145456594.3085.42.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+User-Agent: Mutt/1.3.28i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 04:23:14PM +0200, Arjan van de Ven wrote:
-> as long as the irqs are spread the apaches will (on average) follow your
-> irq to the right cpu. Only if you put both irqs on the same cpu you have
-> an issue
+From: Jon Masters <jcm@jonmasters.org>
 
-Maybe I'm being stupid but I don't see how the Apache's will follow
-the IRQ's to the right CPU.  I agree this would be a good thing to do,
-but how does the scheduler accomplish this?
+This fixes a hang in mpu401_uart.c that can occur when the mpu401
+interface is non-existent or otherwise doesn't respond to commands but
+we issue IO anyway. snd_mpu401_uart_cmd now returns an error code that is
+passed up the stack so that an open() will fail immediately in such cases.
 
-						- Ted
+Eventually discovered after wine/cxoffice would constantly cause hard
+lockups on my desktop immediately after loading (emulating Windows too
+well). Turned out that I'd recently moved my sound cards around and
+using /dev/sequencer now talks to a sound card with a broken MPU.
+
+This second version changes -EFAULT to -EIO and frees open resources on
+error too. Test booted and seems to work ok.
+
+Signed-off-by: Jon Masters <jcm@jonmasters.org>
+
+diff -urN linux-2.6.16.2_orig/sound/drivers/mpu401/mpu401_uart.c linux-2.6.16.2_dev/sound/drivers/mpu401/mpu401_uart.c
+--- linux-2.6.16.2_orig/sound/drivers/mpu401/mpu401_uart.c	2006-04-07 17:56:47.000000000 +0100
++++ linux-2.6.16.2_dev/sound/drivers/mpu401/mpu401_uart.c	2006-04-19 13:10:34.000000000 +0100
+@@ -183,7 +183,8 @@
+ 
+  */
+ 
+-static void snd_mpu401_uart_cmd(struct snd_mpu401 * mpu, unsigned char cmd, int ack)
++static int snd_mpu401_uart_cmd(struct snd_mpu401 * mpu, unsigned char cmd,
++		int ack)
+ {
+ 	unsigned long flags;
+ 	int timeout, ok;
+@@ -218,9 +219,11 @@
+ 		ok = 1;
+ 	}
+ 	spin_unlock_irqrestore(&mpu->input_lock, flags);
+-	if (! ok)
++	if (!ok) {
+ 		snd_printk("cmd: 0x%x failed at 0x%lx (status = 0x%x, data = 0x%x)\n", cmd, mpu->port, mpu->read(mpu, MPU401C(mpu)), mpu->read(mpu, MPU401D(mpu)));
+-	// snd_printk("cmd: 0x%x at 0x%lx (status = 0x%x, data = 0x%x)\n", cmd, mpu->port, mpu->read(mpu, MPU401C(mpu)), mpu->read(mpu, MPU401D(mpu)));
++		return 1;
++	}
++	return 0;
+ }
+ 
+ /*
+@@ -235,12 +238,19 @@
+ 	if (mpu->open_input && (err = mpu->open_input(mpu)) < 0)
+ 		return err;
+ 	if (! test_bit(MPU401_MODE_BIT_OUTPUT, &mpu->mode)) {
+-		snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1);
+-		snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1);
++		if (snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1))
++			goto error_out;
++		if (snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1))
++			goto error_out;
+ 	}
+ 	mpu->substream_input = substream;
+ 	set_bit(MPU401_MODE_BIT_INPUT, &mpu->mode);
+ 	return 0;
++
++error_out:
++	if (mpu->open_input && mpu->close_input)
++		mpu->close_input(mpu);
++	return -EIO;
+ }
+ 
+ static int snd_mpu401_uart_output_open(struct snd_rawmidi_substream *substream)
+@@ -252,39 +262,52 @@
+ 	if (mpu->open_output && (err = mpu->open_output(mpu)) < 0)
+ 		return err;
+ 	if (! test_bit(MPU401_MODE_BIT_INPUT, &mpu->mode)) {
+-		snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1);
+-		snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1);
++		if (snd_mpu401_uart_cmd(mpu, MPU401_RESET, 1))
++			goto error_out;
++		if (snd_mpu401_uart_cmd(mpu, MPU401_ENTER_UART, 1))
++			goto error_out;
+ 	}
+ 	mpu->substream_output = substream;
+ 	set_bit(MPU401_MODE_BIT_OUTPUT, &mpu->mode);
+ 	return 0;
++
++error_out:
++	if (mpu->open_output && mpu->close_output)
++		mpu->close_output(mpu);
++	return -EIO;
+ }
+ 
+ static int snd_mpu401_uart_input_close(struct snd_rawmidi_substream *substream)
+ {
+ 	struct snd_mpu401 *mpu;
+-
++	int err = 0;
++	
+ 	mpu = substream->rmidi->private_data;
+ 	clear_bit(MPU401_MODE_BIT_INPUT, &mpu->mode);
+ 	mpu->substream_input = NULL;
+ 	if (! test_bit(MPU401_MODE_BIT_OUTPUT, &mpu->mode))
+-		snd_mpu401_uart_cmd(mpu, MPU401_RESET, 0);
++		err = snd_mpu401_uart_cmd(mpu, MPU401_RESET, 0);
+ 	if (mpu->close_input)
+ 		mpu->close_input(mpu);
++	if (err)
++		return -EIO;
+ 	return 0;
+ }
+ 
+ static int snd_mpu401_uart_output_close(struct snd_rawmidi_substream *substream)
+ {
+ 	struct snd_mpu401 *mpu;
++	int err = 0;
+ 
+ 	mpu = substream->rmidi->private_data;
+ 	clear_bit(MPU401_MODE_BIT_OUTPUT, &mpu->mode);
+ 	mpu->substream_output = NULL;
+ 	if (! test_bit(MPU401_MODE_BIT_INPUT, &mpu->mode))
+-		snd_mpu401_uart_cmd(mpu, MPU401_RESET, 0);
++		err = snd_mpu401_uart_cmd(mpu, MPU401_RESET, 0);
+ 	if (mpu->close_output)
+ 		mpu->close_output(mpu);
++	if (err)
++		return -EIO;
+ 	return 0;
+ }
+ 
+@@ -316,6 +339,7 @@
+ 			snd_mpu401_uart_remove_timer(mpu, 1);
+ 		clear_bit(MPU401_MODE_BIT_INPUT_TRIGGER, &mpu->mode);
+ 	}
++
+ }
+ 
+ /*

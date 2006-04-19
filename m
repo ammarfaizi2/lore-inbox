@@ -1,67 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWDSOCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWDSOFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbWDSOCT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 10:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWDSOCT
+	id S1750785AbWDSOFw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 10:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWDSOFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 10:02:19 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:25832 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S1750774AbWDSOCT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 10:02:19 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: 3w-9xxx status in kernel
-Date: Wed, 19 Apr 2006 14:02:13 +0000 (UTC)
-Organization: Cistron
-Message-ID: <e25ft5$grl$1@news.cistron.nl>
-References: <4444D1D5.6070903@rubis.org> <e2558p$o5f$2@sea.gmane.org>
+	Wed, 19 Apr 2006 10:05:52 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:37550 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S1750785AbWDSOFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 10:05:51 -0400
+Date: Wed, 19 Apr 2006 08:05:40 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>, ralf@linux-mips.org,
+       paulus@samba.org, schwidefsky@de.ibm.com, lethal@linux-sh.org,
+       kkojima@rr.iij4u.or.jp, ysato@users.sourceforge.jp
+Subject: [PATCH] Handle CONFIG_LBD and CONFIG_LSF in one place
+Message-ID: <20060419140540.GK24104@parisc-linux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1145455333 17269 194.109.0.112 (19 Apr 2006 14:02:13 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <e2558p$o5f$2@sea.gmane.org>,
-Martin Honermeyer  <maze@strahlungsfrei.de> wrote:
->Hi,
->
->same problem over here. Why does the newest kernel contain an old version of
->the 3w-9xxx driver? 
->
->We are having performance problems using a 9550SX controller. Read
->throughput (measured with hdparm) is worse than on a Desktop system. We are
->considering trying to replace it with the newest driver from 3ware.com.
 
-The default settings for the 3w9xxx cards suck.
+CONFIG_LBD and CONFIG_LSF are spread into asm/types.h for no particularly
+good reason.  Centralising the definition in linux/types.h means that arch
+maintainers don't need to bother adding it, as well as fixing the problem
+with x86-64 users being asked to make a decision that has absolutely no
+effect.  The H8/300 porters seem particularly confused since I'm not aware
+of any microcontrollers that need to support 2TB filesystems these days.
 
-You need to make sure that the nr_requests (kernel request queue)
-is at least twice the size of queue_depth (hardware requests queue).
-Also the deadline or cfq i/o schedulers work a bit better for
-database-like workloads.
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 
-Try something like this, replacing sda with the device name
-of your 3ware controller.
-
-	# Limit queue depth somewhat
-	echo 128 > /sys/block/sda/device/queue_depth
-
-	# Increase nr_requests
-	echo 256 > /sys/block/sda/queue/nr_requests
-
-	# Don't use as for database-like loads
-	echo deadline > /sys/block/sda/queue/scheduler
-
-CFQ seems to like larger nr_requests, so if you use CFQ, try 254
-(maximum hardware size) for queue_depth and 512 or 1024 for nr_requests.
-
-Oh, remember, if you have just created a RAID array on
-the disks, wait with testing until the whole array has been
-rebuild..
-
-Mike.
-
+Index: ./block/Kconfig
+===================================================================
+RCS file: /var/cvs/linux-2.6/block/Kconfig,v
+retrieving revision 1.4
+diff -u -p -r1.4 Kconfig
+--- ./block/Kconfig	3 Apr 2006 13:44:01 -0000	1.4
++++ ./block/Kconfig	19 Apr 2006 13:43:26 -0000
+@@ -1,11 +1,9 @@
+ #
+ # Block layer core configuration
+ #
+-#XXX - it makes sense to enable this only for 32-bit subarch's, not for x86_64
+-#for instance.
+ config LBD
+ 	bool "Support for Large Block Devices"
+-	depends on X86 || (MIPS && 32BIT) || PPC32 || (S390 && !64BIT) || SUPERH || UML
++	depends on !64BIT
+ 	help
+ 	  Say Y here if you want to attach large (bigger than 2TB) discs to
+ 	  your machine, or if you want to have a raid or loopback device
+@@ -26,7 +24,7 @@ config BLK_DEV_IO_TRACE
+ 
+ config LSF
+ 	bool "Support for Large Single Files"
+-	depends on X86 || (MIPS && 32BIT) || PPC32 || ARCH_S390_31 || SUPERH || UML
++	depends on !64BIT
+ 	help
+ 	  Say Y here if you want to be able to handle very large files (bigger
+ 	  than 2TB), otherwise say N.
+Index: ./include/asm-h8300/types.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-h8300/types.h,v
+retrieving revision 1.5
+diff -u -p -r1.5 types.h
+--- ./include/asm-h8300/types.h	3 Apr 2006 13:45:48 -0000	1.5
++++ ./include/asm-h8300/types.h	19 Apr 2006 13:40:47 -0000
+@@ -55,12 +55,6 @@ typedef unsigned long long u64;
+ 
+ typedef u32 dma_addr_t;
+ 
+-#define HAVE_SECTOR_T
+-typedef u64 sector_t;
+-
+-#define HAVE_BLKCNT_T
+-typedef u64 blkcnt_t;
+-
+ #endif /* __KERNEL__ */
+ 
+ #endif /* __ASSEMBLY__ */
+Index: ./include/asm-i386/types.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-i386/types.h,v
+retrieving revision 1.4
+diff -u -p -r1.4 types.h
+--- ./include/asm-i386/types.h	3 Apr 2006 13:45:49 -0000	1.4
++++ ./include/asm-i386/types.h	19 Apr 2006 13:36:02 -0000
+@@ -58,16 +58,6 @@ typedef u32 dma_addr_t;
+ #endif
+ typedef u64 dma64_addr_t;
+ 
+-#ifdef CONFIG_LBD
+-typedef u64 sector_t;
+-#define HAVE_SECTOR_T
+-#endif
+-
+-#ifdef CONFIG_LSF
+-typedef u64 blkcnt_t;
+-#define HAVE_BLKCNT_T
+-#endif
+-
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* __KERNEL__ */
+Index: ./include/asm-mips/types.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-mips/types.h,v
+retrieving revision 1.6
+diff -u -p -r1.6 types.h
+--- ./include/asm-mips/types.h	3 Apr 2006 13:45:53 -0000	1.6
++++ ./include/asm-mips/types.h	19 Apr 2006 13:36:08 -0000
+@@ -94,16 +94,6 @@ typedef unsigned long long phys_t;
+ typedef unsigned long phys_t;
+ #endif
+ 
+-#ifdef CONFIG_LBD
+-typedef u64 sector_t;
+-#define HAVE_SECTOR_T
+-#endif
+-
+-#ifdef CONFIG_LSF
+-typedef u64 blkcnt_t;
+-#define HAVE_BLKCNT_T
+-#endif
+-
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* __KERNEL__ */
+Index: ./include/asm-powerpc/types.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-powerpc/types.h,v
+retrieving revision 1.3
+diff -u -p -r1.3 types.h
+--- ./include/asm-powerpc/types.h	3 Apr 2006 13:45:55 -0000	1.3
++++ ./include/asm-powerpc/types.h	19 Apr 2006 13:36:14 -0000
+@@ -98,16 +98,6 @@ typedef struct {
+ 	unsigned long env;
+ } func_descr_t;
+ 
+-#ifdef CONFIG_LBD
+-typedef u64 sector_t;
+-#define HAVE_SECTOR_T
+-#endif
+-
+-#ifdef CONFIG_LSF
+-typedef u64 blkcnt_t;
+-#define HAVE_BLKCNT_T
+-#endif
+-
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* __KERNEL__ */
+Index: ./include/asm-s390/types.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-s390/types.h,v
+retrieving revision 1.6
+diff -u -p -r1.6 types.h
+--- ./include/asm-s390/types.h	3 Apr 2006 13:45:56 -0000	1.6
++++ ./include/asm-s390/types.h	19 Apr 2006 13:36:20 -0000
+@@ -88,16 +88,6 @@ typedef union {
+ 	} subreg;
+ } register_pair;
+ 
+-#ifdef CONFIG_LBD
+-typedef u64 sector_t;
+-#define HAVE_SECTOR_T
+-#endif
+-
+-#ifdef CONFIG_LSF
+-typedef u64 blkcnt_t;
+-#define HAVE_BLKCNT_T
+-#endif
+-
+ #endif /* ! __s390x__   */
+ #endif /* __ASSEMBLY__  */
+ #endif /* __KERNEL__    */
+Index: ./include/asm-sh/types.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/asm-sh/types.h,v
+retrieving revision 1.5
+diff -u -p -r1.5 types.h
+--- ./include/asm-sh/types.h	3 Apr 2006 13:45:57 -0000	1.5
++++ ./include/asm-sh/types.h	19 Apr 2006 13:36:26 -0000
+@@ -53,16 +53,6 @@ typedef unsigned long long u64;
+ 
+ typedef u32 dma_addr_t;
+ 
+-#ifdef CONFIG_LBD
+-typedef u64 sector_t;
+-#define HAVE_SECTOR_T
+-#endif
+-
+-#ifdef CONFIG_LSF
+-typedef u64 blkcnt_t;
+-#define HAVE_BLKCNT_T
+-#endif
+-
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* __KERNEL__ */
+Index: ./include/linux/types.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/linux/types.h,v
+retrieving revision 1.11
+diff -u -p -r1.11 types.h
+--- ./include/linux/types.h	3 Apr 2006 13:46:02 -0000	1.11
++++ ./include/linux/types.h	19 Apr 2006 13:40:32 -0000
+@@ -130,14 +130,19 @@ typedef		__s64		int64_t;
+ 
+ /*
+  * The type used for indexing onto a disc or disc partition.
+- * If required, asm/types.h can override it and define
+- * HAVE_SECTOR_T
+  */
+-#ifndef HAVE_SECTOR_T
++#ifdef CONFIG_LBD
++typedef u64 sector_t;
++#else
+ typedef unsigned long sector_t;
+ #endif
+ 
+-#ifndef HAVE_BLKCNT_T
++/*
++ * The type of the inode's block count.
++ */
++#ifdef CONFIG_LSF
++typedef u64 blkcnt_t;
++#else
+ typedef unsigned long blkcnt_t;
+ #endif
+ 

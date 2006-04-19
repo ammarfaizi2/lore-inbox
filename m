@@ -1,142 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750879AbWDSPVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWDSPWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750879AbWDSPVc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 11:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWDSPVc
+	id S1750897AbWDSPWz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 11:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWDSPWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 11:21:32 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:23509 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750878AbWDSPVb (ORCPT
+	Wed, 19 Apr 2006 11:22:55 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:19376 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750886AbWDSPWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 11:21:31 -0400
-Date: Wed, 19 Apr 2006 10:21:29 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       "Eric W. Biederman" <ebiederm@xmission.com>, xemul@sw.ru,
-       James Morris <jmorris@namei.org>
-Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
-Message-ID: <20060419152129.GA14756@sergelap.austin.ibm.com>
-References: <20060407095132.455784000@sergelap> <20060407183600.E40C119B902@sergelap.hallyn.com> <4446547B.4080206@sw.ru>
+	Wed, 19 Apr 2006 11:22:54 -0400
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Safford <safford@watson.ibm.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, James Morris <jmorris@namei.org>,
+       casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1145458322.2377.12.camel@localhost.localdomain>
+References: <20060417180231.71328.qmail@web36606.mail.mud.yahoo.com>
+	 <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060417192634.GB18990@sergelap.austin.ibm.com>
+	 <Pine.LNX.4.64.0604171528340.17923@d.namei>
+	 <20060417194759.GD18990@sergelap.austin.ibm.com>
+	 <1145304146.8542.251.camel@moss-spartans.epoch.ncsc.mil>
+	 <1145458322.2377.12.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Wed, 19 Apr 2006 11:26:57 -0400
+Message-Id: <1145460417.24289.116.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4446547B.4080206@sw.ru>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Kirill Korotaev (dev@sw.ru):
-> Serge,
+On Wed, 2006-04-19 at 10:52 -0400, David Safford wrote:
+> It was certainly agreed that integrity needed to be a separate service
+> available to any access control module, with nothing specific to SLIM, 
+> and that a number of design and implementation problems had to be fixed. 
+> During testing we also found a number of other bugs which weren't raised 
+> on the list, which had to be fixed. (That's what has taken us so long to 
+> post a new version.) As to whether it should be tightly coupled to an
+> LSM module, or should be a separate service with its own kernel hooks,
+> I think was not settled. 
+
+Ok, either way removal of LSM isn't an issue in that case.
+
+> I seem to recall a number of people arguing for the low water-mark 
+> integrity policy as one which provides a simple, user friendly 
+> policy, one which has been demonstrated and tested not only by
+> SLIM, but also with predecessors, such as LOMAC. 
 > 
-> can we do nothing with sysctls at this moment, instead of commiting hacks?
+> I do understand and respect the selinux position against dynamic 
+> labels, since they require revocation, and particularly since at 
+> that time, we had not implemented revocation of mmap access. We 
+> have been quietly studying, fixing, and testing the design and
+> implementation errors pointed out earlier, and still feel strongly 
+> that low water-mark policies have a place, particularly in client
+> systems. 
 
-Please look closer at the patch.
+My concerns with low water mark were noted in
+http://marc.theaimsgroup.com/?l=linux-security-module&m=113232319627338&w=2
+http://marc.theaimsgroup.com/?l=linux-security-module&m=113319033229209&w=2
+http://marc.theaimsgroup.com/?l=linux-security-module&m=113327082228907&w=2
 
-I *am* doing nothing with sysctls.
+I also pointed out examples of how low water mark has
+compatibility/useability problems of its own in that discussion.  And it
+has only has the two options available to all such "simple" models when
+reality conflicts with their model:  preserve the model and break the
+functionality or make the process a trusted subject fully capable of
+violating the model (at which point you are only pretending to enforce
+the model).  Versus being able to configure the policy to match reality,
+as in SELinux.
 
-system_utsname no longer exists, and the way to get to that is by using
-init_uts_ns.name.  That's all this does.
+> Since selinux (by choice) cannot implement policies with dynamic labels,
+> I believe LSM is important for work in alternative access control
+> models, like low water-mark, to continue.
 
--serge
+If such models can demonstrate their viability, then you can ultimately
+submit a patch to extend SELinux/Flask to support them - I have no
+problem with that (again, if they can be shown to be viable and
+implementation is correct).  But first you have to show that.  In the
+meantime, your work can be done via a kernel patch that you carry; it
+doesn't justify keeping LSM in mainline.  Note too that LSM seems to me
+to be harmful to such work, because many of the mistakes you made in the
+first place might have been avoided if you had started by extending the
+existing SELinux/Flask infrastructure (which had much more defined
+semantics) than using LSM (which is just a skeletal framework with no
+real semantics).  Plus it might have encouraged you to propose each
+change as a small patch to SELinux along the way and gotten you valuable
+feedback sooner.
 
-> 
-> Thanks,
-> Kirill
-> 
-> >Sysctl uts patch.  This clearly will need to be done another way, but
-> >since sysctl itself needs to be container aware, 'the right thing' is
-> >a separate patchset.
-> >
-> >Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
-> >---
-> > kernel/sysctl.c |   38 ++++++++++++++++++++++++++++----------
-> > 1 files changed, 28 insertions(+), 10 deletions(-)
-> >
-> >40f7e1320c82efb6e875fc3bf44408cdfd093f21
-> >diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-> >index e82726f..c2b18ef 100644
-> >--- a/kernel/sysctl.c
-> >+++ b/kernel/sysctl.c
-> >@@ -233,8 +233,8 @@ static ctl_table kern_table[] = {
-> > 	{
-> > 		.ctl_name	= KERN_OSTYPE,
-> > 		.procname	= "ostype",
-> >-		.data		= system_utsname.sysname,
-> >-		.maxlen		= sizeof(system_utsname.sysname),
-> >+		.data		= init_uts_ns.name.sysname,
-> >+		.maxlen		= sizeof(init_uts_ns.name.sysname),
-> > 		.mode		= 0444,
-> > 		.proc_handler	= &proc_doutsstring,
-> > 		.strategy	= &sysctl_string,
-> >@@ -242,8 +242,8 @@ static ctl_table kern_table[] = {
-> > 	{
-> > 		.ctl_name	= KERN_OSRELEASE,
-> > 		.procname	= "osrelease",
-> >-		.data		= system_utsname.release,
-> >-		.maxlen		= sizeof(system_utsname.release),
-> >+		.data		= init_uts_ns.name.release,
-> >+		.maxlen		= sizeof(init_uts_ns.name.release),
-> > 		.mode		= 0444,
-> > 		.proc_handler	= &proc_doutsstring,
-> > 		.strategy	= &sysctl_string,
-> >@@ -251,8 +251,8 @@ static ctl_table kern_table[] = {
-> > 	{
-> > 		.ctl_name	= KERN_VERSION,
-> > 		.procname	= "version",
-> >-		.data		= system_utsname.version,
-> >-		.maxlen		= sizeof(system_utsname.version),
-> >+		.data		= init_uts_ns.name.version,
-> >+		.maxlen		= sizeof(init_uts_ns.name.version),
-> > 		.mode		= 0444,
-> > 		.proc_handler	= &proc_doutsstring,
-> > 		.strategy	= &sysctl_string,
-> >@@ -260,8 +260,8 @@ static ctl_table kern_table[] = {
-> > 	{
-> > 		.ctl_name	= KERN_NODENAME,
-> > 		.procname	= "hostname",
-> >-		.data		= system_utsname.nodename,
-> >-		.maxlen		= sizeof(system_utsname.nodename),
-> >+		.data		= init_uts_ns.name.nodename,
-> >+		.maxlen		= sizeof(init_uts_ns.name.nodename),
-> > 		.mode		= 0644,
-> > 		.proc_handler	= &proc_doutsstring,
-> > 		.strategy	= &sysctl_string,
-> >@@ -269,8 +269,8 @@ static ctl_table kern_table[] = {
-> > 	{
-> > 		.ctl_name	= KERN_DOMAINNAME,
-> > 		.procname	= "domainname",
-> >-		.data		= system_utsname.domainname,
-> >-		.maxlen		= sizeof(system_utsname.domainname),
-> >+		.data		= init_uts_ns.name.domainname,
-> >+		.maxlen		= sizeof(init_uts_ns.name.domainname),
-> > 		.mode		= 0644,
-> > 		.proc_handler	= &proc_doutsstring,
-> > 		.strategy	= &sysctl_string,
-> >@@ -1619,6 +1619,24 @@ static int proc_doutsstring(ctl_table *t
-> > {
-> > 	int r;
-> > 
-> >+	switch (table->ctl_name) {
-> >+		case KERN_OSTYPE:
-> >+			table->data = utsname()->sysname;
-> >+			break;
-> >+		case KERN_OSRELEASE:
-> >+			table->data = utsname()->release;
-> >+			break;
-> >+		case KERN_VERSION:
-> >+			table->data = utsname()->version;
-> >+			break;
-> >+		case KERN_NODENAME:
-> >+			table->data = utsname()->nodename;
-> >+			break;
-> >+		case KERN_DOMAINNAME:
-> >+			table->data = utsname()->domainname;
-> >+			break;
-> >+	}
-> >+
-> > 	if (!write) {
-> > 		down_read(&uts_sem);
-> > 		r=proc_dostring(table,0,filp,buffer,lenp, ppos);
-> 
+-- 
+Stephen Smalley
+National Security Agency
+

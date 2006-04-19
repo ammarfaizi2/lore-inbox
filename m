@@ -1,84 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWDSIRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWDSI1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWDSIRy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 04:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWDSIRy
+	id S1750761AbWDSI1G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 04:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWDSI1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 04:17:54 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:22948 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750760AbWDSIRx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 04:17:53 -0400
-Date: Wed, 19 Apr 2006 10:16:46 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Greg KH <greg@kroah.com>
-cc: James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation
- of LSM hooks)
-In-Reply-To: <20060417195146.GA8875@kroah.com>
-Message-ID: <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
-References: <200604021240.21290.edwin@gurde.com> <200604072138.35201.edwin@gurde.com>
- <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil>
- <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil>
- <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
- <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei>
- <20060417195146.GA8875@kroah.com>
+	Wed, 19 Apr 2006 04:27:06 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17028 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750761AbWDSI1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 04:27:04 -0400
+To: Jeff Dike <jdike@addtoit.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [RFC] PATCH 0/4 - Time virtualization
+References: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 19 Apr 2006 02:25:00 -0600
+In-Reply-To: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org> (Jeff
+ Dike's message of "Thu, 13 Apr 2006 13:19:36 -0400")
+Message-ID: <m1d5feotur.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Seriously that makes a lot of sense.  All other modules people have come up
->> > with over the last years are irrelevant and/or broken by design.
->> 
->> It's been nearly a year since I proposed this, and we've not seen any 
->> appropriate LSM modules submitted in that time.
->> 
->> See
->> http://thread.gmane.org/gmane.linux.kernel.lsm/1120
->> http://thread.gmane.org/gmane.linux.kernel.lsm/1088
->> 
->> The only reason I can see to not delete it immediately is to give BSD 
->> secure levels users a heads-up, although I thought it was already slated 
->> for removal.  BSD secure levels is fundamentally broken and should 
->> never have gone into mainline.
+Jeff Dike <jdike@addtoit.com> writes:
+
+> This set of patches implements 
+> 	time virtualization by creating a time namespace
+> 	an interface to it through unshare
+> 	a ptrace extension to allow UML to take advantage of this
+> 	UML support
 >
->been a very long time and so far, only out-of-tree LSMs are present,
->with no public statements about getting them submitted into the main
->kernel tree.  And, I think almost all of the out-of-tree modules already
->need other kernel patches to get their code working properly, so what's
->a few more hooks needed...
+> The guts of the namespace is just an offset from the system time.  Within
+> the container, gettimeofday adds this offset to the system time.  settimeofday
+> changes the offset without touching the system time.  As such, within a 
+> namespace, settimeofday is unprivileged.
 >
->/me pokes the bushes to flush out the people lurking
+> The interface to it is through unshare(CLONE_TIME).  This creates the new
+> namespace, initialized with a zero offset from the system time.
 >
-
-Well then, have a look at http://alphagate.hopto.org/multiadm/
-
-There is a reason to why people [read: I] do not submit out-of-tree (OOT)
-modules; because I think chances are low that they get in. Sad fact about the
-Linux kernel.
-
->Oh, but do remember, the main goal of LSM was to stop people from
->arguing about different security models.  Now that it is in, we haven't
->had any bickering about different types of things that should go into
->mainline, all with different models and usages.  Everyone gets to play
->in their own sandbox and not worry about anyone else.  If the LSM
->interface was to go away, that problem would start happening again, and
->I don't think we want to go there.
+> The advantage of this for UML is that it can create a time namespace for itself
+> and subsequently let its process' gettimeofday run on the host, without
+> being intercepted and run inside UML.  As such, it should basically run at
+> native speed.
 >
->So, I think the only way to be able to realisticly keep the LSM
->interface, is for a valid, working, maintained LSM-based security model
->to go into the kernel tree.  So far, I haven't seen any public posting
->of patches that meet this requirement :(
+> In order to allow this, we need selective system call interception.  The
+> third patch implements PTRACE_SYSCALL_MASK, which specifies, through a 
+> bitmask, which system calls are intercepted and which aren't.
 
-In that case, maybe it would be worthwhile to flip the positions, i.e. LSM on
-top of SELinux, sort of a compat layer.
-
+That patch should probably be separated, from the rest.
+But it looks like a fairly sane idea. 
 
 
-Jan Engelhardt
--- 
+> Finally, the UML support is straightforward.  It calls unshare(CLONE_TIME)
+> to create the new namespace, sets gettimeofday to run without being 
+> intercepted, and makes settimeofday call the host's settimeofday instead
+> of maintaining the time offset itself.
+
+I think you missed a couple essential things to a time namespace.
+Timers.  The posix timers, in particular.  The worst
+of those is the monotonic timer.  
+
+In the case of migration the ugly case to properly handle is the
+monotonic timer.   That needs an offset yet it is absolutely forbidden
+to provide that offset from the inside.  So this is the one namespace
+that I think is inappropriate to use sys_unshare to create.
+We need a system call so that we can specify the minimum or the
+starting monotonic time base.
+
+I don't know how we want to describe time while a process is not
+inside of a kernel.
+
+> As expected, a gettimeofday loop runs basically at native speed.  The two
+> quick tests I did had it running inside UML at 98.8 and 99.2 % of
+> native.
+
+Interesting.
+
+> BUG - as I was writing this, I realized that refcounting of the time_ns
+> structures is wrong - they need to be incremented at process creation and
+> decremented at process exit.
+
+Actually the more I think of the using PTRACE to help with some of
+these issues the more I like it.  It's only real alternative is a
+security module, and that must be written as kernel code.
+
+The reference counting is terrible, as you don't free syscall_mask,
+during ptrace_detach.
+
+As a comparison what is the overhead if you don't use syscall_mask,
+and just do a ptrace_cont on the system call you want to let through?
+
+Eric

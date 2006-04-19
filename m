@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWDSUNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbWDSUVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWDSUNW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 16:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWDSUNV
+	id S1751235AbWDSUVI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 16:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWDSUVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 16:13:21 -0400
-Received: from ns1.suse.de ([195.135.220.2]:30697 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751226AbWDSUNU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 16:13:20 -0400
-Date: Wed, 19 Apr 2006 13:11:54 -0700
-From: Greg KH <greg@kroah.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, James Morris <jmorris@namei.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
-Message-ID: <20060419201154.GB20545@kroah.com>
-References: <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr> <1145462454.3085.62.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
+	Wed, 19 Apr 2006 16:21:08 -0400
+Received: from service.sh.cvut.cz ([147.32.127.214]:64933 "EHLO
+	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S1751235AbWDSUVH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 16:21:07 -0400
+Message-ID: <44469BA3.2090309@sh.cvut.cz>
+Date: Wed, 19 Apr 2006 22:20:51 +0200
+From: Rudolf Marek <r.marek@sh.cvut.cz>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andy Green <andy@warmcat.com>,
+       lm-sensors@lm-sensors.org
+Subject: Re: [lm-sensors] Black box flight recorder for Linux
+References: <44379AB8.6050808@superbug.co.uk>	<m3psjqeeor.fsf@defiant.localdomain> <443A4927.5040801@warmcat.com>	<m3odz9kze6.fsf@defiant.localdomain> <m364l5dep9.fsf@defiant.localdomain>
+In-Reply-To: <m364l5dep9.fsf@defiant.localdomain>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 09:06:57PM +0200, Jan Engelhardt wrote:
-> >> 
-> >> Well then, have a look at http://alphagate.hopto.org/multiadm/
-> >> 
-> >
-> >hmm on first sight that seems to be basically an extension to the
-> >existing capability() code... rather than a 'real' LSM module. Am I
-> >missing something here?
-> >
+Hello,
 > 
-> (So what's the definition for a "real" LSM module?)
+> Interesting: i2cdetect and friends can only find a custom Asus sensors
+> chip on this bus (ASB100 chip at addresses 0x2D, 0x48 and 0x49) - and
+> now my 24C64 at 0x57 (config address 7 = all ones). But the BIOS POST
+> searches and finds more devices: there is something at 0x2F, 0x69, and
+> there are (I think) DDR SDRAM EEPROMs and 0x51 and 0x52 (0x50 is an
+> empty DIMM slot). Got this info with my "DIY" logic analyzer. I think
+> the BIOS POST disconnects somehow the devices before loading the OS
+> (in order to prevent data damage?).
 
-No idea, try submitting the patch :)
+Well Asus likes to play hide and seek...
 
-thanks,
+> No wonder my first attempt with 24C16 which occupies all 0x50 - 0x57
+> addresses had to fail.
 
-greg k-h
+Hm that should work, because Asus most likely multiplexes physical lines
+instead of devices (using 74HC4052 IIRC)
+
+> I think VGA monitors respond (at least?) at 0x50 address so
+> a 16-bit-addressable EEPROM (at least not larger than 24C2048 which
+> IMHO aren't yet available) with all-ones I^2C address selected
+> should do as well if connected to VGA/DVI I^2C/ACCESS.bus.
+
+What about to connect the device to parallel port, there are some adapter
+schematics in kernel docs.
+
+Simplest one needs just one 7405 two diodes and four resistors.
+
+There is also a i2c-pport driver that may work without additional parts, just 3
+pins of parport are used. Please note that you should set the parport to SPP
+mode and not load any linux drivers. The driver is for 2.4. No 2.6 but I have
+used it so you may find it on http://assembler.cz
+
+Regards
+Rudolf

@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWDSNTB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWDSN27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWDSNTB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 09:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWDSNTB
+	id S1750741AbWDSN27 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 09:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWDSN27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 09:19:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29507 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750736AbWDSNTA (ORCPT
+	Wed, 19 Apr 2006 09:28:59 -0400
+Received: from rtr.ca ([64.26.128.89]:60370 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750744AbWDSN26 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 09:19:00 -0400
-Date: Wed, 19 Apr 2006 15:19:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: erich <erich@areca.com.tw>
-Cc: dax@gurulabs.com, billion.wu@areca.com.tw, Al Viro <viro@ftp.linux.org.uk>,
-       Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Chris Caputo <ccaputo@alt.net>
-Subject: Re: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
-Message-ID: <20060419131916.GH614@suse.de>
-References: <Pine.LNX.4.64.0603212310070.20655@nacho.alt.net> <007701c653d7$8b8ee670$b100a8c0@erich2003> <Pine.LNX.4.64.0603301542590.19680@nacho.alt.net> <004a01c65470$412daaa0$b100a8c0@erich2003> <20060330192057.4bd8c568.akpm@osdl.org> <20060331074237.GH14022@suse.de> <002901c65e33$ceac9e00$b100a8c0@erich2003> <20060419104009.GB614@suse.de> <003301c663b3$6bfcc020$b100a8c0@erich2003>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <003301c663b3$6bfcc020$b100a8c0@erich2003>
+	Wed, 19 Apr 2006 09:28:58 -0400
+Message-ID: <44463B11.6030005@rtr.ca>
+Date: Wed, 19 Apr 2006 09:28:49 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Duncan Sands <duncan.sands@math.u-psud.fr>,
+       Jon Masters <jonathan@jonmasters.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] binary firmware and modules
+References: <1145088656.23134.54.camel@localhost.localdomain>	 <200604181537.47183.duncan.sands@math.u-psud.fr>	 <1145370171.10255.58.camel@localhost>	 <200604181659.04657.duncan.sands@math.u-psud.fr> <1145374878.10255.69.camel@localhost>
+In-Reply-To: <1145374878.10255.69.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19 2006, erich wrote:
-> Dear Jens Axboe,
-> 
-> About your request :
-> 
-> ******************************************
-> ** boot with driver MAX_XFER_SECTORS 4096
-> ******************************************
-> #mkfs.ext2 /dev/sda1
-> #mount /dev/sda1 /mnt/sda1
-> #cp /root/aa /mnt/sda1/
-> #reboot
-> ******************************************
-> ** boot with driver MAX_XFER_SECTORS 512
-> ******************************************
-> #fsck /dev/sda1
-> /dev/sda1:clean,.............
+Marcel Holtmann wrote:
+..
+> I personally prefer full firmware names. This makes the dependency easy
+> and even an end user can call modinfo and see what firmware is expected
+> by a certain driver (without looking at the source code).
 
-fsck -fy /dev/sda1
+How does one handle the case of updated firmware from the manufacturer,
+which requires *no* driver changes?  If the driver has all of the previously
+known names/versions hardcoded, then would it refuse to use the new stuff?
 
-You need to force a full check, the partition should be clean when you
-do this so fsck wont do anything.
-
-
--- 
-Jens Axboe
-
+I'm probably misunderstanding something here.

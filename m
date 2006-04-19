@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWDSMwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWDSM4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWDSMwu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 08:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWDSMwu
+	id S1750743AbWDSM4E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 08:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWDSM4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 08:52:50 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:25784 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1750724AbWDSMwt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 08:52:49 -0400
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: casey@schaufler-ca.com, James Morris <jmorris@namei.org>,
+	Wed, 19 Apr 2006 08:56:04 -0400
+Received: from iron1-mx.tops.gwu.edu ([128.164.127.227]:16313 "EHLO
+	iron1-mx.tops.gwu.edu") by vger.kernel.org with ESMTP
+	id S1750741AbWDSM4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 08:56:01 -0400
+X-SenderBase: 4.2
+X-IronPort-AV: i="4.04,134,1144036800"; 
+   d="scan'208"; a="257765072:sNHT26889880"
+From: Yuichi Nakamura <ynakam@gwu.edu>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Kurt Garloff <garloff@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Gerrit Huizenga <gh@us.ibm.com>, James Morris <jmorris@namei.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
        fireflier-devel@lists.sourceforge.net
-In-Reply-To: <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com>
-References: <20060419014857.35628.qmail@web36606.mail.mud.yahoo.com>
-	 <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Wed, 19 Apr 2006 08:56:51 -0400
-Message-Id: <1145451411.24289.57.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Message-ID: <e133c9da8fcba.8fcbae133c9da@gwu.edu>
+Date: Wed, 19 Apr 2006 08:55:56 -0400
+X-Mailer: iPlanet Messenger Express 5.2 HotFix 2.09 (built Nov 18 2005)
+MIME-Version: 1.0
+Content-Language: en
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+X-Accept-Language: en
+In-Reply-To: <20060419121034.GE20481@sergelap.austin.ibm.com>
+References: <20060417225525.GA17463@infradead.org>
+ <E1FVfGt-0003Wy-00@w-gerrit.beaverton.ibm.com>
+ <20060418115819.GB8591@infradead.org>
+ <20060418213833.GC5741@tpkurt.garloff.de>
+ <20060419121034.GE20481@sergelap.austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-19 at 02:40 -0400, Kyle Moffett wrote:
-> On Apr 18, 2006, at 21:48:56, Casey Schaufler wrote:
-> > --- James Morris <jmorris@namei.org> wrote:
-> >> With pathnames, there is an unbounded and unknown number of  
-> >> effective security policies on the system, as there are an
-> >> unbounded and unknown number of ways of viewing the files via  
-> >> pathnames.
-> >
-> > I agree that for traditional DAC and MAC (including the flavors  
-> > supported by SELinux) inodes is the only way to go. SELinux is a  
-> > traditional Trusted OS architecture and addresses the traditional  
-> > Trusted OS issues.
-> 
-> Perhaps the SELinux model should be extended to handle (dir-inode,  
-> path-entry) pairs.  For example, if I want to protect the /etc/shadow  
-> file regardless of what tool is used to safely modify it, I would set  
-> up security as follows:
+Hi,it is my first post to the LSM list.
 
-SELinux already provides a way to protect /etc/shadow, in a much
-stronger way.  It does require some library/application modifications
-(already present in some distros) to preserve a different security label
-on files containing shadow data than on files containing public passwd
-data, but that is no different than the existing approach for preserving
-different file modes on those files.  It doesn't require the kernel to
-deal with pathnames itself.
+"Serge E. Hallyn" wrote:
+> Have you ever tried, at 4pm some afternoon, sitting in a room with 
+> somepaper and implementing the AA user interface on top of selinux?
+We've implemented AppArmor like configuration on top of SELinux.
+SELinux Policy Editor(http://seedit.sourceforge.net/) does this.
+In its current development version(not released yet, only in CVS), 
+Configuration for httpd is like below.
 
--- 
-Stephen Smalley
-National Security Agency
+#####
+{
+domain httpd_t;
+program /usr/sbin/httpd;
+include common-relaxed.sp;
+include daemon.sp;
+include nameservice.sp;
+allow /etc s;
+allow /etc/httpd/** r,s;
+allow /var/log/httpd/** r,a,s;
+allow /var/www/** r,s;
+allow /var s;
+allow /var/run/** s;
+allow /etc/php.d/** r,s;
+allow /etc/php.ini r,s;
+allow /etc/mime.types r,s;
+allow /etc/pki/** r,s;
+allownet -protocol tcp -port 80,443 server;
+}
+#####
+Above is converted into SELinux Policy language.
+Types, allow rules,domain transision rules are generated.
+It works, and can also restrict IPC and privilege other than POSIX
+capability(because it is based on SELinux).
 
+However, path-name based configuration can not be achieved on SELinux in
+following cases.
+1) Files on file system that does not support xattr(such as sysfs)
+   SELinux policy editor handles all files as same on such file systems.
+2) Files that are dynamically created/deleted(inode number is not fixed).
+   Example is files on /tmp and /etc/mtab. SELinux Policy Editor is
+using file type transition to configure access control for them.
+
+
+--
+---
+Yuichi Nakamura
+Japan SELinux Users Group(JSELUG)
+SELinux Policy Editor:  http://seedit.sourceforge.net/

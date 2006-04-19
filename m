@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWDSCK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWDSCoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWDSCK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 22:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWDSCK3
+	id S1750715AbWDSCoO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 22:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWDSCoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 22:10:29 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:60322 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1750751AbWDSCK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 22:10:28 -0400
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Shaohua Li <shaohua.li@intel.com>
-Subject: Re: [PATCH 2/3] swsusp i386 mark special saveable/unsaveable pages
-Date: Wed, 19 Apr 2006 12:08:44 +1000
-User-Agent: KMail/1.9.1
-Cc: lkml <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>
-References: <1144809501.2865.40.camel@sli10-desk.sh.intel.com> <200604191141.51492.ncunningham@cyclades.com> <1145411499.19994.12.camel@sli10-desk.sh.intel.com>
-In-Reply-To: <1145411499.19994.12.camel@sli10-desk.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1251056.vNJfjZU5Bd";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200604191208.49386.ncunningham@cyclades.com>
+	Tue, 18 Apr 2006 22:44:14 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:4958 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750715AbWDSCoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 22:44:13 -0400
+Date: Tue, 18 Apr 2006 20:44:03 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCH 1/1] ide: Allow disabling of UDMA for Compact Flash devices
+In-reply-to: <631pe-5Gt-7@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: James Ausmus <james.ausmus@gmail.com>
+Message-id: <4445A3F3.6050907@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <62LaJ-6vK-5@gated-at.bofh.it> <62Wg0-6f8-29@gated-at.bofh.it>
+ <62WJ1-6Od-31@gated-at.bofh.it> <62WSE-70D-21@gated-at.bofh.it>
+ <631pe-5Gt-7@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1251056.vNJfjZU5Bd
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+James Ausmus wrote:
+> This is exactly the situation that I have with 2 separate "dumb" (just
+> physical interfaces, essentially - not at all detectable) IDE->CF
+> adapters - both the IDE controller and the CF media support several
+> UDMA modes, so the IDE driver throws the CF device into UDMA mode on
+> bootup. However, as the physical interface between the IDE cable and
+> the CF socket is poorly engineered, it cannot handle the higher
+> speeds, causing the timeout errors. For some people, this can just be
+> fixed with an ide=nodma boot option, but as I also have a (quite
+> large) rotating media device on the controller, this is not an option,
+> as, if a fsck is performed on a boot, the boot-up time is upwards of
+> 30 minutes.
 
-Hi.
+If it's like some of the CF-IDE adapters I've seen, the DMA request/ack 
+lines likely aren't even wired up between the card and the cable. 
+There's no way the kernel can detect that DMA is not actually possible 
+on such a card without trying and waiting for it to timeout. (I've seen 
+a few which have jumpers which select whether to connect these or not - 
+haven't a clue why you wouldn't want to hook those up unconditionally..)
 
-On Wednesday 19 April 2006 11:51, Shaohua Li wrote:
-> On Wed, 2006-04-19 at 11:41 +1000, Nigel Cunningham wrote:
-> > Oh, and while we're on the topic, if only part of a page is NVS, what's
-> > the right behaviour? My e820 table has:
-> >
-> > BIOS-e820: 000000003dff0000 - 000000003dffffc0 (ACPI data)
-> > BIOS-e820: 000000003dffffc0 - 000000003e000000 (ACPI NVS)
->
-> If only part of a page is NVS, my patch will save the whole page. Any
-> other idea?
+Isn't there an option to disable DMA for a specific IDE channel 
+(ide2=nodma or something like that)?
 
-A device model driver that handles saving just the part of the page, using=
-=20
-preallocated buffers to avoid the potential allocation problems? (The whole=
-=20
-page could then safely be Nosave).
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Regards,
-
-Nigel
-
---nextPart1251056.vNJfjZU5Bd
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBERZuxN0y+n1M3mo0RAtBxAKCfaGLAOsV1kazNZGTXZyJLVzzFKQCeKY/4
-wWZm0JCEnwq5zpZzYLRpisQ=
-=eCe+
------END PGP SIGNATURE-----
-
---nextPart1251056.vNJfjZU5Bd--

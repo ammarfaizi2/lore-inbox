@@ -1,112 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWDSCGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWDSCK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWDSCGO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 22:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWDSCGO
+	id S1750751AbWDSCK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 22:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWDSCK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 22:06:14 -0400
-Received: from xenotime.net ([66.160.160.81]:10888 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750714AbWDSCGN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 22:06:13 -0400
-Date: Tue, 18 Apr 2006 19:08:39 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, bunk@stusta.de, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [PATCH] [6/6] i386: Move CONFIG_DOUBLEFAULT into
- arch/i386 where it belongs.
-Message-Id: <20060418190839.3fa53a0f.rdunlap@xenotime.net>
-In-Reply-To: <200604182212.13835.ak@suse.de>
-References: <4444C0EA.mailKK411J5GA@suse.de>
-	<20060418190528.GL11582@stusta.de>
-	<200604182212.13835.ak@suse.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 18 Apr 2006 22:10:29 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:60322 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1750751AbWDSCK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 22:10:28 -0400
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Shaohua Li <shaohua.li@intel.com>
+Subject: Re: [PATCH 2/3] swsusp i386 mark special saveable/unsaveable pages
+Date: Wed, 19 Apr 2006 12:08:44 +1000
+User-Agent: KMail/1.9.1
+Cc: lkml <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>
+References: <1144809501.2865.40.camel@sli10-desk.sh.intel.com> <200604191141.51492.ncunningham@cyclades.com> <1145411499.19994.12.camel@sli10-desk.sh.intel.com>
+In-Reply-To: <1145411499.19994.12.camel@sli10-desk.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1251056.vNJfjZU5Bd";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200604191208.49386.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Apr 2006 22:12:13 +0200 Andi Kleen wrote:
+--nextPart1251056.vNJfjZU5Bd
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> On Tuesday 18 April 2006 21:05, Adrian Bunk wrote:
-> > On Tue, Apr 18, 2006 at 12:35:22PM +0200, Andi Kleen wrote:
-> > > 
-> > > Signed-off-by: Andi Kleen <ak@suse.de>
-> > >...
-> > 
-> > NAK.
-> >  submitting a patch that is the revert of a patch that went 
-> > into Linus' tree just 8 days ago [1], I'd expect at least:
-> > - a Cc to the people involved with the patch you are reverting
-> > - a note that you are reverting a recent patch in your patch
-> >   description
-> > - an explanation why you disagree with the patch you are reverting
-> 
-> The subject was very clear. i386 options belong into arch/i386.
+Hi.
 
-Yes, the timing could have been better.  Whatever.
+On Wednesday 19 April 2006 11:51, Shaohua Li wrote:
+> On Wed, 2006-04-19 at 11:41 +1000, Nigel Cunningham wrote:
+> > Oh, and while we're on the topic, if only part of a page is NVS, what's
+> > the right behaviour? My e820 table has:
+> >
+> > BIOS-e820: 000000003dff0000 - 000000003dffffc0 (ACPI data)
+> > BIOS-e820: 000000003dffffc0 - 000000003e000000 (ACPI NVS)
+>
+> If only part of a page is NVS, my patch will save the whole page. Any
+> other idea?
 
-I agree with Andi that it should be moved back to the ix86 Processor
-menu, but not where he moved it to.  My patch is below.
+A device model driver that handles saving just the part of the page, using=
+=20
+preallocated buffers to avoid the potential allocation problems? (The whole=
+=20
+page could then safely be Nosave).
 
-> -Andi (who actually thinks the whole thing was always a bad idea - saving
-> a few K but giving up such debugging is a poor trade off)
+Regards,
 
-It does default to Y and can only be changed if EMBEDDED is enabled.
-I don't think that it really should be in the Kernel hacking menu.
+Nigel
 
----
+--nextPart1251056.vNJfjZU5Bd
+Content-Type: application/pgp-signature
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-Put DOUBLEFAULT option back in the i386 Processor menu, but
-not at the very top of it like it was originally, where it
-was out of place in the menu structure.
+iD8DBQBERZuxN0y+n1M3mo0RAtBxAKCfaGLAOsV1kazNZGTXZyJLVzzFKQCeKY/4
+wWZm0JCEnwq5zpZzYLRpisQ=
+=eCe+
+-----END PGP SIGNATURE-----
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- arch/i386/Kconfig |    9 +++++++++
- init/Kconfig      |    9 ---------
- 2 files changed, 9 insertions(+), 9 deletions(-)
-
---- linux-2617-rc1g12.orig/arch/i386/Kconfig
-+++ linux-2617-rc1g12/arch/i386/Kconfig
-@@ -282,6 +282,15 @@ config X86_VISWS_APIC
- 	depends on X86_VISWS
- 	default y
- 
-+config DOUBLEFAULT
-+	default y
-+	bool "Enable doublefault exception handler" if EMBEDDED
-+	help
-+          This option allows trapping of rare doublefault exceptions that
-+          would otherwise cause a system to silently reboot. Disabling this
-+          option saves about 4k and might cause you much additional grey
-+          hair.
-+
- config X86_MCE
- 	bool "Machine Check Exception"
- 	depends on !X86_VOYAGER
---- linux-2617-rc1g12.orig/init/Kconfig
-+++ linux-2617-rc1g12/init/Kconfig
-@@ -374,15 +374,6 @@ config SLAB
- 	  SLOB is more space efficient but does not scale well and is
- 	  more susceptible to fragmentation.
- 
--config DOUBLEFAULT
--	default y
--	bool "Enable doublefault exception handler" if EMBEDDED && X86_32
--	help
--          This option allows trapping of rare doublefault exceptions that
--          would otherwise cause a system to silently reboot. Disabling this
--          option saves about 4k and might cause you much additional grey
--          hair.
--
- endmenu		# General setup
- 
- config TINY_SHMEM
-
----
+--nextPart1251056.vNJfjZU5Bd--

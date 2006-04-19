@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWDSTCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWDSTIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWDSTCF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 15:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWDSTCF
+	id S1750898AbWDSTIM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 15:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWDSTIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 15:02:05 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:42891 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751176AbWDSTCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 15:02:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=R5+DX9NAl7EDkc3PB8o33j47dGdbNuQQZHs8POQVvJp/4cWF/19BqdBYx4PrN00KSUl/6w5sZGWK9aMi0MMmKrND0zdG1BGgWbrIi8MmKMAJpxOpkbqDVaW3i7FOXgMREGg2DFcE51O8yKrKsfM3YhkzGHjrXsnB0uIslmgG3+c=
-Message-ID: <444688F2.5060909@gmail.com>
-Date: Wed, 19 Apr 2006 12:01:06 -0700
-From: Hua Zhong <hzhong@gmail.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 19 Apr 2006 15:08:12 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:50128 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750893AbWDSTIL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 15:08:11 -0400
+Date: Wed, 19 Apr 2006 21:06:57 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Greg KH <greg@kroah.com>, James Morris <jmorris@namei.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation
+ of LSM hooks)
+In-Reply-To: <1145462454.3085.62.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
+References: <200604021240.21290.edwin@gurde.com>  <200604072138.35201.edwin@gurde.com>
+  <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil> 
+ <200604142301.10188.edwin@gurde.com>  <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil>
+  <20060417162345.GA9609@infradead.org>  <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
+  <20060417173319.GA11506@infradead.org>  <Pine.LNX.4.64.0604171454070.17563@d.namei>
+  <20060417195146.GA8875@kroah.com>  <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+ <1145462454.3085.62.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       torvalds@osdl.org, davem@davemloft.net, akpm@osdl.org
-Subject: [PATCH] sockfd_lookup_light() returns random error for -EBADFD
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This applies to 2.6.17-rc2.
+>> 
+>> Well then, have a look at http://alphagate.hopto.org/multiadm/
+>> 
+>
+>hmm on first sight that seems to be basically an extension to the
+>existing capability() code... rather than a 'real' LSM module. Am I
+>missing something here?
+>
 
-There is a missing initialization of err in sockfd_lookup_light() that could return random error for an invalid file handle.
+(So what's the definition for a "real" LSM module?)
 
-Signed-off-by: Hua Zhong <hzhong@gmail.com>
+It's quite a "big" extension to the capability code inasfar as that 
+access is not solely granted based on capabilities, but a matrix of 
+capabilities plus UID/GID of filesystem objects.
 
-diff --git a/net/socket.c b/net/socket.c
-index 23898f4..0ce12df 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -490,6 +490,7 @@ static struct socket *sockfd_lookup_ligh
- 	struct file *file;
- 	struct socket *sock;
- 
-+	*err = -EBADF;
- 	file = fget_light(fd, fput_needed);
- 	if (file) {
- 		sock = sock_from_file(file, err);
+This is not a "for fun" LSM like rootplug, but it was specifically 
+developed to address some permission issues in an educational institution. 
+The LSM hooks were there (and some more are added with MultiAdm), and it 
+seemed a lot simpler than setting up SELinux.
+
+
+Jan Engelhardt
+-- 

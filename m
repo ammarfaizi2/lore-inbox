@@ -1,114 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWDSTSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWDSTVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbWDSTSL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 15:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWDSTSK
+	id S1751058AbWDSTVF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 15:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWDSTVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 15:18:10 -0400
-Received: from mga03.intel.com ([143.182.124.21]:37436 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751189AbWDSTSG convert rfc822-to-8bit (ORCPT
+	Wed, 19 Apr 2006 15:21:05 -0400
+Received: from alpha.polcom.net ([83.143.162.52]:38084 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S1751058AbWDSTVE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 15:18:06 -0400
-X-IronPort-AV: i="4.04,136,1144047600"; 
-   d="scan'208"; a="25145158:sNHT52056326"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 19 Apr 2006 15:21:04 -0400
+Date: Wed, 19 Apr 2006 21:20:56 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.17-rc2
+In-Reply-To: <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
+Message-ID: <Pine.LNX.4.63.0604192101050.31989@alpha.polcom.net>
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
+ <20060419200001.fe2385f4.diegocg@gmail.com> <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 1/3] acpi: dock driver
-Date: Wed, 19 Apr 2006 12:17:49 -0700
-Message-ID: <B28E9812BAF6E2498B7EC5C427F293A4200CB5@orsmsx415.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 1/3] acpi: dock driver
-Thread-Index: AcZj2FLq0fmpNPXRRBGbcaHkkKaOCQADFeUA
-From: "Moore, Robert" <robert.moore@intel.com>
-To: "Patrick Mochel" <mochel@linux.intel.com>
-Cc: "Accardi, Kristen C" <kristen.c.accardi@intel.com>,
-       "Prarit Bhargava" <prarit@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, <greg@kroah.com>,
-       <linux-acpi@vger.kernel.org>, <pcihpd-discuss@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>, <arjan@linux.intel.com>,
-       <muneda.takahiro@jp.fujitsu.com>, <pavel@ucw.cz>, <temnota@kmv.ru>
-X-OriginalArrivalTime: 19 Apr 2006 19:17:50.0715 (UTC) FILETIME=[F34C1CB0:01C663E5]
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whatever makes the most sense for the host OS.
+On Wed, 19 Apr 2006, Linus Torvalds wrote:
+> On Wed, 19 Apr 2006, Diego Calleja wrote:
+>>
+>> Could someone give a long high-level description of what splice() and tee()
+>> are?
+>
+> The _really_ high-level concept is that there is now a notion of a "random
+> kernel buffer" that is exposed to user space.
 
-I think the original linux/acpi drivers were developed and debugged at
-the same time we were debugging the ACPICA core code, and it became very
-convenient to use the ACPI tracing and debugging mechanism to grab
-information about everything that was going on, ACPI-wise. This may or
-may not be important today.
+Suppose I am implementing hi performance HTTP (not caching) proxy that 
+reads (part of?) HTTP header from A, decides where to send request from 
+it, connects to the right host (B), sends (part of) HTTP header it already 
+received and then wants to:
 
-Also, there may come a time when we will decide to remove the tracing
-mechanism in ACPICA. However, over the years, this mechanism has proven
-very useful in finding problems. The execution trace is very helpful
-because of the nature of the AML interpretation and internal state
-changes.
+- make all further bytes from A be copied to B without using user space 
+but no more than n bytes (n = request size it knows from header) or to the 
+end of data (disconnect or something like that),
 
-Bob
+- make all bytes from B copied to A without using user space but no more 
+than m bytes (m = response size from response header),
+
+- stop both operations as soon as they copy enough data (assuming both 
+sides are still connected) and then use sockets normally - to implement 
+for example multiple requests per connection (keepalive).
+
+Could it be done with splice() or tee() or some other kernel 
+"accelerator"? Or should it be done in userspace by plain read and write?
+
+And what if n or m is not known in advance but for example end of request 
+is represented by <CR><LF><CR><LF> or something like that (common in some 
+older protocols)?
 
 
-> -----Original Message-----
-> From: Patrick Mochel [mailto:mochel@linux.intel.com]
-> Sent: Wednesday, April 19, 2006 10:37 AM
-> To: Moore, Robert
-> Cc: Accardi, Kristen C; Prarit Bhargava; Andrew Morton; Brown, Len;
-> greg@kroah.com; linux-acpi@vger.kernel.org; pcihpd-
-> discuss@lists.sourceforge.net; linux-kernel@vger.kernel.org;
-> arjan@linux.intel.com; muneda.takahiro@jp.fujitsu.com; pavel@ucw.cz;
-> temnota@kmv.ru
-> Subject: Re: [patch 1/3] acpi: dock driver
-> 
-> On Wed, Apr 19, 2006 at 10:14:46AM -0700, Moore, Robert wrote:
-> > This is something to think about before we rip out all the ACPI
-> > core-style debug stuff.
-> 
-> Not sure which part you're referring to, but maybe these:
-> 
-> > > > > --- /dev/null
-> > > > > +++ 2.6-git-kca2/drivers/acpi/dock.c
-> > > > > @@ -0,0 +1,652 @@
-> > > >
-> > > > > +#define ACPI_DOCK_COMPONENT 0x10000000
-> > > > > +#define ACPI_DOCK_DRIVER_NAME "ACPI Dock Station Driver"
-> > > > > +#define _COMPONENT		ACPI_DOCK_COMPONENT
-> > > >
-> > > > These aren't necessary for code that is outside of the ACPI-CA.
-> > >
-> > > Originally I did not include these, but it turns out if you wish
-to
-> > use
-> > > the ACPI_DEBUG macro, you need to have these things defined.  I
-did go
-> > > ahead and use this macro in a couple places, mainly because I felt
-> > that
-> > > even though this isn't strictly an acpi driver (using the acpi
-driver
-> > > model), it does live in drivers/acpi and perhaps people might
-expect
-> > to
-> > > be able to debug it the same way.
-> 
-> 
-> Some of us have already thought about it. :-)
-> 
-> We have standard debugging macros that are used in many driver
-subsystems
-> defined in include/linux/device.h (dev_printk(), dev_dbg(), dev_err(),
-and
-> friends). The ACPI drivers are not very different than other Linux
-driver
-> subsystems (at a very basic level). They are very Linux-specific (not
-> portable like the CA), and should be using Linux-specific constructs
-as
-> much as possible to match the rest of the kernel. This makes it much
-> eaiser for people to understand exactly what those drivers are doing..
-> 
-> 
-> 	Pat
+Thanks in advance,
+
+Grzegorz Kulewski
+

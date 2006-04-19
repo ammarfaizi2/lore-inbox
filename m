@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWDSWTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWDSWTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWDSWTA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 18:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWDSWS7
+	id S1751278AbWDSWTK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 18:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWDSWTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 18:18:59 -0400
-Received: from smtp13.wanadoo.fr ([193.252.22.54]:28635 "EHLO
-	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S1751141AbWDSWS6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 18:18:58 -0400
-X-ME-UUID: 20060419221857512.7D133700008E@mwinf1309.wanadoo.fr
-Date: Thu, 20 Apr 2006 00:17:56 +0200
-From: Mathieu Chouquet-Stringer <mchouque@free.fr>
-To: Bob Tracy <rct@gherkin.frus.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com
-Subject: Re: class_device_add error in SCSI with 2.6.17-rc2-g52824b6b
-Message-ID: <20060419221756.GA12149@localhost>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
-	Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com
-References: <20060419213129.GA9148@localhost> <20060419215803.6DE5BDBA1@gherkin.frus.com>
-Mime-Version: 1.0
+	Wed, 19 Apr 2006 18:19:09 -0400
+Received: from mx1.suse.de ([195.135.220.2]:63883 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751278AbWDSWTH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 18:19:07 -0400
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Thu, 20 Apr 2006 08:18:52 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060419215803.6DE5BDBA1@gherkin.frus.com>
-User-Agent: Mutt/1.4.2.1i
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+Content-Transfer-Encoding: 7bit
+Message-ID: <17478.46924.439611.402803@cse.unsw.edu.au>
+Cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: [RFC] copy_from_user races with readpage
+In-Reply-To: message from Andrew Morton on Wednesday April 19
+References: <200604191318.45738.mason@suse.com>
+	<20060419134148.262c61cd.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 04:58:03PM -0500, Bob Tracy wrote:
-> Similar error previously reported by me for 2.6.17-rc1, except sda got
-> added fine: error occurred when attempting to add/register sdb. 
+On Wednesday April 19, akpm@osdl.org wrote:
+> 
+> The application is being a bit silly, because the read will return
+> indeterminate results depending on whether it gets there before or after
+> the write.  But that's assuming that the read is reading the part of the
+> page which the writer is writing.  If the reader is reading bytes 1000-1010
+> and the writer is writing bytes 990-1000 then the reader is being non-silly
+> and would be justifiably surprised to see zeroes.
 
-Actually you're right. I'm rereading the logs and the first device on a
-scsi bus is always registered correctly. The sh*t hits the fan when you
-have more than one sd device per bus. (I've got 2 devices on one, and 3
-on the other and only the first one on each got registered correctly).
+However this non-silly case will not cause a problem.  If the write is
+writing bytes 990-1000, then only those bytes risk being zeroed by
+__copy_from_user.  Bytes 1000-1010 (assuming those ranges are intended
+not to overlap) will not be at risk.
 
-> Thankfully, you were able to append a trace...
+> 
+> 
+> I'd have thought that a sufficient fix would be to change
+> __copy_from_user_inatomic() to not do the zeroing, then review all users to
+> make sure that they cannot leak uninitialised memory.
 
-I used the serial console.
+I would agree with this.
 
-> I'll be trying the just-released 2.6.17-rc2 this evening.  Report to
-> follow, and if there's a problem, I'll attempt to provide the trace
-> (will have to be transcribed by hand, as system won't come up far
-> enough for syslog to capture anything).
-
-If syslog doesn't come up and depending on the state of your system you
-could redirect dmesg output to a file.
--- 
-Mathieu Chouquet-Stringer                           mchouque@free.fr
-
+NeilBrown

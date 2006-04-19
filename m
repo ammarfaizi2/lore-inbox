@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWDSQyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWDSQzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750968AbWDSQyO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 12:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWDSQyO
+	id S1750952AbWDSQzF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 12:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWDSQzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 12:54:14 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:14556 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1750952AbWDSQyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 12:54:13 -0400
-Message-ID: <44466B31.7040700@fr.ibm.com>
-Date: Wed, 19 Apr 2006 18:54:09 +0200
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net,
-       "Eric W. Biederman" <ebiederm@xmission.com>, xemul@sw.ru,
-       James Morris <jmorris@namei.org>
+	Wed, 19 Apr 2006 12:55:05 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39305 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750952AbWDSQzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 12:55:04 -0400
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Kirill Korotaev <dev@sw.ru>,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at, devel@openvz.org,
+       sam@vilain.net, xemul@sw.ru, James Morris <jmorris@namei.org>
 Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
-References: <20060407095132.455784000@sergelap> <20060407183600.E40C119B902@sergelap.hallyn.com> <4446547B.4080206@sw.ru> <20060419152129.GA14756@sergelap.austin.ibm.com> <44465C47.9050706@sw.ru>
-In-Reply-To: <44465C47.9050706@sw.ru>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+References: <20060407095132.455784000@sergelap>
+	<20060407183600.E40C119B902@sergelap.hallyn.com>
+	<4446547B.4080206@sw.ru>
+	<20060419152129.GA14756@sergelap.austin.ibm.com>
+	<m1bquxmuk5.fsf@ebiederm.dsl.xmission.com>
+	<1145463814.31812.13.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 19 Apr 2006 10:52:54 -0600
+In-Reply-To: <1145463814.31812.13.camel@localhost.localdomain> (Dave
+ Hansen's message of "Wed, 19 Apr 2006 09:23:34 -0700")
+Message-ID: <m1u08pld7d.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+Dave Hansen <haveblue@us.ibm.com> writes:
 
-Kirill Korotaev wrote:
-> Serge,
-> 
->> Please look closer at the patch.
->> I *am* doing nothing with sysctls.
->>
->> system_utsname no longer exists, and the way to get to that is by using
->> init_uts_ns.name.  That's all this does.
-> Sorry for being not concrete enough.
-> I mean switch () in the code. Until we decided how to virtualize
-> sysctls/proc, I believe no dead code/hacks should be commited. IMHO.
+> Besides ipc and utsnames, can anybody think of some other things in
+> sysctl that we really need to virtualize?
 
-How could we improve that hack ? Removing the modification of the static
-table can easily be worked around but getting rid of the switch() statement
-is more difficult. Any idea ?
+All of the networking entries.
 
-> FYI, I strongly object against virtualizing sysctls this way as it is
-> not flexible and is a real hack from my POV.
+> It seems to me that most of the other stuff is kernel-global and we
+> simply won't allow anything in a container to touch it.
+>
+> That said, there may be things in the future that need to get added as
+> we separate out different subsystems.  Things like min_free_kbytes could
+> have a container-centric meaning (although I think that is probably a
+> really bad one to mess with).
+>
+> I have a slightly revamped way of doing the sysv namespace sysctl code.
+> I've attached a couple of (still pretty raw) patches.  Do these still
+> fall in the "hacks" category?
 
-what is the issue with flexibility ?
+Only in that you attacked the wrong piece of the puzzle.
+The strategy table entries simply need to die, or be rewritten
+to use the appropriate proc entries.
 
-thanks,
+The proc entries are the real interface, and the two pieces
+don't share an implementation unfortunately.
 
-C.
+Eric

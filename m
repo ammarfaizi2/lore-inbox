@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWDSSYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWDSS3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWDSSYq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 14:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWDSSYq
+	id S1751038AbWDSS3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 14:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWDSS3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 14:24:46 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:23266 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751097AbWDSSYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 14:24:45 -0400
-Date: Wed, 19 Apr 2006 11:20:58 -0700
-From: Patrick Mochel <mochel@linux.intel.com>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, len.brown@intel.com, greg@kroah.com,
-       linux-acpi@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, arjan@linux.intel.com,
-       muneda.takahiro@jp.fujitsu.com, pavel@ucw.cz, temnota@kmv.ru
-Subject: Re: [patch 1/3] acpi: dock driver
-Message-ID: <20060419182058.GB15072@linux.intel.com>
-References: <20060412221027.472109000@intel.com> <1144880322.11215.44.camel@whizzy> <20060412222735.38aa0f58.akpm@osdl.org> <1145054985.29319.51.camel@whizzy> <44410360.6090003@sgi.com> <1145383396.10783.32.camel@whizzy> <20060418225427.GE4556@linux.intel.com> <1145466537.21185.24.camel@whizzy> <20060419172816.GA14304@linux.intel.com> <1145471322.21185.55.camel@whizzy>
-Mime-Version: 1.0
+	Wed, 19 Apr 2006 14:29:15 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44426 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750947AbWDSS3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 14:29:15 -0400
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
+       herbert@13thfloor.at, devel@openvz.org, sam@vilain.net, xemul@sw.ru,
+       James Morris <jmorris@namei.org>
+Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
+References: <20060407095132.455784000@sergelap>
+	<20060407183600.E40C119B902@sergelap.hallyn.com>
+	<4446547B.4080206@sw.ru> <m1wtdlmvmr.fsf@ebiederm.dsl.xmission.com>
+	<20060419175123.GD1238@sergelap.austin.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 19 Apr 2006 12:27:01 -0600
+In-Reply-To: <20060419175123.GD1238@sergelap.austin.ibm.com> (Serge E.
+ Hallyn's message of "Wed, 19 Apr 2006 12:51:23 -0500")
+Message-ID: <m1ejztjua2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145471322.21185.55.camel@whizzy>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 11:28:42AM -0700, Kristen Accardi wrote:
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-> Well, I will certainly change the dock code, but pulling this stuff out
-> of the hotplug drivers will take longer since it would require changing
-> the offending acpi interfaces.  
+> Quoting Eric W. Biederman (ebiederm@xmission.com):
+>> Kirill Korotaev <dev@sw.ru> writes:
+>> 
+>> > Serge,
+>> >
+>> > can we do nothing with sysctls at this moment, instead of commiting hacks?
+>> 
+>> Except that we modify a static table changing the uts behaviour in
+>> proc_doutsstring isn't all that bad.
+>> 
+>> I'm just about to start on something more comprehensive, in
+>> the sysctl case.
+>
+> So assuming that I take out the switch(), leaving that for a better
+> solution by Eric (or Dave, or whoever),
+>
+> Is it time to ask for the utsname namespace patch to be tried out
+> in -mm?
 
-If you ever decide to do this, you can make it much easier on yourself 
-by doing a "bait and switch": create a new function that wraps the
-currently exported one and exposes a clean, sane interface. Then, 
-convert the users to call this new function. When they're all converted,
-un-export the old one, then take it out back and do away with it. This
-allows a step-by-step conversion without having to coordinate a big
-"flag day" cutover.. 
+Can we please suggest a syscall interface?
+
+Eric
 
 
-	Pat
+
+

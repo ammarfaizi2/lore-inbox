@@ -1,240 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWDSW7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWDSXAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWDSW7u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 18:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWDSW7u
+	id S1751315AbWDSXAq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 19:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWDSXAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 18:59:50 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:28627 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1751313AbWDSW7t convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 18:59:49 -0400
-X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Subject: RE: Linux 2.6.16.9
-Date: Wed, 19 Apr 2006 17:59:40 -0500
-Message-ID: <99F8FA0D1537DC4EB2A639E8E60D782A41D5DD@SAUSEXMB3.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux 2.6.16.9
-Thread-Index: AcZj1m1Cd0F6L7lSQlKJ96uxak+mpgALlgeQ
-From: "Brunner, Richard" <Richard.Brunner@amd.com>
-To: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 19 Apr 2006 22:59:42.0375 (UTC)
- FILETIME=[F1AA3B70:01C66404]
-X-WSS-ID: 68581F544IS1616900-01-01
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 19 Apr 2006 19:00:46 -0400
+Received: from waste.org ([64.81.244.121]:8356 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751315AbWDSXAp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 19:00:45 -0400
+Date: Wed, 19 Apr 2006 17:57:59 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, Jeff Garzik <jeff@garzik.org>,
+       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sata suspend resume ...
+Message-ID: <20060419225759.GV15445@waste.org>
+References: <Pine.LNX.4.64.0604192324040.29606@indiana.corp.fedex.com> <Pine.LNX.4.64.0604191659230.7660@blonde.wat.veritas.com> <20060419214959.GR15445@waste.org> <Pine.LNX.4.64.0604192332050.28312@blonde.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604192332050.28312@blonde.wat.veritas.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 19, 2006 at 11:50:55PM +0100, Hugh Dickins wrote:
+> On Wed, 19 Apr 2006, Matt Mackall wrote:
+> > On Wed, Apr 19, 2006 at 05:13:27PM +0100, Hugh Dickins wrote:
+> > > On Wed, 19 Apr 2006, Jeff Chua wrote:
+> > > > 
+> > > > System suspends ok. Resume ok. but no disk access after that.
+> > > 
+> > > Not the same disk model, but I've been having similar trouble on a T43p.
+> 
+> I should have mentioned before, it's suspend to RAM I'm using, by the way.
+> 
+> > > I was delighted to see the MSI suspend/resume fix go into 2.6.17-rc2,
+> > > but then disappointed.  A bisection found that Matt Mackall's sensible
+> > > rc1 patch, to speed up get_cmos_time, has removed what often used to be
+> > > a 2 second delay in resuming: things work well when I reinstate that
+> > > delay (1 second has proved not enough).  Below is the patch I'm using -
+> > > where I've failed to resist mucking around to avoid those double calls
+> > > to get_cmos_time, sorry: really it's just mdelay(2000) needed somewhere
+> > > (until someone who knows puts in something more scientific).
+> > 
+> > That's interesting.
+> > 
+> > Just to be clear, with my changes we should never fire timers early.
+> 
+> Yes, the only reservation I have about your patch, entirely unrelated to
+> this resume issue, is that those systems which "hwclock -w" on shutdown
+> (do they on suspend too? haven't looked) will slowly tend to lose time.
 
-		AMD Background/Response
-		Rich Brunner, AMD Fellow
-
-AMD appreciates  the security community  contacting us about
-this issue and giving us a chance to respond. Many thanks to
-Jan Beulich and Andi Kleen for first  alerting us to the  
-concern around this issue and trying out several solutions.
-
-
-Introduction
-============
-To summarize the issue from AMD's perspective, AMD documents
-the  operation of  the  FXSAVE and  FXRSTOR instructions  as
-follows  in  the  "AMD64  Architecture  Programmer's  Manual
-Volume 5:  64-Bit Media and  x87 Floating-Point Instructions
-Rev 3.06":
-
-(http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/26569.pdf)
-
-  + FXRSTOR (pg 350):
-
-    "FXRSTOR does  not restore the x87  error pointers (last
-     instruction  pointer,  last   data  pointer,  and  last
-     opcode), except  in the relatively rare  cases in which
-     the exception  summary (ES) bit in the  x87 status word
-     is set to 1,  indicating that an unmasked x87 exception
-     has occurred."
-
-  + FXSAVE (pg 352):
-
-    "FXSAVE does  not save  the x87 pointer  registers (last
-     instruction  pointer,  last   data  pointer,  and  last
-     opcode), except  in the relatively rare  cases in which
-     the exception  summary (ES) bit in the  x87 status word
-     is set to 1,  indicating that an unmasked x87 exception
-     has occurred."
-
-AMD purposely designed the  implementation of the FXSAVE and
-FXRSTOR  instructions in the  above manner  to significantly
-improve the  performance of context-switching.   AMD did not
-want to  penalize the performance of  these instructions for
-all operating systems for  the relatively rare case when the
-exception summary  bit was set  or the unlikely case  of the
-x87  exceptions pointers being  successfully exploited  in a
-real  customer  environment.    Instead,  AMD  designed  the
-instructions to optimize performance for the common case.
-
-As a  result of the operation  of FXSAVE and  FXRSTOR, it is
-theoretically possible  for one process  (reader) to observe
-the  x87  exception  pointers  of another  process  (writer)
-provided that:
-
-  + no  other x87 instructions are executed  that affect the
-    x87 exception  pointers between  the time the  writer is
-    swapped out and the reader is swapped in; and
-
-  + the  reader does not  have a pending x87  exception when
-    swapped back in; and
-
-  + the   reader  does    not  issue  any   non-control  x87
-    instructions when  swapped back in  before examining x87
-    exception pointers.
-
-Operating  systems can employ one of several simple software 
-methods to remove the possibility of exploitation as 
-described  below. In some cases, these methods may actually 
-*improve* the performance of an operating-system's 
-context-switching code.
-
-
-Software Methods
-================
-There  are  a number  of  methods,  "Clear Sequences",  that
-software can  use to ensure that the  x87 exception pointers
-(ip, dp,  opcode) are initialized to benign  values on every
-context  switch.  Below  are just  a few  examples  of those
-methods.
-
-Critical to  the first two methods is  an OS-dependent "safe
-address":  this  is  some  location which  can  be  accessed
-without  faulting   and  whose   value  is  likely   in  the
-processor's L1 data cache. This location will be loaded into
-the x87 stack to ensure  that the x87 exception pointers are
-set to a benign value.
-
-[Note  that the  Data  Segment Descriptor  (DS)  that is  in
-effect  when  the  kernel  executes the  clear  sequence  is
-recorded in the x87  exception pointers. Depending on the OS
-kernel  and its  mode,  this  DS may  be  from the  previous
-process.  To prevent this,  the kernel should ensure that DS
-is loaded with a  benign value before executing FXSAVE.  For
-example, recent  32-bit Linux  kernels already reload  DS on
-kernel entry.]
+If they weren't already using NTP, they were losing time anyway.
  
+> > Is the problem that we have a timer that didn't get deleted at suspend
+> > time?
+> 
+> I don't think so, but I don't really know.  On resume, the disk
+> goes into ata_exec_internal's 30 second timeout which ends with
+> "ata1: qc timeout (cmd 0xef)": nothing wrong with that timeout, anyway.
+> 
+> I tend to assume that it's not anything subtle, just that something
+> there needs a delay which it accidentally happened to get (most of
+> the time) from the CMOS reading, and with that gone now falls over.
+> 
+> I'd be able to test patches from anyone who knows what they're
+> doing SATA-wise, but probably not until Friday.
 
+I'm puzzled by 1 second not being enough. The former code should have
+taken between 1+e and 2 seconds, so I'd think mdelay(1000) would work.
 
-  + "FXRSTOR-centric" method
-
-    This method sets the  x87 exception pointers to a benign
-    state  just before  executing an  FXRSTOR.  It  makes no
-    assumption about the state  of the current x87 exception
-    pointers before executing  the restore sequence.  In the
-    normal case, where ES is not set before the FXRSTOR, the
-    "Clear  Sequence"  takes  approximately  14  cycles  (as
-    measured on  an AMD Opteron). 
- 
- 
-
-  ## Restore Code ...
-
-  ## Begin_Clear_Sequence
-	fnstsw	%ax		# Grab x87 ES bit
-	ffree	st(7)		# Clear tag bit to remove
-				#  -possible stack overflow
-	bt	$7,%ax		# Test ES bit
-	jnc	1f		# Jump if ES=0
-	fnclex			# ES=1, so clear it so fild
-				#  -can't trap
-1:	fildl	safe_address	# Dummy Load from OS-dependent
-				#  -"safe address" changes all
-				#  -x87 exception pointers.
-  ## End_Clear_Sequence
-	fxrstor ...		# Now swap in process state
-
-
-      
-  + "FXSAVE-centric" method
-
-    This  method  may not  apply  to  all operating  systems
-    because  it requires  certain guarantees  between FXSAVE
-    and a  subsequent FXRSTOR;  however, this is  the method
-    that Linux  will likely choose.  This  approach sets the
-    x87  exception pointers  to  a benign  state just  after
-    executing an FXSAVE.  Between  that point and entry into
-    another x87-using  process, the requirement  is that the
-    x87 state  remains benign.  If anything  changes the x87
-    exception  pointers in the  interim, then  software must
-    clear  out or  save/restore the  state  explicitly again
-    before executing an FXRSTOR.
-
-    In  the normal  case,  where  ES is  not  set after  the
-    FXSAVE,  the  "Clear  Sequence"  takes  approximately  7
-    cycles (as  measured on  an AMD Opteron).   However, the
-    added cycles  to the  FXSAVE code may  be much  less for
-    operating systems, like  Linux, which currently place an
-    unconditional  FNCLEX  after  the  FXSAVE.   The  "Clear
-    Sequence"  replaces  the  unconditional  FNCLEX  with  a
-    conditional one and may  actually *reduce* the number of
-    cycles used for the FXSAVE code.
-
-
-  ## FXSAVE Code
-	fxsave save_image		# save old process state. 
-
-  ## Begin_Clear_Sequence
-	bt	$7,save_image.fsw	# Test saved ES bit
-	jnc	1f			# Jump if ES=0
-	fnclex				# ES=1, so clear it so fild
-					#  -can't trap
-1:	ffree	st(7)			# Clear tag bit to remove
-					#  -possible stack overflow
-	fildl	safe_address		# Dummy Load from OS-dependent
-					#  -"safe address" changes all
-					#  -x87 exception pointers.
-  ## End_Clear_Sequence
-	...
-  ## Restore Code
-	fxrstor ...			# Now swap in process state
-
-
-
-  + FNSAVE and FRSTOR
-
-    32-bit Operating  Systems can  use FNSAVE and  FRSTOR to
-    always  save  and  restore  the complete  x87  execution
-    state.   However,  because  these  instructions  do  not
-    save/restore XMM registers or associated state, software
-    must  explicitly perform  this operation.   In addition,
-    because FSAVE/FNSAVE  do not  save the full  64-bit data
-    and   instruction  pointers   for   x87  state,   64-bit
-    applications  should  use  FXSAVE/FXRSTOR,  rather  than
-    FSAVE/FRSTOR.
-
-
-
-Processors Affected 
-=================== 
-It  is  AMD's  intent  that all  future  "AuthenticAMD"  AMD
-processors  (those  that  return  "AuthenticAMD"  for  CPUID
-vendor  string)  will  follow  the behavior  of  FXSAVE  and
-FXRSTOR   as   documented   in   the   "AMD64   Architecture
-Programmer's   Manual  Volume  5:   64-Bit  Media   and  x87
-Floating-Point Instructions  Rev 3.06".  In  addition, these
-CPUID Families of  "AuthenticAMD" AMD processors also follow
-this behavior:
-
- + Family=06h:	All 7th generation AMD  processors (such as
-		AMD Athlon, AMD Duron, AMD Athlon MP, 
-		AMD Athlon XP, and AMD Sempron).
-      
- + Family=0Fh:	All 8th generation AMD  processors (such as
-		AMD Athlon64, AMD Athlon64 FX, AMD Opteron, 
-		AMD Turion, and AMD Sempron).
-
-AMD processors which return "Geode by NSCe" for CPUID vendor
-string do not follow this behavior.
-
+-- 
+Mathematics is the supreme nostalgia of our time.

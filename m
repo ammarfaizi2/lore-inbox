@@ -1,118 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWDSPAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWDSPAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbWDSPAG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 11:00:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWDSPAG
+	id S1750829AbWDSPAx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 11:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWDSPAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 11:00:06 -0400
-Received: from bay114-f27.bay114.hotmail.com ([65.54.169.37]:28421 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1750828AbWDSPAD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 11:00:03 -0400
-Message-ID: <BAY114-F27D0D25E7FF85033ED93D2C7C50@phx.gbl>
-X-Originating-IP: [152.14.96.222]
-X-Originating-Email: [fbarsoba@hotmail.com]
-In-Reply-To: <20060419142442.GC24807@harddisk-recovery.com>
-From: "Fernando Barsoba" <fbarsoba@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems compiling kernel module
-Date: Wed, 19 Apr 2006 10:59:58 -0400
+	Wed, 19 Apr 2006 11:00:53 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:46546 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750829AbWDSPAw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 11:00:52 -0400
+Date: Wed, 19 Apr 2006 10:00:33 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org,
+       herbert@13thfloor.at, xemul@sw.ru, James Morris <jmorris@namei.org>
+Subject: Re: [RFC][PATCH 2/5] uts namespaces: Switch to using uts namespaces
+Message-ID: <20060419150033.GI7562@sergelap.austin.ibm.com>
+References: <20060407095132.455784000@sergelap> <20060407183600.D025B19B8FF@sergelap.hallyn.com> <443BA062.1040208@sw.ru> <443C19C6.80706@vilain.net> <20060412050123.GA7743@sergelap.austin.ibm.com> <m1d5fn9vuk.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 19 Apr 2006 15:00:03.0006 (UTC) FILETIME=[EFD305E0:01C663C1]
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1d5fn9vuk.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks a lot for your makefile. It worked nicely. I wasn't sure if the 
-question was too basic for this mailing list.
-
-Thanks also for Arjan's reference to 
-http://fxr.watson.org/fxr/source/Documentation/kbuild/makefiles.txt?v=linux-2.6.9
-
-I am new in kernel programming...
-
-tnx,
-Fernando
-
->From: Erik Mouw <erik@harddisk-recovery.com>
->To: Fernando Barsoba <fbarsoba@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: problems compiling kernel module
->Date: Wed, 19 Apr 2006 16:24:42 +0200
->
->On Wed, Apr 19, 2006 at 09:44:08AM -0400, Fernando Barsoba wrote:
-> > I am really stuck with this thing.. For couple of days i have been
-> > trying to compile a kernel module. I have been following the info in
-> > http://www.faqs.org/docs/kernel/x204.html. But no success... i
-> > recompiled the latest kernel version, and i think i trying to compile
-> > the module against the source code for that kernel.. however, strange
-> > errors appear.
->
->That way just doesn't work. Use kbuild instead of brewing your own
->Makefiles. See http://lwn.net/Articles/21823/ .
->
-> > And here are the files:
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
+> 
+> > Quoting Sam Vilain (sam@vilain.net):
+> >> Kirill Korotaev wrote:
+> >> 
+> >> >Serge,
+> >> >
+> >> >BTW, have you noticed that NFS is using utsname for internal processes 
+> >> >and in general case this makes NFS ns to be coupled with uts ns?
+> >> >  
+> >> >
+> >> 
+> >> Either that, or each NFS vfsmount has a uts_ns pointer.
 > >
-> > Code:
-> >
-> > /* hello-1.c - The simplest kernel module.
-> > */ #include <linux/module.h> /* Needed by all modules
->
->Not necessary, IIRC.
->
-> > */ #include <linux/kernel.h> /* Needed for KERN_ALERT */
->
->OK...
->
-> > int init_module(void) {
-> > printk("<1>Hello world 1.\n"); // A non 0 return means init_module
->
->... so why don't you use KERN_ALERT instead of <1>?
->
->Make that printk(KERN_ALERT "Hello, world!\n");
->
-> > failed; module can't be loaded.
-> > return 0;
+> > Sorry, I must be being dense.  I only see utsname being used in the case
+> > of nfsroot.  Can you point me to where you're talking about?
+> 
+> We have the nfs lockd client code, and the sunrpc code.
+> 
+> I've been fighting a few a cold and some 2.6.17-rc1 bugs
+> so I haven't had a chance to drill down yet to see what
+> the system_utsname.nodename is actually being used for.
+> 
+> Until we actually understand what is happening it is too soon to
+> judge if it is a problem or not.
+> 
+> The nfsroot is clearly not a problem.
+> 
+> As for the other cases I'm not certain.
+> 
+> So skimming through the code quickly.
+> 
+> include/linux/lockd/lockd.h
+> > #define NLMCLNT_OHSIZE              (sizeof(system_utsname.nodename)+10)
+> 
+> fs/lockd/xdr.c
+> > #define NLM_caller_sz		1+XDR_QUADLEN(sizeof(system_utsname.nodename))
+> 
+> The previous two are just sizes, so not interesting for analysis.
+> 
+> 
+> fs/lockd/clntproc.c
+> > static void nlmclnt_setlockargs(struct nlm_rqst *req, struct file_lock *fl)
+> > {
+> > 	struct nlm_args	*argp = &req->a_args;
+> > 	struct nlm_lock	*lock = &argp->lock;
+> > 
+> > 	nlmclnt_next_cookie(&argp->cookie);
+> > 	argp->state   = nsm_local_state;
+> > 	memcpy(&lock->fh, NFS_FH(fl->fl_file->f_dentry->d_inode), sizeof(struct nfs_fh));
+> > 	lock->caller  = system_utsname.nodename;
+> > 	lock->oh.data = req->a_owner;
+> > 	lock->oh.len  = snprintf(req->a_owner, sizeof(req->a_owner), "%u@%s",
+> > 				(unsigned int)fl->fl_u.nfs_fl.owner->pid,
+> > 				system_utsname.nodename);
+> > 	lock->svid = fl->fl_u.nfs_fl.owner->pid;
+> > 	lock->fl.fl_start = fl->fl_start;
+> > 	lock->fl.fl_end = fl->fl_end;
+> > 	lock->fl.fl_type = fl->fl_type;
 > > }
-> >
-> > void cleanup_module(void) {
-> > printk(KERN_ALERT "Goodbye world 1.\n");
-> > }
-> >
-> >
-> > Code:
-> >
-> > TARGET := hello-1
-> > WARN := -W -Wall -Wstrict-prototypes -Wmissing-prototypes
-> > INCLUDE := -isystem /lib/modules/`uname -r`/build/include
-> > CFLAGS := -O2 -DMODULE -D__KERNEL__ ${WARN} ${INCLUDE} CC := gcc
-> > ${TARGET}.o: ${TARGET}.c
-> > .PHONY: clean
-> > clean: rm -rf {TARGET}.o
->
->You want something like:
->
->ifneq ($(KERNELRELEASE),)
->obj-m	:= hello.o
->else
->KDIR	:= /lib/modules/$(shell uname -r)/build
->PWD		:= $(shell pwd)
->
->default:
->	$(MAKE) -C $(KDIR) M=$(PWD) modules
->endif
->
->
->Erik
->
->--
->+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
->| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> I think this just creates a unique string with nodename+pid
 
+In fs/lockd/svcshare.c, nlmsvc_share_file and nlmsvc_unshare_file do
+compare the xdr_netobj->data field, which contains the snprinted
+system_utsname.nodename.
 
+However, if you're going to unshare utsname() and change your nodename,
+the effect should be no different than if you just changed your
+nodename :)  So I don't see this being a problem.
+
+-serge

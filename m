@@ -1,56 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWDSU74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWDSVC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWDSU74 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 16:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWDSU74
+	id S1751244AbWDSVC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Apr 2006 17:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWDSVC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 16:59:56 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:13282 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751243AbWDSU7z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 16:59:55 -0400
-Date: Wed, 19 Apr 2006 15:59:48 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, James Morris <jmorris@namei.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
-Message-ID: <20060419205948.GA16229@sergelap.austin.ibm.com>
-References: <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr> <20060419154011.GA26635@kroah.com> <Pine.LNX.4.61.0604192109220.7177@yvahk01.tjqt.qr> <20060419204824.GB21987@kroah.com>
+	Wed, 19 Apr 2006 17:02:26 -0400
+Received: from outmx025.isp.belgacom.be ([195.238.4.49]:13026 "EHLO
+	outmx025.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1751244AbWDSVC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Apr 2006 17:02:26 -0400
+Date: Wed, 19 Apr 2006 23:02:04 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Rudolf Marek <r.marek@sh.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Watchdog device class
+Message-ID: <20060419210204.GA4205@infomag.infomag.iguana.be>
+References: <4443EED9.30603@sh.cvut.cz> <20060418195751.GA6968@infomag.infomag.iguana.be> <4445533D.9010000@sh.cvut.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060419204824.GB21987@kroah.com>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4445533D.9010000@sh.cvut.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Greg KH (greg@kroah.com):
-> On Wed, Apr 19, 2006 at 09:22:07PM +0200, Jan Engelhardt wrote:
-> > In general: I am probably too strongly tied to my own CodingStyle to
-> > change it for Documentation/CodingStyle.
+
+Hi Rudolf,
+
+> Aha good. I will check it later.
+
+You can have a check now. I uploaded some code. Need to retest it, but it
+has been working on my v2.6.5 test machine.
+
+> > 	int	(*get_timervalue)(struct watchdog_device *, int *);
+> Good one.
+
+We should add this indeed. it's usefull for testing drivers also :-)
+
+> > 	int	(*sys_restart)(struct watchdog_device *);		/* operation = force a
+> system_restart for rebooting */
 > 
-> There's a very good reason the kernel has a consistant coding style, so
-> if you don't want to adapt to it, do not expect to ever get your code
-> accepted, it's that simple.
+> Aha as for the cobalt stuff?
+
+Yes and no: cobalt needs it in it's notifier reboot part which is not part
+of the generic watchdog device. But I think the option should be available
+if you go sysfs.
+
+> > 	int	(*get_status)(struct watchdog_device *,int *);		/* operation = get the watchdog's status */
+> > 	int	(*get_temperature)(struct watchdog_device *, int *);	/* operation = get the temperature in °F */
 > 
-> Sorry to hear that such a trivial thing is going to trip you up.
+> I had those there too but I eliminated them. I used following methods:
+> For the status stuff I did a variable boot_status and status. I have
+> a handler for this in the common IOCTL handling code.
 
-Greg,
+Don't agree here: boot_status is a copy of the status at boot. the status
+itself can change during normal operation. and thus get_status must return
+the "devices status" at that moment.
 
-I think what really tripped him up was the response to his attempt
-to get the new hooks introduced:  tinyurl.com/opo8h
+> I have no such thing for the temp IOCTL but the new "ioctl" operation
+> could be created to catch it.
+> (and get called when no standard ioctl in watchdog-dev is used)
 
-Jan,
+I think we want to review the temperature stuff in the kernel in general.
 
-I think that the last response, by Chrisw, in that thread, was not
-a snide comment, but a legitimate request for a justification for
-the hooks.  If they are a crucial part of your module, then i assume
-they should be pretty easy for you to defend, right?
+> As for sysfs, I would like to have the temps handled with the hwmon class
+> and have some sort of "symlink" from the watchdog directory to corresponding
+> hwmon directory. The status stuff might be handled via standard format sysfs file.
 
-I think it would be worth trying again.
+And I like the idea to look at it as a hwmon.
 
--serge
+> > 	/* From here on everything is device dependent */
+> > 	void	*private;
+> 
+> In the w83792d I used different approach, because the device is not only a
+> watchog, the struct watchdog_device was a part of the common device structure,
+> and for single purpose devices this *private makes sense. But I think there
+> some per device private data pointer somewhere.
+
+I still have to look at your driver in detail, but my first thought would
+be that the private part here would be a link to this common device structure.
+(see what I did with the example softdog implementation in the experimental tree).
+
+> Now it seems we have two different approaches and a code, so which one will wim
+> ? ;) If you want to talk to me you may find me on #linux-sensors on freenode.net.
+
+It's not about different approaches: we have to find the best thing for watchdog
+devicesi, so the best thing is to talk about pro's and con's and see what we should 
+do best. (I for instance didn't come to the sysfs part yet of my code (which would
+be in watchdog_sysfs.c)
+
+> Also I would like to know your ideas about the sysfs file structure for
+> watchdogs and also If you like to have more watchdogs active in the system or
+> just one.
+
+My view:
+to start we should keep one /dev/watchdog, but we should create/define a suitable
+sysfs interface that makes it possible to have multiple watchdog devices running 
+in parallel. We will need this functionality in the future when a system will 
+consist of different processors that all have their own memory and some basic
+I/O interfacing.
+Later on we will then see what we will do with /dev/watchdog.
+
+Greetings,
+Wim.
+

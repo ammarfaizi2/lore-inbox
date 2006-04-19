@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWDSA3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWDSAaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWDSA3l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 20:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWDSA3l
+	id S1750828AbWDSAaj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 20:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWDSAaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 20:29:41 -0400
-Received: from test-iport-1.cisco.com ([171.71.176.117]:18488 "EHLO
-	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1750828AbWDSA3k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 20:29:40 -0400
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: class_device_create() and class_interfaces ?
-X-Message-Flag: Warning: May contain useful information
-References: <adafykacur0.fsf@cisco.com> <20060419000438.GA6522@kroah.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 18 Apr 2006 17:29:39 -0700
-In-Reply-To: <20060419000438.GA6522@kroah.com> (Greg KH's message of "Tue, 18 Apr 2006 17:04:38 -0700")
-Message-ID: <adabquycsr0.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Tue, 18 Apr 2006 20:30:39 -0400
+Received: from mail.suse.de ([195.135.220.2]:38074 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750828AbWDSAaj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 20:30:39 -0400
+To: Robin Holt <holt@sgi.com>
+Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ia64_do_page_fault shows 19.4% slowdown from notify_die.
+References: <20060417112552.GB4929@lnx-holt.americas.sgi.com>
+	<9758.1145319832@ocs3.ocs.com.au>
+	<20060418221623.GB22514@lnx-holt.americas.sgi.com>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Apr 2006 02:30:35 +0200
+In-Reply-To: <20060418221623.GB22514@lnx-holt.americas.sgi.com>
+Message-ID: <p73r73u2yqc.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 19 Apr 2006 00:29:40.0122 (UTC) FILETIME=[588F4FA0:01C66348]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> I'm working toward getting rid of class_devices entirely.
-    Greg> What you can do is use a struct device heirachy, right?  If
-    Greg> so, take a look at this patch:
-    Greg> http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/device-class.patch
-    Greg> which implements the start of this changeover.  So, if you
-    Greg> were to do this, you can just create a separate "bus" and
-    Greg> drivers for these different devices, and everything should
-    Greg> bind just fine.
+Robin Holt <holt@sgi.com> writes:
+ 
+> 499 nSec/fault ia64_do_page_fault notify_die commented out.
+> 501 nSec/fault ia64_do_page_fault with nobody registered.
+> 533 nSec/fault notify_die in and just kprobes.
+> 596 nSec/fault notify_die in and kdb, kprobes, mca, and xpc loaded.
+> 
+> The 596 nSec/fault is a 19.4% slowdown.  This is an upcoming OSD beta
+> kernel.  It will be representative of what our typical customer will
+> have loaded.
 
-Hmm, that seems a lot more complicated that what I need.  And it seems
-I end up needing to handle some sort of registration myself anyway,
-because someone has to create the virtual devices when a real device
-shows up (since multiple drivers can't bind to the same device).
+With kdb some slowdown is expected.
 
-I think I'll just code my own simple registration for sub-drivers of
-the combo device -- it will just take a list_head, a mutex and a few
-of lines of code.  That seems simpler to me than creating a fake bus
-and fake devices for each combo device.
+But just going through kprobes shouldn't be that slow. I guess
+there would be optimization potential there.
 
-Thanks,
-  Roland
+Do you have finer grained profiling what is actually slow?
+
+ 
+> Having the notify_page_fault() without anybody registered was only a
+> 0.4% slowdown.  I am not sure that justifies the optimize away, but I
+> would certainly not object.
+
+Still sounds far too much for what is essentially a call + load + test + return
+Where is that overhead comming from?  I know IA64 doesn't like indirect
+calls, but there shouldn't any be there for this case.
+
+-Andi
+ 

@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWDSD1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWDSDhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWDSD1E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Apr 2006 23:27:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWDSD1E
+	id S1750718AbWDSDhy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Apr 2006 23:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWDSDhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Apr 2006 23:27:04 -0400
-Received: from everest.sosdg.org ([66.93.203.161]:41457 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S1750704AbWDSD1D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Apr 2006 23:27:03 -0400
-Date: Tue, 18 Apr 2006 23:27:02 -0400
-From: Coywolf Qi Hunt <qiyong@freeforge.net>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [patch] cleanup: use blk_queue_stopped
-Message-ID: <20060419032702.GA6369@everest.sosdg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: coywolf@mail.sosdg.org
+	Tue, 18 Apr 2006 23:37:54 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:3298 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750718AbWDSDhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Apr 2006 23:37:53 -0400
+Date: Wed, 19 Apr 2006 12:39:11 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       akpm@osdl.org
+Subject: Re: Read/Write migration entries: Implement correct behavior in
+ copy_one_pte
+Message-Id: <20060419123911.3bd22ab3.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <Pine.LNX.4.64.0604181823590.9747@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0604181119480.7814@schroedinger.engr.sgi.com>
+	<20060419095044.d7333b21.kamezawa.hiroyu@jp.fujitsu.com>
+	<Pine.LNX.4.64.0604181823590.9747@schroedinger.engr.sgi.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 18 Apr 2006 18:27:28 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-This cleanup the source to use blk_queue_stopped.
+> On Wed, 19 Apr 2006, KAMEZAWA Hiroyuki wrote:
+> 
+> > > Note that this is again only a partial solution. mprotect() also has the
+> > > potential of changing the write status to read. 
+> > yes. in change_pte_range(). 
+> > 
+> > Note:
+> > fork() and mprotect() both requires mm->mmap_sem.
+> > So both of them is not problem when migration holds mm->mmap_sem.
+> > If we does lazy migration or memory hot removing or allows migration from
+> > another process, this will be problem.
+> 
+> Oh. We already allow migration from another process since the page may 
+> be mapped by multiple mm's. Page migration will then replace the ptes in 
+> *all* mm_structs that map this page with migration entries.
+> 
+> So we need a fix here.
+> 
+Ah.....yes. sorry.
 
-Signed-off-by: Coywolf Qi Hunt <qiyong@freeforge.net>
----
+In my understanding (and grep), read/write protection for anon pages 
+can be changed under
 
-diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
-index e112d1a..1755c05 100644
---- a/block/ll_rw_blk.c
-+++ b/block/ll_rw_blk.c
-@@ -1554,7 +1554,7 @@ void blk_plug_device(request_queue_t *q)
- 	 * don't plug a stopped queue, it must be paired with blk_start_queue()
- 	 * which will restart the queueing
- 	 */
--	if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags))
-+	if (blk_queue_stopped(q))
- 		return;
- 
- 	if (!test_and_set_bit(QUEUE_FLAG_PLUGGED, &q->queue_flags)) {
-@@ -1587,7 +1587,7 @@ EXPORT_SYMBOL(blk_remove_plug);
-  */
- void __generic_unplug_device(request_queue_t *q)
- {
--	if (unlikely(test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)))
-+	if (unlikely(blk_queue_stopped(q)))
- 		return;
- 
- 	if (!blk_remove_plug(q))
+- fork()
+- mprotect()
+
+all are known.
+
+BTW, do we manage page table under move_vma() in right way ?
+
+-Kame
+

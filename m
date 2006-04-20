@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWDTKv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWDTKvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbWDTKv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 06:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWDTKv1
+	id S1750727AbWDTKvl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 06:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWDTKvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 06:51:27 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:44135
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750719AbWDTKv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 06:51:26 -0400
-Message-Id: <444783F2.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Thu, 20 Apr 2006 12:52:02 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <tom.l.nguyen@intel.com>, <linux-kernel@vger.kernel.org>,
-       <discuss@x86-64.org>
-Subject: Re: [discuss] Re: [i386, x86-64] ioapic_register_intr() and
-	assign_irq_vector() questions
-References: <443FE6E00200007800015D6E@emea1-mh.id2.novell.com> <200604142334.18923.ak@suse.de>
-In-Reply-To: <200604142334.18923.ak@suse.de>
+	Thu, 20 Apr 2006 06:51:41 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:46623 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750727AbWDTKvk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 06:51:40 -0400
+Date: Thu, 20 Apr 2006 12:52:09 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neil Brown <neilb@suse.de>, linux-kernel@vger.kernel.org,
+       sgunderson@bigfoot.com
+Subject: Re: [PATCH] Remove softlockup from invalidate_mapping_pages.
+Message-ID: <20060420105209.GC13279@suse.de>
+References: <20060420160549.7637.patches@notabene> <1060420062955.7727@suse.de> <20060420003839.1a41c36f.akpm@osdl.org> <17479.21320.361708.237802@cse.unsw.edu.au> <20060420025211.784222d5.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060420025211.784222d5.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Andi Kleen <ak@suse.de> 14.04.06 23:34:18 >>>
-On Friday 14 April 2006 19:16, Jan Beulich wrote:
->> >> Looking at the call paths assign_irq_vector() can get called from, I
->> >> would think this function, namely as it's using static variables,
->> >> lacks synchronization - is there any (hidden) reason this is not
->> >> needed here?
->> 
->> >It is only called during system initialization which is single threaded. 
->> >If someone added ioapic hotplug they would need to do something about 
->> >this.
->> 
->> Hmm, as I looked through this I expected this to be possibly called also later, as it seems to be on paths
-reachable
->> from exported functions (which clearly can be called only after the single-threaded phase is over.
->
->If it's not called from in tree modules we don't care. But should probably
->bunk the exports if they are not needed. Which ones were it?
+On Thu, Apr 20 2006, Andrew Morton wrote:
+> >  Does Jens know that?
+> > __generic_file_splice_read seems to violate this principle!
+> 
+> It looks OK from a quick read (but the code duplication is saddening)
 
-acpi_register_gsi -> mp_register_gsi -> io_apic_set_pci_routing -> assign_irq_vector
+Yes, it saddens me too. There really are a bunch of cases to check for
+on each page that is shared with do_generic_mapping_read(), I'll see if
+I can do something about that.
 
-acpi_register_gsi is being exported and called from drivers/char/8250_acpi.c.
-acpi_register_gsi is also being called from acpi_pci_irq_enable, which in turn is being exported.
-There appear to be more (eg through pnpacpi and hpet), but I think these are sufficient.
+> > So when I have a cleared head and a bit more time I'll see if I can
+> > come up with a better patch which only looks at ->index under
+> > ->tree_lock.
+> 
+> tree_lock will stabilise ->index, yes.
+> 
+> But I think we'd be OK assuming that ->index is stable.  Although that may
+> break if splice() is concurrently pulling the page out of pagecache and
+> stuffing it into a pipe.  
 
-Jan
+Putting the page in the pipe is a simple reference operations. However,
+we can migrate a page from a pipe into the page cache in another address
+space. If we do that, we will lock the page first though. And the actual
+->index change is inside the tree_lock, outside of splice itself.
+
+So with splice migrating pages, ->index and ->mapping can and will
+change but only with the page locked.
+
+-- 
+Jens Axboe
+

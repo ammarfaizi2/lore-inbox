@@ -1,77 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWDTXSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWDTXXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWDTXSE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 19:18:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWDTXSE
+	id S932130AbWDTXXP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 19:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWDTXXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 19:18:04 -0400
-Received: from s0006.shadowconnect.net ([213.202.216.60]:680 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S932129AbWDTXSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 19:18:02 -0400
-Message-ID: <444816A2.8090302@shadowconnect.com>
-Date: Fri, 21 Apr 2006 01:17:54 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/message/i2o/iop.c: static inline functions
- mustn't be exported
-References: <20060418150615.GH11582@stusta.de> <20060418230600.4bccd221.akpm@osdl.org>
-In-Reply-To: <20060418230600.4bccd221.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 20 Apr 2006 19:23:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8114 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932130AbWDTXXO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 19:23:14 -0400
+Date: Thu, 20 Apr 2006 16:21:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Claudio Scordino" <cloud.of.andor@gmail.com>
+Cc: linux-kernel@vger.kernel.org, luto@myrealbox.com, alan@lxorguk.ukuu.org.uk,
+       torvalds@osdl.org, kernel-janitors@lists.osdl.org
+Subject: Re: [PATCH] Extending getrusage
+Message-Id: <20060420162140.0a03e227.akpm@osdl.org>
+In-Reply-To: <d0191dad0604200821l3fa0ed70ga2faabe79d7718ec@mail.gmail.com>
+References: <d0191dad0604200821l3fa0ed70ga2faabe79d7718ec@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+"Claudio Scordino" <cloud.of.andor@gmail.com> wrote:
+>
+> For the people who missed the beginning of the discussion, the
+> following patch is an extension of the existing getrusage syscall()
+> and it applies to the 2.6.16.9 kernel.
+> 
+> It allows a task to read usage information about another task. The argument
+> who can be equal to RUSAGE_SELF, to RUSAGE_CHILDREN or to a valid pid.
+> 
+> The permissions are checked through security_ptrace() as suggested by Andy.
+> 
 
-Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
->> static inline functions mustn't be exported.
-> Actually, exports of static inlines work OK.  The compiler will emit an
-> out-of-line copy to satisfy EXPORT_SYMBOL's reference and the module
-> namespace is separate from the compiler&linker's namespace.
-> Of course, things will screw up when we're using the compiler&linker
-> namespace (ie: the driver is statically linked).
->> --- linux-2.6.17-rc1-mm2-full/drivers/message/i2o/iop.c.old	2006-04-13 17:30:41.000000000 +0200
->> +++ linux-2.6.17-rc1-mm2-full/drivers/message/i2o/iop.c	2006-04-13 17:30:57.000000000 +0200
->> @@ -1243,7 +1243,6 @@
->>  EXPORT_SYMBOL(i2o_cntxt_list_get_ptr);
->>  #endif
->>  EXPORT_SYMBOL(i2o_msg_get_wait);
->> -EXPORT_SYMBOL(i2o_msg_nop);
->>  EXPORT_SYMBOL(i2o_find_iop);
->>  EXPORT_SYMBOL(i2o_iop_find_device);
->>  EXPORT_SYMBOL(i2o_event_register);
-> It depends whether Markus thinks this symbol is something which the driver
-> should be exporting.  If so, we should uninline i2o_msg_nop().  But given
-> that it's in a header, nobody should be linking to it anyway...
- > (why on earth does i2o put semicolons after its function definitions?)
+Bit hacky, but given the chosen values of RUSAGE_*, it seems solid enough.
 
-OK, i could live with both versions... The EXPORT_SYMBOL was needed in 
-earlier version, but i forgot to remove it when i inlined the function 
-and put it into the header.
+There is no way of doing getrusage of another process and its children.
 
-If someone thinks the inline is to expensive here, please let me know and 
-i will submit a patch to reverse it again.
+> --- sys.old.c	2006-04-19 02:10:14.000000000 -0400
+> +++ sys.c	2006-04-20 10:53:16.000000000 -0400
 
+Please prepare patches in `patch -p1' form, as per
+http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt.
 
-Best regards,
+> @@ -1765,11 +1765,30 @@ int getrusage(struct task_struct *p, int
+>  	return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
+>  }
+> 
+> +/* who can be RUSAGE_SELF, RUSAGE_CHILDREN or a valid pid */
+>  asmlinkage long sys_getrusage(int who, struct rusage __user *ru)
+>  {
+> -	if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN)
+> -		return -EINVAL;
+> -	return getrusage(current, who, ru);
+> +	struct rusage r;
+> +	struct task_struct* tsk = current;
 
+should be
 
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
+	struct task_struct *tsk = current;
 
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
+> +	read_lock(&tasklist_lock);
+> +	if ((who != RUSAGE_SELF) && (who != RUSAGE_CHILDREN)) {
 
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
+The parenthesisation is perhaps a little excessive.
 
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+> +		if (who <= 0)
+> +			goto bad;
+> +		tsk = find_task_by_pid(who);
+> +		if (tsk == NULL)
+> +			goto bad;
+> +		if ((tsk != current) && security_ptrace(current, tsk))
+> +			goto bad;
+> +		/* current can get info about tsk */
+> +		who = RUSAGE_SELF;
+> +	}
+> +	k_getrusage(tsk, who, &r);
+> +	read_unlock(&tasklist_lock);
+> +	return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
+> +
+> +bad:
+> +	read_unlock(&tasklist_lock);
+> +	return tsk ? -EPERM : -EINVAL;
+>  }
+> 
+
+This patch changes sys_getrusage() but not getrusage().  But there are
+several callers of getrusage() in various dark corners of the kernel.  Why
+do they not also want the extended functionality?
+
+I'd be reluctant to support this change without a compelling description of
+why we actually want it.
+

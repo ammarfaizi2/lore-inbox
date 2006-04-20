@@ -1,96 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWDTLkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWDTLts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWDTLkP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 07:40:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWDTLkO
+	id S1750708AbWDTLts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 07:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWDTLtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 07:40:14 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:37312 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750704AbWDTLkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 07:40:12 -0400
-Date: Thu, 20 Apr 2006 06:40:10 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Tony Jones <tonyj@suse.de>, linux-kernel@vger.kernel.org,
-       chrisw@sous-sol.org, linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 4/11] security: AppArmor - Core access controls
-Message-ID: <20060420114010.GB18604@sergelap.austin.ibm.com>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419174937.29149.97733.sendpatchset@ermintrude.int.wirex.com> <20060420094036.GU27946@ftp.linux.org.uk>
-Mime-Version: 1.0
+	Thu, 20 Apr 2006 07:49:47 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:15371 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750708AbWDTLtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 07:49:47 -0400
+Date: Thu, 20 Apr 2006 13:49:46 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH] [6/6] i386: Move CONFIG_DOUBLEFAULT into arch/i386 where it belongs.
+Message-ID: <20060420114946.GM25047@stusta.de>
+References: <4444C0EA.mailKK411J5GA@suse.de> <20060418190528.GL11582@stusta.de> <200604182212.13835.ak@suse.de> <20060418190839.3fa53a0f.rdunlap@xenotime.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060420094036.GU27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060418190839.3fa53a0f.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Al Viro (viro@ftp.linux.org.uk):
+On Tue, Apr 18, 2006 at 07:08:39PM -0700, Randy.Dunlap wrote:
+> On Tue, 18 Apr 2006 22:12:13 +0200 Andi Kleen wrote:
 > 
-> > +static int _aa_perm_dentry(struct aaprofile *active, struct dentry *dentry,
-> > +			   int mask, const char **pname)
-> > +{
-> > +	char *name = NULL, *failed_name = NULL;
-> > +	struct aa_path_data data;
-> > +	int error = 0, failed_error = 0, path_error,
-> > +	    complain = PROFILE_COMPLAIN(active);
-> > +
-> > +	/* search all paths to dentry */
-> > +
-> > +	aa_path_begin(dentry, &data);
-> > +	do {
-> > +		name = aa_path_getname(&data);
-> > +		if (name) {
-> > +			/* error here is 0 (success) or +ve (mask of perms) */
-> > +			error = aa_file_perm(active, name, mask);
-> > +
-> > +			/* access via any path is enough */
-> > +			if (complain || error == 0)
-> > +				break; /* Caller must free name */
-> > +
-> > +			/* Already have an path that failed? */
-> > +			if (failed_name) {
-> > +				aa_put_name(name);
-> > +			} else {
-> > +				failed_name = name;
-> > +				failed_error = error;
-> > +			}
-> > +		}
-> > +	} while (name);
+> > On Tuesday 18 April 2006 21:05, Adrian Bunk wrote:
+> > > On Tue, Apr 18, 2006 at 12:35:22PM +0200, Andi Kleen wrote:
+> > > > 
+> > > > Signed-off-by: Andi Kleen <ak@suse.de>
+> > > >...
+> > > 
+> > > NAK.
+> > >  submitting a patch that is the revert of a patch that went 
+> > > into Linus' tree just 8 days ago [1], I'd expect at least:
+> > > - a Cc to the people involved with the patch you are reverting
+> > > - a note that you are reverting a recent patch in your patch
+> > >   description
+> > > - an explanation why you disagree with the patch you are reverting
+> > 
+> > The subject was very clear. i386 options belong into arch/i386.
 > 
-> Is that a joke?  Are you really proposing to do _that_ on anything resembling
-> a hot path?
+> Yes, the timing could have been better.  Whatever.
 > 
-> BTW, the problems here really have nothing to do with namespaces or
-> lazy umount, seeing that it's whitelisting.  Moderate amount of bindings
-> will kill you here.  So much that I suspect that one-time overhead of
-> creating a namespace and umounting / remounting noexec / etc. on
-> execve() will be cheaper than all this crap.
+> I agree with Andi that it should be moved back to the ix86 Processor
+> menu, but not where he moved it to.  My patch is below.
+>...
 
-I guess this would require per-vfsmount flags (i.e. mount --bind -o ro)
-to be implemented, but IIUC the suggestion is
+I'd still disagree with Andi regarding this point (but it's not a very 
+important issue).
 
-given a policy
+My main problem with his patch is still the way he did it - sending a 
+patch reverting a recently included patch with neither discussion before 
+the patch nor mentioning in the patch that it's a revert nor a Cc to the 
+people involved with the patch.
 
-/bin/stty {
-	/bin/stty r
-}
+cu
+Adrian
 
-during execve AA would unshare(CLONE_NEWNS), remount / readonly and
-noexec,  and mount /bin/stty into place with exec privs.  I guess
-getting /bin/stty into place shouldn't be much of a challenge (i.e.
-just do the operations in the order
-	mkdir /.tmp123
-	mount --bind -o ro,noexec / /.tmp123
-	mount --bind /bin/stty /.tmp123/bin/stty
-	mount --bind /.tmp123 /
-)
-but implementing the 'ux' exec permission which apparmor currently has
-(i.e. giving the ability for stty to then execute /bin/login without
-restrictions) could be more challenging.
+-- 
 
-This also might beg for sys_unshare() (and corresponding code in clone)
-to have it's own security_vfs_unshare() hook, rather than being globbed
-in with CAP_SYS_ADMIN.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
--serge

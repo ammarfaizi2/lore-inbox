@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWDTRDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWDTREW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751144AbWDTRDL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 13:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWDTRDL
+	id S1751135AbWDTREW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 13:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWDTREW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 13:03:11 -0400
-Received: from ns2.suse.de ([195.135.220.15]:25825 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751144AbWDTRDI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 13:03:08 -0400
-Date: Thu, 20 Apr 2006 10:01:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Christoph Hellwig <hch@infradead.org>,
-       tonyj@suse.de, James Morris <jmorris@namei.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andrew Morton <akpm@osdl.org>,
-       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] make security_ops EXPORT_SYMBOL_GPL()
-Message-ID: <20060420170153.GA3237@kroah.com>
-References: <Pine.LNX.4.64.0604191221100.4408@d.namei> <20060419181015.GC11091@kroah.com> <1145536791.16456.37.camel@moss-spartans.epoch.ncsc.mil> <20060420150037.GA30353@kroah.com> <1145542811.3313.94.camel@moss-spartans.epoch.ncsc.mil> <20060420161552.GA1990@kroah.com> <20060420162309.GA18726@infradead.org> <1145550897.3313.143.camel@moss-spartans.epoch.ncsc.mil> <20060420164651.GA2439@kroah.com> <1145552412.3313.150.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 20 Apr 2006 13:04:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:61114 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751135AbWDTREU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 13:04:20 -0400
+Date: Thu, 20 Apr 2006 18:04:19 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Tony Jones <tonyj@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       chrisw@sous-sol.org, linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 10/11] security: AppArmor - Add flags to d_path
+Message-ID: <20060420170419.GA20791@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tony Jones <tonyj@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
+	linux-security-module@vger.kernel.org
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175026.29149.23661.sendpatchset@ermintrude.int.wirex.com> <20060419221248.GB26694@infradead.org> <20060420053604.GA15332@suse.de> <1145521570.3023.8.camel@laptopd505.fenrus.org> <20060420164329.GA30219@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1145552412.3313.150.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060420164329.GA30219@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some closed source modules are taking advantage of the fact that the
-security_ops variable is available to them, so they are using it to hook
-into parts of the kernel that should only be available to "real" users
-of the LSM interface (which is required to be under the GPL.)
+On Thu, Apr 20, 2006 at 09:43:29AM -0700, Tony Jones wrote:
+> I can't tell if you are claiming there is a fundamental problem calling d_path
+> *period* in this scenario. If so, I'd appreciate a little more concrete detail
 
-This patch changes the export of that variable to try to mitigate the
-problem.
+The purpose of d_path is to give user information about a path, to be
+used in things like procfs output.  For everything else it's fundamentally
+broken and shouldn't be used.  And for exactly that reason it isn't used for
+anything like that in the whole tree (except the possible fishy use in nfsd).
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+p.s.: I also see that your patch doesn't include on to export d_path so
+couldn't actually use it anyway. Not that a patch to export it would ever
+be ACKed for above reasons..
 
----
- security/security.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- gregkh-2.6.orig/security/security.c
-+++ gregkh-2.6/security/security.c
-@@ -178,4 +178,4 @@ EXPORT_SYMBOL_GPL(register_security);
- EXPORT_SYMBOL_GPL(unregister_security);
- EXPORT_SYMBOL_GPL(mod_reg_security);
- EXPORT_SYMBOL_GPL(mod_unreg_security);
--EXPORT_SYMBOL(security_ops);
-+EXPORT_SYMBOL_GPL(security_ops);
+> 
+> in the way of an actual example, this is a bit hand-wavy.
+> 
+> Or that you are just saying another version of "pathames are crap" which I'm 
+> not sure if appropos to this patch itself.
+> 
+> If it's the former, I'll happily go off and write some code to test your
+> assertion and it's ramifications if I can better understand what the actual
+> assertion is :-)
+> 
+> Thanks
+> 
+> Tony
+---end quoted text---

@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWDTPwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWDTP5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWDTPwE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 11:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWDTPwE
+	id S1751058AbWDTP5M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 11:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWDTP5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 11:52:04 -0400
-Received: from iona.labri.fr ([147.210.8.143]:11166 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S1751046AbWDTPwD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 11:52:03 -0400
-Message-ID: <4447AD52.60402@labri.fr>
-Date: Thu, 20 Apr 2006 17:48:34 +0200
-From: Emmanuel Fleury <emmanuel.fleury@labri.fr>
-User-Agent: Mail/News 1.5 (X11/20060228)
+	Thu, 20 Apr 2006 11:57:12 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:43493 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751057AbWDTP5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 11:57:11 -0400
+Message-ID: <4447AF4D.7030507@linux.intel.com>
+Date: Thu, 20 Apr 2006 19:57:01 +0400
+From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [libata] atapi_enabled problem
-References: <44477D93.50501@labri.fr> <20060420082852.f679a376.rdunlap@xenotime.net>
-In-Reply-To: <20060420082852.f679a376.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+CC: "Yu, Luming" <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org>
+In-Reply-To: <20060420153848.GA29726@srcf.ucam.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy.
-
-Randy.Dunlap wrote:
+Matthew Garrett wrote:
+> On Thu, Apr 20, 2006 at 07:35:53PM +0400, Alexey Starikovskiy wrote:
 > 
-> Yes, it should and it has worked for quite a few people in the past.
-> I suspect something more like a typo.  Anyway, recent kernels
-> (after 2.6.16, so 2.6.17-rc*) already have atapi_enabled set to 1.
+>> Could it be more sensible to use kevent and dbus for sending all events 
+>> from ACPI?
+> 
+> For most of the events, probably. I'm less convinced by the button 
+> driver - sleep and power buttons can also generate keycodes rather than 
+> ACPI events, and so getting the button driver to behave like an input 
+> device adds consistency.
+> 
+I think you will agree that ACPI buttons are special and will need special handling even in input stream...
+Generic application does not need to know if power, sleep, or lid button is pressed, so you will need to intercept them from input stream... I cannot find any reason to mix these buttons into input, do you?
 
-My mistake, I forgot to say I was using 2.6.16.2. Maybe this
-atapi_enabled=1 does appear only in 2.6.17-rc* ?
-
-Anyway, setting atapi_enabled to '1' in the future releases should solve
-my problem. So, I guess that this isn't a bug after all (just a
-difficult transition :).
-
-Thanks to all
--- 
-Emmanuel Fleury              | Office: 211
-Associate Professor,         | Phone: +33 (0)5 40 00 35 24
-LaBRI, Domaine Universitaire | Fax:   +33 (0)5 40 00 66 69
-351, Cours de la Libération  | email: emmanuel.fleury@labri.fr
-33405 Talence Cedex, France  | URL: http://www.labri.fr/~fleury

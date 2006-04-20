@@ -1,230 +1,260 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWDTWhk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWDTWg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWDTWhk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 18:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWDTWhB
+	id S932101AbWDTWg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 18:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWDTWg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 18:37:01 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:16847 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932104AbWDTWg7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 18:36:59 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:25996 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932101AbWDTWg7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 20 Apr 2006 18:36:59 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 3/3] export symbol report: export-type enhancement to modpost.c
+Subject: [RFC PATCH 2/3] export symbol report: export-symbol usage report generator.
 Cc: akpm@osdl.org, arjan@infradead.org, bunk@stusta.de, greg@kroah.com,
        hch@infradead.org, linuxram@us.ibm.com, mathur@us.ibm.com
-Message-Id: <20060420223654.55AF9470032@localhost>
+Message-Id: <20060420223654.2E5CA470031@localhost>
 Date: Thu, 20 Apr 2006 15:36:54 -0700 (PDT)
 From: linuxram@us.ibm.com (Ram Pai)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This optional patch, provide the ability to identify the export-type of each
-exported symbols.
+The following patch provides the ability to generate a report of
+     (1) All the exported symbols and their in-kernel-module usage count 
+     (2) For each module, lists the modules and their exported symbols, on
+		which it depends.
 
-NOTE: this patch updates the Module.symvers file with the additional
-information as shown below.
-
-0x0f8b92af      platform_device_add_resources   vmlinux EXPORT_GPL_ONLY
-0xcf7efb2a      ethtool_op_set_tx_csum          vmlinux EXPORT_ALL
+The report generation is integrated in the build process.
+'make export_report' prints out the report.
+'make export_report EXPORT_REPORT=Documentation/export_report.txt'
+	generates the report in the file Documentation/export_report.txt
 
 
 Signed-off-by: Ram Pai <linuxram@us.ibm.com>
-Signed-off-by: Avantika Mathur <mathur@us.ibm.com>
 
-Index: 2617rc1/scripts/mod/modpost.c
+ Makefile                 |   12 ++++
+ scripts/Makefile.modpost |    7 ++
+ scripts/export_report.pl    |  135 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 154 insertions(+)
+
+Index: 2617rc1/scripts/Makefile.modpost
 ===================================================================
---- 2617rc1.orig/scripts/mod/modpost.c	2006-04-02 20:22:10.000000000 -0700
-+++ 2617rc1/scripts/mod/modpost.c	2006-04-18 16:15:15.000000000 -0700
-@@ -18,6 +18,10 @@
- int modversions = 0;
- /* Warn about undefined symbols? (do so if we have vmlinux) */
- int have_vmlinux = 0;
+--- 2617rc1.orig/scripts/Makefile.modpost	2006-04-02 20:22:10.000000000 -0700
++++ 2617rc1/scripts/Makefile.modpost	2006-04-20 04:16:51.000000000 -0700
+@@ -60,9 +60,16 @@
+ 	$(if $(KBUILD_EXTMOD),-o $(modulesymfile)) \
+ 	$(filter-out FORCE,$^)
+ 
++quiet_cmd_importfile = IMPORT_EXTRACT
++      cmd_importfile =  perl $(objtree)/scripts/export_report.pl  \
++	-k $(kernelsymfile) \
++	$(if $(KBUILD_EXPORT_REPORT:1=),-o $(KBUILD_EXPORT_REPORT),) \
++	$(patsubst %.o,%.mod.c,$(filter-out vmlinux FORCE, $^))
 +
-+/* number of the section corresponding to gpl symbols */
-+int ksymtab_gpl = -1;
+ PHONY += __modpost
+ __modpost: $(wildcard vmlinux) $(modules:.ko=.o) FORCE
+ 	$(call cmd,modpost)
++	$(if $(KBUILD_EXPORT_REPORT), $(call cmd,importfile))
+ 
+ # Declare generated files as targets for modpost
+ $(symverfile):         __modpost ;
+Index: 2617rc1/scripts/export_report.pl
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ 2617rc1/scripts/export_report.pl	2006-04-18 16:02:32.000000000 -0700
+@@ -0,0 +1,134 @@
++#!/usr/bin/perl
++#
++# (C) Copyright IBM Corporation 2006.
++#	Released under GPL v2.
++#	Author : Ram Pai (linuxram@us.ibm.com)
++#
++# Usage: export_report.pl -k Module.symvers [-o report_file ] *.mod.c
++# 
 +
- /* Is CONFIG_MODULE_SRCVERSION_ALL set? */
- static int all_versions = 0;
- /* If we are modposting external module set to 1 */
-@@ -118,6 +122,7 @@
- 	unsigned int kernel:1;     /* 1 if symbol is from kernel
- 				    *  (only for external modules) **/
- 	unsigned int preloaded:1;  /* 1 if symbol from Module.symvers */
-+	int export_type;
- 	char name[0];
- };
- 
-@@ -153,7 +158,8 @@
- }
- 
- /* For the hash of exported symbols */
--static struct symbol *new_symbol(const char *name, struct module *module)
-+static struct symbol *new_symbol(const char *name, struct module *module,
-+					int export_type)
- {
- 	unsigned int hash;
- 	struct symbol *new;
-@@ -161,6 +167,7 @@
- 	hash = tdb_hash(name) % SYMBOL_HASH_SIZE;
- 	new = symbolhash[hash] = alloc_symbol(name, 0, symbolhash[hash]);
- 	new->module = module;
-+	new->export_type = export_type;
- 	return new;
- }
- 
-@@ -183,12 +190,13 @@
-  * Add an exported symbol - it may have already been added without a
-  * CRC, in this case just update the CRC
-  **/
--static struct symbol *sym_add_exported(const char *name, struct module *mod)
-+static struct symbol *sym_add_exported(const char *name, struct module *mod,
-+				int export_type)
- {
- 	struct symbol *s = find_symbol(name);
- 
- 	if (!s) {
--		s = new_symbol(name, mod);
-+		s = new_symbol(name, mod, export_type);
- 	} else {
- 		if (!s->preloaded) {
- 			warn("%s: '%s' exported twice. Previous export "
-@@ -204,12 +212,12 @@
- }
- 
- static void sym_update_crc(const char *name, struct module *mod,
--			   unsigned int crc)
-+			   unsigned int crc, int export_type)
- {
- 	struct symbol *s = find_symbol(name);
- 
- 	if (!s)
--		s = new_symbol(name, mod);
-+		s = new_symbol(name, mod, export_type);
- 	s->crc = crc;
- 	s->crc_valid = 1;
- }
-@@ -305,17 +313,23 @@
- 		sechdrs[i].sh_link   = TO_NATIVE(sechdrs[i].sh_link);
- 		sechdrs[i].sh_name   = TO_NATIVE(sechdrs[i].sh_name);
- 	}
++use Getopt::Std;
 +
-+	ksymtab_gpl = -1;
- 	/* Find symbol table. */
- 	for (i = 1; i < hdr->e_shnum; i++) {
- 		const char *secstrings
- 			= (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
-+		const char *secname;
- 
- 		if (sechdrs[i].sh_offset > info->size)
- 			goto truncated;
--		if (strcmp(secstrings+sechdrs[i].sh_name, ".modinfo") == 0) {
-+		secname = secstrings+sechdrs[i].sh_name;
-+		if (strcmp(secname, ".modinfo") == 0) {
- 			info->modinfo = (void *)hdr + sechdrs[i].sh_offset;
- 			info->modinfo_len = sechdrs[i].sh_size;
--		}
-+		} else if (strcmp(secname, "__ksymtab_gpl") == 0)
-+			ksymtab_gpl = i;
++sub numerically {
++	($sym, $no1) = split / /, $a;
++	($sym, $no2) = split / /, $b;
++	return $no1 <=> $no2;
++}
 +
- 		if (sechdrs[i].sh_type != SHT_SYMTAB)
- 			continue;
++sub alphabetically {
++	($module1, $value1, undef) = split / /, "@{$a}";
++	($module2, $value2, undef) = split / /, "@{$b}";
++	if ($value1 == $value2) {
++		if ($module1 lt $module2) {
++			return 1;
++		} elsif ($module1 eq $module2) {
++			return 0;
++		} 
++		return -1;
++	}
++	return $value1 <=> $value2;
++}
++
++sub print_depends_on {
++	my ($href) = @_;
++	print "\n";
++	while (($mod, $list) = each %$href) {
++		print "\t$mod:\n";
++		foreach $sym (sort numerically @{$list}) {
++			($symbol, $no) = split / /, $sym;
++			printf("\t\t%-25s\t%-25d\n", $symbol, $no);
++		}
++		print "\n";
++	}
++	print "\n";
++	print "~"x80 , "\n";
++}
++
++sub usage {
++        die "Usage: @_ -h -k Module.symvers  [ -o outputfile ] \n";
++}
++
++
++if (not getopts('hk:o:') or defined $opt_h or not defined $opt_k) {
++        usage($0);
++}
++
++unless (open(MODULE_SYMVERS, $opt_k)) {
++	die "Sorry, cannot open $opt_k: $!\n";
++}
++
++if (defined $opt_o) {
++	unless (open(OUTPUT_HANDLE, ">$opt_o")) {
++		die "Sorry, cannot open $opt_o: $!\n";
++	}
++	select OUTPUT_HANDLE;
++}
++
++#
++# collect all the symbols and their attributes from the 
++# Module.symvers file
++#
++while ( <MODULE_SYMVERS> ) {
++	chomp;
++	($crc, $symbol, $module, $gpl) = split;
++	$SYMBOL { $symbol } =  [ $module , "0" , $symbol, $gpl];
++}
++close(MODULE_SYMVERS);
++
++#
++# collect the usage count of each symbol.
++#
++for ($i = 0; $i <= $#ARGV; $i++) {
++	$thismod = $ARGV[$i];
++	unless (open(MODULE_MODULE, $thismod)) {
++		print "Sorry, cannot open $kernel: $!\n";
++		next;
++	}
++	while ( <MODULE_MODULE> ) {
++		chomp;
++		if ( $_ !~ /0x[0-9a-f]{7,8},/ ) {
++			next;
++		}
++		(undef, undef, undef, undef, $symbol) = split /([,"])/, $_;
++		($module, $value, $symbol, $gpl) = @{$SYMBOL{$symbol}};
++		$SYMBOL{ $symbol } =  [ $module , $value+1 , $symbol, $gpl];
++		push(@{$MODULE{$thismod}} , $symbol);
++	}
++	close(MODULE_MODULE);
++}
++
++
++print "\tTHIS FILE REPORTS THE USAGE PATTERNS OF EXPORTED SYMBOLS BY IN_TREE\n";
++print "\t\t\t\tMODULES\n";
++printf("%s\n\n\n","x"x80);
++printf("\t\t\t\INDEX\n\n\n");
++printf("SECTION 1: USAGE COUNTS OF ALL EXPORTED SYMBOLS\n");
++printf("SECTION 2: LIST OF MODULES AND THE EXPORTED SYMBOLS THEY USE\n");
++printf("%s\n\n\n","x"x80);
++printf("SECTION 1:\tTHE EXPORTED SYMBOLS AND THEIR USAGE COUNT\n\n");
++printf("%-25s\t%-25s\t%-5s\t%-25s\n", "SYMBOL", "MODULE", "USAGE COUNT", "EXPORT TYPE");
++#
++# print the list of unused exported symbols
++#
++foreach $list (sort alphabetically values(%SYMBOL)) {
++	($module, $value, $symbol, $gpl) = split / /, "@{$list}";
++	printf("%-25s\t%-25s\t%-10s\t%-25s\n", $symbol, $module, $value, $gpl);
++}
++printf("%s\n\n\n","x"x80);
++
++
++printf("SECTION 2:\n\tThis section reports export-symbol-usage of in-kernel
++modules. Each module lists all the modules, and the symbols from the module it
++depends on.  Each listed symbol reports the number of modules using that
++symbols.\n");
++
++print "~"x80 , "\n";
++while (($thismod, $list) = each %MODULE) {
++	undef %depends;
++	print "\t\t\t$thismod\n";
++	foreach $symbol (@{$list}) {
++		($module, $value, undef, $gpl) = @{$SYMBOL{$symbol}};
++		push (@{$depends{"$module"}}, "$symbol $value");
++	}
++	print_depends_on(\%depends);
++}
+Index: 2617rc1/Makefile
+===================================================================
+--- 2617rc1.orig/Makefile	2006-04-02 20:22:10.000000000 -0700
++++ 2617rc1/Makefile	2006-04-20 06:24:10.000000000 -0700
+@@ -185,8 +185,10 @@
  
-@@ -348,11 +362,15 @@
+ HOSTCC  	= gcc
+ HOSTCXX  	= g++
+-HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+-HOSTCXXFLAGS	= -O2
++#HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS	= -Wall -Wstrict-prototypes -g -fomit-frame-pointer
++#HOSTCXXFLAGS	= -O2
++HOSTCXXFLAGS	= -g
  
- #define CRC_PFX     MODULE_SYMBOL_PREFIX "__crc_"
- #define KSYMTAB_PFX MODULE_SYMBOL_PREFIX "__ksymtab_"
-+#define EXPORT_GPL_ONLY 1
-+#define EXPORT_ALL      0
+ # 	Decide whether to build built-in, modular, or both.
+ #	Normally, just do built-in.
+@@ -433,6 +435,7 @@
+ core-y		:= usr/
+ endif # KBUILD_EXTMOD
  
- static void handle_modversions(struct module *mod, struct elf_info *info,
- 			       Elf_Sym *sym, const char *symname)
- {
- 	unsigned int crc;
-+	unsigned int export_type = (sym->st_shndx == ksymtab_gpl ?
-+					EXPORT_GPL_ONLY : EXPORT_ALL);
++
+ ifeq ($(dot-config),1)
+ # In this section, we need .config
  
- 	switch (sym->st_shndx) {
- 	case SHN_COMMON:
-@@ -362,7 +380,8 @@
- 		/* CRC'd symbol */
- 		if (memcmp(symname, CRC_PFX, strlen(CRC_PFX)) == 0) {
- 			crc = (unsigned int) sym->st_value;
--			sym_update_crc(symname + strlen(CRC_PFX), mod, crc);
-+			sym_update_crc(symname + strlen(CRC_PFX), mod, crc,
-+					export_type);
- 		}
- 		break;
- 	case SHN_UNDEF:
-@@ -406,7 +425,8 @@
- 	default:
- 		/* All exported symbols */
- 		if (memcmp(symname, KSYMTAB_PFX, strlen(KSYMTAB_PFX)) == 0) {
--			sym_add_exported(symname + strlen(KSYMTAB_PFX), mod);
-+			sym_add_exported(symname + strlen(KSYMTAB_PFX), mod,
-+					export_type);
- 		}
- 		if (strcmp(symname, MODULE_SYMBOL_PREFIX "init_module") == 0)
- 			mod->has_init = 1;
-@@ -1098,10 +1118,11 @@
- 		return;
+@@ -873,7 +876,6 @@
+ 	@echo '  Building modules, stage 2.';
+ 	$(Q)$(MAKE) -rR -f $(srctree)/scripts/Makefile.modpost
  
- 	while ((line = get_next_line(&pos, file, size))) {
--		char *symname, *modname, *d;
-+		char *symname, *modname, *d, *export;
- 		unsigned int crc;
- 		struct module *mod;
- 		struct symbol *s;
-+		unsigned int export_type = 0;
+-
+ # Target to prepare building external modules
+ PHONY += modules_prepare
+ modules_prepare: prepare scripts
+@@ -1033,6 +1035,7 @@
+ 	@echo  'Static analysers'
+ 	@echo  '  checkstack      - Generate a list of stack hogs'
+ 	@echo  '  namespacecheck  - Name space analysis on compiled kernel'
++	@echo  '  export_report	  - Export symbols usage analysis on compile kernel'
+ 	@echo  ''
+ 	@echo  'Kernel packaging:'
+ 	@$(MAKE) $(build)=$(package-dir) help
+@@ -1259,6 +1262,19 @@
+ namespacecheck:
+ 	$(PERL) $(srctree)/scripts/namespace.pl
  
- 		if (!(symname = strchr(line, '\t')))
- 			goto fail;
-@@ -1109,12 +1130,19 @@
- 		if (!(modname = strchr(symname, '\t')))
- 			goto fail;
- 		*modname++ = '\0';
--		if (strchr(modname, '\t'))
-+		if (!(export = strchr(modname, '\t')))
-+			goto fail;
-+		*export++ = '\0';
-+		if (strchr(export, '\t'))
- 			goto fail;
- 		crc = strtoul(line, &d, 16);
--		if (*symname == '\0' || *modname == '\0' || *d != '\0')
-+		if (*symname == '\0' || *modname == '\0' || *export == '\0' || 
-+					*d != '\0')
- 			goto fail;
++ifeq ($(MAKECMDGOALS), export_report)
++  	KBUILD_EXPORT_REPORT := 1
++	ifdef EXPORT_REPORT
++	  ifeq ("$(origin EXPORT_REPORT)", "command line")
++  		KBUILD_EXPORT_REPORT = $(EXPORT_REPORT)
++	  endif
++	endif
++	export KBUILD_EXPORT_REPORT
++endif
++
++PHONY += export_report
++export_report: vmlinux modules
++
+ endif #ifeq ($(config-targets),1)
+ endif #ifeq ($(mixed-targets),1)
  
-+		if (!(strcmp(export, "EXPORT_GPL_ONLY")))
-+			export_type = 1;
-+	
- 		if (!(mod = find_module(modname))) {
- 			if (is_vmlinux(modname)) {
- 				have_vmlinux = 1;
-@@ -1122,10 +1150,10 @@
- 			mod = new_module(NOFAIL(strdup(modname)));
- 			mod->skip = 1;
- 		}
--		s = sym_add_exported(symname, mod);
-+		s = sym_add_exported(symname, mod, export_type);
- 		s->kernel    = kernel;
- 		s->preloaded = 1;
--		sym_update_crc(symname, mod, crc);
-+		sym_update_crc(symname, mod, crc, export_type);
- 	}
- 	return;
- fail:
-@@ -1155,9 +1183,11 @@
- 		symbol = symbolhash[n];
- 		while (symbol) {
- 			if (dump_sym(symbol))
--				buf_printf(&buf, "0x%08x\t%s\t%s\n",
-+				buf_printf(&buf, "0x%08x\t%s\t%s\t%s\n", 
- 					symbol->crc, symbol->name,
--					symbol->module->name);
-+					symbol->module->name,
-+					(symbol->export_type? 
-+					"EXPORT_GPL_ONLY" : "EXPORT_ALL"));
- 			symbol = symbol->next;
- 		}
- 	}

@@ -1,60 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWDTT07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWDTT1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbWDTT07 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 15:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWDTT07
+	id S1750942AbWDTT1t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 15:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWDTT1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 15:26:59 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:953
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750953AbWDTT06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 15:26:58 -0400
-Date: Thu, 20 Apr 2006 12:26:47 -0700 (PDT)
-Message-Id: <20060420.122647.03915644.davem@davemloft.net>
-To: axboe@suse.de
-Cc: torvalds@osdl.org, diegocg@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.17-rc2
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060420145041.GE4717@suse.de>
-References: <20060419200001.fe2385f4.diegocg@gmail.com>
-	<Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
-	<20060420145041.GE4717@suse.de>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 20 Apr 2006 15:27:48 -0400
+Received: from victor.provo.novell.com ([137.65.250.26]:30888 "EHLO
+	victor.provo.novell.com") by vger.kernel.org with ESMTP
+	id S1750942AbWDTT1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 15:27:47 -0400
+Message-ID: <4447E081.4020404@novell.com>
+Date: Thu, 20 Apr 2006 12:26:57 -0700
+From: Crispin Cowan <crispin@novell.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
+       linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>	 <1145470463.3085.86.camel@laptopd505.fenrus.org>	 <p73mzeh2o38.fsf@bragg.suse.de> <1145522524.3023.12.camel@laptopd505.fenrus.org>
+In-Reply-To: <1145522524.3023.12.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jens Axboe <axboe@suse.de>
-Date: Thu, 20 Apr 2006 16:50:42 +0200
+Arjan van de Ven wrote:
+> I actually posted a list of 10 things that I made up in 3 minutes; just
+> going over those 10 would be a good start already since they're the most
+> obvious ones..
+>   
+I had actually posted a response to those 10 questions in the previous
+"remove LSM" thread. Here it is again.
 
-> On Wed, Apr 19 2006, Linus Torvalds wrote:
-> >  - vmsplice() system call to basically do a "write to the buffer", but 
-> >    using the reference counting and VM traversal to actually fill the 
-> >    buffer. This means that the user needs to be careful not to re-use the 
-> >    user-space buffer it spliced into the kernel-space one (contrast this 
-> >    to "write()", which copies the actual data, and you can thus re-use the 
-> >    buffer immediately after a successful write), but that is often easy to 
-> >    do.
-> 
-> This I already did, it was pretty easy and straight forward. I'll post
-> it soonish.
+> after all what does filename mean in a linux world with
+> * hardlinks
+If the policy lets you access /foo/bar/baz then you get to access
+/foo/bar/baz, even if it is a hard link to /foo/bif.
 
-Do we plan to do vmsplice() to sockets?  That's interesting, but
-requires some serious cooperation from things like TCP so that
-the indication of "buffer can be reused now, thanks" is explicit
-and indicated as soon as ACK's come back for those parts of the
-data stream.
+Some would allege that this is a security "hole" in AppArmor. However,
+AppArmor's design is that you only get to *create* that hard link if you
+are either unconfined or your profile says you get to create it.
+AppArmor implicitly trusts all non-confined processes, so anything they
+do is ok, by definition.
 
-Even UDP would need to wait until the card is done with transmit,
-and we have DCCP and SCTP too.
+> * chroot
+In the currently shipping AppArmor that comes with SUSE Linux, the names
+AppArmor sees are chroot-relative. The patch just posted fixes that and
+the names AppArmor sees are now absolute, regardless of chroot jailing.
 
-People would want to be able to get event notifications of this,
-or do we plan to just block?  Blocking could be problematic,
-performance wise.
+> * namespaces
+> * bind mounts
+As far as we know, our namespace support is fine; we mediate attempts to
+modify namespaces (such as denying mount and umount) and requiring
+cap_sys_chroot to modify the root of the namespace. If there are
+instances where we are incorrect we would greatly appreciate a detailed
+description of the issue (or better a testcase) so we can look at
+resolving it.
 
-Anyways, I'm just stabbing in the dark.  It would be useful, because
-there is no real clan way to use sendfile() for zero copy of anonymous
-user data, and this vmsplice() thing seems like it could bridge that
-gap if we do it right.
+> * unlink of open files
+> * fd passing over unix sockets
+AppArmor initially validates your access at open time, and there after
+you can read&write to it without mediation. AppArmor re-validates your
+access if policy is reloaded, you exec() a new program, you get passed
+the fd from another process, or you call our change_hat() API.
+
+So, if the file is unlinked or renamed while you have it open, and
+policy says you don't have access to the new name, then:
+
+    *  within the same process you get to keep accessing it until
+          o  policy is reloaded by the administrator
+          o  you call the change_hat() API
+    *  in some other process, either a child or some process you passed
+      an fd to, you don't get to access it because your access gets
+      revalidated
+
+Note that d_path still returns pathnames for files that have been
+removed from the filesystem (that are open)
+> * relative pathnames
+If you access "../hosts.allow" AppArmor will canonicalize your path name
+to /etc/hosts.allow before checking the policy.
+
+> * multiple threads (where one can unlink+replace file while the other
+> is in the validation code)
+Can you show a specific case that you think would be a problem? Security
+is the problem of allowing "good stuff" and blocking "bad stuff", and
+that is hard to argue for complex cases that are not specific.
+
+Crispin
+-- 
+Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
+Director of Software Engineering, Novell  http://novell.com
+
+

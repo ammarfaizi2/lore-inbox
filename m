@@ -1,82 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWDTQ3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWDTQbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWDTQ3N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 12:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWDTQ3N
+	id S1751124AbWDTQbE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 12:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWDTQbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 12:29:13 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:31467 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751130AbWDTQ3L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 12:29:11 -0400
-Date: Thu, 20 Apr 2006 18:29:07 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Ingo Molnar <mingo@elte.hu>
-Subject: Van Jacobson's net channels and real-time
-Message-ID: <Pine.LNX.4.44L0.0604201819040.19330-100000@lifa01.phys.au.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Apr 2006 12:31:04 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:64461 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750730AbWDTQbB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 12:31:01 -0400
+Subject: Re: Removing EXPORT_SYMBOL(security_ops) (was Re: Time to remove
+	LSM)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Greg KH <greg@kroah.com>, tonyj@suse.de, James Morris <jmorris@namei.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andrew Morton <akpm@osdl.org>,
+       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20060420162309.GA18726@infradead.org>
+References: <Pine.LNX.4.64.0604171454070.17563@d.namei>
+	 <20060417195146.GA8875@kroah.com>
+	 <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+	 <20060419154011.GA26635@kroah.com>
+	 <Pine.LNX.4.64.0604191221100.4408@d.namei>
+	 <20060419181015.GC11091@kroah.com>
+	 <1145536791.16456.37.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060420150037.GA30353@kroah.com>
+	 <1145542811.3313.94.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060420161552.GA1990@kroah.com>  <20060420162309.GA18726@infradead.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 20 Apr 2006 12:34:57 -0400
+Message-Id: <1145550897.3313.143.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Before I start, where is VJ's code? I have not been able to find it anywhere.
+On Thu, 2006-04-20 at 17:23 +0100, Christoph Hellwig wrote:
+> On Thu, Apr 20, 2006 at 09:15:52AM -0700, Greg KH wrote:
+> > On Thu, Apr 20, 2006 at 10:20:11AM -0400, Stephen Smalley wrote:
+> > > On Thu, 2006-04-20 at 08:00 -0700, Greg KH wrote:
+> > > > I agree.  In looking over the code some more, I'm trying to figure out
+> > > > why we are exporting that variable at all.  Is it because of people
+> > > > wanting to stack security modules?
+> > > > 
+> > > > I see selinux code using it, but you are always built into the kernel,
+> > > > right?  So unexporting it would not be an issue to you.
+> > > 
+> > > Various in-tree modules (e.g. ext3) call security hooks via the static
+> > > inlines and end up referencing security_ops directly.  We'd have to wrap
+> > > all such hooks in the same manner as capable and permission.
+> > 
+> > Ah, and people like making their file systems as modules :(
+> 
+> But actually yes, calling into rndom lsm hooks in modules is not a good
+> thing.a  The only think filesystems calls is security_inode_init_security
+> and it would make a lot of sense to make that an out of line wrapper
+> instead of exporting security_ops.
 
-With the preempt-realtime branch maturing and finding it's way into the
-mainline kernel, using Linux (without sub-kernels) for real-time applications
-is becomming an realistic option without having to do a lot of hacks in the
-kernel on your own. But the network stack could be improved and some of the
-ideas in Van Jacobson's net channels could be usefull when receiving network
-packages with real-time latencies.
+There are other cases as well, I think, e.g. af_unix calls certain hooks
+to ensure mediation of even the abstract namespace.  But the problem is
+avoided altogether if the security static inlines compile down to direct
+selinux function calls (which can be exported as needed).
 
-Finding the end point in the receive interrupt and send of the packet to
-the receiving process directly is a good idea if it is fast enough to do
-so in the interrupt context (and I think it can be done very fast). One
-problem in the current setup, is that everything has to go through the
-soft interrupt.  That is even if you make a completely new, non-IP
-protocol, the latency for delivering the frame to your application is
-still limited by the latency of the IP-stack because it still have to go
-through soft irq which might be busy working on IP packages. Even if you
-open a raw socket, the latency is limited to the latency of the soft irq.
-At work we use a widely used commercial RTOS. It got exactly the same
-problem of having every network packet being handled by the same thread.
-
-Buffer management is another issue. On the RTOS above you make a buffer pool
-per network device for receiving packages. On Linux received packages are taken
-from the global memory pool with GFP_ATOMIC. On both systems you can easily run
-out of buffers if they are not freed back to the pool fast enough. In that
-case you will just have to drop packages as they are received. Without
-having the code to VJ's net channels, it looks like they solve the problem:
-Each end receiver provides his own receive resources. If a receiver can't cope
-with  all the traffic, it will loose packages, the others wont. That makes it
-safe to run important real-time traffic along with some unpredictable, low
-priority  TCP/IP traffic. If the TCP/IP receivers does not run fast enough,
-their packages will be dropped, but the driver will not drop the real-time
-packages. The nice thing about a real-time task is that you know it's latency
-and therefore know how many receive buffers it needs to avoid loosing
-packages in a worst case scenario.
-
-Implementing new protocols in user space is a good idea, too. The developer -
-who doesn't need to be a hard-core kernel hacker - can pick whatever language
-he wants and has far easier access to debugging tools than in the kernel.
-Unfortunately, it does not perform very well.
-Using raw sockets is a way to do protocol stacks in user space now, but you
-can only listen to packets with a specific protocol id. Therefore you either
-have to make one thread or process in userspace receive everything and then
-send it to the end receivers, or let all threads receive all and let them
-throw away packages not for them. Apparently the filter mechanism for VJ's
-net channels (if it is made general enough) would solve that problem, too.
-
-Many realtime applications are time triggered. I.e. they wake up
-say every 5 ms and poll their environment for new inputs, do their
-calculations and then send out the results again. For such an application
-it will be very efficient to make the driver put the network packages in a
-mmap'ed area, but not try to wake up the application. The application will
-simply poll the mmap'ed channel every 5 ms. Once this is setup there is no
-system calls issued for receiving packages at all!
-On Linux today - for packet orientated protocols at least - the application has
-to issue a system call for every packet received plus a system call in the end
-to check there is no more packeges to be read.
-
-Esben
+-- 
+Stephen Smalley
+National Security Agency
 

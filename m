@@ -1,84 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWDTR7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWDTSCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWDTR7F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 13:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWDTR7F
+	id S1751207AbWDTSCH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 14:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWDTSCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 13:59:05 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:38546 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S1751206AbWDTR7D (ORCPT
+	Thu, 20 Apr 2006 14:02:07 -0400
+Received: from nz-out-0102.google.com ([64.233.162.193]:55354 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751207AbWDTSCG convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 13:59:03 -0400
-Message-ID: <4447CBDC.6010002@cs.wisc.edu>
-Date: Thu, 20 Apr 2006 12:58:52 -0500
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: James.Smart@Emulex.Com
-CC: linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+	Thu, 20 Apr 2006 14:02:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sd48ir5fHAiJ/IQ7yBOVBZgC/W6SCKK1+ljU6in3goa6TDzei6R5Gaihrz1GZ4QRnjegQk6BPx+Z28ClkNzJx5eNTaIgKjPDEM3eCUbSoAsxGUYxNBS7iIqxNt5R+tGzy+DrNUeMOUhJYOAfMnTaPpxA0cv5llRodPHo7QB77Po=
+Message-ID: <b3be17f30604201102jff51794r52dd3024d631051e@mail.gmail.com>
+Date: Thu, 20 Apr 2006 11:02:03 -0700
+From: "Robert Merrill" <grievre@gmail.com>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Netlink and user-space buffer pointers
-References: <1145306661.4151.0.camel@localhost.localdomain> <20060418160121.GA2707@us.ibm.com> <444633B5.5030208@emulex.com> <4446AC80.6040604@cs.wisc.edu> <44479BA8.1000405@emulex.com> <4447C8C2.30909@cs.wisc.edu>
-In-Reply-To: <4447C8C2.30909@cs.wisc.edu>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: Re: NFS bug?
+In-Reply-To: <1145555789.8136.13.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <b3be17f30604200937l7cfaca8evcc17f6ecd72f643e@mail.gmail.com>
+	 <1145551304.8136.5.camel@lade.trondhjem.org>
+	 <b3be17f30604200953i652e14a2n908f1a066ffe4e7f@mail.gmail.com>
+	 <1145555789.8136.13.camel@lade.trondhjem.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Christie wrote:
-> James Smart wrote:
->> Mike Christie wrote:
->>> For the tasks you want to do for the fc class is performance critical?
->> No, it should not be.
->>
->>> If not, you could do what the iscsi class (for the netdev people this is
->>> drivers/scsi/scsi_transport_iscsi.c) does and just suffer a couple
->>> copies. For iscsi we do this in userspace to send down a login pdu:
->>>
->>>     /*
->>>      * xmitbuf is a buffer that is large enough for the iscsi_event,
->>>      * iscsi pdu (hdr_size) and iscsi pdu data (data_size)
->>>      */
->> Well, the real difference is that the payload of the "message" is actually
->> the payload of the SCSI command or ELS/CT Request. Thus, the payload may
-> 
-> I am not sure I follow. For iscsi, everything after the iscsi_event
-> struct can be the iscsi request that is to be transmitted. The payload
-> will not normally be Mbytes but it is not a couple if bytes.
-> 
->> range in size from a few hundred bytes to several kbytes (> 1 page) to
->> Mbyte's in size. Rather than buffer all of this, and push it over the
->> socket,
->> thus the extra copies - it would best to have the LLDD simply DMA the
->> payload like on a typical SCSI command.  Additionally, there will be
->> response data that can be several kbytes in length.
->>
-> 
-> Once you have got the buffer to the class, the class can create a
-> scatterlist to DMA from for the LLD. I thought. iscsi does not do this
-> just because it is software right now. For qla4xxx we do not need
-> something like what you are talking about (see below for what I was
-> thinking about for the initiators). If you are saying the extra step of
-> the copy is plain dumb, I agree, but this happens (you have to suffer
-> some copy and cannot do dio) for sg io as well in some cases. I think
-> for the sg driver the copy_*_user is the default.
-> 
-> Instead of netlink for scsi commands and transport requests....
-> 
-> For scsi commands could we just use sg io, or is there something special
-> about the command you want to send? If you can use sg io for scsi
-> commands, maybe for transport level requests (in my example iscsi pdu)
-> we could modify something like sg/bsg/block layer scsi_ioctl.c to send
-> down transport requests to the classes and encapsulate them in some new
-> struct transport_requests or use the existing struct request but do that
-> thing people keep taling about using the request/request_queue for
-> message passing.
+On 4/20/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+>
+> Given that you are reporting an error with copy_from_user, then it is
+> _definitely_ of interest to figure out what your glibc is telling the
+> kernel to copy.
 
-And just to be complete, the problem with this is that it is tied to the
-request queue and so you cannot just send a transport level request
-unless it is tied to the device. But for the target stuff we added a
-request queue to the host so we could inject requests (the idea was to
-send down those magic message requests) at a higher level.  To be able
-to use that for sg io though it would require some more code and magic
-as you know.
+execve("./a.out", ["./a.out", "foo"], [/* 16 vars */]) = 0
+uname({sys="Linux", node="soda", ...})  = 0
+brk(0)                                  = 0x804a000
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+old_mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS,
+-1, 0) = 0xb7f5f000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY)      = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=20397, ...}) = 0
+old_mmap(NULL, 20397, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb7f5a000
+close(3)                                = 0
+access("/etc/ld.so.nohwcap", F_OK)      = -1 ENOENT (No such file or directory)
+open("/lib/tls/libc.so.6", O_RDONLY)    = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\260O\1"..., 512) = 512
+fstat64(3, {st_mode=S_IFREG|0755, st_size=1270928, ...}) = 0
+old_mmap(NULL, 1276892, PROT_READ|PROT_EXEC,
+MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0xb7e22000
+old_mmap(0xb7f50000, 32768, PROT_READ|PROT_WRITE,
+MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x12e000) = 0xb7f50000
+old_mmap(0xb7f58000, 7132, PROT_READ|PROT_WRITE,
+MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0xb7f58000
+close(3)                                = 0
+old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS,
+-1, 0) = 0xb7e21000
+mprotect(0xb7f50000, 20480, PROT_READ)  = 0
+set_thread_area({entry_number:-1 -> 6, base_addr:0xb7e218e0,
+limit:1048575, seg_32bit:1, contents:0, read_exec_only:0,
+limit_in_pages:1, seg_not_present:0, useable:1}) = 0
+munmap(0xb7f5a000, 20397)               = 0
+open("foo", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = 3
+fstat64(3, {st_mode=S_IFDIR|0666, st_size=512, ...}) = 0
+fcntl64(3, F_SETFD, FD_CLOEXEC)         = 0
+brk(0)                                  = 0x804a000
+brk(0x806f000)                          = 0x806f000
+fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 21), ...}) = 0
+mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
+0) = 0xb7f5e000
+write(1, "0\n", 20
+)                      = 2
+getdents64(3,  <unfinished ...>
++++ killed by SIGSEGV +++

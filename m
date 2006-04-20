@@ -1,54 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWDTOLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWDTORd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWDTOLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 10:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWDTOLZ
+	id S1750725AbWDTORd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 10:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWDTORd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 10:11:25 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:62932 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750748AbWDTOLY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 10:11:24 -0400
-Subject: Re: [PATCH] tpm: fix missing string
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       TPM Device Driver List <tpmdd-devel@lists.sourceforge.net>
-In-Reply-To: <20060420005938.6c3d4319.akpm@osdl.org>
-References: <1145474021.4894.12.camel@localhost.localdomain>
-	 <20060420005938.6c3d4319.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 20 Apr 2006 09:07:22 -0500
-Message-Id: <1145542042.4894.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Thu, 20 Apr 2006 10:17:33 -0400
+Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:2230 "EHLO
+	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S1750765AbWDTORd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 10:17:33 -0400
+DomainKey-Signature: s=s768; d=fujitsu-siemens.com; c=nofws; q=dns; b=yTa1eEohLkr6LTAtc15o0hbprq+ouIho/BCq8ZHsAdM2C1r3DkvACcGX/vCg7DjXLQ77zRU9QcxX6ryFLm6T1H4NQLJlAABB0A1dqQfF6TkKkERirx0hBjAzoWSzgoMh;
+X-SBRSScore: None
+X-IronPort-AV: i="4.04,141,1144015200"; 
+   d="scan'208"; a="30329875:sNHT177770072"
+Message-ID: <444797F8.6020509@fujitsu-siemens.com>
+Date: Thu, 20 Apr 2006 16:17:28 +0200
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Dike <jdike@addtoit.com>
+CC: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
+References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <20060420090514.GA9452@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20060420090514.GA9452@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 00:59 -0700, Andrew Morton wrote:
-> Kylene Jo Hall <kjhall@us.ibm.com> wrote:
-> >
-> > A string corresponding to the tcpa_pc_event_id POST_CONTENTS was missing
-> >  causing an overflow bug when access was attempted in the get_event_name
-> >  function.
+Heiko Carstens wrote:
+>>Add PTRACE_SYSCALL_MASK, which allows system calls to be selectively
+>>traced.  It takes a bitmask and a length.  A system call is traced
+>>if its bit is one.  Otherwise, it executes normally, and is
+>>invisible to the ptracing parent.
+>>[...]
+>>+int set_syscall_mask(struct task_struct *child, char __user *mask,
+>>+		     unsigned long len)
+>>+{
+>>+	int i, n = (NR_syscalls + 7) / 8;
+>>+	char c;
+>>+
+>>+	if(len > n){
+>>+		for(i = NR_syscalls; i < len * 8; i++){
+>>+			get_user(c, &mask[i / 8]);
+>>+			if(!(c & (1 << (i % 8)))){
+>>+				printk("Out of range syscall at %d\n", i);
+>>+				return -EINVAL;
+>>+			}
+>>+		}
+>>+
+>>+		len = n;
+>>+	}
 > 
-> These last two bugs are applicable to 2.6.17.
-Correct.
 > 
-> I'm kind of thinking of pushing all the TPM patches into 2.6.17 actually. 
-> Although there's quite a lot of feature work in there, we also have
-> bugfixes, although relatively minor ones.
-> 
-> What's your confidence level in those patches?
+> Since it's quite likely that len > n will be true (e.g. after installing the
+> latest version of your debug tool) it would be better to silently ignore all
+> bits not within the range of NR_syscalls.
+> There is no point in flooding the console. The tracing process won't see any
+> of the non existant syscalls it requested to see anyway.
 
-> Would you have time to do a decent round of regression testing against the
-> resulting TPM code prior to 2.6.17?  Say, inside the next couple of weeks?
+Shouldn't 'len' better be the number of bits in the mask than the number of chars?
+Assume a syscall newly added to UML would be a candidate for processing on the host,
+but the incremented NR_syscalls still would result in the same number of bytes. Also
+assume, host doesn't yet have that new syscall. Current implementation doesn't catch
+the fact, that host can't execute that syscall.
 
-I'm pretty confident.  Yesterday's bug fixes were the last things I know
-of that needed attention.  I'd be happy to run regression testing in the
-next couple of weeks.
+OTOH, I think UML shouldn't send the entire mask, but relevant part only. The missing
+end is filled with 0xff by host anyway. So it would be enough to send the mask up to the
+highest bit representing a syscall, that needs to be executed by host. (currently, that
+is __NR_gettimeofday). If UML would do so, no more problem results from UML having
+a higher NR_syscall than the host (as long as the new syscalls are to be intercepted
+and executed by UML)
 
-Thanks,
-Kylie
+A greater problem might be a process in UML, that calls an invalid syscall number. AFAICS
+syscall number (orig_eax) isn't checked before it is used in do_syscall_trace to address
+syscall_mask. This might result in a crash.
 
+Bodo

@@ -1,84 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWDTIBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWDTILQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWDTIBu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 04:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWDTIBt
+	id S1750715AbWDTILQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 04:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWDTILQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 04:01:49 -0400
-Received: from smtpout.mac.com ([17.250.248.176]:60152 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750753AbWDTIBt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 04:01:49 -0400
-In-Reply-To: <963E9E15184E2648A8BBE83CF91F5FAF43619E@titanium.secgo.net>
-References: <963E9E15184E2648A8BBE83CF91F5FAF43619E@titanium.secgo.net>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <EF32C995-F38A-4945-AB38-5CCBE21513B4@mac.com>
-Cc: James Morris <jmorris@namei.org>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org
+	Thu, 20 Apr 2006 04:11:16 -0400
+Received: from 220-130-178-143.HINET-IP.hinet.net ([220.130.178.143]:43499
+	"EHLO areca.com.tw") by vger.kernel.org with ESMTP id S1750715AbWDTILO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 04:11:14 -0400
+Message-ID: <001e01c66451$f9a470f0$b100a8c0@erich2003>
+From: "erich" <erich@areca.com.tw>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <dax@gurulabs.com>, <billion.wu@areca.com.tw>,
+       "\"Al Viro\"" <viro@ftp.linux.org.uk>,
+       "\"Andrew Morton\"" <akpm@osdl.org>,
+       "\"Randy.Dunlap\"" <rdunlap@xenotime.net>,
+       "\"Matti Aarnio\"" <matti.aarnio@zmailer.org>,
+       <linux-kernel@vger.kernel.org>,
+       "\"James Bottomley\"" <James.Bottomley@steeleye.com>,
+       "\"Chris Caputo\"" <ccaputo@alt.net>
+References: <007701c653d7$8b8ee670$b100a8c0@erich2003> <Pine.LNX.4.64.0603301542590.19680@nacho.alt.net> <004a01c65470$412daaa0$b100a8c0@erich2003> <20060330192057.4bd8c568.akpm@osdl.org> <20060331074237.GH14022@suse.de> <002901c65e33$ceac9e00$b100a8c0@erich2003> <20060419104009.GB614@suse.de> <003301c663b3$6bfcc020$b100a8c0@erich2003> <20060419131916.GH614@suse.de> <001401c6641d$586bd950$b100a8c0@erich2003> <20060420064249.GO614@suse.de>
+Subject: Re: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
+Date: Thu, 20 Apr 2006 16:11:04 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: searching exported symbols from modules
-Date: Thu, 20 Apr 2006 04:01:30 -0400
-To: Antti Halonen <antti.halonen@secgo.com>
-X-Mailer: Apple Mail (2.746.3)
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.2663
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.2663
+X-OriginalArrivalTime: 20 Apr 2006 08:05:53.0312 (UTC) FILETIME=[3EAA6200:01C66451]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 20, 2006, at 03:15:42, Antti Halonen wrote:
->> This makes me wonder why the hell you think you'll get help from  
->> this (open-source) list.
+Dear Dear Jens Axboe,
+
+Thanks for your notification and advice.
+Areca's firmware has max sg entries of 38 limit.
+In my debug driver I had add this condition check.
+But no one request more than 38 sg.
+Both transfer length all have a lot of requests equal with 38 sg.
+But why it ocur only at 4096 sectors?
+If the /sys/block/sda/queue/max_sectors_kb equal 256 all operation running 
+well.
+But if I modify it more than 256, the bug appeared.
+I  will do more research about why there were a lot of requests equal with 
+38 sg in all file system.
+And only it ocur at the volume that format with mkfs.ext2.
+Thanks again.
+
+Best Regards
+Erich Chen
+
+----- Original Message ----- 
+From: "Jens Axboe" <axboe@suse.de>
+To: "erich" <erich@areca.com.tw>
+Cc: <dax@gurulabs.com>; <billion.wu@areca.com.tw>; "Al Viro" 
+<viro@ftp.linux.org.uk>; "Andrew Morton" <akpm@osdl.org>; "Randy.Dunlap" 
+<rdunlap@xenotime.net>; "Matti Aarnio" <matti.aarnio@zmailer.org>; 
+<linux-kernel@vger.kernel.org>; "James Bottomley" 
+<James.Bottomley@steeleye.com>; "Chris Caputo" <ccaputo@alt.net>
+Sent: Thursday, April 20, 2006 2:42 PM
+Subject: Re: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
+
+
+> On Thu, Apr 20 2006, erich wrote:
+>> Dear Jens Axboe,
+>>
+>> I  do "fsck -fy /dev/sda1" on driver MAX_XFER_SECTORS 512.
+>> The file system was not clean.
+>> I attach mesg.txt for you refer to.
+>>
+>> =====================================
+>> == boot with driver MAX_XFER_SECTORS 4096
+>> =====================================
+>> #mkfs.ext2 /dev/sda1
+>> #reboot
+>> =====================================
+>> == boot with driver MAX_XFER_SECTORS 512
+>> =====================================
+>> #fsck -fy /dev/sda1
+>> /dev/sda1:clean,.............
+>> #reboot
+>> =====================================
+>> == boot with driver MAX_XFER_SECTORS 4096
+>> =====================================
+>> #mount /dev/sda1 /mnt/sda1
+>> #cp /root/aa /mnt/sda1
+>> #reboot
+>> =====================================
+>> == boot with driver MAX_XFER_SECTORS 512
+>> =====================================
+>> #fsck -fy /dev/sda1
+>> /dev/sda1: no clean,........and dump message such as the attach file
+>> mesg.txt.
 >
-> I see, I figured this is the place to ask technical question  
-> related to programming in kernel space.
-
-Typically yes; however there are two problems:
-   1)  If we can't see your code, we probably can't help you very  
-well.  Since you're not providing your code, you're wasting both your  
-time and ours with questions that would be much more easily answered  
-with access to that code.
-   2)  Many people will refuse to provide help for what they perceive  
-as violations of their copyright.
-
->> A large number of people on this list (including copyright- 
->> holders) consider what you are doing blatantly illegal, although  
->> nobody has yet gone to court over it.
+> So the conclusion is that your driver and/or hardware corrupts data when
+> you set MAX_XFER_SECTORS too high. I can't help you anymore with this,
+> you should be in the best position to debug the driver and/or hardware
+> :-)
 >
-> Um, which part is illegal?
-
-Many people consider any Linux kernel module to be a derivative work  
-of the Linux kernel.  For example, you use non-standardized internal  
-header files containing inline functions which end up compiled into  
-your code, you use interfaces which are only present in the Linux  
-kernel itself, your binary module does not run without a specific  
-particular version of the Linux kernel, etc.
-
-> Are you saying that I cannot have a non-open source kernel module?
-
-My personal opinion is not relevant here, it's that of the major  
-copyright holders (of which there are thousands) and the courts.  If  
-nobody ever sues you over your kernel module, or if you win any  
-lawsuit, you're ok.  On the other hand, it's such a sensitive topic  
-you should go talk to your lawyer first.  Many significant kernel  
-copyright holders believe that essentially any kernel module is a  
-derivative work of the Linux kernel, and as such must be GPLed to  
-comply with copyright law in most major countries.
-
-> If I figured correctly, to violate GPL I should compile GPL code  
-> into my module.
-
-You are doing exactly that when you use atomic_t, spinlocks, or a  
-thousand other inline functions from the kernel headers.
-
-> It is a standalone module, not distributed with any custom kernel.
-
-Which kernel does it run against?  Does this run on other operating  
-systems?  Do you require certain Linux-only interfaces?  Can your  
-work reasonably be considered independent?  I suggest talking with a  
-lawyer to answer these questions before attempting to release any non- 
-GPL-compatible kernel module; just as you would if you were releasing  
-a module for Windows for which there is not a defined API.
-
-Cheers,
-Kyle Moffett
+> It could be that the higher setting just exposes another transfer
+> setting bug, like maximum number of segments or segment size, etc.
+>
+> -- 
+> Jens Axboe
+> 
 

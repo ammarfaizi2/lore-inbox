@@ -1,101 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWDTWUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWDTWUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWDTWUA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 18:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932083AbWDTWUA
+	id S932083AbWDTWUh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 18:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWDTWUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 18:20:00 -0400
-Received: from cpe-66-66-109-154.rochester.res.rr.com ([66.66.109.154]:46051
-	"EHLO death.krwtech.com") by vger.kernel.org with ESMTP
-	id S932081AbWDTWT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 18:19:59 -0400
-Date: Thu, 20 Apr 2006 18:19:53 -0400 (EDT)
-From: Ken Witherow <ken@krwtech.com>
-X-X-Sender: ken@death
-Reply-To: Ken Witherow <ken@krwtech.com>
-To: James.Bottomley@SteelEye.com
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6.16] scsi: clean up warnings in Advansys driver
-In-Reply-To: <20060420004915.45cd34be.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0604201735100.2044@death>
-References: <Pine.LNX.4.64.0604191444200.1841@death> <20060419163247.6986a87c.akpm@osdl.org>
- <20060419224202.3e2f99f5.akpm@osdl.org> <Pine.LNX.4.64.0604200242410.3134@death>
- <20060420004915.45cd34be.akpm@osdl.org>
-Organization: KRW Technologies
+	Thu, 20 Apr 2006 18:20:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27296 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932083AbWDTWUe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 18:20:34 -0400
+Date: Thu, 20 Apr 2006 15:20:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Piet Delaney <piet@bluelane.com>
+cc: Jens Axboe <axboe@suse.de>, "David S. Miller" <davem@davemloft.net>,
+       diegocg@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.17-rc2
+In-Reply-To: <1145569031.25127.64.camel@piet2.bluelane.com>
+Message-ID: <Pine.LNX.4.64.0604201512070.3701@g5.osdl.org>
+References: <20060419200001.fe2385f4.diegocg@gmail.com> 
+ <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>  <20060420145041.GE4717@suse.de>
+  <20060420.122647.03915644.davem@davemloft.net>  <20060420193430.GH4717@suse.de>
+ <1145569031.25127.64.camel@piet2.bluelane.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix typecast warnings and switch from check_region to request_region
-
-Signed-off-by: Ken Witherow <ken@krwtech.com>
-
----
-  drivers/scsi/advansys.c |   17 ++++++++++-------
-  1 file changed, 10 insertions(+), 7 deletions(-)
 
 
+On Thu, 20 Apr 2006, Piet Delaney wrote:
+> 
+> What about marking the pages Read-Only while it's being used by the
+> kernel
 
---- linux-2.6.16/drivers/scsi/advansys.c	2006-03-20 00:53:29.000000000 -0500
-+++ linux/drivers/scsi/advansys.c	2006-04-20 17:27:43.000000000 -0400
-@@ -2056,11 +2056,11 @@ STATIC ASC_DCNT  AscGetMaxDmaCount(ushor
-  /*
-   * Define Adv Library required memory access macros.
-   */
--#define ADV_MEM_READB(addr) readb(addr)
--#define ADV_MEM_READW(addr) readw(addr)
--#define ADV_MEM_WRITEB(addr, byte) writeb(byte, addr)
--#define ADV_MEM_WRITEW(addr, word) writew(word, addr)
--#define ADV_MEM_WRITEDW(addr, dword) writel(dword, addr)
-+#define ADV_MEM_READB(addr) readb((void *) addr)
-+#define ADV_MEM_READW(addr) readw((void *) addr)
-+#define ADV_MEM_WRITEB(addr, byte) writeb(byte, (void *) addr)
-+#define ADV_MEM_WRITEW(addr, word) writew(word, (void *) addr)
-+#define ADV_MEM_WRITEDW(addr, dword) writel(dword,(void *) addr)
+NO!
 
-  #define ADV_CARRIER_COUNT (ASC_DEF_MAX_HOST_QNG + 15)
+That's a huge mistake, and anybody that does it that way (FreeBSD) is 
+totally incompetent.
 
-@@ -4415,7 +4415,7 @@ advansys_detect(struct scsi_host_templat
-                          ASC_DBG1(1,
-                                  "advansys_detect: probing I/O port 0x%x...\n",
-                              iop);
--                        if (check_region(iop, ASC_IOADR_GAP) != 0) {
-+			if (!request_region(iop, ASC_IOADR_GAP, "advansys")){
-                              printk(
-  "AdvanSys SCSI: specified I/O Port 0x%X is busy\n", iop);
-                              /* Don't try this I/O port twice. */
-@@ -4425,6 +4425,7 @@ advansys_detect(struct scsi_host_templat
-                              printk(
-  "AdvanSys SCSI: specified I/O Port 0x%X has no adapter\n", iop);
-                              /* Don't try this I/O port twice. */
-+			    release_region(iop, ASC_IOADR_GAP);
-                              asc_ioport[ioport] = 0;
-                              goto ioport_try_again;
-                          } else {
-@@ -4445,6 +4446,7 @@ advansys_detect(struct scsi_host_templat
-                                   ioport++;
-                                   goto ioport_try_again;
-                              }
-+			    release_region(iop, ASC_IOADR_GAP);
-                          }
-                          /*
-                           * This board appears good, don't try the I/O port
-@@ -9752,13 +9754,14 @@ AscSearchIOPortAddr11(
-      }
-      for (; i < ASC_IOADR_TABLE_MAX_IX; i++) {
-          iop_base = _asc_def_iop_base[i];
--        if (check_region(iop_base, ASC_IOADR_GAP) != 0) {
-+	if (!request_region(iop_base, ASC_IOADR_GAP, "advansys")){
-              ASC_DBG1(1,
-                 "AscSearchIOPortAddr11: check_region() failed I/O port 0x%x\n",
-                       iop_base);
-              continue;
-          }
-          ASC_DBG1(1, "AscSearchIOPortAddr11: probing I/O port 0x%x\n", iop_base);
-+	release_region(iop_base, ASC_IOADR_GAP);
-          if (AscFindSignature(iop_base)) {
-              return (iop_base);
-          }
+Once you play games with page tables, you are generally better off copying 
+the data. The cost of doing page table updates and the associated TLB 
+invalidates is simply not worth it, both from a performance standpoing and 
+a complexity standpoint.
 
+Basically, if you want the highest possible performance, you do not want 
+to do TLB invalidates. And if you _don't_ want the highest possible 
+performance, you should just use regular write(), which is actually good 
+enough for most uses, and is portable and easy.
+
+The thing is, the cost of marking things COW is not just the cost of the 
+initial page table invalidate: it's also the cost of the fault eventually 
+when you _do_ write to the page, even if at that point you decide that the 
+page is no longer shared, and the fault can just mark the page writable 
+again.
+
+That cost is _bigger_ than the cost of just copying the page in the first 
+place.
+
+The COW approach does generate some really nice benchmark numbers, because 
+the way you benchmark this thing is that you never actually write to the 
+user page in the first place, so you end up having a nice benchmark loop 
+that has to do the TLB invalidate just the _first_ time, and never has to 
+do any work ever again later on.
+
+But you do have to realize that that is _purely_ a benchmark load. It has 
+absolutely _zero_ relevance to any real life. Zero. Nada. None. In real 
+life, COW-faulting overhead is expensive. In real life, TLB invalidates 
+(with a threaded program, and all users of this had better be threaded, or 
+they are leaving more performance on the floor) are expensive.
+
+I claim that Mach people (and apparently FreeBSD) are incompetent idiots. 
+Playing games with VM is bad. memory copies are _also_ bad, but quite 
+frankly, memory copies often have _less_ downside than VM games, and 
+bigger caches will only continue to drive that point home.
+
+		Linus

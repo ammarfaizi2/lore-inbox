@@ -1,125 +1,244 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWDTGaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWDTG2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbWDTGaX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 02:30:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWDTGaW
+	id S1750722AbWDTG2i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 02:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWDTG2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 02:30:22 -0400
-Received: from ns2.suse.de ([195.135.220.15]:58860 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750896AbWDTGaW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 02:30:22 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 20 Apr 2006 16:29:55 +1000
-Message-Id: <1060420062955.7727@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-kernel@vger.kernel.org
-Cc: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: [PATCH] Remove softlockup from invalidate_mapping_pages.
-References: <20060420160549.7637.patches@notabene>
+	Thu, 20 Apr 2006 02:28:38 -0400
+Received: from anubis.pendulus.net ([38.119.36.60]:12508 "EHLO
+	anubis.pendulus.net") by vger.kernel.org with ESMTP
+	id S1750722AbWDTG2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 02:28:37 -0400
+From: Matt Heler <lkml@lpbproductions.com>
+Reply-To: lkml@lpbproductions.com
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: [PATCH] [1/2] i386/x86-64: Fix x87 information leak between  processes
+Date: Wed, 19 Apr 2006 23:28:38 -0700
+User-Agent: KMail/1.9.1
+Cc: torvalds@osdl.org, akpm@osdl.org, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, jbeulich@novell.com,
+       richard.brunner@amd.com
+References: <4446D79D.mailOX9112Y1O@suse.de>
+In-Reply-To: <4446D79D.mailOX9112Y1O@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604192328.39429.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch fixes a problem with invalidate_mapping_pages.
-Please look at the patch description and then come back here, because
-there are some things I don't understand which you might be able to
-help me with.
-...
+Patch says 1/2 . Is there another patch that comes with this ? Or is vger 
+lagging again ? 
 
-Thanks. 
-I have had 2 reports of softlockups in this code apparently related to md. 
-md calls invalidate_bdev on all the component block devices that it is 
-building into an array.  These block devices are very likely to have just one
-page in their mapping, right near the end as mdadm will have read the 
-superblock which lives near the end.
-
-However, I cannot see why the page would be locked.
-Being locked for read is very unlikely because mdadm would have already
-read the superblock.  I guess locked for read-ahead might be possible
-(I assume readahead does lock the pages) but as only one or maybe two reads 
-are a performed by mdadm, not much readahead should be generated.
-
-Being locked for write also seems unlikely as if mdadm were to write
-(which is fairly unlikely but not impossible) it would fsync() straight
-away so by the time that it comes to assemble the array, all io
-should have finished.
-
-So that is (1) - I don't see why the page would be locked.
-
-And (2) - I have a report (on linux-raid) of a soft-lockup which
-lasted 76 seconds! 
-Now if the device was 100Gig, that is 25million page addresses or 
-3microseconds per loop. Is that at all likely for this loop - it 
-does take and drop a spinlock but could that come close to a
-few thousand cycles?
-
-And the processor in this case was a dual-core amd64 - with SMP enabled.
-I can imaging a long lockup on a uniprocessor, but if a second processor
-core is free to unlock the page when the IO (Whatever it is) completes,
-a 76 second delay would be unexpected.
-
-The original bug report can be found at
-  http://marc.theaimsgroup.com/?l=linux-raid&m=114550096908177&w=2
-
-Finally (3) - I think that invalidate_mapping_pages should probably
-have a cond_resched() call in it, except that drop_pagecache_sb in
-fs/drop_caches.c calls it with the "inode_lock" spinlock held, which
-would be bad.  Would it be safe (or could it be made safe) to drop and
-regain the lock around that call?
-
-Comments welcome, but in any case I think the patch is needed.
-
-Thanks for your time,
-NeilBrown
-
-
-
-
-### Comments for Changeset
-
-If invalidate_mapping_pages is called to invalidate a very large
-mapping (e.g. a very large block device) and if the only active page
-in that device is near the end  (or at least, at a very large  index),
-such as, say, the superblock of an md array, and if that page
-happens to be locked when invalidate_mapping_pages is called,
-then
-  pagevec_lookup will return this page and
-  as it is locked, 'next' will be incremented and pagevec_lookup
-  will be called again. and again. and again.
-  while we count from 0 upto a very large number.
-
-We should really always set 'next' to 'page->index+1' before going
-around the loop again, not just if the page isn't locked.
-
-
-Cc: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./mm/truncate.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
-
-diff ./mm/truncate.c~current~ ./mm/truncate.c
---- ./mm/truncate.c~current~	2006-04-20 15:27:22.000000000 +1000
-+++ ./mm/truncate.c	2006-04-20 15:38:20.000000000 +1000
-@@ -238,13 +238,11 @@ unsigned long invalidate_mapping_pages(s
- 		for (i = 0; i < pagevec_count(&pvec); i++) {
- 			struct page *page = pvec.pages[i];
- 
--			if (TestSetPageLocked(page)) {
--				next++;
-+			next = page->index+1;
-+
-+			if (TestSetPageLocked(page))
- 				continue;
--			}
--			if (page->index > next)
--				next = page->index;
--			next++;
-+
- 			if (PageDirty(page) || PageWriteback(page))
- 				goto unlock;
- 			if (page_mapped(page))
+On Wednesday 19 April 2006 5:36 pm, Andi Kleen wrote:
+> AMD K7/K8 CPUs only save/restore the FOP/FIP/FDP x87 registers in FXSAVE
+> when an exception is pending.  This means the value leak through
+> context switches and allow processes to observe some x87 instruction
+> state of other processes.
+>
+> This was actually documented by AMD, but nobody recognized it as
+> being different from Intel before.
+>
+> The fix first adds an optimization: instead of unconditionally
+> calling FNCLEX after each FXSAVE test if ES is pending and skip
+> it when not needed. Then do a x87 load from a kernel variable to
+> clear FOP/FIP/FDP.
+>
+> This means other processes always will only see a constant value
+> defined by the kernel in their FP state.
+>
+> I took some pain to make sure to chose a variable that's already
+> in L1 during context switch to make the overhead of this low.
+>
+> Also alternative() is used to patch away the new code on CPUs
+> who don't need it.
+>
+> Patch for both i386/x86-64.
+>
+> The problem was discovered originally by Jan Beulich. Richard
+> Brunner provided the basic code for the workarounds, with contribution
+> from Jan.
+>
+> This is CVE-2006-1056
+>
+> Cc: richard.brunner@amd.com
+> Cc: jbeulich@novell.com
+>
+> Signed-off-by: Andi Kleen <ak@suse.de>
+>
+> Index: linux/include/asm-x86_64/i387.h
+> ===================================================================
+> --- linux.orig/include/asm-x86_64/i387.h
+> +++ linux/include/asm-x86_64/i387.h
+> @@ -72,6 +72,23 @@ extern int set_fpregs(struct task_struct
+>  #define set_fpu_swd(t,val) ((t)->thread.i387.fxsave.swd = (val))
+>  #define set_fpu_fxsr_twd(t,val) ((t)->thread.i387.fxsave.twd = (val))
+>
+> +#define X87_FSW_ES (1 << 7)	/* Exception Summary */
+> +
+> +/* AMD CPUs don't save/restore FDP/FIP/FOP unless an exception
+> +   is pending. Clear the x87 state here by setting it to fixed
+> +   values. The kernel data segment can be sometimes 0 and sometimes
+> +   new user value. Both should be ok.
+> +   Use the PDA as safe address because it should be already in L1. */
+> +static inline void clear_fpu_state(struct i387_fxsave_struct *fx)
+> +{
+> +	if (unlikely(fx->swd & X87_FSW_ES))
+> +		 asm volatile("fnclex");
+> +	alternative_input(ASM_NOP8 ASM_NOP2,
+> +	     	     "    emms\n"		/* clear stack tags */
+> +	     	     "    fildl %%gs:0",	/* load to clear state */
+> +		     X86_FEATURE_FXSAVE_LEAK);
+> +}
+> +
+>  static inline int restore_fpu_checking(struct i387_fxsave_struct *fx)
+>  {
+>  	int err;
+> @@ -119,6 +136,7 @@ static inline int save_i387_checking(str
+>  #endif
+>  	if (unlikely(err))
+>  		__clear_user(fx, sizeof(struct i387_fxsave_struct));
+> +	/* No need to clear here because the caller clears USED_MATH */
+>  	return err;
+>  }
+>
+> @@ -149,7 +167,7 @@ static inline void __fxsave_clear(struct
+>  				"i" (offsetof(__typeof__(*tsk),
+>  					      thread.i387.fxsave)));
+>  #endif
+> -	__asm__ __volatile__("fnclex");
+> +	clear_fpu_state(&tsk->thread.i387.fxsave);
+>  }
+>
+>  static inline void kernel_fpu_begin(void)
+> Index: linux/include/asm-i386/i387.h
+> ===================================================================
+> --- linux.orig/include/asm-i386/i387.h
+> +++ linux/include/asm-i386/i387.h
+> @@ -13,6 +13,7 @@
+>
+>  #include <linux/sched.h>
+>  #include <linux/init.h>
+> +#include <linux/kernel_stat.h>
+>  #include <asm/processor.h>
+>  #include <asm/sigcontext.h>
+>  #include <asm/user.h>
+> @@ -38,17 +39,38 @@ extern void init_fpu(struct task_struct
+>  extern void kernel_fpu_begin(void);
+>  #define kernel_fpu_end() do { stts(); preempt_enable(); } while(0)
+>
+> +/* We need a safe address that is cheap to find and that is already
+> +   in L1 during context switch. The best choices are unfortunately
+> +   different for UP and SMP */
+> +#ifdef CONFIG_SMP
+> +#define safe_address (__per_cpu_offset[0])
+> +#else
+> +#define safe_address (kstat_cpu(0).cpustat.user)
+> +#endif
+> +
+>  /*
+>   * These must be called with preempt disabled
+>   */
+>  static inline void __save_init_fpu( struct task_struct *tsk )
+>  {
+> +	/* Use more nops than strictly needed in case the compiler
+> +	   varies code */
+>  	alternative_input(
+> -		"fnsave %1 ; fwait ;" GENERIC_NOP2,
+> -		"fxsave %1 ; fnclex",
+> +		"fnsave %[fx] ;fwait;" GENERIC_NOP8 GENERIC_NOP4,
+> +		"fxsave %[fx]\n"
+> +		"bt $7,%[fsw] ; jc 1f ; fnclex\n1:",
+>  		X86_FEATURE_FXSR,
+> -		"m" (tsk->thread.i387.fxsave)
+> -		:"memory");
+> +		[fx] "m" (tsk->thread.i387.fxsave),
+> +		[fsw] "m" (tsk->thread.i387.fxsave.swd) : "memory");
+> +	/* AMD K7/K8 CPUs don't save/restore FDP/FIP/FOP unless an exception
+> +	   is pending.  Clear the x87 state here by setting it to fixed
+> +   	   values. __per_cpu_offset[0] is a random variable that should be in
+> L1 */ +	alternative_input(
+> +		GENERIC_NOP8 GENERIC_NOP2,
+> +		"emms\n\t"	  	/* clear stack tags */
+> +		"fildl %[addr]", 	/* set F?P to defined value */
+> +		X86_FEATURE_FXSAVE_LEAK,
+> +		[addr] "m" (safe_address));
+>  	task_thread_info(tsk)->status &= ~TS_USEDFPU;
+>  }
+>
+> Index: linux/arch/i386/kernel/cpu/amd.c
+> ===================================================================
+> --- linux.orig/arch/i386/kernel/cpu/amd.c
+> +++ linux/arch/i386/kernel/cpu/amd.c
+> @@ -207,6 +207,8 @@ static void __init init_amd(struct cpuin
+>  		set_bit(X86_FEATURE_K7, c->x86_capability);
+>  		break;
+>  	}
+> +	if (c->x86 >= 6)
+> +		set_bit(X86_FEATURE_FXSAVE_LEAK, c->x86_capability);
+>
+>  	display_cacheinfo(c);
+>
+> Index: linux/arch/x86_64/kernel/setup.c
+> ===================================================================
+> --- linux.orig/arch/x86_64/kernel/setup.c
+> +++ linux/arch/x86_64/kernel/setup.c
+> @@ -928,6 +928,10 @@ static int __init init_amd(struct cpuinf
+>  	if (c->x86 == 15 && ((level >= 0x0f48 && level < 0x0f50) || level >=
+> 0x0f58)) set_bit(X86_FEATURE_REP_GOOD, &c->x86_capability);
+>
+> +	/* Enable workaround for FXSAVE leak */
+> +	if (c->x86 >= 6)
+> +		set_bit(X86_FEATURE_FXSAVE_LEAK, &c->x86_capability);
+> +
+>  	r = get_model_name(c);
+>  	if (!r) {
+>  		switch (c->x86) {
+> Index: linux/include/asm-i386/cpufeature.h
+> ===================================================================
+> --- linux.orig/include/asm-i386/cpufeature.h
+> +++ linux/include/asm-i386/cpufeature.h
+> @@ -71,6 +71,7 @@
+>  #define X86_FEATURE_P4		(3*32+ 7) /* P4 */
+>  #define X86_FEATURE_CONSTANT_TSC (3*32+ 8) /* TSC ticks at a constant rate
+> */ #define X86_FEATURE_UP		(3*32+ 9) /* smp kernel running on up */
+> +#define X86_FEATURE_FXSAVE_LEAK (3*32+10) /* FXSAVE leaks FOP/FIP/FOP */
+>
+>  /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
+>  #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
+> Index: linux/include/asm-x86_64/cpufeature.h
+> ===================================================================
+> --- linux.orig/include/asm-x86_64/cpufeature.h
+> +++ linux/include/asm-x86_64/cpufeature.h
+> @@ -64,6 +64,7 @@
+>  #define X86_FEATURE_REP_GOOD	(3*32+ 4) /* rep microcode works well on this
+> CPU */ #define X86_FEATURE_CONSTANT_TSC (3*32+5) /* TSC runs at constant
+> rate */ #define X86_FEATURE_SYNC_RDTSC  (3*32+6)  /* RDTSC syncs CPU core
+> */ +#define X86_FEATURE_FXSAVE_LEAK (3*32+7)  /* FIP/FOP/FDP leaks through
+> FXSAVE */
+>
+>  /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
+>  #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
+> Index: linux/arch/x86_64/kernel/process.c
+> ===================================================================
+> --- linux.orig/arch/x86_64/kernel/process.c
+> +++ linux/arch/x86_64/kernel/process.c
+> @@ -575,8 +575,10 @@ __switch_to(struct task_struct *prev_p,
+>  	prev->userrsp = read_pda(oldrsp);
+>  	write_pda(oldrsp, next->userrsp);
+>  	write_pda(pcurrent, next_p);
+> +
+>  	/* This must be here to ensure both math_state_restore() and
+> -	   kernel_fpu_begin() work consistently. */
+> +	   kernel_fpu_begin() work consistently.
+> +	   And the AMD workaround requires it to be after DS reload. */
+>  	unlazy_fpu(prev_p);
+>  	write_pda(kernelstack,
+>  		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

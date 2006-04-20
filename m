@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWDTFpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751304AbWDTFvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWDTFpi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 01:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWDTFpi
+	id S1751304AbWDTFvD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 01:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWDTFvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 01:45:38 -0400
-Received: from mga03.intel.com ([143.182.124.21]:64778 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751270AbWDTFph convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 01:45:37 -0400
-X-IronPort-AV: i="4.04,138,1144047600"; 
-   d="scan'208"; a="25372746:sNHT15104180"
+	Thu, 20 Apr 2006 01:51:03 -0400
+Received: from smtp.tele.fi ([192.89.123.25]:39568 "EHLO smtp.tele.fi")
+	by vger.kernel.org with ESMTP id S1751304AbWDTFvC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 01:51:02 -0400
 Content-class: urn:content-classes:message
+Subject: RE: searching exported symbols from modules
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
+Date: Thu, 20 Apr 2006 08:50:59 +0300
 X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [RFC] [PATCH] Make ACPI button driver an input device
-Date: Thu, 20 Apr 2006 13:45:27 +0800
-Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com>
+Message-ID: <963E9E15184E2648A8BBE83CF91F5FAF5154F0@titanium.secgo.net>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC] [PATCH] Make ACPI button driver an input device
-Thread-Index: AcZj62Uig3psqOLPTeWyGycPmrEaDwAUUdKQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Matthew Garrett" <mjg59@srcf.ucam.org>, <linux-acpi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Apr 2006 05:45:28.0613 (UTC) FILETIME=[A1275550:01C6643D]
+Thread-Topic: searching exported symbols from modules
+Thread-Index: AcZjyqwb91PfjW1rRniCPT1emTOCTgAckcYg
+From: "Antti Halonen" <antti.halonen@secgo.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Sleep and power buttons are logically part of the keyboard, 
->and it makes 
->for them to be exposed via an input device rather than an odd file in 
->/proc. This patch adds a keycode for lid switches (are we 
->running out of 
->keycodes?) and allows the button driver to register an input device.
+> > Exactly, I agree 100%. But here's the catch: it's not an option at
+this
+> > point in time.
+> 
+> eh why not? For your module to be ever merged into mainline this
+change
+> will need to be done anyway (and it'll save you time as well even on
+the
+> short term)
 
-Do you plan to port the whole acpi event interface into input layer?
-If so,  keycode is NOT a right way.
+This is commercial module and will not be merged into mainline.
 
---Luming
+It would be helpful if I could get at least confirmation if the thing is
+doable what I described earlier. 
+
+Pardon me as I don't mean to sound rude; I'm not interested if this
+should be done in some totally different way. Let's just say that my
+curiosity is peaked to the point that I want & need to know how to
+search modules by name in kernel space. I don't know how to be more
+specific what comes to my problem.
+
+Thanks in advance for any input!
+
+Br,
+antti
+

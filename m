@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWDTMyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWDTNAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWDTMyY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 08:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWDTMyY
+	id S1750894AbWDTNAv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 09:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWDTNAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 08:54:24 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:53952 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1750883AbWDTMyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 08:54:23 -0400
-Subject: Re: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: erich <erich@areca.com.tw>, dax@gurulabs.com, billion.wu@areca.com.tw,
-       Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org,
-       Chris Caputo <ccaputo@alt.net>
-In-Reply-To: <20060420082357.GU614@suse.de>
-References: <004a01c65470$412daaa0$b100a8c0@erich2003>
-	 <20060330192057.4bd8c568.akpm@osdl.org> <20060331074237.GH14022@suse.de>
-	 <002901c65e33$ceac9e00$b100a8c0@erich2003> <20060419104009.GB614@suse.de>
-	 <003301c663b3$6bfcc020$b100a8c0@erich2003> <20060419131916.GH614@suse.de>
-	 <001401c6641d$586bd950$b100a8c0@erich2003> <20060420064249.GO614@suse.de>
-	 <001e01c66451$f9a470f0$b100a8c0@erich2003>  <20060420082357.GU614@suse.de>
+	Thu, 20 Apr 2006 09:00:51 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:57087 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750887AbWDTNAu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 09:00:50 -0400
+Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export namespace
+	semaphore
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-security-module@vger.kernel.org, chrisw@sous-sol.org,
+       linux-kernel@vger.kernel.org, Tony Jones <tonyj@suse.de>
+In-Reply-To: <20060420124647.GD18604@sergelap.austin.ibm.com>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com>
+	 <1145536742.16456.35.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060420124647.GD18604@sergelap.austin.ibm.com>
 Content-Type: text/plain
-Date: Thu, 20 Apr 2006 08:53:37 -0400
-Message-Id: <1145537618.3446.5.camel@mulgrave.il.steeleye.com>
+Organization: National Security Agency
+Date: Thu, 20 Apr 2006 08:05:35 -0400
+Message-Id: <1145534735.3313.3.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 10:23 +0200, Jens Axboe wrote:
-> It was just a suggestion, the bug might very well be just the size of
-> the transfer itself and nothing SG related. All I can say for sure is
-> that I'd be very surprised if this fs corruption isn't due to the
-> hardware mangling the data for large transfers.
+On Thu, 2006-04-20 at 07:46 -0500, Serge E. Hallyn wrote:
+> Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> > On Wed, 2006-04-19 at 10:50 -0700, Tony Jones wrote:
+> > > This patch exports the namespace_sem semaphore.
+> > > 
+> > > The shared subtree patches which went into 2.6.15-rc1 replaced the old
+> > > namespace semaphore which used to be per namespace (and visible) with a
+> > > new single static semaphore.
+> > > 
+> > > The reason for this change is that currently visibility of vfsmount information
+> > > to the LSM hooks is fairly patchy.  Either there is no passed parameter or
+> > > it can be NULL.  For the case of the former,  several LSM hooks that we
+> > > require to mediate have no vfsmount/nameidata passed.  We previously (mis)used
+> > > the visibility of the old per namespace semaphore to walk the processes 
+> > > namespace looking for vfsmounts with a root dentry matching the dentry we were 
+> > > trying to mediate.  
+> > > 
+> > > Clearly this is not viable long term strategy and changes working towards 
+> > > passing a vfsmount to all relevant LSM hooks would seem necessary (and also 
+> > > useful for other users of LSM). Alternative suggestions and ideas are welcomed.
+> > 
+> > The alternative I would recommend is to not use LSM.  It isn't suitable
+> > for your path-based approach.  If your path-based approach is deemed
+> > legitimate, then introduce new hooks at the proper point in processing
+> > where the information you need is available.
+> 
+> Whoa, so now LSM is not for access control?
 
-It sounds like this to me as well.  The other problem might be some type
-of segment boundary issue which are not uncommon on less capable DMA
-engines.  Either way, there's no question that large transfers work on
-other hardware (SGI and IBM have extensively tested raising the current
-128SG entries limit just so they could squeeze megabytes of data per
-single command), so as Jens says, this is some type of issue within the
-Areca hardware which you need to understand before the driver can be
-made safe.
+That isn't what I said, although I see that my phrasing wasn't clear.  I
+said it wasn't suitable for a path-based approach.  That is fairly clear
+from the hook placements and interfaces, and from the contortions that
+AppArmor has to go through in order to obtain the paths, and the number
+of times it ends up calling d_path on a single syscall.  Now "new hooks"
+_could_ be new LSM hooks, I suppose, but my point was that it is a
+mistake to try to use the existing LSM VFS hooks for this purpose - they
+are in the wrong place for it, and no amount of munging will fix that.
+Make sense?
 
-James
-
+-- 
+Stephen Smalley
+National Security Agency
 

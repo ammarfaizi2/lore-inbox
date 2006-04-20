@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWDTORd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWDTOda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWDTORd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 10:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWDTORd
+	id S1750888AbWDTOda (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 10:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWDTOda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 10:17:33 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:2230 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S1750765AbWDTORd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 10:17:33 -0400
-DomainKey-Signature: s=s768; d=fujitsu-siemens.com; c=nofws; q=dns; b=yTa1eEohLkr6LTAtc15o0hbprq+ouIho/BCq8ZHsAdM2C1r3DkvACcGX/vCg7DjXLQ77zRU9QcxX6ryFLm6T1H4NQLJlAABB0A1dqQfF6TkKkERirx0hBjAzoWSzgoMh;
-X-SBRSScore: None
-X-IronPort-AV: i="4.04,141,1144015200"; 
-   d="scan'208"; a="30329875:sNHT177770072"
-Message-ID: <444797F8.6020509@fujitsu-siemens.com>
-Date: Thu, 20 Apr 2006 16:17:28 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Thu, 20 Apr 2006 10:33:30 -0400
+Received: from emulex.emulex.com ([138.239.112.1]:52710 "EHLO
+	emulex.emulex.com") by vger.kernel.org with ESMTP id S1750726AbWDTOd3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 10:33:29 -0400
+Message-ID: <44479BA8.1000405@emulex.com>
+Date: Thu, 20 Apr 2006 10:33:12 -0400
+From: James Smart <James.Smart@Emulex.Com>
+Reply-To: James.Smart@Emulex.Com
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Jeff Dike <jdike@addtoit.com>
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
-References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <20060420090514.GA9452@osiris.boeblingen.de.ibm.com>
-In-Reply-To: <20060420090514.GA9452@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Mike Christie <michaelc@cs.wisc.edu>
+CC: linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Netlink and user-space buffer pointers
+References: <1145306661.4151.0.camel@localhost.localdomain> <20060418160121.GA2707@us.ibm.com> <444633B5.5030208@emulex.com> <4446AC80.6040604@cs.wisc.edu>
+In-Reply-To: <4446AC80.6040604@cs.wisc.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Apr 2006 14:33:13.0338 (UTC) FILETIME=[5ACCEDA0:01C66487]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heiko Carstens wrote:
->>Add PTRACE_SYSCALL_MASK, which allows system calls to be selectively
->>traced.  It takes a bitmask and a length.  A system call is traced
->>if its bit is one.  Otherwise, it executes normally, and is
->>invisible to the ptracing parent.
->>[...]
->>+int set_syscall_mask(struct task_struct *child, char __user *mask,
->>+		     unsigned long len)
->>+{
->>+	int i, n = (NR_syscalls + 7) / 8;
->>+	char c;
->>+
->>+	if(len > n){
->>+		for(i = NR_syscalls; i < len * 8; i++){
->>+			get_user(c, &mask[i / 8]);
->>+			if(!(c & (1 << (i % 8)))){
->>+				printk("Out of range syscall at %d\n", i);
->>+				return -EINVAL;
->>+			}
->>+		}
->>+
->>+		len = n;
->>+	}
+
+Mike Christie wrote:
+> For the tasks you want to do for the fc class is performance critical?
+
+No, it should not be.
+
+> If not, you could do what the iscsi class (for the netdev people this is
+> drivers/scsi/scsi_transport_iscsi.c) does and just suffer a couple
+> copies. For iscsi we do this in userspace to send down a login pdu:
 > 
-> 
-> Since it's quite likely that len > n will be true (e.g. after installing the
-> latest version of your debug tool) it would be better to silently ignore all
-> bits not within the range of NR_syscalls.
-> There is no point in flooding the console. The tracing process won't see any
-> of the non existant syscalls it requested to see anyway.
+> 	/*
+> 	 * xmitbuf is a buffer that is large enough for the iscsi_event,
+> 	 * iscsi pdu (hdr_size) and iscsi pdu data (data_size)
+> 	 */
 
-Shouldn't 'len' better be the number of bits in the mask than the number of chars?
-Assume a syscall newly added to UML would be a candidate for processing on the host,
-but the incremented NR_syscalls still would result in the same number of bytes. Also
-assume, host doesn't yet have that new syscall. Current implementation doesn't catch
-the fact, that host can't execute that syscall.
+Well, the real difference is that the payload of the "message" is actually
+the payload of the SCSI command or ELS/CT Request. Thus, the payload may
+range in size from a few hundred bytes to several kbytes (> 1 page) to
+Mbyte's in size. Rather than buffer all of this, and push it over the socket,
+thus the extra copies - it would best to have the LLDD simply DMA the
+payload like on a typical SCSI command.  Additionally, there will be
+response data that can be several kbytes in length.
 
-OTOH, I think UML shouldn't send the entire mask, but relevant part only. The missing
-end is filled with 0xff by host anyway. So it would be enough to send the mask up to the
-highest bit representing a syscall, that needs to be executed by host. (currently, that
-is __NR_gettimeofday). If UML would do so, no more problem results from UML having
-a higher NR_syscall than the host (as long as the new syscalls are to be intercepted
-and executed by UML)
+> ... I think there may be issues with packing structs or 32 bit
+> userspace and 64 bit kernels and other fun things like this so the iscsi
+> pdu and iscsi event have to be defined correctly and I guess we are back
+> to some of the problems with ioctls :(
 
-A greater problem might be a process in UML, that calls an invalid syscall number. AFAICS
-syscall number (orig_eax) isn't checked before it is used in do_syscall_trace to address
-syscall_mask. This might result in a crash.
+Agreed. In this use of netlink, there's not a lot of wins for netlink over
+ioctls. It all comes down to 2 things: a) proper portable message definition;
+and b) what do you do with that non-portable user space buffer pointer ?
 
-Bodo
+-- james s

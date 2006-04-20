@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWDTROv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWDTROt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWDTROv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 13:14:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWDTROv
+	id S1751071AbWDTROt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 13:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWDTROt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 13:14:51 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:21253 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751182AbWDTROu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 13:14:50 -0400
-Message-ID: <4447C31B.1080000@openvz.org>
-Date: Thu, 20 Apr 2006 21:21:31 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Thu, 20 Apr 2006 13:14:49 -0400
+Received: from EXCHG2003.microtech-ks.com ([24.124.14.122]:38619 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S1751071AbWDTROt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 13:14:49 -0400
+Message-ID: <4447C183.3040000@atipa.com>
+Date: Thu, 20 Apr 2006 12:14:43 -0500
+From: Roger Heflin <rheflin@atipa.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       devel@openvz.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
-       Kir Kolyshkin <kir@openvz.org>, Dmitry Mishin <dim@openvz.org>
-Subject: [ANNOUNCE] OpenVZ releases checkpointing/live migration of processes
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: sata_mv issues with more than 1 disk in FC5 2.6.16-1.2096 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Apr 2006 17:06:44.0137 (UTC) FILETIME=[CCDD5190:01C6649C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-OpenVZ team is proud to announce the release of the new 
-checkpointing/restore feature. This feature allows to save (checkpoint) 
-and restore the whole state of a Virtual Environment (VE, container) and 
-do a live migration of a VE to another physical box while preserving 
-process states and TCP/IP connections.
+I know the FC5 2.6.16-1.2096 is based off of one of the 2.6.16
+stable releases.   I am not sure exactly which one this is based
+on.
 
-During live migration the in-kernel state of processes and their 
-resources (including memory, registers, IPC, pids, open files, sockets, 
-etc.) is saved and then restored on another machine. Since all network 
-connections are preserved with all the in-progess requests, user doesn't 
-experience interruption of service.
+I have several machines with this controller, the ones with a single
+disks all work correctly using the Marvell controller.
 
-The feature is available on i686 and x86_64 architectures. Migration of 
-32bit VEs between i686 and x86_64 architectures is also supported.
-Current implementation works fine with complex applications like Oracle, 
-Java, X apps.
+An identical MB/controller/chassis fails when there are 2 disks
+using software mirroring.  We have tested with 2 separate chassis,
+both exhibit the same failure.
 
-Latest 2.6.16 OpenVZ kernel and tool packages with live migration 
-support are available here:
-http://openvz.org/download/beta/kernel/
-http://openvz.org/download/utils/
+Moving the 2 disks to a different built-in sata controller
+(sata_nv) results in the disks and the mirror working
+correctly.
 
-GIT repository for all OpenVZ sources is available at
-http://git.openvz.org/
+The errors that it returns are:
+ata4: status=0xd0 { Busy }
+ata2: status=0xd0 { Busy }
+And the machine is terribly slow while this error is happening.
+The error appears to be happening when the disks are trying
+to be mounted.
 
-Usage examples
-~~~~~~~~~~~~~~
+We have tested the disk on a couple of different combinations of
+ports and this does not seem to change anything.
 
-New 'vzmigrate' utility is used for VE migration. Also, new commands for 
-'vzctl' allowing to dump and restore VE were introduced: 'chkpnt' and 
-'restore'.
+The single disk machines don't get this error like the 2 disk
+machines, though  they do get this error, every 30 minutes
+or so (probably from  smartd), but this error does not
+appear to be causing issues.
+Apr 19 16:26:19 lab229 kernel: ata1: status=0xd0 { Busy }
+Apr 19 16:26:19 lab229 kernel: ATA: abnormal status 0xD0 on
+	port 0xFFFFC2001012211C
 
-To save current VE state with all processes:
-# vzctl chkpnt <VEID>
+Any thoughts?
 
-To restore VE after checkpointing:
-# vzctl restore <VEID>
-
-To perform online migration of VE #101 to another machine:
-# vzmigrate --online destination.node.com 101
-without '--online' option vzmigrate does offline VE migration with VE 
-start/stop.
-
-With best regards,
-OpenVZ team.
-
+                                 Roger

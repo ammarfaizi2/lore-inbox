@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWDVT1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWDVT2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751058AbWDVT1F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWDVT0i
+	id S1751081AbWDVT2G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWDVT2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:26:38 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:45243 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751060AbWDVTZ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:25:58 -0400
-Date: Sat, 22 Apr 2006 16:44:33 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: Re: [PATCH] 'make headers_install' kbuild target.
-Message-ID: <20060422144433.GE5010@stusta.de>
-References: <1145672241.16166.156.camel@shinybook.infradead.org> <20060422093328.GM19754@stusta.de> <1145707384.16166.181.camel@shinybook.infradead.org> <20060422123835.GA5010@stusta.de> <1145710123.11909.241.camel@pmac.infradead.org> <20060422132032.GB5010@stusta.de> <1145712964.11909.258.camel@pmac.infradead.org> <20060422141134.GC5010@stusta.de> <1145715974.11909.272.camel@pmac.infradead.org>
-MIME-Version: 1.0
+	Sat, 22 Apr 2006 15:28:05 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60937 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751079AbWDVT2B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 15:28:01 -0400
+Date: Thu, 20 Apr 2006 22:10:06 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, "Yu, Luming" <luming.yu@intel.com>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+Message-ID: <20060420221006.GG2352@ucw.cz>
+References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <20060420161546.GB30021@srcf.ucam.org> <4447B692.3000704@linux.intel.com> <20060420163222.GA30197@srcf.ucam.org> <4447B850.7090108@linux.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1145715974.11909.272.camel@pmac.infradead.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <4447B850.7090108@linux.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 22, 2006 at 03:26:14PM +0100, David Woodhouse wrote:
-> On Sat, 2006-04-22 at 16:11 +0200, Adrian Bunk wrote:
-> > Sorry, but I'm not a fan of doing much more work than required instead 
-> > of getting a consensus first and then implementing the solution.
-> 
-> It _isn't_ significantly more work. The _real_ work is in reading
-> through the header files and deciding which parts should be private and
-> which can be public, then splitting them up accordingly into separate
-> files (or using 'ifdef __KERNEL__' if appropriate). That's the kind of
-> thing that you seem particularly good at, which is why I've asked if you
-> could help us with it.
-> 
-> Moving the public files from one directory to another, if they've been
-> suitably marked or listed somewhere, is _trivial_. Even if you've used
-> #ifdef __KERNEL__ it's simple enough to do it automatically with tools
-> like unifdef. The _real_ work which requires human attention is the same
-> either way.
 
-The problem is you need #ifdef's everywhere.
+On Thu 20-04-06 20:35:28, Alexey Starikovskiy wrote:
+> Matthew Garrett wrote:
+> >On Thu, Apr 20, 2006 at 08:28:02PM +0400, Alexey 
+> >Starikovskiy wrote:
+> >
+> >>I don't quite understand your point... You want all 
+> >>buttons/switches in a computer to send events to input 
+> >>layer, regardless if this make sense or not, just to be 
+> >>consistent? May be you should go other way around and  
+> >>if keyboard has some strange key, send it on its 
+> >>strange way? 
+> >
+> >There's a reason that KEY_POWER and KEY_SLEEP are 
+> >already present in /usr/include/linux/input.h. It makes 
+> >sense to expose keys that are on my keyboard in the same 
+> >way as other keys on my keyboard. Just think of the ACPI 
+> >events interface as a bus that a small keyboard with not 
+> >many keys sits on.
+> >
+> >>From the userspace point of view, it's *far* easier to 
+> >>deal with this 
+> >stuff if the keys generate keycodes.
+> Lid is a _switch_ with state, how many keys on keyboard 
+> have same behavior? Do you want to introduce special case 
+> just for that?
 
-If part of a header file is part of the userspace ABI, this often means 
-that you need #ifdef __KERNEL__'s for the #include's of headers that 
-will not be part of the userspace ABI (like linux/compiler.h).
-
-And how do you express that in header foo.h, the userspace part requires 
-the userspace part of bar.h, while the kernel-internal part of foo.h 
-also requires the kernel-internal part of bar.h?
-
-And reading through header files doesn't become easier after adding five 
-#ifdef __KERNEL__'s to a header file.
-
-> But if you're not willing to help, that's fine. I just thought you'd be
-> particularly suited to the task, that's all.
-
-I'm sorry, but I don't like your approach.
-
-> dwmw2
-
-cu
-Adrian
-
+It is already there. Handhelds have lid switches controlled by input.
+Old capslock keys (around XT era) actually worked like that, too.
+(And input was actually _designed_ to handle them).
+						Pavel
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Thanks, Sharp!

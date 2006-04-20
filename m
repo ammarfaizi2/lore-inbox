@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWDTImH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWDTIvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWDTImH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 04:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWDTImH
+	id S1750750AbWDTIvu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 04:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWDTIvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 04:42:07 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:33515 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750716AbWDTImF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 04:42:05 -0400
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-       linux-security-module@vger.kernel.org
-In-Reply-To: <p73mzeh2o38.fsf@bragg.suse.de>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	 <1145470463.3085.86.camel@laptopd505.fenrus.org>
-	 <p73mzeh2o38.fsf@bragg.suse.de>
-Content-Type: text/plain
-Date: Thu, 20 Apr 2006 10:42:03 +0200
-Message-Id: <1145522524.3023.12.camel@laptopd505.fenrus.org>
+	Thu, 20 Apr 2006 04:51:50 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23732 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1750750AbWDTIvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 04:51:50 -0400
+Date: Thu, 20 Apr 2006 10:51:49 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: Thinkpad X32 went to sleep, woke up as space heater
+Message-ID: <20060420085149.GA25029@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 00:32 +0200, Andi Kleen wrote:
-> Arjan van de Ven <arjan@infradead.org> writes:
-> > 
-> > you must have a good defense against that argument, so I'm curious to
-> > hear what it is
-> 
-> [I'm not from the apparmor people but my understanding is]
-> 
-> Usually they claimed name spaces as the reason it couldn't work.
+Hi!
 
+I did suspend-to-ram yesterday on thinkpad x32, while docked in
+docking station.... I do  not think I've done that before, because
+docking only works for a few weeks. This morning I wake up okay,
+unfortunately that thinkpad woke up as a portable, battery-backed-up
+space heater :-(.
 
-I actually posted a list of 10 things that I made up in 3 minutes; just
-going over those 10 would be a good start already since they're the most
-obvious ones..
+I can turn it on, it blinks keyboard leds and starts CPU fan, but
+that's it. Tried removing battery and AC power for a few minutes, but
+it made no difference. Tried pressing various keys during power on, no
+reaction. Not even keyboard light reacts.
 
+That machine may stil be covered by warranty (but I'm not sure if
+that's good news, I primarily want my data back...)
+
+							Pavel
+
+-- 
+Thanks, Sharp!

@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWDTFy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWDTF75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWDTFy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 01:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWDTFy0
+	id S1750732AbWDTF75 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 01:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWDTF75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 01:54:26 -0400
-Received: from web52610.mail.yahoo.com ([206.190.48.213]:33148 "HELO
-	web52610.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1750709AbWDTFyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 01:54:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=wnJ3oe9eXjHmQRPir+007ZPhltRRbywH4tLh4kMUr/8YkINCtg2VpFqEZpBDZ75JvK5aBDc7pa8DrADUzLEq9zQNDsKOdI6nEQYUooTHihYwovZgQcfJB5ZdTnbl6xBDCEp73KRYCRxsncZAYGeo9Sc5ZoyElOZ4wxlEx75AZ2c=  ;
-Message-ID: <20060420055422.37845.qmail@web52610.mail.yahoo.com>
-Date: Thu, 20 Apr 2006 15:54:22 +1000 (EST)
-From: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
-Subject: Re: 2.6.16.1 & D state processes
-To: Mike Galbraith <efault@gmx.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1145364422.7515.5.camel@homer>
+	Thu, 20 Apr 2006 01:59:57 -0400
+Received: from mail7.sea5.speakeasy.net ([69.17.117.9]:63117 "EHLO
+	mail7.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750732AbWDTF74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 01:59:56 -0400
+Date: Thu, 20 Apr 2006 01:59:51 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Antti Halonen <antti.halonen@secgo.com>
+cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: RE: searching exported symbols from modules
+In-Reply-To: <963E9E15184E2648A8BBE83CF91F5FAF5154F0@titanium.secgo.net>
+Message-ID: <Pine.LNX.4.64.0604200159170.10447@d.namei>
+References: <963E9E15184E2648A8BBE83CF91F5FAF5154F0@titanium.secgo.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Mike Galbraith <efault@gmx.de> wrote:
-> On Tue, 2006-04-18 at 19:35 +1000, Srihari
-> Vijayaraghavan wrote:
-> > --- Mike Galbraith <efault@gmx.de> wrote:
-> > > On Tue, 2006-04-18 at 15:07 +1000, Srihari
-> > > Vijayaraghavan wrote:
-> > > > io scheduler cfq registered (default)
-> > > ...
-> > > Hmm.  Recovers [odd] but takes long time
-> [odder]. 
-> > > I'd try to eliminate
-> > > io scheduler at this point.
+On Thu, 20 Apr 2006, Antti Halonen wrote:
+
+> > > Exactly, I agree 100%. But here's the catch: it's not an option at
+> this
+> > > point in time.
 > > 
-> > Interesting. Considering the minimal .config,
-> where I
-> > haven't experienced this problem over a week
-> uptime,
-> > also having CFQ as the default elevator, do you
-> still
-> > believe CFQ is involved? (I guess if CFQ could be
-> > influenced by other kernel configurations, then
-> > perhaps another elevator might help. It's worth
-> > trying.)
+> > eh why not? For your module to be ever merged into mainline this
+> change
+> > will need to be done anyway (and it'll save you time as well even on
+> the
+> > short term)
 > 
-> I don't know that CFQ is involved.  With it
-> recovering though, the only
-> thing I could think of was a request stucking in the
-> io scheduler's
-> gizzard for some reason.
-> 
-> It's just a suggestion, and one you can try without
-> even rebooting.
+> This is commercial module and will not be merged into mainline.
 
-Thanks for that. When it happened today on 2.6.16.7,
-I've started using deadline now.
+Is it GPL or compatible?
 
-A couple of interesting things I've noticed after its
-recovery:
-1. Executing "time sleep 1", takes more than 1 second.
-It reports real as 3 to 5 seconds, while my stop watch
-measures it as closer to 50 seconds.
-2. Pressing & holding a key at the console doesn't
-produce repeating characters.
 
-Thought they might shed some light on the problem. (I
-ought to look at all the RTC & Time related settings
-between my minimal .config & FC5's, for I believe
-they're connected.)
 
-I haven't rebooted it yet. I'm sure it'll be back to
-normal after the reboot.
-
-Thanks
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+- James
+-- 
+James Morris
+<jmorris@namei.org>

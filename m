@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWDTUP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWDTURe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWDTUP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 16:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWDTUP5
+	id S1751245AbWDTURe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 16:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWDTURd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 16:15:57 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:26240 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750953AbWDTUP4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 16:15:56 -0400
-Date: Thu, 20 Apr 2006 13:14:38 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Greg KH <greg@kroah.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, tonyj@suse.de,
-       James Morris <jmorris@namei.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Removing EXPORT_SYMBOL(security_ops) (was Re: Time to remove LSM)
-Message-ID: <20060420201438.GB3828@sorel.sous-sol.org>
-References: <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr> <20060419154011.GA26635@kroah.com> <Pine.LNX.4.64.0604191221100.4408@d.namei> <20060419181015.GC11091@kroah.com> <1145536791.16456.37.camel@moss-spartans.epoch.ncsc.mil> <20060420150037.GA30353@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060420150037.GA30353@kroah.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 20 Apr 2006 16:17:33 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23765 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751245AbWDTURd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 16:17:33 -0400
+Date: Thu, 20 Apr 2006 13:17:19 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+cc: hugh@veritas.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       akpm@osdl.org
+Subject: Re: Read/Write migration entries: Implement correct behavior in
+ copy_one_pte
+In-Reply-To: <20060419123911.3bd22ab3.kamezawa.hiroyu@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.64.0604201307200.19049@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0604181119480.7814@schroedinger.engr.sgi.com>
+ <20060419095044.d7333b21.kamezawa.hiroyu@jp.fujitsu.com>
+ <Pine.LNX.4.64.0604181823590.9747@schroedinger.engr.sgi.com>
+ <20060419123911.3bd22ab3.kamezawa.hiroyu@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(sorry if this is repeat, my mail server is dying, and mail is coming in
-seriously out of order)
+On Wed, 19 Apr 2006, KAMEZAWA Hiroyuki wrote:
 
-* Greg KH (greg@kroah.com) wrote:
-> I agree.  In looking over the code some more, I'm trying to figure out
-> why we are exporting that variable at all.  Is it because of people
-> wanting to stack security modules?
+> BTW, do we manage page table under move_vma() in right way ?
 
-No, the issue is simple.  There's a all the static inlines which use
-security_ops, and some of them are placed in modular code.
-
-thanks,
--chris
+I had a look at it and it seems to be done the right way. The ptl locks
+are taken and the vma information is setup before the move. 
+remove_migration_ptes() will find the page both in the old and the new 
+vma.

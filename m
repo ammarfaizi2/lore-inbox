@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWDTWPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWDTWSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWDTWPX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 18:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWDTWPX
+	id S932079AbWDTWSU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 18:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWDTWSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 18:15:23 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:43846 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932077AbWDTWPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 18:15:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
-        b=U2hVXGa2s+HJNM7GATfJP1uE1O/WdLXLA0Eyepo1FGPn5yArniElI3rUS8+uKxpE9s+wJG3C13hWhH27qqLhiQL//fhikRn0dTlGWaG1HHMudRa9mFwgVofVEA9OWwvAYSzAxchK/AIWFaPW/dvceBSBghmo53uwLfP6RKAFJKo=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Jan Engelhardt'" <jengelh@linux01.gwdg.de>,
-       "'Mikado'" <mikado4vn@gmail.com>
-Cc: "'linux-os \(Dick Johnson\)'" <linux-os@analogic.com>,
-       "'Linux kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: Which process is associated with process ID 0 (swapper)
-Date: Thu, 20 Apr 2006 15:15:15 -0700
-Message-ID: <004801c664c7$e80acfd0$853d010a@nuitysystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 20 Apr 2006 18:18:20 -0400
+Received: from mail.gmx.net ([213.165.64.20]:23194 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932079AbWDTWST (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 18:18:19 -0400
+X-Authenticated: #4399952
+Date: Fri, 21 Apr 2006 00:18:15 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Michael Monnerie <michael.monnerie@it-management.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: rtc: lost some interrupts at 256Hz
+Message-ID: <20060421001815.1256624f@mango.fruits>
+In-Reply-To: <1145566983.5412.31.camel@mindpipe>
+References: <200604202237.34134@zmi.at>
+	<1145566983.5412.31.camel@mindpipe>
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <Pine.LNX.4.61.0604210007140.28841@yvahk01.tjqt.qr>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Thread-Index: AcZkx38VDc4mre6pRLOGgFhfNuX1UAAACsow
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Linux really has swapper process ;)
-> >
-> To be precise, it has more than one.
-> 
-> When you hit an OOPS, the trace [1] might show:
-> "Pid: 0, comm: swapper Not tainted 2.6.11.6"
-> 
-> Plus you see one of these per CPU [ps aufwwx]:
-> root       106  0.0  0.0      0     0 ?        S    Apr20   
-> 0:04 [kswapd0]
-> 
-> So, a question to the public: what swapper swaps, and what's 
-> swapper(as in pid 0) in oops, if there's no PID 0?
+On Thu, 20 Apr 2006 17:03:02 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-Swapper is the idle process, which swaps nothing. Its name is historic and it doesn't appear in /proc because for_each_process()
-skips it.
+> Changing the preemption model to voluntary or full preemption could
+> certainly help.  What app is using the RTC, mplayer?
 
-Kswapd is totally different.
+I wonder what the "lost ticks" message really means. That the tick
+wasn't consumed by a read on the device file? If so, setting niceness or
+rt prio for the consuming task might help. 
 
+Or does it mean that the kernel failed in some way keeping up with the
+rtc?
+
+Flo
+
+-- 
+Palimm Palimm!
+http://tapas.affenbande.org

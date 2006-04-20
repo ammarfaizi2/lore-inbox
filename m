@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWDTOda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWDTOhl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbWDTOda (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 10:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWDTOda
+	id S1750715AbWDTOhl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 10:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWDTOhl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 10:33:30 -0400
-Received: from emulex.emulex.com ([138.239.112.1]:52710 "EHLO
-	emulex.emulex.com") by vger.kernel.org with ESMTP id S1750726AbWDTOd3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 10:33:29 -0400
-Message-ID: <44479BA8.1000405@emulex.com>
-Date: Thu, 20 Apr 2006 10:33:12 -0400
-From: James Smart <James.Smart@Emulex.Com>
-Reply-To: James.Smart@Emulex.Com
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Mike Christie <michaelc@cs.wisc.edu>
-CC: linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Netlink and user-space buffer pointers
-References: <1145306661.4151.0.camel@localhost.localdomain> <20060418160121.GA2707@us.ibm.com> <444633B5.5030208@emulex.com> <4446AC80.6040604@cs.wisc.edu>
-In-Reply-To: <4446AC80.6040604@cs.wisc.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Apr 2006 14:33:13.0338 (UTC) FILETIME=[5ACCEDA0:01C66487]
+	Thu, 20 Apr 2006 10:37:41 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:36212 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750715AbWDTOhk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 10:37:40 -0400
+Date: Thu, 20 Apr 2006 16:29:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: splice status
+Message-ID: <20060420142902.GC4717@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Mike Christie wrote:
-> For the tasks you want to do for the fc class is performance critical?
+Since a lot of splice/tee stuff has been merged, I thought I'd post a
+little status report and other potentially useful info.
 
-No, it should not be.
+- splice interfaces should be stable now, I don't envision any further
+  changes to the ->splice_read or ->splice_write file_operations hooks
+  or the splice syscall. splice now accepts an input or output offset
+  like sendfile(), so it doesn't have to rely on ->f_pos in the file
+  structure.
 
-> If not, you could do what the iscsi class (for the netdev people this is
-> drivers/scsi/scsi_transport_iscsi.c) does and just suffer a couple
-> copies. For iscsi we do this in userspace to send down a login pdu:
-> 
-> 	/*
-> 	 * xmitbuf is a buffer that is large enough for the iscsi_event,
-> 	 * iscsi pdu (hdr_size) and iscsi pdu data (data_size)
-> 	 */
+- Ditto for the sys_tee syscall.
 
-Well, the real difference is that the payload of the "message" is actually
-the payload of the SCSI command or ELS/CT Request. Thus, the payload may
-range in size from a few hundred bytes to several kbytes (> 1 page) to
-Mbyte's in size. Rather than buffer all of this, and push it over the socket,
-thus the extra copies - it would best to have the LLDD simply DMA the
-payload like on a typical SCSI command.  Additionally, there will be
-response data that can be several kbytes in length.
+- sendfile() will be replaced with splice(). sys_sendfile will remain of
+  course, this is only an internal thing. The current do_splice_direct()
+  is a sendfile() helper. The splice branch in the block git repo has
+  a patch to remove generic_file_sendfile() and all it's users by
+  converting them to ->splice_read(). There's also a patch there that
+  fixes up loop. The only remaining users of the file_operations
+  .sendfile hook are nfds/shmem/ext2-xip/relay. That still needs doing.
+  The current plan is to merge this stuff post 2.6.17.
 
-> ... I think there may be issues with packing structs or 32 bit
-> userspace and 64 bit kernels and other fun things like this so the iscsi
-> pdu and iscsi event have to be defined correctly and I guess we are back
-> to some of the problems with ioctls :(
+I have a little collection of splice test tools that people may find
+useful to play with this stuff. It's in a git repo here:
 
-Agreed. In this use of netlink, there's not a lot of wins for netlink over
-ioctls. It all comes down to 2 things: a) proper portable message definition;
-and b) what do you do with that non-portable user space buffer pointer ?
+        git://brick.kernel.dk/data/git/splice.git
 
--- james s
+and snapshots are generated every hour on changes and can be fetched
+from
+
+        http://brick.kernel.dk/snaps/
+
+There are tools there to test both splice and tee, a little README
+explains the basic principle of them. I'd appreciate people testing and
+playing with these tools, just in case we still have some bugs lurking.
+
+Finally, known bugs:
+
+- Some smallish splice reads are buggy. Patch is in splice branch and
+  will hopefully be merged whenever Linus gets in front of his computer.
+
+- The ->splice_pipe cache needs to be initialized to NULL on forks. Only
+  affects do_splice_direct() usage, so not a problem in current kernels.
+  Patch also Linus bound today.
+
+
+-- 
+Jens Axboe
+

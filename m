@@ -1,39 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWDTQrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWDTQvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWDTQrw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 12:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWDTQrw
+	id S1751104AbWDTQvP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 12:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751113AbWDTQvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 12:47:52 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:23681 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751094AbWDTQrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 12:47:51 -0400
-Message-ID: <4447BB2B.1060407@linux.intel.com>
-Date: Thu, 20 Apr 2006 20:47:39 +0400
-From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 20 Apr 2006 12:51:15 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:31137 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751104AbWDTQvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 12:51:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=q5+lHR/+0z+Vd2TzAoNuEam8OekXm71W8E1zz7q1RxR24NPslk2dIS+VEUyDRuidpvJ1HmGeWkFwou2QJ8T3u2umA8T91UJWpkcYLSVOauvJ+foaHY/8kGr0cIICDdgarxV/m7sgeQFYfpTCzQHu/OMSDJK/WInpsEiEL8RvOug=  ;
+Message-ID: <44473BA3.6090709@yahoo.com.au>
+Date: Thu, 20 Apr 2006 17:43:31 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-CC: Xavier Bestel <xavier.bestel@free.fr>, "Yu, Luming" <luming.yu@intel.com>,
-       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
-References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <1145549460.23837.156.camel@capoeira> <4447B7D6.4030401@linux.intel.com> <20060420164419.GA30317@srcf.ucam.org>
-In-Reply-To: <20060420164419.GA30317@srcf.ucam.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Arjan van de Ven <arjan@infradead.org>
+CC: "Theodore Ts'o" <tytso@mit.edu>, Erik Mouw <erik@harddisk-recovery.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org,
+       Randy Dunlap <rddunlap@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Andre Hedrick <andre@linux-ide.org>,
+       Manfred Spraul <manfreds@colorfullife.com>, Alan Cox <alan@redhat.com>,
+       Kamal Deen <kamal@kdeen.net>
+Subject: Re: irqbalance mandatory on SMP kernels?
+References: <Pine.LNX.4.44.0604171438490.14894-100000@hubble.stokkie.net>	 <4443A6D9.6040706@mbligh.org> <1145286094.16138.22.camel@mindpipe>	 <20060418163539.GB10933@thunk.org>	 <1145384357.2976.39.camel@laptopd505.fenrus.org>	 <20060419124210.GB24807@harddisk-recovery.com>	 <1145456594.3085.42.camel@laptopd505.fenrus.org>	 <20060419143815.GH706@thunk.org> <1145457937.3085.49.camel@laptopd505.fenrus.org>
+In-Reply-To: <1145457937.3085.49.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett wrote:
-> On Thu, Apr 20, 2006 at 08:33:26PM +0400, Alexey Starikovskiy wrote:
->> Xavier Bestel wrote:
->>> There are keyboards with power/sleep buttons. It makes sense they have
->>> the same behavior than ACPI buttons.
->> Agree, make them behave like ACPI buttons -- remove them from input stream, 
->> as they do not belong there...
+Arjan van de Ven wrote:
+> On Wed, 2006-04-19 at 10:38 -0400, Theodore Ts'o wrote:
 > 
-> Making the atkbd driver punt certain scancodes to the ACPI layer 
-> /really/ isn't the right answer.
+>>On Wed, Apr 19, 2006 at 04:23:14PM +0200, Arjan van de Ven wrote:
+>>
+>>>as long as the irqs are spread the apaches will (on average) follow your
+>>>irq to the right cpu. Only if you put both irqs on the same cpu you have
+>>>an issue
+>>
+>>Maybe I'm being stupid but I don't see how the Apache's will follow
+>>the IRQ's to the right CPU.  I agree this would be a good thing to do,
+>>but how does the scheduler accomplish this?
 > 
-Yes, this is why I mentioned using kevent and dbus before... Could it be the righter answer?
+> 
+> iirc this part of the kernel uses wake_up_sync() and such, which tend to
+> pull the apache to the cpu (if it's idle) in the long term
+> (or it ought to; at one point it did)
+
+Yeah it has "affine wakeups" now, which will do that for all
+types of wakeups, and not just to idle CPUs either (sync
+wakeups just get pulled a little more strongly).
+
+IIRC SGI reported something like a factor 8 improvement in
+CPU efficiency on a database IO simulation on a smallish
+system (16-way maybe).
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

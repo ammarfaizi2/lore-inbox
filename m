@@ -1,154 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWDTD6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWDTELF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWDTD6E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Apr 2006 23:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWDTD6E
+	id S1751264AbWDTELF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 00:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWDTELF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Apr 2006 23:58:04 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:54958 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751197AbWDTD6D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Apr 2006 23:58:03 -0400
-Date: Thu, 20 Apr 2006 09:27:35 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: Anderw Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Keith Owens <kaos@americas.sgi.com>, Dean Nelson <dnc@americas.sgi.com>,
-       Tony Luck <tony.luck@intel.com>,
-       Prasanna Panchamukhi <prasanna@in.ibm.com>,
-       Dave M <davem@davemloft.net>, Andi Kleen <ak@suse.de>,
-       Robin Holt <holt@sgi.com>
-Subject: Re: [(resend)patch 7/7] Kprobes - Register for page fault notify on active probes
-Message-ID: <20060420035735.GA3637@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <20060419221419.382297865@csdlinux-2.jf.intel.com> <20060419221948.714146860@csdlinux-2.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060419221948.714146860@csdlinux-2.jf.intel.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 20 Apr 2006 00:11:05 -0400
+Received: from web36608.mail.mud.yahoo.com ([209.191.85.25]:56971 "HELO
+	web36608.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751258AbWDTELE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 00:11:04 -0400
+Message-ID: <20060420041059.21278.qmail@web36608.mail.mud.yahoo.com>
+X-RocketYMMF: rancidfat
+Date: Wed, 19 Apr 2006 21:10:59 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+To: linux-security-module@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
+In-Reply-To: <1145469670.24289.206.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 19, 2006 at 03:14:26PM -0700, Anil S Keshavamurthy wrote:
-> With this patch Kprobes now registers for page fault notifications only
-> when their is an active probe registered. Once all the active probes are
-> unregistered their is no need to be notified of page faults and kprobes
-> unregisters itself from the page fault notifications. Hence we
-> will have ZERO side effects when no probes are active.
 
-This patch isn't complete yet... comments below.
+
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
  
-> Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-> ---
->  kernel/kprobes.c |   25 +++++++++++++++++--------
->  1 file changed, 17 insertions(+), 8 deletions(-)
+> One would hope that particularly in the arena of
+> security, sound judgment
+> would be applied.  In this particular case, it isn't
+> just security folks
+> who are troubled by reliance on pathnames, and there
+> are plenty of prior
+> discussions on linux-fsdevel and linux-kernel
+> describing the brokenness
+> of path-based approaches.  Why would the answer be
+> different now?
+
+Just to be clear here, not everyone is comfortable
+with the idea of a security "policy" that is
+developed,
+maintained, and stored independently of the kernel
+and the applications to which it is applied.
+The SELinux approach took a good deal of selling
+within the community before it gained traction,
+and a good many of the voices I've heard today
+spoke out against SELinux in the beginning. It is
+still far from universally regarded as the ultimate
+solution.
+
+> > Of course LSM will fit SELinux better than it fits
+> > AppArmour, LSM has been adapted to fit the needs
+> > of SELinux. 
 > 
-> Index: linux-2.6.17-rc1-mm3/kernel/kprobes.c
-> ===================================================================
-> --- linux-2.6.17-rc1-mm3.orig/kernel/kprobes.c
-> +++ linux-2.6.17-rc1-mm3/kernel/kprobes.c
-> @@ -47,11 +47,17 @@
->  
->  static struct hlist_head kprobe_table[KPROBE_TABLE_SIZE];
->  static struct hlist_head kretprobe_inst_table[KPROBE_TABLE_SIZE];
-> +static atomic_t kprobe_count;
->  
->  DEFINE_MUTEX(kprobe_mutex);		/* Protects kprobe_table */
->  DEFINE_SPINLOCK(kretprobe_lock);	/* Protects kretprobe_inst_table */
->  static DEFINE_PER_CPU(struct kprobe *, kprobe_instance) = NULL;
->  
-> +static struct notifier_block kprobe_page_fault_nb = {
-> +	.notifier_call = kprobe_exceptions_notify,
-> +	.priority = 0x7fffffff /* we need to notified first */
-> +};
-> +
->  #ifdef __ARCH_WANT_KPROBES_INSN_SLOT
->  /*
->   * kprobe->ainsn.insn points to the copy of the instruction to be
-> @@ -464,6 +470,8 @@ static int __kprobes __register_kprobe(s
->  	old_p = get_kprobe(p->addr);
->  	if (old_p) {
->  		ret = register_aggr_kprobe(old_p, p);
-> +		if (!ret)
-> +			atomic_inc(&kprobe_count);
->  		goto out;
->  	}
->  
-> @@ -474,6 +482,9 @@ static int __kprobes __register_kprobe(s
->  	hlist_add_head_rcu(&p->hlist,
->  		       &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
->  
-> +	if(atomic_add_return(1, &kprobe_count) == 2)
-	^^^
-	if (..) please, here and elsewhere
+> This is a gross misrepresentation of the facts and
+> history of LSM.
 
-This will not work as desired for i386 (i386 no longer has a kprobe on the
-trampoline) and sparc64 (no retprobe support).
+Perhaps. The SELinux community has made significant
+contributions to the LSM effort might be a more
+politic way to say it, but in the end the changes
+made by the SELinux community were done for the
+benefit of SELinux. This is only natural and to be
+expected.
 
-> +		register_page_fault_notifier(&kprobe_page_fault_nb);
-> +
->    	arch_arm_kprobe(p);
->  
->  out:
-> @@ -523,9 +534,13 @@ valid_p:
->  		cleanup_p = 0;
->  	}
->  
-> +	if(atomic_add_return(-1, &kprobe_count) == 1)
-> +		unregister_page_fault_notifier(&kprobe_page_fault_nb);
+> LSM was jointly developed, and the initial VFS inode
+> hooks were proposed by
+> none other than the WireX folks, i.e. the developers
+> of SubDomain/AppArmor.
 
-Same here - i386 and sparc64 need different checks.
+Yes, I remember it well. The Bumper Patch of Fun
+and the resulting Bruhaha over authoritative hooks
+will feature prominently in my tell-all book.
 
-> +	else
-> +		synchronize_rcu();
+> From that initial proposal, though the entire
+> development of LSM, through the 2.5 development
+> series after LSM was
+> merged, and through the 2.6 stable series so far, no
+> one from the
+> AppArmor side has ever suggested a need to change
+> the hooks to better accomodate their needs.
 
-Why has this changed from synchronize_sched()? This *must* be
-synchronize_sched() since, by definition it'll ensure that all
-non-preemptive sections are completed. In contrast, synchronize_rcu()
-will just enure rcu_read_lock() sections are complete.
+Now that's just not true. Crispin was very active in
+the very early days. He didn't always get what he
+wanted, but he certainly asked for it many times.
 
-As of now, synchronize_sched() is aliased to synchronize_rcu() but I am
-told its scheduled to change in the future.
+> Yet if you look at their implementation (and I
+> have, have you?), you'll see that they have to go
+> through contortions
+> because the LSM interface is such a mismatch for
+> what they do.  That
+> isn't due to any "adaptations" for SELinux.
 
-Please revert this back to synchronize_sched().
+I am sure that LSM, being a community effort, can
+evolve over time for AppArmour just as it has for
+SELinux and any other user that invests (that's a
+key) in the effort. SELinux has provided the lion's
+share of value to LSM over the past couple years.
+It is both appropriate and to be expected that LSM
+has lost much of its independence from SELinux
+under such circumstances.
 
-Thanks,
-Ananth
-
-> +
->  	mutex_unlock(&kprobe_mutex);
->  
-> -	synchronize_sched();
->  	if (p->mod_refcounted &&
->  	    (mod = module_text_address((unsigned long)p->addr)))
->  		module_put(mod);
-> @@ -544,10 +559,6 @@ static struct notifier_block kprobe_exce
->  	.priority = 0x7fffffff /* we need to notified first */
->  };
->  
-> -static struct notifier_block kprobe_page_fault_nb = {
-> -	.notifier_call = kprobe_exceptions_notify,
-> -	.priority = 0x7fffffff /* we need to notified first */
-> -};
->  
->  int __kprobes register_jprobe(struct jprobe *jp)
->  {
-> @@ -654,14 +665,12 @@ static int __init init_kprobes(void)
->  		INIT_HLIST_HEAD(&kprobe_table[i]);
->  		INIT_HLIST_HEAD(&kretprobe_inst_table[i]);
->  	}
-> +	atomic_set(&kprobe_count, 0);
->  
->  	err = arch_init_kprobes();
->  	if (!err)
->  		err = register_die_notifier(&kprobe_exceptions_nb);
->  
-> -	if (!err)
-> -		err = register_page_fault_notifier(&kprobe_page_fault_nb);
-> -
->  	return err;
->  }
->  
+> > SELinux wasn't always a good fit either. LSM
+> > accomodated SELinux. Offer the same community
+> > cooperation to other you have yourself received.
 > 
-> --
+> Community cooperation doesn't mean embracing unsound
+> ideas.
+
+It is well known that I am far from convinced
+that the policy file basis of SELinux is sound.
+Many people of demonstrated intelligence think
+it is. Personally, I suspect that both Stephen
+and Crispin are smarter than I am, and I believe
+that both have value to add to the community with
+the approaches they've developed. The same goes
+for LIDS, LOMAX, other projects I've seen but
+may not name.
+
+Let's not chicken out. Linux is too young to get
+stodgy.
+
+
+Casey Schaufler
+casey@schaufler-ca.com

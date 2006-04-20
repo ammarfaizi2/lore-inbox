@@ -1,49 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWDTUbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWDTUgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbWDTUbn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 16:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWDTUbn
+	id S1751247AbWDTUgA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 16:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWDTUgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 16:31:43 -0400
-Received: from mail.kroah.org ([69.55.234.183]:63670 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751191AbWDTUbm (ORCPT
+	Thu, 20 Apr 2006 16:36:00 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:16276 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S1751247AbWDTUf7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 16:31:42 -0400
-Date: Thu, 20 Apr 2006 13:18:00 -0700
-From: Greg KH <gregkh@suse.de>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] arch/i386/pci/irq.c - new VIA chipsets (fwd)
-Message-ID: <20060420201800.GC3922@suse.de>
-References: <200604150112.k3F1Cwsa029071@hera.kernel.org> <44404A91.1000302@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44404A91.1000302@garzik.org>
-User-Agent: Mutt/1.5.11
+	Thu, 20 Apr 2006 16:35:59 -0400
+Message-ID: <4447F09D.9090501@cs.wisc.edu>
+Date: Thu, 20 Apr 2006 15:35:41 -0500
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: James.Smart@Emulex.Com
+CC: linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Netlink and user-space buffer pointers
+References: <1145306661.4151.0.camel@localhost.localdomain> <20060418160121.GA2707@us.ibm.com> <444633B5.5030208@emulex.com> <4446AC80.6040604@cs.wisc.edu> <44479BA8.1000405@emulex.com> <4447C8C2.30909@cs.wisc.edu> <4447E91E.7030603@emulex.com>
+In-Reply-To: <4447E91E.7030603@emulex.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 14, 2006 at 09:21:21PM -0400, Jeff Garzik wrote:
-> Linux Kernel Mailing List wrote:
-> >diff --git a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
-> >index 3ca59ca..7323544 100644
-> >--- a/arch/i386/pci/irq.c
-> >+++ b/arch/i386/pci/irq.c
-> >@@ -588,7 +588,10 @@ static __init int via_router_probe(struc
-> > 	case PCI_DEVICE_ID_VIA_82C596:
-> > 	case PCI_DEVICE_ID_VIA_82C686:
-> > 	case PCI_DEVICE_ID_VIA_8231:
-> >+	case PCI_DEVICE_ID_VIA_8233A:
-> > 	case PCI_DEVICE_ID_VIA_8235:
-> >+	case PCI_DEVICE_ID_VIA_8237:
-> >+	case PCI_DEVICE_ID_VIA_8237_SATA:
+James Smart wrote:
+> Note: We've transitioned off topic. If what this means is "there isn't a
+> good
+> way except by ioctls (which still isn't easily portable) or system calls",
+> then that's ok. Then at least we know the limits and can look at other
+> implementation alternatives.
 > 
-> Why did this get merged with the bogus PCI ID?
+> Mike Christie wrote:
+>> James Smart wrote:
+>>> Mike Christie wrote:
+>>>> For the tasks you want to do for the fc class is performance critical?
+>>> No, it should not be.
+>>>
+>>>> If not, you could do what the iscsi class (for the netdev people
+>>>> this is
+>>>> drivers/scsi/scsi_transport_iscsi.c) does and just suffer a couple
+>>>> copies. For iscsi we do this in userspace to send down a login pdu:
+>>>>
+>>>>     /*
+>>>>      * xmitbuf is a buffer that is large enough for the iscsi_event,
+>>>>      * iscsi pdu (hdr_size) and iscsi pdu data (data_size)
+>>>>      */
+>>> Well, the real difference is that the payload of the "message" is
+>>> actually
+>>> the payload of the SCSI command or ELS/CT Request. Thus, the payload may
+>>
+>> I am not sure I follow. For iscsi, everything after the iscsi_event
+>> struct can be the iscsi request that is to be transmitted. The payload
+>> will not normally be Mbytes but it is not a couple if bytes.
+> 
+> True... For a large read/write - it will eventually total what the i/o
+> request size was, and you did have to push it through the socekt.
+> What this discussion really comes down to is the difference between
+> initiator
+> offload and what a target does.
+> 
+> The initiator offloads the "full" i/o from the users - e.g. send command,
+> get response. In the initiator case, the user isn't aware of each and
+> every IU that makes up the i/o. As it's on an i/o basis, the LLDD doing
+> the offload needs the full buffer sitting and ready. DMA is preferred so
+> the buffer doesn't have to be consuming socket/kernel/driver buffers while
+> it's pending - plus speed.
+> 
+> In the target case, the target controls each IU and it's size, thus it
+> only has to have access to as much buffer space as it wants to push the
+> next
+> IU. The i/o can be "paced" by the target. Unfortunately, this is an
+> entirely
+> different use model than users of a scsi initiator expect, and it won't map
+> well into replacing things like our sg_io ioctls.
 
-Sorry, I'll fix it up in the next round of PCI patches.
 
-thanks,
+I am not talking about the target here. For the open-iscsi initiator
+that is in mainline that I referecnced in the example we send pdus from
+userpsace to the LLD. In the future, initaitors that offload some iscsi
+processing and will login from userspace or have userspace monitor the
+transport by doing iscsi pings, we need to be able to send these pdus.
+And the iscsi pdu cannot be broken up at the iscsi level (they can at
+the interconect level though). From the iscsi host level they have to go
+out like a scsi command would in that the LLD cannot decide to send out
+mutiple pdus for he pdu that userspace sends down.
 
-greg k-h
+I do agree with you that targets can break down a scsi command into
+multiple transport level packets as it sees fit.
+
+
+> 
+>> Instead of netlink for scsi commands and transport requests....
+>>
+>> For scsi commands could we just use sg io, or is there something special
+>> about the command you want to send? If you can use sg io for scsi
+>> commands, maybe for transport level requests (in my example iscsi pdu)
+>> we could modify something like sg/bsg/block layer scsi_ioctl.c to send
+>> down transport requests to the classes and encapsulate them in some new
+>> struct transport_requests or use the existing struct request but do that
+>> thing people keep taling about using the request/request_queue for
+>> message passing.
+> 
+> Well - there's 2 parts to this answer:
+> 
+> First : IOCTL's are considered dangerous/bad practice and therefore it
+> would
+
+Yeah, i am not trying to kill ioctls. I go where the community goes.
+What I am trying to dois just reuse the sg io mapping code so that we do
+not end up with sg, st, target, blk scsi_ioctl.c and bsg all doing
+similar things.
+
+
+>   be nice to find a replacement mechanism that eliminates them. If that
+>   mechanism has some of the cool features that netlink does, even better.
+>   Using sg io, in the manner you indicate, wouldn't remove the ioctl use.
+>   Note: I have OEMs/users that are very confused about the community's
+> statement
+>   about ioctls. They've heard they are bad, should never be allowed,
+> will no
+>   be longer supported, but yet they are at the heart of DM and sg io and
+> other
+>   subsystems. Other than a "grandfathered" explanation, they don't
+> understand
+>   why the rules bend for one piece of code but not for another. To them,
+> all
+>   the features are just as critical regardless of whose providing them.
+> 
+> Second: transport level i/o could be done like you suggest, and we've
+>   prototyped some of this as well. However, there's something very wrong
+>   about putting "block device" wrappers and settings around something that
+>   is not a block device.  In general, it's a heck of a lot of overhead and
+>   still doesn't solve the real issue - how to portably pass that user
+> buffer
+
+
+I am not talking about putting block device wrappers. This the magic
+part and the message passing comes in. A while back I made the requuest
+queue a class (only sent the patch to Jens and did not follow up). The
+original reason was for the io sched swap and some multipath stuff, but
+since with then the request queue would need a block device to be
+exposed to userspace through sysfs and would not need a block device to
+send messages throgh. You just need a way to commniutate between
+userspace and the kernel but it does not have to be through a block
+device. I think this path has other benefits in that you could do
+userspace level scanning as well since you do not need the block device
+and ULD like we do today.
+
+
+
+>   in to/out of the kernel.
+> 
+> 
+> -- james s
+

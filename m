@@ -1,240 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWDTRYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWDTR1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbWDTRYO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 13:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWDTRYO
+	id S1751197AbWDTR1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 13:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWDTR1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 13:24:14 -0400
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:63161 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1751177AbWDTRYN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 13:24:13 -0400
-Date: Thu, 20 Apr 2006 10:24:06 -0700 (PDT)
-From: Nickolai Zeldovich <nickolai@cs.stanford.edu>
-To: linux-kernel@vger.kernel.org
-cc: nickolai@cs.stanford.edu
-Subject: [PATCH] specify cc in asm clobber list
-Message-ID: <Pine.GSO.4.44.0604201014480.27468-100000@elaine15.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Apr 2006 13:27:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:4580 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751197AbWDTR1p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 13:27:45 -0400
+Date: Thu, 20 Apr 2006 19:27:35 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: [patch 6/5] mm: find_vm_area locking fixes
+Message-ID: <20060420172735.GC21660@wotan.suse.de>
+References: <20060228202202.14172.60409.sendpatchset@linux.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060228202202.14172.60409.sendpatchset@linux.site>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Many of the inline assembly instructions used in the Linux kernel source
-modify the condition codes in %rflags/%eflags.  However, almost none of
-them specify "cc" in their clobber list (although a few erroneously
-specify "memory" where none is needed -- perhaps as a workaround for some
-problems that came up because "cc" was not there?).  I'm not sure whether
-any actual problems arise from this now, but it seems prudent to specify
-"cc" where %rflags is modified, to avoid problems with gcc optimizations
-in the future.
+Bite the bullet and try to get the locking correct the first^Wsecond time.
 
-The patch below adds "cc" in the asm clobber list for the inline assembly
-in include/asm-x86_64/atomic.h, and removes some "memory" clobber entries
-where no unspecified memory is actually clobbered.  Many more instances of
-this remain in both x86_64 and i386 code.
+(subtle bugs like area->flagas modification not having the right memory
+consistency could be a nightmare to track down)
 
--- kolya
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
---- linux-2.6.16.9/include/asm-x86_64/atomic.h	2006/04/20 16:49:15	1.1
-+++ linux-2.6.16.9/include/asm-x86_64/atomic.h	2006/04/20 17:12:17
-@@ -55,7 +55,8 @@
- 	__asm__ __volatile__(
- 		LOCK "addl %1,%0"
- 		:"=m" (v->counter)
--		:"ir" (i), "m" (v->counter));
-+		:"ir" (i), "m" (v->counter)
-+		:"cc");
+Index: linux-2.6/mm/vmalloc.c
+===================================================================
+--- linux-2.6.orig/mm/vmalloc.c
++++ linux-2.6/mm/vmalloc.c
+@@ -256,16 +256,15 @@ struct vm_struct *get_vm_area_node(unsig
+ 	return __get_vm_area_node(size, flags, VMALLOC_START, VMALLOC_END, node);
  }
-
- /**
-@@ -70,7 +71,8 @@
- 	__asm__ __volatile__(
- 		LOCK "subl %1,%0"
- 		:"=m" (v->counter)
--		:"ir" (i), "m" (v->counter));
-+		:"ir" (i), "m" (v->counter)
-+		:"cc");
+ 
+-static struct vm_struct *find_vm_area(void *addr)
++/* Caller must hold vmlist_lock */
++static struct vm_struct *__find_vm_area(void *addr)
+ {
+ 	struct vm_struct *tmp;
+ 
+-	write_lock(&vmlist_lock);
+ 	for (tmp = vmlist; tmp != NULL; tmp = tmp->next) {
+ 		 if (tmp->addr == addr)
+ 			break;
+ 	}
+-	write_unlock(&vmlist_lock);
+ 
+ 	return tmp;
  }
-
- /**
-@@ -89,7 +91,8 @@
- 	__asm__ __volatile__(
- 		LOCK "subl %2,%0; sete %1"
- 		:"=m" (v->counter), "=qm" (c)
--		:"ir" (i), "m" (v->counter) : "memory");
-+		:"ir" (i), "m" (v->counter)
-+		:"cc");
- 	return c;
+@@ -529,9 +528,10 @@ void *vmalloc_user(unsigned long size)
+ 	void *ret;
+ 
+ 	ret = __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM | __GFP_ZERO, PAGE_KERNEL);
+-	area = find_vm_area(ret);
+-	BUG_ON(!area);
++	write_lock(&vmlist_lock);
++	area = __find_vm_area(ret);
+ 	area->flags |= VM_USERMAP;
++	write_unlock(&vmlist_lock);
+ 
+ 	return ret;
  }
-
-@@ -104,7 +107,8 @@
- 	__asm__ __volatile__(
- 		LOCK "incl %0"
- 		:"=m" (v->counter)
--		:"m" (v->counter));
-+		:"m" (v->counter)
-+		:"cc");
+@@ -604,9 +604,10 @@ void *vmalloc_32_user(unsigned long size
+ 	void *ret;
+ 
+ 	ret = __vmalloc(size, GFP_KERNEL | __GFP_ZERO, PAGE_KERNEL);
+-	area = find_vm_area(ret);
+-	BUG_ON(!area);
++	write_lock(&vmlist_lock);
++	area = __find_vm_area(ret);
+ 	area->flags |= VM_USERMAP;
++	write_unlock(&vmlist_lock);
+ 
+ 	return ret;
  }
-
- /**
-@@ -118,7 +122,8 @@
- 	__asm__ __volatile__(
- 		LOCK "decl %0"
- 		:"=m" (v->counter)
--		:"m" (v->counter));
-+		:"m" (v->counter)
-+		:"cc");
+@@ -712,15 +713,17 @@ int remap_vmalloc_range(struct vm_area_s
+ 	if ((PAGE_SIZE-1) & (unsigned long)addr)
+ 		return -EINVAL;
+ 
+-	area = find_vm_area(addr);
++	read_lock(&vmlist_lock);
++	area = __find_vm_area(addr);
+ 	if (!area)
+-		return -EINVAL;
++		goto out_einval_locked;
+ 
+ 	if (!(area->flags & VM_USERMAP))
+-		return -EINVAL;
++		goto out_einval_locked;
+ 
+ 	if (usize + (pgoff << PAGE_SHIFT) > area->size - PAGE_SIZE)
+-		return -EINVAL;
++		goto out_einval_locked;
++	read_unlock(&vmlist_lock);
+ 
+ 	addr = (void *)((unsigned long)addr + (pgoff << PAGE_SHIFT));
+ 	do {
+@@ -738,6 +741,10 @@ int remap_vmalloc_range(struct vm_area_s
+ 	vma->vm_flags |= VM_RESERVED;
+ 
+ 	return ret;
++
++out_einval_locked:
++	read_unlock(&vmlist_lock);
++	return -EINVAL;
  }
-
- /**
-@@ -136,7 +141,8 @@
- 	__asm__ __volatile__(
- 		LOCK "decl %0; sete %1"
- 		:"=m" (v->counter), "=qm" (c)
--		:"m" (v->counter) : "memory");
-+		:"m" (v->counter)
-+		:"cc");
- 	return c != 0;
- }
-
-@@ -155,7 +161,8 @@
- 	__asm__ __volatile__(
- 		LOCK "incl %0; sete %1"
- 		:"=m" (v->counter), "=qm" (c)
--		:"m" (v->counter) : "memory");
-+		:"m" (v->counter)
-+		:"cc");
- 	return c != 0;
- }
-
-@@ -175,7 +182,8 @@
- 	__asm__ __volatile__(
- 		LOCK "addl %2,%0; sets %1"
- 		:"=m" (v->counter), "=qm" (c)
--		:"ir" (i), "m" (v->counter) : "memory");
-+		:"ir" (i), "m" (v->counter)
-+		:"cc");
- 	return c;
- }
-
-@@ -191,8 +199,9 @@
- 	int __i = i;
- 	__asm__ __volatile__(
- 		LOCK "xaddl %0, %1;"
--		:"=r"(i)
--		:"m"(v->counter), "0"(i));
-+		:"=r"(i), "=m"(v->counter)
-+		:"m"(v->counter), "0"(i)
-+		:"cc");
- 	return i + __i;
- }
-
-@@ -240,7 +249,8 @@
- 	__asm__ __volatile__(
- 		LOCK "addq %1,%0"
- 		:"=m" (v->counter)
--		:"ir" (i), "m" (v->counter));
-+		:"ir" (i), "m" (v->counter)
-+		:"cc");
- }
-
- /**
-@@ -255,7 +265,8 @@
- 	__asm__ __volatile__(
- 		LOCK "subq %1,%0"
- 		:"=m" (v->counter)
--		:"ir" (i), "m" (v->counter));
-+		:"ir" (i), "m" (v->counter)
-+		:"cc");
- }
-
- /**
-@@ -274,7 +285,8 @@
- 	__asm__ __volatile__(
- 		LOCK "subq %2,%0; sete %1"
- 		:"=m" (v->counter), "=qm" (c)
--		:"ir" (i), "m" (v->counter) : "memory");
-+		:"ir" (i), "m" (v->counter)
-+		:"cc");
- 	return c;
- }
-
-@@ -289,7 +301,8 @@
- 	__asm__ __volatile__(
- 		LOCK "incq %0"
- 		:"=m" (v->counter)
--		:"m" (v->counter));
-+		:"m" (v->counter)
-+		:"cc");
- }
-
- /**
-@@ -303,7 +316,8 @@
- 	__asm__ __volatile__(
- 		LOCK "decq %0"
- 		:"=m" (v->counter)
--		:"m" (v->counter));
-+		:"m" (v->counter)
-+		:"cc");
- }
-
- /**
-@@ -321,7 +335,8 @@
- 	__asm__ __volatile__(
- 		LOCK "decq %0; sete %1"
- 		:"=m" (v->counter), "=qm" (c)
--		:"m" (v->counter) : "memory");
-+		:"m" (v->counter)
-+		:"cc");
- 	return c != 0;
- }
-
-@@ -340,7 +355,8 @@
- 	__asm__ __volatile__(
- 		LOCK "incq %0; sete %1"
- 		:"=m" (v->counter), "=qm" (c)
--		:"m" (v->counter) : "memory");
-+		:"m" (v->counter)
-+		:"cc");
- 	return c != 0;
- }
-
-@@ -360,7 +376,8 @@
- 	__asm__ __volatile__(
- 		LOCK "addq %2,%0; sets %1"
- 		:"=m" (v->counter), "=qm" (c)
--		:"ir" (i), "m" (v->counter) : "memory");
-+		:"ir" (i), "m" (v->counter)
-+		:"cc");
- 	return c;
- }
-
-@@ -377,7 +394,8 @@
- 	__asm__ __volatile__(
- 		LOCK "xaddq %0, %1;"
- 		:"=r"(i)
--		:"m"(v->counter), "0"(i));
-+		:"m"(v->counter), "0"(i)
-+		:"cc");
- 	return i + __i;
- }
-
-@@ -413,12 +431,12 @@
-
- /* These are x86-specific, used by some header files */
- #define atomic_clear_mask(mask, addr) \
--__asm__ __volatile__(LOCK "andl %0,%1" \
--: : "r" (~(mask)),"m" (*addr) : "memory")
-+__asm__ __volatile__(LOCK "andl %1,%0" \
-+: "=m" (*(addr)) : "r" (~(mask)), "m" (*(addr)) : "cc")
-
- #define atomic_set_mask(mask, addr) \
--__asm__ __volatile__(LOCK "orl %0,%1" \
--: : "r" ((unsigned)mask),"m" (*(addr)) : "memory")
-+__asm__ __volatile__(LOCK "orl %1,%0" \
-+: "=m" (*(addr)) : "r" ((unsigned)mask), "m" (*(addr)) : "cc")
-
- /* Atomic operations are already serializing on x86 */
- #define smp_mb__before_atomic_dec()	barrier()
-
+ EXPORT_SYMBOL(remap_vmalloc_range);
+ 

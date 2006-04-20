@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWDTSMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWDTSON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWDTSMb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 14:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWDTSMb
+	id S1751220AbWDTSON (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 14:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWDTSON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 14:12:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7112 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751221AbWDTSMa (ORCPT
+	Thu, 20 Apr 2006 14:14:13 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:10597 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751220AbWDTSON convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 14:12:30 -0400
-Date: Thu, 20 Apr 2006 11:08:23 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Greg KH <greg@kroah.com>
-cc: Chris Wright <chrisw@sous-sol.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-       Christoph Hellwig <hch@infradead.org>, tonyj@suse.de,
-       James Morris <jmorris@namei.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andrew Morton <akpm@osdl.org>,
-       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make security_ops EXPORT_SYMBOL_GPL()
-In-Reply-To: <20060420170153.GA3237@kroah.com>
-Message-ID: <Pine.LNX.4.64.0604201104510.3701@g5.osdl.org>
-References: <Pine.LNX.4.64.0604191221100.4408@d.namei> <20060419181015.GC11091@kroah.com>
- <1145536791.16456.37.camel@moss-spartans.epoch.ncsc.mil> <20060420150037.GA30353@kroah.com>
- <1145542811.3313.94.camel@moss-spartans.epoch.ncsc.mil> <20060420161552.GA1990@kroah.com>
- <20060420162309.GA18726@infradead.org> <1145550897.3313.143.camel@moss-spartans.epoch.ncsc.mil>
- <20060420164651.GA2439@kroah.com> <1145552412.3313.150.camel@moss-spartans.epoch.ncsc.mil>
- <20060420170153.GA3237@kroah.com>
+	Thu, 20 Apr 2006 14:14:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=n1HZVAAJQWaSV0gSD9TrdRCNwzZM6tP2tRK2OPYMv9tBQMsv+YjIgg1d5e1RxGEUHdO/a7ee/PNwLUmj0fC8Y1tGxaGEVe+dcexAlwy4X6Ul8v74caKaZKFuwHJnSY3nbtZBYUlmqIQxb3jDq7sKjkYS+9pwKEWV8h26FHM5+yM=
+Message-ID: <b3be17f30604201114n7a50bad9u6f3839a029f571a7@mail.gmail.com>
+Date: Thu, 20 Apr 2006 11:14:11 -0700
+From: "Robert Merrill" <grievre@gmail.com>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Subject: Re: NFS bug?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1145556613.8136.14.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <b3be17f30604200937l7cfaca8evcc17f6ecd72f643e@mail.gmail.com>
+	 <1145551304.8136.5.camel@lade.trondhjem.org>
+	 <b3be17f30604200953i652e14a2n908f1a066ffe4e7f@mail.gmail.com>
+	 <1145555789.8136.13.camel@lade.trondhjem.org>
+	 <b3be17f30604201102jff51794r52dd3024d631051e@mail.gmail.com>
+	 <1145556613.8136.14.camel@lade.trondhjem.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 20 Apr 2006, Greg KH wrote:
+> Oh... and could you also send us the Oops/stack trace from the BUG_ON()?
 >
-> Some closed source modules are taking advantage of the fact that the
-> security_ops variable is available to them, so they are using it to hook
-> into parts of the kernel that should only be available to "real" users
-> of the LSM interface (which is required to be under the GPL.)
-
-I'm really not going to apply this.
-
-It's insane. 
-
-"security_ops" is used by _anything_ that uses the inline functions in 
-<linux/security.h>, which suddenly means that a non-GPL module cannot use 
-_any_ of the standard security tests. That's insane.
-
-And there's no point to this patch. The "explanation" I have seen so far 
-is that some strange root-kit could take over the security ops. That's 
-just crazy talk. If you're a root-kit, would you care about the copyright 
-license? No. So this patch just makes zero sense from any standpoint.
-
-If people want to remove security_ops, that's fine (not for 2.6.17, but 
-assuming you guys can come to some reasonable agreement, at some later 
-date). But turning it into a GPL-only, but leaving all the infrastructure 
-requiring it is not.
-
-		Linus
+ ------------[ cut here ]------------
+kernel BUG at arch/i386/lib/usercopy.c:582!
+invalid operand: 0000 [#49]
+SMP
+Modules linked in: w83627hf eeprom lm85 w83781d hwmon_vid i2c_isa
+i2c_dev thermal fan button processor ac battery nfs lockd nfs_acl
+sunrpc ipv6 quota_v1 ide_cd cdrom generic joydev piix psmouse evdev
+uhci_hcd ehci_hcd parport_pc parport e1000 rtc serio_raw floppy
+usbcore i2c_i801 ide_core i2c_core mousedev pcspkr shpchp pci_hotplug
+CPU:    2
+EIP:    0060:[<c01ff157>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.15.7-soda0)
+EIP is at __copy_from_user_ll+0x12/0xe2
+eax: 00000000   ebx: 00000003   ecx: fffffffb   edx: fffffffb
+esi: 0804a024   edi: 00000000   ebp: 00000000   esp: f6964f84
+ds: 007b   es: 007b   ss: 0068
+Process a.out (pid: 6994, threadinfo=f6964000 task=f70e7030)
+Stack: fffffffb b7f55ff4 f893c2a0 00000000 0804a024 fffffffb fffffffb 000000d0
+       f70e7030 00000003 0804a024 b7f55ff4 f6964000 f893dc1d 00000003 0804a024
+       00004000 0804a024 b7f55ff4 bf973d50 ffffffda 0000007b c010007b 000000dc
+Call Trace:
+Code: 07 29 c8 f3 a4 89 c1 c1 e9 02 83 e0 03 90 f3 a5 89 c1 f3 a4 89
+c8 5e 5f c3 57 56 8b 7c 24 0c 8b 74 24 10 8b 4c 24 14 85 c9 79 08 <0f>
+0b 46 02 63 92 2f c0 83 f9 3f 0f 86 99 00 00 00 89 f8 31 f0

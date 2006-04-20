@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWDTJ7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWDTKBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbWDTJ7m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 05:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWDTJ7m
+	id S1750809AbWDTKBA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 06:01:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWDTKBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 05:59:42 -0400
-Received: from fc-cn.com ([218.25.172.144]:36359 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S1750805AbWDTJ7l (ORCPT
+	Thu, 20 Apr 2006 06:01:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4764 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750810AbWDTKA7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 05:59:41 -0400
-Date: Thu, 20 Apr 2006 18:01:03 +0800
-From: qiyong <qiyong@fc-cn.com>
-To: akpm@osdl.org
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com,
-       neilb@cse.unsw.edu.au
-Subject: [patch] raid5_unplug_device() fix
-Message-ID: <20060420100103.GA16687@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 20 Apr 2006 06:00:59 -0400
+Date: Thu, 20 Apr 2006 02:59:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: torvalds@osdl.org, agk@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] Device-mapper snapshot metadata userspace breakage
+Message-Id: <20060420025953.577e2225.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0604201159350.29821@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0604201159350.29821@sbz-30.cs.Helsinki.FI>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+>
+> The commit aa14edeb994f8f7e223d02ad14780bf2fa719f6d "[PATCH] device-mapper 
+>  snapshot: load metadata on creation" breaks userspace and is blocking us 
+>  from moving to the 2.6.16 series kernel. Debian doesn't have the 
+>  new required LVM version in stable yet. Is the change intentional?
 
-Fix raid5_unplug_device() to not disturb raid5d unnecessarily.
+The changelog said
 
-Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
----
+  If you're using lvm2, for this patch to work properly you should update
+  to lvm2 version 2.02.01 or later and device-mapper version 1.02.02 or
+  later.
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 3184360..eff1d9c 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -1680,8 +1680,8 @@ static void raid5_unplug_device(request_
- 	if (blk_remove_plug(q)) {
- 		conf->seq_flush++;
- 		raid5_activate_delayed(conf);
-+		md_wakeup_thread(mddev->thread);
- 	}
--	md_wakeup_thread(mddev->thread);
- 
- 	spin_unlock_irqrestore(&conf->device_lock, flags);
- 
-
--- 
-Coywolf Qi Hunt
+Which was pretty bad of us.  I hope LVM 2.02.01 userspace is
+back-compatible with older kernels?

@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWDTIXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWDTI0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbWDTIXg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 04:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWDTIXg
+	id S1750782AbWDTI0P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 04:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWDTI0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 04:23:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:824 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750774AbWDTIXf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 04:23:35 -0400
-Date: Thu, 20 Apr 2006 10:23:58 +0200
-From: Jens Axboe <axboe@suse.de>
-To: erich <erich@areca.com.tw>
-Cc: dax@gurulabs.com, billion.wu@areca.com.tw, Al Viro <viro@ftp.linux.org.uk>,
-       Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Chris Caputo <ccaputo@alt.net>
-Subject: Re: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
-Message-ID: <20060420082357.GU614@suse.de>
-References: <004a01c65470$412daaa0$b100a8c0@erich2003> <20060330192057.4bd8c568.akpm@osdl.org> <20060331074237.GH14022@suse.de> <002901c65e33$ceac9e00$b100a8c0@erich2003> <20060419104009.GB614@suse.de> <003301c663b3$6bfcc020$b100a8c0@erich2003> <20060419131916.GH614@suse.de> <001401c6641d$586bd950$b100a8c0@erich2003> <20060420064249.GO614@suse.de> <001e01c66451$f9a470f0$b100a8c0@erich2003>
+	Thu, 20 Apr 2006 04:26:15 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:20883 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750777AbWDTI0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 04:26:14 -0400
+Subject: Re: [RFC][PATCH 10/11] security: AppArmor - Add flags to d_path
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tony Jones <tonyj@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       chrisw@sous-sol.org, linux-security-module@vger.kernel.org
+In-Reply-To: <20060420053604.GA15332@suse.de>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <20060419175026.29149.23661.sendpatchset@ermintrude.int.wirex.com>
+	 <20060419221248.GB26694@infradead.org>  <20060420053604.GA15332@suse.de>
+Content-Type: text/plain
+Date: Thu, 20 Apr 2006 10:26:09 +0200
+Message-Id: <1145521570.3023.8.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001e01c66451$f9a470f0$b100a8c0@erich2003>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-(don't top post!)
+> You are correct on calling BS in that I was wrong to refer to it as the
+> "system root".  When a task chroots relative to it's current namespace, we
+> are interested in the path back to the root of that namespace, rather than
+> to the chroot.  I believe the patch as stands achieves this, albeit with
+> some changing of comments.
 
-On Thu, Apr 20 2006, erich wrote:
-> Dear Dear Jens Axboe,
-> 
-> Thanks for your notification and advice.
-> Areca's firmware has max sg entries of 38 limit.
-> In my debug driver I had add this condition check.
-> But no one request more than 38 sg.
-> Both transfer length all have a lot of requests equal with 38 sg.
-> But why it ocur only at 4096 sectors?
-> If the /sys/block/sda/queue/max_sectors_kb equal 256 all operation running 
-> well.
-> But if I modify it more than 256, the bug appeared.
-> I  will do more research about why there were a lot of requests equal with 
-> 38 sg in all file system.
+it actually doesn't; you assume there is such a path which is not a
+given. For example if your mount got lazy umounted (like hal probably
+does) then it's a floating mount not one tied to any tree going to the
+root of any namespace.
 
-It was just a suggestion, the bug might very well be just the size of
-the transfer itself and nothing SG related. All I can say for sure is
-that I'd be very surprised if this fs corruption isn't due to the
-hardware mangling the data for large transfers.
-
-> And only it ocur at the volume that format with mkfs.ext2.
-
-Most likely a coincidence, try running eg dbench or other stress tests
-on the fs with larger xfer size and I'm sure it'll corrupt eventually as
-well.
-
-
--- 
-Jens Axboe
 

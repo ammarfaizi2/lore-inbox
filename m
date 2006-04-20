@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWDTXF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWDTXGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWDTXF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 19:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWDTXF6
+	id S1751169AbWDTXGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 19:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWDTXGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 19:05:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:27881 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750861AbWDTXF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 19:05:57 -0400
-Date: Fri, 21 Apr 2006 00:05:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Linda A. Walsh" <law@tlinx.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org,
-       linux-kernel@vger.kernel.org, Tony Jones <tonyj@suse.de>
-Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export namespace	semaphore
-Message-ID: <20060420230551.GA5026@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Linda A. Walsh" <law@tlinx.org>,
-	Stephen Smalley <sds@tycho.nsa.gov>,
-	"Serge E. Hallyn" <serue@us.ibm.com>,
-	linux-security-module@vger.kernel.org, chrisw@sous-sol.org,
-	linux-kernel@vger.kernel.org, Tony Jones <tonyj@suse.de>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com> <1145536742.16456.35.camel@moss-spartans.epoch.ncsc.mil> <20060420124647.GD18604@sergelap.austin.ibm.com> <1145534735.3313.3.camel@moss-spartans.epoch.ncsc.mil> <20060420132128.GG18604@sergelap.austin.ibm.com> <1145537318.3313.40.camel@moss-spartans.epoch.ncsc.mil> <44480727.9010500@tlinx.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44480727.9010500@tlinx.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 20 Apr 2006 19:06:25 -0400
+Received: from wproxy.gmail.com ([64.233.184.229]:57877 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751169AbWDTXGY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 19:06:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
+        b=iXYc0aAJ5cDVVOObL/WdbR8SP6QKX+YGXWXv0PRmvv01lXjW96l954/J/DqfbGUk0b6REWPsaBgwIlFgtz6A/VE2YYzp4Z2KNKmv++/TLHrrjDkAZMhtJ2sfBUh0rudiJ1yVoymR/HtcGhO72qUNT9Hhzvbdi2t7dT+HHlxQfBY=
+Message-ID: <44481571.4000208@gmail.com>
+Date: Fri, 21 Apr 2006 06:12:49 +0700
+From: Mikado <mikado4vn@gmail.com>
+Reply-To: mikado4vn@gmail.com
+Organization: IcySpace.net
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: "'Linux kernel'" <linux-kernel@vger.kernel.org>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Mike Galbraith <efault@gmx.de>, Hua Zhong <hzhong@gmail.com>
+Subject: Re: Which process is associated with process ID 0 (swapper)
+References: <004801c664c7$e80acfd0$853d010a@nuitysystems.com> <Pine.LNX.4.61.0604210019440.28841@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0604210019440.28841@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=65ABD897
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 03:11:51PM -0700, Linda A. Walsh wrote:
->    The *current* accepted way to get pathnames going into system
-> calls is to trap the syscall vector as audit currently does --
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It's not and it's never been.  Please get a fucking clue instead of
-posting your uninformed opinions to lkml.
+Jan Engelhardt wrote:
+>> Swapper is the idle process, which swaps nothing. Its name is historic and it doesn't appear in /proc because for_each_process()
+>> skips it.
+>>
+> Anyone objecting to renaming it?
+> 
+> 
+> Jan Engelhardt
 
+Please focus on my main question. Thank you!
+
+Mikado.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFESBVxNWc9T2Wr2JcRAseYAJ9Fd8/IN9pk/iAYQYc1MXHxt/T9WgCgmFpx
+j3wvQBiYBmDjPO1q4Rc8OB8=
+=eNTU
+-----END PGP SIGNATURE-----

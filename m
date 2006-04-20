@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWDTPk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWDTPrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWDTPk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 11:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWDTPk0
+	id S1751050AbWDTPrW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 11:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWDTPrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 11:40:26 -0400
-Received: from stanford.columbia.tresys.com ([209.60.7.66]:22731 "EHLO
-	gotham.columbia.tresys.com") by vger.kernel.org with ESMTP
-	id S1751042AbWDTPkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 11:40:25 -0400
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-From: Joshua Brindle <method@gentoo.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-       linux-security-module@vger.kernel.org, Tony Jones <tonyj@suse.de>
-In-Reply-To: <1145535423.3313.15.camel@moss-spartans.epoch.ncsc.mil>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	 <1145535423.3313.15.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 20 Apr 2006 11:47:22 -0400
+Received: from mail.gmx.net ([213.165.64.20]:25490 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751042AbWDTPrW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 11:47:22 -0400
+X-Authenticated: #14349625
+Subject: Re: Which process is associated with process ID 0 (swapper)
+From: Mike Galbraith <efault@gmx.de>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Mikado <mikado4vn@gmail.com>, Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0604201118200.5749@chaos.analogic.com>
+References: <4447A19E.9000008@gmail.com>
+	 <Pine.LNX.4.61.0604201118200.5749@chaos.analogic.com>
 Content-Type: text/plain
-Date: Thu, 20 Apr 2006 11:38:53 -0400
-Message-Id: <1145547534.14302.7.camel@twoface.columbia.tresys.com>
+Date: Thu, 20 Apr 2006 17:48:23 +0200
+Message-Id: <1145548103.15012.3.camel@homer>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 08:17 -0400, Stephen Smalley wrote:
-> On Wed, 2006-04-19 at 10:49 -0700, Tony Jones wrote: 
-> > AppArmor is an LSM security enhancement for the Linux kernel. The
-> > primary goal of AppArmor is to make it easy for a system administrator
-> > to control application behavior, enforcing that the application has
-> > access to only the files and POSIX.1e draft capabilities it requires to
-> > do its job. AppArmor deliberately uses this simple access control model
-> > to make it as easy as possible for the administrator to manage the
-> > policy, because the worst security of all is that which is never
-> > deployed because it was too hard.
-> 
-> The worst security is that which doesn't do what it claims to do, giving
-> a false sense of security.  Which is precisely the problem with
-> path-based access control; it makes the user think that he is protecting
-> a given object, when in fact the object may be accessible by another
-> means.
+On Thu, 2006-04-20 at 11:30 -0400, linux-os (Dick Johnson) wrote:
 
-I've compiled a list of security related issues with path based access
-control at
-http://securityblog.org/brindle/2006/04/19/security-anti-pattern-path-based-access-control/
+> This must be a trick question. Linux is not VAX/VMS. There is no
+> swapper process. Check in /proc. Processes start at 1. Even
+> kernel threads have PIDs greater than 1.
 
-I intentionally avoided specific implementations and OS related issues
-to focus on the security aspects. Note that not all path based access
-control implementations are subject to all these problems but some are
-common to all.
+include/linux/init_task.h
+        .pgd            = swapper_pg_dir,
+        .comm           = "swapper",
 
-Joshua Brindle
+You don't make enough nuclear powered kernels :)
+
+	-Mike
 

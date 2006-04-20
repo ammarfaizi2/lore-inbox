@@ -1,44 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWDTPVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWDTPVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751001AbWDTPVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 11:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWDTPVO
+	id S1750999AbWDTPVS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 11:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWDTPVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 11:21:14 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:62340 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750999AbWDTPVN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 11:21:13 -0400
-Date: Thu, 20 Apr 2006 17:26:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Gerd Hoffmann <kraxel@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: smp/up alternatives crash when CONFIG_HOTPLUG_CPU
-Message-ID: <20060420152609.GA21993@elte.hu>
-References: <20060419094630.GA14800@elte.hu> <20060420052954.GA5524@elte.hu> <Pine.LNX.4.64.0604200759400.3701@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 20 Apr 2006 11:21:18 -0400
+Received: from pproxy.gmail.com ([64.233.166.179]:14406 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750999AbWDTPVR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 11:21:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=t4sc31nTAJGoR6Xiz6iKIfLL4BBWMU4FLRhZHW1fSgb9DMH7lxxnnTxlDdXStuAJIKgqiY/BrpoSH0NQKYOXEEN6KddyCq7lbOyTwfSu5KsGow8MMuAgB9jYe5rMPukDpc2oPaZfD3E1X2WNiCyopPMUEDHn1AVD/u2A67NBrNQ=
+Message-ID: <d0191dad0604200821l3fa0ed70ga2faabe79d7718ec@mail.gmail.com>
+Date: Thu, 20 Apr 2006 17:21:16 +0200
+From: "Claudio Scordino" <cloud.of.andor@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Extending getrusage
+Cc: "Andy Lutomirski" <luto@myrealbox.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
+       "Andrew Morton" <akpm@osdl.org>, kernel-janitors@lists.osdl.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604200759400.3701@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+For the people who missed the beginning of the discussion, the
+following patch is an extension of the existing getrusage syscall()
+and it applies to the 2.6.16.9 kernel.
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+It allows a task to read usage information about another task. The argument
+who can be equal to RUSAGE_SELF, to RUSAGE_CHILDREN or to a valid pid.
 
-> There must be another bug there somewhere. It's not about cache 
-> coherency.
+The permissions are checked through security_ptrace() as suggested by Andy.
 
-ok. Maybe it's in one of the patches i have applied. I'll re-check with 
-vanilla.
+Any other comment ?
 
-	Ingo
+Thanks,
+
+           Claudio
+
+
+Signed-off-by: Claudio Scordino <cloud.of.andor@gmail.com>
+--- sys.old.c	2006-04-19 02:10:14.000000000 -0400
++++ sys.c	2006-04-20 10:53:16.000000000 -0400
+@@ -1765,11 +1765,30 @@ int getrusage(struct task_struct *p, int
+ 	return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
+ }
+
++/* who can be RUSAGE_SELF, RUSAGE_CHILDREN or a valid pid */
+ asmlinkage long sys_getrusage(int who, struct rusage __user *ru)
+ {
+-	if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN)
+-		return -EINVAL;
+-	return getrusage(current, who, ru);
++	struct rusage r;
++	struct task_struct* tsk = current;
++	read_lock(&tasklist_lock);
++	if ((who != RUSAGE_SELF) && (who != RUSAGE_CHILDREN)) {
++		if (who <= 0)
++			goto bad;
++		tsk = find_task_by_pid(who);
++		if (tsk == NULL)
++			goto bad;
++		if ((tsk != current) && security_ptrace(current, tsk))
++			goto bad;
++		/* current can get info about tsk */
++		who = RUSAGE_SELF;
++	}
++	k_getrusage(tsk, who, &r);
++	read_unlock(&tasklist_lock);
++	return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
++
++bad:
++	read_unlock(&tasklist_lock);
++	return tsk ? -EPERM : -EINVAL;
+ }
+
+ asmlinkage long sys_umask(int mask)

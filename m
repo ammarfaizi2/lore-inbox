@@ -1,83 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWDTOtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWDTOuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750933AbWDTOtD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 10:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWDTOtD
+	id S1750798AbWDTOuO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 10:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWDTOuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 10:49:03 -0400
-Received: from iona.labri.fr ([147.210.8.143]:54171 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S1750933AbWDTOtB (ORCPT
+	Thu, 20 Apr 2006 10:50:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:2577 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750798AbWDTOuM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 10:49:01 -0400
-Message-ID: <44479E8B.8010003@labri.fr>
-Date: Thu, 20 Apr 2006 16:45:31 +0200
-From: Emmanuel Fleury <emmanuel.fleury@labri.fr>
-User-Agent: Mail/News 1.5 (X11/20060228)
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org, GarnierB-02@mail.europcar.com
-Subject: Re: [libata] atapi_enabled problem
-References: <44477D93.50501@labri.fr>
-In-Reply-To: <44477D93.50501@labri.fr>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 20 Apr 2006 10:50:12 -0400
+Date: Thu, 20 Apr 2006 16:50:42 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.17-rc2
+Message-ID: <20060420145041.GE4717@suse.de>
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org> <20060419200001.fe2385f4.diegocg@gmail.com> <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Additional comments:
+On Wed, Apr 19 2006, Linus Torvalds wrote:
+> There are some other buffer management system calls that I haven't done 
+> yet (and when I say "I haven't done yet", I obviously mean "that I hope 
+> some other sucker will do for me, since I'm lazy"), but that are obvious 
+> future extensions:
 
-Emmanuel Fleury wrote:
-> 
-> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
-> ata1: no sense translation for error 0x20
-> ata1: no sense translation for status: 0x51
-> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
-> sr0: CDROM (ioctl) error, command: <6>Test Unit Ready 00 00 00 00 00 00
-> sr: Current [descriptor]: sense key: Medium Error
->     Additional sense: Unrecovered read error - auto reallocate failed
-> ata1: no sense translation for error 0x20
-> ata1: no sense translation for status: 0x51
-> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
-> ata1: no sense translation for error 0x20
-> ata1: no sense translation for status: 0x51
-> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
-> ata1: no sense translation for error 0x20
-> ata1: no sense translation for status: 0x51
-> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
-> ata1: no sense translation for error 0x20
-> ata1: no sense translation for status: 0x51
-> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
-> ata1: no sense translation for error 0x20
-> ata1: no sense translation for status: 0x51
-> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
-> ata1: no sense translation for error 0x20
-> ata1: no sense translation for status: 0x51
-> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
-> ata1: no sense translation for error 0x20
-> ata1: no sense translation for status: 0x51
+Well it's worked so far, hasn't it? :-)
 
-Benoit Garnier did point to me this thread: http://kerneltrap.org/node/5836
+>  - an ioctl/fcntl to set the maximum size of the buffer. Right now it's 
+>    hardcoded to 16 "buffer entries" (which in turn are normally limited to 
+>    one page each, although there's nothing that _requires_ that a buffer 
+>    entry always be a page).
 
-The solution proposed can't be applied to me because I have a dual
-system where my HD is IDE/ATAPI and my DVD reader is S-ATA.
+This is on a TODO, but not very high up since I've yet to see a case
+where the current 16 page limitation is an issue. I'm sure something
+will come up eventually, but until then I'd rather not bother.
 
-Indeed, I tried out several possibilities and it appeared that the way
-to generate such errors was to set the Intel PIIX/ICH SATA support as
-built-in (y). When set as module (m), everything is fine.
+>  - vmsplice() system call to basically do a "write to the buffer", but 
+>    using the reference counting and VM traversal to actually fill the 
+>    buffer. This means that the user needs to be careful not to re-use the 
+>    user-space buffer it spliced into the kernel-space one (contrast this 
+>    to "write()", which copies the actual data, and you can thus re-use the 
+>    buffer immediately after a successful write), but that is often easy to 
+>    do.
 
-Device Drivers --->
-  SCSI device support --->
-    SCSI low-level drivers --->
-      Intel PIIX/ICH SATA support
+This I already did, it was pretty easy and straight forward. I'll post
+it soonish.
 
-I might have changed this when hard-coding atapi_enabled=1 in the source.
-
-Does someone see the light now ? (I'm still a bit in the dark)
-
-Regards
 -- 
-Emmanuel Fleury              | Office: 211
-Associate Professor,         | Phone: +33 (0)5 40 00 35 24
-LaBRI, Domaine Universitaire | Fax:   +33 (0)5 40 00 66 69
-351, Cours de la Libération  | email: emmanuel.fleury@labri.fr
-33405 Talence Cedex, France  | URL: http://www.labri.fr/~fleury
+Jens Axboe
+

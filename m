@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWDTRTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWDTRWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWDTRTE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 13:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWDTRTE
+	id S1751075AbWDTRWK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 13:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWDTRWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 13:19:04 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37254 "EHLO
+	Thu, 20 Apr 2006 13:22:10 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:13184 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751070AbWDTRTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 13:19:02 -0400
-Date: Thu, 20 Apr 2006 18:18:57 +0100
+	id S1751075AbWDTRWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 13:22:09 -0400
+Date: Thu, 20 Apr 2006 18:22:05 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com, sct@redhat.com,
-       aviro@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/7] FS-Cache: Avoid ENFILE checking for kernel-specific open files
-Message-ID: <20060420171857.GA21659@infradead.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch 1/5] mm: remap_vmalloc_range
+Message-ID: <20060420172205.GC21659@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-	akpm@osdl.org, steved@redhat.com, sct@redhat.com, aviro@redhat.com,
-	linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-	nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-References: <20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com> <20060420165932.9968.40376.stgit@warthog.cambridge.redhat.com>
+	Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linux Memory Management <linux-mm@kvack.org>,
+	Hugh Dickins <hugh@veritas.com>
+References: <20060228202202.14172.60409.sendpatchset@linux.site> <20060228202212.14172.59536.sendpatchset@linux.site>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060420165932.9968.40376.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060228202212.14172.59536.sendpatchset@linux.site>
 User-Agent: Mutt/1.4.2.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 05:59:33PM +0100, David Howells wrote:
-> Make it possible to avoid ENFILE checking for kernel specific open files, such
-> as are used by the CacheFiles module.
+On Thu, Apr 20, 2006 at 07:06:18PM +0200, Nick Piggin wrote:
+> Add a remap_vmalloc_range and get rid of as many remap_pfn_range and
+> vm_insert_page loops as possible.
 > 
-> After, for example, tarring up a kernel source tree over the network, the
-> CacheFiles module may easily have 20000+ files open in the backing filesystem,
-> thus causing all non-root processes to be given error ENFILE when they try to
-> open a file, socket, pipe, etc..
+> remap_vmalloc_range can do a whole lot of nice range checking even
+> if the caller gets it wrong (which it looks like one or two do).
 
-No, just increase the limit.  The whole point of the limit is to avoid resource
-exaustion.  A file doesn't use any less ressources just becuase it's opened
-from kernelspace.  In doubt increase the limit or even the default limit.
+This looks very nice, thanks!  Although it might be better to split it
+into one patch to introduce remap_vmalloc_range and various patches to
+switch over one susbsyetm for merging purposes.
 

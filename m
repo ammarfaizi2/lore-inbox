@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWDTE5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWDTFEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWDTE5A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 00:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWDTE5A
+	id S1751282AbWDTFEP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 01:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWDTFEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 00:57:00 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:31105 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751282AbWDTE47
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 00:56:59 -0400
-Date: Wed, 19 Apr 2006 21:56:59 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: James Morris <jmorris@namei.org>
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
-Message-ID: <20060420045659.GS4917@sorel.sous-sol.org>
-References: <20060420041059.21278.qmail@web36608.mail.mud.yahoo.com> <Pine.LNX.4.64.0604200024550.9722@d.namei>
+	Thu, 20 Apr 2006 01:04:14 -0400
+Received: from [203.2.177.25] ([203.2.177.25]:60429 "EHLO pfeiffer.tusc.com.au")
+	by vger.kernel.org with ESMTP id S1751282AbWDTFEN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 01:04:13 -0400
+Subject: [PATCH 1/1]x25: fix for spinlock recurse and spinlock lockup with
+	timer handler in x25
+From: Shaun Pereira <spereira@tusc.com.au>
+Reply-To: spereira@tusc.com.au
+To: Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       x25 maintainer <eis@baty.hanse.de>,
+       linux-x25 <linux-x25@vger.kernel.org>,
+       linux-kenel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 20 Apr 2006 15:03:23 +1000
+Message-Id: <1145509403.16180.10.camel@spereira05.tusc.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604200024550.9722@d.namei>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Morris (jmorris@namei.org) wrote:
-> The current trend is to move policy development to the packages being 
-> protected, made possible through the recent modular policy work by Tresys.  
-> Several developer tools are being developed to help support this.
+From: spereira@tusc.com.au
 
-I agree, this is the sanest model.  Ideally it could be expressed in
-some form directly from app developers...I can dream ;-)
+When the sk_timer function x25_heartbeat_expiry() is called by the kernel
+in a running/terminating process, spinlock-recursion and spinlock-lockup
+locks up the kernel. 
+This has happened with testing on some distro's and the patch below fixed it.
 
-thanks,
--chris
+Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
+
+diff -uprN -X dontdiff linux-2.6.17-rc2-vanilla/net/x25/x25_timer.c linux-2.6.17-rc2/net/x25/x25_timer.c
+--- linux-2.6.17-rc2-vanilla/net/x25/x25_timer.c	2006-04-20 12:00:03.000000000 +1000
++++ linux-2.6.17-rc2/net/x25/x25_timer.c	2006-04-20 12:02:43.000000000 +1000
+@@ -114,8 +114,9 @@ static void x25_heartbeat_expiry(unsigne
+ 			if (sock_flag(sk, SOCK_DESTROY) ||
+ 			    (sk->sk_state == TCP_LISTEN &&
+ 			     sock_flag(sk, SOCK_DEAD))) {
++				bh_unlock_sock(sk);
+ 				x25_destroy_socket(sk);
+-				goto unlock;
++				return;
+ 			}
+ 			break;
+ 
+@@ -128,7 +129,6 @@ static void x25_heartbeat_expiry(unsigne
+ 	}
+ restart_heartbeat:
+ 	x25_start_heartbeat(sk);
+-unlock:
+ 	bh_unlock_sock(sk);
+ }
+ 
+
+
+
+
+

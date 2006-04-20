@@ -1,78 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWDTRpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWDTRqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWDTRpq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 13:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWDTRpq
+	id S1751174AbWDTRqL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 13:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWDTRqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 13:45:46 -0400
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:25746 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S1750812AbWDTRpp (ORCPT
+	Thu, 20 Apr 2006 13:46:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43683 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751116AbWDTRqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 13:45:45 -0400
-Message-ID: <4447C8C2.30909@cs.wisc.edu>
-Date: Thu, 20 Apr 2006 12:45:38 -0500
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: James.Smart@Emulex.Com
-CC: linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Netlink and user-space buffer pointers
-References: <1145306661.4151.0.camel@localhost.localdomain> <20060418160121.GA2707@us.ibm.com> <444633B5.5030208@emulex.com> <4446AC80.6040604@cs.wisc.edu> <44479BA8.1000405@emulex.com>
-In-Reply-To: <44479BA8.1000405@emulex.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Apr 2006 13:46:08 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060420171922.GB21659@infradead.org> 
+References: <20060420171922.GB21659@infradead.org>  <20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com> <20060420165935.9968.11060.stgit@warthog.cambridge.redhat.com> 
+To: Christoph Hellwig <hch@infradead.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       steved@redhat.com, sct@redhat.com, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/7] FS-Cache: Export find_get_pages() 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Thu, 20 Apr 2006 18:45:50 +0100
+Message-ID: <21746.1145555150@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Smart wrote:
-> 
-> Mike Christie wrote:
->> For the tasks you want to do for the fc class is performance critical?
-> 
-> No, it should not be.
-> 
->> If not, you could do what the iscsi class (for the netdev people this is
->> drivers/scsi/scsi_transport_iscsi.c) does and just suffer a couple
->> copies. For iscsi we do this in userspace to send down a login pdu:
->>
->>     /*
->>      * xmitbuf is a buffer that is large enough for the iscsi_event,
->>      * iscsi pdu (hdr_size) and iscsi pdu data (data_size)
->>      */
-> 
-> Well, the real difference is that the payload of the "message" is actually
-> the payload of the SCSI command or ELS/CT Request. Thus, the payload may
+Christoph Hellwig <hch@infradead.org> wrote:
 
-I am not sure I follow. For iscsi, everything after the iscsi_event
-struct can be the iscsi request that is to be transmitted. The payload
-will not normally be Mbytes but it is not a couple if bytes.
-
-> range in size from a few hundred bytes to several kbytes (> 1 page) to
-> Mbyte's in size. Rather than buffer all of this, and push it over the
-> socket,
-> thus the extra copies - it would best to have the LLDD simply DMA the
-> payload like on a typical SCSI command.  Additionally, there will be
-> response data that can be several kbytes in length.
+> > The attached patch exports find_get_pages() for use by the kAFS filesystem
+> > in conjunction with it caching patch.
 > 
+> Why don't you use pagevec ?
 
-Once you have got the buffer to the class, the class can create a
-scatterlist to DMA from for the LLD. I thought. iscsi does not do this
-just because it is software right now. For qla4xxx we do not need
-something like what you are talking about (see below for what I was
-thinking about for the initiators). If you are saying the extra step of
-the copy is plain dumb, I agree, but this happens (you have to suffer
-some copy and cannot do dio) for sg io as well in some cases. I think
-for the sg driver the copy_*_user is the default.
+You mean pagevec_lookup() I suppose... That's probably reasonable, though
+slower.
 
-Instead of netlink for scsi commands and transport requests....
-
-For scsi commands could we just use sg io, or is there something special
-about the command you want to send? If you can use sg io for scsi
-commands, maybe for transport level requests (in my example iscsi pdu)
-we could modify something like sg/bsg/block layer scsi_ioctl.c to send
-down transport requests to the classes and encapsulate them in some new
-struct transport_requests or use the existing struct request but do that
-thing people keep taling about using the request/request_queue for
-message passing.
+David

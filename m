@@ -1,209 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWDTRKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWDTRJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWDTRKa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 13:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWDTRKa
+	id S1751170AbWDTRJT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 13:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWDTRJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 13:10:30 -0400
-Received: from nz-out-0102.google.com ([64.233.162.205]:35691 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751153AbWDTRK3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 13:10:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iz3d+L8A3j840SCUfFQCH1eh70eF3a2qCSs8uGSqtb+M4FdGDdq2a5bEhD4o2FBYj/d0U+pmUFZphu38uBy3QO1WbQzQCG+qWwewqq9czdr6bfthikw/Bhg80gfKdgugjsGiz3itbC5JadacnufNmpnk7zoZdzlmoYL/YZw9pkc=
-Message-ID: <a4403ff60604201010o55c3d3f6g65328c5f577f7623@mail.gmail.com>
-Date: Thu, 20 Apr 2006 11:10:28 -0600
-From: "David Wilk" <davidwilk@gmail.com>
-To: "Hugh Dickins" <hugh@veritas.com>
-Subject: Re: [stable] 2.6.16.6 breaks java... sort of
-Cc: "Greg KH" <greg@kroah.com>, "Chris Wright" <chrisw@sous-sol.org>,
-       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>, stable@kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0604201706540.14395@blonde.wat.veritas.com>
+	Thu, 20 Apr 2006 13:09:17 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:27116 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751170AbWDTRI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 13:08:58 -0400
+Message-ID: <4447C020.3010003@linux.intel.com>
+Date: Thu, 20 Apr 2006 21:08:48 +0400
+From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <a4403ff60604191152u5a71e70fr9f54c104a654fc99@mail.gmail.com>
-	 <20060419192803.GA19852@kroah.com>
-	 <Pine.LNX.4.64.0604192046590.17491@blonde.wat.veritas.com>
-	 <Pine.LNX.4.64.0604201706540.14395@blonde.wat.veritas.com>
+To: Martin Mares <mj@ucw.cz>
+CC: Matthew Garrett <mjg59@srcf.ucam.org>, "Yu, Luming" <luming.yu@intel.com>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <mj+md-20060420.165714.18107.albireo@ucw.cz>
+In-Reply-To: <mj+md-20060420.165714.18107.albireo@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, absolutely.  I'd love to help test.
-
-I feel obligated to point out that this problem only occured when I
-had the Xmx set to 768MB on a machine with only 1GB of ram (3GB total
-VM), although it might have caused problems when the JVM eventually
-requested more heap space (without the initial grab that Xmx=768m
-forces).
-
-I applaud all efforts to secure the kernel, and wouldn't want to
-stifle that effort in any way.
-
-I'll give this a whirl and get right back to you.
-
-thanks,
-Dave
-
-On 4/20/06, Hugh Dickins <hugh@veritas.com> wrote:
-> On Wed, 19 Apr 2006, Hugh Dickins wrote:
-> > On Wed, 19 Apr 2006, Greg KH wrote:
-> > > On Wed, Apr 19, 2006 at 12:52:33PM -0600, David Wilk wrote:
-> > > >
-> > > > I think an issue was introduced with mprotect (the first patch in
-> > > > 2.6.16.6).  With 2.6.16.5, tomcat runs fine (in sun-1.5), but in
-> > > > 2.6.16.7, the JVM bails out complaining that it couldn't allocate
-> > > > enough heap space.
-> >
-> > Neither expected nor satisfactory.  Sorry about that.  We were hoping
-> > the straightforward shm/mprotect fix would be good enough, but it
-> > appears not.  JVM is probably doing something we can allow with a
-> > more complicated patch, but it _might_ turn out to be doing something
-> > we simply cannot allow: I'll hope for the first and work out a patch
-> > for that; but won't be ready to post it until tomorrow.
->
-> David, would you please try this patch on top of your 2.6.16.7 or later.
-> The first hunk undoes the problematic patch, the remainder does it in a
-> more permissive way.  Aesthetically, not as satisfactory as the previous
-> patch; but it's important that we not break userspace, unless security
-> absolutely demands.  Please let us know how this fares: thanks.
->
-> Hugh
->
-> --- 2.6.16.9/ipc/shm.c  2006-04-20 11:59:03.000000000 +0100
-> +++ linux/ipc/shm.c     2006-04-20 16:57:36.000000000 +0100
-> @@ -161,8 +161,6 @@ static int shm_mmap(struct file * file,
->         ret = shmem_mmap(file, vma);
->         if (ret == 0) {
->                 vma->vm_ops = &shm_vm_ops;
-> -               if (!(vma->vm_flags & VM_WRITE))
-> -                       vma->vm_flags &= ~VM_MAYWRITE;
->                 shm_inc(file->f_dentry->d_inode->i_ino);
->         }
->
-> @@ -677,6 +675,8 @@ out:
->   */
->  long do_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
->  {
-> +       struct mm_struct *mm = current->mm;
-> +       struct vm_area_struct *vma;
->         struct shmid_kernel *shp;
->         unsigned long addr;
->         unsigned long size;
-> @@ -684,7 +684,7 @@ long do_shmat(int shmid, char __user *sh
->         int    err;
->         unsigned long flags;
->         unsigned long prot;
-> -       unsigned long o_flags;
-> +       int maywrite;
->         int acc_mode;
->         void *user_addr;
->
-> @@ -711,11 +711,11 @@ long do_shmat(int shmid, char __user *sh
->
->         if (shmflg & SHM_RDONLY) {
->                 prot = PROT_READ;
-> -               o_flags = O_RDONLY;
-> +               maywrite = 0;
->                 acc_mode = S_IRUGO;
->         } else {
->                 prot = PROT_READ | PROT_WRITE;
-> -               o_flags = O_RDWR;
-> +               maywrite = 1;
->                 acc_mode = S_IRUGO | S_IWUGO;
->         }
->         if (shmflg & SHM_EXEC) {
-> @@ -748,30 +748,43 @@ long do_shmat(int shmid, char __user *sh
->                 shm_unlock(shp);
->                 return err;
->         }
-> -
-> +
-> +       if (!maywrite && !ipcperms_dac(&shp->shm_perm, S_IWUGO))
-> +               maywrite = 1;
-> +
->         file = shp->shm_file;
->         size = i_size_read(file->f_dentry->d_inode);
->         shp->shm_nattch++;
->         shm_unlock(shp);
->
-> -       down_write(&current->mm->mmap_sem);
-> +       down_write(&mm->mmap_sem);
->         if (addr && !(shmflg & SHM_REMAP)) {
->                 user_addr = ERR_PTR(-EINVAL);
-> -               if (find_vma_intersection(current->mm, addr, addr + size))
-> +               if (find_vma_intersection(mm, addr, addr + size))
->                         goto invalid;
->                 /*
->                  * If shm segment goes below stack, make sure there is some
->                  * space left for the stack to grow (at least 4 pages).
->                  */
-> -               if (addr < current->mm->start_stack &&
-> -                   addr > current->mm->start_stack - size - PAGE_SIZE * 5)
-> +               if (addr < mm->start_stack &&
-> +                   addr > mm->start_stack - size - PAGE_SIZE * 5)
->                         goto invalid;
->         }
-> -
-> +
->         user_addr = (void*) do_mmap (file, addr, size, prot, flags, 0);
->
-> +       if (!maywrite && !IS_ERR(user_addr)) {
-> +               /*
-> +                * Prevent mprotect from giving write permission later on.
-> +                * We would prefer just to clear VM_MAYWRITE from a readonly
-> +                * attachment in shm_mmap, but it seems that JVM has got into
-> +                * the habit of attaching readonly then mprotecting to write.
-> +                */
-> +               vma = find_vma(mm, (unsigned long) user_addr);
-> +               vma->vm_flags &= ~VM_MAYWRITE;
-> +       }
->  invalid:
-> -       up_write(&current->mm->mmap_sem);
-> +       up_write(&mm->mmap_sem);
->
->         down (&shm_ids.sem);
->         if(!(shp = shm_lock(shmid)))
-> --- 2.6.16.9/ipc/util.c 2006-03-20 05:53:29.000000000 +0000
-> +++ linux/ipc/util.c    2006-04-20 16:57:36.000000000 +0100
-> @@ -464,7 +464,7 @@ void ipc_rcu_putref(void *ptr)
->   *     to ipc resources. return 0 if allowed
->   */
->
-> -int ipcperms (struct kern_ipc_perm *ipcp, short flag)
-> +int ipcperms_dac(struct kern_ipc_perm *ipcp, short flag)
->  {      /* flag will most probably be 0 or S_...UGO from <linux/stat.h> */
->         int requested_mode, granted_mode;
->
-> @@ -478,7 +478,13 @@ int ipcperms (struct kern_ipc_perm *ipcp
->         if ((requested_mode & ~granted_mode & 0007) &&
->             !capable(CAP_IPC_OWNER))
->                 return -1;
-> +       return 0;
-> +}
->
-> +int ipcperms(struct kern_ipc_perm *ipcp, short flag)
-> +{
-> +       if (ipcperms_dac(ipcp, flag))
-> +               return -1;
->         return security_ipc_permission(ipcp, flag);
->  }
->
-> --- 2.6.16.9/ipc/util.h 2006-03-20 05:53:29.000000000 +0000
-> +++ linux/ipc/util.h    2006-04-20 16:57:36.000000000 +0100
-> @@ -47,7 +47,8 @@ int ipc_addid(struct ipc_ids* ids, struc
->  /* must be called with both locks acquired. */
->  struct kern_ipc_perm* ipc_rmid(struct ipc_ids* ids, int id);
->
-> -int ipcperms (struct kern_ipc_perm *ipcp, short flg);
-> +int ipcperms_dac(struct kern_ipc_perm *ipcp, short flag);
-> +int ipcperms(struct kern_ipc_perm *ipcp, short flag);
->
->  /* for rare, potentially huge allocations.
->   * both function can sleep
->
+Martin Mares wrote:
+> Hello!
+> 
+>> Generic application does not need to know if power, sleep, or lid button is 
+>> pressed, so you will need to intercept them from input stream... I cannot 
+>> find any reason to mix these buttons into input, do you?
+> 
+> Neither does a generic application need to know if the NumLock key is just
+> pressed. This doesn't mean anything.
+> 
+> I don't see any reason for treating some keys or buttons differently.
+> A key is just a key.
+> 
+> 				Have a nice fortnight
+There is one special key anyway -- reset...

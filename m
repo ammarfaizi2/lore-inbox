@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWDUPUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWDUPVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWDUPUP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 11:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWDUPUO
+	id S932351AbWDUPVR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 11:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWDUPVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 11:20:14 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:825 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932362AbWDUPUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 11:20:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
-        b=OVpF1Wfj0cA557EKmoZX9ISklNdxBw2oSoJ2osdqA/RMJkd4P8Pk/0mP3cdqUW2KwUs9WEZaANeEj11obCt9BWoV7jyQ1BvRjreu+tYWbzYSVcxxuAcQYDksj89VRWwyXViKEVdkZAwQOD2n9VyE8iDJ8w6oo7A1Vd4i1+3NWYU=
-Message-ID: <4448F9A7.9040803@gmail.com>
-Date: Fri, 21 Apr 2006 22:26:31 +0700
-From: Mikado <mikado4vn@gmail.com>
-Reply-To: mikado4vn@gmail.com
-Organization: IcySpace.net
-User-Agent: Thunderbird 1.5.0.2 (X11/20060308)
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?T=F6r=F6k_Edwin?= <edwin@gurde.com>
-CC: linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
-Subject: Re: [RFC] packet/socket owner match (fireflier) using skfilter
-References: <200604021240.21290.edwin@gurde.com>
-In-Reply-To: <200604021240.21290.edwin@gurde.com>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=65ABD897
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Apr 2006 11:21:17 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16658 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932351AbWDUPVQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 11:21:16 -0400
+Date: Thu, 20 Apr 2006 17:46:02 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Valdis.Kletnieks@vt.edu
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+       James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060420174602.GA2360@ucw.cz>
+References: <1144863768.32059.67.camel@moss-spartans.epoch.ncsc.mil> <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Does your module get into below problem?
+Hi!
 
-http://lkml.org/lkml/2006/4/20/132
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+> If we heave the LSM stuff overboard, there's one thing that *will* need
+> addressing - what to do with kernel support of Posix-y capabilities.  Currently
+> some of the heavy lifting is done by security/commoncap.c.
+> 
+> Frankly, that's *another* thing that we need to either *fix* so it works right,
+> or rip out of the kernel entirely.  As far as I know, there's no in-tree way
+> to make /usr/bin/ping be set-CAP_NET_RAW and have it DTRT.
 
-iD8DBQFESPmnNWc9T2Wr2JcRAnMtAKDZvLH2MRmY/jeW/YW/9UP1fm/xwgCfSZZ/
-Qom6TxVirR4HWV9Asc2ZixY=
-=xlSu
------END PGP SIGNATURE-----
+Well, you can still have ping drop all but CAP_NET_RAW as a first
+thing in main(), which is almost as good. And IIRC some apps actually
+do that...
+
+-- 
+Thanks, Sharp!

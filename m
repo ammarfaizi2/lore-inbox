@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWDTSmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWDTTKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWDTSmH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 14:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWDTSmH
+	id S1750843AbWDTTKF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 15:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWDTTKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 14:42:07 -0400
-Received: from zcars04f.nortel.com ([47.129.242.57]:38562 "EHLO
-	zcars04f.nortel.com") by vger.kernel.org with ESMTP
-	id S1751212AbWDTSmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 14:42:06 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.17-rc2
-References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
-	<20060419200001.fe2385f4.diegocg@gmail.com>
-	<Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
-	<20060420145041.GE4717@suse.de>
-From: "Linh Dang" <linhd@nortel.com>
-Organization: Null
-Date: Thu, 20 Apr 2006 14:40:08 -0400
-In-Reply-To: <20060420145041.GE4717@suse.de> (Jens Axboe's message of "Thu,
- 20 Apr 2006 16:50:42 +0200")
-Message-ID: <wn5fyk85bw7.fsf@linhd-2.ca.nortel.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 20 Apr 2006 15:10:04 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28126
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750724AbWDTTKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 15:10:03 -0400
+Date: Thu, 20 Apr 2006 12:09:55 -0700 (PDT)
+Message-Id: <20060420.120955.28255828.davem@davemloft.net>
+To: simlo@phys.au.dk
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, netdev@vger.kernel.org
+Subject: Re: Van Jacobson's net channels and real-time
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.44L0.0604201819040.19330-100000@lifa01.phys.au.dk>
+References: <Pine.LNX.4.44L0.0604201819040.19330-100000@lifa01.phys.au.dk>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
 
-> On Wed, Apr 19 2006, Linus Torvalds wrote:
->> There are some other buffer management system calls that I haven't
->> done yet (and when I say "I haven't done yet", I obviously mean
->> "that I hope some other sucker will do for me, since I'm lazy"),
->> but that are obvious future extensions:
->
-> Well it's worked so far, hasn't it? :-)
->
->> - an ioctl/fcntl to set the maximum size of the buffer. Right now
->>   it's
->> hardcoded to 16 "buffer entries" (which in turn are normally limited to 
->> one page each, although there's nothing that _requires_ that a buffer 
->> entry always be a page).
->
-> This is on a TODO, but not very high up since I've yet to see a case
-> where the current 16 page limitation is an issue. I'm sure something
-> will come up eventually, but until then I'd rather not bother.
+[ Maybe ask questions like this on "netdev" where the networking
+  developers hang out?  Added to CC: ]
 
-DVD burning! splicing those huge VOB files into the dvd device would
-be nice. And believe me, the current 16 entries of the pipe is nowhere
-enough to sustain burning at 8X avg speed or higher.
+Van fell off the face of the planet after giving his presentation and
+never published his code, only his slides.
 
-It's a special case but it'd benefit a LOT of ppl ;-)
+I've started to make a slow attempt at implementing his ideas, nothing
+but pure infrastructure so far, but you can look at what I have here:
 
--- 
-Linh Dang
+	kernel.org:/pub/scm/linux/kernel/git/davem/vj-2.6.git
+
+don't expect major progress and don't expect anything beyond a simple
+channel to softint packet processing on receive any time soon.
+
+Going all the way to the socket is a large endeavor and will require a
+lot of restructuring to do it right, so expect this to take on the
+order of months.

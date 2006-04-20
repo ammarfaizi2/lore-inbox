@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWDTU5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWDTU5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWDTU5A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 16:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWDTU5A
+	id S1751313AbWDTU5F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 16:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWDTU5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 16:57:00 -0400
-Received: from smtp13.wanadoo.fr ([193.252.22.54]:43709 "EHLO
-	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S1751311AbWDTU47
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 16:56:59 -0400
-X-ME-UUID: 20060420205657655.9FFF37000087@mwinf1302.wanadoo.fr
-Date: Thu, 20 Apr 2006 22:55:55 +0200
-From: Mathieu Chouquet-Stringer <mchouque@free.fr>
-To: Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
-       linux-alpha@vger.kernel.org, rth@twiddle.net
-Subject: Re: strncpy (maybe others) broken on Alpha
-Message-ID: <20060420205555.GA11502@bigip.bigip.mine.nu>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
-	Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org, rth@twiddle.net
-References: <20060419213129.GA9148@localhost> <20060419215803.6DE5BDBA1@gherkin.frus.com> <20060420101448.GA20087@localhost> <20060420171102.GA7272@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060420171102.GA7272@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+	Thu, 20 Apr 2006 16:57:05 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:38161 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751313AbWDTU5D convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 16:57:03 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <200604202237.34134@zmi.at>
+x-originalarrivaltime: 20 Apr 2006 20:57:01.0736 (UTC) FILETIME=[F8CB9A80:01C664BC]
+Content-class: urn:content-classes:message
+Subject: Re: rtc: lost some interrupts at 256Hz
+Date: Thu, 20 Apr 2006 16:57:01 -0400
+Message-ID: <Pine.LNX.4.61.0604201649460.6634@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: rtc: lost some interrupts at 256Hz
+Thread-Index: AcZkvPjo5/kic7PCQ9qm0lQFDx20QQ==
+References: <200604202237.34134@zmi.at>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Michael Monnerie" <michael.monnerie@it-management.at>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 07:11:02PM +0200, Mathieu Chouquet-Stringer wrote:
-> And here's the output using gcc version 3.4.4 (Gentoo 3.4.4-r1,
-> ssp-3.4.4-1.0, pie-8.7.8), note i didn't use flag except -Wall:
 
-Same code compiled with 2.95.3 fails too (I'll be trying 4.1.0 just for
-the kick of it, if it cross-compiles ok but I don't expect it to work
-either).
+On Thu, 20 Apr 2006, Michael Monnerie wrote:
 
+> When you google for such messages, you can find a lot of people asking,
+> but nobody seems to have an answer. That's why I ask this list, where
+> the Godfathers Of Linux reside, and maybe someone hears my prayer and
+> could explain us sheep what you should do in such a case. Increase the
+> HZ from 250 to 1000, or decrease to 100? Or maybe setting the
+> preemption model from server to voluntary or preemptible? Or is that
+> whining to be ignored, and if yes, what is this message for at all?
+>
+> Please give us wisdom, and we will spread your word. Amen.
+>
+> Answers please per PM, I'm not on this list.
+>
 
-PS: Richard, we're having troubles with at least one of your function
-(strncpy) on alpha.  It appears it doesn't copy the source string
-properly.
-You can read a recap of the thread here:
-http://groups.google.com/group/linux.kernel/browse_thread/thread/551729237671f997/11109932eae9fd93?tvc=2&q=group%3A*kernel*+strncpy+mathieu#11109932eae9fd93
--- 
-Mathieu Chouquet-Stringer                           mchouque@free.fr
+If you are losing interrupts at 256 Hz, you have either/or:
+(1) Some very BAD driver that is disabling interrupts for way too long.
+(2) Some very slow CPU (like 40 Mhz) that is being overwhelmed by a lot of
+network interrupt activity.
 
+The last time I measured, with a 400 MHz, '486 machine, Linux could
+handle 50,000 interrupts per second off the printer port, with the
+lowest priority interrupt (IRQ7). The work, within the interrupt was
+to toggle a bit in memory and write it back to the printer data port.
+
+This was used to show latency (with a scope) and log any missed
+interrupts of which there were none.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWDTPPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWDTPPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750976AbWDTPPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 11:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWDTPPJ
+	id S1750996AbWDTPPt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 11:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWDTPPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 11:15:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11144 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750976AbWDTPPI (ORCPT
+	Thu, 20 Apr 2006 11:15:49 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:64188 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750987AbWDTPPr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 11:15:08 -0400
-Date: Thu, 20 Apr 2006 08:14:52 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Gerd Hoffmann <kraxel@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: smp/up alternatives crash when CONFIG_HOTPLUG_CPU
-In-Reply-To: <20060420052954.GA5524@elte.hu>
-Message-ID: <Pine.LNX.4.64.0604200759400.3701@g5.osdl.org>
-References: <20060419094630.GA14800@elte.hu> <20060420052954.GA5524@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Apr 2006 11:15:47 -0400
+Subject: Re: Removing EXPORT_SYMBOL(security_ops) (was Re: Time to remove
+	LSM)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Greg KH <greg@kroah.com>
+Cc: tonyj@suse.de, James Morris <jmorris@namei.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20060420150037.GA30353@kroah.com>
+References: <20060417162345.GA9609@infradead.org>
+	 <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060417173319.GA11506@infradead.org>
+	 <Pine.LNX.4.64.0604171454070.17563@d.namei>
+	 <20060417195146.GA8875@kroah.com>
+	 <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+	 <20060419154011.GA26635@kroah.com>
+	 <Pine.LNX.4.64.0604191221100.4408@d.namei>
+	 <20060419181015.GC11091@kroah.com>
+	 <1145536791.16456.37.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060420150037.GA30353@kroah.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 20 Apr 2006 10:20:11 -0400
+Message-Id: <1145542811.3313.94.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 20 Apr 2006, Ingo Molnar wrote:
+On Thu, 2006-04-20 at 08:00 -0700, Greg KH wrote:
+> I agree.  In looking over the code some more, I'm trying to figure out
+> why we are exporting that variable at all.  Is it because of people
+> wanting to stack security modules?
 > 
-> but ... a more fundamental question is, where does the SMP-alternatives 
-> code flush the icache? I dont think it's generally guaranteed on x86 
-> CPUs that MESI updates to code get propagated into the icache of other 
-> CPUs/cores.
+> I see selinux code using it, but you are always built into the kernel,
+> right?  So unexporting it would not be an issue to you.
 
-It's guaranteed that the _caches_ get updated, but what isn't guaranteed 
-is (a) when they do, in the absense of some synchronization primitive, 
-anbd (b) that the prefetch queues do.
+Various in-tree modules (e.g. ext3) call security hooks via the static
+inlines and end up referencing security_ops directly.  We'd have to wrap
+all such hooks in the same manner as capable and permission.
 
-So you cannot rewrite code that some other CPU is executing, without some 
-kind of locking (to make sure that it's not executing right then and 
-there) and without having the other CPU do a serializing instruction 
-(which the lock will normally generate, of course).
+Although I was actually talking about eliminating security_ops, not just
+un-exporting it ;)
 
-Now for the smp/up thing, we _should_ be safe, because the rewriting from 
-UP back to SMP versions should happen before the other CPU even comes 
-online (since we're the one bringing it up). And when we have more CPU's 
-(and another CPU may be running), we've obviously already done it.
+> Tony, would AppArmor have problems if we don't export that variable
+> anymore?
 
-There must be another bug there somewhere. It's not about cache coherency.
+-- 
+Stephen Smalley
+National Security Agency
 
-(If it was, it would have more serious problems in the bootup sequence: 
-think of just the trampoline that it generates to boot the second CPU, 
-which is also written just before we actually tell the second CPU to boot 
-up).
-
-I can see two potential bugs:
-
- - we will do the alternatives_smp_switch(1) for each CPU that comes up, 
-   even though we should do it only when we bring up the _first_ CPU 
-   (which is obviously the second one - we never bring up the boot CPU).
-
-   This should be ok, though. The subsequent calls should replace the code 
-   with itself. I don't like writing to code even if it's writing with the 
-   same contents, though.
-
-   And this is not the issue you have, if you just have two cores (you 
-   won't be bringing up a third CPU ;)
-
- - we simply save the smp info incorrectly, and don't bring it back 
-   properly.
-
-But cache coherency problems I don't believe in.
-
-		Linus

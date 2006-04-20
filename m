@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWDTQ2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWDTQ2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbWDTQ2M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 12:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWDTQ2M
+	id S1751125AbWDTQ2s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 12:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWDTQ2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 12:28:12 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:9923 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751123AbWDTQ2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 12:28:10 -0400
-Message-ID: <4447B692.3000704@linux.intel.com>
-Date: Thu, 20 Apr 2006 20:28:02 +0400
-From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-CC: "Yu, Luming" <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
-References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <20060420161546.GB30021@srcf.ucam.org>
-In-Reply-To: <20060420161546.GB30021@srcf.ucam.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 20 Apr 2006 12:28:48 -0400
+Received: from xenotime.net ([66.160.160.81]:57288 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751125AbWDTQ2r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 12:28:47 -0400
+Date: Thu, 20 Apr 2006 09:31:12 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Emmanuel Fleury <emmanuel.fleury@labri.fr>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [libata] atapi_enabled problem
+Message-Id: <20060420093112.1ebbac16.rdunlap@xenotime.net>
+In-Reply-To: <4447AD52.60402@labri.fr>
+References: <44477D93.50501@labri.fr>
+	<20060420082852.f679a376.rdunlap@xenotime.net>
+	<4447AD52.60402@labri.fr>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett wrote:
-> On Thu, Apr 20, 2006 at 07:57:01PM +0400, Alexey Starikovskiy wrote:
+On Thu, 20 Apr 2006 17:48:34 +0200 Emmanuel Fleury wrote:
+
+> Hi Randy.
 > 
->> I think you will agree that ACPI buttons are special and will need special 
->> handling even in input stream...
->> Generic application does not need to know if power, sleep, or lid button is 
->> pressed, so you will need to intercept them from input stream... I cannot 
->> find any reason to mix these buttons into input, do you?
+> Randy.Dunlap wrote:
+> > 
+> > Yes, it should and it has worked for quite a few people in the past.
+> > I suspect something more like a typo.  Anyway, recent kernels
+> > (after 2.6.16, so 2.6.17-rc*) already have atapi_enabled set to 1.
 > 
-> On many machines, they're /already/ in the input stream. Applications 
-> that misbehave if they receive unknown keycodes are broken and need 
-> fixing in any case.
-> 
-I don't quite understand your point... You want all buttons/switches in a computer to send events to input layer, regardless if this make sense or not, just to be consistent? May be you should go other way around and  if keyboard has some strange key, send it on its strange way? 
+> My mistake, I forgot to say I was using 2.6.16.2. Maybe this
+> atapi_enabled=1 does appear only in 2.6.17-rc* ?
+
+Yes, it's not in the stable series, just in 2.6.17-rc*.
+
+> Anyway, setting atapi_enabled to '1' in the future releases should solve
+> my problem. So, I guess that this isn't a bug after all (just a
+> difficult transition :).
+
+Hopefully it's behind us then...
+
+---
+~Randy

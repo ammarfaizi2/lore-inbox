@@ -1,179 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWDTQ4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWDTQ41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWDTQ4h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 12:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWDTQ4h
+	id S1751136AbWDTQ41 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 12:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWDTQ41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 12:56:37 -0400
-Received: from mga05.intel.com ([192.55.52.89]:29748 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751129AbWDTQ4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 12:56:35 -0400
-X-IronPort-AV: i="4.04,141,1144047600"; 
-   d="scan'208"; a="26442273:sNHT59593597"
-X-IronPort-AV: i="4.04,141,1144047600"; 
-   d="scan'208"; a="26442266:sNHT57229291"
-TrustExchangeSourcedMail: True
-X-IronPort-AV: i="4.04,141,1144047600"; 
-   d="scan'208"; a="26442259:sNHT66006766"
-Date: Thu, 20 Apr 2006 09:54:08 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Peter Williams <pwil3058@bigpond.net.au>, akpm@osdl.org
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] smpnice: don't consider sched groups which are lightly loaded for balancing
-Message-ID: <20060420095408.A10267@unix-os.sc.intel.com>
-References: <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au> <20060329145242.A11376@unix-os.sc.intel.com> <442B1AE8.5030005@bigpond.net.au> <20060329165052.C11376@unix-os.sc.intel.com> <442B3111.5030808@bigpond.net.au> <20060401204824.A8662@unix-os.sc.intel.com> <442F7871.4030405@bigpond.net.au> <20060419182444.A5081@unix-os.sc.intel.com> <444719F8.2050602@bigpond.net.au>
+	Thu, 20 Apr 2006 12:56:27 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:34771 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1751127AbWDTQ40 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 12:56:26 -0400
+Subject: Re: Removing EXPORT_SYMBOL(security_ops) (was Re: Time to remove
+	LSM)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>, tonyj@suse.de,
+       James Morris <jmorris@namei.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andrew Morton <akpm@osdl.org>,
+       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20060420164651.GA2439@kroah.com>
+References: <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+	 <20060419154011.GA26635@kroah.com>
+	 <Pine.LNX.4.64.0604191221100.4408@d.namei>
+	 <20060419181015.GC11091@kroah.com>
+	 <1145536791.16456.37.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060420150037.GA30353@kroah.com>
+	 <1145542811.3313.94.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060420161552.GA1990@kroah.com> <20060420162309.GA18726@infradead.org>
+	 <1145550897.3313.143.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060420164651.GA2439@kroah.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 20 Apr 2006 13:00:12 -0400
+Message-Id: <1145552412.3313.150.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <444719F8.2050602@bigpond.net.au>; from pwil3058@bigpond.net.au on Thu, Apr 20, 2006 at 03:19:52PM +1000
-X-OriginalArrivalTime: 20 Apr 2006 16:56:33.0878 (UTC) FILETIME=[611F2F60:01C6649B]
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-updated patch appended. thanks.
+On Thu, 2006-04-20 at 09:46 -0700, Greg KH wrote:
+> On Thu, Apr 20, 2006 at 12:34:57PM -0400, Stephen Smalley wrote:
+> > On Thu, 2006-04-20 at 17:23 +0100, Christoph Hellwig wrote:
+> > > On Thu, Apr 20, 2006 at 09:15:52AM -0700, Greg KH wrote:
+> > > > On Thu, Apr 20, 2006 at 10:20:11AM -0400, Stephen Smalley wrote:
+> > > > > On Thu, 2006-04-20 at 08:00 -0700, Greg KH wrote:
+> > > > > > I agree.  In looking over the code some more, I'm trying to figure out
+> > > > > > why we are exporting that variable at all.  Is it because of people
+> > > > > > wanting to stack security modules?
+> > > > > > 
+> > > > > > I see selinux code using it, but you are always built into the kernel,
+> > > > > > right?  So unexporting it would not be an issue to you.
+> > > > > 
+> > > > > Various in-tree modules (e.g. ext3) call security hooks via the static
+> > > > > inlines and end up referencing security_ops directly.  We'd have to wrap
+> > > > > all such hooks in the same manner as capable and permission.
+> > > > 
+> > > > Ah, and people like making their file systems as modules :(
+> > > 
+> > > But actually yes, calling into rndom lsm hooks in modules is not a good
+> > > thing.a  The only think filesystems calls is security_inode_init_security
+> > > and it would make a lot of sense to make that an out of line wrapper
+> > > instead of exporting security_ops.
+> > 
+> > There are other cases as well, I think, e.g. af_unix calls certain hooks
+> > to ensure mediation of even the abstract namespace.  But the problem is
+> > avoided altogether if the security static inlines compile down to direct
+> > selinux function calls (which can be exported as needed).
+> 
+> Of course it's "avoided alltogether" but we are not talking about
+> dropping the whole LSM interface here right now.  I am wanting something
+> that can go into 2.6.17 to fix this issue this week.
 
---
-with smpnice, sched groups with highest priority tasks can mask the
-imbalance between the other sched groups with in the same domain.
-This patch fixes some of the listed down scenarios by not considering
-the sched groups which are lightly loaded.
+Ah, I see - didn't realize you were targeting 2.6.17 for this change.
+In that case, your original proposal of just making it _GPL makes the
+most sense for 2.6.17, and then look to introduce out of line wrappers
+for all affected hooks (or remove LSM, if that is decided) later.
 
-a) on a simple 4-way MP system, if we have one high priority and 4 normal
-priority tasks, with smpnice we would like to see the high priority task
-scheduled on one cpu, two other cpus getting one normal task each and the
-fourth cpu getting the remaining two normal tasks. but with current smpnice
-extra normal priority task keeps jumping from one cpu to another cpu having
-the normal priority task.  This is because of the busiest_has_loaded_cpus,
-nr_loaded_cpus logic.. We are not including the cpu with high priority
-task in max_load calculations but including that in total and avg_load
-calcuations.. leading to max_load < avg_load and load balance between
-cpus running normal priority tasks(2 Vs 1) will always show imbalanace
-as one normal priority and the extra normal priority task will keep moving
-from one cpu to another cpu having normal priority task..
+-- 
+Stephen Smalley
+National Security Agency
 
-b) 4-way system with HT (8 logical processors). Package-P0 T0 has a highest
-priority task, T1 is idle. Package-P1 Both T0 and T1 have 1 normal priority
-task each..  P2 and P3 are idle.  With this patch, one of the normal priority
-tasks on P1 will be moved to P2 or P3..
-
-c) With the current weighted smp nice calculations, it doesn't always make
-sense to look at the highest weighted runqueue in the busy group..
-Consider a load balance scenario on a DP with HT system, with Package-0
-containing one high priority and one low priority, Package-1 containing
-one low priority(with other thread being idle)..  Package-1 thinks that it
-need to take the low priority thread from Package-0. And find_busiest_queue()
-returns the cpu thread with highest priority task.. And ultimately(with help
-of active load balance) we move high priority task to Package-1. And same
-continues with Package-0 now, moving high priority task from package-1 to
-package-0..  Even without the presence of active load balance, load balance
-will fail to balance the above scenario..  Fix find_busiest_queue to use
-"imbalance" when it is lightly loaded.
-
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-
---- linux-2.6.17-rc1/kernel/sched.c	2006-04-13 11:38:16.897333112 -0700
-+++ linux~/kernel/sched.c	2006-04-20 07:52:31.974898888 -0700
-@@ -2145,7 +2145,6 @@ find_busiest_group(struct sched_domain *
- 	unsigned long max_pull;
- 	unsigned long busiest_load_per_task, busiest_nr_running;
- 	unsigned long this_load_per_task, this_nr_running;
--	unsigned int busiest_has_loaded_cpus = idle == NEWLY_IDLE;
- 	int load_idx;
- 
- 	max_load = this_load = total_load = total_pwr = 0;
-@@ -2200,15 +2199,8 @@ find_busiest_group(struct sched_domain *
- 			this = group;
- 			this_nr_running = sum_nr_running;
- 			this_load_per_task = sum_weighted_load;
--		} else if (nr_loaded_cpus) {
--			if (avg_load > max_load || !busiest_has_loaded_cpus) {
--				max_load = avg_load;
--				busiest = group;
--				busiest_nr_running = sum_nr_running;
--				busiest_load_per_task = sum_weighted_load;
--				busiest_has_loaded_cpus = 1;
--			}
--		} else if (!busiest_has_loaded_cpus && avg_load > max_load) {
-+		} else if (avg_load > max_load &&
-+			   sum_nr_running > group->cpu_power / SCHED_LOAD_SCALE) {
- 			max_load = avg_load;
- 			busiest = group;
- 			busiest_nr_running = sum_nr_running;
-@@ -2241,6 +2233,16 @@ find_busiest_group(struct sched_domain *
- 	if (max_load <= busiest_load_per_task)
- 		goto out_balanced;
- 
-+	/*
-+	 * In the presence of smp nice balancing, certain scenarios can have
-+	 * max load less than avg load(as we skip the groups at or below
-+	 * its cpu_power, while calculating max_load..)
-+	 */
-+	if (max_load < avg_load) {
-+		*imbalance = 0;
-+		goto small_imbalance;
-+	}
-+
- 	/* Don't want to pull so many tasks that a group would go idle */
- 	max_pull = min(max_load - avg_load, max_load - busiest_load_per_task);
- 
-@@ -2256,6 +2258,7 @@ find_busiest_group(struct sched_domain *
- 	 * moved
- 	 */
- 	if (*imbalance < busiest_load_per_task) {
-+small_imbalance:
- 		unsigned long pwr_now = 0, pwr_move = 0;
- 		unsigned long tmp;
- 		unsigned int imbn = 2;
-@@ -2318,23 +2321,19 @@ out_balanced:
-  * find_busiest_queue - find the busiest runqueue among the cpus in group.
-  */
- static runqueue_t *find_busiest_queue(struct sched_group *group,
--	enum idle_type idle)
-+	enum idle_type idle, unsigned long imbalance)
- {
- 	unsigned long max_load = 0;
- 	runqueue_t *busiest = NULL, *rqi;
--	unsigned int busiest_is_loaded = idle == NEWLY_IDLE;
- 	int i;
- 
- 	for_each_cpu_mask(i, group->cpumask) {
- 		rqi = cpu_rq(i);
- 
--		if (rqi->nr_running > 1) {
--			if (rqi->raw_weighted_load > max_load || !busiest_is_loaded) {
--				max_load = rqi->raw_weighted_load;
--				busiest = rqi;
--				busiest_is_loaded = 1;
--			}
--		} else if (!busiest_is_loaded && rqi->raw_weighted_load > max_load) {
-+		if (rqi->nr_running == 1 && rqi->raw_weighted_load > imbalance)
-+			continue;
-+
-+		if (rqi->raw_weighted_load > max_load) {
- 			max_load = rqi->raw_weighted_load;
- 			busiest = rqi;
- 		}
-@@ -2377,7 +2376,7 @@ static int load_balance(int this_cpu, ru
- 		goto out_balanced;
- 	}
- 
--	busiest = find_busiest_queue(group, idle);
-+	busiest = find_busiest_queue(group, idle, imbalance);
- 	if (!busiest) {
- 		schedstat_inc(sd, lb_nobusyq[idle]);
- 		goto out_balanced;
-@@ -2501,7 +2500,7 @@ static int load_balance_newidle(int this
- 		goto out_balanced;
- 	}
- 
--	busiest = find_busiest_queue(group, NEWLY_IDLE);
-+	busiest = find_busiest_queue(group, NEWLY_IDLE, imbalance);
- 	if (!busiest) {
- 		schedstat_inc(sd, lb_nobusyq[NEWLY_IDLE]);
- 		goto out_balanced;

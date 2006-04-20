@@ -1,92 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWDTX1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWDTX1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWDTX1M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 19:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWDTX1M
+	id S1751268AbWDTX1l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 19:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWDTX1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 19:27:12 -0400
-Received: from imo-d02.mx.aol.com ([205.188.157.34]:41178 "EHLO
-	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S932121AbWDTX1L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 19:27:11 -0400
-Date: Thu, 20 Apr 2006 19:27:04 -0400
-From: larrystotler@netscape.net
-Message-Id: <8C832E9113701BB-26B4-B4FC@mblkn-m06.sysops.aol.com>
-X-MB-Message-Source: WebUI
-X-MB-Message-Type: User
-X-Mailer: Netscape WebMail 15106
-Subject: Cardbus problem on Thinkpad 600
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Thu, 20 Apr 2006 19:27:41 -0400
+Received: from ping.uio.no ([129.240.78.2]:17618 "EHLO ping.uio.no")
+	by vger.kernel.org with ESMTP id S1751268AbWDTX1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 19:27:40 -0400
+To: linuxram@us.ibm.com (Ram Pai)
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, arjan@infradead.org,
+       bunk@stusta.de, greg@kroah.com, hch@infradead.org, mathur@us.ibm.com
+Subject: Re: [RFC PATCH 2/3] export symbol report: export-symbol usage
+ report generator.
+References: <20060420223654.2E5CA470031@localhost>
+From: ilmari@ilmari.org (=?utf-8?q?Dagfinn_Ilmari_Manns=C3=A5ker?=)
+Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
+Date: Fri, 21 Apr 2006 01:27:26 +0200
+In-Reply-To: <20060420223654.2E5CA470031@localhost> (Ram Pai's message of
+ "Thu, 20 Apr 2006 15:36:54 -0700 (PDT)")
+Message-ID: <d8jirp37rq9.fsf@ritchie.ping.uio.no>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-X-AOL-IP: 64.12.170.70
-X-Spam-Flag: NO
+Content-Type: text/plain; charset=us-ascii
+X-Exiscan-Spam-Score: -7.8 (-------)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wasn't sure where to send this to.
+linuxram@us.ibm.com (Ram Pai) writes:
 
-I am having a problems with the cardbus on my Thinkpad 600/2645.  It 
-has a P-II Mobile 300Mhz.
+> The following patch provides the ability to generate a report of
+>      (1) All the exported symbols and their in-kernel-module usage count 
+>      (2) For each module, lists the modules and their exported symbols, on
+> 		which it depends.
 
-It uses the Texas Instruments PCI-1250 Cardbus controller.  I have 
-tried the following kernel versions:
+Neat. Just a few Perl nits (sorry, couldn't resist).
 
-v2.6.13-15-default - openSuSE v10.0 stock kernel
-v2.6.13-15.8-default - openSuSE v10.0 updated kernel(caused a dma bug 
-that resorted in DMA being disabled on the HD)
-v2.6.16.9 - current release kernel built and installed from the 
-kernel.org site(no DMA problems noticed)
+> Signed-off-by: Ram Pai <linuxram@us.ibm.com>
+[...]
+> Index: 2617rc1/scripts/export_report.pl
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ 2617rc1/scripts/export_report.pl	2006-04-18 16:02:32.000000000 -0700
+> @@ -0,0 +1,134 @@
+[...]
+> +sub alphabetically {
+> +	($module1, $value1, undef) = split / /, "@{$a}";
+> +	($module2, $value2, undef) = split / /, "@{$b}";
 
-With v2.6.16.9, I get the following messages:
+This:
 
-ACPI: PCI interrupt 0000:00:02.0[A] -> Link [LNKA] -> GSI 9 (level, 
-low) -> IRQ 9
-Yenta: CardBus bridge found at 0000:00:02.0 [1014:0092]
-Yenta: Enabling burst memory read transactions
-Yenta: Using CSCINT to route CSC interrupts to PCI
-Yenta: Routing CardBus interrupts to PCI
-Yenta TI: socket 0000:00:02.0, mfunc 0xfba97543, devctl 0x62
-Yenta TI: socket 0000:00:02.0 probing PCI interrupt failed, trying to 
-fix
-Yenta TI: socket 0000:00:02.0 no PCI interrupts. Fish. Please report.
-Yenta: no PCI IRQ, Carbus support disabled for this socket.
-Yenta: check your BIOS IRQ or ACPI settings.
-Yenta: ISA IRQ mask 0x0498, PCI irq 0
-Socket status: 30000020
-ACPI: PCI Interrupt 0000:00:02.1 [1014:0092]
-Yenta: Using CSCINT to route CSC interrupts to PCI
-Yenta: Routing CardBus interrupts to PCI
-Yenta TI: socket 0000:00:02.1, mfunc 0xfba97543, devctl 0x62
-Yenta TI: socket 0000:00:02.1 probing PCI interrupt failed, trying to 
-fix
-cs: pcmcia_socket0: cardbus cards are not supported.
-Yenta TI: socket 0000:00:02.1 no PCI interrupts. Fish. Please report.
-Yenta: no PCI IRQ, CardBus support is disabled for this socket.
-Yenta: check your BIOS CardBus, BIOS IRQ or ACPI settings.
-Yenta: ISA IRQ mask 0x0498, PCI irq 0
-Socket status: 30000006
+> +	if ($value1 == $value2) {
+> +		if ($module1 lt $module2) {
+> +			return 1;
+> +		} elsif ($module1 eq $module2) {
+> +			return 0;
+> +		} 
+> +		return -1;
+> +	}
+> +	return $value1 <=> $value2;
 
-I added the following kernel arguements:
+can be written more idiomatically (and readably, IMHO):
 
-lacpi pci=routeirq
+        return $value1 <=> $value2 || $module1 cmp $module2;
+> +}
+[...]
+> +#
+> +# collect the usage count of each symbol.
+> +#
 
-This should not be a hardware problem because the cardbus controller 
-works fine in 98SE as well as in DSL v2.3, which has the v2.4.26 
-kernel.  I did some research, and it looked like this had been fixed in 
-the 2.6.15.x series, but I guess not.
+And this:
 
-I am also having problems with my networking under v2.6.x.  I have a 
-prism2_usb device, and when I use this server:
+> +for ($i = 0; $i <= $#ARGV; $i++) {
+> +	$thismod = $ARGV[$i];
 
-miranda.ctd.anl.gov:7123
+could be:
 
-it tells me that I have a possible duplex mismatch.  I tried setting it 
-manually, but it did not help.  It can send fine, but it will not 
-receive properly.  Any help, or anyone that you know that can help, 
-would be greatly appriciated.  Thanx.
-___________________________________________________
-Try the New Netscape Mail Today!
-Virtually Spam-Free | More Storage | Import Your Contact List
-http://mail.netscape.com
+  foreach $thismod (@ARGV) {
 
+> +	unless (open(MODULE_MODULE, $thismod)) {
+> +		print "Sorry, cannot open $kernel: $!\n";
+> +		next;
+> +	}
+> +	while ( <MODULE_MODULE> ) {
+> +		chomp;
+> +		if ( $_ !~ /0x[0-9a-f]{7,8},/ ) {
+> +			next;
+> +		}
+
+Instead of this:
+
+> +		(undef, undef, undef, undef, $symbol) = split /([,"])/, $_;
+
+some may prefer:
+
+                $symbol = (split /([,"])/)[4];
+
+> +		($module, $value, $symbol, $gpl) = @{$SYMBOL{$symbol}};
+> +		$SYMBOL{ $symbol } =  [ $module , $value+1 , $symbol, $gpl];
+> +		push(@{$MODULE{$thismod}} , $symbol);
+> +	}
+> +	close(MODULE_MODULE);
+> +}
+[...]
+> +while (($thismod, $list) = each %MODULE) {
+> +	undef %depends;
+
+If you instead use
+
+        my %depends;
+
+the variable will be lexically scoped to the body of the loop and thus
+undef at the start of each iteration. I notice the lack of 'use strict'
+and lexically scoped variables throughout this script, which makes it
+less readable and maintainable than possible, IMHO.
+
+> +	print "\t\t\t$thismod\n";
+> +	foreach $symbol (@{$list}) {
+> +		($module, $value, undef, $gpl) = @{$SYMBOL{$symbol}};
+> +		push (@{$depends{"$module"}}, "$symbol $value");
+> +	}
+> +	print_depends_on(\%depends);
+> +}
+
+-- 
+ilmari
+"A disappointingly low fraction of the human race is,
+ at any given time, on fire." - Stig Sandbeck Mathisen

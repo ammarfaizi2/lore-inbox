@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWDTHPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWDTHhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWDTHPp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 03:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWDTHPp
+	id S1750751AbWDTHhU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 03:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWDTHhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 03:15:45 -0400
-Received: from smtp.tele.fi ([192.89.123.25]:7859 "EHLO smtp.tele.fi")
-	by vger.kernel.org with ESMTP id S1750744AbWDTHPp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 03:15:45 -0400
-Content-class: urn:content-classes:message
-Subject: RE: searching exported symbols from modules
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Date: Thu, 20 Apr 2006 10:15:42 +0300
-Message-ID: <963E9E15184E2648A8BBE83CF91F5FAF43619E@titanium.secgo.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: searching exported symbols from modules
-Thread-Index: AcZkSCef9rDXnL82RJyp6b6l3OhilQAAJZUg
-From: "Antti Halonen" <antti.halonen@secgo.com>
-To: "Kyle Moffett" <mrmacman_g4@mac.com>
-Cc: "James Morris" <jmorris@namei.org>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       <linux-kernel@vger.kernel.org>
+	Thu, 20 Apr 2006 03:37:20 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:8872 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1750742AbWDTHhS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 03:37:18 -0400
+Date: Thu, 20 Apr 2006 08:37:13 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+Message-ID: <20060420073713.GA25735@srcf.ucam.org>
+References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 20, 2006 at 01:45:27PM +0800, Yu, Luming wrote:
 
-Hi Kyle, 
+> Do you plan to port the whole acpi event interface into input layer?
+> If so,  keycode is NOT a right way.
 
-> This makes me wonder why the hell you think you'll get help from this
-> (open-source) list.  
+Not really, though it would be one possibility. However, the input layer 
+doesn't really provide the flexibility needed for certain events. I'm 
+not sure what the right answer is for other events, but I'm pretty sure 
+the button driver maps onto the input layer sensibly.
 
-I see, I figured this is the place to ask technical question related 
-to programming in kernel space. 
-
-> A large number of people on this list (including
-> copyright-holders) consider what you are doing blatantly illegal,
-> although nobody has yet gone to court over it.  
-
-Um, which part is illegal? Are you saying that I cannot have a non-open
-source kernel module? If I figured correctly, to violate GPL I should
-compile GPL code into my module.
-
-It is a standalone module, not distributed with any custom kernel.
-
-> Please reconsider
-> your decision and either opensource your code or find a way to do it
-> in userspace.  
-
-Certainly this needs to be clarified.
-
-Br,
-Antti
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

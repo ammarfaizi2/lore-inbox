@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWDTKLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWDTKLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbWDTKLK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 06:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWDTKLK
+	id S1750829AbWDTKLt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 06:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWDTKL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 06:11:10 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:20626 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750828AbWDTKLI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 06:11:08 -0400
-Date: Thu, 20 Apr 2006 19:10:08 +0900
+	Thu, 20 Apr 2006 06:11:28 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:59077 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750829AbWDTKLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 06:11:15 -0400
+Date: Thu, 20 Apr 2006 19:10:27 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch: 002/006] pgdat allocation for new node add (get node id by acpi)
+Subject: [Patch: 006/006] pgdat allocation for new node add (call pgdat allocation)
 Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
        linux-mm <linux-mm@kvack.org>
 In-Reply-To: <20060420185123.EE48.Y-GOTO@jp.fujitsu.com>
 References: <20060420185123.EE48.Y-GOTO@jp.fujitsu.com>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060420190511.EE4C.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060420190813.EE56.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -26,90 +26,117 @@ X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is to find node id from acpi's handle of memory_device in DSDT.
-_PXM for the new node can be found by acpi_get_pxm()
-by using new memory's handle. 
-So, node id can be found by pxm_to_nid_map[].
+This patch adds node-hot-add support to add_memory().
 
-  This patch becomes simpler than v2 of node hot-add patch.
-  Because old add_memory() function doesn't have node id parameter.
-  So, kernel must find its handle by physical address via DSDT again.
-  But, v3 just give node id to add_memory() now.
+node hotadd uses this sequence.
+1. allocate pgdat.
+2. refresh NODE_DATA()
+3. call free_area_init_node() to initialize
+4. create sysfs entry
+5. add memory (old add_memory())
+6. set node online
+7. run kswapd for new node.
+(8). update zonelist after pages are onlined. (This is already merged in -mm
+   due to update phase is difference.)
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+Note:
+  To make common function as much as possible, 
+  there is 2 changes from v2.
+    - The old add_memory(), which is defiend by each archs,
+      is renamed to arch_add_memory(). New add_memory becomes
+      caller of arch dependent function as a common code.
+  
+    - This patch changes add_memory()'s interface
+        From: add_memory(start, end)
+        TO  : add_memory(nid, start, end).
+      It was cause of similar code that finding node id from
+      physical address is inside of old add_memory() on each arch. 
+      
+      In addition, acpi memory hotplug driver can find node id easier.
+      In v2, it must walk DSDT'S _CRS by matching physical address to
+      get the handle of its memory device, then get _PXM and node id.
+      Because input is just physical address. 
+      However, in v3, the acpi driver can use handle to get _PXM and node id
+      for the new memory device. It can pass just node id to add_memory().
 
- drivers/acpi/acpi_memhotplug.c |    3 ++-
- drivers/acpi/numa.c            |   15 +++++++++++++++
- include/linux/acpi.h           |    6 ++++++
- 3 files changed, 23 insertions(+), 1 deletion(-)
 
-Index: pgdat11/drivers/acpi/acpi_memhotplug.c
+Fix interface of arch_add_memory() is in next patche.
+
+Signed-off-by: Yasunori Goto     <y-goto@jp.fujitsu.com>
+Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+ mm/memory_hotplug.c |   52 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 52 insertions(+)
+
+Index: pgdat11/mm/memory_hotplug.c
 ===================================================================
---- pgdat11.orig/drivers/acpi/acpi_memhotplug.c	2006-04-20 11:00:09.000000000 +0900
-+++ pgdat11/drivers/acpi/acpi_memhotplug.c	2006-04-20 11:00:17.000000000 +0900
-@@ -215,7 +215,7 @@ static int acpi_memory_enable_device(str
- {
- 	int result, num_enabled = 0;
- 	struct acpi_memory_info *info;
--	int node = 0;
-+	int node;
- 
- 	ACPI_FUNCTION_TRACE("acpi_memory_enable_device");
- 
-@@ -227,6 +227,7 @@ static int acpi_memory_enable_device(str
- 		return result;
- 	}
- 
-+	node = acpi_get_node(mem_device->handle);
- 	/*
- 	 * Tell the VM there is more memory here...
- 	 * Note: Assume that this function returns zero on success
-Index: pgdat11/drivers/acpi/numa.c
-===================================================================
---- pgdat11.orig/drivers/acpi/numa.c	2006-04-20 11:00:04.000000000 +0900
-+++ pgdat11/drivers/acpi/numa.c	2006-04-20 11:00:17.000000000 +0900
-@@ -256,3 +256,18 @@ int acpi_get_pxm(acpi_handle h)
- }
- 
- EXPORT_SYMBOL(acpi_get_pxm);
-+
-+int acpi_get_node(acpi_handle *handle)
-+{
-+	int pxm, node = -1;
-+
-+	ACPI_FUNCTION_TRACE("acpi_get_node");
-+
-+	pxm = acpi_get_pxm(handle);
-+	if (pxm >= 0)
-+		node = acpi_map_pxm_to_node(pxm);
-+
-+	return_VALUE(node);
-+}
-+
-+EXPORT_SYMBOL(acpi_get_node);
-Index: pgdat11/include/linux/acpi.h
-===================================================================
---- pgdat11.orig/include/linux/acpi.h	2006-04-20 11:00:07.000000000 +0900
-+++ pgdat11/include/linux/acpi.h	2006-04-20 11:00:17.000000000 +0900
-@@ -529,12 +529,18 @@ static inline void acpi_set_cstate_limit
- 
- #ifdef CONFIG_ACPI_NUMA
- int acpi_get_pxm(acpi_handle handle);
-+int acpi_get_node(acpi_handle *handle);
- #else
- static inline int acpi_get_pxm(acpi_handle handle)
- {
+--- pgdat11.orig/mm/memory_hotplug.c	2006-04-20 16:36:38.000000000 +0900
++++ pgdat11/mm/memory_hotplug.c	2006-04-20 17:09:39.000000000 +0900
+@@ -160,12 +160,64 @@ int online_pages(unsigned long pfn, unsi
  	return 0;
  }
-+static inline int acpi_get_node(acpi_handle *handle)
+ 
++static pg_data_t *hotadd_new_pgdat(int nid, u64 start)
 +{
-+	return 0;
++	struct pglist_data *pgdat;
++	unsigned long zones_size[MAX_NR_ZONES] = {0};
++	unsigned long zholes_size[MAX_NR_ZONES] = {0};
++	unsigned long start_pfn = start >> PAGE_SHIFT;
++
++	pgdat = arch_alloc_nodedata(nid);
++	if (!pgdat)
++		return NULL;
++
++	arch_refresh_nodedata(nid, pgdat);
++
++	/* we can use NODE_DATA(nid) from here */
++
++	/* init node's zones as empty zones, we don't have any present pages.*/
++	free_area_init_node(nid, pgdat, zones_size, start_pfn, zholes_size);
++
++	return pgdat;
 +}
- #endif
-+extern int acpi_paddr_to_node(u64 start_addr, u64 size);
++
++static void rollback_node_hotadd(int nid, pg_data_t *pgdat)
++{
++	arch_refresh_nodedata(nid, NULL);
++	arch_free_nodedata(pgdat);
++	return;
++}
++
+ int add_memory(int nid, u64 start, u64 size)
+ {
++	pg_data_t *pgdat = NULL;
++	int new_pgdat = 0;
+ 	int ret;
  
- extern int pnpacpi_disabled;
++	if (!node_online(nid)) {
++		pgdat = hotadd_new_pgdat(nid, start);
++		if (!pgdat)
++			return -ENOMEM;
++		new_pgdat = 1;
++		ret = kswapd_run(nid);
++		if (ret)
++			goto error;
++	}
++
+ 	/* call arch's memory hotadd */
+ 	ret = arch_add_memory(nid, start, size);
  
++	if (ret < 0)
++		goto error;
++
++	/* we online node here. we have no error path from here. */
++	node_set_online(nid);
++
++	return ret;
++error:
++	/* rollback pgdat allocation and others */
++	if (new_pgdat)
++		rollback_node_hotadd(nid, pgdat);
++
+ 	return ret;
+ }
 
 -- 
 Yasunori Goto 

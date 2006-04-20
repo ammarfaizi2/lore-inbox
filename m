@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWDTNVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWDTNVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbWDTNVc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 09:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbWDTNVb
+	id S1750907AbWDTNVs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 09:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWDTNVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 09:21:31 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:2770 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750892AbWDTNVb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 09:21:31 -0400
-Date: Thu, 20 Apr 2006 08:21:28 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org,
-       linux-kernel@vger.kernel.org, Tony Jones <tonyj@suse.de>
-Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export namespace semaphore
-Message-ID: <20060420132128.GG18604@sergelap.austin.ibm.com>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com> <1145536742.16456.35.camel@moss-spartans.epoch.ncsc.mil> <20060420124647.GD18604@sergelap.austin.ibm.com> <1145534735.3313.3.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 20 Apr 2006 09:21:47 -0400
+Received: from nproxy.gmail.com ([64.233.182.191]:50978 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750903AbWDTNVq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 09:21:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=rgTZK2EgVnpyp5RY9mPsQL9L5kimJY6VKka9MZOfdXziTDTr0kpn7gZDDi58xvxGvKo2owPUh+GEwP5t7N/ZunLUELQ4HkjL9NPuEdR0BnHrHfi1egE9YYrpG3hFqKt1lhGxHutlZknZHMxBeTgaeeowYBB8Hmn0rpmJm2bxRQ4=
+Date: Thu, 20 Apr 2006 15:21:19 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.17-rc2
+Message-Id: <20060420152119.4de93d43.diegocg@gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
+	<20060419200001.fe2385f4.diegocg@gmail.com>
+	<Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.16; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145534735.3313.3.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> On Thu, 2006-04-20 at 07:46 -0500, Serge E. Hallyn wrote:
-> > Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> > > On Wed, 2006-04-19 at 10:50 -0700, Tony Jones wrote:
-> > > > This patch exports the namespace_sem semaphore.
-> > > > 
-> > > > The shared subtree patches which went into 2.6.15-rc1 replaced the old
-> > > > namespace semaphore which used to be per namespace (and visible) with a
-> > > > new single static semaphore.
-> > > > 
-> > > > The reason for this change is that currently visibility of vfsmount information
-> > > > to the LSM hooks is fairly patchy.  Either there is no passed parameter or
-> > > > it can be NULL.  For the case of the former,  several LSM hooks that we
-> > > > require to mediate have no vfsmount/nameidata passed.  We previously (mis)used
-> > > > the visibility of the old per namespace semaphore to walk the processes 
-> > > > namespace looking for vfsmounts with a root dentry matching the dentry we were 
-> > > > trying to mediate.  
-> > > > 
-> > > > Clearly this is not viable long term strategy and changes working towards 
-> > > > passing a vfsmount to all relevant LSM hooks would seem necessary (and also 
-> > > > useful for other users of LSM). Alternative suggestions and ideas are welcomed.
-> > > 
-> > > The alternative I would recommend is to not use LSM.  It isn't suitable
-> > > for your path-based approach.  If your path-based approach is deemed
-> > > legitimate, then introduce new hooks at the proper point in processing
-> > > where the information you need is available.
-> > 
-> > Whoa, so now LSM is not for access control?
-> 
-> That isn't what I said, although I see that my phrasing wasn't clear.  I
-> said it wasn't suitable for a path-based approach.  That is fairly clear
-> from the hook placements and interfaces, and from the contortions that
-> AppArmor has to go through in order to obtain the paths, and the number
-> of times it ends up calling d_path on a single syscall.  Now "new hooks"
+El Wed, 19 Apr 2006 11:44:25 -0700 (PDT),
+Linus Torvalds <torvalds@osdl.org> escribió:
 
-.
+> Anyway, when would you actually _use_ a kernel buffer? Normally you'd use 
+> it it you want to copy things from one source into another, and you don't 
 
-> _could_ be new LSM hooks, I suppose, but my point was that it is a
-> mistake to try to use the existing LSM VFS hooks for this purpose - they
-> are in the wrong place for it, and no amount of munging will fix that.
-> Make sense?
+Thanks,I wonder it splice can be useful for more cases than just high-bandwith
+blind transference of data? For example, in X.org as of today, I think that
+pixmaps need to be copied from the client adress space to the server. Because
+X.org is network-oriented the pixmaps must be sent even in local machines,
+(in order to save memory when clients move a pixmap to the server they must 
+free it in their address space, because extra copies mean high memory usage,
+at some point nautilus was keeping three copies of the desktop background
+in memory)
 
-Yup, that (.) seems a pursuasive hint.
-
-Tony, do you have any performance measurements?  Both for unconfined and
-confined apps?  Presumably unconfined processes should have 0 performance
-hit, right?
-
--serge
+There're shared memory extensions in commercial X servers which I think
+they fix this for local usage (there're rumors that Sun may port and
+contribute their Xsun shared memory implementation to x.org in the
+future), but I wonder if splice could be an alternative aswell? Or
+maybe splice is not a good option when you need several MB? (if the buffer
+size becomes tweakable in the future)

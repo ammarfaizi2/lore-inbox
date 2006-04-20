@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWDTToD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWDTTsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWDTToD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 15:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWDTToD
+	id S1750963AbWDTTsn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 15:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWDTTsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 15:44:03 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:56385 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751161AbWDTToB (ORCPT
+	Thu, 20 Apr 2006 15:48:43 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:50758 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750963AbWDTTsn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 15:44:01 -0400
-Date: Thu, 20 Apr 2006 21:44:30 +0200
+	Thu, 20 Apr 2006 15:48:43 -0400
+Date: Thu, 20 Apr 2006 21:49:14 +0200
 From: Jens Axboe <axboe@suse.de>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: torvalds@osdl.org, diegocg@gmail.com, linux-kernel@vger.kernel.org
+To: Linh Dang <linhd@nortel.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.6.17-rc2
-Message-ID: <20060420194429.GK4717@suse.de>
-References: <20060420145041.GE4717@suse.de> <20060420.122647.03915644.davem@davemloft.net> <20060420193430.GH4717@suse.de> <20060420.123948.52057640.davem@davemloft.net>
+Message-ID: <20060420194914.GL4717@suse.de>
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org> <20060419200001.fe2385f4.diegocg@gmail.com> <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org> <20060420145041.GE4717@suse.de> <wn5fyk85bw7.fsf@linhd-2.ca.nortel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060420.123948.52057640.davem@davemloft.net>
+In-Reply-To: <wn5fyk85bw7.fsf@linhd-2.ca.nortel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20 2006, David S. Miller wrote:
-> From: Jens Axboe <axboe@suse.de>
-> Date: Thu, 20 Apr 2006 21:34:31 +0200
+On Thu, Apr 20 2006, Linh Dang wrote:
+> Jens Axboe <axboe@suse.de> wrote:
 > 
-> > It should be able to, yes. Seems to me it should just work like regular
-> > splicing, with the difference that you'd have to wait for the reference
-> > count to drop before reusing. One way would be to do as Linus suggests
-> > and make the vmsplice call block or just return -EAGAIN if we are not
-> > ready yet. With that pollable, that should suffice?
+> > On Wed, Apr 19 2006, Linus Torvalds wrote:
+> >> There are some other buffer management system calls that I haven't
+> >> done yet (and when I say "I haven't done yet", I obviously mean
+> >> "that I hope some other sucker will do for me, since I'm lazy"),
+> >> but that are obvious future extensions:
+> >
+> > Well it's worked so far, hasn't it? :-)
+> >
+> >> - an ioctl/fcntl to set the maximum size of the buffer. Right now
+> >>   it's
+> >> hardcoded to 16 "buffer entries" (which in turn are normally limited to 
+> >> one page each, although there's nothing that _requires_ that a buffer 
+> >> entry always be a page).
+> >
+> > This is on a TODO, but not very high up since I've yet to see a case
+> > where the current 16 page limitation is an issue. I'm sure something
+> > will come up eventually, but until then I'd rather not bother.
 > 
-> Yes.
+> DVD burning! splicing those huge VOB files into the dvd device would
+> be nice. And believe me, the current 16 entries of the pipe is nowhere
+> enough to sustain burning at 8X avg speed or higher.
 > 
-> We really can't block on this, but I guess we could consider allowing
-> that for really dumb applications.
+> It's a special case but it'd benefit a LOT of ppl ;-)
 
-It's up to the user, any non-dumb app would use SPLICE_F_NONBLOCK and
-avoid blocking ofcourse.
+(don't drop the cc list)
 
-> It does indeed require some smarts in the application to field the
-> events, but by definition of using this splice stuff there is explicit
-> knowledge in the application of what's going on.
-
-Exactly.
-
-> This is why I'm very hesitant to say "yeah, blocking on the socket is
-> OK", because to be honest it's not.  As long as the socket buffer
-> limits haven't been reached, we really shouldn't block so the user can
-> go and do more work and create more transmit data in time to keep the
-> network pipe full.
-
-I'll post what I have tomorrow, lets take it from there.
+DVD burning probably isn't a good splice fit, since you need to do more
+than actually just point the device at the data. SG_IO is already
+zero-copy as it maps the user data into the kernel without copying, so
+there's very little room for improvement there to begin with.
 
 -- 
 Jens Axboe

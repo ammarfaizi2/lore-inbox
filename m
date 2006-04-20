@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWDTV3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWDTVhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWDTV3D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 17:29:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWDTV3D
+	id S1751337AbWDTVhT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 17:37:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWDTVhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 17:29:03 -0400
-Received: from leitseite.net ([213.239.214.51]:11956 "EHLO mail.leitseite.net")
-	by vger.kernel.org with ESMTP id S1751329AbWDTV3A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 17:29:00 -0400
-Date: Thu, 20 Apr 2006 23:28:24 +0200 (CEST)
-From: Nuri Jawad <lkml@jawad.org>
-X-X-Sender: lkml@pc
-To: linux-kernel@vger.kernel.org
-Subject: Bug: PPP dropouts in >=2.6.16
-Message-ID: <Pine.LNX.4.58.0604202217450.4014@pc>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Apr 2006 17:37:19 -0400
+Received: from mse2fe2.mse2.exchange.ms ([66.232.26.194]:4255 "EHLO
+	mse2fe2.mse2.exchange.ms") by vger.kernel.org with ESMTP
+	id S1751337AbWDTVhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 17:37:17 -0400
+Subject: Re: Linux 2.6.17-rc2
+From: Piet Delaney <piet@bluelane.com>
+Reply-To: piet@bluelane.com
+To: Jens Axboe <axboe@suse.de>
+Cc: Piet Delaney <piet@bluelane.com>, "David S. Miller" <davem@davemloft.net>,
+       torvalds@osdl.org, diegocg@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20060420193430.GH4717@suse.de>
+References: <20060419200001.fe2385f4.diegocg@gmail.com>
+	 <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
+	 <20060420145041.GE4717@suse.de>
+	 <20060420.122647.03915644.davem@davemloft.net>
+	 <20060420193430.GH4717@suse.de>
+Content-Type: text/plain
+Organization: BlueLane Tech,
+Date: Thu, 20 Apr 2006 14:37:11 -0700
+Message-Id: <1145569031.25127.64.camel@piet2.bluelane.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4-3mdk 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Apr 2006 21:37:15.0106 (UTC) FILETIME=[9746A420:01C664C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good evening,
+On Thu, 2006-04-20 at 21:34 +0200, Jens Axboe wrote:
 
-I've recently had problems with my ADSL connection (PPPoE) after upgrading
-from 2.6.15.3 to 2.6.16.5. Every now and then, it would stall for 30-50
-seconds. According to tcpdump, during these dropouts packets get received
-through ppp0 but none that are supposed to be sent appear on the
-interface. This is consistent with the modem not sending out any data via
-its ATM interface during these periods. I made sure the ISP, modem or
-ethernet interface wasn't the problem with a second box running IPCop
-(minimal 2.4 router distro, I can log in twice with my ISP) and a telnet
-connection to the modem that never stalled.
+> > Anyways, I'm just stabbing in the dark.  It would be useful, because
+> > there is no real clan way to use sendfile() for zero copy of anonymous
+> > user data, and this vmsplice() thing seems like it could bridge that
+> > gap if we do it right.
+> 
+> It should be able to, yes. Seems to me it should just work like regular
+> splicing, with the difference that you'd have to wait for the reference
+> count to drop before reusing. One way would be to do as Linus suggests
+> and make the vmsplice call block or just return -EAGAIN if we are not
+> ready yet. With that pollable, that should suffice?
 
-Upgrading pppd from 2.4.2 to 2.4.4b1 and rp-pppoe from 3.5 (latest Debian
-package) to 3.8 had no effect.
-I was using Bittorrent and also the folding@home client so the system had
-a high load. Stopping those seemed to reduce the frequency of dropouts
-but they were still coming up at least every few hours. A fallback to the
-old kernel made the problem disappear.
+What about marking the pages Read-Only while it's being used by the
+kernel and if the user tries to write into them letting the VM dup 
+the page with the COW code? Often you can use a FILO memory allocator 
+in user space to minimize the odds of trying to reuse the page while 
+the kernel is using it.
 
-I then tested 24 hours a day this week by pinging my box from 2 hosts and
-making sure above load was persistent, while trying different kernels. So
-far I can say that:
+FreeBSD folks developed a ZERO_COPY_SOCKET facility that uses COW; 
+code looked great.
 
-- <= 2.6.15.7 is not affected, tested with .3, .4 and .7
-- >= 2.6.16 is affected, tested with 2.6.16, .1, .5 and .9
-- the dropouts last between 30 and 50 seconds but often exactly 41, they
-  appear about every half to one hour
-- a night yields 20-40 lost packets with 2.6.15 and 700-1100 with 2.6.16
-  on my connection
+-piet
 
-The system:
-P4 Northwood with HT enabled, 2 GB RAM, Asus P4C800
-Boot/root PATA ICH5, torrents saved to SATA HD through ata-piix
-Third drive through sata-promise
-Debian GNU/Linux unstable
-Kernel config: http://jawad.org/.config
+-- 
+---
+piet@bluelane.com
 
-Let me know what I can do to give you more specific information.
-
-Regards,
-Nuri

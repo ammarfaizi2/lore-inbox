@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWDTV4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWDTV62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbWDTV4x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 17:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWDTV4w
+	id S1751353AbWDTV62 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 17:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWDTV62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 17:56:52 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:61647 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751352AbWDTV4v
+	Thu, 20 Apr 2006 17:58:28 -0400
+Received: from smtp13.wanadoo.fr ([193.252.22.54]:60113 "EHLO
+	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S1751353AbWDTV61
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 17:56:51 -0400
-Date: Thu, 20 Apr 2006 22:56:46 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Tony Jones <tonyj@suse.de>,
-       linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-       linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export namespace	semaphore
-Message-ID: <20060420215646.GB27946@ftp.linux.org.uk>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com> <1145536742.16456.35.camel@moss-spartans.epoch.ncsc.mil> <44480228.3060009@tlinx.org>
+	Thu, 20 Apr 2006 17:58:27 -0400
+X-ME-UUID: 20060420215825617.96D5A70000F8@mwinf1302.wanadoo.fr
+Date: Thu, 20 Apr 2006 23:57:23 +0200
+From: Mathieu Chouquet-Stringer <mchouque@free.fr>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
+       linux-alpha@vger.kernel.org, rth@twiddle.net
+Subject: Re: strncpy (maybe others) broken on Alpha
+Message-ID: <20060420215723.GA3949@bigip.bigip.mine.nu>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
+	linux-alpha@vger.kernel.org, rth@twiddle.net
+References: <20060419213129.GA9148@localhost> <20060419215803.6DE5BDBA1@gherkin.frus.com> <20060420101448.GA20087@localhost> <20060420171102.GA7272@localhost> <20060420205555.GA11502@bigip.bigip.mine.nu> <20060421012417.B16574@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44480228.3060009@tlinx.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060421012417.B16574@jurassic.park.msu.ru>
+User-Agent: Mutt/1.4.2.1i
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 02:50:32PM -0700, Linda Walsh wrote:
-> any access control scheme to be implemented?  I've seen complaints
-> before on either here or the LSM list that one of the hurdles for
-> "legitimacy" was whether or not it fit on top of the current set of
-> LSM hooks.  I also saw it asked whether or not LSM had been
-> designed
+On Fri, Apr 21, 2006 at 01:24:17AM +0400, Ivan Kokshaysky wrote:
+> Broken binutils, maybe?
 
-... and the answer is obviously "no".  AFAICS, that was a way to get
-around Linus' "at least decide on a common set of core kernel modifications"
-without any kind of thinking being involved.
+Stop the press, it's definitely a binutils issue. 2.16.1 doesn't trigger
+the error.
+
+-- 
+Mathieu Chouquet-Stringer                           mchouque@free.fr
+

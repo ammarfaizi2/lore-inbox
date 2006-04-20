@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWDTXvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWDTXvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbWDTXvG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 19:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWDTXvG
+	id S932139AbWDTXvF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 19:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWDTXvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 19:51:06 -0400
-Received: from mga06.intel.com ([134.134.136.21]:48206 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932141AbWDTXvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 19:51:04 -0400
+Received: from mga07.intel.com ([143.182.124.22]:18308 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S932139AbWDTXvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 20 Apr 2006 19:51:02 -0400
 X-IronPort-AV: i="4.04,142,1144047600"; 
-   d="scan'208"; a="25813696:sNHT16687874"
+   d="scan'208"; a="25831823:sNHT18103232"
 X-IronPort-AV: i="4.04,142,1144047600"; 
-   d="scan'208"; a="25831799:sNHT18140101"
+   d="scan'208"; a="25813668:sNHT18074546"
 TrustExchangeSourcedMail: True
 X-IronPort-AV: i="4.04,142,1144047600"; 
-   d="scan'208"; a="25813664:sNHT20889064"
-Message-Id: <20060420233912.045800746@csdlinux-2.jf.intel.com>
+   d="scan'208"; a="26631643:sNHT19995332"
+Message-Id: <20060420233911.517917046@csdlinux-2.jf.intel.com>
 References: <20060420232456.712271992@csdlinux-2.jf.intel.com>
-Date: Thu, 20 Apr 2006 16:25:00 -0700
+Date: Thu, 20 Apr 2006 16:24:57 -0700
 From: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
 To: Anderw Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Keith Owens <kaos@americas.sgi.com>,
@@ -27,9 +27,9 @@ Cc: LKML <linux-kernel@vger.kernel.org>, Keith Owens <kaos@americas.sgi.com>,
        Prasanna Panchamukhi <prasanna@in.ibm.com>,
        Dave M <davem@davemloft.net>, Andi Kleen <ak@suse.de>,
        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Subject: [(take 2)patch 4/7] Notify page fault call chain for powerpc
-Content-Disposition: inline; filename=notify_page_fault_powerpc.patch
-X-OriginalArrivalTime: 20 Apr 2006 23:51:00.0036 (UTC) FILETIME=[4681C840:01C664D5]
+Subject: [(take 2)patch 1/7] Notify page fault call chain for x86_64
+Content-Disposition: inline; filename=notify_page_fault_x86_64.patch
+X-OriginalArrivalTime: 20 Apr 2006 23:50:57.0833 (UTC) FILETIME=[4531A190:01C664D5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -50,19 +50,18 @@ as currently kprobes is the only potential user.
 
 Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
 
-
 ---
- arch/powerpc/mm/fault.c      |   36 +++++++++++++++++++++++++++++++++++-
- include/asm-powerpc/kdebug.h |    2 ++
- 2 files changed, 37 insertions(+), 1 deletion(-)
+ arch/x86_64/mm/fault.c      |   39 +++++++++++++++++++++++++++++++++++++--
+ include/asm-x86_64/kdebug.h |    2 ++
+ 2 files changed, 39 insertions(+), 2 deletions(-)
 
-Index: linux-2.6.17-rc1-mm3/arch/powerpc/mm/fault.c
+Index: linux-2.6.17-rc1-mm3/arch/x86_64/mm/fault.c
 ===================================================================
---- linux-2.6.17-rc1-mm3.orig/arch/powerpc/mm/fault.c
-+++ linux-2.6.17-rc1-mm3/arch/powerpc/mm/fault.c
-@@ -40,6 +40,40 @@
- #include <asm/kdebug.h>
- #include <asm/siginfo.h>
+--- linux-2.6.17-rc1-mm3.orig/arch/x86_64/mm/fault.c
++++ linux-2.6.17-rc1-mm3/arch/x86_64/mm/fault.c
+@@ -41,6 +41,41 @@
+ #define PF_RSVD	(1<<3)
+ #define PF_INSTR	(1<<4)
  
 +#ifdef CONFIG_KPROBES
 +ATOMIC_NOTIFIER_HEAD(notify_page_fault_chain);
@@ -70,6 +69,7 @@ Index: linux-2.6.17-rc1-mm3/arch/powerpc/mm/fault.c
 +/* Hook to register for page fault notifications */
 +int register_page_fault_notifier(struct notifier_block *nb)
 +{
++	vmalloc_sync_all();
 +	return atomic_notifier_chain_register(&notify_page_fault_chain, nb);
 +}
 +
@@ -98,29 +98,38 @@ Index: linux-2.6.17-rc1-mm3/arch/powerpc/mm/fault.c
 +}
 +#endif
 +
- /*
-  * Check whether the instruction at regs->nip is a store using
-  * an update addressing form which will update r1.
-@@ -142,7 +176,7 @@ int __kprobes do_page_fault(struct pt_re
- 	is_write = error_code & ESR_DST;
- #endif /* CONFIG_4xx || CONFIG_BOOKE */
+ void bust_spinlocks(int yes)
+ {
+ 	int loglevel_save = console_loglevel;
+@@ -348,7 +383,7 @@ asmlinkage void __kprobes do_page_fault(
+ 			if (vmalloc_fault(address) >= 0)
+ 				return;
+ 		}
+-		if (notify_die(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
++		if (notify_page_fault(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
+ 						SIGSEGV) == NOTIFY_STOP)
+ 			return;
+ 		/*
+@@ -358,7 +393,7 @@ asmlinkage void __kprobes do_page_fault(
+ 		goto bad_area_nosemaphore;
+ 	}
  
--	if (notify_die(DIE_PAGE_FAULT, "page_fault", regs, error_code,
-+	if (notify_page_fault(DIE_PAGE_FAULT, "page_fault", regs, error_code,
- 				11, SIGSEGV) == NOTIFY_STOP)
- 		return 0;
+-	if (notify_die(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
++	if (notify_page_fault(DIE_PAGE_FAULT, "page fault", regs, error_code, 14,
+ 					SIGSEGV) == NOTIFY_STOP)
+ 		return;
  
-Index: linux-2.6.17-rc1-mm3/include/asm-powerpc/kdebug.h
+Index: linux-2.6.17-rc1-mm3/include/asm-x86_64/kdebug.h
 ===================================================================
---- linux-2.6.17-rc1-mm3.orig/include/asm-powerpc/kdebug.h
-+++ linux-2.6.17-rc1-mm3/include/asm-powerpc/kdebug.h
-@@ -18,6 +18,8 @@ struct die_args {
+--- linux-2.6.17-rc1-mm3.orig/include/asm-x86_64/kdebug.h
++++ linux-2.6.17-rc1-mm3/include/asm-x86_64/kdebug.h
+@@ -15,6 +15,8 @@ struct die_args {
  
  extern int register_die_notifier(struct notifier_block *);
  extern int unregister_die_notifier(struct notifier_block *);
 +extern int register_page_fault_notifier(struct notifier_block *);
 +extern int unregister_page_fault_notifier(struct notifier_block *);
- extern struct atomic_notifier_head powerpc_die_chain;
+ extern struct atomic_notifier_head die_chain;
  
  /* Grossly misnamed. */
 

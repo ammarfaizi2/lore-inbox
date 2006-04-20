@@ -1,38 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWDTGjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWDTGmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWDTGjO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 02:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWDTGjO
+	id S1751127AbWDTGmk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 02:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWDTGmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 02:39:14 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:56301 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751137AbWDTGjN (ORCPT
+	Thu, 20 Apr 2006 02:42:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:5203 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751127AbWDTGmj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 02:39:13 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org, lkml@lpbproductions.com
-Subject: Re: [discuss] Re: [PATCH] [1/2] i386/x86-64: Fix x87 information leak between  processes
-Date: Thu, 20 Apr 2006 08:39:00 +0200
-User-Agent: KMail/1.9.1
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       jbeulich@novell.com, richard.brunner@amd.com
-References: <4446D79D.mailOX9112Y1O@suse.de> <200604192328.39429.lkml@lpbproductions.com>
-In-Reply-To: <200604192328.39429.lkml@lpbproductions.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Apr 2006 02:42:39 -0400
+Date: Thu, 20 Apr 2006 08:42:50 +0200
+From: Jens Axboe <axboe@suse.de>
+To: erich <erich@areca.com.tw>
+Cc: dax@gurulabs.com, billion.wu@areca.com.tw, Al Viro <viro@ftp.linux.org.uk>,
+       Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Chris Caputo <ccaputo@alt.net>
+Subject: Re: new Areca driver in 2.6.16-rc6-mm2 appears to be broken
+Message-ID: <20060420064249.GO614@suse.de>
+References: <007701c653d7$8b8ee670$b100a8c0@erich2003> <Pine.LNX.4.64.0603301542590.19680@nacho.alt.net> <004a01c65470$412daaa0$b100a8c0@erich2003> <20060330192057.4bd8c568.akpm@osdl.org> <20060331074237.GH14022@suse.de> <002901c65e33$ceac9e00$b100a8c0@erich2003> <20060419104009.GB614@suse.de> <003301c663b3$6bfcc020$b100a8c0@erich2003> <20060419131916.GH614@suse.de> <001401c6641d$586bd950$b100a8c0@erich2003>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604200839.00606.ak@suse.de>
+In-Reply-To: <001401c6641d$586bd950$b100a8c0@erich2003>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 April 2006 08:28, Matt Heler wrote:
-> Patch says 1/2 . Is there another patch that comes with this ? Or is vger 
-> lagging again ? 
+On Thu, Apr 20 2006, erich wrote:
+> Dear Jens Axboe,
+> 
+> I  do "fsck -fy /dev/sda1" on driver MAX_XFER_SECTORS 512.
+> The file system was not clean.
+> I attach mesg.txt for you refer to.
+> 
+> =====================================
+> == boot with driver MAX_XFER_SECTORS 4096
+> =====================================
+> #mkfs.ext2 /dev/sda1
+> #reboot
+> =====================================
+> == boot with driver MAX_XFER_SECTORS 512
+> =====================================
+> #fsck -fy /dev/sda1
+> /dev/sda1:clean,.............
+> #reboot
+> =====================================
+> == boot with driver MAX_XFER_SECTORS 4096
+> =====================================
+> #mount /dev/sda1 /mnt/sda1
+> #cp /root/aa /mnt/sda1
+> #reboot
+> =====================================
+> == boot with driver MAX_XFER_SECTORS 512
+> =====================================
+> #fsck -fy /dev/sda1
+> /dev/sda1: no clean,........and dump message such as the attach file 
+> mesg.txt.
 
-The other patch was a unrelated x86-64 only patch which I normally
-not cc to linux-kernel, but only to discuss@x86-64.org. You 
-can check it out in the archives.
+So the conclusion is that your driver and/or hardware corrupts data when
+you set MAX_XFER_SECTORS too high. I can't help you anymore with this,
+you should be in the best position to debug the driver and/or hardware
+:-)
 
--Andi
+It could be that the higher setting just exposes another transfer
+setting bug, like maximum number of segments or segment size, etc.
+
+-- 
+Jens Axboe
+

@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWDTXwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWDTXyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWDTXwr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 19:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWDTXvI
+	id S932152AbWDTXyN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 19:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWDTXyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 19:51:08 -0400
-Received: from mga06.intel.com ([134.134.136.21]:48206 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932143AbWDTXvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 19:51:03 -0400
-X-IronPort-AV: i="4.04,142,1144047600"; 
-   d="scan'208"; a="25813697:sNHT15257312"
-X-IronPort-AV: i="4.04,142,1144047600"; 
-   d="scan'208"; a="25813672:sNHT15704612"
-TrustExchangeSourcedMail: True
-X-IronPort-AV: i="4.04,142,1144047600"; 
-   d="scan'208"; a="25831785:sNHT16603062"
-Message-Id: <20060420233912.410449785@csdlinux-2.jf.intel.com>
-References: <20060420232456.712271992@csdlinux-2.jf.intel.com>
-Date: Thu, 20 Apr 2006 16:25:02 -0700
-From: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-To: Anderw Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Keith Owens <kaos@americas.sgi.com>,
-       Dean Nelson <dnc@americas.sgi.com>, Tony Luck <tony.luck@intel.com>,
-       Anath Mavinakayanahalli <ananth@in.ibm.com>,
-       Prasanna Panchamukhi <prasanna@in.ibm.com>,
-       Dave M <davem@davemloft.net>, Andi Kleen <ak@suse.de>
-Subject: [(take 2)patch 6/7] Kprobes registers for notify page fault
-Content-Disposition: inline; filename=notify_page_fault_kprobes.patch
-X-OriginalArrivalTime: 20 Apr 2006 23:50:58.0583 (UTC) FILETIME=[45A41270:01C664D5]
+	Thu, 20 Apr 2006 19:54:12 -0400
+Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:40410 "EHLO
+	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S932152AbWDTXyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 19:54:10 -0400
+Date: Thu, 20 Apr 2006 19:54:07 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Linda Walsh <lkml@tlinx.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       Tony Jones <tonyj@suse.de>, linux-kernel@vger.kernel.org,
+       chrisw@sous-sol.org, linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export namespace semaphore
+In-Reply-To: <20060420215646.GB27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0604201942550.18177@d.namei>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+ <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com>
+ <1145536742.16456.35.camel@moss-spartans.epoch.ncsc.mil> <44480228.3060009@tlinx.org>
+ <20060420215646.GB27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----
- kernel/kprobes.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+On Thu, 20 Apr 2006, Al Viro wrote:
 
-Index: linux-2.6.17-rc1-mm3/kernel/kprobes.c
-===================================================================
---- linux-2.6.17-rc1-mm3.orig/kernel/kprobes.c
-+++ linux-2.6.17-rc1-mm3/kernel/kprobes.c
-@@ -544,6 +544,11 @@ static struct notifier_block kprobe_exce
- 	.priority = 0x7fffffff /* we need to notified first */
- };
- 
-+static struct notifier_block kprobe_page_fault_nb = {
-+	.notifier_call = kprobe_exceptions_notify,
-+	.priority = 0x7fffffff /* we need to notified first */
-+};
-+
- int __kprobes register_jprobe(struct jprobe *jp)
- {
- 	/* Todo: Verify probepoint is a function entry point */
-@@ -654,6 +659,9 @@ static int __init init_kprobes(void)
- 	if (!err)
- 		err = register_die_notifier(&kprobe_exceptions_nb);
- 
-+	if (!err)
-+		err = register_page_fault_notifier(&kprobe_page_fault_nb);
-+
- 	return err;
- }
- 
+> On Thu, Apr 20, 2006 at 02:50:32PM -0700, Linda Walsh wrote:
+> > any access control scheme to be implemented?  I've seen complaints
+> > before on either here or the LSM list that one of the hurdles for
+> > "legitimacy" was whether or not it fit on top of the current set of
+> > LSM hooks.  I also saw it asked whether or not LSM had been
+> > designed
+> 
+> ... and the answer is obviously "no".  AFAICS, that was a way to get
+> around Linus' "at least decide on a common set of core kernel modifications"
+> without any kind of thinking being involved.
 
---
+For reference, here are the original comments from Linus which were used 
+to conceive LSM:
+http://marc.theaimsgroup.com/?l=linux-security-module&m=98706471912438&w=2
+
+In a nutshell, Linus did not want to have to choose a security model.
+
+In my view, the generic, correctly abstracted mechanism was actually 
+SELinux all along, and unfortunately, only a few people really understood 
+that then.  SELinux was itself designed to allow different security models 
+to be composed, with clean separation of models, policy and enforcement 
+mechanism.
+
+LSM was somewhat designed around SELinux, but necessarily lacking the 
+stronger semantics of SELinux, to allow other similar schemes to be 
+plugged in (the first significant example of which other than SELinux, has 
+only just appeared on lkml five years later).
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>

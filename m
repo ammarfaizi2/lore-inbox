@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWDUFUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWDUFtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbWDUFUA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 01:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWDUFUA
+	id S1750751AbWDUFtS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 01:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWDUFtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 01:20:00 -0400
-Received: from pproxy.gmail.com ([64.233.166.183]:37135 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932268AbWDUFT7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 01:19:59 -0400
+	Fri, 21 Apr 2006 01:49:17 -0400
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:26744 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750751AbWDUFtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 01:49:17 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:thread-index:x-mimeole;
-        b=cydQ17YviN0GOy8PTVehlTq1FKgxwYvBfZs5NfCffZ518sy6k67Tba4FvFjAq/pUPeCEuWXT+W5juj/N+Jsv0ZwYQPQP+ny0IuqHxZh8yOnR5dHg0N5kSP/asWT6jiUUdS4rpkNkQ9nUOQVvdj6HgFCbdb47mK2a12i15Hco9M0=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Joshua Hudson'" <joshudson@gmail.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] Rename "swapper" to "idle"
-Date: Thu, 20 Apr 2006 22:19:57 -0700
-Message-ID: <000301c66503$3bbd8060$0200a8c0@nuitysystems.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=c9lkBluJPs3vtQ3b2B9XrP9ktaFzv8a9J9hBwghSJ9kKr3Bcpvht8nB0kRs3jIDVz78u7HpyyDc3sh71Lr/9d2oz/WH+ZOXgnfYdYnGk22p/7jjEK8n2OaVb/sB4Me9leGzvvVYCZ9hr0kivO2X3lqd/MehobKoFAqMMaRts4PE=  ;
+Message-ID: <4447E8DB.6000807@yahoo.com.au>
+Date: Fri, 21 Apr 2006 06:02:35 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Linh Dang <linhd@nortel.com>
+CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.17-rc2
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>	<20060419200001.fe2385f4.diegocg@gmail.com>	<Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>	<20060420145041.GE4717@suse.de>	<wn5fyk85bw7.fsf@linhd-2.ca.nortel.com>	<20060420194914.GL4717@suse.de> <wn53bg858b2.fsf@linhd-2.ca.nortel.com>
+In-Reply-To: <wn53bg858b2.fsf@linhd-2.ca.nortel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <bda6d13a0604202118t51709a70g1f2402efb8ecbfe@mail.gmail.com>
-Thread-Index: AcZk+3ubwqlqs9gZRWaKcmiV2BEFeQAA+nlw
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 4/20/06, Bernd Eckenfels <be-news06@lina.inka.de> wrote:
-> > Hua Zhong <hzhong@gmail.com> wrote:
-> > > This patch renames the "swapper" process (pid 0) to a 
-> more appropriate name "idle". The name "swapper" is not 
-> obviously meaningful and confuses a lot of people (e.g., when 
-> seen in oops report).
-> > > Patch not tested, but I guess it works. :-)
+Linh Dang wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+
+>>DVD burning probably isn't a good splice fit, since you need to do
+>>more than actually just point the device at the data. SG_IO is
+>>already zero-copy as it maps the user data into the kernel without
+>>copying, so there's very little room for improvement there to begin
+>>with.
 > 
-> As we saw in "Which process is associated with process ID 0 
-> (swapper)", pid 0 can actually do things, such as resend TCP 
-> packets. Methinks idle isn't the best name either.
-
-Swapper does not do these things. It just happens to be "running" at that time (and it is always running if the system is idle).
-
-IOW, it is indeed an "idle" process. In fact, all it does is cpu_idle().
-
-> > on win the system idle process shows up in taskmanager so 
-> you can see 
-> > its cpu usage and ctx switches scheduled from it. We could 
-> avoid the 
-> > skipping in /proc, also?
-> >
-> > Gruss
-> > Bernd
-> Please, no!
 > 
-> I already have to explain this mess about Windows. We 
-> shouldn't be implementing Microsoft's flaws. Why waist the a 
-> line of screen for top?
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> DVD burning on linux is mostly:
+> 
+>         mkisofs .... | growisofs ....
+> 
+> Ideally, on mkisofs side, we'd be able to:
+> 
+>   - write some data/padding into the pipe
+>   - splice a HUGE file into the pipe
+>   - write some data/padding into the pipe
+>   - splice a HUGE file into the pipe
+>   ...
+> 
+> On growisofs side, we'd be able to:
+> 
+>   - send some commands
+>   - splice N MBs of data from the pipe to the driver
+>   - send some commands
+>   - splice M MBs of data from the pipe to the driver
+>   ...
+> 
+> What'd be nice is an ioctl to change the size of the pipe between
+> mkisofs and growisofs.
 
+I don't see why the pipe buffers would be a problem though. It isn't
+like you've lost any of the pagecache buffering (eg. from readahead)
+or the application level buffering.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,120 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWDTRMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWDTROv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWDTRMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 13:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWDTRMI
+	id S1751182AbWDTROv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 13:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWDTROv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 13:12:08 -0400
-Received: from smtp13.wanadoo.fr ([193.252.22.54]:25685 "EHLO
-	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S1751179AbWDTRMG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 13:12:06 -0400
-X-ME-UUID: 20060420171205448.6D76C7000098@mwinf1303.wanadoo.fr
-Date: Thu, 20 Apr 2006 19:11:02 +0200
-From: Mathieu Chouquet-Stringer <mchouque@free.fr>
-To: Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
-       linux-alpha@vger.kernel.org
-Subject: strncpy (maybe others) broken on Alpha
-Message-ID: <20060420171102.GA7272@localhost>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
-	Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org
-References: <20060419213129.GA9148@localhost> <20060419215803.6DE5BDBA1@gherkin.frus.com> <20060420101448.GA20087@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060420101448.GA20087@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+	Thu, 20 Apr 2006 13:14:51 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:21253 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751182AbWDTROu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 13:14:50 -0400
+Message-ID: <4447C31B.1080000@openvz.org>
+Date: Thu, 20 Apr 2006 21:21:31 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       devel@openvz.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Sam Vilain <sam@vilain.net>,
+       Kir Kolyshkin <kir@openvz.org>, Dmitry Mishin <dim@openvz.org>
+Subject: [ANNOUNCE] OpenVZ releases checkpointing/live migration of processes
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ some background here: this started as a kobject_add error from the
-scsi subsystem, now it appears the strncpy routine on Alpha is broken
-see http://lkml.org/lkml/fancy/2006/4/19/305 or
-msgid 20060419213129.GA9148@localhost ]
+Hello,
 
-On Thu, Apr 20, 2006 at 12:14:48PM +0200, Mathieu Chouquet-Stringer wrote:
-> So I guess the strncpy routine on alpha is fscked up or gcc is doing
-> something crazy. The function is under arch/alpha/lib/strncpy.S, time to
-> learn assembly.
+OpenVZ team is proud to announce the release of the new 
+checkpointing/restore feature. This feature allows to save (checkpoint) 
+and restore the whole state of a Virtual Environment (VE, container) and 
+do a live migration of a VE to another physical box while preserving 
+process states and TCP/IP connections.
 
-Replying to myself here, i've created the following test program and
-redefined strncpy to mystrncpy (I used strncpy.S and stxncpy.S from
-arch/alpha/lib):
+During live migration the in-kernel state of processes and their 
+resources (including memory, registers, IPC, pids, open files, sockets, 
+etc.) is saved and then restored on another machine. Since all network 
+connections are preserved with all the in-progess requests, user doesn't 
+experience interruption of service.
 
-=============================================================================
-#include <stdio.h>
-#include <string.h>
-#define FOO 50
+The feature is available on i686 and x86_64 architectures. Migration of 
+32bit VEs between i686 and x86_64 architectures is also supported.
+Current implementation works fine with complex applications like Oracle, 
+Java, X apps.
 
-extern char *mystrncpy(char *dest, const char *src, size_t count);
+Latest 2.6.16 OpenVZ kernel and tool packages with live migration 
+support are available here:
+http://openvz.org/download/beta/kernel/
+http://openvz.org/download/utils/
 
-int main(int argc, char **argv)
-{
+GIT repository for all OpenVZ sources is available at
+http://git.openvz.org/
 
-	char src[FOO] = "";
-	char dest[FOO];
-	char letter[] = "a";
-	int i;
+Usage examples
+~~~~~~~~~~~~~~
 
-	for (i = 0; i < FOO - 1; i++) {
-		size_t beflen, aftlen;
+New 'vzmigrate' utility is used for VE migration. Also, new commands for 
+'vzctl' allowing to dump and restore VE were introduced: 'chkpnt' and 
+'restore'.
 
-		letter[0] = 'a' + i;
-		strncat(src, letter, FOO);
-		beflen = strlen(src);
+To save current VE state with all processes:
+# vzctl chkpnt <VEID>
 
-		mystrncpy(dest, src, FOO);
-		aftlen = strlen(dest);
-		if (beflen != aftlen)
-			printf("fails for strlen = %ld (copied %ld)\n",
-				beflen, aftlen);
-	}
+To restore VE after checkpointing:
+# vzctl restore <VEID>
 
+To perform online migration of VE #101 to another machine:
+# vzmigrate --online destination.node.com 101
+without '--online' option vzmigrate does offline VE migration with VE 
+start/stop.
 
-	return 0;
-}
-=============================================================================
-
-And here's the output using gcc version 3.4.4 (Gentoo 3.4.4-r1,
-ssp-3.4.4-1.0, pie-8.7.8), note i didn't use flag except -Wall:
-
-fails for strlen = 3 (copied 2)
-fails for strlen = 4 (copied 2)
-fails for strlen = 5 (copied 2)
-fails for strlen = 6 (copied 2)
-fails for strlen = 7 (copied 2)
-fails for strlen = 11 (copied 10)
-fails for strlen = 12 (copied 10)
-fails for strlen = 13 (copied 10)
-fails for strlen = 14 (copied 10)
-fails for strlen = 15 (copied 10)
-fails for strlen = 19 (copied 18)
-fails for strlen = 20 (copied 18)
-fails for strlen = 21 (copied 18)
-fails for strlen = 22 (copied 18)
-fails for strlen = 23 (copied 18)
-fails for strlen = 27 (copied 26)
-fails for strlen = 28 (copied 26)
-fails for strlen = 29 (copied 26)
-fails for strlen = 30 (copied 26)
-fails for strlen = 31 (copied 26)
-fails for strlen = 35 (copied 34)
-fails for strlen = 36 (copied 34)
-fails for strlen = 37 (copied 34)
-fails for strlen = 38 (copied 34)
-fails for strlen = 39 (copied 34)
-fails for strlen = 43 (copied 42)
-fails for strlen = 44 (copied 42)
-fails for strlen = 45 (copied 42)
-fails for strlen = 46 (copied 42)
-fails for strlen = 47 (copied 42)
-
-
-So much for this function...  I'll look at the assembly to see if I can
-understand what's going on: it always copy a multiple of 8 + 2 bytes (as
-in 8x + 2).
--- 
-Mathieu Chouquet-Stringer                           mchouque@free.fr
+With best regards,
+OpenVZ team.
 

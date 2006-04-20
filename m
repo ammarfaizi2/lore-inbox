@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWDTNJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWDTNLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbWDTNJU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 09:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWDTNJU
+	id S1750910AbWDTNLa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 09:11:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWDTNLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 09:09:20 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:6085 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750870AbWDTNJT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 09:09:19 -0400
-Date: Thu, 20 Apr 2006 08:09:17 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: grundig <grundig@teleline.es>
-Cc: Crispin Cowan <crispin@novell.com>, ak@suse.de, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-       linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Message-ID: <20060420130917.GF18604@sergelap.austin.ibm.com>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <p73mzeh2o38.fsf@bragg.suse.de> <20060420011037.6b2c5891.grundig@teleline.es> <200604200138.00857.ak@suse.de> <4446E4AE.1090901@novell.com> <20060420150001.25eafba0.grundig@teleline.es>
-Mime-Version: 1.0
+	Thu, 20 Apr 2006 09:11:30 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:25319 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750908AbWDTNL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 09:11:29 -0400
+Date: Thu, 20 Apr 2006 15:11:22 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: borntrae@de.ibm.com, akpm@osdl.org, shemminger@osdl.org, jgarzik@pobox.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fpavlic@de.ibm.com, davem@sunset.davemloft.net
+Subject: Re: [patch] ipv4: initialize arp_tbl rw lock
+Message-ID: <20060420131122.GB9452@osiris.boeblingen.de.ibm.com>
+References: <20060408100213.GA9412@osiris.boeblingen.de.ibm.com> <20060408031235.5d1989df.akpm@osdl.org> <200604191245.48458.borntrae@de.ibm.com> <20060419.131237.49371772.davem@davemloft.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060420150001.25eafba0.grundig@teleline.es>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060419.131237.49371772.davem@davemloft.net>
+User-Agent: mutt-ng/devel-r796 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting grundig (grundig@teleline.es):
-> El Wed, 19 Apr 2006 18:32:30 -0700,
-> Crispin Cowan <crispin@novell.com> escribi?:
+> > As spinlock debugging still does not work with the qeth driver I
+> > want to pick up the discussion.
 > 
-> > Our controls on changing the name space have rather poor granularity at
-> > the moment. We hope to improve that over time, and especially if LSM
-> > evolves to permit it. This is ok, because as Andi pointed out, there are
-> > currently few applications using name spaces, so we have time to improve
-> > the granularity.
+> Does something like the patch below work?
 > 
-> Wouldn't have more sense to improve it and then submit it instead of the
-> contrary? At least is the rule which AFAIK is applied to every feature 
-> going in the kernel, specially when there's an available alternative
-> which users can use meanwhile (see reiser4...)
+> But this all begs the question, what happens if you want to
+> dig into the internals of a protocol which is built modular and
+> hasn't been loaded yet?
+> 
+> diff --git a/include/linux/init.h b/include/linux/init.h
+> index 93dcbe1..8169f25 100644
+> --- a/include/linux/init.h
+> +++ b/include/linux/init.h
+> @@ -95,8 +95,9 @@ #define postcore_initcall(fn)		__define_
+>  #define arch_initcall(fn)		__define_initcall("3",fn)
+>  #define subsys_initcall(fn)		__define_initcall("4",fn)
+>  #define fs_initcall(fn)			__define_initcall("5",fn)
+> -#define device_initcall(fn)		__define_initcall("6",fn)
+> -#define late_initcall(fn)		__define_initcall("7",fn)
+> +#define net_initcall(fn)		__define_initcall("6",fn)
+> +#define device_initcall(fn)		__define_initcall("7",fn)
+> +#define late_initcall(fn)		__define_initcall("8",fn)
+>  
+>  #define __initcall(fn) device_initcall(fn)
+>  
+> diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+> index dc206f1..9803a57 100644
+> --- a/net/ipv4/af_inet.c
+> +++ b/net/ipv4/af_inet.c
+> @@ -1257,7 +1257,7 @@ out_unregister_udp_proto:
+>  	goto out;
+>  }
+>  
+> -module_init(inet_init);
+> +net_initcall(inet_init);
 
-hah, that's funny
-
-When people do that, they are rebuked for not submitting upstream.  At
-least this way, we can have a discussion about whether the approach
-makes sense at all.
-
--serge
+That's exactly the same thing that I tried to. It didn't work for me since I
+saw "sometimes" the described rcu_update latencies.
+Today I was able to boot the machine 30 times and just saw it once... Not very
+helpful for debugging this :(
+Btw.: I guess the linker scripts need an update too, so that the new
+.initcall8.init section doesn't get discarded.

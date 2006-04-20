@@ -1,97 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbWDTPZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWDTP0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751008AbWDTPZg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 11:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWDTPZg
+	id S1751014AbWDTP0a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 11:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWDTP0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 11:25:36 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:58519 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751012AbWDTPZf (ORCPT
+	Thu, 20 Apr 2006 11:26:30 -0400
+Received: from xenotime.net ([66.160.160.81]:1254 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751012AbWDTP03 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 11:25:35 -0400
-Date: Thu, 20 Apr 2006 19:25:25 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Libor Vanek <libor.vanek@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Connector - how to start?
-Message-ID: <20060420152524.GA14664@2ka.mipt.ru>
-References: <20060415091801.GA4782@2ka.mipt.ru> <369a7ef40604160426s301dcd52r4c9826698d3d2f79@mail.gmail.com> <20060416114017.GA30180@2ka.mipt.ru> <369a7ef40604160509xcf2caadi782b90da956639d5@mail.gmail.com> <20060416132515.GA25602@2ka.mipt.ru> <369a7ef40604160632t16f6aab9u687a6b359997d7ea@mail.gmail.com> <20060418060744.GA20715@2ka.mipt.ru> <369a7ef40604190439v6e8f1bf6lf52cfab5af3a93af@mail.gmail.com> <20060419121423.GA6057@2ka.mipt.ru> <369a7ef40604200812x594a8b3dxc4d730cdbfda720e@mail.gmail.com>
+	Thu, 20 Apr 2006 11:26:29 -0400
+Date: Thu, 20 Apr 2006 08:28:52 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Emmanuel Fleury <emmanuel.fleury@labri.fr>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [libata] atapi_enabled problem
+Message-Id: <20060420082852.f679a376.rdunlap@xenotime.net>
+In-Reply-To: <44477D93.50501@labri.fr>
+References: <44477D93.50501@labri.fr>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <369a7ef40604200812x594a8b3dxc4d730cdbfda720e@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 20 Apr 2006 19:25:26 +0400 (MSD)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 05:12:33PM +0200, Libor Vanek (libor.vanek@gmail.com) wrote:
+On Thu, 20 Apr 2006 14:24:51 +0200 Emmanuel Fleury wrote:
 
-> - When sending message from kernel, cn_netlink_send returns an error
-> in case when there is no reciever - BUT user space "send" doesn't
-> return an error when there is no reciever in kernel :-(
+> Hi,
+> 
+> I'm a bit puzzled, I have a Fujistu-Siemens P7120 (see: 
+> http://www.labri.fr/perso/fleury/index.php?page=p7120) and the DVD-ROM 
+> wasn't detected at all at boot time.
+> 
+> After googling a bit I found this page: 
+> http://www.thinkwiki.org/wiki/Problems_with_SATA_and_Linux
+> 
+> So, I tried to compile the kernel with built-in ATAPI and S-ATA support 
+> (not as modules but embedded in the kernel) and I tried to pass 
+> libata.atapi_enabled=1 at boot time through kernel options. The 
+> DVD-drive was recognized at boot but generate tons of errors:
+> 
+> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
+> ata1: no sense translation for error 0x20
+> ata1: no sense translation for status: 0x51
+> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
+> sr0: CDROM (ioctl) error, command: <6>Test Unit Ready 00 00 00 00 00 00
+> sr: Current [descriptor]: sense key: Medium Error
+>      Additional sense: Unrecovered read error - auto reallocate failed
+> ata1: no sense translation for error 0x20
+> ata1: no sense translation for status: 0x51
+> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
+> ata1: no sense translation for error 0x20
+> ata1: no sense translation for status: 0x51
+> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
+> ata1: no sense translation for error 0x20
+> ata1: no sense translation for status: 0x51
+> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
+> ata1: no sense translation for error 0x20
+> ata1: no sense translation for status: 0x51
+> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
+> ata1: no sense translation for error 0x20
+> ata1: no sense translation for status: 0x51
+> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
+> ata1: no sense translation for error 0x20
+> ata1: no sense translation for status: 0x51
+> ata1: translated ATA stat/err 0x51/20 to SCSI SK/ASC/ASCQ 0x3/11/04
+> ata1: no sense translation for error 0x20
+> ata1: no sense translation for status: 0x51
+> 
+> Then I decided to just modify drivers/scsi/libata-core.c changing the 
+> line "atapi_enabled = 0" into "atapi_enabled = 1". Then everything 
+> worked as a charm.
+> 
+> I have no explanation yet for this behaviour (passing kernel options 
+> should behave the same than changing the code the way I did I suppose).
 
-Userspace sends it into kernel socket. Groups were created for
-userspace's sockets, so there is always a listener in kernelspace.
+Yes, it should and it has worked for quite a few people in the past.
+I suspect something more like a typo.  Anyway, recent kernels
+(after 2.6.16, so 2.6.17-rc*) already have atapi_enabled set to 1.
 
-> - How (if) can I do ACK (acknoledge received and processed message)?
+> Does anyone has an idea ?
 
-I put seq and ack fields into connector header, and described a simple
-protocol for it's usage, but it does require some work by driver author, 
-it is impossible to generate automatic ack messages in netlink 
-(well, it is possible to generate nlmsgerr message sending but generally 
-it is not what people want with protocols designed over connector).
-
-> Thanks for your help,
-> Libor Vanek
-
-> /*
->  * 	cn_send.c
->  */
-
-...
-
-> void my_send_test(void)
-> {
-> 	struct cn_msg *msg;
-> 	char data[32];
-> 	int ret;
-> 	
-> 	msg = kmalloc(sizeof(*msg) + sizeof(data), GFP_ATOMIC);
-
-Not a good style of allocating data from atomic pool without checks for
-return value.
-Btw, you do not need to allocate it dynamically, 
-char msg[sizeof(struct cn_msg) + 32] will work too.
-
-...
-
-> /*
->  * 	cn_user_recv.c
->  */
-
-...
- 
-> 	l_local.nl_family = AF_NETLINK;
-> 	l_local.nl_groups = 0x3;
-> 	l_local.nl_pid    = getpid();
-> 	
-> 	if (bind(s, (struct sockaddr *)&l_local, sizeof(struct sockaddr_nl)) == -1) {
-> 		perror("bind");
-> 		close(s);
-> 		return -1;
-> 	}
-> 	int on = l_local.nl_groups;
-> 	if (setsockopt(s, 270, 1, &on, sizeof(on))) {
-> 		perror("setsockopt");
-> 		close(s);
-> 		return -1;
-> 	}
-
-In this example you will receive messages for groups 1, 2 (bind time
-gropus 0x3 is equal to (1<<(1-1)) | (1<<(2-1))) and group 3 (you
-have subscribed to that gropu explicitly).
-
-
--- 
-	Evgeniy Polyakov
+---
+~Randy

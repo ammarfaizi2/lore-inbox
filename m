@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWDTHpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWDTHuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWDTHpX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 03:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWDTHpX
+	id S1750765AbWDTHuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 03:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWDTHuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 03:45:23 -0400
-Received: from mail.suse.de ([195.135.220.2]:62666 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750757AbWDTHpW (ORCPT
+	Thu, 20 Apr 2006 03:50:09 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60384 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750765AbWDTHuI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 03:45:22 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: smp/up alternatives crash when CONFIG_HOTPLUG_CPU
-References: <20060419094630.GA14800@elte.hu> <20060420052954.GA5524@elte.hu>
-From: Andi Kleen <ak@suse.de>
-Date: 20 Apr 2006 09:45:16 +0200
-In-Reply-To: <20060420052954.GA5524@elte.hu>
-Message-ID: <p73hd4o3d2r.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 20 Apr 2006 03:50:08 -0400
+Date: Thu, 20 Apr 2006 00:49:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ken Witherow <ken@krwtech.com>
+Cc: phantoml@rochester.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: Advansys SCSI driver and 2.6.16
+Message-Id: <20060420004915.45cd34be.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604200242410.3134@death>
+References: <Pine.LNX.4.64.0604191444200.1841@death>
+	<20060419163247.6986a87c.akpm@osdl.org>
+	<20060419224202.3e2f99f5.akpm@osdl.org>
+	<Pine.LNX.4.64.0604200242410.3134@death>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+Ken Witherow <phantoml@rochester.rr.com> wrote:
+>
+> I would say driver is working as intended,
+
+OK, thanks.  The driver needs some caring for.  Probably marking it as
+BROKEN was the wrong thing to do, because then everyone ignores it.  I'll
+enable it in -mm, see if that motivates someone to take pity upon it.
+
+> though I do get a slew of:
 > 
-> but ... a more fundamental question is, where does the SMP-alternatives 
-> code flush the icache? I dont think it's generally guaranteed on x86 
-> CPUs that MESI updates to code get propagated into the icache of other 
-> CPUs/cores.
+>  drivers/scsi/advansys.c:18223: warning: passing argument 2 of 'writew' 
+>  makes pointer from integer without a cast
+>  drivers/scsi/advansys.c:18223: warning: passing argument 2 of 'writeb' 
+>  makes pointer from integer without a cast
+>
+>  warnings when compiling
 
-Are you sure? I thought it was. Of course there can be bugs in this,
-but I'm not aware of any on K8 or recent Intel CPUs. If that didn't
-work much more things would be broken too (program/module loading,
-JITs)
+Yes, you will.   I stuck a few typecasts in there just to quieten things down.
 
--Andi

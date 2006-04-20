@@ -1,107 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWDTTTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWDTTUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbWDTTTY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 15:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWDTTTY
+	id S1750893AbWDTTUy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 15:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWDTTUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 15:19:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:11562 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750881AbWDTTTX (ORCPT
+	Thu, 20 Apr 2006 15:20:54 -0400
+Received: from pat.uio.no ([129.240.10.6]:50560 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750893AbWDTTUx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 15:19:23 -0400
-Date: Thu, 20 Apr 2006 21:19:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.17-rc2
-Message-ID: <20060420191954.GG4717@suse.de>
-References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org> <20060419200001.fe2385f4.diegocg@gmail.com> <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org> <20060420145041.GE4717@suse.de> <Pine.LNX.4.64.0604200818490.3701@g5.osdl.org>
+	Thu, 20 Apr 2006 15:20:53 -0400
+Subject: Re: NFS bug?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Robert Merrill <grievre@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b3be17f30604201114n7a50bad9u6f3839a029f571a7@mail.gmail.com>
+References: <b3be17f30604200937l7cfaca8evcc17f6ecd72f643e@mail.gmail.com>
+	 <1145551304.8136.5.camel@lade.trondhjem.org>
+	 <b3be17f30604200953i652e14a2n908f1a066ffe4e7f@mail.gmail.com>
+	 <1145555789.8136.13.camel@lade.trondhjem.org>
+	 <b3be17f30604201102jff51794r52dd3024d631051e@mail.gmail.com>
+	 <1145556613.8136.14.camel@lade.trondhjem.org>
+	 <b3be17f30604201114n7a50bad9u6f3839a029f571a7@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 20 Apr 2006 15:20:45 -0400
+Message-Id: <1145560845.8136.26.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604200818490.3701@g5.osdl.org>
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.562, required 12,
+	autolearn=disabled, AWL 1.44, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20 2006, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 20 Apr 2006, Jens Axboe wrote:
-> > 
-> > >  - an ioctl/fcntl to set the maximum size of the buffer. Right now it's 
-> > >    hardcoded to 16 "buffer entries" (which in turn are normally limited to 
-> > >    one page each, although there's nothing that _requires_ that a buffer 
-> > >    entry always be a page).
-> > 
-> > This is on a TODO, but not very high up since I've yet to see a case
-> > where the current 16 page limitation is an issue. I'm sure something
-> > will come up eventually, but until then I'd rather not bother.
-> 
-> The real reason for limiting the number of buffer entries is not to make 
-> the number _larger_ (although that can be a performance optimization), but 
-> to make it _smaller_ or at least knowing/limiting how big it is.
-> 
-> It doesn't matter with the current interfaces which are mostly agnostic as 
-> to how big the buffer is, but it _does_ matter with vmsplice().
-> 
-> Why?
-> 
-> Simple: for a vmsplice() user, it's very important to know when they can 
-> start re-using the buffer(s) that they used vmsplice() on previously. And 
-> while the user could just ask the kernel how many bytes are left in the 
-> pipe buffer, that's pretty inefficient for many normal streaming cases.
-> 
-> The _efficient_ way is to make the user-space buffer that you use for 
-> splicing information to another entity a circular buffer that is at least 
-> as large as any of the splice pipes involved in the transfer (depending on 
-> use. In many cases, you will probably want to make the user-space buffer 
-> _twice_ as big as the kernel buffer, which makes the tracking even easier: 
-> while half of the buffer is busy, you can write to the half that is 
-> guaranteed to not be in the kernel buffer, so you effectively do "double 
-> buffering")
-> 
-> So if you do that, then you can continue to write to the buffer without 
-> ever worrying about re-use, because you know that by the time you wrap 
-> around, the kernel buffer will have been flushed out, or the vmsplice() 
-> would have blocked, waiting for the receiver. So now you no longer need to 
-> worry about "how much has flushed" - you only need to worry about doing 
-> the vmsplice() call at least twice per buffer traversal (assuming the 
-> "user buffer is double the size of the kernel buffer" approach).
-> 
-> So you could do a very efficient "stdio-like" implementation for logging, 
-> for example, since this allows you to re-use the same pages over and over 
-> for splicing, without ever having any copying overhead, and without ever 
-> having to play VM-related games (ie you don't need to do unmaps or 
-> mprotects or anything expensive like that in order to get a new page or 
-> something).
-> 
-> But in order to do that, you really do need to know (and preferably set) 
-> the size of the splice buffer. Otherwise, if the in-kernel splice buffer 
-> is larger than the circular buffer you use in user space, the kernel will 
-> add the same page _twice_ to the buffer, and you'll overwrite the data 
-> that you already spliced.
+On Thu, 2006-04-20 at 11:14 -0700, Robert Merrill wrote:
+> > Oh... and could you also send us the Oops/stack trace from the BUG_ON()?
+> >
+>  ------------[ cut here ]------------
+> kernel BUG at arch/i386/lib/usercopy.c:582!
+> invalid operand: 0000 [#49]
+> SMP
+> Modules linked in: w83627hf eeprom lm85 w83781d hwmon_vid i2c_isa
+> i2c_dev thermal fan button processor ac battery nfs lockd nfs_acl
+> sunrpc ipv6 quota_v1 ide_cd cdrom generic joydev piix psmouse evdev
+> uhci_hcd ehci_hcd parport_pc parport e1000 rtc serio_raw floppy
+> usbcore i2c_i801 ide_core i2c_core mousedev pcspkr shpchp pci_hotplug
+> CPU:    2
+> EIP:    0060:[<c01ff157>]    Not tainted VLI
+> EFLAGS: 00010282   (2.6.15.7-soda0)
+> EIP is at __copy_from_user_ll+0x12/0xe2
+> eax: 00000000   ebx: 00000003   ecx: fffffffb   edx: fffffffb
+> esi: 0804a024   edi: 00000000   ebp: 00000000   esp: f6964f84
+> ds: 007b   es: 007b   ss: 0068
+> Process a.out (pid: 6994, threadinfo=f6964000 task=f70e7030)
+> Stack: fffffffb b7f55ff4 f893c2a0 00000000 0804a024 fffffffb fffffffb 000000d0
+>        f70e7030 00000003 0804a024 b7f55ff4 f6964000 f893dc1d 00000003 0804a024
+>        00004000 0804a024 b7f55ff4 bf973d50 ffffffda 0000007b c010007b 000000dc
+> Call Trace:
+> Code: 07 29 c8 f3 a4 89 c1 c1 e9 02 83 e0 03 90 f3 a5 89 c1 f3 a4 89
+> c8 5e 5f c3 57 56 8b 7c 24 0c 8b 74 24 10 8b 4c 24 14 85 c9 79 08 <0f>
+> 0b 46 02 63 92 2f c0 83 f9 3f 0f 86 99 00 00 00 89 f8 31 f0
 
-Good point, as you can tell I had other uses in mind for this. I'd
-prefer using fcntl for this instead of an ioctl - how about a set of
-matching F_SETPIPESZ/F_GETPIPESZ or something in that order? Right now
-we can just -EINVAL stub the pipe size setting, but really implement the
-pipe size getting.
+Was there no stack trace in that Oops? AFAICS, getdents64() isn't
+supposed to be calling __copy_from_user_ll() at all, so you appear to
+have something very weird going here.
 
-Other suggestions?
-
-The vmsplice addition itself is pretty slim:
-
- splice.c |  163 +++++++++++++++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 132 insertions(+), 31 deletions(-)
-
-> (Now, you still need to be very careful with vmsplice() in general, since 
-> it leaves the data page writable in the source VM and thus allows for all 
-> kinds of confusion, but the theory here is "give them rope". Rope enough 
-> to do clever things always ends up being rope enough to hang yourself too. 
-> Tough.).
-
-Oh definitely :-)
-
--- 
-Jens Axboe
+Cheers,
+  Trond
 

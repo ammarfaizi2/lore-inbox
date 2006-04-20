@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWDTNLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWDTNLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbWDTNLa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 09:11:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWDTNLa
+	id S1750916AbWDTNLo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 09:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWDTNLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 09:11:30 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:25319 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750908AbWDTNL3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 09:11:29 -0400
-Date: Thu, 20 Apr 2006 15:11:22 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: borntrae@de.ibm.com, akpm@osdl.org, shemminger@osdl.org, jgarzik@pobox.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       fpavlic@de.ibm.com, davem@sunset.davemloft.net
-Subject: Re: [patch] ipv4: initialize arp_tbl rw lock
-Message-ID: <20060420131122.GB9452@osiris.boeblingen.de.ibm.com>
-References: <20060408100213.GA9412@osiris.boeblingen.de.ibm.com> <20060408031235.5d1989df.akpm@osdl.org> <200604191245.48458.borntrae@de.ibm.com> <20060419.131237.49371772.davem@davemloft.net>
+	Thu, 20 Apr 2006 09:11:44 -0400
+Received: from dobermann.cosy.sbg.ac.at ([141.201.2.56]:44967 "EHLO
+	dobermann.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id S1750916AbWDTNLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 09:11:42 -0400
+Message-ID: <444774F3.8000200@cosy.sbg.ac.at>
+Date: Thu, 20 Apr 2006 13:48:03 +0200
+From: Christian Praehauser <cpraehaus@cosy.sbg.ac.at>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060419.131237.49371772.davem@davemloft.net>
-User-Agent: mutt-ng/devel-r796 (Linux)
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dvb-core: ULE fixes and RFC4326 additions (kernel 2.6.16)
+References: <44465208.5030004@cosy.sbg.ac.at>	<20060419235349.2b1840c0.akpm@osdl.org>	<44475DDD.1020206@cosy.sbg.ac.at> <20060420032655.475e15ed.akpm@osdl.org>
+In-Reply-To: <20060420032655.475e15ed.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > As spinlock debugging still does not work with the qeth driver I
-> > want to pick up the discussion.
-> 
-> Does something like the patch below work?
-> 
-> But this all begs the question, what happens if you want to
-> dig into the internals of a protocol which is built modular and
-> hasn't been loaded yet?
-> 
-> diff --git a/include/linux/init.h b/include/linux/init.h
-> index 93dcbe1..8169f25 100644
-> --- a/include/linux/init.h
-> +++ b/include/linux/init.h
-> @@ -95,8 +95,9 @@ #define postcore_initcall(fn)		__define_
->  #define arch_initcall(fn)		__define_initcall("3",fn)
->  #define subsys_initcall(fn)		__define_initcall("4",fn)
->  #define fs_initcall(fn)			__define_initcall("5",fn)
-> -#define device_initcall(fn)		__define_initcall("6",fn)
-> -#define late_initcall(fn)		__define_initcall("7",fn)
-> +#define net_initcall(fn)		__define_initcall("6",fn)
-> +#define device_initcall(fn)		__define_initcall("7",fn)
-> +#define late_initcall(fn)		__define_initcall("8",fn)
->  
->  #define __initcall(fn) device_initcall(fn)
->  
-> diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-> index dc206f1..9803a57 100644
-> --- a/net/ipv4/af_inet.c
-> +++ b/net/ipv4/af_inet.c
-> @@ -1257,7 +1257,7 @@ out_unregister_udp_proto:
->  	goto out;
->  }
->  
-> -module_init(inet_init);
-> +net_initcall(inet_init);
+Andrew Morton wrote:
 
-That's exactly the same thing that I tried to. It didn't work for me since I
-saw "sometimes" the described rcu_update latencies.
-Today I was able to boot the machine 30 times and just saw it once... Not very
-helpful for debugging this :(
-Btw.: I guess the linker scripts need an update too, so that the new
-.initcall8.init section doesn't get discarded.
+>>After correcting the broadcast address i saw that broadcast packets are 
+>> not accepted when in "multicast" mode (RX_MODE_MULTI).
+>> In the attached version of the patch this was fixed.
+>>    
+>>
+>
+>This driver would have to be one of the ugliest-looking things in the
+>kernel.  You must have a strong stomach.
+>
+>  
+>
+Well, yes ;-).
+I agree with you, but i did not have the time and the courage to redo 
+the whole thing.
+The original goal was to fix the support for ULE extension headers (e.g. 
+for link layer security, FEC, etc.),
+which is broken in the current kernel versions.
+
+I would welcome a discussion for beautifying the dvb-core (especially 
+dvb_net.c) module.
+
+>> --- drivers/media/dvb/dvb-core/dvb_net.c.orig	2006-04-19 15:12:31.000000000 +0200
+>> +++ drivers/media/dvb/dvb-core/dvb_net.c	2006-04-20 11:04:18.000000000 +0200
+>>    
+>>
+>
+>Please prepare future patches in `patch -p1' form:
+>
+>--- a/drivers/media/dvb/dvb-core/dvb_net.c
+>+++ a/drivers/media/dvb/dvb-core/dvb_net.c
+>  
+>
+Thanks for the hint. Will do so in future patches.
+
+Have a nice day!
+Christian.
+
+-- 
+________________________________________
+| Christian Praehauser                  |
+|---------------------------------------|
+| Email:                                |
+|  cpraehaus@cosy.sbg.ac.at             |
+| Address:                              |
+|  Institut fuer Computerwissenschaften | 
+|  Jakob-Haringer-Strasse 2             |
+|  A-5020 Salzburg, Austria             |
+|_______________________________________|
+

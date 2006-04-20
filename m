@@ -1,97 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWDTKK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWDTKLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWDTKK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 06:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWDTKK4
+	id S1750830AbWDTKLY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 06:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWDTKLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 06:10:56 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:8338 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750824AbWDTKKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 06:10:55 -0400
-Date: Thu, 20 Apr 2006 19:10:16 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch: 004/006] pgdat allocation for new node add (refresh node_data[])
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20060420185123.EE48.Y-GOTO@jp.fujitsu.com>
-References: <20060420185123.EE48.Y-GOTO@jp.fujitsu.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060420190618.EE50.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+	Thu, 20 Apr 2006 06:11:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33439 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750831AbWDTKLS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 06:11:18 -0400
+Date: Thu, 20 Apr 2006 03:10:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: torvalds@osdl.org, agk@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] Device-mapper snapshot metadata userspace breakage
+Message-Id: <20060420031013.68cff2cf.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0604201302090.29821@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0604201159350.29821@sbz-30.cs.Helsinki.FI>
+	<20060420025953.577e2225.akpm@osdl.org>
+	<Pine.LNX.4.58.0604201302090.29821@sbz-30.cs.Helsinki.FI>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This function refresh NODE_DATA() for generic archs.
-In this case, NODE_DATA(nid) == node_data[nid].
-node_data[] is array of address of pgdat.
-So, refresh is quite simple.
+Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+>
+> Hi Andrew,
+> 
+> Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+> > > The commit aa14edeb994f8f7e223d02ad14780bf2fa719f6d "[PATCH] device-mapper 
+> > >  snapshot: load metadata on creation" breaks userspace and is blocking us 
+> > >  from moving to the 2.6.16 series kernel. Debian doesn't have the 
+> > >  new required LVM version in stable yet. Is the change intentional?
+>  
+> On Thu, 20 Apr 2006, Andrew Morton wrote:
+> > The changelog said
+> > 
+> >   If you're using lvm2, for this patch to work properly you should update
+> >   to lvm2 version 2.02.01 or later and device-mapper version 1.02.02 or
+> >   later.
+> > 
+> > Which was pretty bad of us.  I hope LVM 2.02.01 userspace is
+> > back-compatible with older kernels?
+> 
+> Yeah, I know, but that still leaves us in an unfortunate situation as the 
+> 2.6.16 series has security fixes that are not AFAIK in 2.6.15. Anyway, if 
+> the change is intentional and approved, I guess we'll just have to live 
+> with it. Thanks!
+> 
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Well I wouldn't say it was "approved".  It was disapproved of and
+grudgingly accepted :(
 
- arch/ia64/Kconfig              |    4 ++++
- include/linux/memory_hotplug.h |   12 ++++++++++++
- 2 files changed, 16 insertions(+)
-
-Index: pgdat11/include/linux/memory_hotplug.h
-===================================================================
---- pgdat11.orig/include/linux/memory_hotplug.h	2006-04-20 11:00:23.000000000 +0900
-+++ pgdat11/include/linux/memory_hotplug.h	2006-04-20 11:00:28.000000000 +0900
-@@ -91,6 +91,9 @@ static inline pg_data_t * arch_alloc_nod
- static inline void arch_free_nodedata(pg_data_t *pgdat)
- {
- }
-+static inline void arch_refresh_nodedata(int nid, pg_data_t *pgdat)
-+{
-+}
- 
- #else /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
- 
-@@ -114,6 +117,12 @@ static inline void arch_free_nodedata(pg
-  */
- #define generic_free_nodedata(pgdat)	kfree(pgdat)
- 
-+extern pg_data_t *node_data[];
-+static inline void generic_refresh_nodedata(int nid, pg_data_t *pgdat)
-+{
-+	node_data[nid] = pgdat;
-+}
-+
- #else /* !CONFIG_NUMA */
- 
- /* never called */
-@@ -125,6 +134,9 @@ static inline pg_data_t *generic_alloc_n
- static inline void generic_free_nodedata(pg_data_t *pgdat)
- {
- }
-+static inline void generic_refresh_nodedata(int nid, pg_data_t *pgdat)
-+{
-+}
- #endif /* CONFIG_NUMA */
- #endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
- 
-Index: pgdat11/arch/ia64/Kconfig
-===================================================================
---- pgdat11.orig/arch/ia64/Kconfig	2006-04-20 11:00:04.000000000 +0900
-+++ pgdat11/arch/ia64/Kconfig	2006-04-20 11:00:28.000000000 +0900
-@@ -374,6 +374,10 @@ config HAVE_ARCH_EARLY_PFN_TO_NID
- 	def_bool y
- 	depends on NEED_MULTIPLE_NODES
- 
-+config HAVE_ARCH_NODEDATA_EXTENSION
-+	def_bool y
-+	depends on NUMA
-+
- config IA32_SUPPORT
- 	bool "Support for Linux/x86 binaries"
- 	help
-
--- 
-Yasunori Goto 
-
+More info here: http://lkml.org/lkml/2006/1/23/130
 

@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWDTMPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbWDTMXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWDTMPu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 08:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWDTMPu
+	id S1750839AbWDTMXy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 08:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWDTMXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 08:15:50 -0400
-Received: from pat.uio.no ([129.240.10.6]:34015 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750773AbWDTMPt (ORCPT
+	Thu, 20 Apr 2006 08:23:54 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:45462 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750820AbWDTMXx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 08:15:49 -0400
-Subject: Re: NFS client: utime() doesn't work always
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Timo Sirainen <tss@iki.fi>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1145534473.6851.63.camel@localhost.localdomain>
-References: <1145534473.6851.63.camel@localhost.localdomain>
+	Thu, 20 Apr 2006 08:23:53 -0400
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Emily Ratliff <ejratl@gmail.com>
+Cc: David Safford <safford@watson.ibm.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, James Morris <jmorris@namei.org>,
+       casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1145471636.24289.236.camel@moss-spartans.epoch.ncsc.mil>
+References: <20060417180231.71328.qmail@web36606.mail.mud.yahoo.com>
+	 <1145297742.8542.206.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060417192634.GB18990@sergelap.austin.ibm.com>
+	 <Pine.LNX.4.64.0604171528340.17923@d.namei>
+	 <20060417194759.GD18990@sergelap.austin.ibm.com>
+	 <1145304146.8542.251.camel@moss-spartans.epoch.ncsc.mil>
+	 <1145458322.2377.12.camel@localhost.localdomain>
+	 <1145460417.24289.116.camel@moss-spartans.epoch.ncsc.mil>
+	 <2e00cdfd0604191057h5d663319xab6ee62ca58fbe28@mail.gmail.com>
+	 <1145471636.24289.236.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 20 Apr 2006 08:15:36 -0400
-Message-Id: <1145535336.8169.23.camel@lade.trondhjem.org>
+Organization: National Security Agency
+Date: Thu, 20 Apr 2006 08:27:54 -0400
+Message-Id: <1145536074.16456.26.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.106, required 12,
-	autolearn=disabled, AWL 1.71, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 15:01 +0300, Timo Sirainen wrote:
-> Attached two straces where in first one stat() right after utime() gives
-> wrong mtime in reply. The second strace has fstat() call added which
-> makes it work properly for some reason (most of the time, but not
-> always).
+On Wed, 2006-04-19 at 14:33 -0400, Stephen Smalley wrote:
+> On Wed, 2006-04-19 at 12:57 -0500, Emily Ratliff wrote:
+> > Dave has an existing implementation with a user base of a formally
+> > proven security model. He is addressing implementation concerns and
+> > continuing to try to get SLIM accepted. Why should he be required to
+> > extend SELinux?
 > 
-> I tried creating a small test program which did the last steps in the
-> straces, but I couldn't reproduce the problem with it. So I guess some
-> other syscall before those causes it to get confused.
+> Well, I haven't seen any new code submitted since last Nov, and the code
+> at that time was badly broken to the point that it seemed to require a
+> re-design, and none of the modules at the time appeared to justify LSM
+> or the stacker; if anything, they were a warning that the stacker and
+> LSM lend themselves to misuse, confusion, and broken code.
 > 
-> The NFS server's clock seems to be about 4 seconds in different time
-> from the client. I guess that's part of the reason why it's wrong. Linux
-> kernel figures that because utime() doesn't actually change the mtime it
-> doesn't bother updating it? If this is the case, I think it should be
-> changed because the clocks can't be perfectly sychronized, so there's
-> always some possibility for it to break.
-> 
-> Kernel is from Debian package linux-image-2.6.16-1-686-smp version
-> 2.6.16-7. NFS server is some Netapp, mounted with options
-> rw,noatime,nfsvers=3,proto=udp,rsize=32768,wsize=32768,actimeo=30. Same
-> with actimeo=0. 2.4.20 used to work fine.
+> I'm sure we'd all be glad to see new patches.  But the issues that were
+> raised during the original discussion still need to be addressed.
 
-...and 2.6.17-rcX should work fine. See the following patch which was
-merged into 2.6.17-rc1:
+BTW, this isn't the first time that he has been encouraged to consider
+extending SELinux rather than going it alone with his own custom LSM,
+and the benefits to him would be:
+- leveraging an existing code base and infrastructure that is already
+upstream and included in several distros (including both the kernel code
+as well as integration with userspace, policy tools, policy management
+infrastructure, etc),
+- being able to leverage the existing TE security model to complement
+and fill in the gaps left by the low water mark model, just as it is
+already being used to complement MLS,
+- ensuring that the result integrates well and works well with SELinux,
+for those who may want both low water mark and TE.
 
-http://client.linux-nfs.org/Linux-2.6.x/2.6.16/linux-2.6.16-007-fix_setattr_clobber.dif
-
-Cheers,
-  Trond
+-- 
+Stephen Smalley
+National Security Agency
 

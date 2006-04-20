@@ -1,66 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWDTQsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWDTQrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWDTQsS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 12:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWDTQsS
+	id S1751101AbWDTQrw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 12:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWDTQrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 12:48:18 -0400
-Received: from mx1.suse.de ([195.135.220.2]:58563 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751098AbWDTQsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 12:48:04 -0400
-Date: Thu, 20 Apr 2006 09:46:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Christoph Hellwig <hch@infradead.org>, tonyj@suse.de,
-       James Morris <jmorris@namei.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, Andrew Morton <akpm@osdl.org>,
-       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Removing EXPORT_SYMBOL(security_ops) (was Re: Time to remove LSM)
-Message-ID: <20060420164651.GA2439@kroah.com>
-References: <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr> <20060419154011.GA26635@kroah.com> <Pine.LNX.4.64.0604191221100.4408@d.namei> <20060419181015.GC11091@kroah.com> <1145536791.16456.37.camel@moss-spartans.epoch.ncsc.mil> <20060420150037.GA30353@kroah.com> <1145542811.3313.94.camel@moss-spartans.epoch.ncsc.mil> <20060420161552.GA1990@kroah.com> <20060420162309.GA18726@infradead.org> <1145550897.3313.143.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145550897.3313.143.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.11
+	Thu, 20 Apr 2006 12:47:52 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:23681 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751094AbWDTQrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 12:47:51 -0400
+Message-ID: <4447BB2B.1060407@linux.intel.com>
+Date: Thu, 20 Apr 2006 20:47:39 +0400
+From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+CC: Xavier Bestel <xavier.bestel@free.fr>, "Yu, Luming" <luming.yu@intel.com>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <1145549460.23837.156.camel@capoeira> <4447B7D6.4030401@linux.intel.com> <20060420164419.GA30317@srcf.ucam.org>
+In-Reply-To: <20060420164419.GA30317@srcf.ucam.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 12:34:57PM -0400, Stephen Smalley wrote:
-> On Thu, 2006-04-20 at 17:23 +0100, Christoph Hellwig wrote:
-> > On Thu, Apr 20, 2006 at 09:15:52AM -0700, Greg KH wrote:
-> > > On Thu, Apr 20, 2006 at 10:20:11AM -0400, Stephen Smalley wrote:
-> > > > On Thu, 2006-04-20 at 08:00 -0700, Greg KH wrote:
-> > > > > I agree.  In looking over the code some more, I'm trying to figure out
-> > > > > why we are exporting that variable at all.  Is it because of people
-> > > > > wanting to stack security modules?
-> > > > > 
-> > > > > I see selinux code using it, but you are always built into the kernel,
-> > > > > right?  So unexporting it would not be an issue to you.
-> > > > 
-> > > > Various in-tree modules (e.g. ext3) call security hooks via the static
-> > > > inlines and end up referencing security_ops directly.  We'd have to wrap
-> > > > all such hooks in the same manner as capable and permission.
-> > > 
-> > > Ah, and people like making their file systems as modules :(
-> > 
-> > But actually yes, calling into rndom lsm hooks in modules is not a good
-> > thing.a  The only think filesystems calls is security_inode_init_security
-> > and it would make a lot of sense to make that an out of line wrapper
-> > instead of exporting security_ops.
+Matthew Garrett wrote:
+> On Thu, Apr 20, 2006 at 08:33:26PM +0400, Alexey Starikovskiy wrote:
+>> Xavier Bestel wrote:
+>>> There are keyboards with power/sleep buttons. It makes sense they have
+>>> the same behavior than ACPI buttons.
+>> Agree, make them behave like ACPI buttons -- remove them from input stream, 
+>> as they do not belong there...
 > 
-> There are other cases as well, I think, e.g. af_unix calls certain hooks
-> to ensure mediation of even the abstract namespace.  But the problem is
-> avoided altogether if the security static inlines compile down to direct
-> selinux function calls (which can be exported as needed).
-
-Of course it's "avoided alltogether" but we are not talking about
-dropping the whole LSM interface here right now.  I am wanting something
-that can go into 2.6.17 to fix this issue this week.
-
-thanks,
-
-greg k-h
+> Making the atkbd driver punt certain scancodes to the ACPI layer 
+> /really/ isn't the right answer.
+> 
+Yes, this is why I mentioned using kevent and dbus before... Could it be the righter answer?

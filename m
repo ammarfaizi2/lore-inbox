@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWDTR1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWDTRdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWDTR1k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 13:27:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWDTR1k
+	id S1750884AbWDTRdw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 13:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWDTRdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 13:27:40 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:25295 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751196AbWDTR1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 13:27:39 -0400
-Date: Thu, 20 Apr 2006 19:27:33 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wedgwood <cw@f00f.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] -mm: hard/softirq_ctx __read_mostly (CONFIG_4KSTACKS)
-Message-ID: <20060420172733.GA13852@rhlx01.fht-esslingen.de>
+	Thu, 20 Apr 2006 13:33:52 -0400
+Received: from mx2.suse.de ([195.135.220.15]:16869 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750790AbWDTRdv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 13:33:51 -0400
+Date: Thu, 20 Apr 2006 19:33:34 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, Nick Piggin <npiggin@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch 1/5] mm: remap_vmalloc_range
+Message-ID: <20060420173334.GD21660@wotan.suse.de>
+References: <20060228202202.14172.60409.sendpatchset@linux.site> <20060228202212.14172.59536.sendpatchset@linux.site> <20060420172205.GC21659@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+In-Reply-To: <20060420172205.GC21659@infradead.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thu, Apr 20, 2006 at 06:22:05PM +0100, Christoph Hellwig wrote:
+> On Thu, Apr 20, 2006 at 07:06:18PM +0200, Nick Piggin wrote:
+> > Add a remap_vmalloc_range and get rid of as many remap_pfn_range and
+> > vm_insert_page loops as possible.
+> > 
+> > remap_vmalloc_range can do a whole lot of nice range checking even
+> > if the caller gets it wrong (which it looks like one or two do).
+> 
+> This looks very nice, thanks!
 
-the hardirq_ctx and softirq_ctx variables are written to on init only,
-but in the final kernel image they may easily get linked together with other
-often-written variables in the same cacheline, so put them into __read_mostly
-section since they are in the highly critical IRQ path.
+Thank you
 
-Patch compiled and tested on 2.6.17-rc1-mm3.
-I did not test the powerpc part, though, for obvious reasons.
+> Although it might be better to split it
+> into one patch to introduce remap_vmalloc_range and various patches to
+> switch over one susbsyetm for merging purposes.
 
-Signed-off-by: Andreas Mohr <andi@lisas.de>
+Sure, if anyone insists ;)
 
+I tend to agree. I would tend to do it in just 2 patches
+(1 for implementation, 1 for conversion) to make administrative
+overheads smaller -- the conversions are small and very well
+contained. Is there a good reason to split further?
 
---- linux-2.6.17-rc1-mm3.orig/arch/i386/kernel/irq.c	2006-04-18 11:46:04.000000000 +0200
-+++ linux-2.6.17-rc1-mm3/arch/i386/kernel/irq.c	2006-04-20 18:33:14.000000000 +0200
-@@ -42,8 +42,8 @@
- 	u32                     stack[THREAD_SIZE/sizeof(u32)];
- };
- 
--static union irq_ctx *hardirq_ctx[NR_CPUS];
--static union irq_ctx *softirq_ctx[NR_CPUS];
-+static union irq_ctx *hardirq_ctx[NR_CPUS] __read_mostly;
-+static union irq_ctx *softirq_ctx[NR_CPUS] __read_mostly;
- #endif
- 
- /*
---- linux-2.6.17-rc1-mm3.orig/arch/powerpc/kernel/irq.c	2006-04-20 18:47:22.000000000 +0200
-+++ linux-2.6.17-rc1-mm3/arch/powerpc/kernel/irq.c	2006-04-20 19:19:25.000000000 +0200
-@@ -379,8 +379,8 @@
- #endif /* CONFIG_PPC64 */
- 
- #ifdef CONFIG_IRQSTACKS
--struct thread_info *softirq_ctx[NR_CPUS];
--struct thread_info *hardirq_ctx[NR_CPUS];
-+struct thread_info *softirq_ctx[NR_CPUS] __read_mostly;
-+struct thread_info *hardirq_ctx[NR_CPUS] __read_mostly;
- 
- void irq_ctx_init(void)
- {
-
-
-
--- 
-No programming skills!? Why not help translate many Linux applications! 
-https://launchpad.ubuntu.com/rosetta
-(or alternatively buy nicely packaged Linux distros/OSS software to help
-support Linux developers creating shiny new things for you?)
+Nick

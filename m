@@ -1,115 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWDTKMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWDTKP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWDTKMY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 06:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWDTKLx
+	id S1750834AbWDTKP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 06:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWDTKP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 06:11:53 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:14792 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750831AbWDTKL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 06:11:27 -0400
-Date: Thu, 20 Apr 2006 19:10:22 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch: 005/006] pgdat allocation for new node add (export kswapd start func)
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20060420185123.EE48.Y-GOTO@jp.fujitsu.com>
-References: <20060420185123.EE48.Y-GOTO@jp.fujitsu.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060420190713.EE52.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+	Thu, 20 Apr 2006 06:15:59 -0400
+Received: from smtp13.wanadoo.fr ([193.252.22.54]:27833 "EHLO
+	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S1750831AbWDTKP5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 06:15:57 -0400
+X-ME-UUID: 20060420101551164.280EB7000095@mwinf1304.wanadoo.fr
+Date: Thu, 20 Apr 2006 12:14:48 +0200
+From: Mathieu Chouquet-Stringer <mchouque@free.fr>
+To: Bob Tracy <rct@gherkin.frus.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       James.Bottomley@SteelEye.com, linux-alpha@vger.kernel.org
+Subject: Re: class_device_add error in SCSI with 2.6.17-rc2-g52824b6b
+Message-ID: <20060420101448.GA20087@localhost>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
+	Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org, James.Bottomley@SteelEye.com,
+	linux-alpha@vger.kernel.org
+References: <20060419213129.GA9148@localhost> <20060419215803.6DE5BDBA1@gherkin.frus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060419215803.6DE5BDBA1@gherkin.frus.com>
+User-Agent: Mutt/1.4.2.1i
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When node is hot-added, kswapd for the node should start.
-This export kswapd start function as kswapd_run() to use at add_memory().
+On Wed, Apr 19, 2006 at 04:58:03PM -0500, Bob Tracy wrote:
+> Similar error previously reported by me for 2.6.17-rc1, except sda got
+> added fine: error occurred when attempting to add/register sdb. 
+> Thankfully, you were able to append a trace...
+
+In my case, I was able to solve the problem by replacing this call at
+line 1648 in drivers/scsi/sd.c (patch attached):
+strncpy(sdkp->cdev.class_id, sdp->sdev_gendev.bus_id, BUS_ID_SIZE);
+
+by
+
+snprintf(sdkp->cdev.class_id, BUS_ID_SIZE, "%s", sdp->sdev_gendev.bus_id);
+
+Then it works.
+
+While debugging the whole thing, I was printk'ing the value of
+sdkp->cdev.class_id right after the strncpy call and here's what I
+getting (basically only the first 4 chars + final \0): 
+"0:0:"
+
+So I guess the strncpy routine on alpha is fscked up or gcc is doing
+something crazy. The function is under arch/alpha/lib/strncpy.S, time to
+learn assembly.
 
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+--- linux-2.6/drivers/scsi/sd.c	2006-03-28 13:28:24.000000000 +0200
++++ linux-2.6-mat/drivers/scsi/sd.c	2006-04-20 12:12:36.000000000 +0200
+@@ -1645,7 +1645,8 @@
+ 	class_device_initialize(&sdkp->cdev);
+ 	sdkp->cdev.dev = &sdp->sdev_gendev;
+ 	sdkp->cdev.class = &sd_disk_class;
+-	strncpy(sdkp->cdev.class_id, sdp->sdev_gendev.bus_id, BUS_ID_SIZE);
++	snprintf(sdkp->cdev.class_id, BUS_ID_SIZE, "%s",
++		sdp->sdev_gendev.bus_id);
+ 
+ 	if (class_device_add(&sdkp->cdev))
+ 		goto out_put;
 
- include/linux/swap.h |    2 ++
- mm/vmscan.c          |   35 ++++++++++++++++++++++++++---------
- 2 files changed, 28 insertions(+), 9 deletions(-)
-
-Index: pgdat11/mm/vmscan.c
-===================================================================
---- pgdat11.orig/mm/vmscan.c	2006-04-20 11:00:07.000000000 +0900
-+++ pgdat11/mm/vmscan.c	2006-04-20 11:00:33.000000000 +0900
-@@ -35,6 +35,7 @@
- #include <linux/notifier.h>
- #include <linux/rwsem.h>
- #include <linux/delay.h>
-+#include <linux/kthread.h>
- 
- #include <asm/tlbflush.h>
- #include <asm/div64.h>
-@@ -1353,20 +1354,36 @@ static int __devinit cpu_callback(struct
- }
- #endif /* CONFIG_HOTPLUG_CPU */
- 
-+/*
-+ * This kswapd start function will be called by init and node-hot-add.
-+ * On node-hot-add, kswapd will moved to proper cpus if cpus are hot-added.
-+ */
-+int kswapd_run(int nid)
-+{
-+	pg_data_t *pgdat = NODE_DATA(nid);
-+	int ret = 0;
-+
-+	if (pgdat->kswapd)
-+		return 0;
-+
-+	pgdat->kswapd = kthread_run(kswapd, pgdat, "kswapd%d", nid);
-+	if (pgdat->kswapd == ERR_PTR(-ENOMEM)) {
-+		/* failure at boot is fatal */
-+		BUG_ON(system_state == SYSTEM_BOOTING);
-+		printk("faled to run kswapd on node %d\n",nid);
-+		ret = -1;
-+	}
-+	return ret;
-+}
-+
- static int __init kswapd_init(void)
- {
--	pg_data_t *pgdat;
-+	int nid;
- 
- 	swap_setup();
--	for_each_online_pgdat(pgdat) {
--		pid_t pid;
-+	for_each_online_node(nid)
-+ 		kswapd_run(nid);
- 
--		pid = kernel_thread(kswapd, pgdat, CLONE_KERNEL);
--		BUG_ON(pid < 0);
--		read_lock(&tasklist_lock);
--		pgdat->kswapd = find_task_by_pid(pid);
--		read_unlock(&tasklist_lock);
--	}
- 	total_memory = nr_free_pagecache_pages();
- 	hotcpu_notifier(cpu_callback, 0);
- 	return 0;
-Index: pgdat11/include/linux/swap.h
-===================================================================
---- pgdat11.orig/include/linux/swap.h	2006-04-20 11:00:07.000000000 +0900
-+++ pgdat11/include/linux/swap.h	2006-04-20 11:00:33.000000000 +0900
-@@ -212,6 +212,8 @@ static inline int zone_reclaim(struct zo
- }
- #endif
- 
-+extern int kswapd_run(int nid);
-+
- #ifdef CONFIG_MMU
- /* linux/mm/shmem.c */
- extern int shmem_unuse(swp_entry_t entry, struct page *page);
 
 -- 
-Yasunori Goto 
-
+Mathieu Chouquet-Stringer                           mchouque@free.fr
+    "Le disparu, si l'on vénère sa mémoire, est plus présent et
+                 plus puissant que le vivant".
+           -- Antoine de Saint-Exupéry, Citadelle --
 

@@ -1,244 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWDTG2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWDTGdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWDTG2i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 02:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWDTG2i
+	id S1750896AbWDTGdt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 02:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWDTGdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 02:28:38 -0400
-Received: from anubis.pendulus.net ([38.119.36.60]:12508 "EHLO
-	anubis.pendulus.net") by vger.kernel.org with ESMTP
-	id S1750722AbWDTG2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 02:28:37 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproductions.com
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: [PATCH] [1/2] i386/x86-64: Fix x87 information leak between  processes
-Date: Wed, 19 Apr 2006 23:28:38 -0700
-User-Agent: KMail/1.9.1
-Cc: torvalds@osdl.org, akpm@osdl.org, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, jbeulich@novell.com,
-       richard.brunner@amd.com
-References: <4446D79D.mailOX9112Y1O@suse.de>
-In-Reply-To: <4446D79D.mailOX9112Y1O@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Apr 2006 02:33:49 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:51359 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750896AbWDTGds (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 02:33:48 -0400
+Date: Thu, 20 Apr 2006 07:29:54 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Gerd Hoffmann <kraxel@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: smp/up alternatives crash when CONFIG_HOTPLUG_CPU
+Message-ID: <20060420052954.GA5524@elte.hu>
+References: <20060419094630.GA14800@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604192328.39429.lkml@lpbproductions.com>
+In-Reply-To: <20060419094630.GA14800@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch says 1/2 . Is there another patch that comes with this ? Or is vger 
-lagging again ? 
 
-On Wednesday 19 April 2006 5:36 pm, Andi Kleen wrote:
-> AMD K7/K8 CPUs only save/restore the FOP/FIP/FDP x87 registers in FXSAVE
-> when an exception is pending.  This means the value leak through
-> context switches and allow processes to observe some x87 instruction
-> state of other processes.
->
-> This was actually documented by AMD, but nobody recognized it as
-> being different from Intel before.
->
-> The fix first adds an optimization: instead of unconditionally
-> calling FNCLEX after each FXSAVE test if ES is pending and skip
-> it when not needed. Then do a x87 load from a kernel variable to
-> clear FOP/FIP/FDP.
->
-> This means other processes always will only see a constant value
-> defined by the kernel in their FP state.
->
-> I took some pain to make sure to chose a variable that's already
-> in L1 during context switch to make the overhead of this low.
->
-> Also alternative() is used to patch away the new code on CPUs
-> who don't need it.
->
-> Patch for both i386/x86-64.
->
-> The problem was discovered originally by Jan Beulich. Richard
-> Brunner provided the basic code for the workarounds, with contribution
-> from Jan.
->
-> This is CVE-2006-1056
->
-> Cc: richard.brunner@amd.com
-> Cc: jbeulich@novell.com
->
-> Signed-off-by: Andi Kleen <ak@suse.de>
->
-> Index: linux/include/asm-x86_64/i387.h
-> ===================================================================
-> --- linux.orig/include/asm-x86_64/i387.h
-> +++ linux/include/asm-x86_64/i387.h
-> @@ -72,6 +72,23 @@ extern int set_fpregs(struct task_struct
->  #define set_fpu_swd(t,val) ((t)->thread.i387.fxsave.swd = (val))
->  #define set_fpu_fxsr_twd(t,val) ((t)->thread.i387.fxsave.twd = (val))
->
-> +#define X87_FSW_ES (1 << 7)	/* Exception Summary */
-> +
-> +/* AMD CPUs don't save/restore FDP/FIP/FOP unless an exception
-> +   is pending. Clear the x87 state here by setting it to fixed
-> +   values. The kernel data segment can be sometimes 0 and sometimes
-> +   new user value. Both should be ok.
-> +   Use the PDA as safe address because it should be already in L1. */
-> +static inline void clear_fpu_state(struct i387_fxsave_struct *fx)
-> +{
-> +	if (unlikely(fx->swd & X87_FSW_ES))
-> +		 asm volatile("fnclex");
-> +	alternative_input(ASM_NOP8 ASM_NOP2,
-> +	     	     "    emms\n"		/* clear stack tags */
-> +	     	     "    fildl %%gs:0",	/* load to clear state */
-> +		     X86_FEATURE_FXSAVE_LEAK);
-> +}
-> +
->  static inline int restore_fpu_checking(struct i387_fxsave_struct *fx)
->  {
->  	int err;
-> @@ -119,6 +136,7 @@ static inline int save_i387_checking(str
->  #endif
->  	if (unlikely(err))
->  		__clear_user(fx, sizeof(struct i387_fxsave_struct));
-> +	/* No need to clear here because the caller clears USED_MATH */
->  	return err;
->  }
->
-> @@ -149,7 +167,7 @@ static inline void __fxsave_clear(struct
->  				"i" (offsetof(__typeof__(*tsk),
->  					      thread.i387.fxsave)));
->  #endif
-> -	__asm__ __volatile__("fnclex");
-> +	clear_fpu_state(&tsk->thread.i387.fxsave);
->  }
->
->  static inline void kernel_fpu_begin(void)
-> Index: linux/include/asm-i386/i387.h
-> ===================================================================
-> --- linux.orig/include/asm-i386/i387.h
-> +++ linux/include/asm-i386/i387.h
-> @@ -13,6 +13,7 @@
->
->  #include <linux/sched.h>
->  #include <linux/init.h>
-> +#include <linux/kernel_stat.h>
->  #include <asm/processor.h>
->  #include <asm/sigcontext.h>
->  #include <asm/user.h>
-> @@ -38,17 +39,38 @@ extern void init_fpu(struct task_struct
->  extern void kernel_fpu_begin(void);
->  #define kernel_fpu_end() do { stts(); preempt_enable(); } while(0)
->
-> +/* We need a safe address that is cheap to find and that is already
-> +   in L1 during context switch. The best choices are unfortunately
-> +   different for UP and SMP */
-> +#ifdef CONFIG_SMP
-> +#define safe_address (__per_cpu_offset[0])
-> +#else
-> +#define safe_address (kstat_cpu(0).cpustat.user)
-> +#endif
-> +
->  /*
->   * These must be called with preempt disabled
->   */
->  static inline void __save_init_fpu( struct task_struct *tsk )
->  {
-> +	/* Use more nops than strictly needed in case the compiler
-> +	   varies code */
->  	alternative_input(
-> -		"fnsave %1 ; fwait ;" GENERIC_NOP2,
-> -		"fxsave %1 ; fnclex",
-> +		"fnsave %[fx] ;fwait;" GENERIC_NOP8 GENERIC_NOP4,
-> +		"fxsave %[fx]\n"
-> +		"bt $7,%[fsw] ; jc 1f ; fnclex\n1:",
->  		X86_FEATURE_FXSR,
-> -		"m" (tsk->thread.i387.fxsave)
-> -		:"memory");
-> +		[fx] "m" (tsk->thread.i387.fxsave),
-> +		[fsw] "m" (tsk->thread.i387.fxsave.swd) : "memory");
-> +	/* AMD K7/K8 CPUs don't save/restore FDP/FIP/FOP unless an exception
-> +	   is pending.  Clear the x87 state here by setting it to fixed
-> +   	   values. __per_cpu_offset[0] is a random variable that should be in
-> L1 */ +	alternative_input(
-> +		GENERIC_NOP8 GENERIC_NOP2,
-> +		"emms\n\t"	  	/* clear stack tags */
-> +		"fildl %[addr]", 	/* set F?P to defined value */
-> +		X86_FEATURE_FXSAVE_LEAK,
-> +		[addr] "m" (safe_address));
->  	task_thread_info(tsk)->status &= ~TS_USEDFPU;
->  }
->
-> Index: linux/arch/i386/kernel/cpu/amd.c
-> ===================================================================
-> --- linux.orig/arch/i386/kernel/cpu/amd.c
-> +++ linux/arch/i386/kernel/cpu/amd.c
-> @@ -207,6 +207,8 @@ static void __init init_amd(struct cpuin
->  		set_bit(X86_FEATURE_K7, c->x86_capability);
->  		break;
->  	}
-> +	if (c->x86 >= 6)
-> +		set_bit(X86_FEATURE_FXSAVE_LEAK, c->x86_capability);
->
->  	display_cacheinfo(c);
->
-> Index: linux/arch/x86_64/kernel/setup.c
-> ===================================================================
-> --- linux.orig/arch/x86_64/kernel/setup.c
-> +++ linux/arch/x86_64/kernel/setup.c
-> @@ -928,6 +928,10 @@ static int __init init_amd(struct cpuinf
->  	if (c->x86 == 15 && ((level >= 0x0f48 && level < 0x0f50) || level >=
-> 0x0f58)) set_bit(X86_FEATURE_REP_GOOD, &c->x86_capability);
->
-> +	/* Enable workaround for FXSAVE leak */
-> +	if (c->x86 >= 6)
-> +		set_bit(X86_FEATURE_FXSAVE_LEAK, &c->x86_capability);
-> +
->  	r = get_model_name(c);
->  	if (!r) {
->  		switch (c->x86) {
-> Index: linux/include/asm-i386/cpufeature.h
-> ===================================================================
-> --- linux.orig/include/asm-i386/cpufeature.h
-> +++ linux/include/asm-i386/cpufeature.h
-> @@ -71,6 +71,7 @@
->  #define X86_FEATURE_P4		(3*32+ 7) /* P4 */
->  #define X86_FEATURE_CONSTANT_TSC (3*32+ 8) /* TSC ticks at a constant rate
-> */ #define X86_FEATURE_UP		(3*32+ 9) /* smp kernel running on up */
-> +#define X86_FEATURE_FXSAVE_LEAK (3*32+10) /* FXSAVE leaks FOP/FIP/FOP */
->
->  /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
->  #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
-> Index: linux/include/asm-x86_64/cpufeature.h
-> ===================================================================
-> --- linux.orig/include/asm-x86_64/cpufeature.h
-> +++ linux/include/asm-x86_64/cpufeature.h
-> @@ -64,6 +64,7 @@
->  #define X86_FEATURE_REP_GOOD	(3*32+ 4) /* rep microcode works well on this
-> CPU */ #define X86_FEATURE_CONSTANT_TSC (3*32+5) /* TSC runs at constant
-> rate */ #define X86_FEATURE_SYNC_RDTSC  (3*32+6)  /* RDTSC syncs CPU core
-> */ +#define X86_FEATURE_FXSAVE_LEAK (3*32+7)  /* FIP/FOP/FDP leaks through
-> FXSAVE */
->
->  /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
->  #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
-> Index: linux/arch/x86_64/kernel/process.c
-> ===================================================================
-> --- linux.orig/arch/x86_64/kernel/process.c
-> +++ linux/arch/x86_64/kernel/process.c
-> @@ -575,8 +575,10 @@ __switch_to(struct task_struct *prev_p,
->  	prev->userrsp = read_pda(oldrsp);
->  	write_pda(oldrsp, next->userrsp);
->  	write_pda(pcurrent, next_p);
-> +
->  	/* This must be here to ensure both math_state_restore() and
-> -	   kernel_fpu_begin() work consistently. */
-> +	   kernel_fpu_begin() work consistently.
-> +	   And the AMD workaround requires it to be after DS reload. */
->  	unlazy_fpu(prev_p);
->  	write_pda(kernelstack,
->  		  task_stack_page(next_p) + THREAD_SIZE - PDA_STACKOFFSET);
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> i'm getting weird mutex crashes on 2.6.17-rc2 if CONFIG_HOTPLUG_CPU is 
+> enabled. The workaround below solves it - but the question is, what is 
+> the real bug? See the attached crashlog.
+
+the crash itself seems to be related to spinlock code sections that were 
+modified by the smp-alternatives feature. HOTPLUG_CPU triggers the 
+following code:
+
+ SMP alternatives: switching to UP code
+ CPU0: AMD Athlon(tm) 64 X2 Dual Core Processor 3800+ stepping 02
+ Mapping cpu 0 to node 0
+ SMP alternatives: switching to SMP code
+ Booting processor 1/1 eip 3000
+ Initializing CPU#1
+
+as under HOTPLUG_CPU, the system first boots up as a single-CPU box, 
+then the second CPU gets added dynamically - so we first switch from the 
+default SMP instructions to UP instructions - and then we switch back to 
+SMP instructions again. It seems something went wrong in that sequence, 
+as shortly afterwards we crash on a spinlock op:
+
+ BUG: warning at kernel/mutex-debug.c:405/debug_mutex_add_waiter()
+  [<c100643d>] show_trace+0xd/0x10
+  [<c1006457>] dump_stack+0x17/0x20
+  [<c1042fab>] debug_mutex_add_waiter+0x7b/0x80
+  [<c177f5c4>] __mutex_lock_slowpath+0x84/0x340
+  [<c177f89f>] mutex_lock+0x1f/0x30
+  [<c10739ea>] cpuup_callback+0x6a/0x400
+  [<c1782698>] notifier_call_chain+0x28/0x50
+  [<c10387ed>] blocking_notifier_call_chain+0x3d/0x70
+  [<c1047826>] cpu_up+0x66/0xf0
+
+another detail: this is an Athon64 X2 dual-core box, so there might be 
+state (cache) sharing artifacts not visible on other CPUs. Even if there 
+are no such artifacts, cacheline invalidation latencies between the 
+cores are very low, so it might tickle some race in the SMP-alternatives 
+code.
+
+but ... a more fundamental question is, where does the SMP-alternatives 
+code flush the icache? I dont think it's generally guaranteed on x86 
+CPUs that MESI updates to code get propagated into the icache of other 
+CPUs/cores.
+
+At a minimum we should do an smp_function_call() within 
+alternatives_smp_switch(), which makes sure that the modification 
+sequence has been executed on every CPU. But the most robust method 
+would be to first 'gather' _all_ CPUs, which would all disable 
+interrupts, and then do the modification on all CPUs, and then 'release' 
+all CPUs. This also ensures that we dont switch instructions _under_ a 
+running CPU.
+
+this is a v2.6.17 showstopper i think.
+
+	Ingo

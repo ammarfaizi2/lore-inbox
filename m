@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWDTQl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWDTQoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWDTQl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 12:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWDTQlz
+	id S1751096AbWDTQoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 12:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWDTQoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 12:41:55 -0400
-Received: from pat.uio.no ([129.240.10.6]:47585 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751089AbWDTQly (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 12:41:54 -0400
-Subject: Re: NFS bug?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Robert Merrill <grievre@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b3be17f30604200937l7cfaca8evcc17f6ecd72f643e@mail.gmail.com>
-References: <b3be17f30604200937l7cfaca8evcc17f6ecd72f643e@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 20 Apr 2006 12:41:44 -0400
-Message-Id: <1145551304.8136.5.camel@lade.trondhjem.org>
+	Thu, 20 Apr 2006 12:44:25 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:62103 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1751079AbWDTQoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 12:44:24 -0400
+Date: Thu, 20 Apr 2006 17:44:19 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+Cc: Xavier Bestel <xavier.bestel@free.fr>, "Yu, Luming" <luming.yu@intel.com>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+Message-ID: <20060420164419.GA30317@srcf.ucam.org>
+References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <1145549460.23837.156.camel@capoeira> <4447B7D6.4030401@linux.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.928, required 12,
-	autolearn=disabled, AWL 1.07, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4447B7D6.4030401@linux.intel.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 09:37 -0700, Robert Merrill wrote:
-> we have an SMP login server we just recently switched to debian
-> testing from FreeBSD and it's giving us a little trouble.
-> 
-> it mounts its /home on a seperate machine, which is still running BSD,
-> over a NIC-to-NIC 1000BASE-T link.
-> 
-> We've found the following bug exists in 2.6.15 and .16: If a directory
-> under /home is readable but not executable, a call to getdents64() on
-> it will kill the process with an invalid operand error in
-> __copy_from_user_ll
+On Thu, Apr 20, 2006 at 08:33:26PM +0400, Alexey Starikovskiy wrote:
+> Xavier Bestel wrote:
+> >There are keyboards with power/sleep buttons. It makes sense they have
+> >the same behavior than ACPI buttons.
+> Agree, make them behave like ACPI buttons -- remove them from input stream, 
+> as they do not belong there...
 
-> has this been fixed already, and is there a patch which is readily applicable?
+Making the atkbd driver punt certain scancodes to the ACPI layer 
+/really/ isn't the right answer.
 
-No idea. Can you supply us with a strace of the problem?
-
-> we're not using the latest kernel, unfortunately, because it has lockd problems.
-
-Care to elaborate?
-
-Cheers,
-  Trond
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

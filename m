@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWDTFmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWDTFpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751262AbWDTFmx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 01:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWDTFmx
+	id S1751342AbWDTFpi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 01:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWDTFpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 01:42:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47808 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751262AbWDTFmw (ORCPT
+	Thu, 20 Apr 2006 01:45:38 -0400
+Received: from mga03.intel.com ([143.182.124.21]:64778 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1751270AbWDTFph convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 01:42:52 -0400
-Date: Wed, 19 Apr 2006 22:42:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ken@krwtech.com, linux-kernel@vger.kernel.org
-Subject: Re: Advansys SCSI driver and 2.6.16
-Message-Id: <20060419224202.3e2f99f5.akpm@osdl.org>
-In-Reply-To: <20060419163247.6986a87c.akpm@osdl.org>
-References: <Pine.LNX.4.64.0604191444200.1841@death>
-	<20060419163247.6986a87c.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Apr 2006 01:45:37 -0400
+X-IronPort-AV: i="4.04,138,1144047600"; 
+   d="scan'208"; a="25372746:sNHT15104180"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [RFC] [PATCH] Make ACPI button driver an input device
+Date: Thu, 20 Apr 2006 13:45:27 +0800
+Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC] [PATCH] Make ACPI button driver an input device
+Thread-Index: AcZj62Uig3psqOLPTeWyGycPmrEaDwAUUdKQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Matthew Garrett" <mjg59@srcf.ucam.org>, <linux-acpi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Apr 2006 05:45:28.0613 (UTC) FILETIME=[A1275550:01C6643D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> There have been no changes in the advansys driver since November 2005, and
->  nothing substantial in over a year. 
+>Sleep and power buttons are logically part of the keyboard, 
+>and it makes 
+>for them to be exposed via an input device rather than an odd file in 
+>/proc. This patch adds a keycode for lid switches (are we 
+>running out of 
+>keycodes?) and allows the button driver to register an input device.
 
-The advansys driver has been disabled for two years - since 2.6.8:
+Do you plan to port the whole acpi event interface into input layer?
+If so,  keycode is NOT a right way.
 
-> ChangeSet@1.497.4282.43, 2004-06-26 10:50:12-05:00, jejb@mulgrave.(none)
->   advansys: add warning and convert #includes
->   
->   The DMA conversion of the advansys driver is still
->   broken.  Add a #warning to the driver and a comment
->   above it explaining what needs to be done.
->   
->   Mark the driver as BROKEN because of the warning
->   
->   Also remove the #include "scsi.h"
->   
->   Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-> 
-
-So I don't know how you managed to get it to build in 2.6.15.
-
-You can reenable it with:
-
---- devel/drivers/scsi/Kconfig~a	2006-04-19 22:39:51.000000000 -0700
-+++ devel-akpm/drivers/scsi/Kconfig	2006-04-19 22:40:00.000000000 -0700
-@@ -453,7 +453,7 @@ config SCSI_DPT_I2O
- 
- config SCSI_ADVANSYS
- 	tristate "AdvanSys SCSI support"
--	depends on (ISA || EISA || PCI) && SCSI && BROKEN
-+	depends on (ISA || EISA || PCI) && SCSI
- 	help
- 	  This is a driver for all SCSI host adapters manufactured by
- 	  AdvanSys. It is documented in the kernel source in
-_
-
-and it does compile.   Does it actually work?
+--Luming

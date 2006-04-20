@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWDTKhl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWDTKv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWDTKhl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 06:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWDTKhk
+	id S1750719AbWDTKv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 06:51:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWDTKv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 06:37:40 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:62427 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750788AbWDTKhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 06:37:40 -0400
-Message-ID: <4447646E.2080008@schweigstill.de>
-Date: Thu, 20 Apr 2006 12:37:34 +0200
-From: Andreas Schweigstill <andreas@schweigstill.de>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: RFC: rename arch/arm/mach-s3c2410 to arch/arm/mach-s3c24xx
-References: <20060418165204.GG2516@trinity.fluff.org>	<4446187C.2090603@andric.com> <20060419150527.GA4102@flint.arm.linux.org.uk>
-In-Reply-To: <20060419150527.GA4102@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:5debdc4a9e8758a8924affe92d8d9587
+	Thu, 20 Apr 2006 06:51:27 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:44135
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1750719AbWDTKv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 06:51:26 -0400
+Message-Id: <444783F2.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Thu, 20 Apr 2006 12:52:02 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <tom.l.nguyen@intel.com>, <linux-kernel@vger.kernel.org>,
+       <discuss@x86-64.org>
+Subject: Re: [discuss] Re: [i386, x86-64] ioapic_register_intr() and
+	assign_irq_vector() questions
+References: <443FE6E00200007800015D6E@emea1-mh.id2.novell.com> <200604142334.18923.ak@suse.de>
+In-Reply-To: <200604142334.18923.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell!
+>>> Andi Kleen <ak@suse.de> 14.04.06 23:34:18 >>>
+On Friday 14 April 2006 19:16, Jan Beulich wrote:
+>> >> Looking at the call paths assign_irq_vector() can get called from, I
+>> >> would think this function, namely as it's using static variables,
+>> >> lacks synchronization - is there any (hidden) reason this is not
+>> >> needed here?
+>> 
+>> >It is only called during system initialization which is single threaded. 
+>> >If someone added ioapic hotplug they would need to do something about 
+>> >this.
+>> 
+>> Hmm, as I looked through this I expected this to be possibly called also later, as it seems to be on paths
+reachable
+>> from exported functions (which clearly can be called only after the single-threaded phase is over.
+>
+>If it's not called from in tree modules we don't care. But should probably
+>bunk the exports if they are not needed. Which ones were it?
 
-Russell King schrieb:
-> Folk convinced me that the only thing which we should call "architecture"
-> is the CPU - so things like "PPC", "ARM", "i386" are architectures, and
-> not implementations of these (AT91RM9200, S3C2410).
+acpi_register_gsi -> mp_register_gsi -> io_apic_set_pci_routing -> assign_irq_vector
 
-And if we use ARM nomenclature there is also a difference between the
-architecture (e.g. v4, v4t, v5, ...) and the implementation (ARM7,
-ARM7T, ARM9T, Amulet, StrongARM, Xscale, ...) of the CPU core.
-So we have to distinguish between the core and the SoC/ASSP
-architecture. The register model is defined by the core architecture
-but the co-processors (MMU, CP15) by the implementation. And should we
-handle OMAP as a standard ARM9/10/11 implementation or another core?
-And should StrongARM be inherited from v4 or ARM8?
+acpi_register_gsi is being exported and called from drivers/char/8250_acpi.c.
+acpi_register_gsi is also being called from acpi_pci_irq_enable, which in turn is being exported.
+There appear to be more (eg through pnpacpi and hpet), but I think these are sufficient.
 
-Does it make sense to reflect this also in the directory naming
-conventions? Hmmm, I am not sure. We could end with the complete ARM
-company's history.
-
-With best regards
-Andreas Schweigstill
-
--- 
-Dipl.-Phys. Andreas Schweigstill
-Schweigstill IT | Embedded Systems
-Schauenburgerstraﬂe 116, D-24118 Kiel, Germany
-Phone: (+49) 431 5606-435, Fax: (+49) 431 5606-436
-Mobile: (+49) 171 6921973, Web: http://www.schweigstill.de/
-
-
-
+Jan

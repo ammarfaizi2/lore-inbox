@@ -1,102 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWDXSOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWDXSVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWDXSOP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 14:14:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751080AbWDXSOP
+	id S1751071AbWDXSVf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 14:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWDXSVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 14:14:15 -0400
-Received: from mga03.intel.com ([143.182.124.21]:17495 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751077AbWDXSOO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 14:14:14 -0400
-X-IronPort-AV: i="4.04,152,1144047600"; 
-   d="scan'208"; a="27109345:sNHT48968206"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Problems with EDAC coexisting with BIOS
-Date: Mon, 24 Apr 2006 11:14:04 -0700
-Message-ID: <5389061B65D50446B1783B97DFDB392DA239FC@orsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problems with EDAC coexisting with BIOS
-Thread-Index: AcZnxgd91Avag54oRL6D8phpeS2MzAAA4liw
-From: "Gross, Mark" <mark.gross@intel.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <bluesmoke-devel@lists.sourceforge.net>,
-       "LKML" <linux-kernel@vger.kernel.org>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
-X-OriginalArrivalTime: 24 Apr 2006 18:14:12.0947 (UTC) FILETIME=[E3CBB230:01C667CA]
+	Mon, 24 Apr 2006 14:21:34 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41482 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751070AbWDXSVe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 14:21:34 -0400
+Date: Thu, 20 Apr 2006 23:41:10 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
+       James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060420234110.GA2529@ucw.cz>
+References: <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr> <1145462454.3085.62.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed 19-04-06 21:06:57, Jan Engelhardt wrote:
+> >> 
+> >> Well then, have a look at http://alphagate.hopto.org/multiadm/
+> >> 
+> >
+> >hmm on first sight that seems to be basically an extension to the
+> >existing capability() code... rather than a 'real' LSM module. Am I
+> >missing something here?
+> >
+> 
+> (So what's the definition for a "real" LSM module?)
+> 
+> It's quite a "big" extension to the capability code inasfar as that 
+> access is not solely granted based on capabilities, but a matrix of 
+> capabilities plus UID/GID of filesystem objects.
+> 
+> This is not a "for fun" LSM like rootplug, but it was specifically 
+> developed to address some permission issues in an educational institution. 
+> The LSM hooks were there (and some more are added with MultiAdm), and it 
+> seemed a lot simpler than setting up SELinux.
 
-
->-----Original Message-----
->From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
->Sent: Monday, April 24, 2006 10:50 AM
->To: Gross, Mark
->Cc: bluesmoke-devel@lists.sourceforge.net; LKML; Carbonari, Steven;
-Ong,
->Soo Keong; Wang, Zhenyu Z
->Subject: RE: Problems with EDAC coexisting with BIOS
->
->On Llu, 2006-04-24 at 08:57 -0700, Gross, Mark wrote:
->> I think what I'm saying is pretty clear and I don't think it is
-related
->> to whatever workarounds where done earlier.
->
->Ok. I was concerned as I seem to remember an earlier errata fix enabled
->the memory controller temporarily to do a workaround on one bridge. We
->hit this because it unconditionally disabled it afterwards and Intel
->sent fixes for RHEL4. I don't believe the workaround in question is in
->the current tree as it was fixed elsewhere.
->
->Just worried that if that is the case an SMI the wrong moment might
-fail
->to apply the workaround.
->
->
->> >Why did Intel bother implementing this functionality and then
-screwing
->> >it up so that OS vendors can't use it ? It seems so bogus.
->> >
->>
->> It was just a screw up not to have identified this issue sooner.
->
->Ok. So the intention was that the OS should also be able to access this
->material.
->
-
-The E752x Si is made to allow access to the device / Function.  However;
-when it's integrated onto a MoBo with BIOS there can be implementations
-where we get into this coordination issue.
-
->> >At the very least we should print a warning advising the user that
-the
->> >BIOS is incompatible and to ask the BIOS vendor for an update so
-that
->> >they can enable error detection and management support.
->>
->> I would place the warning in the probe or init code.
->
->Agreed, and then bale out. Customer pressure should do the rest if the
->BIOS needs updating, or ACPI or similar need to grow a 'shared' API for
->this so the BIOS and OS can co-operate.
->
-
-Yes and yes. 
-
-I'm having trouble getting the dev0:fun1 hidden by bios test into the
-e752x_init code.  It seems to be a shame having to fail the probe1 and
-leave the driver loaded in memory.  Are there any recommendations on a
-good way to do this?
-
-
---mgross
+Easier to setup does not seem like good reason for changing kernel,
+I'm afraid. Surely selinux can be improved or
+userland-educational-selinux created?
+								Pavel
+-- 
+Thanks, Sharp!

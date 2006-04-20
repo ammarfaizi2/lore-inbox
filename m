@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWDTVDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWDTVW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbWDTVDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 17:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWDTVDJ
+	id S1751322AbWDTVW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 17:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWDTVW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 17:03:09 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:47240 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751314AbWDTVDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 17:03:08 -0400
-Subject: Re: rtc: lost some interrupts at 256Hz
-From: Lee Revell <rlrevell@joe-job.com>
-To: Michael Monnerie <michael.monnerie@it-management.at>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200604202237.34134@zmi.at>
-References: <200604202237.34134@zmi.at>
-Content-Type: text/plain
-Date: Thu, 20 Apr 2006 17:03:02 -0400
-Message-Id: <1145566983.5412.31.camel@mindpipe>
+	Thu, 20 Apr 2006 17:22:58 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:33191 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S1751317AbWDTVW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 17:22:57 -0400
+Date: Fri, 21 Apr 2006 01:22:27 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
+       Bob Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org,
+       linux-alpha@vger.kernel.org
+Subject: Re: strncpy (maybe others) broken on Alpha
+Message-ID: <20060421012227.A16574@jurassic.park.msu.ru>
+References: <20060419213129.GA9148@localhost> <20060419215803.6DE5BDBA1@gherkin.frus.com> <20060420101448.GA20087@localhost> <20060420171102.GA7272@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060420171102.GA7272@localhost>; from mchouque@free.fr on Thu, Apr 20, 2006 at 07:11:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 22:37 +0200, Michael Monnerie wrote:
-> When you google for such messages, you can find a lot of people asking, 
-> but nobody seems to have an answer. That's why I ask this list, where 
-> the Godfathers Of Linux reside, and maybe someone hears my prayer and 
-> could explain us sheep what you should do in such a case. Increase the 
-> HZ from 250 to 1000, or decrease to 100? Or maybe setting the 
-> preemption model from server to voluntary or preemptible? Or is that 
-> whining to be ignored, and if yes, what is this message for at all?
-> 
-> Please give us wisdom, and we will spread your word. Amen.
-> 
-> Answers please per PM, I'm not on this list.
-> 
-> mfg zmi *or could you ask in a nicer way?*
+On Thu, Apr 20, 2006 at 07:11:02PM +0200, Mathieu Chouquet-Stringer wrote:
+> Replying to myself here, i've created the following test program and
+> redefined strncpy to mystrncpy (I used strncpy.S and stxncpy.S from
+> arch/alpha/lib):
 
-Changing the preemption model to voluntary or full preemption could
-certainly help.  What app is using the RTC, mplayer?
+...
 
-Lee
+> And here's the output using gcc version 3.4.4 (Gentoo 3.4.4-r1,
+> ssp-3.4.4-1.0, pie-8.7.8), note i didn't use flag except -Wall:
+> 
+> fails for strlen = 3 (copied 2)
+> fails for strlen = 4 (copied 2)
 
+I'm unable to reproduce this with the toolchains that I have.
+
+Ivan.

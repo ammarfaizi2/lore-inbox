@@ -1,87 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWDUSuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWDUS44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWDUSuU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 14:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWDUSuU
+	id S1750742AbWDUS44 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 14:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWDUS44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 14:50:20 -0400
-Received: from mail.parknet.jp ([210.171.160.80]:13320 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1750716AbWDUSuT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 14:50:19 -0400
-X-AuthUser: hirofumi@parknet.jp
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] X86_NUMAQ build fix
-References: <87irp2x69s.fsf@duaron.myhome.or.jp>
-	<1145643558.3373.34.camel@localhost.localdomain>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 22 Apr 2006 03:50:12 +0900
-In-Reply-To: <1145643558.3373.34.camel@localhost.localdomain> (Dave Hansen's message of "Fri, 21 Apr 2006 11:19:18 -0700")
-Message-ID: <874q0mwyor.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 21 Apr 2006 14:56:56 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:10130 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750742AbWDUS44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 14:56:56 -0400
+Subject: Re: kfree(NULL)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Tilman Schmidt <tilman@imap.cc>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>
+In-Reply-To: <1145644977.20843.25.camel@localhost.localdomain>
+References: <63XWg-1IL-5@gated-at.bofh.it> <63YfP-26I-11@gated-at.bofh.it>
+	 <63ZEY-45n-27@gated-at.bofh.it>  <4448F97D.5000205@imap.cc>
+	 <1145635403.20843.21.camel@localhost.localdomain>
+	 <1145642459.24962.12.camel@localhost.localdomain>
+	 <1145644977.20843.25.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 21 Apr 2006 14:56:38 -0400
+Message-Id: <1145645798.26713.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+On Fri, 2006-04-21 at 11:42 -0700, Daniel Walker wrote:
+> On Fri, 2006-04-21 at 14:00 -0400, Steven Rostedt wrote:
+> 
+> > [     6491]  c01aafc4 - start_this_handle+0x234/0x4b0
+> > [     8404]  c01aba66 - do_get_write_access+0x2e6/0x5a0
+> 
+> 
+> IMO , these two are overloaded with goto's it makes it hard to know
+> whats going on .
+> 
 
-> On Sat, 2006-04-22 at 01:06 +0900, OGAWA Hirofumi wrote:
->> This patch fixes the build breakage of X86_NUMAQ. And this declares
->> xquad_portio on only X86_NUMAQ.
->
-> What bug does this patch fix?  What is your .config?  I'm not having any
-> compile problems on my NUMAQ lately.
+(I've added Stephen Tweedie to the CC list since these two functions are
+his)
 
-Ah, sorry for stuipd description...
+Perhaps this patch is something that can be useful. It can tell us where
+we need to either fix the logic so that a kfree(NULL) doesn't happen, or
+it can tell us where we should have a "if (obj) kfree(obj)" since it is
+quicker than doing the function call.
 
->>  obj-$(CONFIG_PCI_DIRECT)       += direct.o
->>  
->>  pci-y                          := fixup.o
->> -pci-$(CONFIG_ACPI)             += acpi.o
->>  pci-y                          += legacy.o irq.o
->>  
->>  pci-$(CONFIG_X86_VISWS)                := visws.o fixup.o
->>  pci-$(CONFIG_X86_NUMAQ)                := numa.o irq.o
->>  
->> +pci-$(CONFIG_ACPI)             += acpi.o
->
-> Am I reading this wrong, or does this just move the option down a bit?
-> Did you need to change the link order?  Why?
+Right now, these two locations seem to be good candidates to putting in
+the NULL check before calling kfree.
 
-No, this is not link order. Note that CONFIG_X86_VISWS/CONFIG_X86_NUMAQ
-uses ":=", not "+=".  In case of ACPI=y", it breaks build.
+-- Steve
 
-Maybe NUMAQ shouldn't allow ACPI=y in Kconfig (very old Makefile
-doesn't allow to build acpi.o), but I think Makefile is ok with this,
-and it also fixes CONFIG_X86_VISWS case (very old Makefile also allow to
-build acpi.o).
 
->> +++ linux-2.6-hirofumi/arch/i386/boot/compressed/misc.c 2006-04-22 00:54:29.000000000 +0900
->> @@ -122,7 +122,9 @@ static int vidport;
->>  static int lines, cols;
->>  
->>  #ifdef CONFIG_X86_NUMAQ
->> -static void * xquad_portio = NULL;
->> +/* hack to avoid using xquad_portio=NULL */
->> +#undef outb_p
->> +#define outb_p         outb_local_p
->>  #endif
->
-> It's really weird, but I'd hope that there was a reason for having two
-> xquad_portio.  Are you sure that this has no other consequences?
-
-Note that this is boot/compressed/misc.c. We can't share vmlinux's
-data in here. However we can share macros, so probably, it's using
-"static void * xquad_portio = NULL" hack.
-
-But, in include/asm-i386/io.h, it is declared as "extern". At least,
-gcc-4.0 doesn't allow "static" and "extern" mismatch.
-
-> That said, it does boot on my 16-way NUMAQ, but I still have no real
-> idea what problem this is solving or what it is actually doing ;)
-
-Oh, good. Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

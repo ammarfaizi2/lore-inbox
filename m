@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWDUJv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWDUJvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWDUJv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 05:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWDUJv3
+	id S1751318AbWDUJvd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 05:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWDUJvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 05:51:29 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34657 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751308AbWDUJv2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 05:51:28 -0400
-Date: Fri, 21 Apr 2006 11:52:02 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, davem@davemloft.net
-Subject: Re: [PATCH] sys_vmsplice
-Message-ID: <20060421095201.GA4762@suse.de>
-References: <20060421080239.GC4717@suse.de> <20060421021702.20049dcd.akpm@osdl.org> <20060421092158.GE4717@suse.de> <20060421022555.2d460805.akpm@osdl.org>
+	Fri, 21 Apr 2006 05:51:32 -0400
+Received: from smtp13.wanadoo.fr ([193.252.22.54]:11904 "EHLO
+	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S1751310AbWDUJvb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 05:51:31 -0400
+X-ME-UUID: 20060421095129792.C1884700008E@mwinf1312.wanadoo.fr
+Date: Fri, 21 Apr 2006 11:50:28 +0200
+From: Mathieu Chouquet-Stringer <mchouque@free.fr>
+To: Bob Tracy <rct@gherkin.frus.com>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+       rth@twiddle.net
+Subject: Re: strncpy (maybe others) broken on Alpha
+Message-ID: <20060421095028.GA8818@bigip.bigip.mine.nu>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
+	Bob Tracy <rct@gherkin.frus.com>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	rth@twiddle.net
+References: <20060420215723.GA3949@bigip.bigip.mine.nu> <20060421024304.2D851DBA1@gherkin.frus.com> <20060421081500.GA3767@bigip.bigip.mine.nu> <20060421092127.GA7382@bigip.bigip.mine.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060421022555.2d460805.akpm@osdl.org>
+In-Reply-To: <20060421092127.GA7382@bigip.bigip.mine.nu>
+User-Agent: Mutt/1.4.2.1i
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21 2006, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> >  > long spu_sys_callback(struct spu_syscall_block *s)
-> >  > {
-> >  > 	long (*syscall)(u64 a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6);
-> >  > 
-> >  > 	BUILD_BUG_ON(ARRAY_SIZE(spu_syscall_table) != __NR_syscalls);
-> > 
-> >  I'll leave the ppc syscall update out of it.
-> 
-> It might be better to just stick the new entry into the spufs table, make
-> sure that the powerpc guys see it go in.  That way, ppc64 people (Linus,
-> maybe you?) can test it.
+On Fri, Apr 21, 2006 at 11:21:27AM +0200, Mathieu Chouquet-Stringer wrote:
+> The bad news is my test case, compiled with a native gcc version 3.4.4
+> and binutils version 2.16.1 doesn't work as expected.  So maybe it's
+> combination of gcc/binutils?  I'm booting the new kernel just to confirm
+> that 3.4.4 and 2.16.1 do not work.
 
-No ppc64 here unfortunately, and my ppc box (powerbook) has since moved
-on to more relaxing pastures (my wife inherited it). But certainly, I'll
-update it then.
-
-> I guess mapping it onto sys_ni_syscall would be safest.
-> 
-> (It's been broken since sys_tee went in, btw).
-
-Noted.
+A native gcc 3.4.4 and binutils 2.16.1 do not work...  What should we
+try next?
 
 -- 
-Jens Axboe
+Mathieu Chouquet-Stringer                           mchouque@free.fr
 

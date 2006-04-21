@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWDUPSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWDUPUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWDUPSS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 11:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWDUPSS
+	id S932360AbWDUPUP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 11:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWDUPUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 11:18:18 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:14724 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932350AbWDUPSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 11:18:17 -0400
-Date: Fri, 21 Apr 2006 17:18:00 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Michael Holzheu <holzheu@de.ibm.com>, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com
-Subject: Re: [PATCH/RFC] s390: Hypervisor File System
-Message-ID: <20060421151800.GB32710@wohnheim.fh-wedel.de>
-References: <20060421133541.37002378.holzheu@de.ibm.com> <84144f020604210742j69222654s5ec68f34ea96999c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <84144f020604210742j69222654s5ec68f34ea96999c@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 21 Apr 2006 11:20:14 -0400
+Received: from nz-out-0102.google.com ([64.233.162.196]:825 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932362AbWDUPUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 11:20:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
+        b=OVpF1Wfj0cA557EKmoZX9ISklNdxBw2oSoJ2osdqA/RMJkd4P8Pk/0mP3cdqUW2KwUs9WEZaANeEj11obCt9BWoV7jyQ1BvRjreu+tYWbzYSVcxxuAcQYDksj89VRWwyXViKEVdkZAwQOD2n9VyE8iDJ8w6oo7A1Vd4i1+3NWYU=
+Message-ID: <4448F9A7.9040803@gmail.com>
+Date: Fri, 21 Apr 2006 22:26:31 +0700
+From: Mikado <mikado4vn@gmail.com>
+Reply-To: mikado4vn@gmail.com
+Organization: IcySpace.net
+User-Agent: Thunderbird 1.5.0.2 (X11/20060308)
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?T=F6r=F6k_Edwin?= <edwin@gurde.com>
+CC: linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
+Subject: Re: [RFC] packet/socket owner match (fireflier) using skfilter
+References: <200604021240.21290.edwin@gurde.com>
+In-Reply-To: <200604021240.21290.edwin@gurde.com>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=65ABD897
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 April 2006 17:42:28 +0300, Pekka Enberg wrote:
-> On 4/21/06, Michael Holzheu <holzheu@de.ibm.com> wrote:
-> > diff -urpN linux-2.6.16/fs/hypfs/hypfs.h linux-2.6.16-hypfs/fs/hypfs/hypfs.h
-> > --- linux-2.6.16/fs/hypfs/hypfs.h	1970-01-01 01:00:00.000000000 +0100
-> > +++ linux-2.6.16-hypfs/fs/hypfs/hypfs.h	2006-04-21 12:56:58.000000000 +0200
-> > +static void inline remove_trailing_blanks(char *string)
-> > +{
-> > +	char *ptr;
-> > +	for (ptr = string + strlen(string) - 1; ptr > string; ptr--) {
-> > +		if (*ptr == ' ')
-> > +			*ptr = 0;
-> > +		else
-> > +			break;
-> > +	}
-> > +}
-> 
-> Please consider moving this to lib/string.c and perhaps renaming it to
-> strstrip().
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-If you do that, could you strip all whitespace?  I have a special
-function to kill a single newline, if present.  Looks to me like those
-two could be combined.
+Does your module get into below problem?
 
-Jörn
+http://lkml.org/lkml/2006/4/20/132
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
--- 
-The wise man seeks everything in himself; the ignorant man tries to get
-everything from somebody else.
--- unknown
+iD8DBQFESPmnNWc9T2Wr2JcRAnMtAKDZvLH2MRmY/jeW/YW/9UP1fm/xwgCfSZZ/
+Qom6TxVirR4HWV9Asc2ZixY=
+=xlSu
+-----END PGP SIGNATURE-----

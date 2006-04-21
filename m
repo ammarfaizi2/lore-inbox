@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWDUHai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWDUHcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWDUHai (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 03:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWDUHai
+	id S1751272AbWDUHcS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 03:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWDUHcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 03:30:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42164 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751145AbWDUHah (ORCPT
+	Fri, 21 Apr 2006 03:32:17 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:21261 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751272AbWDUHcR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 03:30:37 -0400
-Date: Fri, 21 Apr 2006 00:29:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
-Subject: Re: [patch 1/5] mm: remap_vmalloc_range
-Message-Id: <20060421002938.3878aec5.akpm@osdl.org>
-In-Reply-To: <20060301045910.12434.4844.sendpatchset@linux.site>
-References: <20060301045901.12434.54077.sendpatchset@linux.site>
-	<20060301045910.12434.4844.sendpatchset@linux.site>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 21 Apr 2006 03:32:17 -0400
+Date: Fri, 21 Apr 2006 09:32:16 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Pavel Roskin <proski@gnu.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Removing .tmp_versions considered harmful
+Message-ID: <20060421073216.GA17492@mars.ravnborg.org>
+References: <1145593342.2904.30.camel@dv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145593342.2904.30.camel@dv>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <npiggin@suse.de> wrote:
->
->  +/**
->  + *	remap_vmalloc_range  -  map vmalloc pages to userspace
->  + *
->  + *	@vma:		vma to cover (map full range of vma)
->  + *	@addr:		vmalloc memory
->  + *	@pgoff:		number of pages into addr before first page to map
->  + *	@returns:	0 for success, -Exxx on failure
->  + *
->  + *	This function checks that addr is a valid vmalloc'ed area, and
->  + *	that it is big enough to cover the vma. Will return failure if
->  + *	that criteria isn't met.
->  + *
->  + *	Similar to remap_pfn_range (see mm/memory.c)
->  + */
+On Fri, Apr 21, 2006 at 12:22:22AM -0400, Pavel Roskin wrote:
+> Hello!
+> 
+> A patch applied shortly after Linux 2.6.16
+> (fb3cbd2e575f9ac0700bfa1e7cb9f4119fbd0abd in git) causes
+> the .tmp_versions directory to be removed every time make is run to
+> build external modules.
+> 
+> 
+> 2) The projects where modules are build in more than one directory (such
+> as MadWifi) are now compiled with spurious warnings about unresolved
+> symbols.  This happens because every module is compiled individually,
+> and the *.mod files for one module are removed before the other is
+> compiled.
 
-When replacing calls to remap_pfn_rage() with calls to remap_valloc_range():
+Then fix madwifi so it builds modules as documented in
+Documentation/kbuild/modules.txt
+See: --- 5.3 External modules using several directories
 
-- remap_pfn_range() sets VM_IO|VM_RESERVED|VM_PFNMAP on the user's vma. 
-  remap_valloc_range() sets only VM_RESERVED.
+As with many other external modules madwifi contains a lot of ugly
+makefile hackery - and if done as documentated it gets so much simpler.
+I'm aware that 2-4 support complicates things a little but if people
+made it be slimm and nice for 2.6 and _then_ added 2.4 supporrrrrrrrrrit
+woulllllld be much simpler.
+It seems that people keep all the hackery for 2.4 and does a bad job
+adapting to 2.6.
 
-- remap_pfn_range() has special handling for COWable user vma's, but
-  remap_valloc_range() does not.
+All the bad FAQ's out there does a good job confusing people.
+Almost no-one mention SUBDIRS= as is preferred with 2.4 but seldom used
+:-(
 
-- are vma->vm_start and vma->vm_end always a multiple of PAGE_SIZE?  (I
-  always forget).  If not, remap_valloc_range() looks a tad buggy.
-
-
-pls explain.
-
-
-- remap_valloc_range() can use ~PAGE_MASK, not PAGE_SIZE-1
-
-- remap_valloc_range() would lose a whole buncha typecasts if you use the
-  gcc pointer-arith-with-void* extension.
+	Sam

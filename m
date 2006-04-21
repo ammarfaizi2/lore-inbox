@@ -1,20 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWDUUED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWDUUEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWDUUED (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 16:04:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWDUUED
+	id S932389AbWDUUEH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 16:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWDUUEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 16:04:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41123 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932291AbWDUUEA (ORCPT
+	Fri, 21 Apr 2006 16:04:07 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42403 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932378AbWDUUED (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 16:04:00 -0400
-Date: Fri, 21 Apr 2006 12:52:55 -0700
+	Fri, 21 Apr 2006 16:04:03 -0400
+Date: Fri, 21 Apr 2006 12:54:38 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
 To: Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] class device: add attribute_group creation
-Message-ID: <20060421125255.3451959f@localhost.localdomain>
+Subject: [PATCH 2/2] netdev: create attribute_groups with class_device_add
+Message-ID: <20060421125438.50f93a34@localhost.localdomain>
+In-Reply-To: <20060421125255.3451959f@localhost.localdomain>
+References: <20060421125255.3451959f@localhost.localdomain>
 Organization: OSDL
 X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
@@ -23,87 +25,117 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Extend the support of attribute groups in class_device's to allow groups
-to be created as part of the registration process. This allows network device's
-to avoid race between registration and creating groups.
-
-Note that unlike attributes that are a property of the class object, the groups
-are a property of the class_device object. This is done because there are different
-types of network devices (wireless for example).
+Atomically create attributes when class device is added. This avoids the
+race between registering class_device (which generates hotplug event),
+and the creation of attribute groups.
 
 Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
 
---- sky2-2.6.17.orig/drivers/base/class.c	2006-04-21 12:19:26.000000000 -0700
-+++ sky2-2.6.17/drivers/base/class.c	2006-04-21 12:21:21.000000000 -0700
-@@ -456,6 +456,35 @@
- 	}
+--- sky2-2.6.17.orig/net/core/dev.c	2006-04-21 12:20:58.000000000 -0700
++++ sky2-2.6.17/net/core/dev.c	2006-04-21 12:21:45.000000000 -0700
+@@ -3043,11 +3043,11 @@
+ 
+ 		switch(dev->reg_state) {
+ 		case NETREG_REGISTERING:
+-			dev->reg_state = NETREG_REGISTERED;
+ 			err = netdev_register_sysfs(dev);
+ 			if (err)
+ 				printk(KERN_ERR "%s: failed sysfs registration (%d)\n",
+ 				       dev->name, err);
++			dev->reg_state = NETREG_REGISTERED;
+ 			break;
+ 
+ 		case NETREG_UNREGISTERING:
+--- sky2-2.6.17.orig/net/core/net-sysfs.c	2006-04-21 12:20:58.000000000 -0700
++++ sky2-2.6.17/net/core/net-sysfs.c	2006-04-21 12:21:45.000000000 -0700
+@@ -29,7 +29,7 @@
+ 
+ static inline int dev_isalive(const struct net_device *dev) 
+ {
+-	return dev->reg_state == NETREG_REGISTERED;
++	return dev->reg_state <= NETREG_REGISTERED;
  }
  
-+static int class_device_add_groups(struct class_device * cd)
-+{
-+	int i;
-+	int error = 0;
-+
-+	if (cd->groups) {
-+		for (i = 0; cd->groups[i]; i++) {
-+			error = sysfs_create_group(&cd->kobj, cd->groups[i]);
-+			if (error) {
-+				while (--i >= 0)
-+					sysfs_remove_group(&cd->kobj, cd->groups[i]);
-+				goto out;
-+			}
-+		}
-+	}
-+out:
-+	return error;
-+}
-+
-+static void class_device_remove_groups(struct class_device * cd)
-+{
-+	int i;
-+	if (cd->groups) {
-+		for (i = 0; cd->groups[i]; i++) {
-+			sysfs_remove_group(&cd->kobj, cd->groups[i]);
-+		}
-+	}
-+}
-+
- static ssize_t show_dev(struct class_device *class_dev, char *buf)
+ /* use same locking rules as GIF* ioctl's */
+@@ -445,58 +445,33 @@
+ 
+ void netdev_unregister_sysfs(struct net_device * net)
  {
- 	return print_dev_t(buf, class_dev->devt);
-@@ -559,6 +588,8 @@
- 				  class_name);
- 	}
+-	struct class_device * class_dev = &(net->class_dev);
+-
+-	if (net->get_stats)
+-		sysfs_remove_group(&class_dev->kobj, &netstat_group);
+-
+-#ifdef WIRELESS_EXT
+-	if (net->get_wireless_stats || (net->wireless_handlers &&
+-			net->wireless_handlers->get_wireless_stats))
+-		sysfs_remove_group(&class_dev->kobj, &wireless_group);
+-#endif
+-	class_device_del(class_dev);
+-
++	class_device_del(&(net->class_dev));
+ }
  
-+	class_device_add_groups(class_dev);
-+
- 	kobject_uevent(&class_dev->kobj, KOBJ_ADD);
+ /* Create sysfs entries for network device. */
+ int netdev_register_sysfs(struct net_device *net)
+ {
+ 	struct class_device *class_dev = &(net->class_dev);
+-	int ret;
++	struct attribute_group **groups = net->sysfs_groups;
  
- 	/* notify any interfaces this device is now here */
-@@ -672,6 +703,7 @@
- 	if (class_dev->devt_attr)
- 		class_device_remove_file(class_dev, class_dev->devt_attr);
- 	class_device_remove_attrs(class_dev);
-+	class_device_remove_groups(class_dev);
++	class_device_initialize(class_dev);
+ 	class_dev->class = &net_class;
+ 	class_dev->class_data = net;
++	class_dev->groups = groups;
  
- 	kobject_uevent(&class_dev->kobj, KOBJ_REMOVE);
- 	kobject_del(&class_dev->kobj);
---- sky2-2.6.17.orig/include/linux/device.h	2006-04-21 12:19:26.000000000 -0700
-+++ sky2-2.6.17/include/linux/device.h	2006-04-21 12:19:36.000000000 -0700
-@@ -200,6 +200,7 @@
-  * @node: for internal use by the driver core only.
-  * @kobj: for internal use by the driver core only.
-  * @devt_attr: for internal use by the driver core only.
-+ * @groups: optional additional groups to be created
-  * @dev: if set, a symlink to the struct device is created in the sysfs
-  * directory for this struct class device.
-  * @class_data: pointer to whatever you want to store here for this struct
-@@ -228,6 +229,7 @@
- 	struct device		* dev;		/* not necessary, but nice to have */
- 	void			* class_data;	/* class-specific data */
- 	struct class_device	*parent;	/* parent of this child device, if there is one */
-+	struct attribute_group  ** groups;	/* optional groups */
++	BUILD_BUG_ON(BUS_ID_SIZE < IFNAMSIZ);
+ 	strlcpy(class_dev->class_id, net->name, BUS_ID_SIZE);
+-	if ((ret = class_device_register(class_dev)))
+-		goto out;
  
- 	void	(*release)(struct class_device *dev);
- 	int	(*uevent)(struct class_device *dev, char **envp,
+-	if (net->get_stats &&
+-	    (ret = sysfs_create_group(&class_dev->kobj, &netstat_group)))
+-		goto out_unreg; 
++	if (net->get_stats)
++		*groups++ = &netstat_group;
+ 
+ #ifdef WIRELESS_EXT
+-	if (net->get_wireless_stats || (net->wireless_handlers &&
+-			net->wireless_handlers->get_wireless_stats)) {
+-		ret = sysfs_create_group(&class_dev->kobj, &wireless_group);
+-		if (ret)
+-			goto out_cleanup;
+-	}
+-	return 0;
+-out_cleanup:
+-	if (net->get_stats)
+-		sysfs_remove_group(&class_dev->kobj, &netstat_group);
+-#else
+-	return 0;
++	if (net->get_wireless_stats
++	    || (net->wireless_handlers && net->wireless_handlers->get_wireless_stats))
++		*groups++ = &wireless_group;
+ #endif
+ 
+-out_unreg:
+-	printk(KERN_WARNING "%s: sysfs attribute registration failed %d\n",
+-	       net->name, ret);
+-	class_device_unregister(class_dev);
+-out:
+-	return ret;
++	return class_device_add(class_dev);
+ }
+ 
+ int netdev_sysfs_init(void)
+--- sky2-2.6.17.orig/include/linux/netdevice.h	2006-04-21 12:20:58.000000000 -0700
++++ sky2-2.6.17/include/linux/netdevice.h	2006-04-21 12:21:45.000000000 -0700
+@@ -506,6 +506,8 @@
+ 
+ 	/* class/net/name entry */
+ 	struct class_device	class_dev;
++	/* space for optional statistics and wireless sysfs groups */
++	struct attribute_group  *sysfs_groups[3];
+ };
+ 
+ #define	NETDEV_ALIGN		32

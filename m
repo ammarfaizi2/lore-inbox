@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWDUOwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWDUOwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWDUOwg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 10:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWDUOwg
+	id S932343AbWDUOwq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 10:52:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWDUOwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 10:52:36 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:1229
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932340AbWDUOwf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 10:52:35 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: mikado4vn@gmail.com
-Subject: Re: [PATCH] Rename "swapper" to "idle"
-Date: Fri, 21 Apr 2006 16:56:50 +0200
-User-Agent: KMail/1.9.1
-References: <000301c66503$3bbd8060$0200a8c0@nuitysystems.com> <4448EEE7.5010708@gmail.com>
-In-Reply-To: <4448EEE7.5010708@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Hua Zhong <hzhong@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart12876845.kjO37JbVYJ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Fri, 21 Apr 2006 10:52:46 -0400
+Received: from smtpout.mac.com ([17.250.248.184]:59875 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932343AbWDUOwq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 10:52:46 -0400
+In-Reply-To: <4448D047.8070202@compro.net>
+References: <44475DBA.7020308@cfl.rr.com> <44477585.4030508@yahoo.com.au> <4447E6C4.9070207@compro.net> <4447E86E.9000507@yahoo.com.au> <4448D047.8070202@compro.net>
+Mime-Version: 1.0 (Apple Message framework v749.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <EE194A42-9016-4217-A62E-AECA4A2105D1@mac.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, dmarkh@cfl.rr.com,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604211656.50485.mb@bu3sch.de>
+From: Mark Rustad <mrustad@mac.com>
+Subject: Re: get_user_pages ?
+Date: Fri, 21 Apr 2006 09:52:33 -0500
+To: markh@compro.net
+X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart12876845.kjO37JbVYJ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Apr 21, 2006, at 7:29 AM, Mark Hounschell wrote:
 
-On Friday 21 April 2006 16:40, Mikado wrote:
-> Hua Zhong wrote:
-> > Swapper does not do these things. It just happens to be "running" at th=
-at time (and it is always running if the system is idle).
-> >
-> > IOW, it is indeed an "idle" process. In fact, all it does is cpu_idle().
->=20
-> Really? Are your sure that swapper only does cpu_idle()???
+> You've looked at the code some obviously. What is in my future WRT  
+> these
+> changes being made that you referenced above and the depreciation of
+> some of the calls in use. Given my situation, do you foresee anything
+> that will keep me from being able to get valid bus addresses for my  
+> pte?
 
-Yes.
-Idle is by definition Nothing.
+Who can predict the future? I ran into similar issues and took a  
+different approach. Our application was using a large amount of  
+shared memory and it must be contiguous and the physical addresses  
+must be known, but only fixed for a particular invocation of the  
+system. I switched to using huge pages.
 
-=2D-=20
-Greetings Michael.
+So, during boot I have a small program that creates a file in the  
+hugetlbfs, mmaps it and then makes an ioctl call to my driver that  
+faults in all of the pages in the region mmapped. The driver takes  
+all of the huge pages from the system, sorts them in physical order  
+and then faults them in in a contiguous range by calling  
+get_user_pages, freeing one huge page before each call to get_user- 
+pages. I use page_to_phys to get the physical address.
 
---nextPart12876845.kjO37JbVYJ
-Content-Type: application/pgp-signature
+This approach means that my code is not manipulating the vm at all.  
+This should make future kernel changes easier to adapt to.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+What I am doing would be utter madness to attempt with normal pages,  
+because there is  so much activity with them, but huge pages are much  
+more manageable particularly during a boot sequence.
 
-iD8DBQBESPKylb09HEdWDKgRAmQSAJ461LsWMOqFChajyZtZZyKdrzJ3KwCeLvrG
-P84bRkXqafYcefQZEH97qgI=
-=xSHc
------END PGP SIGNATURE-----
+-- 
+Mark Rustad, MRustad@mac.com
 
---nextPart12876845.kjO37JbVYJ--

@@ -1,61 +1,460 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWDUJCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWDUJFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbWDUJCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 05:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbWDUJCJ
+	id S1751003AbWDUJFO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 05:05:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWDUJFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 05:02:09 -0400
-Received: from mx2.suse.de ([195.135.220.15]:22740 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750913AbWDUJCI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 05:02:08 -0400
-Date: Fri, 21 Apr 2006 11:02:06 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] mm: introduce remap_vmalloc_range (pls. drop previous patchset)
-Message-ID: <20060421090206.GT21660@wotan.suse.de>
-References: <20060421084503.GS21660@wotan.suse.de> <84144f020604210157s406a08a7yd3c43d9ef2939ce@mail.gmail.com>
-Mime-Version: 1.0
+	Fri, 21 Apr 2006 05:05:14 -0400
+Received: from kuu212123311.barco.com ([212.123.3.11]:49111 "HELO
+	kuuvir01.barco.com") by vger.kernel.org with SMTP id S1751003AbWDUJFM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 05:05:12 -0400
+From: Peter Korsgaard <jacmet@sunsite.dk>
+To: lm-sensors@lm-sensors.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] OpenCores I2C bus driver
+Date: Fri, 21 Apr 2006 11:05:03 +0200
+Message-ID: <87fyk71eps.fsf@sleipner.barco.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <84144f020604210157s406a08a7yd3c43d9ef2939ce@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 11:57:32AM +0300, Pekka Enberg wrote:
-> Hi Nick,
-> 
-> On 4/21/06, Nick Piggin <npiggin@suse.de> wrote:
-> > +       addr = (void *)((unsigned long)addr + (pgoff << PAGE_SHIFT));
-> 
-> As Andrew said, you can get rid of the casting 
+Hi,
 
-So he did...
+The following patch adds support for the OpenCores I2C controller IP
+core (See http://www.opencores.org/projects.cgi/web/i2c/overview).
 
+Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
 ---
-Index: linux-2.6/mm/vmalloc.c
+
+ drivers/i2c/busses/Kconfig      |   11 +
+ drivers/i2c/busses/Makefile     |    1 
+ drivers/i2c/busses/i2c-ocores.c |  358 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c-ocores.h      |   20 ++
+ 4 files changed, 390 insertions(+)
+
+Index: linux/drivers/i2c/busses/Kconfig
 ===================================================================
---- linux-2.6.orig/mm/vmalloc.c
-+++ linux-2.6/mm/vmalloc.c
-@@ -725,7 +725,7 @@ int remap_vmalloc_range(struct vm_area_s
- 		goto out_einval_locked;
- 	read_unlock(&vmlist_lock);
+--- linux.orig/drivers/i2c/busses/Kconfig	2006-04-19 10:24:35.000000000 +0200
++++ linux/drivers/i2c/busses/Kconfig	2006-04-19 10:24:38.000000000 +0200
+@@ -517,4 +517,15 @@
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mv64xxx.
  
--	addr = (void *)((unsigned long)addr + (pgoff << PAGE_SHIFT));
-+	addr += pgoff << PAGE_SHIFT;
- 	do {
- 		struct page *page = vmalloc_to_page(addr);
- 		ret = vm_insert_page(vma, uaddr, page);
-@@ -733,7 +733,7 @@ int remap_vmalloc_range(struct vm_area_s
- 			return ret;
++config I2C_OCORES
++	tristate "OpenCores I2C Controller"
++	depends on I2C
++	help
++	  If you say yes to this option, support will be included for the
++	  OpenCores I2C controller. For details see
++	  http://www.opencores.org/projects.cgi/web/i2c/overview
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-ocores.
++
+ endmenu
+Index: linux/drivers/i2c/busses/Makefile
+===================================================================
+--- linux.orig/drivers/i2c/busses/Makefile	2006-03-20 06:53:29.000000000 +0100
++++ linux/drivers/i2c/busses/Makefile	2006-04-19 10:24:38.000000000 +0200
+@@ -40,6 +40,7 @@
+ obj-$(CONFIG_I2C_VIA)		+= i2c-via.o
+ obj-$(CONFIG_I2C_VIAPRO)	+= i2c-viapro.o
+ obj-$(CONFIG_I2C_VOODOO3)	+= i2c-voodoo3.o
++obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
+ obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
+ obj-$(CONFIG_SCx200_I2C)	+= scx200_i2c.o
  
- 		uaddr += PAGE_SIZE;
--		addr = (void *)((unsigned long)addr+PAGE_SIZE);
-+		addr += PAGE_SIZE;
- 		usize -= PAGE_SIZE;
- 	} while (usize > 0);
- 
+Index: linux/drivers/i2c/busses/i2c-ocores.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux/drivers/i2c/busses/i2c-ocores.c	2006-04-21 10:51:05.000000000 +0200
+@@ -0,0 +1,358 @@
++/*
++ * i2c-ocores.c: I2C bus driver for OpenCores I2C controller
++ * (http://www.opencores.org/projects.cgi/web/i2c/overview).
++ *
++ * Peter Korsgaard <jacmet@sunsite.dk>
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/init.h>
++#include <linux/errno.h>
++#include <linux/platform_device.h>
++
++#include <asm/io.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/wait.h>
++#include <linux/i2c-ocores.h>
++
++struct ocores_i2c {
++	void __iomem *base;
++	int regstep;
++	wait_queue_head_t wait;
++	struct i2c_adapter adap;
++	struct i2c_msg *msg;
++	int pos;
++	int nmsgs;
++	int state; /* see STATE_ */
++};
++
++/* registers */
++#define OCI2C_PRELOW 		0
++#define OCI2C_PREHIGH 		1
++#define OCI2C_CONTROL 		2
++#define OCI2C_DATA 		3
++#define OCI2C_CMD     		4
++#define OCI2C_STATUS  		4
++
++#define OCI2C_CMD_START		0x91
++#define OCI2C_CMD_STOP		0x41
++#define OCI2C_CMD_READ		0x21
++#define OCI2C_CMD_WRITE		0x11
++#define OCI2C_CMD_READ_ACK	0x21
++#define OCI2C_CMD_READ_NACK	0x29
++#define OCI2C_CMD_IACK		0x01
++
++#define OCI2C_STAT_BUSY		0x40
++#define OCI2C_STAT_TIP		0x02
++#define OCI2C_STAT_NACK		0x80
++#define OCI2C_STAT_ARBLOST	0x20
++#define OCI2C_STAT_IF		0x01
++
++#define STATE_DONE  0
++#define STATE_START 1
++#define STATE_WRITE 2
++#define STATE_READ  3
++#define STATE_ERROR 4
++
++static __inline__ void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
++{
++	iowrite8(value, i2c->base + reg * i2c->regstep);
++}
++
++static __inline__ u8 oc_getreg(struct ocores_i2c *i2c, int reg)
++{
++	return ioread8(i2c->base + reg * i2c->regstep);
++}
++
++static void ocores_process(struct ocores_i2c *i2c)
++{
++	struct i2c_msg *msg = i2c->msg;
++	u8 stat = oc_getreg(i2c, OCI2C_STATUS);
++
++	if ((i2c->state == STATE_DONE) || (i2c->state == STATE_ERROR))
++	{
++		/* stop has been sent */
++		oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
++		wake_up_interruptible(&i2c->wait);
++		return;
++	}
++
++	/* error? */
++	if (stat & OCI2C_STAT_ARBLOST)
++	{
++		i2c->state = STATE_ERROR;
++		oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
++		return;
++	}
++
++	if ((i2c->state == STATE_START) || (i2c->state == STATE_WRITE))
++	{
++		i2c->state =
++			(msg->flags & I2C_M_RD) ? STATE_READ : STATE_WRITE;
++
++		if (stat & OCI2C_STAT_NACK)
++		{
++			i2c->state = STATE_ERROR;
++			oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
++			return;
++		}
++	}
++	else
++		msg->buf[i2c->pos++] = oc_getreg(i2c, OCI2C_DATA);
++
++	/* end of msg? */
++	if (i2c->pos == msg->len)
++	{
++		i2c->nmsgs--;
++		i2c->msg++;
++		i2c->pos = 0;
++		msg = i2c->msg;
++
++		if (i2c->nmsgs) /* end? */
++		{
++			/* send start? */
++			if (!(msg->flags & I2C_M_NOSTART))
++			{
++				u8 addr = (msg->addr << 1);
++
++				if (msg->flags & I2C_M_RD)
++					addr |= 1;
++
++				i2c->state = STATE_START;
++
++				oc_setreg(i2c, OCI2C_DATA, addr);
++				oc_setreg(i2c, OCI2C_CMD,  OCI2C_CMD_START);
++				return;
++			}
++			else
++				i2c->state = (msg->flags & I2C_M_RD)
++					? STATE_READ : STATE_WRITE;
++		}
++		else
++		{
++			i2c->state = STATE_DONE;
++			oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
++			return;
++		}
++	}
++
++	if (i2c->state == STATE_READ)
++	{
++		oc_setreg(i2c, OCI2C_CMD, i2c->pos == (msg->len-1) ?
++			  OCI2C_CMD_READ_NACK : OCI2C_CMD_READ_ACK);
++	}
++	else
++	{
++		oc_setreg(i2c, OCI2C_DATA, msg->buf[i2c->pos++]);
++		oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_WRITE);
++	}
++}
++
++static irqreturn_t ocores_isr(int irq, void *dev_id, struct pt_regs *regs)
++{
++	struct ocores_i2c *i2c = dev_id;
++
++	ocores_process(i2c);
++
++	return IRQ_HANDLED;
++}
++
++static int ocores_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
++{
++	struct ocores_i2c *i2c = i2c_get_adapdata(adap);
++
++	i2c->msg   = msgs;
++	i2c->pos   = 0;
++	i2c->nmsgs = num;
++	i2c->state = STATE_START;
++
++	oc_setreg(i2c, OCI2C_DATA,
++			(i2c->msg->addr << 1) |
++			((i2c->msg->flags & I2C_M_RD) ? 1:0));
++
++	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
++
++	if (wait_event_interruptible_timeout(i2c->wait,
++					     (i2c->state == STATE_ERROR) ||
++					     (i2c->state == STATE_DONE), HZ*5))
++		return (i2c->state == STATE_DONE) ? num : -EIO;
++	else
++		return -ETIMEDOUT;
++}
++
++static void ocores_init(struct ocores_i2c *i2c,
++			struct ocores_i2c_platform_data *pdata)
++{
++	int prescale;
++
++	/* make sure the device is disabled */
++	oc_setreg(i2c, OCI2C_CONTROL, 0);
++
++	prescale = (pdata->clock_khz / (5*100)) - 1;
++	oc_setreg(i2c, OCI2C_PRELOW,  prescale & 0xff);
++	oc_setreg(i2c, OCI2C_PREHIGH, prescale >> 8);
++
++	/* Init the device */
++	oc_setreg(i2c, OCI2C_CMD,     OCI2C_CMD_IACK);
++	oc_setreg(i2c, OCI2C_CONTROL, 0xc0);
++}
++
++
++static u32 ocores_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static struct i2c_algorithm ocores_algorithm = {
++	.master_xfer	= ocores_xfer,
++	.functionality	= ocores_func,
++};
++
++static struct i2c_adapter ocores_adapter = {
++	.owner		= THIS_MODULE,
++	.name		= "i2c-ocores",
++	.class		= I2C_CLASS_HWMON,
++	.algo		= &ocores_algorithm,
++	.timeout	= 2,
++	.retries	= 1
++};
++
++
++static int __devinit ocores_i2c_probe(struct platform_device *pdev)
++{
++	struct ocores_i2c* i2c;
++	struct ocores_i2c_platform_data* pdata;
++	struct resource *res, *res2;
++	int ret;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -ENODEV;
++
++	res2 = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (!res2)
++		return -ENODEV;
++
++	pdata = (struct ocores_i2c_platform_data*) pdev->dev.platform_data;
++	if (!pdata)
++		return -ENODEV;
++
++	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
++	if (!i2c)
++		return -ENOMEM;
++
++	if (!request_mem_region(res->start, res->end - res->start + 1,
++				pdev->name)) {
++		dev_err(&pdev->dev, "Memory region busy\n");
++		ret = -EBUSY;
++		goto request_mem_failed;
++	}
++
++	i2c->base = ioremap(res->start, res->end - res->start + 1);
++	if (!i2c->base)
++	{
++		dev_err(&pdev->dev, "Unable to map registers\n");
++		ret = -EIO;
++		goto map_failed;
++	}
++
++	i2c->regstep = pdata->regstep;
++	ocores_init(i2c, pdata);
++
++	init_waitqueue_head(&i2c->wait);
++	ret = request_irq(res2->start, ocores_isr, 0,
++			  pdev->name, i2c);
++	if (ret)
++	{
++		dev_err(&pdev->dev, "Cannot claim IRQ\n");
++		goto request_irq_failed;
++	}
++
++	/* hook up driver to tree */
++	platform_set_drvdata(pdev, i2c);
++	i2c->adap = ocores_adapter;
++	i2c_set_adapdata(&i2c->adap, i2c);
++	i2c->adap.dev.parent = &pdev->dev;
++
++	/* add i2c adapter to i2c tree */
++	ret = i2c_add_adapter(&i2c->adap);
++	if (ret)
++	{
++		dev_err(&pdev->dev, "Failed to add adapter\n");
++		goto add_adapter_failed;
++	}
++
++	return 0;
++
++ add_adapter_failed:
++	free_irq(res2->start, i2c);
++ request_irq_failed:
++	iounmap(i2c->base);
++ map_failed:
++	release_mem_region(res->start, res->end - res->start + 1);
++ request_mem_failed:
++	kfree(i2c);
++
++	return ret;
++}
++
++static int __devexit ocores_i2c_remove(struct platform_device* pdev)
++{
++	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
++	struct resource *res;
++
++	/* disable i2c logic */
++	oc_setreg(i2c, OCI2C_CONTROL, 0);
++
++	/* remove adapter & data */
++	i2c_del_adapter(&i2c->adap);
++	platform_set_drvdata(pdev, NULL);
++
++	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (res)
++		free_irq(res->start, i2c);
++
++	iounmap(i2c->base);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (res)
++		release_mem_region(res->start, res->end - res->start + 1);
++
++	kfree(i2c);
++
++	return 0;
++}
++
++static struct platform_driver ocores_i2c_driver = {
++	.probe  = ocores_i2c_probe,
++	.remove = ocores_i2c_remove,
++	.driver = {
++		.owner = THIS_MODULE,
++		.name = "ocores-i2c",
++	},
++};
++
++static int __init ocores_i2c_init(void)
++{
++	return platform_driver_register(&ocores_i2c_driver);
++}
++
++static void __exit ocores_i2c_exit(void)
++{
++	platform_driver_unregister(&ocores_i2c_driver);
++}
++
++module_init(ocores_i2c_init);
++module_exit(ocores_i2c_exit);
++
++MODULE_AUTHOR("Peter Korsgaard <jacmet@sunsite.dk>");
++MODULE_DESCRIPTION("OpenCores I2C bus driver");
++MODULE_LICENSE("GPL");
+Index: linux/include/linux/i2c-ocores.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux/include/linux/i2c-ocores.h	2006-04-21 10:54:43.000000000 +0200
+@@ -0,0 +1,20 @@
++/*
++ * i2c-ocores.h - definitions for the i2c-ocores interface
++ *
++ * Peter Korsgaard <jacmet@sunsite.dk>
++ *
++ * This file is licensed under the terms of the GNU General Public License
++ * version 2.  This program is licensed "as is" without any warranty of any
++ * kind, whether express or implied.
++ */
++
++#ifndef _LINUX_I2C_OCORES_H
++#define _LINUX_I2C_OCORES_H
++
++struct ocores_i2c_platform_data {
++	u32 regstep;   /* distance between registers */
++	u32 clock_khz; /* input clock in KHz */
++};
++
++#endif /* _LINUX_I2C_OCORES_H */
++
+
+-- 
+Bye, Peter Korsgaard

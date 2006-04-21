@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWDUH1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWDUHai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbWDUH1o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 03:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWDUH1o
+	id S1751145AbWDUHai (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 03:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWDUHai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 03:27:44 -0400
-Received: from mga02.intel.com ([134.134.136.20]:3158 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751267AbWDUH1n convert rfc822-to-8bit (ORCPT
+	Fri, 21 Apr 2006 03:30:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:42164 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751145AbWDUHah (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 03:27:43 -0400
-X-IronPort-AV: i="4.04,143,1144047600"; 
-   d="scan'208"; a="25946352:sNHT19714345"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [RFC] [PATCH] Make ACPI button driver an input device
-Date: Fri, 21 Apr 2006 15:27:25 +0800
-Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD13787F2@pdsmsx411.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC] [PATCH] Make ACPI button driver an input device
-Thread-Index: AcZksPoV/sXV/XVASKGHwaB98S0DLwAYCDwA
-From: "Yu, Luming" <luming.yu@intel.com>
-To: <dtor_core@ameritech.net>,
-       "Alexey Starikovskiy" <alexey_y_starikovskiy@linux.intel.com>
-Cc: "Xavier Bestel" <xavier.bestel@free.fr>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>, <linux-acpi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Apr 2006 07:27:27.0063 (UTC) FILETIME=[0A727670:01C66515]
+	Fri, 21 Apr 2006 03:30:37 -0400
+Date: Fri, 21 Apr 2006 00:29:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <npiggin@suse.de>
+Cc: linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
+Subject: Re: [patch 1/5] mm: remap_vmalloc_range
+Message-Id: <20060421002938.3878aec5.akpm@osdl.org>
+In-Reply-To: <20060301045910.12434.4844.sendpatchset@linux.site>
+References: <20060301045901.12434.54077.sendpatchset@linux.site>
+	<20060301045910.12434.4844.sendpatchset@linux.site>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > There are keyboards with power/sleep buttons. It makes 
->sense they have
->> > the same behavior than ACPI buttons.
->> Agree, make them behave like ACPI buttons -- remove them 
->from input stream, as they do not belong there...
+Nick Piggin <npiggin@suse.de> wrote:
 >
->What if there is no ACPI? What if I want to remap the button to do
->something else? Input layer is the proper place for them.
+>  +/**
+>  + *	remap_vmalloc_range  -  map vmalloc pages to userspace
+>  + *
+>  + *	@vma:		vma to cover (map full range of vma)
+>  + *	@addr:		vmalloc memory
+>  + *	@pgoff:		number of pages into addr before first page to map
+>  + *	@returns:	0 for success, -Exxx on failure
+>  + *
+>  + *	This function checks that addr is a valid vmalloc'ed area, and
+>  + *	that it is big enough to cover the vma. Will return failure if
+>  + *	that criteria isn't met.
+>  + *
+>  + *	Similar to remap_pfn_range (see mm/memory.c)
+>  + */
 
-If you define input layer as a universe place to all manual input 
-activity, then I agree to port some type of ACPI event into
-input layer.  But it shouldn't be a fake keyboard scancode,
-My suggestion is to have a separate input event type,e.g. EV_ACPI
-for acpi event layer.
+When replacing calls to remap_pfn_rage() with calls to remap_valloc_range():
 
->
->--
->Dmitry
+- remap_pfn_range() sets VM_IO|VM_RESERVED|VM_PFNMAP on the user's vma. 
+  remap_valloc_range() sets only VM_RESERVED.
 
-Thanks,
-Luming
+- remap_pfn_range() has special handling for COWable user vma's, but
+  remap_valloc_range() does not.
+
+- are vma->vm_start and vma->vm_end always a multiple of PAGE_SIZE?  (I
+  always forget).  If not, remap_valloc_range() looks a tad buggy.
+
+
+pls explain.
+
+
+- remap_valloc_range() can use ~PAGE_MASK, not PAGE_SIZE-1
+
+- remap_valloc_range() would lose a whole buncha typecasts if you use the
+  gcc pointer-arith-with-void* extension.

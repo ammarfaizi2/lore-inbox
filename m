@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWDUWKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWDUWNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWDUWKT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 18:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWDUWKS
+	id S932485AbWDUWNb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 18:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWDUWNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 18:10:18 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:41376 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751370AbWDUWKR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 18:10:17 -0400
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Al Boldi <a1426z@gawab.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200604212207.44266.a1426z@gawab.com>
-References: <200604212207.44266.a1426z@gawab.com>
+	Fri, 21 Apr 2006 18:13:31 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:26587 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S932485AbWDUWNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 18:13:31 -0400
+Subject: Re: [PATCH] Shrink rbtree
+From: David Woodhouse <dwmw2@infradead.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Mikael Starvik <mikael.starvik@axis.com>, akpm@osdl.org, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0604212150270.9101@blonde.wat.veritas.com>
+References: <1145623663.11909.139.camel@pmac.infradead.org>
+	 <4448D8BF.9040601@yahoo.com.au>
+	 <1145646503.11909.222.camel@pmac.infradead.org>
+	 <Pine.LNX.4.64.0604212150270.9101@blonde.wat.veritas.com>
 Content-Type: text/plain
-Date: Fri, 21 Apr 2006 15:04:08 -0700
-Message-Id: <1145657048.21109.583.camel@stark>
+Date: Fri, 21 Apr 2006 23:12:53 +0100
+Message-Id: <1145657573.11909.226.camel@pmac.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 22:07 +0300, Al Boldi wrote:
-> Chandra Seetharaman wrote:
-> > On Fri, 2006-04-21 at 07:49 -0700, Dave Hansen wrote:
-> > > On Thu, 2006-04-20 at 19:24 -0700, sekharan@us.ibm.com wrote:
-> > > > CKRM has gone through a major overhaul by removing some of the
-> > > > complexity, cutting down on features and moving portions to userspace.
-> > >
-> > > What do you want done with these patches?  Do you think they are ready
-> > > for mainline?  -mm?  Or, are you just posting here for comments?
-> >
-> > We think it is ready for -mm. But, want to go through a review cycle in
-> > lkml before i request Andrew for that.
+On Fri, 2006-04-21 at 21:57 +0100, Hugh Dickins wrote:
 > 
-> IMHO, it would be a good idea to decouple the current implementation and 
-> reconnect them via an open mapper/wrapper to allow a more flexible/open 
-> approach to resource management, which may ease its transition into 
-> mainline, due to a step-by-step instead of an all-or-none approach.
+> } __attribute__((aligned(sizeof(long))));
+>         /*
+>          * On most architectures that alignment is already the case; but
+>          * must be enforced here for CRIS, to let the least signficant bit
+>          * of struct page's "mapping" pointer be used for PAGE_MAPPING_ANON.
+>          */
 > 
-> Thanks!
-> 
-> --
-> Al
+> You can often get away with it - I notice we never added the same
+> alignment to struct anon_vma, which in theory needed it just as much.
+> Some accident of how structures are packed into slabs on CRIS, I suppose.
 
-Hi Al,
+That sounds very strange to me, but it's harmless enough to add the
+explicit alignment.
 
-	I'm sorry, I don't understand what you're suggesting. Could you please
-elaborate on how you think it should be decoupled?
-
-Thanks,
-	-Matt Helsley
+-- 
+dwmw2
 

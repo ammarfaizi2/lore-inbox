@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWDUPIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWDUPHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWDUPIr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 11:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWDUPIr
+	id S1751204AbWDUPHs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 11:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWDUPHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 11:08:47 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:7346 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750993AbWDUPIr (ORCPT
+	Fri, 21 Apr 2006 11:07:47 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:4786 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751204AbWDUPHr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 11:08:47 -0400
-Date: Fri, 21 Apr 2006 17:08:44 +0200 (MEST)
+	Fri, 21 Apr 2006 11:07:47 -0400
+Date: Fri, 21 Apr 2006 17:07:45 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Michael Buesch <mb@bu3sch.de>
-cc: mikado4vn@gmail.com, linux-kernel@vger.kernel.org,
-       Hua Zhong <hzhong@gmail.com>
-Subject: Re: [PATCH] Rename "swapper" to "idle"
-In-Reply-To: <200604211656.50485.mb@bu3sch.de>
-Message-ID: <Pine.LNX.4.61.0604211708300.31515@yvahk01.tjqt.qr>
-References: <000301c66503$3bbd8060$0200a8c0@nuitysystems.com>
- <4448EEE7.5010708@gmail.com> <200604211656.50485.mb@bu3sch.de>
+To: Dmitry Fedorov <dm.fedorov@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kfree(NULL)
+In-Reply-To: <7115951b0604210707q2113dd65tda67e24c07d6c0ad@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0604211643350.31515@yvahk01.tjqt.qr>
+References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com> 
+ <Pine.LNX.4.64.0604210322110.21429@d.namei>  <20060421015412.49a554fa.akpm@osdl.org>
+  <200604210656.40158.vernux@us.ibm.com> <7115951b0604210707q2113dd65tda67e24c07d6c0ad@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Swapper does not do these things. It just happens to be "running" at that time (and it is always running if the system is idle).
->> >
->> > IOW, it is indeed an "idle" process. In fact, all it does is cpu_idle().
->> 
->> Really? Are your sure that swapper only does cpu_idle()???
+>> Maybe kfree should really be a wrapper around __kfree which does the real
+>> work.  Then kfree could be a inlined function or a #define that does the NULL
+>> pointer check.
 >
->Yes.
->Idle is by definition Nothing.
->
+>NULL pointer check in kfree saves lot of small code fragments in callers.
+>It is one of many reasons why kfree does it.
+>Making kfree inline wrapper eliminates this save.
 
-So call it "voidd" :>
+How about
+
+slab.h:
+#ifndef CONFIG_OPTIMIZING_FOR_SIZE
+static inline void kfree(const void *p) {
+    if(p != NULL)
+        __kfree(p);
+}
+#else
+extern void kfree(const void *);
+#endif
+
+slab.c:
+#ifdef CONFIG_OPTIMIZING_FOR_SIZE
+void kfree(const void *p) {
+    if(p != NUILL)
+        _kfree(p);
+}
+#endif
+
+That way, you get your time saving with -O2 and your space saving with -Os.
 
 
 Jan Engelhardt

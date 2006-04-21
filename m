@@ -1,35 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWDUOuN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWDUOwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWDUOuN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 10:50:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWDUOuN
+	id S932340AbWDUOwg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 10:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWDUOwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 10:50:13 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:4069 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932317AbWDUOuL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 10:50:11 -0400
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Dave Hansen <haveblue@us.ibm.com>
-To: sekharan@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-In-Reply-To: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 21 Apr 2006 07:49:52 -0700
-Message-Id: <1145630992.3373.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 21 Apr 2006 10:52:36 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:1229
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932340AbWDUOwf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 10:52:35 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: mikado4vn@gmail.com
+Subject: Re: [PATCH] Rename "swapper" to "idle"
+Date: Fri, 21 Apr 2006 16:56:50 +0200
+User-Agent: KMail/1.9.1
+References: <000301c66503$3bbd8060$0200a8c0@nuitysystems.com> <4448EEE7.5010708@gmail.com>
+In-Reply-To: <4448EEE7.5010708@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Hua Zhong <hzhong@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart12876845.kjO37JbVYJ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200604211656.50485.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 19:24 -0700, sekharan@us.ibm.com wrote:
-> CKRM has gone through a major overhaul by removing some of the complexity,
-> cutting down on features and moving portions to userspace.
+--nextPart12876845.kjO37JbVYJ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-What do you want done with these patches?  Do you think they are ready
-for mainline?  -mm?  Or, are you just posting here for comments?
+On Friday 21 April 2006 16:40, Mikado wrote:
+> Hua Zhong wrote:
+> > Swapper does not do these things. It just happens to be "running" at th=
+at time (and it is always running if the system is idle).
+> >
+> > IOW, it is indeed an "idle" process. In fact, all it does is cpu_idle().
+>=20
+> Really? Are your sure that swapper only does cpu_idle()???
 
--- Dave
+Yes.
+Idle is by definition Nothing.
 
+=2D-=20
+Greetings Michael.
+
+--nextPart12876845.kjO37JbVYJ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBESPKylb09HEdWDKgRAmQSAJ461LsWMOqFChajyZtZZyKdrzJ3KwCeLvrG
+P84bRkXqafYcefQZEH97qgI=
+=xSHc
+-----END PGP SIGNATURE-----
+
+--nextPart12876845.kjO37JbVYJ--

@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWDUQT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWDUQTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWDUQT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 12:19:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWDUQT2
+	id S932410AbWDUQTc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 12:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWDUQTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 12:19:28 -0400
-Received: from web26109.mail.ukl.yahoo.com ([217.12.10.233]:62098 "HELO
-	web26109.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932415AbWDUQT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 12:19:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=0UiWPaOtWoGr/FvuD2k6+YGQZ4Z/Z1t3E33TGZU26Pl3+g2zxo4T6ozPWKcv8DRXYEM2xYuULiTZll4OZV2lNg1uXCNyIIptgzD+bxM/kFvTgLxV6pdnKGWR3H6PJJuciv5geA0hT22gxdSa23qvOJtdn7t9UkyFlezY3NFaJsU=  ;
-Message-ID: <20060421161351.25858.qmail@web26109.mail.ukl.yahoo.com>
-Date: Fri, 21 Apr 2006 18:13:51 +0200 (CEST)
-From: Axelle Apvrille <axelle_apvrille@yahoo.fr>
-Subject: RE: [Disec-devel] Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-time authentication of binaries
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-       Makan Pourzandi <Makan.Pourzandi@ericsson.com>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       Serue Hallyn <serue@us.ibm.com>,
-       "'disec-devel@lists.sourceforge.net'" 
-	<disec-devel@lists.sourceforge.net>
-In-Reply-To: <1145635957.21749.154.camel@moss-spartans.epoch.ncsc.mil>
+	Fri, 21 Apr 2006 12:19:32 -0400
+Received: from 216.255.188.82-custblock.intercage.com ([216.255.188.82]:59568
+	"EHLO main.astronetworks.net") by vger.kernel.org with ESMTP
+	id S932410AbWDUQTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 12:19:31 -0400
+From: =?iso-8859-1?q?T=F6r=F6k_Edwin?= <edwin@gurde.com>
+To: mikado4vn@gmail.com
+Subject: Re: [RFC] packet/socket owner match (fireflier) using skfilter
+Date: Fri, 21 Apr 2006 19:18:44 +0300
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
+References: <200604021240.21290.edwin@gurde.com> <4448F9A7.9040803@gmail.com>
+In-Reply-To: <4448F9A7.9040803@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604211918.45427.edwin@gurde.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - main.astronetworks.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - gurde.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That URL doesn't seem to be working at present.
+On Friday 21 April 2006 18:26, Mikado wrote:
+> Does your module get into below problem?
+>
+> http://lkml.org/lkml/2006/4/20/132
+Nope.
 
-Probably a temporary outage ? anyway, it's working
-now...
+A short test:
+On host:
+sudo iptables -A INPUT -p tcp --dport 81 -j DROP
+In qemu:
+#iptables -t skfilter -A OUTPUT -m fireflier_match --inode-owner 
+24392 --dev-owner /dev/root -j LOG --log-prefix test_out2
+#netcat 172.20.0.1 81
+[4295327.547000] test_out2:IN= OUT=eth0 SRC=172.20.0.10 DST=172.20.0.1 LEN=60 
+TOS=0x00 PREC=0x00 TTL=64 ID=11865 DF PROTO=TCP SPT=34945 DPT=81 WINDOW=5840 
+RES=0x00 SYN URGP=0
+[4295327.549000] test_out2:IN= OUT=eth0 SRC=172.20.0.10 DST=172.20.0.1 LEN=60 
+TOS=0x00 PREC=0x00 TTL=64 ID=11865 DF PROTO=TCP SPT=34945 DPT=81 WINDOW=5840 
+RES=0x00 SYN URGP=0
+[4295330.550000] test_out2:IN= OUT=eth0 SRC=172.20.0.10 DST=172.20.0.1 LEN=60 
+TOS=0x00 PREC=0x00 TTL=64 ID=11866 DF PROTO=TCP SPT=34945 DPT=81 WINDOW=5840 
+RES=0x00 SYN URGP=0
 
-http://sourceforge.net/projects/disec/
-or http://disec.sourceforge.net/
+As you can see several packets are sent out, and each one is matched (24392 is 
+the inode of netcat here). 
 
-both work.
+Please note that using fireflier LSM is not recomended, as I am working on 
+writing SELinux policies that do the same (fireflier LSM is itself using code 
+from hooks.c from selinux). 
+See: http://lkml.org/lkml/2006/4/17/81
 
-Regards,
-Axelle.
 
+Also take a look at James Morris's skfilter patches (which are used in 
+fireflier too), they allow you to match at socket level, and also allow to 
+match based on selinux context.
 
-
-	
-
-	
-		
-___________________________________________________________________________ 
-Faites de Yahoo! votre page d'accueil sur le web pour retrouver directement vos services préférés : vérifiez vos nouveaux mails, lancez vos recherches et suivez l'actualité en temps réel. 
-Rendez-vous sur http://fr.yahoo.com/set
+Cheers,
+Edwin

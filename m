@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWDUIGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWDUIQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWDUIGk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 04:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWDUIGk
+	id S932270AbWDUIQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 04:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWDUIQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 04:06:40 -0400
-Received: from ns2.suse.de ([195.135.220.15]:1743 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932247AbWDUIGj (ORCPT
+	Fri, 21 Apr 2006 04:16:27 -0400
+Received: from mail.gmx.net ([213.165.64.20]:8356 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932270AbWDUIQ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 04:06:39 -0400
-Date: Fri, 21 Apr 2006 10:06:38 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [patch 1/5] mm: remap_vmalloc_range
-Message-ID: <20060421080638.GP21660@wotan.suse.de>
-References: <20060301045901.12434.54077.sendpatchset@linux.site> <20060301045910.12434.4844.sendpatchset@linux.site> <20060421001712.4cd5625e.akpm@osdl.org> <20060421073315.GL21660@wotan.suse.de> <20060421005913.1c4322a2.akpm@osdl.org>
+	Fri, 21 Apr 2006 04:16:26 -0400
+X-Authenticated: #14349625
+Subject: Re: [RFC][PATCH 3/9] CPU controller - Adds timeslice scaling
+From: Mike Galbraith <efault@gmx.de>
+To: maeda.naoaki@jp.fujitsu.com
+Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+In-Reply-To: <20060421022742.13598.7230.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+	 <20060421022742.13598.7230.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+Content-Type: text/plain
+Date: Fri, 21 Apr 2006 10:17:29 +0200
+Message-Id: <1145607449.10016.47.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060421005913.1c4322a2.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 12:59:13AM -0700, Andrew Morton wrote:
-> Nick Piggin <npiggin@suse.de> wrote:
-> > 
-> > They should use vma->vm_page_prot?
-> > 
-> > The callers affected are the PAGE_SHARED ones (the others are unchanged).
-> > Isn't it correct to provide readonly mappings if userspace asks for it?
-> 
-> Dunno.  I assume perfmon was using PAGE_READONLY because it doesn't want
-> userspace altering the memory.  One would think that this should be
-> enforced at mmap()-time, and that mprotect() might be able to override it
-> anyway.  But I haven't looked that closely.
+On Fri, 2006-04-21 at 11:27 +0900, maeda.naoaki@jp.fujitsu.com wrote:
+> Index: linux-2.6.17-rc2/kernel/sched.c
+> ===================================================================
+> --- linux-2.6.17-rc2.orig/kernel/sched.c
+> +++ linux-2.6.17-rc2/kernel/sched.c
+> @@ -173,10 +173,17 @@
+>  
+>  static unsigned int task_timeslice(task_t *p)
+>  {
+> +	unsigned int timeslice;
+> +
+>  	if (p->static_prio < NICE_TO_PRIO(0))
+> -		return SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
+> +		timeslice = SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
+>  	else
+> -		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
+> +		timeslice = SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
+> +
+> +	if (!TASK_INTERACTIVE(p))
+> +		timeslice = cpu_rc_scale_timeslice(p, timeslice);
+> +
+> +	return timeslice;
+>  }
 
-Oh yes definitely, and the perfmon case is OK, because it sets
-PAGE_READONLY in ->vm_page_prot. About the mprotect issue -- I'm
-not sure, this might be a problem for perfmon?
+Why does timeslice scaling become undesirable if TASK_INTERACTIVE(p)?
+With this barrier, you will completely disable scaling for many loads.
 
-> First impression is that there's some potential for breaking stuff in all
-> this - convince me otherwise ;)
+Is it possible you meant !rt_task(p)?
 
-Well, the PAGE_SHARED guys might break if userspace if they expect to be
-able to write to readonly mappings. Unfortunate, but we could just put our
-feet down and tell them to fix the code?
+(The only place I can see scaling as having a large effect is on gobs of
+non-sleeping tasks.  Slice width doesn't mean much otherwise.)
+
+	-Mike
+

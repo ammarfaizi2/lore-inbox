@@ -1,113 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWDUAJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWDUAI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750889AbWDUAJM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 20:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWDUAJM
+	id S1750740AbWDUAI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 20:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWDUAI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 20:09:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24766 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750889AbWDUAJK (ORCPT
+	Thu, 20 Apr 2006 20:08:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21182 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750740AbWDUAI5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 20:09:10 -0400
-Date: Thu, 20 Apr 2006 17:09:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Piet Delaney <piet@bluelane.com>
-cc: Jens Axboe <axboe@suse.de>, "David S. Miller" <davem@davemloft.net>,
-       diegocg@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.17-rc2
-In-Reply-To: <1145576344.25127.120.camel@piet2.bluelane.com>
-Message-ID: <Pine.LNX.4.64.0604201649100.3701@g5.osdl.org>
-References: <20060419200001.fe2385f4.diegocg@gmail.com> 
- <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>  <20060420145041.GE4717@suse.de>
-  <20060420.122647.03915644.davem@davemloft.net>  <20060420193430.GH4717@suse.de>
-  <1145569031.25127.64.camel@piet2.bluelane.com>  <Pine.LNX.4.64.0604201512070.3701@g5.osdl.org>
- <1145576344.25127.120.camel@piet2.bluelane.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Apr 2006 20:08:57 -0400
+Date: Thu, 20 Apr 2006 17:07:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, steved@redhat.com, sct@redhat.com, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] FS-Cache: Avoid ENFILE checking for kernel-specific
+ open files
+Message-Id: <20060420170754.39294603.akpm@osdl.org>
+In-Reply-To: <20060420165932.9968.40376.stgit@warthog.cambridge.redhat.com>
+References: <20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com>
+	<20060420165932.9968.40376.stgit@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 20 Apr 2006, Piet Delaney wrote:
+David Howells <dhowells@redhat.com> wrote:
+>
+> Make it possible to avoid ENFILE checking for kernel specific open files, such
+> as are used by the CacheFiles module.
 > 
-> I once wrote some code to find the PTE entries for user buffers;
-> and as I recall the code was only about 20 lines of code. I thought 
-> only a small part of the TLB had to be invalidated. I never tested
-> or profiled it and didn't consider the multi-threading issues.
+> After, for example, tarring up a kernel source tree over the network, the
+> CacheFiles module may easily have 20000+ files open in the backing filesystem,
+> thus causing all non-root processes to be given error ENFILE when they try to
+> open a file, socket, pipe, etc..
+> 
+>  ...
+>
+>  
+>  static struct percpu_counter nr_files __cacheline_aligned_in_smp;
+> +static atomic_t nr_kernel_files;
 
-Looking up the page table entry is fairly quick, and is definitely worth 
-it. It's usually just a few memory loads, and it may even be cached. So 
-that part of the "VM tricks" is fine.
+So it's not performance-critical.
 
-The cost comes when you modify it. Part of it is the initial TLB 
-invalidate cost, but that actually tends to be the smaller part (although 
-it can be pretty steep already, if you have to do a cross-CPU invalidate: 
-that alone may already have taken more time than it would to just do a 
-straightforward copy).
+> -struct file *get_empty_filp(void)
+> +struct file *get_empty_filp(int kernel)
 
-The bigger part tends to be that any COW approach will obviously have to 
-be undone later, usually when the user writes to the page. Even if (by the 
-time the fault is taken) the page is no longer shared, and undoing the COW 
-is just a matter of touching the page tables again, just the cost of 
-taking the fault is easily thousands of cycles.
+I'd suggest a new get_empty_kernel_filp(void) rather than providing a magic
+argument.  (we can still have the magic argument in the new
+__get_empty_filp(int), but it shouldn't be part of the caller-visible API).
 
-At which point the optimization is very debatable indeed. If the COW 
-actually causes a real copy and a new page to be allocated, you've lost 
-everything, and you're solidly in "that sucks" territory.
+> +	if (!kernel) {
+> +		if (get_nr_files() >= files_stat.max_files &&
+> +		    !capable(CAP_SYS_ADMIN)
+> +		    ) {
 
-> Instead of COW, I just returned information in recvmsg control
-> structure indicating that the buffer wasn't being use by the kernel
-> any longer.
+ugly.
 
-That is very close to what I propose with vmsplice(), and yes, once you 
-avoid the COW, it's a clear win to just look up the page in the page 
-tables and increment a usage count.
+> +	f->f_kernel_flags = kernel ? FKFLAGS_KERNEL : 0;
 
-So basically:
+It would be more flexible to make the caller pass in the flags directly.
 
- - just looking up the page is cheap, and that's what vmsplice() does 
-   (if people want to actually play with it, Jens now has a vmsplice() 
-   implementation in his "splice" branch in his git tree on 
-   brick.kernel.dk).
+>  	f->f_uid = tsk->fsuid;
+>  	f->f_gid = tsk->fsgid;
+>  	eventpoll_init_file(f);
+> @@ -235,6 +250,7 @@ struct file fastcall *fget_light(unsigne
+>  	return file;
+>  }
+>  
+> +EXPORT_SYMBOL(fget_light);
 
-   It does mean that it's up to the _user_ to not write to the page again 
-   until the page is no longer shared, and there are different approaches 
-   to handling that. Sometimes the answer may even be that synchronization 
-   is done at a much higher level (ie there's some much higher-level 
-   protocol where the other end acknowledges the data).
+fget_light is not otherwise referenced in this patch.
 
-   The fact that it's up to the user obviously means that the user has to 
-   be more careful, but the upside is that you really _do_ get very high 
-   performance. If there are no good synchronization mechanisms, the 
-   answer may well be "don't use vmsplice()", but the point is that if you 
-   _can_ synchronize some other way, vmsplice() runs like a bat out of 
-   hell.
+this change is not changelogged.
 
- - playing VM games where you actually modify the VM is almost always a 
-   loss. It does have the advantage that the user doesn't have to be aware 
-   of the VM games, but if it means that performance isn't really all that 
-   much better than just a regular "write()" call, what's the point?
+why non-GPL?
 
-I'm of the opinion that we already have robust and user-friendly 
-interfaces (the regular read()/write()/recvmsg/sendmgs() interfaces that 
-are "synchronous" wrt data copies, and that are obviously portable). We've 
-even optimized them as much as we can, so they actually perform pretty 
-well.
+> +EXPORT_SYMBOL(dentry_open_kernel);
 
-So there's no point in a half-assed "safe VM" trick with COW, which isn't 
-all that much faster. Playing tricks with zero-copy only makes sense if 
-they are a _lot_ faster, and that implies that you cannot do COW. You 
-really expose the fact that user-space gave a real reference to its own 
-pages away, and that if user space writes to it, it writes to a buffer 
-that is already in flight.
+_GPL?
 
-(Some users may even be able to take _advantage_ of the fact that the 
-buffer is "in flight" _and_ mapped into user space after it has been 
-submitted. You could imagine code that actually goes on modifying the 
-buffer even while it's being queued for sending. Under some strange 
-circumstances that may actually be useful, although with things like 
-checksums that get invalidated by you changing the data while it's queued 
-up, it may not be acceptable for everything, of course).
+> @@ -640,6 +643,7 @@ struct file {
+>  	atomic_t		f_count;
+>  	unsigned int 		f_flags;
+>  	mode_t			f_mode;
+> +	unsigned short		f_kernel_flags;
+>  	loff_t			f_pos;
+>  	struct fown_struct	f_owner;
+>  	unsigned int		f_uid, f_gid;
 
-		Linus
+That's unfortunate.  There's still room in f_flags.  Was it hard to use that?
+
+> @@ -943,7 +943,7 @@ static ctl_table fs_table[] = {
+>  		.ctl_name	= FS_NRFILE,
+>  		.procname	= "file-nr",
+>  		.data		= &files_stat,
+> -		.maxlen		= 3*sizeof(int),
+> +		.maxlen		= 4*sizeof(int),
+>  		.mode		= 0444,
+>  		.proc_handler	= &proc_nr_files,
+
+This changes the format of /proc/sys/fs/file-nr.  What will break?
+
+

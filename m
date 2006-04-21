@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWDUWEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWDUWH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbWDUWEY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 18:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWDUWEY
+	id S1751365AbWDUWH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 18:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWDUWH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 18:04:24 -0400
-Received: from stinky.trash.net ([213.144.137.162]:46252 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S932485AbWDUWEX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 18:04:23 -0400
-Message-ID: <4449563E.9000504@trash.net>
-Date: Sat, 22 Apr 2006 00:01:34 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: noip <noip@webhost66.com>
-CC: linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: Kernel Panic when using iptables NAT rules with kernel 2.6.16.9
-References: <20060421133139.32090.qmail@webhost66.com>
-In-Reply-To: <20060421133139.32090.qmail@webhost66.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=windows-1251
+	Fri, 21 Apr 2006 18:07:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:61896 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750821AbWDUWH2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 18:07:28 -0400
+Date: Fri, 21 Apr 2006 15:09:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: cmm@us.ibm.com
+Cc: kiran@scalex86.org, LaurentVivier@wanadoo.fr, sct@redhat.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/2] ext3 percpu counter fixes to suppport for more than
+ 2**31 ext3 free blocks counter
+Message-Id: <20060421150943.2fdc5c4a.akpm@osdl.org>
+In-Reply-To: <1145631546.4478.10.camel@localhost.localdomain>
+References: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com>
+	<1145631546.4478.10.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-noip wrote:
-> Hello,
->   
-> After the upgrade to kernel 2.6.16.9 i'm receiving a kernel panic almost immediately when I enter my iptables REDIRECT rules. If I don't enter these rules, the machine works fine.
-> I've observed this behavior on all of my machines that are running Broadcom Gbit Ethernet cards using tg3 driver.
-> On my office machine with the same kernel and the same iptables rules there is no such problem - I have an Intel 10/100 Ethernet card.
-> My kernel is patched with the Grsecurity patch and with the connlimit patch.
-> I've tried the same setup without Gresecurity but the problem was still there.
+Mingming Cao <cmm@us.ibm.com> wrote:
+>
+> The following patches are to fix the percpu counter issue support more
+> than 2**31 blocks for ext3, i.e. allow the ext3 free block accounting
+> works with more than 8TB storage.
+> 
+> [PATCH 1] - Generic perpcu longlong type counter support: global counter
+> type changed from long to long long. The local counter is still remains
+> 32 bit (long type), so we could avoid doing 64 bit update in most cases.
+> Fixed the percpu_counter_read_positive() to handle the  0 value counter
+> correctly;Add support to initialize the global counter to a value that
+> are greater than 2**32.
 
-Which kernel version did you run before that?
+I think it would be saner to explicitly specify the size of the field. 
+That means using s32 and s64 throughout this code.
 
-> My iptables version is 1.3.5.
->  
-> My kernel config - http://server260.com/panic/kerncfg
-> A screenshot with the panic - http://server260.com/panic/panic.gif
+That'll actually save space on 64-bit machines, where we're presently doing
+alloc_percpu(long) when all we need is alloc_percpu(s32).
 
-The interesting part scrolled off the screen, please set
-CONFIG_STACK_BACKTRACE_COLS=2 and try again. The last thing I
-can see is ipt_do_table, if you are using connlimit in LOCAL_IN
-its most likely that, the version in patch-o-matic is not
-compatible with current kernels.
-
-
+We'd need to review all users of this interface to make sure that they
+handle the changed sizes appropriately, too.

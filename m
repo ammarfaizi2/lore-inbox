@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWDUUyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWDUU4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbWDUUyR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 16:54:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWDUUyQ
+	id S932462AbWDUU4s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 16:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWDUU4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 16:54:16 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:40360 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932442AbWDUUyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 16:54:16 -0400
-Subject: Re: kfree(NULL)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Vernon Mauery <vernux@us.ibm.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200604211330.30657.vernux@us.ibm.com>
-References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com>
-	 <Pine.LNX.4.61.0604211643350.31515@yvahk01.tjqt.qr>
-	 <20060421192217.GI19754@stusta.de>  <200604211330.30657.vernux@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 21 Apr 2006 16:54:13 -0400
-Message-Id: <1145652853.32759.17.camel@localhost.localdomain>
+	Fri, 21 Apr 2006 16:56:48 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:63237 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932458AbWDUU4q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 16:56:46 -0400
+Date: Fri, 21 Apr 2006 22:56:39 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Adrian Bunk <bunk@stusta.de>, Steven Whitehouse <swhiteho@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 13/16] GFS2: Makefiles and Kconfig
+Message-ID: <20060421205639.GA26949@mars.ravnborg.org>
+References: <1145636558.3856.118.camel@quoit.chygwyn.com> <20060421164309.GE19754@stusta.de> <20060421164910.GV24104@parisc-linux.org> <20060421165351.GG19754@stusta.de> <20060421170753.GW24104@parisc-linux.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060421170753.GW24104@parisc-linux.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 13:30 -0700, Vernon Mauery wrote:
-> On Friday 21 April 2006 12:22, you wrote:
-
-> > What makes you confident that the static inline version gives a time
-> > saving?
+On Fri, Apr 21, 2006 at 11:07:53AM -0600, Matthew Wilcox wrote:
+> On Fri, Apr 21, 2006 at 06:53:51PM +0200, Adrian Bunk wrote:
+> > On Fri, Apr 21, 2006 at 10:49:10AM -0600, Matthew Wilcox wrote:
+> > > On Fri, Apr 21, 2006 at 06:43:09PM +0200, Adrian Bunk wrote:
+> > > > - "depends on SYSFS" instead of the select
+> > > 
+> > > Why?  It's more natural to select it rather than depend on it.
+> > 
+> > The rule of thumb is that an option is either user visible and should be 
+> > depended on or not user visible and should be select'ed.
 > 
-> A static inline wrapper would mean that it wouldn't have to make a function 
-> call just to check if the pointer is NULL.  A simple NULL check is faster 
-> than a function call and then a simple NULL check.  In other words, there 
-> would be no pushing and popping the stack.  In almost all cases, replacing an 
-> inline function with a non-inline function means a trade-off between speed 
-> and size.
+> What rubbish!  Who came up with this rule of thumb?
+Currently menuconfig makes it a very difficult job to undo a select.
+Homework: try to do "make allmodconfig" and then set CONFIG_HOTPLUG=n
 
-Andrew Morton just submitted a patch to -mm that fixes the two problem
-places that called kfree(NULL) more than it calls kfree(non-NULL).
+You will be hit by CONFIG_FW_LOADER that is 'selected' by many
+instances - and then it becomes very difficult.
+So until menuconfig has better support for undoing select the rule of
+thumb outlined by Adrian is true.
 
-Besides the places that are now fixed, the inline doesn't save much.
-Since most cases kfree(non-NULL) is called, so the NULL is really an
-unlikely case.  Thus you just increased the size of the kernel, for
-virtually no speed savings.
-
--- Steve
-
-
+	Sam

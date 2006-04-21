@@ -1,98 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWDUAAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWDUAJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWDUAAP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 20:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWDUAAP
+	id S1750889AbWDUAJM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 20:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWDUAJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 20:00:15 -0400
-Received: from omta01sl.mx.bigpond.com ([144.140.92.153]:38728 "EHLO
-	omta01sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932155AbWDUAAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 20:00:14 -0400
-Message-ID: <4448208B.7020000@bigpond.net.au>
-Date: Fri, 21 Apr 2006 10:00:11 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Thu, 20 Apr 2006 20:09:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24766 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750889AbWDUAJK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 20:09:10 -0400
+Date: Thu, 20 Apr 2006 17:09:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Piet Delaney <piet@bluelane.com>
+cc: Jens Axboe <axboe@suse.de>, "David S. Miller" <davem@davemloft.net>,
+       diegocg@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.17-rc2
+In-Reply-To: <1145576344.25127.120.camel@piet2.bluelane.com>
+Message-ID: <Pine.LNX.4.64.0604201649100.3701@g5.osdl.org>
+References: <20060419200001.fe2385f4.diegocg@gmail.com> 
+ <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>  <20060420145041.GE4717@suse.de>
+  <20060420.122647.03915644.davem@davemloft.net>  <20060420193430.GH4717@suse.de>
+  <1145569031.25127.64.camel@piet2.bluelane.com>  <Pine.LNX.4.64.0604201512070.3701@g5.osdl.org>
+ <1145576344.25127.120.camel@piet2.bluelane.com>
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: akpm@osdl.org, Mike Galbraith <efault@gmx.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] smpnice: don't consider sched groups which are lightly
- loaded for balancing
-References: <20060328185202.A1135@unix-os.sc.intel.com> <442A0235.1060305@bigpond.net.au> <20060329145242.A11376@unix-os.sc.intel.com> <442B1AE8.5030005@bigpond.net.au> <20060329165052.C11376@unix-os.sc.intel.com> <442B3111.5030808@bigpond.net.au> <20060401204824.A8662@unix-os.sc.intel.com> <442F7871.4030405@bigpond.net.au> <20060419182444.A5081@unix-os.sc.intel.com> <444719F8.2050602@bigpond.net.au> <20060420100457.B10267@unix-os.sc.intel.com>
-In-Reply-To: <20060420100457.B10267@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 21 Apr 2006 00:00:11 +0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-> On Thu, Apr 20, 2006 at 03:19:52PM +1000, Peter Williams wrote:
->>> This patch doesn't fix this issue for example:
->>> 4-way simple MP system. P0 containing two high priority tasks, P1 containing
->>> one high priority and two normal priority tasks, one high priotity task
->>> each on P2, P3. Current load balance doesn't detect/fix the
->>> imbalance by moving one of the normal priority task running on P1 to P2 or P3.
->> Is this always the case or just a possibility?  Please describe the hole 
->> it slips through (and please do that every time you provide a scenario).
+
+
+On Thu, 20 Apr 2006, Piet Delaney wrote:
 > 
-> I thought a scenario is enough to show the hole :) Anyhow, I brought this 
-> issue before also..
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0604.0/0517.html
-> 
-> Load balance on P2 or P3 will always show P0 as max load but it will not
-> be able to move any load from P0. As
-> imbalance will be always < busiest_load_per_task and
-> max_load - this_load will be < imbn(2) * busiest_load_per_task...
-> and pwr_move will be <= pwr_now...
+> I once wrote some code to find the PTE entries for user buffers;
+> and as I recall the code was only about 20 lines of code. I thought 
+> only a small part of the TLB had to be invalidated. I never tested
+> or profiled it and didn't consider the multi-threading issues.
 
-This will depend on how high the priority of the high priority tasks are 
-relative to normal tasks.  E.g. it's quite possible to have two high 
-priority tasks whose combined load weight is less than that of two 
-normal tasks and a high priority task.
+Looking up the page table entry is fairly quick, and is definitely worth 
+it. It's usually just a few memory loads, and it may even be cached. So 
+that part of the "VM tricks" is fine.
 
-> 
-> Basically sched groups with highest priority tasks can mask the 
-> imbalance between the other sched groups with in the same domain. 
+The cost comes when you modify it. Part of it is the initial TLB 
+invalidate cost, but that actually tends to be the smaller part (although 
+it can be pretty steep already, if you have to do a cross-CPU invalidate: 
+that alone may already have taken more time than it would to just do a 
+straightforward copy).
 
-Sometimes.
+The bigger part tends to be that any COW approach will obviously have to 
+be undone later, usually when the user writes to the page. Even if (by the 
+time the fault is taken) the page is no longer shared, and undoing the COW 
+is just a matter of touching the page tables again, just the cost of 
+taking the fault is easily thousands of cycles.
 
-I don't think that this stable state is so bad that anything special 
-needs to be done especially as the fact that high priority tasks tend to 
-only use the CPU in short bursts means that it probably won't exist for 
-very long.
+At which point the optimization is very debatable indeed. If the COW 
+actually causes a real copy and a new page to be allocated, you've lost 
+everything, and you're solidly in "that sucks" territory.
 
-To paraphrase Ingo (from another thread), load balancing is a 
-probabilistic exercise.  For a start, achieving a deterministic optimal 
-distribution would be an NP algorithm and by the time you determined the 
-correct distribution (which could be a very long time) the "state" 
-information on which the determination was based would have changed 
-(possibly a lot).  This latter bit (probably minus the possibly a lot) 
-is true anyway as find_busiest_group() and find_busiest_queue() are 
-called without locks meaning that the state upon which their results are 
-determined may change before move_tasks() is called.
+> Instead of COW, I just returned information in recvmsg control
+> structure indicating that the buffer wasn't being use by the kernel
+> any longer.
 
-I think this justifies saying that this scenario probably doesn't matter 
-and, therefore, fixing it isn't urgent.
+That is very close to what I propose with vmsplice(), and yes, once you 
+avoid the COW, it's a clear win to just look up the page in the page 
+tables and increment a usage count.
 
-BTW I agree with your earlier statements that the modification to 
-move_tasks() to circumvent the skip mechanism in some circumstances 
-needs to be refined so that it doesn't move the highest priority task of 
-the busiest queue.  I'll be submitting a patch later today.
+So basically:
 
-I think that the next thing that needs to be addressed after that is a 
-modification to try_to_wake_up() to improve the distribution of high 
-priority tasks across CPUs.  I think that just sticking them on any CPU 
-and waiting for the load balancing code to kick in and move them 
-unnecessarily increases their latency.
+ - just looking up the page is cheap, and that's what vmsplice() does 
+   (if people want to actually play with it, Jens now has a vmsplice() 
+   implementation in his "splice" branch in his git tree on 
+   brick.kernel.dk).
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+   It does mean that it's up to the _user_ to not write to the page again 
+   until the page is no longer shared, and there are different approaches 
+   to handling that. Sometimes the answer may even be that synchronization 
+   is done at a much higher level (ie there's some much higher-level 
+   protocol where the other end acknowledges the data).
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+   The fact that it's up to the user obviously means that the user has to 
+   be more careful, but the upside is that you really _do_ get very high 
+   performance. If there are no good synchronization mechanisms, the 
+   answer may well be "don't use vmsplice()", but the point is that if you 
+   _can_ synchronize some other way, vmsplice() runs like a bat out of 
+   hell.
+
+ - playing VM games where you actually modify the VM is almost always a 
+   loss. It does have the advantage that the user doesn't have to be aware 
+   of the VM games, but if it means that performance isn't really all that 
+   much better than just a regular "write()" call, what's the point?
+
+I'm of the opinion that we already have robust and user-friendly 
+interfaces (the regular read()/write()/recvmsg/sendmgs() interfaces that 
+are "synchronous" wrt data copies, and that are obviously portable). We've 
+even optimized them as much as we can, so they actually perform pretty 
+well.
+
+So there's no point in a half-assed "safe VM" trick with COW, which isn't 
+all that much faster. Playing tricks with zero-copy only makes sense if 
+they are a _lot_ faster, and that implies that you cannot do COW. You 
+really expose the fact that user-space gave a real reference to its own 
+pages away, and that if user space writes to it, it writes to a buffer 
+that is already in flight.
+
+(Some users may even be able to take _advantage_ of the fact that the 
+buffer is "in flight" _and_ mapped into user space after it has been 
+submitted. You could imagine code that actually goes on modifying the 
+buffer even while it's being queued for sending. Under some strange 
+circumstances that may actually be useful, although with things like 
+checksums that get invalidated by you changing the data while it's queued 
+up, it may not be acceptable for everything, of course).
+
+		Linus

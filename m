@@ -1,229 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWDUCcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWDUCcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWDUCcE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 22:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWDUCb5
+	id S932209AbWDUCcv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 22:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWDUCZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 22:31:57 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:16831 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750876AbWDUCZT
+	Thu, 20 Apr 2006 22:25:04 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:46555 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750902AbWDUCY5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 22:25:19 -0400
+	Thu, 20 Apr 2006 22:24:57 -0400
 From: sekharan@us.ibm.com
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
 Cc: sekharan@us.ibm.com
-Date: Thu, 20 Apr 2006 19:25:18 -0700
-Message-Id: <20060421022518.6145.32158.sendpatchset@localhost.localdomain>
+Date: Thu, 20 Apr 2006 19:24:56 -0700
+Message-Id: <20060421022456.6145.34081.sendpatchset@localhost.localdomain>
 In-Reply-To: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
 References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-Subject: [RFC] [PATCH 12/12] Documentation for CKRM
+Subject: [RFC] [PATCH 08/12] Add attribute support to RCFS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-12/12 - ckrm_docs
+08/12 - ckrm_configfs_rcfs_attr_support
 
-Documentation describing important CKRM elements such as classes, shares,
-controllers, and the interface provided to userspace via RCFS
+Adds the basic attribute store and show functions.
 --
 
 Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
-Signed-Off-By: Hubertus Franke <frankeh@us.ibm.com>
 Signed-Off-By: Shailabh Nagar <nagar@watson.ibm.com>
-Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
-Signed-Off-By: Vivek Kashyap <kashyapv@us.ibm.com>
 Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
 
- Documentation/ckrm/ckrm_basics  |   65 ++++++++++++++++++++++++++++++++++++++++
- Documentation/ckrm/ckrm_install |   54 +++++++++++++++++++++++++++++++++
- Documentation/ckrm/ckrm_usage   |   52 ++++++++++++++++++++++++++++++++
- 3 files changed, 171 insertions(+)
+ kernel/ckrm/ckrm_rcfs.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 50 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.16/Documentation/ckrm/ckrm_basics
+Index: linux2617-rc2/kernel/ckrm/ckrm_rcfs.c
 ===================================================================
---- /dev/null
-+++ linux-2.6.16/Documentation/ckrm/ckrm_basics
-@@ -0,0 +1,65 @@
-+CKRM Basics
-+-------------
-+A brief review of CKRM concepts and terminology will help make installation
-+and testing easier. For more details, please visit http://ckrm.sf.net.
+--- linux2617-rc2.orig/kernel/ckrm/ckrm_rcfs.c
++++ linux2617-rc2/kernel/ckrm/ckrm_rcfs.c
+@@ -14,13 +14,21 @@
+  * as published by the Free Software Foundation.
+  *
+  */
++#include <linux/ctype.h>
+ #include <linux/module.h>
+ #include <linux/configfs.h>
++#include <linux/parser.h>
+ #include "ckrm_local.h"
+ 
+ static struct configfs_subsystem rcfs_subsys;
+ static struct config_item_type rcfs_class_type;
+ 
++struct class_attribute {
++	struct configfs_attribute configfs_attr;
++	ssize_t (*show)(struct ckrm_class *, char *);
++	int (*store)(struct ckrm_class *, const char *);
++};
 +
-+Concept:
-+User defines a class, associate some amount of resources to the class, and
-+associates tasks with the class. Tasks belonging to that class will be
-+bound by the amount of resources that are assigned to that class.
+ struct rcfs_class {
+ 	char *name;
+ 	struct ckrm_class *core;
+@@ -56,6 +64,40 @@ static inline struct ckrm_class *item_to
+ 	return group_to_ckrm_class(to_config_group(item));
+ }
+ 
++static ssize_t rcfs_attr_show(struct config_item *item,
++	      		      struct configfs_attribute *attr, char *buf)
++{
++	struct class_attribute *class_attr;
++	struct ckrm_class *class = item_to_ckrm_class(item);
 +
-+RCFS depicts a CKRM class as a directory. Hierarchy of classes can be
-+created in which children of a class share resources allotted to
-+the parent. Tasks can be classified to any class which is at any level.
-+There is no correlation between parent-child relationship of tasks and
-+the parent-child relationship of classes they belong to.
++	class_attr = container_of(attr, struct class_attribute, configfs_attr);
++	return class_attr->show(class, buf);
++}
 +
-+During fork(), class is inherited by a task. A privileged user can
-+reassign a task to any class.
++static ssize_t rcfs_attr_store(struct config_item *item,
++			       struct configfs_attribute *attr, const char *buf,
++			       size_t count)
++{
++	char *filtered_buf, *p;
++	ssize_t rc;
++	struct class_attribute *class_attr;
++	struct ckrm_class *class = item_to_ckrm_class(item);
 +
-+Characteristics of a class can be accessed/changed through the following
-+files under the directory representing the class:
++	class_attr = container_of(attr, struct class_attribute, configfs_attr);
++	filtered_buf = kzalloc(count + 1, GFP_KERNEL);
++	if (!filtered_buf)
++		return -ENOMEM;
++	strncpy(filtered_buf, buf, count);
++	for (p = filtered_buf; isprint(*p); ++p)
++		;
++	*p = '\0';
++	rc = class_attr->store(class, filtered_buf);
++	kfree(filtered_buf);
++	if (rc)
++		return rc;
++	return count;
++}
 +
-+shares:  allows changing shares of different resource managed by the class
-+stats:   shows statistics associated with each resource managed by the class
-+members: allows assignment of tasks to a class and shows tasks that are
-+         assigned to a class.
+ /*
+  * This is the function that is called when a 'mkdir' command
+  * is issued under our filesystem
+@@ -117,17 +159,24 @@ static void rcfs_class_release_item(stru
+ }
+ 
+ static struct configfs_item_operations rcfs_class_item_ops = {
+-	.release	= rcfs_class_release_item,
++	.release		= rcfs_class_release_item,
++	.show_attribute		= rcfs_attr_show,
++	.store_attribute	= rcfs_attr_store,
+ };
+ 
+ static struct configfs_group_operations rcfs_class_group_ops = {
+ 	.make_group     = make_rcfs_class,
+ };
+ 
++static struct configfs_attribute *class_attrs[] = {
++	NULL
++};
 +
-+Resource allocation of a class is proportional to the amount of resources
-+available to the class's parent.
-+Resource allocation for a class is controlled by the parameters:
-+
-+min_shares: Minimum amount shares that can be allocated by a class. A
-+            special value of DONT_CARE(-3) means that there is no minimum
-+	    shares of a resource specified. This class may not get
-+	    any resource if the system is running short on resources.
-+max_shares: Specifies the maximum amount of resource that is allowed to be
-+           allocated by a class. A special value DONT_CARE(-3) means
-+	   there is no specific limit is specified, this class can get all
-+	   the resources available.
-+child_shares_divisor: total guarantee that is allowed among the children of
-+           this class. In other words, the sum of "guarantee"s of all
-+	   children of this class cannot exceed this number.
-+
-+Any of these parameters can have a special value, UNSUPPORTED(-2) meaning
-+that the specific controller does not support this parameter. User
-+request to change the value will be ignored.
-+
-+None of these parameters neither absolute nor have any units associated with
-+them. These are just numbers that are used to calculate the absolute number
-+of resource available for a specific class.
-+
-+In order to make them independent of the type of resource and handle
-+complexities like hotplug none of these parameters have units associated
-+with them. Furthermore they are not percentages. They are called shares
-+because an appropriate analogy would be shares in a stock market.
-+
-+The absolute amount (for example no. of tasks) of minimum shares available
-+for a class is calculuated as:
-+
-+	absolute minimum shares = (parent's absolute amount of resource) *
-+			(class's min_shares / parent's child_shares_divisor)
-+
-+Maximum shares is also calculated in the same way.
-+
-+Root class is allocated all the resources available in the system. In other
-Index: linux-2.6.16/Documentation/ckrm/ckrm_install
-===================================================================
---- /dev/null
-+++ linux-2.6.16/Documentation/ckrm/ckrm_install
-@@ -0,0 +1,54 @@
-+Kernel installation
-+------------------------------
-+
-+<kernver> = version of mainline Linux kernel
-+<ckrmver> = version of CKRM
-+
-+Note: It is expected that CKRM versions will change often. Hence once
-+a CKRM version has been released for some <kernver>, it will only be made
-+available for future <kernver>'s until the next CKRM version is released.
-+
-+Patches released will specify which version of kernel source that patchset
-+is released against.
-+
-+Core patches will be released in two formats
-+	1. set of patches with a series file (to be used with quilt)
-+	2. a single patch that is inclusive of all the core patches.
-+
-+Controler patches will be released as a set. An excpetion would be the
-+numtasks controller which would be released as part of the core patchset.
-+
-+1. Patch
-+
-+    Apply ckrm-single-<ckrmversion>.patch to a mainline kernel
-+    tree with version <kernver>.
-+
-+2. Configure
-+
-+Select appropriate configuration options:
-+
-+   Enable configfs filesystem:
-+   File systems --->
-+     Pseudo filesystems --->
-+       <M> Userspace-driven configuration filesystem (EXPERIMENTAL)
-+
-+   Enable CKRM components:
-+   General Setup --->
-+     Class Based Kernel Resource Management --->
-+        [*] Class Based Kernel Resource Management Core
-+        <M> Resource Class File System (User API)
-+        [*]     Number of Tasks Resource Manager
-+
-+
-+3. Build, boot the kernel
-+
-+4. Enable rcfs
-+
-+    # insmod <patchestree>/fs/configfs/configfs.ko # if compiled as module
-+    # insmod <patchedtree>/kernel/ckrm/ckrm_rcfs.ko # if compiled in as module
-+    # mount -t configfs none /config
-+
-+    This will create the directory /config/ckrm which is the root of classes.
-+
-+5. Work with class hierarchy as explained in the file ckrm_usage
-+
-Index: linux-2.6.16/Documentation/ckrm/ckrm_usage
-===================================================================
---- /dev/null
-+++ linux-2.6.16/Documentation/ckrm/ckrm_usage
-@@ -0,0 +1,52 @@
-+Usage of CKRM
-+-------------
-+
-+1. Create a class
-+
-+   # mkdir /config/ckrm/c1
-+   creates a class named c1 , while
-+
-+The newly created class directory is automatically populated by magic files
-+shares, stats, members, and attrib.
-+
-+2. View default shares of a class
-+
-+   # cat /config/ckrm/c1/shares
-+   min_shares=-3,max_shares=-3,child_total_divisor=100
-+
-+   Above is the default value set for resources that have controllers
-+   registered with CKRM.
-+
-+3. change shares of a specific resource in a class
-+
-+   One or more of the following fields can/must be specified
-+       res=<res_name> #mandatory
-+       min_shares=<number>
-+       max_shares=<number>
-+       child_total_divisor=<number>
-+   e.g.
-+	# echo "res=numtasks,max_shares=20" > /config/ckrm/c1/shares
-+
-+   If any of these parameters are not specified, the current value will be
-+   retained.
-+
-+4. Reclassify a task
-+
-+   write the pid of the process to the destination class' members file
-+   # echo 1004 > /config/ckrm/c1/members
-+
-+5. Get a list of tasks assigned to a class
-+
-+   # cat /config/ckrm/c1/members
-+   lists pids of tasks belonging to c1
-+
-+6. Get statictics of different resources of a class
-+
-+   # cat /config/ckrm/c1/stats
-+   shows c1's statistics for each registered resource controller.
-+
-+7. Configuration settings for controllers
-+   Configuration values for controller are available through module
-+   parameter interfaces. Consult the controller specific documents for
-+   details. For example, numtasks has it available through
-+   /sys/module/ckrm_numtasks/parameters.
+ static struct config_item_type rcfs_class_type = {
+ 	.ct_owner	= THIS_MODULE,
+ 	.ct_item_ops    = &rcfs_class_item_ops,
+ 	.ct_group_ops	= &rcfs_class_group_ops,
++	.ct_attrs       = class_attrs
+ };
+ 
+ static struct configfs_subsystem rcfs_subsys = {
 
 -- 
 

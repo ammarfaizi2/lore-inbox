@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWDURot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWDURtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWDURot (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 13:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWDURot
+	id S1751335AbWDURtb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 13:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWDURtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 13:44:49 -0400
-Received: from hera.kernel.org ([140.211.167.34]:58325 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932282AbWDURos (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 13:44:48 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [patch 05/22] : Fix hotplug race during device registration
-Date: Fri, 21 Apr 2006 10:44:33 -0700
-Organization: OSDL
-Message-ID: <20060421104433.0ff85977@localhost.localdomain>
-References: <4448DC4C.6010500@ums.usu.ru>
-	<20060421135219.37720.qmail@web52901.mail.yahoo.com>
+	Fri, 21 Apr 2006 13:49:31 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:3489 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751335AbWDURtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 13:49:31 -0400
+Date: Fri, 21 Apr 2006 19:48:08 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Tilman Schmidt <tilman@imap.cc>, linux-kernel@vger.kernel.org
+Subject: Re: kfree(NULL)
+Message-ID: <20060421174808.GA1767@wohnheim.fh-wedel.de>
+References: <63XWg-1IL-5@gated-at.bofh.it> <63YfP-26I-11@gated-at.bofh.it> <63ZEY-45n-27@gated-at.bofh.it> <4448F97D.5000205@imap.cc> <1145635403.20843.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1145641473 2274 10.8.0.54 (21 Apr 2006 17:44:33 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Fri, 21 Apr 2006 17:44:33 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1145635403.20843.21.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Apr 2006 14:52:19 +0100 (BST)
-Chris Rankin <rankincj@yahoo.com> wrote:
-
-> --- "Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
-> > Look at the old code again. This is not a new bug. The old code fails 
-> > registration, does a printk, and then sets dev->reg_state = NETREG_REGISTERED. 
+On Fri, 21 April 2006 09:03:23 -0700, Daniel Walker wrote:
 > 
-> OK, fair enough. But anyway, is it valid to leave reg_state as NETREG_REGISTERED when the
-> registration has failed?
+> After reviewing some of the callers of kfree(NULL) they appear to be
+> errors by the caller .. Where there's some false assumptions going on
+> during looping or repeated calls to the same function. 
+> 
+> I agree with Andrew , I think the calls should be investigated while
+> retaining the unlikley() predictor . 
 
-Yes. the device is still half alive in that case. It is accessible via normal networking
-calls, and can be unregistered. It just would not show up properly in sysfs.
+Those calls that frequently call kfree(NULL). ;)
 
-Not sure how it would be possible (except maybe out of memory) to construct a case
-where registration fails. Maybe races with name changes.
+Jörn
+
+-- 
+Linux [...] existed just for discussion between people who wanted
+to show off how geeky they were.
+-- Rob Enderle

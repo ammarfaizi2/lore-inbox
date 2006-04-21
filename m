@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWDUVPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWDUVPc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWDUVPF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 17:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWDUVPE
+	id S964784AbWDUVPc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 17:15:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWDUVPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 17:15:04 -0400
-Received: from pproxy.gmail.com ([64.233.166.177]:54169 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964782AbWDUVPC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 17:15:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dy6HJZA2KzCWPvzThaU0JWiKwSt9OurFjKxcNILV2H1nbw5jV6r+Pqk/VcLmDOvulxjQRUPBhuF/52q9C+7anyfWzfIKgRgXEhbhFu39kc+xELXwReDUi/VyJwTgqIF8xUFZr8EGWyWHpcC3DdcsVJTyYBE/uJNcKugylcyyguo=
-Message-ID: <2a56523e0604211415t71eaa390v995681d79c95caee@mail.gmail.com>
-Date: Fri, 21 Apr 2006 17:15:01 -0400
-From: "Professor Moriarty" <bofh.h4x@gmail.com>
-To: DM-Crypt <dm-crypt@saout.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Crypto Hardware Accelerator
-In-Reply-To: <20060421093451.GD21627@cip.informatik.uni-erlangen.de>
+	Fri, 21 Apr 2006 17:15:31 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:41159 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S964784AbWDUVPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 17:15:30 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: "Gross, Mark" <mark.gross@intel.com>
+Subject: Re: Problems with EDAC coexisting with BIOS
+Date: Fri, 21 Apr 2006 23:13:06 +0200
+User-Agent: KMail/1.9.1
+Cc: bluesmoke-devel@lists.sourceforge.net,
+       "LKML" <linux-kernel@vger.kernel.org>,
+       "Carbonari, Steven" <steven.carbonari@intel.com>,
+       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
+       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
+References: <5389061B65D50446B1783B97DFDB392D998732@orsmsx411.amr.corp.intel.com>
+In-Reply-To: <5389061B65D50446B1783B97DFDB392D998732@orsmsx411.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060421093451.GD21627@cip.informatik.uni-erlangen.de>
+Message-Id: <200604212313.08791.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello everyone,
-> I am looking for a crypto hardware accelerator which is available in the
-> EU in form of a PCI card which is supported by the linux kernel to do a
-> device mapper crypt setup using aes256. It would be also nice if it
-> could also be used by openssl userland applications. Also I would like
-> to know if there are some plans to support IDE drives which do AES
-> transparently for the OS. Like an ATA Command which tells the drive
-> which AES key to use during startup. An the rest does the device instead
-> of the hostos/cpu.
->
->         Thomas
-Hello Thomas,
+Hi Mark,
 
-You might have a look at the Soekris vpn1401 card, (technical specs
-here: http://www.soekris.com/vpn1401.htm). It is available in the EU
-and can do AES256 without a problem.
-It does have linux support, though I'm not sure if it can be used by
-OpenSSL applications. Typically, you'd have to have the crypto
-accelerator take over API calls to en/decrypt for OpenSSL (A crypto
-accelerator is basically an FPGA with the required algos coded in), so
-I'm not too sure if it is possible to do this without actually editing
-OpenSSL's code directly
+On Friday, 21. April 2006 18:01, Gross, Mark wrote:
+> I'm sorry to have to bring up these issues after a fare amount of good
+> work, and I don't know how this problem managed to get by for as long as
+> it has, but there are some issues with the EDAC and the BIOS for managed
+> computer systems.
 
-~ Vasily Ivanov
+Can this condition be detected via DMI?
+
+Then you could implement a whitelist or blacklist
+and a module parameter to override it.
+
+
+Regards
+
+Ingo Oeser

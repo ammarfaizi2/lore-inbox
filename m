@@ -1,175 +1,253 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWDUC1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWDUC16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbWDUC1F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 22:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWDUC0s
+	id S932124AbWDUC16 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 22:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWDUC15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 22:26:48 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:4018 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751018AbWDUCZy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 22:25:54 -0400
-From: sekharan@us.ibm.com
+	Thu, 20 Apr 2006 22:27:57 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:61924 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932119AbWDUC1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 22:27:51 -0400
+From: maeda.naoaki@jp.fujitsu.com
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Cc: sekharan@us.ibm.com
-Date: Thu, 20 Apr 2006 19:25:53 -0700
-Message-Id: <20060421022553.6145.92952.sendpatchset@localhost.localdomain>
-In-Reply-To: <20060421022519.6145.78248.sendpatchset@localhost.localdomain>
-References: <20060421022519.6145.78248.sendpatchset@localhost.localdomain>
-Subject: [RFC] [PATCH 6/6] numtasks - Documentation for Numtasks controller
+Cc: maeda.naoaki@jp.fujitsu.com
+Date: Fri, 21 Apr 2006 11:27:37 +0900
+Message-Id: <20060421022737.13598.67183.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+In-Reply-To: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+Subject: [RFC][PATCH 2/9] CPU controller - Adds class hungry detection
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-6/6: ckrm_numtasks_docs
+2/9: cpurc_hungry_detection
 
-Documents what the numtasks controller does and how to use it.
---
+This patch corresponds to section 2 in Documentation/ckrm/cpurc-internals,
+adding the detection code that checks whether a task group needs more CPU
+resource or not.  The CPU resource controller have to distinguish whether
+tasks in the group actually need more resource or they are just sleepy.
+If they need more resource, the resource controller must give more resource,
+otherwise it must not.
 
-Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
-Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
+Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
+Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
 
- Documentation/ckrm/numtasks |  130 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 130 insertions(+)
+ include/linux/cpu_rc.h |   15 +++++++
+ include/linux/sched.h  |    1 
+ kernel/cpu_rc.c        |   96 +++++++++++++++++++++++++++++++++++++++++++++++++
+ kernel/sched.c         |    5 ++
+ 4 files changed, 117 insertions(+)
 
-Index: linux2617-rc2/Documentation/ckrm/numtasks
+Index: linux-2.6.17-rc2/include/linux/cpu_rc.h
 ===================================================================
---- /dev/null
-+++ linux2617-rc2/Documentation/ckrm/numtasks
-@@ -0,0 +1,130 @@
-+Introduction
-+-------------
+--- linux-2.6.17-rc2.orig/include/linux/cpu_rc.h
++++ linux-2.6.17-rc2/include/linux/cpu_rc.h
+@@ -18,9 +18,13 @@
+ #define CPU_RC_SPREAD_PERIOD	(10 * HZ)
+ #define CPU_RC_LOAD_SCALE	(2 * CPU_RC_SPREAD_PERIOD)
+ #define CPU_RC_SHARE_SCALE	100
++#define CPU_RC_TSFACTOR_MAX	CPU_RC_SHARE_SCALE
++#define CPU_RC_HCOUNT_INC	2
++#define CPU_RC_RECALC_INTERVAL	HZ
+ 
+ struct cpu_rc_domain {
+ 	spinlock_t lock;
++ 	unsigned int hungry_count;
+ 	unsigned long timestamp;
+ 	cpumask_t cpus;
+ 	int numcpus;
+@@ -28,16 +32,25 @@ struct cpu_rc_domain {
+ };
+ 
+ struct cpu_rc {
++	int share;
++	int is_hungry;
+ 	struct cpu_rc_domain *rcd;
+ 	struct {
+ 		unsigned long timestamp;
+ 		unsigned int load;
++		int maybe_hungry;
+ 	} stat[NR_CPUS];	/* XXX  need alignment */
+ };
+ 
+ extern struct cpu_rc *cpu_rc_get(task_t *);
+ extern unsigned int cpu_rc_load(struct cpu_rc *);
+ extern void cpu_rc_account(task_t *, unsigned long);
++extern void cpu_rc_detect_hunger(task_t *);
 +
-+Numtasks is a resource controller under the CKRM framework that allows the
-+user/sysadmin to
-+	- manage the number of tasks a class can create.
-+        - limit the fork rate across the system.
++static inline void cpu_rc_record_activated(task_t *tsk, unsigned long now)
++{
++	tsk->last_activated = now;
++}
+ 
+ static inline void cpu_rc_record_allocation(task_t *tsk,
+ 					    unsigned int slice,
+@@ -55,6 +68,8 @@ static inline void cpu_rc_record_allocat
+ #else /* CONFIG_CPU_RC */
+ 
+ static inline void cpu_rc_account(task_t *tsk, unsigned long now) {}
++static inline void cpu_rc_detect_hunger(task_t *tsk) {}
++static inline void cpu_rc_record_activated(task_t *tsk, unsigned long now) {}
+ static inline void cpu_rc_record_allocation(task_t *tsk,
+ 					    unsigned int slice,
+ 					    unsigned long now) {}
+Index: linux-2.6.17-rc2/include/linux/sched.h
+===================================================================
+--- linux-2.6.17-rc2.orig/include/linux/sched.h
++++ linux-2.6.17-rc2/include/linux/sched.h
+@@ -895,6 +895,7 @@ struct task_struct {
+ #ifdef CONFIG_CPU_RC
+ 	unsigned int last_slice;
+ 	unsigned long ts_alloced;
++	unsigned long last_activated;
+ #endif
+ };
+ 
+Index: linux-2.6.17-rc2/kernel/cpu_rc.c
+===================================================================
+--- linux-2.6.17-rc2.orig/kernel/cpu_rc.c
++++ linux-2.6.17-rc2/kernel/cpu_rc.c
+@@ -14,6 +14,72 @@
+ #include <linux/sched.h>
+ #include <linux/cpu_rc.h>
+ 
++static inline int cpu_rc_is_hungry(struct cpu_rc *cr)
++{
++	return cr->is_hungry;
++}
 +
-+As with any other resource under the CKRM framework, numtasks also assigns
-+all the resources to the default class(/config/ckrm). Since, the number
-+of tasks in a system is not limited, this resource controller provides a
-+way to set the total number of tasks available in the system through the config
-+file. The config variable that affect this is total_numtasks.
++static inline void cpu_rc_set_hungry(struct cpu_rc *cr)
++{
++	cr->is_hungry++;
++	cr->rcd->hungry_count += CPU_RC_HCOUNT_INC;
++}
 +
-+This resource controller also allows the sysadmin to limit the number of forks
-+that are allowed in the system within the specified number of seconds. This
-+can be acheived by changing the attributes forkrate and forkrate_interval in
-+the config file. Using this feature one can protect the system from being
-+attacked by fork bomb type applications.
++static inline void cpu_rc_set_satisfied(struct cpu_rc *cr)
++{
++	cr->is_hungry = 0;
++}
 +
-+Configuration parameters of numtasks controller (forkrate, total_numtasks
-+and forkrate_interval) can be read/changed through the modparam interface
-+/sys/module/ckrm_numtasks/parameters/
++static inline int cpu_rc_is_anyone_hungry(struct cpu_rc *cr)
++{
++	return cr->rcd->hungry_count > 0;
++}
 +
-+Installation
-+-------------
++/*
++ * cpu_rc_recalc_tsfactor() uptates the class timeslice scale factor
++ */
++static inline void cpu_rc_recalc_tsfactor(struct cpu_rc *cr)
++{
++	unsigned long now = jiffies;
++	unsigned long interval = now - cr->rcd->timestamp;
++	unsigned int load;
++	int maybe_hungry;
++	int i, n;
 +
-+1. Configure "Number of Tasks Resource Manager" under CKRM (see
-+      Documentation/ckrm/installation).
++	n = 0;
++	load = 0;
++	maybe_hungry = 0;
 +
-+2. Reboot the system with the new kernel.
++	cpu_rcd_lock(cr);
++	if (cr->rcd->timestamp == 0)	{
++		cr->rcd->timestamp = now;
++	} else if (interval > CPU_RC_SPREAD_PERIOD) {
++		cr->rcd->hungry_count = 0;
++		cr->rcd->timestamp = now;
++	} else if (interval > CPU_RC_RECALC_INTERVAL) {
++		cr->rcd->hungry_count >>= 1;
++		cr->rcd->timestamp = now;
++	}
 +
-+3. Verify the controller's presence by reading the file
-+   /config/ckrm/shares (should show a line with res=numtasks)
++	for_each_cpu_mask(i, cr->rcd->cpus) {
++		load += cr->stat[i].load;
++		maybe_hungry += cr->stat[i].maybe_hungry;
++		cr->stat[i].maybe_hungry = 0;
++		n++;
++	}
 +
-+Usage
-+-----
++	BUG_ON(n == 0);
++	load = load / n;
 +
-+For brevity, unless otherwise specified all the following commands are
-+executed in the default class (/config/ckrm).
++	if ((load * CPU_RC_SHARE_SCALE >= cr->share * CPU_RC_LOAD_SCALE) ||
++	    !maybe_hungry)
++		cpu_rc_set_satisfied(cr);
++	else
++		cpu_rc_set_hungry(cr);
 +
-+As explained above, files in /sys/module/ckrm_numtasks/parameters/
-+shows total_numtasks and forkrate info.
++	cpu_rcd_unlock(cr);
++}
 +
-+   # cd /sys/module/ckrm_numtasks/parameters/
-+   # ls
-+   .  ..  forkrate  forkrate_interval  total_numtasks
-+   # cat total_numtasks
-+   2147483647
-+   		# value is INT_MAX which means unlimited
-+   # cat forkrate
-+   2147483647
-+   		# value is INT_MAX which means unlimited
-+   # cat forkrate_interval
-+   1
-+   		# forkrate forks are allowed per 1 sec
+ /*
+  * cpu_rc_load() calculates the class load
+  */
+@@ -77,3 +143,33 @@ void cpu_rc_account(task_t *tsk, unsigne
+ 	cr->stat[cpu].timestamp = now;
+ 	cr->stat[cpu].load = (cls_load + tsk_load) / CPU_RC_SPREAD_PERIOD;
+ }
 +
-+By default, the total_numtasks is set to "unlimited", forkrate is set
-+to "unlimited" and forkrate_interval is set to 1 second. Which means the
-+total number of tasks in a system is unlimited and the forks per second is
-+also unlimited.
++/*
++ * cpu_rc_detect_hunger() judges if the class is maybe hungry
++ */
++void cpu_rc_detect_hunger(task_t *tsk)
++{
++	struct cpu_rc *cr;
++	unsigned long wait;
++	int cpu = smp_processor_id();
 +
-+sysadmin can change these values by just writing the attribute/value pair
-+to the config file.
++	if (tsk == idle_task(task_cpu(tsk)))
++		return;
 +
-+   # echo 10000 > forkrate
-+   # cat forkrate
-+   10000
-+   # echo 100001 > total_numtasks
-+   # cat total_numtasks
-+   100001
++	if (tsk->last_activated == 0)
++		return;
 +
-+By making child_shares_divisor to be same as total_numtasks, sysadmin can
-+make the numbers in shares file be same as the number of tasks for a class.
-+In other words, the numbers in shares file will be the absolute number of
-+tasks a class is allowed.
++	cr = cpu_rc_get(tsk);
++	if (!cr) {
++		tsk->last_activated = 0;
++		return;
++	}
 +
-+   # cd /config/ckrm
-+   # cat shares
-+   res=numtasks,min_shares=-3,max_shares=-3,child_shares_divisor=100
-+   # echo res=numtasks,child_shares_divisor=1000 > shares
-+   # cat shares
-+   res=numtasks,min_shares=-3,max_shares=-3,child_shares_divisor=1000
++	BUG_ON(tsk->last_slice == 0);
++	wait = jiffies - tsk->last_activated;
++	if (CPU_RC_GUAR_SCALE * tsk->last_slice	/ (wait + tsk->last_slice)
++			< cr->share)
++		cr->stat[cpu].maybe_hungry++;
 +
-+Class creation
-+--------------
++	tsk->last_activated = 0;
++}
+Index: linux-2.6.17-rc2/kernel/sched.c
+===================================================================
+--- linux-2.6.17-rc2.orig/kernel/sched.c
++++ linux-2.6.17-rc2/kernel/sched.c
+@@ -716,6 +716,7 @@ static void __activate_task(task_t *p, r
+ 
+ 	if (unlikely(batch_task(p) || (expired_starving(rq) && !rt_task(p))))
+ 		target = rq->expired;
++	cpu_rc_record_activated(p, jiffies);
+ 	enqueue_task(p, target);
+ 	rq->nr_running++;
+ }
+@@ -1478,6 +1479,7 @@ void fastcall wake_up_new_task(task_t *p
+ 				p->array = current->array;
+ 				p->array->nr_active++;
+ 				rq->nr_running++;
++				cpu_rc_record_activated(p, jiffies);
+ 			}
+ 			set_need_resched();
+ 		} else
+@@ -2686,6 +2688,8 @@ void scheduler_tick(void)
+ 				rq->best_expired_prio = p->static_prio;
+ 		} else
+ 			enqueue_task(p, rq->active);
 +
-+   # mkdir c1
-+
-+Its initial share is don't care. The parent's share values will be unchanged.
-+
-+Setting a new class share
-+-------------------------
-+
-+'min_shares' specifies the number of tasks this class is entitled to get
-+'limit' is the maximum number of tasks this class can get.
-+
-+Following command will set the min_shares of class c1 to be 250 and the limit
-+to be 500
-+
-+   # echo 'res=numtasks,min_shares=250,max_shares=500' > c1/shares
-+   # cat c1/shares
-+   res=numtasks,min_shares=250,max_shares=500,child_shares_divisor=100
-+
-+Note that the min_shares of 250 and max_shares of 500 is w.r.t the
-+paren't's 1000 above, and not the absolute numbers.
-+
-+Limiting forks in a time period
-+-------------------------------
-+By default, this resource controller allows unlimited forks per second.
-+
-+Following commands would change it to allow only 100 forks per 10 seconds
-+
-+   # cd /sys/module/ckrm_numtasks/parameters
-+   # cat 100 > forkrate
-+   # cat 10 > forkrate_interval
-+
-+Note that the same set of values is used across the system. In other words,
-+each individual class will be allowed 'forkrate' forks in 'forkrate_interval'
-+seconds.
-+
-+Monitoring
-+----------
-+
-+stats file shows statistics of the number of tasks usage of a class
-+   # cd /config/ckrm
-+   # cat stats
-+   numtasks: Number of successes 12554
-+   numtasks: Number of failures 0
-+   numtasks: Number of forkrate failures 0
-
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
++		cpu_rc_record_activated(p, jnow);
+ 	} else {
+ 		/*
+ 		 * Prevent a too long timeslice allowing a task to monopolize
+@@ -3079,6 +3083,7 @@ switch_tasks:
+ 	rcu_qsctr_inc(task_cpu(prev));
+ 
+ 	update_cpu_clock(prev, rq, now);
++	cpu_rc_detect_hunger(next);
+ 
+ 	prev->sleep_avg -= run_time;
+ 	if ((long)prev->sleep_avg <= 0)

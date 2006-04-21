@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWDUHdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWDUHdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWDUHdB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 03:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWDUHdB
+	id S1751275AbWDUHdS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 03:33:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWDUHdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 03:33:01 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45321 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751271AbWDUHdA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 03:33:00 -0400
-Date: Thu, 20 Apr 2006 13:47:14 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, Jeff Garzik <jeff@garzik.org>,
-       Matt Mackall <mpm@selenic.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sata suspend resume ...
-Message-ID: <20060420134713.GA2360@ucw.cz>
-References: <Pine.LNX.4.64.0604192324040.29606@indiana.corp.fedex.com> <Pine.LNX.4.64.0604191659230.7660@blonde.wat.veritas.com>
+	Fri, 21 Apr 2006 03:33:18 -0400
+Received: from cantor.suse.de ([195.135.220.2]:54472 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751275AbWDUHdQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 03:33:16 -0400
+Date: Fri, 21 Apr 2006 09:33:15 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [patch 1/5] mm: remap_vmalloc_range
+Message-ID: <20060421073315.GL21660@wotan.suse.de>
+References: <20060301045901.12434.54077.sendpatchset@linux.site> <20060301045910.12434.4844.sendpatchset@linux.site> <20060421001712.4cd5625e.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604191659230.7660@blonde.wat.veritas.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060421001712.4cd5625e.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-
-> > Any change of getting suspend/resume to work on my IBM X60s notebook.
+On Fri, Apr 21, 2006 at 12:17:12AM -0700, Andrew Morton wrote:
+> Nick Piggin <npiggin@suse.de> wrote:
+> >
+> > Add a remap_vmalloc_range and get rid of as many remap_pfn_range and
+> > vm_insert_page loops as possible.
 > > 
-> > Disk model is ...
+> > remap_vmalloc_range can do a whole lot of nice range checking even
+> > if the caller gets it wrong (which it looks like one or two do).
 > > 
-> > 	MODEL="ATA HTS541060G9SA00"
-> > 	FW_REV="MB3I"
 > > 
-> > Linux 2.6.17-rc2.
-> > 
-> > System suspends ok. Resume ok. but no disk access after that.
+> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
+> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
+> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
+> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
+> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
+> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
+> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
+> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
+> > -		if (remap_pfn_range(vma, start, page + vma->vm_pgoff,
+> > -						PAGE_SIZE, vma->vm_page_prot))
+> > -		if (remap_pfn_range(vma, addr, pfn, PAGE_SIZE, PAGE_READONLY))
 > 
-> Not the same disk model, but I've been having similar trouble on a T43p.
+> You've removed the ability for the caller to set the pte protections - it
+> now always uses vma->vm_page_prot.
 > 
-> I was delighted to see the MSI suspend/resume fix go into 2.6.17-rc2,
-> but then disappointed.  A bisection found that Matt Mackall's sensible
-> rc1 patch, to speed up get_cmos_time, has removed what often used to be
-> a 2 second delay in resuming: things work well when I reinstate that
-> delay (1 second has proved not enough).  Below is the patch I'm using -
-> where I've failed to resist mucking around to avoid those double calls
-> to get_cmos_time, sorry: really it's just mdelay(2000) needed somewhere
-> (until someone who knows puts in something more scientific).
-> 
-> Your problem, of course, is quite likely to be something else entirely;
-> but I thought I ought to speak up, in case it does help.
+> please explain...
 
-Could you
+They should use vma->vm_page_prot?
 
-1) try if mdelay(2000) also helps?
+The callers affected are the PAGE_SHARED ones (the others are unchanged).
+Isn't it correct to provide readonly mappings if userspace asks for it?
 
-2) binary-search on drivers to see which one breaks it?
-
-							Pavel
--- 
-Thanks, Sharp!
+I assumed this is why Linus went this way too with the new vm_insert_page
+interface.

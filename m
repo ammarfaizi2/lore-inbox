@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWDUCGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWDUCMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWDUCGR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 22:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWDUCGR
+	id S1750741AbWDUCMK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 22:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWDUCMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 22:06:17 -0400
-Received: from ns2.suse.de ([195.135.220.15]:43694 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750703AbWDUCGQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 22:06:16 -0400
-To: piet@bluelane.com
-Cc: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org,
-       diegocg@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.17-rc2
-References: <20060419200001.fe2385f4.diegocg@gmail.com>
-	<Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
-	<20060420145041.GE4717@suse.de>
-	<20060420.122647.03915644.davem@davemloft.net>
-	<20060420193430.GH4717@suse.de>
-	<1145569031.25127.64.camel@piet2.bluelane.com>
-From: Andi Kleen <ak@suse.de>
-Date: 21 Apr 2006 04:05:50 +0200
-In-Reply-To: <1145569031.25127.64.camel@piet2.bluelane.com>
-Message-ID: <p73bquv3cox.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 20 Apr 2006 22:12:10 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:31105 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750716AbWDUCMJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 22:12:09 -0400
+Date: Thu, 20 Apr 2006 19:09:29 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: "Linda A. Walsh" <law@tlinx.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org,
+       linux-kernel@vger.kernel.org, Tony Jones <tonyj@suse.de>
+Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export namespace	semaphore
+Message-ID: <20060421020929.GG3828@sorel.sous-sol.org>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com> <1145536742.16456.35.camel@moss-spartans.epoch.ncsc.mil> <20060420124647.GD18604@sergelap.austin.ibm.com> <1145534735.3313.3.camel@moss-spartans.epoch.ncsc.mil> <20060420132128.GG18604@sergelap.austin.ibm.com> <1145537318.3313.40.camel@moss-spartans.epoch.ncsc.mil> <44480727.9010500@tlinx.org> <20060420230551.GA5026@infradead.org> <4448355F.7070509@tlinx.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4448355F.7070509@tlinx.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Piet Delaney <piet@bluelane.com> writes:
+* Linda A. Walsh (law@tlinx.org) wrote:
+>    "The *current* accepted way to get pathnames going into system calls is
+> to put a trap in the syscall vector processing code to be indirectly
+> called through the ptrace call with every system call as audit currently 
+> does..."?
 > 
-> FreeBSD folks developed a ZERO_COPY_SOCKET facility that uses COW; 
-> code looked great.
+>    Or is that not correct either?
 
-Linux had patches many years ago (in 2.3.x), but it was never merged
-because it is inherently unscalable on MP. Classical BSD sockets really 
-don't work well for zero copy - you need a new interface (like POSIX aio) 
-that allows the kernel/user to tell each other when use of data is
-finished and buffers can be reused.
+No it's not.  See getname(9).
 
--Andi
+thanks,
+-chris

@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWDUQYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWDUQko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWDUQYi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 12:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWDUQYi
+	id S1751291AbWDUQko (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 12:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWDUQkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 12:24:38 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:17359 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932419AbWDUQYh (ORCPT
+	Fri, 21 Apr 2006 12:40:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5333 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751285AbWDUQkm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 12:24:37 -0400
-Subject: RE: [Disec-devel] Re: [ANNOUNCE] Release Digsig 1.5: kernel module
-	for run-time authentication of binaries
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Axelle Apvrille <axelle_apvrille@yahoo.fr>
-Cc: Makan Pourzandi <Makan.Pourzandi@ericsson.com>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       Serue Hallyn <serue@us.ibm.com>,
-       "'disec-devel@lists.sourceforge.net'" 
-	<disec-devel@lists.sourceforge.net>
-In-Reply-To: <20060421161351.25858.qmail@web26109.mail.ukl.yahoo.com>
-References: <20060421161351.25858.qmail@web26109.mail.ukl.yahoo.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 21 Apr 2006 12:29:16 -0400
-Message-Id: <1145636956.21749.168.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Apr 2006 12:40:42 -0400
+Date: Fri, 21 Apr 2006 09:40:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.17-rc2
+In-Reply-To: <200604211121.20036.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.64.0604210932020.3701@g5.osdl.org>
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
+ <200604211121.20036.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 18:13 +0200, Axelle Apvrille wrote:
-> > That URL doesn't seem to be working at present.
-> 
-> Probably a temporary outage ? anyway, it's working
-> now...
-> 
-> http://sourceforge.net/projects/disec/
-> or http://disec.sourceforge.net/
-> 
-> both work.
 
-Yes, seems to be up now.  But you do need to submit your module if you
-want to make a case that LSM should be retained in mainline.  Even if
-LSM stays, it could be altered in the future to help counter misuse of
-the interface, and such changes could break your module if you aren't in
-the tree.  Not to mention that out-of-tree modules don't fair well in
-general.
 
--- 
-Stephen Smalley
-National Security Agency
+On Fri, 21 Apr 2006, Alistair John Strachan wrote:
+> 
+> Something in here (or -rc1, I didn't test that) broke WINE. x86-64 kernel, 
+> 32bit WINE, works fine on 2.6.16.7. I'll check whether -rc1 had the same 
+> problem and work backwards, but just in case somebody has an idea..
 
+Nothing strikes me, but maybe Andi has a clue.
+
+> [alistair] 11:17 [~/.wine/drive_c/Program Files/Warcraft III] wine 
+> war3.exe -opengl
+> wine: Unhandled page fault on write access to 0x00495000 at address 0x495000 
+...
+
+
+> Unhandled exception: page fault on write access to 0x00495000 in 32-bit code 
+
+That looks bogus. %eip is 0x00495000, and might well have taken a fault, 
+but it sure ain't a write access. According to the built-in wine debugger 
+it was
+
+> 0x00495000 EntryPoint in war3: pushl    %eax
+
+which does do a write, but to %esp (which is 7f9eff0c according to the 
+dump, and which is unlikely to have taken a fault, since it's almost 256 
+bytes off the end of a page in the stack area).
+
+Alistair, if you can do a "git bisect" on this one, that would help. 
+Unless Andi goes "Duh!".
+
+		Linus

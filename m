@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWDULvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWDULwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbWDULvH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 07:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWDULvH
+	id S1751290AbWDULwI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 07:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWDULwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 07:51:07 -0400
-Received: from ns2.suse.de ([195.135.220.15]:10982 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751289AbWDULvF (ORCPT
+	Fri, 21 Apr 2006 07:52:08 -0400
+Received: from mail.gmx.net ([213.165.64.20]:4239 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751290AbWDULwH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 07:51:05 -0400
-Date: Fri, 21 Apr 2006 13:51:01 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Patricia Gaughen <gone@us.ibm.com>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Message-ID: <20060421115101.GZ21660@wotan.suse.de>
-References: <20060419112130.GA22648@elte.hu> <20060420091856.GB21660@wotan.suse.de> <20060421112049.GA5609@elte.hu>
+	Fri, 21 Apr 2006 07:52:07 -0400
+X-Authenticated: #14349625
+Subject: Re: [RFC][PATCH 3/9] CPU controller - Adds timeslice scaling
+From: Mike Galbraith <efault@gmx.de>
+To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+In-Reply-To: <44489E27.2090108@jp.fujitsu.com>
+References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+	 <20060421022742.13598.7230.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+	 <1145607449.10016.47.camel@homer>  <44489E27.2090108@jp.fujitsu.com>
+Content-Type: text/plain
+Date: Fri, 21 Apr 2006 13:53:11 +0200
+Message-Id: <1145620391.7614.35.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060421112049.GA5609@elte.hu>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 01:20:50PM +0200, Ingo Molnar wrote:
+On Fri, 2006-04-21 at 17:56 +0900, MAEDA Naoaki wrote:
+> Mike Galbraith wrote:
+> > Why does timeslice scaling become undesirable if TASK_INTERACTIVE(p)?
+> > With this barrier, you will completely disable scaling for many loads.
 > 
-> * Nick Piggin <npiggin@suse.de> wrote:
-> 
-> > It would be interesting to know which assertion failed. I guess it 
-> > might be a zone alignment problem -- it would be interesting to turn 
-> > the 2 HOLES_IN_ZONE tests into BUG_ONs, and enable them (ie. move them 
-> > out of HOLES_IN_ZONE).
-> 
-> ok, i added a couple of printks (see the patch below), and got this:
-> 
->  zone c1f0a600 (HighMem):
->  pfn: 00037d00
->  zone->zone_start_pfn: 00037e00
->  zone->spanned_pages: 00007e00
->  zone->zone_start_pfn + zone->spanned_pages: 0003fc00
->  ------------[ cut here ]------------
->  kernel BUG at mm/page_alloc.c:524!
-> 
-> so the pfn is 1MB below the zone's start address - not good. You can 
-> find the full bootup log at:
+> Because interactive tasks tend to spend very small timeslice at one
+> time, scaling timeslice for these tasks is not effective to control
+> CPU spent.
 
-The zones are 2MB aligned, discontig.c seems to do this. They should
-be 4MB aligned so the page allocator's assumption that zones are 
-contiguous to MAX_ORDER is satisfied.
+True.
+
+> Or, do you say that lots of non-interactive tasks are misjudged as
+> TASK_INTERACTIVE(p)?
+
+Almost.  TASK_INTERACTIVE(p) doesn't mean the task is an interactive
+task, only that it sleeps enough that it may be.  Interactive tasks can
+generally be categorized as doing quite a bit of sleeping, but so do
+other things.  HTTP/FTP daemons etc etc.
+
+In the presence of a mixed load with several "interactive" components,
+timeslice scaling can only do harm to throughput by further fragmenting
+the already shattered time a task spends on cpu.  You don't want to
+increase the context switch rate if you want throughput.
+ 
+> > Is it possible you meant !rt_task(p)?
+> > 
+> > (The only place I can see scaling as having a large effect is on gobs of
+> > non-sleeping tasks.  Slice width doesn't mean much otherwise.)
+> 
+> Yes. But these non-sleeping CPU-hog tasks tend to dominant CPU, so
+> it is worth controlling them.
+
+Time spent in the expired array limits the !TASK_INTERACTIVE(p).  In a
+mixed load, the sleeping task component is the one which needs
+controlling, because it will always preempt and get it's share of cpu.
+In a pure hog load, the scheduler is pure round-robin, so no scaling is
+needed.  It's the sleep deprived who need protection from the swarms of
+preempt enabled.
+
+	-Mike
 

@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWDUIQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWDUIQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWDUIQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 04:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWDUIQ1
+	id S932241AbWDUIQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 04:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWDUIQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 04:16:27 -0400
-Received: from mail.gmx.net ([213.165.64.20]:8356 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932270AbWDUIQ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 04:16:26 -0400
-X-Authenticated: #14349625
-Subject: Re: [RFC][PATCH 3/9] CPU controller - Adds timeslice scaling
-From: Mike Galbraith <efault@gmx.de>
-To: maeda.naoaki@jp.fujitsu.com
-Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-In-Reply-To: <20060421022742.13598.7230.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-	 <20060421022742.13598.7230.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-Content-Type: text/plain
-Date: Fri, 21 Apr 2006 10:17:29 +0200
-Message-Id: <1145607449.10016.47.camel@homer>
+	Fri, 21 Apr 2006 04:16:12 -0400
+Received: from smtp13.wanadoo.fr ([193.252.22.54]:37459 "EHLO
+	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S932241AbWDUIQK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 04:16:10 -0400
+X-ME-UUID: 20060421081603866.D38B6700008A@mwinf1304.wanadoo.fr
+Date: Fri, 21 Apr 2006 10:15:00 +0200
+From: Mathieu Chouquet-Stringer <mchouque@free.fr>
+To: Bob Tracy <rct@gherkin.frus.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org,
+       linux-alpha@vger.kernel.org, rth@twiddle.net
+Subject: Re: strncpy (maybe others) broken on Alpha
+Message-ID: <20060421081500.GA3767@bigip.bigip.mine.nu>
+Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
+	Bob Tracy <rct@gherkin.frus.com>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	rth@twiddle.net
+References: <20060420215723.GA3949@bigip.bigip.mine.nu> <20060421024304.2D851DBA1@gherkin.frus.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060421024304.2D851DBA1@gherkin.frus.com>
+User-Agent: Mutt/1.4.2.1i
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 11:27 +0900, maeda.naoaki@jp.fujitsu.com wrote:
-> Index: linux-2.6.17-rc2/kernel/sched.c
-> ===================================================================
-> --- linux-2.6.17-rc2.orig/kernel/sched.c
-> +++ linux-2.6.17-rc2/kernel/sched.c
-> @@ -173,10 +173,17 @@
->  
->  static unsigned int task_timeslice(task_t *p)
->  {
-> +	unsigned int timeslice;
-> +
->  	if (p->static_prio < NICE_TO_PRIO(0))
-> -		return SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
-> +		timeslice = SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
->  	else
-> -		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
-> +		timeslice = SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
-> +
-> +	if (!TASK_INTERACTIVE(p))
-> +		timeslice = cpu_rc_scale_timeslice(p, timeslice);
-> +
-> +	return timeslice;
->  }
+On Thu, Apr 20, 2006 at 09:43:04PM -0500, Bob Tracy wrote:
+> Mathieu -- you mentioned testing with a cross-compile.  Was that the
+> case for your reported success?  How about a native compile?  I'm
+> pretty sure this *is* a binutils issue, but we don't quite have it
+> nailed down yet.
 
-Why does timeslice scaling become undesirable if TASK_INTERACTIVE(p)?
-With this barrier, you will completely disable scaling for many loads.
+My reported success was with the cross-compiled test case.
 
-Is it possible you meant !rt_task(p)?
-
-(The only place I can see scaling as having a large effect is on gobs of
-non-sleeping tasks.  Slice width doesn't mean much otherwise.)
-
-	-Mike
+I've recompiled 2.16.1 overnight on the alpha and i'm currently
+rebuilding the kernel.  I'll keep you posted.
+-- 
+Mathieu Chouquet-Stringer                           mchouque@free.fr
 

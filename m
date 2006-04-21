@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWDUNf3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWDUNwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbWDUNf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 09:35:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWDUNf3
+	id S932306AbWDUNwV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 09:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWDUNwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 09:35:29 -0400
-Received: from [80.48.65.8] ([80.48.65.8]:60031 "EHLO smtp.poczta.interia.pl")
-	by vger.kernel.org with ESMTP id S932304AbWDUNf2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 09:35:28 -0400
-Message-ID: <4448DF94.5030500@poczta.fm>
-Date: Fri, 21 Apr 2006 15:35:16 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Fri, 21 Apr 2006 09:52:21 -0400
+Received: from web52901.mail.yahoo.com ([206.190.49.11]:24767 "HELO
+	web52901.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932306AbWDUNwU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 09:52:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=5uClOLY/Up6eXJl3Dgr83DM8GsklMW09q51v1N/SI27JO2+Ptnpzzo9yYecRoslmpKu6jxfDEKgMb+lBNE9umQKgrYZLzKga3yWZEKs7Yl2RG7tJ6w3qHdB+XCMwyTc6mPRP2pvynfMWU1zh//Rs545kREOUYklKBOP67doSE3w=  ;
+Message-ID: <20060421135219.37720.qmail@web52901.mail.yahoo.com>
+Date: Fri, 21 Apr 2006 14:52:19 +0100 (BST)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: Re: [patch 05/22] : Fix hotplug race during device registration
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+In-Reply-To: <4448DC4C.6010500@ums.usu.ru>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: unix socket connection tracking
-References: <44480BD9.5080100@poczta.fm> <Pine.LNX.4.61.0604211452490.23180@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0604211452490.23180@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig26AB05DB3919DAEA38DD672D"
-X-EMID: 884e6138
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig26AB05DB3919DAEA38DD672D
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+--- "Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
+> Look at the old code again. This is not a new bug. The old code fails 
+> registration, does a printk, and then sets dev->reg_state = NETREG_REGISTERED. 
 
-Jan Engelhardt wrote:
->> I feel dumb as never so please enlight me. Is ther a way to find out w=
-hich
->> process is on the other end of a unix socket pointed by a specified fd=
- in a process.
->=20
-> getpeer*()
+OK, fair enough. But anyway, is it valid to leave reg_state as NETREG_REGISTERED when the
+registration has failed?
 
-getpeername(2) (that is the only man page I've got)
-
-That's not exactly what I want. Or even exactly not what I want. I want t=
-o learn
-about sockets from a third person perspective. I've got a process which I=
- can
-strace(1), but nothing more, and I want to know who is it talking to.
-
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Czwarta pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
+Cheers,
+Chris
 
 
---------------enig26AB05DB3919DAEA38DD672D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFESN+ZNdzY8sm9K9wRAslUAJ9hiPtr6EFjslg7vDmQeKGbpsI1wQCeKqgD
-86cIOg/zRaZptxa6KIgYi00=
-=hewy
------END PGP SIGNATURE-----
-
---------------enig26AB05DB3919DAEA38DD672D--
+		
+___________________________________________________________ 
+Yahoo! Photos – NEW, now offering a quality print service from just 7p a photo http://uk.photos.yahoo.com

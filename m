@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWDUGzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWDUHDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWDUGzU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 02:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWDUGzU
+	id S1751154AbWDUHDc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 03:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWDUHDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 02:55:20 -0400
-Received: from cantor.suse.de ([195.135.220.2]:28100 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751152AbWDUGzT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 02:55:19 -0400
-Date: Fri, 21 Apr 2006 08:55:18 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch 2/5] mm: remove vmalloc_to_pfn
-Message-ID: <20060421065518.GK21660@wotan.suse.de>
-References: <20060301045901.12434.54077.sendpatchset@linux.site> <20060301045921.12434.16382.sendpatchset@linux.site>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060301045921.12434.16382.sendpatchset@linux.site>
-User-Agent: Mutt/1.5.6i
+	Fri, 21 Apr 2006 03:03:32 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:65114 "EHLO
+	dwalker1.mvista.com") by vger.kernel.org with ESMTP
+	id S1751154AbWDUHDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 03:03:31 -0400
+Date: Fri, 21 Apr 2006 00:03:31 -0700
+Message-Id: <200604210703.k3L73VZ6019794@dwalker1.mvista.com>
+From: Daniel Walker <dwalker@mvista.com>
+To: linux-kernel@vger.kernel.org
+Subject: kfree(NULL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sigh, missed nommu, sorry.
+	I included a patch , not like it's needed . Recently I've been
+evaluating likely/unlikely branch prediction .. One thing that I found 
+is that the kfree function is often called with a NULL "objp" . In fact
+it's so frequent that the "unlikely" branch predictor should be inverted!
+Or at least on my configuration. 
 
----
+Here are some examples of the warnings that I observed ..
 
-vmalloc_to_pfn no longer has any callers left in the kernel. It was previously
-used so remap_pfn_range can be used on vmalloc memory, but is obsolete with
-the introduction of remap_vmalloc_range.
+printk: 66 messages suppressed.
+BUG: warning at mm/slab.c:3384/kfree()
+ <c01043d3> show_trace+0x13/0x20   <c01043fe> dump_stack+0x1e/0x20
+ <c015e334> kfree+0xa4/0xc0   <c032584b> make_request+0x36b/0x670
+ <c0210305> generic_make_request+0x175/0x240   <c02107d7> submit_bio+0x57/0x100
+ <c01648f6> submit_bh+0x106/0x160   <c0165a62> __block_write_full_page+0x222/0x3f0
+ <c0165d28> block_write_full_page+0xf8/0x100   <c016a4b1> blkdev_writepage+0x21/0x30
+ <c0188c1e> mpage_writepages+0x1ae/0x3d0   <c016a46e> generic_writepages+0x1e/0x20
+ <c0148f9d> do_writepages+0x2d/0x50   <c0186b70> __writeback_single_inode+0xa0/0x400
+ <c018716b> sync_sb_inodes+0x1bb/0x2a0   <c01877bf> writeback_inodes+0xaf/0xe5
+ <c0148d53> wb_kupdate+0x83/0x100   <c0149ab2> pdflush+0x102/0x1c0
+ <c0131fa4> kthread+0xc4/0xf0   <c0100ed5> kernel_thread_helper+0x5/0x10
+printk: 157 messages suppressed.
+BUG: warning at mm/slab.c:3384/kfree()
+ <c01043d3> show_trace+0x13/0x20   <c01043fe> dump_stack+0x1e/0x20
+ <c015e334> kfree+0xa4/0xc0   <c0140405> audit_syscall_exit+0x405/0x430
+ <c0106a56> do_syscall_trace+0x1d6/0x245   <c010320a> syscall_exit_work+0x16/0x1c
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Index: linux-2.6/include/linux/mm.h
+Daniel
+
+Index: linux-2.6.16/mm/slab.c
 ===================================================================
---- linux-2.6.orig/include/linux/mm.h
-+++ linux-2.6/include/linux/mm.h
-@@ -1002,7 +1002,6 @@ static inline unsigned long vma_pages(st
+--- linux-2.6.16.orig/mm/slab.c
++++ linux-2.6.16/mm/slab.c
+@@ -3380,8 +3380,10 @@ void kfree(const void *objp)
+ 	struct kmem_cache *c;
+ 	unsigned long flags;
  
- struct vm_area_struct *find_extend_vma(struct mm_struct *, unsigned long addr);
- struct page *vmalloc_to_page(void *addr);
--unsigned long vmalloc_to_pfn(void *addr);
- int remap_pfn_range(struct vm_area_struct *, unsigned long addr,
- 			unsigned long pfn, unsigned long size, pgprot_t);
- int vm_insert_page(struct vm_area_struct *, unsigned long addr, struct page *);
-Index: linux-2.6/mm/memory.c
-===================================================================
---- linux-2.6.orig/mm/memory.c
-+++ linux-2.6/mm/memory.c
-@@ -2394,16 +2394,6 @@ struct page * vmalloc_to_page(void * vma
- 
- EXPORT_SYMBOL(vmalloc_to_page);
- 
--/*
-- * Map a vmalloc()-space virtual address to the physical page frame number.
-- */
--unsigned long vmalloc_to_pfn(void * vmalloc_addr)
--{
--	return page_to_pfn(vmalloc_to_page(vmalloc_addr));
--}
--
--EXPORT_SYMBOL(vmalloc_to_pfn);
--
- #if !defined(__HAVE_ARCH_GATE_AREA)
- 
- #if defined(AT_SYSINFO_EHDR)
-Index: linux-2.6/mm/nommu.c
-===================================================================
---- linux-2.6.orig/mm/nommu.c
-+++ linux-2.6/mm/nommu.c
-@@ -167,12 +167,6 @@ struct page * vmalloc_to_page(void *addr
- 	return virt_to_page(addr);
- }
- 
--unsigned long vmalloc_to_pfn(void *addr)
--{
--	return page_to_pfn(virt_to_page(addr));
--}
--
--
- long vread(char *buf, char *addr, unsigned long count)
- {
- 	memcpy(buf, addr, count);
+-	if (unlikely(!objp))
++	if (unlikely(!objp)){
++		WARN_ON(printk_ratelimit());
+ 		return;
++	}
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
+ 	c = virt_to_cache(objp);

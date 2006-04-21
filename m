@@ -1,57 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWDUQko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWDUQkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751291AbWDUQko (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 12:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWDUQkn
+	id S1750743AbWDUQkb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 12:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWDUQkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 12:40:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:5333 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751285AbWDUQkm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 12:40:42 -0400
-Date: Fri, 21 Apr 2006 09:40:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>, Andi Kleen <ak@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.17-rc2
-In-Reply-To: <200604211121.20036.s0348365@sms.ed.ac.uk>
-Message-ID: <Pine.LNX.4.64.0604210932020.3701@g5.osdl.org>
-References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
- <200604211121.20036.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 Apr 2006 12:40:31 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:26594 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750743AbWDUQka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 12:40:30 -0400
+Subject: Re: [PATCH/RFC] s390: Hypervisor File System
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Michael Holzheu <HOLZHEU@de.ibm.com>, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com, penberg@gmail.com
+In-Reply-To: <1145633898.13191.9.camel@localhost>
+References: <OF5500FC25.13788C4B-ON42257157.004C98F0-42257157.004DB206@de.ibm.com>
+	 <1145633898.13191.9.camel@localhost>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Fri, 21 Apr 2006 18:40:29 +0200
+Message-Id: <1145637630.6884.7.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 21 Apr 2006, Alistair John Strachan wrote:
+On Fri, 2006-04-21 at 18:38 +0300, Pekka Enberg wrote:
+> Hi Michael,
 > 
-> Something in here (or -rc1, I didn't test that) broke WINE. x86-64 kernel, 
-> 32bit WINE, works fine on 2.6.16.7. I'll check whether -rc1 had the same 
-> problem and work backwards, but just in case somebody has an idea..
+> On Fri, 2006-04-21 at 16:08 +0200, Michael Holzheu wrote:
+> > The first one was, that the hardware interface for getting the data is
+> > very expensive. We always get back the data for all LPARs and all
+> > cpus. Therefore we do not want to get the data every time an attribute
+> > file is read.
+> 
+> You can cache the results in userspace. So I don't see this one as an
+> argument for making the kernel more complex.
 
-Nothing strikes me, but maybe Andi has a clue.
+Unfortunately we can't cache them in user-space. To read a file you do
+open/read/close an the attributes you are interested in. If we do not
+cache the content of the attributes in the kernel we have to issue a
+diag204 for each open/read/close sequence. But the data that is deliverd
+by diag204 will have changed between the two calls. In addition the
+number of active lpars and the lpar names might have changed.
 
-> [alistair] 11:17 [~/.wine/drive_c/Program Files/Warcraft III] wine 
-> war3.exe -opengl
-> wine: Unhandled page fault on write access to 0x00495000 at address 0x495000 
-...
+> On Fri, 2006-04-21 at 16:08 +0200, Michael Holzheu wrote:
+> > The second problem was, that we want to provide a consistent snapshot
+> > of the hypervisor data for the user space application.
+> 
+> How do you ensure consistency now? And how is that different from an
+> userspace process reading the whole directory hierarchy into cache in
+> one go?
+
+We ensure the consistency by the following sequence:
+1) read the update attribute to get the timestamp of the last update
+2) decide if the data is new enough, if it is to old write something to
+the update attribute and restart with 1)
+3) read the information you are interested in
+4) read the update attribute again and compare it with the one read in
+step 1). If the timestamp has changed restart the whole thing with 1)
+
+> The update-on-write to special file thing seems bit strange to me. What
+> if two processes ask for it at the same time?
+
+Yes, we had that discussion as well. Any sensible suggestion how to do
+it in a more clever way would be greatly appreciated. We haven't found
+something better so far.
+
+-- 
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
 
 
-> Unhandled exception: page fault on write access to 0x00495000 in 32-bit code 
-
-That looks bogus. %eip is 0x00495000, and might well have taken a fault, 
-but it sure ain't a write access. According to the built-in wine debugger 
-it was
-
-> 0x00495000 EntryPoint in war3: pushl    %eax
-
-which does do a write, but to %esp (which is 7f9eff0c according to the 
-dump, and which is unlikely to have taken a fault, since it's almost 256 
-bytes off the end of a page in the stack area).
-
-Alistair, if you can do a "git bisect" on this one, that would help. 
-Unless Andi goes "Duh!".
-
-		Linus

@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWDUAOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWDUAPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWDUAOI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 20:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWDUAOI
+	id S932169AbWDUAPv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 20:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWDUAPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 20:14:08 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:9413 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932163AbWDUAOG (ORCPT
+	Thu, 20 Apr 2006 20:15:51 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:8612 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932164AbWDUAPu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 20:14:06 -0400
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@sgi.com>
-To: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-cc: Anderw Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Dean Nelson <dcn@sgi.com>, Tony Luck <tony.luck@intel.com>,
-       Anath Mavinakayanahalli <ananth@in.ibm.com>,
-       Prasanna Panchamukhi <prasanna@in.ibm.com>,
-       Dave M <davem@davemloft.net>, Andi Kleen <ak@suse.de>
-Subject: Re: [(take 2)patch 6/7] Kprobes registers for notify page fault 
-In-reply-to: Your message of "Thu, 20 Apr 2006 16:25:02 MST."
-             <20060420233912.410449785@csdlinux-2.jf.intel.com> 
+	Thu, 20 Apr 2006 20:15:50 -0400
+Date: Thu, 20 Apr 2006 17:11:16 -0700
+From: Tony Jones <tonyj@suse.de>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: grundig <grundig@teleline.es>, Crispin Cowan <crispin@novell.com>,
+       ak@suse.de, arjan@infradead.org, linux-kernel@vger.kernel.org,
+       chrisw@sous-sol.org, linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+Message-ID: <20060421001116.GA8093@suse.de>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <p73mzeh2o38.fsf@bragg.suse.de> <20060420011037.6b2c5891.grundig@teleline.es> <200604200138.00857.ak@suse.de> <4446E4AE.1090901@novell.com> <20060420150001.25eafba0.grundig@teleline.es> <20060420130917.GF18604@sergelap.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 21 Apr 2006 10:14:04 +1000
-Message-ID: <18550.1145578444@ocs3.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <20060420130917.GF18604@sergelap.austin.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anil S Keshavamurthy (on Thu, 20 Apr 2006 16:25:02 -0700) wrote:
->---
-> kernel/kprobes.c |    8 ++++++++
-> 1 file changed, 8 insertions(+)
->
->Index: linux-2.6.17-rc1-mm3/kernel/kprobes.c
->===================================================================
->--- linux-2.6.17-rc1-mm3.orig/kernel/kprobes.c
->+++ linux-2.6.17-rc1-mm3/kernel/kprobes.c
->@@ -544,6 +544,11 @@ static struct notifier_block kprobe_exce
-> 	.priority = 0x7fffffff /* we need to notified first */
-> };
+On Thu, Apr 20, 2006 at 08:09:17AM -0500, Serge E. Hallyn wrote:
+> Quoting grundig (grundig@teleline.es):
+> > El Wed, 19 Apr 2006 18:32:30 -0700,
+> > Crispin Cowan <crispin@novell.com> escribi?:
+> > 
+> > > Our controls on changing the name space have rather poor granularity at
+> > > the moment. We hope to improve that over time, and especially if LSM
+> > > evolves to permit it. This is ok, because as Andi pointed out, there are
+> > > currently few applications using name spaces, so we have time to improve
+> > > the granularity.
+> > 
+> > Wouldn't have more sense to improve it and then submit it instead of the
+> > contrary? At least is the rule which AFAIK is applied to every feature 
+> > going in the kernel, specially when there's an available alternative
+> > which users can use meanwhile (see reiser4...)
 > 
->+static struct notifier_block kprobe_page_fault_nb = {
->+	.notifier_call = kprobe_exceptions_notify,
->+	.priority = 0x7fffffff /* we need to notified first */
->+};
->+
-> int __kprobes register_jprobe(struct jprobe *jp)
-> {
-> 	/* Todo: Verify probepoint is a function entry point */
->@@ -654,6 +659,9 @@ static int __init init_kprobes(void)
-> 	if (!err)
-> 		err = register_die_notifier(&kprobe_exceptions_nb);
+> hah, that's funny
 > 
->+	if (!err)
->+		err = register_page_fault_notifier(&kprobe_page_fault_nb);
->+
-> 	return err;
-> }
-> 
+> When people do that, they are rebuked for not submitting upstream.  At
+> least this way, we can have a discussion about whether the approach
+> makes sense at all.
 
-The rest of the patches look OK, but this one does not.  init_kprobes()
-registers the main kprobe exception handler, not the page fault
-handler.
+When an out of tree user is requesting a change for which it will likely be 
+the only user (such that it can make it in tree), caution is warranted.  But 
+it does create a bit of a chicken and egg conundrum for the proposer.  
 
-Now that there is a dedicated page fault handler, instead of being a
-subcase of notify_die(), it might be better to delete DIE_PAGE_FAULT
-completely.  That can be done in this patch set or in some follow on
-patches.
+At least this is the way it's always seemed to me (re: the requested VFS/LSM
+changes). Anyways, it's not an issue and there isn't a lot of point dwelling
+over past LSM history. I 100% agree with Serge, discussion first about the 
+approach is definately the way to go.
 
+Tony

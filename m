@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWDUMOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWDUMVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWDUMOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 08:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWDUMOQ
+	id S932168AbWDUMVG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 08:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWDUMVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 08:14:16 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:58011 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932133AbWDUMOP (ORCPT
+	Fri, 21 Apr 2006 08:21:06 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:56692 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932177AbWDUMVE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 08:14:15 -0400
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-In-Reply-To: <20060420192717.GA3828@sorel.sous-sol.org>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	 <1145470463.3085.86.camel@laptopd505.fenrus.org>
-	 <p73mzeh2o38.fsf@bragg.suse.de>
-	 <1145522524.3023.12.camel@laptopd505.fenrus.org>
-	 <20060420192717.GA3828@sorel.sous-sol.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 21 Apr 2006 08:18:46 -0400
-Message-Id: <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Apr 2006 08:21:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OQ/Vy9FBu8WbzKXEA7aBFzPFHyGyMco90M8Jh58O5uPqD9sMvEDuCfeCqxfyuiPPnUQBazU9AcZaLY0STZq5LcP/Zj/koHbMAIj+XiNfWA+EhOm21JnwY5Spni/rYucVWVwN0K9LP9DXJSjtdJwsflPLCUbJX3+zEZhjjgtYArM=
+Message-ID: <d120d5000604210521h2946f4a8k34c43caa47705577@mail.gmail.com>
+Date: Fri, 21 Apr 2006 08:21:03 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Yu, Luming" <luming.yu@intel.com>
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+Cc: "Alexey Starikovskiy" <alexey_y_starikovskiy@linux.intel.com>,
+       "Xavier Bestel" <xavier.bestel@free.fr>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <554C5F4C5BA7384EB2B412FD46A3BAD13787F2@pdsmsx411.ccr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <554C5F4C5BA7384EB2B412FD46A3BAD13787F2@pdsmsx411.ccr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 12:27 -0700, Chris Wright wrote:
-> * Arjan van de Ven (arjan@infradead.org) wrote:
-> > On Thu, 2006-04-20 at 00:32 +0200, Andi Kleen wrote:
-> > > Arjan van de Ven <arjan@infradead.org> writes:
-> > > > 
-> > > > you must have a good defense against that argument, so I'm curious to
-> > > > hear what it is
-> > > 
-> > > [I'm not from the apparmor people but my understanding is]
-> > > 
-> > > Usually they claimed name spaces as the reason it couldn't work.
-> > 
-> > I actually posted a list of 10 things that I made up in 3 minutes; just
-> > going over those 10 would be a good start already since they're the most
-> > obvious ones..
-> 
-> Yes, the conversation is all over the place.  Many of the issues are
-> about some of the uglier parts of the AppArmor code, but the critical
-> issue is simple.  Does their protection model actually protect against
-> their threat model.  I would really like to see some grounded examples
-> that show whether it's broken or not.
+On 4/21/06, Yu, Luming <luming.yu@intel.com> wrote:
+> >> > There are keyboards with power/sleep buttons. It makes
+> >sense they have
+> >> > the same behavior than ACPI buttons.
+> >> Agree, make them behave like ACPI buttons -- remove them
+> >from input stream, as they do not belong there...
+> >
+> >What if there is no ACPI? What if I want to remap the button to do
+> >something else? Input layer is the proper place for them.
+>
+> If you define input layer as a universe place to all manual input
+> activity,
 
-Difficult to evaluate, when the answer whenever a flaw is pointed out is
-"that's not in our threat model."  Easy enough to have a protection
-model match the threat model when the threat model is highly limited
-(and never really documented anywhere, particularly in a way that might
-warn its users of its limitations).
+Yes. If something is related to input it should be integrated into input layer.
 
--- 
-Stephen Smalley
-National Security Agency
+> then I agree to port some type of ACPI event into
+> input layer.  But it shouldn't be a fake keyboard scancode,
+> My suggestion is to have a separate input event type,e.g. EV_ACPI
+> for acpi event layer.
+>
 
+The point is that it is not a fake scancode. There are keyboards that
+have these keys that don't have anything to do with ACPI. That's why
+they belong to input layer. The same goes for lid switch - we have
+EV_SW that is used by some PDAs.
+
+Note that I am not saying that other ACPI events, like battery status
+or device insertion/removal, should be propagated through input layer.
+But things that exist even without ACPI should not be ACPI-specific.
+
+--
+Dmitry

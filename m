@@ -1,195 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWDUQtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWDUQwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWDUQtq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 12:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWDUQtq
+	id S932213AbWDUQwA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 12:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWDUQwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 12:49:46 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58122 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932081AbWDUQtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 12:49:45 -0400
-Date: Fri, 21 Apr 2006 18:49:40 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] block/ll_rw_blk.c: possible cleanups
-Message-ID: <20060421164940.GF19754@stusta.de>
-MIME-Version: 1.0
+	Fri, 21 Apr 2006 12:52:00 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:41452 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932213AbWDUQv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 12:51:59 -0400
+Date: Fri, 21 Apr 2006 18:51:58 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: [PATCH] -mm: make noirqdebug/irqfixup __read_mostly, add (un)likely()
+Message-ID: <20060421165158.GA5513@rhlx01.fht-esslingen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- proper prototype for the following function:
-  - blk_dev_init()
-- #if 0 the following unused global function:
-  - blk_queue_invalidate_tags()
-- make the following needlessly global functions static:
-  - blk_alloc_queue_node()
-  - current_io_context()
-- remove the following unused EXPORT_SYMBOL's:
-  - blk_put_queue
-  - blk_get_queue
-  - blk_rq_map_user_iov
+Hello all,
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+"noirqdebug" is checked in main IRQ handler, thus __read_mostly is useful.
+Threw in an additional __read_mostly for "irqfixup" (that codepath is
+enabled by default, too, thus also useful).
+Add some (un)likely() in the hot paths of spurious IRQ detection code.
 
----
+Patch compiled and tested on 2.6.17-rc1-mm3.
+I did not test the arm part, though, for obvious reasons.
 
- block/genhd.c          |    2 --
- block/ll_rw_blk.c      |   27 +++++++++++----------------
- include/linux/blkdev.h |    5 ++---
- 3 files changed, 13 insertions(+), 21 deletions(-)
+Those were the boring things, somewhat more interesting ones coming soon.
 
---- linux-2.6.17-rc1-mm3-full/include/linux/blkdev.h.old	2006-04-20 22:57:41.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/include/linux/blkdev.h	2006-04-20 23:09:31.000000000 +0200
-@@ -105,7 +105,6 @@
+Thanks!
+
+Signed-off-by: Andreas Mohr <andi@lisas.de>
+
+
+--- linux-2.6.17-rc1-mm3.orig/kernel/irq/spurious.c	2006-04-18 11:45:16.000000000 +0200
++++ linux-2.6.17-rc1-mm3/kernel/irq/spurious.c	2006-04-21 18:14:19.000000000 +0200
+@@ -11,7 +11,7 @@
+ #include <linux/kallsyms.h>
+ #include <linux/interrupt.h>
  
- void put_io_context(struct io_context *ioc);
- void exit_io_context(void);
--struct io_context *current_io_context(gfp_t gfp_flags);
- struct io_context *get_io_context(gfp_t gfp_flags);
- void copy_io_context(struct io_context **pdst, struct io_context **psrc);
- void swap_io_context(struct io_context **ioc1, struct io_context **ioc2);
-@@ -599,6 +598,8 @@
- 	unsigned block_size_bits;
- };
- 
-+int blk_dev_init(void);
-+
- extern int blk_register_queue(struct gendisk *disk);
- extern void blk_unregister_queue(struct gendisk *disk);
- extern void register_disk(struct gendisk *dev);
-@@ -738,7 +739,6 @@
- 
- int blk_get_queue(request_queue_t *);
- request_queue_t *blk_alloc_queue(gfp_t);
--request_queue_t *blk_alloc_queue_node(gfp_t, int);
- extern void blk_put_queue(request_queue_t *);
+-static int irqfixup;
++static int irqfixup __read_mostly;
  
  /*
-@@ -753,7 +753,6 @@
- extern int blk_queue_init_tags(request_queue_t *, int, struct blk_queue_tag *);
- extern void blk_queue_free_tags(request_queue_t *);
- extern int blk_queue_resize_tags(request_queue_t *, int);
--extern void blk_queue_invalidate_tags(request_queue_t *);
- extern long blk_congestion_wait(int rw, long timeout);
- 
- extern void blk_rq_bio_prep(request_queue_t *, struct request *, struct bio *);
---- linux-2.6.17-rc1-mm3-full/block/ll_rw_blk.c.old	2006-04-20 22:58:01.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/block/ll_rw_blk.c	2006-04-20 23:08:04.000000000 +0200
-@@ -40,6 +40,7 @@
- static void drive_stat_acct(struct request *rq, int nr_sectors, int new_io);
- static void init_request_from_bio(struct request *req, struct bio *bio);
- static int __make_request(request_queue_t *q, struct bio *bio);
-+static struct io_context *current_io_context(gfp_t gfp_flags);
- 
- /*
-  * For the allocated request tables
-@@ -1119,6 +1120,7 @@
- 
- EXPORT_SYMBOL(blk_queue_start_tag);
- 
-+#if 0
- /**
-  * blk_queue_invalidate_tags - invalidate all pending tags
-  * @q:  the request queue for the device
-@@ -1152,8 +1154,8 @@
- 		__elv_add_request(q, rq, ELEVATOR_INSERT_BACK, 0);
+  * Recovery handler for misrouted interrupts.
+@@ -138,7 +138,7 @@
+ {
+ 	if (action_ret != IRQ_HANDLED) {
+ 		desc->irqs_unhandled++;
+-		if (action_ret != IRQ_NONE)
++		if (unlikely(action_ret != IRQ_NONE))
+ 			report_bad_irq(irq, desc, action_ret);
  	}
- }
--
- EXPORT_SYMBOL(blk_queue_invalidate_tags);
-+#endif  /*  0  */
  
- static const char * const rq_flags[] = {
- 	"REQ_RW",
-@@ -1777,7 +1779,6 @@
+@@ -152,7 +152,7 @@
+ 	}
+ 
+ 	desc->irq_count++;
+-	if (desc->irq_count < 100000)
++	if (likely(desc->irq_count < 100000))
+ 		return;
+ 
+ 	desc->irq_count = 0;
+@@ -171,7 +171,7 @@
+ 	desc->irqs_unhandled = 0;
+ }
+ 
+-int noirqdebug;
++int noirqdebug __read_mostly;
+ 
+ int __init noirqdebug_setup(char *str)
  {
- 	kobject_put(&q->kobj);
- }
--EXPORT_SYMBOL(blk_put_queue);
- 
- void blk_cleanup_queue(request_queue_t * q)
- {
-@@ -1812,15 +1813,9 @@
- 	return 0;
- }
- 
--request_queue_t *blk_alloc_queue(gfp_t gfp_mask)
--{
--	return blk_alloc_queue_node(gfp_mask, -1);
--}
--EXPORT_SYMBOL(blk_alloc_queue);
--
- static struct kobj_type queue_ktype;
- 
--request_queue_t *blk_alloc_queue_node(gfp_t gfp_mask, int node_id)
-+static request_queue_t *blk_alloc_queue_node(gfp_t gfp_mask, int node_id)
- {
- 	request_queue_t *q;
- 
-@@ -1842,7 +1837,12 @@
- 
- 	return q;
- }
--EXPORT_SYMBOL(blk_alloc_queue_node);
-+
-+request_queue_t *blk_alloc_queue(gfp_t gfp_mask)
-+{
-+	return blk_alloc_queue_node(gfp_mask, -1);
-+}
-+EXPORT_SYMBOL(blk_alloc_queue);
- 
- /**
-  * blk_init_queue  - prepare a request queue for use with a block device
-@@ -1945,8 +1945,6 @@
- 	return 1;
- }
- 
--EXPORT_SYMBOL(blk_get_queue);
--
- static inline void blk_free_request(request_queue_t *q, struct request *rq)
- {
- 	if (rq->flags & REQ_ELVPRIV)
-@@ -2405,8 +2403,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(blk_rq_map_user_iov);
--
- /**
-  * blk_rq_unmap_user - unmap a request with user data
-  * @bio:	bio to be unmapped
-@@ -3642,7 +3638,7 @@
-  * but since the current task itself holds a reference, the context can be
-  * used in general code, so long as it stays within `current` context.
+--- linux-2.6.17-rc1-mm3.orig/arch/arm/kernel/irq.c	2006-04-18 11:47:29.000000000 +0200
++++ linux-2.6.17-rc1-mm3/arch/arm/kernel/irq.c	2006-04-21 18:18:56.000000000 +0200
+@@ -52,7 +52,7 @@
   */
--struct io_context *current_io_context(gfp_t gfp_flags)
-+static struct io_context *current_io_context(gfp_t gfp_flags)
- {
- 	struct task_struct *tsk = current;
- 	struct io_context *ret;
-@@ -3665,7 +3661,6 @@
+ #define MAX_IRQ_CNT	100000
  
- 	return ret;
+-static int noirqdebug;
++static int noirqdebug __read_mostly;
+ static volatile unsigned long irq_err_count;
+ static DEFINE_SPINLOCK(irq_controller_lock);
+ static LIST_HEAD(irq_pending);
+@@ -81,7 +81,7 @@
+ 
+ void do_bad_IRQ(unsigned int irq, struct irqdesc *desc, struct pt_regs *regs)
+ {
+-	irq_err_count += 1;
++	irq_err_count++;
+ 	printk(KERN_ERR "IRQ: spurious interrupt %d\n", irq);
  }
--EXPORT_SYMBOL(current_io_context);
  
- /*
-  * If the current task has no IO context then create one and initialise it.
---- linux-2.6.17-rc1-mm3-full/block/genhd.c.old	2006-04-20 23:09:42.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/block/genhd.c	2006-04-20 23:09:51.000000000 +0200
-@@ -285,8 +285,6 @@
- #endif
- 
- 
--extern int blk_dev_init(void);
--
- static struct kobject *base_probe(dev_t dev, int *part, void *data)
- {
- 	if (request_module("block-major-%d-%d", MAJOR(dev), MINOR(dev)) > 0)
-

@@ -1,85 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWDUMeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWDUMl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWDUMeR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 08:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWDUMeR
+	id S1750890AbWDUMl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 08:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWDUMl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 08:34:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36072 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932190AbWDUMeQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 08:34:16 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060420170754.39294603.akpm@osdl.org> 
-References: <20060420170754.39294603.akpm@osdl.org>  <20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com> <20060420165932.9968.40376.stgit@warthog.cambridge.redhat.com> 
+	Fri, 21 Apr 2006 08:41:29 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:52707 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1750838AbWDUMl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 08:41:28 -0400
+X-Sasl-enc: 1k+ea0n+Xle2DMKgKD8k6LI7nNN+yM7nuT6e9YFCH/l4 1145623242
+Message-ID: <4448D333.8050203@imap.cc>
+Date: Fri, 21 Apr 2006 14:42:27 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de,en,fr
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
-       sct@redhat.com, aviro@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/7] FS-Cache: Avoid ENFILE checking for kernel-specific open files 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Fri, 21 Apr 2006 13:33:47 +0100
-Message-ID: <4816.1145622827@warthog.cambridge.redhat.com>
+CC: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       isdn4linux@listserv.isdn4linux.de, kai.germaschewski@gmx.de,
+       kkeil@suse.de, fritz@isdn4linux.de,
+       Michael.Hipp@student.uni-tuebingen.de
+Subject: Re: [PATCH][resend] ISDN: unsafe interaction between isdn_write and
+ isdn_writebuf_stub
+References: <200604210006.31653.jesper.juhl@gmail.com> <20060420231432.6588aaf3.akpm@osdl.org>
+In-Reply-To: <20060420231432.6588aaf3.akpm@osdl.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig5469897D5894A499FC009A4D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5469897D5894A499FC009A4D
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> >  static struct percpu_counter nr_files __cacheline_aligned_in_smp;
-> > +static atomic_t nr_kernel_files;
-> 
-> So it's not performance-critical.
+On 21.04.2006 08:14, Andrew Morton wrote:
+> It's simpler to code it this way:
+[snip]
+> But the code still looks wrong.  If isdn_writebuf_stub() does a short write, we'll
+> just retry the entire write.  And if that returns the same short write, we'll
+> retry the write again, ad infinitum.
 
-Hmmm... nowhere near as critical as the ENFILE accounting, plus the only place
-we actually read it is for the sysctl file.
+You're right of course. But as i4l has never been able to handle that
+case correctly, i4l drivers just don't do short writes, period. They
+either return a negative error code, zero to indicate "not ready",
+or the requested length. Every i4l driver author learns that very
+quickly. (At least I did. ;-)
 
-It could actually be dispensed with entirely, I suppose.
+> One would expect that if a short write happened, we either bale out with an
+> error or we advance partway through the buffer and write some more.
 
-> > -struct file *get_empty_filp(void)
-> > +struct file *get_empty_filp(int kernel)
-> 
-> I'd suggest a new get_empty_kernel_filp(void) rather than providing a magic
-> argument.  (we can still have the magic argument in the new
-> __get_empty_filp(int), but it shouldn't be part of the caller-visible API).
-> ...
-> It would be more flexible to make the caller pass in the flags directly.
-
-So:
-
-	struct file *get_empty_kernel_filp(unsigned short flags);
-
-which devolves to get_empty_filp() if flags == 0?
+isdn_write() is the write method of i4l's character device. If a short
+write would indeed occur, just passing it on to the caller should be
+ok, too. So I'd propose the following, even simpler version:
 
 
-> > +EXPORT_SYMBOL(fget_light);
-> 
-> fget_light is not otherwise referenced in this patch.
 
-Good point.  I'll move it into the cachefiles patch.
+From: Jesper Juhl <jesper.juhl@gmail.com>
 
-> > +EXPORT_SYMBOL(dentry_open_kernel);
-> 
-> _GPL?
+isdn_writebuf_stub() forgets to detect memory allocation and uaccess errors.
+And when that's fixed, if a error happens the caller will just keep on
+looping.
 
-If you wish.
+So change the caller to detect the error, and to return it.
 
-> That's unfortunate.  There's still room in f_flags.  Was it hard to use that?
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Karsten Keil <kkeil@suse.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Tilman Schmidt <tilman@imap.cc>
 
-Yeah... but the usage of f_flags is constrained by O_xxxx flags that are part
-of the userspace interface.  Using those up for purely kernel things is a bad
-idea.
+---
 
-Note that I've not actually increased the size of the struct file - f_mode is
-a 16-bit value, hence why I chose an unsigned short.
+ drivers/isdn/i4l/isdn_common.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-> This changes the format of /proc/sys/fs/file-nr.  What will break?
+diff -puN linux-2.6.17-rc2-orig/drivers/isdn/i4l/isdn_common.c linux-2.6.17-rc2-work/drivers/isdn/i4l/isdn_common.c
+--- linux-2.6.17-rc2-orig/drivers/isdn/i4l/isdn_common.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.17-rc2-work/drivers/isdn/i4l/isdn_common.c	2006-04-21 15:09:41.000000000 +0200
+@@ -1177,9 +1177,8 @@ isdn_write(struct file *file, const char
+ 			goto out;
+ 		}
+ 		chidx = isdn_minor2chan(minor);
+-		while (isdn_writebuf_stub(drvidx, chidx, buf, count) != count)
++		while ((retval = isdn_writebuf_stub(drvidx, chidx, buf, count)) == 0)
+ 			interruptible_sleep_on(&dev->drv[drvidx]->snd_waitq[chidx]);
+-		retval = count;
+ 		goto out;
+ 	}
+ 	if (minor <= ISDN_MINOR_CTRLMAX) {
+@@ -1951,9 +1950,10 @@ isdn_writebuf_stub(int drvidx, int chan,
+ 	struct sk_buff *skb = alloc_skb(hl + len, GFP_ATOMIC);
 
-As far as I can tell, not a lot.  I've grepped through various etc, lib and
-bin directories on my FC5 system, and the only match I've found is:
+ 	if (!skb)
+-		return 0;
++		return -ENOMEM;
+ 	skb_reserve(skb, hl);
+-	copy_from_user(skb_put(skb, len), buf, len);
++	if (!copy_from_user(skb_put(skb, len), buf, len))
++		return -EFAULT;
+ 	ret = dev->drv[drvidx]->interface->writebuf_skb(drvidx, chan, 1, skb);
+ 	if (ret <= 0)
+ 		dev_kfree_skb(skb);
 
-	/usr/lib64/sa/sadc
+-- 
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Reality is that which, when you stop believing in it, does not go
+away. (Philip K. Dick)
 
-I'll present the count through a separate file to make sure.
+--------------enig5469897D5894A499FC009A4D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-David
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFESNM7MdB4Whm86/kRAq6eAJ4jXmDcck0UK3qZLIyu9hoKsL8gMgCdHrrl
+/RQB9TGUvAQJ9PJECOtUCos=
+=JTMv
+-----END PGP SIGNATURE-----
+
+--------------enig5469897D5894A499FC009A4D--

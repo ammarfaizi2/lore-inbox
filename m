@@ -1,90 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWDUVit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWDUVij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWDUVit (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 17:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWDUVit
+	id S964797AbWDUVij (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 17:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWDUVii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 17:38:49 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16653 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964800AbWDUVis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 17:38:48 -0400
-Date: Fri, 21 Apr 2006 23:38:46 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Vernon Mauery <vernux@us.ibm.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kfree(NULL)
-Message-ID: <20060421213846.GK19754@stusta.de>
-References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com> <Pine.LNX.4.61.0604211643350.31515@yvahk01.tjqt.qr> <20060421192217.GI19754@stusta.de> <200604211330.30657.vernux@us.ibm.com>
+	Fri, 21 Apr 2006 17:38:38 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:26934 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964774AbWDUVih convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 17:38:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=V8xWVfgkmKvN/JO1tMrh8ndFxbd2g0c6dh7+Hllb3yfj9Tkj6vxFEXJ1+VMjiq5oSNKdfFTXSIGfyjYK3NPK/Xf52ySvkyNZcAro/s14DG0jJr8AIf4/Xl+ciuFGB7E8T2EHVFMSZZ8BJUXwsrc0DjAUUAh1fn0ui3q3qkvBwt4=
+Message-ID: <161717d50604211438h2f6f768fgf1e8466065802b5e@mail.gmail.com>
+Date: Fri, 21 Apr 2006 17:38:37 -0400
+From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+Cc: Valdis.Kletnieks@vt.edu, "Chris Wright" <chrisw@sous-sol.org>,
+       "James Morris" <jmorris@namei.org>,
+       "Arjan van de Ven" <arjan@infradead.org>, "Andi Kleen" <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+In-Reply-To: <1145651704.21749.305.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200604211330.30657.vernux@us.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <1145470463.3085.86.camel@laptopd505.fenrus.org>
+	 <p73mzeh2o38.fsf@bragg.suse.de>
+	 <1145522524.3023.12.camel@laptopd505.fenrus.org>
+	 <20060420192717.GA3828@sorel.sous-sol.org>
+	 <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060421173008.GB3061@sorel.sous-sol.org>
+	 <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil>
+	 <200604212006.k3LK6LtH015500@turing-police.cc.vt.edu>
+	 <1145651704.21749.305.camel@moss-spartans.epoch.ncsc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 01:30:30PM -0700, Vernon Mauery wrote:
-> On Friday 21 April 2006 12:22, you wrote:
-> > On Fri, Apr 21, 2006 at 05:07:45PM +0200, Jan Engelhardt wrote:
-> > > >> Maybe kfree should really be a wrapper around __kfree which does the
-> > > >> real work.  Then kfree could be a inlined function or a #define that
-> > > >> does the NULL pointer check.
-> > > >
-> > > >NULL pointer check in kfree saves lot of small code fragments in
-> > > > callers. It is one of many reasons why kfree does it.
-> > > >Making kfree inline wrapper eliminates this save.
-> > >
-> > > How about
-> > >
-> > > slab.h:
-> > > #ifndef CONFIG_OPTIMIZING_FOR_SIZE
-> > > static inline void kfree(const void *p) {
-> > >     if(p != NULL)
-> > >         __kfree(p);
-> > > }
-> > > #else
-> > > extern void kfree(const void *);
-> > > #endif
-> > >
-> > > slab.c:
-> > > #ifdef CONFIG_OPTIMIZING_FOR_SIZE
-> > > void kfree(const void *p) {
-> > >     if(p != NUILL)
-> > >         _kfree(p);
-> > > }
-> > > #endif
-> > >
-> > > That way, you get your time saving with -O2 and your space saving with
-> > > -Os.
-> >
-> > What makes you confident that the static inline version gives a time
-> > saving?
-> 
-> A static inline wrapper would mean that it wouldn't have to make a function 
-> call just to check if the pointer is NULL.  A simple NULL check is faster 
-> than a function call and then a simple NULL check.  In other words, there 
-> would be no pushing and popping the stack.  In almost all cases, replacing an 
-> inline function with a non-inline function means a trade-off between speed 
-> and size.
+On 4/21/06, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> IIUC, AppArmor does impose such constraints, but only from the
+> perspective of an individual program's profile.  Upon link(2), they
+> check that the program had link permission to the old link name and that
+> both the old link name and new link name have consistent permissions in
+> the profile, and they prohibit or limit by capability the ability to
+> manipulate the namespace by confined programs.  But this doesn't mean
+> that another program running under a different profile can't create such
+> a link (if allowed to do so by its profile, of course), or that an
+> unconfined process cannot do so.  There is no real "system policy" or
+> system-wide security properties with AppArmor; you can only look at it
+> in terms of individual programs (which themselves are identified by path
+> too).
+>
+> > However, I'll say up front that such an argument would only suffice to
+> > move it from "broken" to "very brittle in face of changes" (for instance,
+> > would such a hardlink restriction cause collateral damage that an attacker
+> > could exploit?  How badly does it fail in the face of a misdesigned policy?)
+>
+> Indeed.  I think Thomas Bleher made a good assessment of it in:
+> https://lists.ubuntu.com/archives/ubuntu-hardened/2006-March/000143.html
 
-It's not that simple - inline's make the code bigger causing more cache 
-misses and therefore also having a negative impact on performance.
+But what about Dr. Cowan's response at:
+https://lists.ubuntu.com/archives/ubuntu-hardened/2006-March/000144.html
 
-This is the reason why e.g. the gcc -O3 option usually results in 
-_worse_ performance than the -O2 option.
+In particular, if you don't trust your users, why do you give them the
+ability to create links?
 
-> --Vernon
-
-cu
-Adrian
-
-BTW: Don't strip the Cc when replying to linux-kernel.
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Dave

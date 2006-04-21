@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWDUAPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWDUARD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbWDUAPv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 20:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWDUAPv
+	id S932167AbWDUARD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 20:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWDUARB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 20:15:51 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:8612 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932164AbWDUAPu (ORCPT
+	Thu, 20 Apr 2006 20:17:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63679 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932167AbWDUARA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 20:15:50 -0400
-Date: Thu, 20 Apr 2006 17:11:16 -0700
-From: Tony Jones <tonyj@suse.de>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: grundig <grundig@teleline.es>, Crispin Cowan <crispin@novell.com>,
-       ak@suse.de, arjan@infradead.org, linux-kernel@vger.kernel.org,
-       chrisw@sous-sol.org, linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Message-ID: <20060421001116.GA8093@suse.de>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <p73mzeh2o38.fsf@bragg.suse.de> <20060420011037.6b2c5891.grundig@teleline.es> <200604200138.00857.ak@suse.de> <4446E4AE.1090901@novell.com> <20060420150001.25eafba0.grundig@teleline.es> <20060420130917.GF18604@sergelap.austin.ibm.com>
+	Thu, 20 Apr 2006 20:17:00 -0400
+Date: Thu, 20 Apr 2006 17:15:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: hch@infradead.org, dhowells@redhat.com, torvalds@osdl.org,
+       steved@redhat.com, sct@redhat.com, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/7] FS-Cache: Export find_get_pages()
+Message-Id: <20060420171550.55f1b125.akpm@osdl.org>
+In-Reply-To: <21746.1145555150@warthog.cambridge.redhat.com>
+References: <20060420171922.GB21659@infradead.org>
+	<20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com>
+	<20060420165935.9968.11060.stgit@warthog.cambridge.redhat.com>
+	<21746.1145555150@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060420130917.GF18604@sergelap.austin.ibm.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 08:09:17AM -0500, Serge E. Hallyn wrote:
-> Quoting grundig (grundig@teleline.es):
-> > El Wed, 19 Apr 2006 18:32:30 -0700,
-> > Crispin Cowan <crispin@novell.com> escribi?:
-> > 
-> > > Our controls on changing the name space have rather poor granularity at
-> > > the moment. We hope to improve that over time, and especially if LSM
-> > > evolves to permit it. This is ok, because as Andi pointed out, there are
-> > > currently few applications using name spaces, so we have time to improve
-> > > the granularity.
-> > 
-> > Wouldn't have more sense to improve it and then submit it instead of the
-> > contrary? At least is the rule which AFAIK is applied to every feature 
-> > going in the kernel, specially when there's an available alternative
-> > which users can use meanwhile (see reiser4...)
+David Howells <dhowells@redhat.com> wrote:
+>
+> Christoph Hellwig <hch@infradead.org> wrote:
 > 
-> hah, that's funny
+> > > The attached patch exports find_get_pages() for use by the kAFS filesystem
+> > > in conjunction with it caching patch.
+> > 
+> > Why don't you use pagevec ?
 > 
-> When people do that, they are rebuked for not submitting upstream.  At
-> least this way, we can have a discussion about whether the approach
-> makes sense at all.
+> You mean pagevec_lookup() I suppose... That's probably reasonable, though
+> slower.
+> 
 
-When an out of tree user is requesting a change for which it will likely be 
-the only user (such that it can make it in tree), caution is warranted.  But 
-it does create a bit of a chicken and egg conundrum for the proposer.  
+But the code's using pagevecs now.  In a strange manner.
 
-At least this is the way it's always seemed to me (re: the requested VFS/LSM
-changes). Anyways, it's not an issue and there isn't a lot of point dwelling
-over past LSM history. I 100% agree with Serge, discussion first about the 
-approach is definately the way to go.
++		nr_pages = find_get_pages(vnode->vfs_inode.i_mapping, first,
++					  PAGEVEC_SIZE, pvec.pages);
 
-Tony
+that's an open-coded pagevec_lookup().

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWDURpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWDURot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWDURpw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 13:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWDURpw
+	id S932282AbWDURot (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 13:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWDURot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 13:45:52 -0400
-Received: from mail.axxeo.de ([82.100.226.146]:53160 "EHLO mail.axxeo.de")
-	by vger.kernel.org with ESMTP id S932239AbWDURpv (ORCPT
+	Fri, 21 Apr 2006 13:44:49 -0400
+Received: from hera.kernel.org ([140.211.167.34]:58325 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932282AbWDURos (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 13:45:51 -0400
-From: Ingo Oeser <netdev@axxeo.de>
-Organization: Axxeo GmbH
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Fw: [Bug 6421] New: kernel 2.6.10-2.6.16 on alpha: arch/alpha/kernel/io.c, iowrite16_rep() BUG_ON((unsigned long)src & 0x1) triggered
-Date: Fri, 21 Apr 2006 19:45:36 +0200
-User-Agent: KMail/1.7.2
-Cc: Paul Gortmaker <p_gortmaker@yahoo.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, tomri@gmx.net,
-       Ingo Oeser <ioe-lkml@rameria.de>
-References: <20060421102757.45d26db0@localhost.localdomain>
-In-Reply-To: <20060421102757.45d26db0@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Fri, 21 Apr 2006 13:44:48 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [patch 05/22] : Fix hotplug race during device registration
+Date: Fri, 21 Apr 2006 10:44:33 -0700
+Organization: OSDL
+Message-ID: <20060421104433.0ff85977@localhost.localdomain>
+References: <4448DC4C.6010500@ums.usu.ru>
+	<20060421135219.37720.qmail@web52901.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604211945.37129.netdev@axxeo.de>
+X-Trace: build.pdx.osdl.net 1145641473 2274 10.8.0.54 (21 Apr 2006 17:44:33 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Fri, 21 Apr 2006 17:44:33 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> Looks like PIO at unaligned addresses doesn't work on alpha...
+On Fri, 21 Apr 2006 14:52:19 +0100 (BST)
+Chris Rankin <rankincj@yahoo.com> wrote:
 
-Maybe this should be fixed similiar to ioread32_rep in  arch/alpha/kernel/io.c?
-
-This may slow it down, but will not break it.
-
-> Begin forwarded message:
+> --- "Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
+> > Look at the old code again. This is not a new bug. The old code fails 
+> > registration, does a printk, and then sets dev->reg_state = NETREG_REGISTERED. 
 > 
-> Date: Fri, 21 Apr 2006 02:35:45 -0700
-> From: bugme-daemon@bugzilla.kernel.org
-> To: shemminger@osdl.org
-> Subject: [Bug 6421] New: kernel 2.6.10-2.6.16 on alpha: arch/alpha/kernel/io.c, iowrite16_rep() BUG_ON((unsigned long)src & 0x1) triggered
+> OK, fair enough. But anyway, is it valid to leave reg_state as NETREG_REGISTERED when the
+> registration has failed?
 
-Regards
+Yes. the device is still half alive in that case. It is accessible via normal networking
+calls, and can be unregistered. It just would not show up properly in sysfs.
 
-Ingo Oeser
+Not sure how it would be possible (except maybe out of memory) to construct a case
+where registration fails. Maybe races with name changes.

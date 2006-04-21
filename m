@@ -1,40 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWDUTId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWDUTIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWDUTId (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 15:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWDUTId
+	id S1751224AbWDUTIR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 15:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWDUTIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 15:08:33 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:22940 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751239AbWDUTIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 15:08:32 -0400
-Subject: Re: [PATCH] Shrink rbtree
-From: David Woodhouse <dwmw2@infradead.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, andrea@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <4448D8BF.9040601@yahoo.com.au>
-References: <1145623663.11909.139.camel@pmac.infradead.org>
-	 <4448D8BF.9040601@yahoo.com.au>
-Content-Type: text/plain
-Date: Fri, 21 Apr 2006 20:08:23 +0100
-Message-Id: <1145646503.11909.222.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 21 Apr 2006 15:08:17 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:14777 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751224AbWDUTIQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 15:08:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L76CenPp5Sv+KBMfd3gqqzbBSe12sJ9Xz8Kh9d8E2B8Ol6auYqXhnISn4hIu2flfg8g6PtVeSup3rHzQg47pk5gUbQS5LzBDhzswrVo3Td59xPqIqx1ziRthmZAmyJkeSkQjuW/usk/Oq8WuhoEIm9pLDExKoTBeQKQ2K3gBSS8=
+Message-ID: <a4403ff60604211208gf64dfe2v7282a493f4853c@mail.gmail.com>
+Date: Fri, 21 Apr 2006 13:08:15 -0600
+From: "David Wilk" <davidwilk@gmail.com>
+To: "Hugh Dickins" <hugh@veritas.com>
+Subject: Re: [stable] 2.6.16.6 breaks java... sort of
+Cc: "Greg KH" <greg@kroah.com>, "Chris Wright" <chrisw@sous-sol.org>,
+       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>, stable@kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0604201706540.14395@blonde.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <a4403ff60604191152u5a71e70fr9f54c104a654fc99@mail.gmail.com>
+	 <20060419192803.GA19852@kroah.com>
+	 <Pine.LNX.4.64.0604192046590.17491@blonde.wat.veritas.com>
+	 <Pine.LNX.4.64.0604201706540.14395@blonde.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 23:06 +1000, Nick Piggin wrote:
-> How do we know the pointers are always going to be aligned? IIRC
-> struct address_space needed to be explicitly aligned when doing
-> this trick in page->mapping because some platform byte aligned it.
+Ok, on my first test system (lowest amount of ram) a 2.6.16.9 kernel
+patched with the patch you provided works fine.  I'll throw it on some
+other systems and we'll see how it does.
 
-Really? I've been doing this kind of trick with the jffs2_raw_node_ref
-for years. We always allocate sufficiently aligned objects.
-
--- 
-dwmw2
-
+On 4/20/06, Hugh Dickins <hugh@veritas.com> wrote:
+> On Wed, 19 Apr 2006, Hugh Dickins wrote:
+> > On Wed, 19 Apr 2006, Greg KH wrote:
+> > > On Wed, Apr 19, 2006 at 12:52:33PM -0600, David Wilk wrote:
+> > > >
+> > > > I think an issue was introduced with mprotect (the first patch in
+> > > > 2.6.16.6).  With 2.6.16.5, tomcat runs fine (in sun-1.5), but in
+> > > > 2.6.16.7, the JVM bails out complaining that it couldn't allocate
+> > > > enough heap space.
+> >
+> > Neither expected nor satisfactory.  Sorry about that.  We were hoping
+> > the straightforward shm/mprotect fix would be good enough, but it
+> > appears not.  JVM is probably doing something we can allow with a
+> > more complicated patch, but it _might_ turn out to be doing something
+> > we simply cannot allow: I'll hope for the first and work out a patch
+> > for that; but won't be ready to post it until tomorrow.
+>
+> David, would you please try this patch on top of your 2.6.16.7 or later.
+> The first hunk undoes the problematic patch, the remainder does it in a
+> more permissive way.  Aesthetically, not as satisfactory as the previous
+> patch; but it's important that we not break userspace, unless security
+> absolutely demands.  Please let us know how this fares: thanks.
+>
+> Hugh
+>
+> --- 2.6.16.9/ipc/shm.c  2006-04-20 11:59:03.000000000 +0100
+> +++ linux/ipc/shm.c     2006-04-20 16:57:36.000000000 +0100
+> @@ -161,8 +161,6 @@ static int shm_mmap(struct file * file,
+>         ret = shmem_mmap(file, vma);
+>         if (ret == 0) {
+>                 vma->vm_ops = &shm_vm_ops;
+> -               if (!(vma->vm_flags & VM_WRITE))
+> -                       vma->vm_flags &= ~VM_MAYWRITE;
+>                 shm_inc(file->f_dentry->d_inode->i_ino);
+>         }
+>
+> @@ -677,6 +675,8 @@ out:
+>   */
+>  long do_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
+>  {
+> +       struct mm_struct *mm = current->mm;
+> +       struct vm_area_struct *vma;
+>         struct shmid_kernel *shp;
+>         unsigned long addr;
+>         unsigned long size;
+> @@ -684,7 +684,7 @@ long do_shmat(int shmid, char __user *sh
+>         int    err;
+>         unsigned long flags;
+>         unsigned long prot;
+> -       unsigned long o_flags;
+> +       int maywrite;
+>         int acc_mode;
+>         void *user_addr;
+>
+> @@ -711,11 +711,11 @@ long do_shmat(int shmid, char __user *sh
+>
+>         if (shmflg & SHM_RDONLY) {
+>                 prot = PROT_READ;
+> -               o_flags = O_RDONLY;
+> +               maywrite = 0;
+>                 acc_mode = S_IRUGO;
+>         } else {
+>                 prot = PROT_READ | PROT_WRITE;
+> -               o_flags = O_RDWR;
+> +               maywrite = 1;
+>                 acc_mode = S_IRUGO | S_IWUGO;
+>         }
+>         if (shmflg & SHM_EXEC) {
+> @@ -748,30 +748,43 @@ long do_shmat(int shmid, char __user *sh
+>                 shm_unlock(shp);
+>                 return err;
+>         }
+> -
+> +
+> +       if (!maywrite && !ipcperms_dac(&shp->shm_perm, S_IWUGO))
+> +               maywrite = 1;
+> +
+>         file = shp->shm_file;
+>         size = i_size_read(file->f_dentry->d_inode);
+>         shp->shm_nattch++;
+>         shm_unlock(shp);
+>
+> -       down_write(&current->mm->mmap_sem);
+> +       down_write(&mm->mmap_sem);
+>         if (addr && !(shmflg & SHM_REMAP)) {
+>                 user_addr = ERR_PTR(-EINVAL);
+> -               if (find_vma_intersection(current->mm, addr, addr + size))
+> +               if (find_vma_intersection(mm, addr, addr + size))
+>                         goto invalid;
+>                 /*
+>                  * If shm segment goes below stack, make sure there is some
+>                  * space left for the stack to grow (at least 4 pages).
+>                  */
+> -               if (addr < current->mm->start_stack &&
+> -                   addr > current->mm->start_stack - size - PAGE_SIZE * 5)
+> +               if (addr < mm->start_stack &&
+> +                   addr > mm->start_stack - size - PAGE_SIZE * 5)
+>                         goto invalid;
+>         }
+> -
+> +
+>         user_addr = (void*) do_mmap (file, addr, size, prot, flags, 0);
+>
+> +       if (!maywrite && !IS_ERR(user_addr)) {
+> +               /*
+> +                * Prevent mprotect from giving write permission later on.
+> +                * We would prefer just to clear VM_MAYWRITE from a readonly
+> +                * attachment in shm_mmap, but it seems that JVM has got into
+> +                * the habit of attaching readonly then mprotecting to write.
+> +                */
+> +               vma = find_vma(mm, (unsigned long) user_addr);
+> +               vma->vm_flags &= ~VM_MAYWRITE;
+> +       }
+>  invalid:
+> -       up_write(&current->mm->mmap_sem);
+> +       up_write(&mm->mmap_sem);
+>
+>         down (&shm_ids.sem);
+>         if(!(shp = shm_lock(shmid)))
+> --- 2.6.16.9/ipc/util.c 2006-03-20 05:53:29.000000000 +0000
+> +++ linux/ipc/util.c    2006-04-20 16:57:36.000000000 +0100
+> @@ -464,7 +464,7 @@ void ipc_rcu_putref(void *ptr)
+>   *     to ipc resources. return 0 if allowed
+>   */
+>
+> -int ipcperms (struct kern_ipc_perm *ipcp, short flag)
+> +int ipcperms_dac(struct kern_ipc_perm *ipcp, short flag)
+>  {      /* flag will most probably be 0 or S_...UGO from <linux/stat.h> */
+>         int requested_mode, granted_mode;
+>
+> @@ -478,7 +478,13 @@ int ipcperms (struct kern_ipc_perm *ipcp
+>         if ((requested_mode & ~granted_mode & 0007) &&
+>             !capable(CAP_IPC_OWNER))
+>                 return -1;
+> +       return 0;
+> +}
+>
+> +int ipcperms(struct kern_ipc_perm *ipcp, short flag)
+> +{
+> +       if (ipcperms_dac(ipcp, flag))
+> +               return -1;
+>         return security_ipc_permission(ipcp, flag);
+>  }
+>
+> --- 2.6.16.9/ipc/util.h 2006-03-20 05:53:29.000000000 +0000
+> +++ linux/ipc/util.h    2006-04-20 16:57:36.000000000 +0100
+> @@ -47,7 +47,8 @@ int ipc_addid(struct ipc_ids* ids, struc
+>  /* must be called with both locks acquired. */
+>  struct kern_ipc_perm* ipc_rmid(struct ipc_ids* ids, int id);
+>
+> -int ipcperms (struct kern_ipc_perm *ipcp, short flg);
+> +int ipcperms_dac(struct kern_ipc_perm *ipcp, short flag);
+> +int ipcperms(struct kern_ipc_perm *ipcp, short flag);
+>
+>  /* for rare, potentially huge allocations.
+>   * both function can sleep
+>

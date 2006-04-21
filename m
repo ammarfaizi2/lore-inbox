@@ -1,107 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWDUB3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWDUBor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWDUB3U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 21:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWDUB3U
+	id S932116AbWDUBor (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 21:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWDUBor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 21:29:20 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:10894 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S932128AbWDUB3T (ORCPT
+	Thu, 20 Apr 2006 21:44:47 -0400
+Received: from nproxy.gmail.com ([64.233.182.187]:29700 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932113AbWDUBoq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 21:29:19 -0400
-Message-ID: <4448355F.7070509@tlinx.org>
-Date: Thu, 20 Apr 2006 18:29:03 -0700
-From: "Linda A. Walsh" <law@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, "Linda A. Walsh" <law@tlinx.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       linux-security-module@vger.kernel.org, chrisw@sous-sol.org,
-       linux-kernel@vger.kernel.org, Tony Jones <tonyj@suse.de>
-Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export namespace	semaphore
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com> <1145536742.16456.35.camel@moss-spartans.epoch.ncsc.mil> <20060420124647.GD18604@sergelap.austin.ibm.com> <1145534735.3313.3.camel@moss-spartans.epoch.ncsc.mil> <20060420132128.GG18604@sergelap.austin.ibm.com> <1145537318.3313.40.camel@moss-spartans.epoch.ncsc.mil> <44480727.9010500@tlinx.org> <20060420230551.GA5026@infradead.org>
-In-Reply-To: <20060420230551.GA5026@infradead.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Apr 2006 21:44:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=C1fqOpGcfaLlVgd9eqHj3KYdke5jWWpIKk1Ean3dB9jjkBdPA+NiC0oXBLFX+W7hVx7GXTMBVA+Adx5dQim2Atvcxn/3eEUMetv1CjMvksKXN6cX/ePiZ8VmLi3l4+PjqHqqP/yc7lh2ABTO3zgt013GOqvh+v081S0+jdnjnJA=
+Date: Fri, 21 Apr 2006 05:41:50 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Netdev List <netdev@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Open ethernet hardware specs
+Message-ID: <20060421014150.GA15505@mipter.zuzino.mipt.ru>
+References: <4448117E.3010708@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4448117E.3010708@garzik.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Thu, Apr 20, 2006 at 03:11:51PM -0700, Linda A. Walsh wrote:
->   
->>    The *current* accepted way to get pathnames going into system
->> calls is to trap the syscall vector as audit currently does --
->>     
-> It's not and it's never been.  [suggestion deleted]
-   What is not?  I'm looking at entry.S, and 2 ptrace.c's, one under
-arch/i386/kernel and another under kernel.  Perhaps we are talking
-about different architectures?  Referring to the i386 architecture,
+On Thu, Apr 20, 2006 at 06:55:58PM -0400, Jeff Garzik wrote:
+> Also, janitors, there are more NIC specs at
+> http://gkernel.sourceforge.net/specs/ than are listed on the wiki.  What
+> I posted is just a starter list.  If someone were to comb through each
+> PDF in the /specs/ sub-directories, and make sure it is linked on the
+> wiki, I would be grateful.
 
-    entry.S has the system call table processing, no?
-    This is the the code from the sysenter call:
+Almost done.
 
- testw $(_TIF_SYSCALL_EMU|_TIF_SYSCALL_TRACE|_TIF_SECCOMP|_TIF_SYSCALL_AU
-DIT),TI_flags(%ebp)
-
-    That looks like a patch for SECCOMP, SYSCALL_EMU and AUDIT that goes
-off to do special processing in the system sys_trace call.  This calls the
-ptrace function for every syscall, no? Doesn't that then call
-kernel/ptrace.c(sys_ptrace), grab the system lock (that is
-what lock_system() is for, isn't it?), which then calls the
-arch-specific ptrace.c in 'arch/i386/kernel'? Or have I missed
-something yet?
-
-    Now here is code from that ptrace.c:
-------------
-/* notification of system call entry/exit
- * - triggered by current->work.syscall_trace
- */                    
-__attribute__((regparm(3)))
-int do_syscall_trace(struct pt_regs *regs, int entryexit)
-{      
-    ... do sysemu related stuff... 
-     
-    /* do the secure computing check first */
-    if (!entryexit)
-        secure_computing(regs->orig_eax);  
-
-    if (unlikely(current->audit_context)) {
-        if (entryexit)
-            audit_syscall_exit(current, AUDITSC_RESULT(regs->eax),
-                                  regs->eax);
---------------
-    Doesn't ptrace trap every syscall and call audit for every syscall
-when audit is enabled? 
-
-    Perhaps my wording was confusing?  I'm sorry, I should have
-said:
-
-    "The *current* accepted way to get pathnames going into system calls is
-to put a trap in the syscall vector processing code to be indirectly
-called through the ptrace call with every system call as audit currently 
-does..."?
-
-    Or is that not correct either?  If not, could you please be more
-specific in your objection instead of suggesting I get pointers on my sex
-life?
-
-    Of course the above code brings up a 2nd question.  Is it acceptable
-for audit records to be lost, or if a system gets heavily loaded, isn't
-it possible for audit_syscall to block waiting some place to record the
-audit context?   Wouldn't those call occur after the "lock_kernel();"
-line in kernel/ptrace.c, Could it be holding the "big kernel lock"
-(still) when it blocks?  Or would audit drop the kernel lock before
-blocking?
-
-    In my last linux audit driver implementation, I had it setup such
-that the audited process would block, but the system could continue so
-that "auditd" (a non audited process) could free up a buffer by "reading"
-it thus unblocking any processes blocked on an audit call.  But, not
-hanging the system needlessly was one of my design goals.
-
-Linda
-
-
-
+P.S.:
+http://gkernel.sourceforge.net/specs/via/501designguide.pdf.bz2 is
+broken.
 

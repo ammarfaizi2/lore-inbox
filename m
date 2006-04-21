@@ -1,136 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWDUSGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWDUSPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWDUSGV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 14:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWDUSGV
+	id S1750762AbWDUSPk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 14:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWDUSPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 14:06:21 -0400
-Received: from ns.suse.de ([195.135.220.2]:41906 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932320AbWDUSGU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 14:06:20 -0400
-Date: Fri, 21 Apr 2006 11:01:15 -0700
-From: Tony Jones <tonyj@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-       linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 6/11] security: AppArmor - Userspace interface
-Message-ID: <20060421180115.GB740@suse.de>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419174954.29149.80464.sendpatchset@ermintrude.int.wirex.com> <20060420213943.GD2360@ucw.cz>
+	Fri, 21 Apr 2006 14:15:40 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:14836 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750762AbWDUSPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 14:15:40 -0400
+Subject: Re: Linux 2.6.17-rc2
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Piet Delaney <piet@bluelane.com>, Jens Axboe <axboe@suse.de>,
+       "David S. Miller" <davem@davemloft.net>, diegocg@gmail.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0604211047540.3701@g5.osdl.org>
+References: <20060419200001.fe2385f4.diegocg@gmail.com>
+	 <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
+	 <20060420145041.GE4717@suse.de>
+	 <20060420.122647.03915644.davem@davemloft.net>
+	 <20060420193430.GH4717@suse.de>
+	 <1145569031.25127.64.camel@piet2.bluelane.com>
+	 <Pine.LNX.4.64.0604201512070.3701@g5.osdl.org>
+	 <Pine.LNX.4.64.0604211047540.3701@g5.osdl.org>
+Content-Type: text/plain
+Date: Fri, 21 Apr 2006 14:15:26 -0400
+Message-Id: <1145643326.22730.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060420213943.GD2360@ucw.cz>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 09:39:43PM +0000, Pavel Machek wrote:
-> Hi!
+On Fri, 2006-04-21 at 10:58 -0700, Linus Torvalds wrote:
+> I got slashdotted! Yay!
 > 
-> > This patch implements the interface between the userspace policy loader
-> > and the kernel module.   It is called by the .load, .remove and .replace
-> > file_operations hooks implemented in apparmorfs.c.
+> On Thu, 20 Apr 2006, Linus Torvalds wrote:
 > > 
-> > The code is reponsible for serializing data in a platform independant 
-> > manner from userspace and creating/activating the necessary apparmor 
-> > profiles.
+> > I claim that Mach people (and apparently FreeBSD) are incompetent idiots. 
 > 
-> Documentation patch describing what kind of data you pass here would
-> be nice.
-
-Very true. We will add it.
-
-> > +#include "match/match.h"
-> > +
-> > +/* aa_code defined in module_interface.h */
-> > +
-> > +const int aacode_datasize[] = { 1, 2, 4, 8, 2, 2, 4, 0, 0, 0, 0, 0, 0 };
+> I also claim that Slashdot people usually are smelly and eat their 
+> boogers, and have an IQ slightly lower than my daughters pet hamster 
+> (that's "hamster" without a "p", btw, for any slashdot posters out 
+> there. Try to follow me, ok?).
 > 
-> I believe this needs a comment.
-
-Yep.
-
-> > +
-> > +/* inlines must be forward of there use in newer version of gcc,
-> > +   just forward declaring with a prototype won't work anymore */
+> Furthermore, I claim that anybody that hasn't noticed by now that I'm an 
+> opinionated bastard, and that "impolite" is my middle name, is lacking a 
+> few clues.
 > 
-> their use?
+> Finally, it's clear that I'm not only the smartest person around, I'm also 
+> incredibly good-looking, and that my infallible charm is also second only 
+> to my becoming modesty. 
 
-Thanks
+I'll vouch for your handsomeness, as in this picture, I'm trying to be
+your twin: http://www.kihontech.com/pics/torvalds.jpg  Ha! I bet you
+never knew we've met.
 
-> > +/**
-> > + * aa_activate_profile - unpack a serialized profile
-> > + * @e: serialized data extent information
-> > + * @error: error code returned if unpacking fails
-> > + */
-> > +static struct aaprofile *aa_activate_profile(struct aa_ext *e, ssize_t *error)
-> > +{
-> > +	struct aaprofile *profile = NULL;
-> > +	const char *rulename = "";
-> > +	const char *error_string = "Invalid Profile";
-> > +
-> > +	*error = -EPROTO;
-> > +
-> > +	profile = alloc_aaprofile();
-> > +	if (!profile) {
-> > +		error_string = "Could not allocate profile";
-> > +		*error = -ENOMEM;
-> > +		goto fail;
-> > +	}
-> > +
-> > +	/* check that we have the right struct being passed */
-> > +	AA_READ_X(e, AA_STRUCT, NULL, "profile");
-> > +	AA_READ_X(e, AA_DYN_STRING, &profile->name, NULL);
-> > +
-> > +	error_string = "Invalid flags";
-> > +	/* per profile debug flags (debug, complain, audit) */
-> > +	AA_READ_X(e, AA_STRUCT, NULL, "flags");
-> > +	AA_READ_X(e, AA_U32, &(profile->flags.debug), "profile.flags.debug");
-> > +	AA_READ_X(e, AA_U32, &(profile->flags.complain),
-> > +		  "profile.flags.complain");
-> > +	AA_READ_X(e, AA_U32, &(profile->flags.audit), "profile.flags.audit");
-> > +	AA_READ_X(e, AA_STRUCTEND, NULL, NULL);
-> > +
-> > +	error_string = "Invalid capabilities";
-> > +	AA_READ_X(e, AA_U32, &(profile->capabilities), "profile.capabilities");
-> > +
-> > +	/* get the file entries. */
-> > +	AA_ENTRY_LIST("pgent");		/* pcre rules */
-> > +	AA_ENTRY_LIST("sgent");		/* simple globs */
-> > +	AA_ENTRY_LIST("fent");		/* regular file entries */
-> > +
-> > +	/* get the net entries */
-> > +	if (aa_is_nameX(e, AA_LIST, NULL, "net")) {
-> > +		error_string = "Invalid net entry";
-> > +		while (!aa_is_nameX(e, AA_LISTEND, NULL, NULL)) {
-> > +			if (!aa_activate_net_entry(e))
-> > +				goto fail;
-> > +		}
-> > +	}
-> > +	rulename = "";
-> > +
-> > +	/* get subprofiles */
-> > +	if (aa_is_nameX(e, AA_LIST, NULL, "hats")) {
-> > +		error_string = "Invalid profile hat";
-> > +		while (!aa_is_nameX(e, AA_LISTEND, NULL, NULL)) {
-> > +			struct aaprofile *subprofile;
-> > +			subprofile = aa_activate_profile(e, error);
-> > +			if (!subprofile)
-> > +				goto fail;
-> > +			subprofile->parent = profile;
-> > +			list_add(&subprofile->list, &profile->sub);
-> > +		}
-> > +	}
-> > +
-> > +	error_string = "Invalid end of profile";
-> > +	AA_READ_X(e, AA_STRUCTEND, NULL, NULL);
-> > +
-> > +	return profile;
+-- Steve
+
 > 
-> Is this kind of transltion neccessary?
+> So there. Just to clarify.
+> 
+> 		Linus "bow down before me, you scum" Torvalds
 
-Don't understand. Please expand/clarify.  The code serializes the profile data 
-from userspace. 
 
-Tony

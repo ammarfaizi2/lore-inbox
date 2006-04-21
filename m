@@ -1,209 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWDUVdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWDUVc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWDUVdd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 17:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWDUVdd
+	id S964791AbWDUVc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 17:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964793AbWDUVc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 17:33:33 -0400
-Received: from mga01.intel.com ([192.55.52.88]:21674 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S964794AbWDUVdc convert rfc822-to-8bit (ORCPT
+	Fri, 21 Apr 2006 17:32:58 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:1507 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964791AbWDUVc5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 17:33:32 -0400
-X-IronPort-AV: i="4.04,146,1144047600"; 
-   d="scan'208"; a="27071472:sNHT53334785"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Problems with EDAC coexisting with BIOS
-Date: Fri, 21 Apr 2006 14:32:16 -0700
-Message-ID: <5389061B65D50446B1783B97DFDB392D9D3D67@orsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problems with EDAC coexisting with BIOS
-Thread-Index: AcZlhjaRUtWn4hXbQHecUg6JfW+qoQAAR5Lw
-From: "Gross, Mark" <mark.gross@intel.com>
-To: "Doug Thompson" <dthompson@lnxi.com>
-Cc: "Ong, Soo Keong" <soo.keong.ong@intel.com>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>,
-       <bluesmoke-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 21 Apr 2006 21:33:30.0626 (UTC) FILETIME=[3BE37620:01C6658B]
+	Fri, 21 Apr 2006 17:32:57 -0400
+Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com, akpm@osdl.org,
+       Alan Stern <stern@rowland.harvard.edu>
+In-Reply-To: <20060421110140.GC14841@MAIL.13thfloor.at>
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
+	 <20060421110140.GC14841@MAIL.13thfloor.at>
+Content-Type: text/plain
+Organization: IBM
+Date: Fri, 21 Apr 2006 14:31:37 -0700
+Message-Id: <1145655097.15389.12.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Herbert,
+
+I am not able to reproduce the problem you are seeing. Need some help
+from you in reproducing it.
+
+Do you have any unique hardware/driver/kernel component ?
+
+Did you try without QEMU (to see if it isolats the problem) ?
+
+regards,
+
+chandra
+On Fri, 2006-04-21 at 13:01 +0200, Herbert Poetzl wrote:
+> On Tue, Apr 18, 2006 at 08:27:37PM -0700, Linus Torvalds wrote:
+> > 
+> > Instead of the normal one-week release schedule, there was now two weeks 
+> > between 2.6.17-rc1 and -rc2, partly because I was travelling for one of 
+> > those weeks, but partly because it was really quiet for a while. Likely a 
+> > lot of people are concentrating on 2.6.16 and vendor releases.
+> 
+> [rest zapped]
+> 
+> here is the 'updated' bug report on the xfs issue which
+> seems to have been introduced with 2.6.17-rc1
+> 
+> note: 2.6.16.8 does not have this issue
+> 
+> best,
+> Herbert
+> 
+> 
+> Linux (none) 2.6.17-rc2 #1 SMP Fri Apr 21 11:52:19 CEST 2006 i686 unknown
+> 
+> / # mkfs.xfs -f /dev/hdc1
+> meta-data=/dev/hdc1              isize=256    agcount=8, agsize=8189 blks
+> data     =                       bsize=4096   blocks=65512, imaxpct=25
+>          =                       sunit=0      swidth=0 blks, unwritten=0
+> naming   =version 2              bsize=4096  
+> log      =internal log           bsize=4096   blocks=1200
+> realtime =none                   extsz=65536  blocks=0, rtextents=0
+> / # mount /dev/hdc1 /mnt/
+> 
+> 
+> [   64.289157] BUG: unable to handle kernel paging request at virtual address c056a680
+> [   64.290085]  printing eip:
+> [   64.290402] c0129290
+> [   64.290686] *pde = 005bd027
+> [   64.291037] *pte = 0056a000
+> [   64.291504] Oops: 0000 [#1]
+> [   64.291823] SMP DEBUG_PAGEALLOC
+> [   64.292820] Modules linked in:
+> [   64.293453] CPU:    0
+> [   64.293485] EIP:    0060:[<c0129290>]    Not tainted VLI
+> [   64.293529] EFLAGS: 00000286   (2.6.17-rc2 #1) 
+> [   64.295055] EIP is at notifier_chain_register+0x20/0x50
+> [   64.295648] eax: c056a678   ebx: cf5e23f8   ecx: 00000000   edx: c04bea9c
+> [   64.296362] esi: cf5e23f8   edi: cffc5000   ebp: cf5e2800   esp: cffdad5c
+> [   64.297140] ds: 007b   es: 007b   ss: 0068
+> [   64.297613] Process mount (pid: 34, threadinfo=cffda000 task=cff7e570)
+> [   64.298258] Stack: <0>c04bea80 c0129454 c04bea9c cf5e23f8 cf5e2000 cf5e2000 c01367f7 c04bea80 
+> [   64.299558]        cf5e23f8 c02d4b26 cf5e23f8 00000404 cf5e2000 cfd1f520 cffc5000 c02d1f53 
+> [   64.300700]        cf5e2000 00000001 c02e65ef 00000424 00000001 cffc5000 cfd1f520 c02f2880 
+> [   64.301841] Call Trace:
+> [   64.302278]  <c0129454> blocking_notifier_chain_register+0x54/0x90   <c01367f7> register_cpu_notifier+0x17/0x20
+> [   64.303684]  <c02d4b26> xfs_icsb_init_counters+0x46/0xb0   <c02d1f53> xfs_mount_init+0x23/0x160
+> [   64.304844]  <c02e65ef> kmem_zalloc+0x1f/0x50   <c02f2880> bhv_insert_all_vfsops+0x10/0x50
+> [   64.305940]  <c02f1f65> xfs_fs_fill_super+0x35/0x1f0   <c0313e97> snprintf+0x27/0x30
+> [   64.307124]  <c01a24f4> disk_name+0x64/0xc0   <c0168f1f> sb_set_blocksize+0x1f/0x50
+> [   64.308140]  <c0168869> get_sb_bdev+0x109/0x160   <c02f2150> xfs_fs_get_sb+0x30/0x40
+> [   64.309129]  <c02f1f30> xfs_fs_fill_super+0x0/0x1f0   <c0168b10> do_kern_mount+0xa0/0x160
+> [   64.310156]  <c0181187> do_new_mount+0x77/0xc0   <c018184f> do_mount+0x1bf/0x230
+> [   64.311177]  <c03f4a68> iret_exc+0x3d4/0x6ab   <c0181633> copy_mount_options+0x63/0xc0
+> [   64.312246]  <c03f427f> lock_kernel+0x2f/0x50   <c0181c5f> sys_mount+0x9f/0xe0
+> [   64.313237]  <c0102b27> syscall_call+0x7/0xb  
+> [   64.313917] Code: 90 90 90 90 90 90 90 90 90 90 90 53 8b 54 24 08 8b 5c 24 0c 8b 02 85 c0 74 31 8b 4b 08 8d b4 26 00 00 00 00 8d bc 27 00 00 00 00 <3b> 48 08 7f 1b 8d 50 04 8b 40 04 85 c0 75 f1 31 c0 eb 0d 90 90 
+> [   64.318371] EIP: [<c0129290>] notifier_chain_register+0x20/0x50 SS:ESP 0068:cffdad5c
+> 
+> 
+> Linux (none) 2.6.16.8 #1 SMP Fri Apr 21 12:45:31 CEST 2006 i686 unknown
+> / # mkfs.xfs -f /dev/hdc1
+> meta-data=/dev/hdc1              isize=256    agcount=8, agsize=8189 blks
+> data     =                       bsize=4096   blocks=65512, imaxpct=25
+>          =                       sunit=0      swidth=0 blks, unwritten=0
+> naming   =version 2              bsize=4096  
+> log      =internal log           bsize=4096   blocks=1200
+> realtime =none                   extsz=65536  blocks=0, rtextents=0
+> / # mount /dev/hdc1 /mnt/
+> [   24.627530] XFS mounting filesystem hdc1
+> 
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
 
->-----Original Message-----
->From: Doug Thompson [mailto:dthompson@lnxi.com]
->Sent: Friday, April 21, 2006 1:57 PM
->To: Gross, Mark
->Cc: Ong, Soo Keong; Carbonari, Steven; Wang, Zhenyu Z; bluesmoke-
->devel@lists.sourceforge.net; linux-kernel@vger.kernel.org
->Subject: Re: Problems with EDAC coexisting with BIOS
->
->Mark thanks for the informaton on this.
->
->Now the e752x_edac.c driver contains no direct calls to panic within
->itself. The edac_mc.c 'core' piece does, but only calls that if an UE
->error is found and panic on UE is enabled. (The other is a PCI parity
->panic, but doesn't effect this path). It might be possible that since
->the hidden register was now hidden, the retrieval function returns some
->garbage which falsely triggers the panic by the core.
-
-The problem is that once the BIOS SMI re-hides the device reading from
-the chipset error registers returns 0xFFFFFFFF.
-
->
->I would like to see the panic output and stack trace to see where that
->panic came from. It might have come from the PCI device access subsytem
->when it was trying to access the now hidden register.
->
->can you post that panice information?
-
-Yes, but the edac_mc.c call to panic doesn't drop any data to the
-console.
-The following is the output from an instrumentation we did to the EDAC
-that went into RHEL4-U3 :
-
-INIT: version 2.85 booting
-                Welcome to Red Hat Enterprise Linux AS
-                Press 'I' to enter interactive startup.
-Starting udev:  [  OK  ]
-Initializing hardware...  storage network audioIn probe1, before write
-E752X_DEVPRES1 = 0x10
-In probe1, after write
-E752X_DEVPRES1 = 0x30
-
-Snip .....
-
-Configuring kernel parameters:  [  OK  ]
-Setting clock  (localtime): Sun Mar 12 00:52:17 PST 2006 [  OK  ]
-Setting hostname localhost.localdomain:  [  OK  ]
-Checking root filesystem
-[/sbin/fsck.ext3 (1) -- /] fsck.ext3 -a /dev/sda1
-/: clean, 365954/8830976 files, 2357630/17657443 blocks
-[  OK  ]
-Remounting root filesystem in read-write mode:  [  OK  ]
-No devices found
-No Software RAID disks
-Setting up Logical Volume ManageE752X_DEVPRES1 = 0x10
-ment: E752X_DEVPRES1 = 0x10
-Kernel panic - not syncing: MC0: Uncorrected Error
-
-that's all you get, no stack trace.
-
-The EX752C_DEVPRES1 = ... debug statements came from sprinkling call to
-the following debug function we instrumented into the EDAC driver code.
-
-static void print_error_info(struct pci_dev *pdev) 
-{
-  u8 stat8;
-  pci_read_config_byte(pdev, E752X_DEVPRES1, &stat8);
-  printk(KERN_EMERG "E752X_DEVPRES1 = 0x%02X\n", stat8);
-}
-
---mgross
->
->thanks
->
->doug thompson
->
->
->On Fri, 2006-04-21 at 16:01 +0000, "Gross, Mark"  wrote:
->> I'm sorry to have to bring up these issues after a fare amount of
-good
->> work, and I don't know how this problem managed to get by for as long
-as
->> it has, but there are some issues with the EDAC and the BIOS for
-managed
->> computer systems.
->>
->> Managed computers are systems with automatic ECC logging to a System
->> Event Log or SEL.  They typically have an out of band Board
-Management
->> Controller aka BMC or IPMC that runs out of band WRT the OS payload.
->>
->> The issues found with the EDAC driver are:
->> 1) The default AMI BIOS behavior on SMI is to check the chipset error
->> registers (Dev0:Fun1) and re-hide them.
->> 2) If you are lucky enough to have BIOS code that doesn't re-hide
->> Dev0:Fun1; then when EDAC is loaded there is a race condition between
->> the platform BIOS and the driver to gain access to these registers.
->> 3) If the platform BIOS does the ECC logging out of band WRT the
-payload
->> OS, there is no good way for the driver to know at load time.
->>
->> We discovered these problems when testing with one of the later
-RHEL4-U3
->> RC's.  The EDAC driver called panic when the device 0 Function 1 of
-the
->> E7250 was re-hidden by the legacy USB SMI that when off between the
-load
->> of the EDAC driver and the USB host driver.  Loading the EDAC driver
-for
->> many AMI bios's is a panic land mine waiting go off.  Unless the OS
->> knows that it can trust the BIOS to not re-hide those chipset
-registers
->> using this driver is not a safe thing to do.
->>
->> Basically if device 0 : function 1 is hidden by the platform at boot
->> time un-hiding and using the device and function is a risky thing to
-do,
->> as there is likely a good reason for it to have been hidden in the
-first
->> place.  If the BIOS thinks that it owns some registers then the OS
->> should not use them without great care.
->>
->> It is possible that the driver could be modified to check for
-re-hiding
->> of the DEV0:FUN1, but this will be racey WRT SMI processing.  At
-least
->> it shouldn't panic.
->>
->> The driver should never get loaded by default or automatically.  If
-the
->> user knows enough about there BIOS to trust that the SMI behavior
-will
->> coexist with the driver then its OK to load otherwise using this
-driver
->> is not a safe thing to do.
->>
->> I think the best thing to do is to have the driver error out in its
-init
->> or probe code if the dev0:fun1 is hidden at boot time.
->>
->> Comments?
->>
->> Next steps?
->>
->> Do you want me to send a patch implementing graceful error handling
-at
->> driver init time so it doesn't load if DEV0:FUN1 is hidden?
->>
->> --mgross
->> Intel Open Source Technology Center
->> (503) 677-4628
->> (503)-712-6227
->> ms: JF1-235
->> 2111 NW 25th Ave
->> Hillsboro, OR 97124
->>
->>
->>
->> -------------------------------------------------------
->> Using Tomcat but need to do more? Need to support web services,
-security?
->> Get stuff done quickly with pre-integrated technology to make your
-job
->easier
->> Download IBM WebSphere Application Server v.1.0.1 based on Apache
->Geronimo
->> http://sel.as-us.falkag.net/sel?cmd=lnk&kid0709&bid&3057&dat1642
->> _______________________________________________
->> bluesmoke-devel mailing list
->> bluesmoke-devel@lists.sourceforge.net
->> https://lists.sourceforge.net/lists/listinfo/bluesmoke-devel

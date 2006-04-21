@@ -1,219 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWDUCZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWDUCZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750969AbWDUCZO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 22:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWDUCZH
+	id S1751092AbWDUCZv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 22:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWDUCZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 22:25:07 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:30895 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750876AbWDUCYl
+	Thu, 20 Apr 2006 22:25:51 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:45963 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751092AbWDUCZs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 22:24:41 -0400
+	Thu, 20 Apr 2006 22:25:48 -0400
 From: sekharan@us.ibm.com
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
 Cc: sekharan@us.ibm.com
-Date: Thu, 20 Apr 2006 19:24:39 -0700
-Message-Id: <20060421022439.6145.56465.sendpatchset@localhost.localdomain>
-In-Reply-To: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-Subject: [RFC] [PATCH 05/12] Init and clear class info in task
+Date: Thu, 20 Apr 2006 19:25:47 -0700
+Message-Id: <20060421022547.6145.11460.sendpatchset@localhost.localdomain>
+In-Reply-To: <20060421022519.6145.78248.sendpatchset@localhost.localdomain>
+References: <20060421022519.6145.78248.sendpatchset@localhost.localdomain>
+Subject: [RFC] [PATCH 5/6] numtasks - Add fork rate control support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-05/12 - ckrm_tasksupport_fork_exit_init
+5/6: ckrm_numtasks_forkrate
 
-Initializes and clears ckrm specific information in a task at fork() and
-exit().
-Inititalizes ckrm (called from start_kernel)
+Adds support to control the forkrate in the system.
 --
 
 Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
+Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
 
- include/linux/ckrm.h     |    7 ++++++
- init/main.c              |    2 +
- kernel/ckrm/ckrm.c       |   11 +++++++++
- kernel/ckrm/ckrm_local.h |    1 
- kernel/ckrm/ckrm_task.c  |   52 +++++++++++++++++++++++++++++++++++++++++++++++
- kernel/exit.c            |    2 +
- kernel/fork.c            |    2 +
- 7 files changed, 77 insertions(+)
+ kernel/ckrm/ckrm_numtasks.c |   75 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 75 insertions(+)
 
-Index: linux2617-rc2/kernel/exit.c
+Index: linux2617-rc2/kernel/ckrm/ckrm_numtasks.c
 ===================================================================
---- linux2617-rc2.orig/kernel/exit.c
-+++ linux2617-rc2/kernel/exit.c
-@@ -35,6 +35,7 @@
- #include <linux/futex.h>
- #include <linux/compat.h>
- #include <linux/pipe_fs_i.h>
-+#include <linux/ckrm.h>
+--- linux2617-rc2.orig/kernel/ckrm/ckrm_numtasks.c
++++ linux2617-rc2/kernel/ckrm/ckrm_numtasks.c
+@@ -27,6 +27,11 @@ static int total_numtasks __read_mostly 
+ static struct ckrm_class *root_class;
+ static int total_cnt_alloc = 0;
  
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -731,6 +732,7 @@ static void exit_notify(struct task_stru
- 	struct task_struct *t;
- 	struct list_head ptrace_dead, *_p, *_n;
- 
-+	ckrm_clear_task(tsk);
- 	if (signal_pending(tsk) && !(tsk->signal->flags & SIGNAL_GROUP_EXIT)
- 	    && !thread_group_empty(tsk)) {
- 		/*
-Index: linux2617-rc2/kernel/fork.c
-===================================================================
---- linux2617-rc2.orig/kernel/fork.c
-+++ linux2617-rc2/kernel/fork.c
-@@ -44,6 +44,7 @@
- #include <linux/rmap.h>
- #include <linux/acct.h>
- #include <linux/cn_proc.h>
-+#include <linux/ckrm.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -1214,6 +1215,7 @@ static task_t *copy_process(unsigned lon
- 	total_forks++;
- 	spin_unlock(&current->sighand->siglock);
- 	write_unlock_irq(&tasklist_lock);
-+	ckrm_init_task(p);
- 	proc_fork_connector(p);
- 	return p;
- 
-Index: linux2617-rc2/init/main.c
-===================================================================
---- linux2617-rc2.orig/init/main.c
-+++ linux2617-rc2/init/main.c
-@@ -47,6 +47,7 @@
- #include <linux/rmap.h>
- #include <linux/mempolicy.h>
- #include <linux/key.h>
-+#include <linux/ckrm.h>
- 
- #include <asm/io.h>
- #include <asm/bugs.h>
-@@ -541,6 +542,7 @@ asmlinkage void __init start_kernel(void
- 	proc_root_init();
- #endif
- 	cpuset_init();
-+	ckrm_init();
- 
- 	check_bugs();
- 
-Index: linux2617-rc2/kernel/ckrm/ckrm.c
-===================================================================
---- linux2617-rc2.orig/kernel/ckrm/ckrm.c
-+++ linux2617-rc2/kernel/ckrm/ckrm.c
-@@ -231,6 +231,7 @@ int ckrm_free_class(struct ckrm_class *c
- 		return -EBUSY;
- 	}
- 	spin_unlock(&class->class_lock);
-+	ckrm_move_tasks_to_parent(class);
- 	kref_put(&class->ref, ckrm_release_class);
- 	return 0;
- }
-@@ -391,6 +392,16 @@ void ckrm_teardown(void)
- 	}
- }
- 
-+void ckrm_init(void)
-+{
-+	write_lock(&ckrm_class_lock);
-+	list_add_tail(&ckrm_default_class.class_list, &ckrm_classes);
-+	write_unlock(&ckrm_class_lock);
-+	kref_init(&ckrm_default_class.ref);
-+	init_task.class = &ckrm_default_class;
-+	ckrm_init_task(&init_task);
-+}
++#define DEF_FORKRATE UNLIMITED
++#define DEF_FORKRATE_INTERVAL (1)
++static int forkrate __read_mostly = DEF_FORKRATE;
++static int forkrate_interval __read_mostly = DEF_FORKRATE_INTERVAL;
 +
- EXPORT_SYMBOL_GPL(ckrm_register_controller);
- EXPORT_SYMBOL_GPL(ckrm_unregister_controller);
- EXPORT_SYMBOL_GPL(ckrm_alloc_class);
-Index: linux2617-rc2/kernel/ckrm/ckrm_task.c
-===================================================================
---- linux2617-rc2.orig/kernel/ckrm/ckrm_task.c
-+++ linux2617-rc2/kernel/ckrm/ckrm_task.c
-@@ -141,4 +141,56 @@ int ckrm_setclass(pid_t pid, struct ckrm
- 	put_task_struct(tsk);
- 	return rc;
- }
+ struct ckrm_numtasks {
+ 	struct ckrm_class *class;	/* the class i am part of... */
+ 	struct ckrm_shares shares;
+@@ -41,6 +46,11 @@ struct ckrm_numtasks {
+ 	/* stats */
+ 	int successes;
+ 	int failures;
++	int forkrate_failures;
 +
-+void ckrm_init_task(struct task_struct *tsk)
-+{
-+	struct ckrm_class *class;
-+
-+	/*
-+	 * processes inherit their class from their real parent, and
-+	 * threads inherit class from their process.
-+	 */
-+	if (thread_group_leader(tsk))
-+		class = tsk->real_parent->class;
-+	else
-+		class = tsk->group_leader->class;
-+
-+	tsk->class = CKRM_NO_CLASS;
-+	INIT_LIST_HEAD(&tsk->member_list);
-+
-+	BUG_ON(class == NULL);
-+	kref_get(&class->ref);
-+	move_to_new_class(tsk, class);
-+	notify_res_ctlrs(tsk, CKRM_NO_CLASS, class);
-+}
-+
-+void ckrm_clear_task(struct task_struct *tsk)
-+{
-+	ckrm_setclass_internal(tsk, CKRM_NO_CLASS);
-+}
-+
-+/*
-+ * Move all tasks in the given class to its parent.
-+ */
-+void ckrm_move_tasks_to_parent(struct ckrm_class *class)
-+{
-+	kref_get(&class->ref);
-+
-+next_task:
-+	spin_lock(&class->class_lock);
-+	if (!list_empty(&class->task_list)) {
-+		struct task_struct *tsk =
-+			list_entry(class->task_list.next,
-+				struct task_struct, member_list);
-+		get_task_struct(tsk);
-+		spin_unlock(&class->class_lock);
-+		kref_get(&class->parent->ref);
-+		ckrm_setclass_internal(tsk, class->parent);
-+		put_task_struct(tsk);
-+		goto next_task;
-+	}
-+	spin_unlock(&class->class_lock);
-+	kref_put(&class->ref, ckrm_release_class);
-+}
-+
- EXPORT_SYMBOL_GPL(ckrm_setclass);
-Index: linux2617-rc2/include/linux/ckrm.h
-===================================================================
---- linux2617-rc2.orig/include/linux/ckrm.h
-+++ linux2617-rc2/include/linux/ckrm.h
-@@ -94,5 +94,12 @@ struct ckrm_class {
- 	struct list_head children;	/* head of children */
++	/* Fork rate fields */
++	int forks_in_period;
++	unsigned long period_start;
  };
  
-+extern void ckrm_init_task(struct task_struct *);
-+extern void ckrm_clear_task(struct task_struct *);
-+extern void ckrm_init(void);
-+#else /* CONFIG_CKRM */
-+static inline void ckrm_init_task(struct task_struct *tsk) { }
-+static inline void ckrm_clear_task(struct task_struct *tsk) { }
-+static inline void ckrm_init(void) { }
- #endif /* CONFIG_CKRM */
- #endif /* _LINUX_CKRM_H */
-Index: linux2617-rc2/kernel/ckrm/ckrm_local.h
-===================================================================
---- linux2617-rc2.orig/kernel/ckrm/ckrm_local.h
-+++ linux2617-rc2/kernel/ckrm/ckrm_local.h
-@@ -18,3 +18,4 @@ extern void ckrm_set_shares_to_default(s
- 						struct ckrm_controller *);
- extern void ckrm_teardown(void);
- extern int ckrm_setclass(pid_t, struct ckrm_class *);
-+extern void ckrm_move_tasks_to_parent(struct ckrm_class *);
+ struct ckrm_controller numtasks_ctlr;
+@@ -58,8 +68,24 @@ static struct ckrm_numtasks *get_class_n
+ 						&numtasks_ctlr));
+ }
+ 
++static inline int check_forkrate(struct ckrm_numtasks *res)
++{
++	if (time_after(jiffies, res->period_start + forkrate_interval * HZ)) {
++		res->period_start = jiffies;
++		res->forks_in_period = 0;
++	}
++
++	if (res->forks_in_period >= forkrate) {
++ 		res->forkrate_failures++;
++		return -ENOSPC;
++	}
++	res->forks_in_period++;
++	return 0;
++}
++
+ int numtasks_allow_fork(struct ckrm_class *class)
+ {
++	int rc;
+ 	struct ckrm_numtasks *res;
+ 
+ 	/* controller is not registered; no class is given */
+@@ -71,6 +97,11 @@ int numtasks_allow_fork(struct ckrm_clas
+ 	if (!res)
+ 		return 0;
+ 
++	/* Check forkrate before checking class's usage */
++	rc = check_forkrate(res);
++	if (rc)
++		return rc;
++
+ 	if (res->cnt_max_shares == CKRM_SHARE_DONT_CARE)
+ 		return 0;
+ 
+@@ -146,6 +177,7 @@ static void numtasks_res_init_one(struct
+ 	numtasks_res->cnt_min_shares = CKRM_SHARE_DONT_CARE;
+ 	numtasks_res->cnt_unused = CKRM_SHARE_DONT_CARE;
+ 	numtasks_res->cnt_max_shares = CKRM_SHARE_DONT_CARE;
++	numtasks_res->period_start = jiffies;
+ }
+ 
+ static struct ckrm_shares *numtasks_alloc_shares_struct(
+@@ -306,6 +338,9 @@ static ssize_t numtasks_show_stats(struc
+ 	buf += i; j += i; buf_size -= i;
+ 	i = snprintf(buf, buf_size, "%s: Number of failures %d\n",
+ 					res_ctlr_name, res->failures);
++	buf += i; j += i; buf_size -= i;
++	i = snprintf(buf, buf_size, "%s: Number of forkrate failures %d\n",
++					res_ctlr_name, res->forkrate_failures);
+ 	j += i;
+ 	return j;
+ }
+@@ -365,6 +400,46 @@ static int set_total_numtasks(const char
+ module_param_set_call(total_numtasks, int, set_total_numtasks,
+ 			S_IRUGO | S_IWUSR);
+ 
++static void reset_forkrates(struct ckrm_class *class, unsigned long now)
++{
++	struct ckrm_numtasks *res;
++	struct ckrm_class *child = NULL;
++
++	res = get_class_numtasks(class);
++	if (!res)
++		return;
++	res->forks_in_period = 0;
++	res->period_start = now;
++
++	spin_lock(&class->class_lock);
++	for_each_child(child, class)
++		reset_forkrates(child, now);
++	spin_unlock(&class->class_lock);
++}
++
++static int set_forkrate(const char *val, struct kernel_param *kp)
++{
++	int prev = forkrate;
++	int rc = set_numtasks_config_val(&forkrate, prev, val, kp);
++	if (rc < 0)
++		return rc;
++	reset_forkrates(root_class, jiffies);
++	return 0;
++}
++module_param_set_call(forkrate, int, set_forkrate, S_IRUGO | S_IWUSR);
++
++static int set_forkrate_interval(const char *val, struct kernel_param *kp)
++{
++	int prev = forkrate_interval;
++	int rc = set_numtasks_config_val(&forkrate_interval, prev, val, kp);
++	if (rc < 0)
++		return rc;
++	reset_forkrates(root_class, jiffies);
++	return 0;
++}
++module_param_set_call(forkrate_interval, int, set_forkrate_interval,
++			S_IRUGO | S_IWUSR);
++
+ int __init init_ckrm_numtasks_res(void)
+ {
+ 	if (numtasks_ctlr.ctlr_id != CKRM_NO_RES_ID)
 
 -- 
 

@@ -1,56 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWDUGnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWDUGoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbWDUGnd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 02:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWDUGnd
+	id S1751216AbWDUGoh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 02:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWDUGog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 02:43:33 -0400
-Received: from mx1.suse.de ([195.135.220.2]:6851 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751216AbWDUGnc (ORCPT
+	Fri, 21 Apr 2006 02:44:36 -0400
+Received: from ns2.suse.de ([195.135.220.15]:15302 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751216AbWDUGoE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 02:43:32 -0400
+	Fri, 21 Apr 2006 02:44:04 -0400
 From: Nick Piggin <npiggin@suse.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Nick Piggin <npiggin@suse.de>,
        Linux Memory Management <linux-mm@kvack.org>
-Message-Id: <20060301045921.12434.16382.sendpatchset@linux.site>
+Message-Id: <20060301045952.12434.16351.sendpatchset@linux.site>
 In-Reply-To: <20060301045901.12434.54077.sendpatchset@linux.site>
 References: <20060301045901.12434.54077.sendpatchset@linux.site>
-Subject: [patch 2/5] mm: remove vmalloc_to_pfn
-Date: Fri, 21 Apr 2006 08:43:28 +0200 (CEST)
+Subject: [patch 5/5] drivers: leave vm_flags alone
+Date: Fri, 21 Apr 2006 08:44:00 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.6/include/linux/mm.h
+Get rid of some vm_flags twiddling from driver code. The net result of
+this + the last 4 patches is that all converted remap_vmalloc_range
+memory can support get_user_pages - do we want that? Can't hurt, can it?
+
+Signed-off-by: Nick Piggin <npiggin@suse.de>
+
+Index: linux-2.6/drivers/media/video/em28xx/em28xx-video.c
 ===================================================================
---- linux-2.6.orig/include/linux/mm.h
-+++ linux-2.6/include/linux/mm.h
-@@ -1002,7 +1002,6 @@ static inline unsigned long vma_pages(st
+--- linux-2.6.orig/drivers/media/video/em28xx/em28xx-video.c
++++ linux-2.6/drivers/media/video/em28xx/em28xx-video.c
+@@ -620,10 +620,6 @@ static int em28xx_v4l2_mmap(struct file 
+ 		return -EINVAL;
+ 	}
  
- struct vm_area_struct *find_extend_vma(struct mm_struct *, unsigned long addr);
- struct page *vmalloc_to_page(void *addr);
--unsigned long vmalloc_to_pfn(void *addr);
- int remap_pfn_range(struct vm_area_struct *, unsigned long addr,
- 			unsigned long pfn, unsigned long size, pgprot_t);
- int vm_insert_page(struct vm_area_struct *, unsigned long addr, struct page *);
-Index: linux-2.6/mm/memory.c
+-	/* VM_IO is eventually going to replace PageReserved altogether */
+-	vma->vm_flags |= VM_IO;
+-	vma->vm_flags |= VM_RESERVED;	/* avoid to swap out this VMA */
+-
+ 	if (remap_vmalloc_range(vma, dev->frame[i].bufmem, 0)) {
+ 		em28xx_videodbg("mmap: remap_vmalloc_range failed\n");
+ 		mutex_unlock(&dev->fileop_lock);
+Index: linux-2.6/drivers/media/video/et61x251/et61x251_core.c
 ===================================================================
---- linux-2.6.orig/mm/memory.c
-+++ linux-2.6/mm/memory.c
-@@ -2394,16 +2394,6 @@ struct page * vmalloc_to_page(void * vma
+--- linux-2.6.orig/drivers/media/video/et61x251/et61x251_core.c
++++ linux-2.6/drivers/media/video/et61x251/et61x251_core.c
+@@ -1499,9 +1499,6 @@ static int et61x251_mmap(struct file* fi
+ 		return -EINVAL;
+ 	}
  
- EXPORT_SYMBOL(vmalloc_to_page);
- 
--/*
-- * Map a vmalloc()-space virtual address to the physical page frame number.
-- */
--unsigned long vmalloc_to_pfn(void * vmalloc_addr)
--{
--	return page_to_pfn(vmalloc_to_page(vmalloc_addr));
--}
+-	vma->vm_flags |= VM_IO;
+-	vma->vm_flags |= VM_RESERVED;
 -
--EXPORT_SYMBOL(vmalloc_to_pfn);
--
- #if !defined(__HAVE_ARCH_GATE_AREA)
+ 	if (remap_vmalloc_range(vma, cam->frame[i].bufmem, 0)) {
+ 		mutex_unlock(&cam->fileop_mutex);
+ 		return -EAGAIN;
+Index: linux-2.6/drivers/media/video/meye.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/meye.c
++++ linux-2.6/drivers/media/video/meye.c
+@@ -1689,8 +1689,6 @@ static int meye_mmap(struct file *file, 
+ 	}
  
- #if defined(AT_SYSINFO_EHDR)
+ 	vma->vm_ops = &meye_vm_ops;
+-	vma->vm_flags &= ~VM_IO;	/* not I/O memory */
+-	vma->vm_flags |= VM_RESERVED;	/* avoid to swap out this VMA */
+ 	vma->vm_private_data = (void *) (offset / gbufsize);
+ 	meye_vm_open(vma);
+ 
+Index: linux-2.6/drivers/media/video/pwc/pwc-if.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/pwc/pwc-if.c
++++ linux-2.6/drivers/media/video/pwc/pwc-if.c
+@@ -1567,8 +1567,6 @@ static int pwc_video_mmap(struct file *f
+ 				vma->vm_start, vma->vm_end - vma->vm_start);
+ 	pdev = vdev->priv;
+ 
+-	vma->vm_flags |= VM_IO;
+-
+ 	if (remap_vmalloc_range(vma, pdev->image_data, 0))
+ 		return -EAGAIN;
+ 
+Index: linux-2.6/drivers/media/video/sn9c102/sn9c102_core.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/sn9c102/sn9c102_core.c
++++ linux-2.6/drivers/media/video/sn9c102/sn9c102_core.c
+@@ -1762,9 +1762,6 @@ static int sn9c102_mmap(struct file* fil
+ 		return -EINVAL;
+ 	}
+ 
+-	vma->vm_flags |= VM_IO;
+-	vma->vm_flags |= VM_RESERVED;
+-
+ 	if (remap_vmalloc_range(vma, cam->frame[i].bufmem, 0)) {
+ 		mutex_unlock(&cam->fileop_mutex);
+ 		return -EAGAIN;
+Index: linux-2.6/drivers/media/video/zc0301/zc0301_core.c
+===================================================================
+--- linux-2.6.orig/drivers/media/video/zc0301/zc0301_core.c
++++ linux-2.6/drivers/media/video/zc0301/zc0301_core.c
+@@ -963,9 +963,6 @@ static int zc0301_mmap(struct file* filp
+ 		return -EINVAL;
+ 	}
+ 
+-	vma->vm_flags |= VM_IO;
+-	vma->vm_flags |= VM_RESERVED;
+-
+ 	if (remap_vmalloc_range(vma, cam->frame[i].bufmem, 0)) {
+ 		mutex_unlock(&cam->fileop_mutex);
+ 		return -EAGAIN;

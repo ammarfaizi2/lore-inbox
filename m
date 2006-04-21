@@ -1,173 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWDUC0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWDUC1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbWDUC0r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 22:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWDUCZw
+	id S932120AbWDUC1F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 22:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWDUC0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 22:25:52 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:1963 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751018AbWDUCZn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 22:25:43 -0400
+	Thu, 20 Apr 2006 22:26:50 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:57040 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750959AbWDUCZ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 22:25:27 -0400
 From: sekharan@us.ibm.com
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
 Cc: sekharan@us.ibm.com
-Date: Thu, 20 Apr 2006 19:25:42 -0700
-Message-Id: <20060421022542.6145.77968.sendpatchset@localhost.localdomain>
+Date: Thu, 20 Apr 2006 19:25:25 -0700
+Message-Id: <20060421022525.6145.81708.sendpatchset@localhost.localdomain>
 In-Reply-To: <20060421022519.6145.78248.sendpatchset@localhost.localdomain>
 References: <20060421022519.6145.78248.sendpatchset@localhost.localdomain>
-Subject: [RFC] [PATCH 4/6] numtasks - Add configuration support
+Subject: [RFC] [PATCH 1/6] numtasks - Initialization routines
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-4/6: ckrm_numtasks_config
+1/6: ckrm_numtasks_init
 
-Use module parameters to dynamically set the total numtasks and maximum
-forkrate allowed
+Hooks up with CKRM core by defining the basic alloc/free functions and
+registering the controller with the core.
 --
 
 Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
 Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
 
- include/linux/moduleparam.h |   12 ++++++--
- kernel/ckrm/ckrm_numtasks.c |   64 +++++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 70 insertions(+), 6 deletions(-)
+ init/Kconfig                |   10 ++++
+ kernel/ckrm/Makefile        |    1 
+ kernel/ckrm/ckrm_numtasks.c |   90 ++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 101 insertions(+)
 
-Index: linux2617-rc2/include/linux/moduleparam.h
+Index: linux2617-rc2/kernel/ckrm/Makefile
 ===================================================================
---- linux2617-rc2.orig/include/linux/moduleparam.h
-+++ linux2617-rc2/include/linux/moduleparam.h
-@@ -75,11 +75,17 @@ struct kparam_array
- /* Helper functions: type is byte, short, ushort, int, uint, long,
-    ulong, charp, bool or invbool, or XXX if you define param_get_XXX,
-    param_set_XXX and param_check_XXX. */
--#define module_param_named(name, value, type, perm)			   \
--	param_check_##type(name, &(value));				   \
--	module_param_call(name, param_set_##type, param_get_##type, &value, perm); \
-+#define module_param_named_call(name, value, type, set, perm)		\
-+	param_check_##type(name, &(value));				\
-+	module_param_call(name, set, param_get_##type, &(value), perm); \
- 	__MODULE_PARM_TYPE(name, #type)
- 
-+#define module_param_named(name, value, type, perm)			   \
-+	module_param_named_call(name, value, type, param_set_##type, perm)
-+
-+#define module_param_set_call(name, type, setfn, perm) \
-+	module_param_named_call(name, name, type, setfn, perm)
-+
- #define module_param(name, type, perm)				\
- 	module_param_named(name, name, type, perm)
- 
+--- linux2617-rc2.orig/kernel/ckrm/Makefile
++++ linux2617-rc2/kernel/ckrm/Makefile
+@@ -1,2 +1,3 @@
+ obj-y = ckrm.o ckrm_shares.o ckrm_task.o
++obj-$(CONFIG_CKRM_RES_NUMTASKS) += ckrm_numtasks.o
+ obj-$(CONFIG_CKRM_RCFS) += ckrm_rcfs.o
 Index: linux2617-rc2/kernel/ckrm/ckrm_numtasks.c
 ===================================================================
---- linux2617-rc2.orig/kernel/ckrm/ckrm_numtasks.c
+--- /dev/null
 +++ linux2617-rc2/kernel/ckrm/ckrm_numtasks.c
-@@ -20,6 +20,13 @@
- 
- static const char res_ctlr_name[] = "numtasks";
- 
-+#define UNLIMITED INT_MAX
-+#define DEF_TOTAL_NUM_TASKS UNLIMITED
-+static int total_numtasks __read_mostly = DEF_TOTAL_NUM_TASKS;
-+
-+static struct ckrm_class *root_class;
-+static int total_cnt_alloc = 0;
-+
- struct ckrm_numtasks {
- 	struct ckrm_class *class;	/* the class i am part of... */
- 	struct ckrm_shares shares;
-@@ -81,6 +88,7 @@ static void inc_usage_count(struct ckrm_
- 	atomic_inc(&res->cnt_cur_alloc);
- 
- 	if (ckrm_is_class_root(res->class)) {
-+		total_cnt_alloc++;
- 		res->successes++;
- 		return;
- 	}
-@@ -89,8 +97,10 @@ static void inc_usage_count(struct ckrm_
- 			(atomic_read(&res->cnt_cur_alloc) > res->cnt_unused)) {
- 		inc_usage_count(get_class_numtasks(res->class->parent));
- 		atomic_inc(&res->cnt_borrowed);
--	} else
--		res->successes++;
-+	} else {
-+		total_cnt_alloc++;
-+  		res->successes++;
-+	}
- }
- 
- static void dec_usage_count(struct ckrm_numtasks *res)
-@@ -101,7 +111,9 @@ static void dec_usage_count(struct ckrm_
- 	if (atomic_read(&res->cnt_borrowed) > 0) {
- 		atomic_dec(&res->cnt_borrowed);
- 		dec_usage_count(get_class_numtasks(res->class->parent));
--	}
-+	} else
-+		total_cnt_alloc--;
-+
- }
- 
- static void numtasks_move_task(struct task_struct *task,
-@@ -146,6 +158,8 @@ static struct ckrm_shares *numtasks_allo
- 		return NULL;
- 	res->class = class;
- 	numtasks_res_init_one(res);
-+	if (ckrm_is_class_root(class))
-+		root_class = class; /* store the root class. */
- 	return &res->shares;
- }
- 
-@@ -307,6 +321,50 @@ struct ckrm_controller numtasks_ctlr = {
- 	.show_stats = numtasks_show_stats,
- };
- 
-+/*
-+ * Writeable module parameters use these set_<parameter> functions to respond
-+ * to changes. Otherwise the values can be read and used any time.
+@@ -0,0 +1,90 @@
++/* ckrm_numtasks.c - "Number of tasks" resource controller for CKRM
++ *
++ * Copyright (C) Chandra Seetharaman,  IBM Corp. 2003-2006
++ *	      (C) Matt Helsley, IBM Corp. 2006
++ *
++ * Latest version, more details at http://ckrm.sf.net
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
 + */
-+static int set_numtasks_config_val(int *var, int old_value, const char *val,
-+				struct kernel_param *kp)
-+{
-+	int rc = param_set_int(val, kp);
 +
-+	if (rc < 0)
-+		return rc;
-+	if (*var < 1) {
-+		*var = old_value;
-+		return -EINVAL;
-+	}
-+	return 0;
++/*
++ * CKRM Resource controller for tracking number of tasks in a class.
++ */
++#include <linux/module.h>
++#include <linux/ckrm_rc.h>
++
++static const char res_ctlr_name[] = "numtasks";
++
++struct ckrm_numtasks {
++	struct ckrm_shares shares;
++};
++
++struct ckrm_controller numtasks_ctlr;
++
++static struct ckrm_numtasks *get_shares_numtasks(struct ckrm_shares *shares)
++{
++	if (shares)
++		return container_of(shares, struct ckrm_numtasks, shares);
++	return NULL;
 +}
 +
-+static int set_total_numtasks(const char *val, struct kernel_param *kp)
++/* Initialize share struct values */
++static void numtasks_res_init_one(struct ckrm_numtasks *numtasks_res)
 +{
-+	int prev = total_numtasks;
-+	int rc = set_numtasks_config_val(&total_numtasks, prev, val, kp);
-+	struct ckrm_numtasks *shares = NULL;
-+
-+	if (!root_class)
-+		return 0;
-+	if (rc < 0)
-+		return rc;
-+	if (total_numtasks <= total_cnt_alloc) {
-+		total_numtasks = prev;
-+		return -EINVAL;
-+	}
-+	shares = get_class_numtasks(root_class);
-+	spin_lock(&root_class->class_lock);
-+	shares->cnt_min_shares = total_numtasks;
-+	shares->cnt_unused = total_numtasks;
-+	shares->cnt_max_shares = total_numtasks;
-+	recalc_and_propagate(shares, NULL);
-+	spin_unlock(&root_class->class_lock);
-+	return 0;
++	numtasks_res->shares.min_shares = CKRM_SHARE_DONT_CARE;
++	numtasks_res->shares.max_shares = CKRM_SHARE_DONT_CARE;
++	numtasks_res->shares.child_shares_divisor = CKRM_SHARE_DEFAULT_DIVISOR;
++	numtasks_res->shares.unused_min_shares = CKRM_SHARE_DEFAULT_DIVISOR;
 +}
-+module_param_set_call(total_numtasks, int, set_total_numtasks,
-+			S_IRUGO | S_IWUSR);
 +
- int __init init_ckrm_numtasks_res(void)
- {
- 	if (numtasks_ctlr.ctlr_id != CKRM_NO_RES_ID)
++static struct ckrm_shares *numtasks_alloc_shares_struct(
++						struct ckrm_class *class)
++{
++	struct ckrm_numtasks *res;
++
++	res = kzalloc(sizeof(struct ckrm_numtasks), GFP_KERNEL);
++	if (!res)
++		return NULL;
++	numtasks_res_init_one(res);
++	return &res->shares;
++}
++
++/*
++ * No locking of this resource class object necessary as we are not
++ * supposed to be assigned (or used) when/after this function is called.
++ */
++static void numtasks_free_shares_struct(struct ckrm_shares *my_res)
++{
++	kfree(get_shares_numtasks(my_res));
++}
++
++struct ckrm_controller numtasks_ctlr = {
++	.name = res_ctlr_name,
++	.depth_supported = 3,
++	.ctlr_id = CKRM_NO_RES_ID,
++	.alloc_shares_struct = numtasks_alloc_shares_struct,
++	.free_shares_struct = numtasks_free_shares_struct,
++};
++
++int __init init_ckrm_numtasks_res(void)
++{
++	if (numtasks_ctlr.ctlr_id != CKRM_NO_RES_ID)
++		return -EBUSY; /* already registered */
++	return ckrm_register_controller(&numtasks_ctlr);
++}
++
++void __exit exit_ckrm_numtasks_res(void)
++{
++	int rc;
++	do {
++		rc = ckrm_unregister_controller(&numtasks_ctlr);
++	} while (rc == -EBUSY);
++	BUG_ON(rc != 0);
++}
++module_init(init_ckrm_numtasks_res)
++module_exit(exit_ckrm_numtasks_res)
+Index: linux2617-rc2/init/Kconfig
+===================================================================
+--- linux2617-rc2.orig/init/Kconfig
++++ linux2617-rc2/init/Kconfig
+@@ -175,6 +175,16 @@ config CKRM_RCFS
+ 	  Say M if unsure, Y to save on module loading. N doesn't make sense
+ 	  when CKRM has been configured.
+ 
++config CKRM_RES_NUMTASKS
++	bool "Number of Tasks Resource Manager"
++	depends on CKRM
++	default y
++	help
++	  Provides a Resource Controller for CKRM that allows limiting no of
++	  tasks a task class can have.
++
++	  Say N if unsure, Y to use the feature.
++
+ endmenu
+ config SYSCTL
+ 	bool "Sysctl support"
 
 -- 
 

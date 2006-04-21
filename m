@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWDULu2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWDULvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbWDULu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 07:50:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWDULu2
+	id S1751289AbWDULvH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 07:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWDULvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 07:50:28 -0400
-Received: from pproxy.gmail.com ([64.233.166.176]:16574 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751286AbWDULu1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 07:50:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YM0HG4L2uxcgsCJxy+PbOiD0hJ4tGlZ4WkRqf3jqwb7cWXuZVPxMqa6wuj9lLLVqFsgquIvHwC54T1/0OPyZ0g/eM47nKOKcCHeGoIzZCHbQhQsOuKZ/P4Zq0yPIpRwodMoIP+G4BGq7tX+OQMFtdeDPY20TlF9EkSXkwI9mxqA=
-Message-ID: <9fe69740604210450h798eded8nff1ef8b98c0f151@mail.gmail.com>
-Date: Fri, 21 Apr 2006 20:50:26 +0900
-From: "Naoaki MAEDA" <maeda.naoaki@gmail.com>
-To: "MAEDA Naoaki" <maeda.naoaki@jp.fujitsu.com>
-Subject: Re: [ckrm-tech] Re: [RFC][PATCH 3/9] CPU controller - Adds timeslice scaling
-Cc: "Mike Galbraith" <efault@gmx.de>, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-In-Reply-To: <44489E27.2090108@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 21 Apr 2006 07:51:07 -0400
+Received: from ns2.suse.de ([195.135.220.15]:10982 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751289AbWDULvF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 07:51:05 -0400
+Date: Fri, 21 Apr 2006 13:51:01 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Patricia Gaughen <gone@us.ibm.com>
+Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
+Message-ID: <20060421115101.GZ21660@wotan.suse.de>
+References: <20060419112130.GA22648@elte.hu> <20060420091856.GB21660@wotan.suse.de> <20060421112049.GA5609@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-	 <20060421022742.13598.7230.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-	 <1145607449.10016.47.camel@homer> <44489E27.2090108@jp.fujitsu.com>
+In-Reply-To: <20060421112049.GA5609@elte.hu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Mike Galbraith wrote:
-> > On Fri, 2006-04-21 at 11:27 +0900, maeda.naoaki@jp.fujitsu.com wrote:
-> >> Index: linux-2.6.17-rc2/kernel/sched.c
-> >> ===================================================================
-> >> --- linux-2.6.17-rc2.orig/kernel/sched.c
-> >> +++ linux-2.6.17-rc2/kernel/sched.c
-> >> @@ -173,10 +173,17 @@
-> >>
-> >>  static unsigned int task_timeslice(task_t *p)
-> >>  {
-> >> +    unsigned int timeslice;
-> >> +
-> >>      if (p->static_prio < NICE_TO_PRIO(0))
-> >> -            return SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
-> >> +            timeslice = SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
-> >>      else
-> >> -            return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
-> >> +            timeslice = SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
-> >> +
-> >> +    if (!TASK_INTERACTIVE(p))
-> >> +            timeslice = cpu_rc_scale_timeslice(p, timeslice);
-> >> +
-> >> +    return timeslice;
-> >>  }
-> >
-> > Why does timeslice scaling become undesirable if TASK_INTERACTIVE(p)?
-> > With this barrier, you will completely disable scaling for many loads.
->
-> Because interactive tasks tend to spend very small timeslice at one
-> time, scaling timeslice for these tasks is not effective to control
-> CPU spent.
+On Fri, Apr 21, 2006 at 01:20:50PM +0200, Ingo Molnar wrote:
+> 
+> * Nick Piggin <npiggin@suse.de> wrote:
+> 
+> > It would be interesting to know which assertion failed. I guess it 
+> > might be a zone alignment problem -- it would be interesting to turn 
+> > the 2 HOLES_IN_ZONE tests into BUG_ONs, and enable them (ie. move them 
+> > out of HOLES_IN_ZONE).
+> 
+> ok, i added a couple of printks (see the patch below), and got this:
+> 
+>  zone c1f0a600 (HighMem):
+>  pfn: 00037d00
+>  zone->zone_start_pfn: 00037e00
+>  zone->spanned_pages: 00007e00
+>  zone->zone_start_pfn + zone->spanned_pages: 0003fc00
+>  ------------[ cut here ]------------
+>  kernel BUG at mm/page_alloc.c:524!
+> 
+> so the pfn is 1MB below the zone's start address - not good. You can 
+> find the full bootup log at:
 
-It was not good explanation. Let me restate that.
-The effect of shortening timeslice is to let the task be expired soon
-by shortening
-its remainder timeclice, so it still works even if the task consome very small
-timeslice at one time. However, expired TASK_INTERACTIVE tasks will be requeued
-to the active for a while by the scheduler, so shortening timeslice
-doesn't work well for
-TASK_INTERACTIVE tasks.
+The zones are 2MB aligned, discontig.c seems to do this. They should
+be 4MB aligned so the page allocator's assumption that zones are 
+contiguous to MAX_ORDER is satisfied.
 
-Thanks,
-MAEDA Naoaki

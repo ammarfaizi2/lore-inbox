@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWDUW6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWDUXBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWDUW6l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 18:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWDUW6l
+	id S1750720AbWDUXBv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 19:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWDUXBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 18:58:41 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:19421 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1750704AbWDUW6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 18:58:41 -0400
-Subject: RE: kfree(NULL)
-From: Daniel Walker <dwalker@mvista.com>
-To: Hua Zhong <hzhong@gmail.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, jmorris@namei.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <000e01c66596$66961750$853d010a@nuitysystems.com>
-References: <000e01c66596$66961750$853d010a@nuitysystems.com>
-Content-Type: text/plain
-Date: Fri, 21 Apr 2006 15:58:38 -0700
-Message-Id: <1145660319.20843.41.camel@localhost.localdomain>
+	Fri, 21 Apr 2006 19:01:51 -0400
+Received: from ns1.suse.de ([195.135.220.2]:33748 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750708AbWDUXBu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 19:01:50 -0400
+Date: Fri, 21 Apr 2006 16:00:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Steven Whitehouse <swhiteho@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 13/16] GFS2: Makefiles and Kconfig
+Message-ID: <20060421230035.GA11190@kroah.com>
+References: <1145636558.3856.118.camel@quoit.chygwyn.com> <20060421164309.GE19754@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060421164309.GE19754@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 15:53 -0700, Hua Zhong wrote:
-> > struct likeliness {
-> > 	char *file;
-> > 	int line;
-> > 	atomic_t true_count;
-> > 	atomic_t false_count;
-> > 	struct likeliness *next;
-> > };
+On Fri, Apr 21, 2006 at 06:43:09PM +0200, Adrian Bunk wrote:
+> > --- /dev/null
+> > +++ b/fs/gfs2/Kconfig
+> > @@ -0,0 +1,46 @@
+> > +config GFS2_FS
+> > +        tristate "GFS2 file system support"
+> > +	default m
+> > +	depends on EXPERIMENTAL
+> > +        select FS_POSIX_ACL
+> > +        select SYSFS
+> >...
 > 
-> It seems including atomic.h inside compiler.h is a bit tricky (might have interdependency).
-> 
-> Can we just live with int instead of atomic_t? We don't really care about losing a count occasionally..
+> - tabs <-> spaces (tabs are correct)
+> - please remove the "default m"
+> - "depends on SYSFS" instead of the select
 
-It's nice so you don't have to fool around with locking .. The atomic_t
-structure is pretty simple thought . I think it boils down to just an
-int anyway .
+Why do you depend on sysfs at all?  If it's not enabled, your code
+should still build just fine, right?  If not, please let us know and we
+will fix the build error in the sysfs.h header file.
 
-Daniel
+thanks,
 
+greg k-h

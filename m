@@ -1,44 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWDUAkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWDUAlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWDUAkn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 20:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWDUAkn
+	id S932183AbWDUAlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 20:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWDUAlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 20:40:43 -0400
-Received: from stinky.trash.net ([213.144.137.162]:13259 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S932180AbWDUAkm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 20:40:42 -0400
-Message-ID: <44482963.4030902@trash.net>
-Date: Fri, 21 Apr 2006 02:37:55 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mikado4vn@gmail.com
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Which process is associated with process ID 0 (swapper)
-References: <4447A19E.9000008@gmail.com> <Pine.LNX.4.61.0604201118200.5749@chaos.analogic.com> <4447B110.4080700@gmail.com> <Pine.LNX.4.61.0604210007140.28841@yvahk01.tjqt.qr> <44481ACE.9040104@gmail.com>
-In-Reply-To: <44481ACE.9040104@gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Apr 2006 20:41:16 -0400
+Received: from mga05.intel.com ([192.55.52.89]:38691 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932183AbWDUAlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 20:41:14 -0400
+X-IronPort-AV: i="4.04,142,1144047600"; 
+   d="scan'208"; a="26649004:sNHT37707152"
+X-IronPort-AV: i="4.04,142,1144047600"; 
+   d="scan'208"; a="25849368:sNHT18315416"
+TrustExchangeSourcedMail: True
+X-IronPort-AV: i="4.04,142,1144047600"; 
+   d="scan'208"; a="25849361:sNHT17285107"
+Date: Thu, 20 Apr 2006 17:38:47 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Keith Owens <kaos@sgi.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       Anderw Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dean Nelson <dcn@sgi.com>, Tony Luck <tony.luck@intel.com>,
+       Anath Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna Panchamukhi <prasanna@in.ibm.com>,
+       Dave M <davem@davemloft.net>, Andi Kleen <ak@suse.de>
+Subject: Re: [(take 2)patch 6/7] Kprobes registers for notify page fault
+Message-ID: <20060420173846.B12536@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20060420233912.410449785@csdlinux-2.jf.intel.com> <18550.1145578444@ocs3.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <18550.1145578444@ocs3.ocs.com.au>; from kaos@sgi.com on Fri, Apr 21, 2006 at 10:14:04AM +1000
+X-OriginalArrivalTime: 21 Apr 2006 00:41:13.0158 (UTC) FILETIME=[4A77B660:01C664DC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikado wrote:
-> Jan Engelhardt wrote:
+On Fri, Apr 21, 2006 at 10:14:04AM +1000, Keith Owens wrote:
+> Anil S Keshavamurthy (on Thu, 20 Apr 2006 16:25:02 -0700) wrote:
+> >---
+> >@@ -654,6 +659,9 @@ static int __init init_kprobes(void)
+> > 	if (!err)
+> > 		err = register_die_notifier(&kprobe_exceptions_nb);
+> > 
+> >+	if (!err)
+> >+		err = register_page_fault_notifier(&kprobe_page_fault_nb);
+> >+
+> > 	return err;
+> > }
+> > 
 > 
->>>Is your code doing it like ipt_owner does?
+> The rest of the patches look OK, but this one does not.  init_kprobes()
+> registers the main kprobe exception handler, not the page fault
+> handler.
+I am registering for register_page_fault_notifier() and as you can see
+I am not deleting the old register_die_notifier() which is also required
+for getting notified on int3/break and single-step traps. 
+So no issues here.
+
 > 
-> 
-> It seems that ipt_owner does _not_ support PID match anymore:
+> Now that there is a dedicated page fault handler, instead of being a
+> subcase of notify_die(), it might be better to delete DIE_PAGE_FAULT
+> completely.  That can be done in this patch set or in some follow on
+> patches.
+It can be done as a follow up (cleanup patch) and if you see the whole
+whole DIE_XXXX is grossly missnamed. I did not want to address two many
+things in one patch.
 
-Yes, it was removed for two reasons:
-
-- it used tasklist_lock from bh-context, resulting in deadlocks
-- there is no 1:1 mapping between sockets (or packets) and
-  processes. If you use corking even a single packet can be
-  created in cooperation by multiple processes.
-
+thanks,
+-Anil Keshavamurthy

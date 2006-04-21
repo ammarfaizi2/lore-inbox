@@ -1,108 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWDUC3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWDUC3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWDUC3d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 22:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWDUC3X
+	id S932123AbWDUC3e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 22:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWDUC3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 22:29:23 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:15590 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932126AbWDUC2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 22:28:52 -0400
+	Thu, 20 Apr 2006 22:29:21 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:43474 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932123AbWDUC3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 22:29:03 -0400
 From: maeda.naoaki@jp.fujitsu.com
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
 Cc: maeda.naoaki@jp.fujitsu.com
-Date: Fri, 21 Apr 2006 11:28:14 +0900
-Message-Id: <20060421022814.13598.238.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+Date: Fri, 21 Apr 2006 11:28:08 +0900
+Message-Id: <20060421022808.13598.60372.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 In-Reply-To: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-Subject: [RFC][PATCH 9/9] CPU controller - Documents how to use the controller
+Subject: [RFC][PATCH 8/9] CPU controller - Adds cpu hotplug notifier
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-9/9: ckrm_cpu_docs
+8/9: ckrm_cpu_hotplug
 
-Documents how to use the CPU controller
+Adds cpu hotplug notifier for the CKRM CPU controller.
 
 Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
 Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
 
- Documentation/ckrm/cpurc |   70 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 70 insertions(+)
+ kernel/ckrm/ckrm_cpu.c |   50 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 50 insertions(+)
 
-Index: linux-2.6.17-rc2/Documentation/ckrm/cpurc
+Index: linux-2.6.17-rc2/kernel/ckrm/ckrm_cpu.c
 ===================================================================
---- /dev/null
-+++ linux-2.6.17-rc2/Documentation/ckrm/cpurc
-@@ -0,0 +1,71 @@
-+Introduction
-+------------
+--- linux-2.6.17-rc2.orig/kernel/ckrm/ckrm_cpu.c
++++ linux-2.6.17-rc2/kernel/ckrm/ckrm_cpu.c
+@@ -243,12 +243,61 @@ struct ckrm_controller cpu_ctlr = {
+ 	.show_stats = cpu_show_stats,
+ };
+ 
++static void clear_stat_and_propagate(struct ckrm_cpu * res, int cpu)
++{
++	struct ckrm_class *child = NULL;
++	struct ckrm_cpu *childres;
 +
-+CPU resource controller enables user/sysadmin to control CPU time
-+percentage of tasks in a class. It controls time_slice of tasks based on
-+the feedback of difference between the target value and the current usage
-+in order to control the percentage of the CPU usage to the target value.
++	cpu_rc_clear_stat(&res->cpu_rc, cpu);
 +
-+Installation
-+------------
++	/* propagate to children */
++	spin_lock(&res->class->class_lock);
++	for_each_child(child, res->class) {
++		childres = get_class_cpu(child);
++		if (childres) {
++		    spin_lock(&child->class_lock);
++		    clear_stat_and_propagate(childres, cpu);
++		    spin_unlock(&child->class_lock);
++		}
++	}
++	spin_unlock(&res->class->class_lock);
++}
 +
-+1. Configure "CPU Resource Controller" under CKRM. Currently, this cannot be
-+configured as a module.
++static int __devinit ckrm_cpu_notify(struct notifier_block *self,
++				unsigned long action, void *hcpu)
++{
++	struct ckrm_class *cls = &ckrm_default_class;
++	struct ckrm_cpu *res;
++	int	cpu = (long) hcpu;
 +
-+2. Reboot the system with the new kernel.
++	switch (action)	{
 +
-+3. Verify that the CPU resource controller is present by reading
-+the file /config/ckrm/shares (should show a line with res=cpu).
++	case CPU_DEAD:
++		res = get_class_cpu(cls);
++		clear_stat_and_propagate(res, cpu);
++		/* FALL THROUGH */
++	case CPU_ONLINE:
++		grcd.cpus = cpu_online_map;
++		grcd.numcpus = cpus_weight(cpu_online_map);
++		break;
++	default:
++		break;
++	}
++	return NOTIFY_OK;
++}
 +
-+Assigning shares
-+----------------
++static struct notifier_block ckrm_cpu_nb = {
++	.notifier_call	= ckrm_cpu_notify,
++};
 +
-+Follows the general approach of setting shares for a class in CKRM.
-+
-+# echo "res=cpu,min_shares=val" > shares
-+
-+sets the min_shares of a class.
-+
-+The CPU resource controller calculates an effective min_shares in percent
-+for each class. Following is an example of class/min_shares settings
-+and each effective min_shares.
-+
-+			/
-+			  effective_min_shares
-+			  = 100% - 50% - 30%
-+			  = 20%
-+	+---------------+---------------+
-+	/A min_shares=50%		/B min_shares=30%
-+	   effective_min_shares		   effective_min_shares
-+	   = 50% - 10% - 25%	    	   = 30% - 0%
-+	   = 15%			   = 30%
-++---------------+---------------+
-+/C min_shares=20%		/D min_shares=50%
-+effective_min_shares		   effective_min_shares
-+= 20% of 50% - 0% = 10%	   = 50% of 50% - 0 %
-+= 10%			   = 25%
-+
-+If the min_shares in the class /A is changed 50% to 40% in the above
-+example, the effective_min_shares of the class /A, /C and /D are automatically
-+changed to 12%, 8% and 20% respectively.
-+
-+Although the child_shares_divisor can be changed, the effective_min_shares is
-+always calculated in percent.
-+
-+Note that the CPU resource controller doesn't support the limit, so assigning
-+the limit for "res=cpu" will have no effect.
-+
-+Monitoring
-+----------
-+
-+stats file shows the effective min_shares and the current cpu usage of a class
-+in percentage.
-+
-+# cat stats
-+cpu:effective_min_shares=50, load=40
-+
-+That means the effective min_shares of the class is 50% and the current load
-+average of the class is 40%.
-+
-+Since the tasks in the class do not always try to consume CPU, the load could be
-+less or greater than the effective_min_shares. Both cases are normal.
+ int __init init_ckrm_cpu_res(void)
+ {
+ 	if (cpu_ctlr.ctlr_id != CKRM_NO_RES_ID)
+ 		return -EBUSY; /* already registered */
+ 	cpu_rc_init_rcd(&grcd);
+ 	printk(KERN_INFO "init_ckrm_cpu_res %d cpus available\n", grcd.numcpus);
++	/* Register notifier for non-boot CPUs */
++	register_cpu_notifier(&ckrm_cpu_nb);
+ 	return ckrm_register_controller(&cpu_ctlr);
+ }
+ 
+@@ -259,6 +308,7 @@ void __exit exit_ckrm_cpu_res(void)
+ 		rc = ckrm_unregister_controller(&cpu_ctlr);
+ 	} while (rc == -EBUSY);
+ 	BUG_ON(rc != 0);
++	unregister_cpu_notifier(&ckrm_cpu_nb);
+ }
+ 
+ module_init(init_ckrm_cpu_res)

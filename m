@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWDUPp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWDUPq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWDUPp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 11:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWDUPp7
+	id S1751256AbWDUPq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 11:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWDUPq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 11:45:59 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:37574 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751188AbWDUPp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 11:45:59 -0400
-Subject: Re: [PATCH/RFC] s390: Hypervisor File System
-From: Pekka Enberg <penberg@cs.helsinki.fi>
+	Fri, 21 Apr 2006 11:46:26 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:25225 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751256AbWDUPqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 11:46:25 -0400
+Date: Fri, 21 Apr 2006 17:46:18 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
 To: Michael Holzheu <HOLZHEU@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mschwid2@de.ibm.com, penberg@gmail.com
-In-Reply-To: <OF5500FC25.13788C4B-ON42257157.004C98F0-42257157.004DB206@de.ibm.com>
-References: <OF5500FC25.13788C4B-ON42257157.004C98F0-42257157.004DB206@de.ibm.com>
-Date: Fri, 21 Apr 2006 18:38:18 +0300
-Message-Id: <1145633898.13191.9.camel@localhost>
+Cc: linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH/RFC] s390: Hypervisor File System
+Message-ID: <20060421154618.GC32710@wohnheim.fh-wedel.de>
+References: <20060421151800.GB32710@wohnheim.fh-wedel.de> <OFC950CF81.274302A0-ON42257157.00555085-42257157.0055C641@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <OFC950CF81.274302A0-ON42257157.00555085-42257157.0055C641@de.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Michael,
+On Fri, 21 April 2006 17:36:53 +0200, Michael Holzheu wrote:
+> 
+> That would be ok for us, since we do not have any newlines
+> in our strings. I will include this in the next patch!
 
-On Fri, 2006-04-21 at 16:08 +0200, Michael Holzheu wrote:
-> The first one was, that the hardware interface for getting the data is
-> very expensive. We always get back the data for all LPARs and all
-> cpus. Therefore we do not want to get the data every time an attribute
-> file is read.
+Thanks!
 
-You can cache the results in userspace. So I don't see this one as an
-argument for making the kernel more complex.
+It would be nice to seperate this patch out from the rest.  It is
+useful independently of when and whether hypfs gets merged.
 
-On Fri, 2006-04-21 at 16:08 +0200, Michael Holzheu wrote:
-> The second problem was, that we want to provide a consistent snapshot
-> of the hypervisor data for the user space application.
+Jörn
 
-How do you ensure consistency now? And how is that different from an
-userspace process reading the whole directory hierarchy into cache in
-one go?
-
-The update-on-write to special file thing seems bit strange to me. What
-if two processes ask for it at the same time?
-
-				Pekka
-
+-- 
+Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it.
+-- Brian W. Kernighan

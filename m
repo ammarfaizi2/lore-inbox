@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWDUA1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWDUA2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWDUA1X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 20:27:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWDUA1X
+	id S932176AbWDUA2G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 20:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWDUA2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 20:27:23 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:26034 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S932175AbWDUA1W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 20:27:22 -0400
-Date: Thu, 20 Apr 2006 16:26:54 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Piet Delaney <piet@bluelane.com>, Jens Axboe <axboe@suse.de>,
-       "David S. Miller" <davem@davemloft.net>, diegocg@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.17-rc2
-In-Reply-To: <Pine.LNX.4.64.0604201649100.3701@g5.osdl.org>
-Message-ID: <Pine.LNX.4.62.0604201624330.25281@qynat.qvtvafvgr.pbz>
-References: <20060419200001.fe2385f4.diegocg@gmail.com> 
- <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>   <20060420145041.GE4717@suse.de>
-  <20060420.122647.03915644.davem@davemloft.net>   <20060420193430.GH4717@suse.de>
-  <1145569031.25127.64.camel@piet2.bluelane.com>  
- <Pine.LNX.4.64.0604201512070.3701@g5.osdl.org><1145576344.25127.120.camel@p
- iet2.bluelane.com> <Pine.LNX.4.64.0604201649100.3701@g5.osdl.org>
+	Thu, 20 Apr 2006 20:28:06 -0400
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:30562 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932176AbWDUA2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 20:28:05 -0400
+Message-ID: <44482712.5030401@bigpond.net.au>
+Date: Fri, 21 Apr 2006 10:28:02 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, efault@gmx.de,
+       nickpiggin@yahoo.com.au, mingo@elte.hu, kernel@kolivas.org,
+       kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] smpnice: don't consider sched groups which are lightly
+ loaded for balancing
+References: <20060328185202.A1135@unix-os.sc.intel.com>	<442A0235.1060305@bigpond.net.au>	<20060329145242.A11376@unix-os.sc.intel.com>	<442B1AE8.5030005@bigpond.net.au>	<20060329165052.C11376@unix-os.sc.intel.com>	<442B3111.5030808@bigpond.net.au>	<20060401204824.A8662@unix-os.sc.intel.com>	<442F7871.4030405@bigpond.net.au>	<20060419182444.A5081@unix-os.sc.intel.com>	<444719F8.2050602@bigpond.net.au>	<20060420095408.A10267@unix-os.sc.intel.com> <20060420164936.5988460d.akpm@osdl.org>
+In-Reply-To: <20060420164936.5988460d.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 21 Apr 2006 00:28:03 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Apr 2006, Linus Torvalds wrote:
+Andrew Morton wrote:
+> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+>> updated patch appended. thanks.
+> 
+> Where are we up to with smpnice now?  Are there still any known
+> regressions/problems/bugs/etc?
 
-> (Some users may even be able to take _advantage_ of the fact that the
-> buffer is "in flight" _and_ mapped into user space after it has been
-> submitted. You could imagine code that actually goes on modifying the
-> buffer even while it's being queued for sending. Under some strange
-> circumstances that may actually be useful, although with things like
-> checksums that get invalidated by you changing the data while it's queued
-> up, it may not be acceptable for everything, of course).
+One more change to move_tasks() is required to address an issue raised 
+by Suresh w.r.t. the possibility unnecessary movement of the highest 
+priority task from the busiest queue (possible because of the 
+active/expired array mechanism).  I hope to forward a patch for this 
+later today.
 
-I could see this in some sort of logging/monitoring situation where you 
-want the latest data you can possibly get at each write. with the 
-appropriate care in write ordering you could have one thread update the 
-buffer continuously and the buffer gets written out periodicly, what gets 
-written is the latest possible info.
+After that the only thing I would like to do at this stage is modify 
+try_to_wake_up() so that it tries harder to distribute high priority 
+tasks across the CPUs.  I wouldn't classify this as absolutely necessary 
+as it's really just a measure that attempts to reduce latency for high 
+priority tasks as it should get them onto a CPU more quickly than just 
+sticking them anywhere and waiting for load balancing to kick in if 
+they've been put on a CPU with a higher priority task already running. 
+Also it's only really necessary when there a lot of high priority tasks 
+running.  So this isn't urgent and probably needs to be coordinated with 
+Ingo's RT load balancing stuff anyway.
 
-definantly not a common case, but I could see it's use in some cases.
+>  Has sufficient testing been done for us to
+> know this?
 
-David Lang
+I run smpnice kernels on all of my SMP machines all of the time.  But I 
+don't have anything with more than 2 CPUs so I've been relying on their 
+presence in -mm to get wider testing on larger machines.
 
+I think that once this patch and the move_tasks() one that I'll forward 
+later today are incorporated we should have something that (although not 
+perfect) works pretty well.  Neither of these changes should cause a 
+behavioural change in the case where all tasks are nice==0.
+
+As load balancing is inherently probabilistic I don't think that we 
+should hold out for "perfect".
+
+Peter
 -- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

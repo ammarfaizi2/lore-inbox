@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWDUKpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWDUK5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWDUKpp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 06:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWDUKpp
+	id S932288AbWDUK5h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 06:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWDUK5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 06:45:45 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:60890 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932223AbWDUKpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 06:45:44 -0400
-From: Arnd Bergmann <arnd@arndb.de>
+	Fri, 21 Apr 2006 06:57:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62357 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932239AbWDUK5g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 06:57:36 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060420171118.119ddb4e.akpm@osdl.org> 
+References: <20060420171118.119ddb4e.akpm@osdl.org>  <20060420171857.GA21659@infradead.org> <20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com> <20060420165932.9968.40376.stgit@warthog.cambridge.redhat.com> <22114.1145556402@warthog.cambridge.redhat.com> 
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] fix spu_callbacks BUILD_BUG_ON
-Date: Fri, 21 Apr 2006 12:45:27 +0200
-User-Agent: KMail/1.9.1
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, davem@davemloft.net,
-       Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org
-References: <20060421080239.GC4717@suse.de> <20060421022555.2d460805.akpm@osdl.org> <200604211241.36596.arnd@arndb.de>
-In-Reply-To: <200604211241.36596.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604211245.27744.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Cc: David Howells <dhowells@redhat.com>, hch@infradead.org, torvalds@osdl.org,
+       steved@redhat.com, sct@redhat.com, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] FS-Cache: Avoid ENFILE checking for kernel-specific open files 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Fri, 21 Apr 2006 11:57:09 +0100
+Message-ID: <31581.1145617029@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every time a new syscall gets added, a BUILD_BUG_ON in
-arch/powerpc/platforms/cell/spu_callbacks.c gets triggered.
-Since the addition of a new syscall is rather harmless,
-the error should just be removed.
+Andrew Morton <akpm@osdl.org> wrote:
 
-While we're here, add sys_tee to the list and add a comment
-to systbl.S to remind people that there is another list
-on powerpc.
+> That would seem to be a great shortcoming in fscache.
 
-Signed-of-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+It's not something that's easy to get around.  The file has to be "open" to be
+able to do certain operations on it.
 
---- linus-2.6.orig/arch/powerpc/platforms/cell/spu_callbacks.c
-+++ linus-2.6/arch/powerpc/platforms/cell/spu_callbacks.c
-@@ -317,17 +317,16 @@ void *spu_syscall_table[] = {
- 	[__NR_ppoll]			sys_ni_syscall, /* sys_ppoll */
- 	[__NR_unshare]			sys_unshare,
- 	[__NR_splice]			sys_splice,
-+	[__NR_tee]			sys_tee,
- };
- 
- long spu_sys_callback(struct spu_syscall_block *s)
- {
- 	long (*syscall)(u64 a1, u64 a2, u64 a3, u64 a4, u64 a5, u64 a6);
- 
--	BUILD_BUG_ON(ARRAY_SIZE(spu_syscall_table) != __NR_syscalls);
--
- 	syscall = spu_syscall_table[s->nr_ret];
- 
--	if (s->nr_ret >= __NR_syscalls) {
-+	if (s->nr_ret >= ARRAY_SIZE(spu_syscall_table)) {
- 		pr_debug("%s: invalid syscall #%ld", __FUNCTION__, s->nr_ret);
- 		return -ENOSYS;
- 	}
-Index: linus-2.6/arch/powerpc/kernel/systbl.S
-===================================================================
---- linus-2.6.orig/arch/powerpc/kernel/systbl.S
-+++ linus-2.6/arch/powerpc/kernel/systbl.S
-@@ -324,3 +324,8 @@ COMPAT_SYS(ppoll)
- SYSCALL(unshare)
- SYSCALL(splice)
- SYSCALL(tee)
-+
-+/*
-+ * please add new calls to arch/powerpc/platforms/cell/spu_callbacks.c
-+ * as well when appropriate.
-+ */
+> I guess as memory reclaim reaps the top-level dentries those file*'s will
+> also be freed up, leading to their dentries becoming reclaimable, leading
+> to their inodes being reclaimable.
+
+Exactly.
+
+> But still.  Is it not possible to release those files-pinned-by-dcache when
+> the top-level files are closed?
+
+No, for three (or maybe four) reasons:
+
+ (1) You assume there's a "top-level" file open.  AFS lookup(), for example,
+     will read the cache to get the directory contents, but there will _not_
+     be an open top-level file.
+
+     We could open and close the cache file in each lookup(), but that could
+     be very bad for lookup performance.
+
+ (2) mmap() may still have the struct file open, even though the last close()
+     has happened.
+
+ (3) There may be pages not yet written to the cache outstanding.  These
+     belong to the netfs *inode* not the netfs *file*.  Whilst the flush or
+     release file operation could be made to wait for these, that's not
+     necessarily within their spec, and could take a long time.  How far is
+     the flush op supposed to go anyway?
+
+ (4) It prevents the data file going away whilst we have a cookie for it
+     (someone might go into the cache and delete something they shouldn't).
+
+     Pinning the dentry might work just as well, I suppose, but it makes
+     little difference to the resource consumption.
+
+     We keep at least the dentry available so that we can honour the netfs's
+     requests to update the auxiliary data as quickly as possible.
+
+David

@@ -1,112 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWDUSmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWDUSmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWDUSmW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 14:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWDUSmW
+	id S1751296AbWDUSmj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 14:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWDUSmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 14:42:22 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25796 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751296AbWDUSmV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 14:42:21 -0400
-Date: Fri, 21 Apr 2006 20:41:49 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Tony Jones <tonyj@suse.de>
-Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-       linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 6/11] security: AppArmor - Userspace interface
-Message-ID: <20060421184149.GA2078@elf.ucw.cz>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419174954.29149.80464.sendpatchset@ermintrude.int.wirex.com> <20060420213943.GD2360@ucw.cz> <20060421180115.GB740@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060421180115.GB740@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 21 Apr 2006 14:42:39 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:42488 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751296AbWDUSmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 14:42:38 -0400
+Subject: Re: Linux 2.6.17-rc2
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Piet Delaney <piet@bluelane.com>, Jens Axboe <axboe@suse.de>,
+       "David S. Miller" <davem@davemloft.net>, diegocg@gmail.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1145643326.22730.4.camel@localhost.localdomain>
+References: <20060419200001.fe2385f4.diegocg@gmail.com>
+	 <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
+	 <20060420145041.GE4717@suse.de>
+	 <20060420.122647.03915644.davem@davemloft.net>
+	 <20060420193430.GH4717@suse.de>
+	 <1145569031.25127.64.camel@piet2.bluelane.com>
+	 <Pine.LNX.4.64.0604201512070.3701@g5.osdl.org>
+	 <Pine.LNX.4.64.0604211047540.3701@g5.osdl.org>
+	 <1145643326.22730.4.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 21 Apr 2006 14:42:27 -0400
+Message-Id: <1145644947.22730.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > +/**
-> > > + * aa_activate_profile - unpack a serialized profile
-> > > + * @e: serialized data extent information
-> > > + * @error: error code returned if unpacking fails
-> > > + */
-> > > +static struct aaprofile *aa_activate_profile(struct aa_ext *e, ssize_t *error)
-> > > +{
-> > > +	struct aaprofile *profile = NULL;
-> > > +	const char *rulename = "";
-> > > +	const char *error_string = "Invalid Profile";
-> > > +
-> > > +	*error = -EPROTO;
-> > > +
-> > > +	profile = alloc_aaprofile();
-> > > +	if (!profile) {
-> > > +		error_string = "Could not allocate profile";
-> > > +		*error = -ENOMEM;
-> > > +		goto fail;
-> > > +	}
-> > > +
-> > > +	/* check that we have the right struct being passed */
-> > > +	AA_READ_X(e, AA_STRUCT, NULL, "profile");
-> > > +	AA_READ_X(e, AA_DYN_STRING, &profile->name, NULL);
-> > > +
-> > > +	error_string = "Invalid flags";
-> > > +	/* per profile debug flags (debug, complain, audit) */
-> > > +	AA_READ_X(e, AA_STRUCT, NULL, "flags");
-> > > +	AA_READ_X(e, AA_U32, &(profile->flags.debug), "profile.flags.debug");
-> > > +	AA_READ_X(e, AA_U32, &(profile->flags.complain),
-> > > +		  "profile.flags.complain");
-> > > +	AA_READ_X(e, AA_U32, &(profile->flags.audit), "profile.flags.audit");
-> > > +	AA_READ_X(e, AA_STRUCTEND, NULL, NULL);
-> > > +
-> > > +	error_string = "Invalid capabilities";
-> > > +	AA_READ_X(e, AA_U32, &(profile->capabilities), "profile.capabilities");
-> > > +
-> > > +	/* get the file entries. */
-> > > +	AA_ENTRY_LIST("pgent");		/* pcre rules */
-> > > +	AA_ENTRY_LIST("sgent");		/* simple globs */
-> > > +	AA_ENTRY_LIST("fent");		/* regular file entries */
-> > > +
-> > > +	/* get the net entries */
-> > > +	if (aa_is_nameX(e, AA_LIST, NULL, "net")) {
-> > > +		error_string = "Invalid net entry";
-> > > +		while (!aa_is_nameX(e, AA_LISTEND, NULL, NULL)) {
-> > > +			if (!aa_activate_net_entry(e))
-> > > +				goto fail;
-> > > +		}
-> > > +	}
-> > > +	rulename = "";
-> > > +
-> > > +	/* get subprofiles */
-> > > +	if (aa_is_nameX(e, AA_LIST, NULL, "hats")) {
-> > > +		error_string = "Invalid profile hat";
-> > > +		while (!aa_is_nameX(e, AA_LISTEND, NULL, NULL)) {
-> > > +			struct aaprofile *subprofile;
-> > > +			subprofile = aa_activate_profile(e, error);
-> > > +			if (!subprofile)
-> > > +				goto fail;
-> > > +			subprofile->parent = profile;
-> > > +			list_add(&subprofile->list, &profile->sub);
-> > > +		}
-> > > +	}
-> > > +
-> > > +	error_string = "Invalid end of profile";
-> > > +	AA_READ_X(e, AA_STRUCTEND, NULL, NULL);
-> > > +
-> > > +	return profile;
+On Fri, 2006-04-21 at 14:15 -0400, Steven Rostedt wrote:
+> On Fri, 2006-04-21 at 10:58 -0700, Linus Torvalds wrote:
+> > I got slashdotted! Yay!
 > > 
-> > Is this kind of transltion neccessary?
+> > On Thu, 20 Apr 2006, Linus Torvalds wrote:
+> > > 
+> > > I claim that Mach people (and apparently FreeBSD) are incompetent idiots. 
+> > 
+> > I also claim that Slashdot people usually are smelly and eat their 
+> > boogers, and have an IQ slightly lower than my daughters pet hamster 
+> > (that's "hamster" without a "p", btw, for any slashdot posters out 
+> > there. Try to follow me, ok?).
+> > 
+> > Furthermore, I claim that anybody that hasn't noticed by now that I'm an 
+> > opinionated bastard, and that "impolite" is my middle name, is lacking a 
+> > few clues.
+> > 
+> > Finally, it's clear that I'm not only the smartest person around, I'm also 
+> > incredibly good-looking, and that my infallible charm is also second only 
+> > to my becoming modesty. 
 > 
-> Don't understand. Please expand/clarify.  The code serializes the profile data 
-> from userspace. 
+> I'll vouch for your handsomeness, as in this picture, I'm trying to be
+> your twin: http://www.kihontech.com/pics/torvalds.jpg  Ha! I bet you
+> never knew we've met.
+> 
 
-Yes, and it looks quite complex; would it be possible to get rid of
-this serializing code? Could some existing infrastructure be used? One
-file per value? Just pass the structure and make sure userspace is
-matched to kernel? Something else?
+Oh, and BTW, Linus, I never apologized for that shot. It was probably
+the reason you don't walk around the Expo's at LinuxWorld.  I was the
+first person to recognize you at the first LinuxWorldExpo in
+San Fransisco in 1998 and walked up to ask for the photograph. After the
+shot was taken, it attracted the attention of others in the area, and
+then within seconds you were mobbed.  So I now apologize for causing you
+that headache ;-)
 
-								Pavel
--- 
-Thanks for all the (sleeping) penguins.
+And about that shot... Unfortunately(maybe?) the guy taking the picture
+hit the button too quickly and neither of us were ready for it.  You
+then looked at me and said "Well that should be an interesting photo"
+and proceeded to walk away (just before being mobbed).
+
+Thanks,
+
+-- Steve
+
+

@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWDUQ7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWDURGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932421AbWDUQ7K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 12:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWDUQ7K
+	id S1751305AbWDURGM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 13:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWDURGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 12:59:10 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:31717 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932421AbWDUQ7J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 12:59:09 -0400
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-In-Reply-To: <1145630992.3373.6.camel@localhost.localdomain>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-	 <1145630992.3373.6.camel@localhost.localdomain>
+	Fri, 21 Apr 2006 13:06:12 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:64916 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751305AbWDURGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 13:06:12 -0400
+Subject: Re: [PATCH] Rename "swapper" to "idle"
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Michael Buesch <mb@bu3sch.de>, mikado4vn@gmail.com,
+       linux-kernel@vger.kernel.org, Hua Zhong <hzhong@gmail.com>
+In-Reply-To: <Pine.LNX.4.61.0604211708300.31515@yvahk01.tjqt.qr>
+References: <000301c66503$3bbd8060$0200a8c0@nuitysystems.com>
+	 <4448EEE7.5010708@gmail.com> <200604211656.50485.mb@bu3sch.de>
+	 <Pine.LNX.4.61.0604211708300.31515@yvahk01.tjqt.qr>
 Content-Type: text/plain
-Organization: IBM
-Date: Fri, 21 Apr 2006 09:58:42 -0700
-Message-Id: <1145638722.14804.0.camel@linuxchandra>
+Date: Fri, 21 Apr 2006 13:05:58 -0400
+Message-Id: <1145639158.24962.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 07:49 -0700, Dave Hansen wrote:
-> On Thu, 2006-04-20 at 19:24 -0700, sekharan@us.ibm.com wrote:
-> > CKRM has gone through a major overhaul by removing some of the complexity,
-> > cutting down on features and moving portions to userspace.
-> 
-> What do you want done with these patches?  Do you think they are ready
-> for mainline?  -mm?  Or, are you just posting here for comments?
-> 
+On Fri, 2006-04-21 at 17:08 +0200, Jan Engelhardt wrote:
+> >> > Swapper does not do these things. It just happens to be "running" at that time (and it is always running if the system is idle).
+> >> >
+> >> > IOW, it is indeed an "idle" process. In fact, all it does is cpu_idle().
+> >> 
+> >> Really? Are your sure that swapper only does cpu_idle()???
+> >
+> >Yes.
+> >Idle is by definition Nothing.
+> >
 
-We think it is ready for -mm. But, want to go through a review cycle in
-lkml before i request Andrew for that.
+> So call it "voidd" :>
 
-Thanks for asking,
+That should be "kvoidd" :P
 
-chandra
-> -- Dave
-> 
-> 
-> 
-> -------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+-- Steve
 
 

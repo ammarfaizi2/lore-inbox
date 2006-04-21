@@ -1,49 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWDUUae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWDUUa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWDUUae (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 16:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWDUUad
+	id S1751358AbWDUUa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 16:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWDUUa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 16:30:33 -0400
-Received: from cantor.suse.de ([195.135.220.2]:6340 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751310AbWDUUac (ORCPT
+	Fri, 21 Apr 2006 16:30:56 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:23474 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1751355AbWDUUal (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 16:30:32 -0400
-Date: Fri, 21 Apr 2006 13:29:18 -0700
-From: Greg KH <gregkh@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: chrisw@sous-sol.org, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove the Root Plug Support sample module
-Message-ID: <20060421202918.GB32119@suse.de>
-References: <20060421201943.GJ19754@stusta.de>
+	Fri, 21 Apr 2006 16:30:41 -0400
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Valdis.Kletnieks@vt.edu
+Cc: Chris Wright <chrisw@sous-sol.org>, James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+In-Reply-To: <200604212006.k3LK6LtH015500@turing-police.cc.vt.edu>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <1145470463.3085.86.camel@laptopd505.fenrus.org>
+	 <p73mzeh2o38.fsf@bragg.suse.de>
+	 <1145522524.3023.12.camel@laptopd505.fenrus.org>
+	 <20060420192717.GA3828@sorel.sous-sol.org>
+	 <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060421173008.GB3061@sorel.sous-sol.org>
+	 <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil>
+	 <200604212006.k3LK6LtH015500@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Fri, 21 Apr 2006 16:35:04 -0400
+Message-Id: <1145651704.21749.305.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060421201943.GJ19754@stusta.de>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 10:19:43PM +0200, Adrian Bunk wrote:
-> No matter whether LSM will stay or not, there's no reason to include a 
-> sample module in the build (e.g. Debian kernels are currently shipping 
-> this module).
+On Fri, 2006-04-21 at 16:06 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 21 Apr 2006 14:07:33 EDT, Stephen Smalley said:
+> > On Fri, 2006-04-21 at 10:30 -0700, Chris Wright wrote:
+> > > * Stephen Smalley (sds@tycho.nsa.gov) wrote:
+> > > > Difficult to evaluate, when the answer whenever a flaw is pointed out is
+> > > > "that's not in our threat model."  Easy enough to have a protection
+> > > > model match the threat model when the threat model is highly limited
+> > > > (and never really documented anywhere, particularly in a way that might
+> > > > warn its users of its limitations).
+> > > 
+> > > I know, there's two questions.  Whether the protection model is valid,
+> > > and whether the threat model is worth considering.  So far, I've not
+> > > seen anything that's compelling enough to show AppArmor fundamentally
+> > > broken.  Ugly and inefficient, yes...broken, not yet.
+> > 
+> > Access control of any form requires unambiguous identification of
+> > subjects and objects in the system.   Paths don't achieve such
+> > identification.  Is that broken enough?  If not, what is?  What
+> > qualifies as broken?
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> I'd be willing to at least *listen* to an argument of the form "paths are
+> in general broken, but we have constraints X, Y, and Z on the system such
+> that the broken parts never manifest" (for instance, a restriction on
+> hardlinks that prevents hardlinking 2 files unless the resulting security
+> domains of the two paths would be identical).
 
-As much as I'd like to agree with this (SuSE also ships this module for
-some odd reason), I do have reports of people using it for their
-machines at times.
+IIUC, AppArmor does impose such constraints, but only from the
+perspective of an individual program's profile.  Upon link(2), they
+check that the program had link permission to the old link name and that
+both the old link name and new link name have consistent permissions in
+the profile, and they prohibit or limit by capability the ability to
+manipulate the namespace by confined programs.  But this doesn't mean
+that another program running under a different profile can't create such
+a link (if allowed to do so by its profile, of course), or that an
+unconfined process cannot do so.  There is no real "system policy" or
+system-wide security properties with AppArmor; you can only look at it
+in terms of individual programs (which themselves are identified by path
+too).
 
-So, I'd like to keep this in the tree, for as long as the LSM interface
-sticks around, if possible.  It's not hurting anything, and it does work
-for users, and is a good example starting point for people wanting to
-use the LSM interface.
+> However, I'll say up front that such an argument would only suffice to
+> move it from "broken" to "very brittle in face of changes" (for instance,
+> would such a hardlink restriction cause collateral damage that an attacker
+> could exploit?  How badly does it fail in the face of a misdesigned policy?)
 
-Unless there are any known security problems with it?  If so, please let
-me know.
+Indeed.  I think Thomas Bleher made a good assessment of it in:
+https://lists.ubuntu.com/archives/ubuntu-hardened/2006-March/000143.html
 
-thanks,
+-- 
+Stephen Smalley
+National Security Agency
 
-greg k-h

@@ -1,108 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWDULBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWDULR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWDULBm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 07:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWDULBl
+	id S1751065AbWDULR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 07:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWDULR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 07:01:41 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:16846 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S932283AbWDULBl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 07:01:41 -0400
-Date: Fri, 21 Apr 2006 13:01:40 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chandra Seetharaman <sekharan@us.ibm.com>, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com, akpm@osdl.org
-Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
-Message-ID: <20060421110140.GC14841@MAIL.13thfloor.at>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Chandra Seetharaman <sekharan@us.ibm.com>, linux-xfs@oss.sgi.com,
-	xfs-masters@oss.sgi.com, akpm@osdl.org
-References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
+	Fri, 21 Apr 2006 07:17:28 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:10391 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1750905AbWDULR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 07:17:27 -0400
+Subject: Re: [Ext2-devel] Re: [RFC][PATCH 0/2]Extend ext3 filesystem limit
+	from 8TB to 16TB
+From: Laurent Vivier <Laurent.Vivier@bull.net>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Andrew Morton <akpm@osdl.org>, Takashi Sato <sho@tnes.nec.co.jp>,
+       linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <1145543970.5872.38.camel@openx2.frec.bull.fr>
+References: <1143530126.11560.6.camel@openx2.frec.bull.fr>
+	 <1143568905.3935.13.camel@dyn9047017067.beaverton.ibm.com>
+	 <1143623605.5046.11.camel@openx2.frec.bull.fr>
+	 <1143682730.4045.145.camel@dyn9047017067.beaverton.ibm.com>
+	 <20060329175446.67149f32.akpm@osdl.org>
+	 <1144660270.5816.3.camel@openx2.frec.bull.fr>
+	 <20060410012431.716d1000.akpm@osdl.org>
+	 <1144941999.2914.1.camel@openx2.frec.bull.fr>
+	 <20060417210746.GB3945@localhost.localdomain>
+	 <1145308176.2847.90.camel@laptopd505.fenrus.org>
+	 <20060417213201.GC3945@localhost.localdomain>
+	 <1145344481.17767.1.camel@openx2.frec.bull.fr>
+	 <1145345407.2976.13.camel@laptopd505.fenrus.org>
+	 <1145394113.3771.11.camel@dyn9047017067.beaverton.ibm.com>
+	 <1145543970.5872.38.camel@openx2.frec.bull.fr>
+Message-Id: <1145618233.7795.13.camel@openx2.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-14) 
+Date: Fri, 21 Apr 2006 13:17:13 +0200
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/04/2006 13:19:58,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/04/2006 13:20:00,
+	Serialize complete at 21/04/2006 13:20:00
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jbeFcBwhLxsSrRSpZTK+"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 18, 2006 at 08:27:37PM -0700, Linus Torvalds wrote:
-> 
-> Instead of the normal one-week release schedule, there was now two weeks 
-> between 2.6.17-rc1 and -rc2, partly because I was travelling for one of 
-> those weeks, but partly because it was really quiet for a while. Likely a 
-> lot of people are concentrating on 2.6.16 and vendor releases.
 
-[rest zapped]
+--=-jbeFcBwhLxsSrRSpZTK+
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-here is the 'updated' bug report on the xfs issue which
-seems to have been introduced with 2.6.17-rc1
+Le jeu 20/04/2006 =C3=A0 16:39, Laurent Vivier a =C3=A9crit :=20
+> The functions added by my patch are following and as they are atomic
+> (one machine instruction) they are not measurable and don't appears in
+> oprofile.
+>=20
+> atomic_long_add
+> atomic_long_read
+> atomic_long_set
+> atomic_long_inc
 
-note: 2.6.16.8 does not have this issue
+I think, as these commands are atomic/inlined we should measure the time
+of the functions modified by the patches.
 
-best,
-Herbert
+The functions modified by the patch are:
 
+ext3_free_blocks_sb
+ext3_has_free_blocks
+ext3_new_block
+ext3_put_super
+ext3_fill_super
+ext3_fill_super
+ext3_free_inode
+find_group_dir
+find_group_orlov
+ext3_new_inode
+ext3_group_add
 
-Linux (none) 2.6.17-rc2 #1 SMP Fri Apr 21 11:52:19 CEST 2006 i686 unknown
+If we make a "grep" on tiobench oprofile.out, we have:
 
-/ # mkfs.xfs -f /dev/hdc1
-meta-data=/dev/hdc1              isize=256    agcount=8, agsize=8189 blks
-data     =                       bsize=4096   blocks=65512, imaxpct=25
-         =                       sunit=0      swidth=0 blks, unwritten=0
-naming   =version 2              bsize=4096  
-log      =internal log           bsize=4096   blocks=1200
-realtime =none                   extsz=65536  blocks=0, rtextents=0
-/ # mount /dev/hdc1 /mnt/
+atomic_t:
 
+26919     0.0119  vmlinux                  vmlinux                  ext3_ne=
+w_block
+2195     9.7e-04  vmlinux                  vmlinux                  ext3_fr=
+ee_blocks_sb
+1192     5.2e-04  vmlinux                  vmlinux                  ext3_ha=
+s_free_blocks
+189      8.3e-05  vmlinux                  vmlinux                  ext3_ne=
+w_inode
+40       1.8e-05  vmlinux                  vmlinux                  ext3_fr=
+ee_inode
+2        8.8e-07  vmlinux                  vmlinux                  find_gr=
+oup_orlov
 
-[   64.289157] BUG: unable to handle kernel paging request at virtual address c056a680
-[   64.290085]  printing eip:
-[   64.290402] c0129290
-[   64.290686] *pde = 005bd027
-[   64.291037] *pte = 0056a000
-[   64.291504] Oops: 0000 [#1]
-[   64.291823] SMP DEBUG_PAGEALLOC
-[   64.292820] Modules linked in:
-[   64.293453] CPU:    0
-[   64.293485] EIP:    0060:[<c0129290>]    Not tainted VLI
-[   64.293529] EFLAGS: 00000286   (2.6.17-rc2 #1) 
-[   64.295055] EIP is at notifier_chain_register+0x20/0x50
-[   64.295648] eax: c056a678   ebx: cf5e23f8   ecx: 00000000   edx: c04bea9c
-[   64.296362] esi: cf5e23f8   edi: cffc5000   ebp: cf5e2800   esp: cffdad5c
-[   64.297140] ds: 007b   es: 007b   ss: 0068
-[   64.297613] Process mount (pid: 34, threadinfo=cffda000 task=cff7e570)
-[   64.298258] Stack: <0>c04bea80 c0129454 c04bea9c cf5e23f8 cf5e2000 cf5e2000 c01367f7 c04bea80 
-[   64.299558]        cf5e23f8 c02d4b26 cf5e23f8 00000404 cf5e2000 cfd1f520 cffc5000 c02d1f53 
-[   64.300700]        cf5e2000 00000001 c02e65ef 00000424 00000001 cffc5000 cfd1f520 c02f2880 
-[   64.301841] Call Trace:
-[   64.302278]  <c0129454> blocking_notifier_chain_register+0x54/0x90   <c01367f7> register_cpu_notifier+0x17/0x20
-[   64.303684]  <c02d4b26> xfs_icsb_init_counters+0x46/0xb0   <c02d1f53> xfs_mount_init+0x23/0x160
-[   64.304844]  <c02e65ef> kmem_zalloc+0x1f/0x50   <c02f2880> bhv_insert_all_vfsops+0x10/0x50
-[   64.305940]  <c02f1f65> xfs_fs_fill_super+0x35/0x1f0   <c0313e97> snprintf+0x27/0x30
-[   64.307124]  <c01a24f4> disk_name+0x64/0xc0   <c0168f1f> sb_set_blocksize+0x1f/0x50
-[   64.308140]  <c0168869> get_sb_bdev+0x109/0x160   <c02f2150> xfs_fs_get_sb+0x30/0x40
-[   64.309129]  <c02f1f30> xfs_fs_fill_super+0x0/0x1f0   <c0168b10> do_kern_mount+0xa0/0x160
-[   64.310156]  <c0181187> do_new_mount+0x77/0xc0   <c018184f> do_mount+0x1bf/0x230
-[   64.311177]  <c03f4a68> iret_exc+0x3d4/0x6ab   <c0181633> copy_mount_options+0x63/0xc0
-[   64.312246]  <c03f427f> lock_kernel+0x2f/0x50   <c0181c5f> sys_mount+0x9f/0xe0
-[   64.313237]  <c0102b27> syscall_call+0x7/0xb  
-[   64.313917] Code: 90 90 90 90 90 90 90 90 90 90 90 53 8b 54 24 08 8b 5c 24 0c 8b 02 85 c0 74 31 8b 4b 08 8d b4 26 00 00 00 00 8d bc 27 00 00 00 00 <3b> 48 08 7f 1b 8d 50 04 8b 40 04 85 c0 75 f1 31 c0 eb 0d 90 90 
-[   64.318371] EIP: [<c0129290>] notifier_chain_register+0x20/0x50 SS:ESP 0068:cffdad5c
+percpu_counter:
 
+16290     0.0067  vmlinux                  vmlinux                  ext3_ne=
+w_block
+2075     8.5e-04  vmlinux                  vmlinux                  ext3_fr=
+ee_blocks_sb
+428      1.8e-04  vmlinux                  vmlinux                  ext3_ha=
+s_free_blocks
+162      6.7e-05  vmlinux                  vmlinux                  ext3_ne=
+w_inode
+25       1.0e-05  vmlinux                  vmlinux                  ext3_fr=
+ee_inode
 
-Linux (none) 2.6.16.8 #1 SMP Fri Apr 21 12:45:31 CEST 2006 i686 unknown
-/ # mkfs.xfs -f /dev/hdc1
-meta-data=/dev/hdc1              isize=256    agcount=8, agsize=8189 blks
-data     =                       bsize=4096   blocks=65512, imaxpct=25
-         =                       sunit=0      swidth=0 blks, unwritten=0
-naming   =version 2              bsize=4096  
-log      =internal log           bsize=4096   blocks=1200
-realtime =none                   extsz=65536  blocks=0, rtextents=0
-/ # mount /dev/hdc1 /mnt/
-[   24.627530] XFS mounting filesystem hdc1
+As we can using atomic_long_t is slower than percpu_counter so ...
+forget my patch.
+
+Regards,
+Laurent=20
+
+--=20
+Laurent Vivier
+Bull, Architect of an Open World (TM)
+http://www.bullopensource.org/ext4
+
+--=-jbeFcBwhLxsSrRSpZTK+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.7 (GNU/Linux)
+
+iD8DBQBESL859Kffa9pFVzwRAu0lAJ94nDde2NU6PhZ4MLhWPnp+04KB5gCdF8S1
+jM8U/jLVYgX+fYuNN/fmVz4=
+=RSq2
+-----END PGP SIGNATURE-----
+
+--=-jbeFcBwhLxsSrRSpZTK+--
 

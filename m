@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWDUWq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWDUWtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWDUWq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 18:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWDUWq7
+	id S1750713AbWDUWtT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 18:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWDUWtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 18:46:59 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:35782 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750706AbWDUWq6 (ORCPT
+	Fri, 21 Apr 2006 18:49:19 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:31760 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S1750713AbWDUWtS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 18:46:58 -0400
-Message-ID: <444960CC.2000009@pobox.com>
-Date: Fri, 21 Apr 2006 18:46:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Fri, 21 Apr 2006 18:49:18 -0400
+Subject: Re: strncpy (maybe others) broken on Alpha
+In-Reply-To: <20060422011205.A1270@jurassic.park.msu.ru> "from Ivan Kokshaysky
+ at Apr 22, 2006 01:12:05 am"
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Date: Fri, 21 Apr 2006 17:49:17 -0500 (CDT)
+CC: Mathieu Chouquet-Stringer <mchouque@free.fr>, linux-kernel@vger.kernel.org,
+       linux-alpha@vger.kernel.org, rth@twiddle.net
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Justin Piszcz <jpiszcz@lucidpixels.com>, Mark Lord <lkml@rtr.ca>,
-       David Greaves <david@dgreaves.com>, Tejun Heo <htejun@gmail.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de,
-       smartmontools-support@lists.sourceforge.net
-Subject: Re: LibPATA code issues / 2.6.16 (previously, 2.6.15.x)
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca> <4405EC94.2030202@dgreaves.com> <4405FAAE.3080705@dgreaves.com> <Pine.LNX.4.64.0603050637110.30164@p34> <Pine.LNX.4.64.0603050740500.3116@p34> <440B6CFE.4010503@rtr.ca> <440B76B4.5080502@pobox.com> <Pine.LNX.4.64.0604211511120.22768@p34> <44493023.4010109@pobox.com> <Pine.LNX.4.64.0604211226120.3701@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0604211226120.3701@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -3.9 (---)
-X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
-	Content analysis details:   (-3.9 points, 5.0 required)
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20060421224917.34BE5DBA1@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Fri, 21 Apr 2006, Jeff Garzik wrote:
->> You can force the disk to replace the bad sectors by doing a disk-level write:
->>
->> 	dd if=/dev/zero of=/dev/sda1 bs=4k
-> 
-> NOTE! Obviously don't do this before you've backed up the disk.  Depending 
-> on the filesystem, you might just have overwritten something important, or 
-> just your pr0n collection ;)
-> 
-> Jeff, please be a little more careful about telling people commands like 
-> that. Some people might cut-and-paste the command without realizing what 
-> it's doing as a way to "fix" their problem.
+Ivan Kokshaysky wrote:
+> Well, these things happen. I think it's not quite surprising.
+> First, the kernel is not overloaded with strncpy calls. ;-)
 
-Agreed, though the original poster had already done a 400GB dd from 
-/dev/zero...
+As I mentioned in an earlier private message, I hope I can be forgiven
+for assuming otherwise, particularly since someone went to the trouble
+of writing an architecture-specific optimized version of that function.
 
-	Jeff
+> Second, strncpy was mostly used in drivers that are rarely (if at all)
+> used on alpha.
 
+Which was evidently the case, since this problem didn't surface until
+the strncpy() call was added to sd.c.
 
+> Third, to discover this bug you need some special combination of source
+> and destination alignment, source string length and byte count.
 
+I'm happy to report my Alpha is now up and running on 2.6.17-rc2, so
+the fix works for me.  Thanks to discussion participants for their time
+and trouble!
+
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

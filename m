@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWDUErg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWDUErf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWDUErg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 00:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWDUEoj
+	id S932265AbWDUErf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 00:47:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWDUEok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 00:44:39 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10114 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932248AbWDUEoQ (ORCPT
+	Fri, 21 Apr 2006 00:44:40 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5762 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932247AbWDUEoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 00:44:16 -0400
-Date: Thu, 20 Apr 2006 21:39:07 -0700
+	Fri, 21 Apr 2006 00:44:14 -0400
+Date: Thu, 20 Apr 2006 21:37:57 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,54 +17,55 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       netdev-core@vger.kernel.org, yoshfuji@linux-ipv6.org,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 12/22] IPV6: XFRM: Fix decoding session with preceding extension header(s).
-Message-ID: <20060421043907.GM12846@kroah.com>
+       Alexander Patrakov <patrakov@ums.usu.ru>,
+       David Miller <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 05/22] : Fix hotplug race during device registration
+Message-ID: <20060421043757.GF12846@kroah.com>
 References: <20060421043353.602539000@blue.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="ipv6-xfrm-fix-decoding-session-with-preceding-extension-header.patch"
+Content-Disposition: inline; filename="fix-hotplug-race-during-device-registration.patch"
 In-Reply-To: <20060421043706.GA12846@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[IPV6] XFRM: Fix decoding session with preceding extension header(s).
+From: Thomas de Grenier de Latour <degrenier@easyconnect.fr>
 
-We did not correctly decode session with preceding extension
-header(s).  This was because we had already pulled preceding
-headers, skb->nh.raw + 40 + 1 - skb->data was minus, and
-pskb_may_pull() failed.
+On Sun, 9 Apr 2006 21:56:59 +0400,
+Sergey Vlasov <vsu@altlinux.ru> wrote:
+> However, show_address() does not output anything unless
+> dev->reg_state == NETREG_REGISTERED - and this state is set by
+> netdev_run_todo() only after netdev_register_sysfs() returns, so in
+> the meantime (while netdev_register_sysfs() is busy adding the
+> "statistics" attribute group) some process may see an empty "address"
+> attribute.
 
-We now have IP6CB(skb)->nhoff and skb->h.raw, and we can
-start parsing / decoding upper layer protocol from current
-position.
+I've tried the attached patch, suggested by Sergey Vlasov on
+hotplug-devel@, and as far as i can test it works just fine.
 
-Tracked down by Noriaki TAKAMIYA <takamiya@po.ntts.co.jp>
-and tested by Kazunori Miyazawa <kazunori@miyazawa.org>.
-
-Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Signed-off-by: Alexander Patrakov <patrakov@ums.usu.ru>
+Signed-off-by: David Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- net/ipv6/xfrm6_policy.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/dev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.16.9.orig/net/ipv6/xfrm6_policy.c
-+++ linux-2.6.16.9/net/ipv6/xfrm6_policy.c
-@@ -191,10 +191,10 @@ error:
- static inline void
- _decode_session6(struct sk_buff *skb, struct flowi *fl)
- {
--	u16 offset = sizeof(struct ipv6hdr);
-+	u16 offset = skb->h.raw - skb->nh.raw;
- 	struct ipv6hdr *hdr = skb->nh.ipv6h;
- 	struct ipv6_opt_hdr *exthdr;
--	u8 nexthdr = skb->nh.ipv6h->nexthdr;
-+	u8 nexthdr = skb->nh.raw[IP6CB(skb)->nhoff];
+--- linux-2.6.16.9.orig/net/core/dev.c
++++ linux-2.6.16.9/net/core/dev.c
+@@ -2932,11 +2932,11 @@ void netdev_run_todo(void)
  
- 	memset(fl, 0, sizeof(struct flowi));
- 	ipv6_addr_copy(&fl->fl6_dst, &hdr->daddr);
+ 		switch(dev->reg_state) {
+ 		case NETREG_REGISTERING:
++			dev->reg_state = NETREG_REGISTERED;
+ 			err = netdev_register_sysfs(dev);
+ 			if (err)
+ 				printk(KERN_ERR "%s: failed sysfs registration (%d)\n",
+ 				       dev->name, err);
+-			dev->reg_state = NETREG_REGISTERED;
+ 			break;
+ 
+ 		case NETREG_UNREGISTERING:
 
 --

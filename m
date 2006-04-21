@@ -1,72 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWDUBG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWDUBM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWDUBG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 21:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWDUBG3
+	id S932087AbWDUBM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 21:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWDUBM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 21:06:29 -0400
-Received: from mga06.intel.com ([134.134.136.21]:4517 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932197AbWDUBG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 21:06:28 -0400
-X-IronPort-AV: i="4.04,142,1144047600"; 
-   d="scan'208"; a="25838081:sNHT55715506"
-X-IronPort-AV: i="4.04,142,1144047600"; 
-   d="scan'208"; a="25838065:sNHT48685882"
-TrustExchangeSourcedMail: True
-X-IronPort-AV: i="4.04,142,1144047600"; 
-   d="scan'208"; a="26657353:sNHT63270781"
-Date: Thu, 20 Apr 2006 18:03:58 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Keith Owens <kaos@sgi.com>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       Anderw Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Dean Nelson <dcn@sgi.com>, Tony Luck <tony.luck@intel.com>,
-       Anath Mavinakayanahalli <ananth@in.ibm.com>,
-       Prasanna Panchamukhi <prasanna@in.ibm.com>,
-       Dave M <davem@davemloft.net>, Andi Kleen <ak@suse.de>
-Subject: Re: [(take 2)patch 6/7] Kprobes registers for notify page fault
-Message-ID: <20060420180357.A12662@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20060420173846.B12536@unix-os.sc.intel.com> <19743.1145580809@ocs3.ocs.com.au>
-Mime-Version: 1.0
+	Thu, 20 Apr 2006 21:12:26 -0400
+Received: from pproxy.gmail.com ([64.233.166.181]:48247 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932078AbWDUBMZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 21:12:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=QLtbNdhVToBH7HmhGWiX7VGliqimi63lw1EawS+0KjVEr405x2mCWH2BSRT7yvIyyaWuGT/ckCkVF/yRPCyjoE28jtrrDTzPwVAUBKaudQwxA8N3AiRKmXvgS5G7FdsxCV2zvnEel9ENgzM/cZUWgusflPyLvYk/RizXnnbvG7s=
+Date: Fri, 21 Apr 2006 10:12:33 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Fabio Comolli <fabio.comolli@gmail.com>, albertcc@tw.ibm.com,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Schedule for adding pata to kernel?
+Message-ID: <20060421011233.GE25726@htj.dyndns.org>
+References: <1142869095.20050.32.camel@localhost.localdomain> <4422F10B.9080608@bootc.net> <44266499.3070809@t-online.de> <1143393969.2540.5.camel@localhost.localdomain> <b637ec0b0604180444y7828ac5aobb349324f87201c2@mail.gmail.com> <1145361613.18736.44.camel@localhost.localdomain> <20060418121326.GB25726@htj.dyndns.org> <44480FBF.6090100@pobox.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <19743.1145580809@ocs3.ocs.com.au>; from kaos@sgi.com on Fri, Apr 21, 2006 at 10:53:29AM +1000
-X-OriginalArrivalTime: 21 Apr 2006 01:06:26.0091 (UTC) FILETIME=[D03EF7B0:01C664DF]
+In-Reply-To: <44480FBF.6090100@pobox.com>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 10:53:29AM +1000, Keith Owens wrote:
-> Keshavamurthy Anil S (on Thu, 20 Apr 2006 17:38:47 -0700) wrote:
-> >On Fri, Apr 21, 2006 at 10:14:04AM +1000, Keith Owens wrote:
-> >> Anil S Keshavamurthy (on Thu, 20 Apr 2006 16:25:02 -0700) wrote:
-> >> >---
-> >> >@@ -654,6 +659,9 @@ static int __init init_kprobes(void)
-> >> > 	if (!err)
-> >> > 		err = register_die_notifier(&kprobe_exceptions_nb);
-> >> > 
-> >> >+	if (!err)
-> >> >+		err = register_page_fault_notifier(&kprobe_page_fault_nb);
-> >> >+
-> >> > 	return err;
-> >> > }
-> >> > 
-> >> 
-> >> The rest of the patches look OK, but this one does not.  init_kprobes()
-> >> registers the main kprobe exception handler, not the page fault
-> >> handler.
-> >I am registering for register_page_fault_notifier() and as you can see
-> >I am not deleting the old register_die_notifier() which is also required
-> >for getting notified on int3/break and single-step traps. 
-> >So no issues here.
+On Thu, Apr 20, 2006 at 06:48:31PM -0400, Jeff Garzik wrote:
+> Tejun Heo wrote:
+> >Hello, all.
+> >
+> >[adding Jeff and linux-ide to cc list]
+> >
+> >On Tue, Apr 18, 2006 at 01:00:13PM +0100, Alan Cox wrote:
+> >>On Maw, 2006-04-18 at 13:44 +0200, Fabio Comolli wrote:
+> >>>In case PIIX/ICH driver should not make it in 2.6.17, are you planning
+> >>>to release patches for 2.6.17-rc release cycle?
+> >>I've been on holiday and am now tied up in other work until the start of
+> >>May, at which point Jeff goes off and gets married so there may be some
+> >>delay.
+> >>
+> >>2.6.17-rc actually has 95% of the stuff needed to drop the PATA drivers
+> >>in and I will try to do patches at least versus 2.6.17 final. The -rcs
+> >>will depend upon available time and also what gets integrated that
+> >>causes additional work (notably Tejun Ho's stuff will make much merge
+> >
+> >BTW, my name is Tejun Heo.  Tejun Ho sounds horrible in Korean.
+> >
+> >>work, although its work I'm very glad to do as the improvements and
+> >>hotplug support are all needed).
+> >
+> >I'm currently working on port multiplier support.  My working tree now
+> >successfully probes and attaches all devices over the PM and I'm
+> >currently trying to get EH and hotplug to work with it nicely.
+> >EH/hotplug are being changed to support PM.  Effects on LLDDs are
+> >minimal but you can probably save some work by waiting for the next
+> >round of patches before porting to new EH.
+> >
+> >I think/hope this can be finished in this week and bombard Jeff with
+> >patches (updated EH, NCQ, hotplug and PM) before the weekend, so that
+> >Jeff can have some time to review and hopefully merge some of it into
+> >#upstream before he goes off on honeymoon.  In some convoluted way,
+> >the patches will be my marriage gift, heh heh.
+> >
+> >Jeff, *BIG* congratulations.  I wish you a great marriage.
 > 
-> Patch 7 conditionally registers a page fault handler, plus an
-> unregister when there are no user space probes.  Why does patch 6
-> unconditionally register a page fault handler?
-Patch 7 is the improvement of patch 6, so in other words the patch
-7 removes the patch 6's unconditional registration and adds
-conditional registration support. 
+> Thanks :)  And thanks for working on this stuff...  As you see, once the 
+> EH hurdle is cleared, it is much easier to add new features.  New 
+> features will start flooding in, from you and others.
+> 
+> BTW don't forget we want to push Albert's irq-pio branch into upstream 
+> sometime soon after your EH work settles.  I would put irq-pio in front 
+> of NCQ and PM, particularly.
 
--Anil
+Hmmm... EH, NCQ, PM stuff doesn't really interfere with irq-pio.  The
+only thing which needs special attention is hotplug support for
+sata_sil as the driver requires PIO HSM implementation but needs to
+use its own interrupt handler.  So, we need to separate out PIO HSM
+from ata_host_intr() and allow LLDD irq handlers to drive it.
+
+Albert, what do you think?
+
+-- 
+tejun

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWDUQJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWDUQIC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWDUQJF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 12:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWDUQJF
+	id S932388AbWDUQIC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 12:08:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWDUQIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 12:09:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28583 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932390AbWDUQJA (ORCPT
+	Fri, 21 Apr 2006 12:08:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47270 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932384AbWDUQH6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 12:09:00 -0400
-Subject: [PATCH 08/16] GFS2: Resource group code
+	Fri, 21 Apr 2006 12:07:58 -0400
+Subject: [PATCH 07/16] GFS2: Directory handling
 From: Steven Whitehouse <swhiteho@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Fri, 21 Apr 2006 17:17:32 +0100
-Message-Id: <1145636253.3856.108.camel@quoit.chygwyn.com>
+Date: Fri, 21 Apr 2006 17:16:18 +0100
+Message-Id: <1145636178.3856.106.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 08/16] GFS2: Resource group code
+[PATCH 07/16] GFS2: Directory handling
 
-GFS2's resource group handling code and code for manipulating bitmaps.
+Directory handling code for GFS2. This has been shrunk and made
+a bit faster and a lot easier to understand since it was last
+posted. Suggestions for how to deal with the readdir call in a
+more efficient manner are greatly welcomed.
+
+GFS2 uses extensible hashing in the directory code which makes lookups
+fast. Due to the way in which the hash tables are split during
+directory expansion, the directory contents are sorted during readdir
+and it would be nice to be able to eliminate this operation.
 
 
 Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
 Signed-off-by: David Teigland <teigland@redhat.com>
 
 
- fs/gfs2/bits.c |  182 +++++++
- fs/gfs2/bits.h |   28 +
- fs/gfs2/rgrp.c | 1369 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/gfs2/rgrp.h |   62 ++
- 4 files changed, 1641 insertions(+)
+ fs/gfs2/dir.c | 1968 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/gfs2/dir.h |   73 ++
+ 2 files changed, 2041 insertions(+)
 
 --- /dev/null
-+++ b/fs/gfs2/rgrp.c
-@@ -0,0 +1,1369 @@
++++ b/fs/gfs2/dir.c
+@@ -0,0 +1,1968 @@
 +/*
 + * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
 + * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
@@ -50,1619 +56,1968 @@ Signed-off-by: David Teigland <teigland@redhat.com>
 + * of the GNU General Public License v.2.
 + */
 +
++/*
++* Implements Extendible Hashing as described in:
++*   "Extendible Hashing" by Fagin, et al in
++*     __ACM Trans. on Database Systems__, Sept 1979.
++*
++*
++* Here's the layout of dirents which is essentially the same as that of ext2
++* within a single block. The field de_name_len is the number of bytes
++* actually required for the name (no null terminator). The field de_rec_len
++* is the number of bytes allocated to the dirent. The offset of the next
++* dirent in the block is (dirent + dirent->de_rec_len). When a dirent is
++* deleted, the preceding dirent inherits its allocated space, ie
++* prev->de_rec_len += deleted->de_rec_len. Since the next dirent is obtained
++* by adding de_rec_len to the current dirent, this essentially causes the
++* deleted dirent to get jumped over when iterating through all the dirents.
++*
++* When deleting the first dirent in a block, there is no previous dirent so
++* the field de_ino is set to zero to designate it as deleted. When allocating
++* a dirent, gfs2_dirent_alloc iterates through the dirents in a block. If the
++* first dirent has (de_ino == 0) and de_rec_len is large enough, this first
++* dirent is allocated. Otherwise it must go through all the 'used' dirents
++* searching for one in which the amount of total space minus the amount of
++* used space will provide enough space for the new dirent.
++*
++* There are two types of blocks in which dirents reside. In a stuffed dinode,
++* the dirents begin at offset sizeof(struct gfs2_dinode) from the beginning of
++* the block.  In leaves, they begin at offset sizeof(struct gfs2_leaf) from the
++* beginning of the leaf block. The dirents reside in leaves when
++*
++* dip->i_di.di_flags & GFS2_DIF_EXHASH is true
++*
++* Otherwise, the dirents are "linear", within a single stuffed dinode block.
++*
++* When the dirents are in leaves, the actual contents of the directory file are
++* used as an array of 64-bit block pointers pointing to the leaf blocks. The
++* dirents are NOT in the directory file itself. There can be more than one block
++* pointer in the array that points to the same leaf. In fact, when a directory
++* is first converted from linear to exhash, all of the pointers point to the
++* same leaf.
++*
++* When a leaf is completely full, the size of the hash table can be
++* doubled unless it is already at the maximum size which is hard coded into
++* GFS2_DIR_MAX_DEPTH. After that, leaves are chained together in a linked list,
++* but never before the maximum hash table size has been reached.
++*/
++
 +#include <linux/sched.h>
 +#include <linux/slab.h>
 +#include <linux/spinlock.h>
 +#include <linux/completion.h>
 +#include <linux/buffer_head.h>
-+#include <linux/fs.h>
++#include <linux/sort.h>
 +#include <linux/gfs2_ondisk.h>
++#include <linux/crc32.h>
++#include <linux/vmalloc.h>
 +#include <asm/semaphore.h>
 +
 +#include "gfs2.h"
 +#include "lm_interface.h"
 +#include "incore.h"
-+#include "bits.h"
++#include "dir.h"
 +#include "glock.h"
-+#include "glops.h"
-+#include "lops.h"
++#include "inode.h"
 +#include "meta_io.h"
 +#include "quota.h"
 +#include "rgrp.h"
-+#include "super.h"
 +#include "trans.h"
-+#include "ops_file.h"
++#include "bmap.h"
 +#include "util.h"
 +
-+/**
-+ * gfs2_rgrp_verify - Verify that a resource group is consistent
-+ * @sdp: the filesystem
-+ * @rgd: the rgrp
-+ *
-+ */
++#define IS_LEAF     1 /* Hashed (leaf) directory */
++#define IS_DINODE   2 /* Linear (stuffed dinode block) directory */
 +
-+void gfs2_rgrp_verify(struct gfs2_rgrpd *rgd)
++#if 1
++#define gfs2_disk_hash2offset(h) (((uint64_t)(h)) >> 1)
++#define gfs2_dir_offset2hash(p) ((uint32_t)(((uint64_t)(p)) << 1))
++#else
++#define gfs2_disk_hash2offset(h) (((uint64_t)(h)))
++#define gfs2_dir_offset2hash(p) ((uint32_t)(((uint64_t)(p))))
++#endif
++
++typedef int (*leaf_call_t) (struct gfs2_inode *dip,
++			    uint32_t index, uint32_t len, uint64_t leaf_no,
++			    void *data);
++
++int gfs2_dir_get_buffer(struct gfs2_inode *ip, uint64_t block, int new,
++		         struct buffer_head **bhp)
 +{
-+	struct gfs2_sbd *sdp = rgd->rd_sbd;
-+	struct gfs2_bitmap *bi = NULL;
-+	uint32_t length = rgd->rd_ri.ri_length;
-+	uint32_t count[4], tmp;
-+	int buf, x;
++	struct buffer_head *bh;
++	int error = 0;
 +
-+	memset(count, 0, 4 * sizeof(uint32_t));
-+
-+	/* Count # blocks in each of 4 possible allocation states */
-+	for (buf = 0; buf < length; buf++) {
-+		bi = rgd->rd_bits + buf;
-+		for (x = 0; x < 4; x++)
-+			count[x] += gfs2_bitcount(rgd,
-+						  bi->bi_bh->b_data +
-+						  bi->bi_offset,
-+						  bi->bi_len, x);
-+	}
-+
-+	if (count[0] != rgd->rd_rg.rg_free) {
-+		if (gfs2_consist_rgrpd(rgd))
-+			fs_err(sdp, "free data mismatch:  %u != %u\n",
-+			       count[0], rgd->rd_rg.rg_free);
-+		return;
-+	}
-+
-+	tmp = rgd->rd_ri.ri_data -
-+		rgd->rd_rg.rg_free -
-+		rgd->rd_rg.rg_dinodes;
-+	if (count[1] != tmp) {
-+		if (gfs2_consist_rgrpd(rgd))
-+			fs_err(sdp, "used data mismatch:  %u != %u\n",
-+			       count[1], tmp);
-+		return;
-+	}
-+
-+	if (count[2]) {
-+		if (gfs2_consist_rgrpd(rgd))
-+			fs_err(sdp, "free metadata mismatch:  %u != 0\n",
-+			       count[2]);
-+		return;
-+	}
-+
-+	if (count[3] != rgd->rd_rg.rg_dinodes) {
-+		if (gfs2_consist_rgrpd(rgd))
-+			fs_err(sdp, "used metadata mismatch:  %u != %u\n",
-+			       count[3], rgd->rd_rg.rg_dinodes);
-+		return;
-+	}
-+}
-+
-+static inline int rgrp_contains_block(struct gfs2_rindex *ri, uint64_t block)
-+{
-+	uint64_t first = ri->ri_data0;
-+	uint64_t last = first + ri->ri_data;
-+	return !!(first <= block && block < last);
-+}
-+
-+/**
-+ * gfs2_blk2rgrpd - Find resource group for a given data/meta block number
-+ * @sdp: The GFS2 superblock
-+ * @n: The data block number
-+ *
-+ * Returns: The resource group, or NULL if not found
-+ */
-+
-+struct gfs2_rgrpd *gfs2_blk2rgrpd(struct gfs2_sbd *sdp, uint64_t blk)
-+{
-+	struct gfs2_rgrpd *rgd;
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+
-+	list_for_each_entry(rgd, &sdp->sd_rindex_mru_list, rd_list_mru) {
-+		if (rgrp_contains_block(&rgd->rd_ri, blk)) {
-+			list_move(&rgd->rd_list_mru, &sdp->sd_rindex_mru_list);
-+			spin_unlock(&sdp->sd_rindex_spin);
-+			return rgd;
++	if (new) {
++		bh = gfs2_meta_new(ip->i_gl, block);
++		gfs2_trans_add_bh(ip->i_gl, bh, 1);
++		gfs2_metatype_set(bh, GFS2_METATYPE_JD, GFS2_FORMAT_JD);
++		gfs2_buffer_clear_tail(bh, sizeof(struct gfs2_meta_header));
++	} else {
++		error = gfs2_meta_read(ip->i_gl, block, DIO_START | DIO_WAIT,
++				       &bh);
++		if (error)
++			return error;
++		if (gfs2_metatype_check(ip->i_sbd, bh, GFS2_METATYPE_JD)) {
++			brelse(bh);
++			return -EIO;
 +		}
 +	}
 +
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	return NULL;
-+}
-+
-+/**
-+ * gfs2_rgrpd_get_first - get the first Resource Group in the filesystem
-+ * @sdp: The GFS2 superblock
-+ *
-+ * Returns: The first rgrp in the filesystem
-+ */
-+
-+struct gfs2_rgrpd *gfs2_rgrpd_get_first(struct gfs2_sbd *sdp)
-+{
-+	gfs2_assert(sdp, !list_empty(&sdp->sd_rindex_list));
-+	return list_entry(sdp->sd_rindex_list.next, struct gfs2_rgrpd, rd_list);
-+}
-+
-+/**
-+ * gfs2_rgrpd_get_next - get the next RG
-+ * @rgd: A RG
-+ *
-+ * Returns: The next rgrp
-+ */
-+
-+struct gfs2_rgrpd *gfs2_rgrpd_get_next(struct gfs2_rgrpd *rgd)
-+{
-+	if (rgd->rd_list.next == &rgd->rd_sbd->sd_rindex_list)
-+		return NULL;
-+	return list_entry(rgd->rd_list.next, struct gfs2_rgrpd, rd_list);
-+}
-+
-+static void clear_rgrpdi(struct gfs2_sbd *sdp)
-+{
-+	struct list_head *head;
-+	struct gfs2_rgrpd *rgd;
-+	struct gfs2_glock *gl;
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+	sdp->sd_rindex_forward = NULL;
-+	head = &sdp->sd_rindex_recent_list;
-+	while (!list_empty(head)) {
-+		rgd = list_entry(head->next, struct gfs2_rgrpd, rd_recent);
-+		list_del(&rgd->rd_recent);
-+	}
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	head = &sdp->sd_rindex_list;
-+	while (!list_empty(head)) {
-+		rgd = list_entry(head->next, struct gfs2_rgrpd, rd_list);
-+		gl = rgd->rd_gl;
-+
-+		list_del(&rgd->rd_list);
-+		list_del(&rgd->rd_list_mru);
-+
-+		if (gl) {
-+			gl->gl_object = NULL;
-+			gfs2_glock_put(gl);
-+		}
-+
-+		kfree(rgd->rd_bits);
-+		kfree(rgd);
-+	}
-+}
-+
-+void gfs2_clear_rgrpd(struct gfs2_sbd *sdp)
-+{
-+	mutex_lock(&sdp->sd_rindex_mutex);
-+	clear_rgrpdi(sdp);
-+	mutex_unlock(&sdp->sd_rindex_mutex);
-+}
-+
-+/**
-+ * gfs2_compute_bitstructs - Compute the bitmap sizes
-+ * @rgd: The resource group descriptor
-+ *
-+ * Calculates bitmap descriptors, one for each block that contains bitmap data
-+ *
-+ * Returns: errno
-+ */
-+
-+static int compute_bitstructs(struct gfs2_rgrpd *rgd)
-+{
-+	struct gfs2_sbd *sdp = rgd->rd_sbd;
-+	struct gfs2_bitmap *bi;
-+	uint32_t length = rgd->rd_ri.ri_length; /* # blocks in hdr & bitmap */
-+	uint32_t bytes_left, bytes;
-+	int x;
-+
-+	rgd->rd_bits = kcalloc(length, sizeof(struct gfs2_bitmap), GFP_KERNEL);
-+	if (!rgd->rd_bits)
-+		return -ENOMEM;
-+
-+	bytes_left = rgd->rd_ri.ri_bitbytes;
-+
-+	for (x = 0; x < length; x++) {
-+		bi = rgd->rd_bits + x;
-+
-+		/* small rgrp; bitmap stored completely in header block */
-+		if (length == 1) {
-+			bytes = bytes_left;
-+			bi->bi_offset = sizeof(struct gfs2_rgrp);
-+			bi->bi_start = 0;
-+			bi->bi_len = bytes;
-+		/* header block */
-+		} else if (x == 0) {
-+			bytes = sdp->sd_sb.sb_bsize - sizeof(struct gfs2_rgrp);
-+			bi->bi_offset = sizeof(struct gfs2_rgrp);
-+			bi->bi_start = 0;
-+			bi->bi_len = bytes;
-+		/* last block */
-+		} else if (x + 1 == length) {
-+			bytes = bytes_left;
-+			bi->bi_offset = sizeof(struct gfs2_meta_header);
-+			bi->bi_start = rgd->rd_ri.ri_bitbytes - bytes_left;
-+			bi->bi_len = bytes;
-+		/* other blocks */
-+		} else {
-+			bytes = sdp->sd_sb.sb_bsize -
-+				sizeof(struct gfs2_meta_header);
-+			bi->bi_offset = sizeof(struct gfs2_meta_header);
-+			bi->bi_start = rgd->rd_ri.ri_bitbytes - bytes_left;
-+			bi->bi_len = bytes;
-+		}
-+
-+		bytes_left -= bytes;
-+	}
-+
-+	if (bytes_left) {
-+		gfs2_consist_rgrpd(rgd);
-+		return -EIO;
-+	}
-+	bi = rgd->rd_bits + (length - 1);
-+	if ((bi->bi_start + bi->bi_len) * GFS2_NBBY != rgd->rd_ri.ri_data) {
-+		if (gfs2_consist_rgrpd(rgd)) {
-+			gfs2_rindex_print(&rgd->rd_ri);
-+			fs_err(sdp, "start=%u len=%u offset=%u\n",
-+			       bi->bi_start, bi->bi_len, bi->bi_offset);
-+		}
-+		return -EIO;
-+	}
-+
++	*bhp = bh;
 +	return 0;
 +}
 +
-+/**
-+ * gfs2_ri_update - Pull in a new resource index from the disk
-+ * @gl: The glock covering the rindex inode
-+ *
-+ * Returns: 0 on successful update, error code otherwise
-+ */
 +
-+static int gfs2_ri_update(struct gfs2_inode *ip)
++
++static int gfs2_dir_write_stuffed(struct gfs2_inode *ip, const char *buf,
++				  unsigned int offset, unsigned int size)
++                               
 +{
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct inode *inode = ip->i_vnode;
-+	struct gfs2_rgrpd *rgd;
-+	char buf[sizeof(struct gfs2_rindex)];
-+	struct file_ra_state ra_state;
-+	uint64_t junk = ip->i_di.di_size;
++	struct buffer_head *dibh;
 +	int error;
 +
-+	if (do_div(junk, sizeof(struct gfs2_rindex))) {
-+		gfs2_consist_inode(ip);
-+		return -EIO;
++	error = gfs2_meta_inode_buffer(ip, &dibh);
++	if (error)
++		return error;
++
++	gfs2_trans_add_bh(ip->i_gl, dibh, 1);
++	memcpy(dibh->b_data + offset + sizeof(struct gfs2_dinode), buf, size);
++	if (ip->i_di.di_size < offset + size)
++		ip->i_di.di_size = offset + size;
++	ip->i_di.di_mtime = ip->i_di.di_ctime = get_seconds();
++	gfs2_dinode_out(&ip->i_di, dibh->b_data);
++
++	brelse(dibh);
++
++	return size;
++}
++
++
++
++/**
++ * gfs2_dir_write_data - Write directory information to the inode
++ * @ip: The GFS2 inode
++ * @buf: The buffer containing information to be written
++ * @offset: The file offset to start writing at
++ * @size: The amount of data to write
++ *
++ * Returns: The number of bytes correctly written or error code
++ */
++static int gfs2_dir_write_data(struct gfs2_inode *ip, const char *buf,
++			       uint64_t offset, unsigned int size)
++{
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	struct buffer_head *dibh;
++	uint64_t lblock, dblock;
++	uint32_t extlen = 0;
++	unsigned int o;
++	int copied = 0;
++	int error = 0;
++
++	if (!size)
++		return 0;
++
++	if (gfs2_is_stuffed(ip) &&
++	    offset + size <= sdp->sd_sb.sb_bsize - sizeof(struct gfs2_dinode))
++		return gfs2_dir_write_stuffed(ip, buf, (unsigned int)offset,
++					      size);
++
++	if (gfs2_assert_warn(sdp, gfs2_is_jdata(ip)))
++		return -EINVAL;
++
++	if (gfs2_is_stuffed(ip)) {
++		error = gfs2_unstuff_dinode(ip, NULL, NULL);
++		if (error)
++			return error;
 +	}
 +
-+	clear_rgrpdi(sdp);
++	lblock = offset;
++	o = do_div(lblock, sdp->sd_jbsize) + sizeof(struct gfs2_meta_header);
 +
-+	file_ra_state_init(&ra_state, inode->i_mapping);
-+	for (sdp->sd_rgrps = 0;; sdp->sd_rgrps++) {
-+		loff_t pos = sdp->sd_rgrps * sizeof(struct gfs2_rindex);
-+		error = gfs2_internal_read(ip, &ra_state, buf, &pos,
-+					    sizeof(struct gfs2_rindex));
-+		if (!error)
-+			break;
-+		if (error != sizeof(struct gfs2_rindex)) {
-+			if (error > 0)
-+				error = -EIO;
-+			goto fail;
++	while (copied < size) {
++		unsigned int amount;
++		struct buffer_head *bh;
++		int new;
++
++		amount = size - copied;
++		if (amount > sdp->sd_sb.sb_bsize - o)
++			amount = sdp->sd_sb.sb_bsize - o;
++
++		if (!extlen) {
++			new = 1;
++			error = gfs2_block_map(ip, lblock, &new, &dblock,
++					       &extlen);
++			if (error)
++				goto fail;
++			error = -EIO;
++			if (gfs2_assert_withdraw(sdp, dblock))
++				goto fail;
 +		}
 +
-+		rgd = kzalloc(sizeof(struct gfs2_rgrpd), GFP_KERNEL);
-+		error = -ENOMEM;
-+		if (!rgd)
-+			goto fail;
-+
-+		mutex_init(&rgd->rd_mutex);
-+		lops_init_le(&rgd->rd_le, &gfs2_rg_lops);
-+		rgd->rd_sbd = sdp;
-+
-+		list_add_tail(&rgd->rd_list, &sdp->sd_rindex_list);
-+		list_add_tail(&rgd->rd_list_mru, &sdp->sd_rindex_mru_list);
-+
-+		gfs2_rindex_in(&rgd->rd_ri, buf);
-+
-+		error = compute_bitstructs(rgd);
++		error = gfs2_dir_get_buffer(ip, dblock,
++					    (amount == sdp->sd_jbsize) ?
++					    1 : new, &bh);
 +		if (error)
 +			goto fail;
 +
-+		error = gfs2_glock_get(sdp, rgd->rd_ri.ri_addr,
-+				       &gfs2_rgrp_glops, CREATE, &rgd->rd_gl);
++		gfs2_trans_add_bh(ip->i_gl, bh, 1);
++		memcpy(bh->b_data + o, buf, amount);
++		brelse(bh);
 +		if (error)
 +			goto fail;
 +
-+		rgd->rd_gl->gl_object = rgd;
-+		rgd->rd_rg_vn = rgd->rd_gl->gl_vn - 1;
++		copied += amount;
++		lblock++;
++		dblock++;
++		extlen--;
++
++		o = sizeof(struct gfs2_meta_header);
 +	}
 +
-+	sdp->sd_rindex_vn = ip->i_gl->gl_vn;
++out:
++	error = gfs2_meta_inode_buffer(ip, &dibh);
++	if (error)
++		return error;
 +
-+	return 0;
++	if (ip->i_di.di_size < offset + copied)
++		ip->i_di.di_size = offset + copied;
++	ip->i_di.di_mtime = ip->i_di.di_ctime = get_seconds();
 +
-+ fail:
-+	clear_rgrpdi(sdp);
++	gfs2_trans_add_bh(ip->i_gl, dibh, 1);
++	gfs2_dinode_out(&ip->i_di, dibh->b_data);
++	brelse(dibh);
 +
++	return copied;
++fail:
++	if (copied)
++		goto out;
 +	return error;
 +}
 +
++static int gfs2_dir_read_stuffed(struct gfs2_inode *ip, char *buf,
++				 unsigned int offset, unsigned int size)
++{
++	struct buffer_head *dibh;
++	int error;
++
++	error = gfs2_meta_inode_buffer(ip, &dibh);
++	if (!error) {
++		offset += sizeof(struct gfs2_dinode);
++		memcpy(buf, dibh->b_data + offset, size);
++		brelse(dibh);
++	}
++
++	return (error) ? error : size;
++}
++
++
 +/**
-+ * gfs2_rindex_hold - Grab a lock on the rindex
-+ * @sdp: The GFS2 superblock
-+ * @ri_gh: the glock holder
++ * gfs2_dir_read_data - Read a data from a directory inode
++ * @ip: The GFS2 Inode
++ * @buf: The buffer to place result into
++ * @offset: File offset to begin jdata_readng from
++ * @size: Amount of data to transfer
 + *
-+ * We grab a lock on the rindex inode to make sure that it doesn't
-+ * change whilst we are performing an operation. We keep this lock
-+ * for quite long periods of time compared to other locks. This
-+ * doesn't matter, since it is shared and it is very, very rarely
-+ * accessed in the exclusive mode (i.e. only when expanding the filesystem).
++ * Returns: The amount of data actually copied or the error
++ */
++static int gfs2_dir_read_data(struct gfs2_inode *ip, char *buf,
++			      uint64_t offset, unsigned int size)
++{
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	uint64_t lblock, dblock;
++	uint32_t extlen = 0;
++	unsigned int o;
++	int copied = 0;
++	int error = 0;
++
++	if (offset >= ip->i_di.di_size)
++		return 0;
++
++	if ((offset + size) > ip->i_di.di_size)
++		size = ip->i_di.di_size - offset;
++
++	if (!size)
++		return 0;
++
++	if (gfs2_is_stuffed(ip))
++		return gfs2_dir_read_stuffed(ip, buf, (unsigned int)offset,
++					     size);
++
++	if (gfs2_assert_warn(sdp, gfs2_is_jdata(ip)))
++		return -EINVAL;
++
++	lblock = offset;
++	o = do_div(lblock, sdp->sd_jbsize) + sizeof(struct gfs2_meta_header);
++
++	while (copied < size) {
++		unsigned int amount;
++		struct buffer_head *bh;
++		int new;
++
++		amount = size - copied;
++		if (amount > sdp->sd_sb.sb_bsize - o)
++			amount = sdp->sd_sb.sb_bsize - o;
++
++		if (!extlen) {
++			new = 0;
++			error = gfs2_block_map(ip, lblock, &new, &dblock,
++					       &extlen);
++			if (error)
++				goto fail;
++		}
++
++		if (extlen > 1)
++			gfs2_meta_ra(ip->i_gl, dblock, extlen);
++
++		if (dblock) {
++			error = gfs2_dir_get_buffer(ip, dblock, new, &bh);
++			if (error)
++				goto fail;
++			dblock++;
++			extlen--;
++		} else
++			bh = NULL;
++
++		memcpy(buf, bh->b_data + o, amount);
++		brelse(bh);
++		if (error)
++			goto fail;
++
++		copied += amount;
++		lblock++;
++
++		o = sizeof(struct gfs2_meta_header);
++	}
++
++	return copied;
++fail:
++	return (copied) ? copied : error;
++}
++
++typedef int (*gfs2_dscan_t)(const struct gfs2_dirent *dent,
++			    const struct qstr *name,
++			    void *opaque);
++
++static inline int __gfs2_dirent_find(const struct gfs2_dirent *dent,
++				     const struct qstr *name, int ret)
++{
++	if (dent->de_inum.no_addr != 0 &&
++	    be32_to_cpu(dent->de_hash) == name->hash &&
++	    be16_to_cpu(dent->de_name_len) == name->len &&
++	    memcmp((char *)(dent+1), name->name, name->len) == 0)
++		return ret;
++	return 0;
++}
++
++static int gfs2_dirent_find(const struct gfs2_dirent *dent,
++			    const struct qstr *name,
++			    void *opaque)
++{
++	return __gfs2_dirent_find(dent, name, 1);
++}
++
++static int gfs2_dirent_prev(const struct gfs2_dirent *dent,
++			    const struct qstr *name,
++			    void *opaque)
++{
++	return __gfs2_dirent_find(dent, name, 2);
++}
++
++/*
++ * name->name holds ptr to start of block.
++ * name->len holds size of block.
++ */
++static int gfs2_dirent_last(const struct gfs2_dirent *dent,
++			    const struct qstr *name,
++			    void *opaque)
++{
++	const char *start = name->name;
++	const char *end = (const char *)dent + be16_to_cpu(dent->de_rec_len);
++	if (name->len == (end - start))
++		return 1;
++	return 0;
++}
++
++static int gfs2_dirent_find_space(const struct gfs2_dirent *dent,
++				  const struct qstr *name,
++				  void *opaque)
++{
++	unsigned required = GFS2_DIRENT_SIZE(name->len);
++	unsigned actual = GFS2_DIRENT_SIZE(be16_to_cpu(dent->de_name_len));
++	unsigned totlen = be16_to_cpu(dent->de_rec_len);
++
++	if (!dent->de_inum.no_addr)
++		actual = GFS2_DIRENT_SIZE(0);
++	if ((totlen - actual) >= required)
++		return 1;
++	return 0;
++}
++
++struct dirent_gather {
++	const struct gfs2_dirent **pdent;
++	unsigned offset;
++};
++
++static int gfs2_dirent_gather(const struct gfs2_dirent *dent,
++			      const struct qstr *name,
++			      void *opaque)
++{
++	struct dirent_gather *g = opaque;
++	if (dent->de_inum.no_addr) {
++		g->pdent[g->offset++] = dent;
++	}
++	return 0;
++}
++
++/*
++ * Other possible things to check:
++ * - Inode located within filesystem size (and on valid block)
++ * - Valid directory entry type
++ * Not sure how heavy-weight we want to make this... could also check
++ * hash is correct for example, but that would take a lot of extra time.
++ * For now the most important thing is to check that the various sizes
++ * are correct.
++ */
++static int gfs2_check_dirent(struct gfs2_dirent *dent, unsigned int offset,
++			     unsigned int size, unsigned int len, int first)
++{
++	const char *msg = "gfs2_dirent too small";
++	if (unlikely(size < sizeof(struct gfs2_dirent)))
++		goto error;
++	msg = "gfs2_dirent misaligned";
++	if (unlikely(offset & 0x7))
++		goto error;
++	msg = "gfs2_dirent points beyond end of block";
++	if (unlikely(offset + size > len))
++		goto error;
++	msg = "zero inode number";
++	if (unlikely(!first && !dent->de_inum.no_addr))
++		goto error;
++	msg = "name length is greater than space in dirent";
++	if (dent->de_inum.no_addr &&
++	    unlikely(sizeof(struct gfs2_dirent)+be16_to_cpu(dent->de_name_len) >
++		     size))
++		goto error;
++	return 0;
++error:
++	printk(KERN_WARNING "gfs2_check_dirent: %s (%s)\n", msg,
++	       first ? "first in block" : "not first in block");
++	return -EIO;
++}
++
++static int gfs2_dirent_offset(const void *buf)
++{
++	const struct gfs2_meta_header *h = buf;
++	int offset;
++
++	BUG_ON(buf == NULL);
++
++	switch(be32_to_cpu(h->mh_type)) {
++	case GFS2_METATYPE_LF:
++		offset = sizeof(struct gfs2_leaf);
++		break;
++	case GFS2_METATYPE_DI:
++		offset = sizeof(struct gfs2_dinode);
++		break;
++	default:
++		goto wrong_type;
++	}
++	return offset;
++wrong_type:
++	printk(KERN_WARNING "gfs2_scan_dirent: wrong block type %u\n",
++	       be32_to_cpu(h->mh_type));
++	return -1;
++}
++
++static struct gfs2_dirent *gfs2_dirent_scan(struct inode *inode,
++					    void *buf,
++					    unsigned int len, gfs2_dscan_t scan,
++					    const struct qstr *name,
++					    void *opaque)
++{
++	struct gfs2_dirent *dent, *prev;
++	unsigned offset;
++	unsigned size;
++	int ret = 0;
++
++	ret = gfs2_dirent_offset(buf);
++	if (ret < 0)
++		goto consist_inode;
++
++	offset = ret;
++	prev = NULL;
++	dent = (struct gfs2_dirent *)(buf + offset);
++	size = be16_to_cpu(dent->de_rec_len);
++	if (gfs2_check_dirent(dent, offset, size, len, 1))
++		goto consist_inode;
++	do {
++		ret = scan(dent, name, opaque);
++		if (ret)
++			break;
++		offset += size;
++		if (offset == len)
++			break;
++		prev = dent;
++		dent = (struct gfs2_dirent *)(buf + offset);
++		size = be16_to_cpu(dent->de_rec_len);
++		if (gfs2_check_dirent(dent, offset, size, len, 0))
++			goto consist_inode;
++	} while(1);
++
++	switch(ret) {
++	case 0:
++		return NULL;
++	case 1:
++		return dent;
++	case 2:
++		return prev ? prev : dent;
++	default:
++		BUG_ON(ret > 0);
++		return ERR_PTR(ret);
++	}
++
++consist_inode:
++	gfs2_consist_inode(inode->u.generic_ip);
++	return ERR_PTR(-EIO);
++}
++
++
++/**
++ * dirent_first - Return the first dirent
++ * @dip: the directory
++ * @bh: The buffer
++ * @dent: Pointer to list of dirents
 + *
-+ * This makes sure that we're using the latest copy of the resource index
-+ * special file, which might have been updated if someone expanded the
-+ * filesystem (via gfs2_grow utility), which adds new resource groups.
++ * return first dirent whether bh points to leaf or stuffed dinode
++ *
++ * Returns: IS_LEAF, IS_DINODE, or -errno
++ */
++
++static int dirent_first(struct gfs2_inode *dip, struct buffer_head *bh,
++			struct gfs2_dirent **dent)
++{
++	struct gfs2_meta_header *h = (struct gfs2_meta_header *)bh->b_data;
++
++	if (be32_to_cpu(h->mh_type) == GFS2_METATYPE_LF) {
++		if (gfs2_meta_check(dip->i_sbd, bh))
++			return -EIO;
++		*dent = (struct gfs2_dirent *)(bh->b_data +
++					       sizeof(struct gfs2_leaf));
++		return IS_LEAF;
++	} else {
++		if (gfs2_metatype_check(dip->i_sbd, bh, GFS2_METATYPE_DI))
++			return -EIO;
++		*dent = (struct gfs2_dirent *)(bh->b_data +
++					       sizeof(struct gfs2_dinode));
++		return IS_DINODE;
++	}
++}
++
++/**
++ * dirent_next - Next dirent
++ * @dip: the directory
++ * @bh: The buffer
++ * @dent: Pointer to list of dirents
 + *
 + * Returns: 0 on success, error code otherwise
 + */
 +
-+int gfs2_rindex_hold(struct gfs2_sbd *sdp, struct gfs2_holder *ri_gh)
++static int dirent_next(struct gfs2_inode *dip, struct buffer_head *bh,
++		       struct gfs2_dirent **dent)
 +{
-+	struct gfs2_inode *ip = sdp->sd_rindex->u.generic_ip;
-+	struct gfs2_glock *gl = ip->i_gl;
-+	int error;
++	struct gfs2_dirent *tmp, *cur;
++	char *bh_end;
++	uint16_t cur_rec_len;
 +
-+	error = gfs2_glock_nq_init(gl, LM_ST_SHARED, 0, ri_gh);
-+	if (error)
-+		return error;
++	cur = *dent;
++	bh_end = bh->b_data + bh->b_size;
++	cur_rec_len = be16_to_cpu(cur->de_rec_len);
 +
-+	/* Read new copy from disk if we don't have the latest */
-+	if (sdp->sd_rindex_vn != gl->gl_vn) {
-+		mutex_lock(&sdp->sd_rindex_mutex);
-+		if (sdp->sd_rindex_vn != gl->gl_vn) {
-+			error = gfs2_ri_update(ip);
-+			if (error)
-+				gfs2_glock_dq_uninit(ri_gh);
++	if ((char *)cur + cur_rec_len >= bh_end) {
++		if ((char *)cur + cur_rec_len > bh_end) {
++			gfs2_consist_inode(dip);
++			return -EIO;
 +		}
-+		mutex_unlock(&sdp->sd_rindex_mutex);
++		return -ENOENT;
 +	}
 +
-+	return error;
-+}
++	tmp = (struct gfs2_dirent *)((char *)cur + cur_rec_len);
 +
-+/**
-+ * gfs2_rgrp_bh_get - Read in a RG's header and bitmaps
-+ * @rgd: the struct gfs2_rgrpd describing the RG to read in
-+ *
-+ * Read in all of a Resource Group's header and bitmap blocks.
-+ * Caller must eventually call gfs2_rgrp_relse() to free the bitmaps.
-+ *
-+ * Returns: errno
-+ */
-+
-+int gfs2_rgrp_bh_get(struct gfs2_rgrpd *rgd)
-+{
-+	struct gfs2_sbd *sdp = rgd->rd_sbd;
-+	struct gfs2_glock *gl = rgd->rd_gl;
-+	unsigned int length = rgd->rd_ri.ri_length;
-+	struct gfs2_bitmap *bi;
-+	unsigned int x, y;
-+	int error;
-+
-+	mutex_lock(&rgd->rd_mutex);
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+	if (rgd->rd_bh_count) {
-+		rgd->rd_bh_count++;
-+		spin_unlock(&sdp->sd_rindex_spin);
-+		mutex_unlock(&rgd->rd_mutex);
-+		return 0;
-+	}
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	for (x = 0; x < length; x++) {
-+		bi = rgd->rd_bits + x;
-+		error = gfs2_meta_read(gl, rgd->rd_ri.ri_addr + x, DIO_START,
-+				       &bi->bi_bh);
-+		if (error)
-+			goto fail;
++	if ((char *)tmp + be16_to_cpu(tmp->de_rec_len) > bh_end) {
++		gfs2_consist_inode(dip);
++		return -EIO;
 +	}
 +
-+	for (y = length; y--;) {
-+		bi = rgd->rd_bits + y;
-+		error = gfs2_meta_reread(sdp, bi->bi_bh, DIO_WAIT);
-+		if (error)
-+			goto fail;
-+		if (gfs2_metatype_check(sdp, bi->bi_bh,
-+					(y) ? GFS2_METATYPE_RB :
-+					      GFS2_METATYPE_RG)) {
-+			error = -EIO;
-+			goto fail;
-+		}
++	if (cur_rec_len == 0) {
++		gfs2_consist_inode(dip);
++		return -EIO;
 +	}
 +
-+	if (rgd->rd_rg_vn != gl->gl_vn) {
-+		gfs2_rgrp_in(&rgd->rd_rg, (rgd->rd_bits[0].bi_bh)->b_data);
-+		rgd->rd_rg_vn = gl->gl_vn;
++        /* Only the first dent could ever have de_inum.no_addr == 0 */
++	if (!tmp->de_inum.no_addr) {
++		gfs2_consist_inode(dip);
++		return -EIO;
 +	}
 +
-+	spin_lock(&sdp->sd_rindex_spin);
-+	rgd->rd_free_clone = rgd->rd_rg.rg_free;
-+	rgd->rd_bh_count++;
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	mutex_unlock(&rgd->rd_mutex);
++	*dent = tmp;
 +
 +	return 0;
-+
-+ fail:
-+	while (x--) {
-+		bi = rgd->rd_bits + x;
-+		brelse(bi->bi_bh);
-+		bi->bi_bh = NULL;
-+		gfs2_assert_warn(sdp, !bi->bi_clone);
-+	}
-+	mutex_unlock(&rgd->rd_mutex);
-+
-+	return error;
-+}
-+
-+void gfs2_rgrp_bh_hold(struct gfs2_rgrpd *rgd)
-+{
-+	struct gfs2_sbd *sdp = rgd->rd_sbd;
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+	gfs2_assert_warn(rgd->rd_sbd, rgd->rd_bh_count);
-+	rgd->rd_bh_count++;
-+	spin_unlock(&sdp->sd_rindex_spin);
 +}
 +
 +/**
-+ * gfs2_rgrp_bh_put - Release RG bitmaps read in with gfs2_rgrp_bh_get()
-+ * @rgd: the struct gfs2_rgrpd describing the RG to read in
++ * dirent_del - Delete a dirent
++ * @dip: The GFS2 inode
++ * @bh: The buffer
++ * @prev: The previous dirent
++ * @cur: The current dirent
 + *
 + */
 +
-+void gfs2_rgrp_bh_put(struct gfs2_rgrpd *rgd)
++static void dirent_del(struct gfs2_inode *dip, struct buffer_head *bh,
++		       struct gfs2_dirent *prev, struct gfs2_dirent *cur)
 +{
-+	struct gfs2_sbd *sdp = rgd->rd_sbd;
-+	int x, length = rgd->rd_ri.ri_length;
++	uint16_t cur_rec_len, prev_rec_len;
 +
-+	spin_lock(&sdp->sd_rindex_spin);
-+	gfs2_assert_warn(rgd->rd_sbd, rgd->rd_bh_count);
-+	if (--rgd->rd_bh_count) {
-+		spin_unlock(&sdp->sd_rindex_spin);
++	if (!cur->de_inum.no_addr) {
++		gfs2_consist_inode(dip);
 +		return;
 +	}
 +
-+	for (x = 0; x < length; x++) {
-+		struct gfs2_bitmap *bi = rgd->rd_bits + x;
-+		kfree(bi->bi_clone);
-+		bi->bi_clone = NULL;
-+		brelse(bi->bi_bh);
-+		bi->bi_bh = NULL;
++	gfs2_trans_add_bh(dip->i_gl, bh, 1);
++
++	/* If there is no prev entry, this is the first entry in the block.
++	   The de_rec_len is already as big as it needs to be.  Just zero
++	   out the inode number and return.  */
++
++	if (!prev) {
++		cur->de_inum.no_addr = 0;	/* No endianess worries */
++		return;
 +	}
 +
-+	spin_unlock(&sdp->sd_rindex_spin);
++	/*  Combine this dentry with the previous one.  */
++
++	prev_rec_len = be16_to_cpu(prev->de_rec_len);
++	cur_rec_len = be16_to_cpu(cur->de_rec_len);
++
++	if ((char *)prev + prev_rec_len != (char *)cur)
++		gfs2_consist_inode(dip);
++	if ((char *)cur + cur_rec_len > bh->b_data + bh->b_size)
++		gfs2_consist_inode(dip);
++
++	prev_rec_len += cur_rec_len;
++	prev->de_rec_len = cpu_to_be16(prev_rec_len);
 +}
 +
-+void gfs2_rgrp_repolish_clones(struct gfs2_rgrpd *rgd)
++/*
++ * Takes a dent from which to grab space as an argument. Returns the
++ * newly created dent.
++ */
++struct gfs2_dirent *gfs2_init_dirent(struct inode *inode,
++				     struct gfs2_dirent *dent,
++				     const struct qstr *name,
++				     struct buffer_head *bh)
 +{
-+	struct gfs2_sbd *sdp = rgd->rd_sbd;
-+	unsigned int length = rgd->rd_ri.ri_length;
-+	unsigned int x;
++	struct gfs2_inode *ip = inode->u.generic_ip;
++	struct gfs2_dirent *ndent;
++	unsigned offset = 0, totlen;
 +
-+	for (x = 0; x < length; x++) {
-+		struct gfs2_bitmap *bi = rgd->rd_bits + x;
-+		if (!bi->bi_clone)
-+			continue;
-+		memcpy(bi->bi_clone + bi->bi_offset,
-+		       bi->bi_bh->b_data + bi->bi_offset,
-+		       bi->bi_len);
++	if (dent->de_inum.no_addr)
++		offset = GFS2_DIRENT_SIZE(be16_to_cpu(dent->de_name_len));
++	totlen = be16_to_cpu(dent->de_rec_len);
++	BUG_ON(offset + name->len > totlen);
++	gfs2_trans_add_bh(ip->i_gl, bh, 1);
++	ndent = (struct gfs2_dirent *)((char *)dent + offset);
++	dent->de_rec_len = cpu_to_be16(offset);
++	gfs2_qstr2dirent(name, totlen - offset, ndent);
++	return ndent;
++}
++
++static struct gfs2_dirent *gfs2_dirent_alloc(struct inode *inode,
++					     struct buffer_head *bh,
++					     const struct qstr *name)
++{
++	struct gfs2_dirent *dent;
++	dent = gfs2_dirent_scan(inode, bh->b_data, bh->b_size, 
++				gfs2_dirent_find_space, name, NULL);
++	if (!dent || IS_ERR(dent))
++		return dent;
++	return gfs2_init_dirent(inode, dent, name, bh);
++}
++
++static int get_leaf(struct gfs2_inode *dip, uint64_t leaf_no,
++		    struct buffer_head **bhp)
++{
++	int error;
++
++	error = gfs2_meta_read(dip->i_gl, leaf_no, DIO_START | DIO_WAIT, bhp);
++	if (!error && gfs2_metatype_check(dip->i_sbd, *bhp, GFS2_METATYPE_LF))
++		error = -EIO;
++
++	return error;
++}
++
++/**
++ * get_leaf_nr - Get a leaf number associated with the index
++ * @dip: The GFS2 inode
++ * @index:
++ * @leaf_out:
++ *
++ * Returns: 0 on success, error code otherwise
++ */
++
++static int get_leaf_nr(struct gfs2_inode *dip, uint32_t index,
++		       uint64_t *leaf_out)
++{
++	uint64_t leaf_no;
++	int error;
++
++	error = gfs2_dir_read_data(dip, (char *)&leaf_no,
++				    index * sizeof(uint64_t),
++				    sizeof(uint64_t));
++	if (error != sizeof(uint64_t))
++		return (error < 0) ? error : -EIO;
++
++	*leaf_out = be64_to_cpu(leaf_no);
++
++	return 0;
++}
++
++static int get_first_leaf(struct gfs2_inode *dip, uint32_t index,
++			  struct buffer_head **bh_out)
++{
++	uint64_t leaf_no;
++	int error;
++
++	error = get_leaf_nr(dip, index, &leaf_no);
++	if (!error)
++		error = get_leaf(dip, leaf_no, bh_out);
++
++	return error;
++}
++
++static struct gfs2_dirent *gfs2_dirent_search(struct inode *inode,
++					      const struct qstr *name,
++					      gfs2_dscan_t scan,
++					      struct buffer_head **pbh)
++{
++	struct buffer_head *bh;
++	struct gfs2_dirent *dent;
++	struct gfs2_inode *ip = inode->u.generic_ip;
++	int error;
++
++	if (ip->i_di.di_flags & GFS2_DIF_EXHASH) {
++		struct gfs2_leaf *leaf;
++		unsigned hsize = 1 << ip->i_di.di_depth;
++		unsigned index;
++		u64 ln;
++		if (hsize * sizeof(u64) != ip->i_di.di_size) {
++			gfs2_consist_inode(ip);
++			return ERR_PTR(-EIO);
++		}
++
++		index = name->hash >> (32 - ip->i_di.di_depth);
++		error = get_first_leaf(ip, index, &bh);
++		if (error)
++			return ERR_PTR(error);
++		do {
++			dent = gfs2_dirent_scan(inode, bh->b_data, bh->b_size,
++						scan, name, NULL);
++			if (dent)
++				goto got_dent;
++			leaf = (struct gfs2_leaf *)bh->b_data;
++			ln = be64_to_cpu(leaf->lf_next);
++			brelse(bh);
++			if (!ln)
++				break;
++			error = get_leaf(ip, ln, &bh);
++		} while(!error);
++
++		return error ? ERR_PTR(error) : NULL;
 +	}
 +
-+	spin_lock(&sdp->sd_rindex_spin);
-+	rgd->rd_free_clone = rgd->rd_rg.rg_free;
-+	spin_unlock(&sdp->sd_rindex_spin);
++	error = gfs2_meta_inode_buffer(ip, &bh);
++	if (error)
++		return ERR_PTR(error);
++	dent = gfs2_dirent_scan(inode, bh->b_data, bh->b_size, scan, name, NULL);
++got_dent:
++	if (unlikely(dent == NULL || IS_ERR(dent))) {
++		brelse(bh);
++		bh = NULL;
++	}
++	*pbh = bh;
++	return dent;
++}
++
++static struct gfs2_leaf *new_leaf(struct inode *inode, struct buffer_head **pbh, u16 depth)
++{
++	struct gfs2_inode *ip = inode->u.generic_ip;
++	u64 bn = gfs2_alloc_meta(ip);
++	struct buffer_head *bh = gfs2_meta_new(ip->i_gl, bn);
++	struct gfs2_leaf *leaf;
++	struct gfs2_dirent *dent;
++	struct qstr name = { .name = "", .len = 0, .hash = 0 };
++	if (!bh)
++		return NULL;
++	gfs2_trans_add_bh(ip->i_gl, bh, 1);
++	gfs2_metatype_set(bh, GFS2_METATYPE_LF, GFS2_FORMAT_LF);
++	leaf = (struct gfs2_leaf *)bh->b_data;
++	leaf->lf_depth = cpu_to_be16(depth);
++	leaf->lf_entries = cpu_to_be16(0);
++	leaf->lf_dirent_format = cpu_to_be16(GFS2_FORMAT_DE);
++	leaf->lf_next = cpu_to_be64(0);
++	memset(leaf->lf_reserved, 0, sizeof(leaf->lf_reserved));
++	dent = (struct gfs2_dirent *)(leaf+1);
++	gfs2_qstr2dirent(&name, bh->b_size - sizeof(struct gfs2_leaf), dent);
++	*pbh = bh;
++	return leaf;
 +}
 +
 +/**
-+ * gfs2_alloc_get - get the struct gfs2_alloc structure for an inode
-+ * @ip: the incore GFS2 inode structure
++ * dir_make_exhash - Convert a stuffed directory into an ExHash directory
++ * @dip: The GFS2 inode
 + *
-+ * Returns: the struct gfs2_alloc
++ * Returns: 0 on success, error code otherwise
 + */
 +
-+struct gfs2_alloc *gfs2_alloc_get(struct gfs2_inode *ip)
++static int dir_make_exhash(struct inode *inode)
 +{
-+	struct gfs2_alloc *al = &ip->i_alloc;
++	struct gfs2_inode *dip = inode->u.generic_ip;
++	struct gfs2_sbd *sdp = dip->i_sbd;
++	struct gfs2_dirent *dent;
++	struct qstr args;
++	struct buffer_head *bh, *dibh;
++	struct gfs2_leaf *leaf;
++	int y;
++	uint32_t x;
++	uint64_t *lp, bn;
++	int error;
 +
-+	/* FIXME: Should assert that the correct locks are held here... */
-+	memset(al, 0, sizeof(*al));
-+	return al;
++	error = gfs2_meta_inode_buffer(dip, &dibh);
++	if (error)
++		return error;
++
++	/*  Turn over a new leaf  */
++
++	leaf = new_leaf(inode, &bh, 0);
++	if (!leaf)
++		return -ENOSPC;
++	bn = bh->b_blocknr;
++
++	gfs2_assert(sdp, dip->i_di.di_entries < (1 << 16));
++	leaf->lf_entries = cpu_to_be16(dip->i_di.di_entries);
++
++	/*  Copy dirents  */
++
++	gfs2_buffer_copy_tail(bh, sizeof(struct gfs2_leaf), dibh,
++			     sizeof(struct gfs2_dinode));
++
++	/*  Find last entry  */
++
++	x = 0;
++	args.len = bh->b_size - sizeof(struct gfs2_dinode) +
++		   sizeof(struct gfs2_leaf);
++	args.name = bh->b_data;
++	dent = gfs2_dirent_scan(dip->i_vnode, bh->b_data, bh->b_size,
++				gfs2_dirent_last, &args, NULL);
++	if (!dent) {
++		brelse(bh);
++		brelse(dibh);
++		return -EIO;
++	}
++	if (IS_ERR(dent)) {
++		brelse(bh);
++		brelse(dibh);
++		return PTR_ERR(dent);
++	}
++
++	/*  Adjust the last dirent's record length
++	   (Remember that dent still points to the last entry.)  */
++
++	dent->de_rec_len = cpu_to_be16(be16_to_cpu(dent->de_rec_len) +
++		sizeof(struct gfs2_dinode) -
++		sizeof(struct gfs2_leaf));
++
++	brelse(bh);
++
++	/*  We're done with the new leaf block, now setup the new
++	    hash table.  */
++
++	gfs2_trans_add_bh(dip->i_gl, dibh, 1);
++	gfs2_buffer_clear_tail(dibh, sizeof(struct gfs2_dinode));
++
++	lp = (uint64_t *)(dibh->b_data + sizeof(struct gfs2_dinode));
++
++	for (x = sdp->sd_hash_ptrs; x--; lp++)
++		*lp = cpu_to_be64(bn);
++
++	dip->i_di.di_size = sdp->sd_sb.sb_bsize / 2;
++	dip->i_di.di_blocks++;
++	dip->i_di.di_flags |= GFS2_DIF_EXHASH;
++	dip->i_di.di_payload_format = 0;
++
++	for (x = sdp->sd_hash_ptrs, y = -1; x; x >>= 1, y++) ;
++	dip->i_di.di_depth = y;
++
++	gfs2_dinode_out(&dip->i_di, dibh->b_data);
++
++	brelse(dibh);
++
++	return 0;
 +}
 +
 +/**
-+ * gfs2_alloc_put - throw away the struct gfs2_alloc for an inode
-+ * @ip: the inode
++ * dir_split_leaf - Split a leaf block into two
++ * @dip: The GFS2 inode
++ * @index:
++ * @leaf_no:
 + *
++ * Returns: 0 on success, error code on failure
 + */
 +
-+void gfs2_alloc_put(struct gfs2_inode *ip)
++static int dir_split_leaf(struct inode *inode, const struct qstr *name)
 +{
-+	return;
++	struct gfs2_inode *dip = inode->u.generic_ip;
++	struct buffer_head *nbh, *obh, *dibh;
++	struct gfs2_leaf *nleaf, *oleaf;
++	struct gfs2_dirent *dent, *prev = NULL, *next = NULL, *new;
++	uint32_t start, len, half_len, divider;
++	uint64_t bn, *lp, leaf_no;
++	uint32_t index;
++	int x, moved = 0;
++	int error;
++
++	index = name->hash >> (32 - dip->i_di.di_depth);
++	error = get_leaf_nr(dip, index, &leaf_no);
++	if (error)
++		return error;
++
++	/*  Get the old leaf block  */
++	error = get_leaf(dip, leaf_no, &obh);
++	if (error)
++		return error;
++
++	oleaf = (struct gfs2_leaf *)obh->b_data;
++	if (dip->i_di.di_depth == be16_to_cpu(oleaf->lf_depth)) {
++		brelse(obh);
++		return 1; /* can't split */
++	}
++
++	gfs2_trans_add_bh(dip->i_gl, obh, 1);
++
++	nleaf = new_leaf(inode, &nbh, be16_to_cpu(oleaf->lf_depth) + 1);
++	if (!nleaf) {
++		brelse(obh);
++		return -ENOSPC;
++	}
++	bn = nbh->b_blocknr;
++
++	/*  Compute the start and len of leaf pointers in the hash table.  */
++	len = 1 << (dip->i_di.di_depth - be16_to_cpu(oleaf->lf_depth));
++	half_len = len >> 1;
++	if (!half_len) {
++		printk(KERN_WARNING "di_depth %u lf_depth %u index %u\n", dip->i_di.di_depth, be16_to_cpu(oleaf->lf_depth), index);
++		gfs2_consist_inode(dip);
++		error = -EIO;
++		goto fail_brelse;
++	}
++
++	start = (index & ~(len - 1));
++
++	/* Change the pointers.
++	   Don't bother distinguishing stuffed from non-stuffed.
++	   This code is complicated enough already. */
++	lp = kmalloc(half_len * sizeof(uint64_t), GFP_NOFS | __GFP_NOFAIL);
++	/*  Change the pointers  */
++	for (x = 0; x < half_len; x++)
++		lp[x] = cpu_to_be64(bn);
++
++	error = gfs2_dir_write_data(dip, (char *)lp, start * sizeof(uint64_t),
++				    half_len * sizeof(uint64_t));
++	if (error != half_len * sizeof(uint64_t)) {
++		if (error >= 0)
++			error = -EIO;
++		goto fail_lpfree;
++	}
++
++	kfree(lp);
++
++	/*  Compute the divider  */
++	divider = (start + half_len) << (32 - dip->i_di.di_depth);
++
++	/*  Copy the entries  */
++	dirent_first(dip, obh, &dent);
++
++	do {
++		next = dent;
++		if (dirent_next(dip, obh, &next))
++			next = NULL;
++
++		if (dent->de_inum.no_addr &&
++		    be32_to_cpu(dent->de_hash) < divider) {
++			struct qstr str;
++			str.name = (char*)(dent+1);
++			str.len = be16_to_cpu(dent->de_name_len);
++			str.hash = be32_to_cpu(dent->de_hash);
++			new = gfs2_dirent_alloc(inode, nbh, &str);
++			if (IS_ERR(new)) {
++				error = PTR_ERR(new);
++				break;
++			}
++
++			new->de_inum = dent->de_inum; /* No endian worries */
++			new->de_type = dent->de_type; /* No endian worries */
++			nleaf->lf_entries = cpu_to_be16(be16_to_cpu(nleaf->lf_entries)+1);
++
++			dirent_del(dip, obh, prev, dent);
++
++			if (!oleaf->lf_entries)
++				gfs2_consist_inode(dip);
++			oleaf->lf_entries = cpu_to_be16(be16_to_cpu(oleaf->lf_entries)-1);
++
++			if (!prev)
++				prev = dent;
++
++			moved = 1;
++		} else {
++			prev = dent;
++		}
++		dent = next;
++	} while (dent);
++
++	oleaf->lf_depth = nleaf->lf_depth;
++
++	error = gfs2_meta_inode_buffer(dip, &dibh);
++	if (!gfs2_assert_withdraw(dip->i_sbd, !error)) {
++		dip->i_di.di_blocks++;
++		gfs2_dinode_out(&dip->i_di, dibh->b_data);
++		brelse(dibh);
++	}
++
++	brelse(obh);
++	brelse(nbh);
++
++	return error;
++
++fail_lpfree:
++	kfree(lp);
++
++fail_brelse:
++	brelse(obh);
++	brelse(nbh);
++	return error;
 +}
 +
 +/**
-+ * try_rgrp_fit - See if a given reservation will fit in a given RG
-+ * @rgd: the RG data
-+ * @al: the struct gfs2_alloc structure describing the reservation
++ * dir_double_exhash - Double size of ExHash table
++ * @dip: The GFS2 dinode
 + *
-+ * If there's room for the requested blocks to be allocated from the RG:
-+ *   Sets the $al_reserved_data field in @al.
-+ *   Sets the $al_reserved_meta field in @al.
-+ *   Sets the $al_rgd field in @al.
-+ *
-+ * Returns: 1 on success (it fits), 0 on failure (it doesn't fit)
++ * Returns: 0 on success, error code on failure
 + */
 +
-+static int try_rgrp_fit(struct gfs2_rgrpd *rgd, struct gfs2_alloc *al)
++static int dir_double_exhash(struct gfs2_inode *dip)
 +{
-+	struct gfs2_sbd *sdp = rgd->rd_sbd;
++	struct gfs2_sbd *sdp = dip->i_sbd;
++	struct buffer_head *dibh;
++	uint32_t hsize;
++	uint64_t *buf;
++	uint64_t *from, *to;
++	uint64_t block;
++	int x;
++	int error = 0;
++
++	hsize = 1 << dip->i_di.di_depth;
++	if (hsize * sizeof(uint64_t) != dip->i_di.di_size) {
++		gfs2_consist_inode(dip);
++		return -EIO;
++	}
++
++	/*  Allocate both the "from" and "to" buffers in one big chunk  */
++
++	buf = kcalloc(3, sdp->sd_hash_bsize, GFP_KERNEL | __GFP_NOFAIL);
++
++	for (block = dip->i_di.di_size >> sdp->sd_hash_bsize_shift; block--;) {
++		error = gfs2_dir_read_data(dip, (char *)buf,
++					    block * sdp->sd_hash_bsize,
++					    sdp->sd_hash_bsize);
++		if (error != sdp->sd_hash_bsize) {
++			if (error >= 0)
++				error = -EIO;
++			goto fail;
++		}
++
++		from = buf;
++		to = (uint64_t *)((char *)buf + sdp->sd_hash_bsize);
++
++		for (x = sdp->sd_hash_ptrs; x--; from++) {
++			*to++ = *from;	/*  No endianess worries  */
++			*to++ = *from;
++		}
++
++		error = gfs2_dir_write_data(dip,
++					     (char *)buf + sdp->sd_hash_bsize,
++					     block * sdp->sd_sb.sb_bsize,
++					     sdp->sd_sb.sb_bsize);
++		if (error != sdp->sd_sb.sb_bsize) {
++			if (error >= 0)
++				error = -EIO;
++			goto fail;
++		}
++	}
++
++	kfree(buf);
++
++	error = gfs2_meta_inode_buffer(dip, &dibh);
++	if (!gfs2_assert_withdraw(sdp, !error)) {
++		dip->i_di.di_depth++;
++		gfs2_dinode_out(&dip->i_di, dibh->b_data);
++		brelse(dibh);
++	}
++
++	return error;
++
++ fail:
++	kfree(buf);
++
++	return error;
++}
++
++/**
++ * compare_dents - compare directory entries by hash value
++ * @a: first dent
++ * @b: second dent
++ *
++ * When comparing the hash entries of @a to @b:
++ *   gt: returns 1
++ *   lt: returns -1
++ *   eq: returns 0
++ */
++
++static int compare_dents(const void *a, const void *b)
++{
++	struct gfs2_dirent *dent_a, *dent_b;
++	uint32_t hash_a, hash_b;
 +	int ret = 0;
 +
-+	spin_lock(&sdp->sd_rindex_spin);
-+	if (rgd->rd_free_clone >= al->al_requested) {
-+		al->al_rgd = rgd;
++	dent_a = *(struct gfs2_dirent **)a;
++	hash_a = be32_to_cpu(dent_a->de_hash);
++
++	dent_b = *(struct gfs2_dirent **)b;
++	hash_b = be32_to_cpu(dent_b->de_hash);
++
++	if (hash_a > hash_b)
 +		ret = 1;
++	else if (hash_a < hash_b)
++		ret = -1;
++	else {
++		unsigned int len_a = be16_to_cpu(dent_a->de_name_len);
++		unsigned int len_b = be16_to_cpu(dent_b->de_name_len);
++
++		if (len_a > len_b)
++			ret = 1;
++		else if (len_a < len_b)
++			ret = -1;
++		else
++			ret = memcmp((char *)(dent_a + 1),
++				     (char *)(dent_b + 1),
++				     len_a);
 +	}
-+	spin_unlock(&sdp->sd_rindex_spin);
 +
 +	return ret;
 +}
 +
 +/**
-+ * recent_rgrp_first - get first RG from "recent" list
-+ * @sdp: The GFS2 superblock
-+ * @rglast: address of the rgrp used last
++ * do_filldir_main - read out directory entries
++ * @dip: The GFS2 inode
++ * @offset: The offset in the file to read from
++ * @opaque: opaque data to pass to filldir
++ * @filldir: The function to pass entries to
++ * @darr: an array of struct gfs2_dirent pointers to read
++ * @entries: the number of entries in darr
++ * @copied: pointer to int that's non-zero if a entry has been copied out
 + *
-+ * Returns: The first rgrp in the recent list
++ * Jump through some hoops to make sure that if there are hash collsions,
++ * they are read out at the beginning of a buffer.  We want to minimize
++ * the possibility that they will fall into different readdir buffers or
++ * that someone will want to seek to that location.
++ *
++ * Returns: errno, >0 on exception from filldir
 + */
 +
-+static struct gfs2_rgrpd *recent_rgrp_first(struct gfs2_sbd *sdp,
-+					    uint64_t rglast)
++static int do_filldir_main(struct gfs2_inode *dip, uint64_t *offset,
++			   void *opaque, gfs2_filldir_t filldir,
++			   const struct gfs2_dirent **darr, uint32_t entries,
++			   int *copied)
 +{
-+	struct gfs2_rgrpd *rgd = NULL;
++	const struct gfs2_dirent *dent, *dent_next;
++	struct gfs2_inum inum;
++	uint64_t off, off_next;
++	unsigned int x, y;
++	int run = 0;
++	int error = 0;
 +
-+	spin_lock(&sdp->sd_rindex_spin);
++	sort(darr, entries, sizeof(struct gfs2_dirent *), compare_dents, NULL);
 +
-+	if (list_empty(&sdp->sd_rindex_recent_list))
-+		goto out;
++	dent_next = darr[0];
++	off_next = be32_to_cpu(dent_next->de_hash);
++	off_next = gfs2_disk_hash2offset(off_next);
 +
-+	if (!rglast)
-+		goto first;
++	for (x = 0, y = 1; x < entries; x++, y++) {
++		dent = dent_next;
++		off = off_next;
 +
-+	list_for_each_entry(rgd, &sdp->sd_rindex_recent_list, rd_recent) {
-+		if (rgd->rd_ri.ri_addr == rglast)
-+			goto out;
-+	}
++		if (y < entries) {
++			dent_next = darr[y];
++			off_next = be32_to_cpu(dent_next->de_hash);
++			off_next = gfs2_disk_hash2offset(off_next);
 +
-+ first:
-+	rgd = list_entry(sdp->sd_rindex_recent_list.next, struct gfs2_rgrpd,
-+			 rd_recent);
++			if (off < *offset)
++				continue;
++			*offset = off;
 +
-+ out:
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	return rgd;
-+}
-+
-+/**
-+ * recent_rgrp_next - get next RG from "recent" list
-+ * @cur_rgd: current rgrp
-+ * @remove:
-+ *
-+ * Returns: The next rgrp in the recent list
-+ */
-+
-+static struct gfs2_rgrpd *recent_rgrp_next(struct gfs2_rgrpd *cur_rgd,
-+					   int remove)
-+{
-+	struct gfs2_sbd *sdp = cur_rgd->rd_sbd;
-+	struct list_head *head;
-+	struct gfs2_rgrpd *rgd;
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+
-+	head = &sdp->sd_rindex_recent_list;
-+
-+	list_for_each_entry(rgd, head, rd_recent) {
-+		if (rgd == cur_rgd) {
-+			if (cur_rgd->rd_recent.next != head)
-+				rgd = list_entry(cur_rgd->rd_recent.next,
-+						 struct gfs2_rgrpd, rd_recent);
-+			else
-+				rgd = NULL;
-+
-+			if (remove)
-+				list_del(&cur_rgd->rd_recent);
-+
-+			goto out;
-+		}
-+	}
-+
-+	rgd = NULL;
-+	if (!list_empty(head))
-+		rgd = list_entry(head->next, struct gfs2_rgrpd, rd_recent);
-+
-+ out:
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	return rgd;
-+}
-+
-+/**
-+ * recent_rgrp_add - add an RG to tail of "recent" list
-+ * @new_rgd: The rgrp to add
-+ *
-+ */
-+
-+static void recent_rgrp_add(struct gfs2_rgrpd *new_rgd)
-+{
-+	struct gfs2_sbd *sdp = new_rgd->rd_sbd;
-+	struct gfs2_rgrpd *rgd;
-+	unsigned int count = 0;
-+	unsigned int max = sdp->sd_rgrps / gfs2_jindex_size(sdp);
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+
-+	list_for_each_entry(rgd, &sdp->sd_rindex_recent_list, rd_recent) {
-+		if (rgd == new_rgd)
-+			goto out;
-+
-+		if (++count >= max)
-+			goto out;
-+	}
-+	list_add_tail(&new_rgd->rd_recent, &sdp->sd_rindex_recent_list);
-+
-+ out:
-+	spin_unlock(&sdp->sd_rindex_spin);
-+}
-+
-+/**
-+ * forward_rgrp_get - get an rgrp to try next from full list
-+ * @sdp: The GFS2 superblock
-+ *
-+ * Returns: The rgrp to try next
-+ */
-+
-+static struct gfs2_rgrpd *forward_rgrp_get(struct gfs2_sbd *sdp)
-+{
-+	struct gfs2_rgrpd *rgd;
-+	unsigned int journals = gfs2_jindex_size(sdp);
-+	unsigned int rg = 0, x;
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+
-+	rgd = sdp->sd_rindex_forward;
-+	if (!rgd) {
-+		if (sdp->sd_rgrps >= journals)
-+			rg = sdp->sd_rgrps * sdp->sd_jdesc->jd_jid / journals;
-+
-+		for (x = 0, rgd = gfs2_rgrpd_get_first(sdp);
-+		     x < rg;
-+		     x++, rgd = gfs2_rgrpd_get_next(rgd))
-+			/* Do Nothing */;
-+
-+		sdp->sd_rindex_forward = rgd;
-+	}
-+
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	return rgd;
-+}
-+
-+/**
-+ * forward_rgrp_set - set the forward rgrp pointer
-+ * @sdp: the filesystem
-+ * @rgd: The new forward rgrp
-+ *
-+ */
-+
-+static void forward_rgrp_set(struct gfs2_sbd *sdp, struct gfs2_rgrpd *rgd)
-+{
-+	spin_lock(&sdp->sd_rindex_spin);
-+	sdp->sd_rindex_forward = rgd;
-+	spin_unlock(&sdp->sd_rindex_spin);
-+}
-+
-+/**
-+ * get_local_rgrp - Choose and lock a rgrp for allocation
-+ * @ip: the inode to reserve space for
-+ * @rgp: the chosen and locked rgrp
-+ *
-+ * Try to acquire rgrp in way which avoids contending with others.
-+ *
-+ * Returns: errno
-+ */
-+
-+static int get_local_rgrp(struct gfs2_inode *ip)
-+{
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct gfs2_rgrpd *rgd, *begin = NULL;
-+	struct gfs2_alloc *al = &ip->i_alloc;
-+	int flags = LM_FLAG_TRY;
-+	int skipped = 0;
-+	int loops = 0;
-+	int error;
-+
-+	/* Try recently successful rgrps */
-+
-+	rgd = recent_rgrp_first(sdp, ip->i_last_rg_alloc);
-+
-+	while (rgd) {
-+		error = gfs2_glock_nq_init(rgd->rd_gl,
-+					  LM_ST_EXCLUSIVE, LM_FLAG_TRY,
-+					  &al->al_rgd_gh);
-+		switch (error) {
-+		case 0:
-+			if (try_rgrp_fit(rgd, al))
-+				goto out;
-+			gfs2_glock_dq_uninit(&al->al_rgd_gh);
-+			rgd = recent_rgrp_next(rgd, 1);
-+			break;
-+
-+		case GLR_TRYFAILED:
-+			rgd = recent_rgrp_next(rgd, 0);
-+			break;
-+
-+		default:
-+			return error;
-+		}
-+	}
-+
-+	/* Go through full list of rgrps */
-+
-+	begin = rgd = forward_rgrp_get(sdp);
-+
-+	for (;;) {
-+		error = gfs2_glock_nq_init(rgd->rd_gl,
-+					  LM_ST_EXCLUSIVE, flags,
-+					  &al->al_rgd_gh);
-+		switch (error) {
-+		case 0:
-+			if (try_rgrp_fit(rgd, al))
-+				goto out;
-+			gfs2_glock_dq_uninit(&al->al_rgd_gh);
-+			break;
-+
-+		case GLR_TRYFAILED:
-+			skipped++;
-+			break;
-+
-+		default:
-+			return error;
++			if (off_next == off) {
++				if (*copied && !run)
++					return 1;
++				run = 1;
++			} else
++				run = 0;
++		} else {
++			if (off < *offset)
++				continue;
++			*offset = off;
 +		}
 +
-+		rgd = gfs2_rgrpd_get_next(rgd);
-+		if (!rgd)
-+			rgd = gfs2_rgrpd_get_first(sdp);
++		gfs2_inum_in(&inum, (char *)&dent->de_inum);
 +
-+		if (rgd == begin) {
-+			if (++loops >= 2 || !skipped)
-+				return -ENOSPC;
-+			flags = 0;
-+		}
++		error = filldir(opaque, (char *)(dent + 1),
++				be16_to_cpu(dent->de_name_len),
++				off, &inum,
++				be16_to_cpu(dent->de_type));
++		if (error)
++			return 1;
++
++		*copied = 1;
 +	}
 +
-+ out:
-+	ip->i_last_rg_alloc = rgd->rd_ri.ri_addr;
++	/* Increment the *offset by one, so the next time we come into the
++	   do_filldir fxn, we get the next entry instead of the last one in the
++	   current leaf */
 +
-+	if (begin) {
-+		recent_rgrp_add(rgd);
-+		rgd = gfs2_rgrpd_get_next(rgd);
-+		if (!rgd)
-+			rgd = gfs2_rgrpd_get_first(sdp);
-+		forward_rgrp_set(sdp, rgd);
-+	}
++	(*offset)++;
 +
 +	return 0;
 +}
 +
++static int gfs2_dir_read_leaf(struct inode *inode, u64 *offset, void *opaque,
++			      gfs2_filldir_t filldir, int *copied,
++			      unsigned *depth, u64 leaf_no)
++{
++	struct gfs2_inode *ip = inode->u.generic_ip;
++	struct buffer_head *bh;
++	struct gfs2_leaf *lf;
++	unsigned entries = 0;
++	unsigned leaves = 0;
++	const struct gfs2_dirent **darr, *dent;
++	struct dirent_gather g;
++	struct buffer_head **larr;
++	int leaf = 0;
++	int error, i;
++	u64 lfn = leaf_no;
++
++	do {
++		error = get_leaf(ip, lfn, &bh);
++		if (error)
++			goto out;
++		lf = (struct gfs2_leaf *)bh->b_data;
++		if (leaves == 0)
++			*depth = be16_to_cpu(lf->lf_depth);
++		entries += be16_to_cpu(lf->lf_entries);
++		leaves++;
++		lfn = be64_to_cpu(lf->lf_next);
++		brelse(bh);
++	} while(lfn);
++
++	if (!entries)
++		return 0;
++
++	error = -ENOMEM;
++	larr = vmalloc((leaves + entries) * sizeof(void*));
++	if (!larr)
++		goto out;
++	darr = (const struct gfs2_dirent **)(larr + leaves);
++	g.pdent = darr;
++	g.offset = 0;
++	lfn = leaf_no;
++
++	do {
++		error = get_leaf(ip, lfn, &bh);
++		if (error)
++			goto out_kfree;
++		lf = (struct gfs2_leaf *)bh->b_data;
++		lfn = be64_to_cpu(lf->lf_next);
++		if (lf->lf_entries) {
++			dent = gfs2_dirent_scan(inode, bh->b_data, bh->b_size,
++						gfs2_dirent_gather, NULL, &g);
++			error = PTR_ERR(dent);
++			if (IS_ERR(dent)) {
++				goto out_kfree;
++			}
++			error = 0;
++			larr[leaf++] = bh;
++		} else {
++			brelse(bh);
++		}
++	} while(lfn);
++
++	error = do_filldir_main(ip, offset, opaque, filldir, darr,
++				entries, copied);
++out_kfree:
++	for(i = 0; i < leaf; i++)
++		brelse(larr[i]);
++	vfree(larr);
++out:
++	return error;
++}
++
 +/**
-+ * gfs2_inplace_reserve_i - Reserve space in the filesystem
-+ * @ip: the inode to reserve space for
++ * dir_e_read - Reads the entries from a directory into a filldir buffer
++ * @dip: dinode pointer
++ * @offset: the hash of the last entry read shifted to the right once
++ * @opaque: buffer for the filldir function to fill
++ * @filldir: points to the filldir function to use
 + *
 + * Returns: errno
 + */
 +
-+int gfs2_inplace_reserve_i(struct gfs2_inode *ip, char *file, unsigned int line)
++static int dir_e_read(struct inode *inode, uint64_t *offset, void *opaque,
++		      gfs2_filldir_t filldir)
 +{
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct gfs2_alloc *al = &ip->i_alloc;
++	struct gfs2_inode *dip = inode->u.generic_ip;
++	struct gfs2_sbd *sdp = dip->i_sbd;
++	uint32_t hsize, len = 0;
++	uint32_t ht_offset, lp_offset, ht_offset_cur = -1;
++	uint32_t hash, index;
++	uint64_t *lp;
++	int copied = 0;
++	int error = 0;
++	unsigned depth;
++
++	hsize = 1 << dip->i_di.di_depth;
++	if (hsize * sizeof(uint64_t) != dip->i_di.di_size) {
++		gfs2_consist_inode(dip);
++		return -EIO;
++	}
++
++	hash = gfs2_dir_offset2hash(*offset);
++	index = hash >> (32 - dip->i_di.di_depth);
++
++	lp = kmalloc(sdp->sd_hash_bsize, GFP_KERNEL);
++	if (!lp)
++		return -ENOMEM;
++
++	while (index < hsize) {
++		lp_offset = index & (sdp->sd_hash_ptrs - 1);
++		ht_offset = index - lp_offset;
++
++		if (ht_offset_cur != ht_offset) {
++			error = gfs2_dir_read_data(dip, (char *)lp,
++						ht_offset * sizeof(uint64_t),
++						sdp->sd_hash_bsize);
++			if (error != sdp->sd_hash_bsize) {
++				if (error >= 0)
++					error = -EIO;
++				goto out;
++			}
++			ht_offset_cur = ht_offset;
++		}
++
++		error = gfs2_dir_read_leaf(inode, offset, opaque, filldir,
++					   &copied, &depth,
++					   be64_to_cpu(lp[lp_offset]));
++		if (error)
++			break;
++
++		len = 1 << (dip->i_di.di_depth - depth);
++		index = (index & ~(len - 1)) + len;
++	}
++
++out:
++	kfree(lp);
++	if (error > 0)
++		error = 0;
++	return error;
++}
++
++int gfs2_dir_read(struct inode *inode, uint64_t *offset, void *opaque,
++		  gfs2_filldir_t filldir)
++{
++	struct gfs2_inode *dip = inode->u.generic_ip;
++	struct dirent_gather g;
++	const struct gfs2_dirent **darr, *dent;
++	struct buffer_head *dibh;
++	int copied = 0;
 +	int error;
 +
-+	if (gfs2_assert_warn(sdp, al->al_requested))
-+		return -EINVAL;
++	if (!dip->i_di.di_entries)
++		return 0;
 +
-+	error = gfs2_rindex_hold(sdp, &al->al_ri_gh);
++	if (dip->i_di.di_flags & GFS2_DIF_EXHASH)
++		return dir_e_read(inode, offset, opaque, filldir);
++
++	if (!gfs2_is_stuffed(dip)) {
++		gfs2_consist_inode(dip);
++		return -EIO;
++	}
++
++	error = gfs2_meta_inode_buffer(dip, &dibh);
 +	if (error)
 +		return error;
 +
-+	error = get_local_rgrp(ip);
-+	if (error) {
-+		gfs2_glock_dq_uninit(&al->al_ri_gh);
-+		return error;
++	error = -ENOMEM;
++	darr = kmalloc(dip->i_di.di_entries * sizeof(struct gfs2_dirent *),
++		       GFP_KERNEL);
++	if (darr) {
++		g.pdent = darr;
++		g.offset = 0;
++		dent = gfs2_dirent_scan(inode, dibh->b_data, dibh->b_size,
++					gfs2_dirent_gather, NULL, &g);
++		if (IS_ERR(dent)) {
++			error = PTR_ERR(dent);
++			goto out;
++		}
++		error = do_filldir_main(dip, offset, opaque, filldir, darr,
++					dip->i_di.di_entries, &copied);
++out:
++		kfree(darr);
 +	}
 +
-+	al->al_file = file;
-+	al->al_line = line;
++	if (error > 0)
++		error = 0;
 +
++	brelse(dibh);
++
++	return error;
++}
++
++/**
++ * gfs2_dir_search - Search a directory
++ * @dip: The GFS2 inode
++ * @filename:
++ * @inode:
++ *
++ * This routine searches a directory for a file or another directory.
++ * Assumes a glock is held on dip.
++ *
++ * Returns: errno
++ */
++
++int gfs2_dir_search(struct inode *dir, const struct qstr *name,
++		    struct gfs2_inum *inum, unsigned int *type)
++{
++	struct buffer_head *bh;
++	struct gfs2_dirent *dent;
++
++	dent = gfs2_dirent_search(dir, name, gfs2_dirent_find, &bh);
++	if (dent) {
++		if (IS_ERR(dent))
++			return PTR_ERR(dent);
++		if (inum)
++			gfs2_inum_in(inum, (char *)&dent->de_inum);
++		if (type)
++			*type = be16_to_cpu(dent->de_type);
++		brelse(bh);
++		return 0;
++	}
++	return -ENOENT;
++}
++
++static int dir_new_leaf(struct inode *inode, const struct qstr *name)
++{
++	struct buffer_head *bh, *obh;
++	struct gfs2_inode *ip = inode->u.generic_ip;
++	struct gfs2_leaf *leaf, *oleaf;
++	int error;
++	u32 index;
++	u64 bn;
++
++	index = name->hash >> (32 - ip->i_di.di_depth);
++	error = get_first_leaf(ip, index, &obh);
++	if (error)
++		return error;
++	do {
++		oleaf = (struct gfs2_leaf *)obh->b_data;
++		bn = be64_to_cpu(oleaf->lf_next);
++		if (!bn)
++			break;
++		brelse(obh);
++		error = get_leaf(ip, bn, &obh);
++		if (error)
++			return error;
++	} while(1);
++
++	gfs2_trans_add_bh(ip->i_gl, obh, 1);
++
++	leaf = new_leaf(inode, &bh, be16_to_cpu(oleaf->lf_depth));
++	if (!leaf) {
++		brelse(obh);
++		return -ENOSPC;
++	}
++	oleaf->lf_next = cpu_to_be64(bh->b_blocknr);
++	brelse(bh);
++	brelse(obh);
++
++	error = gfs2_meta_inode_buffer(ip, &bh);
++	if (error)
++		return error;
++	gfs2_trans_add_bh(ip->i_gl, bh, 1);
++	ip->i_di.di_blocks++;
++	gfs2_dinode_out(&ip->i_di, bh->b_data);
++	brelse(bh);
 +	return 0;
 +}
 +
 +/**
-+ * gfs2_inplace_release - release an inplace reservation
-+ * @ip: the inode the reservation was taken out on
++ * gfs2_dir_add - Add new filename into directory
++ * @dip: The GFS2 inode
++ * @filename: The new name
++ * @inode: The inode number of the entry
++ * @type: The type of the entry
 + *
-+ * Release a reservation made by gfs2_inplace_reserve().
++ * Returns: 0 on success, error code on failure
 + */
 +
-+void gfs2_inplace_release(struct gfs2_inode *ip)
++int gfs2_dir_add(struct inode *inode, const struct qstr *name,
++		 const struct gfs2_inum *inum, unsigned type)
 +{
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct gfs2_alloc *al = &ip->i_alloc;
++	struct gfs2_inode *ip = inode->u.generic_ip;
++	struct buffer_head *bh;
++	struct gfs2_dirent *dent;
++	struct gfs2_leaf *leaf;
++	int error;
 +
-+	if (gfs2_assert_warn(sdp, al->al_alloced <= al->al_requested) == -1)
-+		fs_warn(sdp, "al_alloced = %u, al_requested = %u "
-+			     "al_file = %s, al_line = %u\n",
-+		             al->al_alloced, al->al_requested, al->al_file,
-+			     al->al_line);
-+
-+	al->al_rgd = NULL;
-+	gfs2_glock_dq_uninit(&al->al_rgd_gh);
-+	gfs2_glock_dq_uninit(&al->al_ri_gh);
-+}
-+
-+/**
-+ * gfs2_get_block_type - Check a block in a RG is of given type
-+ * @rgd: the resource group holding the block
-+ * @block: the block number
-+ *
-+ * Returns: The block type (GFS2_BLKST_*)
-+ */
-+
-+unsigned char gfs2_get_block_type(struct gfs2_rgrpd *rgd, uint64_t block)
-+{
-+	struct gfs2_bitmap *bi = NULL;
-+	uint32_t length, rgrp_block, buf_block;
-+	unsigned int buf;
-+	unsigned char type;
-+
-+	length = rgd->rd_ri.ri_length;
-+	rgrp_block = block - rgd->rd_ri.ri_data0;
-+
-+	for (buf = 0; buf < length; buf++) {
-+		bi = rgd->rd_bits + buf;
-+		if (rgrp_block < (bi->bi_start + bi->bi_len) * GFS2_NBBY)
-+			break;
-+	}
-+
-+	gfs2_assert(rgd->rd_sbd, buf < length);
-+	buf_block = rgrp_block - bi->bi_start * GFS2_NBBY;
-+
-+	type = gfs2_testbit(rgd,
-+			   bi->bi_bh->b_data + bi->bi_offset,
-+			   bi->bi_len, buf_block);
-+
-+	return type;
-+}
-+
-+/**
-+ * rgblk_search - find a block in @old_state, change allocation
-+ *           state to @new_state
-+ * @rgd: the resource group descriptor
-+ * @goal: the goal block within the RG (start here to search for avail block)
-+ * @old_state: GFS2_BLKST_XXX the before-allocation state to find
-+ * @new_state: GFS2_BLKST_XXX the after-allocation block state
-+ *
-+ * Walk rgrp's bitmap to find bits that represent a block in @old_state.
-+ * Add the found bitmap buffer to the transaction.
-+ * Set the found bits to @new_state to change block's allocation state.
-+ *
-+ * This function never fails, because we wouldn't call it unless we
-+ * know (from reservation results, etc.) that a block is available.
-+ *
-+ * Scope of @goal and returned block is just within rgrp, not the whole
-+ * filesystem.
-+ *
-+ * Returns:  the block number allocated
-+ */
-+
-+static uint32_t rgblk_search(struct gfs2_rgrpd *rgd, uint32_t goal,
-+			     unsigned char old_state, unsigned char new_state)
-+{
-+	struct gfs2_bitmap *bi = NULL;
-+	uint32_t length = rgd->rd_ri.ri_length;
-+	uint32_t blk = 0;
-+	unsigned int buf, x;
-+
-+	/* Find bitmap block that contains bits for goal block */
-+	for (buf = 0; buf < length; buf++) {
-+		bi = rgd->rd_bits + buf;
-+		if (goal < (bi->bi_start + bi->bi_len) * GFS2_NBBY)
-+			break;
-+	}
-+
-+	gfs2_assert(rgd->rd_sbd, buf < length);
-+
-+	/* Convert scope of "goal" from rgrp-wide to within found bit block */
-+	goal -= bi->bi_start * GFS2_NBBY;
-+
-+	/* Search (up to entire) bitmap in this rgrp for allocatable block.
-+	   "x <= length", instead of "x < length", because we typically start
-+	   the search in the middle of a bit block, but if we can't find an
-+	   allocatable block anywhere else, we want to be able wrap around and
-+	   search in the first part of our first-searched bit block.  */
-+	for (x = 0; x <= length; x++) {
-+		if (bi->bi_clone)
-+			blk = gfs2_bitfit(rgd,
-+					  bi->bi_clone + bi->bi_offset,
-+					  bi->bi_len, goal, old_state);
-+		else
-+			blk = gfs2_bitfit(rgd,
-+					  bi->bi_bh->b_data + bi->bi_offset,
-+					  bi->bi_len, goal, old_state);
-+		if (blk != BFITNOENT)
-+			break;
-+
-+		/* Try next bitmap block (wrap back to rgrp header if at end) */
-+		buf = (buf + 1) % length;
-+		bi = rgd->rd_bits + buf;
-+		goal = 0;
-+	}
-+
-+	if (gfs2_assert_withdraw(rgd->rd_sbd, x <= length))
-+		blk = 0;
-+
-+	gfs2_trans_add_bh(rgd->rd_gl, bi->bi_bh, 1);
-+	gfs2_setbit(rgd,
-+		    bi->bi_bh->b_data + bi->bi_offset,
-+		    bi->bi_len, blk, new_state);
-+	if (bi->bi_clone)
-+		gfs2_setbit(rgd,
-+			    bi->bi_clone + bi->bi_offset,
-+			    bi->bi_len, blk, new_state);
-+
-+	return bi->bi_start * GFS2_NBBY + blk;
-+}
-+
-+/**
-+ * rgblk_free - Change alloc state of given block(s)
-+ * @sdp: the filesystem
-+ * @bstart: the start of a run of blocks to free
-+ * @blen: the length of the block run (all must lie within ONE RG!)
-+ * @new_state: GFS2_BLKST_XXX the after-allocation block state
-+ *
-+ * Returns:  Resource group containing the block(s)
-+ */
-+
-+static struct gfs2_rgrpd *rgblk_free(struct gfs2_sbd *sdp, uint64_t bstart,
-+				     uint32_t blen, unsigned char new_state)
-+{
-+	struct gfs2_rgrpd *rgd;
-+	struct gfs2_bitmap *bi = NULL;
-+	uint32_t length, rgrp_blk, buf_blk;
-+	unsigned int buf;
-+
-+	rgd = gfs2_blk2rgrpd(sdp, bstart);
-+	if (!rgd) {
-+		if (gfs2_consist(sdp))
-+			fs_err(sdp, "block = %llu\n", bstart);
-+		return NULL;
-+	}
-+
-+	length = rgd->rd_ri.ri_length;
-+
-+	rgrp_blk = bstart - rgd->rd_ri.ri_data0;
-+
-+	while (blen--) {
-+		for (buf = 0; buf < length; buf++) {
-+			bi = rgd->rd_bits + buf;
-+			if (rgrp_blk < (bi->bi_start + bi->bi_len) * GFS2_NBBY)
++	while(1) {
++		dent = gfs2_dirent_search(inode, name, gfs2_dirent_find_space,
++					  &bh);
++		if (dent) {
++			if (IS_ERR(dent))
++				return PTR_ERR(dent);
++			dent = gfs2_init_dirent(inode, dent, name, bh);
++			gfs2_inum_out(inum, (char *)&dent->de_inum);
++			dent->de_type = cpu_to_be16(type);
++			if (ip->i_di.di_flags & GFS2_DIF_EXHASH) {
++				leaf = (struct gfs2_leaf *)bh->b_data;
++				leaf->lf_entries = cpu_to_be16(be16_to_cpu(leaf->lf_entries) + 1);
++			}
++			brelse(bh);
++			error = gfs2_meta_inode_buffer(ip, &bh);
++			if (error)
 +				break;
++			gfs2_trans_add_bh(ip->i_gl, bh, 1);
++			ip->i_di.di_entries++;
++			ip->i_di.di_mtime = ip->i_di.di_ctime = get_seconds();
++			gfs2_dinode_out(&ip->i_di, bh->b_data);
++			brelse(bh);
++			error = 0;
++			break;
 +		}
-+
-+		gfs2_assert(rgd->rd_sbd, buf < length);
-+
-+		buf_blk = rgrp_blk - bi->bi_start * GFS2_NBBY;
-+		rgrp_blk++;
-+
-+		if (!bi->bi_clone) {
-+			bi->bi_clone = kmalloc(bi->bi_bh->b_size,
-+					       GFP_KERNEL | __GFP_NOFAIL);
-+			memcpy(bi->bi_clone + bi->bi_offset,
-+			       bi->bi_bh->b_data + bi->bi_offset,
-+			       bi->bi_len);
-+		}
-+		gfs2_trans_add_bh(rgd->rd_gl, bi->bi_bh, 1);
-+		gfs2_setbit(rgd,
-+			    bi->bi_bh->b_data + bi->bi_offset,
-+			    bi->bi_len, buf_blk, new_state);
-+	}
-+
-+	return rgd;
-+}
-+
-+/**
-+ * gfs2_alloc_data - Allocate a data block
-+ * @ip: the inode to allocate the data block for
-+ *
-+ * Returns: the allocated block
-+ */
-+
-+uint64_t gfs2_alloc_data(struct gfs2_inode *ip)
-+{
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct gfs2_alloc *al = &ip->i_alloc;
-+	struct gfs2_rgrpd *rgd = al->al_rgd;
-+	uint32_t goal, blk;
-+	uint64_t block;
-+
-+	if (rgrp_contains_block(&rgd->rd_ri, ip->i_di.di_goal_data))
-+		goal = ip->i_di.di_goal_data - rgd->rd_ri.ri_data0;
-+	else
-+		goal = rgd->rd_last_alloc_data;
-+
-+	blk = rgblk_search(rgd, goal,
-+			   GFS2_BLKST_FREE, GFS2_BLKST_USED);
-+	rgd->rd_last_alloc_data = blk;
-+
-+	block = rgd->rd_ri.ri_data0 + blk;
-+	ip->i_di.di_goal_data = block;
-+
-+	gfs2_assert_withdraw(sdp, rgd->rd_rg.rg_free);
-+	rgd->rd_rg.rg_free--;
-+
-+	gfs2_trans_add_bh(rgd->rd_gl, rgd->rd_bits[0].bi_bh, 1);
-+	gfs2_rgrp_out(&rgd->rd_rg, rgd->rd_bits[0].bi_bh->b_data);
-+
-+	al->al_alloced++;
-+
-+	gfs2_statfs_change(sdp, 0, -1, 0);
-+	gfs2_quota_change(ip, +1, ip->i_di.di_uid, ip->i_di.di_gid);
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+	rgd->rd_free_clone--;
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	return block;
-+}
-+
-+/**
-+ * gfs2_alloc_meta - Allocate a metadata block
-+ * @ip: the inode to allocate the metadata block for
-+ *
-+ * Returns: the allocated block
-+ */
-+
-+uint64_t gfs2_alloc_meta(struct gfs2_inode *ip)
-+{
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct gfs2_alloc *al = &ip->i_alloc;
-+	struct gfs2_rgrpd *rgd = al->al_rgd;
-+	uint32_t goal, blk;
-+	uint64_t block;
-+
-+	if (rgrp_contains_block(&rgd->rd_ri, ip->i_di.di_goal_meta))
-+		goal = ip->i_di.di_goal_meta - rgd->rd_ri.ri_data0;
-+	else
-+		goal = rgd->rd_last_alloc_meta;
-+
-+	blk = rgblk_search(rgd, goal,
-+			   GFS2_BLKST_FREE, GFS2_BLKST_USED);
-+	rgd->rd_last_alloc_meta = blk;
-+
-+	block = rgd->rd_ri.ri_data0 + blk;
-+	ip->i_di.di_goal_meta = block;
-+
-+	gfs2_assert_withdraw(sdp, rgd->rd_rg.rg_free);
-+	rgd->rd_rg.rg_free--;
-+
-+	gfs2_trans_add_bh(rgd->rd_gl, rgd->rd_bits[0].bi_bh, 1);
-+	gfs2_rgrp_out(&rgd->rd_rg, rgd->rd_bits[0].bi_bh->b_data);
-+
-+	al->al_alloced++;
-+
-+	gfs2_statfs_change(sdp, 0, -1, 0);
-+	gfs2_quota_change(ip, +1, ip->i_di.di_uid, ip->i_di.di_gid);
-+	gfs2_trans_add_unrevoke(sdp, block);
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+	rgd->rd_free_clone--;
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	return block;
-+}
-+
-+/**
-+ * gfs2_alloc_di - Allocate a dinode
-+ * @dip: the directory that the inode is going in
-+ *
-+ * Returns: the block allocated
-+ */
-+
-+uint64_t gfs2_alloc_di(struct gfs2_inode *dip)
-+{
-+	struct gfs2_sbd *sdp = dip->i_sbd;
-+	struct gfs2_alloc *al = &dip->i_alloc;
-+	struct gfs2_rgrpd *rgd = al->al_rgd;
-+	uint32_t blk;
-+	uint64_t block;
-+
-+	blk = rgblk_search(rgd, rgd->rd_last_alloc_meta,
-+			   GFS2_BLKST_FREE, GFS2_BLKST_DINODE);
-+
-+	rgd->rd_last_alloc_meta = blk;
-+
-+	block = rgd->rd_ri.ri_data0 + blk;
-+
-+	gfs2_assert_withdraw(sdp, rgd->rd_rg.rg_free);
-+	rgd->rd_rg.rg_free--;
-+	rgd->rd_rg.rg_dinodes++;
-+
-+	gfs2_trans_add_bh(rgd->rd_gl, rgd->rd_bits[0].bi_bh, 1);
-+	gfs2_rgrp_out(&rgd->rd_rg, rgd->rd_bits[0].bi_bh->b_data);
-+
-+	al->al_alloced++;
-+
-+	gfs2_statfs_change(sdp, 0, -1, +1);
-+	gfs2_trans_add_unrevoke(sdp, block);
-+
-+	spin_lock(&sdp->sd_rindex_spin);
-+	rgd->rd_free_clone--;
-+	spin_unlock(&sdp->sd_rindex_spin);
-+
-+	return block;
-+}
-+
-+/**
-+ * gfs2_free_data - free a contiguous run of data block(s)
-+ * @ip: the inode these blocks are being freed from
-+ * @bstart: first block of a run of contiguous blocks
-+ * @blen: the length of the block run
-+ *
-+ */
-+
-+void gfs2_free_data(struct gfs2_inode *ip, uint64_t bstart, uint32_t blen)
-+{
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct gfs2_rgrpd *rgd;
-+
-+	rgd = rgblk_free(sdp, bstart, blen, GFS2_BLKST_FREE);
-+	if (!rgd)
-+		return;
-+
-+	rgd->rd_rg.rg_free += blen;
-+
-+	gfs2_trans_add_bh(rgd->rd_gl, rgd->rd_bits[0].bi_bh, 1);
-+	gfs2_rgrp_out(&rgd->rd_rg, rgd->rd_bits[0].bi_bh->b_data);
-+
-+	gfs2_trans_add_rg(rgd);
-+
-+	gfs2_statfs_change(sdp, 0, +blen, 0);
-+	gfs2_quota_change(ip, -(int64_t)blen,
-+			 ip->i_di.di_uid, ip->i_di.di_gid);
-+}
-+
-+/**
-+ * gfs2_free_meta - free a contiguous run of data block(s)
-+ * @ip: the inode these blocks are being freed from
-+ * @bstart: first block of a run of contiguous blocks
-+ * @blen: the length of the block run
-+ *
-+ */
-+
-+void gfs2_free_meta(struct gfs2_inode *ip, uint64_t bstart, uint32_t blen)
-+{
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct gfs2_rgrpd *rgd;
-+
-+	rgd = rgblk_free(sdp, bstart, blen, GFS2_BLKST_FREE);
-+	if (!rgd)
-+		return;
-+
-+	rgd->rd_rg.rg_free += blen;
-+
-+	gfs2_trans_add_bh(rgd->rd_gl, rgd->rd_bits[0].bi_bh, 1);
-+	gfs2_rgrp_out(&rgd->rd_rg, rgd->rd_bits[0].bi_bh->b_data);
-+
-+	gfs2_trans_add_rg(rgd);
-+
-+	gfs2_statfs_change(sdp, 0, +blen, 0);
-+	gfs2_quota_change(ip, -(int64_t)blen,
-+			 ip->i_di.di_uid, ip->i_di.di_gid);
-+	gfs2_meta_wipe(ip, bstart, blen);
-+}
-+
-+void gfs2_free_uninit_di(struct gfs2_rgrpd *rgd, uint64_t blkno)
-+{
-+	struct gfs2_sbd *sdp = rgd->rd_sbd;
-+	struct gfs2_rgrpd *tmp_rgd;
-+
-+	tmp_rgd = rgblk_free(sdp, blkno, 1, GFS2_BLKST_FREE);
-+	if (!tmp_rgd)
-+		return;
-+	gfs2_assert_withdraw(sdp, rgd == tmp_rgd);
-+
-+	if (!rgd->rd_rg.rg_dinodes)
-+		gfs2_consist_rgrpd(rgd);
-+	rgd->rd_rg.rg_dinodes--;
-+	rgd->rd_rg.rg_free++;
-+
-+	gfs2_trans_add_bh(rgd->rd_gl, rgd->rd_bits[0].bi_bh, 1);
-+	gfs2_rgrp_out(&rgd->rd_rg, rgd->rd_bits[0].bi_bh->b_data);
-+
-+	gfs2_statfs_change(sdp, 0, +1, -1);
-+	gfs2_trans_add_rg(rgd);
-+}
-+
-+/**
-+ * gfs2_free_uninit_di - free a dinode block
-+ * @rgd: the resource group that contains the dinode
-+ * @ip: the inode
-+ *
-+ */
-+
-+void gfs2_free_di(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip)
-+{
-+	gfs2_free_uninit_di(rgd, ip->i_num.no_addr);
-+	gfs2_quota_change(ip, -1, ip->i_di.di_uid, ip->i_di.di_gid);
-+	gfs2_meta_wipe(ip, ip->i_num.no_addr, 1);
-+}
-+
-+/**
-+ * gfs2_rlist_add - add a RG to a list of RGs
-+ * @sdp: the filesystem
-+ * @rlist: the list of resource groups
-+ * @block: the block
-+ *
-+ * Figure out what RG a block belongs to and add that RG to the list
-+ *
-+ * FIXME: Don't use NOFAIL
-+ *
-+ */
-+
-+void gfs2_rlist_add(struct gfs2_sbd *sdp, struct gfs2_rgrp_list *rlist,
-+		    uint64_t block)
-+{
-+	struct gfs2_rgrpd *rgd;
-+	struct gfs2_rgrpd **tmp;
-+	unsigned int new_space;
-+	unsigned int x;
-+
-+	if (gfs2_assert_warn(sdp, !rlist->rl_ghs))
-+		return;
-+
-+	rgd = gfs2_blk2rgrpd(sdp, block);
-+	if (!rgd) {
-+		if (gfs2_consist(sdp))
-+			fs_err(sdp, "block = %llu\n", block);
-+		return;
-+	}
-+
-+	for (x = 0; x < rlist->rl_rgrps; x++)
-+		if (rlist->rl_rgd[x] == rgd)
-+			return;
-+
-+	if (rlist->rl_rgrps == rlist->rl_space) {
-+		new_space = rlist->rl_space + 10;
-+
-+		tmp = kcalloc(new_space, sizeof(struct gfs2_rgrpd *),
-+			      GFP_KERNEL | __GFP_NOFAIL);
-+
-+		if (rlist->rl_rgd) {
-+			memcpy(tmp, rlist->rl_rgd,
-+			       rlist->rl_space * sizeof(struct gfs2_rgrpd *));
-+			kfree(rlist->rl_rgd);
-+		}
-+
-+		rlist->rl_space = new_space;
-+		rlist->rl_rgd = tmp;
-+	}
-+
-+	rlist->rl_rgd[rlist->rl_rgrps++] = rgd;
-+}
-+
-+/**
-+ * gfs2_rlist_alloc - all RGs have been added to the rlist, now allocate
-+ *      and initialize an array of glock holders for them
-+ * @rlist: the list of resource groups
-+ * @state: the lock state to acquire the RG lock in
-+ * @flags: the modifier flags for the holder structures
-+ *
-+ * FIXME: Don't use NOFAIL
-+ *
-+ */
-+
-+void gfs2_rlist_alloc(struct gfs2_rgrp_list *rlist, unsigned int state,
-+		      int flags)
-+{
-+	unsigned int x;
-+
-+	rlist->rl_ghs = kcalloc(rlist->rl_rgrps, sizeof(struct gfs2_holder),
-+				GFP_KERNEL | __GFP_NOFAIL);
-+	for (x = 0; x < rlist->rl_rgrps; x++)
-+		gfs2_holder_init(rlist->rl_rgd[x]->rd_gl,
-+				state, flags,
-+				&rlist->rl_ghs[x]);
-+}
-+
-+/**
-+ * gfs2_rlist_free - free a resource group list
-+ * @list: the list of resource groups
-+ *
-+ */
-+
-+void gfs2_rlist_free(struct gfs2_rgrp_list *rlist)
-+{
-+	unsigned int x;
-+
-+	kfree(rlist->rl_rgd);
-+
-+	if (rlist->rl_ghs) {
-+		for (x = 0; x < rlist->rl_rgrps; x++)
-+			gfs2_holder_uninit(&rlist->rl_ghs[x]);
-+		kfree(rlist->rl_ghs);
-+	}
-+}
-+
---- /dev/null
-+++ b/fs/gfs2/rgrp.h
-@@ -0,0 +1,62 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
-+
-+#ifndef __RGRP_DOT_H__
-+#define __RGRP_DOT_H__
-+
-+void gfs2_rgrp_verify(struct gfs2_rgrpd *rgd);
-+
-+struct gfs2_rgrpd *gfs2_blk2rgrpd(struct gfs2_sbd *sdp, uint64_t blk);
-+struct gfs2_rgrpd *gfs2_rgrpd_get_first(struct gfs2_sbd *sdp);
-+struct gfs2_rgrpd *gfs2_rgrpd_get_next(struct gfs2_rgrpd *rgd);
-+
-+void gfs2_clear_rgrpd(struct gfs2_sbd *sdp);
-+int gfs2_rindex_hold(struct gfs2_sbd *sdp, struct gfs2_holder *ri_gh);
-+
-+int gfs2_rgrp_bh_get(struct gfs2_rgrpd *rgd);
-+void gfs2_rgrp_bh_hold(struct gfs2_rgrpd *rgd);
-+void gfs2_rgrp_bh_put(struct gfs2_rgrpd *rgd);
-+
-+void gfs2_rgrp_repolish_clones(struct gfs2_rgrpd *rgd);
-+
-+struct gfs2_alloc *gfs2_alloc_get(struct gfs2_inode *ip);
-+void gfs2_alloc_put(struct gfs2_inode *ip);
-+
-+int gfs2_inplace_reserve_i(struct gfs2_inode *ip,
-+			 char *file, unsigned int line);
-+#define gfs2_inplace_reserve(ip) \
-+gfs2_inplace_reserve_i((ip), __FILE__, __LINE__)
-+
-+void gfs2_inplace_release(struct gfs2_inode *ip);
-+
-+unsigned char gfs2_get_block_type(struct gfs2_rgrpd *rgd, uint64_t block);
-+
-+uint64_t gfs2_alloc_data(struct gfs2_inode *ip);
-+uint64_t gfs2_alloc_meta(struct gfs2_inode *ip);
-+uint64_t gfs2_alloc_di(struct gfs2_inode *ip);
-+
-+void gfs2_free_data(struct gfs2_inode *ip, uint64_t bstart, uint32_t blen);
-+void gfs2_free_meta(struct gfs2_inode *ip, uint64_t bstart, uint32_t blen);
-+void gfs2_free_uninit_di(struct gfs2_rgrpd *rgd, uint64_t blkno);
-+void gfs2_free_di(struct gfs2_rgrpd *rgd, struct gfs2_inode *ip);
-+
-+struct gfs2_rgrp_list {
-+	unsigned int rl_rgrps;
-+	unsigned int rl_space;
-+	struct gfs2_rgrpd **rl_rgd;
-+	struct gfs2_holder *rl_ghs;
-+};
-+
-+void gfs2_rlist_add(struct gfs2_sbd *sdp, struct gfs2_rgrp_list *rlist,
-+		    uint64_t block);
-+void gfs2_rlist_alloc(struct gfs2_rgrp_list *rlist, unsigned int state,
-+		      int flags);
-+void gfs2_rlist_free(struct gfs2_rgrp_list *rlist);
-+
-+#endif /* __RGRP_DOT_H__ */
---- /dev/null
-+++ b/fs/gfs2/bits.c
-@@ -0,0 +1,182 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
-+
-+/*
-+ * These routines are used by the resource group routines (rgrp.c)
-+ * to keep track of block allocation.  Each block is represented by two
-+ * bits.  One bit indicates whether or not the block is used.  (1=used,
-+ * 0=free)  The other bit indicates whether or not the block contains a
-+ * dinode or not.  (1=dinode, 0=not-dinode) So, each byte represents
-+ * GFS2_NBBY (i.e. 4) blocks.
-+ */
-+
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/completion.h>
-+#include <linux/buffer_head.h>
-+#include <linux/gfs2_ondisk.h>
-+#include <asm/semaphore.h>
-+
-+#include "gfs2.h"
-+#include "lm_interface.h"
-+#include "incore.h"
-+#include "bits.h"
-+#include "util.h"
-+
-+static const char valid_change[16] = {
-+	        /* current */
-+	/* n */ 0, 1, 0, 1,
-+	/* e */ 1, 0, 0, 0,
-+	/* w */ 0, 0, 0, 0,
-+	        1, 0, 0, 0
-+};
-+
-+/**
-+ * gfs2_setbit - Set a bit in the bitmaps
-+ * @buffer: the buffer that holds the bitmaps
-+ * @buflen: the length (in bytes) of the buffer
-+ * @block: the block to set
-+ * @new_state: the new state of the block
-+ *
-+ */
-+
-+void gfs2_setbit(struct gfs2_rgrpd *rgd, unsigned char *buffer,
-+		 unsigned int buflen, uint32_t block, unsigned char new_state)
-+{
-+	unsigned char *byte, *end, cur_state;
-+	unsigned int bit;
-+
-+	byte = buffer + (block / GFS2_NBBY);
-+	bit = (block % GFS2_NBBY) * GFS2_BIT_SIZE;
-+	end = buffer + buflen;
-+
-+	gfs2_assert(rgd->rd_sbd, byte < end);
-+
-+	cur_state = (*byte >> bit) & GFS2_BIT_MASK;
-+
-+	if (valid_change[new_state * 4 + cur_state]) {
-+		*byte ^= cur_state << bit;
-+		*byte |= new_state << bit;
-+	} else
-+		gfs2_consist_rgrpd(rgd);
-+}
-+
-+/**
-+ * gfs2_testbit - test a bit in the bitmaps
-+ * @buffer: the buffer that holds the bitmaps
-+ * @buflen: the length (in bytes) of the buffer
-+ * @block: the block to read
-+ *
-+ */
-+
-+unsigned char gfs2_testbit(struct gfs2_rgrpd *rgd, unsigned char *buffer,
-+			   unsigned int buflen, uint32_t block)
-+{
-+	unsigned char *byte, *end, cur_state;
-+	unsigned int bit;
-+
-+	byte = buffer + (block / GFS2_NBBY);
-+	bit = (block % GFS2_NBBY) * GFS2_BIT_SIZE;
-+	end = buffer + buflen;
-+
-+	gfs2_assert(rgd->rd_sbd, byte < end);
-+
-+	cur_state = (*byte >> bit) & GFS2_BIT_MASK;
-+
-+	return cur_state;
-+}
-+
-+/**
-+ * gfs2_bitfit - Search an rgrp's bitmap buffer to find a bit-pair representing
-+ *       a block in a given allocation state.
-+ * @buffer: the buffer that holds the bitmaps
-+ * @buflen: the length (in bytes) of the buffer
-+ * @goal: start search at this block's bit-pair (within @buffer)
-+ * @old_state: GFS2_BLKST_XXX the state of the block we're looking for;
-+ *       bit 0 = alloc(1)/free(0), bit 1 = meta(1)/data(0)
-+ *
-+ * Scope of @goal and returned block number is only within this bitmap buffer,
-+ * not entire rgrp or filesystem.  @buffer will be offset from the actual
-+ * beginning of a bitmap block buffer, skipping any header structures.
-+ *
-+ * Return: the block number (bitmap buffer scope) that was found
-+ */
-+
-+uint32_t gfs2_bitfit(struct gfs2_rgrpd *rgd, unsigned char *buffer,
-+		     unsigned int buflen, uint32_t goal,
-+		     unsigned char old_state)
-+{
-+	unsigned char *byte, *end, alloc;
-+	uint32_t blk = goal;
-+	unsigned int bit;
-+
-+	byte = buffer + (goal / GFS2_NBBY);
-+	bit = (goal % GFS2_NBBY) * GFS2_BIT_SIZE;
-+	end = buffer + buflen;
-+	alloc = (old_state & 1) ? 0 : 0x55;
-+
-+	while (byte < end) {
-+		if ((*byte & 0x55) == alloc) {
-+			blk += (8 - bit) >> 1;
-+
-+			bit = 0;
-+			byte++;
-+
++		if (!(ip->i_di.di_flags & GFS2_DIF_EXHASH)) {
++			error = dir_make_exhash(inode);
++			if (error)
++				break;
 +			continue;
 +		}
-+
-+		if (((*byte >> bit) & GFS2_BIT_MASK) == old_state)
-+			return blk;
-+
-+		bit += GFS2_BIT_SIZE;
-+		if (bit >= 8) {
-+			bit = 0;
-+			byte++;
++		error = dir_split_leaf(inode, name);
++		if (error == 0)
++			continue;
++		if (error < 0)
++			break;
++		if (ip->i_di.di_depth < GFS2_DIR_MAX_DEPTH) {
++			error = dir_double_exhash(ip);
++			if (error)
++				break;
++			error = dir_split_leaf(inode, name);
++			if (error < 0)
++				break;
++			if (error == 0)
++				continue;
 +		}
++		error = dir_new_leaf(inode, name);
++		if (!error)
++			continue;
++		error = -ENOSPC;
++		break;
++	}
++	return error;
++}
 +
-+		blk++;
++
++/**
++ * gfs2_dir_del - Delete a directory entry
++ * @dip: The GFS2 inode
++ * @filename: The filename
++ *
++ * Returns: 0 on success, error code on failure
++ */
++
++int gfs2_dir_del(struct gfs2_inode *dip, const struct qstr *name)
++{
++	struct gfs2_dirent *dent, *prev = NULL;
++	struct buffer_head *bh;
++	int error;
++
++	/* Returns _either_ the entry (if its first in block) or the
++	   previous entry otherwise */
++	dent = gfs2_dirent_search(dip->i_vnode, name, gfs2_dirent_prev, &bh);
++	if (!dent) {
++		gfs2_consist_inode(dip);
++		return -EIO;
++	}
++	if (IS_ERR(dent)) {
++		gfs2_consist_inode(dip);
++		return PTR_ERR(dent);
++	}
++	/* If not first in block, adjust pointers accordingly */
++	if (gfs2_dirent_find(dent, name, NULL) == 0) {
++		prev = dent;
++		dent = (struct gfs2_dirent *)((char *)dent + be16_to_cpu(prev->de_rec_len));
 +	}
 +
-+	return BFITNOENT;
++	dirent_del(dip, bh, prev, dent);
++	if (dip->i_di.di_flags & GFS2_DIF_EXHASH) {
++		struct gfs2_leaf *leaf = (struct gfs2_leaf *)bh->b_data;
++		u16 entries = be16_to_cpu(leaf->lf_entries);
++		if (!entries)
++			gfs2_consist_inode(dip);
++		leaf->lf_entries = cpu_to_be16(--entries);
++	}
++	brelse(bh);
++
++	error = gfs2_meta_inode_buffer(dip, &bh);
++	if (error)
++		return error;
++
++	if (!dip->i_di.di_entries)
++		gfs2_consist_inode(dip);
++	gfs2_trans_add_bh(dip->i_gl, bh, 1);
++	dip->i_di.di_entries--;
++	dip->i_di.di_mtime = dip->i_di.di_ctime = get_seconds();
++	gfs2_dinode_out(&dip->i_di, bh->b_data);
++	brelse(bh);
++
++	return error;
 +}
 +
 +/**
-+ * gfs2_bitcount - count the number of bits in a certain state
-+ * @buffer: the buffer that holds the bitmaps
-+ * @buflen: the length (in bytes) of the buffer
-+ * @state: the state of the block we're looking for
++ * gfs2_dir_mvino - Change inode number of directory entry
++ * @dip: The GFS2 inode
++ * @filename:
++ * @new_inode:
 + *
-+ * Returns: The number of bits
++ * This routine changes the inode number of a directory entry.  It's used
++ * by rename to change ".." when a directory is moved.
++ * Assumes a glock is held on dvp.
++ *
++ * Returns: errno
 + */
 +
-+uint32_t gfs2_bitcount(struct gfs2_rgrpd *rgd, unsigned char *buffer,
-+		       unsigned int buflen, unsigned char state)
++int gfs2_dir_mvino(struct gfs2_inode *dip, const struct qstr *filename,
++		   struct gfs2_inum *inum, unsigned int new_type)
 +{
-+	unsigned char *byte = buffer;
-+	unsigned char *end = buffer + buflen;
-+	unsigned char state1 = state << 2;
-+	unsigned char state2 = state << 4;
-+	unsigned char state3 = state << 6;
-+	uint32_t count = 0;
++	struct buffer_head *bh;
++	struct gfs2_dirent *dent;
++	int error;
 +
-+	for (; byte < end; byte++) {
-+		if (((*byte) & 0x03) == state)
-+			count++;
-+		if (((*byte) & 0x0C) == state1)
-+			count++;
-+		if (((*byte) & 0x30) == state2)
-+			count++;
-+		if (((*byte) & 0xC0) == state3)
-+			count++;
++	dent = gfs2_dirent_search(dip->i_vnode, filename, gfs2_dirent_find, &bh);
++	if (!dent) {
++		gfs2_consist_inode(dip);
++		return -EIO;
++	}
++	if (IS_ERR(dent))
++		return PTR_ERR(dent);
++
++	gfs2_trans_add_bh(dip->i_gl, bh, 1);
++	gfs2_inum_out(inum, (char *)&dent->de_inum);
++	dent->de_type = cpu_to_be16(new_type);
++
++	if (dip->i_di.di_flags & GFS2_DIF_EXHASH) {
++		brelse(bh);
++		error = gfs2_meta_inode_buffer(dip, &bh);
++		if (error)
++			return error;
++		gfs2_trans_add_bh(dip->i_gl, bh, 1);
 +	}
 +
-+	return count;
++	dip->i_di.di_mtime = dip->i_di.di_ctime = get_seconds();
++	gfs2_dinode_out(&dip->i_di, bh->b_data);
++	brelse(bh);
++	return 0;
++}
++
++/**
++ * foreach_leaf - call a function for each leaf in a directory
++ * @dip: the directory
++ * @lc: the function to call for each each
++ * @data: private data to pass to it
++ *
++ * Returns: errno
++ */
++
++static int foreach_leaf(struct gfs2_inode *dip, leaf_call_t lc, void *data)
++{
++	struct gfs2_sbd *sdp = dip->i_sbd;
++	struct buffer_head *bh;
++	struct gfs2_leaf *leaf;
++	uint32_t hsize, len;
++	uint32_t ht_offset, lp_offset, ht_offset_cur = -1;
++	uint32_t index = 0;
++	uint64_t *lp;
++	uint64_t leaf_no;
++	int error = 0;
++
++	hsize = 1 << dip->i_di.di_depth;
++	if (hsize * sizeof(uint64_t) != dip->i_di.di_size) {
++		gfs2_consist_inode(dip);
++		return -EIO;
++	}
++
++	lp = kmalloc(sdp->sd_hash_bsize, GFP_KERNEL);
++	if (!lp)
++		return -ENOMEM;
++
++	while (index < hsize) {
++		lp_offset = index & (sdp->sd_hash_ptrs - 1);
++		ht_offset = index - lp_offset;
++
++		if (ht_offset_cur != ht_offset) {
++			error = gfs2_dir_read_data(dip, (char *)lp,
++						ht_offset * sizeof(uint64_t),
++						sdp->sd_hash_bsize);
++			if (error != sdp->sd_hash_bsize) {
++				if (error >= 0)
++					error = -EIO;
++				goto out;
++			}
++			ht_offset_cur = ht_offset;
++		}
++
++		leaf_no = be64_to_cpu(lp[lp_offset]);
++		if (leaf_no) {
++			error = get_leaf(dip, leaf_no, &bh);
++			if (error)
++				goto out;
++			leaf = (struct gfs2_leaf *)bh->b_data;
++			brelse(bh);
++
++			len = 1 << (dip->i_di.di_depth - be16_to_cpu(leaf->lf_depth));
++
++			error = lc(dip, index, len, leaf_no, data);
++			if (error)
++				goto out;
++
++			index = (index & ~(len - 1)) + len;
++		} else
++			index++;
++	}
++
++	if (index != hsize) {
++		gfs2_consist_inode(dip);
++		error = -EIO;
++	}
++
++ out:
++	kfree(lp);
++
++	return error;
++}
++
++/**
++ * leaf_dealloc - Deallocate a directory leaf
++ * @dip: the directory
++ * @index: the hash table offset in the directory
++ * @len: the number of pointers to this leaf
++ * @leaf_no: the leaf number
++ * @data: not used
++ *
++ * Returns: errno
++ */
++
++static int leaf_dealloc(struct gfs2_inode *dip, uint32_t index, uint32_t len,
++			uint64_t leaf_no, void *data)
++{
++	struct gfs2_sbd *sdp = dip->i_sbd;
++	struct gfs2_leaf *tmp_leaf;
++	struct gfs2_rgrp_list rlist;
++	struct buffer_head *bh, *dibh;
++	uint64_t blk, nblk;
++	unsigned int rg_blocks = 0, l_blocks = 0;
++	char *ht;
++	unsigned int x, size = len * sizeof(uint64_t);
++	int error;
++
++	memset(&rlist, 0, sizeof(struct gfs2_rgrp_list));
++
++	ht = kzalloc(size, GFP_KERNEL);
++	if (!ht)
++		return -ENOMEM;
++
++	gfs2_alloc_get(dip);
++
++	error = gfs2_quota_hold(dip, NO_QUOTA_CHANGE, NO_QUOTA_CHANGE);
++	if (error)
++		goto out;
++
++	error = gfs2_rindex_hold(sdp, &dip->i_alloc.al_ri_gh);
++	if (error)
++		goto out_qs;
++
++	/*  Count the number of leaves  */
++
++	for (blk = leaf_no; blk; blk = nblk) {
++		error = get_leaf(dip, blk, &bh);
++		if (error)
++			goto out_rlist;
++		tmp_leaf = (struct gfs2_leaf *)bh->b_data;
++		nblk = be64_to_cpu(tmp_leaf->lf_next);
++		brelse(bh);
++
++		gfs2_rlist_add(sdp, &rlist, blk);
++		l_blocks++;
++	}
++
++	gfs2_rlist_alloc(&rlist, LM_ST_EXCLUSIVE, 0);
++
++	for (x = 0; x < rlist.rl_rgrps; x++) {
++		struct gfs2_rgrpd *rgd;
++		rgd = rlist.rl_ghs[x].gh_gl->gl_object;
++		rg_blocks += rgd->rd_ri.ri_length;
++	}
++
++	error = gfs2_glock_nq_m(rlist.rl_rgrps, rlist.rl_ghs);
++	if (error)
++		goto out_rlist;
++
++	error = gfs2_trans_begin(sdp,
++			rg_blocks + (DIV_ROUND_UP(size, sdp->sd_jbsize) + 1) +
++			RES_DINODE + RES_STATFS + RES_QUOTA, l_blocks);
++	if (error)
++		goto out_rg_gunlock;
++
++	for (blk = leaf_no; blk; blk = nblk) {
++		error = get_leaf(dip, blk, &bh);
++		if (error)
++			goto out_end_trans;
++		tmp_leaf = (struct gfs2_leaf *)bh->b_data;
++		nblk = be64_to_cpu(tmp_leaf->lf_next);
++		brelse(bh);
++
++		gfs2_free_meta(dip, blk, 1);
++
++		if (!dip->i_di.di_blocks)
++			gfs2_consist_inode(dip);
++		dip->i_di.di_blocks--;
++	}
++
++	error = gfs2_dir_write_data(dip, ht, index * sizeof(uint64_t), size);
++	if (error != size) {
++		if (error >= 0)
++			error = -EIO;
++		goto out_end_trans;
++	}
++
++	error = gfs2_meta_inode_buffer(dip, &dibh);
++	if (error)
++		goto out_end_trans;
++
++	gfs2_trans_add_bh(dip->i_gl, dibh, 1);
++	gfs2_dinode_out(&dip->i_di, dibh->b_data);
++	brelse(dibh);
++
++ out_end_trans:
++	gfs2_trans_end(sdp);
++
++ out_rg_gunlock:
++	gfs2_glock_dq_m(rlist.rl_rgrps, rlist.rl_ghs);
++
++ out_rlist:
++	gfs2_rlist_free(&rlist);
++	gfs2_glock_dq_uninit(&dip->i_alloc.al_ri_gh);
++
++ out_qs:
++	gfs2_quota_unhold(dip);
++
++ out:
++	gfs2_alloc_put(dip);
++	kfree(ht);
++
++	return error;
++}
++
++/**
++ * gfs2_dir_exhash_dealloc - free all the leaf blocks in a directory
++ * @dip: the directory
++ *
++ * Dealloc all on-disk directory leaves to FREEMETA state
++ * Change on-disk inode type to "regular file"
++ *
++ * Returns: errno
++ */
++
++int gfs2_dir_exhash_dealloc(struct gfs2_inode *dip)
++{
++	struct gfs2_sbd *sdp = dip->i_sbd;
++	struct buffer_head *bh;
++	int error;
++
++	/* Dealloc on-disk leaves to FREEMETA state */
++	error = foreach_leaf(dip, leaf_dealloc, NULL);
++	if (error)
++		return error;
++
++	/* Make this a regular file in case we crash.
++	   (We don't want to free these blocks a second time.)  */
++
++	error = gfs2_trans_begin(sdp, RES_DINODE, 0);
++	if (error)
++		return error;
++
++	error = gfs2_meta_inode_buffer(dip, &bh);
++	if (!error) {
++		gfs2_trans_add_bh(dip->i_gl, bh, 1);
++		((struct gfs2_dinode *)bh->b_data)->di_mode =
++						cpu_to_be32(S_IFREG);
++		brelse(bh);
++	}
++
++	gfs2_trans_end(sdp);
++
++	return error;
++}
++
++/**
++ * gfs2_diradd_alloc_required - find if adding entry will require an allocation
++ * @ip: the file being written to
++ * @filname: the filename that's going to be added
++ *
++ * Returns: 1 if alloc required, 0 if not, -ve on error
++ */
++
++int gfs2_diradd_alloc_required(struct inode *inode, const struct qstr *name)
++{
++	struct gfs2_dirent *dent;
++	struct buffer_head *bh;
++
++	dent = gfs2_dirent_search(inode, name, gfs2_dirent_find_space, &bh);
++	if (!dent) {
++		return 1;
++	}
++	if (IS_ERR(dent))
++		return PTR_ERR(dent);
++	brelse(bh);
++	return 0;
 +}
 +
 --- /dev/null
-+++ b/fs/gfs2/bits.h
-@@ -0,0 +1,28 @@
++++ b/fs/gfs2/dir.h
+@@ -0,0 +1,73 @@
 +/*
 + * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
 + * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
@@ -1672,24 +2027,69 @@ Signed-off-by: David Teigland <teigland@redhat.com>
 + * of the GNU General Public License v.2.
 + */
 +
-+#ifndef __BITS_DOT_H__
-+#define __BITS_DOT_H__
++#ifndef __DIR_DOT_H__
++#define __DIR_DOT_H__
 +
-+#define BFITNOENT 0xFFFFFFFF
++/**
++ * gfs2_filldir_t - Report a directory entry to the caller of gfs2_dir_read()
++ * @opaque: opaque data used by the function
++ * @name: the name of the directory entry
++ * @length: the length of the name
++ * @offset: the entry's offset in the directory
++ * @inum: the inode number the entry points to
++ * @type: the type of inode the entry points to
++ *
++ * Returns: 0 on success, 1 if buffer full
++ */
 +
-+void gfs2_setbit(struct gfs2_rgrpd *rgd,
-+		unsigned char *buffer, unsigned int buflen,
-+		uint32_t block, unsigned char new_state);
-+unsigned char gfs2_testbit(struct gfs2_rgrpd *rgd,
-+			  unsigned char *buffer, unsigned int buflen,
-+			  uint32_t block);
-+uint32_t gfs2_bitfit(struct gfs2_rgrpd *rgd,
-+		    unsigned char *buffer, unsigned int buflen,
-+		    uint32_t goal, unsigned char old_state);
-+uint32_t gfs2_bitcount(struct gfs2_rgrpd *rgd,
-+		      unsigned char *buffer, unsigned int buflen,
-+		      unsigned char state);
++typedef int (*gfs2_filldir_t) (void *opaque,
++			      const char *name, unsigned int length,
++			      uint64_t offset,
++			      struct gfs2_inum *inum, unsigned int type);
 +
-+#endif /* __BITS_DOT_H__ */
++int gfs2_dir_search(struct inode *dir, const struct qstr *filename,
++		    struct gfs2_inum *inum, unsigned int *type);
++int gfs2_dir_add(struct inode *inode, const struct qstr *filename,
++		 const struct gfs2_inum *inum, unsigned int type);
++int gfs2_dir_del(struct gfs2_inode *dip, const struct qstr *filename);
++int gfs2_dir_read(struct inode *inode, uint64_t * offset, void *opaque,
++		  gfs2_filldir_t filldir);
++int gfs2_dir_mvino(struct gfs2_inode *dip, const struct qstr *filename,
++		   struct gfs2_inum *new_inum, unsigned int new_type);
++
++int gfs2_dir_exhash_dealloc(struct gfs2_inode *dip);
++
++int gfs2_diradd_alloc_required(struct inode *dir,
++			       const struct qstr *filename);
++int gfs2_dir_get_buffer(struct gfs2_inode *ip, uint64_t block, int new,
++                        struct buffer_head **bhp);
++
++static inline uint32_t gfs2_disk_hash(const char *data, int len)
++{
++        return crc32_le(0xFFFFFFFF, data, len) ^ 0xFFFFFFFF;
++}
++
++
++static inline void gfs2_str2qstr(struct qstr *name, const char *fname)
++{
++	name->name = fname;
++	name->len = strlen(fname);
++	name->hash = gfs2_disk_hash(name->name, name->len);
++}
++
++/* N.B. This probably ought to take inum & type as args as well */
++static inline void gfs2_qstr2dirent(const struct qstr *name, u16 reclen, struct gfs2_dirent *dent)
++{
++	dent->de_inum.no_addr = cpu_to_be64(0);
++	dent->de_inum.no_formal_ino = cpu_to_be64(0);
++	dent->de_hash = cpu_to_be32(name->hash);
++	dent->de_rec_len = cpu_to_be16(reclen);
++	dent->de_name_len = cpu_to_be16(name->len);
++	dent->de_type = cpu_to_be16(0);
++	memset(dent->__pad, 0, sizeof(dent->__pad));
++	memcpy((char*)(dent+1), name->name, name->len);
++}
++
++#endif /* __DIR_DOT_H__ */
 
 

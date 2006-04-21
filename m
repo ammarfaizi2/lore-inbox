@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWDUXEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWDUXGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWDUXEA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 19:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWDUXEA
+	id S1750739AbWDUXGw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 19:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWDUXGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 19:04:00 -0400
-Received: from pproxy.gmail.com ([64.233.166.181]:52297 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750715AbWDUXEA (ORCPT
+	Fri, 21 Apr 2006 19:06:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62934 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750739AbWDUXGv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 19:04:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
-        b=iYCqmeTA4TS5ha//NpgzIpyQBRWgY4UI647zjXCMLgAUXAl2Ch6IXNQBOqOBzXZUQ279hGfDYxzvyEHaIu6JdMpnejRnthrPR/pHoeib++/Xi1KMAx1PxUEOE4gVGh+0sd3jaCIvxpj25mShnYYQ4drsLbT+fFn6Xp1b7aMstO8=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Daniel Walker'" <dwalker@mvista.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, <jmorris@namei.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: kfree(NULL)
-Date: Fri, 21 Apr 2006 16:03:57 -0700
-Message-ID: <000f01c66597$df66ef50$853d010a@nuitysystems.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Fri, 21 Apr 2006 19:06:51 -0400
+Date: Fri, 21 Apr 2006 16:09:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Harald Dunkel <harald.dunkel@t-online.de>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.16.9, amd64, usbcore: NULL pointer dereference
+Message-Id: <20060421160916.37b9c771.akpm@osdl.org>
+In-Reply-To: <4448FCC7.6070309@t-online.de>
+References: <4448FCC7.6070309@t-online.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <1145660319.20843.41.camel@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Thread-Index: AcZllyKB81wfKr4IRu+9vXiPytMyXAAAJn6w
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It seems including atomic.h inside compiler.h is a bit 
-> tricky (might have interdependency).
-> > 
-> > Can we just live with int instead of atomic_t? We don't 
-> really care about losing a count occasionally..
+
+(Added linux-usb-devel)
+
+Harald Dunkel <harald.dunkel@t-online.de> wrote:
+>
+> Hi folks,
 > 
-> It's nice so you don't have to fool around with locking .. 
-> The atomic_t structure is pretty simple thought . I think it 
-> boils down to just an int anyway .
+> Sometimes my PC dies at boot time:
+> 
+> :
+> usb 3-3: config 1 has 0 interfaces, different from the descriptor's value: 1
+> Unable to handle kernel NULL pointer dereference at 000000000000000d RIP:
+> <ffffffff8809493e>(:usbcore:usb_new_device+350)
+> :
+> :
+> 
+> Unfortunately it is not visible in any log file, so I took
+> a snapshot of the screen.
+> 
+> Surely it would be unacceptable to send huge attachments
+> to everybody on this list. Is somebody interested? Or is
+> there some upload area available, that I could use?
 
-We could move atomic_t into a separate atomic_type.h? I just want to make sure before I mess with the file structure..
+Please email the image to myself and I'll upload it.
 
-Hua
+> # lsusb
+> Bus 003 Device 003: ID 07cc:0301 Carry Computer Eng., Co., Ltd 6-in-1 Card Reader
+> Bus 003 Device 002: ID 0ace:1211 ZyDAS 802.11b/g USB2 WiFi
+> Bus 003 Device 004: ID 124a:4023 AirVast
+> Bus 003 Device 001: ID 0000:0000
+> Bus 002 Device 001: ID 0000:0000
+> Bus 001 Device 001: ID 0000:0000
+> 
 
+Thanks.

@@ -1,43 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWDUN4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWDUN4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWDUN4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 09:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWDUN4Y
+	id S932311AbWDUN4g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 09:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWDUN4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 09:56:24 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:57472 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932316AbWDUN4X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 09:56:23 -0400
-In-Reply-To: <84144f020604210453w186f20a4s3d163c395364e87e@mail.gmail.com>
-Subject: Re: [PATCH/RFC] s390: Hypervisor File System
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org, mschwid2@de.ibm.com, penberg@gmail.com
-X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
-Message-ID: <OF88396E73.9225D435-ON42257157.004BB28F-42257157.004C9411@de.ibm.com>
-From: Michael Holzheu <HOLZHEU@de.ibm.com>
-Date: Fri, 21 Apr 2006 15:56:26 +0200
-X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.53HF654 | July 22, 2005) at
- 21/04/2006 15:57:22
+	Fri, 21 Apr 2006 09:56:36 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:54746 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932311AbWDUN4f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 09:56:35 -0400
+From: Vernon Mauery <vernux@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: kfree(NULL)
+Date: Fri, 21 Apr 2006 06:56:39 -0700
+User-Agent: KMail/1.8.3
+References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com> <Pine.LNX.4.64.0604210322110.21429@d.namei> <20060421015412.49a554fa.akpm@osdl.org>
+In-Reply-To: <20060421015412.49a554fa.akpm@osdl.org>
+Cc: James Morris <jmorris@namei.org>, dwalker@mvista.com,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604210656.40158.vernux@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pekka,
+On Friday 21 April 2006 01:54, you wrote:
+> James Morris <jmorris@namei.org> wrote:
+> > On Fri, 21 Apr 2006, Daniel Walker wrote:
+> > > 	I included a patch , not like it's needed . Recently I've been
+> > > evaluating likely/unlikely branch prediction .. One thing that I found
+> > > is that the kfree function is often called with a NULL "objp" . In fact
+> > > it's so frequent that the "unlikely" branch predictor should be
+> > > inverted! Or at least on my configuration.
+> >
+> > It would be helpful to collect some stats on this so we can look at the
+> > ratio.
+>
+> Yes, kfree(NULL) is supposed to be uncommon.  If someone's doing it a lot
+> then we should fix up the callers.
 
-> This filesystem makes no sense for anything but s390 so please put it
-> under arch/s390/ (following the convention set by cell specific
-> spufs). Thanks.
+Part of the reason it gets done a lot is because some developers on this list 
+have told others NOT to check for NULL before calling kfree because kfree 
+does that internally.  I was told that.  I can't remember who told me though.
 
-Agreed! As long as the filesystem is s390 specifc, we probably should put
-it put it under arch/s390/hypfs. But in general one could imagine, that
-also other hypervisor platforms want to have such a filesystem in the
-future. In that case, we could make the filesystem more generic. E.g. we
-could split it into the filesystem part and an architecture specific
-backend which provides the hypervisor data. But you are right, until no
-other platform supports it, we should keep it simple, leave it s390
-specific and move it to arch/s390.
+Maybe kfree should really be a wrapper around __kfree which does the real 
+work.  Then kfree could be a inlined function or a #define that does the NULL 
+pointer check.  Something like the patch below.  This has the advantage of 
+both worlds.  If you know your pointer is NULL, call __kfree.  If you are not 
+sure and would check anyway, the inline version of kfree checks for you and 
+then calls __kfree.
 
-Michael
+Signed-off-by: Vernon Mauery <vernux@us.ibm.com>
+
+--- a/include/linux/slab.h  2006-03-19 21:53:29.000000000 -0800
++++ b/include/linux/slab.h  2006-04-21 07:47:32.000000000 -0700
+@@ -123,7 +123,14 @@ static inline void *kcalloc(size_t n, si
+    return kzalloc(n * size, flags);
+ }
+
+-extern void kfree(const void *);
++extern void __kfree(const void *);
++static inline void kfree(const void *obj)
++{
++   if (!obj)
++       return;
++   __kfree(obj);
++}
++
+ extern unsigned int ksize(const void *);
+
+ #ifdef CONFIG_NUMA
+--- a/mm/slab.c 2006-04-21 07:49:42.000000000 -0700
++++ b/mm/slab.c 2006-04-21 07:49:56.000000000 -0700
+@@ -3275,13 +3275,11 @@ EXPORT_SYMBOL(kmem_cache_free);
+  * Don't free memory not originally allocated by kmalloc()
+  * or you will run into trouble.
+  */
+-void kfree(const void *objp)
++void __kfree(const void *objp)
+ {
+    struct kmem_cache *c;
+    unsigned long flags;
+ 
+-   if (unlikely(!objp))
+-       return;
+    local_irq_save(flags);
+    kfree_debugcheck(objp);
+    c = virt_to_cache(objp);
+@@ -3289,7 +3287,7 @@ void kfree(const void *objp)
+    __cache_free(c, (void *)objp);
+    local_irq_restore(flags);
+ }
+-EXPORT_SYMBOL(kfree);
++EXPORT_SYMBOL(__kfree);
+ 
+ #ifdef CONFIG_SMP
+ /**
 

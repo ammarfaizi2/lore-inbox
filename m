@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWDUQTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWDUQVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWDUQTc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 12:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWDUQTc
+	id S932422AbWDUQVs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 12:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWDUQVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 12:19:32 -0400
-Received: from 216.255.188.82-custblock.intercage.com ([216.255.188.82]:59568
-	"EHLO main.astronetworks.net") by vger.kernel.org with ESMTP
-	id S932410AbWDUQTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 12:19:31 -0400
-From: =?iso-8859-1?q?T=F6r=F6k_Edwin?= <edwin@gurde.com>
-To: mikado4vn@gmail.com
-Subject: Re: [RFC] packet/socket owner match (fireflier) using skfilter
-Date: Fri, 21 Apr 2006 19:18:44 +0300
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
-References: <200604021240.21290.edwin@gurde.com> <4448F9A7.9040803@gmail.com>
-In-Reply-To: <4448F9A7.9040803@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 21 Apr 2006 12:21:48 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:38094 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S932416AbWDUQVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 12:21:47 -0400
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
+	implementation of LSM hooks)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Greg KH <greg@kroah.com>, Arjan van de Ven <arjan@infradead.org>,
+       James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr>
+References: <200604142301.10188.edwin@gurde.com>
+	 <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060417162345.GA9609@infradead.org>
+	 <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060417173319.GA11506@infradead.org>
+	 <Pine.LNX.4.64.0604171454070.17563@d.namei>
+	 <20060417195146.GA8875@kroah.com>
+	 <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+	 <1145462454.3085.62.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
+	 <20060419201154.GB20545@kroah.com>
+	 <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Fri, 21 Apr 2006 12:25:55 -0400
+Message-Id: <1145636755.21749.165.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604211918.45427.edwin@gurde.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - main.astronetworks.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - gurde.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 April 2006 18:26, Mikado wrote:
-> Does your module get into below problem?
->
-> http://lkml.org/lkml/2006/4/20/132
-Nope.
+On Fri, 2006-04-21 at 15:30 +0200, Jan Engelhardt wrote:
+> >> >> Well then, have a look at http://alphagate.hopto.org/multiadm/
+> >> >
+> >> >hmm on first sight that seems to be basically an extension to the
+> >> >existing capability() code... rather than a 'real' LSM module. Am I
+> >> >missing something here?
+> >> 
+> >> (So what's the definition for a "real" LSM module?)
+> >
+> >No idea, try submitting the patch :)
+> >
+> Because it's too big, you only get URLs:
+> 
+> [01/02] http://alphagate.hopto.org/multiadm/mtadm_hooks-2.6.17-rc2.diff  137KB
+> [02/02] http://alphagate.hopto.org/multiadm/mtadm_module-2.6.17-rc2.diff  27KB
 
-A short test:
-On host:
-sudo iptables -A INPUT -p tcp --dport 81 -j DROP
-In qemu:
-#iptables -t skfilter -A OUTPUT -m fireflier_match --inode-owner 
-24392 --dev-owner /dev/root -j LOG --log-prefix test_out2
-#netcat 172.20.0.1 81
-[4295327.547000] test_out2:IN= OUT=eth0 SRC=172.20.0.10 DST=172.20.0.1 LEN=60 
-TOS=0x00 PREC=0x00 TTL=64 ID=11865 DF PROTO=TCP SPT=34945 DPT=81 WINDOW=5840 
-RES=0x00 SYN URGP=0
-[4295327.549000] test_out2:IN= OUT=eth0 SRC=172.20.0.10 DST=172.20.0.1 LEN=60 
-TOS=0x00 PREC=0x00 TTL=64 ID=11865 DF PROTO=TCP SPT=34945 DPT=81 WINDOW=5840 
-RES=0x00 SYN URGP=0
-[4295330.550000] test_out2:IN= OUT=eth0 SRC=172.20.0.10 DST=172.20.0.1 LEN=60 
-TOS=0x00 PREC=0x00 TTL=64 ID=11866 DF PROTO=TCP SPT=34945 DPT=81 WINDOW=5840 
-RES=0x00 SYN URGP=0
+For proper submission, you should split it up, e.g. one patch per new
+hook you need and then your module.
 
-As you can see several packets are sent out, and each one is matched (24392 is 
-the inode of netcat here). 
+The bulk of the first patch appears to be capable -> capable_x changes.
+What is the purpose of that?
 
-Please note that using fireflier LSM is not recomended, as I am working on 
-writing SELinux policies that do the same (fireflier LSM is itself using code 
-from hooks.c from selinux). 
-See: http://lkml.org/lkml/2006/4/17/81
+The set_task_ioprio hook looks legitimate; should be submitted
+separately, modulo CodingStyle issues.
 
+What's the rationale for the int->gid_t and int->uid_t changes in sys?
 
-Also take a look at James Morris's skfilter patches (which are used in 
-fireflier too), they allow you to match at socket level, and also allow to 
-match based on selinux context.
+Some of the hooks used to exist in LSM patches but didn't have a real
+user for merging at the time.  But it isn't clear whether you actually
+need separate hooks for each of them or if they are being mapped to the
+same check in many cases - can it be abstracted to a common hook?
 
-Cheers,
-Edwin
+Seems like you are duplicating a lot of the base DAC logic in the
+process; would be nice to encapsulate that in the core kernel, and then
+just use a common helper in both cases?
+
+> Don't mention CodingStyle, I know. This is just a post to respond to the
+> topic on why noone submitted it earlier.
+> I already see it coming...
+
+-- 
+Stephen Smalley
+National Security Agency
+

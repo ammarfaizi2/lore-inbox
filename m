@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWDUEoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWDUEpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWDUEoc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 00:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWDUEoI
+	id S932254AbWDUEpE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 00:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWDUEot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 00:44:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:43393 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932237AbWDUEoC (ORCPT
+	Fri, 21 Apr 2006 00:44:49 -0400
+Received: from mail.kroah.org ([69.55.234.183]:57473 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932241AbWDUEoI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 00:44:02 -0400
-Date: Thu, 20 Apr 2006 21:39:39 -0700
+	Fri, 21 Apr 2006 00:44:08 -0400
+Date: Thu, 20 Apr 2006 21:39:01 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,53 +17,50 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Corey Minyard <minyard@acm.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 15/22] Open IPMI BT overflow
-Message-ID: <20060421043939.GR12846@kroah.com>
+       netdev-core@vger.kernel.org, yoshfuji@linux-ipv6.org,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 11/22] IPV6: XFRM: Dont use old copy of pointer after pskb_may_pull().
+Message-ID: <20060421043901.GL12846@kroah.com>
 References: <20060421043353.602539000@blue.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="open-ipmi-bt-overflow.patch"
+Content-Disposition: inline; filename="ipv6-xfrm-don-t-use-old-copy-of-pointer-after-pskb_may_pull.patch"
 In-Reply-To: <20060421043706.GA12846@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heikki Orsila <shd@jolt.modeemi.cs.tut.fi>
 
-[PATCH] Open IPMI BT overflow
+[IPV6] XFRM: Don't use old copy of pointer after pskb_may_pull().
 
-I was looking into random driver code and found a suspicious looking
-memcpy() in drivers/char/ipmi/ipmi_bt_sm.c on 2.6.17-rc1:
-
-	if ((size < 2) || (size > IPMI_MAX_MSG_LENGTH))
-		return -1;
-	...
-	memcpy(bt->write_data + 3, data + 1, size - 1);
-
-where sizeof bt->write_data is IPMI_MAX_MSG_LENGTH.  It looks like the
-memcpy would overflow by 2 bytes if size == IPMI_MAX_MSG_LENGTH.  A patch
-attached to limit size to (IPMI_MAX_LENGTH - 2).
-
-Cc: Corey Minyard <minyard@acm.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/char/ipmi/ipmi_bt_sm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.16.9.orig/drivers/char/ipmi/ipmi_bt_sm.c
-+++ linux-2.6.16.9/drivers/char/ipmi/ipmi_bt_sm.c
-@@ -165,7 +165,7 @@ static int bt_start_transaction(struct s
+---
+ net/ipv6/xfrm6_policy.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--- linux-2.6.16.9.orig/net/ipv6/xfrm6_policy.c
++++ linux-2.6.16.9/net/ipv6/xfrm6_policy.c
+@@ -193,7 +193,7 @@ _decode_session6(struct sk_buff *skb, st
  {
- 	unsigned int i;
+ 	u16 offset = sizeof(struct ipv6hdr);
+ 	struct ipv6hdr *hdr = skb->nh.ipv6h;
+-	struct ipv6_opt_hdr *exthdr = (struct ipv6_opt_hdr*)(skb->nh.raw + offset);
++	struct ipv6_opt_hdr *exthdr;
+ 	u8 nexthdr = skb->nh.ipv6h->nexthdr;
  
--	if ((size < 2) || (size > IPMI_MAX_MSG_LENGTH))
-+	if ((size < 2) || (size > (IPMI_MAX_MSG_LENGTH - 2)))
- 	       return -1;
+ 	memset(fl, 0, sizeof(struct flowi));
+@@ -201,6 +201,8 @@ _decode_session6(struct sk_buff *skb, st
+ 	ipv6_addr_copy(&fl->fl6_src, &hdr->saddr);
  
- 	if ((bt->state != BT_STATE_IDLE) && (bt->state != BT_STATE_HOSED))
+ 	while (pskb_may_pull(skb, skb->nh.raw + offset + 1 - skb->data)) {
++		exthdr = (struct ipv6_opt_hdr*)(skb->nh.raw + offset);
++
+ 		switch (nexthdr) {
+ 		case NEXTHDR_ROUTING:
+ 		case NEXTHDR_HOP:
 
 --

@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWDUVMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWDUVNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932481AbWDUVMf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 17:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWDUVMf
+	id S964781AbWDUVNy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 17:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWDUVNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 17:12:35 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:65448 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S932481AbWDUVMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 17:12:34 -0400
-Date: Sat, 22 Apr 2006 01:12:05 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Bob Tracy <rct@gherkin.frus.com>
-Cc: Mathieu Chouquet-Stringer <mchouque@free.fr>, linux-kernel@vger.kernel.org,
-       linux-alpha@vger.kernel.org, rth@twiddle.net
-Subject: Re: strncpy (maybe others) broken on Alpha
-Message-ID: <20060422011205.A1270@jurassic.park.msu.ru>
-References: <20060421182223.C19738@jurassic.park.msu.ru> <20060421193759.55D55DBA1@gherkin.frus.com>
+	Fri, 21 Apr 2006 17:13:54 -0400
+Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:17093 "EHLO
+	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
+	id S964781AbWDUVNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 17:13:53 -0400
+Date: Fri, 21 Apr 2006 17:13:51 -0400
+From: Amy Griffis <amy.griffis@hp.com>
+To: Tony Jones <tonyj@suse.de>
+Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
+       linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 5/11] security: AppArmor - Filesystem
+Message-ID: <20060421211351.GA1903@zk3.dec.com>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419174946.29149.40949.sendpatchset@ermintrude.int.wirex.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060421193759.55D55DBA1@gherkin.frus.com>; from rct@gherkin.frus.com on Fri, Apr 21, 2006 at 02:37:59PM -0500
+In-Reply-To: <20060419174946.29149.40949.sendpatchset@ermintrude.int.wirex.com>
+X-Mailer: Mutt http://www.mutt.org/
+X-Editor: Vim http://www.vim.org/
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 02:37:59PM -0500, Bob Tracy wrote:
-> WITHOUT the patch, and everything else the same, gcc-4.0 and gcc-4.1
-> appear to work, but the gcc-3.3 build produces the bad behavior we've
-> been seeing.
+Tony Jones wrote:     [Wed Apr 19 2006, 01:49:46PM EDT]
+> This patch implements the AppArmor file structure underneath securityfs.
+> Securityfs is normally mounted as /sys/kernel/security
+> 
+> The following files are created under /sys/kernel/security/apparmor
+> 	control
+> 		audit	   - Controls the global setting for auditing all
+> 			     accesses.
+> 		complain   - Controls the global setting for learning mode
+> 			     (usually this is set per profile rather than
+> 			     globally)
+> 		debug	   - Controls whether debugging is enabled.
+> 			     This needs to be made more fine grained
+> 		logsyscall - Controls whether when logging to the audit 
+> 			     subsystem full syscall auditing is enabled.
 
-Actually the bug doesn't show up with gcc-4 *only* because it tends
-to pack the data more tightly, so that both src[] and dest[] have different
-alignment vs. gcc-3 compiled foo.c:
-src 0x11ffff8f4, dest 0x11ffff926 - gcc-4
-src 0x11ffff8c0, dest 0x11ffff900 - gcc-3
+Why not use audit's audit_enabled toggle instead?  This would
+eliminate the overhead of data collection for syscall auditing, in
+addition to eliminating the extra log data.
 
-If you add __attribute__((aligned(8))) to both src and dest declarations
-in Mathieu's foo.c, you'll see the bug is still here.
+Is it likely that a user will want to keep syscall auditing on for
+some applications, while having it disabled for AppArmor's use?
 
-> Pending a knowledgable peer review of Ivan's patch (no insult intended:
-> I'm not qualified), I'd say we're close to putting this to rest.  If it
-> turns out the patch is the correct fix, I'm genuinely concerned about
-> how long this bug went undetected :-(.  The modification date of
-> arch/alpha/lib/strncpy.S is 28 Jul 2003 in my tree.  The stxncpy.S file
-> is not quite a year newer: 10 May 2004.
-
-Well, these things happen. I think it's not quite surprising.
-First, the kernel is not overloaded with strncpy calls. ;-)
-Second, strncpy was mostly used in drivers that are rarely (if at all)
-used on alpha.
-Third, to discover this bug you need some special combination of source
-and destination alignment, source string length and byte count.
-
-Ivan.
+> 
+> 		The values by default for all of the above are 0.
+> 
+> 	matching - Returns the features of the installed matching submodule
+> 	profiles - Returns the profiles currently loaded and for each whether
+> 		   it is in complain (learning) or enforce mode.
+> 	.load
+> 	.remove
+> 	.replace - Used by userspace tools to load, remove and replace new 
+> 		   profiles.

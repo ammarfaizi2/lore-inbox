@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWDUUqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWDUUx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbWDUUqE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 16:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWDUUqE
+	id S932329AbWDUUx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 16:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWDUUx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 16:46:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1710 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932433AbWDUUqC (ORCPT
+	Fri, 21 Apr 2006 16:53:28 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:6321 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932329AbWDUUx1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 16:46:02 -0400
-Date: Fri, 21 Apr 2006 13:45:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH] sys_vmsplice
-In-Reply-To: <20060421080239.GC4717@suse.de>
-Message-ID: <Pine.LNX.4.64.0604211341350.3701@g5.osdl.org>
-References: <20060421080239.GC4717@suse.de>
+	Fri, 21 Apr 2006 16:53:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=rW82kYHwsT8oncXZFd9d20vit8itD2egKu02HrhHMWxOaKR6TQxPVSabQK3+Zw92bXi/zhAeMsaQdCAcJRm5SHP6lqmMLgAu1stWQgkLjivuMDZgjZ5ft2Em4eO2oHMUH0RTP2c4JqX8srH+czDqyLz2hw5zNZYNFdbMLVnPLQM=
+Message-ID: <9871ee5f0604211353p21f29e56gaeef61255ebae85d@mail.gmail.com>
+Date: Fri, 21 Apr 2006 16:53:26 -0400
+From: "Timothy Miller" <theosib@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: HELP: Need to determine physical slot number of card in PCIe slot
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I apologize if this is not the right place to ask this question.  I
+have done some googling around, and I have not found an answer to
+this, although I suspect I'm just not using the right search terms. 
+Also, I'm not a member of this list, so please CC me if you reply.
+
+I have put together a diagnostic system for my employer using a
+stripped-down Gentoo system (2.6.15 kernel).  We're testing some PCIe
+cards on an ABIT IL8, which has four PCIe slots.  Since this is a test
+rig, when a card fails a test, we need to know which of the four slots
+the card is in.  When developing this, I had assumed that the PCI bus
+ID would be a function of the slot number, but apparently, it is not. 
+We can put one card into any of the four slots, and we get the same
+bus ID.  If we put in four cards, we get a set of ID numbers that
+isn't sequential.
+
+I've poked around in /proc, without finding anything.  I found
+/sys/bus/pci_express, but it's really weird what I see, because it
+shows what appears to be some slots repeated and some missing, and
+also, there doesn't seem to be a way to associate the slot with the
+bus ID  (I assume pcie00 is slot zero).  Under /sys/bus/pci/devices, I
+do see the PCI bus ID of the cards in question, but I cannot figure
+out how to associate that with the slot number.  The directory
+/sys/bus/pci/slots is empty.
+
+Is there some reasonable way for me to be able to determine, given a
+bus ID, which physical slot the PCIe card is in?
+
+Note:  I am not using a kernel driver for these cards.  I'm using
+/dev/mem to map mmio, and I'm using libpci to access PCI config space.
+ Everything works great (besides the slot number issue here).
+
+Thank you very much in advance for your help.
 
 
-On Fri, 21 Apr 2006, Jens Axboe wrote:
-> 
-> Here's the first implementation of sys_vmsplice(). I'm attaching a
-> little test app as well for playing with it, it's also committed to the
-> splice tools repo at:
-
-Btw, I think we'll have to think a bit more about the buffer size issues:
-
-> @@ -345,6 +346,13 @@ static long do_fcntl(int fd, unsigned in
->  	case F_NOTIFY:
->  		err = fcntl_dirnotify(fd, filp, arg);
->  		break;
-> +	case F_SETPSZ:
-> +		err = -EINVAL;
-> +		break;
-> +	case F_GETPSZ:
-> +		/* this assumes user space can reliably tell PAGE_CACHE_SIZE */
-> +		err = PIPE_BUFFERS;
-> +		break;
-
-The above obviously isn't incorrect, but it really isn't enough to handle 
-the case I was talking about - for somebody to be able to re-use a 
-vmsplice'd page, it's not enough that his buffer is bigger than the pipe 
-buffer, it needs to be bigger than the end-to-end buffer. Or rather, 
-bigger than the "end-to-copy" buffer.
-
-Ie there may be more buffering after the local pipe buffer - other pipes, 
-network buffers, etc etc.
-
-It may even be that my idea to try to limit the buffer size just isn't 
-workable, and that we need to do it in a page-per-page basis (ie instead 
-of depending on the buffer sizes, actually inspect the page and wait for 
-it to be flushed all the way).
-
-So while thinking about that, it might be best to forget about the pipe 
-buffer size issue until the final solution is clearer. The pipe buffer may 
-well be a _part_ of it, though.
-
-		Linus
+--- Timothy Miller

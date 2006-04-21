@@ -1,40 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWDUT2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWDUT3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWDUT2J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 15:28:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWDUT2I
+	id S932320AbWDUT3W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 15:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWDUT3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 15:28:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51355 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932315AbWDUT2H (ORCPT
+	Fri, 21 Apr 2006 15:29:22 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36265 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932320AbWDUT3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 15:28:07 -0400
-Date: Fri, 21 Apr 2006 12:26:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: dwalker@mvista.com, tilman@imap.cc, linux-kernel@vger.kernel.org
-Subject: Re: kfree(NULL)
-Message-Id: <20060421122652.72655580.akpm@osdl.org>
-In-Reply-To: <1145642459.24962.12.camel@localhost.localdomain>
-References: <63XWg-1IL-5@gated-at.bofh.it>
-	<63YfP-26I-11@gated-at.bofh.it>
-	<63ZEY-45n-27@gated-at.bofh.it>
-	<4448F97D.5000205@imap.cc>
-	<1145635403.20843.21.camel@localhost.localdomain>
-	<1145642459.24962.12.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Apr 2006 15:29:21 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060421112243.4b435bc7.akpm@osdl.org> 
+References: <20060421112243.4b435bc7.akpm@osdl.org>  <20060420170754.39294603.akpm@osdl.org> <20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com> <20060420165932.9968.40376.stgit@warthog.cambridge.redhat.com> <4816.1145622827@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
+       sct@redhat.com, aviro@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] FS-Cache: Avoid ENFILE checking for kernel-specific open files 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Fri, 21 Apr 2006 20:29:07 +0100
+Message-ID: <17512.1145647747@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> Total number of NULL frees:      16129
->  Total number of non NULL frees:  18119
-> ....
->  [     6491]  c01aafc4 - start_this_handle+0x234/0x4b0
->  [     8404]  c01aba66 - do_get_write_access+0x2e6/0x5a0
+Andrew Morton <akpm@osdl.org> wrote:
 
-eh.  I'll fix those up.
+> argh, I forgot about the flag.  Oh well.  I'd suggest:
+
+I presume you mean for the second to pass an argument of 1 to
+__get_empty_filp().
+
+David

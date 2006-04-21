@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWDUQQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWDUQQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbWDUQQo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 12:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWDUQQn
+	id S932413AbWDUQQm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 12:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWDUQQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 12:16:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:28844 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932411AbWDUQQl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 21 Apr 2006 12:16:41 -0400
-Subject: [PATCH 16/16] GFS2: Exported functions
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Fri, 21 Apr 2006 17:25:16 +0100
-Message-Id: <1145636716.3856.124.camel@quoit.chygwyn.com>
+Received: from pentafluge.infradead.org ([213.146.154.40]:41879 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932405AbWDUQQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 12:16:39 -0400
+Date: Fri, 21 Apr 2006 17:16:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 07/16] GFS2: Directory handling
+Message-ID: <20060421161636.GA15311@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steven Whitehouse <swhiteho@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <1145636178.3856.106.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145636178.3856.106.camel@quoit.chygwyn.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 16/16] GFS2: Exported functions
+> +/*
+> +* Implements Extendible Hashing as described in:
+> +*   "Extendible Hashing" by Fagin, et al in
+> +*     __ACM Trans. on Database Systems__, Sept 1979.
+> +*
+> +*
 
-Export tty_write_message(). This is required by the quota code and is
-used in the same way as the core kernel quota code uses it. Also
-export the routine for initialising ra_state structures and the
-file_read_actor for GFS2's internal read routines.
+please follow the normal comment style, that is leave a space before the *
+for block comments so it lines up nicely with the * in the start tag.
 
+> +#include <linux/sched.h>
+> +#include <linux/slab.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/completion.h>
 
-Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+you don't seem to be using any completion in this file
 
+> +#include <linux/buffer_head.h>
+> +#include <linux/sort.h>
+> +#include <linux/gfs2_ondisk.h>
+> +#include <linux/crc32.h>
+> +#include <linux/vmalloc.h>
+> +#include <asm/semaphore.h>
 
- kernel/printk.c |    1 +
- mm/filemap.c    |    1 +
- mm/readahead.c  |    1 +
- 3 files changed, 3 insertions(+)
+you're not using any semaphore in this file
 
---- a/kernel/printk.c
-+++ b/kernel/printk.c
-@@ -997,6 +997,7 @@ void tty_write_message(struct tty_struct
- 		tty->driver->write(tty, msg, strlen(msg));
- 	return;
- }
-+EXPORT_SYMBOL_GPL(tty_write_message);
- 
- /*
-  * printk rate limiting, lifted from the networking subsystem.
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -1012,6 +1012,7 @@ success:
- 	desc->arg.buf += size;
- 	return size;
- }
-+EXPORT_SYMBOL(file_read_actor);
- 
- /*
-  * This is the "read()" routine for all filesystems
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -38,6 +38,7 @@ file_ra_state_init(struct file_ra_state 
- 	ra->ra_pages = mapping->backing_dev_info->ra_pages;
- 	ra->prev_page = -1;
- }
-+EXPORT_SYMBOL_GPL(file_ra_state_init);
- 
- /*
-  * Return max readahead size for this inode in number-of-pages.
+> +int gfs2_dir_get_buffer(struct gfs2_inode *ip, uint64_t block, int new,
+> +		         struct buffer_head **bhp)
+> +{
+> +	struct buffer_head *bh;
+> +	int error = 0;
+> +
+> +	if (new) {
+> +		bh = gfs2_meta_new(ip->i_gl, block);
+> +		gfs2_trans_add_bh(ip->i_gl, bh, 1);
+> +		gfs2_metatype_set(bh, GFS2_METATYPE_JD, GFS2_FORMAT_JD);
+> +		gfs2_buffer_clear_tail(bh, sizeof(struct gfs2_meta_header));
+> +	} else {
+> +		error = gfs2_meta_read(ip->i_gl, block, DIO_START | DIO_WAIT,
+> +				       &bh);
+> +		if (error)
+> +			return error;
+> +		if (gfs2_metatype_check(ip->i_sbd, bh, GFS2_METATYPE_JD)) {
+> +			brelse(bh);
+> +			return -EIO;
+> +		}
+> +	}
+> +
+> +	*bhp = bh;
+> +	return 0;
 
+the code is completely different for the new vs !new case, so there's no
+point in merging it to a single function.
 

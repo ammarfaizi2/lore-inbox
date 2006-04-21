@@ -1,150 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWDUVLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWDUVMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbWDUVLN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 17:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWDUVLN
+	id S932481AbWDUVMf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 17:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWDUVMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 17:11:13 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:10353 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932480AbWDUVLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 17:11:12 -0400
-Subject: Re: kfree(NULL)
-From: Daniel Walker <dwalker@mvista.com>
-To: Hua Zhong <hzhong@gmail.com>
-Cc: akpm@osdl.org, jmorris@namei.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4449486F.8020108@gmail.com>
-References: <4449486F.8020108@gmail.com>
-Content-Type: text/plain
-Date: Fri, 21 Apr 2006 14:11:08 -0700
-Message-Id: <1145653868.20843.31.camel@localhost.localdomain>
+	Fri, 21 Apr 2006 17:12:35 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:65448 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S932481AbWDUVMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 17:12:34 -0400
+Date: Sat, 22 Apr 2006 01:12:05 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Bob Tracy <rct@gherkin.frus.com>
+Cc: Mathieu Chouquet-Stringer <mchouque@free.fr>, linux-kernel@vger.kernel.org,
+       linux-alpha@vger.kernel.org, rth@twiddle.net
+Subject: Re: strncpy (maybe others) broken on Alpha
+Message-ID: <20060422011205.A1270@jurassic.park.msu.ru>
+References: <20060421182223.C19738@jurassic.park.msu.ru> <20060421193759.55D55DBA1@gherkin.frus.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060421193759.55D55DBA1@gherkin.frus.com>; from rct@gherkin.frus.com on Fri, Apr 21, 2006 at 02:37:59PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 21, 2006 at 02:37:59PM -0500, Bob Tracy wrote:
+> WITHOUT the patch, and everything else the same, gcc-4.0 and gcc-4.1
+> appear to work, but the gcc-3.3 build produces the bad behavior we've
+> been seeing.
 
-I've been working on some code that records all the data for output to a
-proc entry . It's pretty light weight .. I'll send it once it's
-finished ..
+Actually the bug doesn't show up with gcc-4 *only* because it tends
+to pack the data more tightly, so that both src[] and dest[] have different
+alignment vs. gcc-3 compiled foo.c:
+src 0x11ffff8f4, dest 0x11ffff926 - gcc-4
+src 0x11ffff8c0, dest 0x11ffff900 - gcc-3
 
-Daniel
+If you add __attribute__((aligned(8))) to both src and dest declarations
+in Mathieu's foo.c, you'll see the bug is still here.
 
-On Fri, 2006-04-21 at 14:02 -0700, Hua Zhong wrote:
-> Maybe something like this might be a useful debug option to detect unwise likely()/unlikely() usage?
-> 
-> This is a quick hack (not submitted for inclusion), but it works on my box and detected certain points after boot. Anyone likes this idea?
-> 
-> The reason I had to add printk_debug_likely() is that using printk directly gives compile error. It seems not to like asmlinkage for some reason..I guess likely/unlikely are too fundamental macros and the dependency gets too messy. Or maybe it could be fixed in a way I've not found.
-> 
-> It increases kernel size by about 10%, but hey, it's a debugg option. :-)
-> 
-> Sample print:
-> 
-> possible (un)likely misuse at include/asm/mmu_context.h:32/switch_mm()
->  <c011b644> printk_debug_likely+0x25/0x31   <c02b3092> schedule+0xb04/0xefa
->  <c02b457b> __mutex_lock_slowpath+0x35a/0x89e   <c016c0fd> real_lookup+0x1f/0xb3
->  <c016c0fd> real_lookup+0x1f/0xb3   <c016c512> do_lookup+0x50/0xe8
->  <c016d14b> __link_path_walk+0xba1/0x125f   <c016d8a6> link_path_walk+0x9d/0x166
->  <c014b911> __handle_mm_fault+0x2fd/0x35b   <c01ca29e> _atomic_dec_and_lock+0x22/0x2c
->  <c016d5c2> __link_path_walk+0x1018/0x125f   <c016d8a6> link_path_walk+0x9d/0x166
->  <c014b911> __handle_mm_fault+0x2fd/0x35b   <c01ce9fe> strncpy_from_user+0x94/0xb3
->  <c016dee7> do_path_lookup+0x35c/0x4d2   <c016e385> __user_walk_fd+0x84/0x9b
->  <c0167ae1> vfs_stat_fd+0x15/0x3c   <c014b911> __handle_mm_fault+0x2fd/0x35b
->  <c0168091> sys_stat64+0xf/0x23   <c0113fea> do_page_fault+0x30d/0x753
->  <c01ceefd> copy_to_user+0x113/0x11c   <c0126ee6> sys_rt_sigprocmask+0xae/0xc1
->  <c01035cb> sysenter_past_esp+0x54/0x75  
-> possible (un)likely misuse at kernel/sched.c:1638/context_switch()
->  <c011b644> printk_debug_likely+0x25/0x31   <c02b3025> schedule+0xa97/0xefa
->  <c011ddcd> do_exit+0x75b/0x765   <c011dec4> sys_exit_group+0x0/0xd
->  <c01035cb> sysenter_past_esp+0x54/0x75  
-> possible (un)likely misuse at kernel/softlockup.c:59/softlockup_tick()
->  <c011b644> printk_debug_likely+0x25/0x31   <c0138f78> softlockup_tick+0x88/0xf5
->  <c0123dcd> update_process_times+0x35/0x57   <c0106133> timer_interrupt+0x3d/0x60
->  <c013919c> handle_IRQ_event+0x21/0x4a   <c01392f7> __do_IRQ+0x132/0x1e7
->  <c0104d86> do_IRQ+0x9c/0xab   <c01037fe> common_interrupt+0x1a/0x20
-> possible (un)likely misuse at kernel/sched.c:1645/context_switch()
->  <c011b644> printk_debug_likely+0x25/0x31   <c02b3236> schedule+0xca8/0xefa
->  <c0130d33> enqueue_hrtimer+0x5b/0x80   <c02b57f5> do_nanosleep+0x3b/0xc0
->  <c0131092> hrtimer_nanosleep+0x45/0xe6   <c01680b4> sys_lstat64+0xf/0x23
->  <c013102a> hrtimer_wakeup+0x0/0x18   <c01cf021> copy_from_user+0x11b/0x142
->  <c0131179> sys_nanosleep+0x46/0x4e   <c01035cb> sysenter_past_esp+0x54/0x75
-> 
-> diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-> index f23d3c6..a6df5f7 100644
-> --- a/include/linux/compiler.h
-> +++ b/include/linux/compiler.h
-> @@ -58,9 +58,32 @@ #endif
->   * build go below this comment. Actual compiler/compiler version
->   * specific implementations come from the above header files
->   */
-> +#define CONFIG_DEBUG_LIKELY
-> +#ifdef CONFIG_DEBUG_LIKELY
-> +extern int printk_debug_likely(const char *fmt, ...);
-> +extern int debug_likely_count_min_thresh;
-> +extern int debug_likely_print_max_thresh;
-> +#define __check_likely(x, v, uv)                                \
-> +  ({ static int _ckl_print_nr = 0;                              \
-> +     static unsigned int _ckl_s[2];                             \
-> +     int _ckl_r = !!(x);                                        \
-> +     _ckl_s[_ckl_r]++;                                          \
-> +     if ((_ckl_s[v] == _ckl_s[uv]) && (_ckl_s[v] > debug_likely_count_min_thresh) \
-> +          && (_ckl_print_nr < debug_likely_print_max_thresh)) { \
-> +         _ckl_print_nr++;                                       \
-> +         printk_debug_likely("possible (un)likely misuse at %s:%d/%s()\n",        \
-> +                             __FILE__, __LINE__, __FUNCTION__); \
-> +     }                                                          \
-> +     _ckl_r; })
-> +#else
-> +#define __check_likely(x, v, uv)       __builtin_expect(!!(x), v)
-> +#endif
-> +
-> +#define likely(x)      __check_likely(x, 1, 0)
-> +#define unlikely(x)    __check_likely(x, 0, 1)
->  
-> -#define likely(x)      __builtin_expect(!!(x), 1)
-> -#define unlikely(x)    __builtin_expect(!!(x), 0)
-> +//#define likely(x)    __builtin_expect(!!(x), 1)
-> +//#define unlikely(x)  __builtin_expect(!!(x), 0)
->  
->  /* Optimization barrier */
->  #ifndef barrier
-> diff --git a/kernel/printk.c b/kernel/printk.c
-> index c056f33..cc09dca 100644
-> --- a/kernel/printk.c
-> +++ b/kernel/printk.c
-> @@ -602,6 +602,30 @@ out:
->  EXPORT_SYMBOL(printk);
->  EXPORT_SYMBOL(vprintk);
->  
-> +#ifdef CONFIG_DEBUG_LIKELY
-> +int debug_likely_count_min_thresh = 100;
-> +int debug_likely_print_max_thresh = 1;
-> +int printk_debug_likely(const char *fmt, ...)
-> +{
-> +       int r = 0;
-> +       static atomic_t recurse = ATOMIC_INIT(1); /* as a mutex */
-> +       if (atomic_dec_and_test(&recurse)) {
-> +               va_list args;
-> +
-> +               va_start(args, fmt);
-> +               r = vprintk(fmt, args);
-> +               va_end(args);
-> +               dump_stack();
-> +       }
-> +       atomic_inc(&recurse);
-> +
-> +       return r;
-> +}
-> +EXPORT_SYMBOL(debug_likely_count_min_thresh);
-> +EXPORT_SYMBOL(debug_likely_print_max_thresh);
-> +EXPORT_SYMBOL(printk_debug_likely);
-> +#endif
-> +
->  #else
->  
->  asmlinkage long sys_syslog(int type, char __user *buf, int len)
-> 
-> 
+> Pending a knowledgable peer review of Ivan's patch (no insult intended:
+> I'm not qualified), I'd say we're close to putting this to rest.  If it
+> turns out the patch is the correct fix, I'm genuinely concerned about
+> how long this bug went undetected :-(.  The modification date of
+> arch/alpha/lib/strncpy.S is 28 Jul 2003 in my tree.  The stxncpy.S file
+> is not quite a year newer: 10 May 2004.
 
+Well, these things happen. I think it's not quite surprising.
+First, the kernel is not overloaded with strncpy calls. ;-)
+Second, strncpy was mostly used in drivers that are rarely (if at all)
+used on alpha.
+Third, to discover this bug you need some special combination of source
+and destination alignment, source string length and byte count.
+
+Ivan.

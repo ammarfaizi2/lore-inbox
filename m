@@ -1,95 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWDUVVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWDUVWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932483AbWDUVVM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 17:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932484AbWDUVVM
+	id S964787AbWDUVWW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 17:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWDUVWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 17:21:12 -0400
-Received: from tayrelbas03.tay.hp.com ([161.114.80.246]:11705 "EHLO
-	tayrelbas03.tay.hp.com") by vger.kernel.org with ESMTP
-	id S932483AbWDUVVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 17:21:10 -0400
-Date: Fri, 21 Apr 2006 17:21:09 -0400
-From: Amy Griffis <amy.griffis@hp.com>
-To: Tony Jones <tonyj@suse.de>
-Cc: linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-       linux-security-module@vger.kernel.org, linux-audit@redhat.com
-Subject: Re: [RFC][PATCH 9/11] security: AppArmor - Audit changes
-Message-ID: <20060421212109.GB1903@zk3.dec.com>
-Mail-Followup-To: Tony Jones <tonyj@suse.de>,
-	linux-kernel@vger.kernel.org, chrisw@sous-sol.org,
-	linux-security-module@vger.kernel.org, linux-audit@redhat.com
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175018.29149.391.sendpatchset@ermintrude.int.wirex.com>
+	Fri, 21 Apr 2006 17:22:22 -0400
+Received: from www.osadl.org ([213.239.205.134]:12985 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S964787AbWDUVWW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 17:22:22 -0400
+Subject: Re: + fix-sco-on-some-bluetooth-adapters-tidy.patch added to -mm
+	tree
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200604212058.k3LKw5vZ013751@shell0.pdx.osdl.net>
+References: <200604212058.k3LKw5vZ013751@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Fri, 21 Apr 2006 23:23:57 +0200
+Message-Id: <1145654638.1322.246.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060419175018.29149.391.sendpatchset@ermintrude.int.wirex.com>
-X-Mailer: Mutt http://www.mutt.org/
-X-Editor: Vim http://www.vim.org/
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Jones wrote:     [Wed Apr 19 2006, 01:50:18PM EDT]
-> This patch adds AppArmor support to the audit subsystem.
+On Fri, 2006-04-21 at 14:00 -0700, akpm@osdl.org wrote:
+> The patch titled
 > 
-> It creates id 1500 (already included in the the upstream auditd package) for 
-> AppArmor messages.
-> 
-> It also exports the audit_log_vformat function (analagous to having both
-> printk and vprintk exported).
+>      fix-sco-on-some-bluetooth-adapters-tidy
 
-linux-audit (cc'd) will likely want to review these changes.
+Could you please refrain from using such obvious (r)TM violating names
+(i.e. *-sco-*) for your patches ? :)
 
-> 
-> Signed-off-by: Tony Jones <tonyj@suse.de>
-> 
-> ---
->  include/linux/audit.h |    5 +++++
->  kernel/audit.c        |    3 ++-
->  2 files changed, 7 insertions(+), 1 deletion(-)
-> 
-> --- linux-2.6.17-rc1.orig/include/linux/audit.h
-> +++ linux-2.6.17-rc1/include/linux/audit.h
-> @@ -95,6 +95,8 @@
->  #define AUDIT_LAST_KERN_ANOM_MSG    1799
->  #define AUDIT_ANOM_PROMISCUOUS      1700 /* Device changed promiscuous mode */
->  
-> +#define AUDIT_AA		1500	/* AppArmor audit */
-> +
->  #define AUDIT_KERNEL		2000	/* Asynchronous audit record. NOT A REQUEST. */
->  
->  /* Rule flags */
-> @@ -349,6 +351,9 @@
->  				      __attribute__((format(printf,4,5)));
->  
->  extern struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask, int type);
-> +extern void		    audit_log_vformat(struct audit_buffer *ab,
-> +					      const char *fmt, va_list args)
-> +			    __attribute__((format(printf,2,0)));
->  extern void		    audit_log_format(struct audit_buffer *ab,
->  					     const char *fmt, ...)
->  			    __attribute__((format(printf,2,3)));
-> --- linux-2.6.17-rc1.orig/kernel/audit.c
-> +++ linux-2.6.17-rc1/kernel/audit.c
-> @@ -797,7 +797,7 @@
->   * will be called a second time.  Currently, we assume that a printk
->   * can't format message larger than 1024 bytes, so we don't either.
->   */
-> -static void audit_log_vformat(struct audit_buffer *ab, const char *fmt,
-> +void audit_log_vformat(struct audit_buffer *ab, const char *fmt,
->  			      va_list args)
->  {
->  	int len, avail;
-> @@ -999,4 +999,5 @@
->  EXPORT_SYMBOL(audit_log_start);
->  EXPORT_SYMBOL(audit_log_end);
->  EXPORT_SYMBOL(audit_log_format);
-> +EXPORT_SYMBOL(audit_log_vformat);
->  EXPORT_SYMBOL(audit_log);
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+	tglx
+
+

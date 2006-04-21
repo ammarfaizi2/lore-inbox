@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWDUOwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWDUOyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbWDUOwq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 10:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWDUOwq
+	id S932324AbWDUOyz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 10:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWDUOyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 10:52:46 -0400
-Received: from smtpout.mac.com ([17.250.248.184]:59875 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932343AbWDUOwq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 10:52:46 -0400
-In-Reply-To: <4448D047.8070202@compro.net>
-References: <44475DBA.7020308@cfl.rr.com> <44477585.4030508@yahoo.com.au> <4447E6C4.9070207@compro.net> <4447E86E.9000507@yahoo.com.au> <4448D047.8070202@compro.net>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <EE194A42-9016-4217-A62E-AECA4A2105D1@mac.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, dmarkh@cfl.rr.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Mark Rustad <mrustad@mac.com>
-Subject: Re: get_user_pages ?
-Date: Fri, 21 Apr 2006 09:52:33 -0500
-To: markh@compro.net
-X-Mailer: Apple Mail (2.749.3)
+	Fri, 21 Apr 2006 10:54:55 -0400
+Received: from web52913.mail.yahoo.com ([206.190.49.23]:17807 "HELO
+	web52913.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932324AbWDUOyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 10:54:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=YPRvLGiCCRwCFfQPssmlOsT54GajwxjMNkLaAC2LqezL/rbF3sb0G94G4szMJJMMfPdz6I2/A8MVDGE5ZoWF8gjAWAPjgeHVUn7LjIrGGw/5B1QJB5GIMPSxdGYjBVX2v2pTfPxDI8b/868KfCruz3d50oBQwiox6IszHJPvr6k=  ;
+Message-ID: <20060421145453.18587.qmail@web52913.mail.yahoo.com>
+Date: Fri, 21 Apr 2006 15:54:53 +0100 (BST)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: Re: [patch 05/22] : Fix hotplug race during device registration
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+In-Reply-To: <4448DBC6.2090700@ums.usu.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 21, 2006, at 7:29 AM, Mark Hounschell wrote:
+--- "Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
+> This could be fixed up by saving the old value and restoring it in the "if 
+> (err)" statement, but I guess this has to be fixed in the mainline before 
+> allowing the modified "if (err)" into -stable.
 
-> You've looked at the code some obviously. What is in my future WRT  
-> these
-> changes being made that you referenced above and the depreciation of
-> some of the calls in use. Given my situation, do you foresee anything
-> that will keep me from being able to get valid bus addresses for my  
-> pte?
+I'm not going to claim to know how this state machine works, but would restoring the state to the
+original value prompt the kernel to try and reregister the device in an endless loop? I was
+wondering if maybe it should be set to some "Failed" state instead.
 
-Who can predict the future? I ran into similar issues and took a  
-different approach. Our application was using a large amount of  
-shared memory and it must be contiguous and the physical addresses  
-must be known, but only fixed for a particular invocation of the  
-system. I switched to using huge pages.
+Cheers,
+Chris
 
-So, during boot I have a small program that creates a file in the  
-hugetlbfs, mmaps it and then makes an ioctl call to my driver that  
-faults in all of the pages in the region mmapped. The driver takes  
-all of the huge pages from the system, sorts them in physical order  
-and then faults them in in a contiguous range by calling  
-get_user_pages, freeing one huge page before each call to get_user- 
-pages. I use page_to_phys to get the physical address.
 
-This approach means that my code is not manipulating the vm at all.  
-This should make future kernel changes easier to adapt to.
-
-What I am doing would be utter madness to attempt with normal pages,  
-because there is  so much activity with them, but huge pages are much  
-more manageable particularly during a boot sequence.
-
--- 
-Mark Rustad, MRustad@mac.com
-
+		
+___________________________________________________________ 
+To help you stay safe and secure online, we've developed the all new Yahoo! Security Centre. http://uk.security.yahoo.com

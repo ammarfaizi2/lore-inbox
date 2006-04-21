@@ -1,168 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWDUCcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWDUCcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWDUCcv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 22:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWDUCZA
+	id S932134AbWDUCcu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 22:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWDUCby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 22:25:00 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:13007 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750851AbWDUCYq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 22:24:46 -0400
-From: sekharan@us.ibm.com
+	Thu, 20 Apr 2006 22:31:54 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:5606 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932134AbWDUC2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 22:28:42 -0400
+From: maeda.naoaki@jp.fujitsu.com
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Cc: sekharan@us.ibm.com
-Date: Thu, 20 Apr 2006 19:24:45 -0700
-Message-Id: <20060421022445.6145.79833.sendpatchset@localhost.localdomain>
-In-Reply-To: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-Subject: [RFC] [PATCH 06/12] Add proc interface to get class info of task
+Cc: maeda.naoaki@jp.fujitsu.com
+Date: Fri, 21 Apr 2006 11:28:03 +0900
+Message-Id: <20060421022803.13598.51949.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+In-Reply-To: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+Subject: [RFC][PATCH 7/9] CPU controller - Adds routines to change share values and show stat
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-06/12: ckrm_tasksupport_procsupport
+7/9: ckrm_cpu_shares_n_stats
 
-Adds an interface in /proc to get the class name of a task.
---
+Adds routine to change share values and show statistics.
 
-Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
 Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
 
- fs/proc/base.c          |   19 +++++++++++++++++++
- include/linux/ckrm.h    |    2 ++
- kernel/ckrm/ckrm_task.c |   32 +++++++++++++++++++++++++++++++-
- 3 files changed, 52 insertions(+), 1 deletion(-)
+ kernel/ckrm/ckrm_cpu.c |  123 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 123 insertions(+)
 
-Index: linux2617-rc2/fs/proc/base.c
+Index: linux-2.6.17-rc2/kernel/ckrm/ckrm_cpu.c
 ===================================================================
---- linux2617-rc2.orig/fs/proc/base.c
-+++ linux2617-rc2/fs/proc/base.c
-@@ -70,6 +70,7 @@
- #include <linux/ptrace.h>
- #include <linux/seccomp.h>
- #include <linux/cpuset.h>
-+#include <linux/ckrm.h>
- #include <linux/audit.h>
- #include <linux/poll.h>
- #include "internal.h"
-@@ -115,6 +116,9 @@ enum pid_directory_inos {
- #ifdef CONFIG_CPUSETS
- 	PROC_TGID_CPUSET,
- #endif
-+#ifdef CONFIG_CKRM
-+	PROC_TGID_CKRM_CLASS,
-+#endif
- #ifdef CONFIG_SECURITY
- 	PROC_TGID_ATTR,
- 	PROC_TGID_ATTR_CURRENT,
-@@ -156,6 +160,9 @@ enum pid_directory_inos {
- #ifdef CONFIG_CPUSETS
- 	PROC_TID_CPUSET,
- #endif
-+#ifdef CONFIG_CKRM
-+	PROC_TID_CKRM_CLASS,
-+#endif
- #ifdef CONFIG_SECURITY
- 	PROC_TID_ATTR,
- 	PROC_TID_ATTR_CURRENT,
-@@ -219,6 +226,9 @@ static struct pid_entry tgid_base_stuff[
- #ifdef CONFIG_CPUSETS
- 	E(PROC_TGID_CPUSET,    "cpuset",  S_IFREG|S_IRUGO),
- #endif
-+#ifdef CONFIG_CKRM
-+	E(PROC_TGID_CKRM_CLASS,"ckrm_class",S_IFREG|S_IRUGO),
-+#endif
- 	E(PROC_TGID_OOM_SCORE, "oom_score",S_IFREG|S_IRUGO),
- 	E(PROC_TGID_OOM_ADJUST,"oom_adj", S_IFREG|S_IRUGO|S_IWUSR),
- #ifdef CONFIG_AUDITSYSCALL
-@@ -261,6 +271,9 @@ static struct pid_entry tid_base_stuff[]
- #ifdef CONFIG_CPUSETS
- 	E(PROC_TID_CPUSET,     "cpuset",  S_IFREG|S_IRUGO),
- #endif
-+#ifdef CONFIG_CKRM
-+	E(PROC_TID_CKRM_CLASS, "ckrm_class",S_IFREG|S_IRUGO),
-+#endif
- 	E(PROC_TID_OOM_SCORE,  "oom_score",S_IFREG|S_IRUGO),
- 	E(PROC_TID_OOM_ADJUST, "oom_adj", S_IFREG|S_IRUGO|S_IWUSR),
- #ifdef CONFIG_AUDITSYSCALL
-@@ -1814,6 +1827,12 @@ static struct dentry *proc_pident_lookup
- 			inode->i_fop = &proc_cpuset_operations;
- 			break;
- #endif
-+#ifdef CONFIG_CKRM
-+		case PROC_TID_CKRM_CLASS:
-+		case PROC_TGID_CKRM_CLASS:
-+			inode->i_fop = &proc_ckrm_class_operations;
-+			break;
-+#endif
- 		case PROC_TID_OOM_SCORE:
- 		case PROC_TGID_OOM_SCORE:
- 			inode->i_fop = &proc_info_file_operations;
-Index: linux2617-rc2/kernel/ckrm/ckrm_task.c
-===================================================================
---- linux2617-rc2.orig/kernel/ckrm/ckrm_task.c
-+++ linux2617-rc2/kernel/ckrm/ckrm_task.c
-@@ -13,7 +13,8 @@
-  * (at your option) any later version.
-  *
-  */
--#include <linux/sched.h>
-+#include <linux/seq_file.h>
-+#include <linux/proc_fs.h>
- #include <linux/module.h>
- #include "ckrm_local.h"
- 
-@@ -193,4 +194,33 @@ next_task:
- 	kref_put(&class->ref, ckrm_release_class);
+--- linux-2.6.17-rc2.orig/kernel/ckrm/ckrm_cpu.c
++++ linux-2.6.17-rc2/kernel/ckrm/ckrm_cpu.c
+@@ -112,12 +112,135 @@ static void cpu_free_shares_struct(struc
+ 	kfree(res);
  }
  
-+static int proc_ckrm_class_show(struct seq_file *m, void *v)
++static int recalc_shares(int self_shares, int parent_shares, int parent_divisor)
 +{
-+	struct task_struct *tsk = m->private;
-+	struct ckrm_class *class = tsk->class;
++	u64 numerator;
 +
-+	if (!class)
++	if (parent_divisor == 0)
++		return 0;
++	numerator = (u64) self_shares * parent_shares;
++	do_div(numerator, parent_divisor);
++	return numerator;
++}
++
++static int recalc_unused_shares(int self_cnt_min_shares,
++				int self_unused_min_shares, int self_divisor)
++{
++	u64 numerator;
++
++	if (self_divisor == 0)
++		return 0;
++	numerator = (u64) self_unused_min_shares * self_cnt_min_shares;
++	do_div(numerator, self_divisor);
++	return numerator;
++}
++
++static void recalc_self(struct ckrm_cpu *res, struct ckrm_cpu *parres)
++{
++	struct ckrm_shares *par = &parres->shares;
++	struct ckrm_shares *self = &res->shares;
++	u64 cnt_total, cnt_min_shares;
++
++	/* calculate total and current min_shares */
++	cnt_total = recalc_shares(self->min_shares,
++					parres->cnt_total_min_shares,
++					par->child_shares_divisor);
++	cnt_min_shares = recalc_unused_shares(self->unused_min_shares,
++					cnt_total,
++					par->child_shares_divisor);
++	cpu_rc_set_share(&res->cpu_rc, (int) cnt_min_shares);
++	res->cnt_total_min_shares = (int) cnt_total;
++}
++
++static void
++recalc_and_propagate(struct ckrm_cpu * res)
++{
++	struct ckrm_class *child = NULL;
++	struct ckrm_cpu *parres, *childres;
++
++	parres = get_class_cpu(res->class->parent);
++
++	if (parres)
++		recalc_self(res, parres);
++
++	/* propagate to children */
++	spin_lock(&res->class->class_lock);
++	for_each_child(child, res->class) {
++		childres = get_class_cpu(child);
++		if (childres) {
++			spin_lock(&child->class_lock);
++			recalc_and_propagate(childres);
++			spin_unlock(&child->class_lock);
++		}
++	}
++	spin_unlock(&res->class->class_lock);
++	return;
++}
++
++static void cpu_shares_changed(struct ckrm_shares *my_res)
++{
++	struct ckrm_cpu *parres, *res;
++	struct ckrm_shares *cur, *par;
++	u64    temp = 0;
++
++	res = get_shares_cpu(my_res);
++	if (!res)
++		return;
++	cur = &res->shares;
++
++	if (!ckrm_is_class_root(res->class)) {
++		spin_lock(&res->class->parent->class_lock);
++		parres = get_class_cpu(res->class->parent);
++		par = &parres->shares;
++	} else {
++		par = NULL;
++		parres = NULL;
++	}
++
++	if (parres) {
++		/* adjust parent's unused min_shares */
++		temp = recalc_unused_shares(parres->cnt_total_min_shares,
++					par->unused_min_shares,
++					par->child_shares_divisor);
++		cpu_rc_set_share(&parres->cpu_rc, temp);
++	} else {
++		/* adjust root class's unused min_shares */
++		temp = recalc_unused_shares(CKRM_SHARE_DEFAULT_DIVISOR,
++					cur->unused_min_shares,
++					cur->child_shares_divisor);
++		cpu_rc_set_share(&res->cpu_rc, temp);
++	}
++	recalc_and_propagate(res);
++
++	if (!ckrm_is_class_root(res->class))
++		spin_unlock(&res->class->parent->class_lock);
++}
++
++static ssize_t cpu_show_stats(struct ckrm_shares *my_res, char *buf,
++							size_t buf_size)
++{
++	struct ckrm_cpu *res;
++	unsigned int load = 0;
++	ssize_t	i;
++
++	res = get_shares_cpu(my_res);
++	if (!res)
 +		return -EINVAL;
 +
-+	kref_get(&class->ref);
-+	seq_puts(m, "/");
-+	if (!ckrm_is_class_root(class))
-+		seq_puts(m, class->name);
-+	seq_putc(m, '\n');
-+	kref_put(&class->ref, ckrm_release_class);
-+	return 0;
++	load = cpu_rc_load(&res->cpu_rc);
++	i = snprintf(buf, buf_size, "%s:effective_min_shares=%d, load=%d\n",
++				res_ctlr_name, res->cpu_rc.share, load);
++	return i;
 +}
 +
-+static int ckrm_class_open(struct inode *inode, struct file *file)
-+{
-+	struct task_struct *tsk = PROC_I(inode)->task;
-+	return single_open(file, proc_ckrm_class_show, tsk);
-+}
-+
-+struct file_operations proc_ckrm_class_operations = {
-+	.open		= ckrm_class_open,
-+	.read		= seq_read,
-+	.llseek 	= seq_lseek,
-+	.release	= single_release,
-+};
- EXPORT_SYMBOL_GPL(ckrm_setclass);
-Index: linux2617-rc2/include/linux/ckrm.h
-===================================================================
---- linux2617-rc2.orig/include/linux/ckrm.h
-+++ linux2617-rc2/include/linux/ckrm.h
-@@ -94,6 +94,8 @@ struct ckrm_class {
- 	struct list_head children;	/* head of children */
+ struct ckrm_controller cpu_ctlr = {
+ 	.name = res_ctlr_name,
+ 	.depth_supported = 3,
+ 	.ctlr_id = CKRM_NO_RES_ID,
+ 	.alloc_shares_struct = cpu_alloc_shares_struct,
+ 	.free_shares_struct = cpu_free_shares_struct,
++	.shares_changed = cpu_shares_changed,
++	.show_stats = cpu_show_stats,
  };
  
-+extern struct file_operations proc_ckrm_class_operations;
-+
- extern void ckrm_init_task(struct task_struct *);
- extern void ckrm_clear_task(struct task_struct *);
- extern void ckrm_init(void);
-
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+ int __init init_ckrm_cpu_res(void)

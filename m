@@ -1,93 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWDUB1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWDUB3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWDUB1V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 21:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWDUB1V
+	id S932207AbWDUB3U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 21:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWDUB3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 21:27:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14029 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932202AbWDUB1S (ORCPT
+	Thu, 20 Apr 2006 21:29:20 -0400
+Received: from ishtar.tlinx.org ([64.81.245.74]:10894 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S932128AbWDUB3T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 21:27:18 -0400
-Date: Thu, 20 Apr 2006 18:25:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: suresh.b.siddha@intel.com, efault@gmx.de, nickpiggin@yahoo.com.au,
-       mingo@elte.hu, kernel@kolivas.org, kenneth.w.chen@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] smpnice: don't consider sched groups which are lightly
- loaded for balancing
-Message-Id: <20060420182553.7cd206d7.akpm@osdl.org>
-In-Reply-To: <44482712.5030401@bigpond.net.au>
-References: <20060328185202.A1135@unix-os.sc.intel.com>
-	<442A0235.1060305@bigpond.net.au>
-	<20060329145242.A11376@unix-os.sc.intel.com>
-	<442B1AE8.5030005@bigpond.net.au>
-	<20060329165052.C11376@unix-os.sc.intel.com>
-	<442B3111.5030808@bigpond.net.au>
-	<20060401204824.A8662@unix-os.sc.intel.com>
-	<442F7871.4030405@bigpond.net.au>
-	<20060419182444.A5081@unix-os.sc.intel.com>
-	<444719F8.2050602@bigpond.net.au>
-	<20060420095408.A10267@unix-os.sc.intel.com>
-	<20060420164936.5988460d.akpm@osdl.org>
-	<44482712.5030401@bigpond.net.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 20 Apr 2006 21:29:19 -0400
+Message-ID: <4448355F.7070509@tlinx.org>
+Date: Thu, 20 Apr 2006 18:29:03 -0700
+From: "Linda A. Walsh" <law@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>, "Linda A. Walsh" <law@tlinx.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       linux-security-module@vger.kernel.org, chrisw@sous-sol.org,
+       linux-kernel@vger.kernel.org, Tony Jones <tonyj@suse.de>
+Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export namespace	semaphore
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com> <1145536742.16456.35.camel@moss-spartans.epoch.ncsc.mil> <20060420124647.GD18604@sergelap.austin.ibm.com> <1145534735.3313.3.camel@moss-spartans.epoch.ncsc.mil> <20060420132128.GG18604@sergelap.austin.ibm.com> <1145537318.3313.40.camel@moss-spartans.epoch.ncsc.mil> <44480727.9010500@tlinx.org> <20060420230551.GA5026@infradead.org>
+In-Reply-To: <20060420230551.GA5026@infradead.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams <pwil3058@bigpond.net.au> wrote:
->
-> Andrew Morton wrote:
-> > "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
-> >> updated patch appended. thanks.
-> > 
-> > Where are we up to with smpnice now?  Are there still any known
-> > regressions/problems/bugs/etc?
-> 
-> One more change to move_tasks() is required to address an issue raised 
-> by Suresh w.r.t. the possibility unnecessary movement of the highest 
-> priority task from the busiest queue (possible because of the 
-> active/expired array mechanism).  I hope to forward a patch for this 
-> later today.
+Christoph Hellwig wrote:
+> On Thu, Apr 20, 2006 at 03:11:51PM -0700, Linda A. Walsh wrote:
+>   
+>>    The *current* accepted way to get pathnames going into system
+>> calls is to trap the syscall vector as audit currently does --
+>>     
+> It's not and it's never been.  [suggestion deleted]
+   What is not?  I'm looking at entry.S, and 2 ptrace.c's, one under
+arch/i386/kernel and another under kernel.  Perhaps we are talking
+about different architectures?  Referring to the i386 architecture,
 
-OK.
+    entry.S has the system call table processing, no?
+    This is the the code from the sysenter call:
 
-> After that the only thing I would like to do at this stage is modify 
-> try_to_wake_up() so that it tries harder to distribute high priority 
-> tasks across the CPUs.  I wouldn't classify this as absolutely necessary 
-> as it's really just a measure that attempts to reduce latency for high 
-> priority tasks as it should get them onto a CPU more quickly than just 
-> sticking them anywhere and waiting for load balancing to kick in if 
-> they've been put on a CPU with a higher priority task already running. 
-> Also it's only really necessary when there a lot of high priority tasks 
-> running.  So this isn't urgent and probably needs to be coordinated with 
-> Ingo's RT load balancing stuff anyway.
+ testw $(_TIF_SYSCALL_EMU|_TIF_SYSCALL_TRACE|_TIF_SECCOMP|_TIF_SYSCALL_AU
+DIT),TI_flags(%ebp)
 
-Sure, we can leave things like that until later.
+    That looks like a patch for SECCOMP, SYSCALL_EMU and AUDIT that goes
+off to do special processing in the system sys_trace call.  This calls the
+ptrace function for every syscall, no? Doesn't that then call
+kernel/ptrace.c(sys_ptrace), grab the system lock (that is
+what lock_system() is for, isn't it?), which then calls the
+arch-specific ptrace.c in 'arch/i386/kernel'? Or have I missed
+something yet?
 
-> >  Has sufficient testing been done for us to
-> > know this?
+    Now here is code from that ptrace.c:
+------------
+/* notification of system call entry/exit
+ * - triggered by current->work.syscall_trace
+ */                    
+__attribute__((regparm(3)))
+int do_syscall_trace(struct pt_regs *regs, int entryexit)
+{      
+    ... do sysemu related stuff... 
+     
+    /* do the secure computing check first */
+    if (!entryexit)
+        secure_computing(regs->orig_eax);  
 
-I should have said "testing for regressions".  We know that smpnice
-improves some things.  My concern is that it doesn't cause any non-silly
-workloads to worsen.  Once we're at that stage I think we're ready to go.
+    if (unlikely(current->audit_context)) {
+        if (entryexit)
+            audit_syscall_exit(current, AUDITSC_RESULT(regs->eax),
+                                  regs->eax);
+--------------
+    Doesn't ptrace trap every syscall and call audit for every syscall
+when audit is enabled? 
 
-IOW: at this stage we should concentrate upon not taking any workloads
-backwards, rather than upon taking even more workloads even more forwards. 
-That can come later.
+    Perhaps my wording was confusing?  I'm sorry, I should have
+said:
 
-> I run smpnice kernels on all of my SMP machines all of the time.  But I 
-> don't have anything with more than 2 CPUs so I've been relying on their 
-> presence in -mm to get wider testing on larger machines.
+    "The *current* accepted way to get pathnames going into system calls is
+to put a trap in the syscall vector processing code to be indirectly
+called through the ptrace call with every system call as audit currently 
+does..."?
 
-Sure.  A mortal doesn't have the hardware and isn't set up to test certain
-high-value workloads...
+    Or is that not correct either?  If not, could you please be more
+specific in your objection instead of suggesting I get pointers on my sex
+life?
 
-> As load balancing is inherently probabilistic I don't think that we 
-> should hold out for "perfect".
+    Of course the above code brings up a 2nd question.  Is it acceptable
+for audit records to be lost, or if a system gets heavily loaded, isn't
+it possible for audit_syscall to block waiting some place to record the
+audit context?   Wouldn't those call occur after the "lock_kernel();"
+line in kernel/ptrace.c, Could it be holding the "big kernel lock"
+(still) when it blocks?  Or would audit drop the kernel lock before
+blocking?
 
-Sure.  "same or better" is the aim here.
+    In my last linux audit driver implementation, I had it setup such
+that the audited process would block, but the system could continue so
+that "auditd" (a non audited process) could free up a buffer by "reading"
+it thus unblocking any processes blocked on an audit call.  But, not
+hanging the system needlessly was one of my design goals.
+
+Linda
+
+
+
+

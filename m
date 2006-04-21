@@ -1,181 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWDUBRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWDUB1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWDUBRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 21:17:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWDUBRZ
+	id S932199AbWDUB1D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 21:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWDUB1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 21:17:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41162 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932094AbWDUBRY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 21:17:24 -0400
-Date: Thu, 20 Apr 2006 18:16:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, steved@redhat.com, sct@redhat.com, aviro@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/7] FS-Cache: CacheFiles: A cache that backs onto a
- mounted filesystem
-Message-Id: <20060420181616.0f167b1d.akpm@osdl.org>
-In-Reply-To: <20060420165941.9968.13602.stgit@warthog.cambridge.redhat.com>
-References: <20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com>
-	<20060420165941.9968.13602.stgit@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 20 Apr 2006 21:27:03 -0400
+Received: from nz-out-0102.google.com ([64.233.162.205]:8529 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932199AbWDUB1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 21:27:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
+        b=qxwRZimfKaV/zCQ2r97a9+4HIWQtbMLdwv+pIpaTA1GB3fowRTIvQRqefeV4afsNG8xkxhCEY4SZjgC578XI+dsk15t2ZASQduyFVIOuziVm44AFNR0mNBynCHlI5UIS0A/od+Zc1SzGyygzmKtm+QEtpX7RU8d3Evmj9evnhyg=
+Message-ID: <44483668.7030109@gmail.com>
+Date: Fri, 21 Apr 2006 08:33:28 +0700
+From: Mikado <mikado4vn@gmail.com>
+Reply-To: mikado4vn@gmail.com
+Organization: IcySpace.net
+User-Agent: Thunderbird 1.5.0.2 (X11/20060308)
+MIME-Version: 1.0
+To: Patrick McHardy <kaber@trash.net>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Which process is associated with process ID 0 (swapper)
+References: <4447A19E.9000008@gmail.com> <Pine.LNX.4.61.0604201118200.5749@chaos.analogic.com> <4447B110.4080700@gmail.com> <Pine.LNX.4.61.0604210007140.28841@yvahk01.tjqt.qr> <44481ACE.9040104@gmail.com> <44482963.4030902@trash.net>
+In-Reply-To: <44482963.4030902@trash.net>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=65ABD897
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> ...
->
-> +		ret = 0;
-> +	}
-> +	else if (cachefiles_has_space(cache, 1) == 0) {
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	} else if (cachefiles_has_space(cache, 1) == 0) {
+Patrick McHardy wrote:
+> - there is no 1:1 mapping between sockets (or packets) and
+>   processes. If you use corking even a single packet can be
+>   created in cooperation by multiple processes.
 
-> +		/* there's space in the cache we can use */
-> +		pagevec_add(&pagevec, page);
-> +		cookie->def->mark_pages_cached(cookie->netfs_data,
-> +					       page->mapping, &pagevec);
-> +		ret = -ENODATA;
-> +	}
-> +	else {
+Single packet is created by multiple processes? Can you show me some
+examples?
 
-	} else {
+Mikado.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-(many instances)
-
-> +unsigned long cachefiles_debug = 0;
-
-Unneeded initialisation.
-
-> +static int cachefiles_init(void)
-
-__init?
-
-> +#if 0
-> +void __cyg_profile_func_enter (void *this_fn, void *call_site)
-> +__attribute__((no_instrument_function));
-> +
-> +void __cyg_profile_func_enter (void *this_fn, void *call_site)
-> +{
-> +       asm volatile("  movl    %%esp,%%edi     \n"
-> +                    "  andl    %0,%%edi        \n"
-> +                    "  addl    %1,%%edi        \n"
-> +                    "  movl    %%esp,%%ecx     \n"
-> +                    "  subl    %%edi,%%ecx     \n"
-> +                    "  shrl    $2,%%ecx        \n"
-> +                    "  movl    $0xedededed,%%eax     \n"
-> +                    "  rep stosl               \n"
-> +                    :
-> +                    : "i"(~(THREAD_SIZE-1)), "i"(sizeof(struct thread_info))
-> +                    : "eax", "ecx", "edi", "memory", "cc"
-> +                    );
-> +}
-> +
-> +void __cyg_profile_func_exit(void *this_fn, void *call_site)
-> +__attribute__((no_instrument_function));
-> +
-> +void __cyg_profile_func_exit(void *this_fn, void *call_site)
-> +{
-> +       asm volatile("  movl    %%esp,%%edi     \n"
-> +                    "  andl    %0,%%edi        \n"
-> +                    "  addl    %1,%%edi        \n"
-> +                    "  movl    %%esp,%%ecx     \n"
-> +                    "  subl    %%edi,%%ecx     \n"
-> +                    "  shrl    $2,%%ecx        \n"
-> +                    "  movl    $0xdadadada,%%eax     \n"
-> +                    "  rep stosl               \n"
-> +                    :
-> +                    : "i"(~(THREAD_SIZE-1)), "i"(sizeof(struct thread_info))
-> +                    : "eax", "ecx", "edi", "memory", "cc"
-> +                    );
-> +}
-> +#endif
-
-removeable?
-
-> +/*
-> + * delete an object representation from the cache
-> + * - file backed objects are unlinked
-> + * - directory backed objects are stuffed into the graveyard for userspace to
-> + *   delete
-> + * - unlocks the directory mutex
-> + */
-> +static int cachefiles_bury_object(struct cachefiles_cache *cache,
-> +				  struct dentry *dir,
-> +				  struct dentry *rep)
-> +{
-> +	struct dentry *grave, *alt, *trap;
-> +	struct qstr name;
-> +	const char *old_name;
-> +	char nbuffer[8 + 8 + 1];
-> +	int ret;
-> +
-> +	_enter(",'%*.*s','%*.*s'",
-> +	       dir->d_name.len, dir->d_name.len, dir->d_name.name,
-> +	       rep->d_name.len, rep->d_name.len, rep->d_name.name);
-> +
-> +	/* non-directories can just be unlinked */
-> +	if (!S_ISDIR(rep->d_inode->i_mode)) {
-> +		_debug("unlink stale object");
-> +		ret = dir->d_inode->i_op->unlink(dir->d_inode, rep);
-> +
-> +		mutex_unlock(&dir->d_inode->i_mutex);
-
-hm, what's going on here?  It's strange for a callee to undo an i_mutex
-which some caller took.
-
->  EXPORT_SYMBOL(generic_file_buffered_write);
->  
-> +int
-> +generic_file_buffered_write_one_kernel_page(struct file *file,
-> +					    pgoff_t index,
-> +					    struct page *src)
-
-Some covering comments would be nice.
-
-> +{
-> +	struct address_space *mapping = file->f_mapping;
-> +	struct address_space_operations *a_ops = mapping->a_ops;
-> +	struct pagevec	lru_pvec;
-> +	struct page *page, *cached_page = NULL;
-> +	void *from, *to;
-> +	long status = 0;
-> +
-> +	pagevec_init(&lru_pvec, 0);
-> +
-> +	page = __grab_cache_page(mapping, index, &cached_page, &lru_pvec);
-> +	if (!page) {
-> +		BUG_ON(cached_page);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	status = a_ops->prepare_write(file, page, 0, PAGE_CACHE_SIZE);
-> +	if (unlikely(status)) {
-> +		loff_t isize = i_size_read(mapping->host);
-
-If the hosts's i_mutex is held (it should be, but there are no comments)
-then we can read inode->i_size directly.  Minor thing.
-
-
-> +
-> +	from = kmap_atomic(src, KM_USER0);
-> +	to = kmap_atomic(page, KM_USER1);
-> +	copy_page(to, from);
-> +	kunmap_atomic(from, KM_USER0);
-> +	kunmap_atomic(to, KM_USER1);
-
-that's copy_highpage().
-
-
-
-
-Sigh.  It's all a huge pile of new code.  And it's only used by AFS, the
-number of users of which can be counted on the fingers of one foot.  An NFS
-implementation would make a testing phase much more useful.
+iD8DBQFESDZoNWc9T2Wr2JcRAp79AJ0eYjeA63dNZnRQ66eKVYhKU8NtRACfcONb
+wmo/IW+Yr7zuCXH09qDjq3I=
+=XChU
+-----END PGP SIGNATURE-----

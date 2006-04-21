@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWDUWhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWDUWq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbWDUWhT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 18:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWDUWhT
+	id S1750727AbWDUWq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 18:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWDUWq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 18:37:19 -0400
-Received: from 66.239.25.20.ptr.us.xo.net ([66.239.25.20]:4997 "EHLO
-	zoot.lnxi.com") by vger.kernel.org with ESMTP id S1751372AbWDUWhS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 18:37:18 -0400
-Message-Id: <44490A210200003600005366@zoot.lnxi.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Fri, 21 Apr 2006 16:36:49 -0600
-From: "Doug Thompson" <dthompson@lnxi.com>
-To: <mark.gross@intel.com>
-Cc: <soo.keong.ong@intel.com>, <steven.carbonari@intel.com>,
-       <zhenyu.z.wang@intel.com>, <bluesmoke-devel@lists.sourceforge.net>,
-       "Doug Thompson" <dthompson@lnxi.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Problems with EDAC coexisting with BIOS
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	Fri, 21 Apr 2006 18:46:59 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:35782 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750706AbWDUWq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 18:46:58 -0400
+Message-ID: <444960CC.2000009@pobox.com>
+Date: Fri, 21 Apr 2006 18:46:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Justin Piszcz <jpiszcz@lucidpixels.com>, Mark Lord <lkml@rtr.ca>,
+       David Greaves <david@dgreaves.com>, Tejun Heo <htejun@gmail.com>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de,
+       smartmontools-support@lists.sourceforge.net
+Subject: Re: LibPATA code issues / 2.6.16 (previously, 2.6.15.x)
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca> <4405EC94.2030202@dgreaves.com> <4405FAAE.3080705@dgreaves.com> <Pine.LNX.4.64.0603050637110.30164@p34> <Pine.LNX.4.64.0603050740500.3116@p34> <440B6CFE.4010503@rtr.ca> <440B76B4.5080502@pobox.com> <Pine.LNX.4.64.0604211511120.22768@p34> <44493023.4010109@pobox.com> <Pine.LNX.4.64.0604211226120.3701@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604211226120.3701@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -3.9 (---)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-3.9 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >
-> >Does that fix cover the issue as you have discovered it? Or is there
-> >more, or another fix you see?
+Linus Torvalds wrote:
 > 
-> No, you should return an error from e752x_probe1 if bit5 is cleared
-> already.  To do anything else you are assuming that you are privileged
-> to have more knowledge about what the BIOS is doing than you should.
+> On Fri, 21 Apr 2006, Jeff Garzik wrote:
+>> You can force the disk to replace the bad sectors by doing a disk-level write:
+>>
+>> 	dd if=/dev/zero of=/dev/sda1 bs=4k
 > 
-> I'll send the patch to e752x_edac.c this weekend.
+> NOTE! Obviously don't do this before you've backed up the disk.  Depending 
+> on the filesystem, you might just have overwritten something important, or 
+> just your pr0n collection ;)
 > 
-> --mgross
-> 
+> Jeff, please be a little more careful about telling people commands like 
+> that. Some people might cut-and-paste the command without realizing what 
+> it's doing as a way to "fix" their problem.
 
-great. I don't have immediate access to a jarrell mobo at the moment and
-definately no access to a manged one.
+Agreed, though the original poster had already done a 400GB dd from 
+/dev/zero...
 
-thanks
-
-doug t
+	Jeff
 
 
 

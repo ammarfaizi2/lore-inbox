@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWDUXGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWDUXKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWDUXGw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 19:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWDUXGw
+	id S1750735AbWDUXKY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 19:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWDUXKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 19:06:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62934 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750739AbWDUXGv (ORCPT
+	Fri, 21 Apr 2006 19:10:23 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:50104 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1750735AbWDUXKW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 19:06:51 -0400
-Date: Fri, 21 Apr 2006 16:09:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Harald Dunkel <harald.dunkel@t-online.de>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.16.9, amd64, usbcore: NULL pointer dereference
-Message-Id: <20060421160916.37b9c771.akpm@osdl.org>
-In-Reply-To: <4448FCC7.6070309@t-online.de>
-References: <4448FCC7.6070309@t-online.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 21 Apr 2006 19:10:22 -0400
+Date: Sat, 22 Apr 2006 01:10:10 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: linux-kernel@vger.kernel.org
+Subject: [git pull] pcmcia fixes for 2.6.17-rc3
+Message-ID: <20060421231010.GA24450@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Forgot to add lkml to CC, sorry:
 
-(Added linux-usb-devel)
+----- Forwarded message from Dominik Brodowski -----
 
-Harald Dunkel <harald.dunkel@t-online.de> wrote:
->
-> Hi folks,
-> 
-> Sometimes my PC dies at boot time:
-> 
-> :
-> usb 3-3: config 1 has 0 interfaces, different from the descriptor's value: 1
-> Unable to handle kernel NULL pointer dereference at 000000000000000d RIP:
-> <ffffffff8809493e>(:usbcore:usb_new_device+350)
-> :
-> :
-> 
-> Unfortunately it is not visible in any log file, so I took
-> a snapshot of the screen.
-> 
-> Surely it would be unacceptable to send huge attachments
-> to everybody on this list. Is somebody interested? Or is
-> there some upload area available, that I could use?
+Linus, Andrew,
 
-Please email the image to myself and I'll upload it.
+Some PCMCIA fixes for 2.6.17-rc3 can be found at
 
-> # lsusb
-> Bus 003 Device 003: ID 07cc:0301 Carry Computer Eng., Co., Ltd 6-in-1 Card Reader
-> Bus 003 Device 002: ID 0ace:1211 ZyDAS 802.11b/g USB2 WiFi
-> Bus 003 Device 004: ID 124a:4023 AirVast
-> Bus 003 Device 001: ID 0000:0000
-> Bus 002 Device 001: ID 0000:0000
-> Bus 001 Device 001: ID 0000:0000
-> 
+git://git.kernel.org/pub/scm/linux/kernel/git/brodo/pcmcia-fixes-2.6.git/
 
-Thanks.
+Please pull from that address.
+
+The diffstat and list of changes follows; the change affecting drivers/net/
+received an ACK when I sent out these patches as RFC a couple of days ago.
+Also, all these patches were at least in -mm3 and received some testing
+there (, I hope).
+
+Thanks,
+	Dominik
+
+----
+ drivers/net/pcmcia/pcnet_cs.c    |    1 +
+ drivers/pcmcia/Kconfig           |    2 +-
+ drivers/pcmcia/ds.c              |   16 +++++++---------
+ drivers/pcmcia/pcmcia_resource.c |   18 +++++++++++-------
+ 4 files changed, 20 insertions(+), 17 deletions(-)
+----
+Andrew Morton:
+      pcmcia: remove unneeded forward declarations
+
+Daniel Ritz:
+      pcmcia/pcmcia_resource.c: fix crash when using Cardbus cards
+
+Dominik Brodowski:
+      pcmcia: add new ID to pcnet_cs
+      pcmcia: do not set dev_node to NULL too early
+      pcmcia: fix oops in static mapping case
+
+Komuro:
+      pcmcia: unload second device first
+      pcmcia: fix comment for pcmcia_load_firmware
+
+Yoichi Yuasa:
+      vrc4171: update config
+
+
+
+
+----- End forwarded message -----

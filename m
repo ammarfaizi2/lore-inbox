@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWDUUx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWDUUyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWDUUx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 16:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWDUUx2
+	id S932456AbWDUUyK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 16:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWDUUyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 16:53:28 -0400
-Received: from nz-out-0102.google.com ([64.233.162.206]:6321 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932329AbWDUUx1 convert rfc822-to-8bit (ORCPT
+	Fri, 21 Apr 2006 16:54:10 -0400
+Received: from waste.org ([64.81.244.121]:54175 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932458AbWDUUyJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 16:53:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=rW82kYHwsT8oncXZFd9d20vit8itD2egKu02HrhHMWxOaKR6TQxPVSabQK3+Zw92bXi/zhAeMsaQdCAcJRm5SHP6lqmMLgAu1stWQgkLjivuMDZgjZ5ft2Em4eO2oHMUH0RTP2c4JqX8srH+czDqyLz2hw5zNZYNFdbMLVnPLQM=
-Message-ID: <9871ee5f0604211353p21f29e56gaeef61255ebae85d@mail.gmail.com>
-Date: Fri, 21 Apr 2006 16:53:26 -0400
-From: "Timothy Miller" <theosib@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: HELP: Need to determine physical slot number of card in PCIe slot
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 21 Apr 2006 16:54:09 -0400
+Date: Fri, 21 Apr 2006 15:50:42 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Pavel Machek <pavel@suse.cz>, Arkadiusz Miskiewicz <arekm@maven.pl>,
+       Jeff Chua <jeffchua@silk.corp.fedex.com>, Jeff Garzik <jeff@garzik.org>,
+       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sata suspend resume ...
+Message-ID: <20060421205042.GN15445@waste.org>
+References: <Pine.LNX.4.64.0604192324040.29606@indiana.corp.fedex.com> <Pine.LNX.4.64.0604191659230.7660@blonde.wat.veritas.com> <20060420134713.GA2360@ucw.cz> <Pine.LNX.4.64.0604211333050.4891@blonde.wat.veritas.com> <20060421163930.GA1648@elf.ucw.cz> <Pine.LNX.4.64.0604212108010.7531@blonde.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604212108010.7531@blonde.wat.veritas.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I apologize if this is not the right place to ask this question.  I
-have done some googling around, and I have not found an answer to
-this, although I suspect I'm just not using the right search terms. 
-Also, I'm not a member of this list, so please CC me if you reply.
+On Fri, Apr 21, 2006 at 09:44:59PM +0100, Hugh Dickins wrote:
+> On Fri, 21 Apr 2006, Pavel Machek wrote:
+> > 
+> > Not sure why it needs time. Waiting for disk to spin up?
+> 
+> I don't know, and can't hear, but doubt it (I can't see why
+> it'd need disk spun up just to do an ata_dev_set_xfermode).
+> 
+> > Will it recover from the timeout?
+> 
+> No, after that wait for 30 seconds, it degenerates into attempting I/O,
+> getting errors, remounting the root readonly, can't get much further.
+> 
+> > Would sticking ata_set_mode() at the end of timeout routine help?
+> 
+> Well, moving the ata_set_mode after the ata_start_drive does help:
+> then the ata_start_drive times out and fails, but that does not seem
+> to matter at all, and the ata_set_mode then succeeds and all is well.
+> I guess that amounts to what you meant; but all the same, I won't be
+> alone in preferring to wait 2 seconds than 30 seconds!
+> 
+> But you've made me try a bit harder, and the patch below, waiting for
+> ATA_BUSY to clear, copying a line used in several other places there,
+> fixes it in a much more satisfactory way than mdelay(2000).  (I checked
+> how long it in fact was waiting, saw various waits between 0.8s and 1.3s).
+> 
+> This is a patch I'd not be ashamed to send Jeff Garzik cc linux-ide,
+> even if we can't name precisely why it's ATA_BUSY then.  But I'll
+> give it a day or so of real-life suspend/resuming first - Arkadiusz
+> and I both noticed we're more likely to resume successfully after
+> a brief suspend, so longer suspends are needed for proper testing.
 
-I have put together a diagnostic system for my employer using a
-stripped-down Gentoo system (2.6.15 kernel).  We're testing some PCIe
-cards on an ABIT IL8, which has four PCIe slots.  Since this is a test
-rig, when a card fails a test, we need to know which of the four slots
-the card is in.  When developing this, I had assumed that the PCI bus
-ID would be a function of the slot number, but apparently, it is not. 
-We can put one card into any of the four slots, and we get the same
-bus ID.  If we put in four cards, we get a set of ID numbers that
-isn't sequential.
+Well this looks like definite progress. Does kind of look like
+spinning up.
 
-I've poked around in /proc, without finding anything.  I found
-/sys/bus/pci_express, but it's really weird what I see, because it
-shows what appears to be some slots repeated and some missing, and
-also, there doesn't seem to be a way to associate the slot with the
-bus ID  (I assume pcie00 is slot zero).  Under /sys/bus/pci/devices, I
-do see the PCI bus ID of the cards in question, but I cannot figure
-out how to associate that with the slot number.  The directory
-/sys/bus/pci/slots is empty.
+> +		ata_busy_sleep(ap, ATA_TMOUT_BOOT_QUICK, ATA_TMOUT_BOOT);
 
-Is there some reasonable way for me to be able to determine, given a
-bus ID, which physical slot the PCIe card is in?
+Huh. That function actually "busy sleeps". How aptly named.
 
-Note:  I am not using a kernel driver for these cards.  I'm using
-/dev/mem to map mmio, and I'm using libpci to access PCI config space.
- Everything works great (besides the slot number issue here).
-
-Thank you very much in advance for your help.
-
-
---- Timothy Miller
+-- 
+Mathematics is the supreme nostalgia of our time.

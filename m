@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWDUI4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWDUI5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbWDUI4w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 04:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWDUI4w
+	id S1750927AbWDUI5e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 04:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWDUI5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 04:56:52 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:18598 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932280AbWDUI4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 04:56:51 -0400
-Message-ID: <44489E27.2090108@jp.fujitsu.com>
-Date: Fri, 21 Apr 2006 17:56:07 +0900
-From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 21 Apr 2006 04:57:34 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:20427 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750797AbWDUI5d convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 04:57:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=daXFtEl3E/e2H8Plx7kOLvMZjy6n/9u0v3V5hgCGQSr0ge89aSvgP2BEFStpJVPv2F6Ov1F3W0TMYUWUCViyy6VsOu8uBNwdN86hISgzNTWfBbiCrz+/CT1fqWFeUlJu9X3MH6m/gVE2XMLuNskEGTv4Mw5h6h1qR3FT23I4Nsw=
+Message-ID: <84144f020604210157s406a08a7yd3c43d9ef2939ce@mail.gmail.com>
+Date: Fri, 21 Apr 2006 11:57:32 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Nick Piggin" <npiggin@suse.de>
+Subject: Re: [patch] mm: introduce remap_vmalloc_range (pls. drop previous patchset)
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Memory Management List" <linux-mm@kvack.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060421084503.GS21660@wotan.suse.de>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: Re: [RFC][PATCH 3/9] CPU controller - Adds timeslice scaling
-References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>	 <20060421022742.13598.7230.sendpatchset@moscone.dvs.cs.fujitsu.co.jp> <1145607449.10016.47.camel@homer>
-In-Reply-To: <1145607449.10016.47.camel@homer>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060421084503.GS21660@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Fri, 2006-04-21 at 11:27 +0900, maeda.naoaki@jp.fujitsu.com wrote:
->> Index: linux-2.6.17-rc2/kernel/sched.c
->> ===================================================================
->> --- linux-2.6.17-rc2.orig/kernel/sched.c
->> +++ linux-2.6.17-rc2/kernel/sched.c
->> @@ -173,10 +173,17 @@
->>  
->>  static unsigned int task_timeslice(task_t *p)
->>  {
->> +	unsigned int timeslice;
->> +
->>  	if (p->static_prio < NICE_TO_PRIO(0))
->> -		return SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
->> +		timeslice = SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
->>  	else
->> -		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
->> +		timeslice = SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
->> +
->> +	if (!TASK_INTERACTIVE(p))
->> +		timeslice = cpu_rc_scale_timeslice(p, timeslice);
->> +
->> +	return timeslice;
->>  }
-> 
-> Why does timeslice scaling become undesirable if TASK_INTERACTIVE(p)?
-> With this barrier, you will completely disable scaling for many loads.
+Hi Nick,
 
-Because interactive tasks tend to spend very small timeslice at one
-time, scaling timeslice for these tasks is not effective to control
-CPU spent.
+On 4/21/06, Nick Piggin <npiggin@suse.de> wrote:
+> +       addr = (void *)((unsigned long)addr + (pgoff << PAGE_SHIFT));
 
-Or, do you say that lots of non-interactive tasks are misjudged as
-TASK_INTERACTIVE(p)?
+As Andrew said, you can get rid of the casting with:
 
-> Is it possible you meant !rt_task(p)?
-> 
-> (The only place I can see scaling as having a large effect is on gobs of
-> non-sleeping tasks.  Slice width doesn't mean much otherwise.)
+  addr += pgoff << PAGE_SHIFT;
 
-Yes. But these non-sleeping CPU-hog tasks tend to dominant CPU, so
-it is worth controlling them.
+> +       do {
+> +               struct page *page = vmalloc_to_page(addr);
+> +               ret = vm_insert_page(vma, uaddr, page);
+> +               if (ret)
+> +                       return ret;
+> +
+> +               uaddr += PAGE_SIZE;
+> +               addr = (void *)((unsigned long)addr+PAGE_SIZE);
 
-Thanks,
-MAEDA Naoaki
+Same here.
 
+                                        Pekka

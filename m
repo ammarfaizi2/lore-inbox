@@ -1,65 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWDUM6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWDUNC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWDUM6T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 08:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWDUM6T
+	id S932295AbWDUNC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 09:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWDUNC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 08:58:19 -0400
-Received: from fc-cn.com ([218.25.172.144]:779 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S932290AbWDUM6S (ORCPT
+	Fri, 21 Apr 2006 09:02:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13452 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932257AbWDUNCz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 08:58:18 -0400
-Date: Fri, 21 Apr 2006 20:59:49 +0800
-From: Qi Yong <qiyong@fc-cn.com>
-To: akpm@osdl.org
-Cc: neilb@suse.de, linux-kernel@vger.kernel.org
-Subject: [patch] raid5_end_write_request spinlock fix
-Message-ID: <20060421125949.GA15550@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 21 Apr 2006 09:02:55 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060420171550.55f1b125.akpm@osdl.org> 
+References: <20060420171550.55f1b125.akpm@osdl.org>  <20060420171922.GB21659@infradead.org> <20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com> <20060420165935.9968.11060.stgit@warthog.cambridge.redhat.com> <21746.1145555150@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, hch@infradead.org, torvalds@osdl.org,
+       steved@redhat.com, sct@redhat.com, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/7] FS-Cache: Export find_get_pages() 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Fri, 21 Apr 2006 14:02:02 +0100
+Message-ID: <13416.1145624522@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Andrew Morton <akpm@osdl.org> wrote:
 
-Reduce the raid5_end_write_request() spinlock window.
+> that's an open-coded pagevec_lookup().
 
-Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
----
+Whilst that's true, it is still slower to use pagevec_lookup().  But since you
+insist, I'll do that anyway.
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 3184360..9c24377 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -581,7 +581,6 @@ static int raid5_end_write_request (stru
-  	struct stripe_head *sh = bi->bi_private;
- 	raid5_conf_t *conf = sh->raid_conf;
- 	int disks = sh->disks, i;
--	unsigned long flags;
- 	int uptodate = test_bit(BIO_UPTODATE, &bi->bi_flags);
- 
- 	if (bi->bi_size)
-@@ -599,16 +598,14 @@ static int raid5_end_write_request (stru
- 		return 0;
- 	}
- 
--	spin_lock_irqsave(&conf->device_lock, flags);
- 	if (!uptodate)
- 		md_error(conf->mddev, conf->disks[i].rdev);
- 
- 	rdev_dec_pending(conf->disks[i].rdev, conf->mddev);
--	
- 	clear_bit(R5_LOCKED, &sh->dev[i].flags);
- 	set_bit(STRIPE_HANDLE, &sh->state);
--	__release_stripe(conf, sh);
--	spin_unlock_irqrestore(&conf->device_lock, flags);
-+	release_stripe(sh);
-+
- 	return 0;
- }
- 
-
--- 
-Coywolf Qi Hunt
+David

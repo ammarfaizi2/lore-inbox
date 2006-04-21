@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWDUWJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWDUWKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751364AbWDUWJa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 18:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWDUWJa
+	id S1751367AbWDUWKT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 18:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWDUWKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 18:09:30 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:24812 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751364AbWDUWJ3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 18:09:29 -0400
+	Fri, 21 Apr 2006 18:10:18 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:41376 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751370AbWDUWKR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 18:10:17 -0400
 Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
+From: Matt Helsley <matthltc@us.ibm.com>
 To: Al Boldi <a1426z@gawab.com>
-Cc: linux-kernel@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>
 In-Reply-To: <200604212207.44266.a1426z@gawab.com>
 References: <200604212207.44266.a1426z@gawab.com>
 Content-Type: text/plain
-Organization: IBM
-Date: Fri, 21 Apr 2006 15:09:07 -0700
-Message-Id: <1145657347.15389.40.camel@linuxchandra>
+Date: Fri, 21 Apr 2006 15:04:08 -0700
+Message-Id: <1145657048.21109.583.camel@stark>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -41,33 +39,19 @@ On Fri, 2006-04-21 at 22:07 +0300, Al Boldi wrote:
 > 
 > IMHO, it would be a good idea to decouple the current implementation and 
 > reconnect them via an open mapper/wrapper to allow a more flexible/open 
-
-I am not understanding your comment, can you please elaborate.
-
 > approach to resource management, which may ease its transition into 
 > mainline, due to a step-by-step instead of an all-or-none approach.
-
-BTW, the design does allow step by step approach to resource management.
-You can add individual resource control one at a time, or even turn on
-only the resources you are interested in.
-
 > 
 > Thanks!
 > 
 > --
 > Al
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
--- 
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Hi Al,
 
+	I'm sorry, I don't understand what you're suggesting. Could you please
+elaborate on how you think it should be decoupled?
+
+Thanks,
+	-Matt Helsley
 

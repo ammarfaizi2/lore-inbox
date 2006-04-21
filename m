@@ -1,102 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWDUN4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWDUN4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbWDUN4g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 09:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWDUN4g
+	id S932309AbWDUN4N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 09:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWDUN4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 09:56:36 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:54746 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932311AbWDUN4f (ORCPT
+	Fri, 21 Apr 2006 09:56:13 -0400
+Received: from imr2.ericy.com ([198.24.6.3]:37016 "EHLO imr2.ericy.com")
+	by vger.kernel.org with ESMTP id S932309AbWDUN4L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 09:56:35 -0400
-From: Vernon Mauery <vernux@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: kfree(NULL)
-Date: Fri, 21 Apr 2006 06:56:39 -0700
-User-Agent: KMail/1.8.3
-References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com> <Pine.LNX.4.64.0604210322110.21429@d.namei> <20060421015412.49a554fa.akpm@osdl.org>
-In-Reply-To: <20060421015412.49a554fa.akpm@osdl.org>
-Cc: James Morris <jmorris@namei.org>, dwalker@mvista.com,
-       linux-kernel@vger.kernel.org
+	Fri, 21 Apr 2006 09:56:11 -0400
+Message-ID: <4448AC62.6090303@ericsson.com>
+Date: Fri, 21 Apr 2006 09:56:50 +0000
+X-Sybari-Trust: 08e0ac33 13c6c8f3 f0b8360b 00000139
+From: Makan Pourzandi <Makan.Pourzandi@ericsson.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+CC: Serue Hallyen <serue@us.ibm.com>,
+       Axelle Apvrille <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
+       "'disec-devel@lists.sourceforge.net'" 
+	<disec-devel@lists.sourceforge.net>
+Subject: [ANNOUNCE] Release Digsig 1.5: kernel module for run-time authentication
+ of binaries
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604210656.40158.vernux@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 April 2006 01:54, you wrote:
-> James Morris <jmorris@namei.org> wrote:
-> > On Fri, 21 Apr 2006, Daniel Walker wrote:
-> > > 	I included a patch , not like it's needed . Recently I've been
-> > > evaluating likely/unlikely branch prediction .. One thing that I found
-> > > is that the kfree function is often called with a NULL "objp" . In fact
-> > > it's so frequent that the "unlikely" branch predictor should be
-> > > inverted! Or at least on my configuration.
-> >
-> > It would be helpful to collect some stats on this so we can look at the
-> > ratio.
->
-> Yes, kfree(NULL) is supposed to be uncommon.  If someone's doing it a lot
-> then we should fix up the callers.
+Hi,
 
-Part of the reason it gets done a lot is because some developers on this list 
-have told others NOT to check for NULL before calling kfree because kfree 
-does that internally.  I was told that.  I can't remember who told me though.
+Digsig development team would like to announce the release 1.5 of digsig.
 
-Maybe kfree should really be a wrapper around __kfree which does the real 
-work.  Then kfree could be a inlined function or a #define that does the NULL 
-pointer check.  Something like the patch below.  This has the advantage of 
-both worlds.  If you know your pointer is NULL, call __kfree.  If you are not 
-sure and would check anyway, the inline version of kfree checks for you and 
-then calls __kfree.
+This kernel module helps system administrators control Executable and 
+Linkable Format (ELF) binary execution and library loading based on
+the presence of a valid digital signature.  The main functionality is
+to help system administrators distinguish applications he/she trusts
+(and therefore signs) from viruses, worms (and other nuisances). It is
+based on the Linux Security Module hooks.
 
-Signed-off-by: Vernon Mauery <vernux@us.ibm.com>
+The code is GPL and available from:
+http://sourceforge.net/projects/disec/, download digsig-1.5. For
+more documentation, please refer to disec.sourcefrge.net.
 
---- a/include/linux/slab.h  2006-03-19 21:53:29.000000000 -0800
-+++ b/include/linux/slab.h  2006-04-21 07:47:32.000000000 -0700
-@@ -123,7 +123,14 @@ static inline void *kcalloc(size_t n, si
-    return kzalloc(n * size, flags);
- }
+We hope that it'll be useful to you.
 
--extern void kfree(const void *);
-+extern void __kfree(const void *);
-+static inline void kfree(const void *obj)
-+{
-+   if (!obj)
-+       return;
-+   __kfree(obj);
-+}
-+
- extern unsigned int ksize(const void *);
+All bug reports and feature requests or general feedback are welcome
+(please CC me and disec-devel@lists.sourceforge.net in your answer or 
+feedback to the mailing list).
 
- #ifdef CONFIG_NUMA
---- a/mm/slab.c 2006-04-21 07:49:42.000000000 -0700
-+++ b/mm/slab.c 2006-04-21 07:49:56.000000000 -0700
-@@ -3275,13 +3275,11 @@ EXPORT_SYMBOL(kmem_cache_free);
-  * Don't free memory not originally allocated by kmalloc()
-  * or you will run into trouble.
-  */
--void kfree(const void *objp)
-+void __kfree(const void *objp)
- {
-    struct kmem_cache *c;
-    unsigned long flags;
- 
--   if (unlikely(!objp))
--       return;
-    local_irq_save(flags);
-    kfree_debugcheck(objp);
-    c = virt_to_cache(objp);
-@@ -3289,7 +3287,7 @@ void kfree(const void *objp)
-    __cache_free(c, (void *)objp);
-    local_irq_restore(flags);
- }
--EXPORT_SYMBOL(kfree);
-+EXPORT_SYMBOL(__kfree);
- 
- #ifdef CONFIG_SMP
- /**
+Regards,
+Makan Pourzandi
+
+-- 
+
+Makan Pourzandi, Open Systems Lab
+Ericsson Research, Montreal, Canada
+*This email does not represent or express the opinions of Ericsson Inc.*
 

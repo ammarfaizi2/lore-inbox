@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWDUPPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWDUPRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbWDUPPX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 11:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWDUPPW
+	id S932349AbWDUPRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 11:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWDUPRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 11:15:22 -0400
-Received: from nz-out-0102.google.com ([64.233.162.198]:51094 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932350AbWDUPPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 11:15:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:openpgp:content-type:content-transfer-encoding;
-        b=AtXtSxVJOiA7RUE7hpNtPXqkhQWRqLaiL8F6O2HvSHszLCHdAwgY89AVo81G+ZzYeri7o2S/3RpSGXFyPBeLyNNLeOhgC3jz1jVyJbz3Lx/q/azuoiNF1hBYdx4AJZSifMIQBBDx5pmSzOWW5EpyL2qBqd0H2qmI47hgFoMhApc=
-Message-ID: <4448F890.60403@gmail.com>
-Date: Fri, 21 Apr 2006 22:21:52 +0700
-From: Mikado <mikado4vn@gmail.com>
-Reply-To: mikado4vn@gmail.com
-Organization: IcySpace.net
-User-Agent: Thunderbird 1.5.0.2 (X11/20060308)
+	Fri, 21 Apr 2006 11:17:16 -0400
+Received: from smtp.blackdown.de ([213.239.206.42]:11690 "EHLO
+	smtp.blackdown.de") by vger.kernel.org with ESMTP id S932349AbWDUPRP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 11:17:15 -0400
+From: Juergen Kreileder <jk@blackdown.de>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] Device-mapper snapshot metadata userspace breakage
+References: <Pine.LNX.4.58.0604201159350.29821@sbz-30.cs.Helsinki.FI>
+	<20060420173717.GI24520@agk.surrey.redhat.com>
+	<Pine.LNX.4.58.0604210938390.29821@sbz-30.cs.Helsinki.FI>
+X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
+X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
+Mail-Followup-To: Pekka J Enberg <penberg@cs.Helsinki.FI>,
+	linux-kernel@vger.kernel.org
+Date: Fri, 21 Apr 2006 17:17:09 +0200
+In-Reply-To: <Pine.LNX.4.58.0604210938390.29821@sbz-30.cs.Helsinki.FI> (Pekka
+	J. Enberg's message of "Fri, 21 Apr 2006 09:41:15 +0300 (EEST)")
+Message-ID: <87vet39cwa.fsf@blackdown.de>
+Organization: Blackdown Java-Linux Team
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Linux kernel <linux-kernel@vger.kernel.org>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Mike Galbraith <efault@gmx.de>, Hua Zhong <hzhong@gmail.com>,
-       Patrick McHardy <kaber@trash.net>, Michael Buesch <mb@bu3sch.de>
-Subject: Re: Which process is associated with process ID 0 (swapper)
-References: <4447A19E.9000008@gmail.com> <Pine.LNX.4.61.0604201118200.5749@chaos.analogic.com> <4447B110.4080700@gmail.com> <Pine.LNX.4.61.0604210007140.28841@yvahk01.tjqt.qr> <44481ACE.9040104@gmail.com> <44482963.4030902@trash.net> <Pine.LNX.4.61.0604211447310.23180@yvahk01.tjqt.qr> <Pine.LNX.4.61.0604211452160.23180@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0604211452160.23180@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=65ABD897
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Pekka J. Enberg <penberg@cs.Helsinki.FI> writes:
 
-I found that "Fireflier" acts like ipt_owner. But I haven't tested it
-with this "swapper problem"
+> On Thu, 20 Apr 2006, Alasdair G Kergon wrote:
+>>> lvm2  2.01.04-5
+>>> device-mapper 1.01.00-4
+>>
+>> Upgrade!
+>
+> Not in Debian stable, so I guess we'll need to downgrade. That's too
+> bad for all of us because now we have one less tester for new
+> kernels. Oh well..
 
-[1] - http://edwintorok.googlepages.com/fireflier_kernel.html
-[2] - http://fireflier.isgeeky.com/wiki/What_is_fireflier
-[3] - http://fireflier.isgeeky.com/wiki/Kernel_module
-[4] - http://fireflier.isgeeky.com/wiki/Features
+As said, I've made packages of device-mapper 1.02.03 and and
+lvm2 2.02.02 for Debian stable:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+deb http://blog.blackdown.de/static/debian/lvm/ sarge main
 
-iD8DBQFESPiQNWc9T2Wr2JcRAlPkAKCfZzgQAmWRBcmMJ3fcNQ2KkP2aEQCgu9q4
-8gBeU287DTt17l4q+kSq1A4=
-=iyjA
------END PGP SIGNATURE-----
+
+        Juergen
+
+-- 
+Juergen Kreileder, Blackdown Java-Linux Team
+http://blog.blackdown.de/

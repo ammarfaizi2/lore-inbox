@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWDUGZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWDUG1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbWDUGZc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 02:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWDUGZc
+	id S1751082AbWDUG1w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 02:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbWDUG1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 02:25:32 -0400
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:53008 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751018AbWDUGZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 02:25:31 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Subject: Re: Fix some spelling in 2.6.16.4 Makefile
-Date: Fri, 21 Apr 2006 07:25:33 +0100
-User-Agent: KMail/1.9.1
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0604201039120.5676@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0604201039120.5676@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604210725.33526.s0348365@sms.ed.ac.uk>
+	Fri, 21 Apr 2006 02:27:52 -0400
+Received: from 66-189-94-77.dhcp.oxfr.ma.charter.com ([66.189.94.77]:35341
+	"HELO 42ECCD18") by vger.kernel.org with SMTP id S1751082AbWDUG1w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 02:27:52 -0400
+X-Apparently-To: onassisdora@aol.com via 120.128.220.77; Fri, 21 Apr 2006 10:21:48 +0300
+X-Originating-IP: [46.142.48.175]
+Message-ID: <465301141618.AA1488201@client.comcast.net>
+Date: Fri, 21 Apr 2006 03:25:48 -0400
+From: "Mr. jiri" <sielston@aol.com>
+To: linux-kernel@vger.kernel.org
+X-Originating-Email: [jerameymarice@aol.com]
+X-Mozilla-Status: 5[8
+Subject: Time, Money, Keeping you from earning the Degree you deserve? - Sandra
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 April 2006 15:42, linux-os (Dick Johnson) wrote:
-[snip]
-> @@ -1214,7 +1214,7 @@
->   ALLINCLUDE_ARCHS := $(ARCH)
->   endif
->   else
-> -#Allow user to specify only ALLSOURCE_PATHS on the command line, keeping
-> existing behaviour. +#Allow user to specify only ALLSOURCE_PATHS on the
-> command line, keeping existing behavour. ALLINCLUDE_ARCHS :=
+Hey Family!
 
-Behaviour or behavior, but not 'behavour'.
+Just wanted to write you, and let you know, how the degree program I tried=
+ out went.
+Well, six weeks later, I graduated, finished & received my Masters Degree =
+with no study required and %100 verifiable. 
 
--- 
-Cheers,
-Alistair.
+Yeah mom, I know you and Dad doubted it at first, but this turned out to b=
+e %100 legit. This opportunity was given to me because of the professional=
+ experience and previous course work I had accumulated.
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+I=92m so excited mom and dad, this was a life altering opportunity & for o=
+nce in my life I took advantage of it. 
+
+I already have jobs, that wouldn=92t have given me a chance before, now th=
+ey are calling off the hook! This really is a godsend.
+
+Tell Susan and Cousin Joey that they better hurry up and call that # I gav=
+e them the other day. 
+
+Again these are the degrees they offer, BA, BSC, MA, MSC, MBA and PhD, and=
+ the number to call is 1-813-436-5335, tell them to leave a brief message =
+with their name, the degree they are interested in and their day and eveni=
+ng phone numbers. They will contact you soon after,
+
+Anyway, much love, and tell the rest of the family I said hello 
+
+Love, 
+Your son, 
+
+Len
+
+P.s. 
+Mom, why don=92t you send this email to a few of your friends? My professo=
+r told me that if we send over referrals the school can give us a scholars=
+hip. 
+The number to call is 1-813-436-5335 :-)

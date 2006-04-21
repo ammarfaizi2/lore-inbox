@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWDUT0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWDUT2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWDUT0T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 15:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWDUT0S
+	id S932315AbWDUT2J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 15:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWDUT2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 15:26:18 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:14266 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S932286AbWDUT0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 15:26:18 -0400
-Message-ID: <444931C4.9020502@oracle.com>
-Date: Fri, 21 Apr 2006 12:25:56 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: akpm@osdl.org, andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Shrink rbtree
-References: <1145623663.11909.139.camel@pmac.infradead.org>	 <44492343.6040603@oracle.com> <1145646412.11909.218.camel@pmac.infradead.org>
-In-Reply-To: <1145646412.11909.218.camel@pmac.infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 21 Apr 2006 15:28:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51355 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932315AbWDUT2H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 15:28:07 -0400
+Date: Fri, 21 Apr 2006 12:26:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: dwalker@mvista.com, tilman@imap.cc, linux-kernel@vger.kernel.org
+Subject: Re: kfree(NULL)
+Message-Id: <20060421122652.72655580.akpm@osdl.org>
+In-Reply-To: <1145642459.24962.12.camel@localhost.localdomain>
+References: <63XWg-1IL-5@gated-at.bofh.it>
+	<63YfP-26I-11@gated-at.bofh.it>
+	<63ZEY-45n-27@gated-at.bofh.it>
+	<4448F97D.5000205@imap.cc>
+	<1145635403.20843.21.camel@localhost.localdomain>
+	<1145642459.24962.12.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> Total number of NULL frees:      16129
+>  Total number of non NULL frees:  18119
+> ....
+>  [     6491]  c01aafc4 - start_this_handle+0x234/0x4b0
+>  [     8404]  c01aba66 - do_get_write_access+0x2e6/0x5a0
 
-> Maybe. I thought I'd actually done it once before, but I couldn't
-> actually find it when I went looking.
-
-Yeah, that's what I remember too.
-
-> Plenty more words in the git commit.
-
-Ah!  of course, thanks.
-
-> They don't make much sense without
-> the patch right below them, and you can see them in juxtaposition at 
-> http://git.infradead.org/?p=users/dwmw2/rbtree-2.6.git;a=commitdiff;h=1975e59375756da4ff4e6e7d12f67485e813ace0
-
-Indeed, that reasoning looks sound.  First the if (parent) .. else {}
-falls away, then the parent left/right relationship is folded into the
-test with old.  Looks good.
-
-> I think it's be better just to drop the RB_RED and RB_BLACK definitions.
-
-I'd agree, I figured you'd left them for a reason.
-
->>> +static inline void rb_set_parent(struct rb_node *rb, struct rb_node *p)
->>> +{
->> 	BUG_ON((unsigned long)p & 3);
-> 
-> Yeah, I suppose we could.
-
->>> +	node->rb_parent_colour = (unsigned long )parent;
->> use rb_set_parent(node, parent) and get the assertion.
-> 
-> Que?
-
-I meant that if we add the BUG_ON() to rb_set_parent() then we might as
-well reuse it here..
-
-- z
+eh.  I'll fix those up.

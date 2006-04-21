@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWDUNQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWDUNSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbWDUNQy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 09:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWDUNQx
+	id S932293AbWDUNSv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 09:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWDUNSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 09:16:53 -0400
-Received: from relay4.usu.ru ([194.226.235.39]:20865 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S932257AbWDUNQx (ORCPT
+	Fri, 21 Apr 2006 09:18:51 -0400
+Received: from relay4.usu.ru ([194.226.235.39]:55169 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S932293AbWDUNSu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 09:16:53 -0400
-Message-ID: <4448DBC6.2090700@ums.usu.ru>
-Date: Fri, 21 Apr 2006 19:19:02 +0600
+	Fri, 21 Apr 2006 09:18:50 -0400
+Message-ID: <4448DC4C.6010500@ums.usu.ru>
+Date: Fri, 21 Apr 2006 19:21:16 +0600
 From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
@@ -33,9 +33,9 @@ Chris Rankin wrote:
 > Doesn't this patch introduce another bug when registration fails, because reg_state is left as
 > NETREG_REGISTERED?
 
-This could be fixed up by saving the old value and restoring it in the "if 
-(err)" statement, but I guess this has to be fixed in the mainline before 
-allowing the modified "if (err)" into -stable.
+Look at the old code again. This is not a new bug. The old code fails 
+registration, does a printk, and then sets dev->reg_state = NETREG_REGISTERED. 
+So this doesn't revoke my signed-off-by line.
 
 -- 
 Alexander E. Patrakov

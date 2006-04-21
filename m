@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWDUQLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWDUQMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbWDUQLY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 12:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWDUQLY
+	id S932391AbWDUQMX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 12:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWDUQMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 12:11:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55976 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932389AbWDUQLV (ORCPT
+	Fri, 21 Apr 2006 12:12:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24233 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932391AbWDUQMS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 12:11:21 -0400
-Subject: [PATCH 10/16] GFS2: Logging and recovery
+	Fri, 21 Apr 2006 12:12:18 -0400
+Subject: [PATCH 11/16] GFS2: Quota and LVB handling
 From: Steven Whitehouse <swhiteho@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Fri, 21 Apr 2006 17:19:56 +0100
-Message-Id: <1145636396.3856.112.camel@quoit.chygwyn.com>
+Date: Fri, 21 Apr 2006 17:20:50 +0100
+Message-Id: <1145636450.3856.114.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 10/16] GFS2: Logging and recovery
+[PATCH 11/16] GFS2: Quota and LVB handling
 
-The journaling and recovery code for GFS2
+Lock value block handling and quotas.
+
 
 
 Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
 Signed-off-by: David Teigland <teigland@redhat.com>
 
 
- fs/gfs2/log.c      |  599 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/gfs2/log.h      |   61 +++++
- fs/gfs2/recovery.c |  577 +++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/gfs2/recovery.h |   32 ++
- 4 files changed, 1269 insertions(+)
+ fs/gfs2/lvb.c   |   53 ++
+ fs/gfs2/lvb.h   |   20 
+ fs/gfs2/quota.c | 1303 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/gfs2/quota.h |   34 +
+ 4 files changed, 1410 insertions(+)
 
 --- /dev/null
-+++ b/fs/gfs2/log.c
-@@ -0,0 +1,599 @@
++++ b/fs/gfs2/quota.c
+@@ -0,0 +1,1303 @@
 +/*
 + * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
 + * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
@@ -48,6 +49,35 @@ Signed-off-by: David Teigland <teigland@redhat.com>
 + * This copyrighted material is made available to anyone wishing to use,
 + * modify, copy, or redistribute it subject to the terms and conditions
 + * of the GNU General Public License v.2.
++ */
++
++/*
++ * Quota change tags are associated with each transaction that allocates or
++ * deallocates space.  Those changes are accumulated locally to each node (in a
++ * per-node file) and then are periodically synced to the quota file.  This
++ * avoids the bottleneck of constantly touching the quota file, but introduces
++ * fuzziness in the current usage value of IDs that are being used on different
++ * nodes in the cluster simultaneously.  So, it is possible for a user on
++ * multiple nodes to overrun their quota, but that overrun is controlable.
++ * Since quota tags are part of transactions, there is no need to a quota check
++ * program to be run on node crashes or anything like that.
++ *
++ * There are couple of knobs that let the administrator manage the quota
++ * fuzziness.  "quota_quantum" sets the maximum time a quota change can be
++ * sitting on one node before being synced to the quota file.  (The default is
++ * 60 seconds.)  Another knob, "quota_scale" controls how quickly the frequency
++ * of quota file syncs increases as the user moves closer to their limit.  The
++ * more frequent the syncs, the more accurate the quota enforcement, but that
++ * means that there is more contention between the nodes for the quota file.
++ * The default value is one.  This sets the maximum theoretical quota overrun
++ * (with infinite node with infinite bandwidth) to twice the user's limit.  (In
++ * practice, the maximum overrun you see should be much less.)  A "quota_scale"
++ * number greater than one makes quota syncs more frequent and reduces the
++ * maximum overrun.  Numbers less than one (but greater than zero) make quota
++ * syncs less frequent.
++ *
++ * GFS quotas also use per-ID Lock Value Blocks (LVBs) to cache the contents of
++ * the quota file, so it is not being constantly read.
 + */
 +
 +#include <linux/sched.h>
@@ -55,674 +85,10 @@ Signed-off-by: David Teigland <teigland@redhat.com>
 +#include <linux/spinlock.h>
 +#include <linux/completion.h>
 +#include <linux/buffer_head.h>
++#include <linux/tty.h>
++#include <linux/sort.h>
++#include <linux/fs.h>
 +#include <linux/gfs2_ondisk.h>
-+#include <linux/crc32.h>
-+#include <asm/semaphore.h>
-+
-+#include "gfs2.h"
-+#include "lm_interface.h"
-+#include "incore.h"
-+#include "bmap.h"
-+#include "glock.h"
-+#include "log.h"
-+#include "lops.h"
-+#include "meta_io.h"
-+#include "util.h"
-+#include "dir.h"
-+
-+#define PULL 1
-+
-+/**
-+ * gfs2_struct2blk - compute stuff
-+ * @sdp: the filesystem
-+ * @nstruct: the number of structures
-+ * @ssize: the size of the structures
-+ *
-+ * Compute the number of log descriptor blocks needed to hold a certain number
-+ * of structures of a certain size.
-+ *
-+ * Returns: the number of blocks needed (minimum is always 1)
-+ */
-+
-+unsigned int gfs2_struct2blk(struct gfs2_sbd *sdp, unsigned int nstruct,
-+			     unsigned int ssize)
-+{
-+	unsigned int blks;
-+	unsigned int first, second;
-+
-+	blks = 1;
-+	first = (sdp->sd_sb.sb_bsize - sizeof(struct gfs2_log_descriptor)) /
-+		ssize;
-+
-+	if (nstruct > first) {
-+		second = (sdp->sd_sb.sb_bsize -
-+			  sizeof(struct gfs2_meta_header)) / ssize;
-+		blks += DIV_ROUND_UP(nstruct - first, second);
-+	}
-+
-+	return blks;
-+}
-+
-+void gfs2_ail1_start(struct gfs2_sbd *sdp, int flags)
-+{
-+	struct list_head *head = &sdp->sd_ail1_list;
-+	uint64_t sync_gen;
-+	struct list_head *first, *tmp;
-+	struct gfs2_ail *first_ai, *ai;
-+
-+	gfs2_log_lock(sdp);
-+	if (list_empty(head)) {
-+		gfs2_log_unlock(sdp);
-+		return;
-+	}
-+	sync_gen = sdp->sd_ail_sync_gen++;
-+
-+	first = head->prev;
-+	first_ai = list_entry(first, struct gfs2_ail, ai_list);
-+	first_ai->ai_sync_gen = sync_gen;
-+	gfs2_ail1_start_one(sdp, first_ai);
-+
-+	if (flags & DIO_ALL)
-+		first = NULL;
-+
-+	for (;;) {
-+		if (first && (head->prev != first ||
-+			      gfs2_ail1_empty_one(sdp, first_ai, 0)))
-+			break;
-+
-+		for (tmp = head->prev; tmp != head; tmp = tmp->prev) {
-+			ai = list_entry(tmp, struct gfs2_ail, ai_list);
-+			if (ai->ai_sync_gen >= sync_gen)
-+				continue;
-+			ai->ai_sync_gen = sync_gen;
-+			gfs2_ail1_start_one(sdp, ai);
-+			break;
-+		}
-+
-+		if (tmp == head)
-+			break;
-+	}
-+
-+	gfs2_log_unlock(sdp);
-+}
-+
-+int gfs2_ail1_empty(struct gfs2_sbd *sdp, int flags)
-+{
-+	struct gfs2_ail *ai, *s;
-+	int ret;
-+
-+	gfs2_log_lock(sdp);
-+
-+	list_for_each_entry_safe_reverse(ai, s, &sdp->sd_ail1_list, ai_list) {
-+		if (gfs2_ail1_empty_one(sdp, ai, flags))
-+			list_move(&ai->ai_list, &sdp->sd_ail2_list);
-+		else if (!(flags & DIO_ALL))
-+			break;
-+	}
-+
-+	ret = list_empty(&sdp->sd_ail1_list);
-+
-+	gfs2_log_unlock(sdp);
-+
-+	return ret;
-+}
-+
-+static void ail2_empty(struct gfs2_sbd *sdp, unsigned int new_tail)
-+{
-+	struct gfs2_ail *ai, *safe;
-+	unsigned int old_tail = sdp->sd_log_tail;
-+	int wrap = (new_tail < old_tail);
-+	int a, b, rm;
-+
-+	gfs2_log_lock(sdp);
-+
-+	list_for_each_entry_safe(ai, safe, &sdp->sd_ail2_list, ai_list) {
-+		a = (old_tail <= ai->ai_first);
-+		b = (ai->ai_first < new_tail);
-+		rm = (wrap) ? (a || b) : (a && b);
-+		if (!rm)
-+			continue;
-+
-+		gfs2_ail2_empty_one(sdp, ai);
-+		list_del(&ai->ai_list);
-+		gfs2_assert_warn(sdp, list_empty(&ai->ai_ail1_list));
-+		gfs2_assert_warn(sdp, list_empty(&ai->ai_ail2_list));
-+		kfree(ai);
-+	}
-+
-+	gfs2_log_unlock(sdp);
-+}
-+
-+/**
-+ * gfs2_log_reserve - Make a log reservation
-+ * @sdp: The GFS2 superblock
-+ * @blks: The number of blocks to reserve
-+ *
-+ * Returns: errno
-+ */
-+
-+int gfs2_log_reserve(struct gfs2_sbd *sdp, unsigned int blks)
-+{
-+	unsigned int try = 0;
-+
-+	if (gfs2_assert_warn(sdp, blks) ||
-+	    gfs2_assert_warn(sdp, blks <= sdp->sd_jdesc->jd_blocks))
-+		return -EINVAL;
-+
-+	mutex_lock(&sdp->sd_log_reserve_mutex);
-+	gfs2_log_lock(sdp);
-+	while(sdp->sd_log_blks_free <= blks) {
-+		gfs2_log_unlock(sdp);
-+		gfs2_ail1_empty(sdp, 0);
-+		gfs2_log_flush(sdp, NULL);
-+
-+		if (try++)
-+			gfs2_ail1_start(sdp, 0);
-+		gfs2_log_lock(sdp);
-+	}
-+	sdp->sd_log_blks_free -= blks;
-+	/* printk(KERN_INFO "reserved %u blocks (%u left)\n", blks, sdp->sd_log_blks_free); */
-+	gfs2_log_unlock(sdp);
-+	mutex_unlock(&sdp->sd_log_reserve_mutex);
-+
-+	down_read(&sdp->sd_log_flush_lock);
-+
-+	return 0;
-+}
-+
-+/**
-+ * gfs2_log_release - Release a given number of log blocks
-+ * @sdp: The GFS2 superblock
-+ * @blks: The number of blocks
-+ *
-+ */
-+
-+void gfs2_log_release(struct gfs2_sbd *sdp, unsigned int blks)
-+{
-+
-+	gfs2_log_lock(sdp);
-+	sdp->sd_log_blks_free += blks;
-+	/* printk(KERN_INFO "released %u blocks (%u left)\n", blks, sdp->sd_log_blks_free); */
-+	gfs2_assert_withdraw(sdp,
-+			     sdp->sd_log_blks_free <= sdp->sd_jdesc->jd_blocks);
-+	gfs2_log_unlock(sdp);
-+	up_read(&sdp->sd_log_flush_lock);
-+}
-+
-+static uint64_t log_bmap(struct gfs2_sbd *sdp, unsigned int lbn)
-+{
-+	int new = 0;
-+	uint64_t dbn;
-+	int error;
-+
-+	error = gfs2_block_map(sdp->sd_jdesc->jd_inode->u.generic_ip,
-+			       lbn, &new, &dbn, NULL);
-+	gfs2_assert_withdraw(sdp, !error && dbn);
-+
-+	return dbn;
-+}
-+
-+/**
-+ * log_distance - Compute distance between two journal blocks
-+ * @sdp: The GFS2 superblock
-+ * @newer: The most recent journal block of the pair
-+ * @older: The older journal block of the pair
-+ *
-+ *   Compute the distance (in the journal direction) between two
-+ *   blocks in the journal
-+ *
-+ * Returns: the distance in blocks
-+ */
-+
-+static inline unsigned int log_distance(struct gfs2_sbd *sdp,
-+					unsigned int newer,
-+					unsigned int older)
-+{
-+	int dist;
-+
-+	dist = newer - older;
-+	if (dist < 0)
-+		dist += sdp->sd_jdesc->jd_blocks;
-+
-+	return dist;
-+}
-+
-+static unsigned int current_tail(struct gfs2_sbd *sdp)
-+{
-+	struct gfs2_ail *ai;
-+	unsigned int tail;
-+
-+	gfs2_log_lock(sdp);
-+
-+	if (list_empty(&sdp->sd_ail1_list))
-+		tail = sdp->sd_log_head;
-+	else {
-+		ai = list_entry(sdp->sd_ail1_list.prev,
-+				struct gfs2_ail, ai_list);
-+		tail = ai->ai_first;
-+	}
-+
-+	gfs2_log_unlock(sdp);
-+
-+	return tail;
-+}
-+
-+static inline void log_incr_head(struct gfs2_sbd *sdp)
-+{
-+	if (sdp->sd_log_flush_head == sdp->sd_log_tail)
-+		gfs2_assert_withdraw(sdp,
-+				sdp->sd_log_flush_head == sdp->sd_log_head);
-+
-+	if (++sdp->sd_log_flush_head == sdp->sd_jdesc->jd_blocks) {
-+		sdp->sd_log_flush_head = 0;
-+		sdp->sd_log_flush_wrapped = 1;
-+	}
-+}
-+
-+/**
-+ * gfs2_log_get_buf - Get and initialize a buffer to use for log control data
-+ * @sdp: The GFS2 superblock
-+ *
-+ * Returns: the buffer_head
-+ */
-+
-+struct buffer_head *gfs2_log_get_buf(struct gfs2_sbd *sdp)
-+{
-+	uint64_t blkno = log_bmap(sdp, sdp->sd_log_flush_head);
-+	struct gfs2_log_buf *lb;
-+	struct buffer_head *bh;
-+
-+	lb = kzalloc(sizeof(struct gfs2_log_buf), GFP_NOFS | __GFP_NOFAIL);
-+	list_add(&lb->lb_list, &sdp->sd_log_flush_list);
-+
-+	bh = lb->lb_bh = sb_getblk(sdp->sd_vfs, blkno);
-+	lock_buffer(bh);
-+	memset(bh->b_data, 0, bh->b_size);
-+	set_buffer_uptodate(bh);
-+	clear_buffer_dirty(bh);
-+	unlock_buffer(bh);
-+
-+	log_incr_head(sdp);
-+
-+	return bh;
-+}
-+
-+/**
-+ * gfs2_log_fake_buf - Build a fake buffer head to write metadata buffer to log
-+ * @sdp: the filesystem
-+ * @data: the data the buffer_head should point to
-+ *
-+ * Returns: the log buffer descriptor
-+ */
-+
-+struct buffer_head *gfs2_log_fake_buf(struct gfs2_sbd *sdp,
-+				      struct buffer_head *real)
-+{
-+	uint64_t blkno = log_bmap(sdp, sdp->sd_log_flush_head);
-+	struct gfs2_log_buf *lb;
-+	struct buffer_head *bh;
-+
-+	lb = kzalloc(sizeof(struct gfs2_log_buf), GFP_NOFS | __GFP_NOFAIL);
-+	list_add(&lb->lb_list, &sdp->sd_log_flush_list);
-+	lb->lb_real = real;
-+
-+	bh = lb->lb_bh = alloc_buffer_head(GFP_NOFS | __GFP_NOFAIL);
-+	atomic_set(&bh->b_count, 1);
-+	bh->b_state = (1 << BH_Mapped) | (1 << BH_Uptodate);
-+	set_bh_page(bh, real->b_page, bh_offset(real));
-+	bh->b_blocknr = blkno;
-+	bh->b_size = sdp->sd_sb.sb_bsize;
-+	bh->b_bdev = sdp->sd_vfs->s_bdev;
-+
-+	log_incr_head(sdp);
-+
-+	return bh;
-+}
-+
-+static void log_pull_tail(struct gfs2_sbd *sdp, unsigned int new_tail, int pull)
-+{
-+	unsigned int dist = log_distance(sdp, new_tail, sdp->sd_log_tail);
-+
-+	ail2_empty(sdp, new_tail);
-+
-+	gfs2_log_lock(sdp);
-+	sdp->sd_log_blks_free += dist - ((pull) ? 1 : 0);
-+	/* printk(KERN_INFO "pull tail refunding %u blocks (%u left) pull=%d\n", dist - ((pull) ? 1 : 0), sdp->sd_log_blks_free, pull); */
-+	gfs2_assert_withdraw(sdp,
-+			     sdp->sd_log_blks_free <= sdp->sd_jdesc->jd_blocks);
-+	gfs2_log_unlock(sdp);
-+
-+	sdp->sd_log_tail = new_tail;
-+}
-+
-+/**
-+ * log_write_header - Get and initialize a journal header buffer
-+ * @sdp: The GFS2 superblock
-+ *
-+ * Returns: the initialized log buffer descriptor
-+ */
-+
-+static void log_write_header(struct gfs2_sbd *sdp, uint32_t flags, int pull)
-+{
-+	uint64_t blkno = log_bmap(sdp, sdp->sd_log_flush_head);
-+	struct buffer_head *bh;
-+	struct gfs2_log_header *lh;
-+	unsigned int tail;
-+	uint32_t hash;
-+
-+	/* printk(KERN_INFO "log write header start (flags=%08x, pull=%d)\n", flags, pull); */
-+
-+	bh = sb_getblk(sdp->sd_vfs, blkno);
-+	lock_buffer(bh);
-+	memset(bh->b_data, 0, bh->b_size);
-+	set_buffer_uptodate(bh);
-+	clear_buffer_dirty(bh);
-+	unlock_buffer(bh);
-+
-+	gfs2_ail1_empty(sdp, 0);
-+	tail = current_tail(sdp);
-+
-+	lh = (struct gfs2_log_header *)bh->b_data;
-+	memset(lh, 0, sizeof(struct gfs2_log_header));
-+	lh->lh_header.mh_magic = cpu_to_be32(GFS2_MAGIC);
-+	lh->lh_header.mh_type = cpu_to_be32(GFS2_METATYPE_LH);
-+	lh->lh_header.mh_format = cpu_to_be32(GFS2_FORMAT_LH);
-+	lh->lh_sequence = be64_to_cpu(sdp->sd_log_sequence++);
-+	lh->lh_flags = be32_to_cpu(flags);
-+	lh->lh_tail = be32_to_cpu(tail);
-+	lh->lh_blkno = be32_to_cpu(sdp->sd_log_flush_head);
-+	hash = gfs2_disk_hash(bh->b_data, sizeof(struct gfs2_log_header));
-+	lh->lh_hash = cpu_to_be32(hash);
-+
-+	set_buffer_dirty(bh);
-+	if (sync_dirty_buffer(bh))
-+		gfs2_io_error_bh(sdp, bh);
-+	brelse(bh);
-+
-+	if (sdp->sd_log_tail != tail)
-+		log_pull_tail(sdp, tail, pull);
-+	else
-+		gfs2_assert_withdraw(sdp, !pull);
-+
-+	sdp->sd_log_idle = (tail == sdp->sd_log_flush_head);
-+	log_incr_head(sdp);
-+
-+	/* printk(KERN_INFO "log write header out\n"); */
-+}
-+
-+static void log_flush_commit(struct gfs2_sbd *sdp)
-+{
-+	struct list_head *head = &sdp->sd_log_flush_list;
-+	struct gfs2_log_buf *lb;
-+	struct buffer_head *bh;
-+#if 0
-+	unsigned int d;
-+
-+	d = log_distance(sdp, sdp->sd_log_flush_head, sdp->sd_log_head);
-+
-+	gfs2_assert_withdraw(sdp, d + 1 == sdp->sd_log_blks_reserved);
-+#endif
-+
-+	while (!list_empty(head)) {
-+		lb = list_entry(head->next, struct gfs2_log_buf, lb_list);
-+		list_del(&lb->lb_list);
-+		bh = lb->lb_bh;
-+
-+		wait_on_buffer(bh);
-+		if (!buffer_uptodate(bh))
-+			gfs2_io_error_bh(sdp, bh);
-+		if (lb->lb_real) {
-+			while (atomic_read(&bh->b_count) != 1)  /* Grrrr... */
-+				schedule();
-+			free_buffer_head(bh);
-+		} else
-+			brelse(bh);
-+		kfree(lb);
-+	}
-+
-+	log_write_header(sdp, 0, 0);
-+}
-+
-+/**
-+ * gfs2_log_flush - flush incore transaction(s)
-+ * @sdp: the filesystem
-+ * @gl: The glock structure to flush.  If NULL, flush the whole incore log
-+ *
-+ */
-+
-+void gfs2_log_flush(struct gfs2_sbd *sdp, struct gfs2_glock *gl)
-+{
-+	struct gfs2_ail *ai;
-+
-+	down_write(&sdp->sd_log_flush_lock);
-+
-+	if (gl) {
-+		gfs2_log_lock(sdp);
-+		if (list_empty(&gl->gl_le.le_list)) {
-+			gfs2_log_unlock(sdp);
-+			up_write(&sdp->sd_log_flush_lock);
-+			return;
-+		}
-+		gfs2_log_unlock(sdp);
-+	}
-+
-+	ai = kzalloc(sizeof(struct gfs2_ail), GFP_NOFS | __GFP_NOFAIL);
-+	INIT_LIST_HEAD(&ai->ai_ail1_list);
-+	INIT_LIST_HEAD(&ai->ai_ail2_list);
-+
-+	gfs2_assert_withdraw(sdp,
-+			sdp->sd_log_num_buf == sdp->sd_log_commited_buf);
-+	gfs2_assert_withdraw(sdp,
-+			sdp->sd_log_num_revoke == sdp->sd_log_commited_revoke);
-+
-+	sdp->sd_log_flush_head = sdp->sd_log_head;
-+	sdp->sd_log_flush_wrapped = 0;
-+	ai->ai_first = sdp->sd_log_flush_head;
-+
-+	lops_before_commit(sdp);
-+	if (!list_empty(&sdp->sd_log_flush_list))
-+		log_flush_commit(sdp);
-+	else if (sdp->sd_log_tail != current_tail(sdp) && !sdp->sd_log_idle)
-+		log_write_header(sdp, 0, PULL);
-+	lops_after_commit(sdp, ai);
-+	sdp->sd_log_head = sdp->sd_log_flush_head;
-+
-+	/* printk(KERN_INFO "sd_log_num_hdrs %u\n", sdp->sd_log_num_hdrs); */
-+	sdp->sd_log_blks_free -= sdp->sd_log_num_hdrs;
-+
-+	sdp->sd_log_blks_reserved =
-+		sdp->sd_log_commited_buf =
-+		sdp->sd_log_num_hdrs = 
-+		sdp->sd_log_commited_revoke = 0;
-+
-+	gfs2_log_lock(sdp);
-+	if (!list_empty(&ai->ai_ail1_list)) {
-+		list_add(&ai->ai_list, &sdp->sd_ail1_list);
-+		ai = NULL;
-+	}
-+	gfs2_log_unlock(sdp);
-+
-+	sdp->sd_vfs->s_dirt = 0;
-+	up_write(&sdp->sd_log_flush_lock);
-+
-+	kfree(ai);
-+}
-+
-+static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
-+{
-+	unsigned int reserved = 1;
-+	unsigned int old;
-+
-+	gfs2_log_lock(sdp);
-+
-+	sdp->sd_log_commited_buf += tr->tr_num_buf_new - tr->tr_num_buf_rm;
-+	gfs2_assert_withdraw(sdp, ((int)sdp->sd_log_commited_buf) >= 0);
-+	sdp->sd_log_commited_revoke += tr->tr_num_revoke - tr->tr_num_revoke_rm;
-+	gfs2_assert_withdraw(sdp, ((int)sdp->sd_log_commited_revoke) >= 0);
-+
-+	if (sdp->sd_log_commited_buf)
-+		reserved += sdp->sd_log_commited_buf;
-+	if (sdp->sd_log_commited_revoke)
-+		reserved += gfs2_struct2blk(sdp, sdp->sd_log_commited_revoke,
-+					    sizeof(uint64_t));
-+
-+	old = sdp->sd_log_blks_free;
-+	sdp->sd_log_blks_free += tr->tr_reserved -
-+				 (reserved - sdp->sd_log_blks_reserved);
-+
-+	gfs2_assert_withdraw(sdp, sdp->sd_log_blks_free >= old);
-+	gfs2_assert_withdraw(sdp,
-+			     sdp->sd_log_blks_free <= sdp->sd_jdesc->jd_blocks +
-+			     sdp->sd_log_num_hdrs);
-+
-+	sdp->sd_log_blks_reserved = reserved;
-+
-+	gfs2_log_unlock(sdp);
-+}
-+
-+/**
-+ * gfs2_log_commit - Commit a transaction to the log
-+ * @sdp: the filesystem
-+ * @tr: the transaction
-+ *
-+ * Returns: errno
-+ */
-+
-+void gfs2_log_commit(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
-+{
-+	log_refund(sdp, tr);
-+	lops_incore_commit(sdp, tr);
-+
-+	sdp->sd_vfs->s_dirt = 1;
-+	up_read(&sdp->sd_log_flush_lock);
-+
-+	gfs2_log_lock(sdp);
-+	if (sdp->sd_log_num_buf > gfs2_tune_get(sdp, gt_incore_log_blocks)) {
-+		gfs2_log_unlock(sdp);
-+		gfs2_log_flush(sdp, NULL);
-+	} else
-+		gfs2_log_unlock(sdp);
-+}
-+
-+/**
-+ * gfs2_log_shutdown - write a shutdown header into a journal
-+ * @sdp: the filesystem
-+ *
-+ */
-+
-+void gfs2_log_shutdown(struct gfs2_sbd *sdp)
-+{
-+	down_write(&sdp->sd_log_flush_lock);
-+
-+	gfs2_assert_withdraw(sdp, !sdp->sd_log_blks_reserved);
-+	gfs2_assert_withdraw(sdp, !sdp->sd_log_num_gl);
-+	gfs2_assert_withdraw(sdp, !sdp->sd_log_num_buf);
-+	gfs2_assert_withdraw(sdp, !sdp->sd_log_num_jdata);
-+	gfs2_assert_withdraw(sdp, !sdp->sd_log_num_revoke);
-+	gfs2_assert_withdraw(sdp, !sdp->sd_log_num_rg);
-+	gfs2_assert_withdraw(sdp, !sdp->sd_log_num_databuf);
-+	gfs2_assert_withdraw(sdp, !sdp->sd_log_num_hdrs);
-+	gfs2_assert_withdraw(sdp, list_empty(&sdp->sd_ail1_list));
-+
-+	sdp->sd_log_flush_head = sdp->sd_log_head;
-+	sdp->sd_log_flush_wrapped = 0;
-+
-+	log_write_header(sdp, GFS2_LOG_HEAD_UNMOUNT, 0);
-+
-+	/* printk(KERN_INFO "sd_log_blks_free %u, sd_jdesc->jd_blocks %u\n", sdp->sd_log_blks_free, sdp->sd_jdesc->jd_blocks); */
-+	gfs2_assert_warn(sdp, sdp->sd_log_blks_free == sdp->sd_jdesc->jd_blocks);
-+	gfs2_assert_warn(sdp, sdp->sd_log_head == sdp->sd_log_tail);
-+	gfs2_assert_warn(sdp, list_empty(&sdp->sd_ail2_list));
-+
-+	sdp->sd_log_head = sdp->sd_log_flush_head;
-+	sdp->sd_log_tail = sdp->sd_log_head;
-+
-+	up_write(&sdp->sd_log_flush_lock);
-+}
-+
---- /dev/null
-+++ b/fs/gfs2/log.h
-@@ -0,0 +1,61 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
-+
-+#ifndef __LOG_DOT_H__
-+#define __LOG_DOT_H__
-+
-+/**
-+ * gfs2_log_lock - acquire the right to mess with the log manager
-+ * @sdp: the filesystem
-+ *
-+ */
-+
-+static inline void gfs2_log_lock(struct gfs2_sbd *sdp)
-+{
-+	spin_lock(&sdp->sd_log_lock);
-+}
-+
-+/**
-+ * gfs2_log_unlock - release the right to mess with the log manager
-+ * @sdp: the filesystem
-+ *
-+ */
-+
-+static inline void gfs2_log_unlock(struct gfs2_sbd *sdp)
-+{
-+	spin_unlock(&sdp->sd_log_lock);
-+}
-+
-+static inline void gfs2_log_pointers_init(struct gfs2_sbd *sdp,
-+					  unsigned int value)
-+{
-+	if (++value == sdp->sd_jdesc->jd_blocks) {
-+		value = 0;
-+	}
-+	sdp->sd_log_head = sdp->sd_log_tail = value;
-+}
-+
-+unsigned int gfs2_struct2blk(struct gfs2_sbd *sdp, unsigned int nstruct,
-+			    unsigned int ssize);
-+
-+void gfs2_ail1_start(struct gfs2_sbd *sdp, int flags);
-+int gfs2_ail1_empty(struct gfs2_sbd *sdp, int flags);
-+
-+int gfs2_log_reserve(struct gfs2_sbd *sdp, unsigned int blks);
-+void gfs2_log_release(struct gfs2_sbd *sdp, unsigned int blks);
-+
-+struct buffer_head *gfs2_log_get_buf(struct gfs2_sbd *sdp);
-+struct buffer_head *gfs2_log_fake_buf(struct gfs2_sbd *sdp,
-+				      struct buffer_head *real);
-+void gfs2_log_flush(struct gfs2_sbd *sdp, struct gfs2_glock *gl);
-+void gfs2_log_commit(struct gfs2_sbd *sdp, struct gfs2_trans *trans);
-+
-+void gfs2_log_shutdown(struct gfs2_sbd *sdp);
-+
-+#endif /* __LOG_DOT_H__ */
---- /dev/null
-+++ b/fs/gfs2/recovery.c
-@@ -0,0 +1,577 @@
-+/*
-+ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
-+ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
-+ *
-+ * This copyrighted material is made available to anyone wishing to use,
-+ * modify, copy, or redistribute it subject to the terms and conditions
-+ * of the GNU General Public License v.2.
-+ */
-+
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/completion.h>
-+#include <linux/buffer_head.h>
-+#include <linux/gfs2_ondisk.h>
-+#include <linux/crc32.h>
 +#include <asm/semaphore.h>
 +
 +#include "gfs2.h"
@@ -731,562 +97,1257 @@ Signed-off-by: David Teigland <teigland@redhat.com>
 +#include "bmap.h"
 +#include "glock.h"
 +#include "glops.h"
-+#include "lm.h"
-+#include "lops.h"
++#include "log.h"
++#include "lvb.h"
 +#include "meta_io.h"
-+#include "recovery.h"
++#include "quota.h"
++#include "rgrp.h"
 +#include "super.h"
++#include "trans.h"
++#include "inode.h"
++#include "ops_file.h"
++#include "ops_address.h"
 +#include "util.h"
-+#include "dir.h"
 +
-+int gfs2_replay_read_block(struct gfs2_jdesc *jd, unsigned int blk,
-+			   struct buffer_head **bh)
++#define QUOTA_USER 1
++#define QUOTA_GROUP 0
++
++static uint64_t qd2offset(struct gfs2_quota_data *qd)
 +{
-+	struct gfs2_inode *ip = jd->jd_inode->u.generic_ip;
-+	struct gfs2_glock *gl = ip->i_gl;
-+	int new = 0;
-+	uint64_t dblock;
-+	uint32_t extlen;
++	uint64_t offset;
++
++	offset = 2 * (uint64_t)qd->qd_id + !test_bit(QDF_USER, &qd->qd_flags);
++	offset *= sizeof(struct gfs2_quota);
++
++	return offset;
++}
++
++static int qd_alloc(struct gfs2_sbd *sdp, int user, uint32_t id,
++		    struct gfs2_quota_data **qdp)
++{
++	struct gfs2_quota_data *qd;
 +	int error;
 +
-+	error = gfs2_block_map(ip, blk, &new, &dblock,
-+			       &extlen);
++	qd = kzalloc(sizeof(struct gfs2_quota_data), GFP_KERNEL);
++	if (!qd)
++		return -ENOMEM;
++
++	qd->qd_count = 1;
++	qd->qd_id = id;
++	if (user)
++		set_bit(QDF_USER, &qd->qd_flags);
++	qd->qd_slot = -1;
++
++	error = gfs2_glock_get(sdp, 2 * (uint64_t)id + !user,
++			      &gfs2_quota_glops, CREATE, &qd->qd_gl);
 +	if (error)
-+		return error;
-+	if (!dblock) {
-+		gfs2_consist_inode(ip);
-+		return -EIO;
-+	}
++		goto fail;
 +
-+	gfs2_meta_ra(gl, dblock, extlen);
-+	error = gfs2_meta_read(gl, dblock, DIO_START | DIO_WAIT, bh);
++	error = gfs2_lvb_hold(qd->qd_gl);
++	gfs2_glock_put(qd->qd_gl);
++	if (error)
++		goto fail;
 +
++	*qdp = qd;
++
++	return 0;
++
++ fail:
++	kfree(qd);
 +	return error;
 +}
 +
-+int gfs2_revoke_add(struct gfs2_sbd *sdp, uint64_t blkno, unsigned int where)
++static int qd_get(struct gfs2_sbd *sdp, int user, uint32_t id, int create,
++		  struct gfs2_quota_data **qdp)
 +{
-+	struct list_head *head = &sdp->sd_revoke_list;
-+	struct gfs2_revoke_replay *rr;
-+	int found = 0;
++	struct gfs2_quota_data *qd = NULL, *new_qd = NULL;
++	int error, found;
 +
-+	list_for_each_entry(rr, head, rr_list) {
-+		if (rr->rr_blkno == blkno) {
-+			found = 1;
-+			break;
++	*qdp = NULL;
++
++	for (;;) {
++		found = 0;
++		spin_lock(&sdp->sd_quota_spin);
++		list_for_each_entry(qd, &sdp->sd_quota_list, qd_list) {
++			if (qd->qd_id == id &&
++			    !test_bit(QDF_USER, &qd->qd_flags) == !user) {
++				qd->qd_count++;
++				found = 1;
++				break;
++			}
 +		}
-+	}
 +
-+	if (found) {
-+		rr->rr_where = where;
++		if (!found)
++			qd = NULL;
++
++		if (!qd && new_qd) {
++			qd = new_qd;
++			list_add(&qd->qd_list, &sdp->sd_quota_list);
++			atomic_inc(&sdp->sd_quota_count);
++			new_qd = NULL;
++		}
++
++		spin_unlock(&sdp->sd_quota_spin);
++
++		if (qd || !create) {
++			if (new_qd) {
++				gfs2_lvb_unhold(new_qd->qd_gl);
++				kfree(new_qd);
++			}
++			*qdp = qd;
++			return 0;
++		}
++
++		error = qd_alloc(sdp, user, id, &new_qd);
++		if (error)
++			return error;
++	}
++}
++
++static void qd_hold(struct gfs2_quota_data *qd)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++
++	spin_lock(&sdp->sd_quota_spin);
++	gfs2_assert(sdp, qd->qd_count);
++	qd->qd_count++;
++	spin_unlock(&sdp->sd_quota_spin);
++}
++
++static void qd_put(struct gfs2_quota_data *qd)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++	spin_lock(&sdp->sd_quota_spin);
++	gfs2_assert(sdp, qd->qd_count);
++	if (!--qd->qd_count)
++		qd->qd_last_touched = jiffies;
++	spin_unlock(&sdp->sd_quota_spin);
++}
++
++static int slot_get(struct gfs2_quota_data *qd)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++	unsigned int c, o = 0, b;
++	unsigned char byte = 0;
++
++	spin_lock(&sdp->sd_quota_spin);
++
++	if (qd->qd_slot_count++) {
++		spin_unlock(&sdp->sd_quota_spin);
 +		return 0;
 +	}
 +
-+	rr = kmalloc(sizeof(struct gfs2_revoke_replay), GFP_KERNEL);
-+	if (!rr)
-+		return -ENOMEM;
++	for (c = 0; c < sdp->sd_quota_chunks; c++)
++		for (o = 0; o < PAGE_SIZE; o++) {
++			byte = sdp->sd_quota_bitmap[c][o];
++			if (byte != 0xFF)
++				goto found;
++		}
 +
-+	rr->rr_blkno = blkno;
-+	rr->rr_where = where;
-+	list_add(&rr->rr_list, head);
++	goto fail;
++
++ found:
++	for (b = 0; b < 8; b++)
++		if (!(byte & (1 << b)))
++			break;
++	qd->qd_slot = c * (8 * PAGE_SIZE) + o * 8 + b;
++
++	if (qd->qd_slot >= sdp->sd_quota_slots)
++		goto fail;
++
++	sdp->sd_quota_bitmap[c][o] |= 1 << b;
++
++	spin_unlock(&sdp->sd_quota_spin);
++
++	return 0;
++
++ fail:
++	qd->qd_slot_count--;
++	spin_unlock(&sdp->sd_quota_spin);
++	return -ENOSPC;
++}
++
++static void slot_hold(struct gfs2_quota_data *qd)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++
++	spin_lock(&sdp->sd_quota_spin);
++	gfs2_assert(sdp, qd->qd_slot_count);
++	qd->qd_slot_count++;
++	spin_unlock(&sdp->sd_quota_spin);
++}
++
++static void slot_put(struct gfs2_quota_data *qd)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++
++	spin_lock(&sdp->sd_quota_spin);
++	gfs2_assert(sdp, qd->qd_slot_count);
++	if (!--qd->qd_slot_count) {
++		gfs2_icbit_munge(sdp, sdp->sd_quota_bitmap, qd->qd_slot, 0);
++		qd->qd_slot = -1;
++	}
++	spin_unlock(&sdp->sd_quota_spin);
++}
++
++static int bh_get(struct gfs2_quota_data *qd)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++	struct gfs2_inode *ip = sdp->sd_qc_inode->u.generic_ip;
++	unsigned int block, offset;
++	uint64_t dblock;
++	int new = 0;
++	struct buffer_head *bh;
++	int error;
++
++	mutex_lock(&sdp->sd_quota_mutex);
++
++	if (qd->qd_bh_count++) {
++		mutex_unlock(&sdp->sd_quota_mutex);
++		return 0;
++	}
++
++	block = qd->qd_slot / sdp->sd_qc_per_block;
++	offset = qd->qd_slot % sdp->sd_qc_per_block;;
++
++	error = gfs2_block_map(ip, block, &new, &dblock, NULL);
++	if (error)
++		goto fail;
++	error = gfs2_meta_read(ip->i_gl, dblock, DIO_START | DIO_WAIT, &bh);
++	if (error)
++		goto fail;
++	error = -EIO;
++	if (gfs2_metatype_check(sdp, bh, GFS2_METATYPE_QC))
++		goto fail_brelse;
++
++	qd->qd_bh = bh;
++	qd->qd_bh_qc = (struct gfs2_quota_change *)
++		(bh->b_data + sizeof(struct gfs2_meta_header) +
++		 offset * sizeof(struct gfs2_quota_change));
++
++	mutex_lock(&sdp->sd_quota_mutex);
++
++	return 0;
++
++ fail_brelse:
++	brelse(bh);
++
++ fail:
++	qd->qd_bh_count--;
++	mutex_unlock(&sdp->sd_quota_mutex);
++	return error;
++}
++
++static void bh_put(struct gfs2_quota_data *qd)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++
++	mutex_lock(&sdp->sd_quota_mutex);
++	gfs2_assert(sdp, qd->qd_bh_count);
++	if (!--qd->qd_bh_count) {
++		brelse(qd->qd_bh);
++		qd->qd_bh = NULL;
++		qd->qd_bh_qc = NULL;
++	}
++	mutex_unlock(&sdp->sd_quota_mutex);
++}
++
++static int qd_fish(struct gfs2_sbd *sdp, struct gfs2_quota_data **qdp)
++{
++	struct gfs2_quota_data *qd = NULL;
++	int error;
++	int found = 0;
++
++	*qdp = NULL;
++
++	if (sdp->sd_vfs->s_flags & MS_RDONLY)
++		return 0;
++
++	spin_lock(&sdp->sd_quota_spin);
++
++	list_for_each_entry(qd, &sdp->sd_quota_list, qd_list) {
++		if (test_bit(QDF_LOCKED, &qd->qd_flags) ||
++		    !test_bit(QDF_CHANGE, &qd->qd_flags) ||
++		    qd->qd_sync_gen >= sdp->sd_quota_sync_gen)
++			continue;
++
++		list_move_tail(&qd->qd_list, &sdp->sd_quota_list);
++
++		set_bit(QDF_LOCKED, &qd->qd_flags);
++		gfs2_assert_warn(sdp, qd->qd_count);
++		qd->qd_count++;
++		qd->qd_change_sync = qd->qd_change;
++		gfs2_assert_warn(sdp, qd->qd_slot_count);
++		qd->qd_slot_count++;
++		found = 1;
++
++		break;
++	}
++
++	if (!found)
++		qd = NULL;
++
++	spin_unlock(&sdp->sd_quota_spin);
++
++	if (qd) {
++		gfs2_assert_warn(sdp, qd->qd_change_sync);
++		error = bh_get(qd);
++		if (error) {
++			clear_bit(QDF_LOCKED, &qd->qd_flags);
++			slot_put(qd);
++			qd_put(qd);
++			return error;
++		}
++	}
++
++	*qdp = qd;
++
++	return 0;
++}
++
++static int qd_trylock(struct gfs2_quota_data *qd)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++
++	if (sdp->sd_vfs->s_flags & MS_RDONLY)
++		return 0;
++
++	spin_lock(&sdp->sd_quota_spin);
++
++	if (test_bit(QDF_LOCKED, &qd->qd_flags) ||
++	    !test_bit(QDF_CHANGE, &qd->qd_flags)) {
++		spin_unlock(&sdp->sd_quota_spin);
++		return 0;
++	}
++
++	list_move_tail(&qd->qd_list, &sdp->sd_quota_list);
++
++	set_bit(QDF_LOCKED, &qd->qd_flags);
++	gfs2_assert_warn(sdp, qd->qd_count);
++	qd->qd_count++;
++	qd->qd_change_sync = qd->qd_change;
++	gfs2_assert_warn(sdp, qd->qd_slot_count);
++	qd->qd_slot_count++;
++
++	spin_unlock(&sdp->sd_quota_spin);
++
++	gfs2_assert_warn(sdp, qd->qd_change_sync);
++	if (bh_get(qd)) {
++		clear_bit(QDF_LOCKED, &qd->qd_flags);
++		slot_put(qd);
++		qd_put(qd);
++		return 0;
++	}
 +
 +	return 1;
 +}
 +
-+int gfs2_revoke_check(struct gfs2_sbd *sdp, uint64_t blkno, unsigned int where)
++static void qd_unlock(struct gfs2_quota_data *qd)
 +{
-+	struct gfs2_revoke_replay *rr;
-+	int wrap, a, b, revoke;
-+	int found = 0;
-+
-+	list_for_each_entry(rr, &sdp->sd_revoke_list, rr_list) {
-+		if (rr->rr_blkno == blkno) {
-+			found = 1;
-+			break;
-+		}
-+	}
-+
-+	if (!found)
-+		return 0;
-+
-+	wrap = (rr->rr_where < sdp->sd_replay_tail);
-+	a = (sdp->sd_replay_tail < where);
-+	b = (where < rr->rr_where);
-+	revoke = (wrap) ? (a || b) : (a && b);
-+
-+	return revoke;
++	gfs2_assert_warn(qd->qd_gl->gl_sbd,
++			 test_bit(QDF_LOCKED, &qd->qd_flags));
++	clear_bit(QDF_LOCKED, &qd->qd_flags);
++	bh_put(qd);
++	slot_put(qd);
++	qd_put(qd);
 +}
 +
-+void gfs2_revoke_clean(struct gfs2_sbd *sdp)
++static int qdsb_get(struct gfs2_sbd *sdp, int user, uint32_t id, int create,
++		    struct gfs2_quota_data **qdp)
 +{
-+	struct list_head *head = &sdp->sd_revoke_list;
-+	struct gfs2_revoke_replay *rr;
-+
-+	while (!list_empty(head)) {
-+		rr = list_entry(head->next, struct gfs2_revoke_replay, rr_list);
-+		list_del(&rr->rr_list);
-+		kfree(rr);
-+	}
-+}
-+
-+/**
-+ * get_log_header - read the log header for a given segment
-+ * @jd: the journal
-+ * @blk: the block to look at
-+ * @lh: the log header to return
-+ *
-+ * Read the log header for a given segement in a given journal.  Do a few
-+ * sanity checks on it.
-+ *
-+ * Returns: 0 on success,
-+ *          1 if the header was invalid or incomplete,
-+ *          errno on error
-+ */
-+
-+static int get_log_header(struct gfs2_jdesc *jd, unsigned int blk,
-+			  struct gfs2_log_header *head)
-+{
-+	struct buffer_head *bh;
-+	struct gfs2_log_header lh;
-+	uint32_t hash;
 +	int error;
 +
-+	error = gfs2_replay_read_block(jd, blk, &bh);
++	error = qd_get(sdp, user, id, create, qdp);
 +	if (error)
 +		return error;
 +
-+	memcpy(&lh, bh->b_data, sizeof(struct gfs2_log_header));
-+	lh.lh_hash = 0;
-+	hash = gfs2_disk_hash((char *)&lh, sizeof(struct gfs2_log_header));
-+	gfs2_log_header_in(&lh, bh->b_data);
-+
-+	brelse(bh);
-+
-+	if (lh.lh_header.mh_magic != GFS2_MAGIC ||
-+	    lh.lh_header.mh_type != GFS2_METATYPE_LH ||
-+	    lh.lh_blkno != blk ||
-+	    lh.lh_hash != hash)
-+		return 1;
-+
-+	*head = lh;
-+
-+	return 0;
-+}
-+
-+/**
-+ * find_good_lh - find a good log header
-+ * @jd: the journal
-+ * @blk: the segment to start searching from
-+ * @lh: the log header to fill in
-+ * @forward: if true search forward in the log, else search backward
-+ *
-+ * Call get_log_header() to get a log header for a segment, but if the
-+ * segment is bad, either scan forward or backward until we find a good one.
-+ *
-+ * Returns: errno
-+ */
-+
-+static int find_good_lh(struct gfs2_jdesc *jd, unsigned int *blk,
-+			struct gfs2_log_header *head)
-+{
-+	unsigned int orig_blk = *blk;
-+	int error;
-+
-+	for (;;) {
-+		error = get_log_header(jd, *blk, head);
-+		if (error <= 0)
-+			return error;
-+
-+		if (++*blk == jd->jd_blocks)
-+			*blk = 0;
-+
-+		if (*blk == orig_blk) {
-+			gfs2_consist_inode(jd->jd_inode->u.generic_ip);
-+			return -EIO;
-+		}
-+	}
-+}
-+
-+/**
-+ * jhead_scan - make sure we've found the head of the log
-+ * @jd: the journal
-+ * @head: this is filled in with the log descriptor of the head
-+ *
-+ * At this point, seg and lh should be either the head of the log or just
-+ * before.  Scan forward until we find the head.
-+ *
-+ * Returns: errno
-+ */
-+
-+static int jhead_scan(struct gfs2_jdesc *jd, struct gfs2_log_header *head)
-+{
-+	unsigned int blk = head->lh_blkno;
-+	struct gfs2_log_header lh;
-+	int error;
-+
-+	for (;;) {
-+		if (++blk == jd->jd_blocks)
-+			blk = 0;
-+
-+		error = get_log_header(jd, blk, &lh);
-+		if (error < 0)
-+			return error;
-+		if (error == 1)
-+			continue;
-+
-+		if (lh.lh_sequence == head->lh_sequence) {
-+			gfs2_consist_inode(jd->jd_inode->u.generic_ip);
-+			return -EIO;
-+		}
-+		if (lh.lh_sequence < head->lh_sequence)
-+			break;
-+
-+		*head = lh;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * gfs2_find_jhead - find the head of a log
-+ * @jd: the journal
-+ * @head: the log descriptor for the head of the log is returned here
-+ *
-+ * Do a binary search of a journal and find the valid log entry with the
-+ * highest sequence number.  (i.e. the log head)
-+ *
-+ * Returns: errno
-+ */
-+
-+int gfs2_find_jhead(struct gfs2_jdesc *jd, struct gfs2_log_header *head)
-+{
-+	struct gfs2_log_header lh_1, lh_m;
-+	uint32_t blk_1, blk_2, blk_m;
-+	int error;
-+
-+	blk_1 = 0;
-+	blk_2 = jd->jd_blocks - 1;
-+
-+	for (;;) {
-+		blk_m = (blk_1 + blk_2) / 2;
-+
-+		error = find_good_lh(jd, &blk_1, &lh_1);
-+		if (error)
-+			return error;
-+
-+		error = find_good_lh(jd, &blk_m, &lh_m);
-+		if (error)
-+			return error;
-+
-+		if (blk_1 == blk_m || blk_m == blk_2)
-+			break;
-+
-+		if (lh_1.lh_sequence <= lh_m.lh_sequence)
-+			blk_1 = blk_m;
-+		else
-+			blk_2 = blk_m;
-+	}
-+
-+	error = jhead_scan(jd, &lh_1);
++	error = slot_get(*qdp);
 +	if (error)
-+		return error;
-+
-+	*head = lh_1;
-+
-+	return error;
-+}
-+
-+/**
-+ * foreach_descriptor - go through the active part of the log
-+ * @jd: the journal
-+ * @start: the first log header in the active region
-+ * @end: the last log header (don't process the contents of this entry))
-+ *
-+ * Call a given function once for every log descriptor in the active
-+ * portion of the log.
-+ *
-+ * Returns: errno
-+ */
-+
-+static int foreach_descriptor(struct gfs2_jdesc *jd, unsigned int start,
-+			      unsigned int end, int pass)
-+{
-+	struct gfs2_inode *ip = jd->jd_inode->u.generic_ip;
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct buffer_head *bh;
-+	struct gfs2_log_descriptor *ld;
-+	int error = 0;
-+	u32 length;
-+	__be64 *ptr;
-+	unsigned int offset = sizeof(struct gfs2_log_descriptor);
-+	offset += (sizeof(__be64)-1);
-+	offset &= ~(sizeof(__be64)-1);
-+
-+	while (start != end) {
-+		error = gfs2_replay_read_block(jd, start, &bh);
-+		if (error)
-+			return error;
-+		if (gfs2_meta_check(sdp, bh)) {
-+			brelse(bh);
-+			return -EIO;
-+		}
-+		ld = (struct gfs2_log_descriptor *)bh->b_data;
-+		length = be32_to_cpu(ld->ld_length);
-+
-+		if (be32_to_cpu(ld->ld_header.mh_type) == GFS2_METATYPE_LH) {
-+			struct gfs2_log_header lh;
-+			error = get_log_header(jd, start, &lh);
-+			if (!error) {
-+				gfs2_replay_incr_blk(sdp, &start);
-+				continue;
-+			}
-+			if (error == 1) {
-+				gfs2_consist_inode(jd->jd_inode->u.generic_ip);
-+				error = -EIO;
-+			}
-+			brelse(bh);
-+			return error;
-+		} else if (gfs2_metatype_check(sdp, bh, GFS2_METATYPE_LD)) {
-+			brelse(bh);
-+			return -EIO;
-+		}
-+		ptr = (__be64 *)(bh->b_data + offset);
-+		error = lops_scan_elements(jd, start, ld, ptr, pass);
-+		if (error) {
-+			brelse(bh);
-+			return error;
-+		}
-+
-+		while (length--)
-+			gfs2_replay_incr_blk(sdp, &start);
-+
-+		brelse(bh);
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * clean_journal - mark a dirty journal as being clean
-+ * @sdp: the filesystem
-+ * @jd: the journal
-+ * @gl: the journal's glock
-+ * @head: the head journal to start from
-+ *
-+ * Returns: errno
-+ */
-+
-+static int clean_journal(struct gfs2_jdesc *jd, struct gfs2_log_header *head)
-+{
-+	struct gfs2_inode *ip = jd->jd_inode->u.generic_ip;
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	unsigned int lblock;
-+	int new = 0;
-+	uint64_t dblock;
-+	struct gfs2_log_header *lh;
-+	uint32_t hash;
-+	struct buffer_head *bh;
-+	int error;
-+	
-+	lblock = head->lh_blkno;
-+	gfs2_replay_incr_blk(sdp, &lblock);
-+	error = gfs2_block_map(ip, lblock, &new, &dblock, NULL);
-+	if (error)
-+		return error;
-+	if (!dblock) {
-+		gfs2_consist_inode(ip);
-+		return -EIO;
-+	}
-+
-+	bh = sb_getblk(sdp->sd_vfs, dblock);
-+	lock_buffer(bh);
-+	memset(bh->b_data, 0, bh->b_size);
-+	set_buffer_uptodate(bh);
-+	clear_buffer_dirty(bh);
-+	unlock_buffer(bh);
-+
-+	lh = (struct gfs2_log_header *)bh->b_data;
-+	memset(lh, 0, sizeof(struct gfs2_log_header));
-+	lh->lh_header.mh_magic = cpu_to_be32(GFS2_MAGIC);
-+	lh->lh_header.mh_type = cpu_to_be16(GFS2_METATYPE_LH);
-+	lh->lh_header.mh_format = cpu_to_be32(GFS2_FORMAT_LH);
-+	lh->lh_sequence = cpu_to_be64(head->lh_sequence + 1);
-+	lh->lh_flags = cpu_to_be32(GFS2_LOG_HEAD_UNMOUNT);
-+	lh->lh_blkno = cpu_to_be32(lblock);
-+	hash = gfs2_disk_hash((const char *)lh, sizeof(struct gfs2_log_header));
-+	lh->lh_hash = cpu_to_be32(hash);
-+
-+	set_buffer_dirty(bh);
-+	if (sync_dirty_buffer(bh))
-+		gfs2_io_error_bh(sdp, bh);
-+	brelse(bh);
-+
-+	return error;
-+}
-+
-+/**
-+ * gfs2_recover_journal - recovery a given journal
-+ * @jd: the struct gfs2_jdesc describing the journal
-+ *
-+ * Acquire the journal's lock, check to see if the journal is clean, and
-+ * do recovery if necessary.
-+ *
-+ * Returns: errno
-+ */
-+
-+int gfs2_recover_journal(struct gfs2_jdesc *jd)
-+{
-+	struct gfs2_inode *ip = jd->jd_inode->u.generic_ip;
-+	struct gfs2_sbd *sdp = ip->i_sbd;
-+	struct gfs2_log_header head;
-+	struct gfs2_holder j_gh, ji_gh, t_gh;
-+	unsigned long t;
-+	int ro = 0;
-+	unsigned int pass;
-+	int error;
-+
-+	fs_info(sdp, "jid=%u: Trying to acquire journal lock...\n", jd->jd_jid);
-+
-+	/* Aquire the journal lock so we can do recovery */
-+
-+	error = gfs2_glock_nq_num(sdp, jd->jd_jid, &gfs2_journal_glops,
-+				  LM_ST_EXCLUSIVE,
-+				  LM_FLAG_NOEXP | LM_FLAG_TRY | GL_NOCACHE,
-+				  &j_gh);
-+	switch (error) {
-+	case 0:
-+		break;
-+
-+	case GLR_TRYFAILED:
-+		fs_info(sdp, "jid=%u: Busy\n", jd->jd_jid);
-+		error = 0;
-+
-+	default:
 +		goto fail;
-+	};
 +
-+	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_SHARED,
-+				   LM_FLAG_NOEXP, &ji_gh);
++	error = bh_get(*qdp);
 +	if (error)
-+		goto fail_gunlock_j;
-+
-+	fs_info(sdp, "jid=%u: Looking at journal...\n", jd->jd_jid);
-+
-+	error = gfs2_jdesc_check(jd);
-+	if (error)
-+		goto fail_gunlock_ji;
-+
-+	error = gfs2_find_jhead(jd, &head);
-+	if (error)
-+		goto fail_gunlock_ji;
-+
-+	if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT)) {
-+		fs_info(sdp, "jid=%u: Acquiring the transaction lock...\n",
-+			jd->jd_jid);
-+
-+		t = jiffies;
-+
-+		/* Acquire a shared hold on the transaction lock */
-+
-+		error = gfs2_glock_nq_init(sdp->sd_trans_gl,
-+					   LM_ST_SHARED,
-+					   LM_FLAG_NOEXP |
-+					   LM_FLAG_PRIORITY |
-+					   GL_NEVER_RECURSE |
-+					   GL_NOCANCEL |
-+					   GL_NOCACHE,
-+					   &t_gh);
-+		if (error)
-+			goto fail_gunlock_ji;
-+
-+		if (test_bit(SDF_JOURNAL_CHECKED, &sdp->sd_flags)) {
-+			if (!test_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags))
-+				ro = 1;
-+		} else {
-+			if (sdp->sd_vfs->s_flags & MS_RDONLY)
-+				ro = 1;
-+		}
-+
-+		if (ro) {
-+			fs_warn(sdp, "jid=%u: Can't replay: read-only FS\n",
-+				jd->jd_jid);
-+			error = -EROFS;
-+			goto fail_gunlock_tr;
-+		}
-+
-+		fs_info(sdp, "jid=%u: Replaying journal...\n", jd->jd_jid);
-+
-+		for (pass = 0; pass < 2; pass++) {
-+			lops_before_scan(jd, &head, pass);
-+			error = foreach_descriptor(jd, head.lh_tail,
-+						   head.lh_blkno, pass);
-+			lops_after_scan(jd, error, pass);
-+			if (error)
-+				goto fail_gunlock_tr;
-+		}
-+
-+		error = clean_journal(jd, &head);
-+		if (error)
-+			goto fail_gunlock_tr;
-+
-+		gfs2_glock_dq_uninit(&t_gh);
-+
-+		t = DIV_ROUND_UP(jiffies - t, HZ);
-+		
-+		fs_info(sdp, "jid=%u: Journal replayed in %lus\n",
-+			jd->jd_jid, t);
-+	}
-+
-+	gfs2_glock_dq_uninit(&ji_gh);
-+
-+	gfs2_lm_recovery_done(sdp, jd->jd_jid, LM_RD_SUCCESS);
-+
-+	gfs2_glock_dq_uninit(&j_gh);
-+
-+	fs_info(sdp, "jid=%u: Done\n", jd->jd_jid);
++		goto fail_slot;
 +
 +	return 0;
 +
-+ fail_gunlock_tr:
-+	gfs2_glock_dq_uninit(&t_gh);
-+
-+ fail_gunlock_ji:
-+	gfs2_glock_dq_uninit(&ji_gh);
-+
-+ fail_gunlock_j:
-+	gfs2_glock_dq_uninit(&j_gh);
-+
-+	fs_info(sdp, "jid=%u: %s\n", jd->jd_jid, (error) ? "Failed" : "Done");
++ fail_slot:
++	slot_put(*qdp);
 +
 + fail:
-+	gfs2_lm_recovery_done(sdp, jd->jd_jid, LM_RD_GAVEUP);
++	qd_put(*qdp);
++	return error;
++}
++
++static void qdsb_put(struct gfs2_quota_data *qd)
++{
++	bh_put(qd);
++	slot_put(qd);
++	qd_put(qd);
++}
++
++int gfs2_quota_hold(struct gfs2_inode *ip, uint32_t uid, uint32_t gid)
++{
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	struct gfs2_alloc *al = &ip->i_alloc;
++	struct gfs2_quota_data **qd = al->al_qd;
++	int error;
++
++	if (gfs2_assert_warn(sdp, !al->al_qd_num) ||
++	    gfs2_assert_warn(sdp, !test_bit(GIF_QD_LOCKED, &ip->i_flags)))
++		return -EIO;
++
++	if (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
++		return 0;
++
++	error = qdsb_get(sdp, QUOTA_USER, ip->i_di.di_uid, CREATE, qd);
++	if (error)
++		goto out;
++	al->al_qd_num++;
++	qd++;
++
++	error = qdsb_get(sdp, QUOTA_GROUP, ip->i_di.di_gid, CREATE, qd);
++	if (error)
++		goto out;
++	al->al_qd_num++;
++	qd++;
++
++	if (uid != NO_QUOTA_CHANGE && uid != ip->i_di.di_uid) {
++		error = qdsb_get(sdp, QUOTA_USER, uid, CREATE, qd);
++		if (error)
++			goto out;
++		al->al_qd_num++;
++		qd++;
++	}
++
++	if (gid != NO_QUOTA_CHANGE && gid != ip->i_di.di_gid) {
++		error = qdsb_get(sdp, QUOTA_GROUP, gid, CREATE, qd);
++		if (error)
++			goto out;
++		al->al_qd_num++;
++		qd++;
++	}
++
++ out:
++	if (error)
++		gfs2_quota_unhold(ip);
 +
 +	return error;
 +}
 +
-+/**
-+ * gfs2_check_journals - Recover any dirty journals
-+ * @sdp: the filesystem
-+ *
-+ */
-+
-+void gfs2_check_journals(struct gfs2_sbd *sdp)
++void gfs2_quota_unhold(struct gfs2_inode *ip)
 +{
-+	struct gfs2_jdesc *jd;
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	struct gfs2_alloc *al = &ip->i_alloc;
++	unsigned int x;
 +
-+	for (;;) {
-+		jd = gfs2_jdesc_find_dirty(sdp);
-+		if (!jd)
++	gfs2_assert_warn(sdp, !test_bit(GIF_QD_LOCKED, &ip->i_flags));
++
++	for (x = 0; x < al->al_qd_num; x++) {
++		qdsb_put(al->al_qd[x]);
++		al->al_qd[x] = NULL;
++	}
++	al->al_qd_num = 0;
++}
++
++static int sort_qd(const void *a, const void *b)
++{
++	struct gfs2_quota_data *qd_a = *(struct gfs2_quota_data **)a;
++	struct gfs2_quota_data *qd_b = *(struct gfs2_quota_data **)b;
++	int ret = 0;
++
++	if (!test_bit(QDF_USER, &qd_a->qd_flags) !=
++	    !test_bit(QDF_USER, &qd_b->qd_flags)) {
++		if (test_bit(QDF_USER, &qd_a->qd_flags))
++			ret = -1;
++		else
++			ret = 1;
++	} else {
++		if (qd_a->qd_id < qd_b->qd_id)
++			ret = -1;
++		else if (qd_a->qd_id > qd_b->qd_id)
++			ret = 1;
++	}
++
++	return ret;
++}
++
++static void do_qc(struct gfs2_quota_data *qd, int64_t change)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++	struct gfs2_inode *ip = sdp->sd_qc_inode->u.generic_ip;
++	struct gfs2_quota_change *qc = qd->qd_bh_qc;
++	int64_t x;
++
++	mutex_lock(&sdp->sd_quota_mutex);
++	gfs2_trans_add_bh(ip->i_gl, qd->qd_bh, 1);
++
++	if (!test_bit(QDF_CHANGE, &qd->qd_flags)) {
++		qc->qc_change = 0;
++		qc->qc_flags = 0;
++		if (test_bit(QDF_USER, &qd->qd_flags))
++			qc->qc_flags = cpu_to_be32(GFS2_QCF_USER);
++		qc->qc_id = cpu_to_be32(qd->qd_id);
++	}
++
++	x = qc->qc_change;
++	x = be64_to_cpu(x) + change;
++	qc->qc_change = cpu_to_be64(x);
++
++	spin_lock(&sdp->sd_quota_spin);
++	qd->qd_change = x;
++	spin_unlock(&sdp->sd_quota_spin);
++
++	if (!x) {
++		gfs2_assert_warn(sdp, test_bit(QDF_CHANGE, &qd->qd_flags));
++		clear_bit(QDF_CHANGE, &qd->qd_flags);
++		qc->qc_flags = 0;
++		qc->qc_id = 0;
++		slot_put(qd);
++		qd_put(qd);
++	} else if (!test_and_set_bit(QDF_CHANGE, &qd->qd_flags)) {
++		qd_hold(qd);
++		slot_hold(qd);
++	}
++			
++	mutex_unlock(&sdp->sd_quota_mutex);
++}
++
++/**
++ * gfs2_adjust_quota
++ *
++ * This function was mostly borrowed from gfs2_block_truncate_page which was
++ * in turn mostly borrowed from ext3
++ */
++static int gfs2_adjust_quota(struct gfs2_inode *ip, loff_t loc,
++			     int64_t change, struct gfs2_quota_data *qd)
++{
++	struct inode *inode = ip->i_vnode;
++	struct address_space *mapping = inode->i_mapping;
++	unsigned long index = loc >> PAGE_CACHE_SHIFT;
++	unsigned offset = loc & (PAGE_CACHE_SHIFT - 1);
++	unsigned blocksize, iblock, pos;
++	struct buffer_head *bh;
++	struct page *page;
++	void *kaddr;
++	__be64 *ptr;
++	u64 value;
++	int err = -EIO;
++
++	page = grab_cache_page(mapping, index);
++	if (!page)
++		return -ENOMEM;
++
++	blocksize = inode->i_sb->s_blocksize;
++	iblock = index << (PAGE_CACHE_SHIFT - inode->i_sb->s_blocksize_bits);
++
++	if (!page_has_buffers(page))
++		create_empty_buffers(page, blocksize, 0);
++
++	bh = page_buffers(page);
++	pos = blocksize;
++	while (offset >= pos) {
++		bh = bh->b_this_page;
++		iblock++;
++		pos += blocksize;
++	}
++
++	if (!buffer_mapped(bh)) {
++		gfs2_get_block(inode, iblock, bh, 1);
++		if (!buffer_mapped(bh))
++			goto unlock;
++	}
++
++	if (PageUptodate(page))
++		set_buffer_uptodate(bh);
++
++	if (!buffer_uptodate(bh)) {
++		ll_rw_block(READ, 1, &bh);
++		wait_on_buffer(bh);
++		if (!buffer_uptodate(bh))
++			goto unlock;
++	}
++
++	gfs2_trans_add_bh(ip->i_gl, bh, 0);
++
++	kaddr = kmap_atomic(page, KM_USER0);
++	ptr = (__be64 *)(kaddr + offset);
++	value = *ptr = cpu_to_be64(be64_to_cpu(*ptr) + change);
++	flush_dcache_page(page);
++	kunmap_atomic(kaddr, KM_USER0);
++	err = 0;
++	qd->qd_qb.qb_magic = cpu_to_be32(GFS2_MAGIC);
++#if 0
++	qd->qd_qb.qb_limit = cpu_to_be64(q.qu_limit);
++	qd->qd_qb.qb_warn = cpu_to_be64(q.qu_warn);
++#endif
++	qd->qd_qb.qb_value = cpu_to_be64(value);
++unlock:
++	unlock_page(page);
++	page_cache_release(page);
++	return err;
++}
++
++static int do_sync(unsigned int num_qd, struct gfs2_quota_data **qda)
++{
++	struct gfs2_sbd *sdp = (*qda)->qd_gl->gl_sbd;
++	struct gfs2_inode *ip = sdp->sd_quota_inode->u.generic_ip;
++	unsigned int data_blocks, ind_blocks;
++	struct file_ra_state ra_state;
++	struct gfs2_holder *ghs, i_gh;
++	unsigned int qx, x;
++	struct gfs2_quota_data *qd;
++	loff_t offset;
++	unsigned int nalloc = 0;
++	struct gfs2_alloc *al = NULL;
++	int error;
++
++	gfs2_write_calc_reserv(ip, sizeof(struct gfs2_quota),
++			      &data_blocks, &ind_blocks);
++
++	ghs = kcalloc(num_qd, sizeof(struct gfs2_holder), GFP_KERNEL);
++	if (!ghs)
++		return -ENOMEM;
++
++	sort(qda, num_qd, sizeof(struct gfs2_quota_data *), sort_qd, NULL);
++	for (qx = 0; qx < num_qd; qx++) {
++		error = gfs2_glock_nq_init(qda[qx]->qd_gl,
++					   LM_ST_EXCLUSIVE,
++					   GL_NOCACHE, &ghs[qx]);
++		if (error)
++			goto out;
++	}
++
++	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &i_gh);
++	if (error)
++		goto out;
++
++	for (x = 0; x < num_qd; x++) {
++		int alloc_required;
++
++		offset = qd2offset(qda[x]);
++		error = gfs2_write_alloc_required(ip, offset,
++						  sizeof(struct gfs2_quota),
++						  &alloc_required);
++		if (error)
++			goto out_gunlock;
++		if (alloc_required)
++			nalloc++;
++	}
++
++	if (nalloc) {
++		al = gfs2_alloc_get(ip);
++
++		al->al_requested = nalloc * (data_blocks + ind_blocks);
++
++		error = gfs2_inplace_reserve(ip);
++		if (error)
++			goto out_alloc;
++
++		error = gfs2_trans_begin(sdp,
++					 al->al_rgd->rd_ri.ri_length +
++					 num_qd * data_blocks +
++					 nalloc * ind_blocks +
++					 RES_DINODE + num_qd +
++					 RES_STATFS, 0);
++		if (error)
++			goto out_ipres;
++	} else {
++		error = gfs2_trans_begin(sdp,
++					 num_qd * data_blocks +
++					 RES_DINODE + num_qd, 0);
++		if (error)
++			goto out_gunlock;
++	}
++
++	file_ra_state_init(&ra_state, ip->i_vnode->i_mapping);
++	for (x = 0; x < num_qd; x++) {
++		qd = qda[x];
++		offset = qd2offset(qd);
++		error = gfs2_adjust_quota(ip, offset, qd->qd_change_sync,
++					  (struct gfs2_quota_data *)
++					  qd->qd_gl->gl_lvb);
++		if (error)
++			goto out_end_trans;
++
++		do_qc(qd, -qd->qd_change_sync);
++	}
++
++	error = 0;
++
++ out_end_trans:
++	gfs2_trans_end(sdp);
++
++ out_ipres:
++	if (nalloc)
++		gfs2_inplace_release(ip);
++
++ out_alloc:
++	if (nalloc)
++		gfs2_alloc_put(ip);
++
++ out_gunlock:
++	gfs2_glock_dq_uninit(&i_gh);
++
++ out:
++	while (qx--)
++		gfs2_glock_dq_uninit(&ghs[qx]);
++	kfree(ghs);
++	gfs2_log_flush(ip->i_gl->gl_sbd, ip->i_gl);
++
++	return error;
++}
++
++static int do_glock(struct gfs2_quota_data *qd, int force_refresh,
++		    struct gfs2_holder *q_gh)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++	struct gfs2_inode *ip = sdp->sd_quota_inode->u.generic_ip;
++	struct gfs2_holder i_gh;
++	struct gfs2_quota q;
++	char buf[sizeof(struct gfs2_quota)];
++	struct file_ra_state ra_state;
++	int error;
++
++	file_ra_state_init(&ra_state, sdp->sd_quota_inode->i_mapping);
++ restart:
++	error = gfs2_glock_nq_init(qd->qd_gl, LM_ST_SHARED, 0, q_gh);
++	if (error)
++		return error;
++
++	gfs2_quota_lvb_in(&qd->qd_qb, qd->qd_gl->gl_lvb);
++
++	if (force_refresh || qd->qd_qb.qb_magic != GFS2_MAGIC) {
++		loff_t pos;
++		gfs2_glock_dq_uninit(q_gh);
++		error = gfs2_glock_nq_init(qd->qd_gl,
++					  LM_ST_EXCLUSIVE, GL_NOCACHE,
++					  q_gh);
++		if (error)
++			return error;
++
++		error = gfs2_glock_nq_init(ip->i_gl,
++					  LM_ST_SHARED, 0,
++					  &i_gh);
++		if (error)
++			goto fail;
++
++		memset(buf, 0, sizeof(struct gfs2_quota));
++		pos = qd2offset(qd);
++		error = gfs2_internal_read(ip,
++					    &ra_state, buf,
++					    &pos,
++					    sizeof(struct gfs2_quota));
++		if (error < 0)
++			goto fail_gunlock;
++
++		gfs2_glock_dq_uninit(&i_gh);
++
++		gfs2_quota_in(&q, buf);
++
++		memset(&qd->qd_qb, 0, sizeof(struct gfs2_quota_lvb));
++		qd->qd_qb.qb_magic = GFS2_MAGIC;
++		qd->qd_qb.qb_limit = q.qu_limit;
++		qd->qd_qb.qb_warn = q.qu_warn;
++		qd->qd_qb.qb_value = q.qu_value;
++
++		gfs2_quota_lvb_out(&qd->qd_qb, qd->qd_gl->gl_lvb);
++
++		if (gfs2_glock_is_blocking(qd->qd_gl)) {
++			gfs2_glock_dq_uninit(q_gh);
++			force_refresh = 0;
++			goto restart;
++		}
++	}
++
++	return 0;
++
++ fail_gunlock:
++	gfs2_glock_dq_uninit(&i_gh);
++
++ fail:
++	gfs2_glock_dq_uninit(q_gh);
++
++	return error;
++}
++
++int gfs2_quota_lock(struct gfs2_inode *ip, uint32_t uid, uint32_t gid)
++{
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	struct gfs2_alloc *al = &ip->i_alloc;
++	unsigned int x;
++	int error = 0;
++
++	gfs2_quota_hold(ip, uid, gid);
++
++	if (capable(CAP_SYS_RESOURCE) ||
++	    sdp->sd_args.ar_quota != GFS2_QUOTA_ON)
++		return 0;
++
++	sort(al->al_qd, al->al_qd_num, sizeof(struct gfs2_quota_data *),
++	     sort_qd, NULL);
++
++	for (x = 0; x < al->al_qd_num; x++) {
++		error = do_glock(al->al_qd[x], NO_FORCE, &al->al_qd_ghs[x]);
++		if (error)
 +			break;
++	}
 +
-+		if (jd != sdp->sd_jdesc)
-+			gfs2_recover_journal(jd);
++	if (!error)
++		set_bit(GIF_QD_LOCKED, &ip->i_flags);
++	else {
++		while (x--)
++			gfs2_glock_dq_uninit(&al->al_qd_ghs[x]);
++		gfs2_quota_unhold(ip);
++	}
++
++	return error;
++}
++
++static int need_sync(struct gfs2_quota_data *qd)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++	struct gfs2_tune *gt = &sdp->sd_tune;
++	int64_t value;
++	unsigned int num, den;
++	int do_sync = 1;
++
++	if (!qd->qd_qb.qb_limit)
++		return 0;
++
++	spin_lock(&sdp->sd_quota_spin);
++	value = qd->qd_change;
++	spin_unlock(&sdp->sd_quota_spin);
++
++	spin_lock(&gt->gt_spin);
++	num = gt->gt_quota_scale_num;
++	den = gt->gt_quota_scale_den;
++	spin_unlock(&gt->gt_spin);
++
++	if (value < 0)
++		do_sync = 0;
++	else if (qd->qd_qb.qb_value >= (int64_t)qd->qd_qb.qb_limit)
++		do_sync = 0;
++	else {
++		value *= gfs2_jindex_size(sdp) * num;
++		do_div(value, den);
++		value += qd->qd_qb.qb_value;
++		if (value < (int64_t)qd->qd_qb.qb_limit)
++			do_sync = 0;
++	}
++
++	return do_sync;
++}
++
++void gfs2_quota_unlock(struct gfs2_inode *ip)
++{
++	struct gfs2_alloc *al = &ip->i_alloc;
++	struct gfs2_quota_data *qda[4];
++	unsigned int count = 0;
++	unsigned int x;
++
++	if (!test_and_clear_bit(GIF_QD_LOCKED, &ip->i_flags))
++		goto out;
++
++	for (x = 0; x < al->al_qd_num; x++) {
++		struct gfs2_quota_data *qd;
++		int sync;
++
++		qd = al->al_qd[x];
++		sync = need_sync(qd);
++
++		gfs2_glock_dq_uninit(&al->al_qd_ghs[x]);
++
++		if (sync && qd_trylock(qd))
++			qda[count++] = qd;
++	}
++
++	if (count) {
++		do_sync(count, qda);
++		for (x = 0; x < count; x++)
++			qd_unlock(qda[x]);
++	}
++
++ out:
++	gfs2_quota_unhold(ip);
++}
++
++#define MAX_LINE 256
++
++static int print_message(struct gfs2_quota_data *qd, char *type)
++{
++	struct gfs2_sbd *sdp = qd->qd_gl->gl_sbd;
++	char *line;
++	int len;
++
++	line = kmalloc(MAX_LINE, GFP_KERNEL);
++	if (!line)
++		return -ENOMEM;
++
++	len = snprintf(line, MAX_LINE-1,
++		       "GFS2: fsid=%s: quota %s for %s %u\r\n",
++		       sdp->sd_fsname, type,
++		       (test_bit(QDF_USER, &qd->qd_flags)) ? "user" : "group",
++		       qd->qd_id);
++	line[MAX_LINE-1] = 0;
++
++	if (current->signal) { /* Is this test still required? */
++		tty_write_message(current->signal->tty, line);
++	}
++
++	kfree(line);
++
++	return 0;
++}
++
++int gfs2_quota_check(struct gfs2_inode *ip, uint32_t uid, uint32_t gid)
++{
++	struct gfs2_sbd *sdp = ip->i_sbd;
++	struct gfs2_alloc *al = &ip->i_alloc;
++	struct gfs2_quota_data *qd;
++	int64_t value;
++	unsigned int x;
++	int error = 0;
++
++	if (!test_bit(GIF_QD_LOCKED, &ip->i_flags))
++		return 0;
++
++        if (sdp->sd_args.ar_quota != GFS2_QUOTA_ON)
++                return 0;
++
++	for (x = 0; x < al->al_qd_num; x++) {
++		qd = al->al_qd[x];
++
++		if (!((qd->qd_id == uid && test_bit(QDF_USER, &qd->qd_flags)) ||
++		      (qd->qd_id == gid && !test_bit(QDF_USER, &qd->qd_flags))))
++			continue;
++
++		value = qd->qd_qb.qb_value;
++		spin_lock(&sdp->sd_quota_spin);
++		value += qd->qd_change;
++		spin_unlock(&sdp->sd_quota_spin);
++
++		if (qd->qd_qb.qb_limit && (int64_t)qd->qd_qb.qb_limit < value) {
++			print_message(qd, "exceeded");
++			error = -EDQUOT;
++			break;
++		} else if (qd->qd_qb.qb_warn &&
++			   (int64_t)qd->qd_qb.qb_warn < value &&
++			   time_after_eq(jiffies, qd->qd_last_warn +
++					 gfs2_tune_get(sdp,
++						gt_quota_warn_period) * HZ)) {
++			error = print_message(qd, "warning");
++			qd->qd_last_warn = jiffies;
++		}
++	}
++
++	return error;
++}
++
++void gfs2_quota_change(struct gfs2_inode *ip, int64_t change,
++		       uint32_t uid, uint32_t gid)
++{
++	struct gfs2_alloc *al = &ip->i_alloc;
++	struct gfs2_quota_data *qd;
++	unsigned int x;
++	unsigned int found = 0;
++
++	if (gfs2_assert_warn(ip->i_sbd, change))
++		return;
++	if (ip->i_di.di_flags & GFS2_DIF_SYSTEM)
++		return;
++
++	for (x = 0; x < al->al_qd_num; x++) {
++		qd = al->al_qd[x];
++
++		if ((qd->qd_id == uid && test_bit(QDF_USER, &qd->qd_flags)) ||
++		    (qd->qd_id == gid && !test_bit(QDF_USER, &qd->qd_flags))) {
++			do_qc(qd, change);
++			found++;
++		}
++	}
++}
++
++int gfs2_quota_sync(struct gfs2_sbd *sdp)
++{
++	struct gfs2_quota_data **qda;
++	unsigned int max_qd = gfs2_tune_get(sdp, gt_quota_simul_sync);
++	unsigned int num_qd;
++	unsigned int x;
++	int error = 0;
++
++	sdp->sd_quota_sync_gen++;
++
++	qda = kcalloc(max_qd, sizeof(struct gfs2_quota_data *), GFP_KERNEL);
++	if (!qda)
++		return -ENOMEM;
++
++	do {
++		num_qd = 0;
++
++		for (;;) {
++			error = qd_fish(sdp, qda + num_qd);
++			if (error || !qda[num_qd])
++				break;
++			if (++num_qd == max_qd)
++				break;
++		}
++
++		if (num_qd) {
++			if (!error)
++				error = do_sync(num_qd, qda);
++			if (!error)
++				for (x = 0; x < num_qd; x++)
++					qda[x]->qd_sync_gen =
++						sdp->sd_quota_sync_gen;
++
++			for (x = 0; x < num_qd; x++)
++				qd_unlock(qda[x]);
++		}
++	} while (!error && num_qd == max_qd);
++
++	kfree(qda);
++
++	return error;
++}
++
++int gfs2_quota_refresh(struct gfs2_sbd *sdp, int user, uint32_t id)
++{
++	struct gfs2_quota_data *qd;
++	struct gfs2_holder q_gh;
++	int error;
++
++	error = qd_get(sdp, user, id, CREATE, &qd);
++	if (error)
++		return error;
++
++	error = do_glock(qd, FORCE, &q_gh);
++	if (!error)
++		gfs2_glock_dq_uninit(&q_gh);
++
++	qd_put(qd);
++
++	return error;
++}
++
++int gfs2_quota_read(struct gfs2_sbd *sdp, int user, uint32_t id,
++		    struct gfs2_quota *q)
++{
++	struct gfs2_quota_data *qd;
++	struct gfs2_holder q_gh;
++	int error;
++
++	if (((user) ? (id != current->fsuid) : (!in_group_p(id))) &&
++	    !capable(CAP_SYS_ADMIN))
++		return -EACCES;
++
++	error = qd_get(sdp, user, id, CREATE, &qd);
++	if (error)
++		return error;
++
++	error = do_glock(qd, NO_FORCE, &q_gh);
++	if (error)
++		goto out;
++
++	memset(q, 0, sizeof(struct gfs2_quota));
++	q->qu_limit = qd->qd_qb.qb_limit;
++	q->qu_warn = qd->qd_qb.qb_warn;
++	q->qu_value = qd->qd_qb.qb_value;
++
++	spin_lock(&sdp->sd_quota_spin);
++	q->qu_value += qd->qd_change;
++	spin_unlock(&sdp->sd_quota_spin);
++
++	gfs2_glock_dq_uninit(&q_gh);
++
++ out:
++	qd_put(qd);
++
++	return error;
++}
++
++int gfs2_quota_init(struct gfs2_sbd *sdp)
++{
++	struct gfs2_inode *ip = sdp->sd_qc_inode->u.generic_ip;
++	unsigned int blocks = ip->i_di.di_size >> sdp->sd_sb.sb_bsize_shift;
++	unsigned int x, slot = 0;
++	unsigned int found = 0;
++	uint64_t dblock;
++	uint32_t extlen = 0;
++	int error;
++
++	if (!ip->i_di.di_size ||
++	    ip->i_di.di_size > (64 << 20) ||
++	    ip->i_di.di_size & (sdp->sd_sb.sb_bsize - 1)) {
++		gfs2_consist_inode(ip);
++		return -EIO;		
++	}
++	sdp->sd_quota_slots = blocks * sdp->sd_qc_per_block;
++	sdp->sd_quota_chunks = DIV_ROUND_UP(sdp->sd_quota_slots, 8 * PAGE_SIZE);
++
++	error = -ENOMEM;
++
++	sdp->sd_quota_bitmap = kcalloc(sdp->sd_quota_chunks,
++				       sizeof(unsigned char *), GFP_KERNEL);
++	if (!sdp->sd_quota_bitmap)
++		return error;
++
++	for (x = 0; x < sdp->sd_quota_chunks; x++) {
++		sdp->sd_quota_bitmap[x] = kzalloc(PAGE_SIZE, GFP_KERNEL);
++		if (!sdp->sd_quota_bitmap[x])
++			goto fail;
++	}
++
++	for (x = 0; x < blocks; x++) {
++		struct buffer_head *bh;
++		unsigned int y;
++
++		if (!extlen) {
++			int new = 0;
++			error = gfs2_block_map(ip, x, &new, &dblock, &extlen);
++			if (error)
++				goto fail;
++		}
++		gfs2_meta_ra(ip->i_gl,  dblock, extlen);
++		error = gfs2_meta_read(ip->i_gl, dblock, DIO_START | DIO_WAIT,
++				       &bh);
++		if (error)
++			goto fail;
++		error = -EIO;
++		if (gfs2_metatype_check(sdp, bh, GFS2_METATYPE_QC)) {
++			brelse(bh);
++			goto fail;
++		}
++
++		for (y = 0;
++		     y < sdp->sd_qc_per_block && slot < sdp->sd_quota_slots;
++		     y++, slot++) {
++			struct gfs2_quota_change qc;
++			struct gfs2_quota_data *qd;
++
++			gfs2_quota_change_in(&qc, bh->b_data +
++					  sizeof(struct gfs2_meta_header) +
++					  y * sizeof(struct gfs2_quota_change));
++			if (!qc.qc_change)
++				continue;
++
++			error = qd_alloc(sdp, (qc.qc_flags & GFS2_QCF_USER),
++					 qc.qc_id, &qd);
++			if (error) {
++				brelse(bh);
++				goto fail;
++			}
++
++			set_bit(QDF_CHANGE, &qd->qd_flags);
++			qd->qd_change = qc.qc_change;
++			qd->qd_slot = slot;
++			qd->qd_slot_count = 1;
++			qd->qd_last_touched = jiffies;
++
++			spin_lock(&sdp->sd_quota_spin);
++			gfs2_icbit_munge(sdp, sdp->sd_quota_bitmap, slot, 1);
++			list_add(&qd->qd_list, &sdp->sd_quota_list);
++			atomic_inc(&sdp->sd_quota_count);
++			spin_unlock(&sdp->sd_quota_spin);
++
++			found++;
++		}
++
++		brelse(bh);
++		dblock++;
++		extlen--;
++	}
++
++	if (found)
++		fs_info(sdp, "found %u quota changes\n", found);
++
++	return 0;
++
++ fail:
++	gfs2_quota_cleanup(sdp);
++	return error;
++}
++
++void gfs2_quota_scan(struct gfs2_sbd *sdp)
++{
++	struct gfs2_quota_data *qd, *safe;
++	LIST_HEAD(dead);
++
++	spin_lock(&sdp->sd_quota_spin);
++	list_for_each_entry_safe(qd, safe, &sdp->sd_quota_list, qd_list) {
++		if (!qd->qd_count &&
++		    time_after_eq(jiffies, qd->qd_last_touched +
++			        gfs2_tune_get(sdp, gt_quota_cache_secs) * HZ)) {
++			list_move(&qd->qd_list, &dead);
++			gfs2_assert_warn(sdp,
++					 atomic_read(&sdp->sd_quota_count) > 0);
++			atomic_dec(&sdp->sd_quota_count);
++		}
++	}
++	spin_unlock(&sdp->sd_quota_spin);
++
++	while (!list_empty(&dead)) {
++		qd = list_entry(dead.next, struct gfs2_quota_data, qd_list);
++		list_del(&qd->qd_list);
++
++		gfs2_assert_warn(sdp, !qd->qd_change);
++		gfs2_assert_warn(sdp, !qd->qd_slot_count);
++		gfs2_assert_warn(sdp, !qd->qd_bh_count);
++
++		gfs2_lvb_unhold(qd->qd_gl);
++		kfree(qd);
++	}
++}
++
++void gfs2_quota_cleanup(struct gfs2_sbd *sdp)
++{
++	struct list_head *head = &sdp->sd_quota_list;
++	struct gfs2_quota_data *qd;
++	unsigned int x;
++
++	spin_lock(&sdp->sd_quota_spin);
++	while (!list_empty(head)) {
++		qd = list_entry(head->prev, struct gfs2_quota_data, qd_list);
++
++		if (qd->qd_count > 1 ||
++		    (qd->qd_count && !test_bit(QDF_CHANGE, &qd->qd_flags))) {
++			list_move(&qd->qd_list, head);
++			spin_unlock(&sdp->sd_quota_spin);
++			schedule();
++			spin_lock(&sdp->sd_quota_spin);
++			continue;
++		}
++
++		list_del(&qd->qd_list);
++		atomic_dec(&sdp->sd_quota_count);
++		spin_unlock(&sdp->sd_quota_spin);
++
++		if (!qd->qd_count) {
++			gfs2_assert_warn(sdp, !qd->qd_change);
++			gfs2_assert_warn(sdp, !qd->qd_slot_count);
++		} else
++			gfs2_assert_warn(sdp, qd->qd_slot_count == 1);
++		gfs2_assert_warn(sdp, !qd->qd_bh_count);
++
++		gfs2_lvb_unhold(qd->qd_gl);
++		kfree(qd);
++
++		spin_lock(&sdp->sd_quota_spin);
++	}
++	spin_unlock(&sdp->sd_quota_spin);
++
++	gfs2_assert_warn(sdp, !atomic_read(&sdp->sd_quota_count));
++
++	if (sdp->sd_quota_bitmap) {
++		for (x = 0; x < sdp->sd_quota_chunks; x++)
++			kfree(sdp->sd_quota_bitmap[x]);
++		kfree(sdp->sd_quota_bitmap);
 +	}
 +}
 +
 --- /dev/null
-+++ b/fs/gfs2/recovery.h
-@@ -0,0 +1,32 @@
++++ b/fs/gfs2/quota.h
+@@ -0,0 +1,34 @@
 +/*
 + * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
 + * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
@@ -1296,28 +1357,109 @@ Signed-off-by: David Teigland <teigland@redhat.com>
 + * of the GNU General Public License v.2.
 + */
 +
-+#ifndef __RECOVERY_DOT_H__
-+#define __RECOVERY_DOT_H__
++#ifndef __QUOTA_DOT_H__
++#define __QUOTA_DOT_H__
 +
-+static inline void gfs2_replay_incr_blk(struct gfs2_sbd *sdp, unsigned int *blk)
++#define NO_QUOTA_CHANGE ((uint32_t)-1)
++
++int gfs2_quota_hold(struct gfs2_inode *ip, uint32_t uid, uint32_t gid);
++void gfs2_quota_unhold(struct gfs2_inode *ip);
++
++int gfs2_quota_lock(struct gfs2_inode *ip, uint32_t uid, uint32_t gid);
++void gfs2_quota_unlock(struct gfs2_inode *ip);
++
++int gfs2_quota_check(struct gfs2_inode *ip, uint32_t uid, uint32_t gid);
++void gfs2_quota_change(struct gfs2_inode *ip, int64_t change,
++		       uint32_t uid, uint32_t gid);
++
++int gfs2_quota_sync(struct gfs2_sbd *sdp);
++int gfs2_quota_refresh(struct gfs2_sbd *sdp, int user, uint32_t id);
++int gfs2_quota_read(struct gfs2_sbd *sdp, int user, uint32_t id,
++		    struct gfs2_quota *q);
++
++int gfs2_quota_init(struct gfs2_sbd *sdp);
++void gfs2_quota_scan(struct gfs2_sbd *sdp);
++void gfs2_quota_cleanup(struct gfs2_sbd *sdp);
++
++#endif /* __QUOTA_DOT_H__ */
+--- /dev/null
++++ b/fs/gfs2/lvb.c
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
++ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
++ *
++ * This copyrighted material is made available to anyone wishing to use,
++ * modify, copy, or redistribute it subject to the terms and conditions
++ * of the GNU General Public License v.2.
++ */
++
++#include <linux/sched.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/completion.h>
++#include <linux/buffer_head.h>
++#include <linux/gfs2_ondisk.h>
++#include <asm/semaphore.h>
++
++#include "gfs2.h"
++#include "lm_interface.h"
++#include "incore.h"
++#include "lvb.h"
++
++#define pv(struct, member, fmt) printk(KERN_INFO "  "#member" = "fmt"\n", \
++				       struct->member);
++
++void gfs2_quota_lvb_in(struct gfs2_quota_lvb *qb, char *lvb)
 +{
-+	if (++*blk == sdp->sd_jdesc->jd_blocks)
-+	        *blk = 0;
++	struct gfs2_quota_lvb *str = (struct gfs2_quota_lvb *)lvb;
++
++	qb->qb_magic = be32_to_cpu(str->qb_magic);
++	qb->qb_limit = be64_to_cpu(str->qb_limit);
++	qb->qb_warn  = be64_to_cpu(str->qb_warn);
++	qb->qb_value = be64_to_cpu(str->qb_value);
 +}
 +
-+int gfs2_replay_read_block(struct gfs2_jdesc *jd, unsigned int blk,
-+			   struct buffer_head **bh);
++void gfs2_quota_lvb_out(struct gfs2_quota_lvb *qb, char *lvb)
++{
++	struct gfs2_quota_lvb *str = (struct gfs2_quota_lvb *)lvb;
 +
-+int gfs2_revoke_add(struct gfs2_sbd *sdp, uint64_t blkno, unsigned int where);
-+int gfs2_revoke_check(struct gfs2_sbd *sdp, uint64_t blkno, unsigned int where);
-+void gfs2_revoke_clean(struct gfs2_sbd *sdp);
++	str->qb_magic = cpu_to_be32(qb->qb_magic);
++	str->qb_limit = cpu_to_be64(qb->qb_limit);
++	str->qb_warn  = cpu_to_be64(qb->qb_warn);
++	str->qb_value = cpu_to_be64(qb->qb_value);
++}
 +
-+int gfs2_find_jhead(struct gfs2_jdesc *jd,
-+		    struct gfs2_log_header *head);
-+int gfs2_recover_journal(struct gfs2_jdesc *gfs2_jd);
-+void gfs2_check_journals(struct gfs2_sbd *sdp);
++void gfs2_quota_lvb_print(struct gfs2_quota_lvb *qb)
++{
++	pv(qb, qb_magic, "%u");
++	pv(qb, qb_limit, "%llu");
++	pv(qb, qb_warn, "%llu");
++	pv(qb, qb_value, "%lld");
++}
 +
-+#endif /* __RECOVERY_DOT_H__ */
+--- /dev/null
++++ b/fs/gfs2/lvb.h
+@@ -0,0 +1,20 @@
++/*
++ * Copyright (C) Sistina Software, Inc.  1997-2003 All rights reserved.
++ * Copyright (C) 2004-2005 Red Hat, Inc.  All rights reserved.
++ *
++ * This copyrighted material is made available to anyone wishing to use,
++ * modify, copy, or redistribute it subject to the terms and conditions
++ * of the GNU General Public License v.2.
++ */
++
++#ifndef __LVB_DOT_H__
++#define __LVB_DOT_H__
++
++#define GFS2_MIN_LVB_SIZE 32
++
++void gfs2_quota_lvb_in(struct gfs2_quota_lvb *qb, char *lvb);
++void gfs2_quota_lvb_out(struct gfs2_quota_lvb *qb, char *lvb);
++void gfs2_quota_lvb_print(struct gfs2_quota_lvb *qb);
++
++#endif /* __LVB_DOT_H__ */
 +
 
 

@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWDUMaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWDUMav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWDUMaF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 08:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWDUMaF
+	id S932179AbWDUMav (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 08:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWDUMav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 08:30:05 -0400
-Received: from 216-54-166-5.gen.twtelecom.net ([216.54.166.5]:20131 "EHLO
-	mx1.compro.net") by vger.kernel.org with ESMTP id S932113AbWDUMaE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 08:30:04 -0400
-Message-ID: <4448D047.8070202@compro.net>
-Date: Fri, 21 Apr 2006 08:29:59 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: dmarkh@cfl.rr.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: get_user_pages ?
-References: <44475DBA.7020308@cfl.rr.com> <44477585.4030508@yahoo.com.au> <4447E6C4.9070207@compro.net> <4447E86E.9000507@yahoo.com.au>
-In-Reply-To: <4447E86E.9000507@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Apr 2006 08:30:51 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59087 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932179AbWDUMau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 08:30:50 -0400
+Date: Fri, 21 Apr 2006 14:30:49 +0200
+From: Jan Kara <jack@suse.cz>
+To: Belan Kumar <belkumar@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: VFS && UFS write support: possible on *BSD/Solaris, impossible on Linux?
+Message-ID: <20060421123049.GE3154@atrey.karlin.mff.cuni.cz>
+References: <84a104fc0604190222k49e4ebbcn7b807743afcd9fc3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84a104fc0604190222k49e4ebbcn7b807743afcd9fc3@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Mark Hounschell wrote:
->> Nick Piggin wrote:
-> 
->>> This area is going through some changes lately. If you want something to
->>> quickly get things working, removing VM_PFNMAP from your vma flags
->>> should
->>> work.
->>>
->>
->>
->> Yes, that actually does work while the task is running but as soon as I
->> exit the task the machine freezes.
-> 
-> Hmm. Does it freeze, or oops? (ie. were you in X and missed the oops)
-> Can you get a sysrq backtrace?
-> 
-> Oh, hmm you'll need to increment the refcount of each page before
-> mapping it. That's probably the problem.
-> 
-> OK, I'd suggest either using vm_insert_page, or converting it all over
-> to a ->nopage handler then.
-> 
+  Hello,
 
-I set the bit back on after get_user_pages and now I seem to be OK.
+> May be better call subject something like: "Shortest way to ufs write support",
+> but current subject give more chances to recieve answer.
+> 
+> First of all I try explain the current problem:
+> UFS as other block file systems has notition of "block",
+> but further to "block" notion it has "fragment" concept.
+> "fragment" used for preventing waste of space.
+> Usually fragment==block/8, and if "the rest of file" doesn't occupy
+> the whole block, it occupy several fragments. If file grows, at some point
+> "the rest of file"  will be occupy 8 fragments. And HERE IS PROBLEM,
+> we should allocate block and move 8 fragments to it.
+> 
+> On *BSD/Solaris it is simple: they read analog of buffer_head and
+> change analog of b_blocknr and that's all.
+> 
+> The current code of fs/ufs/balloc.c does the same:
+> ----------------------
+> sb_bread
+> bh->b_blocknr =
+> mark_buffer_dirty (bh)
+> brelse (bh)
+> --------------------------
+> I suppose you guess: it doesn't work,
+> latter when you do sb_getblk(old_blocknr) it give to us the same block
+> and after that kernel hang up.
+> 
+> 
+> Hence question: what would be the proper solution in this situation?
+> Is it possible in current VFS change b_blocknr?
+  I guess it is possible but certainly it's not that easy as just
+changing b_blocknr. Each buffer head is attached to a page (either to a
+page of a backing device mapping or to a page belonging to the inode
+mapping). And if you look at e.g. __find_get_block_slow() you'll see
+that we look for the buffer using that page. So you definitely need to
+somehow attach the buffer to the new page at the correct location.
 
-You've looked at the code some obviously. What is in my future WRT these
-changes being made that you referenced above and the depreciation of
-some of the calls in use. Given my situation, do you foresee anything
-that will keep me from being able to get valid bus addresses for my pte?
-
-Thanks
-Mark
+								Honza
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

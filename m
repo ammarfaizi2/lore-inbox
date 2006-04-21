@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWDUVRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWDUVTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWDUVRN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 17:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWDUVRN
+	id S932093AbWDUVTh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 17:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWDUVTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 17:17:13 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7371 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964786AbWDUVRL (ORCPT
+	Fri, 21 Apr 2006 17:19:36 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:45251 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932093AbWDUVTg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 17:17:11 -0400
-Date: Fri, 21 Apr 2006 23:15:55 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Arkadiusz Miskiewicz <arekm@maven.pl>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>, Jeff Garzik <jeff@garzik.org>,
-       Matt Mackall <mpm@selenic.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sata suspend resume ...
-Message-ID: <20060421211555.GB3206@elf.ucw.cz>
-References: <Pine.LNX.4.64.0604192324040.29606@indiana.corp.fedex.com> <Pine.LNX.4.64.0604191659230.7660@blonde.wat.veritas.com> <20060420134713.GA2360@ucw.cz> <Pine.LNX.4.64.0604211333050.4891@blonde.wat.veritas.com> <20060421163930.GA1648@elf.ucw.cz> <Pine.LNX.4.64.0604212108010.7531@blonde.wat.veritas.com>
+	Fri, 21 Apr 2006 17:19:36 -0400
+Message-ID: <44494C63.5000606@garzik.org>
+Date: Fri, 21 Apr 2006 17:19:31 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604212108010.7531@blonde.wat.veritas.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Peter Korsgaard <jacmet@sunsite.dk>
+CC: lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] OpenCores I2C bus driver
+References: <87fyk71eps.fsf@sleipner.barco.com>
+In-Reply-To: <87fyk71eps.fsf@sleipner.barco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.0 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.0 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This is a patch I'd not be ashamed to send Jeff Garzik cc linux-ide,
-> even if we can't name precisely why it's ATA_BUSY then.  But I'll
-> give it a day or so of real-life suspend/resuming first - Arkadiusz
-> and I both noticed we're more likely to resume successfully after
-> a brief suspend, so longer suspends are needed for proper testing.
-
-Thanks, looks good.
-							Pavel
-
-> Hugh
+Peter Korsgaard wrote:
+> Hi,
 > 
-> --- 2.6.17-rc2/drivers/scsi/libata-core.c	2006-04-19 09:14:11.000000000 +0100
-> +++ linux/drivers/scsi/libata-core.c	2006-04-21 20:55:48.000000000 +0100
-> @@ -4288,6 +4288,7 @@ int ata_device_resume(struct ata_port *a
->  {
->  	if (ap->flags & ATA_FLAG_SUSPENDED) {
->  		ap->flags &= ~ATA_FLAG_SUSPENDED;
-> +		ata_busy_sleep(ap, ATA_TMOUT_BOOT_QUICK, ATA_TMOUT_BOOT);
->  		ata_set_mode(ap);
->  	}
->  	if (!ata_dev_present(dev))
+> The following patch adds support for the OpenCores I2C controller IP
+> core (See http://www.opencores.org/projects.cgi/web/i2c/overview).
+> 
+> Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
 
--- 
-Thanks for all the (sleeping) penguins.
+Very cool...   I'm glad to see opencores stuff making it into the 
+upstream kernel.
+
+One day I hope to see the OpenRISC port in the upstream kernel...
+
+	Jeff
+
+
+

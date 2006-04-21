@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWDUHW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWDUH1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWDUHW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 03:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWDUHW5
+	id S1751273AbWDUH1o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 03:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWDUH1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 03:22:57 -0400
-Received: from mail1.sea5.speakeasy.net ([69.17.117.3]:3480 "EHLO
-	mail1.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751255AbWDUHW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 03:22:56 -0400
-Date: Fri, 21 Apr 2006 03:22:54 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Daniel Walker <dwalker@mvista.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kfree(NULL)
-In-Reply-To: <200604210703.k3L73VZ6019794@dwalker1.mvista.com>
-Message-ID: <Pine.LNX.4.64.0604210322110.21429@d.namei>
-References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com>
+	Fri, 21 Apr 2006 03:27:44 -0400
+Received: from mga02.intel.com ([134.134.136.20]:3158 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751267AbWDUH1n convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 03:27:43 -0400
+X-IronPort-AV: i="4.04,143,1144047600"; 
+   d="scan'208"; a="25946352:sNHT19714345"
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [RFC] [PATCH] Make ACPI button driver an input device
+Date: Fri, 21 Apr 2006 15:27:25 +0800
+Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD13787F2@pdsmsx411.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC] [PATCH] Make ACPI button driver an input device
+Thread-Index: AcZksPoV/sXV/XVASKGHwaB98S0DLwAYCDwA
+From: "Yu, Luming" <luming.yu@intel.com>
+To: <dtor_core@ameritech.net>,
+       "Alexey Starikovskiy" <alexey_y_starikovskiy@linux.intel.com>
+Cc: "Xavier Bestel" <xavier.bestel@free.fr>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>, <linux-acpi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Apr 2006 07:27:27.0063 (UTC) FILETIME=[0A727670:01C66515]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Apr 2006, Daniel Walker wrote:
+>> > There are keyboards with power/sleep buttons. It makes 
+>sense they have
+>> > the same behavior than ACPI buttons.
+>> Agree, make them behave like ACPI buttons -- remove them 
+>from input stream, as they do not belong there...
+>
+>What if there is no ACPI? What if I want to remap the button to do
+>something else? Input layer is the proper place for them.
 
-> 	I included a patch , not like it's needed . Recently I've been
-> evaluating likely/unlikely branch prediction .. One thing that I found 
-> is that the kfree function is often called with a NULL "objp" . In fact
-> it's so frequent that the "unlikely" branch predictor should be inverted!
-> Or at least on my configuration. 
+If you define input layer as a universe place to all manual input 
+activity, then I agree to port some type of ACPI event into
+input layer.  But it shouldn't be a fake keyboard scancode,
+My suggestion is to have a separate input event type,e.g. EV_ACPI
+for acpi event layer.
 
-It would be helpful to collect some stats on this so we can look at the 
-ratio.
+>
+>--
+>Dmitry
 
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
+Thanks,
+Luming

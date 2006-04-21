@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWDUEsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWDUEsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWDUEsE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 00:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWDUEoh
+	id S932242AbWDUEsv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 00:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWDUEoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 00:44:37 -0400
-Received: from mail.kroah.org ([69.55.234.183]:12674 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932251AbWDUEoR (ORCPT
+	Fri, 21 Apr 2006 00:44:32 -0400
+Received: from mail.kroah.org ([69.55.234.183]:18562 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932254AbWDUEoU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 00:44:17 -0400
-Date: Thu, 20 Apr 2006 21:39:20 -0700
+	Fri, 21 Apr 2006 00:44:20 -0400
+Date: Thu, 20 Apr 2006 21:38:30 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,149 +17,81 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       benh@kernel.crashing.org, Guido Guenther <agx@sigxcpu.org>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 18/22] Fix file lookup without ref
-Message-ID: <20060421043920.GO12846@kroah.com>
+Subject: [patch 08/22] PPC: fix oops in alsa powermac driver
+Message-ID: <20060421043830.GI12846@kroah.com>
 References: <20060421043353.602539000@blue.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-file-lookup-without-ref.patch"
+Content-Disposition: inline; filename="re-ppc-fix-oops-in-alsa-powermac-driver.patch"
 In-Reply-To: <20060421043706.GA12846@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dipankar Sarma <dipankar@in.ibm.com>
+this fixes an oops in 2.6.16.X when loading the snd_powermac module. The
+name of the requested module changed during the 2.6.16 development cycle
+from i2c-keylargo to i2c-powermac:
 
-[PATCH] Fix file lookup without ref
-
-There are places in the kernel where we look up files in fd tables and
-access the file structure without holding refereces to the file.  So, we
-need special care to avoid the race between looking up files in the fd
-table and tearing down of the file in another CPU.  Otherwise, one might
-see a NULL f_dentry or such torn down version of the file.  This patch
-fixes those special places where such a race may happen.
-
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
-Acked-by: "Paul E. McKenney" <paulmck@us.ibm.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Guido Guenther <agx@sigxcpu.org>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- drivers/char/tty_io.c |    8 ++++++--
- fs/locks.c            |    9 +++++++--
- fs/proc/base.c        |   21 +++++++++++++++------
- 3 files changed, 28 insertions(+), 10 deletions(-)
+ drivers/macintosh/therm_adt746x.c |    4 ++--
+ sound/oss/dmasound/tas_common.c   |    4 ++--
+ sound/ppc/daca.c                  |    2 +-
+ sound/ppc/tumbler.c               |    2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
---- linux-2.6.16.9.orig/drivers/char/tty_io.c
-+++ linux-2.6.16.9/drivers/char/tty_io.c
-@@ -2706,7 +2706,11 @@ static void __do_SAK(void *arg)
- 		}
- 		task_lock(p);
- 		if (p->files) {
--			rcu_read_lock();
-+			/*
-+			 * We don't take a ref to the file, so we must
-+			 * hold ->file_lock instead.
-+			 */
-+			spin_lock(&p->files->file_lock);
- 			fdt = files_fdtable(p->files);
- 			for (i=0; i < fdt->max_fds; i++) {
- 				filp = fcheck_files(p->files, i);
-@@ -2721,7 +2725,7 @@ static void __do_SAK(void *arg)
- 					break;
- 				}
- 			}
--			rcu_read_unlock();
-+			spin_unlock(&p->files->file_lock);
- 		}
- 		task_unlock(p);
- 	} while_each_task_pid(session, PIDTYPE_SID, p);
---- linux-2.6.16.9.orig/fs/locks.c
-+++ linux-2.6.16.9/fs/locks.c
-@@ -2212,7 +2212,12 @@ void steal_locks(fl_owner_t from)
+--- linux-2.6.16.9.orig/drivers/macintosh/therm_adt746x.c
++++ linux-2.6.16.9/drivers/macintosh/therm_adt746x.c
+@@ -627,8 +627,8 @@ thermostat_init(void)
+ 	if(therm_type == ADT7460)
+ 		device_create_file(&of_dev->dev, &dev_attr_sensor2_fan_speed);
  
- 	lock_kernel();
- 	j = 0;
--	rcu_read_lock();
-+
-+	/*
-+	 * We are not taking a ref to the file structures, so
-+	 * we need to acquire ->file_lock.
-+	 */
-+	spin_lock(&files->file_lock);
- 	fdt = files_fdtable(files);
- 	for (;;) {
- 		unsigned long set;
-@@ -2230,7 +2235,7 @@ void steal_locks(fl_owner_t from)
- 			set >>= 1;
- 		}
- 	}
--	rcu_read_unlock();
-+	spin_unlock(&files->file_lock);
- 	unlock_kernel();
- }
- EXPORT_SYMBOL(steal_locks);
---- linux-2.6.16.9.orig/fs/proc/base.c
-+++ linux-2.6.16.9/fs/proc/base.c
-@@ -294,16 +294,20 @@ static int proc_fd_link(struct inode *in
+-#ifndef CONFIG_I2C_KEYWEST
+-	request_module("i2c-keywest");
++#ifndef CONFIG_I2C_POWERMAC
++	request_module("i2c-powermac");
+ #endif
  
- 	files = get_files_struct(task);
- 	if (files) {
--		rcu_read_lock();
-+		/*
-+		 * We are not taking a ref to the file structure, so we must
-+		 * hold ->file_lock.
-+		 */
-+		spin_lock(&files->file_lock);
- 		file = fcheck_files(files, fd);
- 		if (file) {
- 			*mnt = mntget(file->f_vfsmnt);
- 			*dentry = dget(file->f_dentry);
--			rcu_read_unlock();
-+			spin_unlock(&files->file_lock);
- 			put_files_struct(files);
- 			return 0;
- 		}
--		rcu_read_unlock();
-+		spin_unlock(&files->file_lock);
- 		put_files_struct(files);
- 	}
- 	return -ENOENT;
-@@ -1485,7 +1489,12 @@ static struct dentry *proc_lookupfd(stru
- 	if (!files)
- 		goto out_unlock;
- 	inode->i_mode = S_IFLNK;
--	rcu_read_lock();
-+
-+	/*
-+	 * We are not taking a ref to the file structure, so we must
-+	 * hold ->file_lock.
-+	 */
-+	spin_lock(&files->file_lock);
- 	file = fcheck_files(files, fd);
- 	if (!file)
- 		goto out_unlock2;
-@@ -1493,7 +1502,7 @@ static struct dentry *proc_lookupfd(stru
- 		inode->i_mode |= S_IRUSR | S_IXUSR;
- 	if (file->f_mode & 2)
- 		inode->i_mode |= S_IWUSR | S_IXUSR;
--	rcu_read_unlock();
-+	spin_unlock(&files->file_lock);
- 	put_files_struct(files);
- 	inode->i_op = &proc_pid_link_inode_operations;
- 	inode->i_size = 64;
-@@ -1503,7 +1512,7 @@ static struct dentry *proc_lookupfd(stru
- 	return NULL;
+ 	return i2c_add_driver(&thermostat_driver);
+--- linux-2.6.16.9.orig/sound/oss/dmasound/tas_common.c
++++ linux-2.6.16.9/sound/oss/dmasound/tas_common.c
+@@ -195,8 +195,8 @@ tas_init(int driver_id, const char *driv
  
- out_unlock2:
--	rcu_read_unlock();
-+	spin_unlock(&files->file_lock);
- 	put_files_struct(files);
- out_unlock:
- 	iput(inode);
+ 	printk(KERN_INFO "tas driver [%s])\n", driver_name);
+ 
+-#ifndef CONFIG_I2C_KEYWEST
+-	request_module("i2c-keywest");
++#ifndef CONFIG_I2C_POWERMAC
++	request_module("i2c-powermac");
+ #endif
+ 	tas_node = find_devices("deq");
+ 	if (tas_node == NULL)
+--- linux-2.6.16.9.orig/sound/ppc/daca.c
++++ linux-2.6.16.9/sound/ppc/daca.c
+@@ -256,7 +256,7 @@ int __init snd_pmac_daca_init(struct snd
+ 
+ #ifdef CONFIG_KMOD
+ 	if (current->fs->root)
+-		request_module("i2c-keywest");
++		request_module("i2c-powermac");
+ #endif /* CONFIG_KMOD */	
+ 
+ 	mix = kmalloc(sizeof(*mix), GFP_KERNEL);
+--- linux-2.6.16.9.orig/sound/ppc/tumbler.c
++++ linux-2.6.16.9/sound/ppc/tumbler.c
+@@ -1314,7 +1314,7 @@ int __init snd_pmac_tumbler_init(struct 
+ 
+ #ifdef CONFIG_KMOD
+ 	if (current->fs->root)
+-		request_module("i2c-keywest");
++		request_module("i2c-powermac");
+ #endif /* CONFIG_KMOD */	
+ 
+ 	mix = kmalloc(sizeof(*mix), GFP_KERNEL);
 
 --

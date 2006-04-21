@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWDUHdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWDUHda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWDUHdS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 03:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWDUHdS
+	id S1751277AbWDUHda (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 03:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWDUHda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 03:33:18 -0400
-Received: from cantor.suse.de ([195.135.220.2]:54472 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751275AbWDUHdQ (ORCPT
+	Fri, 21 Apr 2006 03:33:30 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:15499 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751277AbWDUHd3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 03:33:16 -0400
-Date: Fri, 21 Apr 2006 09:33:15 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <npiggin@suse.de>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [patch 1/5] mm: remap_vmalloc_range
-Message-ID: <20060421073315.GL21660@wotan.suse.de>
-References: <20060301045901.12434.54077.sendpatchset@linux.site> <20060301045910.12434.4844.sendpatchset@linux.site> <20060421001712.4cd5625e.akpm@osdl.org>
+	Fri, 21 Apr 2006 03:33:29 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@ocs.com.au>
+To: "Antti Halonen" <antti.halonen@secgo.com>
+cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: searching exported symbols from modules 
+In-reply-to: Your message of "Wed, 19 Apr 2006 16:08:37 +0300."
+             <963E9E15184E2648A8BBE83CF91F5FAF43619A@titanium.secgo.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060421001712.4cd5625e.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Date: Fri, 21 Apr 2006 17:33:07 +1000
+Message-ID: <14930.1145604787@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 12:17:12AM -0700, Andrew Morton wrote:
-> Nick Piggin <npiggin@suse.de> wrote:
-> >
-> > Add a remap_vmalloc_range and get rid of as many remap_pfn_range and
-> > vm_insert_page loops as possible.
-> > 
-> > remap_vmalloc_range can do a whole lot of nice range checking even
-> > if the caller gets it wrong (which it looks like one or two do).
-> > 
-> > 
-> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-> > -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED))
-> > -		if (remap_pfn_range(vma, start, page + vma->vm_pgoff,
-> > -						PAGE_SIZE, vma->vm_page_prot))
-> > -		if (remap_pfn_range(vma, addr, pfn, PAGE_SIZE, PAGE_READONLY))
-> 
-> You've removed the ability for the caller to set the pte protections - it
-> now always uses vma->vm_page_prot.
-> 
-> please explain...
+"Antti Halonen" (on Wed, 19 Apr 2006 16:08:37 +0300) wrote:
+>
+>Hi Dick,
+>
+>Thanks for your response.
+>
+>> `insmod` (or modprobe) does all this automatically. Anything that's
+>> 'extern' will get resolved. You don't do anything special. You can
+>> also use `depmod` to verify that you won't have any problems loading.
+>> `man depmod`.
+>
+>Yes, I know insmod and herein the problem lies. I have a module where
+>I want to use functions provided by another module, _if_ it is present, 
+>otherwise use modules internal functions. 
 
-They should use vma->vm_page_prot?
+symbol_get() and symbol_put().  See include/linux/module.h.  If
+symbol_get() returns NULL then the symbol does not exist.
 
-The callers affected are the PAGE_SHARED ones (the others are unchanged).
-Isn't it correct to provide readonly mappings if userspace asks for it?
-
-I assumed this is why Linus went this way too with the new vm_insert_page
-interface.

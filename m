@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWDUARD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWDUARo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWDUARD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 20:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWDUARB
+	id S932171AbWDUARo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 20:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWDUARo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 20:17:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63679 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932167AbWDUARA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 20:17:00 -0400
-Date: Thu, 20 Apr 2006 17:15:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: hch@infradead.org, dhowells@redhat.com, torvalds@osdl.org,
-       steved@redhat.com, sct@redhat.com, aviro@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/7] FS-Cache: Export find_get_pages()
-Message-Id: <20060420171550.55f1b125.akpm@osdl.org>
-In-Reply-To: <21746.1145555150@warthog.cambridge.redhat.com>
-References: <20060420171922.GB21659@infradead.org>
-	<20060420165927.9968.33912.stgit@warthog.cambridge.redhat.com>
-	<20060420165935.9968.11060.stgit@warthog.cambridge.redhat.com>
-	<21746.1145555150@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 20 Apr 2006 20:17:44 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:48126 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932171AbWDUARn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 20:17:43 -0400
+Subject: Re: [PATCH] Rename "swapper" to "idle"
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Hua Zhong <hzhong@gmail.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       torvalds@osdl.org
+In-Reply-To: <4448161D.9010109@gmail.com>
+References: <4448161D.9010109@gmail.com>
+Content-Type: text/plain
+Date: Thu, 20 Apr 2006 20:17:35 -0400
+Message-Id: <1145578655.671.39.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> Christoph Hellwig <hch@infradead.org> wrote:
+On Thu, 2006-04-20 at 16:15 -0700, Hua Zhong wrote:
+> This patch renames the "swapper" process (pid 0) to a more appropriate name "idle". The name "swapper" is not obviously meaningful and confuses a lot of people (e.g., when seen in oops report).
 > 
-> > > The attached patch exports find_get_pages() for use by the kAFS filesystem
-> > > in conjunction with it caching patch.
-> > 
-> > Why don't you use pagevec ?
+> Patch not tested, but I guess it works. :-)
+
+Usually a patch not tested will never be accepted no matter how trivial
+it is, unless you had to modify a driver to match a new syntax or
+something and you don't have the device.  Did you at least compile it?
+
 > 
-> You mean pagevec_lookup() I suppose... That's probably reasonable, though
-> slower.
+> Signed-off-by: Hua Zhong <hzhong@gmail.com>
 > 
+> diff --git a/include/linux/init_task.h b/include/linux/init_task.h
+> index 41ecbb8..5e3ca4f 100644
+> --- a/include/linux/init_task.h
+> +++ b/include/linux/init_task.h
+> @@ -108,7 +108,7 @@ #define INIT_TASK(tsk)      \
+>         .cap_permitted  = CAP_FULL_SET,                                 \
+>         .keep_capabilities = 0,                                         \
+>         .user           = INIT_USER,                                    \
+> -       .comm           = "swapper",                                    \
+> +       .comm           = "idle",                                       \
+>         .thread         = INIT_THREAD,                                  \
+>         .fs             = &init_fs,                                     \
+>         .files          = &init_files,                                  \
+> -
 
-But the code's using pagevecs now.  In a strange manner.
+Yes, swapper is because of historical reasons.  In most text books for
+Unix, the initial process on boot up is called "swapper".  Probably
+because those early Unix systems had this process handle the swapping
+(as kswapd does today).
 
-+		nr_pages = find_get_pages(vnode->vfs_inode.i_mapping, first,
-+					  PAGEVEC_SIZE, pvec.pages);
+By doing this, it will probably make Linux out of sync with all the text
+books on Unix, so it really is Linus' call.
 
-that's an open-coded pagevec_lookup().
+-- Steve
+
+

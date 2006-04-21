@@ -1,141 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWDUUEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWDUUGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWDUUEH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 16:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWDUUEH
+	id S932399AbWDUUGy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 16:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWDUUGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 16:04:07 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:42403 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932378AbWDUUED (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 16:04:03 -0400
-Date: Fri, 21 Apr 2006 12:54:38 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] netdev: create attribute_groups with class_device_add
-Message-ID: <20060421125438.50f93a34@localhost.localdomain>
-In-Reply-To: <20060421125255.3451959f@localhost.localdomain>
-References: <20060421125255.3451959f@localhost.localdomain>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+	Fri, 21 Apr 2006 16:06:53 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:60811 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932385AbWDUUGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 16:06:53 -0400
+Message-Id: <200604212006.k3LK6LtH015500@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Chris Wright <chrisw@sous-sol.org>, James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview 
+In-Reply-To: Your message of "Fri, 21 Apr 2006 14:07:33 EDT."
+             <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <1145470463.3085.86.camel@laptopd505.fenrus.org> <p73mzeh2o38.fsf@bragg.suse.de> <1145522524.3023.12.camel@laptopd505.fenrus.org> <20060420192717.GA3828@sorel.sous-sol.org> <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil> <20060421173008.GB3061@sorel.sous-sol.org>
+            <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1145649981_14107P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 21 Apr 2006 16:06:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atomically create attributes when class device is added. This avoids the
-race between registering class_device (which generates hotplug event),
-and the creation of attribute groups.
+--==_Exmh_1145649981_14107P
+Content-Type: text/plain; charset=us-ascii
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+On Fri, 21 Apr 2006 14:07:33 EDT, Stephen Smalley said:
+> On Fri, 2006-04-21 at 10:30 -0700, Chris Wright wrote:
+> > * Stephen Smalley (sds@tycho.nsa.gov) wrote:
+> > > Difficult to evaluate, when the answer whenever a flaw is pointed out is
+> > > "that's not in our threat model."  Easy enough to have a protection
+> > > model match the threat model when the threat model is highly limited
+> > > (and never really documented anywhere, particularly in a way that might
+> > > warn its users of its limitations).
+> > 
+> > I know, there's two questions.  Whether the protection model is valid,
+> > and whether the threat model is worth considering.  So far, I've not
+> > seen anything that's compelling enough to show AppArmor fundamentally
+> > broken.  Ugly and inefficient, yes...broken, not yet.
+> 
+> Access control of any form requires unambiguous identification of
+> subjects and objects in the system.   Paths don't achieve such
+> identification.  Is that broken enough?  If not, what is?  What
+> qualifies as broken?
 
+I'd be willing to at least *listen* to an argument of the form "paths are
+in general broken, but we have constraints X, Y, and Z on the system such
+that the broken parts never manifest" (for instance, a restriction on
+hardlinks that prevents hardlinking 2 files unless the resulting security
+domains of the two paths would be identical).
 
---- sky2-2.6.17.orig/net/core/dev.c	2006-04-21 12:20:58.000000000 -0700
-+++ sky2-2.6.17/net/core/dev.c	2006-04-21 12:21:45.000000000 -0700
-@@ -3043,11 +3043,11 @@
- 
- 		switch(dev->reg_state) {
- 		case NETREG_REGISTERING:
--			dev->reg_state = NETREG_REGISTERED;
- 			err = netdev_register_sysfs(dev);
- 			if (err)
- 				printk(KERN_ERR "%s: failed sysfs registration (%d)\n",
- 				       dev->name, err);
-+			dev->reg_state = NETREG_REGISTERED;
- 			break;
- 
- 		case NETREG_UNREGISTERING:
---- sky2-2.6.17.orig/net/core/net-sysfs.c	2006-04-21 12:20:58.000000000 -0700
-+++ sky2-2.6.17/net/core/net-sysfs.c	2006-04-21 12:21:45.000000000 -0700
-@@ -29,7 +29,7 @@
- 
- static inline int dev_isalive(const struct net_device *dev) 
- {
--	return dev->reg_state == NETREG_REGISTERED;
-+	return dev->reg_state <= NETREG_REGISTERED;
- }
- 
- /* use same locking rules as GIF* ioctl's */
-@@ -445,58 +445,33 @@
- 
- void netdev_unregister_sysfs(struct net_device * net)
- {
--	struct class_device * class_dev = &(net->class_dev);
--
--	if (net->get_stats)
--		sysfs_remove_group(&class_dev->kobj, &netstat_group);
--
--#ifdef WIRELESS_EXT
--	if (net->get_wireless_stats || (net->wireless_handlers &&
--			net->wireless_handlers->get_wireless_stats))
--		sysfs_remove_group(&class_dev->kobj, &wireless_group);
--#endif
--	class_device_del(class_dev);
--
-+	class_device_del(&(net->class_dev));
- }
- 
- /* Create sysfs entries for network device. */
- int netdev_register_sysfs(struct net_device *net)
- {
- 	struct class_device *class_dev = &(net->class_dev);
--	int ret;
-+	struct attribute_group **groups = net->sysfs_groups;
- 
-+	class_device_initialize(class_dev);
- 	class_dev->class = &net_class;
- 	class_dev->class_data = net;
-+	class_dev->groups = groups;
- 
-+	BUILD_BUG_ON(BUS_ID_SIZE < IFNAMSIZ);
- 	strlcpy(class_dev->class_id, net->name, BUS_ID_SIZE);
--	if ((ret = class_device_register(class_dev)))
--		goto out;
- 
--	if (net->get_stats &&
--	    (ret = sysfs_create_group(&class_dev->kobj, &netstat_group)))
--		goto out_unreg; 
-+	if (net->get_stats)
-+		*groups++ = &netstat_group;
- 
- #ifdef WIRELESS_EXT
--	if (net->get_wireless_stats || (net->wireless_handlers &&
--			net->wireless_handlers->get_wireless_stats)) {
--		ret = sysfs_create_group(&class_dev->kobj, &wireless_group);
--		if (ret)
--			goto out_cleanup;
--	}
--	return 0;
--out_cleanup:
--	if (net->get_stats)
--		sysfs_remove_group(&class_dev->kobj, &netstat_group);
--#else
--	return 0;
-+	if (net->get_wireless_stats
-+	    || (net->wireless_handlers && net->wireless_handlers->get_wireless_stats))
-+		*groups++ = &wireless_group;
- #endif
- 
--out_unreg:
--	printk(KERN_WARNING "%s: sysfs attribute registration failed %d\n",
--	       net->name, ret);
--	class_device_unregister(class_dev);
--out:
--	return ret;
-+	return class_device_add(class_dev);
- }
- 
- int netdev_sysfs_init(void)
---- sky2-2.6.17.orig/include/linux/netdevice.h	2006-04-21 12:20:58.000000000 -0700
-+++ sky2-2.6.17/include/linux/netdevice.h	2006-04-21 12:21:45.000000000 -0700
-@@ -506,6 +506,8 @@
- 
- 	/* class/net/name entry */
- 	struct class_device	class_dev;
-+	/* space for optional statistics and wireless sysfs groups */
-+	struct attribute_group  *sysfs_groups[3];
- };
- 
- #define	NETDEV_ALIGN		32
+However, I'll say up front that such an argument would only suffice to
+move it from "broken" to "very brittle in face of changes" (for instance,
+would such a hardlink restriction cause collateral damage that an attacker
+could exploit?  How badly does it fail in the face of a misdesigned policy?)
+
+--==_Exmh_1145649981_14107P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD0DBQFESTs9cC3lWbTT17ARAv5UAJj8+0pil8b4vjUt0pNDL+SqoJT0AJj5UfXg
+EHOuJ1zvK/d8DDMFc9mw
+=Hb+1
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1145649981_14107P--

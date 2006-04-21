@@ -1,112 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWDUGoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWDUGrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbWDUGoh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 02:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWDUGog
+	id S1751227AbWDUGrW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 02:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWDUGrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 02:44:36 -0400
-Received: from ns2.suse.de ([195.135.220.15]:15302 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751216AbWDUGoE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 02:44:04 -0400
-From: Nick Piggin <npiggin@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Nick Piggin <npiggin@suse.de>,
-       Linux Memory Management <linux-mm@kvack.org>
-Message-Id: <20060301045952.12434.16351.sendpatchset@linux.site>
-In-Reply-To: <20060301045901.12434.54077.sendpatchset@linux.site>
-References: <20060301045901.12434.54077.sendpatchset@linux.site>
-Subject: [patch 5/5] drivers: leave vm_flags alone
-Date: Fri, 21 Apr 2006 08:44:00 +0200 (CEST)
+	Fri, 21 Apr 2006 02:47:22 -0400
+Received: from mse2fe2.mse2.exchange.ms ([66.232.26.194]:6 "EHLO
+	mse2fe2.mse2.exchange.ms") by vger.kernel.org with ESMTP
+	id S1751227AbWDUGrV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 02:47:21 -0400
+Subject: Re: Linux 2.6.17-rc2
+From: Piet Delaney <piet@bluelane.com>
+Reply-To: piet@bluelane.com
+To: Andi Kleen <ak@suse.de>
+Cc: Piet Delaney <piet@bluelane.com>, "David S. Miller" <davem@davemloft.net>,
+       torvalds@osdl.org, diegocg@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <p73bquv3cox.fsf@bragg.suse.de>
+References: <20060419200001.fe2385f4.diegocg@gmail.com>
+	 <Pine.LNX.4.64.0604191111170.3701@g5.osdl.org>
+	 <20060420145041.GE4717@suse.de>
+	 <20060420.122647.03915644.davem@davemloft.net>
+	 <20060420193430.GH4717@suse.de>
+	 <1145569031.25127.64.camel@piet2.bluelane.com>
+	 <p73bquv3cox.fsf@bragg.suse.de>
+Content-Type: text/plain
+Organization: BlueLane Tech,
+Date: Thu, 20 Apr 2006 23:47:10 -0700
+Message-Id: <1145602031.5901.7.camel@piet2.bluelane.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4-3mdk 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Apr 2006 06:47:14.0614 (UTC) FILETIME=[6C83F560:01C6650F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get rid of some vm_flags twiddling from driver code. The net result of
-this + the last 4 patches is that all converted remap_vmalloc_range
-memory can support get_user_pages - do we want that? Can't hurt, can it?
+On Fri, 2006-04-21 at 04:05 +0200, Andi Kleen wrote:
+> Piet Delaney <piet@bluelane.com> writes:
+> > 
+> > FreeBSD folks developed a ZERO_COPY_SOCKET facility that uses COW; 
+> > code looked great.
+> 
+> Linux had patches many years ago (in 2.3.x), but it was never merged
+> because it is inherently unscalable on MP. Classical BSD sockets really 
+> don't work well for zero copy - you need a new interface (like POSIX aio) 
+> that allows the kernel/user to tell each other when use of data is
+> finished and buffers can be reused.
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+Right, back when I was working on zero copy for 2.4 I noticed that 
+2.6 seemed to support aio in the socket code, passing the kiocb 
+pointer as I recall, and support in the socket  code for for sendpage
+seemed enhanced. I was also wondering about using 2.6 and aio for zero
+copy instead of tokens via sendmsg() and recvmsg() cmsghdr structures.
 
-Index: linux-2.6/drivers/media/video/em28xx/em28xx-video.c
-===================================================================
---- linux-2.6.orig/drivers/media/video/em28xx/em28xx-video.c
-+++ linux-2.6/drivers/media/video/em28xx/em28xx-video.c
-@@ -620,10 +620,6 @@ static int em28xx_v4l2_mmap(struct file 
- 		return -EINVAL;
- 	}
- 
--	/* VM_IO is eventually going to replace PageReserved altogether */
--	vma->vm_flags |= VM_IO;
--	vma->vm_flags |= VM_RESERVED;	/* avoid to swap out this VMA */
--
- 	if (remap_vmalloc_range(vma, dev->frame[i].bufmem, 0)) {
- 		em28xx_videodbg("mmap: remap_vmalloc_range failed\n");
- 		mutex_unlock(&dev->fileop_lock);
-Index: linux-2.6/drivers/media/video/et61x251/et61x251_core.c
-===================================================================
---- linux-2.6.orig/drivers/media/video/et61x251/et61x251_core.c
-+++ linux-2.6/drivers/media/video/et61x251/et61x251_core.c
-@@ -1499,9 +1499,6 @@ static int et61x251_mmap(struct file* fi
- 		return -EINVAL;
- 	}
- 
--	vma->vm_flags |= VM_IO;
--	vma->vm_flags |= VM_RESERVED;
--
- 	if (remap_vmalloc_range(vma, cam->frame[i].bufmem, 0)) {
- 		mutex_unlock(&cam->fileop_mutex);
- 		return -EAGAIN;
-Index: linux-2.6/drivers/media/video/meye.c
-===================================================================
---- linux-2.6.orig/drivers/media/video/meye.c
-+++ linux-2.6/drivers/media/video/meye.c
-@@ -1689,8 +1689,6 @@ static int meye_mmap(struct file *file, 
- 	}
- 
- 	vma->vm_ops = &meye_vm_ops;
--	vma->vm_flags &= ~VM_IO;	/* not I/O memory */
--	vma->vm_flags |= VM_RESERVED;	/* avoid to swap out this VMA */
- 	vma->vm_private_data = (void *) (offset / gbufsize);
- 	meye_vm_open(vma);
- 
-Index: linux-2.6/drivers/media/video/pwc/pwc-if.c
-===================================================================
---- linux-2.6.orig/drivers/media/video/pwc/pwc-if.c
-+++ linux-2.6/drivers/media/video/pwc/pwc-if.c
-@@ -1567,8 +1567,6 @@ static int pwc_video_mmap(struct file *f
- 				vma->vm_start, vma->vm_end - vma->vm_start);
- 	pdev = vdev->priv;
- 
--	vma->vm_flags |= VM_IO;
--
- 	if (remap_vmalloc_range(vma, pdev->image_data, 0))
- 		return -EAGAIN;
- 
-Index: linux-2.6/drivers/media/video/sn9c102/sn9c102_core.c
-===================================================================
---- linux-2.6.orig/drivers/media/video/sn9c102/sn9c102_core.c
-+++ linux-2.6/drivers/media/video/sn9c102/sn9c102_core.c
-@@ -1762,9 +1762,6 @@ static int sn9c102_mmap(struct file* fil
- 		return -EINVAL;
- 	}
- 
--	vma->vm_flags |= VM_IO;
--	vma->vm_flags |= VM_RESERVED;
--
- 	if (remap_vmalloc_range(vma, cam->frame[i].bufmem, 0)) {
- 		mutex_unlock(&cam->fileop_mutex);
- 		return -EAGAIN;
-Index: linux-2.6/drivers/media/video/zc0301/zc0301_core.c
-===================================================================
---- linux-2.6.orig/drivers/media/video/zc0301/zc0301_core.c
-+++ linux-2.6/drivers/media/video/zc0301/zc0301_core.c
-@@ -963,9 +963,6 @@ static int zc0301_mmap(struct file* filp
- 		return -EINVAL;
- 	}
- 
--	vma->vm_flags |= VM_IO;
--	vma->vm_flags |= VM_RESERVED;
--
- 	if (remap_vmalloc_range(vma, cam->frame[i].bufmem, 0)) {
- 		mutex_unlock(&cam->fileop_mutex);
- 		return -EAGAIN;
+-piet
+
+> 
+> -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+---
+piet@bluelane.com
+

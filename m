@@ -1,79 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWDUPYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWDUPYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbWDUPYE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 11:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWDUPYD
+	id S932358AbWDUPYm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 11:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWDUPYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 11:24:03 -0400
-Received: from uproxy.gmail.com ([66.249.92.168]:894 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932356AbWDUPYB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 11:24:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VAk+ebC4dFIckktKnhZGSDohwlV1Yg8ZiLPXIBsBW6coktzHu7Rls+q0Q0gbMPLMM6ZHMnvPVtJs5ZXkl9zq33X+Mo/j6AmwBvokEzdWXls/6aHMm5rKOSvTwMqfQCrxydtA9Oj/GILIYogygvT7TjCHshg6nwFM/YMOiXX2ghw=
-Message-ID: <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com>
-Date: Fri, 21 Apr 2006 08:23:51 -0700
-From: "Ken Brush" <kbrush@gmail.com>
-To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
-Cc: "Crispin Cowan" <crispin@novell.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Greg KH" <greg@kroah.com>,
-       "James Morris" <jmorris@namei.org>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Stephen Smalley" <sds@tycho.nsa.gov>,
-       "T?r?k Edwin" <edwin@gurde.com>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org, "Chris Wright" <chrisw@sous-sol.org>,
-       "Linus Torvalds" <torvalds@osdl.org>
-In-Reply-To: <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu>
+	Fri, 21 Apr 2006 11:24:41 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:21982 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S932358AbWDUPYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 11:24:41 -0400
+X-Sasl-enc: OZLiK1goDYi3jef808rjRIc6yjNSP7G547C1H7dCNlWw 1145633041
+Message-ID: <4448F97D.5000205@imap.cc>
+Date: Fri, 21 Apr 2006 17:25:49 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de,en,fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200604021240.21290.edwin@gurde.com>
-	 <20060417173319.GA11506@infradead.org>
-	 <Pine.LNX.4.64.0604171454070.17563@d.namei>
-	 <20060417195146.GA8875@kroah.com>
-	 <1145309184.14497.1.camel@localhost.localdomain>
-	 <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
-	 <4445484F.1050006@novell.com>
-	 <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu>
-	 <4446D378.8050406@novell.com>
-	 <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kfree(NULL)
+References: <63XWg-1IL-5@gated-at.bofh.it> <63YfP-26I-11@gated-at.bofh.it> <63ZEY-45n-27@gated-at.bofh.it>
+In-Reply-To: <63ZEY-45n-27@gated-at.bofh.it>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig12AD26D3B3CB0AAAE54E74CD"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/20/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> On Wed, 19 Apr 2006 17:19:04 PDT, Crispin Cowan said:
-> > Valdis.Kletnieks@vt.edu wrote:
-> > > In other words, it's quite possible to accidentally introduce a vulnerability
-> > > that wasn't exploitable before, by artificially restricting the privs in a way
-> > > the designer didn't expect.  So this is really just handing the sysadmin
-> > > a loaded gun and waiting.
-> > >
-> > While that is true of the voluntary model of acquiring and dropping
-> > privs, it is not true of AppArmor containment, which will just not give
-> > you the priv if it is not in your policy.
->
-> The threat model is that you can take a buggy application, and constrain its
-> access to priv A in a way that causes a code failure that allows you to abuse
-> an unconstrained priv B.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig12AD26D3B3CB0AAAE54E74CD
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-So you are talking about a 2 prong attack. One in where you somehow
-trick program A to do something that it's allowed to. That then would
-cause an error in program B ? Or cause program B to do something
-wonky.
+On 21.04.2006 11:00, Andrew Morton wrote:
 
-I guess a good example of this would be if you sent an email to
-sendmail (which is constrained) to write the message to my mailbox
-(which is allowed, obviously).
+> James Morris <jmorris@namei.org> wrote:
+>=20
+>>On Fri, 21 Apr 2006, Daniel Walker wrote:
+>>
+>>>	I included a patch , not like it's needed . Recently I've been
+>>>evaluating likely/unlikely branch prediction .. One thing that I found=
+=20
+>>>is that the kfree function is often called with a NULL "objp" . In fac=
+t
+>>>it's so frequent that the "unlikely" branch predictor should be invert=
+ed!
+>>>Or at least on my configuration.=20
+>>
+>>It would be helpful to collect some stats on this so we can look at the=
+=20
+>>ratio.
+>=20
+> Yes, kfree(NULL) is supposed to be uncommon.
 
-Then I use an imap daemon (which would not be constrained, in the
-hypothetical, personally I constrain everything I can). To retrieve
-that message but the payload of the message causes the imap daemon to
-delete /lib ?
+Not anymore, after the recent campaign to elliminate explicit NULL
+checks before calls to kfree().
 
-Is that a proper example? or do you mean something else?
+> If someone's doing it a lot then we should fix up the callers.
 
--Ken
+If that fixup amounts to re-adding the NULL check just elliminated
+then that's no improvement. It would be better to drop the assumption
+that kfree() calls with a NULL argument are uncommon, and consequently
+remove the unlikely() predictor. Adding likely() instead may or may
+not be a good idea.
+
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+
+
+--------------enig12AD26D3B3CB0AAAE54E74CD
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFESPmEMdB4Whm86/kRAr0XAJ9bIcIIDi3JQpNLL3ICvHkya3RK9ACfSpoA
+qpPUOJ8+6uodPxJ+YhYksis=
+=vX8G
+-----END PGP SIGNATURE-----
+
+--------------enig12AD26D3B3CB0AAAE54E74CD--

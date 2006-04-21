@@ -1,77 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWDUAkp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWDUAkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWDUAkp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 20:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWDUAkp
+	id S932180AbWDUAkn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 20:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWDUAkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 20:40:45 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:22470 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932181AbWDUAko
+	Thu, 20 Apr 2006 20:40:43 -0400
+Received: from stinky.trash.net ([213.144.137.162]:13259 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S932180AbWDUAkm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 20:40:44 -0400
-Date: Thu, 20 Apr 2006 19:40:42 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: [PATCH] powerpc/pseries: avoid crash in PCI code if mem system not up.
-Message-ID: <20060421004042.GC7242@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: linas@austin.ibm.com (Linas Vepstas)
+	Thu, 20 Apr 2006 20:40:42 -0400
+Message-ID: <44482963.4030902@trash.net>
+Date: Fri, 21 Apr 2006 02:37:55 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mikado4vn@gmail.com
+CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Which process is associated with process ID 0 (swapper)
+References: <4447A19E.9000008@gmail.com> <Pine.LNX.4.61.0604201118200.5749@chaos.analogic.com> <4447B110.4080700@gmail.com> <Pine.LNX.4.61.0604210007140.28841@yvahk01.tjqt.qr> <44481ACE.9040104@gmail.com>
+In-Reply-To: <44481ACE.9040104@gmail.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mikado wrote:
+> Jan Engelhardt wrote:
+> 
+>>>Is your code doing it like ipt_owner does?
+> 
+> 
+> It seems that ipt_owner does _not_ support PID match anymore:
 
-Paul,
-Please apply and forward upstream.  And a question: once 
-upon a time, the arch PCI subsystem was inited after mem init 
-was done; currently, it seems to be happening before mem init. 
-Is this intentional? 
+Yes, it was removed for two reasons:
 
---linas
+- it used tasklist_lock from bh-context, resulting in deadlocks
+- there is no 1:1 mapping between sockets (or packets) and
+  processes. If you use corking even a single packet can be
+  created in cooperation by multiple processes.
 
-
-[PATCH] powerpc/pseries: avoid crash in PCI code if mem system not up.
-
-The powerpc code is currently performing PCI setup before
-memory initialization. PCI setup touches PCI config space
-registers. If the PCI card is bad, this will evoke an error,
-which currrently can't be handled, as the PCI error recovery 
-code expects kmalloc() to be functional.  This patch will
-cause the system to punt instead of crashing with
-
-cpu 0x0: Vector: 300 (Data Access) at [c0000000004434d0]
-    pc: c0000000000c06b4: .kmem_cache_alloc+0x8c/0xf4
-    lr: c00000000004ad6c: .eeh_send_failure_event+0x48/0xfc
-
-This patch Will also print name of the offending pci device.
-
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-
-----
-
- arch/powerpc/platforms/pseries/eeh_event.c |    9 +++++++++
- 1 files changed, 9 insertions(+)
-
-Index: linux-2.6.17-rc1/arch/powerpc/platforms/pseries/eeh_event.c
-===================================================================
---- linux-2.6.17-rc1.orig/arch/powerpc/platforms/pseries/eeh_event.c	2006-04-05 09:56:38.000000000 -0500
-+++ linux-2.6.17-rc1/arch/powerpc/platforms/pseries/eeh_event.c	2006-04-20 19:29:48.000000000 -0500
-@@ -124,7 +124,16 @@ int eeh_send_failure_event (struct devic
- {
- 	unsigned long flags;
- 	struct eeh_event *event;
-+	char *location;
- 
-+	if (!mem_init_done)
-+	{
-+		printk(KERN_ERR "EEH: event during early boot not handled\n");
-+		location = (char *) get_property(dn, "ibm,loc-code", NULL);
-+		printk(KERN_ERR "EEH: device node = %s\n", dn->full_name);
-+		printk(KERN_ERR "EEH: PCI location = %s\n", location);
-+		return 1;
-+	}
- 	event = kmalloc(sizeof(*event), GFP_ATOMIC);
- 	if (event == NULL) {
- 		printk (KERN_ERR "EEH: out of memory, event not handled\n");

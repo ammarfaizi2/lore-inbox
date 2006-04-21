@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWDUA2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWDUA2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWDUA2G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 20:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWDUA2G
+	id S932178AbWDUA2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 20:28:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWDUA2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 20:28:06 -0400
-Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:30562 "EHLO
-	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932176AbWDUA2F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 20:28:05 -0400
-Message-ID: <44482712.5030401@bigpond.net.au>
-Date: Fri, 21 Apr 2006 10:28:02 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
+	Thu, 20 Apr 2006 20:28:25 -0400
+Received: from mga06.intel.com ([134.134.136.21]:54932 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932178AbWDUA2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 20:28:24 -0400
+X-IronPort-AV: i="4.04,142,1144047600"; 
+   d="scan'208"; a="25826642:sNHT15964368"
+X-IronPort-AV: i="4.04,142,1144047600"; 
+   d="scan'208"; a="25845504:sNHT16065280"
+TrustExchangeSourcedMail: True
+X-IronPort-AV: i="4.04,142,1144047600"; 
+   d="scan'208"; a="25826640:sNHT16452002"
+Date: Thu, 20 Apr 2006 17:25:53 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
 To: Andrew Morton <akpm@osdl.org>
-CC: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, efault@gmx.de,
-       nickpiggin@yahoo.com.au, mingo@elte.hu, kernel@kolivas.org,
-       kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] smpnice: don't consider sched groups which are lightly
- loaded for balancing
-References: <20060328185202.A1135@unix-os.sc.intel.com>	<442A0235.1060305@bigpond.net.au>	<20060329145242.A11376@unix-os.sc.intel.com>	<442B1AE8.5030005@bigpond.net.au>	<20060329165052.C11376@unix-os.sc.intel.com>	<442B3111.5030808@bigpond.net.au>	<20060401204824.A8662@unix-os.sc.intel.com>	<442F7871.4030405@bigpond.net.au>	<20060419182444.A5081@unix-os.sc.intel.com>	<444719F8.2050602@bigpond.net.au>	<20060420095408.A10267@unix-os.sc.intel.com> <20060420164936.5988460d.akpm@osdl.org>
-In-Reply-To: <20060420164936.5988460d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 21 Apr 2006 00:28:03 +0000
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, pwil3058@bigpond.net.au,
+       efault@gmx.de, nickpiggin@yahoo.com.au, mingo@elte.hu,
+       kernel@kolivas.org, kenneth.w.chen@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] smpnice: don't consider sched groups which are lightly loaded for balancing
+Message-ID: <20060420172553.A12394@unix-os.sc.intel.com>
+References: <20060329145242.A11376@unix-os.sc.intel.com> <442B1AE8.5030005@bigpond.net.au> <20060329165052.C11376@unix-os.sc.intel.com> <442B3111.5030808@bigpond.net.au> <20060401204824.A8662@unix-os.sc.intel.com> <442F7871.4030405@bigpond.net.au> <20060419182444.A5081@unix-os.sc.intel.com> <444719F8.2050602@bigpond.net.au> <20060420095408.A10267@unix-os.sc.intel.com> <20060420164936.5988460d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060420164936.5988460d.akpm@osdl.org>; from akpm@osdl.org on Thu, Apr 20, 2006 at 04:49:36PM -0700
+X-OriginalArrivalTime: 21 Apr 2006 00:28:22.0787 (UTC) FILETIME=[7F4A6D30:01C664DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Thu, Apr 20, 2006 at 04:49:36PM -0700, Andrew Morton wrote:
 > "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
->> updated patch appended. thanks.
+> >
+> > updated patch appended. thanks.
 > 
 > Where are we up to with smpnice now?  Are there still any known
-> regressions/problems/bugs/etc?
-
-One more change to move_tasks() is required to address an issue raised 
-by Suresh w.r.t. the possibility unnecessary movement of the highest 
-priority task from the busiest queue (possible because of the 
-active/expired array mechanism).  I hope to forward a patch for this 
-later today.
-
-After that the only thing I would like to do at this stage is modify 
-try_to_wake_up() so that it tries harder to distribute high priority 
-tasks across the CPUs.  I wouldn't classify this as absolutely necessary 
-as it's really just a measure that attempts to reduce latency for high 
-priority tasks as it should get them onto a CPU more quickly than just 
-sticking them anywhere and waiting for load balancing to kick in if 
-they've been put on a CPU with a higher priority task already running. 
-Also it's only really necessary when there a lot of high priority tasks 
-running.  So this isn't urgent and probably needs to be coordinated with 
-Ingo's RT load balancing stuff anyway.
-
->  Has sufficient testing been done for us to
+> regressions/problems/bugs/etc?  Has sufficient testing been done for us to
 > know this?
 
-I run smpnice kernels on all of my SMP machines all of the time.  But I 
-don't have anything with more than 2 CPUs so I've been relying on their 
-presence in -mm to get wider testing on larger machines.
+Based on the code review, so far I have been giving load balancing examples 
+which break. Peter is also plannning to fix outstanding issues which are open.
 
-I think that once this patch and the move_tasks() one that I'll forward 
-later today are incorporated we should have something that (although not 
-perfect) works pretty well.  Neither of these changes should cause a 
-behavioural change in the case where all tasks are nice==0.
+In the coming days, we are planning to run some benchmarks.
 
-As load balancing is inherently probabilistic I don't think that we 
-should hold out for "perfect".
+Nick, it will be great if you can review and provide your feedback.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+thanks,
+suresh

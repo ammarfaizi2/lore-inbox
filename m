@@ -1,171 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWDUC3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWDUCau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWDUC3U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 22:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWDUC2v
+	id S932211AbWDUCau (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 22:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWDUC2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 22:28:51 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:13031 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932125AbWDUC2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 22:28:08 -0400
+	Thu, 20 Apr 2006 22:28:49 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:16869 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932126AbWDUC2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 22:28:11 -0400
 From: maeda.naoaki@jp.fujitsu.com
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
 Cc: maeda.naoaki@jp.fujitsu.com
-Date: Fri, 21 Apr 2006 11:27:32 +0900
-Message-Id: <20060421022732.13598.51899.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+Date: Fri, 21 Apr 2006 11:27:58 +0900
+Message-Id: <20060421022758.13598.56871.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 In-Reply-To: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-Subject: [RFC][PATCH 1/9] CPU controller - Adds class load estimation
+Subject: [RFC][PATCH 6/9] CPU controller - Adds basic functions and registering the controller
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1/9: cpurc_load_estimation
+6/9: ckrm_cpu_init
 
-This patch corresponds to section 1 in Documentation/ckrm/cpurc-internals,
-adding load estimation of task groups (classes in CKRM terminology) that is
-grouped by the cpurc structure.  Load estimation is necessary for controlling
-CPU resource because the CPU resource controller need to know whether
-the resource assigned to a task group is enough or not.
+Adds the basic functions and registering the CPU controller to CKRM.
 
-Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
 Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
 
- include/linux/cpu_rc.h |   65 ++++++++++++++++++++++++++++++++++++++++
- include/linux/sched.h  |    4 ++
- init/Kconfig           |    9 +++++
- kernel/Makefile        |    1 
- kernel/cpu_rc.c        |   79 +++++++++++++++++++++++++++++++++++++++++++++++++
- kernel/exit.c          |    2 +
- kernel/sched.c         |   14 ++++++++
- 7 files changed, 174 insertions(+)
+ init/Kconfig           |   10 +++
+ kernel/ckrm/Makefile   |    1 
+ kernel/ckrm/ckrm_cpu.c |  142 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 153 insertions(+)
 
-Index: linux-2.6.17-rc2/include/linux/cpu_rc.h
-===================================================================
---- /dev/null
-+++ linux-2.6.17-rc2/include/linux/cpu_rc.h
-@@ -0,0 +1,65 @@
-+#ifndef _LINUX_CPU_RC_H_
-+#define _LINUX_CPU_RC_H_
-+/*
-+ *  CPU resource controller interface
-+ *
-+ *  Copyright 2005-2006 FUJITSU LIMITED
-+ *
-+ *  This file is subject to the terms and conditions of the GNU General Public
-+ *  License.  See the file COPYING in the main directory of the Linux
-+ *  distribution for more details.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/sched.h>
-+
-+#ifdef CONFIG_CPU_RC
-+
-+#define CPU_RC_SPREAD_PERIOD	(10 * HZ)
-+#define CPU_RC_LOAD_SCALE	(2 * CPU_RC_SPREAD_PERIOD)
-+#define CPU_RC_SHARE_SCALE	100
-+
-+struct cpu_rc_domain {
-+	spinlock_t lock;
-+	unsigned long timestamp;
-+	cpumask_t cpus;
-+	int numcpus;
-+	int numcrs;
-+};
-+
-+struct cpu_rc {
-+	struct cpu_rc_domain *rcd;
-+	struct {
-+		unsigned long timestamp;
-+		unsigned int load;
-+	} stat[NR_CPUS];	/* XXX  need alignment */
-+};
-+
-+extern struct cpu_rc *cpu_rc_get(task_t *);
-+extern unsigned int cpu_rc_load(struct cpu_rc *);
-+extern void cpu_rc_account(task_t *, unsigned long);
-+
-+static inline void cpu_rc_record_allocation(task_t *tsk,
-+					    unsigned int slice,
-+					    unsigned long now)
-+{
-+	if (slice == 0) {
-+		/* minimal allocated time_slice is 1 (see sched_fork()). */
-+		slice = 1;
-+	}
-+
-+	tsk->last_slice = slice;
-+	tsk->ts_alloced = now;
-+}
-+
-+#else /* CONFIG_CPU_RC */
-+
-+static inline void cpu_rc_account(task_t *tsk, unsigned long now) {}
-+static inline void cpu_rc_record_allocation(task_t *tsk,
-+					    unsigned int slice,
-+					    unsigned long now) {}
-+
-+#endif /* CONFIG_CPU_RC */
-+
-+#endif /* _LINUX_CPU_RC_H_ */
-+
-Index: linux-2.6.17-rc2/include/linux/sched.h
-===================================================================
---- linux-2.6.17-rc2.orig/include/linux/sched.h
-+++ linux-2.6.17-rc2/include/linux/sched.h
-@@ -892,6 +892,10 @@ struct task_struct {
- 	struct ckrm_class *class;
- 	struct list_head member_list; /* list of tasks in class */
- #endif /* CONFIG_CKRM */
-+#ifdef CONFIG_CPU_RC
-+	unsigned int last_slice;
-+	unsigned long ts_alloced;
-+#endif
- };
- 
- static inline pid_t process_group(struct task_struct *tsk)
 Index: linux-2.6.17-rc2/init/Kconfig
 ===================================================================
 --- linux-2.6.17-rc2.orig/init/Kconfig
 +++ linux-2.6.17-rc2/init/Kconfig
-@@ -261,6 +261,15 @@ config RELAY
+@@ -185,6 +185,16 @@ config CKRM_RES_NUMTASKS
  
- 	  If unsure, say N.
+ 	  Say N if unsure, Y to use the feature.
  
-+config CPU_RC
-+	bool "CPU resource controller"
-+	depends on CKRM_RES_CPU
++config CKRM_RES_CPU
++	bool "CPU Resource Controller"
++	select CPU_RC
++	depends on CKRM
++	default y
 +	help
-+	  This options will let you control the CPU resource by scaling
-+	  the timeslice allocated for each tasks.
++	  Provides a CPU Resource Controller for CKRM.
 +
-+	  Say N if unsure.
++	  Say N if unsure, Y to use the feature.
 +
- source "usr/Kconfig"
- 
- config UID16
-Index: linux-2.6.17-rc2/kernel/Makefile
+ endmenu
+ config SYSCTL
+ 	bool "Sysctl support"
+Index: linux-2.6.17-rc2/kernel/ckrm/Makefile
 ===================================================================
---- linux-2.6.17-rc2.orig/kernel/Makefile
-+++ linux-2.6.17-rc2/kernel/Makefile
-@@ -27,6 +27,7 @@ obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_KEXEC) += kexec.o
- obj-$(CONFIG_COMPAT) += compat.o
- obj-$(CONFIG_CPUSETS) += cpuset.o
-+obj-$(CONFIG_CPU_RC) += cpu_rc.o
- obj-$(CONFIG_IKCONFIG) += configs.o
- obj-$(CONFIG_STOP_MACHINE) += stop_machine.o
- obj-$(CONFIG_AUDIT) += audit.o auditfilter.o
-Index: linux-2.6.17-rc2/kernel/cpu_rc.c
+--- linux-2.6.17-rc2.orig/kernel/ckrm/Makefile
++++ linux-2.6.17-rc2/kernel/ckrm/Makefile
+@@ -1,3 +1,4 @@
+ obj-y = ckrm.o ckrm_shares.o ckrm_task.o
+ obj-$(CONFIG_CKRM_RES_NUMTASKS) += ckrm_numtasks.o
++obj-$(CONFIG_CKRM_RES_CPU) += ckrm_cpu.o
+ obj-$(CONFIG_CKRM_RCFS) += ckrm_rcfs.o
+Index: linux-2.6.17-rc2/kernel/ckrm/ckrm_cpu.c
 ===================================================================
 --- /dev/null
-+++ linux-2.6.17-rc2/kernel/cpu_rc.c
-@@ -0,0 +1,79 @@
++++ linux-2.6.17-rc2/kernel/ckrm/ckrm_cpu.c
+@@ -0,0 +1,142 @@
 +/*
-+ *  kernel/cpu_rc.c
++ *  kernel/ckrm/ckrm_cpu.c
 + *
-+ *  CPU resource controller by scaling time_slice of the task.
++ *  CPU resource controller for CKRM
 + *
 + *  Copyright 2005-2006 FUJITSU LIMITED
 + *
@@ -174,160 +79,133 @@ Index: linux-2.6.17-rc2/kernel/cpu_rc.c
 + *  distribution for more details.
 + */
 +
++#include <linux/module.h>
 +#include <linux/config.h>
-+#include <linux/sched.h>
++#include <linux/notifier.h>
++#include <linux/cpu.h>
 +#include <linux/cpu_rc.h>
++#include <linux/ckrm_rc.h>
 +
-+/*
-+ * cpu_rc_load() calculates the class load
-+ */
-+unsigned int cpu_rc_load(struct cpu_rc *cr)
++static const char res_ctlr_name[] = "cpu";
++
++struct ckrm_cpu {
++	struct ckrm_class *class;	/* the class I belong to */
++	struct ckrm_shares shares;
++	struct cpu_rc	cpu_rc;	/* cpu resource controller */
++	int 	cnt_total_min_shares; 	/* total min_shares behind the class */
++};
++
++static struct cpu_rc_domain grcd; /* system wide resource controller domain */
++struct ckrm_controller cpu_ctlr;
++
++static struct ckrm_cpu *get_shares_cpu(struct ckrm_shares *shares)
 +{
-+	unsigned int load;
-+	int i, n;
++	if (shares)
++		return container_of(shares, struct ckrm_cpu, shares);
++	return NULL;
++}
 +
-+	BUG_ON(!cr);
++static struct ckrm_cpu *get_class_cpu(struct ckrm_class *class)
++{
++	return get_shares_cpu(ckrm_get_controller_shares(class, &cpu_ctlr));
++}
 +
-+	load = 0;
-+	n = 0;
++struct cpu_rc *cpu_rc_get(task_t *tsk)
++{
++	struct ckrm_class *class = tsk->class;
++	struct ckrm_cpu *res;
 +
-+	/* Just reading the value, so no locking... */
-+	for_each_cpu_mask(i, cr->rcd->cpus) {
-+		if (jiffies - cr->stat[i].timestamp <= CPU_RC_SPREAD_PERIOD)
-+			load += cr->stat[i].load;
-+		n++;
++	/* controller is not registered; no class is given */
++	if ((cpu_ctlr.ctlr_id == CKRM_NO_RES_ID) || (class == NULL))
++		return NULL;
++
++	res = get_class_cpu(class);
++	/* cpu controller is not available for this class */
++	if (!res)
++		return NULL;
++
++	return &res->cpu_rc;
++}
++
++static void cpu_res_initcls_one(struct ckrm_cpu * res)
++{
++	res->shares.min_shares = 0;
++	res->shares.max_shares = CKRM_SHARE_UNSUPPORTED;
++	res->shares.child_shares_divisor = CKRM_SHARE_DEFAULT_DIVISOR;
++	res->shares.unused_min_shares = CKRM_SHARE_DEFAULT_DIVISOR;
++
++	res->cnt_total_min_shares = 0;
++	cpu_rc_init_cr(&res->cpu_rc, &grcd);
++	cpu_rc_get_cr(&res->cpu_rc);
++}
++
++static struct ckrm_shares *cpu_alloc_shares_struct(struct ckrm_class *class)
++{
++	struct ckrm_cpu *res;
++
++	res = kzalloc(sizeof(struct ckrm_cpu), GFP_KERNEL);
++	if (!res)
++		return NULL;
++	res->class = class;
++	cpu_res_initcls_one(res);
++	if (ckrm_is_class_root(class))	{
++		res->cpu_rc.share = CKRM_SHARE_DEFAULT_DIVISOR;
++		res->cnt_total_min_shares = CKRM_SHARE_DEFAULT_DIVISOR;
++		res->shares.min_shares = CKRM_SHARE_DONT_CARE;
++		res->shares.max_shares = CKRM_SHARE_DONT_CARE;
 +	}
-+
-+	BUG_ON(!n);
-+
-+	return load / n * CPU_RC_GUAR_SCALE / CPU_RC_LOAD_SCALE;
++	return &res->shares;
 +}
 +
-+/*
-+ * cpu_rc_account() calculates the task load when the timeslice is expired
-+ */
-+void cpu_rc_account(task_t *tsk, unsigned long now)
++static void cpu_free_shares_struct(struct ckrm_shares *my_res)
 +{
-+	struct cpu_rc *cr;
-+	int cpu = smp_processor_id();
-+	unsigned long last;
-+	unsigned int cls_load, tsk_load;
-+	unsigned long base, update;
++	struct ckrm_cpu *res, *parres;
++	u64	temp = 0;
 +
-+	if (tsk == idle_task(task_cpu(tsk)))
++	res = get_shares_cpu(my_res);
++	if (!res)
 +		return;
 +
-+	cr = cpu_rc_get(tsk);
-+	if (!cr)
-+		return;
++	parres = get_class_cpu(res->class->parent);
++	/* return child's min_shares to parent class */
++	spin_lock(&parres->class->class_lock);
++	if (parres->shares.child_shares_divisor) {
++		temp = (u64) parres->shares.unused_min_shares
++				* parres->cnt_total_min_shares;
++		do_div(temp, parres->shares.child_shares_divisor);
++	}
++	cpu_rc_set_share(&parres->cpu_rc, (int)temp);
++	spin_unlock(&parres->class->class_lock);
 +
-+	base = now - tsk->ts_alloced;
-+	if (base == 0)
-+		return;  /* duration too small. can not collect statistics. */
-+
-+	tsk_load = CPU_RC_LOAD_SCALE * (tsk->last_slice - tsk->time_slice)
-+			+ (CPU_RC_LOAD_SCALE / 2);
-+	if (base > CPU_RC_SPREAD_PERIOD)
-+		tsk_load = CPU_RC_SPREAD_PERIOD * tsk_load / base;
-+
-+	last = cr->stat[cpu].timestamp;
-+	update = now - last;
-+	if (update > CPU_RC_SPREAD_PERIOD)
-+		cls_load = 0;  /* statistics data obsolete. */
-+	else
-+		cls_load = cr->stat[cpu].load
-+			 * (CPU_RC_SPREAD_PERIOD - update);
-+
-+	cr->stat[cpu].timestamp = now;
-+	cr->stat[cpu].load = (cls_load + tsk_load) / CPU_RC_SPREAD_PERIOD;
++	cpu_rc_put_cr(&res->cpu_rc);
++	kfree(res);
 +}
-Index: linux-2.6.17-rc2/kernel/sched.c
-===================================================================
---- linux-2.6.17-rc2.orig/kernel/sched.c
-+++ linux-2.6.17-rc2/kernel/sched.c
-@@ -43,6 +43,7 @@
- #include <linux/rcupdate.h>
- #include <linux/cpu.h>
- #include <linux/cpuset.h>
-+#include <linux/cpu_rc.h>
- #include <linux/percpu.h>
- #include <linux/kthread.h>
- #include <linux/seq_file.h>
-@@ -1377,6 +1378,7 @@ int fastcall wake_up_state(task_t *p, un
- void fastcall sched_fork(task_t *p, int clone_flags)
- {
- 	int cpu = get_cpu();
-+	unsigned long now;
- 
- #ifdef CONFIG_SMP
- 	cpu = sched_balance_self(cpu, SD_BALANCE_FORK);
-@@ -1416,6 +1418,9 @@ void fastcall sched_fork(task_t *p, int 
- 	p->first_time_slice = 1;
- 	current->time_slice >>= 1;
- 	p->timestamp = sched_clock();
-+	now = jiffies;
-+	cpu_rc_record_allocation(current, current->time_slice, now);
-+	cpu_rc_record_allocation(p, p->time_slice, now);
- 	if (unlikely(!current->time_slice)) {
- 		/*
- 		 * This case is rare, it happens when the parent has only
-@@ -1533,6 +1538,8 @@ void fastcall sched_exit(task_t *p)
- 		p->parent->time_slice += p->time_slice;
- 		if (unlikely(p->parent->time_slice > task_timeslice(p)))
- 			p->parent->time_slice = task_timeslice(p);
-+		cpu_rc_record_allocation(p->parent,
-+					 p->parent->time_slice, jiffies);
- 	}
- 	if (p->sleep_avg < p->parent->sleep_avg)
- 		p->parent->sleep_avg = p->parent->sleep_avg /
-@@ -2617,6 +2624,7 @@ void scheduler_tick(void)
- 	runqueue_t *rq = this_rq();
- 	task_t *p = current;
- 	unsigned long long now = sched_clock();
-+	unsigned long jnow;
- 
- 	update_cpu_clock(p, rq, now);
- 
-@@ -2651,6 +2659,9 @@ void scheduler_tick(void)
- 			p->time_slice = task_timeslice(p);
- 			p->first_time_slice = 0;
- 			set_tsk_need_resched(p);
-+#ifdef CONFIG_CPU_RC
-+			/* XXX  need accounting even for rt_task? */
-+#endif
- 
- 			/* put it at the end of the queue: */
- 			requeue_task(p, rq->active);
-@@ -2660,9 +2671,12 @@ void scheduler_tick(void)
- 	if (!--p->time_slice) {
- 		dequeue_task(p, rq->active);
- 		set_tsk_need_resched(p);
-+		jnow = jiffies;
-+		cpu_rc_account(p, jnow);
- 		p->prio = effective_prio(p);
- 		p->time_slice = task_timeslice(p);
- 		p->first_time_slice = 0;
-+		cpu_rc_record_allocation(p, p->time_slice, jnow);
- 
- 		if (!rq->expired_timestamp)
- 			rq->expired_timestamp = jiffies;
-Index: linux-2.6.17-rc2/kernel/exit.c
-===================================================================
---- linux-2.6.17-rc2.orig/kernel/exit.c
-+++ linux-2.6.17-rc2/kernel/exit.c
-@@ -36,6 +36,7 @@
- #include <linux/compat.h>
- #include <linux/pipe_fs_i.h>
- #include <linux/ckrm.h>
-+#include <linux/cpu_rc.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -852,6 +853,7 @@ fastcall NORET_TYPE void do_exit(long co
- 	int group_dead;
- 
- 	profile_task_exit(tsk);
-+	cpu_rc_account(tsk, jiffies);
- 
- 	WARN_ON(atomic_read(&tsk->fs_excl));
- 
++
++struct ckrm_controller cpu_ctlr = {
++	.name = res_ctlr_name,
++	.depth_supported = 3,
++	.ctlr_id = CKRM_NO_RES_ID,
++	.alloc_shares_struct = cpu_alloc_shares_struct,
++	.free_shares_struct = cpu_free_shares_struct,
++};
++
++int __init init_ckrm_cpu_res(void)
++{
++	if (cpu_ctlr.ctlr_id != CKRM_NO_RES_ID)
++		return -EBUSY; /* already registered */
++	cpu_rc_init_rcd(&grcd);
++	printk(KERN_INFO "init_ckrm_cpu_res %d cpus available\n", grcd.numcpus);
++	return ckrm_register_controller(&cpu_ctlr);
++}
++
++void __exit exit_ckrm_cpu_res(void)
++{
++	int rc;
++	do {
++		rc = ckrm_unregister_controller(&cpu_ctlr);
++	} while (rc == -EBUSY);
++	BUG_ON(rc != 0);
++}
++
++module_init(init_ckrm_cpu_res)
++module_exit(exit_ckrm_cpu_res)

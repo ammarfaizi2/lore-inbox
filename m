@@ -1,202 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWDUCbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWDUCby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbWDUCbA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Apr 2006 22:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWDUC2o
+	id S932131AbWDUCby (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Apr 2006 22:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWDUCZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Apr 2006 22:28:44 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:22757 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932131AbWDUC2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Apr 2006 22:28:14 -0400
-From: maeda.naoaki@jp.fujitsu.com
+	Thu, 20 Apr 2006 22:25:16 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:54953 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750876AbWDUCZI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Apr 2006 22:25:08 -0400
+From: sekharan@us.ibm.com
 To: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Cc: maeda.naoaki@jp.fujitsu.com
-Date: Fri, 21 Apr 2006 11:27:42 +0900
-Message-Id: <20060421022742.13598.7230.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-In-Reply-To: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-Subject: [RFC][PATCH 3/9] CPU controller - Adds timeslice scaling
+Cc: sekharan@us.ibm.com
+Date: Thu, 20 Apr 2006 19:25:07 -0700
+Message-Id: <20060421022507.6145.18691.sendpatchset@localhost.localdomain>
+In-Reply-To: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
+References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
+Subject: [RFC] [PATCH 10/12] Add shares file support to RCFS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-3/9: cpurc_timeslice_scaling
+10/12 - ckrm_configfs_rcfs_shares
 
-This patch corresponds to section 3 in Documentation/ckrm/cpurc-internals, 
-adding the CPU resource control by scaling timeslices given to each tasks.
-The scaling factors of timeslices are changed based on the difference between
-the share of the resource and the actual load.
+Adds attr_store and attr_show support for shares file.
+--
 
-Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
-Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
+Signed-Off-By: Shailabh Nagar <nagar@watson.ibm.com>
+Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
 
- include/linux/cpu_rc.h |   12 +++++++++
- kernel/cpu_rc.c        |   63 +++++++++++++++++++++++++++++++++++++++++++++++--
- kernel/sched.c         |   11 +++++++-
- 3 files changed, 82 insertions(+), 4 deletions(-)
+ kernel/ckrm/ckrm_rcfs.c |  136 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 136 insertions(+)
 
-Index: linux-2.6.17-rc2/include/linux/cpu_rc.h
+Index: linux2617-rc2/kernel/ckrm/ckrm_rcfs.c
 ===================================================================
---- linux-2.6.17-rc2.orig/include/linux/cpu_rc.h
-+++ linux-2.6.17-rc2/include/linux/cpu_rc.h
-@@ -17,8 +17,11 @@
+--- linux2617-rc2.orig/kernel/ckrm/ckrm_rcfs.c
++++ linux2617-rc2/kernel/ckrm/ckrm_rcfs.c
+@@ -23,6 +23,9 @@
+ #define CKRM_NAME_LEN 20
  
- #define CPU_RC_SPREAD_PERIOD	(10 * HZ)
- #define CPU_RC_LOAD_SCALE	(2 * CPU_RC_SPREAD_PERIOD)
-+#define CPU_RC_LOAD_MARGIN	1
- #define CPU_RC_SHARE_SCALE	100
- #define CPU_RC_TSFACTOR_MAX	CPU_RC_SHARE_SCALE
-+#define CPU_RC_TSFACTOR_INC_HI	5
-+#define CPU_RC_TSFACTOR_INC_LO	2
- #define CPU_RC_HCOUNT_INC	2
- #define CPU_RC_RECALC_INTERVAL	HZ
+ #define RES_STRING "res"
++#define MIN_SHARES_STRING "min_shares"
++#define MAX_SHARES_STRING "max_shares"
++#define CHILD_SHARES_DIVISOR_STRING "child_shares_divisor"
  
-@@ -34,6 +37,8 @@ struct cpu_rc_domain {
- struct cpu_rc {
- 	int share;
- 	int is_hungry;
-+	unsigned int ts_factor;
-+	unsigned long last_recalc;
- 	struct cpu_rc_domain *rcd;
- 	struct {
- 		unsigned long timestamp;
-@@ -44,6 +49,7 @@ struct cpu_rc {
- 
- extern struct cpu_rc *cpu_rc_get(task_t *);
- extern unsigned int cpu_rc_load(struct cpu_rc *);
-+extern unsigned int cpu_rc_scale_timeslice(task_t *, unsigned int);
- extern void cpu_rc_account(task_t *, unsigned long);
- extern void cpu_rc_detect_hunger(task_t *);
- 
-@@ -74,6 +80,12 @@ static inline void cpu_rc_record_allocat
- 					    unsigned int slice,
- 					    unsigned long now) {}
- 
-+static inline unsigned int cpu_rc_scale_timeslice(task_t *tsk,
-+						  unsigned int slice)
-+{
-+	return slice;
-+}
-+
- #endif /* CONFIG_CPU_RC */
- 
- #endif /* _LINUX_CPU_RC_H_ */
-Index: linux-2.6.17-rc2/kernel/cpu_rc.c
-===================================================================
---- linux-2.6.17-rc2.orig/kernel/cpu_rc.c
-+++ linux-2.6.17-rc2/kernel/cpu_rc.c
-@@ -14,6 +14,16 @@
- #include <linux/sched.h>
- #include <linux/cpu_rc.h>
- 
-+static inline void cpu_rcd_lock(struct cpu_rc *cr)
-+{
-+	spin_lock(&cr->rcd->lock);
-+}
-+
-+static inline void cpu_rcd_unlock(struct cpu_rc *cr)
-+{
-+	spin_unlock(&cr->rcd->lock);
-+}
-+
- static inline int cpu_rc_is_hungry(struct cpu_rc *cr)
+ static ssize_t show_stats(struct ckrm_class *class, char *buf)
  {
- 	return cr->is_hungry;
-@@ -77,6 +87,33 @@ static inline void cpu_rc_recalc_tsfacto
- 	else
- 		cpu_rc_set_hungry(cr);
+@@ -119,6 +122,128 @@ done:
+ 	return rc;
+ }
  
-+	if (!cpu_rc_is_anyone_hungry(cr)) {
-+		/* Everyone satisfied.  Extend time_slice. */
-+		cr->ts_factor += CPU_RC_TSFACTOR_INC_HI;
-+	} else {
-+		if (cpu_rc_is_hungry(cr)) {
-+			/* Extend time_slice a little. */
-+			cr->ts_factor += CPU_RC_TSFACTOR_INC_LO;
-+		} else if (load * CPU_RC_SHARE_SCALE >
-+			   (cr->share + CPU_RC_LOAD_MARGIN)
-+				* CPU_RC_LOAD_SCALE) {
-+			/*
-+			 * scale time_slice only when load is higher than
-+			 * the share.
-+			 */
-+			cr->ts_factor = cr->ts_factor * cr->share
-+				* CPU_RC_LOAD_SCALE
-+				/ (load * CPU_RC_SHARE_SCALE);
++
++enum share_token_t {
++	MIN_SHARES_TOKEN,
++	MAX_SHARES_TOKEN,
++	CHILD_SHARES_DIVISOR_TOKEN,
++	RESOURCE_TYPE_TOKEN,
++	ERROR_TOKEN
++};
++
++/* Token matching for parsing input to this magic file */
++static match_table_t shares_tokens = {
++	{RESOURCE_TYPE_TOKEN, RES_STRING"=%s"},
++	{MIN_SHARES_TOKEN, MIN_SHARES_STRING"=%d"},
++	{MAX_SHARES_TOKEN, MAX_SHARES_STRING"=%d"},
++	{CHILD_SHARES_DIVISOR_TOKEN, CHILD_SHARES_DIVISOR_STRING"=%d"},
++	{ERROR_TOKEN, NULL}
++};
++
++static int shares_parse(const char *options, char **resname,
++					struct ckrm_shares *shares)
++{
++	char *p;
++	int option, rc = -EINVAL;
++
++	*resname = NULL;
++	if (!options)
++		goto done;
++	while ((p = strsep((char **)&options, ",")) != NULL) {
++		substring_t args[MAX_OPT_ARGS];
++		int token;
++
++		if (!*p)
++			continue;
++		token = match_token(p, shares_tokens, args);
++		switch (token) {
++		case RESOURCE_TYPE_TOKEN:
++			if (*resname)
++				goto done;
++			*resname = match_strdup(args);
++			break;
++		case MIN_SHARES_TOKEN:
++			if (match_int(args, &option))
++				goto done;
++			shares->min_shares = option;
++			break;
++		case MAX_SHARES_TOKEN:
++			if (match_int(args, &option))
++				goto done;
++			shares->max_shares = option;
++			break;
++		case CHILD_SHARES_DIVISOR_TOKEN:
++			if (match_int(args, &option))
++				goto done;
++			shares->child_shares_divisor = option;
++			break;
++		default:
++			goto done;
 +		}
 +	}
-+
-+	if (cr->ts_factor == 0)
-+		cr->ts_factor = 1;
-+	else if (cr->ts_factor > CPU_RC_TSFACTOR_MAX)
-+		cr->ts_factor = CPU_RC_TSFACTOR_MAX;
-+
-+	cr->last_recalc = now;
-+
- 	cpu_rcd_unlock(cr);
- }
- 
-@@ -102,7 +139,29 @@ unsigned int cpu_rc_load(struct cpu_rc *
- 
- 	BUG_ON(!n);
- 
--	return load / n * CPU_RC_GUAR_SCALE / CPU_RC_LOAD_SCALE;
-+	return load / n * CPU_RC_SHARE_SCALE / CPU_RC_LOAD_SCALE;
++	rc = 0;
++done:
++	if (rc) {
++		kfree(*resname);
++		*resname = NULL;
++	}
++	return rc;
 +}
 +
-+/*
-+ * cpu_rc_scale_timeslice scales the task timeslice based on the scale factor
-+ */
-+unsigned int cpu_rc_scale_timeslice(task_t *tsk, unsigned int slice)
++static int set_shares(struct ckrm_class *class, const char *str)
 +{
-+	struct cpu_rc *cr;
-+	unsigned int scaled;
++	char *resname = NULL;
++	int rc;
++	struct ckrm_controller *ctlr;
++	struct ckrm_shares shares = {
++		.min_shares = CKRM_SHARE_UNCHANGED,
++		.max_shares = CKRM_SHARE_UNCHANGED,
++		.child_shares_divisor = CKRM_SHARE_UNCHANGED,
++	};
 +
-+	cr = cpu_rc_get(tsk);
-+	if (!cr)
-+		return slice;
++	rc = shares_parse(str, &resname, &shares);
++	if (!rc) {
++		ctlr = ckrm_get_controller_by_name(resname);
++		if (ctlr) {
++			rc = ckrm_set_controller_shares(class, ctlr, &shares);
++			ckrm_put_controller(ctlr);
++		} else
++			rc = -EINVAL;
++		kfree(resname);
++	}
++	return rc;
++}
 +
-+	if (jiffies - cr->last_recalc > CPU_RC_RECALC_INTERVAL)
-+		cpu_rc_recalc_tsfactor(cr);
++static ssize_t show_shares(struct ckrm_class *class, char *buf)
++{
++	int i;
++	ssize_t j, rc = 0, bufsize = PAGE_SIZE;
++	struct ckrm_shares *shares;
++	struct ckrm_controller *ctlr;
 +
-+	scaled = slice * cr->ts_factor / CPU_RC_TSFACTOR_MAX;
-+	if (scaled == 0)
-+		scaled = 1;
++	for (i = 0; i < CKRM_MAX_RES_CTLRS; i++) {
++		ctlr = ckrm_get_controller_by_id(i);
++		if (!ctlr)
++			continue;
++		shares = ckrm_get_controller_shares(class, ctlr);
++		if (shares) {
++			if (bufsize <= 0)
++				break;
++			j = snprintf(buf, bufsize, "%s=%s,%s=%d,%s=%d,%s=%d\n",
++				RES_STRING, ctlr->name,
++				MIN_SHARES_STRING, shares->min_shares,
++				MAX_SHARES_STRING, shares->max_shares,
++				CHILD_SHARES_DIVISOR_STRING,
++				shares->child_shares_divisor);
++			rc += j; buf += j; bufsize -= j;
++		}
++		ckrm_put_controller(ctlr);
++	}
++	if (i < CKRM_MAX_RES_CTLRS)
++		rc = -ENOSPC;
++	return rc;
++}
 +
-+	return scaled;
- }
+ struct class_attribute {
+ 	struct configfs_attribute configfs_attr;
+ 	ssize_t (*show)(struct ckrm_class *, char *);
+@@ -135,6 +260,16 @@ struct class_attribute stats_attr = {
+ 	.store = reset_stats
+ };
  
- /*
-@@ -167,7 +226,7 @@ void cpu_rc_detect_hunger(task_t *tsk)
- 
- 	BUG_ON(tsk->last_slice == 0);
- 	wait = jiffies - tsk->last_activated;
--	if (CPU_RC_GUAR_SCALE * tsk->last_slice	/ (wait + tsk->last_slice)
-+	if (CPU_RC_SHARE_SCALE * tsk->last_slice / (wait + tsk->last_slice)
- 			< cr->share)
- 		cr->stat[cpu].maybe_hungry++;
- 
-Index: linux-2.6.17-rc2/kernel/sched.c
-===================================================================
---- linux-2.6.17-rc2.orig/kernel/sched.c
-+++ linux-2.6.17-rc2/kernel/sched.c
-@@ -173,10 +173,17 @@
- 
- static unsigned int task_timeslice(task_t *p)
- {
-+	unsigned int timeslice;
++struct class_attribute shares_attr = {
++	.configfs_attr = {
++		.ca_name = "shares",
++		.ca_owner = THIS_MODULE,
++		.ca_mode = S_IRUGO | S_IWUSR
++	},
++	.show = show_shares,
++	.store = set_shares
++};
 +
- 	if (p->static_prio < NICE_TO_PRIO(0))
--		return SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
-+		timeslice = SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
- 	else
--		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
-+		timeslice = SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
-+
-+	if (!TASK_INTERACTIVE(p))
-+		timeslice = cpu_rc_scale_timeslice(p, timeslice);
-+
-+	return timeslice;
- }
- #define task_hot(p, now, sd) ((long long) ((now) - (p)->last_ran)	\
- 				< (long long) (sd)->cache_hot_time)
+ static struct configfs_subsystem rcfs_subsys;
+ static struct config_item_type rcfs_class_type;
+ 
+@@ -279,6 +414,7 @@ static struct configfs_group_operations 
+ 
+ static struct configfs_attribute *class_attrs[] = {
+ 	&stats_attr.configfs_attr,
++	&shares_attr.configfs_attr,
+ 	NULL
+ };
+ 
+
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------

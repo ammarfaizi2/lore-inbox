@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWDUM4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWDUM6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbWDUM4u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 08:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWDUM4u
+	id S932290AbWDUM6T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 08:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWDUM6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 08:56:50 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:7125 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932206AbWDUM4s convert rfc822-to-8bit (ORCPT
+	Fri, 21 Apr 2006 08:58:19 -0400
+Received: from fc-cn.com ([218.25.172.144]:779 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S932290AbWDUM6S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 08:56:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WQvNqAwUmWwF481vXWESjR6B4T1LNdwq4Y79siotA50b4ZTM473FpY2KPF+aCeJ3pQ4EpN6mNSmn8bKTkMOstoJXeVKKHCUmA6Z8JgfAKqNl10VrZ/gP9/9ti1g55IgEYE0nBta12RRb4utLGTNi9RSfZTFADvAFRhEWRBB+yo0=
-Message-ID: <d120d5000604210556v5c5493f9g7676926c8f75bd8d@mail.gmail.com>
-Date: Fri, 21 Apr 2006 08:56:48 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Alexey Starikovskiy" <alexey_y_starikovskiy@linux.intel.com>
-Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
-Cc: "Xavier Bestel" <xavier.bestel@free.fr>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       "Yu, Luming" <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <44489D58.3090209@linux.intel.com>
+	Fri, 21 Apr 2006 08:58:18 -0400
+Date: Fri, 21 Apr 2006 20:59:49 +0800
+From: Qi Yong <qiyong@fc-cn.com>
+To: akpm@osdl.org
+Cc: neilb@suse.de, linux-kernel@vger.kernel.org
+Subject: [patch] raid5_end_write_request spinlock fix
+Message-ID: <20060421125949.GA15550@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com>
-	 <20060420073713.GA25735@srcf.ucam.org>
-	 <4447AA59.8010300@linux.intel.com>
-	 <20060420153848.GA29726@srcf.ucam.org>
-	 <4447AF4D.7030507@linux.intel.com>
-	 <1145549460.23837.156.camel@capoeira>
-	 <4447B7D6.4030401@linux.intel.com>
-	 <d120d5000604201230y48493995l1bb13d01a8122e11@mail.gmail.com>
-	 <1145563624.14595.5.camel@bip.parateam.prv>
-	 <44489D58.3090209@linux.intel.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/21/06, Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com> wrote:
-> Xavier Bestel wrote:
-> > Le jeudi 20 avril 2006 à 15:30 -0400, Dmitry Torokhov a écrit :
-> >> On 4/20/06, Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com> wrote:
-> >>> Xavier Bestel wrote:
-> >>>> There are keyboards with power/sleep buttons. It makes sense they have
-> >>>> the same behavior than ACPI buttons.
-> >>> Agree, make them behave like ACPI buttons -- remove them from input stream, as they do not belong there...
-> >> What if there is no ACPI? What if I want to remap the button to do
-> >> something else? Input layer is the proper place for them.
-> >
-> > Err .. that's what I meant, sorry I was not clear. Matthew's solution
-> > looks right.
-> If there is no ACPI, you don't have ACPI buttons to remap. Remapping power/lid/sleep button is not wise at least, just because you boot once with acpi=off and get unclean shutdown instead of your intended remapped keystroke.
->
+Hello,
 
-I can see that with power button but lid/sleep should be fine really.
-And even with power button - "doctor it hurts..."
+Reduce the raid5_end_write_request() spinlock window.
 
---
-Dmitry
+Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
+---
+
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 3184360..9c24377 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -581,7 +581,6 @@ static int raid5_end_write_request (stru
+  	struct stripe_head *sh = bi->bi_private;
+ 	raid5_conf_t *conf = sh->raid_conf;
+ 	int disks = sh->disks, i;
+-	unsigned long flags;
+ 	int uptodate = test_bit(BIO_UPTODATE, &bi->bi_flags);
+ 
+ 	if (bi->bi_size)
+@@ -599,16 +598,14 @@ static int raid5_end_write_request (stru
+ 		return 0;
+ 	}
+ 
+-	spin_lock_irqsave(&conf->device_lock, flags);
+ 	if (!uptodate)
+ 		md_error(conf->mddev, conf->disks[i].rdev);
+ 
+ 	rdev_dec_pending(conf->disks[i].rdev, conf->mddev);
+-	
+ 	clear_bit(R5_LOCKED, &sh->dev[i].flags);
+ 	set_bit(STRIPE_HANDLE, &sh->state);
+-	__release_stripe(conf, sh);
+-	spin_unlock_irqrestore(&conf->device_lock, flags);
++	release_stripe(sh);
++
+ 	return 0;
+ }
+ 
+
+-- 
+Coywolf Qi Hunt

@@ -1,116 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWDUPkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWDUPkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWDUPkN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 11:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWDUPkN
+	id S932216AbWDUPkG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 11:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWDUPkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 11:40:13 -0400
-Received: from mx2.suse.de ([195.135.220.15]:7059 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932326AbWDUPkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 11:40:12 -0400
-Date: Fri, 21 Apr 2006 17:40:06 +0200
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org, Dale Farnsworth <dale@farnsworth.org>
-Subject: [PATCH] mv643xx_eth: provide sysfs class device symlink
-Message-ID: <20060421154006.GA12026@suse.de>
-References: <20060311003428.GA17309@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060311003428.GA17309@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Fri, 21 Apr 2006 11:40:06 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:1708 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S932216AbWDUPkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 11:40:04 -0400
+Message-ID: <4448FCC7.6070309@t-online.de>
+Date: Fri, 21 Apr 2006 17:39:51 +0200
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Mail/News 1.5 (X11/20060325)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.16.9, amd64, usbcore: NULL pointer dereference
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig3D6765A42454D70BC5B071C3"
+X-ID: bjJ0UUZfgebJxpg1KyiCS8YIcuNCzWnzB0BjnPqAk+sflQUdvhBD8c
+X-TOI-MSGID: 9e0d73bc-031f-4b5c-9871-32253ff5d1f2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sat, Mar 11, Olaf Hering wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig3D6765A42454D70BC5B071C3
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> Why is the /sys/class/net/eth0/device symlink not created for the
-> mv643xx_eth driver? Does this work for other platform device drivers?
-> Seems to work for the ps2 keyboard at least.
+Hi folks,
 
-The SET_NETDEV_DEV has to be done before a call to register_netdev. With
-the new patch below, the device symlink for the platform device was created.
-Unfortunately, after the 4 ls commands, the network connection died. No
-idea if the box crashed or if something else broke, lost remote access.
+Sometimes my PC dies at boot time:
 
+:
+usb 3-3: config 1 has 0 interfaces, different from the descriptor's value=
+: 1
+Unable to handle kernel NULL pointer dereference at 000000000000000d RIP:=
 
+<ffffffff8809493e>(:usbcore:usb_new_device+350)
+:
+:
 
-Provide sysfs 'device' in /class/net/ethN
-Also, set module owner field, like pcnet32 driver does.
+Unfortunately it is not visible in any log file, so I took
+a snapshot of the screen.
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+Surely it would be unacceptable to send huge attachments
+to everybody on this list. Is somebody interested? Or is
+there some upload area available, that I could use?
 
----
- drivers/net/mv643xx_eth.c |    2 ++
- 1 file changed, 2 insertions(+)
-
-Index: linux-2.6.17-rc2/drivers/net/mv643xx_eth.c
-===================================================================
---- linux-2.6.17-rc2.orig/drivers/net/mv643xx_eth.c
-+++ linux-2.6.17-rc2/drivers/net/mv643xx_eth.c
-@@ -1419,6 +1419,8 @@ static int mv643xx_eth_probe(struct plat
- 	mv643xx_eth_update_pscr(dev, &cmd);
- 	mv643xx_set_settings(dev, &cmd);
- 
-+	SET_MODULE_OWNER(dev);
-+	SET_NETDEV_DEV(dev, &pdev->dev);
- 	err = register_netdev(dev);
- 	if (err)
- 		goto out;
+# lsusb
+Bus 003 Device 003: ID 07cc:0301 Carry Computer Eng., Co., Ltd 6-in-1 Car=
+d Reader
+Bus 003 Device 002: ID 0ace:1211 ZyDAS 802.11b/g USB2 WiFi
+Bus 003 Device 004: ID 124a:4023 AirVast
+Bus 003 Device 001: ID 0000:0000
+Bus 002 Device 001: ID 0000:0000
+Bus 001 Device 001: ID 0000:0000
 
 
+Many thanx
+
+Harri
 
 
--- 
+--------------enig3D6765A42454D70BC5B071C3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-olaf@cantaloupe:~> l /sys/class/net/
-total 0
-drwxr-xr-x 3 root root 0 2006-04-21 17:14 eth0/
-drwxr-xr-x 3 root root 0 2006-04-21 17:14 eth1/
-drwxr-xr-x 3 root root 0 2006-04-21 17:14 lo/
-drwxr-xr-x 3 root root 0 2006-04-21 17:15 sit0/
-olaf@cantaloupe:~> l /sys/class/net/eth0/
-total 0
--r--r--r-- 1 root root 4096 2006-04-21 17:14 addr_len
--r--r--r-- 1 root root 4096 2006-04-21 17:14 address
--r--r--r-- 1 root root 4096 2006-04-21 17:14 broadcast
--r--r--r-- 1 root root 4096 2006-04-21 17:14 carrier
-lrwxrwxrwx 1 root root    0 2006-04-21 17:14 device -> ../../../devices/platform/mv643xx_eth.1/
--r--r--r-- 1 root root 4096 2006-04-21 17:14 features
--rw-r--r-- 1 root root 4096 2006-04-21 17:14 flags
--r--r--r-- 1 root root 4096 2006-04-21 17:14 ifindex
--r--r--r-- 1 root root 4096 2006-04-21 17:14 iflink
--rw-r--r-- 1 root root 4096 2006-04-21 17:14 mtu
-drwxr-xr-x 2 root root    0 2006-04-21 17:14 statistics/
--rw-r--r-- 1 root root 4096 2006-04-21 17:14 tx_queue_len
--r--r--r-- 1 root root 4096 2006-04-21 17:14 type
---w------- 1 root root 4096 2006-04-21 17:14 uevent
--rw-r--r-- 1 root root 4096 2006-04-21 17:14 weight
-olaf@cantaloupe:~> l /sys/class/net/eth1/
-total 0
--r--r--r-- 1 root root 4096 2006-04-21 17:14 addr_len
--r--r--r-- 1 root root 4096 2006-04-21 17:14 address
--r--r--r-- 1 root root 4096 2006-04-21 17:14 broadcast
--r--r--r-- 1 root root 4096 2006-04-21 17:14 carrier
-lrwxrwxrwx 1 root root    0 2006-04-21 17:14 device -> ../../../devices/pci0000:00/0000:00:0d.0/
--r--r--r-- 1 root root 4096 2006-04-21 17:14 features
--rw-r--r-- 1 root root 4096 2006-04-21 17:14 flags
--r--r--r-- 1 root root 4096 2006-04-21 17:14 ifindex
--r--r--r-- 1 root root 4096 2006-04-21 17:14 iflink
--rw-r--r-- 1 root root 4096 2006-04-21 17:14 mtu
-drwxr-xr-x 2 root root    0 2006-04-21 17:14 statistics/
--rw-r--r-- 1 root root 4096 2006-04-21 17:14 tx_queue_len
--r--r--r-- 1 root root 4096 2006-04-21 17:14 type
---w------- 1 root root 4096 2006-04-21 17:14 uevent
--rw-r--r-- 1 root root 4096 2006-04-21 17:14 weight
-olaf@cantaloupe:~> l /sys/class/net/eth*/device
-lrwxrwxrwx 1 root root 0 2006-04-21 17:14 /sys/class/net/eth0/device -> ../../../devices/platform/mv643xx_eth.1/
-lrwxrwxrwx 1 root root 0 2006-04-21 17:14 /sys/class/net/eth1/device -> ../../../devices/pci0000:00/0000:00:0d.0/
-olaf@cantaloupe:~> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
+iD8DBQFESPzMUTlbRTxpHjcRAtBOAKCHqkhoD5UYB42cLfRUZ4Gy7QVqCgCdE1ED
+Jb9C5WCX+MzL9yBEmzGH8BQ=
+=C6Fb
+-----END PGP SIGNATURE-----
 
-
-
+--------------enig3D6765A42454D70BC5B071C3--

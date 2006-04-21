@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWDUV7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWDUWC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbWDUV7x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 17:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWDUV7x
+	id S1750794AbWDUWC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 18:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWDUWC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 17:59:53 -0400
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:53385 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1751364AbWDUV7w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 17:59:52 -0400
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: Updated version of shrink_all_memory tweaks.
-Date: Sat, 22 Apr 2006 07:58:26 +1000
+	Fri, 21 Apr 2006 18:02:27 -0400
+Received: from ns.suse.de ([195.135.220.2]:13262 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750794AbWDUWC1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 18:02:27 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.17-rc2
+Date: Sat, 22 Apr 2006 00:02:16 +0200
 User-Agent: KMail/1.9.1
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-References: <200604212039.19676.ncunningham@cyclades.com> <200604212355.57447.rjw@sisk.pl>
-In-Reply-To: <200604212355.57447.rjw@sisk.pl>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org> <200604211121.20036.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0604210932020.3701@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604210932020.3701@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1743844.yxhAApnTYb";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Disposition: inline
+Message-Id: <200604220002.16824.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604220758.33526.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1743844.yxhAApnTYb
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi.
-
-On Saturday 22 April 2006 07:55, Rafael J. Wysocki wrote:
-> Hi,
+On Friday 21 April 2006 18:40, Linus Torvalds wrote:
+> On Fri, 21 Apr 2006, Alistair John Strachan wrote:
+> > Something in here (or -rc1, I didn't test that) broke WINE. x86-64
+> > kernel, 32bit WINE, works fine on 2.6.16.7. I'll check whether -rc1 had
+> > the same problem and work backwards, but just in case somebody has an
+> > idea..
 >
-> On Friday 21 April 2006 12:39, Nigel Cunningham wrote:
-> > I give the shrink_all_memory tweaks a try today, and fixed a couple of
-> > mistakes that meant too much memory was still freed. With this version =
-of
-> > the patch, you get at most exactly what you ask for.
->
-> Thanks for testing and fixes.
->
-> Could you please make a patch on top of the
-> swsusp-rework-memory-shrinker-rev-2.patch
-> that went to -mm?  [Attached for convenience.]
+> Nothing strikes me, but maybe Andi has a clue.
 
-Ok and thanks. By the way, I've incorporated it in the latest Suspend2=20
-release, so it should see wider testing in the next couple of days.
+NX for 32bit programs is enabled by default now. Does it 
+work with noexec32=off?
 
-Regards,
+If it's that then it won't work with PAE kernels on i386 and NX
+capable machines neither - i just changed the default to be
+the same as 32bit, but unlike 32bit all x86-64 kernels use PAE
+and many of the systems have NX.
 
-Nigel
+If it's not that  don't know what it could be. I actually even used a simple 
+wine program with a post rc2 kernel and it worked for me.
 
---nextPart1743844.yxhAApnTYb
-Content-Type: application/pgp-signature
+So it isn't anything fundamental. Maybe some bad interaction
+with copy protection again, but I don't remember changing ptrace
+at all this time.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+> Alistair, if you can do a "git bisect" on this one, that would help.
 
-iD8DBQBESVWJN0y+n1M3mo0RAnrXAJ9ff6bfv9ozgMRPrz45G1SlHNkOUACfXt3Z
-tkfTOjCOeGGFr0xZrIugyqE=
-=cfds
------END PGP SIGNATURE-----
+If noexec32=off doesn't help please do.
+If noexec32 helps then it's likely a wine bug for using the wrong
+protections.
 
---nextPart1743844.yxhAApnTYb--
+-Andi
+ 

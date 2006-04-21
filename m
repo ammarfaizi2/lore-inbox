@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWDUODF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWDUOHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbWDUODF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 10:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWDUODF
+	id S932316AbWDUOHV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 10:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWDUOHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 10:03:05 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:59033 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932304AbWDUODC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 10:03:02 -0400
-From: Vernon Mauery <vernux@us.ibm.com>
-To: Keith Owens <kaos@ocs.com.au>
-Subject: Re: searching exported symbols from modules
-Date: Fri, 21 Apr 2006 07:03:07 -0700
-User-Agent: KMail/1.8.3
-Cc: "Antti Halonen" <antti.halonen@secgo.com>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       "Linux kernel" <linux-kernel@vger.kernel.org>
-References: <14930.1145604787@kao2.melbourne.sgi.com>
-In-Reply-To: <14930.1145604787@kao2.melbourne.sgi.com>
+	Fri, 21 Apr 2006 10:07:20 -0400
+Received: from nproxy.gmail.com ([64.233.182.184]:55182 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932316AbWDUOHT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 10:07:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=U3ycSz4NiVwBqS4u3RVEKNDZyAQW58TxtlUz12RAHsF2y27EebUPqrXa8NbWni7ygYw5IRxOwWP6n3U8mm3HWZ1kq0Uw1pL6p+PCYul82PmbuORoFWou7pfGnxdonBlZXLup2am+0mLJgJ0HDxz3qynogLNmJSqGeBYeVnqKcOw=
+Message-ID: <7115951b0604210707q2113dd65tda67e24c07d6c0ad@mail.gmail.com>
+Date: Fri, 21 Apr 2006 21:07:17 +0700
+From: "Dmitry Fedorov" <dm.fedorov@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kfree(NULL)
+In-Reply-To: <200604210656.40158.vernux@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200604210703.07856.vernux@us.ibm.com>
+References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com>
+	 <Pine.LNX.4.64.0604210322110.21429@d.namei>
+	 <20060421015412.49a554fa.akpm@osdl.org>
+	 <200604210656.40158.vernux@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 April 2006 00:33, Keith Owens wrote:
-> "Antti Halonen" (on Wed, 19 Apr 2006 16:08:37 +0300) wrote:
-> >Hi Dick,
-> >
-> >Thanks for your response.
-> >
-> >> `insmod` (or modprobe) does all this automatically. Anything that's
-> >> 'extern' will get resolved. You don't do anything special. You can
-> >> also use `depmod` to verify that you won't have any problems loading.
-> >> `man depmod`.
-> >
-> >Yes, I know insmod and herein the problem lies. I have a module where
-> >I want to use functions provided by another module, _if_ it is present,
-> >otherwise use modules internal functions.
->
-> symbol_get() and symbol_put().  See include/linux/module.h.  If
-> symbol_get() returns NULL then the symbol does not exist.
+2006/4/21, Vernon Mauery <vernux@us.ibm.com>:
 
-The trick with symbol_get is that it is marked as EXPORT_SYMBOL_GPL, so only 
-GPL modules can use it.  Not that that is a bad thing though. :)
+> Maybe kfree should really be a wrapper around __kfree which does the real
+> work.  Then kfree could be a inlined function or a #define that does the NULL
+> pointer check.
 
-If you want all of these nice kernel features, GPL your module!
-
---Vernon
+NULL pointer check in kfree saves lot of small code fragments in callers.
+It is one of many reasons why kfree does it.
+Making kfree inline wrapper eliminates this save.

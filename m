@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWDVVFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWDVVFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWDVVFf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 17:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWDVVFf
+	id S1751205AbWDVVFc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 17:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWDVVFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 17:05:35 -0400
+	Sat, 22 Apr 2006 17:05:32 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:62680 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751206AbWDVVFd (ORCPT
+	by vger.kernel.org with ESMTP id S1751205AbWDVVFb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 17:05:33 -0400
-Subject: [PATCH] 'make headers_install' kbuild target.
-From: David Woodhouse <dwmw2@infradead.org>
-To: linux-kernel@vger.kernel.org
-Cc: bunk@stusta.de, sam@ravnborg.org
-Content-Type: text/plain
-Date: Sat, 22 Apr 2006 03:17:20 +0100
-Message-Id: <1145672241.16166.156.camel@shinybook.infradead.org>
+	Sat, 22 Apr 2006 17:05:31 -0400
+Date: Fri, 21 Apr 2006 19:13:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: sekharan@us.ibm.com
+Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
+Message-Id: <20060421191340.0b218c81.akpm@osdl.org>
+In-Reply-To: <1145670536.15389.132.camel@linuxchandra>
+References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
+	<1145630992.3373.6.camel@localhost.localdomain>
+	<1145638722.14804.0.camel@linuxchandra>
+	<20060421155727.4212c41c.akpm@osdl.org>
+	<1145670536.15389.132.camel@linuxchandra>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1.dwmw2.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Attached is the current patch from mainline to my working tree at
-git://git.infradead.org/~dwmw2/headers-2.6.git -- visible in gitweb at
-http://git.infradead.org/?p=users/dwmw2/headers-2.6.git;a=summary
+Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+>
+> > 
+> > c) pointer to prototype code if poss
+> 
+> Both the memory controllers are fully functional. We need to trim them
+> down.
+> 
+> active/inactive list per class memory controller:
+> http://prdownloads.sourceforge.net/ckrm/mem_rc-f0.4-2615-v2.tz?download
 
-It adds a 'make headers_install' target to the kernel makefiles, which
-exports a subset of the headers and runs 'unifdef' on them to clean them
-up for installation in /usr/include.
+Oh my gosh.  That converts memory reclaim from per-zone LRU to
+per-CKRM-class LRU.  If configured.
 
-You'll need unifdef, which is available at 
-http://www.cs.cmu.edu/~ajw/public/dist/unifdef-1.0.tar.gz and can
-probably be put into our scripts/ directory since it's BSD-licensed.
+This is huge.  It means that we have basically two quite different versions
+of memory reclaim to test and maintain.   This is a problem.
 
-I expect the kbuild folks to reimplement what I've done in the Makefile,
-but it works well enough to get us started. The text file listing the
-header files will probably want to change -- maybe we'll have a file in
-each directory listing the exportable files in that directory, or maybe
-we'll put a marker in the public files which we can grep for. I don't
-care much.
+(I hope that's the before-we-added-comments version of the patch btw).
 
-Implementation details aside, the point is that we can now work on
-refining the choice of headers to be exported, and more importantly we
-can start fixing the _contents_ of those headers so that nothing which
-should be private is exported in them outside #ifdef __KERNEL__.
+> pzone based memory controller:
+> http://marc.theaimsgroup.com/?l=ckrm-tech&m=113867467006531&w=2
 
-I've chosen headers in the generic directories and in asm-powerpc; the
-other asm directories could do with a proper selection being made; the
-rest of the current list is just inherited from Fedora's
-glibc-kernheaders package for now.
+>From a super-quick scan that looks saner.  Is it effective?  Is this the
+way you're planning on proceeding?
 
-For a start, the headers I've marked for export are sometimes including
-headers which _weren't_ so marked, and hence which don't exist in our
-exported set of headers. I've started to move those inclusions into
-#ifdef __KERNEL__ where appropriate, but there's more of that to do
-before we can even use these for building anything and actually start to
-test them in earnest.
+This requirement is basically a glorified RLIMIT_RSS manager, isn't it? 
+Just that it covers a group of mm's and not just the one mm?
 
-Adrian, I'm hoping we can persuade you to help us audit the resulting
-contents of usr/include/* and apply your usual treatment to the headers
-until it looks sane. That assistance would be very much appreciated.
+Do you attempt to manage just pagecache?  So if class A tries to read 10GB
+from disk, does that get more aggressively reclaimed based on class A's
+resource limits?
 
--- 
-dwmw2
+This all would have been more comfortable if done on top of the 2.4
+kernel's virtual scanner.
 
+(btw, using the term "class" to identify a group of tasks isn't very
+comfortable - it's an instance, not a class...)
+
+
+Worried.

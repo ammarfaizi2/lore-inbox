@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWDVVye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWDVVxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWDVVye (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 17:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWDVVyd
+	id S1751125AbWDVVxl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 17:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWDVVxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 17:54:33 -0400
-Received: from mx1.suse.de ([195.135.220.2]:11140 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751138AbWDVVyd (ORCPT
+	Sat, 22 Apr 2006 17:53:41 -0400
+Received: from styx.suse.cz ([82.119.242.94]:49868 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751125AbWDVVxk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 17:54:33 -0400
-Date: Sat, 22 Apr 2006 14:50:12 -0700
-From: Tony Jones <tonyj@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Greg KH <gregkh@suse.de>, chrisw@sous-sol.org,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove the Root Plug Support sample module
-Message-ID: <20060422215012.GB4128@suse.de>
-References: <20060421201943.GJ19754@stusta.de> <20060421202918.GB32119@suse.de> <20060422085737.GL19754@stusta.de>
+	Sat, 22 Apr 2006 17:53:40 -0400
+Date: Sat, 22 Apr 2006 23:53:56 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Matheus Izvekov <mizvekov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, dtor_core@ameritech.net
+Subject: Re: usbkbd not reporting unknown keys
+Message-ID: <20060422215356.GA11798@suse.cz>
+References: <d120d5000603081247i69f9e7dbm6ef614f50140227f@mail.gmail.com> <305c16960603081334k25ce9a89g132876d4c9246fc6@mail.gmail.com> <d120d5000603090543p3446b4a0sddaaa031ad2513ca@mail.gmail.com> <305c16960603091230r32038a86mbefc6d80bedb24ab@mail.gmail.com> <305c16960603141510g72def22bmd0043d5f71d9ef6@mail.gmail.com> <305c16960604221111u714bd3b1h2aeb0559b07d911b@mail.gmail.com> <20060422185402.GC10613@suse.cz> <305c16960604221259g4ddabca2o6333f7ffcaff8e4f@mail.gmail.com> <20060422200455.GA10994@suse.cz> <305c16960604221401k4e6493b6xa9c898a92c6b028d@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060422085737.GL19754@stusta.de>
+In-Reply-To: <305c16960604221401k4e6493b6xa9c898a92c6b028d@mail.gmail.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 22, 2006 at 10:57:37AM +0200, Adrian Bunk wrote:
-> It might work as an example, but if people think it would bring them 
-> real security that's a dangerous misunderstanding.
+On Sat, Apr 22, 2006 at 06:01:27PM -0300, Matheus Izvekov wrote:
 
-Examples are good, no?
+> On 4/22/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > Just point me to the HID debug logs. (I need DEBUG enabled in both
+> > hid-core.c and hid-input.c.) Make sure you're running an uptodate
+> > kernel. I'll see what is needed to fix the mappings for that keyboard.
+> >
+> > > Maybe the thread subject should be changed to something more
+> > > apropriate, do so if it pleases you.
+> 
+> Here it is, hope i got everything right.
 
-Sounds like you need to add a (well visible) comment then!!
+It seems to be missing something at the top, also the whitespace
+formatting seems to be discarded - everything is aligned to the first
+column, making it rather hard to read. Please retry using 'dmesg -s 131072'.
 
-Tony
+-- 
+Vojtech Pavlik
+Director SuSE Labs

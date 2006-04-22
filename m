@@ -1,139 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWDVR07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWDVR17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWDVR07 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 13:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWDVR06
+	id S1750811AbWDVR17 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 13:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWDVR16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 13:26:58 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:61335 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750765AbWDVR06 (ORCPT
+	Sat, 22 Apr 2006 13:27:58 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:45973 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750786AbWDVR15 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 13:26:58 -0400
-X-Sasl-enc: U88qSiwIZhCTTQQX/yBbSihfJkYGz5Rj87AcB6ltFEye 1145723698
-Message-ID: <444A5BA5.6040007@imap.cc>
-Date: Sat, 22 Apr 2006 18:36:53 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
+	Sat, 22 Apr 2006 13:27:57 -0400
+Date: Sat, 22 Apr 2006 11:33:28 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: [PATCH] 'make headers_install' kbuild target.
+Message-ID: <20060422093328.GM19754@stusta.de>
+References: <1145672241.16166.156.camel@shinybook.infradead.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, gregkh@suse.de, hjlipp@web.de
-Subject: Re: [PATCH 2.6.17-rc2 1/2] return class device pointer from tty_register_device()
-References: <44497FFE.6050508@imap.cc> <20060421181429.5ea9d777.akpm@osdl.org>
-In-Reply-To: <20060421181429.5ea9d777.akpm@osdl.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC08F37F2D94B32BC931EFADD"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145672241.16166.156.camel@shinybook.infradead.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC08F37F2D94B32BC931EFADD
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-On 22.04.2006 03:14, Andrew Morton wrote:
-
-> Tilman Schmidt <tilman@imap.cc> wrote:
+On Sat, Apr 22, 2006 at 03:17:20AM +0100, David Woodhouse wrote:
+>...
+> Implementation details aside, the point is that we can now work on
+> refining the choice of headers to be exported, and more importantly we
+> can start fixing the _contents_ of those headers so that nothing which
+> should be private is exported in them outside #ifdef __KERNEL__.
 > 
->> + * Returns a pointer to the class device (or NULL on error).
->> + *
+> I've chosen headers in the generic directories and in asm-powerpc; the
+> other asm directories could do with a proper selection being made; the
+> rest of the current list is just inherited from Fedora's
+> glibc-kernheaders package for now.
 > 
-> It would be better to make this return ERR_PTR(-Efoo) on error, rather than
-> NULL.
+> For a start, the headers I've marked for export are sometimes including
+> headers which _weren't_ so marked, and hence which don't exist in our
+> exported set of headers. I've started to move those inclusions into
+> #ifdef __KERNEL__ where appropriate, but there's more of that to do
+> before we can even use these for building anything and actually start to
+> test them in earnest.
+> 
+> Adrian, I'm hoping we can persuade you to help us audit the resulting
+> contents of usr/include/* and apply your usual treatment to the headers
+> until it looks sane. That assistance would be very much appreciated.
 
-Good point. Here's an accordingly updated version.
-I'll follow up with a matching version of part 2.
+My thirst thought is:
+Is this really the best approach, or could this be done better?
 
-From: Hansjoerg Lipp <hjlipp@web.de>
+I'm currently more a fan of a separate kabi/ subdir with headers used by 
+both headers under linux/ and userspace.
 
-Let tty_register_device() return a pointer to the class device it creates.
-This allows registrants to add their own sysfs files under the class
-device node.
+Why?
 
-Signed-off-by: Hansjoerg Lipp <hjlipp@web.de>
-Signed-off-by: Tilman Schmidt <tilman@imap.cc>
+Unless I'm misunderstanding this, your changes are giving a result 
+identical result to simply using the current kernel headers (stripping 
+the #ifdef __KERNEL__ stuff doesn't change anything).
 
----
+If we want to define an ABI and do it right, the resulting ABI headers
+should be write-only, and should even continue to contain the ABI for
+code already removed from the kernel.
 
- drivers/char/tty_io.c |   11 +++++++----
- include/linux/tty.h   |    4 +++-
- 2 files changed, 10 insertions(+), 5 deletions(-)
+It should be possible to do this incrementically:
+- without breaking the kernel at any time
+- with no userspace breakages when switching to the ABI headers for 
+  userspace (there might be corner cases, and if e.g. the asm-i386/atomic.h
+  abuse by MySQL breaks that's not a loss)
 
-diff -urpN -X exclude linux-2.6.17-rc1-mm2.orig/drivers/char/tty_io.c linux-2.6.17-rc1-mm2/drivers/char/tty_io.c
---- linux-2.6.17-rc1-mm2.orig/drivers/char/tty_io.c	2006-04-09 18:30:56.000000000 +0200
-+++ linux-2.6.17-rc1-mm2/drivers/char/tty_io.c	2006-04-22 04:57:59.000000000 +0200
-@@ -2957,12 +2957,14 @@ static struct class *tty_class;
-  *	This field is optional, if there is no known struct device for this
-  *	tty device it can be set to NULL safely.
-  *
-+ * Returns a pointer to the class device (or ERR_PTR(-Efoo) on error).
-+ *
-  * This call is required to be made to register an individual tty device if
-  * the tty driver's flags have the TTY_DRIVER_NO_DEVFS bit set.  If that
-  * bit is not set, this function should not be called.
-  */
--void tty_register_device(struct tty_driver *driver, unsigned index,
--			 struct device *device)
-+struct class_device *tty_register_device(struct tty_driver *driver,
-+					 unsigned index, struct device *device)
- {
- 	char name[64];
- 	dev_t dev = MKDEV(driver->major, driver->minor_start) + index;
-@@ -2970,7 +2972,7 @@ void tty_register_device(struct tty_driv
- 	if (index >= driver->num) {
- 		printk(KERN_ERR "Attempt to register invalid tty line number "
- 		       " (%d).\n", index);
--		return;
-+		return ERR_PTR(-EINVAL);
- 	}
+This might take a bit longer, but as a result we have:
+- an ABI where diffstat is able to tell us if someone has touched the ABI
+  (can git trigger electric shocks for everyone trying to commit or pull 
+   changes to the kabi/ subdir?  ;-)  )
+- as a side effect, some cleanup of the current kernel headers
 
- 	devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
-@@ -2980,7 +2982,8 @@ void tty_register_device(struct tty_driv
- 		pty_line_name(driver, index, name);
- 	else
- 		tty_line_name(driver, index, name);
--	class_device_create(tty_class, NULL, dev, device, "%s", name);
-+
-+	return class_device_create(tty_class, NULL, dev, device, "%s", name);
- }
+Unless someone can tell me a reason why this wouldn't work (except for 
+being a bit more work than your approach), this is the approach I have 
+in mind for working on.
 
- /**
-diff -urpN -X exclude linux-2.6.17-rc1-mm2.orig/include/linux/tty.h linux-2.6.17-rc1-mm2/include/linux/tty.h
---- linux-2.6.17-rc1-mm2.orig/include/linux/tty.h	2006-04-04 23:29:14.000000000 +0200
-+++ linux-2.6.17-rc1-mm2/include/linux/tty.h	2006-04-22 05:12:34.000000000 +0200
-@@ -291,7 +291,9 @@ extern int tty_register_ldisc(int disc,
- extern int tty_unregister_ldisc(int disc);
- extern int tty_register_driver(struct tty_driver *driver);
- extern int tty_unregister_driver(struct tty_driver *driver);
--extern void tty_register_device(struct tty_driver *driver, unsigned index, struct device *dev);
-+extern struct class_device *tty_register_device(struct tty_driver *driver,
-+						unsigned index,
-+						struct device *dev);
- extern void tty_unregister_device(struct tty_driver *driver, unsigned index);
- extern int tty_read_raw_data(struct tty_struct *tty, unsigned char *bufp,
- 			     int buflen);
+> dwmw2
 
+cu
+Adrian
 
 -- 
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Imagine a world without hypothetical situations.
 
---------------enigC08F37F2D94B32BC931EFADD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFESlulMdB4Whm86/kRAigVAJ4u/ENwvczSuxYz/M7F1aeyRIznIACfc1w8
-uPyB7mEq9j+heFKX4Zly7g0=
-=FaMw
------END PGP SIGNATURE-----
-
---------------enigC08F37F2D94B32BC931EFADD--

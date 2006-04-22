@@ -1,70 +1,56 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWDVSaz (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 22 Apr 2006 14:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWDVSaz
+	id S1750943AbWDVTFB (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 22 Apr 2006 15:05:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWDVTFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 14:30:55 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:26795 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750824AbWDVSaz (ORCPT
+	Sat, 22 Apr 2006 15:05:01 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:37558 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750942AbWDVTFA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 14:30:55 -0400
-Message-ID: <10ac0494d3a.mryoungwang@virgilio.it>
-Date: Sat, 22 Apr 2006 07:28:50 +0100 (GMT+01:00)
-From: <mryoungwang@virgilio.it>
-Reply-To: <mryoungwang@virgilio.it>
-Subject: BE OUR AGENT
-Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: 66.178.40.43
-To: unlisted-recipients:; (no To-header on input)
+	Sat, 22 Apr 2006 15:05:00 -0400
+Message-Id: <20031101090223.1649874CE@uccor.edu.ar>
+Reply-To: "Mngr. hildeedyth" <signechiang-hua@purinmail.com>
+Date: Sat, 22 Apr 2006 10:51:53 +0400
+From: "Mngr. theressakamillah" <neallgena@purinmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: wow -Dominique
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750824AbWDVSaz@vger.kernel.org>
-
-Young Wang
-Centre for Contemporary Art
-2-6-1-3F Ogura Yahata-Higashi-
-ku,.
-Kitakyushu 805-0059 ,Japan.
-Phone +81 93 663 1615
-Fax + 81 93 663 
-1610
-Email:youngwangccajapan1@yahoo.com.cn
-http://www.cca-kitakyushu.
-org/
-
-Goodday,.
-
-We the Members Board of Directors,.CCA [Centre for 
-Contemporary Art] 
-areseeking respective Agents in our Canada/America 
-market region.We
-produce,exhibit and sell:-Art/Crafts,jewelry of all 
-kinds.We Officially 
-seek your partnership to establish a medium of 
-getting to our various 
-Clients with respect to their outstanding 
-payments onwardly to be made through 
-you to us,CCA [Centre for 
-Contemporary Art,.Japan].
-
-We welcome your revert confirming your 
-interest for these official
-collection purpose.Subject to your 
-completion of further Official
-endorsements/registration you will be 
-informed accordingly.
-
-Anticipating your interest,forward name,
-residential/postal address and
-phone/fax numbers.
-
-Below is respective 
-consultant of the company you can contact for 
-further details:- 
-(youngwangccajapan1@yahoo.com.cn)
-
-Mr .Young Wang 
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750943AbWDVTFB@vger.kernel.org>
 
 
+U N I V E R S I T Y   D I P L O M A S 
+
+
+Obtain a prosperous future, money earning power, 
+and the admiration of all. 
+
+
+Diplomas from prestigious non-accredited 
+universities based on your present knowledge 
+and life experience. 
+
+
+No required tests, classes, books, or interviews. 
+
+
+Bachelors, masters, MBA, and doctorate (PhD) 
+diplomas available in the field of your choice. 
+
+
+No one is turned down. 
+
+
+Confidentiality assured. 
+
+
+CALL NOW to receive your diploma 
+within days!!! 
+
+
+1 - 8 1 3 - 4 3 6 - 5 3 3 5
+
+
+
+Call 24 hours a day, 7 days a week, including 
+Sundays and holidays=20

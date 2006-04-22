@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWDVAbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWDVAgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWDVAbH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 20:31:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWDVAbG
+	id S1750790AbWDVAgy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 20:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWDVAgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 20:31:06 -0400
-Received: from sccrmhc13.comcast.net ([63.240.77.83]:51441 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1750788AbWDVAbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 20:31:04 -0400
-Date: Fri, 21 Apr 2006 17:31:00 -0700
-From: Chris Spiegel <linuxml@happyjack.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Exclude kernel threads from kill(-1, ..)
-Message-ID: <20060422003100.GA14966@midgard.spiegels>
+	Fri, 21 Apr 2006 20:36:54 -0400
+Received: from mga06.intel.com ([134.134.136.21]:20388 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750790AbWDVAgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 20:36:53 -0400
+X-IronPort-AV: i="4.04,146,1144047600"; 
+   d="scan'208"; a="26302461:sNHT19560275"
+X-IronPort-AV: i="4.04,146,1144047600"; 
+   d="scan'208"; a="26331369:sNHT16371614"
+TrustExchangeSourcedMail: True
+X-IronPort-AV: i="4.04,146,1144047600"; 
+   d="scan'208"; a="26302460:sNHT17116519"
+Date: Fri, 21 Apr 2006 17:34:16 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [PATCH] sched: Avoid unnecessarily moving highest priority task move_tasks()
+Message-ID: <20060421173416.C17932@unix-os.sc.intel.com>
+References: <44485E21.6070801@bigpond.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <44485E21.6070801@bigpond.net.au>; from pwil3058@bigpond.net.au on Fri, Apr 21, 2006 at 02:22:57PM +1000
+X-OriginalArrivalTime: 22 Apr 2006 00:36:52.0255 (UTC) FILETIME=[D95ED2F0:01C665A4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kill(-1, ..) currently will try to signal kernel threads, which of
-course won't die off even with SIGKILL, meaning that ESRCH will never be
-returned.  Instead, allow kill() to return ESRCH if the only processes
-left are simply unkillable (kernel threads).  This does not violate
-POSIX which says that "an unspecified set of system processes" may be
-excluded when killing -1.
+On Fri, Apr 21, 2006 at 02:22:57PM +1000, Peter Williams wrote:
+> @@ -2052,7 +2055,13 @@ static int move_tasks(runqueue_t *this_r
+>  
+>  	rem_load_move = max_load_move;
+>  	pinned = 1;
+> -	this_min_prio = this_rq->curr->prio;
+> +	this_best_prio = rq_best_prio(this_rq);
+> +	busiest_best_prio = rq_best_prio(busiest);
+> +	/*
+> +	 * Enable handling of the case where there is more than one task
+> +	 * with the best priority.
+> +	 */
+> +	busiest_best_prio_seen = busiest_best_prio == busiest->curr->prio;
 
-Signed-off-by: Chris Spiegel <linuxml@happyjack.org>
+>From this hunk, it seems like we don't want to override the skip of highest 
+priority task as long as there is one such task in active list(even though
+there may be few such tasks on expired list). Right? And why?
 
----
-(please CC replies to me)
+If we fix the above, we don't need busiest_best_prio_seen. Once we move one 
+highest priority task, we are changing this_best_prio anyhow right?
 
-There is a comment in signal.c which says that Linux's kill(-1, ..) does
-something that is probably wrong and should be like BSD or SysV.  Well,
-this is a bit more like the modern BSDs (possibly SysV, I'm not familiar
-with it), although we still don't kill the calling process, a choice I
-agree with.
+This patch doesn't address the issue where we can skip the highest priority 
+task movement if there is only one such task on the busy runqueue
+(and is on the expired list..)
 
-This isn't just a pathological fix, it's a problem I ran into with the
-following code (from NetBSD's /sbin/reboot):
+I can send a fix if I understand your intention for the above hunk.
 
-for (i = 1;; ++i) {
-	if (kill(-1, SIGKILL) == -1) {
-		if (errno == ESRCH)
-			break;
-		goto restart;
-	}
-	if (i > 5) {
-		warnx("WARNING: some process(es) wouldn't die");
-		break;
-	}
-	(void)sleep(2 * i);
-}
-
-So it fixes a real-world (my world, anyway) problem.
-
---- linux-2.6/kernel/signal.c.orig	2006-04-21 15:44:17.618784128 -0700
-+++ linux-2.6/kernel/signal.c	2006-04-21 16:20:52.269454557 -0700
-@@ -1156,7 +1156,8 @@ static int kill_something_info(int sig, 
- 
- 		read_lock(&tasklist_lock);
- 		for_each_process(p) {
--			if (p->pid > 1 && p->tgid != current->tgid) {
-+			if (p->pid > 1 && p->tgid != current->tgid &&
-+					  p->mm != NULL) {
- 				int err = group_send_sig_info(sig, info, p);
- 				++count;
- 				if (err != -EPERM)
+thanks,
+suresh

@@ -1,70 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWDVTIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWDVTI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWDVTIw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWDVTIw
+	id S1750947AbWDVTI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWDVTI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:08:52 -0400
+	Sat, 22 Apr 2006 15:08:58 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:12471 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750947AbWDVTIv (ORCPT
+	by vger.kernel.org with ESMTP id S1750947AbWDVTI5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:08:51 -0400
-Date: Fri, 21 Apr 2006 23:19:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: harald.dunkel@t-online.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
+	Sat, 22 Apr 2006 15:08:57 -0400
+Message-ID: <4449CB69.20907@t-online.de>
+Date: Sat, 22 Apr 2006 08:21:29 +0200
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Mail/News 1.5 (X11/20060325)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.16.9, amd64, usbcore: NULL pointer dereference
-Message-Id: <20060421231904.5751e70b.akpm@osdl.org>
-In-Reply-To: <20060421160916.37b9c771.akpm@osdl.org>
 References: <4448FCC7.6070309@t-online.de>
-	<20060421160916.37b9c771.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <4448FCC7.6070309@t-online.de>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig352E193A72554E5084F936BB"
+X-ID: ZqYoy0Zv8e3DqGMnkxOPbVag4K0CpdUWYNivt8rBzHc+pCaLf+w9kv
+X-TOI-MSGID: 9ca9ee04-002f-4070-9a88-2b95fa90c79f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> 
-> (Added linux-usb-devel)
-> 
-> Harald Dunkel <harald.dunkel@t-online.de> wrote:
-> >
-> > Hi folks,
-> > 
-> > Sometimes my PC dies at boot time:
-> > 
-> > :
-> > usb 3-3: config 1 has 0 interfaces, different from the descriptor's value: 1
-> > Unable to handle kernel NULL pointer dereference at 000000000000000d RIP:
-> > <ffffffff8809493e>(:usbcore:usb_new_device+350)
-> > :
-> > :
-> > 
-> > Unfortunately it is not visible in any log file, so I took
-> > a snapshot of the screen.
-> > 
-> > Surely it would be unacceptable to send huge attachments
-> > to everybody on this list. Is somebody interested? Or is
-> > there some upload area available, that I could use?
-> 
-> Please email the image to myself and I'll upload it.
-> 
-> > # lsusb
-> > Bus 003 Device 003: ID 07cc:0301 Carry Computer Eng., Co., Ltd 6-in-1 Card Reader
-> > Bus 003 Device 002: ID 0ace:1211 ZyDAS 802.11b/g USB2 WiFi
-> > Bus 003 Device 004: ID 124a:4023 AirVast
-> > Bus 003 Device 001: ID 0000:0000
-> > Bus 002 Device 001: ID 0000:0000
-> > Bus 001 Device 001: ID 0000:0000
-> > 
-> 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig352E193A72554E5084F936BB
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-It's at http://www.zip.com.au/~akpm/linux/patches/stuff/oops.jpg
+PS: I should mention that I had an USB disk attached at
+boot time.
 
-Harald, if nothing happens on this bug (and it may well not :() could
-you please remember to create a report against USB at bugzilla.kernel.org?
+Harald Dunkel wrote:
+>=20
+> # lsusb
+> Bus 003 Device 003: ID 07cc:0301 Carry Computer Eng., Co., Ltd 6-in-1 C=
+ard Reader
+> Bus 003 Device 002: ID 0ace:1211 ZyDAS 802.11b/g USB2 WiFi
+> Bus 003 Device 004: ID 124a:4023 AirVast
+> Bus 003 Device 001: ID 0000:0000
+> Bus 002 Device 001: ID 0000:0000
+> Bus 001 Device 001: ID 0000:0000
+>=20
 
-Thanks.
+It should appear in the output of lsusb, too. If I insert
+a SD card before booting, then I get:
+
+# lsusb
+Bus 003 Device 003: ID 07cc:0301 Carry Computer Eng., Co., Ltd 6-in-1 Car=
+d Reader
+Bus 003 Device 001: ID 0000:0000
+Bus 003 Device 002: ID 0ace:1211 ZyDAS 802.11b/g USB2 WiFi
+Bus 003 Device 004: ID 124a:4023 AirVast
+Bus 002 Device 001: ID 0000:0000
+Bus 001 Device 001: ID 0000:0000
+
+
+Regards
+
+Harri
+
+
+
+--------------enig352E193A72554E5084F936BB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFESctpUTlbRTxpHjcRAgpXAJ4+yRjaQv2llH72XdPIFbbI6bhBggCcCppZ
+OxAwawaBCoYHfgHmHL6WkvE=
+=ChoU
+-----END PGP SIGNATURE-----
+
+--------------enig352E193A72554E5084F936BB--

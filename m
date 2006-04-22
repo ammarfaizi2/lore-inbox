@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWDVU2Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWDVUmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWDVU2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 16:28:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWDVU2Q
+	id S1751173AbWDVUmE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 16:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWDVUmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 16:28:16 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:50637 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751136AbWDVU2P convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 16:28:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ldxEjcuxZGdB81pAWKfLtscjKdJk8s6VmK+kaxGHsGHiClzYgb3yMNOBw5VHygtpLk7uF+0dE6M1R5ryQJ87B7M881J3yAinsXQSgpOvPNMdrTharjiwi5YhVYTk2ayop6Blo8ETHca2dzuuXoPeWTPRvgX4OM6YJimV0vbIr3Q=
-Message-ID: <9a8748490604220434u2af03f40j12410477f11ff3bb@mail.gmail.com>
-Date: Sat, 22 Apr 2006 13:34:04 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Paul Mackerras" <paulus@samba.org>
-Subject: Re: kfree(NULL)
-Cc: "Andrew Morton" <akpm@osdl.org>, "James Morris" <jmorris@namei.org>,
-       dwalker@mvista.com, linux-kernel@vger.kernel.org
-In-Reply-To: <17481.28892.506618.865014@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 22 Apr 2006 16:42:01 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:28112 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751169AbWDVUl6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 16:41:58 -0400
+Date: Sat, 22 Apr 2006 13:48:46 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Ingo Oeser <netdev@axxeo.de>
+Cc: "David S. Miller" <davem@davemloft.net>, simlo@phys.au.dk,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, netdev@vger.kernel.org,
+       Ingo Oeser <ioe-lkml@rameria.de>
+Subject: Re: Van Jacobson's net channels and real-time
+Message-ID: <20060422114846.GA6629@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.44L0.0604201819040.19330-100000@lifa01.phys.au.dk> <20060420.120955.28255828.davem@davemloft.net> <200604211852.47335.netdev@axxeo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com>
-	 <Pine.LNX.4.64.0604210322110.21429@d.namei>
-	 <20060421015412.49a554fa.akpm@osdl.org>
-	 <17481.28892.506618.865014@cargo.ozlabs.ibm.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200604211852.47335.netdev@axxeo.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/22/06, Paul Mackerras <paulus@samba.org> wrote:
-> Andrew Morton writes:
->
-> > Yes, kfree(NULL) is supposed to be uncommon.  If someone's doing it a lot
-> > then we should fix up the callers.
->
-> Well, we'd have to start by fixing up the janitors that run around
-> taking out the if statements in the callers.  :)
->
-I think there was pretty good agreement, when we started doing that,
-that taking out the if statements in the callers was a good idea.
-If it turns out to have been a net loss that's not good, but I don't
-think it's been a wasted effort - there were a *lot* of places that
-checked for NULL before calling [kv]free, and now that we've gotten
-rid of them we can consider adding them back where it makes sense, not
-just all over the place.
-We could also consider changing the
- if (unlikely(!obj))
- return;
-in kfree into simply
- if (!obj)
- return;
+On Fri, 21 April 2006 18:52:47 +0200, Ingo Oeser wrote:
+> What about sth. like
+> 
+> struct netchannel {
+>    /* This is only read/written by the writer (producer) */
+>    unsigned long write_ptr;
+>   struct netchannel_buftrailer *netchan_queue[NET_CHANNEL_ENTRIES];
+> 
+>    /* This is modified by both */
+>   atomic_t filled_entries; /* cache_line_align this? */
+> 
+>    /* This is only read/written by the reader (consumer) */
+>    unsigned long read_ptr;
+> }
+> 
+> This would prevent this bug from the beginning and let us still use the
+> full queue size.
+> 
+> If cacheline bouncing because of the shared filled_entries becomes an issue,
+> you are receiving or sending a lot.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Unless I completely misunderstand something, one of the main points of
+the netchannels if to have *zero* fields written to by both producer
+and consumer.  Receiving and sending a lot can be expected to be the
+common case, so taking a performance hit in this case is hardly a good
+idea.
+
+I haven't looked at Davem's implementation at all, but Van simply
+seperated fields in consumer-written and producer-written, with proper
+alignment between them.  Some consumer-written fields are also read by
+the producer and vice versa.  But none of this results in cacheline
+pingpong.
+
+If your description of the problem is correct, it should only mean
+that the implementation has a problem, not the concept.
+
+Jörn
+
+-- 
+Time? What's that? Time is only worth what you do with it.
+-- Theo de Raadt

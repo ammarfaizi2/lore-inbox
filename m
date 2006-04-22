@@ -1,72 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWDVVO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWDVVOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbWDVVO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 17:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWDVVO1
+	id S1751213AbWDVVOz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 17:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWDVVOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 17:14:27 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:37600 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751139AbWDVVO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 17:14:27 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH] 'make headers_install' kbuild target.
-Date: Sat, 22 Apr 2006 23:13:42 +0200
-User-Agent: KMail/1.9.1
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       sam@ravnborg.org, mschwid2@de.ibm.com
-References: <1145672241.16166.156.camel@shinybook.infradead.org> <20060422132032.GB5010@stusta.de> <1145719812.11909.333.camel@pmac.infradead.org>
-In-Reply-To: <1145719812.11909.333.camel@pmac.infradead.org>
+	Sat, 22 Apr 2006 17:14:55 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:9691 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751213AbWDVVOy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 17:14:54 -0400
+Date: Fri, 21 Apr 2006 19:06:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Albert Cahalan <acahalan@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc stack problem
+In-Reply-To: <787b0d920604211807l2b08dd31h8bcc36bdea1e4379@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0604211823160.3701@g5.osdl.org>
+References: <787b0d920604211807l2b08dd31h8bcc36bdea1e4379@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604222313.42976.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 April 2006 17:30, David Woodhouse wrote:
-> 1. Identify those files which contain stuff which should be
-> user-visible. I've done a first pass of this for arch-independent files
-> and asm-powerpc already. We need it done for other architectures.
 
-FWIW, I've just gone through the s390 specific header files in 2.6.17-rc2
-to see who is supposed to see them, resulting in
 
-** strictly kernel only:
-bug.h                extmem.h       pgtable.h         string.h
-bugs.h               futex.h        processor.h       suspend.h
-cacheflush.h         hardirq.h      qdio.h            system.h
-ccwdev.h             idals.h        qeth.h            thread_info.h
-ccwgroup.h           io.h           rwsem.h           timer.h
-checksum.h           irq.h          s390_ext.h        tlb.h
-cio.h                kmap_types.h   s390_rdev.h       tlbflush.h
-compat.h             local.h        scatterlist.h     todclk.h
-cpcmd.h              lowcore.h      sections.h        topology.h
-cputime.h            mathemu.h      segment.h         uaccess.h
-current.h            mmu.h          semaphore.h       unaligned.h
-delay.h              mmu_context.h  setup.h           user.h
-div64.h              mutex.h        sfp-machine.h     vtoc.h
-dma-mapping.h        namei.h        sigp.h            xor.h
-dma.h                pci.h          smp.h
-ebcdic.h             percpu.h       spinlock.h
-emergency-restart.h  pgalloc.h      spinlock_types.h
+On Fri, 21 Apr 2006, Albert Cahalan wrote:
+>
+> I reported that problem involving asmlinkage and prevent_tail_call.
 
-** have stuff of interest to user space:
-cmb.h    ioctls.h  param.h        shmbuf.h      sockios.h   timex.h
-dasd.h   ipc.h     poll.h         shmparam.h    stat.h      types.h
-debug.h  ipcbuf.h  posix_types.h  sigcontext.h  statfs.h    ucontext.h
-errno.h  mman.h    ptrace.h       siginfo.h     tape390.h   unistd.h
-fcntl.h  msgbuf.h  resource.h     signal.h      termbits.h
-ioctl.h  page.h    sembuf.h       socket.h      termios.h
+It's been discussed before, although I cannot for the life of me come up 
+with the right magic query for google to find it ;(
 
-** non-trivial to decide, need to coordinate with other archs:
-a.out.h   auxvec.h  byteorder.h  elf.h    linkage.h
-atomic.h  bitops.h  cache.h      kexec.h  module.h
+Btw, the "prevent_tail_call()" thing is really badly named. It does 
+exactly what it says, but the problem isn't even really fundamentally 
+tailcalls, that just is the deail that happens to trigger the problem (but 
+I could imagine other situations triggering it _too_, which is why the 
+naming is bad).
 
-Hope that helps,
+We don't actually care about tailcalls (they're absolutely _fine_, if the 
+tailcall arguments are all in registers, not overwriting the caller 
+stack-frame), so "prevent_tail_call()" really talks about the wrong thing. 
 
-	Arnd <><
+In other words, it's too tightly coupled to an implementation issue, not 
+to the more fundamental _conceptual_ issue, which is that the caller owns 
+the stackframe at that point.
+
+> I hope I got the details right. Here it is:
+> 
+> http://gcc.gnu.org/bugzilla/show_bug.cgi?id=27234
+> 
+> Note comment #3, suggesting that following the ABI would
+> be a better way to write the assembly.
+
+Sure, we could just do a slower system call entry. We always knew that. 
+
+Suggesting that as the solution is pretty stupid, though. That's _the_ 
+most timing-critical part in the whole kernel on many loads. We've 
+literally spent time trying to remove single cycles there, and it matters. 
+
+I'd much rather have an officially sanctioned way to do what Linux wants 
+to do, but in the meantime, we can (and are forced to) rely on hacks like 
+"prevent_tail_call()". They are hacks, and we _know_ they are hacks, but 
+as long as gcc maintainers don't want to help us, we don't have much 
+choice (although we could perhaps make the hacks a bit nicer ;).
+
+The fact is, the "official ABI" simply isn't appropriate. In fact, we 
+don't use the "official ABI" _anywhere_ in the kernel any more, since we 
+actually end up using other gcc calling conventions (ie regparm=3).
+
+Btw, this is not even unusual. A lot of embedded platforms have support 
+for magic exception/interrupt calling conventions. Gcc even supports them: 
+things like "__attribute__((interrupt))". This is also exactly analogous 
+to stdcall/cdecl/regparm/longcall/naked/sp_switch/trap_exit etc 
+attributes.
+
+So gcc already has support for the fact that people sometimes need special 
+calling conventions. We've historically worked around it by hand instead, 
+since our calling convention is very _close_ to the standard one
+
+In fact, the calling convention we want there is _so_ close to the 
+standard one, that I'm not even convinced the i386 ABI really says that 
+the callee owns the parameter space - it may well be a local gcc decision 
+rather than any "official i386 ABI" issue.
+
+Btw, we don't even need a real attribute. That would be the cleanest and 
+easiest way by far, but the hack mostly works, and I'd be more than 
+happy to just perhaps clean up the hacky "do it by hand" thing a bit.
+
+For example, I've considered replacing the ugly "prevent_tail_call()" with 
+a slightly different macro that talks less about tailcalls, and talks 
+more about the ABI we want:
+
+	static inline long system_call_ret(long retval, void *arg)
+	{
+		asm("":
+			"=r" (retval),
+			"+m" (*(struct pt_regs *)arg)
+			:"0" (retval));
+		return retval;
+	}
+
+	#ifdef __x86__
+	#define sys_return(x, arg1) \
+		return system_call_ret((x), &(arg1))
+	#else
+	define sys_return(x, arg1) \
+		return (x)
+	#endif
+
+where we'd make it extra clear that on x86 we're still _using_ the memory 
+pointed to by "arg1" when we return (so that any other strange gcc 
+optimization would also be kept from touching the call frame, not just 
+tailcalls).
+
+That said, I'd much rather have a real gcc attribute. I don't _like_ 
+having horrible hacks like the above to make gcc do what I want it to do. 
+And I know the gcc developers don't like it either when I force gcc to be 
+my biatch. It would be much better for everybody if gcc helped a bit.
+
+		Linus

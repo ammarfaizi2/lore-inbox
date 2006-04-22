@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWDVTVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWDVTWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbWDVTVA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbWDVTU7
+	id S1751020AbWDVTWK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbWDVTWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:20:59 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27911 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751006AbWDVTU6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:20:58 -0400
-Date: Thu, 20 Apr 2006 22:03:00 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       "Yu, Luming" <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
-Message-ID: <20060420220300.GD2352@ucw.cz>
-References: <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <1145549460.23837.156.camel@capoeira> <4447B7D6.4030401@linux.intel.com> <20060420164419.GA30317@srcf.ucam.org> <4447BB2B.1060407@linux.intel.com> <20060420165515.GA30415@srcf.ucam.org> <4447BF98.4020806@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4447BF98.4020806@linux.intel.com>
-User-Agent: Mutt/1.5.9i
+	Sat, 22 Apr 2006 15:22:10 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:32462 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751020AbWDVTWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 15:22:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
+        b=fpglLJFnzPMSmApqJA/ND+d5oOfa04HxCyUz4hzMjyBTX3C/FJXWHJ12k+t5RwVnkwouG+4qDu7Yoj6Z/8eEC3i4Y9ZvrDC0GuvNo7DHclYTGN3nJMpeB7kFdxN6hXi2/ayZvQKEUPIzrOSp4IYfHjCBwyHFLPUeCuxDVQqJJGI=
+From: "Hua Zhong" <hzhong@gmail.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: "'Paul Mackerras'" <paulus@samba.org>,
+       "'Pekka Enberg'" <penberg@cs.helsinki.fi>,
+       "'Andrew Morton'" <akpm@osdl.org>, "'James Morris'" <jmorris@namei.org>,
+       <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: kfree(NULL)
+Date: Sat, 22 Apr 2006 12:22:03 -0700
+Message-ID: <001b01c66642$0abdbf80$0200a8c0@nuitysystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <444A7E85.4030803@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Thread-Index: AcZmP8dX1Er0H/2tRrOH4rppve9EqgAAXjQQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 20-04-06 21:06:32, Alexey Starikovskiy wrote:
-> Matthew Garrett wrote:
-> >On Thu, Apr 20, 2006 at 08:47:39PM +0400, Alexey 
-> >Starikovskiy wrote:
-> >
-> >>Yes, this is why I mentioned using kevent and dbus 
-> >>before... Could it be the righter answer?
-> >
-> >I think it makes sense for atkbd and usb hid power and 
-> >sleep buttons to be treated like all other keys on those 
-> >keyboard types. As a result, I think it makes sense for 
-> >ACPI keys to behave in the same way. I wrote an addon 
-> >for hal to take input events and put them on the system 
-> >dbus some time ago, so that's already a solved problem.
-> >
-> So now you can do a shortcut and send ACPI events to dbus 
-> without involving input layer and hal.
+> It can reduce readability of the code [unless it is used in 
+> error path simplification, kfree(something) usually suggests 
+> kfree-an-object].
 
-And break handheld devices and require everyone to run dbus?
+Consistency in coding style improves readability. Redundancy reduces readability.
 
-							Pavel
--- 
-Thanks, Sharp!
+The interface is simple and clear, and has been documented for decades, that is kfree (and free) accepts NULL. There is no ambiguity
+here.
+
+If you think "if (obj) kfree (obj);" is more readable than "kfree(obj);", fix the API to enforce it.
+
+But if the kernel tree is full of "some caller checks NULL while others not", I hardly see it as readable. It'd just be confusing.
+ 
+> I don't actually like kfree(NULL) any time except error 
+> paths. It is subjective, not crazy talk.
+
+Documented interface is not subjective.
+

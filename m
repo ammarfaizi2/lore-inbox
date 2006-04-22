@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWDVALl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWDVAMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWDVALl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 20:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWDVALl
+	id S1750780AbWDVAMu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 20:12:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWDVAMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 20:11:41 -0400
-Received: from gate.ebshome.net ([64.81.67.12]:36030 "EHLO gate.ebshome.net")
-	by vger.kernel.org with ESMTP id S1750776AbWDVALl (ORCPT
+	Fri, 21 Apr 2006 20:12:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44998 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750780AbWDVAMt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 20:11:41 -0400
-Date: Fri, 21 Apr 2006 17:11:40 -0700
-From: Eugene Surovegin <ebs@ebshome.net>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: utz.bacher@de.ibm.com, Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-       Maxim Shchetynin <maxim@de.ibm.com>, linuxppc-dev@ozlabs.org,
+	Fri, 21 Apr 2006 20:12:49 -0400
+From: Steve Grubb <sgrubb@redhat.com>
+To: linux-audit@redhat.com
+Subject: Re: [RFC][PATCH 9/11] security: AppArmor - Audit changes
+Date: Fri, 21 Apr 2006 20:13:52 -0400
+User-Agent: KMail/1.7.2
+Cc: Amy Griffis <amy.griffis@hp.com>, Tony Jones <tonyj@suse.de>,
+       chrisw@sous-sol.org, linux-security-module@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2]: Spider ethernet driver -- protect chain head
-Message-ID: <20060422001140.GA12826@gate.ebshome.net>
-Mail-Followup-To: Linas Vepstas <linas@austin.ibm.com>,
-	utz.bacher@de.ibm.com, Arnd Bergmann <arnd.bergmann@de.ibm.com>,
-	Maxim Shchetynin <maxim@de.ibm.com>, linuxppc-dev@ozlabs.org,
-	linux-kernel@vger.kernel.org
-References: <20060421232942.GG7242@austin.ibm.com> <20060421234551.GI7242@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <20060419175018.29149.391.sendpatchset@ermintrude.int.wirex.com> <20060421212109.GB1903@zk3.dec.com>
+In-Reply-To: <20060421212109.GB1903@zk3.dec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060421234551.GI7242@austin.ibm.com>
-X-ICQ-UIN: 1193073
-X-Operating-System: Linux i686
-X-PGP-Key: http://www.ebshome.net/pubkey.asc
-User-Agent: Mutt/1.5.8i
+Message-Id: <200604212013.52374.sgrubb@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 06:45:51PM -0500, Linas Vepstas wrote:
-> Prevent a potential race. If two threads are both calling
-> the transmit routine, both can potentially try to grab the
-> same dma descriptor. Serialize access to the head of the
-> tx ring with spinlocks.
+On Friday 21 April 2006 17:21, Amy Griffis wrote:
+> linux-audit (cc'd) will likely want to review these changes.
 
-Two threads cannot be in spider_net_xmit() simultaneosuly because 
-hard_start_xmit entry point is already protected by net_device 
-xmit_lock, see Documentation/net/netdevices.txt
+Yes, I second that. Tony, please cc audit patches to linux-audit mail list so 
+we can see them. That said, I did tell Tony they could use message type 
+numbers 1500 - 1600 for AppArmor if they need it.
 
--- 
-Eugene
-
+-Steve

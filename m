@@ -1,79 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWDVT0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWDVT1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbWDVT0e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWDVT0d
+	id S1751080AbWDVT1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWDVT1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:26:33 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:59067 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751056AbWDVT0C (ORCPT
+	Sat, 22 Apr 2006 15:27:06 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:45243 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751035AbWDVT0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:26:02 -0400
-From: Neil Brown <neilb@suse.de>
-To: Qi Yong <qiyong@fc-cn.com>
-Date: Sat, 22 Apr 2006 15:45:10 +1000
+	Sat, 22 Apr 2006 15:26:40 -0400
+Date: Sat, 22 Apr 2006 16:11:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: [PATCH] 'make headers_install' kbuild target.
+Message-ID: <20060422141134.GC5010@stusta.de>
+References: <1145672241.16166.156.camel@shinybook.infradead.org> <20060422093328.GM19754@stusta.de> <1145707384.16166.181.camel@shinybook.infradead.org> <20060422123835.GA5010@stusta.de> <1145710123.11909.241.camel@pmac.infradead.org> <20060422132032.GB5010@stusta.de> <1145712964.11909.258.camel@pmac.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17481.49894.531724.339182@cse.unsw.edu.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] raid5_end_write_request spinlock fix
-In-Reply-To: message from Qi Yong on Friday April 21
-References: <20060421125949.GA15550@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <1145712964.11909.258.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday April 21, qiyong@fc-cn.com wrote:
-> Hello,
+On Sat, Apr 22, 2006 at 02:36:04PM +0100, David Woodhouse wrote:
+> On Sat, 2006-04-22 at 15:20 +0200, Adrian Bunk wrote:
+>...
+> > Assume you have a header include/linux/foo.h:
+> > - Add an #include <kabi/linux/foo.h> at the top.
+> > - Move the part of the contents that is part of the userspace ABI to 
+> >   include/kabi/linux/foo.h.
 > 
-> Reduce the raid5_end_write_request() spinlock window.
+> Absolutely. That's what I've done with MTD headers already, although the
+> directory names are different. The directory names don't _matter_
+> either, because important part was that the files themselves are cleaned
+> up.
+> 
+> Linus isn't keen on splitting it into a new directory, and I don't want
+> to start off by demanding that. As I said, the important part of the
+> above is the bit where one of us goes to the file with an editor and
+> identifies the public parts vs. the private parts, then splits them up
+> -- possibly with #ifdef __KERNEL__, but _preferably_ into separate
+> files. And it doesn't _matter_ which directories we put those files
+> into, for now. I don't want to talk about it _yet_ because it's just
+> taking attention away from the real problem.
+> 
+> The more we screw around with such minutiae, the less likely we are to
+> get traction with Linus -- despite the fact that almost everyone who's
+> expressed an opinion is _agreeing_ with you about where we want to end
+> up.
+> 
+> We need to keep it simple and unintrusive to start with. Concentrate on
+> the _contents_ and then we can deal with the less important details
+> later.
 
-Thank you for reviewing the md code and suggesting improvements.
-However it would help if you used a few more words to describe your
-patches.  E.g. explain why  you are convinced that it is safe to
-reduce the range of the lock like this.
+Sorry, but I'm not a fan of doing much more work than required instead 
+of getting a consensus first and then implementing the solution.
 
-NeilBrown
+Let's agree on the way to go first, give me two weeks, and I can submit 
+a first batch of the header splitting that will both not break any 
+kernel code and be enough for compiling most of the userspace.
 
-> 
-> Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
-> ---
-> 
-> diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-> index 3184360..9c24377 100644
-> --- a/drivers/md/raid5.c
-> +++ b/drivers/md/raid5.c
-> @@ -581,7 +581,6 @@ static int raid5_end_write_request (stru
->   	struct stripe_head *sh = bi->bi_private;
->  	raid5_conf_t *conf = sh->raid_conf;
->  	int disks = sh->disks, i;
-> -	unsigned long flags;
->  	int uptodate = test_bit(BIO_UPTODATE, &bi->bi_flags);
->  
->  	if (bi->bi_size)
-> @@ -599,16 +598,14 @@ static int raid5_end_write_request (stru
->  		return 0;
->  	}
->  
-> -	spin_lock_irqsave(&conf->device_lock, flags);
->  	if (!uptodate)
->  		md_error(conf->mddev, conf->disks[i].rdev);
->  
->  	rdev_dec_pending(conf->disks[i].rdev, conf->mddev);
-> -	
->  	clear_bit(R5_LOCKED, &sh->dev[i].flags);
->  	set_bit(STRIPE_HANDLE, &sh->state);
-> -	__release_stripe(conf, sh);
-> -	spin_unlock_irqrestore(&conf->device_lock, flags);
-> +	release_stripe(sh);
-> +
->  	return 0;
->  }
->  
-> 
-> -- 
-> Coywolf Qi Hunt
+Perhaps two weeks are too optimistic for some parts considering the 
+state of our headers, but getting it done before OLS seems realistic.
+
+But otherwise, I think I have better things to do in the part of my 
+spare time I'm devoting to Linux kernel development.
+
+> dwmw2
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

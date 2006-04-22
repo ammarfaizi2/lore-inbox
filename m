@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWDVRwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWDVRwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbWDVRwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 13:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWDVRwI
+	id S1750840AbWDVRwG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 13:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWDVRwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 13:52:08 -0400
+	Sat, 22 Apr 2006 13:52:06 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:54429 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750857AbWDVRwF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 13:52:05 -0400
-X-ME-UUID: 20060422084727256.3E9CD2400154@mwinf1004.wanadoo.fr
-Date: Sat, 22 Apr 2006 10:47:26 +0200
-From: Mathieu Chouquet-Stringer <mchouque@free.fr>
-To: Bob Tracy <rct@gherkin.frus.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org,
-       linux-alpha@vger.kernel.org, rth@twiddle.net
-Subject: Re: strncpy (maybe others) broken on Alpha
-Message-ID: <20060422084726.GB8079@bigip.bigip.mine.nu>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
-	Bob Tracy <rct@gherkin.frus.com>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	rth@twiddle.net
-References: <20060422011205.A1270@jurassic.park.msu.ru> <20060421224917.34BE5DBA1@gherkin.frus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	by vger.kernel.org with ESMTP id S1750824AbWDVRwC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 13:52:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O6HISF1VjB8Wj/dQsjgdBP5R0Pem1RkCoDMqyRWsLzGBY19gXrm0LjIDsQLGH9xOpYfQXtJMDxxsWY5Er7+ri3ke/fGAJvPyS6P9bH9pt+b6GtnCUxiOXcz98+qg+niH23N1vlfeOEu9AZ7lPXc2rBap5ltiJPzWEWkU0hmxTMM=
+Message-ID: <84144f020604220043i65502955ha6dc2759d8cd665b@mail.gmail.com>
+Date: Sat, 22 Apr 2006 10:43:22 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Paul Mackerras" <paulus@samba.org>
+Subject: Re: kfree(NULL)
+Cc: "Andrew Morton" <akpm@osdl.org>, "James Morris" <jmorris@namei.org>,
+       dwalker@mvista.com, linux-kernel@vger.kernel.org
+In-Reply-To: <17481.28892.506618.865014@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060421224917.34BE5DBA1@gherkin.frus.com>
-User-Agent: Mutt/1.4.2.1i
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com>
+	 <Pine.LNX.4.64.0604210322110.21429@d.namei>
+	 <20060421015412.49a554fa.akpm@osdl.org>
+	 <17481.28892.506618.865014@cargo.ozlabs.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 05:49:17PM -0500, Bob Tracy wrote:
-> > Second, strncpy was mostly used in drivers that are rarely (if at all)
-> > used on alpha.
-> 
-> Which was evidently the case, since this problem didn't surface until
-> the strncpy() call was added to sd.c.
+Andrew Morton writes:
+> > Yes, kfree(NULL) is supposed to be uncommon.  If someone's doing it a lot
+> > then we should fix up the callers.
 
-Yeah most of the drivers I was looking at use snprintf and friends.
+On 4/22/06, Paul Mackerras <paulus@samba.org> wrote:
+> Well, we'd have to start by fixing up the janitors that run around
+> taking out the if statements in the callers.  :)
 
-> I'm happy to report my Alpha is now up and running on 2.6.17-rc2, so
-> the fix works for me.  Thanks to discussion participants for their time
-> and trouble!
+No, it's not the janitors fault that we have paths doing lots of
+kfree(NULL) calls. NULL check removal didn't create the problem, but
+it makes it more visible definitely.
 
-Thanks to you too:
--- 
-Mathieu Chouquet-Stringer                           mchouque@free.fr
-
+                                                Pekka

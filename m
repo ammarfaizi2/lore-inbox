@@ -1,88 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWDVROz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWDVRPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWDVROz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 13:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWDVROz
+	id S1750740AbWDVRPq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 13:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWDVRPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 13:14:55 -0400
-Received: from main.gmane.org ([80.91.229.2]:28079 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750725AbWDVROy (ORCPT
+	Sat, 22 Apr 2006 13:15:46 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:52884 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750740AbWDVRPp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 13:14:54 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Anand Kumria" <wildfire@progsoc.org>
-Subject: Re: [PATCH] net: Broadcast ARP packets on link local addresses
- (Version2).
-Date: Sat, 22 Apr 2006 17:14:44 +0000 (UTC)
-Message-ID: <e2doa4$mog$1@sea.gmane.org>
-References: <17460.13568.175877.44476@dl2.hq2.avtrex.com> 
+	Sat, 22 Apr 2006 13:15:45 -0400
+Date: Sat, 22 Apr 2006 12:39:08 +0200
+From: Bryan =?utf8?Q?=C3=98stergaard?= <kloeri@gentoo.org>
+To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
+       Bob Tracy <rct@gherkin.frus.com>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+       rth@twiddle.net
+Subject: Re: strncpy (maybe others) broken on Alpha
+Message-ID: <20060422103907.GA7693@mail.fl.dk>
+References: <20060420215723.GA3949@bigip.bigip.mine.nu> <20060421024304.2D851DBA1@gherkin.frus.com> <20060421081500.GA3767@bigip.bigip.mine.nu> <20060421092127.GA7382@bigip.bigip.mine.nu> <20060421095028.GA8818@bigip.bigip.mine.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 88-108-235-205.dynamic.dsl.as9105.com
-User-Agent: pan 0.92 (I hope the demons pluck your eyes out and use them for
-	marbles!)
-Cc: netdev@vger.kernel.org
+In-Reply-To: <20060421095028.GA8818@bigip.bigip.mine.nu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Apr 2006 14:22:08 -0700, David Daney wrote:
+On Fri, Apr 21, 2006 at 11:50:28AM +0200, Mathieu Chouquet-Stringer wrote:
+> On Fri, Apr 21, 2006 at 11:21:27AM +0200, Mathieu Chouquet-Stringer wrote:
+> > The bad news is my test case, compiled with a native gcc version 3.4.4
+> > and binutils version 2.16.1 doesn't work as expected.  So maybe it's
+> > combination of gcc/binutils?  I'm booting the new kernel just to confirm
+> > that 3.4.4 and 2.16.1 do not work.
+> 
+> A native gcc 3.4.4 and binutils 2.16.1 do not work...  What should we
+> try next?
+> 
+For what it's worth, I've found gcc 3.4.4 to be bad on gentoo. If I
+compile any binutils-2.16.[01] versions with 3.4.4 ld segfaults when
+trying to compile gmp. I don't know of any binutils related problems
+when using gcc 3.4.6 currently.
 
-> From: David Daney
-> 
-> Here is a new version of the patch I sent March 31.  For background,
-> this is my description from the first patch:
-> 
->> When an internet host joins a network where there is no DHCP server,
->> it may auto-allocate an IP address by the method described in RFC
->> 3927.  There are several user space daemons available that implement
->> most of the protocol (zcip, busybox, ...).  The kernel's APR driver
->> should function in the normal manner except that it is required to
->> broadcast all ARP packets that it originates in the link local address
->> space (169.254.0.0/16).  RFC 3927 section 2.5 explains the requirement.
-> 
->> The current ARP code is non-compliant because it does not broadcast
->> some ARP packets as required by RFC 3927.
-> 
->> This patch to net/ipv4/arp.c checks the source address of all ARP
->> packets and if the fall in 169.254.0.0/16, they are broadcast instead
->> of unicast.
-> 
-> All of that is still true.
-> 
-> The changes in this version are that it tests the source IP address
-> instead of the destination.  The test now matches the test described
-> in the RFC.  Also a small cleanup as suggested by Herbert Xu.
-> 
-> 
-> If the patch is deemed good and correct, great, please apply it.
-
-Could any of the network maintainers comment on this? It'd be nice if
-the kernel was even more RFC compliant and, better, did the right
-thing too.
-
-Anand
- 
-> This patch is against 2.6.16.1
-> 
-> Signed-off-by: David Daney <ddaney@avtrex.com>
-> 
-> ---
-> 
-> --- net/ipv4/arp.c.orig	2006-03-31 13:44:50.000000000 -0800
-> +++ net/ipv4/arp.c	2006-04-05 13:33:19.000000000 -0700
-> @@ -690,6 +690,11 @@ void arp_send(int type, int ptype, u32 d
->  	if (dev->flags&IFF_NOARP)
->  		return;
->  
-> +        /* If link local address (169.254.0.0/16) we must broadcast
-> +         * the ARP packet.  See RFC 3927 section 2.5 for details. */
-> +	if ((src_ip & htonl(0xFFFF0000UL)) == htonl(0xA9FE0000UL))
-> +		dest_hw = NULL;
-> +
->  	skb = arp_create(type, ptype, dest_ip, dev, src_ip,
->  			 dest_hw, src_hw, target_hw);
->  	if (skb == NULL) {
-
+Regards,
+Bryan Østergaard

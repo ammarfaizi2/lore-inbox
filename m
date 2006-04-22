@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWDVT5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWDVT7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbWDVT5F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWDVT5F
+	id S1751109AbWDVT7u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWDVT7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:57:05 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:39109 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751109AbWDVT5D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:57:03 -0400
+	Sat, 22 Apr 2006 15:59:50 -0400
+Received: from nproxy.gmail.com ([64.233.182.191]:10186 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751109AbWDVT7t convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 15:59:49 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=3AJdI86zfq6BK+xMOh+9ZLg8rHcj/QfnB75cxK9Tw8Gg7hIrIaQHvF65XDor+xkWTOWiO19YcME1+1D5FPVu5F2JCT7aJNMecHujUZ/62DqTwe8zLqwyGVl5BG1h/BnjIDb+3EL51bV4yuCl2JTPkZpVdKAOUySIt2Vt/JCXwz0=  ;
-Message-ID: <4449AC79.2010509@yahoo.com.au>
-Date: Sat, 22 Apr 2006 14:09:29 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QrFeFpNbjJEzY9O2a7sFijGHxofqsS2XyT17IcXE2kFSp9LA1oqrBsPGPH4Z7f3sHDWNmxeu0dVcc/v179K+lZQGqN9qFFU/ov4DpJD7jGHK/qncdqA4MnBKYT/+LLEfprcNbdCsCCNqcukh6tNLLjlYs3hjMtvSqwBy+bjAL90=
+Message-ID: <305c16960604221259g4ddabca2o6333f7ffcaff8e4f@mail.gmail.com>
+Date: Sat, 22 Apr 2006 16:59:48 -0300
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: usbkbd not reporting unknown keys
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, dtor_core@ameritech.net
+In-Reply-To: <20060422185402.GC10613@suse.cz>
 MIME-Version: 1.0
-To: markh@compro.net
-CC: dmarkh@cfl.rr.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: get_user_pages ?
-References: <44475DBA.7020308@cfl.rr.com> <44477585.4030508@yahoo.com.au> <4447E6C4.9070207@compro.net> <4447E86E.9000507@yahoo.com.au> <4448D047.8070202@compro.net>
-In-Reply-To: <4448D047.8070202@compro.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <305c16960603081130g5367ddb3m4cbcf39a9253a087@mail.gmail.com>
+	 <305c16960603081225m68c26ff7wd3b73621cfb81d9a@mail.gmail.com>
+	 <d120d5000603081247i69f9e7dbm6ef614f50140227f@mail.gmail.com>
+	 <305c16960603081334k25ce9a89g132876d4c9246fc6@mail.gmail.com>
+	 <d120d5000603090543p3446b4a0sddaaa031ad2513ca@mail.gmail.com>
+	 <305c16960603091230r32038a86mbefc6d80bedb24ab@mail.gmail.com>
+	 <305c16960603141510g72def22bmd0043d5f71d9ef6@mail.gmail.com>
+	 <305c16960604221111u714bd3b1h2aeb0559b07d911b@mail.gmail.com>
+	 <20060422185402.GC10613@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hounschell wrote:
+On 4/22/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Sat, Apr 22, 2006 at 03:11:30PM -0300, Matheus Izvekov wrote:
+> My opinion is that usbkbd serves as:
+>
+>         a) an example usb/input driver
+>         b) for embedded systems where usbhid is too large
+>
+> For keyboards with extra keys, use usb-hid.
+>
+> --
+> Vojtech Pavlik
+> Director SuSE Labs
+>
+Sorry, weve came to that conclusion, the thread got to somethign else
+entirely different. ill summarize here my problem so that you dont
+need to read it all over again.
 
->>OK, I'd suggest either using vm_insert_page, or converting it all over
->>to a ->nopage handler then.
->>
-> 
-> 
-> I set the bit back on after get_user_pages and now I seem to be OK.
-> 
-> You've looked at the code some obviously. What is in my future WRT these
-> changes being made that you referenced above and the depreciation of
-> some of the calls in use. Given my situation, do you foresee anything
-> that will keep me from being able to get valid bus addresses for my pte?
+1) I have a microsoft multimedia keyboard, and the hid driver doesnt
+maps all the multimedia keys. The output of the hid debug output was
+posted previously in the thread.
+2) For some reason, th hid driver register lots of absolute axis and
+joystick buttons that dont seem to work at all, no matter what i
+press. I Asked if it would be possible to blacklist those. Currently
+the device registers a js interface with so many axis and buttons that
+some programs even segfault while reading it. This interface is
+useless as far as i can see.
+If you need more detailed information please ask me.
 
-Well remap_pfn_range / io_remap_pfn_range is a good option, but it
-shouldn't really support get_user_pages so I suspect you are just
-lucky there (ie. on some platforms you might not have a struct page
-for your bus address, and other times the final put_page will try
-to free the page).
-
-If you definitely have struct pages, vm_insert_page is an option,
-unless the memory is allocated with dma_alloc_* or similar, in
-which case you should probably be using remap_pfn_range.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Maybe the thread subject should be changed to something more
+apropriate, do so if it pleases you.

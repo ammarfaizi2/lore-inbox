@@ -1,76 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWDVB3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWDVBbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbWDVB3b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 21:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWDVB3b
+	id S1750855AbWDVBbc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 21:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWDVBbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 21:29:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:42731 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750836AbWDVB3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 21:29:30 -0400
-Subject: Re: [PATCH] Shrink rbtree
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20060421180915.1f2d61a4.akpm@osdl.org>
-References: <1145623663.11909.139.camel@pmac.infradead.org>
-	 <20060421180915.1f2d61a4.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 22 Apr 2006 02:29:44 +0100
-Message-Id: <1145669384.16166.130.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1.dwmw2.1) 
+	Fri, 21 Apr 2006 21:31:32 -0400
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:2118 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750854AbWDVBbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 21:31:32 -0400
+Message-ID: <44498771.1030409@bigpond.net.au>
+Date: Sat, 22 Apr 2006 11:31:29 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] sched: Avoid unnecessarily moving highest priority task
+ move_tasks()
+References: <44485E21.6070801@bigpond.net.au> <20060421173416.C17932@unix-os.sc.intel.com>
+In-Reply-To: <20060421173416.C17932@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 22 Apr 2006 01:31:29 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 18:09 -0700, Andrew Morton wrote:
-> #define HRTIMER_INACTIVE        ((void *)1UL) 
+Siddha, Suresh B wrote:
+> On Fri, Apr 21, 2006 at 02:22:57PM +1000, Peter Williams wrote:
+>> @@ -2052,7 +2055,13 @@ static int move_tasks(runqueue_t *this_r
+>>  
+>>  	rem_load_move = max_load_move;
+>>  	pinned = 1;
+>> -	this_min_prio = this_rq->curr->prio;
+>> +	this_best_prio = rq_best_prio(this_rq);
+>> +	busiest_best_prio = rq_best_prio(busiest);
+>> +	/*
+>> +	 * Enable handling of the case where there is more than one task
+>> +	 * with the best priority.
+>> +	 */
+>> +	busiest_best_prio_seen = busiest_best_prio == busiest->curr->prio;
+> 
+>>From this hunk, it seems like we don't want to override the skip of highest 
+> priority task as long as there is one such task in active list(even though
+> there may be few such tasks on expired list). Right?
 
-Ah. That's newer than the kernel I tested on. Your patch isn't going to
-make kernel/hrtimer.c compile though, surely? Let's do it the same way
-everyone else marks off-tree nodes -- by setting its parent pointer to
-point to itself....
+No, but nearly.  We don't want to override the skip of a task with the 
+highest priority until we've skipped one such task OR we're sure one 
+such task will be skipped (e.g. because it's the currently running task).
 
-diff --git a/include/linux/hrtimer.h b/include/linux/hrtimer.h
-index 306acf1..7d2a1b9 100644
---- a/include/linux/hrtimer.h
-+++ b/include/linux/hrtimer.h
-@@ -127,7 +127,7 @@ #endif
- 
- static inline int hrtimer_active(const struct hrtimer *timer)
- {
--	return timer->node.rb_parent != HRTIMER_INACTIVE;
-+	return rb_parent(&timer->node) != &timer->node;
- }
- 
- /* Forward a hrtimer so it expires after now: */
-diff --git a/kernel/hrtimer.c b/kernel/hrtimer.c
-index d2a7296..04ab27d 100644
---- a/kernel/hrtimer.c
-+++ b/kernel/hrtimer.c
-@@ -393,7 +393,7 @@ static void __remove_hrtimer(struct hrti
- 	if (base->first == &timer->node)
- 		base->first = rb_next(&timer->node);
- 	rb_erase(&timer->node, &base->active);
--	timer->node.rb_parent = HRTIMER_INACTIVE;
-+	rb_set_parent(&timer->node, &timer->node);
- }
- 
- /*
-@@ -578,7 +578,7 @@ void hrtimer_init(struct hrtimer *timer,
- 		clock_id = CLOCK_MONOTONIC;
- 
- 	timer->base = &bases[clock_id];
--	timer->node.rb_parent = HRTIMER_INACTIVE;
-+	rb_set_parent(&timer->node, &timer->node);
- }
- 
- /**
+> And why?
 
+If there are more than one task with the highest priority then it is 
+desirable to move one of them by overriding the skip mechanism as it can 
+be considered the second highest priority task.  This initialization 
+just checks to see if the currently running task is one of the highest 
+priority tasks.  If it is then it's OK to move the first task we find 
+that also has the same priority otherwise we wait until we've skipped 
+one before we move one.
+
+> 
+> If we fix the above, we don't need busiest_best_prio_seen. Once we move one 
+> highest priority task, we are changing this_best_prio anyhow right?
+
+Yes, but this is recording the fact that we've skipped one and that it's 
+now OK to move one.
+
+> 
+> This patch doesn't address the issue where we can skip the highest priority 
+> task movement if there is only one such task on the busy runqueue
+> (and is on the expired list..)
+
+I think that it does.
+
+> 
+> I can send a fix if I understand your intention for the above hunk.
+
+If you think that there's still a problem after the above explanation 
+then sending a patch might help me understand why you think it's wrong.
+
+Peter
 -- 
-dwmw2
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

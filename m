@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWDVSLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWDVSLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWDVSLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 14:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWDVSLJ
+	id S1750889AbWDVSLd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 14:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWDVSLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 14:11:09 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:34722 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750878AbWDVSLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 14:11:07 -0400
-Message-ID: <4449E197.1020102@steudten.org>
-Date: Sat, 22 Apr 2006 09:56:07 +0200
-From: "alpha @ steudten Engineering" <alpha@steudten.com>
-Organization: Steudten Engineering
+	Sat, 22 Apr 2006 14:11:33 -0400
+Received: from nproxy.gmail.com ([64.233.182.185]:45671 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750889AbWDVSLc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 14:11:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LJpBVWUO7CzZneKrfwFfLEZwncq0+PISx8giqBUj4ognptt29ClO1OaBgTSlHhD1jqVQYA1+mj6PMRf2jKEMggu0r48AD2HP/3cgHcFa4kYGTNWbofUSrRVOeSIqBMdnHBy4fYHfB2dkF1VYYJ3sXcCKI/ORN1+Goh1WB2Zqd+U=
+Message-ID: <305c16960604221111u714bd3b1h2aeb0559b07d911b@mail.gmail.com>
+Date: Sat, 22 Apr 2006 15:11:30 -0300
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: usbkbd not reporting unknown keys
+Cc: dtor_core@ameritech.net, vojtech@suse.cz
+In-Reply-To: <305c16960603141510g72def22bmd0043d5f71d9ef6@mail.gmail.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Ingo Oeser <netdev@axxeo.de>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Richard Henderson <rth@twiddle.net>, shemminger@osdl.org,
-       p_gortmaker@yahoo.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, ioe-lkml@rameria.de
-Subject: Re: Fw: [Bug 6421] New: kernel 2.6.10-2.6.16 on alpha: arch/alpha/kernel/io.c,
- iowrite16_rep() BUG_ON((unsigned long)src & 0x1) triggered
-References: <20060421102757.45d26db0@localhost.localdomain>	<200604211945.37129.netdev@axxeo.de> <20060421161227.00d688d6.akpm@osdl.org>
-In-Reply-To: <20060421161227.00d688d6.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Mailer
-X-Check: 43c12a7010885d7ffef0a7e757629a8f on steudten.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <305c16960603081130g5367ddb3m4cbcf39a9253a087@mail.gmail.com>
+	 <305c16960603081225m68c26ff7wd3b73621cfb81d9a@mail.gmail.com>
+	 <d120d5000603081247i69f9e7dbm6ef614f50140227f@mail.gmail.com>
+	 <305c16960603081334k25ce9a89g132876d4c9246fc6@mail.gmail.com>
+	 <d120d5000603090543p3446b4a0sddaaa031ad2513ca@mail.gmail.com>
+	 <305c16960603091230r32038a86mbefc6d80bedb24ab@mail.gmail.com>
+	 <305c16960603141510g72def22bmd0043d5f71d9ef6@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running this on my alpha gives (gcc 4.0.2):
-
-3000
-0123456A01234567
-
-
-Andrew Morton wrote:
-
->> Because networking does read/write "short" fields in various packet
->> header structures. Results are illustrated in a following example:
->>
->> char foo[] __attribute__((aligned(8))) = "0123456701234567";
->>
->> int main()
->> {
->> 	short *bar = (short *)&foo[7];
->> 	printf("%04x\n", *bar); /* 3037 */
->> 	*bar = 0x4241; /* "AB" */
->> 	printf("%s\n", foo);
->> 	return 0;
->> }
->> --------
->> 0037
->> ^^
->> 0123456A01234567
->>         ^
->> Misalignment by two bytes for ints and longs is often unavoidable in
->> networking and we can cope with it, but there is no excuse of 1-byte
->> misalignment.
-
-
+Hi, i started this thread a long time ago and still got no definitive
+response for it. Whats the position of you guys? Is it an issue worth
+a fix in mainline at all?

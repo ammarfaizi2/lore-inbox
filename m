@@ -1,26 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWDVTwj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWDVTw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbWDVTwj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWDVTwj
+	id S1751104AbWDVTw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWDVTw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:52:39 -0400
+	Sat, 22 Apr 2006 15:52:57 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:12228 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751105AbWDVTwi (ORCPT
+	by vger.kernel.org with ESMTP id S1751104AbWDVTw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:52:38 -0400
+	Sat, 22 Apr 2006 15:52:56 -0400
 Subject: Re: [PATCH] 'make headers_install' kbuild target.
 From: David Woodhouse <dwmw2@infradead.org>
 To: Adrian Bunk <bunk@stusta.de>
 Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-In-Reply-To: <20060422123835.GA5010@stusta.de>
+In-Reply-To: <20060422132032.GB5010@stusta.de>
 References: <1145672241.16166.156.camel@shinybook.infradead.org>
 	 <20060422093328.GM19754@stusta.de>
 	 <1145707384.16166.181.camel@shinybook.infradead.org>
 	 <20060422123835.GA5010@stusta.de>
+	 <1145710123.11909.241.camel@pmac.infradead.org>
+	 <20060422132032.GB5010@stusta.de>
 Content-Type: text/plain
-Date: Sat, 22 Apr 2006 13:48:43 +0100
-Message-Id: <1145710123.11909.241.camel@pmac.infradead.org>
+Date: Sat, 22 Apr 2006 14:36:04 +0100
+Message-Id: <1145712964.11909.258.camel@pmac.infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -29,45 +31,43 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-22 at 14:38 +0200, Adrian Bunk wrote:
-> What was the recommended way for getting userspace header at last
-> year's kernel summit?
+On Sat, 2006-04-22 at 15:20 +0200, Adrian Bunk wrote:
+> Why can't the splitting happen incrementally?
 
-It was said that we need _incremental_ changes, and this is an attempt
-to satisfy that request.
+It can, and has already started that way. There's no reason why the
+'make headers_export' mechanism can't work with that -- it already does,
+because it exports the include/mtd directory and nothing from
+include/linux/mtd -- as I said, ideally the mechanism ends up being just
+'cp -a' on certain directories. And then it can be abolished. We've got
+a long way to go before we get there, though.
 
-> > The important thing is that we all get our editors out and clean up the
-> > _contents_ our own headers, and actually start to _think_ about the
-> > visibility of any new header-file content we introduce. Let's not
-> > concentrate too much on the implementation details of how we actually
-> > get those to userspace.
-> 
-> Currently, it's said the kernel headers aren't suitable for userspace.
+> Assume you have a header include/linux/foo.h:
+> - Add an #include <kabi/linux/foo.h> at the top.
+> - Move the part of the contents that is part of the userspace ABI to 
+>   include/kabi/linux/foo.h.
 
-Indeed they aren't.
+Absolutely. That's what I've done with MTD headers already, although the
+directory names are different. The directory names don't _matter_
+either, because important part was that the files themselves are cleaned
+up.
 
-> After the cleanups you propose, the kernel headers will be suitable for 
-> userspace (the copy steps you propose are not required, distributions 
-> could equally start to copy the verbatim headers again).
+Linus isn't keen on splitting it into a new directory, and I don't want
+to start off by demanding that. As I said, the important part of the
+above is the bit where one of us goes to the file with an editor and
+identifies the public parts vs. the private parts, then splits them up
+-- possibly with #ifdef __KERNEL__, but _preferably_ into separate
+files. And it doesn't _matter_ which directories we put those files
+into, for now. I don't want to talk about it _yet_ because it's just
+taking attention away from the real problem.
 
-After the _first_ stage of the cleanups I propose, the export step will
-still be necessary. You'll need to pick those headers which are intended
-to be user-visible, and leave behind those which are not. 
+The more we screw around with such minutiae, the less likely we are to
+get traction with Linus -- despite the fact that almost everyone who's
+expressed an opinion is _agreeing_ with you about where we want to end
+up.
 
-If we actually go on to abolish __KERNEL__ and move the public headers
-to a separate directory, you're right -- as I said, one day hopefully
-it'll just be 'cp -a'. But that is not the _first_ stage. We need to do
-this incrementally.
-
-> If everyone is working in a different direction, this is only wasting 
-> work.
-
-The stated plan is to start with a simple export mechanism which lets us
-see the mess we have at the moment and work on the _real_ problem -- the
-actual contents of the headers. Then to proceed towards the goal you
-stated, which is what we wanted all along.
-
-Who would be working in a different direction? 
+We need to keep it simple and unintrusive to start with. Concentrate on
+the _contents_ and then we can deal with the less important details
+later.
 
 -- 
 dwmw2

@@ -1,84 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWDVTxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWDVTyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbWDVTxa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWDVTxI
+	id S1751123AbWDVTyP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWDVTxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:53:08 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:58051 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751109AbWDVTxH (ORCPT
+	Sat, 22 Apr 2006 15:53:46 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:36036 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751101AbWDVTxd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:53:07 -0400
-From: Hans Verkuil <hverkuil@xs4all.nl>
-To: v4l-dvb-maintainer@linuxtv.org
-Subject: Re: [v4l-dvb-maintainer] [PATCH] cx25840 driver in 2.6.16 -- adds CX25836 support
-Date: Sat, 22 Apr 2006 15:33:50 +0200
-User-Agent: KMail/1.8.91
-Cc: Scott Alfter <salfter@ssai.us>, linux-kernel@vger.kernel.org
-References: <44496BDB.2090503@ssai.us>
-In-Reply-To: <44496BDB.2090503@ssai.us>
+	Sat, 22 Apr 2006 15:53:33 -0400
+Date: Sat, 22 Apr 2006 15:20:32 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: [PATCH] 'make headers_install' kbuild target.
+Message-ID: <20060422132032.GB5010@stusta.de>
+References: <1145672241.16166.156.camel@shinybook.infradead.org> <20060422093328.GM19754@stusta.de> <1145707384.16166.181.camel@shinybook.infradead.org> <20060422123835.GA5010@stusta.de> <1145710123.11909.241.camel@pmac.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604221533.51250.hverkuil@xs4all.nl>
+In-Reply-To: <1145710123.11909.241.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Scott,
+On Sat, Apr 22, 2006 at 01:48:43PM +0100, David Woodhouse wrote:
+> On Sat, 2006-04-22 at 14:38 +0200, Adrian Bunk wrote:
+> > What was the recommended way for getting userspace header at last
+> > year's kernel summit?
+> 
+> It was said that we need _incremental_ changes, and this is an attempt
+> to satisfy that request.
+> 
+> > > The important thing is that we all get our editors out and clean up the
+> > > _contents_ our own headers, and actually start to _think_ about the
+> > > visibility of any new header-file content we introduce. Let's not
+> > > concentrate too much on the implementation details of how we actually
+> > > get those to userspace.
+> > 
+> > Currently, it's said the kernel headers aren't suitable for userspace.
+> 
+> Indeed they aren't.
+> 
+> > After the cleanups you propose, the kernel headers will be suitable for 
+> > userspace (the copy steps you propose are not required, distributions 
+> > could equally start to copy the verbatim headers again).
+> 
+> After the _first_ stage of the cleanups I propose, the export step will
+> still be necessary. You'll need to pick those headers which are intended
+> to be user-visible, and leave behind those which are not. 
+> 
+> If we actually go on to abolish __KERNEL__ and move the public headers
+> to a separate directory, you're right -- as I said, one day hopefully
+> it'll just be 'cp -a'. But that is not the _first_ stage. We need to do
+> this incrementally.
+>...
 
-Thank you for your patch! Nice work. I've integrated it into the cx25840 
-driver (with some tweaks).
+Why can't the splitting happen incrementally?
 
-Please check my mercurial tree at 
-http://www.linuxtv.org/hg/~hverkuil/cx25836 to see if my changes did 
-not break anything for you. For the most part the changes dealt with 
-preventing the cx25836/7 from touching cx25840-specific registers.
+Assume you have a header include/linux/foo.h:
+- Add an #include <kabi/linux/foo.h> at the top.
+- Move the part of the contents that is part of the userspace ABI to 
+  include/kabi/linux/foo.h.
 
-Please let me know if it is OK (or not) so that I can get it merged into 
-the main v4l-dvb repository. I also need a Signed-off-by line from you 
-(see http://www.linuxtv.org/v4lwiki/index.php/How_to_submit_patches) 
-before I can officially merge the code.
+When this is done for all headers containing parts of the userspace ABI:
+- test the kabi/ headers in userspace
+- review all headers under kabi/ since what's there will become a fixed
+  ABI that can never be changed
+- test the kabi/ headers in userspace
+- make the ABI headers official
 
-As I am also maintainer of ivtv I'm looking forward to your ivtv 
-patches. Please contact me when you are seriously starting work on 
-ivtv: work is in progress to merge ivtv into the kernel, and if you can 
-let me know in advance what sort of changes you need, then I can warn 
-you if the changes required for the kernel merge conflict with what you 
-need.
+For kernel code, this header splitting should be completely transparent
+(and nothing outside include/ should directly include headers under 
+include/kabi/).
 
-And for the record, AFAIK there is no driver for the TI TLV320AIC23B.
+For userspace, this will be one switch from the many different header 
+packages floating around to the new ABI headers, but it should break 
+nearly none usespace applications (it will break some abuses, but
+that's OK).
 
-Regards,
+> dwmw2
 
-	Hans Verkuil
+cu
+Adrian
 
-On Saturday 22 April 2006 01:33, Scott Alfter wrote:
-> My company is working on a quad CX23416-based MPEG-2 compressor card.
->  The hardware guy decided to use CX25836s to capture video, instead
-> of the CX25840 that most everybody else uses.  The main difference
-> between the '836 and '840 is that the '840 captures both audio and
-> video, while the '836 captures video only.  The video-related
-> commands between the two are mostly the same, but the chip needs a
-> different initialization sequence and it'd probably be a good idea to
-> keep audio-related commands away from it.  It also doesn't need to
-> have audio firmware loaded.
->
-> This is my first attempt at a Linux kernel patch.  I've tested it
-> with NTSC input at 352x480 and 720x480, and it works well.  I'm
-> currently using it with a hacked version of ivtv 0.6.1.  Those
-> changes will eventually need to be released here as well, but the
-> hardware design is still in a bit of flux.  I also need to put
-> together a driver for the audio capture chips used on the card, the
-> TI TLV320AIC23B; there appears to be no driver in the kernel for that
-> chip.
->
-> The patch is attached; a test mailing indicated that Thunderbird
-> attaches patches inline instead of encoded.  The patch is also
-> available from this URL:
->
-> http://alfter.us/files/linux-2.6.16-cx25836.patch
->
-> Scott Alfter
-> salfter@ssai.us
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

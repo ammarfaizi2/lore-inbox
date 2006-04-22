@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWDVTJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWDVTKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbWDVTJS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWDVTJS
+	id S1750955AbWDVTKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWDVTKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:09:18 -0400
+	Sat, 22 Apr 2006 15:10:08 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:12471 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750945AbWDVTJD (ORCPT
+	by vger.kernel.org with ESMTP id S1750973AbWDVTKG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:09:03 -0400
-Date: Fri, 21 Apr 2006 23:00:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Bert Thomas <bert@brothom.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI device driver writing newbie trouble
-Message-ID: <20060422060045.GA18067@kroah.com>
-References: <4447A2E7.6000407@brothom.nl>
+	Sat, 22 Apr 2006 15:10:06 -0400
+Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Al Boldi <a1426z@gawab.com>
+Cc: Matt Helsley <matthltc@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200604220708.40018.a1426z@gawab.com>
+References: <200604212207.44266.a1426z@gawab.com>
+	 <1145657048.21109.583.camel@stark>  <200604220708.40018.a1426z@gawab.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Fri, 21 Apr 2006 22:46:40 -0700
+Message-Id: <1145684800.21231.30.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4447A2E7.6000407@brothom.nl>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 04:04:07PM +0100, Bert Thomas wrote:
-> Hi All,
-> 
-> I'm attempting to write a PCI device driver. I've read chapters 2, 9 and 
-> 12 of the linux device driver book (3rd ed) and it got me going with the 
-> code below. However, I never see the message printed from cif50_probe, 
-> so appearantly the kernel doesn't consider my driver the correct driver 
-> for the hardware.
-> 
-> I tried to load the driver with insmod, but I also rebooted the system 
-> in the hope that some part of the kernel would find the hardware and try 
-> to load my driver. Is that how it is supposed to work? At least my 
-> driver is listed in /lib/modules/2.6.15.7/modules.pcimap. Modprobe 
-> doesn't find it, I don't know why. The hardware contains a PLX chip. The 
-> hardware is found by the kernel, as it correctly shows up in /proc/pci:
-> 
->   Bus  1, device  13, function  0:
->     Class 0680: PCI device 10b5:9050 (rev 1).
->       IRQ 5.
->       Non-prefetchable 32 bit memory at 0xd1005000 [0xd100507f].
->       I/O at 0xd100 [0xd17f].
->       Non-prefetchable 32 bit memory at 0xd1000000 [0xd1001fff].
-> 
-> Also in the corresponding /sys files.
-> 
-> Does anyone have a suggestion why my probe function is not being called?
-> 
-> TIA
-> Bert
-> 
-> #include <linux/init.h>
-> #include <linux/module.h>
-> #include <linux/pci.h>
-> MODULE_LICENSE("Dual BSD/GPL");
-> 
-> static const struct pci_device_id cif50_ids[] = {
->         {
->         .vendor = 0x10B5,
->         .device = 0x9050,
->         .subvendor = PCI_ANY_ID, //0x10B5,
->         .subdevice = PCI_ANY_ID, //0x1080,
->         .class = PCI_ANY_ID,
->         .class_mask = PCI_ANY_ID
->         },
+On Sat, 2006-04-22 at 07:08 +0300, Al Boldi wrote:
 
-Try the PCI_DEVICE() macro here instead.
+> i.e: it should be possible to run the RCs w/o CKRM.
+> 
+> The current design pins the RCs on CKRM, when in fact this is not necessary.  
+> One way to decouple them, could be to pin them against pid, thus allowing an 
+> RC to leverage the pid hierarchy w/o the need for CKRM.  And only when finer 
+> RM control is necessary, should CKRM come into play, by dynamically 
+> adjusting the RC to achieve the desired effect.
 
-But that should not matter, this should work, I don't know why it
-doesn't sorry.
+This model works well in universities, where you associate some resource
+when a student logs in, or a virtualised environment (like a UML or
+vserver), where you attach resource to the root process.
 
-greg k-h
+It doesn't work with web servers, database servers etc.,, where the main
+application will be forking tasks for different set of end users. In
+that case you have to group tasks that are not related to one another
+and attach resources to them.
+
+Having a unified interface gives the system administrator ability to
+group the tasks as they see them in real life (a department or important
+transactions or just critical apps in a desktop).
+
+It also has the added advantage that the resource controller writer do
+not have to spend their time in coming up with an interface for their
+controller. On the other hand if they do, the user finally ends up with
+multiple interface (/proc, sysfs, configfs, /dev etc.,) to do their
+resource management.
+
+> 
+> Thanks!
+> 
+> --
+> Al
+> 
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

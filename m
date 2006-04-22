@@ -1,82 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWDVAxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWDVAzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWDVAxo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 20:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWDVAxo
+	id S1750809AbWDVAzp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 20:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWDVAzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 20:53:44 -0400
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:28432 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1750801AbWDVAxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 20:53:44 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Linux 2.6.17-rc2
-Date: Sat, 22 Apr 2006 01:53:44 +0100
-User-Agent: KMail/1.9.1
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org> <Pine.LNX.4.64.0604210932020.3701@g5.osdl.org> <200604220002.16824.ak@suse.de>
-In-Reply-To: <200604220002.16824.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Apr 2006 20:55:44 -0400
+Received: from ns1.siteground.net ([207.218.208.2]:696 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1750802AbWDVAzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 20:55:43 -0400
+Date: Fri, 21 Apr 2006 17:56:49 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: akpm@osdl.org, LaurentVivier@wanadoo.fr, sct@redhat.com,
+       linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 1/2] ext3 percpu counter fixes to suppport for more than 2**31 ext3 free blocks counter
+Message-ID: <20060422005649.GA3817@localhost.localdomain>
+References: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com> <1145631546.4478.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604220153.44984.s0348365@sms.ed.ac.uk>
+In-Reply-To: <1145631546.4478.10.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 April 2006 23:02, Andi Kleen wrote:
-> On Friday 21 April 2006 18:40, Linus Torvalds wrote:
-> > On Fri, 21 Apr 2006, Alistair John Strachan wrote:
-> > > Something in here (or -rc1, I didn't test that) broke WINE. x86-64
-> > > kernel, 32bit WINE, works fine on 2.6.16.7. I'll check whether -rc1 had
-> > > the same problem and work backwards, but just in case somebody has an
-> > > idea..
-> >
-> > Nothing strikes me, but maybe Andi has a clue.
->
-> NX for 32bit programs is enabled by default now. Does it
-> work with noexec32=off?
->
-> If it's that then it won't work with PAE kernels on i386 and NX
-> capable machines neither - i just changed the default to be
-> the same as 32bit, but unlike 32bit all x86-64 kernels use PAE
-> and many of the systems have NX.
->
-> If it's not that  don't know what it could be. I actually even used a
-> simple wine program with a post rc2 kernel and it worked for me.
->
-> So it isn't anything fundamental. Maybe some bad interaction
-> with copy protection again, but I don't remember changing ptrace
-> at all this time.
->
-> > Alistair, if you can do a "git bisect" on this one, that would help.
->
-> If noexec32=off doesn't help please do.
-> If noexec32 helps then it's likely a wine bug for using the wrong
-> protections.
+On Fri, Apr 21, 2006 at 07:59:06AM -0700, Mingming Cao wrote:
+> The following patches are to fix the percpu counter issue support more
+> than 2**31 blocks for ext3, i.e. allow the ext3 free block accounting
+> works with more than 8TB storage.
+> 
+> [PATCH 1] - Generic perpcu longlong type counter support: global counter
+> type changed from long to long long. The local counter is still remains
+> 32 bit (long type), so we could avoid doing 64 bit update in most cases.
+> Fixed the percpu_counter_read_positive() to handle the  0 value counter
+> correctly;Add support to initialize the global counter to a value that
+> are greater than 2**32.
+> 
+> [PATCH 2] - ext3 part of the changes: make use of the new support to
+> initialize the free blocks counter, instead of using percpu_counter_mod
+> () indirectly.
+> 
+> Patches against 2.6.17-rc1-mm2. Tested on a freshly created 10TB ext3. 
+> 
+> Here is Patch 1.
+> 
+> Signed-Off-By: Mingming Cao <cmm@us.ibm.com>
+> 
+> ...  
+> +static inline void
+> +percpu_counter_ll_init(struct percpu_counter *fbc, long long amount)
+> +{
+> +	spin_lock_init(&fbc->lock);
+> +	fbc->count = amount;
+> +	fbc->counters = alloc_percpu(long);
+> +}
+> +
 
-[alistair] 01:52 [~] uname -rm
-2.6.17-rc2 x86_64
+Do we need another interface for this?  Why not change percpu_counter_init
+and users to use 'amount' as an additional argument instead?  
 
-[alistair] 01:52 [~] cat /proc/cmdline
-vga=794 root=/dev/sda1 quiet noexec32=off
-
-[alistair] 01:51 [~/.wine/drive_c/Program Files/Warcraft III] wine 
-war3.exe -opengl
-err:ole:CoCreateInstance apartment not initialised
-fixme:advapi:SetSecurityInfo stub
-
-Aaand wine suddenly starts working again. Looks like a bug in WINE; is there 
-any additional information required before I can file a bug report on this 
-one? Thanks.
-
--- 
-Cheers,
-Alistair.
-
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Thanks,
+Kiran

@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWDVVxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWDVV5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWDVVxl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 17:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWDVVxl
+	id S1751198AbWDVV5N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 17:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWDVV5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 17:53:41 -0400
-Received: from styx.suse.cz ([82.119.242.94]:49868 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751125AbWDVVxk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 17:53:40 -0400
-Date: Sat, 22 Apr 2006 23:53:56 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Matheus Izvekov <mizvekov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, dtor_core@ameritech.net
-Subject: Re: usbkbd not reporting unknown keys
-Message-ID: <20060422215356.GA11798@suse.cz>
-References: <d120d5000603081247i69f9e7dbm6ef614f50140227f@mail.gmail.com> <305c16960603081334k25ce9a89g132876d4c9246fc6@mail.gmail.com> <d120d5000603090543p3446b4a0sddaaa031ad2513ca@mail.gmail.com> <305c16960603091230r32038a86mbefc6d80bedb24ab@mail.gmail.com> <305c16960603141510g72def22bmd0043d5f71d9ef6@mail.gmail.com> <305c16960604221111u714bd3b1h2aeb0559b07d911b@mail.gmail.com> <20060422185402.GC10613@suse.cz> <305c16960604221259g4ddabca2o6333f7ffcaff8e4f@mail.gmail.com> <20060422200455.GA10994@suse.cz> <305c16960604221401k4e6493b6xa9c898a92c6b028d@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <305c16960604221401k4e6493b6xa9c898a92c6b028d@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+	Sat, 22 Apr 2006 17:57:13 -0400
+Received: from osa.unixfolk.com ([209.204.179.118]:35203 "EHLO
+	osa.unixfolk.com") by vger.kernel.org with ESMTP id S1751198AbWDVV5M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 17:57:12 -0400
+Date: Sat, 22 Apr 2006 14:57:08 -0700 (PDT)
+From: Dave Olson <olson@unixfolk.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
+In-Reply-To: <fa.aQp/JAmWqmBjqeleRNK2yrIEx2o@ifi.uio.no>
+Message-ID: <Pine.LNX.4.61.0604221454010.19893@osa.unixfolk.com>
+References: <fa.mZJQjHk9A5D4GHpUn7lttlNhH5U@ifi.uio.no>
+ <fa.aQp/JAmWqmBjqeleRNK2yrIEx2o@ifi.uio.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 22, 2006 at 06:01:27PM -0300, Matheus Izvekov wrote:
+On Tue, 18 Apr 2006, Roland Dreier wrote:
 
-> On 4/22/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > Just point me to the HID debug logs. (I need DEBUG enabled in both
-> > hid-core.c and hid-input.c.) Make sure you're running an uptodate
-> > kernel. I'll see what is needed to fix the mappings for that keyboard.
-> >
-> > > Maybe the thread subject should be changed to something more
-> > > apropriate, do so if it pleases you.
-> 
-> Here it is, hope i got everything right.
+|     Adrian> As an example, the only usage of bus_to_virt() in the
+|     Adrian> infiniband code was added in 2.6.17-rc1 (sic).
+| 
+| Ugh, the pathscale guys snuck that one past me in the ipath merge.
+| I'll see what I can do about it...
 
-It seems to be missing something at the top, also the whitespace
-formatting seems to be discarded - everything is aligned to the first
-column, making it rather hard to read. Please retry using 'dmesg -s 131072'.
+Already fixed in our current code, with patches headed off to you
+(Roland) very soon now...
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+Dave Olson
+olson@pathscale.com
+olson@unixfolk.com
+http://www.unixfolk.com/dave

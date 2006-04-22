@@ -1,56 +1,72 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWDVTFB (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 22 Apr 2006 15:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWDVTFB
+	id S1751036AbWDVTq4 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 22 Apr 2006 15:46:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWDVTq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:05:01 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:37558 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750942AbWDVTFA (ORCPT
+	Sat, 22 Apr 2006 15:46:56 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:53182 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751030AbWDVTqz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:05:00 -0400
-Message-Id: <20031101090223.1649874CE@uccor.edu.ar>
-Reply-To: "Mngr. hildeedyth" <signechiang-hua@purinmail.com>
-Date: Sat, 22 Apr 2006 10:51:53 +0400
-From: "Mngr. theressakamillah" <neallgena@purinmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: wow -Dominique
+	Sat, 22 Apr 2006 15:46:55 -0400
+Message-ID: <10ac1e3f04c.hansanita1@virgilio.it>
+Date: Sat, 22 Apr 2006 14:57:21 +0100 (GMT+01:00)
+From: <hansanita1@virgilio.it>
+Reply-To: <hansanita1@virgilio.it>
+Subject: Ref No;ILPB642857301
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: 81.69.169.217
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750943AbWDVTFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751036AbWDVTq4@vger.kernel.org>
 
+Inorbit Promotion BV,
+Hovanstraat 28-35,
+3025RH, Rotterdam.
+Royal Dutch 
+Republic.
 
-U N I V E R S I T Y   D I P L O M A S 
+Ref No;ILPB642857301,
+Ticket No;483752202ch
 
+This is to 
+inform you that, base on our  yearly draw of Inorbit 
+Promotion BV 
+carried out on the 18th, April,2006,your e-mail 
+address attached with 
+the above ticket No. popped out in the third 
+stake.
 
-Obtain a prosperous future, money earning power, 
-and the admiration of all. 
+This 
+automatically declares you the winner of our third prize of 
+Eight 
+Hundred and Fifty Thousand Dollars(US$850,000:00) in the open 
+charity 
+ballot device.
 
+The source of fund is majorly from well meaning 
+companies and 
+humananitarian sprited industries selected from european 
+community.
 
-Diplomas from prestigious non-accredited 
-universities based on your present knowledge 
-and life experience. 
+Be informed that in line with the sponsors' regulation, 
+you 
+are to contribute a substantial amount(at least 10%) to a 
+recognized 
+non-governmental charity project in your environ.This 
+should be given 
+only after your fund has been acknowledged by you.
 
+Application and inquiries should be forwarded to Mrs Juliana Van 
+Dijk 
+via e-mail; (julianadijk@inorbit.com).
 
-No required tests, classes, books, or interviews. 
+Accept my heart felt 
+congratulations.
 
+Mrs. Anita Hans
+PS:Kindly state your Ticket No in 
+your expected application.
 
-Bachelors, masters, MBA, and doctorate (PhD) 
-diplomas available in the field of your choice. 
-
-
-No one is turned down. 
-
-
-Confidentiality assured. 
-
-
-CALL NOW to receive your diploma 
-within days!!! 
-
-
-1 - 8 1 3 - 4 3 6 - 5 3 3 5
-
-
-
-Call 24 hours a day, 7 days a week, including 
-Sundays and holidays=20

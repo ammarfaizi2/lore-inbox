@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWDVTZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWDVT0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbWDVTZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWDVTZ5
+	id S1751074AbWDVT0e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWDVT0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:25:57 -0400
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:14954 "HELO
-	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751059AbWDVTZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:25:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=q1TpymbQ3qluxHkvGWFZUqkv1u5J8JVLCSWZqPe72uCLJYpeWdfm3DQehUsPBQtGFWQHArsDtf9Kw2s+FVd8zIPloAzMrMJ1lyZIgU+b4Fot0ouKW9Fl8b7qAtFGPmkbAo7SUz7e1+Ope02LZO/YV/zXGnGUB5Fy45MupGdjoTo=  ;
-Message-ID: <444A8335.6030407@yahoo.com.au>
-Date: Sun, 23 Apr 2006 05:25:41 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sat, 22 Apr 2006 15:26:33 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:59067 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751056AbWDVT0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 15:26:02 -0400
+From: Neil Brown <neilb@suse.de>
+To: Qi Yong <qiyong@fc-cn.com>
+Date: Sat, 22 Apr 2006 15:45:10 +1000
 MIME-Version: 1.0
-To: Hua Zhong <hzhong@gmail.com>
-CC: "'Paul Mackerras'" <paulus@samba.org>,
-       "'Pekka Enberg'" <penberg@cs.helsinki.fi>,
-       "'Andrew Morton'" <akpm@osdl.org>, "'James Morris'" <jmorris@namei.org>,
-       dwalker@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: kfree(NULL)
-References: <001b01c66642$0abdbf80$0200a8c0@nuitysystems.com>
-In-Reply-To: <001b01c66642$0abdbf80$0200a8c0@nuitysystems.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17481.49894.531724.339182@cse.unsw.edu.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] raid5_end_write_request spinlock fix
+In-Reply-To: message from Qi Yong on Friday April 21
+References: <20060421125949.GA15550@localhost.localdomain>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hua Zhong wrote:
->>It can reduce readability of the code [unless it is used in 
->>error path simplification, kfree(something) usually suggests 
->>kfree-an-object].
+On Friday April 21, qiyong@fc-cn.com wrote:
+> Hello,
 > 
+> Reduce the raid5_end_write_request() spinlock window.
+
+Thank you for reviewing the md code and suggesting improvements.
+However it would help if you used a few more words to describe your
+patches.  E.g. explain why  you are convinced that it is safe to
+reduce the range of the lock like this.
+
+NeilBrown
+
 > 
-> Consistency in coding style improves readability. Redundancy reduces readability.
+> Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
+> ---
 > 
-> The interface is simple and clear, and has been documented for decades, that is kfree (and free) accepts NULL. There is no ambiguity
-> here.
-> 
-> If you think "if (obj) kfree (obj);" is more readable than "kfree(obj);", fix the API to enforce it.
-> 
-> But if the kernel tree is full of "some caller checks NULL while others not", I hardly see it as readable. It'd just be confusing.
+> diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+> index 3184360..9c24377 100644
+> --- a/drivers/md/raid5.c
+> +++ b/drivers/md/raid5.c
+> @@ -581,7 +581,6 @@ static int raid5_end_write_request (stru
+>   	struct stripe_head *sh = bi->bi_private;
+>  	raid5_conf_t *conf = sh->raid_conf;
+>  	int disks = sh->disks, i;
+> -	unsigned long flags;
+>  	int uptodate = test_bit(BIO_UPTODATE, &bi->bi_flags);
+>  
+>  	if (bi->bi_size)
+> @@ -599,16 +598,14 @@ static int raid5_end_write_request (stru
+>  		return 0;
+>  	}
+>  
+> -	spin_lock_irqsave(&conf->device_lock, flags);
+>  	if (!uptodate)
+>  		md_error(conf->mddev, conf->disks[i].rdev);
+>  
+>  	rdev_dec_pending(conf->disks[i].rdev, conf->mddev);
+> -	
+>  	clear_bit(R5_LOCKED, &sh->dev[i].flags);
+>  	set_bit(STRIPE_HANDLE, &sh->state);
+> -	__release_stripe(conf, sh);
+> -	spin_unlock_irqrestore(&conf->device_lock, flags);
+> +	release_stripe(sh);
+> +
+>  	return 0;
+>  }
 >  
 > 
->>I don't actually like kfree(NULL) any time except error 
->>paths. It is subjective, not crazy talk.
-> 
-> 
-> Documented interface is not subjective.
-
-That's great. I don't know quite how to reply, or even if I should
-if you don't read what I write.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> -- 
+> Coywolf Qi Hunt

@@ -1,160 +1,308 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWDVBtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWDVBzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWDVBtD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 21:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWDVBtD
+	id S1750842AbWDVBzA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 21:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWDVBzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 21:49:03 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:47078 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750834AbWDVBtB
+	Fri, 21 Apr 2006 21:55:00 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:44240 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750839AbWDVBy7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 21:49:01 -0400
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
+	Fri, 21 Apr 2006 21:54:59 -0400
+Subject: [PATCH] time: rename clocksource functions
+From: john stultz <johnstul@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-In-Reply-To: <20060421155727.4212c41c.akpm@osdl.org>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-	 <1145630992.3373.6.camel@localhost.localdomain>
-	 <1145638722.14804.0.camel@linuxchandra>
-	 <20060421155727.4212c41c.akpm@osdl.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>, lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Organization: IBM
-Date: Fri, 21 Apr 2006 18:48:56 -0700
-Message-Id: <1145670536.15389.132.camel@linuxchandra>
+Date: Fri, 21 Apr 2006 18:54:55 -0700
+Message-Id: <1145670895.20737.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 15:57 -0700, Andrew Morton wrote:
-> Chandra Seetharaman <sekharan@us.ibm.com> wrote:
-> >
-> > On Fri, 2006-04-21 at 07:49 -0700, Dave Hansen wrote:
-> > > On Thu, 2006-04-20 at 19:24 -0700, sekharan@us.ibm.com wrote:
-> > > > CKRM has gone through a major overhaul by removing some of the complexity,
-> > > > cutting down on features and moving portions to userspace.
-> > > 
-> > > What do you want done with these patches?  Do you think they are ready
-> > > for mainline?  -mm?  Or, are you just posting here for comments?
-> > > 
-> > 
-> > We think it is ready for -mm. But, want to go through a review cycle in
-> > lkml before i request Andrew for that.
-> 
-> From a quick scan, the overall code quality is probably the best I've seen
-> for an initial submission of this magnitude.  I had a few minor issues and
+Andrew,
+	This patch, suggested by Roman Zippel, changes clocksource functions to
+use clocksource_xyz rather then xyz_clocksource to avoid polluting the
+namespace.
 
-Thanks, and thanks to all that helped.
+This applies ontop of 2.6.17-rc1-mm3
 
-> questions, but it'd need a couple of hours to go through it all.
-> 
-> So.  Send 'em over when you're ready.
+thanks
+-john
 
-Great. I will wait for couple of days for comments and then send them
-your way.
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
-> 
-> I have one concern.  If we merge this framework into mainline then we'd
-> (quite reasonably) expect to see an ongoing dribble of new controllers
-> being submitted.  But we haven't seen those controllers yet.  So there is a
-> risk that you'll submit a major new controller (most likely a net or memory
-> controller) and it will provoke a reviewer revolt.  We'd then be in a
-> situation of cant-go-forward, cant-go-backward.
-> 
 
-I totally understand your concern.
-
-CKRM's design is not tied with a specific implementation of a
-controller. It allows hooking up different controllers for the same
-resource. If a controller is considered complex, it can cut some of the
-features and be made simpler. Or a simpler controller can replace an
-earlier complex controller without affecting the user interface. 
+Index: mmmerge/include/linux/clocksource.h
+===================================================================
+--- mmmerge.orig/include/linux/clocksource.h	2006-04-17 15:08:59.000000000 -0700
++++ mmmerge/include/linux/clocksource.h	2006-04-17 15:08:59.000000000 -0700
+@@ -118,12 +118,12 @@ static inline u32 clocksource_hz2mult(u3
+ }
  
-This flexibility feature reduces the "cant-go-forward, cant-go-back"
-problem, somewhat.
-
-FYI, we found out that managing network resources was not falling into
-this task based model and we had to invent complex layering to
-accommodate it. So, we dropped our plans for network support. 
-
-One can write controller for any resource that can be accounted at task
-level. The corresponding subsystem stakeholders can ensure that it is
-clean, and at acceptable level.
-
-> It would increase the comfort level if we could see what the major
-> controllers look like before committing.  But that's unreasonable.
-
-You might have seen the CPU controller (different implementation than
-what we had earlier) and the numtasks controller (can prevent fork
-bombs) that followed this patchset.
-
->
-> Could I ask that you briefly enumerate
-> 
-> a) which controllers you think we'll need in the forseeable future
-> 
-
-Our main object is to provide resource control for the hardware
-resources: CPU, I/O and memory.
-
-We have already posted the CPU controller.
-
-We have two implementations of memory controller and a I/O controller. 
-
-Memory controller is understandably more complex and controversial, and
-that is the reason we haven't posted it this time around (we are looking
-at ways to simplify the design and hence the complexity). Both the
-memory controllers has been posted to linux-mm.
-
-I/O controller is based on CFQ-scheduler.
-
-> b) what they need to do
-
-Both memory controllers provide control for LRU lists.
-
- - One maintains the active/inactive lists per class for each zone. It
-   is of order O(1). Current code is little complex. We are looking at
-   ways to simplify it.
-
- - Another creates pseudo zones under each zones (by splitting the 
-   number of pages available in a zone) and attaches them with
-   each class.
-
-I/O Controller that we are working on is based on CFQ scheduler and
-provides bandwidth control.  
-> 
-> c) pointer to prototype code if poss
-
-Both the memory controllers are fully functional. We need to trim them
-down.
-
-active/inactive list per class memory controller:
-http://prdownloads.sourceforge.net/ckrm/mem_rc-f0.4-2615-v2.tz?download
-
-pzone based memory controller:
-http://marc.theaimsgroup.com/?l=ckrm-tech&m=113867467006531&w=2
-
-i/o controller: This controller is not ported to the framework posted,
-but can be taken for a prototype version. New version would be simpler
-though.
-
-http://prdownloads.sourceforge.net/ckrm/io_rc.tar.bz2?download
-
-
-Thanks & Regards,
-
-chandra
-> 
-> Thanks.
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+ /**
+- * read_clocksource: - Access the clocksource's current cycle value
++ * clocksource_read: - Access the clocksource's current cycle value
+  * @cs:		pointer to clocksource being read
+  *
+  * Uses the clocksource to return the current cycle_t value
+  */
+-static inline cycle_t read_clocksource(struct clocksource *cs)
++static inline cycle_t clocksource_read(struct clocksource *cs)
+ {
+ 	return cs->read();
+ }
+@@ -145,7 +145,7 @@ static inline s64 cyc2ns(struct clocksou
+ }
+ 
+ /**
+- * calculate_clocksource_interval - Calculates a clocksource interval struct
++ * clocksource_calculate_interval - Calculates a clocksource interval struct
+  *
+  * @c:		Pointer to clocksource.
+  * @length_nsec: Desired interval length in nanoseconds.
+@@ -155,7 +155,7 @@ static inline s64 cyc2ns(struct clocksou
+  *
+  * Unless you're the timekeeping code, you should not be using this!
+  */
+-static inline void calculate_clocksource_interval(struct clocksource *c,
++static inline void clocksource_calculate_interval(struct clocksource *c,
+ 						unsigned long length_nsec)
+ {
+ 	u64 tmp;
+@@ -272,8 +272,8 @@ static inline s64 make_ntp_adj(struct cl
+ 
+ 
+ /* used to install a new clocksource */
+-int register_clocksource(struct clocksource*);
+-void reselect_clocksource(void);
+-struct clocksource* get_next_clocksource(void);
++int clocksource_register(struct clocksource*);
++void clocksource_reselect(void);
++struct clocksource* clocksource_get_next(void);
+ 
+ #endif /* _LINUX_CLOCKSOURCE_H */
+Index: mmmerge/kernel/time/clocksource.c
+===================================================================
+--- mmmerge.orig/kernel/time/clocksource.c	2006-04-17 15:08:59.000000000 -0700
++++ mmmerge/kernel/time/clocksource.c	2006-04-17 15:08:59.000000000 -0700
+@@ -65,10 +65,10 @@ static int __init clocksource_done_booti
+ late_initcall(clocksource_done_booting);
+ 
+ /**
+- * get_next_clocksource - Returns the selected clocksource
++ * clocksource_get_next - Returns the selected clocksource
+  *
+  */
+-struct clocksource *get_next_clocksource(void)
++struct clocksource *clocksource_get_next(void)
+ {
+ 	unsigned long flags;
+ 
+@@ -142,12 +142,12 @@ static int is_registered_source(struct c
+ }
+ 
+ /**
+- * register_clocksource - Used to install new clocksources
++ * clocksource_register - Used to install new clocksources
+  * @t:		clocksource to be registered
+  *
+  * Returns -EBUSY if registration fails, zero otherwise.
+  */
+-int register_clocksource(struct clocksource *c)
++int clocksource_register(struct clocksource *c)
+ {
+ 	int ret = 0;
+ 	unsigned long flags;
+@@ -168,16 +168,16 @@ int register_clocksource(struct clocksou
+ 	return ret;
+ }
+ 
+-EXPORT_SYMBOL(register_clocksource);
++EXPORT_SYMBOL(clocksource_register);
+ 
+ /**
+- * reselect_clocksource - Rescan list for next clocksource
++ * clocksource_reselect - Rescan list for next clocksource
+  *
+  * A quick helper function to be used if a clocksource changes its
+  * rating. Forces the clocksource list to be re-scaned for the best
+  * clocksource.
+  */
+-void reselect_clocksource(void)
++void clocksource_reselect(void)
+ {
+ 	unsigned long flags;
+ 
+@@ -186,6 +186,7 @@ void reselect_clocksource(void)
+ 	spin_unlock_irqrestore(&clocksource_lock, flags);
+ }
+ 
++EXPORT_SYMBOL(clocksource_reselect);
+ /**
+  * sysfs_show_current_clocksources - sysfs interface for current clocksource
+  * @dev:	unused
+Index: mmmerge/kernel/time/jiffies.c
+===================================================================
+--- mmmerge.orig/kernel/time/jiffies.c	2006-04-17 15:08:59.000000000 -0700
++++ mmmerge/kernel/time/jiffies.c	2006-04-17 15:08:59.000000000 -0700
+@@ -67,7 +67,7 @@ struct clocksource clocksource_jiffies =
+ 
+ static int __init init_jiffies_clocksource(void)
+ {
+-	return register_clocksource(&clocksource_jiffies);
++	return clocksource_register(&clocksource_jiffies);
+ }
+ 
+ module_init(init_jiffies_clocksource);
+Index: mmmerge/arch/i386/kernel/tsc.c
+===================================================================
+--- mmmerge.orig/arch/i386/kernel/tsc.c	2006-04-17 15:08:59.000000000 -0700
++++ mmmerge/arch/i386/kernel/tsc.c	2006-04-17 15:08:59.000000000 -0700
+@@ -351,7 +351,7 @@ static int tsc_update_callback(void)
+ 	/* check to see if we should switch to the safe clocksource: */
+ 	if (clocksource_tsc.rating != 50 && check_tsc_unstable()) {
+ 		clocksource_tsc.rating = 50;
+-		reselect_clocksource();
++		clocksource_reselect();
+ 		change = 1;
+ 	}
+ 
+@@ -469,7 +469,7 @@ static int __init init_tsc_clocksource(v
+ 			jiffies + msecs_to_jiffies(TSC_FREQ_CHECK_INTERVAL);
+ 		add_timer(&verfiy_tsc_freq_timer);
+ 
+-		return register_clocksource(&clocksource_tsc);
++		return clocksource_register(&clocksource_tsc);
+ 	}
+ 
+ 	return 0;
+Index: mmmerge/arch/i386/kernel/i8253.c
+===================================================================
+--- mmmerge.orig/arch/i386/kernel/i8253.c	2006-04-17 15:08:59.000000000 -0700
++++ mmmerge/arch/i386/kernel/i8253.c	2006-04-17 15:08:59.000000000 -0700
+@@ -80,6 +80,6 @@ static int __init init_pit_clocksource(v
+ 		return 0;
+ 
+ 	clocksource_pit.mult = clocksource_hz2mult(CLOCK_TICK_RATE, 20);
+-	return register_clocksource(&clocksource_pit);
++	return clocksource_register(&clocksource_pit);
+ }
+ module_init(init_pit_clocksource);
+Index: mmmerge/drivers/clocksource/acpi_pm.c
+===================================================================
+--- mmmerge.orig/drivers/clocksource/acpi_pm.c	2006-04-17 15:08:59.000000000 -0700
++++ mmmerge/drivers/clocksource/acpi_pm.c	2006-04-17 15:08:59.000000000 -0700
+@@ -171,7 +171,7 @@ static int __init init_acpi_pm_clocksour
+ 	return -ENODEV;
+ 
+ pm_good:
+-	return register_clocksource(&clocksource_acpi_pm);
++	return clocksource_register(&clocksource_acpi_pm);
+ }
+ 
+ module_init(init_acpi_pm_clocksource);
+Index: mmmerge/kernel/timer.c
+===================================================================
+--- mmmerge.orig/kernel/timer.c	2006-04-17 15:08:59.000000000 -0700
++++ mmmerge/kernel/timer.c	2006-04-17 15:12:37.000000000 -0700
+@@ -797,7 +797,7 @@ static inline s64 __get_nsec_offset(void
+ 	s64 ns_offset;
+ 
+ 	/* read clocksource: */
+-	cycle_now = read_clocksource(clock);
++	cycle_now = clocksource_read(clock);
+ 
+ 	/* calculate the delta since the last update_wall_time: */
+ 	cycle_delta = (cycle_now - last_clock_cycle) & clock->mask;
+@@ -832,7 +832,7 @@ static inline void __get_realtime_clock_
+ }
+ 
+ /**
+- * get_realtime_clock_ts - Returns the time of day in a timespec
++ * getnstimeofday - Returns the time of day in a timespec
+  * @ts:		pointer to the timespec to be set
+  *
+  * Returns the time of day in a timespec.
+@@ -907,9 +907,9 @@ static int change_clocksource(void)
+ 	struct clocksource *new;
+ 	cycle_t now;
+ 	u64 nsec;
+-	new = get_next_clocksource();
++	new = clocksource_get_next();
+ 	if (clock != new) {
+-		now = read_clocksource(new);
++		now = clocksource_read(new);
+ 		nsec =  __get_nsec_offset();
+ 		timespec_add_ns(&xtime, nsec);
+ 
+@@ -953,9 +953,9 @@ void __init timekeeping_init(void)
+ 	unsigned long flags;
+ 
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+-	clock = get_next_clocksource();
+-	calculate_clocksource_interval(clock, tick_nsec);
+-	last_clock_cycle = read_clocksource(clock);
++	clock = clocksource_get_next();
++	clocksource_calculate_interval(clock, tick_nsec);
++	last_clock_cycle = clocksource_read(clock);
+ 	ntp_clear();
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+ }
+@@ -975,7 +975,7 @@ static int timekeeping_resume(struct sys
+ 
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+ 	/* restart the last cycle value */
+-	last_clock_cycle = read_clocksource(clock);
++	last_clock_cycle = clocksource_read(clock);
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+ 	return 0;
+ }
+@@ -1015,7 +1015,7 @@ static void update_wall_time(void)
+ 	snsecs_per_sec = (s64)NSEC_PER_SEC << clock->shift;
+ 	remainder_snsecs += (s64)xtime.tv_nsec << clock->shift;
+ 
+-	now = read_clocksource(clock);
++	now = clocksource_read(clock);
+ 	offset = (now - last_clock_cycle)&clock->mask;
+ 
+ 	/* normally this loop will run just once, however in the
+@@ -1056,7 +1056,7 @@ static void update_wall_time(void)
+ 	if (change_clocksource()) {
+ 		error = 0;
+ 		remainder_snsecs = 0;
+-		calculate_clocksource_interval(clock, tick_nsec);
++		clocksource_calculate_interval(clock, tick_nsec);
+ 	}
+ }
+ 
+Index: mmmerge/arch/i386/kernel/hpet.c
+===================================================================
+--- mmmerge.orig/arch/i386/kernel/hpet.c	2006-04-17 15:08:59.000000000 -0700
++++ mmmerge/arch/i386/kernel/hpet.c	2006-04-17 15:08:59.000000000 -0700
+@@ -61,7 +61,7 @@ static int __init init_hpet_clocksource(
+ 	do_div(tmp, FSEC_PER_NSEC);
+ 	clocksource_hpet.mult = (u32)tmp;
+ 
+-	return register_clocksource(&clocksource_hpet);
++	return clocksource_register(&clocksource_hpet);
+ }
+ 
+ module_init(init_hpet_clocksource);
+Index: mmmerge/drivers/clocksource/cyclone.c
+===================================================================
+--- mmmerge.orig/drivers/clocksource/cyclone.c	2006-04-17 15:08:59.000000000 -0700
++++ mmmerge/drivers/clocksource/cyclone.c	2006-04-17 15:08:59.000000000 -0700
+@@ -113,7 +113,7 @@ static int __init init_cyclone_clocksour
+ 	clocksource_cyclone.mult = clocksource_hz2mult(CYCLONE_TIMER_FREQ,
+ 						clocksource_cyclone.shift);
+ 
+-	return register_clocksource(&clocksource_cyclone);
++	return clocksource_register(&clocksource_cyclone);
+ }
+ 
+ module_init(init_cyclone_clocksource);
 
 

@@ -1,70 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWDVUmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWDVUmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWDVUmE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 16:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWDVUmB
+	id S1751165AbWDVUmI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 16:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWDVUmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 16:42:01 -0400
+	Sat, 22 Apr 2006 16:42:06 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:28112 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751169AbWDVUl6 (ORCPT
+	by vger.kernel.org with ESMTP id S1750906AbWDVUmB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 16:41:58 -0400
-Date: Sat, 22 Apr 2006 13:48:46 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Ingo Oeser <netdev@axxeo.de>
-Cc: "David S. Miller" <davem@davemloft.net>, simlo@phys.au.dk,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, netdev@vger.kernel.org,
-       Ingo Oeser <ioe-lkml@rameria.de>
-Subject: Re: Van Jacobson's net channels and real-time
-Message-ID: <20060422114846.GA6629@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.44L0.0604201819040.19330-100000@lifa01.phys.au.dk> <20060420.120955.28255828.davem@davemloft.net> <200604211852.47335.netdev@axxeo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200604211852.47335.netdev@axxeo.de>
-User-Agent: Mutt/1.5.9i
+	Sat, 22 Apr 2006 16:42:01 -0400
+Date: Sat, 22 Apr 2006 13:13:18 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Greg KH <greg@kroah.com>, Arjan van de Ven <arjan@infradead.org>,
+       James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation
+ of LSM hooks)
+In-Reply-To: <1145649382.21749.286.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.61.0604221244500.27942@yvahk01.tjqt.qr>
+References: <200604142301.10188.edwin@gurde.com> 
+ <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> 
+ <20060417162345.GA9609@infradead.org>  <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
+  <20060417173319.GA11506@infradead.org>  <Pine.LNX.4.64.0604171454070.17563@d.namei>
+  <20060417195146.GA8875@kroah.com>  <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+  <1145462454.3085.62.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>  <20060419201154.GB20545@kroah.com>
+  <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr> 
+ <1145636755.21749.165.camel@moss-spartans.epoch.ncsc.mil> 
+ <Pine.LNX.4.61.0604212039100.4602@yvahk01.tjqt.qr>
+ <1145649382.21749.286.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 April 2006 18:52:47 +0200, Ingo Oeser wrote:
-> What about sth. like
-> 
-> struct netchannel {
->    /* This is only read/written by the writer (producer) */
->    unsigned long write_ptr;
->   struct netchannel_buftrailer *netchan_queue[NET_CHANNEL_ENTRIES];
-> 
->    /* This is modified by both */
->   atomic_t filled_entries; /* cache_line_align this? */
-> 
->    /* This is only read/written by the reader (consumer) */
->    unsigned long read_ptr;
-> }
-> 
-> This would prevent this bug from the beginning and let us still use the
-> full queue size.
-> 
-> If cacheline bouncing because of the shared filled_entries becomes an issue,
-> you are receiving or sending a lot.
+>> When you grant CAP_SYS_ADMIN to a user, he can do _a lot_ of things. I wanted
+>> to have the sub-admin have read rights in most places (e.g. nvram to pick a
+>> random example), but not to have write rights. Unfortunately, read rights and
+>> write rights for nvram both fall under CAP_SYS_ADMIN.
+>> 
+>> capable_x will call out to security_cap_extra(), passing it the current
+>> function name as a string. An LSM module can then provide security_cap_extra
+>> via the security_operations vector and decide whether to allow the request. I
+>> primarily did this because it reduces the amount of recompiling needed. For
+>> example, instead of having to add a ->nvram_allow_read and ->nvram_allow_write
+>> hooks in include/linux/security.h -- which requires compilation of a lot of
+>> parts -- I can simply use strcmp(func, "nvram_read") in the LSM. I agree that
+>> this is not optimal, but having 1000 pointers in the security_ops vector is not
+>> a solution either (-> code bloat).
+>
+>- Where is the user of the cap_extra hook?  I don't see it in multiadm.
+>If you aren't using it, it isn't a requirement for multiadm, obviously;
+>you should drop those diffs out and just focus on what you need for
+>multiadm itself.
 
-Unless I completely misunderstand something, one of the main points of
-the netchannels if to have *zero* fields written to by both producer
-and consumer.  Receiving and sending a lot can be expected to be the
-common case, so taking a performance hit in this case is hardly a good
-idea.
+The subadmin gets CAP_SYS_ADMIN. This is because capable() is often done before
+the LSM callout, e.g. sys_sethostname(). Even when capable() is after an LSM
+call, the process needs a certain capability or the syscall/function will
+return failure to userspace. The best solution I can think of is that capable()
+disappears entirely from functions and that an LSM function does it all then.
 
-I haven't looked at Davem's implementation at all, but Van simply
-seperated fields in consumer-written and producer-written, with proper
-alignment between them.  Some consumer-written fields are also read by
-the producer and vice versa.  But none of this results in cacheline
-pingpong.
+>- Writing a security module based on function names in other modules is
+>obviously very fragile; some kind of abstraction would be required.
 
-If your description of the problem is correct, it should only mean
-that the implementation has a problem, not the concept.
+Yes, but at least it returns permission denied in the default case :)
+Best would probably if the caller uses a fixed string rather than __FUNCTION__
+from the expanded capable_x() macro. Or an enum value...
 
-Jörn
+enum {
+	HK_SETHOSTNAME,
+};
 
+>> >Some of the hooks used to exist in LSM patches but didn't have a real
+>> >user for merging at the time.  But it isn't clear whether you actually
+>> >need separate hooks for each of them or if they are being mapped to the
+>> >same check in many cases - can it be abstracted to a common hook?
+>> 
+>> Not without passing a handful of useless parameters (NULL or 0) to each
+>> function.
+>> As much as I would like to combine for example mt_sb_mount and mt_sb_pivotroot,
+>> the prototypes are just too different.
+>> Suggestions welcome.
+>
+>I wasn't suggesting passing the union of their parameters, just the ones
+>that are actually used by your module (plus any parameters used by any
+>other in-tree user, i.e. capability and SELinux).
+
+static bool mt_file_alloc_override(int cur, int max) {
+    /* Called when the maximum number of files is open. Only superadmins may
+    override this. Return >0 for success. */
+    return is_any_superadm(current->euid, current->egid);
+}
+
+I see what you mean - cur and max are unused. However, if I was to call to a
+seconday module from within this function (which is not really implemented), I
+would suddenly need cur and max again. I do think that the parameters have a
+reason to be there - a user might wish to enforce this sort:
+
+    return is_any_superadm(...) ||
+           (is_any_subadm(...) && (max <= 2048))
+
+E.g. "allow some more" for subadms. Multiadmin is currently extremely tailored
+to one specific (call it the default :-) use case.
+
+>And trying to abstract a higher level conceptual operation as the hook rather
+>than making them per-syscall/operation.  I know that LSM currently does things
+>the other way, but I'd much rather see it move toward more general permission
+>checking interfaces (ala the internal SELinux ones, although I understand
+>those specific interfaces aren't what you would use).  Others may have a
+>different POV.
+>
+>> >Seems like you are duplicating a lot of the base DAC logic in the
+>> >process; would be nice to encapsulate that in the core kernel, and then
+>> >just use a common helper in both cases?
+>> 
+>> The problem is that the base DAC logic is done after security_*(). Sometimes
+>> that's good, most of the times, it leads to duplicated DAC logic because the
+>> "usual DAC decision" is part of how multiadm decides.
+>> 
+>> Suggestions welcome too.
+>
+>At least for common cases like permission(9) and ipcperms(9), the
+>security hook call comes after the DAC checking.  But not always.
+>Sounds like you want authoritative hooks, which were discussed and
+>experimented with during LSM development, see archives.  You could
+>attempt to revive that for the cases where you need it, moving the
+>checking into the commoncap functions (defining new ones where needed,
+>and making sure that existing modules call them so that they still apply
+>those checks) and calling those functions rather than duplicating the
+>logic in your own module.  You presumably don't want to have to maintain
+>the duplicated logic in your own module.
+
+Exactly (like above with capable(), DAC shares the same 'positional' problem).
+In fact, after some thought I could come to the conclusion that the POSIX
+CAPability framework is more a hindrance for this sort of LSM, since it's
+mostly UID/GID-based. We only raise capabilities so the rest of the kernel
+plays fine with us.
+
+
+Jan Engelhardt
 -- 
-Time? What's that? Time is only worth what you do with it.
--- Theo de Raadt

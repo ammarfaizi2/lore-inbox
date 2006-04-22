@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWDVVC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWDVVFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWDVVC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 17:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWDVVC5
+	id S1751206AbWDVVFf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 17:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWDVVFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 17:02:57 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:5592 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751197AbWDVVC4 (ORCPT
+	Sat, 22 Apr 2006 17:05:35 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:62680 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751206AbWDVVFd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 17:02:56 -0400
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Chandra S. Seetharaman" <sekharan@us.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <20060421191340.0b218c81.akpm@osdl.org>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-	 <1145630992.3373.6.camel@localhost.localdomain>
-	 <1145638722.14804.0.camel@linuxchandra>
-	 <20060421155727.4212c41c.akpm@osdl.org>
-	 <1145670536.15389.132.camel@linuxchandra>
-	 <20060421191340.0b218c81.akpm@osdl.org>
+	Sat, 22 Apr 2006 17:05:33 -0400
+Subject: [PATCH] 'make headers_install' kbuild target.
+From: David Woodhouse <dwmw2@infradead.org>
+To: linux-kernel@vger.kernel.org
+Cc: bunk@stusta.de, sam@ravnborg.org
 Content-Type: text/plain
-Date: Fri, 21 Apr 2006 19:20:44 -0700
-Message-Id: <1145672444.21109.701.camel@stark>
+Date: Sat, 22 Apr 2006 03:17:20 +0100
+Message-Id: <1145672241.16166.156.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.6.0 (2.6.0-1.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 19:13 -0700, Andrew Morton wrote:
+Attached is the current patch from mainline to my working tree at
+git://git.infradead.org/~dwmw2/headers-2.6.git -- visible in gitweb at
+http://git.infradead.org/?p=users/dwmw2/headers-2.6.git;a=summary
 
-<snip> (I'll let those more familiar with the memory controller efforts
-comment on those concerns)
+It adds a 'make headers_install' target to the kernel makefiles, which
+exports a subset of the headers and runs 'unifdef' on them to clean them
+up for installation in /usr/include.
 
-> (btw, using the term "class" to identify a group of tasks isn't very
-> comfortable - it's an instance, not a class...)
+You'll need unifdef, which is available at 
+http://www.cs.cmu.edu/~ajw/public/dist/unifdef-1.0.tar.gz and can
+probably be put into our scripts/ directory since it's BSD-licensed.
 
-Yes, I can see how this would be uncomfortable. How about replacing
-"class" with "resource group"?
+I expect the kbuild folks to reimplement what I've done in the Makefile,
+but it works well enough to get us started. The text file listing the
+header files will probably want to change -- maybe we'll have a file in
+each directory listing the exportable files in that directory, or maybe
+we'll put a marker in the public files which we can grep for. I don't
+care much.
 
-Cheers,
-	-Matt Helsley
+Implementation details aside, the point is that we can now work on
+refining the choice of headers to be exported, and more importantly we
+can start fixing the _contents_ of those headers so that nothing which
+should be private is exported in them outside #ifdef __KERNEL__.
+
+I've chosen headers in the generic directories and in asm-powerpc; the
+other asm directories could do with a proper selection being made; the
+rest of the current list is just inherited from Fedora's
+glibc-kernheaders package for now.
+
+For a start, the headers I've marked for export are sometimes including
+headers which _weren't_ so marked, and hence which don't exist in our
+exported set of headers. I've started to move those inclusions into
+#ifdef __KERNEL__ where appropriate, but there's more of that to do
+before we can even use these for building anything and actually start to
+test them in earnest.
+
+Adrian, I'm hoping we can persuade you to help us audit the resulting
+contents of usr/include/* and apply your usual treatment to the headers
+until it looks sane. That assistance would be very much appreciated.
+
+-- 
+dwmw2
 

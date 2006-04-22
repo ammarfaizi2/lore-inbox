@@ -1,131 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWDVUux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWDVUxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWDVUux (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 16:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWDVUux
+	id S1751186AbWDVUxK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 16:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWDVUxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 16:50:53 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:52180 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751184AbWDVUuw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 16:50:52 -0400
-From: thomas klein <tkl@laposte.net>
-To: linux-kernel@vger.kernel.org
-Subject: sky2 driver network freeze while transfering data
-Date: Sat, 22 Apr 2006 12:45:44 +0200
-User-Agent: KMail/1.9.1
+	Sat, 22 Apr 2006 16:53:09 -0400
+Received: from uproxy.gmail.com ([66.249.92.171]:15320 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751186AbWDVUxI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 16:53:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bv+iY3Vf6ZIDQY5s22XgXBa8zcdwsLchWCyfJvoVk9HTEB+EEt2V3f0rcs9nGICnA+2Poe/C1UDZ43+jnEK5VKp+goP3T3W2GnOljbzDD36cVeMaB+V1A6r5yKz1WA9mxWaEKv1SaPUK5aE985q1E1cRJ1T4XTr+1HZWwR37YZU=
+Message-ID: <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com>
+Date: Sat, 22 Apr 2006 13:52:57 -0700
+From: "Ken Brush" <kbrush@gmail.com>
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Cc: "Crispin Cowan" <crispin@novell.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Greg KH" <greg@kroah.com>,
+       "James Morris" <jmorris@namei.org>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Stephen Smalley" <sds@tycho.nsa.gov>,
+       "T?r?k Edwin" <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, "Chris Wright" <chrisw@sous-sol.org>,
+       "Linus Torvalds" <torvalds@osdl.org>
+In-Reply-To: <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200604221245.44894.tkl@laposte.net>
+References: <200604021240.21290.edwin@gurde.com>
+	 <20060417195146.GA8875@kroah.com>
+	 <1145309184.14497.1.camel@localhost.localdomain>
+	 <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
+	 <4445484F.1050006@novell.com>
+	 <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu>
+	 <4446D378.8050406@novell.com>
+	 <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu>
+	 <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com>
+	 <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pitfall@archon:~/kernel/linux-2.6.16.9$ sh scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+On 4/21/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> On Fri, 21 Apr 2006 08:23:51 PDT, Ken Brush said:
+> > On 4/20/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> > > On Wed, 19 Apr 2006 17:19:04 PDT, Crispin Cowan said:
+> > > > Valdis.Kletnieks@vt.edu wrote:
+> > > The threat model is that you can take a buggy application, and constrain its
+> > > access to priv A in a way that causes a code failure that allows you to abuse
+> > > an unconstrained priv B.
+> >
+> > So you are talking about a 2 prong attack. One in where you somehow
+> > trick program A to do something that it's allowed to. That then would
+> > cause an error in program B ? Or cause program B to do something
+> > wonky.
+>
+> No, it's a two prong attack against *one* program.  For instance, the Sendmail
+> bug - the attack A was to cripple its ability to drop privs, which then exposed
+> it to abuse B of running at a higher priv than it should have.
+>
+> The crucial point here is that the attacker is trying to gain access to
+> (for instance) the ability to write to any file, but gets there by crippling
+> some *other* priv.
+>
 
-Linux archon 2.6.15-20-686 #1 SMP PREEMPT Tue Apr 4 18:37:00 UTC 2006 
-i686 GNU/Linux
+It's nearly impossible for an access control mechanism to analyze a
+program and figure out what it's trying to do.  The whole program
+would be constrained with what it would be allowed to do in it's
+entirety.  Systems like postfix can be constrained more effectively,
+since each individual program would have a tighter policy on what it
+can do.
 
-Gnu C                  4.0.3
-Gnu make               3.81beta4
-binutils               2.16.91
-util-linux             2.12r
-mount                  2.12r
-module-init-tools      3.2.2
-e2fsprogs              1.38
-jfsutils               1.1.8
-reiserfsprogs          3.6.19
-reiser4progs           1.0.5
-xfsprogs               2.7.7
-pcmcia-cs              3.2.8
-Linux C Library        2.3.6
-Dynamic linker (ldd)   2.3.6
-Procps                 3.2.6
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.93
-udev                   079pitfall@archon:~/kernel/linux-2.6.16.9$ sh 
-scripts/ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+If you can point me to an access control mechanism that could stop
+what you describe, I would be very interested in it.
 
-Linux archon 2.6.15-20-686 #1 SMP PREEMPT Tue Apr 4 18:37:00 UTC 2006 
-i686 GNU/Linux
+> Another (totally made up theoretical, hopefully) Sendmail-ish example would be
+> to artificially constrain it's ability to open port 25 for listening, and then
+> using a symlink attack to redirect its complaint "I can't open 25" to trash
+> some file you can't read/write yourself....
+>
+> The reason that this is such a can-of-worms security wise is that the vast majority
+> of programs have *not* had sufficient auditing of their error-handling code.
+> As a result, blindly applying a privilege constraint to clip off some priv A
+> that the policy writer doesn't think is needed can "load a round in the chamber"
+> for a clever attacker to abuse.
 
-Gnu C                  4.0.3
-Gnu make               3.81beta4
-binutils               2.16.91
-util-linux             2.12r
-mount                  2.12r
-module-init-tools      3.2.2
-e2fsprogs              1.38
-jfsutils               1.1.8
-reiserfsprogs          3.6.19
-reiser4progs           1.0.5
-xfsprogs               2.7.7
-pcmcia-cs              3.2.8
-Linux C Library        2.3.6
-Dynamic linker (ldd)   2.3.6
-Procps                 3.2.6
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.93
-udev                   079
-Modules Loaded         binfmt_misc rfcomm l2cap bluetooth sonypi 
-speedstep_centrino cpufreq_userspace cpufreq_stats freq_table 
-cpufreq_powersave cpufreq_ondemand cpufreq_conservative video 
-tc1100_wmi sony_acpi pcc_acpi hotkey dev_acpi container button 
-acpi_sbs battery ac i2c_acpi_ec ipv6 dm_mod af_packet md_mod sr_mod 
-sbp2 parport_pc lp parport pcmcia joydev yenta_socket rsrc_nonstatic 
-ohci1394 sky2 pcmcia_core ieee1394 nvidia i2c_core rtc psmouse 
-serio_raw snd_hda_intel snd_hda_codec snd_pcm_oss snd_mixer_oss 
-snd_pcm snd_timer snd soundcore snd_page_alloc shpchp pci_hotplug 
-intel_agp agpgart tsdev evdev sg usbhid ext3 jbd ide_generic ehci_hcd 
-uhci_hcd usbcore sd_mod ata_piix libata scsi_mod ide_cd cdrom piix 
-generic thermal processor fan capability commoncap vga16fb vgastate 
-fbcon tileblit font bitblit softcursor
-Modules Loaded         binfmt_misc rfcomm l2cap bluetooth sonypi 
-speedstep_centrino cpufreq_userspace cpufreq_stats freq_table 
-cpufreq_powersave cpufreq_ondemand cpufreq_conservative video 
-tc1100_wmi sony_acpi pcc_acpi hotkey dev_acpi container button 
-acpi_sbs battery ac i2c_acpi_ec ipv6 dm_mod af_packet md_mod sr_mod 
-sbp2 parport_pc lp parport pcmcia joydev yenta_socket rsrc_nonstatic 
-ohci1394 sky2 pcmcia_core ieee1394 nvidia i2c_core rtc psmouse 
-serio_raw snd_hda_intel snd_hda_codec snd_pcm_oss snd_mixer_oss 
-snd_pcm snd_timer snd soundcore snd_page_alloc shpchp pci_hotplug 
-intel_agp agpgart tsdev evdev sg usbhid ext3 jbd ide_generic ehci_hcd 
-uhci_hcd usbcore sd_mod ata_piix libata scsi_mod ide_cd cdrom piix 
-generic thermal processor fan capability commoncap vga16fb vgastate 
-fbcon tileblit font bitblit softcursor
+This is where you try to cover these mistakes with compiler tools like
+Propolice.
 
+> (Note that this concern applies equally to AppArmor and SELinux and almost any
+> other constraint-based system.  It's merely more *likely* to bite AppArmor
+> based systems, because it's marketing itself as "user/sysadmin friendly" - and
+> thus more likely to attract people trying to secure their system without real
+> understanding.  You don't get many problems with SELinux down this path,
+> because most SELinux people already have a mindset that "Even with proper
+> tools, writing a policy is hard and requires some careful thought/analysis"...)
 
-This is the stock kernel I'm using... I tried the latest 2.6.16.9, the 
-problem was the same.
+So, because SELinux is harder to configure. When it's exploited no one
+is surprised?
+Or what is your exact argument?
 
-Problem : 
-0000:07:00.0 Ethernet controller: Marvell Technology Group Ltd. 
-88E8036 Fast Ethernet Controller (rev 15)
+That sysadmins are not sophisticated enough to properly configure the
+MAC systems AppArmor and SELinux effectively? Or that people who use
+AppArmor are not likely to put careful thought into the policies that
+they use?
 
-I can browse the web, check emails etc... but, If I try some rsync 
-from my old laptop (to backup my stuff) the network freeze after 1 or 
-2minutes.
-the bug is reproductible.
-I don't have logs each time, but, sometimes I got this
- Apr 15 11:35:42 archon kernel: [4297572.802000] NETDEV WATCHDOG: 
-eth0: transmit timed out
- Apr 15 11:35:42 archon kernel: [4297572.802000] sky2 hardware hung? 
-flushing
-
-same freeze with the 2.6.16.9
-
-
-thanks in advance,
-
-thomas.
-
-PS : I didn't subscribe any linux ml, can I see any progress on this 
-report somewhere ?
+-Ken

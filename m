@@ -1,68 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWDVAgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWDVAkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWDVAgy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 20:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWDVAgy
+	id S1750796AbWDVAkk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 20:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWDVAkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 20:36:54 -0400
-Received: from mga06.intel.com ([134.134.136.21]:20388 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750790AbWDVAgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 20:36:53 -0400
-X-IronPort-AV: i="4.04,146,1144047600"; 
-   d="scan'208"; a="26302461:sNHT19560275"
-X-IronPort-AV: i="4.04,146,1144047600"; 
-   d="scan'208"; a="26331369:sNHT16371614"
-TrustExchangeSourcedMail: True
-X-IronPort-AV: i="4.04,146,1144047600"; 
-   d="scan'208"; a="26302460:sNHT17116519"
-Date: Fri, 21 Apr 2006 17:34:16 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [PATCH] sched: Avoid unnecessarily moving highest priority task move_tasks()
-Message-ID: <20060421173416.C17932@unix-os.sc.intel.com>
-References: <44485E21.6070801@bigpond.net.au>
+	Fri, 21 Apr 2006 20:40:40 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:49792 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750796AbWDVAkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 20:40:39 -0400
+Date: Fri, 21 Apr 2006 17:40:02 -0700
+From: Valerie Henson <val_henson@linux.intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: Arjan van de Ven <arjan@linux.intel.com>
+Subject: [ANNOUNCE] ebizzy 0.1: Search application simulator
+Message-ID: <20060422004001.GB32385@goober>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <44485E21.6070801@bigpond.net.au>; from pwil3058@bigpond.net.au on Fri, Apr 21, 2006 at 02:22:57PM +1000
-X-OriginalArrivalTime: 22 Apr 2006 00:36:52.0255 (UTC) FILETIME=[D95ED2F0:01C665A4]
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 02:22:57PM +1000, Peter Williams wrote:
-> @@ -2052,7 +2055,13 @@ static int move_tasks(runqueue_t *this_r
->  
->  	rem_load_move = max_load_move;
->  	pinned = 1;
-> -	this_min_prio = this_rq->curr->prio;
-> +	this_best_prio = rq_best_prio(this_rq);
-> +	busiest_best_prio = rq_best_prio(busiest);
-> +	/*
-> +	 * Enable handling of the case where there is more than one task
-> +	 * with the best priority.
-> +	 */
-> +	busiest_best_prio_seen = busiest_best_prio == busiest->curr->prio;
+Hi folks,
 
->From this hunk, it seems like we don't want to override the skip of highest 
-priority task as long as there is one such task in active list(even though
-there may be few such tasks on expired list). Right? And why?
+While investigating performance problems at a Large Web Company You
+Have Heard Of, I found Linux isn't super great for an application with
+the following characteristics:
 
-If we fix the above, we don't need busiest_best_prio_seen. Once we move one 
-highest priority task, we are changing this_best_prio anyhow right?
+* Many threads in one process, doing the following:
+  * alloc/write/free of large (> 128K) chunks of memory
+  * large (> 16GB) in-memory working set with low locality
+  * unpredictable memory access patterns
 
-This patch doesn't address the issue where we can skip the highest priority 
-task movement if there is only one such task on the busy runqueue
-(and is on the expired list..)
+As the original app is closed source, I wrote an app with similar
+characteristics, called ebizzy.  It allocates a lot of memory and
+kicks off a bunch of threads to copy large chunks of memory, do a
+binary search for a random key, and free it again.  It's available
+now, under the GPL:
 
-I can send a fix if I understand your intention for the above hunk.
+http://infohost.nmt.edu/~val/patches/ebizzy.tar.gz
 
-thanks,
-suresh
+You may recall that Arjan van de Ven posted some kernel patches
+related to this a couple of months ago and several people asked for
+our test program, but at the time I couldn't release it.
+
+Arjan and I wrote a patch to libc that fixes the most obvious
+performance problem (mmap/clear page/unmap cycle due to static
+malloc() mmap threshold of 128KB); the rest is up for grabs.  Hint:
+making it use large pages _without_ rewriting it would be a big win.
+
+The README is below; download the tar.gz for actual code.
+
+-VAL
+
+ebizzy
+------
+
+ebizzy is designed to generate a workload resembling common web
+application server workloads.  It is highly threaded, has a large
+in-memory working set, and allocates and deallocates memory
+frequently.  When running most efficiently, it will max out the CPU.
+
+Compiling
+---------
+
+To compile ebizzy, simply type "make".  The resulting binary will
+be named "ebizzy".
+
+Running
+-------
+
+ebizzy does not require any command line arguments.  To get
+results, run it with the "time" program, e.g.:
+
+$ time ./ebizzy
+
+The shorter the elapsed time, the better.  The system time should be
+as close to zero as possible.
+
+An interesting part of this app is difference between memory
+allocation using the "always mmap" and "never mmap" flags.  -m is
+"always mmap" and -M is "never mmap":
+
+$ time ./ebizzy -m
+$ time ./ebizzy -M
+
+The output of the above two commands should be quite different.
+
+ebizzy has many command line arguments.  To get a list of them and
+their descriptions, type:
+
+$ ./ebizzy -?
+
+Support
+-------
+
+There is none.  However, you can try emailing the author with
+questions and suggestions.
+
+Val Henson <val_henson@linux.intel.com>

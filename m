@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWDVUJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWDVUKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWDVUJk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 16:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWDVUJk
+	id S1751143AbWDVUKK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 16:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWDVUKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 16:09:40 -0400
+	Sat, 22 Apr 2006 16:10:10 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:43208 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751130AbWDVUJi (ORCPT
+	by vger.kernel.org with ESMTP id S1751148AbWDVUJr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 16:09:38 -0400
-Date: Sat, 22 Apr 2006 13:56:01 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Vernon Mauery <vernux@us.ibm.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kfree(NULL)
-Message-ID: <20060422115601.GB6629@wohnheim.fh-wedel.de>
-References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com> <Pine.LNX.4.61.0604211643350.31515@yvahk01.tjqt.qr> <20060421192217.GI19754@stusta.de> <200604211330.30657.vernux@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 22 Apr 2006 16:09:47 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH] Shrink rbtree
+Date: Sat, 22 Apr 2006 14:29:26 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+References: <1145623663.11909.139.camel@pmac.infradead.org> <20060421180915.1f2d61a4.akpm@osdl.org> <1145669384.16166.130.camel@shinybook.infradead.org>
+In-Reply-To: <1145669384.16166.130.camel@shinybook.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200604211330.30657.vernux@us.ibm.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200604221429.27858.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 April 2006 13:30:30 -0700, Vernon Mauery wrote:
+Hi David,
+
+On Saturday, 22. April 2006 03:29, David Woodhouse wrote:
+> On Fri, 2006-04-21 at 18:09 -0700, Andrew Morton wrote:
+> > #define HRTIMER_INACTIVE        ((void *)1UL) 
 > 
-> A simple NULL check is faster 
-> than a function call and then a simple NULL check.
+> Ah. That's newer than the kernel I tested on. Your patch isn't going to
+> make kernel/hrtimer.c compile though, surely? Let's do it the same way
+> everyone else marks off-tree nodes -- by setting its parent pointer to
+> point to itself....
 
-I am not sure whether this is still true for any non-ancient CPUs.
-The cost of a branch misprediction is in the order of _many_
-predictable instructions.  That makes conditionals more expensive than
-they used to be.  And the cost of branch mispredictions keeps
-increasing.
+Yes, but please make it a common helper, since there is a real need
+for it and code has to agree on the dirty hacks it uses :-)
 
-Jörn
+static inline int rb_in_tree(const struct rb_node *node)
+{
+	return rb_parent(node) != node;
+}
 
--- 
-You can take my soul, but not my lack of enthusiasm.
--- Wally
+static inline void rb_set_off_tree(struct rb_node *node)
+{
+	rb_set_parent(node, node);
+}
+
+
+This is trivial, but gives semantics to those strange operations.
+
+
+Regards
+
+Ingo Oeser

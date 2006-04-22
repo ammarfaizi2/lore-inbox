@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWDVSxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWDVS53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750929AbWDVSxr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 14:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbWDVSxr
+	id S1750921AbWDVS53 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 14:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbWDVS52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 14:53:47 -0400
-Received: from styx.suse.cz ([82.119.242.94]:47048 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750925AbWDVSxq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 14:53:46 -0400
-Date: Sat, 22 Apr 2006 20:54:02 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Matheus Izvekov <mizvekov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, dtor_core@ameritech.net
-Subject: Re: usbkbd not reporting unknown keys
-Message-ID: <20060422185402.GC10613@suse.cz>
-References: <305c16960603081130g5367ddb3m4cbcf39a9253a087@mail.gmail.com> <305c16960603081225m68c26ff7wd3b73621cfb81d9a@mail.gmail.com> <d120d5000603081247i69f9e7dbm6ef614f50140227f@mail.gmail.com> <305c16960603081334k25ce9a89g132876d4c9246fc6@mail.gmail.com> <d120d5000603090543p3446b4a0sddaaa031ad2513ca@mail.gmail.com> <305c16960603091230r32038a86mbefc6d80bedb24ab@mail.gmail.com> <305c16960603141510g72def22bmd0043d5f71d9ef6@mail.gmail.com> <305c16960604221111u714bd3b1h2aeb0559b07d911b@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <305c16960604221111u714bd3b1h2aeb0559b07d911b@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+	Sat, 22 Apr 2006 14:57:28 -0400
+Received: from nz-out-0102.google.com ([64.233.162.196]:54593 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750909AbWDVS52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 14:57:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
+        b=qshx4DMvH1QSRvWk/xep4TB/Kn6mhp9d1i3LujbCHHWB0j+7ycXP2vRYtQhk9iTuvTcxz1SRiR5BJGsoegquo9E9dzoZY7qv02amHvfCJsiqjEzO9D1MS7AyEKU8TcXsfJ4uaz8ccuJ2/r8nYttsW3CqMxFQxuQoJPWPNRZAryQ=
+From: "Hua Zhong" <hzhong@gmail.com>
+To: "'Paul Mackerras'" <paulus@samba.org>,
+       "'Pekka Enberg'" <penberg@cs.helsinki.fi>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, "'James Morris'" <jmorris@namei.org>,
+       <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: kfree(NULL)
+Date: Sat, 22 Apr 2006 11:57:23 -0700
+Message-ID: <001201c6663e$983f7960$0200a8c0@nuitysystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <17481.60890.127240.334557@cargo.ozlabs.ibm.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Thread-Index: AcZmMNJWbwa2MjaNR8Gvg99mt7tYAwADWuWw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 22, 2006 at 03:11:30PM -0300, Matheus Izvekov wrote:
+ > There is a judgement to be made at each call site of kfree 
+> (and similar functions) about whether the argument is rarely 
+> NULL, or could often be NULL.  If the janitors have been 
+> making this judgement, I apologise, but I haven't seen them 
+> doing that.
+> 
+> Paul.
 
-> Hi, i started this thread a long time ago and still got no definitive
-> response for it. Whats the position of you guys? Is it an issue worth
-> a fix in mainline at all?
+Even if the caller passes NULL most of the time, the check should be removed.
 
-My opinion is that usbkbd serves as:
+It's just crazy talk to say "you should not check NULL before calling kfree, as long as you make sure it's not NULL most of the
+time".
 
-	a) an example usb/input driver
-	b) for embedded systems where usbhid is too large
+Hua
 
-For keyboards with extra keys, use usb-hid.
-
--- 
-Vojtech Pavlik
-Director SuSE Labs

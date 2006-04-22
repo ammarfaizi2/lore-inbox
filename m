@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWDVRPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWDVRRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWDVRPq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 13:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWDVRPq
+	id S1750745AbWDVRRM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 13:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWDVRRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 13:15:46 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:52884 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750740AbWDVRPp (ORCPT
+	Sat, 22 Apr 2006 13:17:12 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:12693 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750745AbWDVRRM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 13:15:45 -0400
-Date: Sat, 22 Apr 2006 12:39:08 +0200
-From: Bryan =?utf8?Q?=C3=98stergaard?= <kloeri@gentoo.org>
-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
-       Bob Tracy <rct@gherkin.frus.com>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-       rth@twiddle.net
-Subject: Re: strncpy (maybe others) broken on Alpha
-Message-ID: <20060422103907.GA7693@mail.fl.dk>
-References: <20060420215723.GA3949@bigip.bigip.mine.nu> <20060421024304.2D851DBA1@gherkin.frus.com> <20060421081500.GA3767@bigip.bigip.mine.nu> <20060421092127.GA7382@bigip.bigip.mine.nu> <20060421095028.GA8818@bigip.bigip.mine.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060421095028.GA8818@bigip.bigip.mine.nu>
-User-Agent: Mutt/1.5.11
+	Sat, 22 Apr 2006 13:17:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17481.60890.127240.334557@cargo.ozlabs.ibm.com>
+Date: Sat, 22 Apr 2006 18:48:26 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Cc: "Andrew Morton" <akpm@osdl.org>, "James Morris" <jmorris@namei.org>,
+       dwalker@mvista.com, linux-kernel@vger.kernel.org
+Subject: Re: kfree(NULL)
+In-Reply-To: <84144f020604220043i65502955ha6dc2759d8cd665b@mail.gmail.com>
+References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com>
+	<Pine.LNX.4.64.0604210322110.21429@d.namei>
+	<20060421015412.49a554fa.akpm@osdl.org>
+	<17481.28892.506618.865014@cargo.ozlabs.ibm.com>
+	<84144f020604220043i65502955ha6dc2759d8cd665b@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 11:50:28AM +0200, Mathieu Chouquet-Stringer wrote:
-> On Fri, Apr 21, 2006 at 11:21:27AM +0200, Mathieu Chouquet-Stringer wrote:
-> > The bad news is my test case, compiled with a native gcc version 3.4.4
-> > and binutils version 2.16.1 doesn't work as expected.  So maybe it's
-> > combination of gcc/binutils?  I'm booting the new kernel just to confirm
-> > that 3.4.4 and 2.16.1 do not work.
-> 
-> A native gcc 3.4.4 and binutils 2.16.1 do not work...  What should we
-> try next?
-> 
-For what it's worth, I've found gcc 3.4.4 to be bad on gentoo. If I
-compile any binutils-2.16.[01] versions with 3.4.4 ld segfaults when
-trying to compile gmp. I don't know of any binutils related problems
-when using gcc 3.4.6 currently.
+Pekka Enberg writes:
 
-Regards,
-Bryan Østergaard
+> No, it's not the janitors fault that we have paths doing lots of
+> kfree(NULL) calls. NULL check removal didn't create the problem, but
+> it makes it more visible definitely.
+
+There is a judgement to be made at each call site of kfree (and
+similar functions) about whether the argument is rarely NULL, or could
+often be NULL.  If the janitors have been making this judgement, I
+apologise, but I haven't seen them doing that.
+
+Paul.

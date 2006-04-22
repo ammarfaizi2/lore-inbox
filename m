@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWDVTZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWDVT0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751047AbWDVTZF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWDVTZF
+	id S1751087AbWDVT0g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWDVT0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:25:05 -0400
+	Sat, 22 Apr 2006 15:26:35 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:45243 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751047AbWDVTZE (ORCPT
+	by vger.kernel.org with ESMTP id S1751058AbWDVTZ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:25:04 -0400
-Date: Sat, 22 Apr 2006 16:20:43 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+	Sat, 22 Apr 2006 15:25:59 -0400
 Subject: Re: [PATCH] 'make headers_install' kbuild target.
-Message-ID: <20060422142043.GD5010@stusta.de>
-References: <1145672241.16166.156.camel@shinybook.infradead.org> <20060422093328.GM19754@stusta.de> <1145707384.16166.181.camel@shinybook.infradead.org> <20060422141410.GA25926@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060422141410.GA25926@mars.ravnborg.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+From: David Woodhouse <dwmw2@infradead.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060422142853.GB25926@mars.ravnborg.org>
+References: <1145672241.16166.156.camel@shinybook.infradead.org>
+	 <20060422093328.GM19754@stusta.de>
+	 <1145707384.16166.181.camel@shinybook.infradead.org>
+	 <20060422141410.GA25926@mars.ravnborg.org>
+	 <20060422142043.GD5010@stusta.de>
+	 <20060422142853.GB25926@mars.ravnborg.org>
+Content-Type: text/plain
+Date: Sat, 22 Apr 2006 15:47:07 +0100
+Message-Id: <1145717227.11909.295.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 22, 2006 at 04:14:10PM +0200, Sam Ravnborg wrote:
-> On Sat, Apr 22, 2006 at 01:03:03PM +0100, David Woodhouse wrote:
-> > On Sat, 2006-04-22 at 11:33 +0200, Adrian Bunk wrote:
-> > > My thirst thought is:
-> > > Is this really the best approach, or could this be done better?
-> > 
-> > I think it's the best way to start, although I agree with you entirely
-> > about what we should strive for in the end.
-> > 
-> > > I'm currently more a fan of a separate kabi/ subdir with headers used by 
-> > > both headers under linux/ and userspace.
-> > 
-> > I agree -- I'd like to see that too. But Linus doesn't like that
-> > approach very much.
-> Thats bacause the kabi subdir is broken by design.
-> Any approach that does not take into account the existing userbase is
-> broken by design and should be avoided.
-> The only sensible solution is to move out the kernel internal headers
-> from include/* to somewhere else.
-> And then slowly but steady let include/linux and include/asm-* be the
-> KABI.
->...
+On Sat, 2006-04-22 at 16:28 +0200, Sam Ravnborg wrote:
+> First off:
+> There are many other users that poke direct in the kernel source also.
+> 
+> Secondly and more importantly:
+> Introducing kabi/ you will have a half solution where several users will
+> have to find their stuff in two places for a longer period.
+> kabi/ does not allow you to do it incrementally - it requires you to
+> move everything over from a start.
 
-What exactly is the problem with creating the userspace ABI in 
-include/kabi/ and letting distributions do an
-  cd /usr/include && ln -s kabi/* .
-?
+Not really, because we have a 'make headers_install' target which puts
+everything together in one place, cleaned up, for userspace. It can
+quite happily pick up files from both the existing directories and the
+new kabi/ directory. 
 
-Or with creating the userspace ABI in include/kabi/ and letting 
-distributions install the subdirs of include/kabi/ directly under 
-/usr/include?
+If Adrian wants to move stuff into a kabi/ directory as part of the
+cleanups, that's fine. I think it's pointless, and I think it reduces
+his chances of actually getting his cleanups merged, but if that's the
+only way he'll contribute his time, then so be it. It doesn't do any
+harm, technically.
 
-These are two doable approaches with a new kabi/ that avoid needless 
-breaking of userspace.
+But really, this whole discussion is counterproductive, IMO. 
 
-> 	Sam
+The post-processing step to export headers to userspace is fine for now.
+It lets us get on with the real work of cleaning the headers up. We've
+been blocked on the trivia for too long already, and we're going down
+that path again.
 
-cu
-Adrian
+Once we have the actual contents of the headers classified as public vs.
+private, and we know what we've got, _THEN_ we will have a clearer idea
+of how those public headers should be organised. And it's _trivial_ to
+move stuff around once it's been split out. It just doesn't _matter_
+where we put it, for now.
+
+What I'd really like to do is go into KS with the headers already
+cleaned up, using 'make headers_install'. Show Linus the results, have a
+coherent plan for how it _should_ be laid out so that the 'make
+headers_install' step becomes just a copy, as Adrian and everyone else
+wants. And have him actually agree to it this time.
+
+We can't do it the other ways round. We tried that. If that was the only
+way we could get Adrian to help us, then that's unfortunate, because
+_this_ is the only way I think Linus is going to take it.
+
+The end result is fairly much the same either way, and the amount of
+work is the same. 
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+dwmw2
 

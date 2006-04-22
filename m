@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWDVShA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWDVSpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWDVShA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 14:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbWDVShA
+	id S1750847AbWDVSpv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 14:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWDVSpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 14:37:00 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:31149 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750898AbWDVSg6 (ORCPT
+	Sat, 22 Apr 2006 14:45:51 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:63151 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750837AbWDVSpu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 14:36:58 -0400
-Subject: Re: kfree(NULL)
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@namei.org>,
-       dwalker@mvista.com, linux-kernel@vger.kernel.org
-In-Reply-To: <17481.60890.127240.334557@cargo.ozlabs.ibm.com>
-References: <200604210703.k3L73VZ6019794@dwalker1.mvista.com>
-	 <Pine.LNX.4.64.0604210322110.21429@d.namei>
-	 <20060421015412.49a554fa.akpm@osdl.org>
-	 <17481.28892.506618.865014@cargo.ozlabs.ibm.com>
-	 <84144f020604220043i65502955ha6dc2759d8cd665b@mail.gmail.com>
-	 <17481.60890.127240.334557@cargo.ozlabs.ibm.com>
-Date: Sat, 22 Apr 2006 18:02:29 +0300
-Message-Id: <1145718150.11295.15.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+	Sat, 22 Apr 2006 14:45:50 -0400
+Date: Sat, 22 Apr 2006 16:50:00 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 'make headers_install' kbuild target.
+Message-ID: <20060422145000.GF5010@stusta.de>
+References: <1145672241.16166.156.camel@shinybook.infradead.org> <20060422093328.GM19754@stusta.de> <1145707384.16166.181.camel@shinybook.infradead.org> <20060422141410.GA25926@mars.ravnborg.org> <20060422142043.GD5010@stusta.de> <20060422142853.GB25926@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060422142853.GB25926@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-22 at 18:48 +1000, Paul Mackerras wrote:
-> There is a judgement to be made at each call site of kfree (and
-> similar functions) about whether the argument is rarely NULL, or could
-> often be NULL.  If the janitors have been making this judgement, I
-> apologise, but I haven't seen them doing that.
+On Sat, Apr 22, 2006 at 04:28:53PM +0200, Sam Ravnborg wrote:
+> > >...
+> > 
+> > What exactly is the problem with creating the userspace ABI in 
+> > include/kabi/ and letting distributions do an
+> >   cd /usr/include && ln -s kabi/* .
+> > ?
+> > 
+> > Or with creating the userspace ABI in include/kabi/ and letting 
+> > distributions install the subdirs of include/kabi/ directly under 
+> > /usr/include?
+> > 
+> > These are two doable approaches with a new kabi/ that avoid needless 
+> > breaking of userspace.
+> 
+> First off:
+> There are many other users that poke direct in the kernel source also.
 
-I don't think anyone should be calling kfree with NULL pointer often in
-the first place. Keeping the extra check in place is masking the real
-problem. So yeah, we should be looking at the NULL checks more carefully
-to see if they require more fundamental fixes, but no, I don't see why
-janitors can't continue to remove the extra checks.
+Kernel space users?
+User space users?
 
-				Pekka
+Can you give an example of what you are thinking of?
+
+> Secondly and more importantly:
+> Introducing kabi/ you will have a half solution where several users will
+> have to find their stuff in two places for a longer period.
+> kabi/ does not allow you to do it incrementally - it requires you to
+> move everything over from a start.
+> You may argue that you can just move over a little bit mroe than needed
+> but then we ruin the incremental approach.
+
+For kernel space, you can do it incrementally, since the whole kabi/ 
+stuff should be transparent for in-kernel uses.
+
+For user space, you need one switch.
+But this switch goes from the current mess with several independent 
+user space header implementations to one official implementation.
+
+> 	Sam
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

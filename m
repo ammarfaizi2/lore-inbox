@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWDVTvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWDVTwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWDVTvt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 15:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbWDVTvt
+	id S1751105AbWDVTwj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 15:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWDVTwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:51:49 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:58051 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751093AbWDVTvs (ORCPT
+	Sat, 22 Apr 2006 15:52:39 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:12228 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751105AbWDVTwi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:51:48 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Linux 2.6.17-rc2
-Date: Sat, 22 Apr 2006 14:21:07 +0100
-User-Agent: KMail/1.9.1
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       meissner@suse.de
-References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org> <200604220153.44984.s0348365@sms.ed.ac.uk> <200604220307.17383.ak@suse.de>
-In-Reply-To: <200604220307.17383.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 22 Apr 2006 15:52:38 -0400
+Subject: Re: [PATCH] 'make headers_install' kbuild target.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
+In-Reply-To: <20060422123835.GA5010@stusta.de>
+References: <1145672241.16166.156.camel@shinybook.infradead.org>
+	 <20060422093328.GM19754@stusta.de>
+	 <1145707384.16166.181.camel@shinybook.infradead.org>
+	 <20060422123835.GA5010@stusta.de>
+Content-Type: text/plain
+Date: Sat, 22 Apr 2006 13:48:43 +0100
+Message-Id: <1145710123.11909.241.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604221421.07613.s0348365@sms.ed.ac.uk>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 April 2006 02:07, Andi Kleen wrote:
-[snip]
-> They probably forget to set PROT_EXEC in either mprotect or mmap somewhere.
-> You can check in /proc/*/maps which mapping contains the address it is
-> faulting on and then try to find where it is allocated or mprotect'ed.
+On Sat, 2006-04-22 at 14:38 +0200, Adrian Bunk wrote:
+> What was the recommended way for getting userspace header at last
+> year's kernel summit?
 
-Turned out this was exactly what the problem was. Wine attempts to match 
-Windows as far as read/write/execute mappings go, and war3.exe tried to 
-execute memory in a section with "MEM_EXECUTE" not set.
+It was said that we need _incremental_ changes, and this is an attempt
+to satisfy that request.
 
-I'm surprised the program works on Windows with DEP/NX enabled, but apparently 
-it does. There's a patch floating around on the Wine mailing list which adds 
-a workaround for this problem:
+> > The important thing is that we all get our editors out and clean up the
+> > _contents_ our own headers, and actually start to _think_ about the
+> > visibility of any new header-file content we introduce. Let's not
+> > concentrate too much on the implementation details of how we actually
+> > get those to userspace.
+> 
+> Currently, it's said the kernel headers aren't suitable for userspace.
 
-http://www.winehq.org/pipermail/wine-devel/2006-April/046935.html
+Indeed they aren't.
 
-Many thanks to Marcus Meissner for debugging it.
+> After the cleanups you propose, the kernel headers will be suitable for 
+> userspace (the copy steps you propose are not required, distributions 
+> could equally start to copy the verbatim headers again).
+
+After the _first_ stage of the cleanups I propose, the export step will
+still be necessary. You'll need to pick those headers which are intended
+to be user-visible, and leave behind those which are not. 
+
+If we actually go on to abolish __KERNEL__ and move the public headers
+to a separate directory, you're right -- as I said, one day hopefully
+it'll just be 'cp -a'. But that is not the _first_ stage. We need to do
+this incrementally.
+
+> If everyone is working in a different direction, this is only wasting 
+> work.
+
+The stated plan is to start with a simple export mechanism which lets us
+see the mess we have at the moment and work on the _real_ problem -- the
+actual contents of the headers. Then to proceed towards the goal you
+stated, which is what we wanted all along.
+
+Who would be working in a different direction? 
 
 -- 
-Cheers,
-Alistair.
+dwmw2
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

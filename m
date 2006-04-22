@@ -1,145 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWDVAwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWDVAxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWDVAwf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Apr 2006 20:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWDVAwf
+	id S1750801AbWDVAxo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Apr 2006 20:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWDVAxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Apr 2006 20:52:35 -0400
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:22943 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S1750800AbWDVAwe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Apr 2006 20:52:34 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: What's in git.git
-cc: linux-kernel@vger.kernel.org
-X-maint-at: 34fd1c9ac5845d541e3196983df7f993e751b544
-X-master-at: 70827b15bfb11f7aea52c6995956be9d149233e1
-Date: Fri, 21 Apr 2006 17:52:00 -0700
-Message-ID: <7vzmieo2j3.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 21 Apr 2006 20:53:44 -0400
+Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:28432 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1750801AbWDVAxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Apr 2006 20:53:44 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: Linux 2.6.17-rc2
+Date: Sat, 22 Apr 2006 01:53:44 +0100
+User-Agent: KMail/1.9.1
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org> <Pine.LNX.4.64.0604210932020.3701@g5.osdl.org> <200604220002.16824.ak@suse.de>
+In-Reply-To: <200604220002.16824.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604220153.44984.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* The 'maint' branch has these fixes since the last announcement.
-  They will be part of 1.3.1 early next week.
+On Friday 21 April 2006 23:02, Andi Kleen wrote:
+> On Friday 21 April 2006 18:40, Linus Torvalds wrote:
+> > On Fri, 21 Apr 2006, Alistair John Strachan wrote:
+> > > Something in here (or -rc1, I didn't test that) broke WINE. x86-64
+> > > kernel, 32bit WINE, works fine on 2.6.16.7. I'll check whether -rc1 had
+> > > the same problem and work backwards, but just in case somebody has an
+> > > idea..
+> >
+> > Nothing strikes me, but maybe Andi has a clue.
+>
+> NX for 32bit programs is enabled by default now. Does it
+> work with noexec32=off?
+>
+> If it's that then it won't work with PAE kernels on i386 and NX
+> capable machines neither - i just changed the default to be
+> the same as 32bit, but unlike 32bit all x86-64 kernels use PAE
+> and many of the systems have NX.
+>
+> If it's not that  don't know what it could be. I actually even used a
+> simple wine program with a post rc2 kernel and it worked for me.
+>
+> So it isn't anything fundamental. Maybe some bad interaction
+> with copy protection again, but I don't remember changing ptrace
+> at all this time.
+>
+> > Alistair, if you can do a "git bisect" on this one, that would help.
+>
+> If noexec32=off doesn't help please do.
+> If noexec32 helps then it's likely a wine bug for using the wrong
+> protections.
 
-  - Fix diff --stat filename output when binary files with long
-    names are involved (Jonas Fonseca)
+[alistair] 01:52 [~] uname -rm
+2.6.17-rc2 x86_64
 
-  - git-merge gives a bit more readable user guidance upon conflicts.
+[alistair] 01:52 [~] cat /proc/cmdline
+vga=794 root=/dev/sda1 quiet noexec32=off
 
-  - The example pre-commit hook complains about conflict markers.
+[alistair] 01:51 [~/.wine/drive_c/Program Files/Warcraft III] wine 
+war3.exe -opengl
+err:ole:CoCreateInstance apartment not initialised
+fixme:advapi:SetSecurityInfo stub
 
-  - Two fixes to git-commit --amend.
+Aaand wine suddenly starts working again. Looks like a bug in WINE; is there 
+any additional information required before I can file a bug report on this 
+one? Thanks.
 
-  - Fix pack-objects.  This was discussed in this thread:
+-- 
+Cheers,
+Alistair.
 
-    http://thread.gmane.org/gmane.comp.version-control.git/19021
-
-  - mailinfo: decode underscore used in "Q" encoding properly.
-
-    The versions before this fix broke some peoples names;
-    apologies to Santi and Lukas.
-
-  - Fix spawning of PAGER (Linus Torvalds).  This was discussed
-    in this thread:
-
-    http://thread.gmane.org/gmane.comp.version-control.git/18969
-
-  - Fix pack-object buffer size (Nicolas Pitre)
-
-  - Reintroduce svn pools to solve the memory leak (Santi Béjar)
-
-  - Document git-clone --reference (Shawn Pearce)
-
-
-* The 'master' branch has these since the last announcement.
-  All the 'maint' fixes are included.
-
-  - Big 'revision.c/log-tree.c' option parsing unification (Linus).
-  - Big log formatting unification (Linus).
-  - Built-in git-whatchanged.
-  - Do not fork PAGER=cat
-  - combine-diff --stat: show diffstat with the first parent.
-  - get_sha1() shorthands for blob/tree objects (Linus)
-  - Allow "git repack" users to specify repacking window/depth (Linus)
-  - Split up builtin commands into separate files from git.c (Linus)
-
-    Most of the above happened immediately after 1.3.0, and will
-    not be part of 1.3.X series, which is maintenance fixes only.
-
-    The general direction is that many commands we used to
-    implement as one liner pipe from git-rev-list to
-    git-diff-tree are converted into built-in C implementation.
-
-* The 'next' branch, in addition, has these.
-
-  - daemon::socksetup: don't return on set_reuse_addr() error (Serge E. Hallyn)
-
-    Comments?
-
-  - Tentative built-in format-patch
-
-    This is meant to be the next in the "internalize rev-list
-    piped to diff-tree" series.  Currently it does only --stdout
-    form and does not take any options.  It needs more work in
-    the core area to spit things out into separate files with
-    munged filenames.
-
-  - git-update-index --unresolve.  This was discussed in this
-    thread:
-
-    http://thread.gmane.org/gmane.comp.version-control.git/18936
-
-    This thread was fruitful; three patches came out of it.
-
-  - diff --stat: do not drop rename information.
-
-    I think this is ready to graduate to "master"; I just
-    haven't got around to it.
-
-    Johannes suggested "file => /dev/null" to show a deleted
-    file as if a rename was done.  While I think it makes some
-    sense, I am afraid it diverges too much from the traditional
-    diffstat output.  I am undecided, somewhat negative, about
-    the suggestion.
-
-* The 'pu' branch, in addition, has these.
-
-  - gitk: Fix geometry on rootless X (Johannes Schindelin)
-
-  - "bind commit" resurrected.
-
-    Somebody off-list volunteered to look into adding
-    subprojects support, so I merged the old codebase and placed
-    it here.  The merge conflict was not too bad, to my
-    surprise.  Subpro.txt file in the "todo" branch describes
-    one suggested plan, but who he codes gets to decide the
-    details of the implementation and semantics, so we will see
-    what emerges.  One big piece still missing from the core
-    side to implement Subpro.txt plan is an enhancement to the
-    index file format to do "update-index --bind/--unbind".  I
-    may have to fill that gap over the weekend, but no firm
-    promises.
-
-  - contrib/colordiff.
-
-    This is an external colorizer you can use by saying:
-    
-	PAGER="colordiff | less -RS" git log --cc
-
-  - colored diff with diff.usecolor configuration option.
-
-    I'll not be using colorization myself, so there is no strong
-    incentive on my part to carry this forward, but this is here
-    just in case if people are interested.  Currently it does
-    not do color for combined diffs.
-
-
-
-
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

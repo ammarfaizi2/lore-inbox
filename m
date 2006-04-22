@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWDVSbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWDVSbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWDVSbE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 14:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWDVSbD
+	id S1750881AbWDVSbm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 14:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWDVSbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 14:31:03 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:26795 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1750871AbWDVSbB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 14:31:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=eT7YQUP7PR1cMLcNqmyif4lJZIa9Xjt0QDVdZ+Zdn8D3jX/+BijYx/ZLHM5BFKJaClxDjXd0FQmPwCAYft1GPbGFU64sjHRCEY3CevhbDEEVW8YRCpoSFnGRLYk84CuUAqhtQn7yWgOA4Tzxbc7N33ARS5lo9IV7VJSCnuu1Auk=
-Message-ID: <34af3d780604220024u1aba2fc8y54337b75cfadedae@mail.gmail.com>
-Date: Sat, 22 Apr 2006 09:24:46 +0200
-From: "Domen Stangar" <domen.stangar@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: IPC SHM changed; shmat does not return same shared memory address for all processes (virtual) after 2.6.8 ?
+	Sat, 22 Apr 2006 14:31:41 -0400
+Received: from dougal.buttersideup.com ([195.200.137.69]:30621 "EHLO
+	dougal.buttersideup.com") by vger.kernel.org with ESMTP
+	id S1750881AbWDVSbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 14:31:40 -0400
+Message-ID: <444A7684.2020800@buttersideup.com>
+Date: Sat, 22 Apr 2006 19:31:32 +0100
+From: Tim Small <tim@buttersideup.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: "Gross, Mark" <mark.gross@intel.com>
+Cc: Doug Thompson <dthompson@lnxi.com>,
+       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
+       "Carbonari, Steven" <steven.carbonari@intel.com>,
+       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>,
+       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Problems with EDAC coexisting with BIOS
+References: <5389061B65D50446B1783B97DFDB392D9D3ED3@orsmsx411.amr.corp.intel.com>
+In-Reply-To: <5389061B65D50446B1783B97DFDB392D9D3ED3@orsmsx411.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Gross, Mark wrote:
 
-can anyone please explain me why there is a change in shmat so that
-each process gets different address(looks like virtual) to shared
-memory ?
-(even though i give parameter shmaddr)
+>You can never predict when a SMI will bubble through the system.  Even
+>if you handle case where the BIOS re-hides Dev0:Fun1 and not panic how
+>do you deal with the race between the BIOS SMI based handling and the
+>driver?  Who will end up reading (and clearing) the error registers
+>first?  There is no good way to share today.
+>  
+>
+You could (at least from memory, on certain chipsets) modify the error 
+reporting registers so that an SMI is no longer generated as a result of 
+MC ECC errors.  True, this doesn't fix many of the other problems 
+related to this issue, but would be useful in a "modprobe xyz_edac 
+force_unhide_MC_PCI=1" case.
 
-E.g. 8 processes sharing same XImage including xserver on local machine.
-If i get different address on each process then xserver fails to
-access the image.
-This worked fine to kernel version 2.6.8.
+Closed-source BIOSes eh?  Who needs em ;-p.
 
-Is there any solution to this ?
-Will it stay like this in future ?
+Tim.
 
-Thanks,
-Domen

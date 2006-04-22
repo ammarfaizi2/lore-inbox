@@ -1,33 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWDVUyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWDVU6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWDVUyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 16:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWDVUyQ
+	id S1751191AbWDVU6z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 16:58:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWDVU6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 16:54:16 -0400
-Received: from c-24-125-75-112.hsd1.va.comcast.net ([24.125.75.112]:29391 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751187AbWDVUyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 16:54:16 -0400
-From: James Nelson <james4765@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: kbuild-devel@lists.sourceforge.net, marcelo.tosatti@cyclades.com,
-       James Nelson <james4765@gmail.com>
-Message-Id: <20060422205305.8186.12589.66920@david.homenet>
-Subject: [PATCH] kbuild: Fix "make xconfig" failure in 2.4.33-pre2
-Date: Sat, 22 Apr 2006 16:54:16 -0400
+	Sat, 22 Apr 2006 16:58:55 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:54998 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751191AbWDVU6z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 16:58:55 -0400
+Date: Fri, 21 Apr 2006 19:33:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: sekharan@us.ibm.com, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
+Message-Id: <20060421193329.39fbfc24.akpm@osdl.org>
+In-Reply-To: <1145672444.21109.701.camel@stark>
+References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
+	<1145630992.3373.6.camel@localhost.localdomain>
+	<1145638722.14804.0.camel@linuxchandra>
+	<20060421155727.4212c41c.akpm@osdl.org>
+	<1145670536.15389.132.camel@linuxchandra>
+	<20060421191340.0b218c81.akpm@osdl.org>
+	<1145672444.21109.701.camel@stark>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN linux-2.4.33-pre2-original/drivers/input/Config.in linux-2.4.33-pre2/drivers/input/Config.in
---- linux-2.4.33-pre2-original/drivers/input/Config.in	2006-04-22 15:52:47.000000000 -0400
-+++ linux-2.4.33-pre2/drivers/input/Config.in	2006-04-22 15:53:32.000000000 -0400
-@@ -8,7 +8,7 @@ comment 'Input core support'
- tristate 'Input core support' CONFIG_INPUT
- dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_INPUT
- 
--if [ "$CONFIG_INPUT_KEYBDEV" == "n" ]; then
-+if [ "$CONFIG_INPUT_KEYBDEV" = "n" ]; then
- 	bool '  Use dummy keyboard driver' CONFIG_DUMMY_KEYB $CONFIG_INPUT
- fi
- 
+Matt Helsley <matthltc@us.ibm.com> wrote:
+>
+> > (btw, using the term "class" to identify a group of tasks isn't very
+>  > comfortable - it's an instance, not a class...)
+> 
+>  Yes, I can see how this would be uncomfortable. How about replacing
+>  "class" with "resource group"?
+
+Much more comfortable, thanks ;)

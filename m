@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWDVUJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWDVUJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWDVUJS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 16:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWDVUJS
+	id S1751131AbWDVUJi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 16:09:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWDVUJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 16:09:18 -0400
+	Sat, 22 Apr 2006 16:09:38 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:16584 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751004AbWDVUJR (ORCPT
+	by vger.kernel.org with ESMTP id S1751131AbWDVUJh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 16:09:17 -0400
-Date: Sat, 22 Apr 2006 15:49:56 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Ingo Oeser <netdev@axxeo.de>, "David S. Miller" <davem@davemloft.net>,
-       simlo@phys.au.dk, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       netdev@vger.kernel.org
-Subject: Re: Van Jacobson's net channels and real-time
-Message-ID: <20060422134956.GC6629@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.44L0.0604201819040.19330-100000@lifa01.phys.au.dk> <200604211852.47335.netdev@axxeo.de> <20060422114846.GA6629@wohnheim.fh-wedel.de> <200604221529.59899.ioe-lkml@rameria.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200604221529.59899.ioe-lkml@rameria.de>
-User-Agent: Mutt/1.5.9i
+	Sat, 22 Apr 2006 16:09:37 -0400
+Date: 22 Apr 2006 08:05:51 -0400
+Message-ID: <20060422120551.27644.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: Re: kfree(NULL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 April 2006 15:29:58 +0200, Ingo Oeser wrote:
-> On Saturday, 22. April 2006 13:48, Jörn Engel wrote:
-> > Unless I completely misunderstand something, one of the main points of
-> > the netchannels if to have *zero* fields written to by both producer
-> > and consumer. 
-> 
-> Hmm, for me the main point was to keep the complete processing
-> of a single packet within one CPU/Core where this is a non-issue.
+> Well, we'd have to start by fixing up the janitors that run around
+> taking out the if statements in the callers.  :)
 
-That was another main point, yes.  And the endpoints should be as
-little burden on the bottlenecks as possible.  One bottleneck is the
-receive interrupt, which shouldn't wait for cachelines from other cpus
-too much.
+You just need to document those two as special.  Probably the
+simplest is to tell the programmer and the compiler in one
+fell swoop:
 
-Jörn
+	if (unlikely(p))
+		kfree(p);
 
--- 
-Why do musicians compose symphonies and poets write poems?
-They do it because life wouldn't have any meaning for them if they didn't.
-That's why I draw cartoons.  It's my life.
--- Charles Shultz
+Or that could be wrapped up in a macro:
+
+#define kfree_likely_null(p) if (unlikely(p)) kfree(p)
+
+Or just mention it to the programmer.  A few possible one-line comments:
+
+	/* Testing before calling is faster if often NULL, as here. */
+	/* It's worth the (redundant) test for NULL if it often succeeds */
+	/* This test saves the call often enough to be worth it. */
+	/* Test for NULL not necessary, but worth it here */
+	/* Don't delete NULL test; speed trumps code size here */
+	/* Very often NULL, so avoid call overhead if possible */
+	/* kfree(NULL) is legal, but probabilities favor testing here */

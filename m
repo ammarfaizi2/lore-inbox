@@ -1,82 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWDVT1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWDVT1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbWDVT1F (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751058AbWDVT1F (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 22 Apr 2006 15:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWDVT0h
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWDVT0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 15:26:37 -0400
+	Sat, 22 Apr 2006 15:26:38 -0400
 Received: from zeus1.kernel.org ([204.152.191.4]:45243 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S1751067AbWDVTZ7 (ORCPT
+	by vger.kernel.org with ESMTP id S1751060AbWDVTZ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 15:25:59 -0400
+	Sat, 22 Apr 2006 15:25:58 -0400
+Date: Sat, 22 Apr 2006 16:44:33 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
 Subject: Re: [PATCH] 'make headers_install' kbuild target.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060422142043.GD5010@stusta.de>
-References: <1145672241.16166.156.camel@shinybook.infradead.org>
-	 <20060422093328.GM19754@stusta.de>
-	 <1145707384.16166.181.camel@shinybook.infradead.org>
-	 <20060422141410.GA25926@mars.ravnborg.org>
-	 <20060422142043.GD5010@stusta.de>
-Content-Type: text/plain
-Date: Sat, 22 Apr 2006 15:35:07 +0100
-Message-Id: <1145716507.11909.282.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-ID: <20060422144433.GE5010@stusta.de>
+References: <1145672241.16166.156.camel@shinybook.infradead.org> <20060422093328.GM19754@stusta.de> <1145707384.16166.181.camel@shinybook.infradead.org> <20060422123835.GA5010@stusta.de> <1145710123.11909.241.camel@pmac.infradead.org> <20060422132032.GB5010@stusta.de> <1145712964.11909.258.camel@pmac.infradead.org> <20060422141134.GC5010@stusta.de> <1145715974.11909.272.camel@pmac.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145715974.11909.272.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-22 at 16:20 +0200, Adrian Bunk wrote:
-> > Thats bacause the kabi subdir is broken by design.
-> > Any approach that does not take into account the existing userbase is
-> > broken by design and should be avoided.
-> > The only sensible solution is to move out the kernel internal headers
-> > from include/* to somewhere else.
-> > And then slowly but steady let include/linux and include/asm-* be the
-> > KABI.
-> >...
-
-The 'make headers_export' stage also works just as well as the above,
-and it gives us something more concrete to work on, where we can _see_
-the bits which are needlessly exported and start to clean them up.
-
-> What exactly is the problem with creating the userspace ABI in 
-> include/kabi/ and letting distributions do an
->   cd /usr/include && ln -s kabi/* .
-> ?
+On Sat, Apr 22, 2006 at 03:26:14PM +0100, David Woodhouse wrote:
+> On Sat, 2006-04-22 at 16:11 +0200, Adrian Bunk wrote:
+> > Sorry, but I'm not a fan of doing much more work than required instead 
+> > of getting a consensus first and then implementing the solution.
 > 
-> Or with creating the userspace ABI in include/kabi/ and letting 
-> distributions install the subdirs of include/kabi/ directly under 
-> /usr/include?
+> It _isn't_ significantly more work. The _real_ work is in reading
+> through the header files and deciding which parts should be private and
+> which can be public, then splitting them up accordingly into separate
+> files (or using 'ifdef __KERNEL__' if appropriate). That's the kind of
+> thing that you seem particularly good at, which is why I've asked if you
+> could help us with it.
+> 
+> Moving the public files from one directory to another, if they've been
+> suitably marked or listed somewhere, is _trivial_. Even if you've used
+> #ifdef __KERNEL__ it's simple enough to do it automatically with tools
+> like unifdef. The _real_ work which requires human attention is the same
+> either way.
 
-The problem is that Linus is unlikely to accept a trivial cleanup patch
-which, for example, removes the contents of linux/auxvec.h and creates
-kabi/auxvec.h. He'll argue, as he did last year, that it's moving stuff
-around for the sake of it.
+The problem is you need #ifdef's everywhere.
 
-On the other hand, he _would_ be likely to accept patches which split
-existing files into two _within_ the include/linux directory. And that's
-the important part of the task; it doesn't _matter_ where the files are
-put, because we can deal with that in the 'export' stage, and we can
-trivially move them around later anyway once we do have a consensus.
+If part of a header file is part of the userspace ABI, this often means 
+that you need #ifdef __KERNEL__'s for the #include's of headers that 
+will not be part of the userspace ABI (like linux/compiler.h).
 
-We're doing it this way because we want to get on with the real work
-without getting bogged down in a discussion with Linus about the
-pointless details. Unfortunately we're getting bogged down in a
-discussion about the pointless details anyway.
+And how do you express that in header foo.h, the userspace part requires 
+the userspace part of bar.h, while the kernel-internal part of foo.h 
+also requires the kernel-internal part of bar.h?
 
-If you can get the trivial patches to move stuff into kabi/ merged,
-that's _FINE_. Go wild. If you can't, then it's still useful to do the
-same cleanups but keep all the resulting files in the same directories.
+And reading through header files doesn't become easier after adding five 
+#ifdef __KERNEL__'s to a header file.
 
-The 'headers_export' make target is still useful in the meantime,
-because it produces the set of headers which we expect people to put
-into /usr/include, and which we can do sanity checks on.
+> But if you're not willing to help, that's fine. I just thought you'd be
+> particularly suited to the task, that's all.
+
+I'm sorry, but I don't like your approach.
+
+> dwmw2
+
+cu
+Adrian
 
 -- 
-dwmw2
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

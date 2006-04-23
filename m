@@ -1,76 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWDWQih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWDWQuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751424AbWDWQih (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 12:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWDWQig
+	id S1751423AbWDWQuk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 12:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWDWQuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 12:38:36 -0400
-Received: from nz-out-0102.google.com ([64.233.162.193]:61981 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751423AbWDWQif convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 12:38:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UKOrlt8vH5rSUn+DfY9+/I4MIsKQUaEQAa46ZWtakNsu7Ns2/FACdVauPYPJodqzhhrGairDkFjtnmfLWoST1v+V/k4/k7tLJbefmUCYIH/SnEZ5W1G/6X2tAd9H3e/0LslJivYIc62EIgow2gmS4tZe0f5uMqsYr8ae0sFV1LM=
-Message-ID: <a36005b50604230938k2f52186ek477850b3e3a7192@mail.gmail.com>
-Date: Sun, 23 Apr 2006 09:38:34 -0700
-From: "Ulrich Drepper" <drepper@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-time authentication of binaries
-Cc: "Makan Pourzandi" <Makan.Pourzandi@ericsson.com>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       "Serue Hallyen" <serue@us.ibm.com>,
-       "Axelle Apvrille" <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
-       "disec-devel@lists.sourceforge.net" 
-	<disec-devel@lists.sourceforge.net>
-In-Reply-To: <1145794712.3131.10.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4448AC62.6090303@ericsson.com>
-	 <1145794712.3131.10.camel@laptopd505.fenrus.org>
+	Sun, 23 Apr 2006 12:50:40 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:56309 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751423AbWDWQuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 12:50:39 -0400
+Subject: Re: kfree(NULL)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Hua Zhong <hzhong@gmail.com>, "'Paul Mackerras'" <paulus@samba.org>,
+       "'Pekka Enberg'" <penberg@cs.helsinki.fi>,
+       "'Andrew Morton'" <akpm@osdl.org>, "'James Morris'" <jmorris@namei.org>,
+       dwalker@mvista.com, linux-kernel@vger.kernel.org
+In-Reply-To: <444A7E85.4030803@yahoo.com.au>
+References: <001201c6663e$983f7960$0200a8c0@nuitysystems.com>
+	 <444A7E85.4030803@yahoo.com.au>
+Content-Type: text/plain
+Date: Sun, 23 Apr 2006 12:50:23 -0400
+Message-Id: <1145811023.13155.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/23/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> does this also prevent people writing their own elf loader in a bit of
-> perl and just mmap the code ?
+On Sun, 2006-04-23 at 05:05 +1000, Nick Piggin wrote:
+> Hua Zhong wrote:
+> >  > There is a judgement to be made at each call site of kfree 
+> > 
+> >>(and similar functions) about whether the argument is rarely 
+> >>NULL, or could often be NULL.  If the janitors have been 
+> >>making this judgement, I apologise, but I haven't seen them 
+> >>doing that.
+> >>
+> >>Paul.
+> > 
+> > 
+> > Even if the caller passes NULL most of the time, the check should be removed.
+> > 
+> > It's just crazy talk to say "you should not check NULL before calling kfree, as long as you make sure it's not NULL most of the
+> > time".
+> 
+> It can reduce readability of the code [unless it is used in error path
+> simplification, kfree(something) usually suggests kfree-an-object].
+> 
+> If the caller passes NULL most of the time, it could be in need of
+> redesign.
+> 
+> I don't actually like kfree(NULL) any time except error paths. It is
+> subjective, not crazy talk.
 
-You will never get 100% protection from a mechanism like signed
-binaries.  What you can get in collaboration with other protections
-like SELinux is another layer of security.  That's good IMO.  Not
-being able to slide in modified and substituted binaries which then
-would be marked to get certain privileges is a plus.
+I wrote a little hack that detects up to 1000 callers of kfree(NULL) and
+outputs what it finds with sysrq-l.
 
-But preventing every type of code loading or generation at userlevel
-cannot be prevented this way.  Just look at the code proposed to deal
-with execmem problems in
-http://people.redhat.com/drepper/selinux-mem.html.  This is with all
-the SELinux mechanisms in place and activated.  You can prevent by
-using the noexec mount option for every writable filesystem. But this
-is so far not possible for ordinary machines.  There are widely used
-programs out there which need to dynamically generate code.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114564257500757&w=2
 
-Signed binaries are therefore a complete solution only for a very
-limited number of situation.  For embedded systems I see this but here
-we also have the "Tivo problem" where devices are built on top of
-Linux and people are still prevented from extending/modifying them. 
-Beside that there is potentially some locked down machines with
-limited functionality which can use it (e.g., DMZ servers, but they
-mustn't use Java etc).
+It found right away, two function in transaction.c from the jbd code,
+that were freeing an object that sometimes gets allocated.  Andrew
+Morton already submitted the patch in the -mm tree to fix it:
 
-So, I do not think that signed binaries have a big upside.  And they
-have a potential big downside.  The better approach to ensure that
-SELinux, for instance, doesn't change the labels for incorrect
-binaries is to integrate restorecon etc with the package manager and
-have functionality in the package manager to recognize incorrect
-binaries.  This might again mean signed binaries although I imagine
-the current signed hash values work fine, too.  Although we might want
-to go from MD5 to SHA256.
+-       kfree(new_transaction);
++       if (unlikely(new_transaction))          /* It's usually NULL */
++               kfree(new_transaction);
+        return ret;
+ }
+ 
+@@ -724,7 +725,8 @@ done:
+        journal_cancel_revoke(handle, jh);
+ 
+ out:
+-       kfree(frozen_buffer);
++       if (unlikely(frozen_buffer))    /* It's usually NULL */
++               kfree(frozen_buffer);
 
-I have been working on signed binaries at some point myself but
-abandoned it after realizing that it realistically only can be
-misused.  If I'd have a vote I'd keep this stuff out of the kernel.
+Where he uses unlikely and nicely documents that it is usually NULL (of
+course the "unlikely" sort of says that already ;)
+
+I've been running this patched kernel for a couple of days on a mostly
+idle machine, (I don't need it right now, so I just let it run) and it
+has shown some more problem areas.  probably occurred when updatedb
+kicked off.
+
+Here's the dump:
+
+SysRq : Show stats on kfree
+Total number of NULL frees:      1589709
+Total number of non NULL frees:  69448
+Callers of NULL frees:
+[       27]  c0154bcd - do_tune_cpucache+0x13d/0x230
+[      631]  c025b9dd - class_device_add+0xcd/0x300
+[       30]  c019523c - sysfs_d_iput+0x3c/0x8e
+[       44]  c0193750 - sysfs_hash_and_remove+0xd0/0x110
+[        1]  c01f4787 - kobject_cleanup+0x37/0x90
+[        1]  c025bf73 - class_dev_release+0x23/0x90
+[       14]  c021b615 - tty_write+0x105/0x220
+[       20]  c025b5ff - class_device_del+0x16f/0x190
+[        6]  c021cd34 - release_mem+0x174/0x2a0
+[       79]  c011e804 - do_sysctl+0x94/0x250
+[   352161]  c01aafc4 - start_this_handle+0x234/0x4b0
+[   430089]  c01aba66 - do_get_write_access+0x2e6/0x5a0
+[    16730]  c01abdf0 - journal_get_undo_access+0xd0/0x120
+[   788641]  c01a3c9f - ext3_clear_inode+0x2f/0x40
+[        3]  c0194a0c - sysfs_dir_close+0x6c/0x90
+[      252]  c0304e1d - inet_sock_destruct+0xad/0x1f0
+[        1]  c030a698 - ip_rt_ioctl+0xe8/0x130
+[      968]  c02e2669 - ip_push_pending_frames+0x2d9/0x400
+[        6]  c02d69b0 - netlink_release+0x1c0/0x300
+[        5]  c02ba79b - sock_fasync+0x13b/0x150
+
+start_this_handle and do_get_write_access have already been fixed, but
+now it's looking like journal_get_undo_access and ext3_clear_inode are
+problem children too.
+
+-- Steve
+
+

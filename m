@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWDWS5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWDWTI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbWDWS5e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 14:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWDWS5e
+	id S1751444AbWDWTI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 15:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWDWTI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 14:57:34 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:42602 "EHLO
+	Sun, 23 Apr 2006 15:08:28 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:36661 "EHLO
 	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751119AbWDWS5d convert rfc822-to-8bit (ORCPT
+	id S1751444AbWDWTI1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 14:57:33 -0400
+	Sun, 23 Apr 2006 15:08:27 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nqo7jA2k2CVYi1IH+TS9MmfmC8CwN0yKbtnEqKFwtjOJO2D8DqtIbKgFezRcE9B0PZ59/Y7wgzyPVgIFNr1vbNl0lfRh3lHFTtnKGzBtz3vWX5zns8+jL+LUO7KkmKMx6Dxy7cObyqxahoVON8PYL8wnnbyHufIr4+nf10bQxIs=
-Message-ID: <cda58cb80604231157g58088e0dhb93a91c46deda627@mail.gmail.com>
-Date: Sun, 23 Apr 2006 20:57:30 +0200
-From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
-To: "Nicolas Pitre" <nico@cam.org>
-Subject: Re: How can I prevent MTD to access the end of a flash device ?
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0604231323180.3603@localhost.localdomain>
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Tff4WynHDDlOtYUhsgQjLPurPoNyogk0fDDybsnqPyZ0q2Agu5SWe61eFl1WtwTIEV9DkLznlrKeD9X/ePSd8ObBr44ifWbqTE7tPymBGxudYGaS1tjhMGbdqhAl8ISlGHGsWg/iipAlXxiiEho5EUZxkryLqcpk954d6pC6yXU=
+Message-ID: <df35dfeb0604231208x416b7ab0ya612d918bb239140@mail.gmail.com>
+Date: Sun, 23 Apr 2006 12:08:27 -0700
+From: "Yum Rayan" <yum.rayan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] VBE DDC bios call stalls boot
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <cda58cb80511070248o6d7a18bex@mail.gmail.com>
-	 <cda58cb80511220658n671bc070v@mail.gmail.com>
-	 <Pine.LNX.4.64.0511221042560.6022@localhost.localdomain>
-	 <cda58cb80604231006x4911598bg6c1e3d62f07d80e7@mail.gmail.com>
-	 <Pine.LNX.4.64.0604231323180.3603@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/4/23, Nicolas Pitre <nico@cam.org>:
-> On Sun, 23 Apr 2006, Franck Bui-Huu wrote:
-> >
-> > Your advice seems fine, but it brings some restrictions on flash
-> > concatenations: for example, if I have 2 flashes of 32Mbytes, I need
-> > to create 2 partitions whose sizes are 32M - 64K bytes but then I
-> > can't concatenate these two partitions anymore since concatenation
-> > works with mtd devices, not partitions, does it ?
->
-> MTD partitions are MTD "devices" as well.
->
+In my setup I have a monitor connected via a DLink KVM (DKVM 2K). The
+boot stalls forever during early boot phase until I physically
+disconnect the KVM from the video port at my CPU box and reconnect it.
+I was able to trace it to the VBE/DDC call in video.S. The bios call
+does not seem to return. When I disconnect the video, the bios call
+returns with failure and boot picks it back from there. When I
+directly connect my monitor bypassing the KVM, this issue does not
+happen.
 
-well, mtd_concat_create() functions doesn't use MTD partitions...and
-what's happening if the user needs to use its own partitions based on
-a device resulting of several concatenated flashes? It migth be
-possible to still use your solution and just fix user partitions but
-it really seems easier to fix the MTD size after it the flash has been
-probed.
+There is a bios call to check if read EDID is supported. My first
+thought was that before doing read EDID, video.S should first check to
+see if the hardware supports the read EDID feature. Unfortunately that
+bios call too ends up in the woods until I physically
+disconnect/reconnect my CPU video output that feeds into the KVM. I
+see the same issue with user space programs such as read-edid and
+xwindows that also attempt to read EDID. They simply stall at the DDC
+call until I physically disconnect/reconnect my video.
 
-Do you think it's possible to change the size of a mtd device rigth
-after probing it ?
+I don't think boot should stall for any reason. Moreover given that
+user space programs are doing these VBE/DDC calls, I don't see any
+compelling reason why this code need to exist is such early boot
+stage. If it absolutely needs to be called in the kernel, at least if
+invoked sometime later, we could time out this call as a workaround.
 
-Thanks
---
-               Franck
+Kindly suggest the best approach. The following patch works for me:
+
+Thanks.
+
+--- linux-2.6.15.4.a/arch/i386/boot/video.S	2006-02-09 23:22:48.000000000 -0800
++++ linux-2.6.15.4.b/arch/i386/boot/video.S	2006-04-23 11:19:01.000000000 -0700
+@@ -1946,13 +1946,6 @@ store_edid:
+ 	rep
+  	stosl
+
+-	movw	$0x4f15, %ax                    # do VBE/DDC
+-	movw	$0x01, %bx
+-	movw	$0x00, %cx
+-	movw    $0x00, %dx
+-	movw	$0x140, %di
+-	int	$0x10
+-
+  	popw	%di				# restore all registers
+  	popw	%dx
+  	popw	%cx

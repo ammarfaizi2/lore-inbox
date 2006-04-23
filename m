@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWDWXrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWDXAAQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWDWXrm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 19:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWDWXrm
+	id S1751465AbWDXAAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 20:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWDXAAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 19:47:42 -0400
-Received: from pproxy.gmail.com ([64.233.166.177]:20190 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751180AbWDWXrm (ORCPT
+	Sun, 23 Apr 2006 20:00:16 -0400
+Received: from nproxy.gmail.com ([64.233.182.188]:32811 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751465AbWDXAAO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 19:47:42 -0400
+	Sun, 23 Apr 2006 20:00:14 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=kTHGBcaWMWhrG4zcaPRU93hdsWqk5YdnHOcrbP8SMYDmnm+Zt9j0NrKGmketx+lVNLH1ocJFq6Uxz08e/CusI0H1XS8uAz2FO9Sw4W9OvdgWYHpX2oZW+VIbsVfgT4c/+LH8DgSCNEe2F6RgNvfWEt9wLEwE7pUsTPooYqRoKgg=
-Message-ID: <444C1211.8090505@gmail.com>
-Date: Mon, 24 Apr 2006 07:47:29 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>, Yum Rayan <yum.rayan@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] VBE DDC bios call stalls boot
-References: <df35dfeb0604231208x416b7ab0ya612d918bb239140@mail.gmail.com> <20060423202428.GC14680@redhat.com>
-In-Reply-To: <20060423202428.GC14680@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=W2FLbAbq2NknR4ycg+fmFH1FZitBXknGl6nA6mZW7aV/rKEdbfxP+QFUoPhYjKXLL6DU93Qxmlu/QB2Z90lUl3AwOuTS7t8fxO8SCShVcmamxsea9lk1nSkfBM20QO8/a3NoZ+FACXcSy8XrAbBWt7P0wzUh25o4Pml61YYIW2U=
+Date: Mon, 24 Apr 2006 03:57:30 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Jaroslav Kysela <perex@suse.cz>, alsa-devel@alsa-project.org
+Subject: ALSA regression: oops on shutdown
+Message-ID: <20060423235730.GA7934@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Sun, Apr 23, 2006 at 12:08:27PM -0700, Yum Rayan wrote:
-> 
->  > There is a bios call to check if read EDID is supported. My first
->  > thought was that before doing read EDID, video.S should first check to
->  > see if the hardware supports the read EDID feature. Unfortunately that
->  > bios call too ends up in the woods until I physically
->  > disconnect/reconnect my CPU video output that feeds into the KVM.
-> 
-> Is this how your patch looked when you tried this ?
+ALSA oops I reported against 2.6.16-rc1-mm4 [1] sneaked into mainline
+after release.
+----------------------------
+EIP is at remove_proc_entry
+Process rmmod
 
-I've discovered that checking for availability does not give any added benefit, 
-but this is the correct approach and I have to agree with this patch.
+snd_info_unregister             [snd]
+snd_pcm_oss_proc_done           [snd_pcm_oss]
+snd_pcm_oss_unregister_minor    [snd_pcm_oss]
+snd_pcm_notify                  [snd_pcm]
+sys_delete_module
+do_munmap
+syscall_call
+----------------------------
+Fine-grained bisecting points to commit 21a3479a0b606d36fe24093f70a1c27328cec286
 
-Tony
+    [ALSA] PCM midlevel & PCM OSS - make procfs & OSS plugin code optional
+
+.config is
+
+	CONFIG_SOUND=m
+	CONFIG_SND=m
+	CONFIG_SND_TIMER=m
+	CONFIG_SND_PCM=m
+	CONFIG_SND_OSSEMUL=y
+	CONFIG_SND_MIXER_OSS=m
+	CONFIG_SND_PCM_OSS=m
+	CONFIG_SND_AC97_CODEC=m
+	CONFIG_SND_AC97_BUS=m
+	CONFIG_SND_INTEL8X0=m
+
+[1] google-groups "2.6.16-rc1-mm4: ALSA oops at remove_proc_entry"
+
+[2] cat ~/bin/google-groups
+#!/bin/sh
+
+case "$#" in
+0)
+	$BROWSER http://groups.google.com/advanced_search
+	;;
+1)
+	$BROWSER http://groups.google.com/groups?as_q="$1"
+	;;
+esac
+

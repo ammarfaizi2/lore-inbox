@@ -1,79 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWDWPq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWDWPtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWDWPq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 11:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWDWPq1
+	id S1751412AbWDWPtu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 11:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWDWPtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 11:46:27 -0400
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:6036 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751413AbWDWPq1 (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 23 Apr 2006 11:46:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=b6iFKDqsvOvfrDrzOrEunta57lpWxwjEsxp4kHwY9aC9XLqObSkdx6kEoPBKlv6Kz8vb3PsOHQALz1CR4JEeAZri1b0bgj05ihZib5Eou/rs/xjCP+cTtB4y+sJi2hiZaCqVW8GmQi3YUtt92jDXbB0CdktuKyiEgODQe1Xg9EY=  ;
-Message-ID: <444BA150.7040907@yahoo.com.au>
-Date: Mon, 24 Apr 2006 01:46:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Sun, 23 Apr 2006 11:49:49 -0400
+Received: from imap1.unet.univie.ac.at ([131.130.1.182]:4606 "EHLO
+	imap1u.univie.ac.at") by vger.kernel.org with ESMTP
+	id S1751412AbWDWPtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 11:49:49 -0400
+Message-ID: <444BA1E8.5080001@xover.htu.tuwien.ac.at>
+Date: Sun, 23 Apr 2006 17:48:56 +0200
+From: Fabian Zeindl <fabian@xover.htu.tuwien.ac.at>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060308)
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [rfc][patch] radix-tree: small data structure
-References: <444BA0A9.3080901@yahoo.com.au>
-In-Reply-To: <444BA0A9.3080901@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------090004090206030103030004"
+To: linux-kernel@vger.kernel.org
+Subject: cpu frequency scaling on celeron laptop
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig66BCD17C35C1EB43ACC730AE"
+X-DCC-ZID-Univie-Metrics: mx8 4248; Body=0 Fuz1=0 Fuz2=0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090004090206030103030004
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig66BCD17C35C1EB43ACC730AE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Nick Piggin wrote:
-> With the previous patch, the radix_tree_node budget on my 64-bit
-> desktop is cut from 20MB to 10MB. This patch should cut it again
-> by nearly a factor of 4 (haven't verified, but 98ish % of files
-> are under 64K).
-> 
-> I wonder if this would be of any interest for those who enable
-> CONFIG_BASE_SMALL?
+Hi
 
-Bah, wrong patch.
+ I have cpu frequency scaling with p4-clockmod in my kernel, and until
+v2.6.15 I was possible to set governors and custom frequencies at
+/sys/devices/system/cpu/cpu0/cpufreq/*.
+When I changed the governor or the frequency scaling_cur_freq
+represented the change.
 
--- 
-SUSE Labs, Novell Inc.
+With 2.6.16 this isn't possible anymore, I didn't change anything in the
+kernel .config, just did 'make oldconfig'. There is no 'cpufreq'
+subdirectory in /sys/devices/system/cpu/cpu0/ anymore.
 
---------------090004090206030103030004
-Content-Type: text/plain;
- name="radix-small.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="radix-small.patch"
+I think this user has the same problem: http://lkml.org/lkml/2006/3/21/44=
 
-This patch reduces radix tree node memory usage by about a factor of 4
-on many small files (< 64K) scenarios, and results in perfect packing of
-the index range into 32 and 64 bits. There are pointer traversal and
-memory usage costs for large files with dense pagecache.
 
-Index: linux-2.6/lib/radix-tree.c
-===================================================================
---- linux-2.6.orig/lib/radix-tree.c
-+++ linux-2.6/lib/radix-tree.c
-@@ -33,7 +33,7 @@
- 
- 
- #ifdef __KERNEL__
--#define RADIX_TREE_MAP_SHIFT	6
-+#define RADIX_TREE_MAP_SHIFT	(CONFIG_BASE_SMALL ? 4 : 6)
- #else
- #define RADIX_TREE_MAP_SHIFT	3	/* For more stressful testing */
- #endif
+greetings
+fabian zeindl
 
---------------090004090206030103030004--
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+PS: Please CC me on replies, as I'm not subscribed at lkml.
+
+
+
+--=20
+What if all the world's inside of your head
+Just creations of your own?
+Your devils and your gods
+All the living and the dead
+And you're really all alone?
+
+
+--------------enig66BCD17C35C1EB43ACC730AE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFES6HthZkP+fFMe7kRAiHCAJ9Lv77HnP6q5Cd4l4Q5H4lRLy9wxwCeJr3N
+VPqhZ93lOotnUUhdooEGuz0=
+=l5tY
+-----END PGP SIGNATURE-----
+
+--------------enig66BCD17C35C1EB43ACC730AE--

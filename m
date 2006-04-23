@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWDWWRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWDWW1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWDWWRF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 18:17:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWDWWRE
+	id S932085AbWDWW1e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 18:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWDWW1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 18:17:04 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48401 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932083AbWDWWRD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 18:17:03 -0400
-Date: Mon, 24 Apr 2006 00:17:01 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] readd the OSS SOUND_CS4232 option
-Message-ID: <20060423221701.GJ13666@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+	Sun, 23 Apr 2006 18:27:34 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:5608 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932085AbWDWW1d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 18:27:33 -0400
+Subject: Re: [PATCH] [LEDS] Amstrad Delta LED support
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Jonathan McDowell <noodles@earth.li>, Andrew Morton <akpm@osdl.org>
+Cc: Ben Dooks <ben@fluff.org.uk>, linux-kernel@vger.kernel.org,
+       e3-hacking@earth.li
+In-Reply-To: <20060423221453.GU7570@earth.li>
+References: <20060422130823.GP7570@earth.li>
+	 <20060423123850.GA18923@home.fluff.org>  <20060423221453.GU7570@earth.li>
+Content-Type: text/plain
+Date: Sun, 23 Apr 2006 23:27:18 +0100
+Message-Id: <1145831239.6744.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A regression in the ALSA driver compared to the OSS driver was reported 
-as ALSA bug #1520, so let's keep the OSS driver for now.
+On Sun, 2006-04-23 at 23:14 +0100, Jonathan McDowell wrote:
+> On Sun, Apr 23, 2006 at 01:38:50PM +0100, Ben Dooks wrote:
+> > On Sat, Apr 22, 2006 at 02:08:23PM +0100, Jonathan McDowell wrote:
+> > > [Which tree should I be trying to submit this to? The patch is
+> > > against and works fine with 2.6.17-rc2]
+> > I prefer the following PM defines, so there is only one block of
+> > CONFIG_PM
+> 
+> Seems reasonable; leds-spitz has the two blocks and that's what I'd used
+> as inspiration. Revised version below.
+> 
+> 
+> 
+> Use the new LED infrastructure to support the 6 LEDs present on the
+> Amstrad Delta.
+> 
+> Signed-Off-By: Jonathan McDowell <noodles@earth.li>
+Acked-By: Richard Purdie <rpurdie@rpsys.net>
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
- sound/oss/Kconfig |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
---- devel/sound/oss/Kconfig~update-obsolete_oss_driver-schedule-and-dependencies	2006-03-23 03:20:21.000000000 -0800
-+++ devel-akpm/sound/oss/Kconfig	2006-03-23 03:20:23.000000000 -0800
-@@ -612,6 +458,20 @@ config SOUND_ACI_MIXER
- 
- 	  This driver is also available as a module and will be called aci.
- 
-+config SOUND_CS4232
-+	tristate "Crystal CS4232 based (PnP) cards"
-+	depends on SOUND_OSS
-+	help
-+	  Say Y here if you have a card based on the Crystal CS4232 chip set,
-+	  which uses its own Plug and Play protocol.
-+
-+	  If you compile the driver into the kernel, you have to add
-+	  "cs4232=<io>,<irq>,<dma>,<dma2>,<mpuio>,<mpuirq>" to the kernel
-+	  command line.
-+
-+	  See <file:Documentation/sound/oss/CS4232> for more information on
-+	  configuring this card.
-+
- config SOUND_VMIDI
- 	tristate "Loopback MIDI device support"
- 	depends on SOUND_OSS
 

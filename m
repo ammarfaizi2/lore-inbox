@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWDWJh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWDWJl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWDWJh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 05:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWDWJh4
+	id S1751048AbWDWJl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 05:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWDWJl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 05:37:56 -0400
-Received: from [80.48.65.9] ([80.48.65.9]:17997 "EHLO smtp.poczta.interia.pl")
-	by vger.kernel.org with ESMTP id S1751026AbWDWJh4 (ORCPT
+	Sun, 23 Apr 2006 05:41:27 -0400
+Received: from [80.48.65.9] ([80.48.65.9]:39804 "EHLO smtp.poczta.interia.pl")
+	by vger.kernel.org with ESMTP id S1751048AbWDWJl1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 05:37:56 -0400
-Message-ID: <444B4AE6.4090601@poczta.fm>
-Date: Sun, 23 Apr 2006 11:37:42 +0200
+	Sun, 23 Apr 2006 05:41:27 -0400
+Message-ID: <444B4BBE.4090009@poczta.fm>
+Date: Sun, 23 Apr 2006 11:41:18 +0200
 From: Lukasz Stelmach <stlman@poczta.fm>
 User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: unix socket connection tracking
-References: <44480BD9.5080100@poczta.fm> <Pine.LNX.4.61.0604211452490.23180@yvahk01.tjqt.qr> <4448DF94.5030500@poczta.fm> <Pine.LNX.4.61.0604211610500.31515@yvahk01.tjqt.qr> <444A1B86.1060701@poczta.fm> <Pine.LNX.4.61.0604221531190.18093@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0604221531190.18093@yvahk01.tjqt.qr>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: quantum capabilities
+References: <444650E1.5020403@poczta.fm> <20060420211822.GC2360@ucw.cz>
+In-Reply-To: <20060420211822.GC2360@ucw.cz>
 X-Enigmail-Version: 0.94.0.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enig916E5B899E80F9CD58E43F76"
-X-EMID: 5980b138
+ boundary="------------enig7535FF35341A3F52C29CF321"
+X-EMID: 7c91b138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig916E5B899E80F9CD58E43F76
+--------------enig7535FF35341A3F52C29CF321
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-Jan Engelhardt wrote:
->>>>>> I feel dumb as never so please enlight me. Is ther a way to find o=
-ut which
->>>>>> process is on the other end of a unix socket pointed by a specifie=
-d fd in a process.
->>>>> getpeer*()
->>>> getpeername(2) (that is the only man page I've got)
-[...]
-> Just look at all processes and logically connect them:
+Pavel Machek wrote:
+> On Wed 19-04-06 17:01:53, Lukasz Stelmach wrote:
+>> Greetings All.
+>>
+>> I've found a strange phenomenon associated with capabilities. It seems=
+ to be a
+>> quantum like.
+>>
+>> when I run (as root)
+>>
+>> delfin:~# /usr/sbin/execcap '=3D cap_net_raw=3Dep' /bin/sh -c 'getpcap=
+s $$'
+>> Capabilities for `2438': =3Dep cap_setpcap-ep
+>>
+>> I don't know what really happens to those capablities I zero. And I ca=
+n't really
+>> figure out for when I try the wavefunction collapses
+>>
+>> delfin:~# strace -o /dev/null /usr/sbin/execcap '=3D cap_net_raw=3Dep'=
+ /bin/sh -c \
+>> 'getpcaps $$'
+>> Capabilities for `2461': =3D cap_net_raw+ep
+>>
+>> Strange isn't it? Does it mean that processes can't really drop their =
+privileges?
 >=20
-> 15:32 shanghai:/D/home/jengelh # l /proc/7315/fd
-[...]
-> 15:33 shanghai:/D/home/jengelh # l /proc/7316/fd/
-[...]
-> No need for ptrace. No need for getpeername() either, but it's useful t=
-o=20
-> get the real addresses of sockets.
+> Is execcap setuid? strace does not work over setuid...
 
-Please understand my situation. I've got GNOME running, gconfd-2 is a "re=
-gistry"
-management process that accepts connections through a unix domain socket =
-(named
-one) from many *unrelated* (child/parent) processes. In fact from most gn=
-ome
-applications. I *do* strace it to see what it does. It does some write(2)=
-s to
-some sockets. I would like to know which socket leads where. Try to strac=
-e
-gconfd-2 and you'will see what I mean.
-
-For now James Cloos gave the best option, to look for a socket with an i-=
-node
-number adjectant (+-1) to the socket I know.
+No it's not. And even if it was it sholudn't make any difference when I r=
+un
+execcap logged in as root.
 
 --=20
 By=C5=82o mi bardzo mi=C5=82o.                    Czwarta pospolita kl=C4=
@@ -73,7 +71,7 @@ By=C5=82o mi bardzo mi=C5=82o.                    Czwarta pospolita kl=C4=
 iejska.  (c)PP
 
 
---------------enig916E5B899E80F9CD58E43F76
+--------------enig7535FF35341A3F52C29CF321
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -82,9 +80,9 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.4.2.2 (GNU/Linux)
 Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFES0rsNdzY8sm9K9wRAiZnAJ9M2JQA1UIcNLUKIyb4MUFR8BVBzgCgmPkM
-p32p+PlOr2B0WSb69oVJQE4=
-=3oCB
+iD8DBQFES0u+NdzY8sm9K9wRAuwTAKCadlnSHigMPWl/OGiwxZGgBHjq7ACeJKGB
+jdlt1fCpjIKvf39RmbUvygc=
+=peIy
 -----END PGP SIGNATURE-----
 
---------------enig916E5B899E80F9CD58E43F76--
+--------------enig7535FF35341A3F52C29CF321--

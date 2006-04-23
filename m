@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWDWQCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWDWQEE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbWDWQCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 12:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWDWQCI
+	id S1751417AbWDWQEE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 12:04:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWDWQED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 12:02:08 -0400
-Received: from mail46.e.nsc.no ([193.213.115.46]:59330 "EHLO mail46.e.nsc.no")
-	by vger.kernel.org with ESMTP id S1751418AbWDWQCH (ORCPT
+	Sun, 23 Apr 2006 12:04:03 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:37024 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751417AbWDWQEB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 12:02:07 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: SATA Conflict with PATA DMA
-References: <87odz2kc0k.fsf@esben-stien.name> <4441224C.5010905@garzik.org>
-	<87fyk4mb2x.fsf@esben-stien.name>
-From: Esben Stien <b0ef@esben-stien.name>
-Date: Sun, 23 Apr 2006 20:00:36 +0200
-In-Reply-To: <87fyk4mb2x.fsf@esben-stien.name> (Esben Stien's message of
- "Sun, 23 Apr 2006 19:54:46 +0200")
-Message-ID: <87bqusmat7.fsf@esben-stien.name>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 23 Apr 2006 12:04:01 -0400
+Date: Sun, 23 Apr 2006 09:02:35 -0700
+From: Greg KH <greg@kroah.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Bert Thomas <bert@brothom.nl>, linux-kernel@vger.kernel.org
+Subject: Re: PCI device driver writing newbie trouble
+Message-ID: <20060423160235.GA32232@kroah.com>
+References: <4447A2E7.6000407@brothom.nl> <20060422060045.GA18067@kroah.com> <84144f020604230050q71001601qadd7572a9fb169ba@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84144f020604230050q71001601qadd7572a9fb169ba@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Esben Stien <b0ef@esben-stien.name> writes:
+On Sun, Apr 23, 2006 at 10:50:38AM +0300, Pekka Enberg wrote:
+> On Thu, Apr 20, 2006 at 04:04:07PM +0100, Bert Thomas wrote:
+> > > static const struct pci_device_id cif50_ids[] = {
+> > >         {
+> > >         .vendor = 0x10B5,
+> > >         .device = 0x9050,
+> > >         .subvendor = PCI_ANY_ID, //0x10B5,
+> > >         .subdevice = PCI_ANY_ID, //0x1080,
+> > >         .class = PCI_ANY_ID,
+> > >         .class_mask = PCI_ANY_ID
+> > >         },
+> 
+> On 4/22/06, Greg KH <greg@kroah.com> wrote:
+> > Try the PCI_DEVICE() macro here instead.
+> >
+> > But that should not matter, this should work, I don't know why it
+> > doesn't sorry.
+> 
+> No device class will ever match the above class and class_mask.
+> Changing them to zero makes it work according to Bert.
 
-> There is no such option in my BIOS. Does it maybe go by another
-> name?.
+Ah, yeah, that would work, good catch.  If you used the PCI_DEVICE()
+macro, it would have also worked :)
 
-Sorry, I see some replies where sent to this thread from MUAs' with
-broken headers, so I didn't catch them. 
+thanks,
 
-It seems it will be fixed in 2.6.17
-
--- 
-Esben Stien is b0ef@e     s      a             
-         http://www. s     t    n m
-          irc://irc.  b  -  i  .   e/%23contact
-          [sip|iax]:   e     e 
-           jid:b0ef@    n     n
+greg k-h

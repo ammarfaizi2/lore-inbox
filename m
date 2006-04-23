@@ -1,109 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWDWCdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWDWDs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWDWCdu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 22:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWDWCdu
+	id S1750973AbWDWDs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 23:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWDWDs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 22:33:50 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:48266 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750837AbWDWCdt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 22:33:49 -0400
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Al Boldi <a1426z@gawab.com>
-Cc: sekharan@us.ibm.com, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200604222340.41332.a1426z@gawab.com>
-References: <200604212207.44266.a1426z@gawab.com>
-	 <200604220708.40018.a1426z@gawab.com>
-	 <1145684800.21231.30.camel@linuxchandra>
-	 <200604222340.41332.a1426z@gawab.com>
-Content-Type: text/plain
-Organization: IBM Linux Technology Center
-Date: Sat, 22 Apr 2006 19:33:42 -0700
-Message-Id: <1145759622.7099.73.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Sat, 22 Apr 2006 23:48:29 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:33749 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750964AbWDWDs3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 23:48:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G/KJQLCJiZGzDvhGFHtlceLgj5X6929e/bRU/iNorg+oA9YBbwPzGDZ0xDiMifa3JZTItxa1LAKnXuwFrNJwZ6ORgIFNz2eW6US83gHkE0hmnvK23wyMlkqtO6I6dBoljAdWubdor4uAEb1K3ITCGM0u4ir4UGUFgkO/jjCUlaA=
+Message-ID: <4789af9e0604222048g5a10b573pf687f137a2e99042@mail.gmail.com>
+Date: Sat, 22 Apr 2006 21:48:28 -0600
+From: "Jim Ramsay" <kernel@jimramsay.com>
+To: "Thiago Galesi" <thiagogalesi@gmail.com>
+Subject: Re: Possible MTD bug in 2.6.15
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <82ecf08e0604221008ieb22a4cuc59be570cf025bba@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1145723704.3524.TMDA@mail.tag.jimramsay.com>
+	 <4789af9e0604220949i2757e408qa5de3a9e728e966f@mail.gmail.com>
+	 <82ecf08e0604221008ieb22a4cuc59be570cf025bba@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-22 at 23:40 +0300, Al Boldi wrote:
-> Chandra Seetharaman wrote:
-> > On Sat, 2006-04-22 at 07:08 +0300, Al Boldi wrote:
-> > > i.e: it should be possible to run the RCs w/o CKRM.
-> > >
-> > > The current design pins the RCs on CKRM, when in fact this is not
-> > > necessary. One way to decouple them, could be to pin them against pid,
-> > > thus allowing an RC to leverage the pid hierarchy w/o the need for CKRM.
-> > >  And only when finer RM control is necessary, should CKRM come into
-> > > play, by dynamically adjusting the RC to achieve the desired effect.
+On 22/04/06, Thiago Galesi <thiagogalesi@gmail.com> wrote:
+> > > > Ok, a couple of comments/questions
+> > > >
+> > > > 1 - Wouldn't it be better to map all flash, and leave the unneeded
+> > > > part as read only?
 > >
-> > This model works well in universities, where you associate some resource
-> > when a student logs in, or a virtualised environment (like a UML or
-> > vserver), where you attach resource to the root process.
-> >
-> > It doesn't work with web servers, database servers etc.,, where the main
-> > application will be forking tasks for different set of end users. In
-> > that case you have to group tasks that are not related to one another
-> > and attach resources to them.
-> >
-> > Having a unified interface gives the system administrator ability to
-> > group the tasks as they see them in real life (a department or important
-> > transactions or just critical apps in a desktop).
-> 
-> So, why drag this unified interface around when it is only needed in certain 
-> models.  The underlying interface via pid comes for free and should be 
-> leveraged as such to yield a low overhead implementation.  Then maybe, when 
-> a more complex model is involved should CKRM come into play.
+> > In general, yes.  But this should either be enforced somewhere nicer
+> > (ie, die gracefully) so the kernel doesn't panic later, or be allowed
+> > as in my patch.
+>
+> The fundamental problem there seems to be a mismatch between what is
+> set by the user and what is read from the flash chip. As you mention
+> in your first message, (what it came across is that) you don't have
+> (physical / electrical) access to all the flash; not something I would
+> recommend (that is, having limited electrical connection to the flash)
 
-Assuming I'm not misinterpretting your brief description above:
+Yes, that is exactly what is going on - we have only have electrical
+access to 32M of addresses regardless of the size of the actual chip
+installed, and unfortunately I can't change that.  However, it's not
+really a problem from the electrical side of things - We can still
+access the lowest 32M on the chip, just the highest address pin isn't
+connected to anything.
 
-	The interface "via pid" does not come for free. You'd essentially
-attach the shares structures to the task and implement inheritance and
-hierarchy of those shares during fork -- hardly lower overhead when you
-consider that in most cases the number of tasks is going to be much
-larger than the number of classes. Furthermore this would mean
-duplicating the loops in ckrm_alloc_class, ckrm_free_class,
-ckrm_register_controller, and ckrm_unregister_controller. I suspect the
-loops would be deeper, more complex, execute more frequently, and have a
-much wider performance impact when you consider that we'd be dealing
-with the task struct directly instead of a class. The class structure
-effectively factors most of the loops out of the fork() and exit() paths
-and into mkdir() rmdir() calls that create and remove classes. The
-remaining loops in fork() and exit() paths are proportional to the
-number of resource controllers -- currently limitedto 8 by
-CKRM_MAX_RES_CTLRS.
+> As for the options you propose - enforce and die gracefully (that is,
+> if there is a size mismatch, warning and purposely not working) seems
+> more correct than the second option.
 
-	Classes also have an advantage when it comes to administrating resource
-management -- they are created and destroyed by an administrator and
-hence are easier to control. In contrast, the resource management
-decisions associated purely with tasks would disappear with the task. In
-many cases a task would be too short-lived for an administrator to
-manually intervene even if swarms of these tasks are created. Having
-this orthogonal hierarchy gives us the opportunity to manage all of
-these situations via a common interface and factors out overhead from
-the per-task solution you seem to be advocating.
+I don't see why - The size mismatch doesn't prevent the flash chip
+from functioning.  Isn't it better to help things work in more
+circumstances rather than in less?
 
-I'm willing to discuss your ideas without patches but I think patches
-(even if incomplete) would be clearer.
+And really, it's not a big stretch from what the code currently does
+to what my patch changes.  At this point in the code, we know for a
+fact that we already have at least one flash chip.  The math that's
+going on here with the 'max_chips' variable is to check if there is
+actually more than one physical chip implementing the entire reported
+size.  The only mistake is that the math goes too far, shifting the
+count down to zero if the reported size is too small.  This
+'max_chips' should never be allowed to be lower than 1, because we
+really do know that there is at least one flash chip.
 
-> > It also has the added advantage that the resource controller writer do
-> > not have to spend their time in coming up with an interface for their
-> > controller. On the other hand if they do, the user finally ends up with
-> > multiple interface (/proc, sysfs, configfs, /dev etc.,) to do their
-> > resource management.
-> 
-> So, maybe what is needed is an abstract parent RC that implements this 
-> interface and lets the child RCs implement the specifics, and allows CKRM to 
-> connect to the parent RC to allow finer RM control when a specific model 
-> requires it.
+I agree with you that it's probably "more correct" to actually specify
+the real size of the chip in the 'map' struct before the CFI probe,
+but I can't think of any reason why specifying a smaller size should
+die (even gracefully) when it still works just fine.
 
-	I'm not sure what advantage that would give compared to CKRM as it
-stands now -- it sounds much more complex. Could you give an example of
-what kind of interfaces you're suggesting?
+Of course, maybe there are some models of flash chips where this
+wouldn't work and a graceful prevention of this would be important. 
+But with our CFI-compliant chip, we don't see any problem with my
+patch applied.
 
-Cheers,
-	-Matt Helsley
-
+--
+Jim Ramsay
+"Me fail English?  That's unpossible!"

@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWDWRiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWDWR6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751107AbWDWRiq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 13:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWDWRiq
+	id S1751434AbWDWR6l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 13:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWDWR6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 13:38:46 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:14258 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751107AbWDWRiq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 13:38:46 -0400
-Date: Sun, 23 Apr 2006 19:38:41 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Lukasz Stelmach <stlman@poczta.fm>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: unix socket connection tracking
-In-Reply-To: <444B4AE6.4090601@poczta.fm>
-Message-ID: <Pine.LNX.4.61.0604231932400.13827@yvahk01.tjqt.qr>
-References: <44480BD9.5080100@poczta.fm> <Pine.LNX.4.61.0604211452490.23180@yvahk01.tjqt.qr>
- <4448DF94.5030500@poczta.fm> <Pine.LNX.4.61.0604211610500.31515@yvahk01.tjqt.qr>
- <444A1B86.1060701@poczta.fm> <Pine.LNX.4.61.0604221531190.18093@yvahk01.tjqt.qr>
- <444B4AE6.4090601@poczta.fm>
+	Sun, 23 Apr 2006 13:58:40 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:12728 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751434AbWDWR6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 13:58:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=DgPn+ugLavNXz7GqWAO5ORGNpZXcDwS0gjRcuI88cIooL5UcNGc2GJ/nQfsACWAdGIli8V9OcZYsPNZh/hFn1/7tZjH+mb43AZvSSipz0VgwtCtgksNADqyoDOpvF0Sx2oZqDAM7Rmb1nsF3hFykRtYNXZX5HVeul4XhA0Eh0O0=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Resource leak fix for whiteheat driver
+Date: Sun, 23 Apr 2006 19:59:23 +0200
+User-Agent: KMail/1.9.1
+Cc: Greg Kroah-Hartman <greg@kroah.com>,
+       Stuart MacDonald <stuartm@connecttech.com>,
+       linux-usb-devel@lists.sourceforge.net,
+       Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604231959.23877.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Please understand my situation. I've got GNOME running, gconfd-2 is a "registry"
->management process that accepts connections through a unix domain socket (named
->one) from many *unrelated* (child/parent) processes. In fact from most gnome
->applications. I *do* strace it to see what it does. It does some write(2)s to
->some sockets. I would like to know which socket leads where. Try to strace
->gconfd-2 and you'will see what I mean.
->
+We may return from drivers/usb/serial/whiteheat.c::whiteheat_attach() 
+without freeing `result' if we leave via the no_firmware: label.
 
-UNIX sockets do not necessarily have a path in the filesystem. In fact, 
-every socket object you see in the filesystem gets mapped to an object 
-within sockfs (which you can't mount). You recognize it as "[socket:147829]"
-when looking in /proc/11249/fd/. You will never see /dev/log within
-/proc/XX/fd.
-
-You can look at the source of the `lsof` utility which does some socket 
-resolution.
-
-lsof:
-syslog-ng 3656 root       3u  unix 0xdf70f5e0              6404 /dev/log
-gconfd-2 11249 jengelh   14u  unix 0xd4e4f1e0            147829 socket
+Spotted by the coverity checker as #670
 
 
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ drivers/usb/serial/whiteheat.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+--- linux-2.6.17-rc2-git4-orig/drivers/usb/serial/whiteheat.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6.17-rc2-git4/drivers/usb/serial/whiteheat.c	2006-04-23 19:52:27.000000000 +0200
+@@ -508,6 +508,7 @@ no_firmware:
+ 	err("%s: Unable to retrieve firmware version, try replugging\n", serial->type->description);
+ 	err("%s: If the firmware is not running (status led not blinking)\n", serial->type->description);
+ 	err("%s: please contact support@connecttech.com\n", serial->type->description);
++	kfree(result);
+ 	return -ENODEV;
+ 
+ no_command_private:
 
 
-Jan Engelhardt
--- 
+

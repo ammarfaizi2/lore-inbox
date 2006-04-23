@@ -1,87 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWDWDs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWDWDvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbWDWDs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 23:48:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWDWDs3
+	id S1750996AbWDWDvD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 23:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbWDWDvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 23:48:29 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:33749 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750964AbWDWDs3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 23:48:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G/KJQLCJiZGzDvhGFHtlceLgj5X6929e/bRU/iNorg+oA9YBbwPzGDZ0xDiMifa3JZTItxa1LAKnXuwFrNJwZ6ORgIFNz2eW6US83gHkE0hmnvK23wyMlkqtO6I6dBoljAdWubdor4uAEb1K3ITCGM0u4ir4UGUFgkO/jjCUlaA=
-Message-ID: <4789af9e0604222048g5a10b573pf687f137a2e99042@mail.gmail.com>
-Date: Sat, 22 Apr 2006 21:48:28 -0600
-From: "Jim Ramsay" <kernel@jimramsay.com>
-To: "Thiago Galesi" <thiagogalesi@gmail.com>
-Subject: Re: Possible MTD bug in 2.6.15
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <82ecf08e0604221008ieb22a4cuc59be570cf025bba@mail.gmail.com>
+	Sat, 22 Apr 2006 23:51:01 -0400
+Received: from victor.provo.novell.com ([137.65.250.26]:13520 "EHLO
+	victor.provo.novell.com") by vger.kernel.org with ESMTP
+	id S1750985AbWDWDvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Apr 2006 23:51:00 -0400
+Message-ID: <444AF977.5050201@novell.com>
+Date: Sat, 22 Apr 2006 20:50:15 -0700
+From: Crispin Cowan <crispin@novell.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1145723704.3524.TMDA@mail.tag.jimramsay.com>
-	 <4789af9e0604220949i2757e408qa5de3a9e728e966f@mail.gmail.com>
-	 <82ecf08e0604221008ieb22a4cuc59be570cf025bba@mail.gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+CC: Valdis.Kletnieks@vt.edu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Greg KH <greg@kroah.com>, James Morris <jmorris@namei.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation
+ of LSM hooks)
+References: <200604142301.10188.edwin@gurde.com> <1145290013.8542.141.camel@moss-spartans.epoch.ncsc.mil> <20060417162345.GA9609@infradead.org> <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu> <4445484F.1050006@novell.com> <20060420211308.GB2360@ucw.cz>
+In-Reply-To: <20060420211308.GB2360@ucw.cz>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22/04/06, Thiago Galesi <thiagogalesi@gmail.com> wrote:
-> > > > Ok, a couple of comments/questions
-> > > >
-> > > > 1 - Wouldn't it be better to map all flash, and leave the unneeded
-> > > > part as read only?
-> >
-> > In general, yes.  But this should either be enforced somewhere nicer
-> > (ie, die gracefully) so the kernel doesn't panic later, or be allowed
-> > as in my patch.
->
-> The fundamental problem there seems to be a mismatch between what is
-> set by the user and what is read from the flash chip. As you mention
-> in your first message, (what it came across is that) you don't have
-> (physical / electrical) access to all the flash; not something I would
-> recommend (that is, having limited electrical connection to the flash)
+Pavel Machek wrote:
+> On Tue 18-04-06 13:13:03, Crispin Cowan wrote:
+>   
+>> This has actually been one of the interesting developments in AppArmor.
+>> I also had no use for POSIX.1e capabilities; I thought they were so
+>> awkward as to be useless. That is, until we integrated capabilities into
+>> AppArmor profiles.
+>>
+>> Consider this profile for /bin/stty
+>> /bin/stty {
+>>   #include <abstractions/base>
+>>
+>>   capability sys_tty_config,
+>>
+>>   /bin/stty r,
+>> }
+>>
+>> This policy basically allows stty to run, read its own text file, and
+>> use the capability sys_tty_config. Even though it may run as root, this
+>> profile confines it to *only* have sys_tty_config.
+>>     
+> What happens if I ln /bin/stty /tmp/evilstty, then exploit
+> vulnerability in stty? 
+>   
+Two things:
 
-Yes, that is exactly what is going on - we have only have electrical
-access to 32M of addresses regardless of the size of the actual chip
-installed, and unfortunately I can't change that.  However, it's not
-really a problem from the electrical side of things - We can still
-access the lowest 32M on the chip, just the highest address pin isn't
-connected to anything.
+   1. You don't get to create such a link unless you have an unconfined
+      (trusted) shell or you have a policy that says you get to create
+      such a link, and
+   2. You don't have permission to execute /tmp/evilstty at all, unless
+      you have an unconfined (trusted) shell.
 
-> As for the options you propose - enforce and die gracefully (that is,
-> if there is a size mismatch, warning and purposely not working) seems
-> more correct than the second option.
+This is a really basic misunderstanding of AppArmor. All unconfined
+processes are considered trusted, so attacks that suppose an unconfined
+user did something very evil/stupid are not interesting. An AppArmor
+policy is supposed to prevent the attacker from ever obtaining control
+of an unconfined process, so just assuming that you have one doesn't
+demonstrate breaking the model.
 
-I don't see why - The size mismatch doesn't prevent the flash chip
-from functioning.  Isn't it better to help things work in more
-circumstances rather than in less?
+Crispin
+-- 
+Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
+Director of Software Engineering, Novell  http://novell.com
 
-And really, it's not a big stretch from what the code currently does
-to what my patch changes.  At this point in the code, we know for a
-fact that we already have at least one flash chip.  The math that's
-going on here with the 'max_chips' variable is to check if there is
-actually more than one physical chip implementing the entire reported
-size.  The only mistake is that the math goes too far, shifting the
-count down to zero if the reported size is too small.  This
-'max_chips' should never be allowed to be lower than 1, because we
-really do know that there is at least one flash chip.
-
-I agree with you that it's probably "more correct" to actually specify
-the real size of the chip in the 'map' struct before the CFI probe,
-but I can't think of any reason why specifying a smaller size should
-die (even gracefully) when it still works just fine.
-
-Of course, maybe there are some models of flash chips where this
-wouldn't work and a graceful prevention of this would be important. 
-But with our CFI-compliant chip, we don't see any problem with my
-patch applied.
-
---
-Jim Ramsay
-"Me fail English?  That's unpossible!"

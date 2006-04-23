@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWDWHJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWDWHMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWDWHJl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 03:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWDWHJl
+	id S1751355AbWDWHMv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 03:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWDWHMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 03:09:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:10638 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751348AbWDWHJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 03:09:40 -0400
-Subject: Re: [PATCH] 'make headers_install' kbuild target.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: David Woodhouse <dwmw2@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, sam@ravnborg.org, mschwid2@de.ibm.com
-In-Reply-To: <200604222313.42976.arnd@arndb.de>
-References: <1145672241.16166.156.camel@shinybook.infradead.org>
-	 <20060422132032.GB5010@stusta.de>
-	 <1145719812.11909.333.camel@pmac.infradead.org>
-	 <200604222313.42976.arnd@arndb.de>
+	Sun, 23 Apr 2006 03:12:51 -0400
+Received: from mail.gmx.de ([213.165.64.20]:59322 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751355AbWDWHMu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 03:12:50 -0400
+X-Authenticated: #14349625
+Subject: Re: [RFC][PATCH 5/9] CPU controller - Documents how the controller
+	works
+From: Mike Galbraith <efault@gmx.de>
+To: maeda.naoaki@jp.fujitsu.com
+Cc: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+In-Reply-To: <20060421022753.13598.77686.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+	 <20060421022753.13598.77686.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 Content-Type: text/plain
-Date: Sun, 23 Apr 2006 09:09:30 +0200
-Message-Id: <1145776170.3131.4.camel@laptopd505.fenrus.org>
+Date: Sun, 23 Apr 2006 09:13:50 +0200
+Message-Id: <1145776430.7990.58.camel@homer>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-04-21 at 11:27 +0900, maeda.naoaki@jp.fujitsu.com wrote:
+> +3. Timeslice scaling
+> +
+> + If there are hungry classes, we need to adjust timeslices to satisfy
+> + the share.  To scale timeslices, we introduce a scaling factor
+> + used for scaling timeslices.  The scaling factor is associated with
+> + the class (stored in the cpu_rc structure) and adaptively adjusted
+> + according to the class load and the share.
 
-> atomic.h 
+This all works fine until interactive task requeueing is considered, and
+it must be considered.
 
-this one for sure isn't for userspace; simply because at least on x86 it
-isn't atomic there (well depending on the phase of the moon) and for
-some it can't be done at all.
+One simple way to address the requeue problem is to introduce a scaled
+class sleep_avg consumption factor.  Remove the scaling exemption for
+TASK_INTERACTIVE(p), and if a class's cpu usage doesn't drop to what is
+expected by group timeslice scaling, make members consume sleep_avg at a
+higher rate such that scaling can take effect.
 
+A better way to achieve the desired group cpu usage IMHO would be to
+adjust nice level of members at slice refresh time.  This way, you get
+the timeslice scaling and priority adjustment all in one.
+
+(I think I would do both actually, with nice level being preferred such
+that dynamic priority spread within the group isn't flattened, which can
+cause terminal starvation within the group, unless really required.)
+
+	-Mike
 

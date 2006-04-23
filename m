@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWDWRYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWDWRiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbWDWRYS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 13:24:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWDWRYS
+	id S1751107AbWDWRiq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 13:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWDWRiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 13:24:18 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:44087 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1751432AbWDWRYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 13:24:18 -0400
-Date: Sun, 23 Apr 2006 13:24:16 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: How can I prevent MTD to access the end of a flash device ?
-In-reply-to: <cda58cb80604231006x4911598bg6c1e3d62f07d80e7@mail.gmail.com>
-X-X-Sender: nico@localhost.localdomain
-To: Franck Bui-Huu <vagabon.xyz@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0604231323180.3603@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <cda58cb80511070248o6d7a18bex@mail.gmail.com>
- <cda58cb80511220658n671bc070v@mail.gmail.com>
- <Pine.LNX.4.64.0511221042560.6022@localhost.localdomain>
- <cda58cb80604231006x4911598bg6c1e3d62f07d80e7@mail.gmail.com>
+	Sun, 23 Apr 2006 13:38:46 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:14258 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751107AbWDWRiq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 13:38:46 -0400
+Date: Sun, 23 Apr 2006 19:38:41 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Lukasz Stelmach <stlman@poczta.fm>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: unix socket connection tracking
+In-Reply-To: <444B4AE6.4090601@poczta.fm>
+Message-ID: <Pine.LNX.4.61.0604231932400.13827@yvahk01.tjqt.qr>
+References: <44480BD9.5080100@poczta.fm> <Pine.LNX.4.61.0604211452490.23180@yvahk01.tjqt.qr>
+ <4448DF94.5030500@poczta.fm> <Pine.LNX.4.61.0604211610500.31515@yvahk01.tjqt.qr>
+ <444A1B86.1060701@poczta.fm> <Pine.LNX.4.61.0604221531190.18093@yvahk01.tjqt.qr>
+ <444B4AE6.4090601@poczta.fm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Apr 2006, Franck Bui-Huu wrote:
+>
+>Please understand my situation. I've got GNOME running, gconfd-2 is a "registry"
+>management process that accepts connections through a unix domain socket (named
+>one) from many *unrelated* (child/parent) processes. In fact from most gnome
+>applications. I *do* strace it to see what it does. It does some write(2)s to
+>some sockets. I would like to know which socket leads where. Try to strace
+>gconfd-2 and you'will see what I mean.
+>
 
-> Nicolas,
-> 
-> 2005/11/22, Nicolas Pitre <nico@cam.org>:
-> > On Tue, 22 Nov 2005, Franck wrote:
-> >
-> > > Hi,
-> > >
-> > > I have two questions that I can't answer by my own. I tried to look at
-> > > FAQ and documentation on MTD website but found no answer.
-> >
-> > Please consider using the MTD mailing list next time (you certainly read
-> > about it on the MTD web site).
-> >
-> > > First question is about size of flash. I have a Intel strataflash
-> > > whose size is 32MB but because of a buggy platform hardware I can't
-> > > access to the last 64KB of the flash. How can I make MTD module aware
-> > > of this new size. The restricted map size is initialized by my driver
-> > > but it doesn't seem to be used by MTD.
-> >
-> > The easiest thing to do is to define MTD partitions, the last one being
-> > the excluded flash area.
-> >
-> 
-> I hope you don't mind if I continue this thread 5 months later...I put
-> this issue in my TODO list and now I really need to fix it.
-> 
-> Your advice seems fine, but it brings some restrictions on flash
-> concatenations: for example, if I have 2 flashes of 32Mbytes, I need
-> to create 2 partitions whose sizes are 32M - 64K bytes but then I
-> can't concatenate these two partitions anymore since concatenation
-> works with mtd devices, not partitions, does it ?
+UNIX sockets do not necessarily have a path in the filesystem. In fact, 
+every socket object you see in the filesystem gets mapped to an object 
+within sockfs (which you can't mount). You recognize it as "[socket:147829]"
+when looking in /proc/11249/fd/. You will never see /dev/log within
+/proc/XX/fd.
 
-MTD partitions are MTD "devices" as well.
+You can look at the source of the `lsof` utility which does some socket 
+resolution.
+
+lsof:
+syslog-ng 3656 root       3u  unix 0xdf70f5e0              6404 /dev/log
+gconfd-2 11249 jengelh   14u  unix 0xd4e4f1e0            147829 socket
 
 
-Nicolas
+
+
+Jan Engelhardt
+-- 

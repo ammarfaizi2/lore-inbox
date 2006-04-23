@@ -1,58 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWDWOjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWDWO6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWDWOjW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 10:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWDWOjV
+	id S1751407AbWDWO6v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 10:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWDWO6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 10:39:21 -0400
-Received: from [203.149.12.107] ([203.149.12.107]:30726 "HELO 45FB1398")
-	by vger.kernel.org with SMTP id S1751408AbWDWOjV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 10:39:21 -0400
-Date: Sun, 23 Apr 2006 16:34:14 +0100
-From: "Your Mngr. godfrygaston" <sayercristin@mail15.com>
-To: linux-kernel@vger.kernel.org
-Subject: Time, Money, Keeping you from earning the Degree you deserve? - Randi
-X-VMS-To: "mcgoughbathsheba@mail15.com"
-Message-ID: <3F5488506.7055178@codeweavers.com>
+	Sun, 23 Apr 2006 10:58:51 -0400
+Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:62679 "EHLO
+	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id S1751407AbWDWO6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 10:58:50 -0400
+Date: Sun, 23 Apr 2006 16:58:47 +0200
+From: Thomas Bleher <bleher@informatik.uni-muenchen.de>
+To: Valdis.Kletnieks@vt.edu
+Cc: Crispin Cowan <crispin@novell.com>, Pavel Machek <pavel@ucw.cz>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+       James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       T?r?k Edwin <edwin@gurde.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-Id: <20060423145846.GA7495@thorium.jmh.mhn.de>
+Mail-Followup-To: Valdis.Kletnieks@vt.edu,
+	Crispin Cowan <crispin@novell.com>, Pavel Machek <pavel@ucw.cz>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+	James Morris <jmorris@namei.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+	T?r?k Edwin <edwin@gurde.com>,
+	linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Chris Wright <chrisw@sous-sol.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil> <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu> <4445484F.1050006@novell.com> <20060420211308.GB2360@ucw.cz> <444AF977.5050201@novell.com> <200604230933.k3N9XTZ8019756@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Disposition: inline
+In-Reply-To: <200604230933.k3N9XTZ8019756@turing-police.cc.vt.edu>
+X-Accept-Language: de, en
+X-Operating-System: Linux 2.6.12-10-386 i686
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hey Family!
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Just wanted to write you, and let you know, how the degree program I tried=
- out went.
-Well, six weeks later, I graduated, finished & received my Masters Degree =
-with no study required and %100 verifiable. 
+* Valdis.Kletnieks@vt.edu [2006-04-23 11:35]:
+> On Sat, 22 Apr 2006 20:50:15 PDT, Crispin Cowan said:
+> >> What happens if I ln /bin/stty /tmp/evilstty, then exploit
+> >> vulnerability in stty?=20
+>=20
+> A crucial point here is that the 'ln' and the actual exploit don't
+> have to be firmly attached to each other...
 
-Yeah mom, I know you and Dad doubted it at first, but this turned out to b=
-e %100 legit. This opportunity was given to me because of the professional=
- experience and previous course work I had accumulated.
+Yes, it doesn't even have to be malicious. Consider the following
+example:
+An admin sets up an ftp-server with write access, running as root. He
+chroots it and even creates AppArmor policy for it. However, he's a bit
+sloppy and configures AppArmor so that the ftpd has write access to
+everything in the chroot (even the stuff in bin/). The system is still
+save, however, since the ftpd can't access anything outside of his
+chroot.
+Later, the admin decides to save space, deletes the bin/ directory and
+instead links /bin/ls into the chroot. Suddenly the system is easily
+exploitable.
+I think that's what people mean when they say "impossible to analyze".
+You have to look at the complete filesystem state to make sure you
+didn't accidently compromise the whole system.
 
-I=92m so excited mom and dad, this was a life altering opportunity & for o=
-nce in my life I took advantage of it. 
+Thomas
 
-I already have jobs, that wouldn=92t have given me a chance before, now th=
-ey are calling off the hook! This really is a godsend.
 
-Tell Susan and Cousin Joey that they better hurry up and call that # I gav=
-e them the other day. 
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Again these are the degrees they offer, BA, BSC, MA, MSC, MBA and PhD, and=
- the number to call is  1 - 4 3 5 - 5 7 8 - 8 9 9 1, tell them to leave a =
-brief message with their name, the degree they are interested in and their=
- day and evening phone numbers. They will contact you soon after,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-Anyway, much love, and tell the rest of the family I said hello 
+iD8DBQFES5YmD9qpeVMU938RAmJfAJ9cnkfvdh7mIM4cLS7fJHu2nwry5wCfTBl2
+N4j3pX+ZzTT5SYI7/jeILpI=
+=QCUf
+-----END PGP SIGNATURE-----
 
-Love, 
-Your son, 
-
-Len
-
-P.s. 
-Mom, why don=92t you send this email to a few of your friends? My professo=
-r told me that if we send over referrals the school can give us a scholars=
-hip. 
-The number to call is  1 - 4 3 5 - 5 7 8 - 8 9 9 1 :-)
+--Q68bSM7Ycu6FN28Q--

@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWDWHpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWDWHuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWDWHpb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 03:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWDWHpb
+	id S1751362AbWDWHuj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 03:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWDWHuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 03:45:31 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:7859 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751344AbWDWHpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 03:45:31 -0400
-Date: Sun, 23 Apr 2006 09:45:11 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jim Ramsay <kernel@jimramsay.com>
-Cc: Thiago Galesi <thiagogalesi@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Possible MTD bug in 2.6.15
-Message-ID: <20060423074511.GA19326@wohnheim.fh-wedel.de>
-References: <1145723704.3524.TMDA@mail.tag.jimramsay.com> <4789af9e0604220949i2757e408qa5de3a9e728e966f@mail.gmail.com> <82ecf08e0604221008ieb22a4cuc59be570cf025bba@mail.gmail.com> <4789af9e0604222048g5a10b573pf687f137a2e99042@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 23 Apr 2006 03:50:39 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:2685 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751362AbWDWHuj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 03:50:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RY9q9hHt3y7iyeVX4KgBRluG8fOJTBcx867xbr5A3dwQ2Qan1h1FS80M+qg3dzocVqAyUzPeHGiOlNxytZClaIAnzTZmC/YNazUtavIjFF5FfhRW7445i58yG6l3d0dbLKMoT0DB5IctuqMxFxDr+RlbXf4GsJ0KCAojmmmBuGE=
+Message-ID: <84144f020604230050q71001601qadd7572a9fb169ba@mail.gmail.com>
+Date: Sun, 23 Apr 2006 10:50:38 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: PCI device driver writing newbie trouble
+Cc: "Bert Thomas" <bert@brothom.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060422060045.GA18067@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4789af9e0604222048g5a10b573pf687f137a2e99042@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+References: <4447A2E7.6000407@brothom.nl> <20060422060045.GA18067@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 April 2006 21:48:28 -0600, Jim Ramsay wrote:
-> 
-> And really, it's not a big stretch from what the code currently does
-> to what my patch changes.  At this point in the code, we know for a
-> fact that we already have at least one flash chip.  The math that's
-> going on here with the 'max_chips' variable is to check if there is
-> actually more than one physical chip implementing the entire reported
-> size.  The only mistake is that the math goes too far, shifting the
-> count down to zero if the reported size is too small.  This
-> 'max_chips' should never be allowed to be lower than 1, because we
-> really do know that there is at least one flash chip.
+On Thu, Apr 20, 2006 at 04:04:07PM +0100, Bert Thomas wrote:
+> > static const struct pci_device_id cif50_ids[] = {
+> >         {
+> >         .vendor = 0x10B5,
+> >         .device = 0x9050,
+> >         .subvendor = PCI_ANY_ID, //0x10B5,
+> >         .subdevice = PCI_ANY_ID, //0x1080,
+> >         .class = PCI_ANY_ID,
+> >         .class_mask = PCI_ANY_ID
+> >         },
 
-In a setup like yours, someone should go and educate hardware
-developers.
+On 4/22/06, Greg KH <greg@kroah.com> wrote:
+> Try the PCI_DEVICE() macro here instead.
+>
+> But that should not matter, this should work, I don't know why it
+> doesn't sorry.
 
-Anyway, if you add a CONFIG_BROKEN_HARDWARE of some sorts to your
-patch and send it to the proper list (linux-mtd@lists.infradead.org),
-I don't have a problem with your patch.
+No device class will ever match the above class and class_mask.
+Changing them to zero makes it work according to Bert.
 
-Jörn
-
--- 
-To announce that there must be no criticism of the President, or that we
-are to stand by the President, right or wrong, is not only unpatriotic
-and servile, but is morally treasonable to the American public.
--- Theodore Roosevelt, Kansas City Star, 1918
+                                                   Pekka

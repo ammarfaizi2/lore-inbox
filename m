@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWDWVPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWDWVWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWDWVPK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 17:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWDWVPK
+	id S1751456AbWDWVWh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 17:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWDWVWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 17:15:10 -0400
-Received: from waste.org ([64.81.244.121]:15058 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751400AbWDWVPI (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Sun, 23 Apr 2006 17:15:08 -0400
-Date: Sun, 23 Apr 2006 16:12:09 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [rfc][patch] radix-tree: small data structure
-Message-ID: <20060423211209.GW15445@waste.org>
-References: <444BA0A9.3080901@yahoo.com.au> <444BA150.7040907@yahoo.com.au>
-Mime-Version: 1.0
+	Sun, 23 Apr 2006 17:22:37 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2577 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751456AbWDWVWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 17:22:36 -0400
+Date: Sun, 23 Apr 2006 23:22:35 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] fs/read_write.c: unexport iov_shorten
+Message-ID: <20060423212235.GE13666@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <444BA150.7040907@yahoo.com.au>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24, 2006 at 01:46:24AM +1000, Nick Piggin wrote:
-> Nick Piggin wrote:
-> >With the previous patch, the radix_tree_node budget on my 64-bit
-> >desktop is cut from 20MB to 10MB. This patch should cut it again
-> >by nearly a factor of 4 (haven't verified, but 98ish % of files
-> >are under 64K).
-> >
-> >I wonder if this would be of any interest for those who enable
-> >CONFIG_BASE_SMALL?
-> 
-> Bah, wrong patch.
+This patch removes the unused EXPORT_SYMBOL(iov_shorten).
 
-I like it.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Mathematics is the supreme nostalgia of our time.
+--- linux-2.6.17-rc1-mm3-full/fs/read_write.c.old	2006-04-23 15:51:52.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/fs/read_write.c	2006-04-23 15:52:02.000000000 +0200
+@@ -436,8 +436,6 @@
+ 	return seg;
+ }
+ 
+-EXPORT_SYMBOL(iov_shorten);
+-
+ /* A write operation does a read from user space and vice versa */
+ #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
+ 
+

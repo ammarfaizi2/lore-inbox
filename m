@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWDWLmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWDWLrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWDWLmT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 07:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWDWLmS
+	id S1751383AbWDWLrF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 07:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWDWLrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 07:42:18 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63499 "HELO
+	Sun, 23 Apr 2006 07:47:05 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:268 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750972AbWDWLmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 07:42:18 -0400
-Date: Sun, 23 Apr 2006 13:42:17 +0200
+	id S1751383AbWDWLrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 07:47:04 -0400
+Date: Sun, 23 Apr 2006 13:47:03 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] fs/buffer.c: possible cleanups
-Message-ID: <20060423114217.GK5010@stusta.de>
+To: ttb@tentacle.dhs.org, rml@novell.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] fs/inotify.c: possible cleanups
+Message-ID: <20060423114703.GL5010@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,73 +23,59 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch contains the following possible cleanups:
-- add a proper prototype for the following global function:
-  - buffer_init()
-- make the following needlessly global function static:
-  - end_buffer_async_write()
+- make the following needlessly global variables static:
+  - inotify_max_user_instances
+  - inotify_max_user_watches
+  - inotify_max_queued_events
+- remove the following unused EXPORT_SYMBOL_GPL's:
+  - inotify_get_cookie
+  - inotify_unmount_inodes
+  - inotify_inode_is_dead
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- fs/buffer.c                 |    3 +--
- include/linux/buffer_head.h |    2 +-
- init/main.c                 |    2 +-
- 3 files changed, 3 insertions(+), 4 deletions(-)
+ fs/inotify.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- linux-2.6.17-rc1-mm3-full/include/linux/buffer_head.h.old	2006-04-23 12:07:30.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/include/linux/buffer_head.h	2006-04-23 12:19:48.000000000 +0200
-@@ -149,7 +149,6 @@
- 			unsigned long b_state);
- void end_buffer_read_sync(struct buffer_head *bh, int uptodate);
- void end_buffer_write_sync(struct buffer_head *bh, int uptodate);
--void end_buffer_async_write(struct buffer_head *bh, int uptodate);
+--- linux-2.6.17-rc1-mm3-full/fs/inotify.c.old	2006-04-23 12:12:52.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/fs/inotify.c	2006-04-23 12:18:46.000000000 +0200
+@@ -45,9 +45,9 @@
+ static struct vfsmount *inotify_mnt __read_mostly;
  
- /* Things to do with buffers at mapping->private_list */
- void mark_buffer_dirty_inode(struct buffer_head *bh, struct inode *inode);
-@@ -214,6 +213,7 @@
- int nobh_writepage(struct page *page, get_block_t *get_block,
-                         struct writeback_control *wbc);
- 
-+void buffer_init(void);
+ /* these are configurable via /proc/sys/fs/inotify/ */
+-int inotify_max_user_instances __read_mostly;
+-int inotify_max_user_watches __read_mostly;
+-int inotify_max_queued_events __read_mostly;
++static int inotify_max_user_instances __read_mostly;
++static int inotify_max_user_watches __read_mostly;
++static int inotify_max_queued_events __read_mostly;
  
  /*
-  * inline definitions
---- linux-2.6.17-rc1-mm3-full/fs/buffer.c.old	2006-04-23 12:06:43.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/fs/buffer.c	2006-04-23 12:07:19.000000000 +0200
-@@ -566,7 +566,7 @@
-  * Completion handler for block_write_full_page() - pages which are unlocked
-  * during I/O, and which have PageWriteback cleared upon I/O completion.
-  */
--void end_buffer_async_write(struct buffer_head *bh, int uptodate)
-+static void end_buffer_async_write(struct buffer_head *bh, int uptodate)
+  * Lock ordering:
+@@ -627,7 +627,6 @@
  {
- 	char b[BDEVNAME_SIZE];
- 	unsigned long flags;
-@@ -3168,7 +3168,6 @@
- EXPORT_SYMBOL(block_truncate_page);
- EXPORT_SYMBOL(block_write_full_page);
- EXPORT_SYMBOL(cont_prepare_write);
--EXPORT_SYMBOL(end_buffer_async_write);
- EXPORT_SYMBOL(end_buffer_read_sync);
- EXPORT_SYMBOL(end_buffer_write_sync);
- EXPORT_SYMBOL(file_fsync);
---- linux-2.6.17-rc1-mm3-full/init/main.c.old	2006-04-23 12:17:46.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/init/main.c	2006-04-23 12:18:09.000000000 +0200
-@@ -47,6 +47,7 @@
- #include <linux/rmap.h>
- #include <linux/mempolicy.h>
- #include <linux/key.h>
-+#include <linux/buffer_head.h>
+ 	return atomic_inc_return(&inotify_cookie);
+ }
+-EXPORT_SYMBOL_GPL(inotify_get_cookie);
  
- #include <asm/io.h>
- #include <asm/bugs.h>
-@@ -79,7 +80,6 @@
- extern void sbus_init(void);
- extern void sysctl_init(void);
- extern void signals_init(void);
--extern void buffer_init(void);
- extern void pidhash_init(void);
- extern void pidmap_init(void);
- extern void prio_tree_init(void);
+ /**
+  * inotify_unmount_inodes - an sb is unmounting.  handle any watched inodes.
+@@ -706,7 +705,6 @@
+ 		spin_lock(&inode_lock);
+ 	}
+ }
+-EXPORT_SYMBOL_GPL(inotify_unmount_inodes);
+ 
+ /**
+  * inotify_inode_is_dead - an inode has been deleted, cleanup any watches
+@@ -725,7 +723,6 @@
+ 	}
+ 	mutex_unlock(&inode->inotify_mutex);
+ }
+-EXPORT_SYMBOL_GPL(inotify_inode_is_dead);
+ 
+ /* Device Interface */
+ 
 

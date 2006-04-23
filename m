@@ -1,77 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWDWMI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWDWMLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWDWMI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 08:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWDWMI6
+	id S1751390AbWDWMLT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 08:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWDWMLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 08:08:58 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:62110 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751387AbWDWMI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 08:08:57 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Sun, 23 Apr 2006 14:06:54 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.17-rc2] ohci1394, sbp2: fix "scsi_add_device failed" with
- PL-3507 based devices
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
-       Jody McIntyre <scjody@modernduck.com>
-Message-ID: <tkrat.2c541162432ec304@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (0.866) AWL,BAYES_50
+	Sun, 23 Apr 2006 08:11:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:18396 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751386AbWDWMLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 08:11:18 -0400
+Subject: Re: [RFC][PATCH 11/11] security: AppArmor - Export
+	namespace	semaphore
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       linux-security-module@vger.kernel.org
+In-Reply-To: <4448694E.90508@tlinx.org>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <20060419175034.29149.94306.sendpatchset@ermintrude.int.wirex.com>
+	 <1145536742.16456.35.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060420124647.GD18604@sergelap.austin.ibm.com>
+	 <1145534735.3313.3.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060420132128.GG18604@sergelap.austin.ibm.com>
+	 <1145537318.3313.40.camel@moss-spartans.epoch.ncsc.mil>
+	 <44480727.9010500@tlinx.org> <20060420230551.GA5026@infradead.org>
+	 <4448355F.7070509@tlinx.org> <20060421020929.GG3828@sorel.sous-sol.org>
+	 <4448694E.90508@tlinx.org>
+Content-Type: text/plain
+Date: Sun, 23 Apr 2006 14:11:13 +0200
+Message-Id: <1145794274.3131.8.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re-enable posted writes for status FIFO.
-Besides bringing back a very minor bandwidth tweak from Linux 2.6.15.x
-and older, this also fixes an interoperability regression since 2.6.16:
-http://bugzilla.kernel.org/show_bug.cgi?id=6356
-(sbp2: scsi_add_device failed. IEEE1394 HD is not working anymore.)
+On Thu, 2006-04-20 at 22:10 -0700, Linda Walsh wrote:
+> Chris Wright wrote:
+> > * Linda A. Walsh (law@tlinx.org) wrote:  
+> >>    "The *current* accepted way to get pathnames going into system 
+> >> calls is
+> >> to put a trap in the syscall vector processing code to be indirectly
+> >> called through the ptrace call with every system call as audit 
+> >> currently does..."?
+> >>
+> >>    Or is that not correct either? 
+> > No it's not.  See getname(9).
+> 
+>    I'm familiar with the getname call, it's probably the case that
+> audit calls getname to do the actual copy from user->kernel space, I
+> haven't checked.  But I can't find the manpage you are referring to.
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
-The ugly hardwired PhyUpperBound which this patch (re-)introduces into
-sbp2 will be eliminated by a subsequent patchset (which has already been
-sent to linux1394-devel).
-
-Index: linux-2.6.17-rc2/drivers/ieee1394/ohci1394.c
-===================================================================
---- linux-2.6.17-rc2.orig/drivers/ieee1394/ohci1394.c	2006-04-22 19:23:46.000000000 +0200
-+++ linux-2.6.17-rc2/drivers/ieee1394/ohci1394.c	2006-04-22 19:24:49.000000000 +0200
-@@ -553,7 +553,7 @@ static void ohci_initialize(struct ti_oh
- 	 * register content.
- 	 * To actually enable physical responses is the job of our interrupt
- 	 * handler which programs the physical request filter. */
--	reg_write(ohci, OHCI1394_PhyUpperBound, 0xffff0000);
-+	reg_write(ohci, OHCI1394_PhyUpperBound, 0x01000000);
- 
- 	DBGMSG("physUpperBoundOffset=%08x",
- 	       reg_read(ohci, OHCI1394_PhyUpperBound));
-Index: linux-2.6.17-rc2/drivers/ieee1394/sbp2.c
-===================================================================
---- linux-2.6.17-rc2.orig/drivers/ieee1394/sbp2.c	2006-04-22 19:23:46.000000000 +0200
-+++ linux-2.6.17-rc2/drivers/ieee1394/sbp2.c	2006-04-22 19:24:50.000000000 +0200
-@@ -765,11 +765,16 @@ static struct scsi_id_instance_data *sbp
- 
- 	/* Register the status FIFO address range. We could use the same FIFO
- 	 * for targets at different nodes. However we need different FIFOs per
--	 * target in order to support multi-unit devices. */
-+	 * target in order to support multi-unit devices.
-+	 * The FIFO is located out of the local host controller's physical range
-+	 * but, if possible, within the posted write area. Status writes will
-+	 * then be performed as unified transactions. This slightly reduces
-+	 * bandwidth usage, and some Prolific based devices seem to require it.
-+	 */
- 	scsi_id->status_fifo_addr = hpsb_allocate_and_register_addrspace(
- 			&sbp2_highlevel, ud->ne->host, &sbp2_ops,
- 			sizeof(struct sbp2_status_block), sizeof(quadlet_t),
--			~0ULL, ~0ULL);
-+			0x010000000000ULL, CSR1212_ALL_SPACE_END);
- 	if (!scsi_id->status_fifo_addr) {
- 		SBP2_ERR("failed to allocate status FIFO address range");
- 		goto failed_alloc;
+you CANNOT copy twice. If you copy twice you might as well not audit
+since userspace can just change it inbetween. what audit does is use the
+original ONE copy that the normal syscall does .
 
 

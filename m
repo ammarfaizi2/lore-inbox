@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWDWILw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWDWIbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWDWILw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 04:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWDWILw
+	id S1750782AbWDWIbR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 04:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWDWIbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 04:11:52 -0400
-Received: from dsl081-033-126.lax1.dsl.speakeasy.net ([64.81.33.126]:17083
-	"EHLO bifrost.lang.hm") by vger.kernel.org with ESMTP
-	id S1751172AbWDWILw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 04:11:52 -0400
-Date: Sun, 23 Apr 2006 01:11:50 -0700 (PDT)
-From: David Lang <david@lang.hm>
-X-X-Sender: dlang@david.lang.hm
-To: linux-kernel@vger.kernel.org
-Subject: i2o driver double free error in 2.6.17-rc2 (amd64)
-Message-ID: <Pine.LNX.4.62.0604230042370.3287@qnivq.ynat.uz>
+	Sun, 23 Apr 2006 04:31:17 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:13510 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1750782AbWDWIbR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 04:31:17 -0400
+Date: Sun, 23 Apr 2006 09:31:14 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet.skynet.ie
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [git pull] more drm patch for 2.6.17
+Message-ID: <Pine.LNX.4.64.0604230929470.3835@skynet.skynet.ie>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the hardware:
-nforce4-a939 mlb with a Athlon64 3800+ (dual core), 4G ram, 2x3-ware PATA 
-cards (with 12x300G seagate drives), Adaptec 3120S raid controller with 2 
-pairs of scsi drives
 
-I've been having problems with this new machine locking up so I turned on 
-just aobut every debugging option and setup a serial console, the full 
-boot log (1.5M of it) is at http://lang.hm/linux/boot_log but the relavent 
-portion of it seems to be blocks of the following errors
+Hi Linus,
+ 	One bug fix for PPC for r300 and some cleanups to exported 
+symbols..
 
-slab error in cache_free_debugcheck(): cache `i2o_iop0_msg_inpool': double free, or memory outside object was overwritten
+Please pull the drm-patches branch from:
+git://git.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git
 
-<IRQ> <ffffffff802ae3d2>{__slab_error+36}
-<ffffffff80232bb9>{cache_free_debugcheck+364} <ffffffff80207639>{kmem_cache_free+60}
-<ffffffff80245f8a>{mempool_free_slab+18} <ffffffff8023017b>{mempool_free+113}
-<ffffffff805c72b3>{i2o_block_request_fn+1164} <ffffffff804100d0>{serpent_setkey+2462}
-<ffffffff8041e15a>{blk_start_queue+39} <ffffffff805c6aef>{i2o_block_reply+292}
-<ffffffff805c2296>{i2o_driver_dispatch+475} <ffffffff805c3866>{i2o_pci_interrupt+52}
-<ffffffff80210e74>{handle_IRQ_event+48} <ffffffff8029bf34>{__do_IRQ+163}
-<ffffffff8026b00d>{do_IRQ+59} <ffffffff8026902f>{default_idle+0}
-<ffffffff80260366>{ret_from_intr+0} <EOI> <ffffffff8026902f>{default_idle+0}
-<ffffffff8026905e>{default_idle+47} <ffffffff8024a8d8>{cpu_idle+103}
-<ffffffff80cf408d>{start_secondary+1134}
-ffff81000135e050: redzone 1:0x170fc2a5, redzone 2:0x7cb8000.
+  drmP.h           |    1 -
+  drm_agpsupport.c |    2 --
+  drm_bufs.c       |    5 +----
+  drm_stub.c       |    2 --
+  r300_cmdbuf.c    |    2 +-
+  5 files changed, 2 insertions(+), 10 deletions(-)
 
-I think I saw a compile-time error flash by (something about a cast 
-between incompatable pointer types).
+commit 5d23fafb1bf8ef071738026c2e5071a92186d5f8
+Author: Dave Airlie <airlied@linux.ie>
+Date:   Sun Apr 23 18:26:40 2006 +1000
 
-the kernel config is also on the website at http://lang.hm/linux/config
+     drm: possible cleanups
 
-as this is a new box that I have not gotten working reliably yet I can't 
-conclusivly rule out hardware problems. it's survived 48 hours of 
-memtest86 and the various controller cards were out of an older system so 
-they should be good.
+     This patch contains the following possible cleanups:
+     - make the following needlessly global function static:
+      - drm_bufs.c: drm_addbufs_fb()
+     - remove the following unused EXPORT_SYMBOL's:
+      - drm_agpsupport.c: drm_agp_bind_memory
+      - drm_bufs.c: drm_rmmap_locked
+      - drm_bufs.c: drm_rmmap
+      - drm_stub.c: drm_get_dev
 
-David Lang
+     Signed-off-by: Adrian Bunk <bunk@stusta.de>
+     Signed-off-by: Dave Airlie <airlied@linux.ie>
+
+commit caa98c41c0db9bfda5bc9a0e680f304283089268
+Author: Dave Airlie <airlied@linux.ie>
+Date:   Sun Apr 23 18:14:00 2006 +1000
+
+     drm: fixup r300 scratch on BE machines
+
+     This fixes the r300 scratch stuff to work on PPC,
+     from Ben Herrenschmidt on IRC.
+
+     Signed-off-by: Dave Airlie <airlied@linux.ie>
+

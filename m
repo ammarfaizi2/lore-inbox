@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWDWSPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWDWSkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWDWSPW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 14:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWDWSPW
+	id S1751439AbWDWSkM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 14:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWDWSkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 14:15:22 -0400
-Received: from nz-out-0102.google.com ([64.233.162.194]:55653 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751437AbWDWSPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 14:15:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=dRXc8qIeLl6+q9u7QQUQ3ZDXt4HsDN78Y44oGSs0aIewcBQEd+dao6EuxdlWOJioEvWqzHp8zd6tliG0XAQqb4uIK0/UyOGDmTGed9WQi7F66OLqPK2KlQ+DV/yFIt6MRytnWMOiYISAjKClYR+X9w+VYMUpsa16R1ICwn50+rI=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] SCSI: aic7xxx_osm_pci resource leak fix.
-Date: Sun, 23 Apr 2006 20:16:02 +0200
-User-Agent: KMail/1.9.1
-Cc: James.Bottomley@hansenpartnership.com, linux-scsi@vger.kernel.org,
-       Jesper Juhl <jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 23 Apr 2006 14:40:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60631 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751439AbWDWSkK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 14:40:10 -0400
+Date: Sun, 23 Apr 2006 14:40:08 -0400
+From: Dave Jones <davej@redhat.com>
+To: Fabian Zeindl <fabian@xover.htu.tuwien.ac.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cpu frequency scaling on celeron laptop
+Message-ID: <20060423184008.GB14680@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Fabian Zeindl <fabian@xover.htu.tuwien.ac.at>,
+	linux-kernel@vger.kernel.org
+References: <444BA1E8.5080001@xover.htu.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604232016.02979.jesper.juhl@gmail.com>
+In-Reply-To: <444BA1E8.5080001@xover.htu.tuwien.ac.at>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 23, 2006 at 05:48:56PM +0200, Fabian Zeindl wrote:
+ > Hi
+ > 
+ >  I have cpu frequency scaling with p4-clockmod in my kernel, and until
+ > v2.6.15 I was possible to set governors and custom frequencies at
+ > /sys/devices/system/cpu/cpu0/cpufreq/*.
+ > When I changed the governor or the frequency scaling_cur_freq
+ > represented the change.
+ > 
+ > With 2.6.16 this isn't possible anymore, I didn't change anything in the
+ > kernel .config, just did 'make oldconfig'. There is no 'cpufreq'
+ > subdirectory in /sys/devices/system/cpu/cpu0/ anymore.
 
-Fix resource leak in 
-drivers/scsi/aic7xxx/aic7xxx_osm_pci.c::ahc_linux_pci_dev_probe()
+should be fixed in 2.6.16.9
 
-Found by the coverity checker (#668)
+		Dave
 
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- drivers/scsi/aic7xxx/aic7xxx_osm_pci.c |    1 +
- 1 files changed, 1 insertion(+)
-
---- linux-2.6.17-rc2-git4-orig/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.17-rc2-git4/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2006-04-23 20:05:50.000000000 +0200
-@@ -219,6 +219,7 @@ ahc_linux_pci_dev_probe(struct pci_dev *
- 		ahc->flags |= AHC_39BIT_ADDRESSING;
- 	} else {
- 		if (dma_set_mask(dev, DMA_32BIT_MASK)) {
-+			ahc_free(ahc);
- 			printk(KERN_WARNING "aic7xxx: No suitable DMA available.\n");
-                 	return (-ENODEV);
- 		}
-
-
-
-
-(please keep replies CC'ed to me)
-
-
+-- 
+http://www.codemonkey.org.uk

@@ -1,88 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWDWJl1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWDWJsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWDWJl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 05:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWDWJl1
+	id S1751363AbWDWJsF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 05:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWDWJsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 05:41:27 -0400
-Received: from [80.48.65.9] ([80.48.65.9]:39804 "EHLO smtp.poczta.interia.pl")
-	by vger.kernel.org with ESMTP id S1751048AbWDWJl1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 05:41:27 -0400
-Message-ID: <444B4BBE.4090009@poczta.fm>
-Date: Sun, 23 Apr 2006 11:41:18 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: quantum capabilities
-References: <444650E1.5020403@poczta.fm> <20060420211822.GC2360@ucw.cz>
-In-Reply-To: <20060420211822.GC2360@ucw.cz>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig7535FF35341A3F52C29CF321"
-X-EMID: 7c91b138
+	Sun, 23 Apr 2006 05:48:05 -0400
+Received: from h80ad249d.async.vt.edu ([128.173.36.157]:31910 "EHLO
+	h80ad249d.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1751215AbWDWJsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 05:48:03 -0400
+Message-Id: <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Ken Brush <kbrush@gmail.com>
+Cc: Crispin Cowan <crispin@novell.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Greg KH <greg@kroah.com>, James Morris <jmorris@namei.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks) 
+In-Reply-To: Your message of "Sat, 22 Apr 2006 13:52:57 PDT."
+             <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200604021240.21290.edwin@gurde.com> <20060417195146.GA8875@kroah.com> <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu> <4445484F.1050006@novell.com> <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu> <4446D378.8050406@novell.com> <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu> <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com> <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu>
+            <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1145785534_3800P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 23 Apr 2006 05:45:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7535FF35341A3F52C29CF321
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+--==_Exmh_1145785534_3800P
+Content-Type: text/plain; charset=us-ascii
 
-Pavel Machek wrote:
-> On Wed 19-04-06 17:01:53, Lukasz Stelmach wrote:
->> Greetings All.
->>
->> I've found a strange phenomenon associated with capabilities. It seems=
- to be a
->> quantum like.
->>
->> when I run (as root)
->>
->> delfin:~# /usr/sbin/execcap '=3D cap_net_raw=3Dep' /bin/sh -c 'getpcap=
-s $$'
->> Capabilities for `2438': =3Dep cap_setpcap-ep
->>
->> I don't know what really happens to those capablities I zero. And I ca=
-n't really
->> figure out for when I try the wavefunction collapses
->>
->> delfin:~# strace -o /dev/null /usr/sbin/execcap '=3D cap_net_raw=3Dep'=
- /bin/sh -c \
->> 'getpcaps $$'
->> Capabilities for `2461': =3D cap_net_raw+ep
->>
->> Strange isn't it? Does it mean that processes can't really drop their =
-privileges?
->=20
-> Is execcap setuid? strace does not work over setuid...
+On Sat, 22 Apr 2006 13:52:57 PDT, Ken Brush said:
+> That sysadmins are not sophisticated enough to properly configure the
+> MAC systems AppArmor and SELinux effectively?
 
-No it's not. And even if it was it sholudn't make any difference when I r=
-un
-execcap logged in as root.
+We know they're usually not.  There are a *few* that have a clue, but most
+don't.  And as the Linux market grows, we're going to have more and more Linux
+sysadmins with less than a year's experience...
 
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Czwarta pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
+>                                                Or that people who use
+> AppArmor are not likely to put careful thought into the policies that
+> they use?
 
+They're not likely to put careful thought into it, *AND* that saying things
+like "AppArmor is so *simple* to configure" only makes things worse - this
+encourages unqualified people to create broken policy configurations.
 
---------------enig7535FF35341A3F52C29CF321
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+I have no problem with "handles a lot of the grunt work so an
+expert can write policy quicker" - there's people working on policy
+editors for SELinux that address this as well.  It is however a dis-service
+to conflate this with "makes it easy for non-experts to write policy".  Yes,
+they may be able to "write policy" easily.  The question is whether it
+enables then to "write *correct* policy" (easily, or at all).....
+
+--==_Exmh_1145785534_3800P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFES0u+NdzY8sm9K9wRAuwTAKCadlnSHigMPWl/OGiwxZGgBHjq7ACeJKGB
-jdlt1fCpjIKvf39RmbUvygc=
-=peIy
+iD8DBQFES0y+cC3lWbTT17ARAtDjAJ9yWJxQxMcYbQzngQtvGEMulKqmxQCg5FHs
+JDCxq47vxF9isLmetZlpal8=
+=gjQE
 -----END PGP SIGNATURE-----
 
---------------enig7535FF35341A3F52C29CF321--
+--==_Exmh_1145785534_3800P--

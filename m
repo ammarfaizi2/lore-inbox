@@ -1,119 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWDWHz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWDWILw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWDWHz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 03:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWDWHz2
+	id S1751172AbWDWILw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 04:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWDWILw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 03:55:28 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:15515 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751359AbWDWHz1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 03:55:27 -0400
-Date: Sun, 23 Apr 2006 01:55:25 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Steven Whitehouse <swhiteho@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 05/16] GFS2: File and inode operations
-Message-ID: <20060423075525.GP6075@schatzie.adilger.int>
-Mail-Followup-To: Steven Whitehouse <swhiteho@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <1145636030.3856.102.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145636030.3856.102.camel@quoit.chygwyn.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Sun, 23 Apr 2006 04:11:52 -0400
+Received: from dsl081-033-126.lax1.dsl.speakeasy.net ([64.81.33.126]:17083
+	"EHLO bifrost.lang.hm") by vger.kernel.org with ESMTP
+	id S1751172AbWDWILw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 04:11:52 -0400
+Date: Sun, 23 Apr 2006 01:11:50 -0700 (PDT)
+From: David Lang <david@lang.hm>
+X-X-Sender: dlang@david.lang.hm
+To: linux-kernel@vger.kernel.org
+Subject: i2o driver double free error in 2.6.17-rc2 (amd64)
+Message-ID: <Pine.LNX.4.62.0604230042370.3287@qnivq.ynat.uz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 21, 2006  17:13 +0100, Steven Whitehouse wrote:
-> This also includes a new header file, iflags.h which is designed to
-> abstract the (originally ext2 only, but now used by many different fs)
-> get/set flags ioctl by having one central place in which to register
-> filesystem flags. Given favourable reviews, I'll submit some patches to
-> update the other fileststems to define their flags in terms of those
-> in iflags.h. Note that this doesn't change the interface of the other
-> filesystems since the values of the flags are identical to those
-> previously defined.
-> 
-> To the best of my knowledge, GFS2 is the only filesystem which requires
-> the addition of flags above and beyond those defined by ext2/3 so if
-> there are others and we've clashed with them, please let me know.
+the hardware:
+nforce4-a939 mlb with a Athlon64 3800+ (dual core), 4G ram, 2x3-ware PATA 
+cards (with 12x300G seagate drives), Adaptec 3120S raid controller with 2 
+pairs of scsi drives
 
-> --- /dev/null
-> +++ b/include/linux/iflags.h
-> @@ -0,0 +1,104 @@
-> +enum {
-> +	iflag_SecureRm		= 0,	/* Secure deletion */
-> +	iflag_Unrm		= 1,	/* Undelete */
-> +	iflag_Compress		= 2,	/* Compress file */
-> +	iflag_Sync		= 3,	/* Synchronous updates */
-> +	iflag_Immutable	= 4,	/* Immutable */
-> +	iflag_Append		= 5,	/* Append */
-> +	iflag_NoDump		= 6,	/* Don't dump file */
-> +	iflag_NoAtime		= 7,	/* No atime updates */
-> +	/* Reserved for compression usage */
-> +	iflag_Dirty		= 8,
-> +	iflag_ComprBlk		= 9,	/* One or more compressed clusters */
-> +	iflag_NoComp		= 10,	/* Don't compress */
-> +	iflag_Ecompr		= 11,	/* Compression error */
-> +	/* End of compression flags */
-> +	iflag_Btree		= 12,	/* btree format dir */
-> +	iflag_Index		= 12,	/* hash-indexed directory */
-> +	iflag_Imagic		= 13,	/* AFS directory */
-> +	iflag_JournalData	= 14,	/* file data should be journaled */
-> +	iflag_NoTail		= 15,	/* file tail should not be merged */
-> +	iflag_DirSync		= 16,	/* dirsync behaviour */
-> +	iflag_TopDir		= 17,	/* Top of directory hierarchies */
-> +	iflag_DirectIO		= 18,	/* Always use direct I/O on this file */
-> +	iflag_InheritDirectIO	= 19,	/* Set DirectIO on new files in dir */
-> +	iflag_InheritJdata	= 20,	/* Set JournalData on create in dir */
-> +	iflag_Reserved		= 31	/* reserved for ext2/3 lib */
-> +};
-> +
-> +#define __IFL(x) (1<<(iflag_##x))
-> +#define IFLAG_SECRM		__IFL(SecureRm)		/* 0x00000001 */
-> +#define IFLAG_UNRM		__IFL(Unrm)		/* 0x00000002 */
-> +#define IFLAG_COMPR		__IFL(Compr)		/* 0x00000004 */
-> +#define IFLAG_SYNC		__IFL(Sync)		/* 0x00000008 */
-> +#define IFLAG_IMMUTABLE		__IFL(Immutable)	/* 0x00000010 */
-> +#define IFLAG_APPEND		__IFL(Append)		/* 0x00000020 */
-> +#define IFLAG_NODUMP		__IFL(NoDump)		/* 0x00000040 */
-> +#define IFLAG_NOATIME		__IFL(NoAtime)		/* 0x00000080 */
-> +#define IFLAG_DIRTY		__IFL(Dirty)		/* 0x00000100 */
-> +#define IFLAG_COMPRBLK		__IFL(ComprBlk)		/* 0x00000200 */
-> +#define IFLAG_NOCOMP		__IFL(NoComp)		/* 0x00000400 */
-> +#define IFLAG_ECOMPR		__IFL(Ecompr)		/* 0x00000800 */
-> +#define IFLAG_BTREE		__IFL(Btree)		/* 0x00001000 */
-> +#define IFLAG_INDEX		__IFL(Index)		/* 0x00001000 */
-> +#define IFLAG_IMAGIC		__IFL(Imagic)		/* 0x00002000 */
-> +#define IFLAG_JOURNAL_DATA	__IFL(JournalData)	/* 0x00004000 */
-> +#define IFLAG_NOTAIL		__IFL(NoTail)		/* 0x00008000 */
-> +#define IFLAG_DIRSYNC		__IFL(DirSync)		/* 0x00010000 */
-> +#define IFLAG_TOPDIR		__IFL(TopDir)		/* 0x00020000 */
-> +#define IFLAG_DIRECTIO		__IFL(DirectIO)		/* 0x00040000 */
-> +#define IFLAG_INHERITDIRECTIO	__IFL(InheritDirectIO)	/* 0x00080000 */
-> +#define IFLAG_INHERITJDATA	__IFL(InheritJdata)	/* 0x00100000 */
-> +#define IFLAG_RESERVED		__IFL(Reserved)		/* 0x80000000 */
+I've been having problems with this new machine locking up so I turned on 
+just aobut every debugging option and setup a serial console, the full 
+boot log (1.5M of it) is at http://lang.hm/linux/boot_log but the relavent 
+portion of it seems to be blocks of the following errors
 
-Actually, the 0x0080000 flag has been reserved by e2fsprogs for ext3
-extents for a while already.  AFAICS, there are no other flags in the
-current e2fsprogs that aren't listed above.
+slab error in cache_free_debugcheck(): cache `i2o_iop0_msg_inpool': double free, or memory outside object was overwritten
 
-The other tidbit is that new ext2/ext3 files generally inherit the flags
-from their parent directory, so it isn't clear if there is really a need
-for a distinction between DIRECTIO and INHERIT_DIRECTIO, and similarly
-JDATA and INHERIT_JDATA?  Generally, I'd think that JDATA isn't meaningful
-on directories (since they are metadata and journaled anyways), nor is
-DIRECTIO so their only meaning on a directory is "INHERIT for new files".
+<IRQ> <ffffffff802ae3d2>{__slab_error+36}
+<ffffffff80232bb9>{cache_free_debugcheck+364} <ffffffff80207639>{kmem_cache_free+60}
+<ffffffff80245f8a>{mempool_free_slab+18} <ffffffff8023017b>{mempool_free+113}
+<ffffffff805c72b3>{i2o_block_request_fn+1164} <ffffffff804100d0>{serpent_setkey+2462}
+<ffffffff8041e15a>{blk_start_queue+39} <ffffffff805c6aef>{i2o_block_reply+292}
+<ffffffff805c2296>{i2o_driver_dispatch+475} <ffffffff805c3866>{i2o_pci_interrupt+52}
+<ffffffff80210e74>{handle_IRQ_event+48} <ffffffff8029bf34>{__do_IRQ+163}
+<ffffffff8026b00d>{do_IRQ+59} <ffffffff8026902f>{default_idle+0}
+<ffffffff80260366>{ret_from_intr+0} <EOI> <ffffffff8026902f>{default_idle+0}
+<ffffffff8026905e>{default_idle+47} <ffffffff8024a8d8>{cpu_idle+103}
+<ffffffff80cf408d>{start_secondary+1134}
+ffff81000135e050: redzone 1:0x170fc2a5, redzone 2:0x7cb8000.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+I think I saw a compile-time error flash by (something about a cast 
+between incompatable pointer types).
 
+the kernel config is also on the website at http://lang.hm/linux/config
+
+as this is a new box that I have not gotten working reliably yet I can't 
+conclusivly rule out hardware problems. it's survived 48 hours of 
+memtest86 and the various controller cards were out of an older system so 
+they should be good.
+
+David Lang

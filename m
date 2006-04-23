@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWDWNDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWDWNkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWDWNDV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 09:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWDWNDV
+	id S1750957AbWDWNkU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 09:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWDWNkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 09:03:21 -0400
-Received: from gold.veritas.com ([143.127.12.110]:5952 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751007AbWDWNDV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 09:03:21 -0400
-X-IronPort-AV: i="4.04,149,1144047600"; 
-   d="scan'208"; a="58830191:sNHT29238964"
-Date: Sun, 23 Apr 2006 14:03:15 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Mikael Starvik <mikael.starvik@axis.com>, akpm@osdl.org, andrea@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Shrink rbtree
-In-Reply-To: <1145657573.11909.226.camel@pmac.infradead.org>
-Message-ID: <Pine.LNX.4.64.0604231359350.3678@blonde.wat.veritas.com>
-References: <1145623663.11909.139.camel@pmac.infradead.org> 
- <4448D8BF.9040601@yahoo.com.au>  <1145646503.11909.222.camel@pmac.infradead.org>
-  <Pine.LNX.4.64.0604212150270.9101@blonde.wat.veritas.com>
- <1145657573.11909.226.camel@pmac.infradead.org>
+	Sun, 23 Apr 2006 09:40:19 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:27561 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750957AbWDWNkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 09:40:18 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [RFC: 2.6 patch] kernel/kthread.c: make kthread_stop_sem() static
+Date: Sun, 23 Apr 2006 15:37:40 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060423114022.GJ5010@stusta.de>
+In-Reply-To: <20060423114022.GJ5010@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 23 Apr 2006 13:03:20.0616 (UTC) FILETIME=[4BBA1A80:01C666D6]
+Content-Type: multipart/signed;
+  boundary="nextPart1465138.SUvbNQamJl";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604231537.55205.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Apr 2006, David Woodhouse wrote:
-> On Fri, 2006-04-21 at 21:57 +0100, Hugh Dickins wrote:
-> > 
-> > You can often get away with it - I notice we never added the same
-> > alignment to struct anon_vma, which in theory needed it just as much.
-> > Some accident of how structures are packed into slabs on CRIS, I suppose.
-> 
-> That sounds very strange to me, but it's harmless enough to add the
-> explicit alignment.
+--nextPart1465138.SUvbNQamJl
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-It's occurred to me that the unusual thing about struct address_space
-is that it does _not_ have a slab cache of its own: it's for years been
-part of the struct inode itself; and I guess that exposes it to an
-alignment issue which slab objects themselves avoid.  But still a
-good idea to add the explicit alignment as doc.
+Hi Adrian,
 
-Hugh
+On Sunday, 23. April 2006 13:40, Adrian Bunk wrote:
+> This patch makes the needlessly global kthread_stop_sem() static.
+
+Could you cleanup the code paths as well?
+
+Now s is always NULL in kthread_stop_sem() and
+kthread_stop_sem() is degenerated to kthread_stop().
+So it can be folded into the latter.
+
+
+Regards
+
+Ingo Oeser
+
+--nextPart1465138.SUvbNQamJl
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBES4MzU56oYWuOrkARAsf7AJ9tga01s2gof9enmSU4ihwG3ZV8JACdFzMz
+mqvZDx+khCJWvtwxPyoZqMU=
+=aPUe
+-----END PGP SIGNATURE-----
+
+--nextPart1465138.SUvbNQamJl--

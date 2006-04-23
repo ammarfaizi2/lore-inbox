@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWDWAIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWDWBxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWDWAIA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Apr 2006 20:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWDWAIA
+	id S1750711AbWDWBxi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Apr 2006 21:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWDWBxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Apr 2006 20:08:00 -0400
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:39345 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750941AbWDWAH7 convert rfc822-to-8bit (ORCPT
+	Sat, 22 Apr 2006 21:53:38 -0400
+Received: from mga01.intel.com ([192.55.52.88]:58018 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750711AbWDWBxi convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Apr 2006 20:07:59 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Subject: Re: Van Jacobson's net channels and real-time
-Date: Sun, 23 Apr 2006 02:05:32 +0200
-User-Agent: KMail/1.9.1
-Cc: Ingo Oeser <netdev@axxeo.de>, "David S. Miller" <davem@davemloft.net>,
-       simlo@phys.au.dk, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       netdev@vger.kernel.org
-References: <Pine.LNX.4.44L0.0604201819040.19330-100000@lifa01.phys.au.dk> <200604221529.59899.ioe-lkml@rameria.de> <20060422134956.GC6629@wohnheim.fh-wedel.de>
-In-Reply-To: <20060422134956.GC6629@wohnheim.fh-wedel.de>
+	Sat, 22 Apr 2006 21:53:38 -0400
+X-IronPort-AV: i="4.04,149,1144047600"; 
+   d="scan'208"; a="27360611:sNHT16098999"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200604230205.33668.ioe-lkml@rameria.de>
+Subject: RE: Problems with EDAC coexisting with BIOS
+Date: Sat, 22 Apr 2006 18:44:38 -0700
+Message-ID: <5389061B65D50446B1783B97DFDB392D9D432E@orsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problems with EDAC coexisting with BIOS
+Thread-Index: AcZmOwQ0vqKlFYFdSZWi/ukghPAIqAANQr4g
+From: "Gross, Mark" <mark.gross@intel.com>
+To: "Tim Small" <tim@buttersideup.com>
+Cc: "Doug Thompson" <dthompson@lnxi.com>,
+       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
+       "Carbonari, Steven" <steven.carbonari@intel.com>,
+       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>,
+       <bluesmoke-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Apr 2006 01:53:37.0310 (UTC) FILETIME=[BC9C33E0:01C66678]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 22. April 2006 15:49, Jörn Engel wrote:
-> That was another main point, yes.  And the endpoints should be as
-> little burden on the bottlenecks as possible.  One bottleneck is the
-> receive interrupt, which shouldn't wait for cachelines from other cpus
-> too much.
-
-Thats right. This will be made a non issue with early demuxing
-on the NIC and MSI (or was it MSI-X?) which will select
-the right CPU based on hardware channels.
-
-In the meantime I would reduce the effects with only committing
-on full buffer or on leaving the interrupt handler. 
-
-This would be ok, because here you have to wakeup the process
-anyway on full buffer and if it slept because of empty buffer. 
-
-You loose only, if your application didn't sleep yet and you need to
-leave the interrupt handler because there is no work anymore.
-In this case the atomic_add would be significant.
-
-All this is quite similiar to now we do page_vec stuff in mm/ already.
 
 
-Regards
+>-----Original Message-----
+>From: Tim Small [mailto:tim@buttersideup.com]
+>Sent: Saturday, April 22, 2006 11:32 AM
+>To: Gross, Mark
+>Cc: Doug Thompson; Ong, Soo Keong; Carbonari, Steven; Wang, Zhenyu Z;
+>bluesmoke-devel@lists.sourceforge.net; linux-kernel@vger.kernel.org
+>Subject: Re: Problems with EDAC coexisting with BIOS
+>
+>Gross, Mark wrote:
+>
+>>You can never predict when a SMI will bubble through the system.  Even
+>>if you handle case where the BIOS re-hides Dev0:Fun1 and not panic how
+>>do you deal with the race between the BIOS SMI based handling and the
+>>driver?  Who will end up reading (and clearing) the error registers
+>>first?  There is no good way to share today.
+>>
+>>
+>You could (at least from memory, on certain chipsets) modify the error
+>reporting registers so that an SMI is no longer generated as a result
+of
+>MC ECC errors.  True, this doesn't fix many of the other problems
+>related to this issue, but would be useful in a "modprobe xyz_edac
+>force_unhide_MC_PCI=1" case.
 
-Ingo Oeser
+You can get SMI's for more than just ECC events, suppressing the ECC
+SMI's won't save you from the other SMI events that could happen.  
+
+We need to work something out with the bios guys to do this right.
+Today we don't have a good way of coordinating between the payload OS
+and the BIOS for this type of platform level stuff.
+
+>
+>Closed-source BIOSes eh?  Who needs em ;-p.
+No comment.
+
+--mgross

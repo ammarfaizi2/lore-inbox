@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWDXHMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWDXHPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbWDXHMr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 03:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWDXHMr
+	id S1751032AbWDXHPt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 03:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWDXHPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 03:12:47 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:18828 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1750977AbWDXHMr (ORCPT
+	Mon, 24 Apr 2006 03:15:49 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:17515 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751032AbWDXHPs convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 03:12:47 -0400
-Date: Mon, 24 Apr 2006 16:12:46 +0900
-From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: sekharan@us.ibm.com, akpm@osdl.org, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
-       Valerie.Clement@bull.net, devel@openvz.org
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-In-Reply-To: <444C7427.6080607@openvz.org>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-	<1145630992.3373.6.camel@localhost.localdomain>
-	<1145638722.14804.0.camel@linuxchandra>
-	<20060421155727.4212c41c.akpm@osdl.org>
-	<1145670536.15389.132.camel@linuxchandra>
-	<20060421191340.0b218c81.akpm@osdl.org>
-	<1145683725.21231.15.camel@linuxchandra>
-	<20060424011053.B89707402F@sv1.valinux.co.jp>
-	<444C5698.5080503@openvz.org>
-	<20060424054103.091757402D@sv1.valinux.co.jp>
-	<444C7427.6080607@openvz.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.13; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 24 Apr 2006 03:15:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Jza2oMJG63V4C7+UUnYXsGOvv+5+0sRhOxoAto83vhlxcmeKD1xuKhZkm0HjzwUrl4Mh1nqFuPdbvujtxWWh8aNWIRhxlu36KT43wEIwdyIorfgqF79vhA2zNt3aLiTdKRsc894YuetS4Tp1BEe+YLb1MgFAMZBnDkcv7Xjw4zc=
+Message-ID: <9a8748490604240015s61b8b897r34a8be65dc9bac22@mail.gmail.com>
+Date: Mon, 24 Apr 2006 09:15:47 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH] binfmt_elf CodingStyle cleanup and remove some pointless casts
+Cc: linux-kernel@vger.kernel.org, ericy@cais.com
+In-Reply-To: <20060423142648.6ef34b9f.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20060424071246.450767402D@sv1.valinux.co.jp>
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200604231858.15646.jesper.juhl@gmail.com>
+	 <20060423142648.6ef34b9f.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Apr 2006 10:45:59 +0400
-Kirill Korotaev <dev@openvz.org> wrote:
+On 4/23/06, Andrew Morton <akpm@osdl.org> wrote:
+> Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> >
+> > Here's a patch that does a CodingStyle cleanup of fs/binfmt_elf.c and also
+> > removes some pointless casts of kmalloc() return values in the same file.
+> >
+>
+> Much-needed.
+>
+Nice to know that doing it was worthwhile :)
 
-> >>>>Yes, it is effective, and the reclamation is O(1) too. It has couple of
-> >>>>problems by design, (1) doesn't handle shared pages and (2) doesn't
-> >>>>provide support for both min_shares and max_shares.
-> >>>
-> >>>Right.  I wanted to show proof-of-cencept of the pzone based controller
-> >>>and implemented minimal features necessary as the memory controller.
-> >>>So, the pzone based controller still needs development and some cleanup.
-> >>
-> >>Just out of curiosity, how it was meassured that it is effective?
-> > 
-> > I don't have any benchmark numbers yet, so I can't explain the
-> > effectiveness with numbers.  I've been looking for the way to
-> > measure the cost of pzones correctly, but I've not found it out yet.
-> > 
-> >>How does it work when there is a global memory shortage in the system?
-> > 
-> > I guess you are referring to the situation that global memory is running
-> > out but there are free pages in pzones.  These free pages in pzones are
-> > handled as reserved for pzone users and not used even in global memory 
-> > shortage.
-> ok. Let me explain what I mean.
-> Imagine the situation with global memory shortage. In kernel, there are 
-> threads which do some job behalf the user, e.g. kjournald, loop etc. If 
-> the user has some pzone memory, but these threads fail to do their job 
-> some nasty things can happen (ext3 problems, deadlocks, OOM etc.)
-> If such behaviour is ok for you, then great. But did you consider it?
-> 
-> Also, I can't understand how it works with OOM killer. If pzones has 
-> enough memory, but there is a global shortage, who will be killed?
 
-I understand.
-IMHO, only the system processes should use global memory.
-User processes that may cause such memory shortage should be 
-enclosed in pzones first.
+[snip]
+> The typecasting for NEW_AUX_ENT is random, ugly, irrational and
+> undesirable.  It's always u32 or unsigned long.  Perhaps as a followup
+> patch you could look at removing the unneeded casts? (hopefully that'll
+> be all of them)
+>
+Sure, I'll take a look at that this evening, hopefully that'll mean a
+follow-up patch in aproximately 12-16hrs.
 
-Thanks,
 
--- 
-KUROSAWA, Takahiro
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

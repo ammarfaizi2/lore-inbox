@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWDXV34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWDXVaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbWDXV34 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 17:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWDXV3z
+	id S1751298AbWDXVaK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 17:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWDXVaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 17:29:55 -0400
-Received: from smtpout.mac.com ([17.250.248.184]:12024 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751302AbWDXV3o (ORCPT
+	Mon, 24 Apr 2006 17:30:09 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22657 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751298AbWDXVaG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 17:29:44 -0400
-In-Reply-To: <444D3D32.1010104@argo.co.il>
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain> <444D3D32.1010104@argo.co.il>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Gary Poppitz <poppitzg@iomega.com>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Compiling C++ modules
-Date: Mon, 24 Apr 2006 17:29:24 -0400
-To: Avi Kivity <avi@argo.co.il>
-X-Mailer: Apple Mail (2.746.3)
+	Mon, 24 Apr 2006 17:30:06 -0400
+Date: Mon, 24 Apr 2006 23:29:26 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: dtor_core@ameritech.net, Matthew Garrett <mjg59@srcf.ucam.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+Message-ID: <20060424212926.GO3386@elf.ucw.cz>
+References: <20060419195356.GA24122@srcf.ucam.org> <20060419200447.GA2459@isilmar.linta.de> <20060419202421.GA24318@srcf.ucam.org> <d120d5000604240745i71bd56b8n99b97130388d36f6@mail.gmail.com> <1145894731.7155.120.camel@localhost.localdomain> <d120d5000604240926u51fc06d6gbf4f23832064e0ad@mail.gmail.com> <1145898341.7155.145.camel@localhost.localdomain> <20060424203424.GE3386@elf.ucw.cz> <1145912371.7155.220.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145912371.7155.220.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 24, 2006, at 17:03:46, Avi Kivity wrote:
-> Alan Cox wrote:
->> There are a few anti C++ bigots around too, but the kernel choice  
->> of C was based both on rational choices and experimentation early  
->> on with the C++ compiler.
->
-> Times have changed, though. The C++ compiler is much better now,  
-> and the recent slew of error handling bugs shows that C is a very  
-> unsafe language.
->
-> I think it's easy to show that the equivalent C++ code would be  
-> shorter, faster, and safer.
+Hi!
 
-Really?  What features exactly does C++ have over C that you think  
-make that true?  Implicit memory allocation? Exceptions?  Operator  
-overloading?  Tendency to use StudlyCaps?  What else can C++ do that  
-C can not?
+> >(Another interesting question is: is AC status 0/1 or is it number of
+> > milivolts?)
+> 
+> I'd say millivolts except for the problem of what you do on systems that
+> don't support voltage readings. Use a very high value I guess. For a lot
+> of devices millivolts also means in kernel conversion tables. Do such
+> things belong in kernel or user space?
 
-For example, I could write the following:
+We should probably return 0/-1 in such case (-1 = on, but voltage unknown).
 
-class Foo {
-public:
-	Foo() { /* ... init code ... */ }
-	~Foo() { /* ... free code ... */ }
-	int do_thing(int arg) { /* ... code ... */ }
+> > > to detect when its plugged in) ;). The battery class would export some
+> > > information but not all of it and I don't know where the leftover
+> > > information should go. If I knew that, I'd write the class.
+> > 
+> > Leftover information?
+> 
+> Where to put AC status and AC voltage readings amongst other things.
+> Another sysfs class? Also, how do you control suspend/resume
+> notifications to userspace if not using APM/ACPI?
 
-private:
-	int data_member;
-};
+I'd say that AC status should go to separate class, I'm
+afraid. Potentially AC has more parameters (like current, current
+frequency, difference between phase of current and voltage, ...?) and
+UPSs even measure that.
 
-Or I could write it like this:
+Does userspace need to be notified of suspend/resume? [I keep
+insisting that they do not, and I'm probably wrong, but... :-)]
 
-struct foo {
-	int data_member;
-};
-
-int foo_init() { /* ... init code ... */ }
-int foo_destroy() { /* ... free code ... */ }
-int foo_do_thing(int arg) { /* ... code ... */ }
-
-
-The "advantages" of the former over the latter:
-
-(1)  Without exceptions (which are fragile in a kernel), the former  
-can't return an error instead of initializing the Foo.
-
-(2)  You can't control when you initialize the Foo.  For example in  
-this code, the "Foo item;" declarations seem to be trivially  
-relocatable, even if they're not.
-     spin_lock(&foo_lock);
-     Foo item1;
-     Foo item2;
-     spin_unlock(&foo_lock);
-
-(3)  Foo could theoretically implement overloaded operators.  How  
-exactly is it helpful to do math on structs?  Does that actually make  
-it any easier to understand the code?  How does it make it more  
-obvious to be able to write a "+" operator that allocates memory?
-
-
-Cheers,
-Kyle Moffett
-
+								Pavel
+-- 
+Thanks for all the (sleeping) penguins.

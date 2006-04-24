@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWDXUuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWDXUwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbWDXUuK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 16:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWDXUuJ
+	id S1751169AbWDXUwf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 16:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWDXUwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 16:50:09 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:26634 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751231AbWDXUuI convert rfc822-to-8bit (ORCPT
+	Mon, 24 Apr 2006 16:52:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46722 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751169AbWDXUwe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 16:50:08 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <Pine.LNX.4.64.0604241319030.3701@g5.osdl.org>
-X-OriginalArrivalTime: 24 Apr 2006 20:50:07.0378 (UTC) FILETIME=[AB789720:01C667E0]
-Content-class: urn:content-classes:message
-Subject: Re: better leve triggered IRQ management needed
-Date: Mon, 24 Apr 2006 16:50:07 -0400
-Message-ID: <Pine.LNX.4.61.0604241648340.24574@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: better leve triggered IRQ management needed
-thread-index: AcZn4Kt/9cL2aremT7i68YZqd0CVbg==
-References: <20060424114105.113eecac@localhost.localdomain> <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org> <Pine.LNX.4.61.0604241529360.24459@chaos.analogic.com> <Pine.LNX.4.64.0604241319030.3701@g5.osdl.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Cc: "Stephen Hemminger" <shemminger@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Mon, 24 Apr 2006 16:52:34 -0400
+Date: Mon, 24 Apr 2006 16:52:11 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Steve French <sfrench@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix cifs breakage when CONFIG_CIFS_EXPERIMENTAL=n
+Message-ID: <20060424205211.GD7385@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jean Delvare <khali@linux-fr.org>,
+	Steve French <sfrench@us.ibm.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20060424222539.1d3c96fd.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060424222539.1d3c96fd.khali@linux-fr.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 24, 2006 at 10:25:39PM +0200, Jean Delvare wrote:
+ > Hi Steve,
+ > 
+ > Cifs is currently broken when CONFIG_CIFS_EXPERIMENTAL=n:
+ > 
+ > The following patch attempts to fix that. Untested beyond compilation.
 
-On Mon, 24 Apr 2006, Linus Torvalds wrote:
+I fixed it with a smaller equally untested patch:
 
->
->
-> On Mon, 24 Apr 2006, linux-os (Dick Johnson) wrote:
->>> one user and the driver is properly written. Making request_irq() fail
->>    ^^^^^^^^_______ Must be a trick!
->>> would break existing and working setups.
->>>
->>
->> If there is just one user then it isn't shared! Get real.
->
-> SA_SHIRQ does NOT mean that the irq is shared.
->
-> It means that it's not exclusive, and that the driver is _ok_ with it
-> being shared if that makes sense.
->
-> 		Linus
-> -
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Yeah. You have been talking to too many lawyers! You are getting a
-forked tongue!
+fs/cifs/connect.c: In function 'cifs_setup_session':
+fs/cifs/connect.c:3451: error: implicit declaration of function 'CIFS_SessSetup'
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+--- linux-2.6.16.noarch/fs/cifs/connect.c~	2006-04-23 23:08:32.000000000 -0400
++++ linux-2.6.16.noarch/fs/cifs/connect.c	2006-04-23 23:09:45.000000000 -0400
+@@ -3447,10 +3447,13 @@ int cifs_setup_session(unsigned int xid,
+ 			pSesInfo->server->secMode,
+ 			pSesInfo->server->capabilities,
+ 			pSesInfo->server->timeZone));
++#ifdef CONFIG_CIFS_EXPERIMENTAL
+ 		if(experimEnabled > 1)
+ 			rc = CIFS_SessSetup(xid, pSesInfo, CIFS_NTLM /* type */,
+-					    &ntlmv2_flag, nls_info);	
+-		else if (extended_security
++					    &ntlmv2_flag, nls_info);
++		else
++#endif
++			if (extended_security
+ 				&& (pSesInfo->capabilities & CAP_EXTENDED_SECURITY)
+ 				&& (pSesInfo->server->secType == NTLMSSP)) {
+ 			cFYI(1, ("New style sesssetup"));
+-- 
+http://www.codemonkey.org.uk

@@ -1,96 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWDXQFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWDXQM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbWDXQFq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 12:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbWDXQFq
+	id S1750951AbWDXQM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 12:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWDXQM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 12:05:46 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:15055 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750812AbWDXQFp (ORCPT
+	Mon, 24 Apr 2006 12:12:26 -0400
+Received: from nz-out-0102.google.com ([64.233.162.203]:57897 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750916AbWDXQM0 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 12:05:45 -0400
-Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
-From: Richard Purdie <rpurdie@rpsys.net>
-To: dtor_core@ameritech.net
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@suse.cz>
-In-Reply-To: <d120d5000604240745i71bd56b8n99b97130388d36f6@mail.gmail.com>
-References: <20060419195356.GA24122@srcf.ucam.org>
-	 <20060419200447.GA2459@isilmar.linta.de>
-	 <20060419202421.GA24318@srcf.ucam.org>
-	 <d120d5000604240745i71bd56b8n99b97130388d36f6@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 24 Apr 2006 17:05:30 +0100
-Message-Id: <1145894731.7155.120.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Apr 2006 12:12:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LBul2CC1MGkzwlea++qXbkfLEwey5fVUIevCmclRE9yIRQtq4TGlZtqln/0hHjwcuyyIbBgMk2zJCP9+uLeJrumh7h0WQPomGW/DJyyYsIuXLsAynsT6zj0Tje9UbhN8nRacpknvg9ccZ84Bv28qV1BLf/hH+EhYyX19FrBTy0w=
+Message-ID: <cda58cb80604240912o61ab1491i13946fe2f0f03c27@mail.gmail.com>
+Date: Mon, 24 Apr 2006 18:12:24 +0200
+From: "Franck Bui-Huu" <vagabon.xyz@gmail.com>
+To: "David Woodhouse" <dwmw2@infradead.org>
+Subject: Re: How can I prevent MTD to access the end of a flash device ?
+Cc: "Nicolas Pitre" <nico@cam.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1145893231.16166.340.camel@shinybook.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <cda58cb80511070248o6d7a18bex@mail.gmail.com>
+	 <cda58cb80511220658n671bc070v@mail.gmail.com>
+	 <Pine.LNX.4.64.0511221042560.6022@localhost.localdomain>
+	 <cda58cb80604231006x4911598bg6c1e3d62f07d80e7@mail.gmail.com>
+	 <Pine.LNX.4.64.0604231323180.3603@localhost.localdomain>
+	 <cda58cb80604231157g58088e0dhb93a91c46deda627@mail.gmail.com>
+	 <1145893231.16166.340.camel@shinybook.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 10:45 -0400, Dmitry Torokhov wrote:
-> Yes, I still need to apply it.
-> 
-> Matthew, I would recommend not adding KEY_LID but using one of the
-> switch codes (SW_0?) for the lid.
-> 
-> Richard, on your handhelds what switch would be most similar to
-> notebook's lid? Should we alias one of the switches to SW_LID?
+2006/4/24, David Woodhouse <dwmw2@infradead.org>:
+> MTD partitions aren't like block device partitions. You just get a set
+> of MTD devices which are like a wrapper around the original.
+>
+> MTD concat is the same. You should be able to partition and concat and
+> partition and concat on top of each other to your heart's content. If
+> you so desire.
+>
 
-This gets tricky as the handhelds have two "lid" switches. Pictures of
-how it can fold are at http://www.dynamism.com/sl-c3000/main.shtml . To
-summarise, it can be in three positions:
+oh ok...should I simply use add_mtd_partitions(...) function to create
+a new MTD device based on a given partition ?
 
-* Screen folded facing the keys (shut like a laptop)
-* Screen open above the keyboard (like an open laptop)
-* Screen folded over the keys but with the screen visible (becomes a
-tablet like handheld with no keyboard)
+> > Do you think it's possible to change the size of a mtd device rigth
+> > after probing it ?
+>
+> Yes, that works too.
+>
 
-Shut is when both switches (SW_0 and SW_1) are pressed, open is when
-neither are pressed and the "no keyboard" mode has only one switch
-pressed.
+In your opinion, what is the right thing to do ?
 
-The final switch (SW_2) is mapped to headphone detection.
-
-If we are going to have a KEY_LID switch, we should probably decide now
-whether the switch is pressed (1) when the lid is either open or shut
-otherwise things are going to get confused.
-
-I've often wondered whether the input system could/should be used to
-pass more generic events. I know my handheld has lots of other switch
-like events such as MMC/SD card insertion, CF card insertion, a battery
-lock switch, AC power insertion switch and USB cable detection "switch".
-Most of these are currently acted on by the kernel so userspace doesn't
-need to see them but some like the USB cable detection would be useful.
-It could then load the user's chosen USB gadget kernel module for
-example. In that case its a user choice as there is no "right" gadget
-module to autoload. I'm not sure if it would be right for these to go
-via the input system and last time I looked, udev wasn't able to handle
-generic events like this. 
-
-In an ideal world, given the system nature of the events, perhaps they'd
-be better suited to a more generalised or specialised piece of code
-based on the input system. A more general events system would mean we
-could have:
-
-EVENT_LID_SHUT
-EVENT_LID_OPEN
-EVENT_LID_OPEN_NOKEYBOARD
-
-or similar which would avoid the issues associated with a single SW_LID
-switch. I suspect there are no easy answers though.
-
-Whilst sort of on the subject (AC power switches and AC power events)
-I'd like to see some standard way of exporting power/battery information
-to userspace. Currently, the ARM handhelds use kernel emulation of an
-APM bios and export the battery info as part of that. Making ARM emulate
-ACPI interfaces doesn't appeal. The answer could be a battery sysfs
-class and the above system events interface but I'm open to other
-suggestions.
-
-Cheers,
-
-Richard
-
+thanks
+--
+               Franck

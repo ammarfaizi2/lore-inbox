@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWDXObo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWDXOe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbWDXObo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 10:31:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWDXObo
+	id S1750709AbWDXOe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 10:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWDXOe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 10:31:44 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:27842 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750804AbWDXObn convert rfc822-to-8bit (ORCPT
+	Mon, 24 Apr 2006 10:34:29 -0400
+Received: from mga01.intel.com ([192.55.52.88]:39817 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750709AbWDXOe2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 10:31:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UNa+SJ8dhlc1KUqlyXcdAcnc+A3t9mm4rDAC9X5EGGWEL5gCwVsGznqrLQNato/Kjm366YQiZd1/5C2tqd1+vc1ZHNurjbNkxWtG1uM4Ksx4drWPhP6XLsZhxICN5wVvSqzklpzAk9O3bo78rfNAkUnONQmJUeHXjh1/Obqjai0=
-Message-ID: <d120d5000604240731i5a3667f9g37e94de390485aac@mail.gmail.com>
-Date: Mon, 24 Apr 2006 10:31:39 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: bjd <bjdouma@xs4all.nl>
-Subject: Re: [PATCH 001/001] INPUT: new ioctl's to retrieve values of EV_REP and EV_SND event codes
-Cc: linux-kernel@vger.kernel.org, "Vojtech Pavlik" <vojtech@suse.cz>
-In-Reply-To: <20060422204844.GA16968@skyscraper.unix9.prv>
+	Mon, 24 Apr 2006 10:34:28 -0400
+X-IronPort-AV: i="4.04,152,1144047600"; 
+   d="scan'208"; a="27789894:sNHT62138342"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060422204844.GA16968@skyscraper.unix9.prv>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Problems with EDAC coexisting with BIOS
+Date: Mon, 24 Apr 2006 22:32:25 +0800
+Message-ID: <C1989F6360C8E94B9645F0E4CF687C08C1EA07@pgsmsx412.gar.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problems with EDAC coexisting with BIOS
+Thread-Index: AcZnqikPaDZMG0OnTBixmBWaUAkmWAAACEoA
+From: "Ong, Soo Keong" <soo.keong.ong@intel.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Gross, Mark" <mark.gross@intel.com>,
+       <bluesmoke-devel@lists.sourceforge.net>,
+       "LKML" <linux-kernel@vger.kernel.org>,
+       "Carbonari, Steven" <steven.carbonari@intel.com>,
+       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
+X-OriginalArrivalTime: 24 Apr 2006 14:32:27.0926 (UTC) FILETIME=[E9629B60:01C667AB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/22/06, bjd <bjdouma@xs4all.nl> wrote:
->
-> From: Bauke Jan Douma <bjdouma@xs4all.nl>
->
+There are 4 occasions (that I aware of) during the OS times that could
+possibly trigger SMI
 
-Hi Bauke,
+1. Before OS USB driver disconnect SMI from USB controller
+2. ACPI driver call software SMI once
+3. SpeedStep using ACPI interface
+4. Error (connected to SMI) happens
 
-Thank you for your patch.
+I know there are always ways to improve BIOS. Allow me to look at the OS
+first so that OS can be robust enough to handle different
+implementations.
 
-> Add two new ioctl's to have the input driver return actual current values for
-> EV_REP and EV_SND event codes.
->
-> Currently there is no ioctl to retrieve EV_REP values, even though they have
-> actually always been stored in dev->rep.  A new ioctl, EVIOCGREPCODE,
-> retrieves them.
->
+1 and 2 will be gone early in booting. 3 could be handled appropriately
+by OS because OS knows when SpeedStep ACPI interface is called and is
+done. 4 will be gone after error interrupt re-connection done by OS
+after phase 1 and 2.
 
-EVIOCGREP and EVIOCSREP ioctls are present in 2.4 but they have been
-removed during 2.6 development. If you need to get/set repeat delay
-and period you need to use KDKBDREP ioctl; it will change the repeat
-rate for all keyboards attached to the box.
+I am not the one who prefer error handling stay in BIOS, but many people
+have different opinion from me.
 
-Vojtech, could you remind me why EVIOC{G|S}REP were removed? Some
-people want to have ability to separate keyboards (via grabbing); they
-also might want to control repeat rate independently. Shoudl we
-reinstate these ioctls?
+I logout now.
 
-> The existing EVCGSND ioctl has never returned anything meaningful; the relevant
-> fragment in input.c was missing even a change_bit() call.
-> The actual EV_SND values are now written in dev->snd.  To make this work,
-> dev->snd had to be made an int array, and as a consequence the EVICGSND ioctl
-> became problematic.  I have removed it in this diff, but --even though it never
-> has returned anything meaningful-- I'm not quite sure that's the right thing to
-> do, so I would appreciate feedback on this.
-> Anyway, an EVIOCGSNDCODE ioctl was added to retrieve these values.
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
+Sent: Monday, April 24, 2006 10:30 PM
+To: Ong, Soo Keong
+Cc: Gross, Mark; bluesmoke-devel@lists.sourceforge.net; LKML; Carbonari,
+Steven; Wang, Zhenyu Z
+Subject: RE: Problems with EDAC coexisting with BIOS
 
-I think we should just fix EVCGSND and just allow userspace to query
-which sound evvects are active fro device - IOW just return bitmap
-like we do for keys and leds and switches. I don't think actuall
-"value" of the SND_TONE is interesting to anyone.
+On Llu, 2006-04-24 at 22:15 +0800, Ong, Soo Keong wrote:
+> To me, periodical is not a good design for error handling, it wastes
+> transaction bandwidth that should be used for other more productive
+> purposes.
 
---
-Dmitry
+The periodical choice is mostly down to the brain damaged choice of NMI
+as the viable alternative, which is as good as 'not usable'
+
+> It is more appropriate to have single handler, either OS or BIOS.
+
+Agreed but then the BIOS must provide that service to the OS reliably
+and efficiently so that users can build that service into their system
+wide error management and control processes.
+
+> In general, the errors handler connect the errors to the interrupt or
+> interrutps. The handler should undhide (if it s hideable) the error
+> controller and read its registers upon interrupt, then carry out
+> appropriate actions to handle the erros.
+
+Actually I am dubious that the error handler can do that. If the OS
+kernel just issued the first half of a config cycle what occurs when the
+SMI tries to play with PCI config space ? 

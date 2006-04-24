@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWDXUpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWDXUtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbWDXUpf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 16:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWDXUpf
+	id S1751232AbWDXUtU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 16:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWDXUtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 16:45:35 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39316 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751263AbWDXUpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 16:45:34 -0400
-Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for
-	run-timeauthentication of binaries
-From: Arjan van de Ven <arjan@infradead.org>
-To: Nix <nix@esperi.org.uk>
-Cc: "Makan Pourzandi (QB/EMC)" <makan.pourzandi@ericsson.com>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       Serue Hallyen <serue@us.ibm.com>,
-       Axelle Apvrille <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
-       disec-devel@lists.sourceforge.net
-In-Reply-To: <87hd4ipvdk.fsf@hades.wkstn.nix>
-References: <6D19CA8D71C89C43A057926FE0D4ADAA29D361@ecamlmw720.eamcs.ericsson.se>
-	 <1145897277.3116.44.camel@laptopd505.fenrus.org>
-	 <87hd4ipvdk.fsf@hades.wkstn.nix>
-Content-Type: text/plain
-Date: Mon, 24 Apr 2006 22:45:26 +0200
-Message-Id: <1145911526.3116.71.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 24 Apr 2006 16:49:20 -0400
+Received: from ns1.soleranetworks.com ([70.103.108.67]:39819 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751232AbWDXUtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 16:49:19 -0400
+Message-ID: <444D44F2.8090300@wolfmountaingroup.com>
+Date: Mon, 24 Apr 2006 15:36:50 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Mares <mj@ucw.cz>
+CC: Gary Poppitz <poppitzg@iomega.com>, linux-kernel@vger.kernel.org
+Subject: Re: C++ pushback
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com> <mj+md-20060424.201044.18351.atrey@ucw.cz>
+In-Reply-To: <mj+md-20060424.201044.18351.atrey@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 21:32 +0100, Nix wrote:
-> On 24 Apr 2006, Arjan van de Ven announced authoritatively:
-> > On Mon, 2006-04-24 at 12:27 -0400, Makan Pourzandi (QB/EMC) wrote:
-> >> Hi Arjan, 
-> >> 
-> >> I hope I correctly understood your question, DigSig uses LSM hooks to
-> >> check the digital signature before loading it, then as long as your elf
-> >> loader uses kernel system calls, it's covered by DigSig. 
-> > 
-> > ok I have to admit that this answer worries me.
-> > 
-> > how can it be covered? How do you distinguish an elf loader application
-> > (which just uses open + mmap after all) with... say a grep-calling perl
-> > script?
-> 
-> It checks mmap and mprotect with PROT_EXEC, and execve().
+Martin Mares wrote:
 
-so no jvm's or flash plugins.
+>>If there is a childish temper tantrum mentality about C++ then I have  
+>>no reason or desire to be on this list.
+>>    
+>>
+>
+>Can you name any reasons for why should we support C++ in the kernel?
+>Why shouldn't we invest the effort to making it possible to write kernel
+>modules in Haskell instead?
+>
+>The kernel is written in C and its maintainers have so far agreed that
+>C is enough and adding any other language brings more pain than gain.
+>
+>If you think otherwise, feel free to submit some real code which shows
+>the advantages of using a different language.
+>
+>				Have a nice fortnight
+>  
+>
+C++ in the kernel is a BAD IDEA. C++ code can be written in such a 
+convoluted manner as to be unmaintainable and unreadable.
+All of the hidden memory allocations from constructor/destructor 
+operatings can and do KILL OS PERFORMANCE. Java
+is a great example as to why kernel OS code should NEVER be allowed in C++.
 
-and the stack can be executable if the app wants it to be as well...
-so it's not all that easy as you make it sound
+C and C++ really show their origins when used in kernel level 
+programming. So what were C and C++ originally -- they were grades. :-)
 
-> will sign every ELF shared object and executable on the system.
+I applaud the LKML folks pushing back on C++.
 
-but it won't sign the not-really-elf-but-virus-anyway files. 
+A++.
+
+Jeff
+
+
 

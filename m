@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWDXAAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWDXALq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751465AbWDXAAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 20:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWDXAAQ
+	id S1751049AbWDXALq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 20:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWDXALq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 20:00:16 -0400
-Received: from nproxy.gmail.com ([64.233.182.188]:32811 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751465AbWDXAAO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 20:00:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=W2FLbAbq2NknR4ycg+fmFH1FZitBXknGl6nA6mZW7aV/rKEdbfxP+QFUoPhYjKXLL6DU93Qxmlu/QB2Z90lUl3AwOuTS7t8fxO8SCShVcmamxsea9lk1nSkfBM20QO8/a3NoZ+FACXcSy8XrAbBWt7P0wzUh25o4Pml61YYIW2U=
-Date: Mon, 24 Apr 2006 03:57:30 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
+	Sun, 23 Apr 2006 20:11:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:20895 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751049AbWDXALp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 20:11:45 -0400
+Subject: Re: [PATCH] 'make headers_install' kbuild target.
+From: David Woodhouse <dwmw2@infradead.org>
 To: linux-kernel@vger.kernel.org
-Cc: Jaroslav Kysela <perex@suse.cz>, alsa-devel@alsa-project.org
-Subject: ALSA regression: oops on shutdown
-Message-ID: <20060423235730.GA7934@mipter.zuzino.mipt.ru>
+Cc: bunk@stusta.de, sam@ravnborg.org
+In-Reply-To: <1145672241.16166.156.camel@shinybook.infradead.org>
+References: <1145672241.16166.156.camel@shinybook.infradead.org>
+Content-Type: text/plain
+Date: Mon, 24 Apr 2006 01:12:07 +0100
+Message-Id: <1145837528.16166.251.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.0 (2.6.0-1.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ALSA oops I reported against 2.6.16-rc1-mm4 [1] sneaked into mainline
-after release.
-----------------------------
-EIP is at remove_proc_entry
-Process rmmod
+On Sat, 2006-04-22 at 03:17 +0100, David Woodhouse wrote:
+> Attached is the current patch from mainline to my working tree at
+> git://git.infradead.org/~dwmw2/headers-2.6.git -- visible in gitweb at
+> http://git.infradead.org/?p=users/dwmw2/headers-2.6.git;a=summary
+> 
+> It adds a 'make headers_install' target to the kernel makefiles, which
+> exports a subset of the headers and runs 'unifdef' on them to clean
+> them up for installation in /usr/include. 
 
-snd_info_unregister             [snd]
-snd_pcm_oss_proc_done           [snd_pcm_oss]
-snd_pcm_oss_unregister_minor    [snd_pcm_oss]
-snd_pcm_notify                  [snd_pcm]
-sys_delete_module
-do_munmap
-syscall_call
-----------------------------
-Fine-grained bisecting points to commit 21a3479a0b606d36fe24093f70a1c27328cec286
+I've now added a 'make headers_check' target which goes through the
+resulting headers and checks that they are a closed set -- they don't
+attempt to include any kernel header which isn't selected for export.
+I've also committed enough header cleanups to ensure that the checks
+pass, at least for ARCH=powerpc. 
 
-    [ALSA] PCM midlevel & PCM OSS - make procfs & OSS plugin code optional
+In time, I'd like to see additional checks added, such as checking for
+namespace pollution and perhaps attempting to compile each header
+standalone.
 
-.config is
+Now that we can see the mess we have when we export it, there should be
+plenty of fun pickings for kernel janitor-types. There's no particular
+reason why those cleanups should come through my tree, although I'm
+happy enough to collect them and to give accounts on git.infradead.org
+to anyone who's going to make a habit of sending them. 
 
-	CONFIG_SOUND=m
-	CONFIG_SND=m
-	CONFIG_SND_TIMER=m
-	CONFIG_SND_PCM=m
-	CONFIG_SND_OSSEMUL=y
-	CONFIG_SND_MIXER_OSS=m
-	CONFIG_SND_PCM_OSS=m
-	CONFIG_SND_AC97_CODEC=m
-	CONFIG_SND_AC97_BUS=m
-	CONFIG_SND_INTEL8X0=m
-
-[1] google-groups "2.6.16-rc1-mm4: ALSA oops at remove_proc_entry"
-
-[2] cat ~/bin/google-groups
-#!/bin/sh
-
-case "$#" in
-0)
-	$BROWSER http://groups.google.com/advanced_search
-	;;
-1)
-	$BROWSER http://groups.google.com/groups?as_q="$1"
-	;;
-esac
+-- 
+dwmw2
 

@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWDXFyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWDXGOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbWDXFyc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 01:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWDXFyc
+	id S1750825AbWDXGOO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 02:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWDXGOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 01:54:32 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:48297 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750819AbWDXFyb (ORCPT
+	Mon, 24 Apr 2006 02:14:14 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23968 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750825AbWDXGON (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 01:54:31 -0400
-Date: Mon, 24 Apr 2006 06:54:28 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet.skynet.ie
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matthew Reppert <arashi@sacredchao.net>, linux-kernel@vger.kernel.org,
-       "Antonino A. Daplas" <adaplas@pol.net>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: PCI ROM resource allocation issue with 2.6.17-rc2
-In-Reply-To: <20060423222122.498a3dd2.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0604240652380.31142@skynet.skynet.ie>
-References: <1145851361.3375.20.camel@minerva> <20060423222122.498a3dd2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 24 Apr 2006 02:14:13 -0400
+Date: Mon, 24 Apr 2006 16:14:03 +1000
+From: David Chinner <dgc@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Direct I/O bio size regression
+Message-ID: <20060424061403.GF611708@melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The change introduced here in 2.6.15:
 
->> I've been running 2.6.12-rc2-mm3 for a long time.  Recently I upgraded
->> a bunch of OS packages (Debian unstable), so I thought I may as well
->> upgrade the kernel, too.  I've got a dual-head setup driven by a Radeon
->> 9200 and a Radeon 7000.  When I booted 2.6.17-rc2, X never came up; I
->> got "RADEON: Cannot read V_BIOS" and "RADEON: VIdeo BIOS not detected
->> in PCI space!" for the RADEON 7000, and it eventually gets in a loop of
->> spitting out "RADEON: Idle timed out, resetting engine ... " messages
->> in Xorg.log.  Doing a diff of working and broken logs uncovered that the
->> Radeon 7000's PCI ROM resource area had moved from ff8c000 to c6900000.
->> Once I removed the Radeon 7000 screen from the Xorg config, X came up fine
->> on the one head.  Adding stupid amounts of printks to the PCI subsystem in
->> .17-rc2 uncovered that at some point, the ROM area is discovered to be
->> at ff8c0000, but is later reallocated to c6900000.
->>
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=defd94b75409b983f94548ea2f52ff5787ddb848
 
-welcome to X have a nice day :-)
+sets the request queue max_sector size unconditionally to 1024 sectors in
+blk_queue_max_sectors() even if the underlying hardware can support a larger
+number of sectors.
 
-X is horribly horribly broken in this area, if you remove the 
-pci_enable_device from drivers/char/drm/drm_stub.c
+Hence when building direct I/O bios, we have the situation where:
 
-and restart everything does it still happen?
+	- dio_new_bio() limits bio vector size artifically to
+	  1024 sectors / page size because bio_get_nr_vecs()
+	  is used q->max_sectors to size the new bio; and
+	- dio_bio_add_page() limits the total bio size to 1024
+	  sectors because bio_add_page() now uses q->max_sectors
+	  to limit the size of the bio.
+	  
+Therefore, we can't build direct I/Os larger than 1024 sectors even
+if the hardware supports large I/Os.  This is a regression as before
+this mod we were able to issue direct I/Os limited by either the
+maximum number of vectors in an bio or the hardware limits.
 
-The problem is that X uses the fact that the pci bars are disabled to 
-decide whether to POST the card using the BIOS, however the card isn't 
-actually posted but pci_enable_device enables the BARs...
+The patch below (against 2.6.16) allows direct I/O to build bios as
+large as the underlying hardware will allow.
 
-however not doing pci_enable_device causes interrupts to not work on the 
-cards in a lot of circumstances..
+Signed-off-by: Dave Chinner <dgc@sgi.com>
+---
+ bio.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
-
+Index: 2.6.x-xfs-new/fs/bio.c
+===================================================================
+--- 2.6.x-xfs-new.orig/fs/bio.c	2006-02-06 11:57:50.000000000 +1100
++++ 2.6.x-xfs-new/fs/bio.c	2006-04-24 15:46:16.849484424 +1000
+@@ -304,7 +304,7 @@ int bio_get_nr_vecs(struct block_device 
+ 	request_queue_t *q = bdev_get_queue(bdev);
+ 	int nr_pages;
+ 
+-	nr_pages = ((q->max_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	nr_pages = ((q->max_hw_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	if (nr_pages > q->max_phys_segments)
+ 		nr_pages = q->max_phys_segments;
+ 	if (nr_pages > q->max_hw_segments)
+@@ -446,7 +446,7 @@ int bio_add_page(struct bio *bio, struct
+ 		 unsigned int offset)
+ {
+ 	struct request_queue *q = bdev_get_queue(bio->bi_bdev);
+-	return __bio_add_page(q, bio, page, len, offset, q->max_sectors);
++	return __bio_add_page(q, bio, page, len, offset, q->max_hw_sectors);
+ }
+ 
+ struct bio_map_data {

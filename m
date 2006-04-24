@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWDXMz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWDXM4r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWDXMz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 08:55:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWDXMz0
+	id S1750779AbWDXM4r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 08:56:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWDXM4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 08:55:26 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57779 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750765AbWDXMzZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 08:55:25 -0400
-Subject: Re: [RFC][PATCH 10/11] security: AppArmor - Add flags to d_path
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tony Jones <tonyj@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       chrisw@sous-sol.org, linux-security-module@vger.kernel.org
-In-Reply-To: <20060420053604.GA15332@suse.de>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	 <20060419175026.29149.23661.sendpatchset@ermintrude.int.wirex.com>
-	 <20060419221248.GB26694@infradead.org>  <20060420053604.GA15332@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Apr 2006 14:05:48 +0100
-Message-Id: <1145883948.29648.28.camel@localhost.localdomain>
+	Mon, 24 Apr 2006 08:56:46 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:24989 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750776AbWDXM4p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 08:56:45 -0400
+Date: Mon, 24 Apr 2006 07:56:41 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, Valdis.Kletnieks@vt.edu,
+       Ken Brush <kbrush@gmail.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060424125641.GD9311@sergelap.austin.ibm.com>
+References: <4445484F.1050006@novell.com> <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu> <4446D378.8050406@novell.com> <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu> <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com> <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu> <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com> <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu> <20060424082424.GH440@marowsky-bree.de> <1145882551.29648.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145882551.29648.23.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-04-19 at 22:36 -0700, Tony Jones wrote:
-> "system root".  When a task chroots relative to it's current namespace, we
-> are interested in the path back to the root of that namespace, rather than
-> to the chroot.  I believe the patch as stands achieves this, albeit with
-> some changing of comments.
+Quoting Alan Cox (alan@lxorguk.ukuu.org.uk):
+> On Llu, 2006-04-24 at 10:24 +0200, Lars Marowsky-Bree wrote:
+> > On 2006-04-23T05:45:34, Valdis.Kletnieks@vt.edu wrote:
+> > 
+> > > > AppArmor are not likely to put careful thought into the policies that
+> > > > they use?
+> > > They're not likely to put careful thought into it, *AND* that saying things
+> > > like "AppArmor is so *simple* to configure" only makes things worse - this
+> > > encourages unqualified people to create broken policy configurations.
+> > 
+> > That is about the dumbest argument I've heard so far, sorry. 
+> 
+> Its the conclusion of most security experts I know that broken security
+> is worse than no security at all. 
 
-If the directory the task is in has been deleted then what is its path
-relative to the namespace ? This isn't theoretical because if your
-security profiles work on the basis of this path but do not prevent the
-deletion of the current directory or some node above it (or doing
-mkdir/chdir/rmdir sequences) an app may be able to subvert it by doing
-this deliberately.
+By the way, this is predicated on the assumption that the broken
+security will cause the user to expose more data.  However in many cases
+these days, that is sadly not the case.  Amazon will store my cc data
+regardless whether they are running selinux, apparmor, or nothing.
 
+-serge

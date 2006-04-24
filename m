@@ -1,37 +1,298 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWDXCna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWDXDOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751492AbWDXCna (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 22:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWDXCna
+	id S1751501AbWDXDOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 23:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWDXDOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 22:43:30 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:9684 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id S1751492AbWDXCn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 22:43:29 -0400
-From: dth@cistron.nl (Danny ter Haar)
-Subject: Re: Q: Why decreased performance on 2.6.17-rc2-gitX with dual cpu vs single cpu ?
-Date: Mon, 24 Apr 2006 02:43:28 +0000 (UTC)
-Organization: Cistron
-Message-ID: <e2he0g$jpt$1@news.cistron.nl>
-References: <e2hdrt$isr$1@news.cistron.nl>
-X-Trace: ncc1701.cistron.net 1145846608 20285 62.216.30.70 (24 Apr 2006 02:43:28 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@cistron.nl (Danny ter Haar)
-To: linux-kernel@vger.kernel.org
+	Sun, 23 Apr 2006 23:14:25 -0400
+Received: from nproxy.gmail.com ([64.233.182.188]:63371 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751501AbWDXDOY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 23:14:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=O63nbrg41eckYJ7tOpr4h5p+S78IJTvRml/vQYj2mCwY48UYvmGuMde68NG2MKUpFVCpF0GNvsRBAX4KnYejCO7hx6VE9fVwlvUJSSx6pV5H47z+neoNkZLXMAXsLT7RqbPtAEn8gssiwntNWRUMl+7QZhM7EOcgkfnc6iWyA20=
+Date: Mon, 24 Apr 2006 07:11:42 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, perex@suse.cz,
+       alsa-devel@alsa-project.org
+Subject: Re: [Alsa-devel] Re: ALSA regression: oops on shutdown
+Message-ID: <20060424031142.GA7735@mipter.zuzino.mipt.ru>
+References: <20060423235730.GA7934@mipter.zuzino.mipt.ru> <20060423185721.39ff4207.akpm@osdl.org> <b6fcc0a0604231937h6f2754f9k68ec76dc19c7ddb9@mail.gmail.com> <1145846360.31507.50.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145846360.31507.50.camel@mindpipe>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->munin graphics: 
->http://stats.handelsweg8.nl/munin/newsserver.nl/newsgate.newsserver.nl.html
+On Sun, Apr 23, 2006 at 10:39:19PM -0400, Lee Revell wrote:
 
-I forgot one very important thing:
+Andrew asked about precise steps of reproduction:
 
-Ethernet stats where you can see less performance than usual:
-http://stats.handelsweg8.nl/mrtg/html/newsgate.html
+	rmmod snd_pcm_oss
 
-Sorry for that.
+which is part of Gentoo install scripts (/etc/init.d/alsasound:134-140, to
+be precise) (basically lsmod | grep snd | xargs rmmod).
 
-Danny
+BUG: unable to handle kernel paging request at virtual address 6b6b6b6b
+ printing eip:
+c016c6a4
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore snd_page_alloc ehci_hcd uhci_hcd usbcore
+CPU:    0
+EIP:    0060:[<c016c6a4>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.17-rc2-6b426e785cb81e53dc2fc4dcf997661472b470ef #1)
+EIP is at remove_proc_entry+0x2c/0x11c
+eax: 00000000   ebx: deb48b80   ecx: ffffffff   edx: de11ed24
+esi: de11ed24   edi: 6b6b6b6b   ebp: de4cb000   esp: de4cbf28
+ds: 007b   es: 007b   ss: 0068
+Process rmmod (pid: 7735, threadinfo=de4cb000 task=c1487a90)
+Stack: <0>de11ed24 6b6b6b6b deb48b80 de11ed24 bf8590cc df93603b de4f0e78 00000000
+       df965fc8 de4f0d84 df967e74 df966184 de4f0d88 df95292d df967f00 00000000
+       c0125f7a 00000000 5f646e73 5f6d6370 0073736f de85d4a4 b7f27000 c013789d
+Call Trace:
+ [<df93603b>] snd_info_unregister+0x2e/0x44 [snd]
+ [<df965fc8>] snd_pcm_oss_proc_done+0x19/0x30 [snd_pcm_oss]
+ [<df966184>] snd_pcm_oss_unregister_minor+0x3b/0x3f [snd_pcm_oss]
+ [<df95292d>] snd_pcm_notify+0x4a/0x91 [snd_pcm]
+ [<c0125f7a>] sys_delete_module+0x113/0x138
+ [<c013789d>] do_munmap+0xe2/0xef
+ [<c010259b>] syscall_call+0x7/0xb
+Code: 85 d2 56 53 51 51 89 14 24 89 44 24 04 75 13 8d 4c 24 04 89 e2 e8 dd f7 ff ff 85 c0 0f 85 f2 00 00 00 8b 7c 24 04 31 c0 83 c9 ff <f2> ae f7 d1 49 b0 01 89 ce e8 fa 13 fa ff 8b 04 24 8d 58 38 83
+EIP: [<c016c6a4>] remove_proc_entry+0x2c/0x11c SS:ESP 0068:de4cbf28
+ BUG: rmmod/7735, lock held at task exit time!
+ [df960920] {register_mutex}
+.. held by:             rmmod: 7735 [c1487a90, 118]
+... acquired at:               snd_pcm_notify+0x10/0x91 [snd_pcm]
+
+> Do you have procfs disabled?
+
+No, /proc is on.
+
+> Full config is needed to debug this more.
+
+# Linux kernel version: 2.6.17-rc2-6b426e785cb81e53dc2fc4dcf997661472b470ef
+CONFIG_X86_32=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_GENERIC_HWEIGHT=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_DMI=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_VM86=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+CONFIG_EMBEDDED=y
+CONFIG_KALLSYMS=y
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_SLAB=y
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_KMOD=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_CFQ=y
+CONFIG_DEFAULT_IOSCHED="cfq"
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_CMPXCHG64=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_TSC=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_MCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_VMSPLIT_3G=y
+CONFIG_PAGE_OFFSET=0xC0000000
+CONFIG_ARCH_FLATMEM_ENABLE=y
+CONFIG_ARCH_SPARSEMEM_ENABLE=y
+CONFIG_ARCH_SELECT_MEMORY_MODEL=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_SPARSEMEM_STATIC=y
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_MTRR=y
+CONFIG_REGPARM=y
+CONFIG_HZ_250=y
+CONFIG_HZ=250
+CONFIG_PHYSICAL_START=0x100000
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_ISA_DMA_API=y
+CONFIG_BINFMT_ELF=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_TCP_CONG_BIC=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_PNP=y
+CONFIG_PNPACPI=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SD=m
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=y
+CONFIG_8139TOO_PIO=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_RUNTIME_UARTS=0
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_I915=y
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_INTEL=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_SOUND=m
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_AC97_BUS=m
+CONFIG_SND_INTEL8X0=m
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB_ARCH_HAS_EHCI=y
+CONFIG_USB=m
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_UHCI_HCD=m
+CONFIG_USB_STORAGE=m
+CONFIG_EXT2_FS=y
+CONFIG_REISERFS_FS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_FAT_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=866
+CONFIG_FAT_DEFAULT_IOCHARSET="koi8-r"
+CONFIG_PROC_FS=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_UFS_FS=y
+CONFIG_CIFS=m
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="utf8"
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_UTF8=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_DETECT_SOFTLOCKUP=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_PREEMPT=y
+CONFIG_DEBUG_MUTEXES=y
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_DEBUG_VM=y
+CONFIG_FORCED_INLINING=y
+CONFIG_DEBUG_STACKOVERFLOW=y
+CONFIG_DEBUG_STACK_USAGE=y
+CONFIG_STACK_BACKTRACE_COLS=1
+CONFIG_DEBUG_RODATA=y
+CONFIG_4KSTACKS=y
+CONFIG_DOUBLEFAULT=y
+CONFIG_CRC32=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_KTIME_SCALAR=y
 

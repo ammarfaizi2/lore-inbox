@@ -1,74 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWDXIuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWDXIyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWDXIuS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 04:50:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWDXIuS
+	id S932091AbWDXIyP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 04:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWDXIyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 04:50:18 -0400
-Received: from smtp6-g19.free.fr ([212.27.42.36]:38284 "EHLO smtp6-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932091AbWDXIuR (ORCPT
+	Mon, 24 Apr 2006 04:54:15 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:52911 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S932091AbWDXIyO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 04:50:17 -0400
-Message-ID: <444C913B.3020706@free.fr>
-Date: Mon, 24 Apr 2006 10:50:03 +0200
-From: Bernard Pidoux <bpidoux@free.fr>
-User-Agent: Thunderbird 1.5 (X11/20060225)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Jiri Slaby <jirislaby@gmail.com>, Bernard Pidoux <pidoux@ccr.jussieu.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [kernel 2.6] Patch for mxser.c driver
-References: <443C1DA0.1030004@ccr.jussieu.fr>  <443C2BF4.6070106@gmail.com> <1144834562.1952.31.camel@localhost.localdomain>
-In-Reply-To: <1144834562.1952.31.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Apr 2006 04:54:14 -0400
+Date: Mon, 24 Apr 2006 10:54:56 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060424085456.GL440@marowsky-bree.de>
+References: <20060417195146.GA8875@kroah.com> <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu> <4445484F.1050006@novell.com> <20060420211308.GB2360@ucw.cz> <444AF977.5050201@novell.com> <200604230933.k3N9XTZ8019756@turing-police.cc.vt.edu> <20060423145846.GA7495@thorium.jmh.mhn.de> <20060424082831.GI440@marowsky-bree.de> <1145867837.3116.7.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1145867837.3116.7.camel@laptopd505.fenrus.org>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 2006-04-24T10:37:17, Arjan van de Ven <arjan@infradead.org> wrote:
 
-The multiport serial adapter I wanted to use is a four ports C104H/PCI 
-SmartIO.
+> > Security models can be compromised by root or by dumb accomplices. Film
+> > at eleven.
+> well this security model wants to partition root, more or less. So to
+> some degree looking at it makes sense; just not so much in the given
+> example ;)
 
-I just received from Moxa support a beta version of the driver 
-(mxser_1.9.1.tgz).
+True.
 
-Acording to readme.txt file
+> > Seriously, this is not helpful. Could we instead focus on the
+> > technical argument wrt the kernel patches?
+> I disagree with your stance here; trying to poke holes in the
+> mechanism IS useful and important. In addition to looking at the
+> kernel patches. 
 
-    The Smartio/Industio/UPCI family Linux driver supports following 
-multiport
-    boards.
+I agree, sort-of. Yet, I'd argue that the holes tried to poke here rely
+on the admin being sloppish not with regular operation, but _while
+configuring the security policy_. The only way to protect against that
+is to shoot the admin on sight.
 
-     - 2 ports multiport board
-         CP-102U, CP-102UL
-         CP-132U-I, CP-132UL,
-         CP-132, CP-132I, CP132S, CP-132IS,
-         CI-132, CI-132I, CI-132IS,
-         (C102H, C102HI, C102HIS, C102P, CP-102, CP-102S)
+Which might not be a bad idea, looking at the stats of the human error
+still being the most dangerous detail in any equation, yet it may be
+considered impractical.
 
-     - 4 ports multiport board
-         CP-104EL,
-         CP-104UL, CP-104JU,
-         CP-134U, CP-134U-I
-         C104H/PCI, C104HS/PCI,
-         CP-114, CP-114I, CP-114S, CP-114IS,
-         C104H, C104HS,
-         CI-104J, CI-104JS
-         CI-134, CI-134I, CI-134IS,
-         (C114HI, CT-114I, C104P)
+> I understand your employer wants this merged asap, but that's no reason
+> to try to stop discussions that try to poke holes in the security model.
 
-     - 8 ports multiport board
-         CP-118EL, CP-168EL,
-         CP-118U, CP-168U,
-         C168H/PCI,
-         C168H, C168HS,
-         (C168P)
+I resent that remark. At the same level I could argue that some other
+people in this discussion do have a professional interest in getting it
+_not_ merged. (And LSM ripped out _now_ before it gets a chance to
+address the comments made so far.) I'd rather not go there. 
 
-I did not have any problem to compile this beta version of driver 1.9 
-and utilities under kernel 2.6.16 with gcc 4.0.3
+But while we're there, just really briefly, it is important to point out
+that while Novell/SUSE obviously _does_ have a corporate interest, it is
+not required for this to be "ASAP", and I trust that Crispin, Tony et
+al will work to incorporate all feedback received. I don't think we're
+in any rush, and even if LSM _is_ ripped out, that just means that the
+patch series will be augmented with a further patch [01/xx] "Reinstate
+LSM hooks w/additional provisions to address code cleanliness."
 
-73 de Bernard, f6bvp
+Going back to the technical side of things, I'd be more happy if the
+holes poked were something you could reasonably expect to be able to
+protect against.
 
-http://f6bvp.org
-http://rose.fpac.free.fr/MINI-HOWTO/
-http://rose.fpac.free.fr/MINI-HOWTO-FR/
+
+Sincerely,
+    Lars Marowsky-Brée
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
+

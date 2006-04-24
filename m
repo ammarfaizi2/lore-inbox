@@ -1,102 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWDXWyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWDXW6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751362AbWDXWyP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 18:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWDXWyP
+	id S1751470AbWDXW6U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 18:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWDXW6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 18:54:15 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:55014 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751359AbWDXWyO (ORCPT
+	Mon, 24 Apr 2006 18:58:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32709 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751470AbWDXW6T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 18:54:14 -0400
-Date: Mon, 24 Apr 2006 17:53:42 -0500
-From: Jon Mason <jdmason@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: mulix@mulix.org, ak@suse.de
-Subject: [PATCH] x86-64: trivial gart clean-up
-Message-ID: <20060424225342.GB14575@us.ibm.com>
+	Mon, 24 Apr 2006 18:58:19 -0400
+Date: Mon, 24 Apr 2006 15:58:12 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 1/2] irq: record edge-level setting
+Message-ID: <20060424155812.68d45cb1@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0604241527060.3701@g5.osdl.org>
+References: <20060424114105.113eecac@localhost.localdomain>
+	<Pine.LNX.4.64.0604241156340.3701@g5.osdl.org>
+	<Pine.LNX.4.64.0604241203130.3701@g5.osdl.org>
+	<1145908402.3116.63.camel@laptopd505.fenrus.org>
+	<20060424201646.GA23517@devserv.devel.redhat.com>
+	<1145911417.3116.69.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.64.0604241354200.3701@g5.osdl.org>
+	<20060424142243.519d61f1@localhost.localdomain>
+	<1145915394.1635.57.camel@localhost.localdomain>
+	<20060424144155.7561fe8e@localhost.localdomain>
+	<Pine.LNX.4.64.0604241527060.3701@g5.osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A trivial change to have gart_unmap_sg call gart_unmap_single directly,
-instead of bouncing through the dma_unmap_single wrapper in
-dma-mapping.h.  This change required moving the gart_unmap_single above
-gart_unmap_sg, and under gart_map_single (which seems a more logical
-place that its current location IMHO).
+On Mon, 24 Apr 2006 15:34:20 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+> 
+> 
+> On Mon, 24 Apr 2006, Stephen Hemminger wrote:
+> > 
+> > Maybe that's why it never was done in the past, too much work and historical
+> > baggage.
+> 
+> It's messy. That whole ELCR register was mis-designed: you can change the 
+> edge/level detection with it, but since it _also_ changes the polarity of 
+> the signal, you can't actually do so from a sw angle, and it has to match 
+> the hardware. So you can't say "I want to treat this interrupt as level 
+> triggered", and just set the bit ;^/
+> 
+> To make matters worse, I wouldn't be in the least surprised if the ELCR 
+> register is totally ignored by many south-bridges for the internally 
+> generated interrupts (ie devices that are embedded in the SB), since the 
+> register really doesn't matter for them.
+> 
+> And it doesn't help that Intel mis-designed the edge-detection logic on 
+> the IO-APIC. On the old i8259, if you masked an interrupt and unmasked it, 
+> an active interrupt would always be seen as an edge, because the 
+> edge-detection was done _after_ masking. On the IO-APIC crap, the masking 
+> is done after edge-detection, so if you mask the APIC hardware level, and 
+> an edge happens, you'll never ever learn of it ever again.
 
-diff -r 742849676406 arch/x86_64/kernel/pci-gart.c
---- a/arch/x86_64/kernel/pci-gart.c	Sun Apr 23 16:44:10 2006
-+++ b/arch/x86_64/kernel/pci-gart.c	Mon Apr 24 15:17:52 2006
-@@ -289,6 +289,28 @@
- }
- 
- /*
-+ * Free a DMA mapping.
-+ */ 
-+void gart_unmap_single(struct device *dev, dma_addr_t dma_addr,
-+		      size_t size, int direction)
-+{
-+	unsigned long iommu_page; 
-+	int npages;
-+	int i;
-+
-+	if (dma_addr < iommu_bus_base + EMERGENCY_PAGES*PAGE_SIZE || 
-+	    dma_addr >= iommu_bus_base + iommu_size)
-+		return;
-+	iommu_page = (dma_addr - iommu_bus_base)>>PAGE_SHIFT;	
-+	npages = to_pages(dma_addr, size);
-+	for (i = 0; i < npages; i++) { 
-+		iommu_gatt_base[iommu_page + i] = gart_unmapped_entry; 
-+		CLEAR_LEAK(iommu_page + i);
-+	}
-+	free_iommu(iommu_page, npages);
-+}
-+
-+/*
-  * Wrapper for pci_unmap_single working with scatterlists.
-  */
- void gart_unmap_sg(struct device *dev, struct scatterlist *sg, int nents, int dir)
-@@ -299,7 +321,7 @@
- 		struct scatterlist *s = &sg[i];
- 		if (!s->dma_length || !s->length)
- 			break;
--		dma_unmap_single(dev, s->dma_address, s->dma_length, dir);
-+		gart_unmap_single(dev, s->dma_address, s->dma_length, dir);
- 	}
- }
- 
-@@ -457,28 +479,6 @@
- 		sg[i].dma_address = bad_dma_address;
- 	return 0;
- } 
--
--/*
-- * Free a DMA mapping.
-- */ 
--void gart_unmap_single(struct device *dev, dma_addr_t dma_addr,
--		      size_t size, int direction)
--{
--	unsigned long iommu_page; 
--	int npages;
--	int i;
--
--	if (dma_addr < iommu_bus_base + EMERGENCY_PAGES*PAGE_SIZE || 
--	    dma_addr >= iommu_bus_base + iommu_size)
--		return;
--	iommu_page = (dma_addr - iommu_bus_base)>>PAGE_SHIFT;	
--	npages = to_pages(dma_addr, size);
--	for (i = 0; i < npages; i++) { 
--		iommu_gatt_base[iommu_page + i] = gart_unmapped_entry; 
--		CLEAR_LEAK(iommu_page + i);
--	}
--	free_iommu(iommu_page, npages);
--}
- 
- static int no_agp;
- 
+That is the kind of crap that makes NAPI difficult.
+See Documentation/networking/NAPI_HOWTO.txt for rotting packet..
+
+> I'm sure other system architectures have similar problems, but it's 
+> irritating.
+> 
+> 			Linus

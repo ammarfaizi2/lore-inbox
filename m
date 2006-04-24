@@ -1,101 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWDXTsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWDXTxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbWDXTsf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 15:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWDXTsf
+	id S1751190AbWDXTxe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 15:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWDXTxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 15:48:35 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:54090 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751191AbWDXTse (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 15:48:34 -0400
-Date: Mon, 24 Apr 2006 21:49:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Al Boldi <a1426z@gawab.com>
-Cc: linux-kernel@vger.kernel.org, David Chinner <dgc@sgi.com>
-Subject: Re: [PATCH] Direct I/O bio size regression
-Message-ID: <20060424194910.GK29724@suse.de>
-References: <200604242006.11758.a1426z@gawab.com>
+	Mon, 24 Apr 2006 15:53:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:18584 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751190AbWDXTxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 15:53:33 -0400
+Subject: Re: better leve triggered IRQ management needed
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: alan@redhat.com, Stephen Hemminger <shemminger@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0604241203130.3701@g5.osdl.org>
+References: <20060424114105.113eecac@localhost.localdomain>
+	 <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org>
+	 <Pine.LNX.4.64.0604241203130.3701@g5.osdl.org>
+Content-Type: text/plain
+Date: Mon, 24 Apr 2006 21:53:22 +0200
+Message-Id: <1145908402.3116.63.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604242006.11758.a1426z@gawab.com>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24 2006, Al Boldi wrote:
-> David Chinner wrote:
-> > On Mon, Apr 24, 2006 at 11:05:08AM +0200, Jens Axboe wrote:
-> > > On Mon, Apr 24 2006, Jens Axboe wrote:
-> > > > > Index: 2.6.x-xfs-new/fs/bio.c
-> > > > > ===================================================================
-> > > > > --- 2.6.x-xfs-new.orig/fs/bio.c   2006-02-06 11:57:50.000000000
-> > > > > +1100 +++ 2.6.x-xfs-new/fs/bio.c        2006-04-24
-> > > > > 15:46:16.849484424 +1000 @@ -304,7 +304,7 @@ int
-> > > > > bio_get_nr_vecs(struct block_device request_queue_t *q =
-> > > > > bdev_get_queue(bdev);
-> > > > >   int nr_pages;
-> > > > >
-> > > > > - nr_pages = ((q->max_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
-> > > > > + nr_pages = ((q->max_hw_sectors << 9) + PAGE_SIZE - 1) >>
-> > > > > PAGE_SHIFT; if (nr_pages > q->max_phys_segments)
-> > > > >           nr_pages = q->max_phys_segments;
-> > > > >   if (nr_pages > q->max_hw_segments)
-> > > > > @@ -446,7 +446,7 @@ int bio_add_page(struct bio *bio, struct
-> > > > >            unsigned int offset)
-> > > > >  {
-> > > > >   struct request_queue *q = bdev_get_queue(bio->bi_bdev);
-> > > > > - return __bio_add_page(q, bio, page, len, offset, q->max_sectors);
-> > > > > + return __bio_add_page(q, bio, page, len, offset,
-> > > > > q->max_hw_sectors); }
-> > > > >
-> > > > >  struct bio_map_data {
-> > > >
-> > > > Clearly correct, I'll make sure this gets merged right away.
-> > >
-> > > Spoke too soon... The last part is actually on purpose, to prevent
-> > > really huge requests as part of normal file system IO.
-> >
-> > I don't understand why this was considered necessary. It
-> > doesn't appear to be explained in any of the code so can you
-> > explain the problem that large filesystem I/Os pose to the block
-> > layer? We _need_ to be able to drive really huge requests from the
-> > filesystem down to the disks, especially for direct I/O.....
-> > FWIW, we've just got XFS to the point where we could issue large
-> > I/Os (up to 8MB on 16k pages) with a default configuration kernel
-> > and filesystem using md+dm on an Altix. That makes an artificial
-> > 512KB filesystem I/O size limit a pretty major step backwards in
-> > terms of performance for default configs.....
-> >
-> > > That's why we
-> > > have a bio_add_pc_page(). The first hunk may cause things to not work
-> > > optimally then if we don't apply the last hunk.
-> >
-> > bio_add_pc_page() requires a request queue to be passed to it.  It's
-> > called only from scsi layers in the context of mapping pages into a
-> > bio from sg_io(). The comment for bio_add_pc_page() says for use
-> > with REQ_PC queues only, and that appears to only be used by ide-cd
-> > cdroms. Is that comment correct?
-> >
-> > Also, it seems to me that using bio_add_pc_page() in a filesystem
-> > or in the generic direct i/o code seems like a gross layering
-> > violation to me because they are supposed to know nothing about
-> > request queues.
-> >
-> > > The best approach is probably to tune max_sectors on the system itself.
-> > > That's why it is exposed, after all.
-> >
-> > You mean /sys/block/sd*/max_sector_kb?
+On Mon, 2006-04-24 at 12:08 -0700, Linus Torvalds wrote:
 > 
-> On my system max_hw_sectors_kb is fixed at 1024, and max_sectors_kb defaults 
-> to 512, which leads to terribly fluctuating thruput.
+> On Mon, 24 Apr 2006, Linus Torvalds wrote:
+> > 
+> > You can get an edge by having your driver make sure that it clears the 
+> > interrupt source at some point where it requires an edge.
 > 
-> Setting max_sectors_kb = max_hw_sectors_kb makes things even worse.
-> 
-> Tuning max_sectors_kb to ~192 only stabilizes this situation.
+> Btw, this is why we do end up saying that having _two_ devices share 
+> an edge-triggered setup really is something we cannot necessarily 
+> fix. That said, it is better to limp along and work as well as you can 
+> than to just throw up your hands.
 
-That sounds pretty strange. Do you have a test case?
-
--- 
-Jens Axboe
+we now have that neat polling thing Alan did for interrupts (but which
+is optional). To limp along better the kernel could auto-enable that for
+any such shared interrupt automatically as a "safe fallback"...
+(or heck, if things are this broken, you probably want it for all
+interrupts at that point just to be sure)
 

@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWDXG0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWDXGiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbWDXG0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 02:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWDXG0Q
+	id S1750844AbWDXGiG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 02:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWDXGiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 02:26:16 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:48080 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750838AbWDXG0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 02:26:15 -0400
-Message-ID: <444C6F3C.1070505@jp.fujitsu.com>
-Date: Mon, 24 Apr 2006 15:25:00 +0900
-From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 24 Apr 2006 02:38:06 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:64842 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750844AbWDXGiF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 02:38:05 -0400
+Message-ID: <444C7427.6080607@openvz.org>
+Date: Mon, 24 Apr 2006 10:45:59 +0400
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
-       Maeda Naoaki <maeda.naoaki@jp.fujitsu.com>
-Subject: Re: [ckrm-tech] Re: [RFC][PATCH 5/9] CPU controller - Documents how
- the controller works
-References: <20060421022727.13598.15397.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>	 <20060421022753.13598.77686.sendpatchset@moscone.dvs.cs.fujitsu.co.jp> <1145776430.7990.58.camel@homer>
-In-Reply-To: <1145776430.7990.58.camel@homer>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+CC: Kirill Korotaev <dev@openvz.org>, sekharan@us.ibm.com, akpm@osdl.org,
+       haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, Valerie.Clement@bull.net,
+       devel@openvz.org
+Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
+References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>	<1145630992.3373.6.camel@localhost.localdomain>	<1145638722.14804.0.camel@linuxchandra>	<20060421155727.4212c41c.akpm@osdl.org>	<1145670536.15389.132.camel@linuxchandra>	<20060421191340.0b218c81.akpm@osdl.org>	<1145683725.21231.15.camel@linuxchandra>	<20060424011053.B89707402F@sv1.valinux.co.jp>	<444C5698.5080503@openvz.org> <20060424054103.091757402D@sv1.valinux.co.jp>
+In-Reply-To: <20060424054103.091757402D@sv1.valinux.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Fri, 2006-04-21 at 11:27 +0900, maeda.naoaki@jp.fujitsu.com wrote:
->> +3. Timeslice scaling
->> +
->> + If there are hungry classes, we need to adjust timeslices to satisfy
->> + the share.  To scale timeslices, we introduce a scaling factor
->> + used for scaling timeslices.  The scaling factor is associated with
->> + the class (stored in the cpu_rc structure) and adaptively adjusted
->> + according to the class load and the share.
+>>>>Yes, it is effective, and the reclamation is O(1) too. It has couple of
+>>>>problems by design, (1) doesn't handle shared pages and (2) doesn't
+>>>>provide support for both min_shares and max_shares.
+>>>
+>>>Right.  I wanted to show proof-of-cencept of the pzone based controller
+>>>and implemented minimal features necessary as the memory controller.
+>>>So, the pzone based controller still needs development and some cleanup.
+>>
+>>Just out of curiosity, how it was meassured that it is effective?
 > 
-> This all works fine until interactive task requeueing is considered, and
-> it must be considered.
 > 
-> One simple way to address the requeue problem is to introduce a scaled
-> class sleep_avg consumption factor.  Remove the scaling exemption for
-> TASK_INTERACTIVE(p), and if a class's cpu usage doesn't drop to what is
-> expected by group timeslice scaling, make members consume sleep_avg at a
-> higher rate such that scaling can take effect.
-
-Interesting approach. However, I'm worrying about hurting interactive
-response by this change.
-
-> A better way to achieve the desired group cpu usage IMHO would be to
-> adjust nice level of members at slice refresh time.  This way, you get
-> the timeslice scaling and priority adjustment all in one.
+> I don't have any benchmark numbers yet, so I can't explain the
+> effectiveness with numbers.  I've been looking for the way to
+> measure the cost of pzones correctly, but I've not found it out yet.
 > 
-> (I think I would do both actually, with nice level being preferred such
-> that dynamic priority spread within the group isn't flattened, which can
-> cause terminal starvation within the group, unless really required.)
+> 
+>>How does it work when there is a global memory shortage in the system?
+> 
+> 
+> I guess you are referring to the situation that global memory is running
+> out but there are free pages in pzones.  These free pages in pzones are
+> handled as reserved for pzone users and not used even in global memory 
+> shortage.
+ok. Let me explain what I mean.
+Imagine the situation with global memory shortage. In kernel, there are 
+threads which do some job behalf the user, e.g. kjournald, loop etc. If 
+the user has some pzone memory, but these threads fail to do their job 
+some nasty things can happen (ext3 problems, deadlocks, OOM etc.)
+If such behaviour is ok for you, then great. But did you consider it?
 
-If nice is changed, the task priority is also changed. I don't think
-changing the task priority for this purpose is a good choice, but
-only lengthen the timeslice would work and that is what I'm considering.
-
-Another obvious bad case is an imbalanced number of runnable tasks
-in the different groups. Since minimum timeslice is 1 tick,
-minimum share is the factor of number of runnable tasks in the group.
-If 1% share group contains 99 runnable tasks and the other 99% share
-group has just one runnable task, the load of the two groups would be
-the same. (It becomes worse in small HZ configuration.)
-
-I've tried different approach to compensate for this badness.
-Which is to requeue the starving tasks to the active as if they are
-TASK_INTERACTIVE, but it sometimes hurt system response and other
-undesirable side effect was observed.
-
-Now, I'm thinking to enlarge the timeslice of starving groups.
+Also, I can't understand how it works with OOM killer. If pzones has 
+enough memory, but there is a global shortage, who will be killed?
 
 Thanks,
-MAEDA Naoaki
+Kirill
 

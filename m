@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWDXALq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWDXAqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWDXALq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 20:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWDXALq
+	id S1751469AbWDXAqI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 20:46:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWDXAqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 20:11:46 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:20895 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751049AbWDXALp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 20:11:45 -0400
-Subject: Re: [PATCH] 'make headers_install' kbuild target.
-From: David Woodhouse <dwmw2@infradead.org>
-To: linux-kernel@vger.kernel.org
-Cc: bunk@stusta.de, sam@ravnborg.org
-In-Reply-To: <1145672241.16166.156.camel@shinybook.infradead.org>
-References: <1145672241.16166.156.camel@shinybook.infradead.org>
-Content-Type: text/plain
-Date: Mon, 24 Apr 2006 01:12:07 +0100
-Message-Id: <1145837528.16166.251.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 23 Apr 2006 20:46:08 -0400
+Received: from iucha.net ([209.98.146.184]:31458 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S1751469AbWDXAqH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 20:46:07 -0400
+Date: Sun, 23 Apr 2006 19:46:06 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: pcmcia oops on 2.6.17-rc[12]
+Message-ID: <20060424004606.GF8896@iucha.net>
+References: <20060423192251.GD8896@iucha.net> <20060423150206.546b7483.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qp4W5+cUSnZs0RIF"
+Content-Disposition: inline
+In-Reply-To: <20060423150206.546b7483.akpm@osdl.org>
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 5E59 C2E7 941E B592 3BA4  7DCF 343D 2B14 2376 6F5B
+User-Agent: Mutt/1.5.11+cvs20060403
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-22 at 03:17 +0100, David Woodhouse wrote:
-> Attached is the current patch from mainline to my working tree at
-> git://git.infradead.org/~dwmw2/headers-2.6.git -- visible in gitweb at
-> http://git.infradead.org/?p=users/dwmw2/headers-2.6.git;a=summary
-> 
-> It adds a 'make headers_install' target to the kernel makefiles, which
-> exports a subset of the headers and runs 'unifdef' on them to clean
-> them up for installation in /usr/include. 
 
-I've now added a 'make headers_check' target which goes through the
-resulting headers and checks that they are a closed set -- they don't
-attempt to include any kernel header which isn't selected for export.
-I've also committed enough header cleanups to ensure that the checks
-pass, at least for ARCH=powerpc. 
+--qp4W5+cUSnZs0RIF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In time, I'd like to see additional checks added, such as checking for
-namespace pollution and perhaps attempting to compile each header
-standalone.
+On Sun, Apr 23, 2006 at 03:02:06PM -0700, Andrew Morton wrote:
+> florin@iucha.net (Florin Iucha) wrote:
+> > With 2.6.17-rc[12] I get the following oops:
+>
+> It's actually not an oops - it's a warning, telling us that i82365 is
+> requesting an IRQ in non-sharing mode, but there's already a handler
+> registered for that IRQ (which might or might not be shareable).
+>
+> Your machine should otherwise continue to work OK.  Is that the case?
 
-Now that we can see the mess we have when we export it, there should be
-plenty of fun pickings for kernel janitor-types. There's no particular
-reason why those cleanups should come through my tree, although I'm
-happy enough to collect them and to give accounts on git.infradead.org
-to anyone who's going to make a habit of sending them. 
+Yes, it works fine - it just looked scary ;)
 
--- 
-dwmw2
+> Anyway.  We need to either a) make i82365 better-behaved or b) remove the
+> warning or c) allow callers to suppress the warning (SA_PROBEIRQ?).
+>=20
+> I think c) - the warning can help find bugs.
+>=20
+>=20
+>=20
+> From: Andrew Morton <akpm@osdl.org>
+>=20
+> - Add new SA_PROBEIRQ which suppresses the new sharing-mismatch warning.=
+=20
+>   Some drivers like to use request_irq() to find an unused interrupt slot.
+>=20
+> - Use it in i82365.c
+>=20
+> - Kill unused SA_PROBE.
 
+[With the fix suggested by Randy] it is all quiet now.
+
+Thanks,
+florin
+
+--qp4W5+cUSnZs0RIF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFETB/OND0rFCN2b1sRAs/xAJwMfzZTnvH55pzv9G5M/Khwg1pibwCeMvf9
+6h8RM5mxmHgzUy7LZN99n5w=
+=FWA2
+-----END PGP SIGNATURE-----
+
+--qp4W5+cUSnZs0RIF--

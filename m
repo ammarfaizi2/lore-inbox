@@ -1,201 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbWDXI2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWDXIbj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbWDXI2I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 04:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWDXI2I
+	id S1751162AbWDXIbj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 04:31:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWDXIbj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 04:28:08 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:32169 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751175AbWDXI2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 04:28:06 -0400
-Subject: Re: [patch 02/22] powerpc: fix incorrect SA_ONSTACK behaviour for
-	64-bit processes
-From: Laurent MEYER <meyerlau@fr.ibm.com>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
-In-Reply-To: <20060413230659.GC5613@kroah.com>
-References: <20060413230141.330705000@quad.kroah.org>
-	 <20060413230659.GC5613@kroah.com>
-Content-Type: multipart/mixed; boundary="=-KAFT4fcukLkuHwPCFonW"
-Date: Mon, 24 Apr 2006 10:27:45 +0200
-Message-Id: <1145867270.4022.12.camel@donkey.lab.meiosys.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+	Mon, 24 Apr 2006 04:31:39 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18410 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750763AbWDXIbi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 04:31:38 -0400
+Date: Mon, 24 Apr 2006 10:31:02 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+Cc: Martin Mares <mj@ucw.cz>, Matthew Garrett <mjg59@srcf.ucam.org>,
+       "Yu, Luming" <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+Message-ID: <20060424083102.GE26345@elf.ucw.cz>
+References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <mj+md-20060420.165714.18107.albireo@ucw.cz> <4447C020.3010003@linux.intel.com> <20060420220731.GF2352@ucw.cz> <444C761F.6010603@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <444C761F.6010603@linux.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Po 24-04-06 10:54:23, Alexey Starikovskiy wrote:
+> Pavel Machek wrote:
+> >>>I don't see any reason for treating some keys or buttons 
+> >>>differently.
+> >>>A key is just a key.
+> >
+> >>There is one special key anyway -- reset...
+> >
+> >Your point is? There's also hardware power button on many machines.
+> >They are not controllable by software => they are not relevant to this
+> >discussion.
+> >
+> Really? And you are what are you going to do with bugs about "my power 
+> button doesn't remap, and always shuts down my machine?"
 
---=-KAFT4fcukLkuHwPCFonW
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+If they have hardware power button, I'll laugh at them (then
+CLOSE/INVALID). Feel free to reassign such bugs to me.
 
-
-
-> -stable review patch.  If anyone has any objections, please let us know.
-> ------------------
-> From: Laurent MEYER <meyerlau@fr.ibm.com>
-> 
-> *) When setting a sighandler using sigaction() call, if the flag
-> SA_ONSTACK is set and no alternate stack is provided via sigaltstack(),
-> the kernel still try to install the alternate stack. This behavior is
-> the opposite of the one which is documented in Single Unix
-> Specifications V3.
-> 
-> *) Also when setting an alternate stack using sigaltstack() with the
-> flag SS_DISABLE, the kernel try to install the alternate stack on
-> signal delivery.
-> 
-> These two use cases makes the process crash at signal delivery.
-> 
-> This fixes it.
-> 
-
-
-As we got the bug on powerpc64 and s390 i checked others architecture,
-and the same bug seems to appear on arch: 
-- alpha
-- frv
-- h8300
-- m68knommu
-- m68k
-- parisc
-- sh64
-- v850
-- xtensa
-
-Please find enclosed the patch that fixes it. Forgive me i have not
-tested this patch as i don't have all the corresponding machines. But
-the bug seems to be quite the same.
-
-Regards
-
-Signed-off-by: Laurent Meyer <meyerlau@fr.ibm.com>
-
-
---=-KAFT4fcukLkuHwPCFonW
-Content-Disposition: attachment; filename=multiarch.sigaltstack.patch
-Content-Type: text/x-patch; name=multiarch.sigaltstack.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Index: 2.6.16.5/arch/alpha/kernel/signal.c
-===================================================================
---- 2.6.16.5.orig/arch/alpha/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ 2.6.16.5/arch/alpha/kernel/signal.c	2006-04-17 15:17:58.000000000 +0200
-@@ -375,7 +375,7 @@
- static inline void __user *
- get_sigframe(struct k_sigaction *ka, unsigned long sp, size_t frame_size)
- {
--	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! on_sig_stack(sp))
-+	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! sas_ss_flags(sp))
- 		sp = current->sas_ss_sp + current->sas_ss_size;
- 
- 	return (void __user *)((sp - frame_size) & -32ul);
-Index: 2.6.16.5/arch/frv/kernel/signal.c
-===================================================================
---- 2.6.16.5.orig/arch/frv/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ 2.6.16.5/arch/frv/kernel/signal.c	2006-04-17 15:25:01.000000000 +0200
-@@ -233,7 +233,7 @@
- 
- 	/* This is the X/Open sanctioned signal stack switching.  */
- 	if (ka->sa.sa_flags & SA_ONSTACK) {
--		if (! on_sig_stack(sp))
-+		if (! sas_ss_flags(sp))
- 			sp = current->sas_ss_sp + current->sas_ss_size;
- 	}
- 
-Index: 2.6.16.5/arch/h8300/kernel/signal.c
-===================================================================
---- 2.6.16.5.orig/arch/h8300/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ 2.6.16.5/arch/h8300/kernel/signal.c	2006-04-17 15:35:15.000000000 +0200
-@@ -307,7 +307,7 @@
- 
- 	/* This is the X/Open sanctioned signal stack switching.  */
- 	if (ka->sa.sa_flags & SA_ONSTACK) {
--		if (!on_sig_stack(usp))
-+		if (!sas_ss_flags(usp))
- 			usp = current->sas_ss_sp + current->sas_ss_size;
- 	}
- 	return (void *)((usp - frame_size) & -8UL);
-Index: 2.6.16.5/arch/m68knommu/kernel/signal.c
-===================================================================
---- 2.6.16.5.orig/arch/m68knommu/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ 2.6.16.5/arch/m68knommu/kernel/signal.c	2006-04-17 15:46:30.000000000 +0200
-@@ -553,7 +553,7 @@
- 
- 	/* This is the X/Open sanctioned signal stack switching.  */
- 	if (ka->sa.sa_flags & SA_ONSTACK) {
--		if (!on_sig_stack(usp))
-+		if (!sas_ss_flags(usp))
- 			usp = current->sas_ss_sp + current->sas_ss_size;
- 	}
- 	return (void *)((usp - frame_size) & -8UL);
-Index: 2.6.16.5/arch/m68k/kernel/signal.c
-===================================================================
---- 2.6.16.5.orig/arch/m68k/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ 2.6.16.5/arch/m68k/kernel/signal.c	2006-04-17 15:42:20.000000000 +0200
-@@ -763,7 +763,7 @@
- 
- 	/* This is the X/Open sanctioned signal stack switching.  */
- 	if (ka->sa.sa_flags & SA_ONSTACK) {
--		if (!on_sig_stack(usp))
-+		if (!sas_ss_flags(usp))
- 			usp = current->sas_ss_sp + current->sas_ss_size;
- 	}
- 	return (void __user *)((usp - frame_size) & -8UL);
-Index: 2.6.16.5/arch/parisc/kernel/signal.c
-===================================================================
---- 2.6.16.5.orig/arch/parisc/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ 2.6.16.5/arch/parisc/kernel/signal.c	2006-04-17 15:55:13.000000000 +0200
-@@ -248,7 +248,7 @@
- 	DBG(1,"get_sigframe: ka = %#lx, sp = %#lx, frame_size = %#lx\n",
- 			(unsigned long)ka, sp, frame_size);
- 	
--	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! on_sig_stack(sp))
-+	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! sas_ss_flags(sp))
- 		sp = current->sas_ss_sp; /* Stacks grow up! */
- 
- 	DBG(1,"get_sigframe: Returning sp = %#lx\n", (unsigned long)sp);
-Index: 2.6.16.5/arch/sh64/kernel/signal.c
-===================================================================
---- 2.6.16.5.orig/arch/sh64/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ 2.6.16.5/arch/sh64/kernel/signal.c	2006-04-17 16:02:30.000000000 +0200
-@@ -407,7 +407,7 @@
- static inline void __user *
- get_sigframe(struct k_sigaction *ka, unsigned long sp, size_t frame_size)
- {
--	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! on_sig_stack(sp))
-+	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! sas_ss_flags(sp))
- 		sp = current->sas_ss_sp + current->sas_ss_size;
- 
- 	return (void __user *)((sp - frame_size) & -8ul);
-Index: 2.6.16.5/arch/v850/kernel/signal.c
-===================================================================
---- 2.6.16.5.orig/arch/v850/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ 2.6.16.5/arch/v850/kernel/signal.c	2006-04-17 16:11:25.000000000 +0200
-@@ -274,7 +274,7 @@
- 	/* Default to using normal stack */
- 	unsigned long sp = regs->gpr[GPR_SP];
- 
--	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! on_sig_stack(sp))
-+	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! sas_ss_flags(sp))
- 		sp = current->sas_ss_sp + current->sas_ss_size;
- 
- 	return (void *)((sp - frame_size) & -8UL);
-Index: 2.6.16.5/arch/xtensa/kernel/signal.c
-===================================================================
---- 2.6.16.5.orig/arch/xtensa/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ 2.6.16.5/arch/xtensa/kernel/signal.c	2006-04-17 16:16:40.000000000 +0200
-@@ -433,7 +433,7 @@
- static inline void *
- get_sigframe(struct k_sigaction *ka, unsigned long sp, size_t frame_size)
- {
--	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! on_sig_stack(sp))
-+	if ((ka->sa.sa_flags & SA_ONSTACK) != 0 && ! sas_ss_flags(sp))
- 		sp = current->sas_ss_sp + current->sas_ss_size;
- 
- 	return (void *)((sp - frame_size) & -16ul);
-
-
---=-KAFT4fcukLkuHwPCFonW--
-
+Anyway stripping useful functinality because very old (386-era!)
+machines don't support it is not a way to go.
+								Pavel
+-- 
+Thanks for all the (sleeping) penguins.

@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWDXTYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWDXT0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWDXTYN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 15:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWDXTYN
+	id S1751104AbWDXT0D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 15:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWDXT0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 15:24:13 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:56150 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751148AbWDXTYM convert rfc822-to-8bit (ORCPT
+	Mon, 24 Apr 2006 15:26:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55943 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751104AbWDXT0B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 15:24:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kAN8tVSF/XkFJawhYGtmFrnrkc/J7upVkgJKEBvt+LIR+r8FqojhZ8901jfDv9Mm3qu7K+3KKYCZdarcxw9KoeD7s0LZ67ItaswBXSqxxKlAFgYHZYDOehWoHEeA/3u5BCatG/qTZi2YMpfuIr1ys4rNDCBRJXoNmKPuU8zZ61I=
-Message-ID: <9e4733910604241224i4511ce72n918fad354cc1a9ee@mail.gmail.com>
-Date: Mon, 24 Apr 2006 15:24:12 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Matthew Reppert" <arashi@sacredchao.net>
-Subject: Re: PCI ROM resource allocation issue with 2.6.17-rc2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1145856489.3375.28.camel@minerva>
-MIME-Version: 1.0
+	Mon, 24 Apr 2006 15:26:01 -0400
+Date: Mon, 24 Apr 2006 12:25:57 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: better leve triggered IRQ management needed
+Message-ID: <20060424122557.1b8c6054@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org>
+References: <20060424114105.113eecac@localhost.localdomain>
+	<Pine.LNX.4.64.0604241156340.3701@g5.osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1145851361.3375.20.camel@minerva>
-	 <1145856489.3375.28.camel@minerva>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/24/06, Matthew Reppert <arashi@sacredchao.net> wrote:
-> > I've also got a Promise PDC20268 whose expansion ROM seems to have made a
-> > similar move (from ff8f8000 to c6920000), but the ATA devices attached to
-> > that controller seem to work fine under 2.6.17-rc2.
->
-> Also, on 2.6.17-rc2, if I do a hexdump of the PCI config space for the
-> RADEON 7000 via sysfs once Linux boots, it still says the ROM is located
-> at ff8c0000, even though I get this message during boot:
->
-> PCI: pbus will assign resource 0000:01:0c.0
-> PCI: assigning resource #6 for 0000:01:0c.0 (start 0)
->   got res [c6900000:c691ffff] bus [c6900000:c691ffff] flags 7200 for BAR 6 of
-> 0000:01:0c.0
+On Mon, 24 Apr 2006 12:02:47 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-To make the sysfs rom attribute work, "echo 1 >rom". Then use 'hexdump
--C rom | more' to see the ROM contents. If you get the video ROM
-contents when you do this, then the ROM is where the kernel thinks it
-is. If you get FFFF or some other ROM then something like X has moved
-the ROM without the kernel's knowledge.  Obviously, moving ROMs
-without telling the kernel is a good way to mess up your system.
+> 
+> 
+> On Mon, 24 Apr 2006, Stephen Hemminger wrote:
+> >
+> > We should fail request_irq() if the SA_SHIRQ but the irq is edge-triggered.
+> 
+> That would be HORRIBLE.
+> 
+> Edge-triggered works perfectly fine for SA_SHIRQ, as long as there is just 
+> one user and the driver is properly written. Making request_irq() fail 
+> would break existing and working setups.
 
-If your system locks up after "echo 1 >rom" on a disk controller, then
-you have one of the few disk controllers that didn't bother to
-implement full address decoding for the ROM. "echo 1 >rom". should
-always work for video ROMs.
+Couldn't we at least warn. Because you will loose irq's if two devices
+are sharing an edge triggered irq. If A and B are sharing a edge triggered
+IRQ; and both cause a transition, then when A clears it's IRQ the 
+shared IRQ will disappear and B's IRQ will be lost.
 
-Read http://people.freedesktop.org/~jonsmirl/graphics.html if you want
-to know more about the evils of X and it's use of the PCI bus.
+> If you have a driver that requires level-triggered interrupts, then your 
+> driver is arguably buggy. NAPI or no NAPI, doesn't matter. Edge-triggered 
+> interrupts is a fact of life, and deciding that you don't like them is not 
+> an excuse for saying "they should not work".
 
---
-Jon Smirl
-jonsmirl@gmail.com
+Driver's need to be able to depend on not losing interrupts.
+
+> You can get an edge by having your driver make sure that it clears the 
+> interrupt source at some point where it requires an edge.
+
+The problem is that IRQ system doesn't tell the driver the trigger status.
+If the driver knew that the IRQ was edge triggered, it could do
+the necessary workaround.
+
+> For a driver writer, there is one rule above _all_ other rules:
+> 
+> 	"Reality sucks, deal with it"
+> 
+> That rule is inviolate, and no amount of "I wish", and "it _should_ work 
+> this way" or "..but the documentation says" matters at all.
+
+The kernel should make the driver writer's problems easier not harder.

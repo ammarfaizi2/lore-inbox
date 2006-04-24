@@ -1,48 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWDXRqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWDXRst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751064AbWDXRqc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 13:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWDXRqb
+	id S1751092AbWDXRst (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 13:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWDXRss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 13:46:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:56472 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751041AbWDXRqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 13:46:31 -0400
-Subject: RE: [ANNOUNCE] Release Digsig 1.5: kernel module
-	forrun-timeauthentication of binaries
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Makan Pourzandi (QB/EMC)" <makan.pourzandi@ericsson.com>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       Serue Hallyen <serue@us.ibm.com>,
-       Axelle Apvrille <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
-       disec-devel@lists.sourceforge.net
-In-Reply-To: <6D19CA8D71C89C43A057926FE0D4ADAA29D363@ecamlmw720.eamcs.ericsson.se>
-References: <6D19CA8D71C89C43A057926FE0D4ADAA29D363@ecamlmw720.eamcs.ericsson.se>
+	Mon, 24 Apr 2006 13:48:48 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:19859 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750930AbWDXRsr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 13:48:47 -0400
+Subject: Re: [PATCH 1/2] ext3 percpu counter fixes to suppport for more
+	than 2**31 ext3 free blocks counter
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: kiran@scalex86.org, LaurentVivier@wanadoo.fr, sct@redhat.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <20060421150943.2fdc5c4a.akpm@osdl.org>
+References: <1144691929.3964.53.camel@dyn9047017067.beaverton.ibm.com>
+	 <1145631546.4478.10.camel@localhost.localdomain>
+	 <20060421150943.2fdc5c4a.akpm@osdl.org>
 Content-Type: text/plain
-Date: Mon, 24 Apr 2006 19:46:28 +0200
-Message-Id: <1145900788.3116.54.camel@laptopd505.fenrus.org>
+Organization: IBM LTC
+Date: Mon, 24 Apr 2006 10:48:32 -0700
+Message-Id: <1145900913.4820.14.camel@dyn9047017069.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  And, IMO, it should
-> be used with other security mechanisms and not alone. I believe though
-> this simple functionality can do much to avoid executing viruses or
-> other malware on your system.   
+On Fri, 2006-04-21 at 15:09 -0700, Andrew Morton wrote:
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> >
+> > The following patches are to fix the percpu counter issue support more
+> > than 2**31 blocks for ext3, i.e. allow the ext3 free block accounting
+> > works with more than 8TB storage.
+> > 
+> > [PATCH 1] - Generic perpcu longlong type counter support: global counter
+> > type changed from long to long long. The local counter is still remains
+> > 32 bit (long type), so we could avoid doing 64 bit update in most cases.
+> > Fixed the percpu_counter_read_positive() to handle the  0 value counter
+> > correctly;Add support to initialize the global counter to a value that
+> > are greater than 2**32.
+> 
+> I think it would be saner to explicitly specify the size of the field. 
+> That means using s32 and s64 throughout this code.
+> 
 
-that I don't believe for a second unfortunately.
-It's really really trivial to just do a shar archive or similar that
-then executes the binary... or otherwise "pack" the elf binary in such a
-way that it bypasses your check. 
+Agree. Will use s64 in this code. As s32 has the same issue with what we
+have(unsigned long) on 32 bit machine today: it is not enough for ext3
+to support more than 2**31 free blocks, and also obviously not enough
+for 64 bit ext3 that Laurent is working on.
 
-If you said "this is for DRM purposes" I could buy that partially.
-But... to protect against malware? Not at all. Not even a little bit.
-There's so many ways on normal systems to bypass this that malware
-doesn't even suffer one tiny bit from this.
+> That'll actually save space on 64-bit machines, where we're presently doing
+> alloc_percpu(long) when all we need is alloc_percpu(s32).
+> 
+> We'd need to review all users of this interface to make sure that they
+> handle the changed sizes appropriately, too.
 
+I looked at the all users of percpu counter that are currently in
+mainline(2.6.17-rc1) and in mm tree(2.6.17-rc1-mm2), they are:
+
+1. ext2 free blocks/inodes/dirs 
+	(int type, to be changed to unsinged long)
+2. ext3 free blocks/inodes/dirs 
+	(int type, changing to unsigned long or unsigned long long)
+3. nr_files 
+	(currently int type)
+4. decnet_memory allocated 
+	(was atomic_t type in mainline, changed to percpu counter type in mm)
+5. tcp_memory allocated 
+	(was atomic_t type, changed to percpu counter type in mm tree)
+
+I could be wrong, but I think there will be no effect to change the size
+of the global counter from "long" to s64 for above percpu counter users,
+except gives the counter more room to grow. Kiran, what do you think?
+Did I miss any other users of the perpcu counters? 
+
+Mingming
 

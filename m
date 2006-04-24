@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbWDXVHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWDXVJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751256AbWDXVHV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 17:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751280AbWDXVHV
+	id S1751283AbWDXVJh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 17:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWDXVJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 17:07:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:16038 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751256AbWDXVHV (ORCPT
+	Mon, 24 Apr 2006 17:09:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48806 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751283AbWDXVJh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 17:07:21 -0400
-Date: Mon, 24 Apr 2006 14:07:01 -0700 (PDT)
+	Mon, 24 Apr 2006 17:09:37 -0400
+Date: Mon, 24 Apr 2006 14:09:32 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Alan Cox <alan@redhat.com>, Stephen Hemminger <shemminger@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: better leve triggered IRQ management needed
-In-Reply-To: <1145911417.3116.69.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0604241354200.3701@g5.osdl.org>
-References: <20060424114105.113eecac@localhost.localdomain> 
- <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org>  <Pine.LNX.4.64.0604241203130.3701@g5.osdl.org>
-  <1145908402.3116.63.camel@laptopd505.fenrus.org> 
- <20060424201646.GA23517@devserv.devel.redhat.com> <1145911417.3116.69.camel@laptopd505.fenrus.org>
+In-Reply-To: <Pine.LNX.4.61.0604241648340.24574@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.64.0604241407130.3701@g5.osdl.org>
+References: <20060424114105.113eecac@localhost.localdomain>
+ <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org> <Pine.LNX.4.61.0604241529360.24459@chaos.analogic.com>
+ <Pine.LNX.4.64.0604241319030.3701@g5.osdl.org> <Pine.LNX.4.61.0604241648340.24574@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,49 +27,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 24 Apr 2006, Arjan van de Ven wrote:
+On Mon, 24 Apr 2006, linux-os (Dick Johnson) wrote:
+> On Mon, 24 Apr 2006, Linus Torvalds wrote:
+> >
+> > SA_SHIRQ does NOT mean that the irq is shared.
+> >
+> > It means that it's not exclusive, and that the driver is _ok_ with it
+> > being shared if that makes sense.
 > 
-> well... the corner case (as rmk described) is full starvation; even
-> polling once per second is better than not polling at tall there.,..
+> Yeah. You have been talking to too many lawyers! You are getting a
+> forked tongue!
 
-I can confirm that even just polling once a second - or even less often - 
-is a huge improvement.
+No, it's just legacy from some _really_ really old code. As in 1991.
 
-A long time ago, I had a machine with a 3c509 card that would sometimes 
-miss receive interrupts for some reason (it may actually have been a bug 
-in the disable_irq/enable_irq thing on SMP, I forget - this is at least 
-five years ago). 
+The very original Linux irq system didn't share interrupts at all (hey, 
+PCI was newfangled, and ISA interrupts ruled), so when interrupt sharing 
+was added, the default was to not do it.
 
-The 3c509 driver had some five-second timeout thing, which meant that it 
-would end up polling itself every five seconds regardless, and it made the 
-difference between a machine that was totally undebuggable over a network, 
-and one that actually worked surprisingly well (ie you could ssh into it, 
-and things would work, but have these long pauses every once in a while, 
-with burst of data).
+These days, that doesn't make any sense, and if somebody did the flags 
+today, you'd do it the other way around (default to shared, and if 
+somebody wants a really exclusive interrupt, they should say so with 
+SA_EXCLUSIVE or something). 
 
-Of course, the machine would have been totally useless for real work, but 
-it made it _much_ easier to see what was going on when things went south.
-
-So "limping along" when things don't work can be a huge time-saver from a 
-debugging standpoint. So even if it's just that every registered SA_SHIRQ 
-would get a heartbeat at least once every five seconds (and we'd limit it 
-to SA_SHIRQ exactly because a driver that doesn't have that set may get 
-confused if it gets extra interrupts), that might sound totally useless, 
-but it might actually help somebody who otherwise might just make a pretty
-useless "the machine hung" bug-report.
-
-The fake interrupt could even print out a warning if somebody returns 
-SA_HANDLED (since normally there _shouldn't_ have been any work to handle 
-for it), and if that means that for somebody, things go from "the machine 
-hung" to "the machine got very slow, and printed out 'fake interrupt for 
-ide0 returned SA_HANDLED!'", that would potentially be a big debug aid.
-
-We've had our ass saved quite a few times now by the irq storm detector 
-("irq X: nobody cared" and friends), which has helped debug irqs that 
-haven't been set up properly, that I'm convinced things like this might 
-well make a huge deal.
-
-Of course, "things like this" does not necessarily cover the above 
-schenario. Maybe that is totally useless ;)
+But Linux grew from humble and stupid roots.
 
 		Linus

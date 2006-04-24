@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWDXUfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWDXUfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWDXUfq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 16:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWDXUfp
+	id S1751245AbWDXUfv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 16:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWDXUfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 16:35:45 -0400
-Received: from cantor.suse.de ([195.135.220.2]:25556 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751250AbWDXUfm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 16:35:42 -0400
-Date: Mon, 24 Apr 2006 13:33:58 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Linux 2.6.16.11
-Message-ID: <20060424203358.GA17597@kroah.com>
+	Mon, 24 Apr 2006 16:35:47 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35493 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751245AbWDXUfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 16:35:33 -0400
+Subject: Re: Compiling C++ modules
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Gary Poppitz <poppitzg@iomega.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Apr 2006 21:45:46 +0100
+Message-Id: <1145911546.1635.54.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.16.11 kernel
-(because just one -stable kernel a day is obviously not enough...)
+On Llu, 2006-04-24 at 13:16 -0600, Gary Poppitz wrote:
+> I have the task of porting an existing file system to Linux. This  
+> code is in C++ and I have noticed that the Linux kernel has
+> made use of C++ keywords and other things that make it incompatible.
 
-The diffstat and short summary of the fixes are below.
+We tried various things involving C++ along the line in kernel history
+and there are so many problems it throws up the kernel took the view
+that it would not use C++ in kernel. Instead object orientation is
+performed more explicitly in C. This has many advantages including the
+exposure of inefficient code explicitly and the avoidance of exceptions
+and the assumption memory allocations just don't fail that much C++
+makes without exceptions being used. It might be possible to move to a
+strict C++ subset in the style of Apple but there isn't much interest in
+this.
 
-I'll also be replying to this message with a copy of the patch between
-2.6.16.10 and 2.6.16.11, as it is small enough to do so.
+There are other problems too, notably the binary ABI between the C and C
+++ compiler might not match for all cases (in particular there are
+corner cases with zero sized objects and C++).
 
-The updated 2.6.16.y git tree can be found at:
- 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
 
-thanks,
+> I would be most willing to point out the areas that need adjustment  
+> and supply patch files to be reviewed.
+> 
+> What would be the best procedure to accomplish this?
 
-greg k-h
+If you want to maintain your own out of tree file system then probably
+you want to use #defines to wrap the kernel tree. Most stuff will
+probably work ok if you do this although you'll want some C to C++
+wrappers to interface to the kernel obviously.
 
---------
+If you want to submit the file system to the kernel source then it needs
+shifting from C++ to C but of course there are people in the community
+who can help you. As the kernel C is very object based that isn't
+usually too much of a problem. Most objects in the kernel (inodes, files
+etc) are of the form
 
- Makefile      |    2 +-
- fs/cifs/dir.c |   14 ++++++++++++++
- 2 files changed, 15 insertions(+), 1 deletion(-)
+	struct thing {
+		struct thing_ops *ops; /* methods */
+		blah
+	}
 
-Summary of changes from v2.6.16.10 to v2.6.16.11
-================================================
+and that style fits much C++ code being ported over.
 
-Greg Kroah-Hartman:
-      Linux 2.6.16.11
+There are a few anti C++ bigots around too, but the kernel choice of C
+was based both on rational choices and experimentation early on with the
+C++ compiler.
 
-Steve French:
-      Don't allow a backslash in a path component (CVE-2006-1863)
+Alan
 

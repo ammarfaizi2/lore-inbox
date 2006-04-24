@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWDXBOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWDXBV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751471AbWDXBOc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 21:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWDXBOc
+	id S1751475AbWDXBV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 21:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWDXBV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 21:14:32 -0400
-Received: from rtr.ca ([64.26.128.89]:42979 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751471AbWDXBOb (ORCPT
+	Sun, 23 Apr 2006 21:21:56 -0400
+Received: from rtr.ca ([64.26.128.89]:38835 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751475AbWDXBV4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 21:14:31 -0400
-Message-ID: <444C2664.7060803@rtr.ca>
-Date: Sun, 23 Apr 2006 21:14:12 -0400
-From: Mark Lord <liml@rtr.ca>
+	Sun, 23 Apr 2006 21:21:56 -0400
+Message-ID: <444C2821.5090409@rtr.ca>
+Date: Sun, 23 Apr 2006 21:21:37 -0400
+From: Mark Lord <lkml@rtr.ca>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [FIX] ide-io: increase timeout value to allow for slave wakeup
-References: <200604222359.21652.a1426z@gawab.com> <200604230721.54550.a1426z@gawab.com> <20060422214356.0f8afbcb.akpm@osdl.org> <200604231422.31176.a1426z@gawab.com>
-In-Reply-To: <200604231422.31176.a1426z@gawab.com>
-Content-Type: text/plain; charset=windows-1256; format=flowed
+To: Jeff Chua <jeff.chua.linux@gmail.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Chris Ball <cjb@mrao.cam.ac.uk>,
+       Pavel Machek <pavel@suse.cz>, Arkadiusz Miskiewicz <arekm@maven.pl>,
+       Jeff Garzik <jeff@garzik.org>, Matt Mackall <mpm@selenic.com>,
+       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sata suspend resume ... (fwd)
+References: <Pine.LNX.4.64.0604232153230.2890@boston.corp.fedex.com>
+In-Reply-To: <Pine.LNX.4.64.0604232153230.2890@boston.corp.fedex.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
- ..
-> Also apply this one to get rid of this message:
+Jeff Chua wrote:
 > 
-> 	hdb: set_drive_speed_status: status=0x40 { DriveReady }
-> 	ide: failed opcode was: unknown
-> 
-> Maybe someone on the ide list can comment on this first though.
-> 
-> --- 16/include/linux/ide.h.orig	2006-03-31 19:12:51.000000000 +0300
-> +++ 16/include/linux/ide.h	2006-04-23 13:06:32.000000000 +0300
-> @@ -120,7 +120,7 @@ typedef unsigned char	byte;	/* used ever
->  #define IDE_BCOUNTL_REG		IDE_LCYL_REG
->  #define IDE_BCOUNTH_REG		IDE_HCYL_REG
->  
-> -#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==(good))
-> +#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==((stat)&(good)))
->  #define BAD_R_STAT		(BUSY_STAT   | ERR_STAT)
->  #define BAD_W_STAT		(BAD_R_STAT  | WRERR_STAT)
->  #define BAD_STAT		(BAD_R_STAT  | DRQ_STAT)
-> 
+..
+> May be just me, not matter what I tried, it still doesn't work. Closest 
+> I can get is to use "resume=/dev/sda" on boot, able to suspend, able to 
+> resume to X windows, can do anything, but can't access disk. ... simple 
+> "ls" would hang. Dmesg is show SATA disk timeout.
+..
 
-Assuming hdb is a CDROM/optical drive, then this change makes sense for that.
-But I don't think it is a valid (good) change for regular ATA disks.
+Try Randy Dunlop's libata-acpi patches -- I've been using variants of them
+for a *very long time* here now, as they're the only thing that works for me.
 
-A more complex patch is required, one which correctly handles each drive type.
+Suspend/resume for RAM and DISK both need them.
 
-cheers
+Cheers

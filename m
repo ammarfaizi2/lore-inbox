@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWDXN1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWDXN3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWDXN1F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 09:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWDXN1E
+	id S1750807AbWDXN3P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 09:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWDXN3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 09:27:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34192 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750795AbWDXN1C (ORCPT
+	Mon, 24 Apr 2006 09:29:15 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:14027 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750807AbWDXN3O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 09:27:02 -0400
-Date: Mon, 24 Apr 2006 15:04:07 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Theodore Ts'o" <tytso@mit.edu>, Neil Brown <neilb@suse.de>,
-       Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-       James Morris <jmorris@namei.org>,
-       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Message-ID: <20060424130406.GA1884@elf.ucw.cz>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <1145470463.3085.86.camel@laptopd505.fenrus.org> <p73mzeh2o38.fsf@bragg.suse.de> <1145522524.3023.12.camel@laptopd505.fenrus.org> <20060420192717.GA3828@sorel.sous-sol.org> <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil> <20060421173008.GB3061@sorel.sous-sol.org> <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil> <17484.20906.122444.964025@cse.unsw.edu.au> <20060424070324.GA14720@thunk.org>
-MIME-Version: 1.0
+	Mon, 24 Apr 2006 09:29:14 -0400
+Date: Mon, 24 Apr 2006 08:29:11 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Marowsky-Bree <lmb@suse.de>,
+       Valdis.Kletnieks@vt.edu, Ken Brush <kbrush@gmail.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060424132911.GB22703@sergelap.austin.ibm.com>
+References: <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com> <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu> <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com> <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu> <20060424082424.GH440@marowsky-bree.de> <1145882551.29648.23.camel@localhost.localdomain> <20060424124556.GA92027@dspnet.fr.eu.org> <1145883251.3116.27.camel@laptopd505.fenrus.org> <20060424130949.GE9311@sergelap.austin.ibm.com> <1145884620.3116.33.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060424070324.GA14720@thunk.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <1145884620.3116.33.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In the security world, there is a huge tradition of the best being the
-> enemy of the good --- and the best being so painful to use that people
-> don't want to use it, or the moment it gets in the way (either because
-> of performance reasons or their application does something that
-> requires painful configuration of the SELinux policy files), they
-> deconfigure it.  At which point the "best" becomes useless.
+Quoting Arjan van de Ven (arjan@infradead.org):
+> On Mon, 2006-04-24 at 08:09 -0500, Serge E. Hallyn wrote:
+> > Quoting Arjan van de Ven (arjan@infradead.org):
+> > > for all such things in the first place. In fact, we already know that to
+> > > do auditing, LSM is the wrong thing to do (and that's why audit doesn't
+> > > use LSM). It's one of those fundamental linux truths: Trying to be
+> > 
+> > As I recall it was simply decided that LSM must be "access control
+> > only", and that was why it wasn't used for audit.
 > 
-> You may or may not agree with the philosophical architecture question,
-> but that doesn't necessarily make it "broken by design".  Choice is
-> good; if AppArmor forces SELinux to become less painful to use and
-> configure, then that in the long run will be a good thing.
+> no you recall incorrectly.
+> Audit needs to audit things that didn't work out, like filenames that
+> don't exist. Audit needs to know what is going to happen before the
+> entire "is this allowed" chain is going to be followed. SELInux and
+> other LSM parts are just one part of that chain, and there's zero
+> guarantee that you get to the LSM part in the chain.....  Now of course
 
-SELinux kernel support can _almost_ do what AA does; with notable
-exception of labels for new files. That can probably be fixed with
-patch of reasonable size (or maybe even with LD_PRELOAD library, glibc
-modification, or stuff like that). (There was post showing that in
-this long flamewar).
+Ah yes.  It needed to be authoritative.  I did recall incorrectly.
 
-That way you can have SELinux that works on AA config files.
+I suspect some would argue that you are right that LSM is broken, but
+only because it wasn't allowed to be authoritative.  Of course that
+was to increase chances of LSM upstream inclusion.  Sorry Casey and
+Linda, I bet that just makes it sting all the harder if LSM is now
+removed for not being sufficiently useful.
 
-(I still dislike path-based security, but labeling patch can probably
-be useful for other stuff, too.)
-								Pavel
--- 
-Thanks for all the (sleeping) penguins.
+-serge

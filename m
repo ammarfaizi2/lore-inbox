@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWDXNoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWDXNpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWDXNoo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 09:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWDXNoo
+	id S1750787AbWDXNpb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 09:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWDXNpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 09:44:44 -0400
-Received: from stanford.columbia.tresys.com ([209.60.7.66]:10715 "EHLO
-	gotham.columbia.tresys.com") by vger.kernel.org with ESMTP
-	id S1750809AbWDXNon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 09:44:43 -0400
-Message-ID: <444CD5FD.2040102@gentoo.org>
-Date: Mon, 24 Apr 2006 09:43:25 -0400
-From: Joshua Brindle <method@gentoo.org>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: "Theodore Ts'o" <tytso@mit.edu>, Neil Brown <neilb@suse.de>,
+	Mon, 24 Apr 2006 09:45:31 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:4256 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750787AbWDXNpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 09:45:30 -0400
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Joshua Brindle <method@gentoo.org>, Neil Brown <neilb@suse.de>,
        Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
        James Morris <jmorris@namei.org>,
-       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <1145470463.3085.86.camel@laptopd505.fenrus.org> <p73mzeh2o38.fsf@bragg.suse.de> <1145522524.3023.12.camel@laptopd505.fenrus.org> <20060420192717.GA3828@sorel.sous-sol.org> <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil> <20060421173008.GB3061@sorel.sous-sol.org> <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil> <17484.20906.122444.964025@cse.unsw.edu.au> <20060424070324.GA14720@thunk.org> <20060424130406.GA1884@elf.ucw.cz>
-In-Reply-To: <20060424130406.GA1884@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org
+In-Reply-To: <200604241526.03127.ak@suse.de>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <17484.20906.122444.964025@cse.unsw.edu.au> <444CCE83.90704@gentoo.org>
+	 <200604241526.03127.ak@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Antivirus: avast! (VPS 0616-4, 04/21/2006), Outbound message
-X-Antivirus-Status: Clean
+Date: Mon, 24 Apr 2006 14:52:47 +0100
+Message-Id: <1145886783.29648.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->> In the security world, there is a huge tradition of the best being the
->> enemy of the good --- and the best being so painful to use that people
->> don't want to use it, or the moment it gets in the way (either because
->> of performance reasons or their application does something that
->> requires painful configuration of the SELinux policy files), they
->> deconfigure it.  At which point the "best" becomes useless.
->>
->> You may or may not agree with the philosophical architecture question,
->> but that doesn't necessarily make it "broken by design".  Choice is
->> good; if AppArmor forces SELinux to become less painful to use and
->> configure, then that in the long run will be a good thing.
->>     
->
-> SELinux kernel support can _almost_ do what AA does; with notable
-> exception of labels for new files. That can probably be fixed with
-> patch of reasonable size (or maybe even with LD_PRELOAD library, glibc
-> modification, or stuff like that). (There was post showing that in
-> this long flamewar).
->   
-New file labels based on path should not be addressed in the kernel and 
-LD_PRELOAD would be incredibly hacky. Our solution to the problem is 
-restorecond (http://danwalsh.livejournal.com/4368.html) which addresses 
-users who want to be able to mkdir public_html and immediately use it. 
-Userland solutions like this will make SELinux easier and easier to use, 
-and they already have. Anyone not keeping up with SELinux lately a 
-tremendous amount has been done in the area of usability as outlined at 
-this years selinux symposium 
-(http://selinux-symposium.org/2006/slides/01-smalley-yir.pdf).
+On Llu, 2006-04-24 at 15:26 +0200, Andi Kleen wrote:
+> On Monday 24 April 2006 15:11, Joshua Brindle wrote:
+> 
+> > Sure but if, instead, it's able to open /var/chroot/etc/shadow which is 
+> > a hardlink to /etc/shadow you've bought nothing. You may filter out 
+> > worms and script kiddies this way but in the end you are using obscurity 
+> > (of filesystem layout, what the policy allows, how the apps are 
+> > configured, etc) for security, which again, leads to a false sense of 
+> > security.
+> 
+> AppArmor disallows both chroot and name space changes for the constrained
+> application so the scenario you're describing cannot happen. What happens
+> with unconstrained applications it doesn't care about by design.
+> 
+> This has been covered several times in this thread already - please pay
+> more attention.
 
+There is a much simpler answer anyway, sit in a loop trying to
+open /etc/shadow~ and wait for someone to change password. All the
+problems about names remain because of links anyway.
 
-Joshua

@@ -1,211 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWDXUW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWDXUZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWDXUW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 16:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWDXUWr
+	id S1751236AbWDXUZf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 16:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWDXUZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 16:22:47 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:53144 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751222AbWDXUWb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 16:22:31 -0400
-From: Mel Gorman <mel@csn.ul.ie>
-To: davej@codemonkey.org.uk, tony.luck@intel.com, linux-mm@kvack.org,
-       ak@suse.de, bob.picco@hp.com, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Cc: Mel Gorman <mel@csn.ul.ie>
-Message-Id: <20060424202229.20409.53616.sendpatchset@skynet>
-In-Reply-To: <20060424202009.20409.89016.sendpatchset@skynet>
-References: <20060424202009.20409.89016.sendpatchset@skynet>
-Subject: [PATCH 7/7] Print out debugging information during initialisation
-Date: Mon, 24 Apr 2006 21:22:29 +0100 (IST)
+	Mon, 24 Apr 2006 16:25:34 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:51973 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751236AbWDXUZd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 16:25:33 -0400
+To: "Ulrich Drepper" <drepper@gmail.com>
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Makan Pourzandi" <Makan.Pourzandi@ericsson.com>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       "Serue Hallyen" <serue@us.ibm.com>,
+       "Axelle Apvrille" <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
+       "disec-devel@lists.sourceforge.net" 
+	<disec-devel@lists.sourceforge.net>
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-time authentication of binaries
+References: <4448AC62.6090303@ericsson.com>
+	<1145794712.3131.10.camel@laptopd505.fenrus.org>
+	<a36005b50604230938k2f52186ek477850b3e3a7192@mail.gmail.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: a Lisp interpreter masquerading as ... a Lisp interpreter!
+Date: Mon, 24 Apr 2006 21:24:47 +0100
+In-Reply-To: <a36005b50604230938k2f52186ek477850b3e3a7192@mail.gmail.com> (Ulrich Drepper's message of "23 Apr 2006 17:39:38 +0100")
+Message-ID: <87psj6pvqo.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 23 Apr 2006, Ulrich Drepper prattled cheerily:
+> On 4/23/06, Arjan van de Ven <arjan@infradead.org> wrote:
+>> does this also prevent people writing their own elf loader in a bit of
+>> perl and just mmap the code ?
+> 
+> You will never get 100% protection from a mechanism like signed
+> binaries.  What you can get in collaboration with other protections
+> like SELinux is another layer of security.  That's good IMO.  Not
+> being able to slide in modified and substituted binaries which then
+> would be marked to get certain privileges is a plus.
 
-The zone and hole sizing code is new and unexpected problems showed up
-on machines that were not covered by the pre-release tests. This patch
-prints out useful information when those unexpected situations occur.
+Of course in order to use it in conjunction with SELinux right now you
+need LSM stacking, which is a nest of dragons in itself (if not used
+very carefully stacking can weaken security rather than strengthening
+it...)
 
-It is not expected that this patch become a permanent part of the set.
+> But preventing every type of code loading or generation at userlevel
+> cannot be prevented this way.
 
+Oh, indeed not. It's just a stopgap that blocks some (large) percentage
+of script kiddy attacks that involve downloading binaries and then
+executing them, or even compiling them on the spot (not that those are
+as common these days).
 
- mem_init.c |   54 ++++++++++++++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 50 insertions(+), 4 deletions(-)
+> http://people.redhat.com/drepper/selinux-mem.html.  This is with all
+> the SELinux mechanisms in place and activated.  You can prevent by
+> using the noexec mount option for every writable filesystem. But this
+> is so far not possible for ordinary machines.  There are widely used
+> programs out there which need to dynamically generate code.
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc2-106-breakout_mem_init/mm/mem_init.c linux-2.6.17-rc2-107-debug/mm/mem_init.c
---- linux-2.6.17-rc2-106-breakout_mem_init/mm/mem_init.c	2006-04-24 15:53:22.000000000 +0100
-+++ linux-2.6.17-rc2-107-debug/mm/mem_init.c	2006-04-24 15:54:11.000000000 +0100
-@@ -593,6 +593,7 @@ static __meminit void init_currently_emp
- }
- 
- #ifdef CONFIG_ARCH_POPULATES_NODE_MAP
-+
- /* Note: nid == MAX_NUMNODES returns first region */
- static int __init first_active_region_index_in_nid(int nid)
- {
-@@ -645,13 +646,24 @@ void __init free_bootmem_with_active_reg
- 	for_each_active_range_index_in_nid(i, nid) {
- 		unsigned long size_pages = 0;
- 		unsigned long end_pfn = early_node_map[i].end_pfn;
--		if (early_node_map[i].start_pfn >= max_low_pfn)
-+		if (early_node_map[i].start_pfn >= max_low_pfn) {
-+			printk("start_pfn %lu >= %lu\n", early_node_map[i].start_pfn,
-+								max_low_pfn);
- 			continue;
-+		}
- 
--		if (end_pfn > max_low_pfn)
-+		if (end_pfn > max_low_pfn) {
-+			printk("end_pfn %lu going back to %lu\n", early_node_map[i].end_pfn,
-+									max_low_pfn);
- 			end_pfn = max_low_pfn;
-+		}
- 
- 		size_pages = end_pfn - early_node_map[i].start_pfn;
-+		printk("free_bootmem_node(%d, %lu, %lu) :::: pfn ranges (%d, %lu, %lu)\n",
-+				early_node_map[i].nid,
-+				PFN_PHYS(early_node_map[i].start_pfn),
-+				PFN_PHYS(size_pages),
-+				early_node_map[i].nid, early_node_map[i].start_pfn, end_pfn);
- 		free_bootmem_node(NODE_DATA(early_node_map[i].nid),
- 				PFN_PHYS(early_node_map[i].start_pfn),
- 				PFN_PHYS(size_pages));
-@@ -661,10 +673,15 @@ void __init free_bootmem_with_active_reg
- void __init sparse_memory_present_with_active_regions(int nid)
- {
- 	unsigned int i;
--	for_each_active_range_index_in_nid(i, nid)
-+	for_each_active_range_index_in_nid(i, nid) {
-+		printk("memory_present(%d, %lu, %lu)\n",
-+			early_node_map[i].nid,
-+			early_node_map[i].start_pfn,
-+			early_node_map[i].end_pfn);
- 		memory_present(early_node_map[i].nid,
- 				early_node_map[i].start_pfn,
- 				early_node_map[i].end_pfn);
-+	}
- }
- 
- void __init get_pfn_range_for_nid(unsigned int nid,
-@@ -722,6 +739,8 @@ unsigned long __init __absent_pages_in_r
- 	unsigned long prev_end_pfn = 0, hole_pages = 0;
- 	unsigned long start_pfn;
- 
-+	printk("__absent_pages_in_range(%d, %lu, %lu) = ", nid,
-+					range_start_pfn, range_end_pfn);
- 	/* Find the end_pfn of the first active range of pfns in the node */
- 	i = first_active_region_index_in_nid(nid);
- 	prev_end_pfn = early_node_map[i].start_pfn;
-@@ -749,6 +768,8 @@ unsigned long __init __absent_pages_in_r
- 		prev_end_pfn = early_node_map[i].end_pfn;
- 	}
- 
-+	printk("%lu\n", hole_pages);
-+
- 	return hole_pages;
- }
- 
-@@ -911,6 +932,9 @@ void __init add_active_range(unsigned in
- {
- 	unsigned int i;
- 
-+	printk("add_active_range(%d, %lu, %lu): ",
-+			nid, start_pfn, end_pfn);
-+
- 	/* Merge with existing active regions if possible */
- 	for (i = 0; early_node_map[i].end_pfn; i++) {
- 		if (early_node_map[i].nid != nid)
-@@ -918,12 +942,15 @@ void __init add_active_range(unsigned in
- 
- 		/* Skip if an existing region covers this new one */
- 		if (start_pfn >= early_node_map[i].start_pfn &&
--				end_pfn <= early_node_map[i].end_pfn)
-+				end_pfn <= early_node_map[i].end_pfn) {
-+			printk("Existing\n");
- 			return;
-+		}
- 
- 		/* Merge forward if suitable */
- 		if (start_pfn <= early_node_map[i].end_pfn &&
- 				end_pfn > early_node_map[i].end_pfn) {
-+			printk("Merging forward\n");
- 			early_node_map[i].end_pfn = end_pfn;
- 			return;
- 		}
-@@ -931,6 +958,7 @@ void __init add_active_range(unsigned in
- 		/* Merge backward if suitable */
- 		if (start_pfn < early_node_map[i].end_pfn &&
- 				end_pfn >= early_node_map[i].start_pfn) {
-+			printk("Merging backwards\n");
- 			early_node_map[i].start_pfn = start_pfn;
- 			return;
- 		}
-@@ -942,6 +970,7 @@ void __init add_active_range(unsigned in
- 		return;
- 	}
- 
-+	printk("New\n");
- 	early_node_map[i].nid = nid;
- 	early_node_map[i].start_pfn = start_pfn;
- 	early_node_map[i].end_pfn = end_pfn;
-@@ -949,6 +978,7 @@ void __init add_active_range(unsigned in
- 
- void __init remove_all_active_ranges()
- {
-+	printk("remove_all_active_ranges()\n");
- 	memset(early_node_map, 0, sizeof(early_node_map));
- }
- 
-@@ -976,6 +1006,14 @@ static void __init sort_node_map(void)
- 
- 	sort(early_node_map, num, sizeof(struct node_active_region),
- 						cmp_node_active_region, NULL);
-+
-+	printk("Dumping sorted node map\n");
-+	for (num = 0; early_node_map[num].end_pfn; num++) {
-+		printk("entry %lu: %d  %lu -> %lu\n", num,
-+				early_node_map[num].nid,
-+				early_node_map[num].start_pfn,
-+				early_node_map[num].end_pfn);
-+	}
- }
- 
- /* Find the lowest pfn for a node. This depends on a sorted early_node_map */
-@@ -992,6 +1030,7 @@ unsigned long __init find_min_pfn_for_no
- 	return 0;
- }
- 
-+
- unsigned long __init find_min_pfn_with_active_regions(void)
- {
- 	return find_min_pfn_for_node(MAX_NUMNODES);
-@@ -1005,6 +1044,7 @@ unsigned long __init find_max_pfn_with_a
- 	for (i = 0; early_node_map[i].end_pfn; i++)
- 		max_pfn = max(max_pfn, early_node_map[i].end_pfn);
- 
-+	printk("find_max_pfn_with_active_regions() == %lu\n", max_pfn);
- 	return max_pfn;
- }
- 
-@@ -1016,6 +1056,10 @@ void __init free_area_init_nodes(unsigne
- 	unsigned long nid;
- 	int zone_index;
- 
-+	printk("free_area_init_nodes(%lu, %lu, %lu, %lu)\n",
-+			arch_max_dma_pfn, arch_max_dma32_pfn,
-+			arch_max_low_pfn, arch_max_high_pfn);
-+
- 	/* Record where the zone boundaries are */
- 	memset(arch_zone_lowest_possible_pfn, 0,
- 				sizeof(arch_zone_lowest_possible_pfn));
-@@ -1032,6 +1076,8 @@ void __init free_area_init_nodes(unsigne
- 			arch_zone_highest_possible_pfn[zone_index-1];
- 	}
- 
-+	printk("free_area_init_nodes(): find_min_pfn = %lu\n", find_min_pfn_with_active_regions());
-+
- 	/* Regions in the early_node_map can be in any order */
- 	sort_node_map();
- 
+Yeah. I'll admit I've found signed binaries principally useful on
+stripped-down firewalls and firewall UML instances. These boxes don't
+tend to run, say, CLISP or SBCL or OpenOffice (at least if they do the
+firewall maintainer needs shooting).
+
+> Signed binaries are therefore a complete solution only for a very
+> limited number of situation.
+
+`Stripped-down firewalls' on its own is a big niche.
+
+Combine it with SELinux, exec-shield, FORTIFY_SOURCE, -fstack-protector
+and, say, a COWed filesystem read off a CD and reset with every boot,
+and you start to get a bit less insecure than you would otherwise be.
+
+>                              For embedded systems I see this but here
+> we also have the "Tivo problem" where devices are built on top of
+> Linux and people are still prevented from extending/modifying them. 
+
+Yeah, that's nasty: but the inverse face is that, for instance, nobody
+can compile a new binary on my firewall without access to a private key
+kept on a CD which is not normally in the drive. Replace `not in the
+drive' with `at a manufacturer's site locked securely away from the
+user' and suddenly this security benefit becomes an attack on
+freedom. But that doesn't mean that there's anything wrong with it *as a
+security benefit*: I haven't tivoized myself entirely *because* I have
+access to that key, but there's no way any software can possibly tell
+that.
+
+> Beside that there is potentially some locked down machines with
+> limited functionality which can use it (e.g., DMZ servers, but they
+> mustn't use Java etc).
+
+Yes indeed.
+
+> So, I do not think that signed binaries have a big upside.  And they
+> have a potential big downside.
+
+It's another hurdle for the bad guys to leap, and many will fall at the
+wayside.
+
+> I have been working on signed binaries at some point myself but
+> abandoned it after realizing that it realistically only can be
+> misused.  If I'd have a vote I'd keep this stuff out of the kernel.
+
+Well, I'm using it, but I'd agree that the potential for misuse by the
+tivos of this world is high. I don't know if it should go into mainline,
+but let's not make it intentionally hard for it to exist
+out-of-tree. It's useful to help professional paranoids sleep at
+night. :)
+
+(But, well, since the code *exists*, the tivos of this world can
+*already* tivoize. I can't see what keeping it out would do, really.
+I suppose it would increase the barrier for a would-be tivoizer.)
+
+-- 
+`On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
+ because bringing Windows into the picture rescaled "brokenness" by
+ a factor of 10.' --- Peter da Silva

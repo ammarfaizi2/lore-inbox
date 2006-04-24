@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWDXOJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWDXOLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbWDXOJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 10:09:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWDXOJJ
+	id S1750811AbWDXOLi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 10:11:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWDXOLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 10:09:09 -0400
-Received: from ns2.suse.de ([195.135.220.15]:57765 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750840AbWDXOJG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 10:09:06 -0400
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Date: Mon, 24 Apr 2006 16:09:02 +0200
-User-Agent: KMail/1.9.1
-Cc: Joshua Brindle <method@gentoo.org>, Neil Brown <neilb@suse.de>,
-       Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-       James Morris <jmorris@namei.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <200604241526.03127.ak@suse.de> <1145886783.29648.39.camel@localhost.localdomain>
-In-Reply-To: <1145886783.29648.39.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Mon, 24 Apr 2006 10:11:38 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:63941 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750811AbWDXOLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 10:11:37 -0400
+Subject: Re: [PATCH 1/1] threads_max: Simple lockout prevention patch
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Al Boldi <a1426z@gawab.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200604241653.49647.a1426z@gawab.com>
+References: <200511142327.18510.a1426z@gawab.com>
+	 <200604241412.13267.a1426z@gawab.com>
+	 <84144f020604240422v3f0cd85fm6f45d263d60803cf@mail.gmail.com>
+	 <200604241653.49647.a1426z@gawab.com>
+Date: Mon, 24 Apr 2006 17:11:35 +0300
+Message-Id: <1145887895.32427.5.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604241609.02565.ak@suse.de>
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 April 2006 15:52, Alan Cox wrote:
+On 4/24/06, Al Boldi <a1426z@gawab.com> wrote:
+> > > Like so?
+> > >         if (nr_threads >= max_threads)
+> > >                 if (p->pid != su_pid)
+> > >                         goto bad_fork_cleanup_count;
+> >
+> > It's better to combine the two if statements into one with &&.
 
-> There is a much simpler answer anyway, sit in a loop trying to
-> open /etc/shadow~ and wait for someone to change password. All the
-> problems about names remain because of links anyway.
+On Mon, 2006-04-24 at 16:53 +0300, Al Boldi wrote:
+> I thought of combining them too, but was afraid of some compile optimization 
+> issues.  Remember, this code-path is executed for each and every fork in the 
+> system, thus it's highly performance sensitive.
 
-AFAIK AA avoids this problem by only allowing access to files, not forbidding 
-access. So unless you put /etc/shadow~ (or /etc/*) into the profile
-this cannot happen.
+There shouldn't be any difference. What compiler optimizations are you
+referring to? Did you study the generated object code?
 
-Instead you would list the files that application is allowed to access.
+				Pekka
 
--Andi

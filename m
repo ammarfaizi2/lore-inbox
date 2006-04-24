@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWDXM3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWDXMcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWDXM3O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 08:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWDXM3O
+	id S1750745AbWDXMcj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 08:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWDXMcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 08:29:14 -0400
-Received: from hermes.drzeus.cx ([193.12.253.7]:57581 "EHLO mail.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1750739AbWDXM3O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 08:29:14 -0400
-Message-ID: <444CC4A3.3040309@drzeus.cx>
-Date: Mon, 24 Apr 2006 14:29:23 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: "=?ISO-8859-1?Q?Jani-Matti_H=E4tinen?=" <jani-matti.hatinen@iki.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Lock-up with modprobe sdhci after suspending to ram
-References: <515ed10f0604240033i71781bfdp421ed244477fd200@mail.gmail.com>
-In-Reply-To: <515ed10f0604240033i71781bfdp421ed244477fd200@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 24 Apr 2006 08:32:39 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:20384 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750742AbWDXMci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 08:32:38 -0400
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
+	implementation of LSM hooks)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Valdis.Kletnieks@vt.edu, Ken Brush <kbrush@gmail.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060424082424.GH440@marowsky-bree.de>
+References: <1145309184.14497.1.camel@localhost.localdomain>
+	 <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
+	 <4445484F.1050006@novell.com>
+	 <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu>
+	 <4446D378.8050406@novell.com>
+	 <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu>
+	 <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com>
+	 <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu>
+	 <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com>
+	 <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu>
+	 <20060424082424.GH440@marowsky-bree.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Apr 2006 13:42:31 +0100
+Message-Id: <1145882551.29648.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jani-Matti Hätinen wrote:
->         Hello,
+On Llu, 2006-04-24 at 10:24 +0200, Lars Marowsky-Bree wrote:
+> On 2006-04-23T05:45:34, Valdis.Kletnieks@vt.edu wrote:
 > 
-> For some reason I haven't been able to access sdhci-devel at drzeus.cx
-> for a week now, so sending this here.
+> > > AppArmor are not likely to put careful thought into the policies that
+> > > they use?
+> > They're not likely to put careful thought into it, *AND* that saying things
+> > like "AppArmor is so *simple* to configure" only makes things worse - this
+> > encourages unqualified people to create broken policy configurations.
 > 
+> That is about the dumbest argument I've heard so far, sorry. 
 
-I see nothing in the logs from you so I suspect it's in your end. Other
-mail coming from pproxy.gmail.com (which is where you seem to be coming
-from) are coming through fine.
-
-> I get a hard lock-up every single time, if I do modprobe sdhci after
-> waking up from suspend-to-ram. If I compile the module into the kernel
-> (or if I don't rmmod it before suspending), I get a lock-up either
-> when going to suspend (if there's a card in the reader) or during
-> resume (if the reader is empty). With a fresh boot-up the driver works
-> just fine. The problem occurs only after the machine has been
-> suspended at least once.
->   I've tested this with 2.6.15-gentoo-r1 with the sdhci-0.11 patches
-> and vanilla 2.6.17-rc2. Sadly nothing gets as far as to the log when
-> the lock-up occurs.
-
-The kernel will not write anything to disk once a panic has occurred. To
-see what's going wrong need to be in text mode (framebuffer is not
-sufficient) when you do the modprobe.
-
-Rgds
-Pierre
+Its the conclusion of most security experts I know that broken security
+is worse than no security at all. 
 

@@ -1,64 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWDXUhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWDXUmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWDXUhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 16:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWDXUhJ
+	id S1751255AbWDXUmu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 16:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWDXUmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 16:37:09 -0400
-Received: from mail.suse.de ([195.135.220.2]:39124 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751254AbWDXUhH (ORCPT
+	Mon, 24 Apr 2006 16:42:50 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:48087 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751255AbWDXUmt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 16:37:07 -0400
-Date: Mon, 24 Apr 2006 13:35:23 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Re: Linux 2.6.16.11
-Message-ID: <20060424203523.GB17597@kroah.com>
-References: <20060424203358.GA17597@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060424203358.GA17597@kroah.com>
-User-Agent: Mutt/1.5.11
+	Mon, 24 Apr 2006 16:42:49 -0400
+Message-ID: <444D3846.7090006@watson.ibm.com>
+Date: Mon, 24 Apr 2006 16:42:46 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+CC: sekharan@us.ibm.com, akpm@osdl.org, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
+References: <1145638722.14804.0.camel@linuxchandra>	<20060421155727.4212c41c.akpm@osdl.org>	<1145670536.15389.132.camel@linuxchandra> <20060424.104701.10576428.taka@valinux.co.jp>
+In-Reply-To: <20060424.104701.10576428.taka@valinux.co.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 9ebe182..e86b4ba 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 16
--EXTRAVERSION = .10
-+EXTRAVERSION = .11
- NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
-diff --git a/fs/cifs/dir.c b/fs/cifs/dir.c
-index fed55e3..5e562bc 100644
---- a/fs/cifs/dir.c
-+++ b/fs/cifs/dir.c
-@@ -441,6 +441,20 @@ cifs_lookup(struct inode *parent_dir_ino
- 	cifs_sb = CIFS_SB(parent_dir_inode->i_sb);
- 	pTcon = cifs_sb->tcon;
- 
-+	/*
-+	 * Don't allow the separator character in a path component.
-+	 * The VFS will not allow "/", but "\" is allowed by posix.
-+	 */
-+	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_POSIX_PATHS)) {
-+		int i;
-+		for (i = 0; i < direntry->d_name.len; i++)
-+			if (direntry->d_name.name[i] == '\\') {
-+				cFYI(1, ("Invalid file name"));
-+				FreeXid(xid);
-+				return ERR_PTR(-EINVAL);
-+			}
-+	}
-+
- 	/* can not grab the rename sem here since it would
- 	deadlock in the cases (beginning of sys_rename itself)
- 	in which we already have the sb rename sem */
+Hirokazu Takahashi wrote:
+
+>  
+>
+>>i/o controller: This controller is not ported to the framework posted,
+>>but can be taken for a prototype version. New version would be simpler
+>>though.
+>>    
+>>
+>
+>I think controlling I/O bandwidth is right way to go.
+>  
+>
+Thanks. Obviously we agree heartily :-)
+
+>However, I think you need to change the design of the controller a bit.
+>A lot of I/O requests processes issue will be handled by other contexts.
+>There are AIO, journaling, pdflush and vmscan, which some kernel threads
+>treat instead of the processes.
+>
+>The current design looks not to care about this.
+>  
+>
+Yes. The current design, which builds directly on top of the CFQ 
+scheduler, does not attempt to treat kernel
+threads specially in order to account the I/O they're doing on behalf of 
+others properly. This was mainly because
+of the desire to keep the controller simple.
+
+I suspect pdflush and vmscan I/O is never going to be properly 
+attributable and journaling may be possible but
+unlikely to be worth it given the risks of throttling it ?  AIO is 
+likely to be something we can address if there is
+consensus that one is willing to pay the price of tracking the source 
+through the I/O submission layers.
+
+I suppose this would be a good time to dust off the I/O controller and 
+post it so discussions can become more
+concrete.
+
+But as always, changes in the design and implementation are always 
+welcome....
+
+Regards,
+Shailabh
+
+
+>Thanks,
+>Hirokazu Takahashi.
+>  
+>
+

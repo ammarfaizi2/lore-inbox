@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWDXTIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWDXTJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWDXTIj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 15:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWDXTIj
+	id S1751131AbWDXTJo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 15:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWDXTJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 15:08:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27010 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751130AbWDXTIi (ORCPT
+	Mon, 24 Apr 2006 15:09:44 -0400
+Received: from cac94-1-81-57-151-96.fbx.proxad.net ([81.57.151.96]:5088 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S1751131AbWDXTJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 15:08:38 -0400
-Date: Mon, 24 Apr 2006 12:08:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: better leve triggered IRQ management needed
-In-Reply-To: <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0604241203130.3701@g5.osdl.org>
-References: <20060424114105.113eecac@localhost.localdomain>
- <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org>
+	Mon, 24 Apr 2006 15:09:44 -0400
+Message-ID: <444D2268.1030802@free.fr>
+Date: Mon, 24 Apr 2006 21:09:28 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bttv 2.6.16: wrong VBI_OFFSET?
+References: <20060424190200.653333fe.froese@gmx.de>
+In-Reply-To: <20060424190200.653333fe.froese@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-
-On Mon, 24 Apr 2006, Linus Torvalds wrote:
+Edgar Toernig wrote:
+> Hi,
 > 
-> You can get an edge by having your driver make sure that it clears the 
-> interrupt source at some point where it requires an edge.
+> in 2.6.16 the code in driver/media/video/bttv-vbi.c was changed
+> a little bit.  Beside other things, the constant 244 for the vbi
+> offset was replaced by a #define VBI_OFFSET 128.
+> 
+> Afaics, the old value 244 was correct - was the change to 128
+> intentionally?
 
-Btw, this is why we do end up saying that having _two_ devices share 
-an edge-triggered setup really is something we cannot necessarily 
-fix. That said, it is better to limp along and work as well as you can 
-than to just throw up your hands.
+You can have some comments about that in the git log : 
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=67f1570a0659abba5efbf55cc986187af61bdd52;hp=7e57819169d4f9a1d7af55fb645ece3fb981e2e3
 
-So even then, we should at least give the user the _chance_ of being able 
-to log in and give a bug-report, rather than "oops, the harddisk won't 
-work, because the BIOS sets it up to share an edge-triggered interrupt 
-with the network".
 
-However, I'm all for printing out a honking huge warning if we have two 
-devices sharing the same edge-triggered interrupt. But a single device 
-should work, or the driver should be considered broken.
-
-[ Btw, the "disable_irq()/enable_irq()" subsystem has been written so that 
-  when you disable an edge-triggered interrupt, and the edge happens while 
-  the interrupt is disabled, we will re-play the interrupt at enable time. 
-  Exactly so that drivers can have an easier time and don't have to 
-  normally worry about whether something is edge or level-triggered.
-
-  However, if you're within an interrupt, that doesn't mean that you can 
-  just disable the irq and hope that it acts as if it was level-triggered 
-  when you enable it again. ]
-
-		Linus
+Matthieu

@@ -1,97 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWDXUZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWDXU0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbWDXUZi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 16:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWDXUZi
+	id S1751223AbWDXU0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 16:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWDXU0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 16:25:38 -0400
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:48391 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751238AbWDXUZh
+	Mon, 24 Apr 2006 16:26:24 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:54533 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751223AbWDXU0W
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 16:25:37 -0400
-Date: Mon, 24 Apr 2006 22:25:39 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Steve French <sfrench@us.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix cifs breakage when CONFIG_CIFS_EXPERIMENTAL=n
-Message-Id: <20060424222539.1d3c96fd.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Apr 2006 16:26:22 -0400
+To: Dave Jones <davej@redhat.com>
+Cc: Fernando Barsoba <fbarsoba@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: installing older kernel (2.4.20/28 on machine running 2.6.15)
+References: <20060423192949.GA13666@stusta.de>
+	<BAY114-F395006CC148F4F61BFB684C7B90@phx.gbl>
+	<20060423202657.GD14680@redhat.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: because editing your files should be a traumatic experience.
+Date: Mon, 24 Apr 2006 21:26:07 +0100
+In-Reply-To: <20060423202657.GD14680@redhat.com> (Dave Jones's message of "23 Apr 2006 21:28:31 +0100")
+Message-ID: <87lktupvog.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Steve,
+On 23 Apr 2006, Dave Jones prattled cheerily:
+> On Sun, Apr 23, 2006 at 03:39:23PM -0400, Fernando Barsoba wrote:
+>  > Adrian,
+>  > 
+>  > Thanks a lot for your answer. I am trying to install it on fedora 5. I 
+>  > guess i should ask fedora forum about this matter.
+> 
+> Give up now.  There's no static /dev, no 2.4 compatible modutils,
+> and a slew of other bits of userspace will be too new.
 
-Cifs is currently broken when CONFIG_CIFS_EXPERIMENTAL=n:
-
-fs/cifs/connect.c: In function `cifs_setup_session':
-fs/cifs/connect.c:3451: warning: implicit declaration of function `CIFS_SessSetup'
-(...)
-WARNING: "CIFS_SessSetup" [fs/cifs/cifs.ko] undefined!
-
-The following patch attempts to fix that. Untested beyond compilation.
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
- fs/cifs/cifsproto.h |    2 --
- fs/cifs/cifssmb.c   |    2 --
- fs/cifs/ntlmssp.c   |    2 --
- 3 files changed, 6 deletions(-)
-
---- linux-2.6.17-rc2.orig/fs/cifs/cifsproto.h	2006-04-24 21:56:45.000000000 +0200
-+++ linux-2.6.17-rc2/fs/cifs/cifsproto.h	2006-04-24 22:05:43.000000000 +0200
-@@ -64,14 +64,12 @@
- extern void header_assemble(struct smb_hdr *, char /* command */ ,
- 			    const struct cifsTconInfo *, int /* length of
- 			    fixed section (word count) in two byte units */);
--#ifdef CONFIG_CIFS_EXPERIMENTAL
- extern int small_smb_init_no_tc(const int smb_cmd, const int wct,
- 				struct cifsSesInfo *ses,
- 				void ** request_buf);
- extern int CIFS_SessSetup(unsigned int xid, struct cifsSesInfo *ses,
- 			     const int stage, int * pNTLMv2_flg,
- 			     const struct nls_table *nls_cp);
--#endif
- extern __u16 GetNextMid(struct TCP_Server_Info *server);
- extern struct oplock_q_entry * AllocOplockQEntry(struct inode *, u16, 
- 						 struct cifsTconInfo *);
---- linux-2.6.17-rc2.orig/fs/cifs/ntlmssp.c	2006-04-24 21:56:45.000000000 +0200
-+++ linux-2.6.17-rc2/fs/cifs/ntlmssp.c	2006-04-24 22:09:34.000000000 +0200
-@@ -27,7 +27,6 @@
- #include "ntlmssp.h"
- #include "nterr.h"
- 
--#ifdef CONFIG_CIFS_EXPERIMENTAL
- static __u32 cifs_ssetup_hdr(struct cifsSesInfo *ses, SESSION_SETUP_ANDX *pSMB)
- {
- 	__u32 capabilities = 0;
-@@ -140,4 +139,3 @@
- 
- 	return rc;
- }
--#endif /* CONFIG_CIFS_EXPERIMENTAL */
---- linux-2.6.17-rc2.orig/fs/cifs/cifssmb.c	2006-04-24 10:47:55.000000000 +0200
-+++ linux-2.6.17-rc2/fs/cifs/cifssmb.c	2006-04-24 22:08:19.000000000 +0200
-@@ -188,7 +188,6 @@
- 	return rc;
- }
- 
--#ifdef CONFIG_CIFS_EXPERIMENTAL  
- int
- small_smb_init_no_tc(const int smb_command, const int wct, 
- 		     struct cifsSesInfo *ses, void **request_buf)
-@@ -214,7 +213,6 @@
- 
- 	return rc;
- }
--#endif  /* CONFIG_CIFS_EXPERIMENTAL */
- 
- /* If the return code is zero, this function must fill in request_buf pointer */
- static int
-
-
+A rather more important piece is 2.6-only, IIRC: glibc!
 
 -- 
-Jean Delvare
+`On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
+ because bringing Windows into the picture rescaled "brokenness" by
+ a factor of 10.' --- Peter da Silva

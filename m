@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWDXVs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWDXVuu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWDXVs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 17:48:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWDXVs1
+	id S1751331AbWDXVuu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 17:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWDXVuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 17:48:27 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17376 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751333AbWDXVs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 17:48:27 -0400
+	Mon, 24 Apr 2006 17:50:50 -0400
+Received: from nproxy.gmail.com ([64.233.182.186]:42849 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751331AbWDXVut convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 17:50:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iO0QG7JyYa1ECVI333oVH92qWeo86JRDv82wsD5Cu4igg6Z3767x/ExMRTjfd1C2BjPFZklPtjbgKj+BINM6LFNuBcRN/f7GHPSDzcrAZSTePnVQL9QARlcAJZZy/pLtCSjFPkn6+70NxykRX8pM+AOpNrqaGmzIrisf1OpHeJ4=
+Message-ID: <9f7850090604241450w885fa98v36657ba5f12f071c@mail.gmail.com>
+Date: Mon, 24 Apr 2006 14:50:47 -0700
+From: "marty fouts" <mf.danger@gmail.com>
+To: "Kyle Moffett" <mrmacman_g4@mac.com>
 Subject: Re: Compiling C++ modules
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Avi Kivity <avi@argo.co.il>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <444D3D32.1010104@argo.co.il>
+In-Reply-To: <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
 	 <1145911546.1635.54.camel@localhost.localdomain>
 	 <444D3D32.1010104@argo.co.il>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Apr 2006 22:58:38 +0100
-Message-Id: <1145915918.1635.64.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	 <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-04-25 at 00:03 +0300, Avi Kivity wrote:
-> Alan Cox wrote:
-> I think it's easy to show that the equivalent C++ code would be shorter, 
-> faster, and safer.
+On 4/24/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
 
-I've removed the poor guy from Iomega from the followups, perhaps others
-could do likewise
+> What else can C++ do that C can not?
 
-Mathematically the answer is "no you couldn't". You might be able to
-argue that a fortran implementation would be faster but not a C++ one.
+Inheritance, templates...
 
-And for strings C++ strings are suprisingly inefficient and need a lot
-of memory allocations, which can fail and are not handled well without C
-++ exceptions and other joyous language features you don't want in a
-kernel. C with 'safe' string handling is similar - look at glib.
+I would never argue in favor of converting any large existing
+application, especially the Linux kernel, from C to C++ by introducing
+C++ into part of it; for a lot of reasons, but it is possible to write
+a reasonable OS kernel in C++ and take advantage of "C++ as a safer C"
+(Koenig) to write clearer, shorter code in a lot of instances.
 
-We have to make tradeoffs and the kernel tradeoffs have been to keep C
-type fast string handling but to provide helpers in the hope people will
-actually use them to avoid making mistakes.
+Unfortunately, it's almost as easy to write bad C++ as it is to write
+bad C (Fortran in any language) but we (the community) have a lot more
+experience in writing C kernels, so we're more familiar with how to
+avoid bad C than we are with how to avoid bad C++.
 
+The existance of Bulwer-Lytton does not disprove that good prose can
+be written in English, nor does silly abuse of overloading disprove
+that good code can be written in C++.
+
+Oh, and yeah, a = b + c *is* more readable than
+
+a = malloc(strlen(b) + strlen(c));
+strcpy(a,b);
+strcat(a,c);
+
+and contains fewer bugs ;)

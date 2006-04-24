@@ -1,78 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWDXWUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWDXWWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWDXWUB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 18:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWDXWUA
+	id S1751177AbWDXWWd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 18:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWDXWWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 18:20:00 -0400
-Received: from mail.clusterfs.com ([206.168.112.78]:48818 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751163AbWDXWT7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 18:19:59 -0400
-Date: Mon, 24 Apr 2006 16:19:57 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Steven Whitehouse <swhiteho@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 05/16] GFS2: File and inode operations
-Message-ID: <20060424221957.GW6075@schatzie.adilger.int>
-Mail-Followup-To: Steven Whitehouse <swhiteho@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <1145636030.3856.102.camel@quoit.chygwyn.com> <20060423075525.GP6075@schatzie.adilger.int> <1145886796.3856.161.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145886796.3856.161.camel@quoit.chygwyn.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Mon, 24 Apr 2006 18:22:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.227]:5806 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751177AbWDXWWd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 18:22:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=QCcNd2Wzx+LegQDjwvzG90i2bNg5T0mj2YIJKHL/SVK/pyixH/VL/awEBMR01yDnU21qChGNroC82XViYsy5BBCVW03MClf49jQ9XwoXs09rrFi4oCloM71jeIHvh4HrHYPqrOO8/2a9EFVplSausP6hwHcNaOAhfxgqFNmnnbY=
+Message-ID: <444D4FA4.6020604@gmail.com>
+Date: Mon, 24 Apr 2006 18:22:28 -0400
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+CC: Linux kernel <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>, Ted Phelps <phelps@gnusto.com>
+Subject: Re: [rfc patch 1/1 -17rc1-mm3] time: add clocksource driver for Geode
+ SC-1100  Hi-Res Timer
+References: <444CD732.5090703@gmail.com>
+In-Reply-To: <444CD732.5090703@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 24, 2006  14:53 +0100, Steven Whitehouse wrote:
-> On Sun, 2006-04-23 at 01:55 -0600, Andreas Dilger wrote:
-> > > +++ b/include/linux/iflags.h
-> > > @@ -0,0 +1,104 @@
-> > > +#define IFLAG_TOPDIR		__IFL(TopDir)		/* 0x00020000 */
-> > > +#define IFLAG_DIRECTIO		__IFL(DirectIO)		/* 0x00040000 */
-> > > +#define IFLAG_INHERITDIRECTIO	__IFL(InheritDirectIO)	/* 0x00080000 */
-> > > +#define IFLAG_INHERITJDATA	__IFL(InheritJdata)	/* 0x00100000 */
-> > > +#define IFLAG_RESERVED		__IFL(Reserved)		/* 0x80000000 */
-> > 
-> > Actually, the 0x0080000 flag has been reserved by e2fsprogs for ext3
-> > extents for a while already.  AFAICS, there are no other flags in the
-> > current e2fsprogs that aren't listed above.
->
-> So if I call that one IFLAG_EXTENT, then I presume that will be ok?
-> What about the 0x00040000 flag? That would seem to be a gap in the
-> sequence (ignoring GFS flags for now), so should I leave that reserved
-> for use by ext2/3 as well?
+Jim Cromie wrote:
+> Heres a patch (on 17rc1-mm3 + John Stultz's 4/21 fn-renames) that adds
+> a new GTOD-clocksource driver for the hires timer in the Geode
+> SC-1100.  Ive been running it for most of the last 7 days now, and it
+> seems to work well.
 
-To be honest, I don't know if 0x40000 is used or not.  It isn't in the
-e2fsprogs version of ext2_fs.h.
+Ooof.   Something is broken, causing kernel to 'lock'
+No oops, just nothing. 
 
-> > The other tidbit is that new ext2/ext3 files generally inherit the flags
-> > from their parent directory, so it isn't clear if there is really a need
-> > for a distinction between DIRECTIO and INHERIT_DIRECTIO, and similarly
-> > JDATA and INHERIT_JDATA?  Generally, I'd think that JDATA isn't meaningful
-> > on directories (since they are metadata and journaled anyways), nor is
-> > DIRECTIO so their only meaning on a directory is "INHERIT for new files".
-> 
-> Yes, that sounds like a good plan. The only downside (purely from a GFS2
-> point of view, it won't affect anybody else) means that its no longer a
-> 1:1 relationship between flags, so in order to do the conversion, I'd
-> have to use something a little more elaborate than the inline function I
-> added to the iflags.h header file,
+$ while true; do sleep 30; uptime; done
+..
+ 14:25:23 up  1:09,  2 users,  load average: 0.12, 0.08, 0.01
+ 14:25:53 up  1:09,  2 users,  load average: 0.07, 0.07, 0.01
+ 14:26:23 up  1:10,  2 users,  load average: 0.04, 0.06, 0.01
+ 14:26:53 up  1:10,  2 users,  load average: 0.02, 0.05, 0.00
+ 14:27:24 up  1:11,  2 users,  load average: 0.07, 0.06, 0.00
 
-Hmm, maybe I don't understand the GFS2 issue then?  Why not just use
-IFLAG_JDATA on the directory and remove the use of IFLAG_INHERITJDATA
-(equivalent) entirely from GFS2?  Does the implementation depend on a
-distinction between these on a directory?
+then freeze.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
 
+Heres the last bit of the syslog:
+
+Apr 24 13:18:24 truck ntpd[1730]: configure: keyword "By" unknown, line 
+ignored
+Apr 24 13:18:27 truck /usr/sbin/cron[1751]: (CRON) INFO (pidfile fd = 3)
+Apr 24 13:18:27 truck /usr/sbin/cron[1752]: (CRON) STARTUP (fork ok)
+Apr 24 13:18:28 truck /usr/sbin/cron[1752]: (CRON) INFO (Running @reboot 
+jobs)
+Apr 24 13:19:17 truck snmpd[1680]: cannot open /proc/net/snmp6 ...
+Apr 24 13:21:41 truck ntpd[1730]: synchronized to LOCAL(0), stratum 13
+Apr 24 13:21:41 truck ntpd[1730]: kernel time sync disabled 0041
+Apr 24 13:22:44 truck ntpd[1730]: synchronized to 64.5.1.130, stratum 2
+Apr 24 13:25:59 truck ntpd[1730]: kernel time sync enabled 0001
+Apr 24 13:38:02 truck -- MARK --
+Apr 24 13:58:02 truck -- MARK --
+Apr 24 14:17:01 truck /USR/SBIN/CRON[2015]: (root) CMD (   run-parts 
+--report /etc/cron.hourly)[jimc@harpo i2c-stuff]$
+
+
+Im looking into it, startng with recent presentation tweaks :-/
+Ill turn on whatever debug might be relevant, mutex debug included.
+This is on an NFSroot setup, not that I suspect it.
+
+Im still interested in feedback,
+thanks
+Jim Cromie

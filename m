@@ -1,50 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWDXHPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWDXHU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWDXHPr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 03:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWDXHPq
+	id S1751015AbWDXHU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 03:20:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWDXHU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 03:15:46 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:38822 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751012AbWDXHPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 03:15:45 -0400
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-From: Arjan van de Ven <arjan@infradead.org>
-To: Neil Brown <neilb@suse.de>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-       James Morris <jmorris@namei.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-In-Reply-To: <17484.20906.122444.964025@cse.unsw.edu.au>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	 <1145470463.3085.86.camel@laptopd505.fenrus.org>
-	 <p73mzeh2o38.fsf@bragg.suse.de>
-	 <1145522524.3023.12.camel@laptopd505.fenrus.org>
-	 <20060420192717.GA3828@sorel.sous-sol.org>
-	 <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060421173008.GB3061@sorel.sous-sol.org>
-	 <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <17484.20906.122444.964025@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Mon, 24 Apr 2006 09:14:58 +0200
-Message-Id: <1145862899.3116.3.camel@laptopd505.fenrus.org>
+	Mon, 24 Apr 2006 03:20:56 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:58635 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751010AbWDXHU4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 03:20:56 -0400
+Date: Mon, 24 Apr 2006 17:20:53 +1000
+To: Neil Brown <neilb@cse.unsw.edu.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [NFSD]: Select things at the closest tristate instead of bool
+Message-ID: <20060424072053.GA23449@gondor.apana.org.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/mixed; boundary="TB36FDmn/VVEgNH/"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> A large part of the behaviour of an application is the path names that
-> it uses and what it does with them.  If an application started doing
-> unexpected things with unexpected paths (e.g. exec("/bin/sh") or
-> open("/etc/shadow",O_RDONLY)) then this is a sure sign that it has
-> been subverted and that AppArmor need to protect it, from itself.
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-does apparmor at least (offer) to kill the app when this happens?
-(rationale: the app is hijacked, better kill it before it goes to do
-damage)
+Hi:
 
+I noticed recently that my CONFIG_CRYPTO_MD5 turned into a y again
+instead of m.  It turns out that CONFIG_NFSD_V4 is selecting it.
+In general when we have a bool sitting under a tristate it is
+better to select things you need from the tristate rather than the
+bool since that allows the things you select to be modules.
 
+The following patch does it for nfsd.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nfsd-md5-kconfig.patch"
+
+diff --git a/fs/Kconfig b/fs/Kconfig
+index f9b5842..7cb0210 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -1431,8 +1431,13 @@
+ 	select LOCKD
+ 	select SUNRPC
+ 	select EXPORTFS
+-	select NFS_ACL_SUPPORT if NFSD_V3_ACL || NFSD_V2_ACL
+-	help
++	select NFSD_V2_ACL if NFSD_V3_ACL
++	select NFS_ACL_SUPPORT if NFSD_V2_ACL
++	select NFSD_TCP if NFSD_V4
++	select CRYPTO_MD5 if NFSD_V4
++	select CRYPTO if NFSD_V4
++	select FS_POSIX_ACL if NFSD_V4
++	help
+ 	  If you want your Linux box to act as an NFS *server*, so that other
+ 	  computers on your local network which support NFS can access certain
+ 	  directories on your box transparently, you have two options: you can
+@@ -1469,7 +1474,6 @@
+ config NFSD_V3_ACL
+ 	bool "Provide server support for the NFSv3 ACL protocol extension"
+ 	depends on NFSD_V3
+-	select NFSD_V2_ACL
+ 	help
+ 	  Implement the NFSv3 ACL protocol extension for manipulating POSIX
+ 	  Access Control Lists on exported file systems. NFS clients should
+@@ -1479,10 +1483,6 @@
+ config NFSD_V4
+ 	bool "Provide NFSv4 server support (EXPERIMENTAL)"
+ 	depends on NFSD_V3 && EXPERIMENTAL
+-	select NFSD_TCP
+-	select CRYPTO_MD5
+-	select CRYPTO
+-	select FS_POSIX_ACL
+ 	help
+ 	  If you would like to include the NFSv4 server as well as the NFSv2
+ 	  and NFSv3 servers, say Y here.  This feature is experimental, and
+
+--TB36FDmn/VVEgNH/--

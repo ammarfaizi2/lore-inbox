@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWDXEkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWDXEm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751509AbWDXEkl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 00:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWDXEkl
+	id S1751507AbWDXEm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 00:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWDXEm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 00:40:41 -0400
-Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:61139 "EHLO
-	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
-	id S1751509AbWDXEkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 00:40:40 -0400
-Message-ID: <444C5698.5080503@openvz.org>
-Date: Mon, 24 Apr 2006 08:39:52 +0400
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-CC: sekharan@us.ibm.com, akpm@osdl.org, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
-       Valerie.Clement@bull.net
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>	<1145630992.3373.6.camel@localhost.localdomain>	<1145638722.14804.0.camel@linuxchandra>	<20060421155727.4212c41c.akpm@osdl.org>	<1145670536.15389.132.camel@linuxchandra>	<20060421191340.0b218c81.akpm@osdl.org>	<1145683725.21231.15.camel@linuxchandra> <20060424011053.B89707402F@sv1.valinux.co.jp>
-In-Reply-To: <20060424011053.B89707402F@sv1.valinux.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Apr 2006 00:42:28 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:63642 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751507AbWDXEm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 00:42:28 -0400
+Date: Sun, 23 Apr 2006 22:42:10 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Linux 2.6.17-rc2
+In-reply-to: <64wre-2cg-35@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: s0348365@sms.ed.ac.uk
+Message-id: <444C5722.6080605@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <63bym-4wt-3@gated-at.bofh.it> <64eE4-1gP-15@gated-at.bofh.it>
+ <64eX5-1RE-13@gated-at.bofh.it> <64wre-2cg-35@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> pzone based memory controller:
->>>> http://marc.theaimsgroup.com/?l=ckrm-tech&m=113867467006531&w=2
->>> From a super-quick scan that looks saner.  Is it effective?  Is this the
->>> way you're planning on proceeding?
->> Yes, it is effective, and the reclamation is O(1) too. It has couple of
->> problems by design, (1) doesn't handle shared pages and (2) doesn't
->> provide support for both min_shares and max_shares.
+Alistair John Strachan wrote:
+> On Saturday 22 April 2006 02:07, Andi Kleen wrote:
+> [snip]
+>> They probably forget to set PROT_EXEC in either mprotect or mmap somewhere.
+>> You can check in /proc/*/maps which mapping contains the address it is
+>> faulting on and then try to find where it is allocated or mprotect'ed.
 > 
-> Right.  I wanted to show proof-of-cencept of the pzone based controller
-> and implemented minimal features necessary as the memory controller.
-> So, the pzone based controller still needs development and some cleanup.
-Just out of curiosity, how it was meassured that it is effective?
-How does it work when there is a global memory shortage in the system?
+> Turned out this was exactly what the problem was. Wine attempts to match 
+> Windows as far as read/write/execute mappings go, and war3.exe tried to 
+> execute memory in a section with "MEM_EXECUTE" not set.
+> 
+> I'm surprised the program works on Windows with DEP/NX enabled, but apparently 
+> it does.
 
-Thanks,
-Kirill
+Are you sure that it does? NX is not enabled by default on XP except on 
+Windows system processes, even on CPUs supporting hardware NX, so it 
+might well have failed with it turned on (especially since the problem 
+seemed to show up after some no-CD crack was applied).
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

@@ -1,72 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWDXW6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWDXXCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751470AbWDXW6U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 18:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWDXW6U
+	id S1751144AbWDXXCA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 19:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWDXXCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 18:58:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32709 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751470AbWDXW6T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 18:58:19 -0400
-Date: Mon, 24 Apr 2006 15:58:12 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC 1/2] irq: record edge-level setting
-Message-ID: <20060424155812.68d45cb1@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.64.0604241527060.3701@g5.osdl.org>
-References: <20060424114105.113eecac@localhost.localdomain>
-	<Pine.LNX.4.64.0604241156340.3701@g5.osdl.org>
-	<Pine.LNX.4.64.0604241203130.3701@g5.osdl.org>
-	<1145908402.3116.63.camel@laptopd505.fenrus.org>
-	<20060424201646.GA23517@devserv.devel.redhat.com>
-	<1145911417.3116.69.camel@laptopd505.fenrus.org>
-	<Pine.LNX.4.64.0604241354200.3701@g5.osdl.org>
-	<20060424142243.519d61f1@localhost.localdomain>
-	<1145915394.1635.57.camel@localhost.localdomain>
-	<20060424144155.7561fe8e@localhost.localdomain>
-	<Pine.LNX.4.64.0604241527060.3701@g5.osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+	Mon, 24 Apr 2006 19:02:00 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:42189 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751144AbWDXXB7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 19:01:59 -0400
+Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: herbert@13thfloor.at, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       Alan Stern <stern@rowland.harvard.edu>
+In-Reply-To: <20060424150314.2de6373d.akpm@osdl.org>
+References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
+	 <20060421110140.GC14841@MAIL.13thfloor.at>
+	 <1145655097.15389.12.camel@linuxchandra>
+	 <20060422005851.GA22917@MAIL.13thfloor.at>
+	 <1145913967.1400.59.camel@linuxchandra>
+	 <20060424150314.2de6373d.akpm@osdl.org>
+Content-Type: text/plain
+Organization: IBM
+Date: Mon, 24 Apr 2006 16:01:57 -0700
+Message-Id: <1145919717.1400.67.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Apr 2006 15:34:20 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
-
-> 
-> 
-> On Mon, 24 Apr 2006, Stephen Hemminger wrote:
+On Mon, 2006-04-24 at 15:03 -0700, Andrew Morton wrote:
+> Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+> >
+> > Thanks for the steps. With that i was able to reproduce the problem and
+> > i found the bug.
 > > 
-> > Maybe that's why it never was done in the past, too much work and historical
-> > baggage.
+> > While i go ahead and generate the patch, i wanted to hear if my
+> > conclusion is correct.
+> > 
+> > The problem is due to the fact that most notifier registrations
+> > incorrectly use __devinitdata to define the callback structure, as in:
+> > 
+> > static struct notifier_block __devinitdata hrtimers_nb = {
+> >         .notifier_call = hrtimer_cpu_notify,
+> > };
+> > 
+> > devinitdata'd  data is not _expected to be available_ after the
+> > initialization(unless CONFIG_HOTPLUG is defined).
+> > 
+> > I do not know how it was working until now :), anybody has a theory that
+> > can explain it (or my conclusion is wrong) ?
 > 
-> It's messy. That whole ELCR register was mis-designed: you can change the 
-> edge/level detection with it, but since it _also_ changes the polarity of 
-> the signal, you can't actually do so from a sw angle, and it has to match 
-> the hardware. So you can't say "I want to treat this interrupt as level 
-> triggered", and just set the bit ;^/
-> 
-> To make matters worse, I wouldn't be in the least surprised if the ELCR 
-> register is totally ignored by many south-bridges for the internally 
-> generated interrupts (ie devices that are embedded in the SB), since the 
-> register really doesn't matter for them.
-> 
-> And it doesn't help that Intel mis-designed the edge-detection logic on 
-> the IO-APIC. On the old i8259, if you masked an interrupt and unmasked it, 
-> an active interrupt would always be seen as an edge, because the 
-> edge-detection was done _after_ masking. On the IO-APIC crap, the masking 
-> is done after edge-detection, so if you mask the APIC hardware level, and 
-> an edge happens, you'll never ever learn of it ever again.
+> That sounds right.  There are several __devinitdata notifier_blocks in the
+> tree - please be sure to check them all.
 
-That is the kind of crap that makes NAPI difficult.
-See Documentation/networking/NAPI_HOWTO.txt for rotting packet..
+Yes, I am covering all notifier blocks.
 
-> I'm sure other system architectures have similar problems, but it's 
-> irritating.
+Another issue... many of the notifier callback functions are marked as
+init calls (__cpuinit, __devinit etc.,) as in:
+
+static int __cpuinit pageset_cpuup_callback(struct notifier_block *nfb,
+                unsigned long action,
+                void *hcpu)
+
+I am generating a separate patch to take care of those too.
 > 
-> 			Linus
+> btw, it'd be pretty trivial to add runtime checking for this sort of thing:
+> 
+> int addr_in_init_section(void *addr)
+> {
+> 	return addr >= __init_begin && addr < __init_end;
+> }
+
+I will add this to kernel/sys.c, and put a BUG_ON to check for both the
+notifier block and the callback function.
+
+BTW, which header file you want me to export this through ? 
+> 
+> (x86-specific)
+> (need to add __init_end to vmlinux.lds.S)
+
+I see __init_end in arch/i386/kernel/vmlinux.lds.S.
+
+> 
+> then we could use that to check various things in various places...
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

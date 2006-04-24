@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWDXT2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWDXT3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbWDXT2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 15:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWDXT2Y
+	id S1751155AbWDXT3K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 15:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWDXT3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 15:28:24 -0400
-Received: from mail.suse.de ([195.135.220.2]:7113 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751165AbWDXT2Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 15:28:24 -0400
-Date: Mon, 24 Apr 2006 12:27:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Gary Poppitz <poppitzg@iomega.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-Message-ID: <20060424192710.GB2505@kroah.com>
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
+	Mon, 24 Apr 2006 15:29:10 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:10939 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751155AbWDXT3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 15:29:09 -0400
+Date: Mon, 24 Apr 2006 14:28:24 -0500
+From: Robin Holt <holt@sgi.com>
+To: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: Anderw Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Keith Owens <kaos@americas.sgi.com>, Dean Nelson <dnc@americas.sgi.com>,
+       Tony Luck <tony.luck@intel.com>,
+       Anath Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna Panchamukhi <prasanna@in.ibm.com>,
+       Dave M <davem@davemloft.net>, Andi Kleen <ak@suse.de>
+Subject: Re: [(take 2)patch 0/7] Notify page fault call chain
+Message-ID: <20060424192824.GA10893@lnx-holt.americas.sgi.com>
+References: <20060420232456.712271992@csdlinux-2.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060420232456.712271992@csdlinux-2.jf.intel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24, 2006 at 01:16:26PM -0600, Gary Poppitz wrote:
-> I have the task of porting an existing file system to Linux. This  
-> code is in C++ and I have noticed that the Linux kernel has
-> made use of C++ keywords and other things that make it incompatible.
+Anil,
 
-We know they are "incompatible", why else would we allow "private" and
-"struct class" in the kernel source if we some how expected it to work
-with a C++ compiler?
+This set definitely improves things.  My timings from last week must
+have been off.  I think I may have still had the notify_die() call in
+the fault path.  This week, I see a 35 nSec slowdown between with/without
+KRPOBES.  Last week, I thought they were roughly equivalent.
 
-Please see the lkml FAQ (linked to at the bottom of every lkml message)
-for why this will not happen.
 
-thanks,
-
-greg k-h
+Thanks,
+Robin Holt

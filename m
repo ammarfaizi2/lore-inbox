@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWDXViy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWDXVjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWDXViy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 17:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWDXViy
+	id S1751308AbWDXVjf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 17:39:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWDXVjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 17:38:54 -0400
-Received: from spooner.celestial.com ([192.136.111.35]:38549 "EHLO
-	spooner.celestial.com") by vger.kernel.org with ESMTP
-	id S1751334AbWDXVix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 17:38:53 -0400
-Date: Mon, 24 Apr 2006 17:38:52 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: C++ pushback
-Message-ID: <20060424213852.GA9695@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
+	Mon, 24 Apr 2006 17:39:35 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60072 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751308AbWDXVje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 17:39:34 -0400
+Subject: Re: [RFC 1/2] irq: record edge-level setting
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060424142243.519d61f1@localhost.localdomain>
+References: <20060424114105.113eecac@localhost.localdomain>
+	 <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org>
+	 <Pine.LNX.4.64.0604241203130.3701@g5.osdl.org>
+	 <1145908402.3116.63.camel@laptopd505.fenrus.org>
+	 <20060424201646.GA23517@devserv.devel.redhat.com>
+	 <1145911417.3116.69.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0604241354200.3701@g5.osdl.org>
+	 <20060424142243.519d61f1@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Apr 2006 22:49:54 +0100
+Message-Id: <1145915394.1635.57.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.17-rc2krw
-X-Woot: Woot!
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24, 2006 at 02:02:27PM -0600, Gary Poppitz took 17 lines to write:
-> >We know they are "incompatible", why else would we allow "private" and
-> >"struct class" in the kernel source if we some how expected it to work
-> >with a C++ compiler?
+On Llu, 2006-04-24 at 14:22 -0700, Stephen Hemminger wrote:
+> Record the level vs edge-triggered status of IRQ to allow for error checks later.
 > 
-> 
-> I can see that this was intentional, not an oversight.
+> Note: this is only done fir i386/x86_64.
 
-If you can see it was intentional, I'm baffled why it didn't occur to you
-to do some simple research before posting or even trouble yourself to
-ask "Why?" on LKML.
+This doesn't work for IRQ's routed via the EISA IRQ routing or for MCA
+that I can see. It also seems to assume the chip state at boot is right.
+For EISA you need to real the EISA irq register to see what is level and
+what is edge (and work out what is EISA), for MCA it is board dependant.
 
-> If there is a childish temper tantrum mentality about C++ then I have  
-> no reason or desire to be on this list.
-
-If there is an unwillingness to learn the ground rules and conventions
-of the group you want to join, then the group has no reason nor desire
-to have you join.
-
-> Grow up.
-
-Bye now.
-
-Kurt
--- 
-Wit, n.:
-	The salt with which the American Humorist spoils his cookery
-... by leaving it out.
-		-- Ambrose Bierce, "The Devil's Dictionary"

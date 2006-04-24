@@ -1,88 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWDXU7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWDXVBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751270AbWDXU7s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 16:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWDXU7r
+	id S1751198AbWDXVBK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 17:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWDXVBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 16:59:47 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:52390 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751270AbWDXU7q (ORCPT
+	Mon, 24 Apr 2006 17:01:10 -0400
+Received: from [212.33.162.202] ([212.33.162.202]:25101 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751198AbWDXVBJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 16:59:46 -0400
-Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: dtor_core@ameritech.net, Matthew Garrett <mjg59@srcf.ucam.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
-In-Reply-To: <20060424203424.GE3386@elf.ucw.cz>
-References: <20060419195356.GA24122@srcf.ucam.org>
-	 <20060419200447.GA2459@isilmar.linta.de>
-	 <20060419202421.GA24318@srcf.ucam.org>
-	 <d120d5000604240745i71bd56b8n99b97130388d36f6@mail.gmail.com>
-	 <1145894731.7155.120.camel@localhost.localdomain>
-	 <d120d5000604240926u51fc06d6gbf4f23832064e0ad@mail.gmail.com>
-	 <1145898341.7155.145.camel@localhost.localdomain>
-	 <20060424203424.GE3386@elf.ucw.cz>
-Content-Type: text/plain
-Date: Mon, 24 Apr 2006 21:59:31 +0100
-Message-Id: <1145912371.7155.220.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Mon, 24 Apr 2006 17:01:09 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] Direct I/O bio size regression
+Date: Mon, 24 Apr 2006 23:59:13 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, David Chinner <dgc@sgi.com>
+References: <200604242006.11758.a1426z@gawab.com> <20060424194910.GK29724@suse.de>
+In-Reply-To: <20060424194910.GK29724@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="windows-1256"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604242359.14192.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 22:34 +0200, Pavel Machek wrote:
-> What is on the jack, BTW? Left headphone, right headphone, mic in? Can
-> all of them be used independently?
+Jens Axboe wrote:
+> On Mon, Apr 24 2006, Al Boldi wrote:
+> > On my system max_hw_sectors_kb is fixed at 1024, and max_sectors_kb
+> > defaults to 512, which leads to terribly fluctuating thruput.
+> >
+> > Setting max_sectors_kb = max_hw_sectors_kb makes things even worse.
+> >
+> > Tuning max_sectors_kb to ~192 only stabilizes this situation.
+>
+> That sounds pretty strange. Do you have a test case?
 
-> > It gets tricky. AC presence isn't a property of a battery for example
-> > and is in fact more like a switch (my handheld has a mechanical
-> > switch
-> 
-> Oops, really? Mechanical switch to sense ac in? (What happens when you
-> plug in charger but that is not plugged to AC?)
+I would think that, if you could get your hands on some hw that defaults to 
+the same values, you may easily see the same problem by doing this:
 
-Most of the Zaurus devices can measure the AC voltage and make sanity
-checks on it in the SharpSL Battery/PM code.
+1. # vmstat 1 (or some other bio mon)
+2. < change vt >
+3. # cat /dev/hda > /dev/null &
+4. # cat /dev/hda > /dev/null
+Let this second cat run for a sec, then ^C.
+Depending on your hw specifics the bio should either go up or down by a 
+factor of 2 (on my system 25mb/s-48mb/s).  You may have to repeat step 4 a 
+few times to aggravate the situation.
 
-> I think that AC presence should be handled independently from
-> battery. There can be >1 battery in the system.
+Note that this is not specific to cat, but can also be observed during normal 
+random disk access, although not in a controlled manner.
 
-Agreed. This is some of the leftover information I'm referring to below.
+Setting max_sectors_kb to ~192 seems to inhibit this problem.
 
->(Another interesting question is: is AC status 0/1 or is it number of
-> milivolts?)
+Thanks!
 
-I'd say millivolts except for the problem of what you do on systems that
-don't support voltage readings. Use a very high value I guess. For a lot
-of devices millivolts also means in kernel conversion tables. Do such
-things belong in kernel or user space?
+--
+Al
 
-> > to detect when its plugged in) ;). The battery class would export some
-> > information but not all of it and I don't know where the leftover
-> > information should go. If I knew that, I'd write the class.
-> 
-> Leftover information?
 
-Where to put AC status and AC voltage readings amongst other things.
-Another sysfs class? Also, how do you control suspend/resume
-notifications to userspace if not using APM/ACPI?
 
-> I think we should create directory in sysfs, and populate it according
-> to battery's capabilities.
-> 
-> Zaurus' battery would have voltage and maybe percent fields.
-> 
-> ACPI battery would have all the usual fields.
-> 
-> Another important question is a way for user applications to avoid
-> polling... but I guess that should be solveable by enabling select on
-> one of those files.
 
-Agreed, this is something that would be needed.
-
-Richard
 

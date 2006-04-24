@@ -1,163 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWDXGty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWDXGye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWDXGty (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 02:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWDXGty
+	id S1750914AbWDXGye (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 02:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWDXGye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 02:49:54 -0400
-Received: from imap1.unet.univie.ac.at ([131.130.1.182]:9173 "EHLO
-	imap1u.univie.ac.at") by vger.kernel.org with ESMTP
-	id S1750867AbWDXGtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 02:49:53 -0400
-Message-ID: <444C74CE.4010703@xover.htu.tuwien.ac.at>
-Date: Mon, 24 Apr 2006 08:48:46 +0200
-From: Fabian Zeindl <fabian@xover.htu.tuwien.ac.at>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060308)
+	Mon, 24 Apr 2006 02:54:34 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:25556 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750781AbWDXGyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 02:54:33 -0400
+Message-ID: <444C761F.6010603@linux.intel.com>
+Date: Mon, 24 Apr 2006 10:54:23 +0400
+From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: cpu frequency scaling on celeron laptop
-References: <444BA1E8.5080001@xover.htu.tuwien.ac.at> <20060423184008.GB14680@redhat.com>
-In-Reply-To: <20060423184008.GB14680@redhat.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms070501030604050600080700"
-X-DCC-ZID-Univie-Metrics: mx8 4248; Body=0 Fuz1=0 Fuz2=0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Martin Mares <mj@ucw.cz>, Matthew Garrett <mjg59@srcf.ucam.org>,
+       "Yu, Luming" <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <mj+md-20060420.165714.18107.albireo@ucw.cz> <4447C020.3010003@linux.intel.com> <20060420220731.GF2352@ucw.cz>
+In-Reply-To: <20060420220731.GF2352@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
-
---------------ms070501030604050600080700
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-Dave Jones wrote:
-> On Sun, Apr 23, 2006 at 05:48:56PM +0200, Fabian Zeindl wrote:
->  > Hi
->  >=20
->  >  I have cpu frequency scaling with p4-clockmod in my kernel, and unt=
-il
->  > v2.6.15 I was possible to set governors and custom frequencies at
->  > /sys/devices/system/cpu/cpu0/cpufreq/*.
->  > When I changed the governor or the frequency scaling_cur_freq
->  > represented the change.
->  >=20
->  > With 2.6.16 this isn't possible anymore, I didn't change anything in=
- the
->  > kernel .config, just did 'make oldconfig'. There is no 'cpufreq'
->  > subdirectory in /sys/devices/system/cpu/cpu0/ anymore.
->=20
-> should be fixed in 2.6.16.9
-
-It works now, but I cannot set frequency from 300000 to 2500000 anymore,
-just from 2187500 to 2500000.
-
-greetings
-fabian zeindl
-
-
---=20
-What if all the world's inside of your head
-Just creations of your own?
-Your devils and your gods
-All the living and the dead
-And you're really all alone?
-
-
---------------ms070501030604050600080700
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIP0DCC
-BN4wggLGoAMCAQICAguYMA0GCSqGSIb3DQEBBQUAMFQxFDASBgNVBAoTC0NBY2VydCBJbmMu
-MR4wHAYDVQQLExVodHRwOi8vd3d3LkNBY2VydC5vcmcxHDAaBgNVBAMTE0NBY2VydCBDbGFz
-cyAzIFJvb3QwHhcNMDYwNDIzMTYyODM1WhcNMDcwNDIzMTYyODM1WjBGMRYwFAYDVQQDEw1G
-YWJpYW4gWmVpbmRsMSwwKgYJKoZIhvcNAQkBFh1mYWJpYW5AeG92ZXIuaHR1LnR1d2llbi5h
-Yy5hdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKdSR+cFdLA0HvXtuw1B/b6s
-yO2qC6mjq6kyqwboqw9+hiywAKJKOZZ0JgXPE1o8QIWBeK35iT7QvNS5SKUGTCOLJwY4VkP6
-lHGxnEXBiuRtTdTimY6BZnmLYVmVvHfvwwi0GABdC2b1HEtStpIdQj+R1X8bwMN5/JnUQKGr
-3BCPF3RXBeRDvIHymg3YoPJIESBFY2NG1xESvOnWgNnwmu4Y5Hw+ACh9j8krf1h8paPNpG/O
-EwpLHCSNPrDTRTEuG6gYk3qHMcCKpojm3pcjcGEtnbRtgfV6l9WVZ+HXq7OvRzMvF0g/NYFS
-h5Dv14zXwr07gLpzGNDWfdmmOJqLYwcCAwEAAaOBxzCBxDAMBgNVHRMBAf8EAjAAMFYGCWCG
-SAGG+EIBDQRJFkdUbyBnZXQgeW91ciBvd24gY2VydGlmaWNhdGUgZm9yIEZSRUUgaGVhZCBv
-dmVyIHRvIGh0dHA6Ly93d3cuQ0FjZXJ0Lm9yZzAyBggrBgEFBQcBAQQmMCQwIgYIKwYBBQUH
-MAGGFmh0dHA6Ly9vY3NwLmNhY2VydC5vcmcwKAYDVR0RBCEwH4EdZmFiaWFuQHhvdmVyLmh0
-dS50dXdpZW4uYWMuYXQwDQYJKoZIhvcNAQEFBQADggIBACrQ9Ib/dOdoFvdV3AKJ3xIzYvBh
-PJ5vMg7p5VftSbsj/IKVb5vGA24ECPmhRw4Zsnblg+lWUkQLPoxpRKPJuhdeo3vbngOK5VVG
-OPIjUxVFXZjRRhDHNnzq8CNgv82RzSzAMZoXmDULY0ktwPnC0FCBfhAeH5nqJbtBL37EmdmB
-zJ3nwLakK60IFXdD8xueOoUJXM5+g0l/O2PYjnummVLnj0V5Db+Qicx3nygqIfp/FqDT3IEn
-qBVnwwVw06hl25/fo7GEn/tTCgPDPkBojYqQmq437guvPZaCr0+MQO3ltrhOC8tSJ4XkQzk2
-axMgvKxvpnPCMMYI9VExnRiK6/DSeZRCfP25ZZgi/FbEnJKbFUYwoIp8afpNY0xMePiv2YfY
-SWbHEzoGbyUw1tVfGgYErQv9curwIV6fpo/ONF5luXqBdskFxziROh2B/pDTBW7J/QosL+Rj
-7mGujuoJN2q8Gi7Ja4p2ytJ5pqrsjYJmP4tViYhJJohuYp4cj+eQy5GwHRe/ZSHVIvdlE5/t
-uGuVLE0DdvCuCJHexYZVMdXDRLhTil68ZVmELbLUCYr0kBpKzryb2pgMeWPl9Qbx99OWDLIX
-qlWbBzqG5Y4ghrkIut0qUd9G3fP2nH8obtflVVNfTeL7x80Xqc+vlCWobPk2UHBXZrLpeEQp
-b1T+oHU3MIIE3jCCAsagAwIBAgICC5gwDQYJKoZIhvcNAQEFBQAwVDEUMBIGA1UEChMLQ0Fj
-ZXJ0IEluYy4xHjAcBgNVBAsTFWh0dHA6Ly93d3cuQ0FjZXJ0Lm9yZzEcMBoGA1UEAxMTQ0Fj
-ZXJ0IENsYXNzIDMgUm9vdDAeFw0wNjA0MjMxNjI4MzVaFw0wNzA0MjMxNjI4MzVaMEYxFjAU
-BgNVBAMTDUZhYmlhbiBaZWluZGwxLDAqBgkqhkiG9w0BCQEWHWZhYmlhbkB4b3Zlci5odHUu
-dHV3aWVuLmFjLmF0MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp1JH5wV0sDQe
-9e27DUH9vqzI7aoLqaOrqTKrBuirD36GLLAAoko5lnQmBc8TWjxAhYF4rfmJPtC81LlIpQZM
-I4snBjhWQ/qUcbGcRcGK5G1N1OKZjoFmeYthWZW8d+/DCLQYAF0LZvUcS1K2kh1CP5HVfxvA
-w3n8mdRAoavcEI8XdFcF5EO8gfKaDdig8kgRIEVjY0bXERK86daA2fCa7hjkfD4AKH2PySt/
-WHylo82kb84TCkscJI0+sNNFMS4bqBiTeocxwIqmiObelyNwYS2dtG2B9XqX1ZVn4ders69H
-My8XSD81gVKHkO/XjNfCvTuAunMY0NZ92aY4motjBwIDAQABo4HHMIHEMAwGA1UdEwEB/wQC
-MAAwVgYJYIZIAYb4QgENBEkWR1RvIGdldCB5b3VyIG93biBjZXJ0aWZpY2F0ZSBmb3IgRlJF
-RSBoZWFkIG92ZXIgdG8gaHR0cDovL3d3dy5DQWNlcnQub3JnMDIGCCsGAQUFBwEBBCYwJDAi
-BggrBgEFBQcwAYYWaHR0cDovL29jc3AuY2FjZXJ0Lm9yZzAoBgNVHREEITAfgR1mYWJpYW5A
-eG92ZXIuaHR1LnR1d2llbi5hYy5hdDANBgkqhkiG9w0BAQUFAAOCAgEAKtD0hv9052gW91Xc
-AonfEjNi8GE8nm8yDunlV+1JuyP8gpVvm8YDbgQI+aFHDhmyduWD6VZSRAs+jGlEo8m6F16j
-e9ueA4rlVUY48iNTFUVdmNFGEMc2fOrwI2C/zZHNLMAxmheYNQtjSS3A+cLQUIF+EB4fmeol
-u0EvfsSZ2YHMnefAtqQrrQgVd0PzG546hQlczn6DSX87Y9iOe6aZUuePRXkNv5CJzHefKCoh
-+n8WoNPcgSeoFWfDBXDTqGXbn9+jsYSf+1MKA8M+QGiNipCarjfuC689loKvT4xA7eW2uE4L
-y1InheRDOTZrEyC8rG+mc8Iwxgj1UTGdGIrr8NJ5lEJ8/bllmCL8VsSckpsVRjCginxp+k1j
-TEx4+K/Zh9hJZscTOgZvJTDW1V8aBgStC/1y6vAhXp+mj840XmW5eoF2yQXHOJE6HYH+kNMF
-bsn9Ciwv5GPuYa6O6gk3arwaLslrinbK0nmmquyNgmY/i1WJiEkmiG5inhyP55DLkbAdF79l
-IdUi92UTn+24a5UsTQN28K4Ikd7FhlUx1cNEuFOKXrxlWYQtstQJivSQGkrOvJvamAx5Y+X1
-BvH305YMsheqVZsHOobljiCGuQi63SpR30bd8/acfyhu1+VVU19N4vvHzRepz6+UJahs+TZQ
-cFdmsul4RClvVP6gdTcwggYIMIID8KADAgECAgEBMA0GCSqGSIb3DQEBBAUAMHkxEDAOBgNV
-BAoTB1Jvb3QgQ0ExHjAcBgNVBAsTFWh0dHA6Ly93d3cuY2FjZXJ0Lm9yZzEiMCAGA1UEAxMZ
-Q0EgQ2VydCBTaWduaW5nIEF1dGhvcml0eTEhMB8GCSqGSIb3DQEJARYSc3VwcG9ydEBjYWNl
-cnQub3JnMB4XDTA1MTAxNDA3MzY1NVoXDTMzMDMyODA3MzY1NVowVDEUMBIGA1UEChMLQ0Fj
-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
---------------ms070501030604050600080700--
+Pavel Machek wrote:
+>>> I don't see any reason for treating some keys or buttons 
+>>> differently.
+>>> A key is just a key.
+> 
+>> There is one special key anyway -- reset...
+> 
+> Your point is? There's also hardware power button on many machines.
+> They are not controllable by software => they are not relevant to this
+> discussion.
+> 								Pavel
+> 
+Really? And you are what are you going to do with bugs about "my power button doesn't remap, and always shuts down my machine?"

@@ -1,74 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWDXLLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWDXLOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWDXLLo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 07:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWDXLLo
+	id S1750732AbWDXLOE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 07:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWDXLOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 07:11:44 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:51579 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750715AbWDXLLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 07:11:43 -0400
-Date: Mon, 24 Apr 2006 13:11:41 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Cc: davem@davemloft.net, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [patch] RCU: introduce rcu_soon_pending() interface
-Message-ID: <20060424111141.GC16007@osiris.boeblingen.de.ibm.com>
+	Mon, 24 Apr 2006 07:14:03 -0400
+Received: from [212.33.165.125] ([212.33.165.125]:28940 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1750730AbWDXLOB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 07:14:01 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/1] threads_max: Simple lockout prevention patch
+Date: Mon, 24 Apr 2006 14:12:13 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200511142327.18510.a1426z@gawab.com> <200604240756.42483.a1426z@gawab.com> <20060423221157.6a4b5c8e.akpm@osdl.org>
+In-Reply-To: <20060423221157.6a4b5c8e.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: mutt-ng/devel-r802 (Linux)
+Content-Type: text/plain;
+  charset="windows-1256"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604241412.13267.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Andrew Morton wrote:
+> Al Boldi <a1426z@gawab.com> wrote:
+> > This is a another resend, which was ignored before w/o comment.
+> > Andrew, can you at least comment on it?  Thanks!
+>
+> I don't have a clue what it's for.
 
-Introduce rcu_soon_pending() interface. This can be used to tell if there
-will be a new rcu batch on a cpu soon by looking at the curlist pointer.
-This can be used to avoid to enter a tickless idle state where the cpu
-would miss that a new batch is ready when rcu_start_batch would be called
-on a different cpu.
+Quoting from the 'Resource limits' thread on lkml on 27/09/05:
+>>>>> Consider this dilemma:
+>>>>> Runaway proc/s hit the limit.
+>>>>> Try to kill some and you are denied due to the resource limit.
+>>>>> Use some previously running app like top, hope it hasn't been killed
+>>>>> by some OOM situation, try killing some procs and another one takes
+>>>>> it's place because of the runaway situation.
+>>>>> Raise the limit, and it gets filled by the runaways.
+>>>>> You are pretty much stuck.
+>>>>
+>>>> Not really, this is the sort of thing ulimit is meant for.  To keep
+>>>> processes from any one user from running away.  It lets you limit the
+>>>> damage it can do, until such time as you can control it and fix the
+>>>> runaway application.
+>>>
+>>> threads-max = 1024
+>>> ulimit = 100 forks
+>>> 11 runaway procs hitting the threads-max limit
+>>
+>> This is incorrect.  If you ulimit a user to 100 forks, and 11 processes
+>> running with that uid
+> 
+> Different uid.
+> 
+Then yes, if you set a system-wide limit that is less than the sum of the 
+limits imposed on each accountable part of the system you can have lock out.  
+But thats your fault for misconfiguring the system.  Don't do that.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+-- end of quote
 
-See also here: http://www.ussg.iu.edu/hypermail/linux/kernel/0604.3/0057.html
-Better solutions welcome :)
+> > --- kernel/fork.c.orig  2005-11-14 20:55:33.000000000 +0300
+> > +++ kernel/fork.c       2005-11-14 20:58:25.000000000 +0300
+>
+> Please prepare patches in `patch -p1' form.
 
- include/linux/rcupdate.h |    1 +
- kernel/rcupdate.c        |    8 ++++++++
- 2 files changed, 9 insertions(+)
+Ok.
 
-diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
-index 5673008..80bcbce 100644
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -132,6 +132,7 @@ static inline void rcu_bh_qsctr_inc(int 
- }
- 
- extern int rcu_pending(int cpu);
-+extern int rcu_soon_pending(int cpu);
- 
- /**
-  * rcu_read_lock - mark the beginning of an RCU read-side critical section.
-diff --git a/kernel/rcupdate.c b/kernel/rcupdate.c
-index 13458bb..e8cf09f 100644
---- a/kernel/rcupdate.c
-+++ b/kernel/rcupdate.c
-@@ -485,6 +485,14 @@ int rcu_pending(int cpu)
- 		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
- }
- 
-+int rcu_soon_pending(int cpu)
-+{
-+	struct rcu_data *rdp = &per_cpu(rcu_data, cpu);
-+	struct rcu_data *rdp_bh = &per_cpu(rcu_bh_data, cpu);
-+
-+	return (!!rdp->curlist || !!rdp_bh->curlist);
-+}
-+
- void rcu_check_callbacks(int cpu, int user)
- {
- 	if (user || 
+> >         if (nr_threads >= max_threads)
+> > +       if (p->pid != su_pid)
+> >                 goto bad_fork_cleanup_count;
+>
+> We don't lay code out in that manner.  Not even vaguely.
+
+Like so?
+	if (nr_threads >= max_threads)
+		if (p->pid != su_pid)
+			goto bad_fork_cleanup_count;
+
+> This check comes after the RLIMIT_PROC check, which is supposed to
+> eliminate "process lockout situations", although you haven't really
+> defined that.
+
+RLIMIT_PROC is per user, this patch solves the global limit.
+
+> >         if (!try_module_get(p->thread_info->exec_domain->module))
+>
+> Your email client replaces tabs with spaces.
+>
+> >         KERN_SETUID_DUMPABLE=69, /* int: behaviour of dumps for setuid
+> > core */
+>
+> And it wordwraps.
+
+I am using kmail, it does this when the mail is queued before sending it.  
+Maybe somebody can point out how to instruct kmail not to do that?
+
+Or maybe use an attachment?
+
+Theodore Ts'o wrote:
+> On Mon, Apr 24, 2006 at 07:56:42AM +0300, Al Boldi wrote:
+>> 
+>> Simple attempt to provide a backdoor in a process lockout situation.
+>> 
+>> echo $$ > /proc/sys/kernel/su-pid allows pid to exceed the threads_max
+>> limit.
+>
+> Why not just have the root process do:
+>
+> echo {larger number} > /proc/sys/kernel/nr-threads instead?
+
+Could do that by:
+
+	# echo 1 > /proc/sys/kernel/su-pid
+
+which would imply nr-threads = 1
+	
+So maybe introduce /proc/sys/kernel/nr-threads to allow that to be variable, 
+but this isn't really critical.
+
+Thanks!
+
+

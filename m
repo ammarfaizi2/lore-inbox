@@ -1,51 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWDXOv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWDXO4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWDXOv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 10:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWDXOv2
+	id S1750816AbWDXO4s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 10:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWDXO4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 10:51:28 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:61974 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750772AbWDXOv2 convert rfc822-to-8bit (ORCPT
+	Mon, 24 Apr 2006 10:56:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24518 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750816AbWDXO4s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 10:51:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m64YWt+7ORhbbULA/6aEJxiManFmGIpVM6ub8iXHyCQWpp1b8Bu6lWuwukiuo9qdb7B8JHgpfYlGNRpluKYlTyF1UwAPwtVtX0+fKJ3wlrRZ+Kki7PDhlQZ1IdOuse/a2XyDWo5NiPU2BUjU3ElbctwU6sqyJUQBRdsWQYE5niw=
-Message-ID: <d120d5000604240751y7501d376p62904e149ccbf4b3@mail.gmail.com>
-Date: Mon, 24 Apr 2006 10:51:27 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
-Cc: "Yu, Luming" <luming.yu@intel.com>,
-       "Alexey Starikovskiy" <alexey_y_starikovskiy@linux.intel.com>,
-       "Xavier Bestel" <xavier.bestel@free.fr>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060420215549.GA2352@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 24 Apr 2006 10:56:48 -0400
+Date: Tue, 25 Apr 2006 00:56:35 +1000
+From: David Chinner <dgc@sgi.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Direct I/O bio size regression
+Message-ID: <20060424145635.GH611485@melbourne.sgi.com>
+References: <20060424061403.GF611708@melbourne.sgi.com> <20060424070236.GD22614@suse.de> <20060424090508.GI22614@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <554C5F4C5BA7384EB2B412FD46A3BAD13787F2@pdsmsx411.ccr.corp.intel.com>
-	 <20060420215549.GA2352@ucw.cz>
+In-Reply-To: <20060424090508.GI22614@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/20/06, Pavel Machek <pavel@ucw.cz> wrote:
-> Having EV_ACPI might make sense for thermal/battery events, but not
-> for normal keys.
+On Mon, Apr 24, 2006 at 11:05:08AM +0200, Jens Axboe wrote:
+> On Mon, Apr 24 2006, Jens Axboe wrote:
+> > > Index: 2.6.x-xfs-new/fs/bio.c
+> > > ===================================================================
+> > > --- 2.6.x-xfs-new.orig/fs/bio.c	2006-02-06 11:57:50.000000000 +1100
+> > > +++ 2.6.x-xfs-new/fs/bio.c	2006-04-24 15:46:16.849484424 +1000
+> > > @@ -304,7 +304,7 @@ int bio_get_nr_vecs(struct block_device 
+> > >  	request_queue_t *q = bdev_get_queue(bdev);
+> > >  	int nr_pages;
+> > >  
+> > > -	nr_pages = ((q->max_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> > > +	nr_pages = ((q->max_hw_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> > >  	if (nr_pages > q->max_phys_segments)
+> > >  		nr_pages = q->max_phys_segments;
+> > >  	if (nr_pages > q->max_hw_segments)
+> > > @@ -446,7 +446,7 @@ int bio_add_page(struct bio *bio, struct
+> > >  		 unsigned int offset)
+> > >  {
+> > >  	struct request_queue *q = bdev_get_queue(bio->bi_bdev);
+> > > -	return __bio_add_page(q, bio, page, len, offset, q->max_sectors);
+> > > +	return __bio_add_page(q, bio, page, len, offset, q->max_hw_sectors);
+> > >  }
+> > >  
+> > >  struct bio_map_data {
+> > 
+> > Clearly correct, I'll make sure this gets merged right away.
+> 
+> Spoke too soon... The last part is actually on purpose, to prevent
+> really huge requests as part of normal file system IO.
 
-No, I do not want EV_ACPI at all. If it does not map to standard
-key/button/switch abstraction it really does not belong in input
-layer. There could be a "battery" or "power" layers providing
-abstraction for ACPI/APM/whateverfor that kind of stuff, but not input
-layer.
+I don't understand why this was considered necessary. It
+doesn't appear to be explained in any of the code so can you
+explain the problem that large filesystem I/Os pose to the block
+layer? We _need_ to be able to drive really huge requests from the
+filesystem down to the disks, especially for direct I/O.....
 
-But KEY_SLEEP, KEY_POWER, etc are more than welcome.
+FWIW, we've just got XFS to the point where we could issue large
+I/Os (up to 8MB on 16k pages) with a default configuration kernel
+and filesystem using md+dm on an Altix. That makes an artificial
+512KB filesystem I/O size limit a pretty major step backwards in
+terms of performance for default configs.....
 
---
-Dmitry
+> That's why we
+> have a bio_add_pc_page(). The first hunk may cause things to not work
+> optimally then if we don't apply the last hunk.
+
+bio_add_pc_page() requires a request queue to be passed to it.  It's
+called only from scsi layers in the context of mapping pages into a
+bio from sg_io(). The comment for bio_add_pc_page() says for use
+with REQ_PC queues only, and that appears to only be used by ide-cd
+cdroms. Is that comment correct?
+
+Also, it seems to me that using bio_add_pc_page() in a filesystem
+or in the generic direct i/o code seems like a gross layering
+violation to me because they are supposed to know nothing about
+request queues.
+
+> The best approach is probably to tune max_sectors on the system itself.
+> That's why it is exposed, after all.
+
+You mean /sys/block/sd*/max_sector_kb?
+
+Cheers,
+
+Dave.
+
+-- 
+Dave Chinner
+R&D Software Enginner
+SGI Australian Software Group

@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWDXUfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWDXUgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWDXUfv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 16:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWDXUfr
+	id S1751249AbWDXUgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 16:36:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWDXUgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 16:35:47 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:35493 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751245AbWDXUfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 16:35:33 -0400
-Subject: Re: Compiling C++ modules
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gary Poppitz <poppitzg@iomega.com>
+	Mon, 24 Apr 2006 16:36:15 -0400
+Received: from uproxy.gmail.com ([66.249.92.169]:11488 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751254AbWDXUgL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 16:36:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Jsu9vHMcxKhienCQtMqw9lpamTRKZ69Pu6Wi5sNHtxmyG14CxGVf088zKiaGAuocSgwcCKYi2QCau9w3ytjjvAYPQV95XBySrxOLQ05S+RDRc5VJTNXUXnW2Rbgrdm9TgY/vFsyyNDcJ3nvpua6k9/RTV8oQv6zcht0hhw5qmH8=
+Message-ID: <82ecf08e0604241336g73352b2r653365314f8b13a5@mail.gmail.com>
+Date: Mon, 24 Apr 2006 17:36:09 -0300
+From: "Thiago Galesi" <thiagogalesi@gmail.com>
+To: "Gary Poppitz" <poppitzg@iomega.com>
+Subject: Re: C++ pushback
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Apr 2006 21:45:46 +0100
-Message-Id: <1145911546.1635.54.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+In-Reply-To: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-04-24 at 13:16 -0600, Gary Poppitz wrote:
-> I have the task of porting an existing file system to Linux. This  
-> code is in C++ and I have noticed that the Linux kernel has
-> made use of C++ keywords and other things that make it incompatible.
+OK, let's get a couple of things clear...
 
-We tried various things involving C++ along the line in kernel history
-and there are so many problems it throws up the kernel took the view
-that it would not use C++ in kernel. Instead object orientation is
-performed more explicitly in C. This has many advantages including the
-exposure of inefficient code explicitly and the avoidance of exceptions
-and the assumption memory allocations just don't fail that much C++
-makes without exceptions being used. It might be possible to move to a
-strict C++ subset in the style of Apple but there isn't much interest in
-this.
+No one here "hates" C++ per se. It is a tool, and every tool has its purpose.
 
-There are other problems too, notably the binary ABI between the C and C
-++ compiler might not match for all cases (in particular there are
-corner cases with zero sized objects and C++).
+Using C++ in the kernel has not been deemed apropriate for several
+reasons. There are several (other) reasons to make the Linux Kernel C
+only, this has been discussed, trolled, flamed, argued, come, gone,
+etc, etc FAQs and searches are your friend there.
+
+In your scenario, you have two possible option (IMHO)
+
+1 - Port your existing code to C
+
+2- keep it in C++, keep it in user level and have a simple file system
+driver communicating with your existing code (I think FUSE applies to
+the situation)
+
+Thiago
 
 
-> I would be most willing to point out the areas that need adjustment  
-> and supply patch files to be reviewed.
-> 
-> What would be the best procedure to accomplish this?
 
-If you want to maintain your own out of tree file system then probably
-you want to use #defines to wrap the kernel tree. Most stuff will
-probably work ok if you do this although you'll want some C to C++
-wrappers to interface to the kernel obviously.
-
-If you want to submit the file system to the kernel source then it needs
-shifting from C++ to C but of course there are people in the community
-who can help you. As the kernel C is very object based that isn't
-usually too much of a problem. Most objects in the kernel (inodes, files
-etc) are of the form
-
-	struct thing {
-		struct thing_ops *ops; /* methods */
-		blah
-	}
-
-and that style fits much C++ code being ported over.
-
-There are a few anti C++ bigots around too, but the kernel choice of C
-was based both on rational choices and experimentation early on with the
-C++ compiler.
-
-Alan
-
+On 4/24/06, Gary Poppitz <poppitzg@iomega.com> wrote:
+> > We know they are "incompatible", why else would we allow "private" and
+> > "struct class" in the kernel source if we some how expected it to work
+> > with a C++ compiler?
+>
+>
+> I can see that this was intentional, not an oversight.
+>
+> If there is a childish temper tantrum mentality about C++ then I have
+> no reason or desire to be on this list.
+>
+> Grow up.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

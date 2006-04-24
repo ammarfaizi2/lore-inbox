@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWDXIgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWDXIhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWDXIgv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 04:36:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWDXIgv
+	id S932068AbWDXIhW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 04:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWDXIhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 04:36:51 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:13413 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932065AbWDXIgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 04:36:50 -0400
-Date: Mon, 24 Apr 2006 16:36:49 +0800
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] use hlist_unhashed()
-Message-ID: <20060424083649.GA6227@miraclelinux.com>
+	Mon, 24 Apr 2006 04:37:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:30677 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932068AbWDXIhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 04:37:20 -0400
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
+	implementation of LSM hooks)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060424082831.GI440@marowsky-bree.de>
+References: <20060417173319.GA11506@infradead.org>
+	 <Pine.LNX.4.64.0604171454070.17563@d.namei>
+	 <20060417195146.GA8875@kroah.com>
+	 <1145309184.14497.1.camel@localhost.localdomain>
+	 <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu>
+	 <4445484F.1050006@novell.com> <20060420211308.GB2360@ucw.cz>
+	 <444AF977.5050201@novell.com>
+	 <200604230933.k3N9XTZ8019756@turing-police.cc.vt.edu>
+	 <20060423145846.GA7495@thorium.jmh.mhn.de>
+	 <20060424082831.GI440@marowsky-bree.de>
+Content-Type: text/plain
+Date: Mon, 24 Apr 2006 10:37:17 +0200
+Message-Id: <1145867837.3116.7.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use hlist_unhashed() rather than accessing inside data structure.
+On Mon, 2006-04-24 at 10:28 +0200, Lars Marowsky-Bree wrote:
+> On 2006-04-23T16:58:47, Thomas Bleher <bleher@informatik.uni-muenchen.de> wrote:
+> 
+> > Later, the admin decides to save space, deletes the bin/ directory and
+> > instead links /bin/ls into the chroot. Suddenly the system is easily
+> > exploitable.
+> 
+> Security models can be compromised by root or by dumb accomplices. Film
+> at eleven.
 
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
-CC: "David S. Miller" <davem@davemloft.net>
+well this security model wants to partition root, more or less. So to
+some degree looking at it makes sense; just not so much in the given
+example ;)
 
- include/linux/list.h             |    2 +-
- include/net/inet_timewait_sock.h |    2 +-
- include/net/sock.h               |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
 
-Index: 2.6-git/include/net/inet_timewait_sock.h
-===================================================================
---- 2.6-git.orig/include/net/inet_timewait_sock.h
-+++ 2.6-git/include/net/inet_timewait_sock.h
-@@ -150,7 +150,7 @@ static inline void inet_twsk_add_bind_no
- 
- static inline int inet_twsk_dead_hashed(const struct inet_timewait_sock *tw)
- {
--	return tw->tw_death_node.pprev != NULL;
-+	return !hlist_unhashed(&tw->tw_death_node);
- }
- 
- static inline void inet_twsk_dead_node_init(struct inet_timewait_sock *tw)
-Index: 2.6-git/include/net/sock.h
-===================================================================
---- 2.6-git.orig/include/net/sock.h
-+++ 2.6-git/include/net/sock.h
-@@ -279,7 +279,7 @@ static inline int sk_unhashed(const stru
- 
- static inline int sk_hashed(const struct sock *sk)
- {
--	return sk->sk_node.pprev != NULL;
-+	return !sk_unhashed(sk);
- }
- 
- static __inline__ void sk_node_init(struct hlist_node *node)
-Index: 2.6-git/include/linux/list.h
-===================================================================
---- 2.6-git.orig/include/linux/list.h
-+++ 2.6-git/include/linux/list.h
-@@ -619,7 +619,7 @@ static inline void hlist_del_rcu(struct 
- 
- static inline void hlist_del_init(struct hlist_node *n)
- {
--	if (n->pprev)  {
-+	if (!hlist_unhashed(n)) {
- 		__hlist_del(n);
- 		INIT_HLIST_NODE(n);
- 	}
+> Seriously, this is not helpful. Could we instead focus on the
+> technical argument wrt the kernel patches?
+
+I disagree with your stance here; trying to poke holes in the mechanism
+IS useful and important. In addition to looking at the kernel patches. 
+I understand your employer wants this merged asap, but that's no reason
+to try to stop discussions that try to poke holes in the security model.
+
+

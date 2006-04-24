@@ -1,74 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWDXNIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWDXNJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWDXNIG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 09:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWDXNIG
+	id S1750774AbWDXNJT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 09:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWDXNJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 09:08:06 -0400
-Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:28422 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1750743AbWDXNIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 09:08:05 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Linux 2.6.17-rc2
-Date: Mon, 24 Apr 2006 14:08:09 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <63bym-4wt-3@gated-at.bofh.it> <64wre-2cg-35@gated-at.bofh.it> <444C5722.6080605@shaw.ca>
-In-Reply-To: <444C5722.6080605@shaw.ca>
+	Mon, 24 Apr 2006 09:09:19 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:25096 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1750774AbWDXNJS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 09:09:18 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604241408.09677.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <9871ee5f0604211353p21f29e56gaeef61255ebae85d@mail.gmail.com>
+X-OriginalArrivalTime: 24 Apr 2006 13:09:16.0773 (UTC) FILETIME=[4A6D1950:01C667A0]
+Content-class: urn:content-classes:message
+Subject: Re: HELP: Need to determine physical slot number of card in PCIe slot
+Date: Mon, 24 Apr 2006 09:09:16 -0400
+Message-ID: <Pine.LNX.4.61.0604240901540.23183@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: HELP: Need to determine physical slot number of card in PCIe slot
+thread-index: AcZnoEp0NbqbzlgtQvmWHSXD7060DQ==
+References: <9871ee5f0604211353p21f29e56gaeef61255ebae85d@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Timothy Miller" <theosib@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 April 2006 05:42, Robert Hancock wrote:
-> Alistair John Strachan wrote:
-> > On Saturday 22 April 2006 02:07, Andi Kleen wrote:
-> > [snip]
-> >
-> >> They probably forget to set PROT_EXEC in either mprotect or mmap
-> >> somewhere. You can check in /proc/*/maps which mapping contains the
-> >> address it is faulting on and then try to find where it is allocated or
-> >> mprotect'ed.
-> >
-> > Turned out this was exactly what the problem was. Wine attempts to match
-> > Windows as far as read/write/execute mappings go, and war3.exe tried to
-> > execute memory in a section with "MEM_EXECUTE" not set.
-> >
-> > I'm surprised the program works on Windows with DEP/NX enabled, but
-> > apparently it does.
+
+On Fri, 21 Apr 2006, Timothy Miller wrote:
+
+> I apologize if this is not the right place to ask this question.  I
+> have done some googling around, and I have not found an answer to
+> this, although I suspect I'm just not using the right search terms.
+> Also, I'm not a member of this list, so please CC me if you reply.
 >
-> Are you sure that it does? NX is not enabled by default on XP except on
-> Windows system processes, even on CPUs supporting hardware NX, so it
-> might well have failed with it turned on (especially since the problem
-> seemed to show up after some no-CD crack was applied).
+> I have put together a diagnostic system for my employer using a
+> stripped-down Gentoo system (2.6.15 kernel).  We're testing some PCIe
+> cards on an ABIT IL8, which has four PCIe slots.  Since this is a test
+> rig, when a card fails a test, we need to know which of the four slots
+> the card is in.  When developing this, I had assumed that the PCI bus
+> ID would be a function of the slot number, but apparently, it is not.
+> We can put one card into any of the four slots, and we get the same
+> bus ID.  If we put in four cards, we get a set of ID numbers that
+> isn't sequential.
+>
+> I've poked around in /proc, without finding anything.  I found
+> /sys/bus/pci_express, but it's really weird what I see, because it
+> shows what appears to be some slots repeated and some missing, and
+> also, there doesn't seem to be a way to associate the slot with the
+> bus ID  (I assume pcie00 is slot zero).  Under /sys/bus/pci/devices, I
+> do see the PCI bus ID of the cards in question, but I cannot figure
+> out how to associate that with the slot number.  The directory
+> /sys/bus/pci/slots is empty.
+>
+> Is there some reasonable way for me to be able to determine, given a
+> bus ID, which physical slot the PCIe card is in?
+>
+> Note:  I am not using a kernel driver for these cards.  I'm using
+> /dev/mem to map mmio, and I'm using libpci to access PCI config space.
+> Everything works great (besides the slot number issue here).
+>
+> Thank you very much in advance for your help.
+>
+>
+> --- Timothy Miller
 
-Linux 2.6.16 worked, 2.6.17-rc does not. As far as I'm concerned, this is a 
-regression.
+PCI_SLOT(struct pci_dev *) is a macro defined in one of the headers.
+Unfortunately, it will not uniquely define a board. Also, the slot number
+itself has nothing to do with the physical machine because, upon
+startup, the BIOS assigns "slots" in the order devices are found.
 
-Linux should not be forced to make arguably silly policy decisions like 
-disabling NX for 32bit applications not but "system processes", and as Andi 
-has mentioned NX _is_ runtime configurable, should one wish to disable it for 
-a given binary on an NX-enforcing kernel.
+But, for a particular configuration, it is possible to uniquely
+define a board as long as they don't get moved around! In one
+of our devices, I do something like this and it has been good enough
+for the service people to find a malfunctioning board.
 
-Wine pretends to be Windows. Therefore Wine should enforce the same "default 
-policy" as Windows, or make it runtime configurable in the same manner. In 
-this case, the workaround is cheap, fixes a real world application, and does 
-not interfere with Linux's NX policy.
+slot = dev->bus->number << 8) | PCI_SLOT(dev->devfn);
 
-Ultimately, we'll see if Alexandre Julliard agrees with the change. If not, 
-then I guess this particular application will fail to work on 2.6.17, forcing 
-me to investigate alternatives.
 
--- 
 Cheers,
-Alistair.
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

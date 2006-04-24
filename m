@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWDXWJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWDXWKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbWDXWJD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 18:09:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWDXWJD
+	id S1751121AbWDXWKX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 18:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWDXWKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 18:09:03 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40853 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751098AbWDXWJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 18:09:02 -0400
-Date: Tue, 25 Apr 2006 00:09:01 +0200
-From: Martin Mares <mj@ucw.cz>
-To: marty fouts <mf.danger@gmail.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-Message-ID: <mj+md-20060424.220809.6996.atrey@ucw.cz>
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain> <444D3D32.1010104@argo.co.il> <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com> <9f7850090604241450w885fa98v36657ba5f12f071c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9f7850090604241450w885fa98v36657ba5f12f071c@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 24 Apr 2006 18:10:22 -0400
+Received: from ns1.soleranetworks.com ([70.103.108.67]:52107 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751068AbWDXWKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 18:10:22 -0400
+Message-ID: <444D57F0.1070105@wolfmountaingroup.com>
+Date: Mon, 24 Apr 2006 16:57:52 -0600
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Martin Mares <mj@ucw.cz>, Gary Poppitz <poppitzg@iomega.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: C++ pushback
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>	 <mj+md-20060424.201044.18351.atrey@ucw.cz>	 <444D44F2.8090300@wolfmountaingroup.com> <1145915533.1635.60.camel@localhost.localdomain>
+In-Reply-To: <1145915533.1635.60.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Alan Cox wrote:
 
-> Oh, and yeah, a = b + c *is* more readable than
-> 
-> a = malloc(strlen(b) + strlen(c));
-> strcpy(a,b);
-> strcat(a,c);
-> 
-> and contains fewer bugs ;)
+>On Llu, 2006-04-24 at 15:36 -0600, Jeff V. Merkey wrote:
+>  
+>
+>>C++ in the kernel is a BAD IDEA. C++ code can be written in such a 
+>>convoluted manner as to be unmaintainable and unreadable.
+>>    
+>>
+>
+>So can C. 
+>
+>  
+>
+>>All of the hidden memory allocations from constructor/destructor 
+>>operatings can and do KILL OS PERFORMANCE. 
+>>    
+>>
+>
+>This is one area of concern. Just as big a problem for the OS case is
+>that the hidden constructors/destructors may fail. You can write C++
+>code carefully to avoid these things but it can be hard to see where the
+>problem is when you miss one.
+>
+>C at least makes it verbose, but we trade that for poorer typechecking
+>and visibility control.
+>
+>Alan
+>  
+>
 
-Actually, it contains at least the bug you have made in your C example,
-that is forgetting that malloc() can fail. So can string addition, if
-allocated dynamically.
+Yep.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"This quote has been selected randomly. Really." -- M. Ulrichs
+Jeff
+
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+

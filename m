@@ -1,95 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWDXWQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWDXWRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWDXWQT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 18:16:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWDXWQT
+	id S1751105AbWDXWRN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 18:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWDXWRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 18:16:19 -0400
-Received: from smtp04.auna.com ([62.81.186.14]:22933 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S1750701AbWDXWQT (ORCPT
+	Mon, 24 Apr 2006 18:17:13 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20412 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751105AbWDXWRN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 18:16:19 -0400
-Date: Tue, 25 Apr 2006 00:16:17 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-Message-ID: <20060425001617.0a536488@werewolf.auna.net>
-In-Reply-To: <1145915533.1635.60.camel@localhost.localdomain>
-References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
-	<mj+md-20060424.201044.18351.atrey@ucw.cz>
-	<444D44F2.8090300@wolfmountaingroup.com>
-	<1145915533.1635.60.camel@localhost.localdomain>
-X-Mailer: Sylpheed-Claws 2.1.1cvs22 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary=Sig_kBUjkrZJsttjK2f5DWPa0yz;
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.210.119] Login:jamagallon@able.es Fecha:Tue, 25 Apr 2006 00:16:17 +0200
+	Mon, 24 Apr 2006 18:17:13 -0400
+Date: Tue, 25 Apr 2006 00:16:32 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
+Message-ID: <20060424221632.GQ3386@elf.ucw.cz>
+References: <200604242355.08111.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604242355.08111.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_kBUjkrZJsttjK2f5DWPa0yz
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi!
 
-On Mon, 24 Apr 2006 22:52:12 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wro=
-te:
+> The appended patch allows swsusp to break the "50% of the normal zone" limit.
+> This is achieved by using the observation that pages mapped by frozen
+> userland tasks need not be copied before saving.
 
-> On Llu, 2006-04-24 at 15:36 -0600, Jeff V. Merkey wrote:
-> > C++ in the kernel is a BAD IDEA. C++ code can be written in such a=20
-> > convoluted manner as to be unmaintainable and unreadable.
->=20
-> So can C.=20
->=20
-> > All of the hidden memory allocations from constructor/destructor=20
-> > operatings can and do KILL OS PERFORMANCE.=20
->=20
-> This is one area of concern. Just as big a problem for the OS case is
-> that the hidden constructors/destructors may fail.
+I've not followed the patch too carefully, but it is not as bad as I
+expected...
 
-Tell me what is the difference between:
+> With this patch applied I was able to save (and restore ;-)) ~800 MB suspend
+> images on a box with 1 GB of RAM.
+
+And did it also work second time? ;-).
+
+Okay, so it can be done, and patch does not look too bad. It still
+scares me. Is 800MB image more responsive than 500MB after resume?
+
+I guess we can revert to old behaviour by simply returning 1 from
+need_to_copy, right?
+
+I assume that need_to_copy returns 1 in case page is shared by current
+and some other process?
+
+> [Please don't beat me very hard, just couldn't resist. ;-)]
+
+Well, you are about to force me to learn about mm internals. Plus you
+force everyone who tries to modify swsusp. ... it may be okay if
+benefit is great enough and if it gets proper testing. Not 2.6.17
+material.
+
+Is benefit worth it?
 
 
-    sbi =3D kmalloc(sizeof(*sbi), GFP_KERNEL);
-    if (!sbi)
-        return -ENOMEM;
-    sb->s_fs_info =3D sbi;
-    memset(sbi, 0, sizeof(*sbi));
-    sbi->s_mount_opt =3D 0;
-    sbi->s_resuid =3D EXT3_DEF_RESUID;
-    sbi->s_resgid =3D EXT3_DEF_RESGID;
+> --- linux-2.6.17-rc1-mm3.orig/include/linux/rmap.h	2006-04-22 10:34:33.000000000 +0200
+> +++ linux-2.6.17-rc1-mm3/include/linux/rmap.h	2006-04-22 10:34:45.000000000 +0200
+> @@ -104,6 +104,12 @@ pte_t *page_check_address(struct page *,
+>   */
+>  unsigned long page_address_in_vma(struct page *, struct vm_area_struct *);
+>  
+> +#ifdef CONFIG_SOFTWARE_SUSPEND
+> +int page_mapped_by_current(struct page *);
+> +#else
+> +static inline int page_mapped_by_current(struct page *page) { return 0; }
+> +#endif /* CONFIG_SOFTWARE_SUSPEND */
 
-and
+I'd leave it undefined. That will prevent nasty surprise when someone
+tries to use it w/o CONFIG_SOFTWARE_SUSPEND set.
 
-    SuperBlock() : s_mount_opt(0), s_resuid(EXT3_DEF_RESUID), s_resgid(EXT3=
-_DEF_RESGID)
-    {}
+> @@ -251,6 +253,14 @@ int restore_special_mem(void)
+>  	return ret;
+>  }
+>  
+> +/* Represents a stacked allocated page to be used in the future */
+> +struct res_page {
+> +	struct res_page *next;
+> +	char padding[PAGE_SIZE - sizeof(void *)];
+> +};
+> +
+> +static struct res_page *page_list;
+> +
+>  static int pfn_is_nosave(unsigned long pfn)
+>  {
+>  	unsigned long nosave_begin_pfn = __pa(&__nosave_begin) >>
+> PAGE_SHIFT;
 
-    ...
-    sbi =3D new SuperBlock;
-    if (!sbi)
-        return -ENOMEM;
+Is this part of some other patch?
 
-apart that you don't get members initalized twice and get a shorter code :).
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.16-jam9 (gcc 4.1.1 20060330 (prerelease)) #1 SMP PREEMPT Tue
+> @@ -490,6 +613,11 @@ void swsusp_free(void)
+>  	buffer = NULL;
+>  }
+>  
+> +void swsusp_free(void)
+> +{
+> +	free_image();
+> +	restore_active_inactive_lists();
+> +}
 
---Sig_kBUjkrZJsttjK2f5DWPa0yz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
+This still scares me. Nice test would be to
+save/restore_active_inactive_lists repeatedly in a loop ... on running
+system ... aha, but it probably can't work outside of refrigerator?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+>  	case SNAPSHOT_UNFREEZE:
+>  		if (!data->frozen)
+>  			break;
+> +		if (data->ready) {
+> +			error = -EPERM;
+> +			break;
+> +		}
+>  		down(&pm_sem);
+>  		thaw_processes();
+>  		enable_nonboot_cpus();
 
-iD8DBQFETU4xRlIHNEGnKMMRAuoMAKCVSsESkrxxAiyYXS2+/GljU/laCwCgnCtD
-6Ni1KLZ2WkSCPVghz/K7x/8=
-=PgXW
------END PGP SIGNATURE-----
+Error from UNFREEZE is not nice:
 
---Sig_kBUjkrZJsttjK2f5DWPa0yz--
+Unfreeze:
+        unfreeze(snapshot_fd);
+        return error;
+}
+... we don't handle it. OTOH I guess it will be all fixed on exit()?
+
+								Pavel
+
+-- 
+Thanks for all the (sleeping) penguins.

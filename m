@@ -1,104 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWDXNnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWDXNoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWDXNnk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 09:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWDXNnk
+	id S1750824AbWDXNoo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 09:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWDXNoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 09:43:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55182 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750749AbWDXNnj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 09:43:39 -0400
-Subject: Re: [PATCH 05/16] GFS2: File and inode operations
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060423075525.GP6075@schatzie.adilger.int>
-References: <1145636030.3856.102.camel@quoit.chygwyn.com>
-	 <20060423075525.GP6075@schatzie.adilger.int>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Mon, 24 Apr 2006 14:53:16 +0100
-Message-Id: <1145886796.3856.161.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Mon, 24 Apr 2006 09:44:44 -0400
+Received: from stanford.columbia.tresys.com ([209.60.7.66]:10715 "EHLO
+	gotham.columbia.tresys.com") by vger.kernel.org with ESMTP
+	id S1750809AbWDXNon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 09:44:43 -0400
+Message-ID: <444CD5FD.2040102@gentoo.org>
+Date: Mon, 24 Apr 2006 09:43:25 -0400
+From: Joshua Brindle <method@gentoo.org>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: "Theodore Ts'o" <tytso@mit.edu>, Neil Brown <neilb@suse.de>,
+       Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
+       James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <1145470463.3085.86.camel@laptopd505.fenrus.org> <p73mzeh2o38.fsf@bragg.suse.de> <1145522524.3023.12.camel@laptopd505.fenrus.org> <20060420192717.GA3828@sorel.sous-sol.org> <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil> <20060421173008.GB3061@sorel.sous-sol.org> <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil> <17484.20906.122444.964025@cse.unsw.edu.au> <20060424070324.GA14720@thunk.org> <20060424130406.GA1884@elf.ucw.cz>
+In-Reply-To: <20060424130406.GA1884@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Antivirus: avast! (VPS 0616-4, 04/21/2006), Outbound message
+X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, 2006-04-23 at 01:55 -0600, Andreas Dilger wrote:
-> On Apr 21, 2006  17:13 +0100, Steven Whitehouse wrote:
-> > This also includes a new header file, iflags.h which is designed to
-> > abstract the (originally ext2 only, but now used by many different fs)
-> > get/set flags ioctl by having one central place in which to register
-> > filesystem flags. Given favourable reviews, I'll submit some patches to
-> > update the other fileststems to define their flags in terms of those
-> > in iflags.h. Note that this doesn't change the interface of the other
-> > filesystems since the values of the flags are identical to those
-> > previously defined.
-> > 
-> > To the best of my knowledge, GFS2 is the only filesystem which requires
-> > the addition of flags above and beyond those defined by ext2/3 so if
-> > there are others and we've clashed with them, please let me know.
-> 
-> > --- /dev/null
-> > +++ b/include/linux/iflags.h
-> > @@ -0,0 +1,104 @@
-[some constants snipped for brevity]
-> > +
-> > +#define __IFL(x) (1<<(iflag_##x))
-> > +#define IFLAG_SECRM		__IFL(SecureRm)		/* 0x00000001 */
-> > +#define IFLAG_UNRM		__IFL(Unrm)		/* 0x00000002 */
-> > +#define IFLAG_COMPR		__IFL(Compr)		/* 0x00000004 */
-> > +#define IFLAG_SYNC		__IFL(Sync)		/* 0x00000008 */
-> > +#define IFLAG_IMMUTABLE		__IFL(Immutable)	/* 0x00000010 */
-> > +#define IFLAG_APPEND		__IFL(Append)		/* 0x00000020 */
-> > +#define IFLAG_NODUMP		__IFL(NoDump)		/* 0x00000040 */
-> > +#define IFLAG_NOATIME		__IFL(NoAtime)		/* 0x00000080 */
-> > +#define IFLAG_DIRTY		__IFL(Dirty)		/* 0x00000100 */
-> > +#define IFLAG_COMPRBLK		__IFL(ComprBlk)		/* 0x00000200 */
-> > +#define IFLAG_NOCOMP		__IFL(NoComp)		/* 0x00000400 */
-> > +#define IFLAG_ECOMPR		__IFL(Ecompr)		/* 0x00000800 */
-> > +#define IFLAG_BTREE		__IFL(Btree)		/* 0x00001000 */
-> > +#define IFLAG_INDEX		__IFL(Index)		/* 0x00001000 */
-> > +#define IFLAG_IMAGIC		__IFL(Imagic)		/* 0x00002000 */
-> > +#define IFLAG_JOURNAL_DATA	__IFL(JournalData)	/* 0x00004000 */
-> > +#define IFLAG_NOTAIL		__IFL(NoTail)		/* 0x00008000 */
-> > +#define IFLAG_DIRSYNC		__IFL(DirSync)		/* 0x00010000 */
-> > +#define IFLAG_TOPDIR		__IFL(TopDir)		/* 0x00020000 */
-> > +#define IFLAG_DIRECTIO		__IFL(DirectIO)		/* 0x00040000 */
-> > +#define IFLAG_INHERITDIRECTIO	__IFL(InheritDirectIO)	/* 0x00080000 */
-> > +#define IFLAG_INHERITJDATA	__IFL(InheritJdata)	/* 0x00100000 */
-> > +#define IFLAG_RESERVED		__IFL(Reserved)		/* 0x80000000 */
-> 
-> Actually, the 0x0080000 flag has been reserved by e2fsprogs for ext3
-> extents for a while already.  AFAICS, there are no other flags in the
-> current e2fsprogs that aren't listed above.
-> 
-So if I call that one IFLAG_EXTENT, then I presume that will be ok?
-What about the 0x00040000 flag? That would seem to be a gap in the
-sequence (ignoring GFS flags for now), so should I leave that reserved
-for use by ext2/3 as well?
-
-> The other tidbit is that new ext2/ext3 files generally inherit the flags
-> from their parent directory, so it isn't clear if there is really a need
-> for a distinction between DIRECTIO and INHERIT_DIRECTIO, and similarly
-> JDATA and INHERIT_JDATA?  Generally, I'd think that JDATA isn't meaningful
-> on directories (since they are metadata and journaled anyways), nor is
-> DIRECTIO so their only meaning on a directory is "INHERIT for new files".
-> 
-> Cheers, Andreas
-
-Yes, that sounds like a good plan. The only downside (purely from a GFS2
-point of view, it won't affect anybody else) means that its no longer a
-1:1 relationship between flags, so in order to do the conversion, I'd
-have to use something a little more elaborate than the inline function I
-added to the iflags.h header file,
-
-Steve.
+Pavel Machek wrote:
+>> In the security world, there is a huge tradition of the best being the
+>> enemy of the good --- and the best being so painful to use that people
+>> don't want to use it, or the moment it gets in the way (either because
+>> of performance reasons or their application does something that
+>> requires painful configuration of the SELinux policy files), they
+>> deconfigure it.  At which point the "best" becomes useless.
+>>
+>> You may or may not agree with the philosophical architecture question,
+>> but that doesn't necessarily make it "broken by design".  Choice is
+>> good; if AppArmor forces SELinux to become less painful to use and
+>> configure, then that in the long run will be a good thing.
+>>     
+>
+> SELinux kernel support can _almost_ do what AA does; with notable
+> exception of labels for new files. That can probably be fixed with
+> patch of reasonable size (or maybe even with LD_PRELOAD library, glibc
+> modification, or stuff like that). (There was post showing that in
+> this long flamewar).
+>   
+New file labels based on path should not be addressed in the kernel and 
+LD_PRELOAD would be incredibly hacky. Our solution to the problem is 
+restorecond (http://danwalsh.livejournal.com/4368.html) which addresses 
+users who want to be able to mkdir public_html and immediately use it. 
+Userland solutions like this will make SELinux easier and easier to use, 
+and they already have. Anyone not keeping up with SELinux lately a 
+tremendous amount has been done in the area of usability as outlined at 
+this years selinux symposium 
+(http://selinux-symposium.org/2006/slides/01-smalley-yir.pdf).
 
 
-
+Joshua

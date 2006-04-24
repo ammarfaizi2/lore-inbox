@@ -1,15 +1,15 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWDXNlw (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 24 Apr 2006 09:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWDXNlv
+	id S1750786AbWDXOCi (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 24 Apr 2006 10:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWDXOCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 09:41:51 -0400
-Received: from vsmtp2.tin.it ([212.216.176.222]:47842 "EHLO vsmtp2.tin.it")
-	by vger.kernel.org with ESMTP id S1750801AbWDXNlv (ORCPT
+	Mon, 24 Apr 2006 10:02:38 -0400
+Received: from vsmtp4.tin.it ([212.216.176.224]:31426 "EHLO vsmtp4.tin.it")
+	by vger.kernel.org with ESMTP id S1750786AbWDXOCi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 09:41:51 -0400
-Message-ID: <10acc21ea4e.charlesbrown_13@virgilio.it>
-Date: Mon, 24 Apr 2006 14:41:15 +0100 (GMT+01:00)
+	Mon, 24 Apr 2006 10:02:38 -0400
+Message-ID: <10acc3528a2.charlesbrown_13@virgilio.it>
+Date: Mon, 24 Apr 2006 15:02:16 +0100 (GMT+01:00)
 From: Charles Brown <charlesbrown_13@virgilio.it>
 Reply-To: charlesbrowns12@yahoo.com.hk
 Subject: Greetings
@@ -20,7 +20,7 @@ X-Originating-IP: 81.208.107.106
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750801AbWDXNlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750786AbWDXOCi@vger.kernel.org>
 
 FROM:CHARLES BROWN
 No. 12 Northwest lane Abuja.

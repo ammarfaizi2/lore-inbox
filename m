@@ -1,715 +1,316 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbWDXRmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWDXRpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751062AbWDXRmz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 13:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWDXRmz
+	id S1751050AbWDXRpI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 13:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWDXRpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 13:42:55 -0400
-Received: from ns1.suse.de ([195.135.220.2]:55483 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751060AbWDXRmy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 13:42:54 -0400
-Date: Mon, 24 Apr 2006 10:41:38 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org
-Subject: Re: Linux 2.6.16.10
-Message-ID: <20060424174138.GB32446@kroah.com>
-References: <20060424174104.GA32446@kroah.com>
+	Mon, 24 Apr 2006 13:45:07 -0400
+Received: from sc-outsmtp1.homechoice.co.uk ([81.1.65.35]:14099 "HELO
+	sc-outsmtp1.homechoice.co.uk") by vger.kernel.org with SMTP
+	id S1751041AbWDXRpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 13:45:05 -0400
+Subject: Re: [linuxsh-dev] Re: [Alsa-devel] [PATCH] Add Dreamcast AICA
+	driver to alsa-driver
+From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Alsa-devel <alsa-devel@lists.sourceforge.net>,
+       linux-sh <linuxsh-dev@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       Paul Mundt <lethal@linux-sh.org>
+In-Reply-To: <s5hacab44bw.wl%tiwai@suse.de>
+References: <1145831786.9242.38.camel@localhost.localdomain>
+	 <1145832383.9242.41.camel@localhost.localdomain>
+	 <s5hacab44bw.wl%tiwai@suse.de>
+Content-Type: text/plain
+Date: Mon, 24 Apr 2006 18:44:55 +0100
+Message-Id: <1145900695.9243.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060424174104.GA32446@kroah.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 5696ad2..9ebe182 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 16
--EXTRAVERSION = .9
-+EXTRAVERSION = .10
- NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
-diff --git a/arch/i386/kernel/apm.c b/arch/i386/kernel/apm.c
-index 05312a8..558d2d2 100644
---- a/arch/i386/kernel/apm.c
-+++ b/arch/i386/kernel/apm.c
-@@ -1081,7 +1081,7 @@ static int apm_console_blank(int blank)
- 			break;
- 	}
- 
--	if (error == APM_NOT_ENGAGED && state != APM_STATE_READY) {
-+	if (error == APM_NOT_ENGAGED) {
- 		static int tried;
- 		int eng_error;
- 		if (tried++ == 0) {
-diff --git a/drivers/char/agp/efficeon-agp.c b/drivers/char/agp/efficeon-agp.c
-index e7aea77..40dfc29 100644
---- a/drivers/char/agp/efficeon-agp.c
-+++ b/drivers/char/agp/efficeon-agp.c
-@@ -64,6 +64,12 @@ static struct gatt_mask efficeon_generic
- 	{.mask = 0x00000001, .type = 0}
- };
- 
-+/* This function does the same thing as mask_memory() for this chipset... */
-+static inline unsigned long efficeon_mask_memory(unsigned long addr)
-+{
-+	return addr | 0x00000001;
-+}
-+
- static struct aper_size_info_lvl2 efficeon_generic_sizes[4] =
- {
- 	{256, 65536, 0},
-@@ -251,7 +257,7 @@ static int efficeon_insert_memory(struct
- 	last_page = NULL;
- 	for (i = 0; i < count; i++) {
- 		int index = pg_start + i;
--		unsigned long insert = mem->memory[i];
-+		unsigned long insert = efficeon_mask_memory(mem->memory[i]);
- 
- 		page = (unsigned int *) efficeon_private.l1_table[index >> 10];
- 
-diff --git a/drivers/char/ipmi/ipmi_bt_sm.c b/drivers/char/ipmi/ipmi_bt_sm.c
-index 58dcdee..0030cd8 100644
---- a/drivers/char/ipmi/ipmi_bt_sm.c
-+++ b/drivers/char/ipmi/ipmi_bt_sm.c
-@@ -165,7 +165,7 @@ static int bt_start_transaction(struct s
- {
- 	unsigned int i;
- 
--	if ((size < 2) || (size > IPMI_MAX_MSG_LENGTH))
-+	if ((size < 2) || (size > (IPMI_MAX_MSG_LENGTH - 2)))
- 	       return -1;
- 
- 	if ((bt->state != BT_STATE_IDLE) && (bt->state != BT_STATE_HOSED))
-diff --git a/drivers/char/tty_io.c b/drivers/char/tty_io.c
-index 53d3d06..edaee70 100644
---- a/drivers/char/tty_io.c
-+++ b/drivers/char/tty_io.c
-@@ -2706,7 +2706,11 @@ #else
- 		}
- 		task_lock(p);
- 		if (p->files) {
--			rcu_read_lock();
-+			/*
-+			 * We don't take a ref to the file, so we must
-+			 * hold ->file_lock instead.
-+			 */
-+			spin_lock(&p->files->file_lock);
- 			fdt = files_fdtable(p->files);
- 			for (i=0; i < fdt->max_fds; i++) {
- 				filp = fcheck_files(p->files, i);
-@@ -2721,7 +2725,7 @@ #else
- 					break;
- 				}
- 			}
--			rcu_read_unlock();
-+			spin_unlock(&p->files->file_lock);
- 		}
- 		task_unlock(p);
- 	} while_each_task_pid(session, PIDTYPE_SID, p);
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 8e0f315..dfca749 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -478,6 +478,11 @@ static s32 i801_access(struct i2c_adapte
- 		ret = i801_transaction();
- 	}
- 
-+	/* Some BIOSes don't like it when PEC is enabled at reboot or resume
-+	   time, so we forcibly disable it after every transaction. */
-+	if (hwpec)
-+		outb_p(0, SMBAUXCTL);
-+
- 	if(block)
- 		return ret;
- 	if(ret)
-diff --git a/drivers/i2c/chips/m41t00.c b/drivers/i2c/chips/m41t00.c
-index 2dc3d48..2836fb3 100644
---- a/drivers/i2c/chips/m41t00.c
-+++ b/drivers/i2c/chips/m41t00.c
-@@ -129,13 +129,13 @@ m41t00_set_tlet(ulong arg)
- 	if ((i2c_smbus_write_byte_data(save_client, 0, tm.tm_sec & 0x7f) < 0)
- 		|| (i2c_smbus_write_byte_data(save_client, 1, tm.tm_min & 0x7f)
- 			< 0)
--		|| (i2c_smbus_write_byte_data(save_client, 2, tm.tm_hour & 0x7f)
-+		|| (i2c_smbus_write_byte_data(save_client, 2, tm.tm_hour & 0x3f)
- 			< 0)
--		|| (i2c_smbus_write_byte_data(save_client, 4, tm.tm_mday & 0x7f)
-+		|| (i2c_smbus_write_byte_data(save_client, 4, tm.tm_mday & 0x3f)
- 			< 0)
--		|| (i2c_smbus_write_byte_data(save_client, 5, tm.tm_mon & 0x7f)
-+		|| (i2c_smbus_write_byte_data(save_client, 5, tm.tm_mon & 0x1f)
- 			< 0)
--		|| (i2c_smbus_write_byte_data(save_client, 6, tm.tm_year & 0x7f)
-+		|| (i2c_smbus_write_byte_data(save_client, 6, tm.tm_year & 0xff)
- 			< 0))
- 
- 		dev_warn(&save_client->dev,"m41t00: can't write to rtc chip\n");
-diff --git a/drivers/ide/pci/alim15x3.c b/drivers/ide/pci/alim15x3.c
-index cf84350..8b24b4f 100644
---- a/drivers/ide/pci/alim15x3.c
-+++ b/drivers/ide/pci/alim15x3.c
-@@ -731,6 +731,8 @@ static unsigned int __devinit ata66_ali1
- 	
- 	if(m5229_revision <= 0x20)
- 		tmpbyte = (tmpbyte & (~0x02)) | 0x01;
-+	else if (m5229_revision == 0xc7)
-+		tmpbyte |= 0x03;
- 	else
- 		tmpbyte |= 0x01;
- 
-diff --git a/drivers/macintosh/therm_adt746x.c b/drivers/macintosh/therm_adt746x.c
-index 5ebfd1d..5282fec 100644
---- a/drivers/macintosh/therm_adt746x.c
-+++ b/drivers/macintosh/therm_adt746x.c
-@@ -627,8 +627,8 @@ thermostat_init(void)
- 	if(therm_type == ADT7460)
- 		device_create_file(&of_dev->dev, &dev_attr_sensor2_fan_speed);
- 
--#ifndef CONFIG_I2C_KEYWEST
--	request_module("i2c-keywest");
-+#ifndef CONFIG_I2C_POWERMAC
-+	request_module("i2c-powermac");
- #endif
- 
- 	return i2c_add_driver(&thermostat_driver);
-diff --git a/drivers/mtd/nand/Kconfig b/drivers/mtd/nand/Kconfig
-index 1fc4c13..cfe288a 100644
---- a/drivers/mtd/nand/Kconfig
-+++ b/drivers/mtd/nand/Kconfig
-@@ -178,17 +178,16 @@ config MTD_NAND_DISKONCHIP_BBTWRITE
- 	  Even if you leave this disabled, you can enable BBT writes at module
- 	  load time (assuming you build diskonchip as a module) with the module
- 	  parameter "inftl_bbt_write=1".
--	  
-- config MTD_NAND_SHARPSL
-- 	bool "Support for NAND Flash on Sharp SL Series (C7xx + others)"
-- 	depends on MTD_NAND && ARCH_PXA
-- 
-- config MTD_NAND_NANDSIM
-- 	bool "Support for NAND Flash Simulator"
-- 	depends on MTD_NAND && MTD_PARTITIONS
- 
-+config MTD_NAND_SHARPSL
-+	tristate "Support for NAND Flash on Sharp SL Series (C7xx + others)"
-+	depends on MTD_NAND && ARCH_PXA
-+
-+config MTD_NAND_NANDSIM
-+	tristate "Support for NAND Flash Simulator"
-+	depends on MTD_NAND && MTD_PARTITIONS
- 	help
- 	  The simulator may simulate verious NAND flash chips for the
- 	  MTD nand layer.
-- 
-+
- endmenu
-diff --git a/drivers/scsi/3w-9xxx.c b/drivers/scsi/3w-9xxx.c
-index d9152d0..9132549 100644
---- a/drivers/scsi/3w-9xxx.c
-+++ b/drivers/scsi/3w-9xxx.c
-@@ -85,7 +85,7 @@ #include <scsi/scsi_cmnd.h>
- #include "3w-9xxx.h"
- 
- /* Globals */
--#define TW_DRIVER_VERSION "2.26.02.005"
-+#define TW_DRIVER_VERSION "2.26.02.007"
- static TW_Device_Extension *twa_device_extension_list[TW_MAX_SLOT];
- static unsigned int twa_device_extension_count;
- static int twa_major = -1;
-@@ -1944,9 +1944,13 @@ static void twa_scsiop_execute_scsi_comp
- 		}
- 		if (tw_dev->srb[request_id]->use_sg == 1) {
- 			struct scatterlist *sg = (struct scatterlist *)tw_dev->srb[request_id]->request_buffer;
--			char *buf = kmap_atomic(sg->page, KM_IRQ0) + sg->offset;
-+			char *buf;
-+			unsigned long flags = 0;
-+			local_irq_save(flags);
-+			buf = kmap_atomic(sg->page, KM_IRQ0) + sg->offset;
- 			memcpy(buf, tw_dev->generic_buffer_virt[request_id], sg->length);
- 			kunmap_atomic(buf - sg->offset, KM_IRQ0);
-+			local_irq_restore(flags);
- 		}
- 	}
- } /* End twa_scsiop_execute_scsi_complete() */
-diff --git a/drivers/scsi/3w-xxxx.c b/drivers/scsi/3w-xxxx.c
-index 25f678d..e8e41e6 100644
---- a/drivers/scsi/3w-xxxx.c
-+++ b/drivers/scsi/3w-xxxx.c
-@@ -1508,10 +1508,12 @@ static void tw_transfer_internal(TW_Devi
- 	struct scsi_cmnd *cmd = tw_dev->srb[request_id];
- 	void *buf;
- 	unsigned int transfer_len;
-+	unsigned long flags = 0;
- 
- 	if (cmd->use_sg) {
- 		struct scatterlist *sg =
- 			(struct scatterlist *)cmd->request_buffer;
-+		local_irq_save(flags);
- 		buf = kmap_atomic(sg->page, KM_IRQ0) + sg->offset;
- 		transfer_len = min(sg->length, len);
- 	} else {
-@@ -1526,6 +1528,7 @@ static void tw_transfer_internal(TW_Devi
- 
- 		sg = (struct scatterlist *)cmd->request_buffer;
- 		kunmap_atomic(buf - sg->offset, KM_IRQ0);
-+		local_irq_restore(flags);
- 	}
- }
- 
-diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
-index 996c7b5..b3094ae 100644
---- a/drivers/video/fbmem.c
-+++ b/drivers/video/fbmem.c
-@@ -669,13 +669,19 @@ fb_write(struct file *file, const char _
- 		total_size = info->fix.smem_len;
- 
- 	if (p > total_size)
--		return 0;
-+		return -EFBIG;
- 
--	if (count >= total_size)
-+	if (count > total_size) {
-+		err = -EFBIG;
- 		count = total_size;
-+	}
-+
-+	if (count + p > total_size) {
-+		if (!err)
-+			err = -ENOSPC;
- 
--	if (count + p > total_size)
- 		count = total_size - p;
-+	}
- 
- 	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count,
- 			 GFP_KERNEL);
-@@ -717,7 +723,7 @@ fb_write(struct file *file, const char _
- 
- 	kfree(buffer);
- 
--	return (err) ? err : cnt;
-+	return (cnt) ? cnt : err;
- }
- 
- #ifdef CONFIG_KMOD
-diff --git a/fs/locks.c b/fs/locks.c
-index 909eab8..e75ac39 100644
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -2212,7 +2212,12 @@ void steal_locks(fl_owner_t from)
- 
- 	lock_kernel();
- 	j = 0;
--	rcu_read_lock();
-+
-+	/*
-+	 * We are not taking a ref to the file structures, so
-+	 * we need to acquire ->file_lock.
-+	 */
-+	spin_lock(&files->file_lock);
- 	fdt = files_fdtable(files);
- 	for (;;) {
- 		unsigned long set;
-@@ -2230,7 +2235,7 @@ void steal_locks(fl_owner_t from)
- 			set >>= 1;
- 		}
- 	}
--	rcu_read_unlock();
-+	spin_unlock(&files->file_lock);
- 	unlock_kernel();
- }
- EXPORT_SYMBOL(steal_locks);
-diff --git a/fs/open.c b/fs/open.c
-index 70e0230..f697914 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -330,7 +330,10 @@ out:
- 
- asmlinkage long sys_ftruncate(unsigned int fd, unsigned long length)
- {
--	return do_sys_ftruncate(fd, length, 1);
-+	long ret = do_sys_ftruncate(fd, length, 1);
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- /* LFS versions of truncate are only needed on 32 bit machines */
-@@ -342,7 +345,10 @@ asmlinkage long sys_truncate64(const cha
- 
- asmlinkage long sys_ftruncate64(unsigned int fd, loff_t length)
- {
--	return do_sys_ftruncate(fd, length, 0);
-+	long ret = do_sys_ftruncate(fd, length, 0);
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- #endif
- 
-@@ -1083,20 +1089,30 @@ long do_sys_open(int dfd, const char __u
- 
- asmlinkage long sys_open(const char __user *filename, int flags, int mode)
- {
-+	long ret;
-+
- 	if (force_o_largefile())
- 		flags |= O_LARGEFILE;
- 
--	return do_sys_open(AT_FDCWD, filename, flags, mode);
-+	ret = do_sys_open(AT_FDCWD, filename, flags, mode);
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(sys_open);
- 
- asmlinkage long sys_openat(int dfd, const char __user *filename, int flags,
- 			   int mode)
- {
-+	long ret;
-+
- 	if (force_o_largefile())
- 		flags |= O_LARGEFILE;
- 
--	return do_sys_open(dfd, filename, flags, mode);
-+	ret = do_sys_open(dfd, filename, flags, mode);
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(sys_openat);
- 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 20feb75..c192cb2 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -294,16 +294,20 @@ static int proc_fd_link(struct inode *in
- 
- 	files = get_files_struct(task);
- 	if (files) {
--		rcu_read_lock();
-+		/*
-+		 * We are not taking a ref to the file structure, so we must
-+		 * hold ->file_lock.
-+		 */
-+		spin_lock(&files->file_lock);
- 		file = fcheck_files(files, fd);
- 		if (file) {
- 			*mnt = mntget(file->f_vfsmnt);
- 			*dentry = dget(file->f_dentry);
--			rcu_read_unlock();
-+			spin_unlock(&files->file_lock);
- 			put_files_struct(files);
- 			return 0;
- 		}
--		rcu_read_unlock();
-+		spin_unlock(&files->file_lock);
- 		put_files_struct(files);
- 	}
- 	return -ENOENT;
-@@ -1485,7 +1489,12 @@ static struct dentry *proc_lookupfd(stru
- 	if (!files)
- 		goto out_unlock;
- 	inode->i_mode = S_IFLNK;
--	rcu_read_lock();
-+
-+	/*
-+	 * We are not taking a ref to the file structure, so we must
-+	 * hold ->file_lock.
-+	 */
-+	spin_lock(&files->file_lock);
- 	file = fcheck_files(files, fd);
- 	if (!file)
- 		goto out_unlock2;
-@@ -1493,7 +1502,7 @@ static struct dentry *proc_lookupfd(stru
- 		inode->i_mode |= S_IRUSR | S_IXUSR;
- 	if (file->f_mode & 2)
- 		inode->i_mode |= S_IWUSR | S_IXUSR;
--	rcu_read_unlock();
-+	spin_unlock(&files->file_lock);
- 	put_files_struct(files);
- 	inode->i_op = &proc_pid_link_inode_operations;
- 	inode->i_size = 64;
-@@ -1503,7 +1512,7 @@ static struct dentry *proc_lookupfd(stru
- 	return NULL;
- 
- out_unlock2:
--	rcu_read_unlock();
-+	spin_unlock(&files->file_lock);
- 	put_files_struct(files);
- out_unlock:
- 	iput(inode);
-diff --git a/ipc/util.c b/ipc/util.c
-index 8626219..303b058 100644
---- a/ipc/util.c
-+++ b/ipc/util.c
-@@ -182,8 +182,7 @@ static int grow_ary(struct ipc_ids* ids,
- 	if(new == NULL)
- 		return size;
- 	new->size = newsize;
--	memcpy(new->p, ids->entries->p, sizeof(struct kern_ipc_perm *)*size +
--					sizeof(struct ipc_id_ary));
-+	memcpy(new->p, ids->entries->p, sizeof(struct kern_ipc_perm *)*size);
- 	for(i=size;i<newsize;i++) {
- 		new->p[i] = NULL;
- 	}
-diff --git a/kernel/uid16.c b/kernel/uid16.c
-index aa25605..187e2a4 100644
---- a/kernel/uid16.c
-+++ b/kernel/uid16.c
-@@ -20,43 +20,67 @@ #include <asm/uaccess.h>
- 
- asmlinkage long sys_chown16(const char __user * filename, old_uid_t user, old_gid_t group)
- {
--	return sys_chown(filename, low2highuid(user), low2highgid(group));
-+	long ret = sys_chown(filename, low2highuid(user), low2highgid(group));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_lchown16(const char __user * filename, old_uid_t user, old_gid_t group)
- {
--	return sys_lchown(filename, low2highuid(user), low2highgid(group));
-+	long ret = sys_lchown(filename, low2highuid(user), low2highgid(group));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_fchown16(unsigned int fd, old_uid_t user, old_gid_t group)
- {
--	return sys_fchown(fd, low2highuid(user), low2highgid(group));
-+	long ret = sys_fchown(fd, low2highuid(user), low2highgid(group));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_setregid16(old_gid_t rgid, old_gid_t egid)
- {
--	return sys_setregid(low2highgid(rgid), low2highgid(egid));
-+	long ret = sys_setregid(low2highgid(rgid), low2highgid(egid));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_setgid16(old_gid_t gid)
- {
--	return sys_setgid(low2highgid(gid));
-+	long ret = sys_setgid(low2highgid(gid));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_setreuid16(old_uid_t ruid, old_uid_t euid)
- {
--	return sys_setreuid(low2highuid(ruid), low2highuid(euid));
-+	long ret = sys_setreuid(low2highuid(ruid), low2highuid(euid));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_setuid16(old_uid_t uid)
- {
--	return sys_setuid(low2highuid(uid));
-+	long ret = sys_setuid(low2highuid(uid));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_setresuid16(old_uid_t ruid, old_uid_t euid, old_uid_t suid)
- {
--	return sys_setresuid(low2highuid(ruid), low2highuid(euid),
--		low2highuid(suid));
-+	long ret = sys_setresuid(low2highuid(ruid), low2highuid(euid),
-+				 low2highuid(suid));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_getresuid16(old_uid_t __user *ruid, old_uid_t __user *euid, old_uid_t __user *suid)
-@@ -72,8 +96,11 @@ asmlinkage long sys_getresuid16(old_uid_
- 
- asmlinkage long sys_setresgid16(old_gid_t rgid, old_gid_t egid, old_gid_t sgid)
- {
--	return sys_setresgid(low2highgid(rgid), low2highgid(egid),
--		low2highgid(sgid));
-+	long ret = sys_setresgid(low2highgid(rgid), low2highgid(egid),
-+				 low2highgid(sgid));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_getresgid16(old_gid_t __user *rgid, old_gid_t __user *egid, old_gid_t __user *sgid)
-@@ -89,12 +116,18 @@ asmlinkage long sys_getresgid16(old_gid_
- 
- asmlinkage long sys_setfsuid16(old_uid_t uid)
- {
--	return sys_setfsuid(low2highuid(uid));
-+	long ret = sys_setfsuid(low2highuid(uid));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- asmlinkage long sys_setfsgid16(old_gid_t gid)
- {
--	return sys_setfsgid(low2highgid(gid));
-+	long ret = sys_setfsgid(low2highgid(gid));
-+	/* avoid REGPARM breakage on x86: */
-+	prevent_tail_call(ret);
-+	return ret;
- }
- 
- static int groups16_to_user(old_gid_t __user *grouplist,
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 2afb0de..12a214c 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -2932,11 +2932,11 @@ void netdev_run_todo(void)
- 
- 		switch(dev->reg_state) {
- 		case NETREG_REGISTERING:
-+			dev->reg_state = NETREG_REGISTERED;
- 			err = netdev_register_sysfs(dev);
- 			if (err)
- 				printk(KERN_ERR "%s: failed sysfs registration (%d)\n",
- 				       dev->name, err);
--			dev->reg_state = NETREG_REGISTERED;
- 			break;
- 
- 		case NETREG_UNREGISTERING:
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 9f498a6..310f2e6 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -537,7 +537,9 @@ int tcp_fragment(struct sock *sk, struct
- 	buff = sk_stream_alloc_skb(sk, nsize, GFP_ATOMIC);
- 	if (buff == NULL)
- 		return -ENOMEM; /* We'll just try again later. */
--	sk_charge_skb(sk, buff);
-+
-+	buff->truesize = skb->len - len;
-+	skb->truesize -= buff->truesize;
- 
- 	/* Correct the sequence numbers. */
- 	TCP_SKB_CB(buff)->seq = TCP_SKB_CB(skb)->seq + len;
-diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
-index 2a1e7e4..d88cab7 100644
---- a/net/ipv6/exthdrs.c
-+++ b/net/ipv6/exthdrs.c
-@@ -489,6 +489,18 @@ int ipv6_parse_hopopts(struct sk_buff *s
- {
- 	struct inet6_skb_parm *opt = IP6CB(skb);
- 
-+	/*
-+	 * skb->nh.raw is equal to skb->data, and
-+	 * skb->h.raw - skb->nh.raw is always equal to
-+	 * sizeof(struct ipv6hdr) by definition of
-+	 * hop-by-hop options.
-+	 */
-+	if (!pskb_may_pull(skb, sizeof(struct ipv6hdr) + 8) ||
-+	    !pskb_may_pull(skb, sizeof(struct ipv6hdr) + ((skb->h.raw[1] + 1) << 3))) {
-+		kfree_skb(skb);
-+		return -1;
-+	}
-+
- 	opt->hop = sizeof(struct ipv6hdr);
- 	if (ip6_parse_tlv(tlvprochopopt_lst, skb)) {
- 		skb->h.raw += (skb->h.raw[1]+1)<<3;
-diff --git a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
-index 91cce8b..88c840f 100644
---- a/net/ipv6/xfrm6_policy.c
-+++ b/net/ipv6/xfrm6_policy.c
-@@ -191,16 +191,18 @@ error:
- static inline void
- _decode_session6(struct sk_buff *skb, struct flowi *fl)
- {
--	u16 offset = sizeof(struct ipv6hdr);
-+	u16 offset = skb->h.raw - skb->nh.raw;
- 	struct ipv6hdr *hdr = skb->nh.ipv6h;
--	struct ipv6_opt_hdr *exthdr = (struct ipv6_opt_hdr*)(skb->nh.raw + offset);
--	u8 nexthdr = skb->nh.ipv6h->nexthdr;
-+	struct ipv6_opt_hdr *exthdr;
-+	u8 nexthdr = skb->nh.raw[IP6CB(skb)->nhoff];
- 
- 	memset(fl, 0, sizeof(struct flowi));
- 	ipv6_addr_copy(&fl->fl6_dst, &hdr->daddr);
- 	ipv6_addr_copy(&fl->fl6_src, &hdr->saddr);
- 
- 	while (pskb_may_pull(skb, skb->nh.raw + offset + 1 - skb->data)) {
-+		exthdr = (struct ipv6_opt_hdr*)(skb->nh.raw + offset);
-+
- 		switch (nexthdr) {
- 		case NEXTHDR_ROUTING:
- 		case NEXTHDR_HOP:
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index 640d0bf..84047f6 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -264,7 +264,7 @@ int mls_context_to_sid(char oldc,
- 
- 	if (!selinux_mls_enabled) {
- 		if (def_sid != SECSID_NULL && oldc)
--			*scontext += strlen(*scontext);
-+			*scontext += strlen(*scontext)+1;
- 		return 0;
- 	}
- 
-diff --git a/sound/oss/dmasound/tas_common.c b/sound/oss/dmasound/tas_common.c
-index 8131599..882ae98 100644
---- a/sound/oss/dmasound/tas_common.c
-+++ b/sound/oss/dmasound/tas_common.c
-@@ -195,8 +195,8 @@ tas_init(int driver_id, const char *driv
- 
- 	printk(KERN_INFO "tas driver [%s])\n", driver_name);
- 
--#ifndef CONFIG_I2C_KEYWEST
--	request_module("i2c-keywest");
-+#ifndef CONFIG_I2C_POWERMAC
-+	request_module("i2c-powermac");
- #endif
- 	tas_node = find_devices("deq");
- 	if (tas_node == NULL)
-diff --git a/sound/ppc/daca.c b/sound/ppc/daca.c
-index 08cde51..b96cd94 100644
---- a/sound/ppc/daca.c
-+++ b/sound/ppc/daca.c
-@@ -256,7 +256,7 @@ int __init snd_pmac_daca_init(struct snd
- 
- #ifdef CONFIG_KMOD
- 	if (current->fs->root)
--		request_module("i2c-keywest");
-+		request_module("i2c-powermac");
- #endif /* CONFIG_KMOD */	
- 
- 	mix = kmalloc(sizeof(*mix), GFP_KERNEL);
-diff --git a/sound/ppc/tumbler.c b/sound/ppc/tumbler.c
-index 838fc11..39d4cde 100644
---- a/sound/ppc/tumbler.c
-+++ b/sound/ppc/tumbler.c
-@@ -1314,7 +1314,7 @@ int __init snd_pmac_tumbler_init(struct 
- 
- #ifdef CONFIG_KMOD
- 	if (current->fs->root)
--		request_module("i2c-keywest");
-+		request_module("i2c-powermac");
- #endif /* CONFIG_KMOD */	
- 
- 	mix = kmalloc(sizeof(*mix), GFP_KERNEL);
+On Mon, 2006-04-24 at 13:10 +0200, Takashi Iwai wrote:
+> At Sun, 23 Apr 2006 23:46:22 +0100,
+> Adrian McMenamin wrote:
+> +/* module parameters */
+> +#define CARD_NAME "AICA"
+> +
+> +static int index;
+> 
+> Initialize it to -1 (or SNDRV_DEFAULT_IDX1), and pass it to the first
+> argument of snd_card_new().  Otherwise this option is useless.
+> 
+OK
+
+> 
+> > +/* Spinlocks */
+> > +DEFINE_SPINLOCK(spu_memlock);
+> 
+> Missing static.
+> 
+
+OK
+
+> 
+> > +/* spu_memset - write to memory in SPU address space */
+> > +static void spu_memset(uint32_t toi, void __iomem * what, int length)
+> > +{
+> > +	uint32_t *to = (uint32_t *) (SPU_MEMORY_BASE + toi);
+> > +	int i;
+> > +	if (length % 4)
+> > +		length = (length / 4) + 1;
+> > +	else
+> > +		length = length / 4;
+> 
+> If you use writel(), the length must be aligned to 4.
+> 
+> 
+> > +	spu_write_wait();
+> > +	for (i = 0; i < length; i++) {
+> > +		spin_lock(&spu_memlock);
+> > +		writel(what, to);
+> > +		spin_unlock(&spu_memlock);
+> 
+> What's the purpose of this lock?
+> 
+If I add more than one instance to the driver, which could be done, it's
+to stop two instances attempting to write to the ARM7 memory space
+concurrently.
+
+
+
+> 
+> > +		to++;
+> > +		if (i && !(i % 8))
+> > +			spu_write_wait();
+> > +	}
+> > +}
+> > +
+> > +/* spu_memload - write to SPU address space */
+> > +static void spu_memload(uint32_t toi, void __iomem * from, int length)
+> > +{
+> > +	uint32_t __iomem *froml = from;
+> > +	uint32_t __iomem *to =
+> > +	    (uint32_t __iomem *) (SPU_MEMORY_BASE + toi);
+> > +	int i, val;
+> > +	if (length % 4)
+> > +		length = (length / 4) + 1;
+> > +	else
+> > +		length = length / 4;
+> 
+> Ditto.
+> 
+> 
+> > +/* spu_disable - set spu registers to stop sound output */
+> > +static void spu_disable(void)
+> > +{
+> > +	int i;
+> > +	uint32_t regval;
+> > +	spu_write_wait();
+> > +	regval = readl(ARM_RESET_REGISTER);
+> > +	regval |= 1;
+> > +	spu_write_wait();
+> > +	spin_lock(&spu_memlock);
+> > +	writel(regval, ARM_RESET_REGISTER);
+> > +	spin_unlock(&spu_memlock);
+> > +	for (i = 0; i < 64; i++) {
+> > +		spu_write_wait();
+> > +		regval = readl(SPU_REGISTER_BASE + (i * 0x80));
+> > +		regval = (regval & ~0x4000) | 0x8000;
+> > +		spu_write_wait();
+> > +		spin_lock(&spu_memlock);
+> > +		writel(regval, SPU_REGISTER_BASE + (i * 0x80));
+> > +		spin_unlock(&spu_memlock);
+> 
+> For what is this lock?
+> 
+> 
+> > +/* aica_chn_start - write to spu to start playback */
+> > +inline static void aica_chn_start(void)
+> > +{
+> > +	spu_write_wait();
+> > +	spin_lock(&spu_memlock);
+> > +	writel(AICA_CMD_KICK | AICA_CMD_START,
+> > +	       (uint32_t *) AICA_CONTROL_POINT);
+> 
+> The cast looks strange...
+> 
+> 
+> > +	spin_unlock(&spu_memlock);
+> > +}
+> > +
+> > +/* aica_chn_halt - write to spu to halt playback */
+> > +inline static void aica_chn_halt(void)
+> > +{
+> > +	spu_write_wait();
+> > +	spin_lock(&spu_memlock);
+> > +	writel(AICA_CMD_KICK | AICA_CMD_STOP,
+> > +	       (uint32_t *) AICA_CONTROL_POINT);
+> > +	spin_unlock(&spu_memlock);
+> > +}
+> > +
+> > +/* ALSA code below */
+> > +static struct snd_pcm_hardware snd_pcm_aica_playback_hw = {
+> > +	.info = (SNDRV_PCM_INFO_NONINTERLEAVED),.formats =
+> > +	    (SNDRV_PCM_FMTBIT_S8 | SNDRV_PCM_FMTBIT_S16_LE |
+> > +	     SNDRV_PCM_FMTBIT_IMA_ADPCM),.rates =
+> > +	    SNDRV_PCM_RATE_8000_48000,.rate_min = 8000,.rate_max =
+> > +	    48000,.channels_min = 1,.channels_max = 2,.buffer_bytes_max =
+> > +	    AICA_BUFFER_SIZE,.period_bytes_min =
+> > +	    AICA_PERIOD_SIZE,.period_bytes_max =
+> > +	    AICA_PERIOD_SIZE,.periods_min =
+> > +	    AICA_PERIOD_NUMBER,.periods_max = AICA_PERIOD_NUMBER,
+> > +};
+> 
+> Put the field ids to the beginning of the line.  Found in other
+> structs, too.
+> 
+
+Indent messed up my code. I'll fix that.
+
+
+> 
+> > +static int stereo_buffer_transfer(struct snd_pcm_substream
+> > +				  *substream, int buffer_size, int period)
+> > +{
+> 
+> I feel this transfer-and-wait could be done more efficiently using
+> workq than doing it in timer callback.  The trigger(start) and
+> aica_period_elapsed() calls queue_work() at each time.
+> 
+> The most work of spu_begin_dma() should be put in the workq, too.
+> 
+
+heh. If you remember, a couple of months ago I had this in a kernel
+thread - ie much the same - and you or Lee said I should absolutely not
+use that mechanism :)
+
+
+> 
+> > +	int transferred;
+> > +	int dma_countout;
+> > +	struct snd_pcm_runtime *runtime;
+> > +	int period_offset;
+> > +	long dma_flags;
+> > +	period_offset = period;
+> > +	period_offset %= (AICA_PERIOD_NUMBER / 2);
+> > +	runtime = substream->runtime;
+> > +	/* transfer left and then right */
+> > +	dma_flags = claim_dma_lock();
+> > +	dma_countout = 0;
+> > +	dma_xfer(0,
+> > +		 runtime->dma_area + (AICA_PERIOD_SIZE * period_offset),
+> > +		 AICA_CHANNEL0_OFFSET +
+> > +		 (AICA_PERIOD_SIZE * period_offset), buffer_size / 2, 5);
+> > +	/* wait for completion */
+> > +	do {
+> > +		udelay(5);
+> > +		transferred = get_dma_residue(0);
+> > +		dma_countout++;
+> > +		if (dma_countout > 0x10000)
+> > +			break;	/* Approx 1/3 sec timeout in case of hardware failure */
+> > +	}
+> > +	while (transferred < buffer_size / 2);
+> > +	dma_xfer(0,
+> > +		 AICA_BUFFER_SIZE / 2 + runtime->dma_area +
+> > +		 (AICA_PERIOD_SIZE * period_offset),
+> > +		 AICA_CHANNEL1_OFFSET +
+> > +		 (AICA_PERIOD_SIZE * period_offset), buffer_size / 2, 5);
+> > +	/* have to wait again */
+> > +	dma_countout = 0;
+> > +	do {
+> > +		udelay(5);
+> > +		transferred = get_dma_residue(0);
+> > +		dma_countout++;
+> > +		if (dma_countout > 0x10000)
+> > +			break;
+> > +	}
+> > +	while (transferred < buffer_size / 2);
+> > +	release_dma_lock(dma_flags);
+> > +	return 0;
+> > +}
+> 
+> You can write a single function for both mono and two-channel
+> streams.
+> 
+
+How can I do that given the dma has to be serialised?
+
+> 
+> > +static int snd_aicapcm_pcm_open(struct snd_pcm_substream
+> > +				*substream)
+> > +{
+> > +	struct snd_pcm_runtime *runtime;
+> > +	struct aica_channel *channel;
+> > +	struct snd_card_aica *dreamcastcard;
+> > +	if (!enable)
+> > +		return -ENOENT;
+> 
+> You don't need to check enable here.
+> 
+> The "enable" module option was introduced to enable/disable the
+> speicfic device when multiple same devices are on the system.  Hence
+> it makes no sense for the drivers that support only a single device.
+> But we keep this option as a dummy one in most of drivers just for
+> compatibility reason.  The sound configurator tends to set this option
+> unconditionally.
+> 
+> 
+> > +/* TO DO: set up to handle more than one pcm instance */
+> > +static int __init snd_aicapcmchip(struct snd_card_aica
+> > +				  *dreamcastcard, int pcm_index)
+> 
+> Use __devinit prefix as long as you use platform_driver.
+> 
+> 
+> > +static int remove_dreamcastcard(struct device *dreamcast_device)
+> > +{
+> > +	struct snd_card_aica *dreamcastcard =
+> > +	    dreamcast_device->driver_data;
+> > +	snd_card_free(dreamcastcard->card);
+> > +	kfree(dreamcastcard);
+> > +	return 0;
+> > +}
+> > +
+> > +static struct device_driver aica_driver = {
+> > +	.name = "AICA",.bus = &platform_bus_type,
+> > +	.remove = remove_dreamcastcard,
+> > +};
+> 
+> Any reason not to use struct platform_driver?
+> 
+> 
+> > +static int load_aica_firmware()
+> > +{
+> > +	int err;
+> > +	err = 0;
+> > +	spu_init();
+> > +	const struct firmware *fw_entry;
+> 
+> The variable definition must be in the beginning of the function
+> block.
+> 
+> 
+> > +static int __init aica_init(void)
+> > +{
+> > +	int err;
+> > +	struct snd_card_aica *dreamcastcard;
+> > +	/* Are we in a Dreamcast at all? */
+> > +	if (!mach_is_dreamcast())
+> > +		return -ENODEV;
+> 
+> The typical flow in init entry should be:
+> 
+> 	- register platform_driver
+> 	- register platform_device	
+> 	  -> initialize the card and releveant instances in probe
+> 	     callback
+> 
+> 
+> BTW, with the latest HG repo, you can add alsa-driver/Kconfig, so that
+> you can keep alsa-kernel tree intact.
+
+hmmm, I have no HG tools. I'll have to get some. My distro seems to have
+none available
+

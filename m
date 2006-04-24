@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWDXFlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWDXFyc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWDXFlF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 01:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWDXFlF
+	id S1750819AbWDXFyc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 01:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWDXFyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 01:41:05 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:46728 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1750800AbWDXFlE (ORCPT
+	Mon, 24 Apr 2006 01:54:32 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:48297 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1750819AbWDXFyb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 01:41:04 -0400
-Date: Mon, 24 Apr 2006 14:41:02 +0900
-From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: sekharan@us.ibm.com, akpm@osdl.org, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net,
-       Valerie.Clement@bull.net
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-In-Reply-To: <444C5698.5080503@openvz.org>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-	<1145630992.3373.6.camel@localhost.localdomain>
-	<1145638722.14804.0.camel@linuxchandra>
-	<20060421155727.4212c41c.akpm@osdl.org>
-	<1145670536.15389.132.camel@linuxchandra>
-	<20060421191340.0b218c81.akpm@osdl.org>
-	<1145683725.21231.15.camel@linuxchandra>
-	<20060424011053.B89707402F@sv1.valinux.co.jp>
-	<444C5698.5080503@openvz.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.13; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20060424054103.091757402D@sv1.valinux.co.jp>
+	Mon, 24 Apr 2006 01:54:31 -0400
+Date: Mon, 24 Apr 2006 06:54:28 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet.skynet.ie
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matthew Reppert <arashi@sacredchao.net>, linux-kernel@vger.kernel.org,
+       "Antonino A. Daplas" <adaplas@pol.net>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: PCI ROM resource allocation issue with 2.6.17-rc2
+In-Reply-To: <20060423222122.498a3dd2.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0604240652380.31142@skynet.skynet.ie>
+References: <1145851361.3375.20.camel@minerva> <20060423222122.498a3dd2.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Apr 2006 08:39:52 +0400
-Kirill Korotaev <dev@openvz.org> wrote:
 
-> >>>> pzone based memory controller:
-> >>>> http://marc.theaimsgroup.com/?l=ckrm-tech&m=113867467006531&w=2
-> >>> From a super-quick scan that looks saner.  Is it effective?  Is this the
-> >>> way you're planning on proceeding?
-> >> Yes, it is effective, and the reclamation is O(1) too. It has couple of
-> >> problems by design, (1) doesn't handle shared pages and (2) doesn't
-> >> provide support for both min_shares and max_shares.
-> > 
-> > Right.  I wanted to show proof-of-cencept of the pzone based controller
-> > and implemented minimal features necessary as the memory controller.
-> > So, the pzone based controller still needs development and some cleanup.
-> Just out of curiosity, how it was meassured that it is effective?
+>> I've been running 2.6.12-rc2-mm3 for a long time.  Recently I upgraded
+>> a bunch of OS packages (Debian unstable), so I thought I may as well
+>> upgrade the kernel, too.  I've got a dual-head setup driven by a Radeon
+>> 9200 and a Radeon 7000.  When I booted 2.6.17-rc2, X never came up; I
+>> got "RADEON: Cannot read V_BIOS" and "RADEON: VIdeo BIOS not detected
+>> in PCI space!" for the RADEON 7000, and it eventually gets in a loop of
+>> spitting out "RADEON: Idle timed out, resetting engine ... " messages
+>> in Xorg.log.  Doing a diff of working and broken logs uncovered that the
+>> Radeon 7000's PCI ROM resource area had moved from ff8c000 to c6900000.
+>> Once I removed the Radeon 7000 screen from the Xorg config, X came up fine
+>> on the one head.  Adding stupid amounts of printks to the PCI subsystem in
+>> .17-rc2 uncovered that at some point, the ROM area is discovered to be
+>> at ff8c0000, but is later reallocated to c6900000.
+>>
 
-I don't have any benchmark numbers yet, so I can't explain the
-effectiveness with numbers.  I've been looking for the way to
-measure the cost of pzones correctly, but I've not found it out yet.
+welcome to X have a nice day :-)
 
-> How does it work when there is a global memory shortage in the system?
+X is horribly horribly broken in this area, if you remove the 
+pci_enable_device from drivers/char/drm/drm_stub.c
 
-I guess you are referring to the situation that global memory is running
-out but there are free pages in pzones.  These free pages in pzones are
-handled as reserved for pzone users and not used even in global memory 
-shortage.
+and restart everything does it still happen?
 
-Thanks,
+The problem is that X uses the fact that the pci bars are disabled to 
+decide whether to POST the card using the BIOS, however the card isn't 
+actually posted but pci_enable_device enables the BARs...
+
+however not doing pci_enable_device causes interrupts to not work on the 
+cards in a lot of circumstances..
+
+Dave.
+
 -- 
-KUROSAWA, Takahiro
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

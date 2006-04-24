@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWDXMg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWDXMoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWDXMg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 08:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWDXMg1
+	id S1750758AbWDXMoI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 08:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWDXMoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 08:36:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1809 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750741AbWDXMg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 08:36:26 -0400
-Date: Mon, 24 Apr 2006 13:36:21 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Ram <vshrirama@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: SD Card not mounting
-Message-ID: <20060424123621.GA16464@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	Ram <vshrirama@gmail.com>, linux-kernel@vger.kernel.org
-References: <8bf247760604240215j12af040dk4e695dbe03d89a83@mail.gmail.com> <444CC1E2.5000101@drzeus.cx>
+	Mon, 24 Apr 2006 08:44:07 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:39095 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S1750742AbWDXMoG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 08:44:06 -0400
+Date: Mon, 24 Apr 2006 14:44:40 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Valdis.Kletnieks@vt.edu, Ken Brush <kbrush@gmail.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060424124440.GX440@marowsky-bree.de>
+References: <4445484F.1050006@novell.com> <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu> <4446D378.8050406@novell.com> <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu> <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com> <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu> <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com> <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu> <20060424082424.GH440@marowsky-bree.de> <1145882551.29648.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <444CC1E2.5000101@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1145882551.29648.23.camel@localhost.localdomain>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24, 2006 at 02:17:38PM +0200, Pierre Ossman wrote:
-> Ram wrote:
-> > Hi,
-> >    When i try to mount an generic SD Card on my hardware. i get the error:
-> > 
-> > mount /dev/mmcblk0 /mnt/mmc -t vfat
-> > mount: Mounting /dev/mmcblk0 on /mnt/mmc failed: Device or resource busy
-> > 
-> 
-> You should cc the relevant maintainers when sending questions/bug
-> reports. Otherwise it will just get lost in the sheer volume of mail.
-> 
-> Since I don't recognise what driver you're using I'm adding Russell King
-> (the MMC maintainer) as cc.
+On 2006-04-24T13:42:31, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-and I doubt that "Device or resource busy" has anything at all to do
-with MMC.  Sounds more like a userspace issue - maybe two filesystems
-are being mounted on /mnt/mmc?  Reading the mount(2) man page gives
-some ideas what this error may mean.
+> > That is about the dumbest argument I've heard so far, sorry. 
+> Its the conclusion of most security experts I know that broken security
+> is worse than no security at all. 
+
+That would be the case of a security model the admin doesn't understand,
+either because it is too complex (SELinux) or because it is too simple
+as to invite sloppishness (AA), according to which side you ask. Hard
+call.
+
+
+Sincerely,
+    Lars Marowsky-Brée
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
+

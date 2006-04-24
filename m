@@ -1,96 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWDXO4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWDXO5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWDXO4s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 10:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWDXO4s
+	id S1750818AbWDXO5c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 10:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWDXO5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 10:56:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:24518 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750816AbWDXO4s (ORCPT
+	Mon, 24 Apr 2006 10:57:32 -0400
+Received: from styx.suse.cz ([82.119.242.94]:2212 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1750818AbWDXO5b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 10:56:48 -0400
-Date: Tue, 25 Apr 2006 00:56:35 +1000
-From: David Chinner <dgc@sgi.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Direct I/O bio size regression
-Message-ID: <20060424145635.GH611485@melbourne.sgi.com>
-References: <20060424061403.GF611708@melbourne.sgi.com> <20060424070236.GD22614@suse.de> <20060424090508.GI22614@suse.de>
+	Mon, 24 Apr 2006 10:57:31 -0400
+Date: Mon, 24 Apr 2006 16:57:47 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: bjd <bjdouma@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001/001] INPUT: new ioctl's to retrieve values of EV_REP and EV_SND event codes
+Message-ID: <20060424145747.GA5906@suse.cz>
+References: <20060422204844.GA16968@skyscraper.unix9.prv> <d120d5000604240731i5a3667f9g37e94de390485aac@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060424090508.GI22614@suse.de>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <d120d5000604240731i5a3667f9g37e94de390485aac@mail.gmail.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24, 2006 at 11:05:08AM +0200, Jens Axboe wrote:
-> On Mon, Apr 24 2006, Jens Axboe wrote:
-> > > Index: 2.6.x-xfs-new/fs/bio.c
-> > > ===================================================================
-> > > --- 2.6.x-xfs-new.orig/fs/bio.c	2006-02-06 11:57:50.000000000 +1100
-> > > +++ 2.6.x-xfs-new/fs/bio.c	2006-04-24 15:46:16.849484424 +1000
-> > > @@ -304,7 +304,7 @@ int bio_get_nr_vecs(struct block_device 
-> > >  	request_queue_t *q = bdev_get_queue(bdev);
-> > >  	int nr_pages;
-> > >  
-> > > -	nr_pages = ((q->max_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
-> > > +	nr_pages = ((q->max_hw_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
-> > >  	if (nr_pages > q->max_phys_segments)
-> > >  		nr_pages = q->max_phys_segments;
-> > >  	if (nr_pages > q->max_hw_segments)
-> > > @@ -446,7 +446,7 @@ int bio_add_page(struct bio *bio, struct
-> > >  		 unsigned int offset)
-> > >  {
-> > >  	struct request_queue *q = bdev_get_queue(bio->bi_bdev);
-> > > -	return __bio_add_page(q, bio, page, len, offset, q->max_sectors);
-> > > +	return __bio_add_page(q, bio, page, len, offset, q->max_hw_sectors);
-> > >  }
-> > >  
-> > >  struct bio_map_data {
-> > 
-> > Clearly correct, I'll make sure this gets merged right away.
+On Mon, Apr 24, 2006 at 10:31:39AM -0400, Dmitry Torokhov wrote:
+> On 4/22/06, bjd <bjdouma@xs4all.nl> wrote:
+> >
+> > From: Bauke Jan Douma <bjdouma@xs4all.nl>
+> >
 > 
-> Spoke too soon... The last part is actually on purpose, to prevent
-> really huge requests as part of normal file system IO.
+> Hi Bauke,
+> 
+> Thank you for your patch.
+> 
+> > Add two new ioctl's to have the input driver return actual current values for
+> > EV_REP and EV_SND event codes.
+> >
+> > Currently there is no ioctl to retrieve EV_REP values, even though they have
+> > actually always been stored in dev->rep.  A new ioctl, EVIOCGREPCODE,
+> > retrieves them.
+> >
+> 
+> EVIOCGREP and EVIOCSREP ioctls are present in 2.4 but they have been
+> removed during 2.6 development. If you need to get/set repeat delay
+> and period you need to use KDKBDREP ioctl; it will change the repeat
+> rate for all keyboards attached to the box.
+> 
+> Vojtech, could you remind me why EVIOC{G|S}REP were removed? Some
+> people want to have ability to separate keyboards (via grabbing); they
+> also might want to control repeat rate independently. Shoudl we
+> reinstate these ioctls?
 
-I don't understand why this was considered necessary. It
-doesn't appear to be explained in any of the code so can you
-explain the problem that large filesystem I/Os pose to the block
-layer? We _need_ to be able to drive really huge requests from the
-filesystem down to the disks, especially for direct I/O.....
+I believe they were replaced by the ability to send EV_REP style events
+to the device, setting the repeat rate.
 
-FWIW, we've just got XFS to the point where we could issue large
-I/Os (up to 8MB on 16k pages) with a default configuration kernel
-and filesystem using md+dm on an Altix. That makes an artificial
-512KB filesystem I/O size limit a pretty major step backwards in
-terms of performance for default configs.....
+> > The existing EVCGSND ioctl has never returned anything meaningful; the relevant
+> > fragment in input.c was missing even a change_bit() call.
+> > The actual EV_SND values are now written in dev->snd.  To make this work,
+> > dev->snd had to be made an int array, and as a consequence the EVICGSND ioctl
+> > became problematic.  I have removed it in this diff, but --even though it never
+> > has returned anything meaningful-- I'm not quite sure that's the right thing to
+> > do, so I would appreciate feedback on this.
+> > Anyway, an EVIOCGSNDCODE ioctl was added to retrieve these values.
+> 
+> I think we should just fix EVCGSND and just allow userspace to query
+> which sound evvects are active fro device - IOW just return bitmap
+> like we do for keys and leds and switches. I don't think actuall
+> "value" of the SND_TONE is interesting to anyone.
 
-> That's why we
-> have a bio_add_pc_page(). The first hunk may cause things to not work
-> optimally then if we don't apply the last hunk.
-
-bio_add_pc_page() requires a request queue to be passed to it.  It's
-called only from scsi layers in the context of mapping pages into a
-bio from sg_io(). The comment for bio_add_pc_page() says for use
-with REQ_PC queues only, and that appears to only be used by ide-cd
-cdroms. Is that comment correct?
-
-Also, it seems to me that using bio_add_pc_page() in a filesystem
-or in the generic direct i/o code seems like a gross layering
-violation to me because they are supposed to know nothing about
-request queues.
-
-> The best approach is probably to tune max_sectors on the system itself.
-> That's why it is exposed, after all.
-
-You mean /sys/block/sd*/max_sector_kb?
-
-Cheers,
-
-Dave.
+Agreed.
 
 -- 
-Dave Chinner
-R&D Software Enginner
-SGI Australian Software Group
+Vojtech Pavlik
+Director SuSE Labs

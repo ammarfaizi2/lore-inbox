@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWDXT6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWDXT74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWDXT6I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 15:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWDXT6I
+	id S1751200AbWDXT74 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 15:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWDXT74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 15:58:08 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:1768 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751199AbWDXT6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 15:58:07 -0400
-Subject: Re: Removing .tmp_versions considered harmful
-From: Arjan van de Ven <arjan@infradead.org>
-To: Pavel Roskin <proski@gnu.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1145908527.2292.39.camel@dv>
-References: <1145593342.2904.30.camel@dv>
-	 <20060421073216.GA17492@mars.ravnborg.org>  <1145908527.2292.39.camel@dv>
-Content-Type: text/plain
-Date: Mon, 24 Apr 2006 21:58:03 +0200
-Message-Id: <1145908684.3116.65.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 24 Apr 2006 15:59:56 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:39651 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1751200AbWDXT74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 15:59:56 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Subject: Re: [PATCH/RFC] s390: Hypervisor File System
+Date: Mon, 24 Apr 2006 21:57:18 +0200
+User-Agent: KMail/1.9.1
+References: <OF346B0EC4.22389E6C-ON4225715A.00553273-4225715A.005EFC07@de.ibm.com>
+In-Reply-To: <OF346B0EC4.22389E6C-ON4225715A.00553273-4225715A.005EFC07@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
+       "Pekka Enberg" <penberg@cs.helsinki.fi>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200604242157.19120.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 15:55 -0400, Pavel Roskin wrote:
-> Hello, Sam!
-> 
-> How about following patch?  Something needs to be done before 2.6.17.
-> Complaints about .tmp_versions are almost in every list about wireless
-> drivers I'm subscribed to.
+Hi Michael,
 
-seems all wireless drivers stole eachothers broken makefiles then ;)
-Makes it also easy to fix I suppose
+On Monday, 24. April 2006 19:17, you wrote:
+> I agree that it is a good idea to specify the characters to
+> reject, but I would like to use the function without having an
+> additional local pointer variable. In my opinion this
+> functionality is enough for most cases.
+
+AFAIK there is no Standard for this kind of functions.
+
+Yes, it might be ok, if you like to destroy the string.
+But I prefer non-destructive string handling :-)
+
+Might be a matter of taste. So go wild, if nobody else objects.
 
 
+Regards
+
+Ingo Oeser

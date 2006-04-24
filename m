@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWDXRQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWDXRR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbWDXRQp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 13:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWDXRQp
+	id S1750988AbWDXRR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 13:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWDXRR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 13:16:45 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:21146 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750978AbWDXRQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 13:16:44 -0400
-Subject: Re: PCI ROM resource allocation issue with 2.6.17-rc2
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@osdl.org>,
-       Matthew Reppert <arashi@sacredchao.net>, linux-kernel@vger.kernel.org,
-       "Antonino A. Daplas" <adaplas@pol.net>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-In-Reply-To: <Pine.LNX.4.64.0604241002460.3701@g5.osdl.org>
-References: <1145851361.3375.20.camel@minerva>
-	 <20060423222122.498a3dd2.akpm@osdl.org>
-	 <Pine.LNX.4.64.0604240652380.31142@skynet.skynet.ie>
-	 <Pine.LNX.4.64.0604241002460.3701@g5.osdl.org>
-Content-Type: text/plain
-Date: Mon, 24 Apr 2006 19:16:33 +0200
-Message-Id: <1145898993.3116.50.camel@laptopd505.fenrus.org>
+	Mon, 24 Apr 2006 13:17:27 -0400
+Received: from waste.org ([64.81.244.121]:2956 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1750837AbWDXRR0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 13:17:26 -0400
+Date: Mon, 24 Apr 2006 12:14:28 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Ketchup 0.9.7 released
+Message-ID: <20060424171428.GF15445@waste.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 10:07 -0700, Linus Torvalds wrote:
-> 
-> On Mon, 24 Apr 2006, Dave Airlie wrote:
-> > 
-> > however not doing pci_enable_device causes interrupts to not work on the cards
-> > in a lot of circumstances..
-> 
-> Well, you could use "pci_enable_device_bars(0)" instead.
-> 
-> That will set up interrupt routing _without_ enabling any BAR's, however, 
-> that's probably crazy too, since that means that if an interrupt happens, 
-> you're really really screwed and can't do anything about it. So that's 
-> probably even more broken than what you do now.
-> 
-> How about delaying the "pci_enable_device()" until when you actually need 
-> it, ie do it in drm_irq_install() instead?
-> 
-> Of course, I wonder how you could POST the device without having the BAR's 
-> enabled, 
+Ketchup 0.9.7 is available at:
 
-you haven't spent enough time reading the X pci code then ;)
-(or rather, you've done the same thing but hey who's counting)
+ http://selenic.com/ketchup/
 
-X does all that *itself* based on what X thinks is best.
+The latest version includes several important bugfixes including a
+safety check that avoids accidentally unpacking entire kernels in
+directories that aren't empty.
 
-Yes that's silly and X should be taken out and shot for that.
-What's worse, this is the kind of thing that is really hard to work
-around in a away that isn't going to make having a fixed X work as
-well... you can't not enable it for old X and enable it for not-insane X
-at the same time ;)
+Ketchup is an extremely handy tool for doing various things with
+kernels. For example:
 
+$ ketchup -s 2.6            # find the latest kernel version
+2.6.16.9
+$ ketchup -d linux 2.6      # install it
+Creating target directory linux
+None -> 2.6.16.9
+Unpacking linux-2.6.14.tar.bz2
+Applying patch-2.6.15.bz2
+Applying patch-2.6.16.bz2
+Downloading patch-2.6.16.9.bz2
+[...]
+Downloading patch-2.6.16.9.bz2.sign
+[...]
+Verifying signature...
+[...]
+Applying patch-2.6.16.9.bz2
+$ cd linux
+$ make kernelversion
+Makefile:476: .config: No such file or directory
+2.6.16.9
+$ ketchup 2.6-mm   # switch to the latest -mm kernel
+2.6.16.9 -> 2.6.17-rc1-mm3
+Applying patch-2.6.16.9.bz2 -R
+Applying patch-2.6.17-rc1.bz2
+Downloading 2.6.17-rc1-mm3.bz2
+[...]
+Downloading 2.6.17-rc1-mm3.bz2.sign
+[...]
+Verifying signature...
+[...]
+Applying 2.6.17-rc1-mm3.bz2
+
+It's also useful for automating tasks, for instance downloading
+the latest broken-out -mm patches:
+
+$ wget -c `ketchup -u 2.6-mm | sed "s/.bz2/-broken-out.tar.bz2/"`
+
+(It's also good on fries.)
+
+-- 
+Mathematics is the supreme nostalgia of our time.

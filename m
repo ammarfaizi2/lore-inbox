@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWDXVZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWDXVZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWDXVZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 17:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWDXVZf
+	id S1751315AbWDXVZe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 17:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWDXVXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 17:25:35 -0400
-Received: from pproxy.gmail.com ([64.233.166.183]:18879 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751302AbWDXVYx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 17:24:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ft827kx/CwSAOByutHiJgJbOWYY1yL8DdhI27HmLnL1ANM03N5wzjUqB8FSYooAW8d1lOanlvNzCuBvQMwS8Blw+yy0u4+S/aUhqIrvpKDOymnlQZ/eSpAxuDNgEcUiLOKnQzI98564WWcsoEBEeIRzV6ZPBuJBZsj8drtFjF9o=
-Message-ID: <bda6d13a0604241424r503d1b87jb44d1df1a11feb3b@mail.gmail.com>
-Date: Mon, 24 Apr 2006 14:24:47 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: Filesystem & mutex
-In-Reply-To: <84144f020604240419w190d03cdld53432da8df6277b@mail.gmail.com>
+	Mon, 24 Apr 2006 17:23:55 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:36291 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751295AbWDXVXl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 17:23:41 -0400
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <bda6d13a0604232154r28f23212o55b15a065fe6d648@mail.gmail.com>
-	 <84144f020604240419w190d03cdld53432da8df6277b@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH 11 of 13] ipath - improve sparse annotation
+X-Mercurial-Node: f23abcaaea8479fdfdc67081b526d1cdfafb0113
+Message-Id: <f23abcaaea8479fdfdc6.1145913787@eng-12.pathscale.com>
+In-Reply-To: <patchbomb.1145913776@eng-12.pathscale.com>
+Date: Mon, 24 Apr 2006 14:23:07 -0700
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: rdreier@cisco.com
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/24/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> Hi,
->
-> On 4/24/06, Joshua Hudson <joshudson@gmail.com> wrote:
-> > My filesystem has need of an extra mutex in the extended inode data area.
-> > From what I understand, the mutex can be initalized in inode_init_once, but
-> > I cannot determine how to free it.
-> >
-> > It looks wrong to destroy the mutex by just destroying the slab.
-> > It is wrong to destroy the inode in destroy_inode. Badness when
-> > an inode is reused.
->
-> There's no need to 'release' a mutex. If the mutex is unlocked, you
-> can do kmem_cache_free() on the owning inode. You need to do
-> mutex_init() in the object cache constructor (init_once) only because
-> the memory given to you can be arbitrary state. After the mutex has
-> been initialized, it will never go into an illegal state on its own
-> assuming you remember to unlock it before freeing the inode.
->
->                                             Pekka
-Tx. Your solution worked.
+Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+
+diff -r 36447eb1f256 -r f23abcaaea84 drivers/infiniband/hw/ipath/ips_common.h
+--- a/drivers/infiniband/hw/ipath/ips_common.h	Mon Apr 24 14:21:04 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ips_common.h	Mon Apr 24 14:21:04 2006 -0700
+@@ -95,7 +95,7 @@ struct ether_header {
+ 	__u8 seq_num;
+ 	__le32 len;
+ 	/* MUST be of word size due to PIO write requirements */
+-	__u32 csum;
++	__le32 csum;
+ 	__le16 csum_offset;
+ 	__le16 flags;
+ 	__u16 first_2_bytes;

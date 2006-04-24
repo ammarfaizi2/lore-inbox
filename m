@@ -1,73 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWDXNk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWDXNnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWDXNk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 09:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWDXNk7
+	id S1750817AbWDXNnk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 09:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWDXNnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 09:40:59 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4764 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750809AbWDXNk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 09:40:58 -0400
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
-	implementation of LSM hooks)
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Olivier Galibert <galibert@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lars Marowsky-Bree <lmb@suse.de>, Valdis.Kletnieks@vt.edu,
-       Ken Brush <kbrush@gmail.com>, linux-security-module@vger.kernel.org,
+	Mon, 24 Apr 2006 09:43:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55182 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750749AbWDXNnj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 09:43:39 -0400
+Subject: Re: [PATCH 05/16] GFS2: File and inode operations
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20060424132911.GB22703@sergelap.austin.ibm.com>
-References: <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com>
-	 <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu>
-	 <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com>
-	 <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu>
-	 <20060424082424.GH440@marowsky-bree.de>
-	 <1145882551.29648.23.camel@localhost.localdomain>
-	 <20060424124556.GA92027@dspnet.fr.eu.org>
-	 <1145883251.3116.27.camel@laptopd505.fenrus.org>
-	 <20060424130949.GE9311@sergelap.austin.ibm.com>
-	 <1145884620.3116.33.camel@laptopd505.fenrus.org>
-	 <20060424132911.GB22703@sergelap.austin.ibm.com>
+In-Reply-To: <20060423075525.GP6075@schatzie.adilger.int>
+References: <1145636030.3856.102.camel@quoit.chygwyn.com>
+	 <20060423075525.GP6075@schatzie.adilger.int>
 Content-Type: text/plain
-Date: Mon, 24 Apr 2006 15:40:47 +0200
-Message-Id: <1145886047.3116.36.camel@laptopd505.fenrus.org>
+Organization: Red Hat (UK) Ltd
+Date: Mon, 24 Apr 2006 14:53:16 +0100
+Message-Id: <1145886796.3856.161.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 08:29 -0500, Serge E. Hallyn wrote:
-> Quoting Arjan van de Ven (arjan@infradead.org):
-> > On Mon, 2006-04-24 at 08:09 -0500, Serge E. Hallyn wrote:
-> > > Quoting Arjan van de Ven (arjan@infradead.org):
-> > > > for all such things in the first place. In fact, we already know that to
-> > > > do auditing, LSM is the wrong thing to do (and that's why audit doesn't
-> > > > use LSM). It's one of those fundamental linux truths: Trying to be
-> > > 
-> > > As I recall it was simply decided that LSM must be "access control
-> > > only", and that was why it wasn't used for audit.
+Hi,
+
+On Sun, 2006-04-23 at 01:55 -0600, Andreas Dilger wrote:
+> On Apr 21, 2006  17:13 +0100, Steven Whitehouse wrote:
+> > This also includes a new header file, iflags.h which is designed to
+> > abstract the (originally ext2 only, but now used by many different fs)
+> > get/set flags ioctl by having one central place in which to register
+> > filesystem flags. Given favourable reviews, I'll submit some patches to
+> > update the other fileststems to define their flags in terms of those
+> > in iflags.h. Note that this doesn't change the interface of the other
+> > filesystems since the values of the flags are identical to those
+> > previously defined.
 > > 
-> > no you recall incorrectly.
-> > Audit needs to audit things that didn't work out, like filenames that
-> > don't exist. Audit needs to know what is going to happen before the
-> > entire "is this allowed" chain is going to be followed. SELInux and
-> > other LSM parts are just one part of that chain, and there's zero
-> > guarantee that you get to the LSM part in the chain.....  Now of course
+> > To the best of my knowledge, GFS2 is the only filesystem which requires
+> > the addition of flags above and beyond those defined by ext2/3 so if
+> > there are others and we've clashed with them, please let me know.
 > 
-> Ah yes.  It needed to be authoritative.  I did recall incorrectly.
+> > --- /dev/null
+> > +++ b/include/linux/iflags.h
+> > @@ -0,0 +1,104 @@
+[some constants snipped for brevity]
+> > +
+> > +#define __IFL(x) (1<<(iflag_##x))
+> > +#define IFLAG_SECRM		__IFL(SecureRm)		/* 0x00000001 */
+> > +#define IFLAG_UNRM		__IFL(Unrm)		/* 0x00000002 */
+> > +#define IFLAG_COMPR		__IFL(Compr)		/* 0x00000004 */
+> > +#define IFLAG_SYNC		__IFL(Sync)		/* 0x00000008 */
+> > +#define IFLAG_IMMUTABLE		__IFL(Immutable)	/* 0x00000010 */
+> > +#define IFLAG_APPEND		__IFL(Append)		/* 0x00000020 */
+> > +#define IFLAG_NODUMP		__IFL(NoDump)		/* 0x00000040 */
+> > +#define IFLAG_NOATIME		__IFL(NoAtime)		/* 0x00000080 */
+> > +#define IFLAG_DIRTY		__IFL(Dirty)		/* 0x00000100 */
+> > +#define IFLAG_COMPRBLK		__IFL(ComprBlk)		/* 0x00000200 */
+> > +#define IFLAG_NOCOMP		__IFL(NoComp)		/* 0x00000400 */
+> > +#define IFLAG_ECOMPR		__IFL(Ecompr)		/* 0x00000800 */
+> > +#define IFLAG_BTREE		__IFL(Btree)		/* 0x00001000 */
+> > +#define IFLAG_INDEX		__IFL(Index)		/* 0x00001000 */
+> > +#define IFLAG_IMAGIC		__IFL(Imagic)		/* 0x00002000 */
+> > +#define IFLAG_JOURNAL_DATA	__IFL(JournalData)	/* 0x00004000 */
+> > +#define IFLAG_NOTAIL		__IFL(NoTail)		/* 0x00008000 */
+> > +#define IFLAG_DIRSYNC		__IFL(DirSync)		/* 0x00010000 */
+> > +#define IFLAG_TOPDIR		__IFL(TopDir)		/* 0x00020000 */
+> > +#define IFLAG_DIRECTIO		__IFL(DirectIO)		/* 0x00040000 */
+> > +#define IFLAG_INHERITDIRECTIO	__IFL(InheritDirectIO)	/* 0x00080000 */
+> > +#define IFLAG_INHERITJDATA	__IFL(InheritJdata)	/* 0x00100000 */
+> > +#define IFLAG_RESERVED		__IFL(Reserved)		/* 0x80000000 */
 > 
-> I suspect some would argue that you are right that LSM is broken, but
-> only because it wasn't allowed to be authoritative. 
+> Actually, the 0x0080000 flag has been reserved by e2fsprogs for ext3
+> extents for a while already.  AFAICS, there are no other flags in the
+> current e2fsprogs that aren't listed above.
+> 
+So if I call that one IFLAG_EXTENT, then I presume that will be ok?
+What about the 0x00040000 flag? That would seem to be a gap in the
+sequence (ignoring GFS flags for now), so should I leave that reserved
+for use by ext2/3 as well?
 
-authoritative isn't enough; think about it. The VFS isn't ever going to
-ask "can I open this file" if the file doesn't exist in the first place;
-same in many other places. You'd have to almost double the hooks, and as
-I said, to call those hooks "LSM" would be silly and dishonest.
+> The other tidbit is that new ext2/ext3 files generally inherit the flags
+> from their parent directory, so it isn't clear if there is really a need
+> for a distinction between DIRECTIO and INHERIT_DIRECTIO, and similarly
+> JDATA and INHERIT_JDATA?  Generally, I'd think that JDATA isn't meaningful
+> on directories (since they are metadata and journaled anyways), nor is
+> DIRECTIO so their only meaning on a directory is "INHERIT for new files".
+> 
+> Cheers, Andreas
 
-LSM is not Hooks-R-Us. It's a permission model. 
+Yes, that sounds like a good plan. The only downside (purely from a GFS2
+point of view, it won't affect anybody else) means that its no longer a
+1:1 relationship between flags, so in order to do the conversion, I'd
+have to use something a little more elaborate than the inline function I
+added to the iflags.h header file,
+
+Steve.
+
 
 

@@ -1,79 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWDXRRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWDXRQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWDXRRb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 13:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbWDXRRb
+	id S1750986AbWDXRQp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 13:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWDXRQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 13:17:31 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:29796 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750837AbWDXRRa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 13:17:30 -0400
-In-Reply-To: <200604220030.29214.ioe-lkml@rameria.de>
-Subject: Re: [PATCH/RFC] s390: Hypervisor File System
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
-       "Pekka Enberg" <penberg@cs.helsinki.fi>
-X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
-Message-ID: <OF346B0EC4.22389E6C-ON4225715A.00553273-4225715A.005EFC07@de.ibm.com>
-From: Michael Holzheu <HOLZHEU@de.ibm.com>
-Date: Mon, 24 Apr 2006 19:17:29 +0200
-X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.53HF654 | July 22, 2005) at
- 24/04/2006 19:18:32
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Mon, 24 Apr 2006 13:16:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:21146 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750978AbWDXRQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 13:16:44 -0400
+Subject: Re: PCI ROM resource allocation issue with 2.6.17-rc2
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@osdl.org>,
+       Matthew Reppert <arashi@sacredchao.net>, linux-kernel@vger.kernel.org,
+       "Antonino A. Daplas" <adaplas@pol.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <Pine.LNX.4.64.0604241002460.3701@g5.osdl.org>
+References: <1145851361.3375.20.camel@minerva>
+	 <20060423222122.498a3dd2.akpm@osdl.org>
+	 <Pine.LNX.4.64.0604240652380.31142@skynet.skynet.ie>
+	 <Pine.LNX.4.64.0604241002460.3701@g5.osdl.org>
+Content-Type: text/plain
+Date: Mon, 24 Apr 2006 19:16:33 +0200
+Message-Id: <1145898993.3116.50.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+On Mon, 2006-04-24 at 10:07 -0700, Linus Torvalds wrote:
+> 
+> On Mon, 24 Apr 2006, Dave Airlie wrote:
+> > 
+> > however not doing pci_enable_device causes interrupts to not work on the cards
+> > in a lot of circumstances..
+> 
+> Well, you could use "pci_enable_device_bars(0)" instead.
+> 
+> That will set up interrupt routing _without_ enabling any BAR's, however, 
+> that's probably crazy too, since that means that if an interrupt happens, 
+> you're really really screwed and can't do anything about it. So that's 
+> probably even more broken than what you do now.
+> 
+> How about delaying the "pci_enable_device()" until when you actually need 
+> it, ie do it in drm_irq_install() instead?
+> 
+> Of course, I wonder how you could POST the device without having the BAR's 
+> enabled, 
 
-Ingo Oeser <ioe-lkml@rameria.de> wrote on 04/22/2006 12:30:28 AM:
->
-> Nearly.
->
-> - Just return the *ptr and let the caller modify the string.
-> - Take a string with characters to reject
->
-> Reasons:
->    - string might be read only
->    - caller wants to copy it anyway
->    - string might be a substring or sth. we like to parse further
->    - Symmetry with strchr()
->
-> Otherwise it is a very good idea implemented in a patch similiar to this
-> untested one below against Linus' current tree.
->
-> use case would be:
-> char *s = strltrim(string, " \t");
-> char *e = strrtrim(s, " \t\n\r");
-> *e = '\0';
+you haven't spent enough time reading the X pci code then ;)
+(or rather, you've done the same thing but hey who's counting)
 
-I agree that it is a good idea to specify the characters to
-reject, but I would like to use the function without having an
-additional local pointer variable. In my opinion this
-functionality is enough for most cases.
+X does all that *itself* based on what X thinks is best.
 
-What about something like that:
-
-/**
- * strrtrim - Remove trailing characters specified in @reject
- * @s: The string to be searched
- * @reject: The string of letters to avoid
- */
-static inline void strrtrim(char *s, const char *reject)
-{
-      char *p;
-      const char *r;
-
-      for (p = s + strlen(s) - 1; s <= p; p--) {
-            for (r = reject; (*r != '\0') && (*p != *r); r++)
-                  /* nothing */;
-            if (*r == '\0')
-                  break;
-      }
-      *(p + 1) = '\0';
-}
-
-Regards
-Michael
+Yes that's silly and X should be taken out and shot for that.
+What's worse, this is the kind of thing that is really hard to work
+around in a away that isn't going to make having a fixed X work as
+well... you can't not enable it for old X and enable it for not-insane X
+at the same time ;)
 

@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWDXWjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWDXWlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWDXWjy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 18:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWDXWjy
+	id S1751335AbWDXWlr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 18:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWDXWlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 18:39:54 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:13579 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751342AbWDXWjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 18:39:53 -0400
-Date: Tue, 25 Apr 2006 00:39:44 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>, Martin Mares <mj@ucw.cz>,
-       Gary Poppitz <poppitzg@iomega.com>, linux-kernel@vger.kernel.org
-Subject: Re: C++ pushback
-Message-ID: <20060424223943.GC13027@w.ods.org>
-References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com> <mj+md-20060424.201044.18351.atrey@ucw.cz> <444D44F2.8090300@wolfmountaingroup.com> <1145915533.1635.60.camel@localhost.localdomain>
+	Mon, 24 Apr 2006 18:41:47 -0400
+Received: from mga01.intel.com ([192.55.52.88]:45062 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751335AbWDXWlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 18:41:46 -0400
+X-IronPort-AV: i="4.04,153,1144047600"; 
+   d="scan'208"; a="28006025:sNHT2086892115"
+Subject: [patch] pciehp: dont call pci_enable_dev
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: pcihpd-discuss@lists.sourceforge.net
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Apr 2006 15:50:59 -0700
+Message-Id: <1145919059.6478.29.camel@whizzy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145915533.1635.60.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 24 Apr 2006 22:41:40.0326 (UTC) FILETIME=[40C76860:01C667F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24, 2006 at 10:52:12PM +0100, Alan Cox wrote:
-> On Llu, 2006-04-24 at 15:36 -0600, Jeff V. Merkey wrote:
-> > C++ in the kernel is a BAD IDEA. C++ code can be written in such a 
-> > convoluted manner as to be unmaintainable and unreadable.
-> 
-> So can C. 
-> 
-> > All of the hidden memory allocations from constructor/destructor 
-> > operatings can and do KILL OS PERFORMANCE. 
-> 
-> This is one area of concern. Just as big a problem for the OS case is
-> that the hidden constructors/destructors may fail. You can write C++
-> code carefully to avoid these things but it can be hard to see where the
-> problem is when you miss one.
+Don't call pci_enable_device from pciehp because the pcie port service driver
+already does this.
 
-Not counting the compiler bugs. When you see how the kernel tends to
-trigger gcc bugs on which people spend a lot of time, I wouldn't want
-to be the guy trying to identify bad code generation in C++...
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+---
+ drivers/pci/hotplug/pciehp_hpc.c |    3 ---
+ 1 files changed, 3 deletions(-)
 
-Cheers,
-Willy
-
+--- 2.6-git-pcie.orig/drivers/pci/hotplug/pciehp_hpc.c
++++ 2.6-git-pcie/drivers/pci/hotplug/pciehp_hpc.c
+@@ -1404,9 +1404,6 @@ int pcie_init(struct controller * ctrl, 
+ 	info("HPC vendor_id %x device_id %x ss_vid %x ss_did %x\n", pdev->vendor, pdev->device, 
+ 		pdev->subsystem_vendor, pdev->subsystem_device);
+ 
+-	if (pci_enable_device(pdev))
+-		goto abort_free_ctlr;
+-	
+ 	mutex_init(&ctrl->crit_sect);
+ 	/* setup wait queue */
+ 	init_waitqueue_head(&ctrl->queue);

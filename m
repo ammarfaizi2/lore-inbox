@@ -1,116 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWDXXZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWDXXgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751480AbWDXXZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 19:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWDXXZ7
+	id S932109AbWDXXgf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 19:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWDXXgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 19:25:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58570 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751480AbWDXXZ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 19:25:58 -0400
-Date: Mon, 24 Apr 2006 16:28:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: sekharan@us.ibm.com
-Cc: herbert@13thfloor.at, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
-       stern@rowland.harvard.edu, Ashok Raj <ashok.raj@intel.com>
-Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
-Message-Id: <20060424162817.764fa244.akpm@osdl.org>
-In-Reply-To: <1145919717.1400.67.camel@linuxchandra>
-References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
-	<20060421110140.GC14841@MAIL.13thfloor.at>
-	<1145655097.15389.12.camel@linuxchandra>
-	<20060422005851.GA22917@MAIL.13thfloor.at>
-	<1145913967.1400.59.camel@linuxchandra>
-	<20060424150314.2de6373d.akpm@osdl.org>
-	<1145919717.1400.67.camel@linuxchandra>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Apr 2006 19:36:35 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:51980 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751271AbWDXXge
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 19:36:34 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Makan Pourzandi (QB/EMC)" <makan.pourzandi@ericsson.com>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       Serue Hallyen <serue@us.ibm.com>,
+       Axelle Apvrille <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
+       disec-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries
+References: <6D19CA8D71C89C43A057926FE0D4ADAA29D361@ecamlmw720.eamcs.ericsson.se>
+	<1145897277.3116.44.camel@laptopd505.fenrus.org>
+	<87hd4ipvdk.fsf@hades.wkstn.nix>
+	<1145911526.3116.71.camel@laptopd505.fenrus.org>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: you'll understand when you're older, dear.
+Date: Tue, 25 Apr 2006 00:35:53 +0100
+In-Reply-To: <1145911526.3116.71.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Mon, 24 Apr 2006 22:45:26 +0200")
+Message-ID: <87zmiao8bq.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra Seetharaman <sekharan@us.ibm.com> wrote:
->
-> On Mon, 2006-04-24 at 15:03 -0700, Andrew Morton wrote:
-> > Chandra Seetharaman <sekharan@us.ibm.com> wrote:
-> > >
-> > > Thanks for the steps. With that i was able to reproduce the problem and
-> > > i found the bug.
-> > > 
-> > > While i go ahead and generate the patch, i wanted to hear if my
-> > > conclusion is correct.
-> > > 
-> > > The problem is due to the fact that most notifier registrations
-> > > incorrectly use __devinitdata to define the callback structure, as in:
-> > > 
-> > > static struct notifier_block __devinitdata hrtimers_nb = {
-> > >         .notifier_call = hrtimer_cpu_notify,
-> > > };
-> > > 
-> > > devinitdata'd  data is not _expected to be available_ after the
-> > > initialization(unless CONFIG_HOTPLUG is defined).
-> > > 
-> > > I do not know how it was working until now :), anybody has a theory that
-> > > can explain it (or my conclusion is wrong) ?
-> > 
-> > That sounds right.  There are several __devinitdata notifier_blocks in the
-> > tree - please be sure to check them all.
+On Mon, 24 Apr 2006, Arjan van de Ven yowled:
+> On Mon, 2006-04-24 at 21:32 +0100, Nix wrote:
+>> It checks mmap and mprotect with PROT_EXEC, and execve().
 > 
-> Yes, I am covering all notifier blocks.
+> so no jvm's or flash plugins.
+
+Well, you'll have to sign the flash plugin. This isn't
+sign-at-compilation-time; bsign can sign just about anything (although I
+guess the Mozilla security shared library, which is itself signed by a
+different tool, might pose an interesting conundrum).
+
+> and the stack can be executable if the app wants it to be as well...
+
+Well, yes, but if the app isn't signed the attacker can't run it.
+Obviously digsig doesn't close all avenues of attack: you'd use
+exec-shield or something of the kind to block off the executable-stack
+thing from the majority of apps (and yes, if you flip PT_GNU_STACK you
+should resign the app, IIRC).
+
+> so it's not all that easy as you make it sound
+
+Everyone seems to want the One Security Fix To Rule Them All. This
+isn't it: it's just one of a myriad of barriers to throw in the
+bad guys' way. None of them stop everyone: most of them should
+stop most of them.
+
+I'm not trying to keep governments out. If they want in, they'll
+*get* in, if need be by breaking in and physically removing the
+machine...
+
+>> will sign every ELF shared object and executable on the system.
 > 
-> Another issue... many of the notifier callback functions are marked as
-> init calls (__cpuinit, __devinit etc.,) as in:
-> 
-> static int __cpuinit pageset_cpuup_callback(struct notifier_block *nfb,
->                 unsigned long action,
->                 void *hcpu)
+> but it won't sign the not-really-elf-but-virus-anyway files. 
 
-hm.  This needs some care and thought.  We _should_ be oopsing all over the
-place because of this.  So why aren't we?
+The idea is that you don't *have* them on there when you do the
+initial signing round, and that after that you only sign the
+stuff you install yourself (and, of course, that you don't keep
+the key on the same machine, or even accessible without physical
+actions, I'd hope: that's why I keep mine on a CD-ROM physically
+removed from the drive when not signing).
 
-iirc, the cpu notifier chain is never used after bootup if
-!CONFIG_HOTPLUG_CPU, so there's a good chance that we have things on that
-list which have been unloaded, but which never get accessed.
-
-It could be similar with the __devinit things - they're on the list,
-they're unloaded, but nothing ever happens in a !CONFIG_HOTPLUG kernel to
-cause them to be dereferenced.
-
-Really, these notifier chains just shouldn't exist at all if they're not
-going to be used.  We're a bit sloppy here.  Ashok and I spent some time
-working on making lots of code and data structures go away if
-!CONFIG_HOTPLUG_CPU, but it's a bit tricky due to the way we do SMP
-bringup.
-
-I guess for now, bringing those things into .text and .data when there's
-doubt is a reasonable thing to do.
-
-
-> I am generating a separate patch to take care of those too.
-> > 
-> > btw, it'd be pretty trivial to add runtime checking for this sort of thing:
-> > 
-> > int addr_in_init_section(void *addr)
-> > {
-> > 	return addr >= __init_begin && addr < __init_end;
-> > }
-> 
-> I will add this to kernel/sys.c, and put a BUG_ON to check for both the
-> notifier block and the callback function.
-
-It's x86-only I think.  If all architectures use the same symbols then I
-guess we could do an arch-neutral version, but one should check.
-
-If it won't work on all architectures then kernel/sys.c isn't the right
-place for it.
-
-Maybe it's not so useful.  If we're actually accessing these things then
-someone should report oopses.  So this debugging infrastructure will only
-detect things which a) are in __init, b) shouldn't be in __init and c) are
-never actually accessed.
-
-So I'd be inclined to not bother about this for now.
-
+-- 
+`On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
+ because bringing Windows into the picture rescaled "brokenness" by
+ a factor of 10.' --- Peter da Silva

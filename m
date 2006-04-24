@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWDXUUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWDXUU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWDXUUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 16:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWDXUUZ
+	id S1751224AbWDXUU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 16:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWDXUU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 16:20:25 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:44185 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP id S1751218AbWDXUUX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 16:20:23 -0400
-Subject: Re: Removing .tmp_versions considered harmful
-From: Pavel Roskin <proski@gnu.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1145908684.3116.65.camel@laptopd505.fenrus.org>
-References: <1145593342.2904.30.camel@dv>
-	 <20060421073216.GA17492@mars.ravnborg.org>  <1145908527.2292.39.camel@dv>
-	 <1145908684.3116.65.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Apr 2006 16:19:36 -0400
-Message-Id: <1145909976.2292.52.camel@dv>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+	Mon, 24 Apr 2006 16:20:56 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37770 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751224AbWDXUUu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 16:20:50 -0400
+Date: Mon, 24 Apr 2006 22:20:06 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: dtor_core@ameritech.net, Matthew Garrett <mjg59@srcf.ucam.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+Message-ID: <20060424202006.GD3386@elf.ucw.cz>
+References: <20060419195356.GA24122@srcf.ucam.org> <20060419200447.GA2459@isilmar.linta.de> <20060419202421.GA24318@srcf.ucam.org> <d120d5000604240745i71bd56b8n99b97130388d36f6@mail.gmail.com> <1145894731.7155.120.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145894731.7155.120.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi!
 
-On Mon, 2006-04-24 at 21:58 +0200, Arjan van de Ven wrote:
-> On Mon, 2006-04-24 at 15:55 -0400, Pavel Roskin wrote:
-> > Hello, Sam!
-> > 
-> > How about following patch?  Something needs to be done before 2.6.17.
-> > Complaints about .tmp_versions are almost in every list about wireless
-> > drivers I'm subscribed to.
-> 
-> seems all wireless drivers stole eachothers broken makefiles then ;)
+> Whilst sort of on the subject (AC power switches and AC power events)
+> I'd like to see some standard way of exporting power/battery information
+> to userspace. Currently, the ARM handhelds use kernel emulation of an
+> APM bios and export the battery info as part of that. Making ARM emulate
+> ACPI interfaces doesn't appeal. The answer could be a battery sysfs
+> class and the above system events interface but I'm open to other
+> suggestions.
 
-There is is some similarity, and it's a good thing.
-
-> Makes it also easy to fix I suppose
-
-Could you please elaborate?  How can it be fixed?  Do you know any
-external module that doesn't have this problem?
-
-If you have a could of minutes, please look at Orinoco, which probably
-has the simplest build system, yet it suffers from the .tmp_versions
-problem.  The Subversion repository is here
-http://sourceforge.net/svn/?group_id=44338
-
-To check the main development branch, please use
-svn co https://svn.sourceforge.net/svnroot/orinoco/trunk orinoco
-
-This is the Makefile:
-http://svn.sourceforge.net/viewcvs.cgi/*checkout*/orinoco/trunk/Makefile
-
-What would you fix?
-
+Battery sysfs class would be _very_ welcome. Both existing interfaces
+(APM and ACPI) are crap :-(.
+								Pavel
 -- 
-Regards,
-Pavel Roskin
-
+Thanks for all the (sleeping) penguins.

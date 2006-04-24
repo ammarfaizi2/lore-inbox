@@ -1,80 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWDXRaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWDXRb7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWDXRaG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 13:30:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWDXRaG
+	id S1751035AbWDXRb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 13:31:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWDXRb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 13:30:06 -0400
-Received: from mailgw4.ericsson.se ([193.180.251.62]:28330 "EHLO
-	mailgw4.ericsson.se") by vger.kernel.org with ESMTP
-	id S1751026AbWDXRaD convert rfc822-to-8bit (ORCPT
+	Mon, 24 Apr 2006 13:31:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32215 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751035AbWDXRb6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 13:30:03 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 24 Apr 2006 13:31:58 -0400
+Date: Mon, 24 Apr 2006 10:28:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@osdl.org>,
+       Matthew Reppert <arashi@sacredchao.net>, linux-kernel@vger.kernel.org,
+       "Antonino A. Daplas" <adaplas@pol.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: PCI ROM resource allocation issue with 2.6.17-rc2
+In-Reply-To: <1145898993.3116.50.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.64.0604241025120.3701@g5.osdl.org>
+References: <1145851361.3375.20.camel@minerva>  <20060423222122.498a3dd2.akpm@osdl.org>
+  <Pine.LNX.4.64.0604240652380.31142@skynet.skynet.ie> 
+ <Pine.LNX.4.64.0604241002460.3701@g5.osdl.org> <1145898993.3116.50.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [ANNOUNCE] Release Digsig 1.5: kernel module forrun-timeauthentication of binaries
-Date: Mon, 24 Apr 2006 13:29:37 -0400
-Message-ID: <6D19CA8D71C89C43A057926FE0D4ADAA29D363@ecamlmw720.eamcs.ericsson.se>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ANNOUNCE] Release Digsig 1.5: kernel module forrun-timeauthentication of binaries
-Thread-Index: AcZnvwAeRmTfxdSXS2eUkWN/iRuBRAAApI5Q
-From: "Makan Pourzandi \(QB/EMC\)" <makan.pourzandi@ericsson.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
-       "Serue Hallyen" <serue@us.ibm.com>,
-       "Axelle Apvrille" <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
-       <disec-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 24 Apr 2006 17:29:38.0768 (UTC) FILETIME=[A9DC5D00:01C667C4]
-X-Brightmail-Tracker: AAAAAA==
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-
-> -----Original Message-----
-> From: Arjan van de Ven [mailto:arjan@infradead.org] 
-> Sent: April 24, 2006 12:48 PM
-> To: Makan Pourzandi (QB/EMC)
-> Cc: linux-kernel@vger.kernel.org; 
-> linux-security-module@vger.kernel.org; Serue Hallyen; Axelle 
-> Apvrille; disec-devel@lists.sourceforge.net
-> Subject: RE: [ANNOUNCE] Release Digsig 1.5: kernel module 
-> forrun-timeauthentication of binaries
-
-> ok I have to admit that this answer worries me.
-> 
-> how can it be covered? How do you distinguish an elf loader 
-> application (which just uses open + mmap after all) with... 
-> say a grep-calling perl script?
-> 
-> As long as you allow apps to mmap (or even just read() a file 
-> into memory).... they can start acting like an elf loader if 
-> they chose to do so. And.. remember it's not the files WITH 
-> signature you're protecting against (which you could check) 
-> but the ones WITHOUT. And there are many of those; and you 
-
-Ok, I believe that now I see your point. You're right, to simplify if
-your application reads an ELF file and begins to interpret that, Digsig
-does not cover that case.  For me what you mention here rather concerns
-the bahavior of the application, which is not what we intend to
-implement here. Digsig functionality is limited to checking the validity
-of the signature of your binary when Linux loads it. And, IMO, it should
-be used with other security mechanisms and not alone. I believe though
-this simple functionality can do much to avoid executing viruses or
-other malware on your system.   
-
-Regards 
-Makan 
 
 
-> can't sign ALL files I think, not without going through 
-> really great hoops anyway.
+On Mon, 24 Apr 2006, Arjan van de Ven wrote:
 > 
+> you haven't spent enough time reading the X pci code then ;)
+> (or rather, you've done the same thing but hey who's counting)
 > 
-> 
-> 
+> X does all that *itself* based on what X thinks is best.
+
+Yeah, I knew that used to be true, but I was hoping the new interfaces 
+would have made it obsolete. Especially as the DRM layer _does_ now enable 
+the device on demand.
+
+Maybe just add a DRM command to do it, so that old X versions (who don't 
+know about it) will just do it by hand, and then new X versions can do
+
+	if (drm_ioctl(fd, DRM_SETUP_THE_DAMN_RESOURCES) < 0) {
+		/*
+		 * I don't know what errno the drm-ioctl actually
+		 * returns for unrecognized commands, so this is
+		 * just an example
+		 */
+		if (errno == ENOTTY) {
+			old kernel: do it by hand
+		}
+	}
+
+which allows us to go forward in a sane way, and finally leave the broken 
+X PCI-configuration-by-hand crap behind.
+
+Please?
+
+			Linus

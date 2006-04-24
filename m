@@ -1,41 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWDXGye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWDXHCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750914AbWDXGye (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 02:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWDXGye
+	id S1750927AbWDXHCA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 03:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWDXHCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 02:54:34 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:25556 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750781AbWDXGyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 02:54:33 -0400
-Message-ID: <444C761F.6010603@linux.intel.com>
-Date: Mon, 24 Apr 2006 10:54:23 +0400
-From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Martin Mares <mj@ucw.cz>, Matthew Garrett <mjg59@srcf.ucam.org>,
-       "Yu, Luming" <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
-References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <mj+md-20060420.165714.18107.albireo@ucw.cz> <4447C020.3010003@linux.intel.com> <20060420220731.GF2352@ucw.cz>
-In-Reply-To: <20060420220731.GF2352@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Apr 2006 03:02:00 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:53846 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750927AbWDXHB7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 03:01:59 -0400
+Date: Mon, 24 Apr 2006 09:02:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: David Chinner <dgc@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Direct I/O bio size regression
+Message-ID: <20060424070236.GD22614@suse.de>
+References: <20060424061403.GF611708@melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060424061403.GF611708@melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
->>> I don't see any reason for treating some keys or buttons 
->>> differently.
->>> A key is just a key.
+On Mon, Apr 24 2006, David Chinner wrote:
+> The change introduced here in 2.6.15:
 > 
->> There is one special key anyway -- reset...
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=defd94b75409b983f94548ea2f52ff5787ddb848
 > 
-> Your point is? There's also hardware power button on many machines.
-> They are not controllable by software => they are not relevant to this
-> discussion.
-> 								Pavel
+> sets the request queue max_sector size unconditionally to 1024 sectors in
+> blk_queue_max_sectors() even if the underlying hardware can support a larger
+> number of sectors.
 > 
-Really? And you are what are you going to do with bugs about "my power button doesn't remap, and always shuts down my machine?"
+> Hence when building direct I/O bios, we have the situation where:
+> 
+> 	- dio_new_bio() limits bio vector size artifically to
+> 	  1024 sectors / page size because bio_get_nr_vecs()
+> 	  is used q->max_sectors to size the new bio; and
+> 	- dio_bio_add_page() limits the total bio size to 1024
+> 	  sectors because bio_add_page() now uses q->max_sectors
+> 	  to limit the size of the bio.
+> 	  
+> Therefore, we can't build direct I/Os larger than 1024 sectors even
+> if the hardware supports large I/Os.  This is a regression as before
+> this mod we were able to issue direct I/Os limited by either the
+> maximum number of vectors in an bio or the hardware limits.
+> 
+> The patch below (against 2.6.16) allows direct I/O to build bios as
+> large as the underlying hardware will allow.
+> 
+> Signed-off-by: Dave Chinner <dgc@sgi.com>
+> ---
+>  bio.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> Index: 2.6.x-xfs-new/fs/bio.c
+> ===================================================================
+> --- 2.6.x-xfs-new.orig/fs/bio.c	2006-02-06 11:57:50.000000000 +1100
+> +++ 2.6.x-xfs-new/fs/bio.c	2006-04-24 15:46:16.849484424 +1000
+> @@ -304,7 +304,7 @@ int bio_get_nr_vecs(struct block_device 
+>  	request_queue_t *q = bdev_get_queue(bdev);
+>  	int nr_pages;
+>  
+> -	nr_pages = ((q->max_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
+> +	nr_pages = ((q->max_hw_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
+>  	if (nr_pages > q->max_phys_segments)
+>  		nr_pages = q->max_phys_segments;
+>  	if (nr_pages > q->max_hw_segments)
+> @@ -446,7 +446,7 @@ int bio_add_page(struct bio *bio, struct
+>  		 unsigned int offset)
+>  {
+>  	struct request_queue *q = bdev_get_queue(bio->bi_bdev);
+> -	return __bio_add_page(q, bio, page, len, offset, q->max_sectors);
+> +	return __bio_add_page(q, bio, page, len, offset, q->max_hw_sectors);
+>  }
+>  
+>  struct bio_map_data {
+
+Clearly correct, I'll make sure this gets merged right away.
+
+-- 
+Jens Axboe
+

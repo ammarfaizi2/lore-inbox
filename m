@@ -1,32 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWDXTQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWDXTYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbWDXTQf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 15:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWDXTQf
+	id S1751148AbWDXTYN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 15:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbWDXTYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 15:16:35 -0400
-Received: from email-out1.iomega.com ([147.178.1.84]:33481 "EHLO
-	email-out1.iomega.com") by vger.kernel.org with ESMTP
-	id S1751139AbWDXTQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 15:16:35 -0400
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Transfer-Encoding: 7bit
-Message-Id: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Gary Poppitz <poppitzg@iomega.com>
-Subject: Compiling C++ modules
-Date: Mon, 24 Apr 2006 13:16:26 -0600
-X-Mailer: Apple Mail (2.749.3)
-X-OriginalArrivalTime: 24 Apr 2006 19:16:34.0225 (UTC) FILETIME=[99C56A10:01C667D3]
+	Mon, 24 Apr 2006 15:24:13 -0400
+Received: from nz-out-0102.google.com ([64.233.162.202]:56150 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751148AbWDXTYM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 15:24:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kAN8tVSF/XkFJawhYGtmFrnrkc/J7upVkgJKEBvt+LIR+r8FqojhZ8901jfDv9Mm3qu7K+3KKYCZdarcxw9KoeD7s0LZ67ItaswBXSqxxKlAFgYHZYDOehWoHEeA/3u5BCatG/qTZi2YMpfuIr1ys4rNDCBRJXoNmKPuU8zZ61I=
+Message-ID: <9e4733910604241224i4511ce72n918fad354cc1a9ee@mail.gmail.com>
+Date: Mon, 24 Apr 2006 15:24:12 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Matthew Reppert" <arashi@sacredchao.net>
+Subject: Re: PCI ROM resource allocation issue with 2.6.17-rc2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1145856489.3375.28.camel@minerva>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1145851361.3375.20.camel@minerva>
+	 <1145856489.3375.28.camel@minerva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the task of porting an existing file system to Linux. This  
-code is in C++ and I have noticed that the Linux kernel has
-made use of C++ keywords and other things that make it incompatible.
+On 4/24/06, Matthew Reppert <arashi@sacredchao.net> wrote:
+> > I've also got a Promise PDC20268 whose expansion ROM seems to have made a
+> > similar move (from ff8f8000 to c6920000), but the ATA devices attached to
+> > that controller seem to work fine under 2.6.17-rc2.
+>
+> Also, on 2.6.17-rc2, if I do a hexdump of the PCI config space for the
+> RADEON 7000 via sysfs once Linux boots, it still says the ROM is located
+> at ff8c0000, even though I get this message during boot:
+>
+> PCI: pbus will assign resource 0000:01:0c.0
+> PCI: assigning resource #6 for 0000:01:0c.0 (start 0)
+>   got res [c6900000:c691ffff] bus [c6900000:c691ffff] flags 7200 for BAR 6 of
+> 0000:01:0c.0
 
-I would be most willing to point out the areas that need adjustment  
-and supply patch files to be reviewed.
+To make the sysfs rom attribute work, "echo 1 >rom". Then use 'hexdump
+-C rom | more' to see the ROM contents. If you get the video ROM
+contents when you do this, then the ROM is where the kernel thinks it
+is. If you get FFFF or some other ROM then something like X has moved
+the ROM without the kernel's knowledge.  Obviously, moving ROMs
+without telling the kernel is a good way to mess up your system.
 
-What would be the best procedure to accomplish this?
+If your system locks up after "echo 1 >rom" on a disk controller, then
+you have one of the few disk controllers that didn't bother to
+implement full address decoding for the ROM. "echo 1 >rom". should
+always work for video ROMs.
+
+Read http://people.freedesktop.org/~jonsmirl/graphics.html if you want
+to know more about the evils of X and it's use of the PCI bus.
+
+--
+Jon Smirl
+jonsmirl@gmail.com

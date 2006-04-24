@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWDXVJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWDXVUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWDXVJh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 17:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWDXVJh
+	id S1751215AbWDXVUz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 17:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWDXVUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 17:09:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48806 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751283AbWDXVJh (ORCPT
+	Mon, 24 Apr 2006 17:20:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5270 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751215AbWDXVUy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 17:09:37 -0400
-Date: Mon, 24 Apr 2006 14:09:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Mon, 24 Apr 2006 17:20:54 -0400
+Date: Mon, 24 Apr 2006 17:20:38 -0400
+From: Alan Cox <alan@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, Alan Cox <alan@redhat.com>,
+       Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
 Subject: Re: better leve triggered IRQ management needed
-In-Reply-To: <Pine.LNX.4.61.0604241648340.24574@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.64.0604241407130.3701@g5.osdl.org>
-References: <20060424114105.113eecac@localhost.localdomain>
- <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org> <Pine.LNX.4.61.0604241529360.24459@chaos.analogic.com>
- <Pine.LNX.4.64.0604241319030.3701@g5.osdl.org> <Pine.LNX.4.61.0604241648340.24574@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20060424212038.GC4942@devserv.devel.redhat.com>
+References: <20060424114105.113eecac@localhost.localdomain> <Pine.LNX.4.64.0604241156340.3701@g5.osdl.org> <Pine.LNX.4.64.0604241203130.3701@g5.osdl.org> <1145908402.3116.63.camel@laptopd505.fenrus.org> <20060424201646.GA23517@devserv.devel.redhat.com> <1145911417.3116.69.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0604241354200.3701@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604241354200.3701@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 24, 2006 at 02:07:01PM -0700, Linus Torvalds wrote:
+> debugging standpoint. So even if it's just that every registered SA_SHIRQ 
+> would get a heartbeat at least once every five seconds (and we'd limit it 
+> to SA_SHIRQ exactly because a driver that doesn't have that set may get 
+> confused if it gets extra interrupts), that might sound totally useless, 
+> but it might actually help somebody who otherwise might just make a pretty
+> useless "the machine hung" bug-report.
 
+Have to watch enable/disable_irq and the other races here.
 
-On Mon, 24 Apr 2006, linux-os (Dick Johnson) wrote:
-> On Mon, 24 Apr 2006, Linus Torvalds wrote:
-> >
-> > SA_SHIRQ does NOT mean that the irq is shared.
-> >
-> > It means that it's not exclusive, and that the driver is _ok_ with it
-> > being shared if that makes sense.
-> 
-> Yeah. You have been talking to too many lawyers! You are getting a
-> forked tongue!
+> The fake interrupt could even print out a warning if somebody returns 
+> SA_HANDLED (since normally there _shouldn't_ have been any work to handle 
+> for it), and if that means that for somebody, things go from "the machine 
+> hung" to "the machine got very slow, and printed out 'fake interrupt for 
+> ide0 returned SA_HANDLED!'", that would potentially be a big debug aid.
 
-No, it's just legacy from some _really_ really old code. As in 1991.
+There are high rate IRQ sources that would trigger that erratically due to
+races but it could be useful in some kind of "linux irqdebug" mode
 
-The very original Linux irq system didn't share interrupts at all (hey, 
-PCI was newfangled, and ISA interrupts ruled), so when interrupt sharing 
-was added, the default was to not do it.
+> We've had our ass saved quite a few times now by the irq storm detector 
+> ("irq X: nobody cared" and friends), which has helped debug irqs that 
+> haven't been set up properly, that I'm convinced things like this might 
+> well make a huge deal.
 
-These days, that doesn't make any sense, and if somebody did the flags 
-today, you'd do it the other way around (default to shared, and if 
-somebody wants a really exclusive interrupt, they should say so with 
-SA_EXCLUSIVE or something). 
+Yep
 
-But Linux grew from humble and stupid roots.
+Alan
+--
+  "... and for $64000 question, could you get yourself vaguely familiar with
+		the notion of on-topic posting?"
+				-- Al Viro
 
-		Linus

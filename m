@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWDXPpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWDXPyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbWDXPpc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 11:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWDXPpb
+	id S1750929AbWDXPyd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 11:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWDXPyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 11:45:31 -0400
-Received: from warden-b.diginsite.com ([208.29.163.249]:896 "HELO
-	wardenb.diginsite.com") by vger.kernel.org with SMTP
-	id S1750922AbWDXPpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 11:45:31 -0400
-Date: Mon, 24 Apr 2006 07:45:01 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Marowsky-Bree <lmb@suse.de>,
-       Valdis.Kletnieks@vt.edu, Ken Brush <kbrush@gmail.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]  implementation
- of LSM hooks)
-In-Reply-To: <20060424140407.GD22703@sergelap.austin.ibm.com>
-Message-ID: <Pine.LNX.4.62.0604240730030.30494@qynat.qvtvafvgr.pbz>
-References: <4446D378.8050406@novell.com>  <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu>
-  <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com> 
- <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu> 
- <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com> 
- <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu> 
- <20060424082424.GH440@marowsky-bree.de>  <1145882551.29648.23.camel@localhost.localdomain>
-  <20060424125641.GD9311@sergelap.austin.ibm.com> 
- <1145887333.29648.44.camel@localhost.localdomain> <20060424140407.GD22703@sergelap.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 24 Apr 2006 11:54:33 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:16562 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750852AbWDXPyc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 11:54:32 -0400
+Date: Mon, 24 Apr 2006 08:50:03 -0700
+From: Tony Jones <tonyj@suse.de>
+To: Joshua Brindle <method@gentoo.org>
+Cc: Andi Kleen <ak@suse.de>, Neil Brown <neilb@suse.de>,
+       Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
+       James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+Message-ID: <20060424155003.GC25238@suse.de>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <17484.20906.122444.964025@cse.unsw.edu.au> <444CCE83.90704@gentoo.org> <200604241526.03127.ak@suse.de> <444CD507.70004@gentoo.org> <444CEBC9.5030802@gentoo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <444CEBC9.5030802@gentoo.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Apr 2006, Serge E. Hallyn wrote:
+On Mon, Apr 24, 2006 at 11:16:25AM -0400, Joshua Brindle wrote:
+> To make this much more real, the /usr/sbin/named policy that ships with 
+> apparmor has the following line:
 
-> Quoting Alan Cox (alan@lxorguk.ukuu.org.uk):
->> Thus this sort of stuff needs to be taken seriously. Can SuSE provide a
->> good reliable policy for AppArmour to people, can Red Hat do the same
->> with SELinux ?
->
-> That's a little more than half the question.  The other 40% is can users
-> write good policies.
->
-> I think it will, and already has, become easier for selinux.  But in
-> this case I wonder whether some sort of contest could be beneficial.  We
-> all know of Russel Coker's open root selinux play machines.  That's a
-> powerful statement.  Things I'd like to see in addition are
+Ships with AppArmor where?  On SuSE?
 
-One key difference between SELinux and AppArmor is that AA is _not_ 
-designed to protect against the actions of root, it's designed to block 
-attacks that would let someone become root.
+> /** r,
+> Thats right, named can read any file on the system, I suppose this is 
+> because the policy relies on named being chrooted. So if for any reason 
+> named doesn't chroot its been granted read access on the entire 
+> filesystem. If I'm misunderstanding this policy please correct me but I 
+> believe this shows the problem very loudly and clearly.
 
-becouse of this strategy it's far simpler to configure becouse you do not 
-have to do all the work to control root. This also limits what it can 
-defend against, and so it's not 'perfect security' (and after all there is 
-only one way to get 'perfect security' 
-http://www.ranum.com/security/computer_security/papers/a1-firewall/ ), but 
-AA is still a useful tool.
+The d_path changes for absolute path mediation for chroot are not yet in any 
+SuSE release. Nor are they reflected in any developed profiles (yet).
 
-the 'hard shell, soft center' approach isn't as secure as 'full 
-hardening' (assuming that both are properly implemented), but the fact 
-that it's far easier to understand and configure the hard shell means that 
-it's also far more likly to be implemented properly.
+Another direction is a new security_chroot hook together with appropriate 
+CLONE_FS tracking (inside AppArmor) to force chrooting confined tasks into a 
+subprofile (similar to change hat). We are evaluating the options based on 
+feedback here and from other places.  Hence the RFC.
 
-remember that it's not really a matter of people deciding not to write 
-SELinux policies and instead do AA, it's a matter of people deciding to 
-use AA instead of doing nothing.
+I hope this helps.
 
-David Lang
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
-
+Tony

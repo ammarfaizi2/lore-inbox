@@ -1,132 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWDXIej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWDXIej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWDXIej (ORCPT <rfc822;willy@w.ods.org>);
+	id S932076AbWDXIej (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 24 Apr 2006 04:34:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWDXIeX
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWDXIeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 04:34:23 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:37732 "EHLO
+	Mon, 24 Apr 2006 04:34:22 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:42084 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751192AbWDXIeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751194AbWDXIeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 24 Apr 2006 04:34:16 -0400
-Message-Id: <20060424083342.448143000@localhost.localdomain>
+Message-Id: <20060424083342.069630000@localhost.localdomain>
 References: <20060424083333.217677000@localhost.localdomain>
-Date: Mon, 24 Apr 2006 16:33:36 +0800
+Date: Mon, 24 Apr 2006 16:33:35 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 3/4] dynamic configurable kref debugging 
-Content-Disposition: inline; filename=kref-debug-dynamic-off.patch
+Subject: [patch 2/4] kref debugging config option
+Content-Disposition: inline; filename=kref-debug.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes kref-debugging dynamically configurable
-by sysctl kernel.kref_debug
+This patch converts all WARN_ON() in kref code to BUG_ON().
+And split them into new DEBUG_KREF config option.
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- Documentation/sysctl/kernel.txt |    8 ++++++++
- include/linux/sysctl.h          |    1 +
- kernel/sysctl.c                 |   14 ++++++++++++++
- lib/kref.c                      |    9 +++++++++
- 4 files changed, 32 insertions(+)
+ lib/Kconfig.debug |    7 +++++++
+ lib/kref.c        |   30 +++++++++++++++++++++++++-----
+ 2 files changed, 32 insertions(+), 5 deletions(-)
 
+Index: 2.6-git/lib/Kconfig.debug
+===================================================================
+--- 2.6-git.orig/lib/Kconfig.debug
++++ 2.6-git/lib/Kconfig.debug
+@@ -130,6 +130,13 @@ config DEBUG_KOBJECT
+ 	  If you say Y here, some extra kobject debugging messages will be sent
+ 	  to the syslog. 
+ 
++config DEBUG_KREF
++	bool "kref debugging"
++	depends on DEBUG_KERNEL
++	help
++	  This option enables addition error checking for kref,
++	  library routines for handling generic reference counted objects.
++
+ config DEBUG_HIGHMEM
+ 	bool "Highmem debugging"
+ 	depends on DEBUG_KERNEL && HIGHMEM
 Index: 2.6-git/lib/kref.c
 ===================================================================
 --- 2.6-git.orig/lib/kref.c
 +++ 2.6-git/lib/kref.c
-@@ -24,13 +24,22 @@ void kref_init(struct kref *kref)
+@@ -20,16 +20,38 @@
+  */
+ void kref_init(struct kref *kref)
+ {
+-	atomic_set(&kref->refcount,1);
++	atomic_set(&kref->refcount, 1);
  }
  
- #ifdef CONFIG_DEBUG_KREF
++#ifdef CONFIG_DEBUG_KREF
++static void kref_get_debug_check(struct kref *kref)
++{
++	BUG_ON(!atomic_read(&kref->refcount));
++}
++static void kref_put_debug_check(struct kref *kref,
++				void (*release)(struct kref *kref))
++{
++	BUG_ON(atomic_read(&kref->refcount) < 1);
++	BUG_ON(release == NULL);
++	BUG_ON(release == (void (*)(struct kref *))kfree);
++}
++#else
++static void kref_get_debug_check(struct kref *kref)
++{
++}
++static void kref_put_debug_check(struct kref *kref,
++				void (*release)(struct kref *kref))
++{
++}
++#endif
 +
-+int kref_debug = 1;
-+
- static void kref_get_debug_check(struct kref *kref)
+ /**
+  * kref_get - increment refcount for object.
+  * @kref: object.
+  */
+ void kref_get(struct kref *kref)
  {
-+	if (!kref_debug)
-+		return;
-+
- 	BUG_ON(!atomic_read(&kref->refcount));
+-	WARN_ON(!atomic_read(&kref->refcount));
++	kref_get_debug_check(kref);
+ 	atomic_inc(&kref->refcount);
  }
- static void kref_put_debug_check(struct kref *kref,
- 				void (*release)(struct kref *kref))
+ 
+@@ -49,9 +71,7 @@ void kref_get(struct kref *kref)
+  */
+ int kref_put(struct kref *kref, void (*release)(struct kref *kref))
  {
-+	if (!kref_debug)
-+		return;
-+
- 	BUG_ON(atomic_read(&kref->refcount) < 1);
- 	BUG_ON(release == NULL);
- 	BUG_ON(release == (void (*)(struct kref *))kfree);
-Index: 2.6-git/include/linux/sysctl.h
-===================================================================
---- 2.6-git.orig/include/linux/sysctl.h
-+++ 2.6-git/include/linux/sysctl.h
-@@ -148,6 +148,7 @@ enum
- 	KERN_SPIN_RETRY=70,	/* int: number of spinlock retries */
- 	KERN_ACPI_VIDEO_FLAGS=71, /* int: flags for setting up video after ACPI sleep */
- 	KERN_IA64_UNALIGNED=72, /* int: ia64 unaligned userland trap enable */
-+	KERN_KREF_DEBUG=73,	/* int: kref debug on or off */
- };
+-	WARN_ON(atomic_read(&kref->refcount) < 1);
+-	WARN_ON(release == NULL);
+-	WARN_ON(release == (void (*)(struct kref *))kfree);
++	kref_put_debug_check(kref, release);
  
- 
-Index: 2.6-git/kernel/sysctl.c
-===================================================================
---- 2.6-git.orig/kernel/sysctl.c
-+++ 2.6-git/kernel/sysctl.c
-@@ -131,6 +131,10 @@ extern int acct_parm[];
- extern int no_unaligned_warning;
- #endif
- 
-+#ifdef CONFIG_DEBUG_KREF
-+extern int kref_debug;
-+#endif
-+
- static int parse_table(int __user *, int, void __user *, size_t __user *, void __user *, size_t,
- 		       ctl_table *, void **);
- static int proc_doutsstring(ctl_table *table, int write, struct file *filp,
-@@ -683,6 +687,16 @@ static ctl_table kern_table[] = {
- 		.proc_handler	= &proc_dointvec,
- 	},
- #endif
-+#ifdef CONFIG_DEBUG_KREF
-+	{
-+		.ctl_name	= KERN_KREF_DEBUG,
-+		.procname	= "kref_debug",
-+		.data		= &kref_debug,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+#endif
- 	{ .ctl_name = 0 }
- };
- 
-Index: 2.6-git/Documentation/sysctl/kernel.txt
-===================================================================
---- 2.6-git.orig/Documentation/sysctl/kernel.txt
-+++ 2.6-git/Documentation/sysctl/kernel.txt
-@@ -27,6 +27,7 @@ show up in /proc/sys/kernel:
- - hotplug
- - java-appletviewer           [ binfmt_java, obsolete ]
- - java-interpreter            [ binfmt_java, obsolete ]
-+- kref_debug
- - l2cr                        [ PPC only ]
- - modprobe                    ==> Documentation/kmod.txt
- - msgmax
-@@ -161,6 +162,13 @@ Default value is "/sbin/hotplug".
- 
- ==============================================================
- 
-+kref_debug:
-+
-+This flag controls the kref debugging. If 0, kref debugging is
-+disabled.  Enabled if nonzero.
-+
-+==============================================================
-+
- l2cr: (PPC only)
- 
- This flag controls the L2 cache of G3 processor boards. If
+ 	/*
+ 	 * if current count is one, we are the last user and can release object
 
 --

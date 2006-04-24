@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWDXPDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbWDXPCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbWDXPDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 11:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWDXPDI
+	id S1750843AbWDXPCs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 11:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWDXPCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 11:03:08 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:60703 "EHLO
+	Mon, 24 Apr 2006 11:02:48 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:58399 "EHLO
 	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750833AbWDXPDH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 11:03:07 -0400
-Date: Mon, 24 Apr 2006 17:03:09 +0200
+	id S1750850AbWDXPCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 11:02:47 -0400
+Date: Mon, 24 Apr 2006 17:02:50 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, heiko.carstens@de.ibm.com
-Subject: [patch 3/13] s390: bug in setup_rt_frame.
-Message-ID: <20060424150309.GD15613@skybase>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org, shbader@de.ibm.com
+Subject: [patch 2/13] s390: enable interrupts on error path.
+Message-ID: <20060424150250.GC15613@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,32 +21,36 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Stefan Bader <shbader@de.ibm.com>
 
-[patch 3/13] s390: bug in setup_rt_frame.
+[patch 2/13] s390: enable interrupts on error path.
 
-Consider return value of __put_user() when setting up a signal
-frame instead of ignoring it.
+Interrupts can stay disabled if an error occurred in _chp_add().
+Use spin_unlock_irq on the error paths to reenable interrupts.
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Stefan Bader <shbader@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/kernel/signal.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/s390/cio/chsc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff -urpN linux-2.6/arch/s390/kernel/signal.c linux-2.6-patched/arch/s390/kernel/signal.c
---- linux-2.6/arch/s390/kernel/signal.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/signal.c	2006-04-24 16:47:20.000000000 +0200
-@@ -358,8 +358,9 @@ static int setup_rt_frame(int sig, struc
- 	} else {
-                 regs->gprs[14] = (unsigned long)
- 			frame->retcode | PSW_ADDR_AMODE;
--		err |= __put_user(S390_SYSCALL_OPCODE | __NR_rt_sigreturn,
--	                          (u16 __user *)(frame->retcode));
-+		if (__put_user(S390_SYSCALL_OPCODE | __NR_sigreturn,
-+			       (u16 __user *)(frame->retcode)))
-+			goto give_sigsegv;
+diff -urpN linux-2.6/drivers/s390/cio/chsc.c linux-2.6-patched/drivers/s390/cio/chsc.c
+--- linux-2.6/drivers/s390/cio/chsc.c	2006-04-24 16:47:19.000000000 +0200
++++ linux-2.6-patched/drivers/s390/cio/chsc.c	2006-04-24 16:47:19.000000000 +0200
+@@ -635,13 +635,13 @@ __chp_add(struct subchannel_id schid, vo
+ 		if (sch->schib.pmcw.chpid[i] == chp->id) {
+ 			if (stsch(sch->schid, &sch->schib) != 0) {
+ 				/* Endgame. */
+-				spin_unlock(&sch->lock);
++				spin_unlock_irq(&sch->lock);
+ 				return -ENXIO;
+ 			}
+ 			break;
+ 		}
+ 	if (i==8) {
+-		spin_unlock(&sch->lock);
++		spin_unlock_irq(&sch->lock);
+ 		return 0;
  	}
- 
- 	/* Set up backchain. */
+ 	sch->lpm = ((sch->schib.pmcw.pim &

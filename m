@@ -1,475 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWDXWLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWDXWQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbWDXWLF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 18:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWDXWLE
+	id S1750701AbWDXWQT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 18:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWDXWQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 18:11:04 -0400
-Received: from rtsoft2.corbina.net ([85.21.88.2]:32147 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1751135AbWDXWLB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 18:11:01 -0400
-Message-ID: <444D4CAB.8010303@ru.mvista.com>
-Date: Tue, 25 Apr 2006 02:09:47 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH][RFT] HPT3xxN clocking fixes (take 2)
-References: <444B3BDE.1030106@ru.mvista.com>
-In-Reply-To: <444B3BDE.1030106@ru.mvista.com>
-Content-Type: multipart/mixed;
- boundary="------------060405040107080402090600"
+	Mon, 24 Apr 2006 18:16:19 -0400
+Received: from smtp04.auna.com ([62.81.186.14]:22933 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S1750701AbWDXWQT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 18:16:19 -0400
+Date: Tue, 25 Apr 2006 00:16:17 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: C++ pushback
+Message-ID: <20060425001617.0a536488@werewolf.auna.net>
+In-Reply-To: <1145915533.1635.60.camel@localhost.localdomain>
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
+	<mj+md-20060424.201044.18351.atrey@ucw.cz>
+	<444D44F2.8090300@wolfmountaingroup.com>
+	<1145915533.1635.60.camel@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.1.1cvs22 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary=Sig_kBUjkrZJsttjK2f5DWPa0yz;
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.210.119] Login:jamagallon@able.es Fecha:Tue, 25 Apr 2006 00:16:17 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060405040107080402090600
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+--Sig_kBUjkrZJsttjK2f5DWPa0yz
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Hello.
+On Mon, 24 Apr 2006 22:52:12 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wro=
+te:
 
-    Fix serious problems with the HPT372N clock turnaround code:
-  - the wrong ports were written to when called for the secondary channel;
-  - it didn't serialize access to the channels;
-  - turnaround shou;dn't be done on 66 MHz PCI;
-  - caching the clock mode per-channel caused it to get out of sync with the
-actual register value.
+> On Llu, 2006-04-24 at 15:36 -0600, Jeff V. Merkey wrote:
+> > C++ in the kernel is a BAD IDEA. C++ code can be written in such a=20
+> > convoluted manner as to be unmaintainable and unreadable.
+>=20
+> So can C.=20
+>=20
+> > All of the hidden memory allocations from constructor/destructor=20
+> > operatings can and do KILL OS PERFORMANCE.=20
+>=20
+> This is one area of concern. Just as big a problem for the OS case is
+> that the hidden constructors/destructors may fail.
 
-    Additionally, avoid calibrating PLL twice (for each channel) as the
-second try results in a wrong PCI frequency and thus in the wrong timings.
-    Make the driver deal with HPT302N and HPT371N correctly -- the clocking
-and (seemingly) a need for clock tunaround is the same as for HPT372N. 
-HPT371/N chips have only one, secondary channel, so avoid touching their "pure 
-virtual" primary channel, and disable it if the BIOS haven't done this already.
-    Also, while at it, disable UltraATA/133 for HPT372 by default -- 50 MHz
-DPLL clock don't allow for this speed anyway. And remove the traces of the
-former bad patch that wasn't even applicable to this version of driver.
-    Have been tested on HPT370/371N, unfortunately I don't have an instant
-access to the other chips...
-
-MBR, Sergei
-
-Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Tell me what is the difference between:
 
 
---------------060405040107080402090600
-Content-Type: text/plain;
- name="HPT3xxN-clocking-fixes.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="HPT3xxN-clocking-fixes.patch"
+    sbi =3D kmalloc(sizeof(*sbi), GFP_KERNEL);
+    if (!sbi)
+        return -ENOMEM;
+    sb->s_fs_info =3D sbi;
+    memset(sbi, 0, sizeof(*sbi));
+    sbi->s_mount_opt =3D 0;
+    sbi->s_resuid =3D EXT3_DEF_RESUID;
+    sbi->s_resgid =3D EXT3_DEF_RESGID;
 
-diff --git a/drivers/ide/pci/hpt366.c b/drivers/ide/pci/hpt366.c
-index 940bdd4..b6d329a 100644
---- a/drivers/ide/pci/hpt366.c
-+++ b/drivers/ide/pci/hpt366.c
-@@ -4,6 +4,7 @@
-  * Copyright (C) 1999-2003		Andre Hedrick <andre@linux-ide.org>
-  * Portions Copyright (C) 2001	        Sun Microsystems, Inc.
-  * Portions Copyright (C) 2003		Red Hat Inc
-+ * Portions Copyright (C) 2005-2006	MontaVista Software, Inc.
-  *
-  * Thanks to HighPoint Technologies for their assistance, and hardware.
-  * Special Thanks to Jon Burchmore in SanDiego for the deep pockets, his
-@@ -11,9 +12,11 @@
-  * development and support.
-  *
-  *
-- * Highpoint have their own driver (source except for the raid part)
-- * available from http://www.highpoint-tech.com/hpt3xx-opensource-v131.tgz
-- * This may be useful to anyone wanting to work on the mainstream hpt IDE.
-+ * HighPoint has its own drivers (open source except for the RAID part)
-+ * available from http://www.highpoint-tech.com/BIOS%20+%20Driver/.
-+ * This may be useful to anyone wanting to work on this driver, however  do not
-+ * trust  them too much since the code tends to become less and less meaningful
-+ * as the time passes... :-/
-  *
-  * Note that final HPT370 support was done by force extraction of GPL.
-  *
-@@ -52,6 +55,20 @@
-  * keeping me sane. 
-  *		Alan Cox <alan@redhat.com>
-  *
-+ * - fix the clock turnaround code: it was writing to the wrong ports when
-+ *   called for the secondary channel, caching the current clock mode per-
-+ *   channel caused the cached register value to get out of sync with the
-+ *   actual one, the channels weren't serialized, the turnaround shouldn't
-+ *   be done on 66 MHz PCI bus
-+ * - avoid calibrating PLL twice as the second time results in a wrong PCI
-+ *   frequency and thus in the wrong timings for the secondary channel
-+ * - disable UltraATA/133 for HPT372 by default (50 MHz DPLL clock do not
-+ *   allow for this speed anyway)
-+ * - add support for HPT302N and HPT371N clocking (the same as for HPT372N)
-+ * - HPT371/N are single channel chips, so avoid touching the primary channel
-+ *   which exists only virtually (there's no pins for it)
-+ *		<source@mvista.com>
-+ *
-  */
- 
- 
-@@ -77,8 +94,8 @@
- 
- /* various tuning parameters */
- #define HPT_RESET_STATE_ENGINE
--#undef HPT_DELAY_INTERRUPT
--#undef HPT_SERIALIZE_IO
-+#undef	HPT_DELAY_INTERRUPT
-+#define HPT_SERIALIZE_IO	0
- 
- static const char *quirk_drives[] = {
- 	"QUANTUM FIREBALLlct08 08",
-@@ -440,7 +457,7 @@ static struct chipset_bus_clock_list_ent
- #define HPT374_ALLOW_ATA133_6		0
- #define HPT371_ALLOW_ATA133_6		0
- #define HPT302_ALLOW_ATA133_6		0
--#define HPT372_ALLOW_ATA133_6		1
-+#define HPT372_ALLOW_ATA133_6		0
- #define HPT370_ALLOW_ATA100_5		1
- #define HPT366_ALLOW_ATA66_4		1
- #define HPT366_ALLOW_ATA66_3		1
-@@ -462,7 +479,8 @@ struct hpt_info
- 	int revision;		/* Chipset revision */
- 	int flags;		/* Chipset properties */
- #define PLL_MODE	1
--#define IS_372N		2
-+#define IS_3xxN 	2
-+#define PCI_66MHZ	4
- 				/* Speed table */
- 	struct chipset_bus_clock_list_entry *speed;
- };
-@@ -957,59 +975,63 @@ static int hpt374_ide_dma_end (ide_drive
- }
- 
- /**
-- *	hpt372n_set_clock	-	perform clock switching dance
-- *	@drive: Drive to switch
-- *	@mode: Switching mode (0x21 for write, 0x23 otherwise)
-+ *	hpt3xxn_set_clock	-	perform clock switching dance
-+ *	@hwif: hwif to switch
-+ *	@mode: clocking mode (0x21 for write, 0x23 otherwise)
-  *
-- *	Switch the DPLL clock on the HPT372N devices. This is a
-- *	right mess.
-+ *	Switch the DPLL clock on the HPT3xxN devices. This is a	right mess.
-+ *	NOTE: avoid touching the disabled primary channel on HPT371N -- it
-+ *	doesn't physically exist anyway...
-  */
-- 
--static void hpt372n_set_clock(ide_drive_t *drive, int mode)
-+
-+static void hpt3xxn_set_clock(ide_hwif_t *hwif, u8 mode)
- {
--	ide_hwif_t *hwif	= HWIF(drive);
--	
--	/* FIXME: should we check for DMA active and BUG() */
-+	u8 mcr1, scr2 = hwif->INB(hwif->dma_master + 0x7b);
-+
-+	if ((scr2 & 0x7f) == mode)
-+		return;
-+
-+	/* MISC. control register 1 has the channel enable bit... */
-+	mcr1 = hwif->INB(hwif->dma_master + 0x70);
-+
- 	/* Tristate the bus */
--	outb(0x80, hwif->dma_base+0x73);
--	outb(0x80, hwif->dma_base+0x77);
--	
-+	if (mcr1 & 0x04)
-+		hwif->OUTB(0x80, hwif->dma_master + 0x73);
-+	hwif->OUTB(0x80, hwif->dma_master + 0x77);
-+
- 	/* Switch clock and reset channels */
--	outb(mode, hwif->dma_base+0x7B);
--	outb(0xC0, hwif->dma_base+0x79);
--	
-+	hwif->OUTB(mode, hwif->dma_master + 0x7b);
-+	hwif->OUTB(0xc0, hwif->dma_master + 0x79);
-+
- 	/* Reset state machines */
--	outb(0x37, hwif->dma_base+0x70);
--	outb(0x37, hwif->dma_base+0x74);
--	
-+	if (mcr1 & 0x04)
-+		hwif->OUTB(0x37, hwif->dma_master + 0x70);
-+	hwif->OUTB(0x37, hwif->dma_master + 0x74);
-+
- 	/* Complete reset */
--	outb(0x00, hwif->dma_base+0x79);
--	
-+	hwif->OUTB(0x00, hwif->dma_master + 0x79);
-+
- 	/* Reconnect channels to bus */
--	outb(0x00, hwif->dma_base+0x73);
--	outb(0x00, hwif->dma_base+0x77);
-+	if (mcr1 & 0x04)
-+		hwif->OUTB(0x00, hwif->dma_master + 0x73);
-+	hwif->OUTB(0x00, hwif->dma_master + 0x77);
- }
- 
- /**
-- *	hpt372n_rw_disk		-	prepare for I/O
-+ *	hpt3xxn_rw_disk		-	prepare for I/O
-  *	@drive: drive for command
-  *	@rq: block request structure
-  *
-- *	This is called when a disk I/O is issued to the 372N.
-+ *	This is called when a disk I/O is issued to HPT3xxN.
-  *	We need it because of the clock switching.
-  */
- 
--static void hpt372n_rw_disk(ide_drive_t *drive, struct request *rq)
-+static void hpt3xxn_rw_disk(ide_drive_t *drive, struct request *rq)
- {
--	ide_hwif_t *hwif = drive->hwif;
--	int wantclock;
--
--	wantclock = rq_data_dir(rq) ? 0x23 : 0x21;
-+	ide_hwif_t *hwif	= HWIF(drive);
-+	u8 wantclock		= rq_data_dir(rq) ? 0x23 : 0x21;
- 
--	if (hwif->config_data != wantclock) {
--		hpt372n_set_clock(drive, wantclock);
--		hwif->config_data = wantclock;
--	}
-+	hpt3xxn_set_clock(hwif, wantclock);
- }
- 
- /*
-@@ -1139,7 +1161,7 @@ static void __devinit hpt37x_clocking(id
- 	int adjust, i;
- 	u16 freq;
- 	u32 pll;
--	u8 reg5bh;
-+	u8 reg5bh = 0, mcr1 = 0;
- 	
- 	/*
- 	 * default to pci clock. make sure MA15/16 are set to output
-@@ -1162,17 +1184,11 @@ static void __devinit hpt37x_clocking(id
- 	freq &= 0x1FF;
- 	
- 	/*
--	 * The 372N uses different PCI clock information and has
--	 * some other complications
--	 *	On PCI33 timing we must clock switch
--	 *	On PCI66 timing we must NOT use the PCI clock
--	 *
--	 * Currently we always set up the PLL for the 372N
-+	 * HPT3xxN chips use different PCI clock information.
-+	 * Currently we always set up the PLL for them.
- 	 */
--	 
--	if(info->flags & IS_372N)
--	{
--		printk(KERN_INFO "hpt: HPT372N detected, using 372N timing.\n");
-+
-+	if (info->flags & IS_3xxN) {
- 		if(freq < 0x55)
- 			pll = F_LOW_PCI_33;
- 		else if(freq < 0x70)
-@@ -1181,10 +1197,8 @@ static void __devinit hpt37x_clocking(id
- 			pll = F_LOW_PCI_50;
- 		else
- 			pll = F_LOW_PCI_66;
--			
--		printk(KERN_INFO "FREQ: %d PLL: %d\n", freq, pll);
--			
--		/* We always use the pll not the PCI clock on 372N */
-+
-+		printk(KERN_INFO "HPT3xxN detected, FREQ: %d, PLL: %d\n", freq, pll);
- 	}
- 	else
- 	{
-@@ -1232,7 +1246,10 @@ static void __devinit hpt37x_clocking(id
- 			printk(KERN_DEBUG "HPT37X: using 66MHz PCI clock\n");
- 		}
- 	}
--	
-+
-+	if (pll == F_LOW_PCI_66)
-+		info->flags |= PCI_66MHZ;
-+
- 	/*
- 	 * only try the pll if we don't have a table for the clock
- 	 * speed that we're running at. NOTE: the internal PLL will
-@@ -1288,10 +1305,6 @@ static void __devinit hpt37x_clocking(id
- 				goto init_hpt37X_done;
- 			}
- 		}
--		if (!pci_get_drvdata(dev)) {
--			printk("No Clock Stabilization!!!\n");
--			return;
--		}
- pll_recal:
- 		if (adjust & 1)
- 			pll -= (adjust >> 1);
-@@ -1301,11 +1314,16 @@ pll_recal:
- 
- init_hpt37X_done:
- 	if (!info->speed)
--		printk(KERN_ERR "HPT37X%s: unknown bus timing [%d %d].\n",
--			(info->flags & IS_372N)?"N":"", pll, freq);
--	/* reset state engine */
--	pci_write_config_byte(dev, 0x50, 0x37); 
--	pci_write_config_byte(dev, 0x54, 0x37); 
-+		printk(KERN_ERR "HPT37x%s: unknown bus timing [%d %d].\n",
-+		       (info->flags & IS_3xxN) ? "N" : "", pll, freq);
-+	/*
-+	 * Reset the state engines.
-+	 * NOTE: avoid accidentally enabling the primary channel on HPT371N.
-+	 */
-+	pci_read_config_byte(dev, 0x50, &mcr1);
-+	if (mcr1 & 0x04)
-+		pci_write_config_byte(dev, 0x50, 0x37);
-+	pci_write_config_byte(dev, 0x54, 0x37);
- 	udelay(100);
- }
- 
-@@ -1368,6 +1386,7 @@ static void __devinit init_hwif_hpt366(i
- 	struct pci_dev *dev		= hwif->pci_dev;
- 	struct hpt_info *info		= ide_get_hwifdata(hwif);
- 	u8 ata66 = 0, regmask		= (hwif->channel) ? 0x01 : 0x02;
-+	int serialize			= HPT_SERIALIZE_IO;
- 	
- 	hwif->tuneproc			= &hpt3xx_tune_drive;
- 	hwif->speedproc			= &hpt3xx_tune_chipset;
-@@ -1375,8 +1394,20 @@ static void __devinit init_hwif_hpt366(i
- 	hwif->intrproc			= &hpt3xx_intrproc;
- 	hwif->maskproc			= &hpt3xx_maskproc;
- 	
--	if(info->flags & IS_372N)
--		hwif->rw_disk = &hpt372n_rw_disk;
-+	/*
-+	 * HPT3xxN chips have some complications:
-+	 *
-+	 * - on 33 MHz PCI we must clock switch
-+	 * - on 66 MHz PCI we must NOT use the PCI clock
-+	 */
-+	if ((info->flags & (IS_3xxN | PCI_66MHZ)) == IS_3xxN) {
-+		/*
-+		 * Clock is shared between the channels,
-+		 * so we'll have to serialize them... :-(
-+		 */
-+		serialize = 1;
-+		hwif->rw_disk = &hpt3xxn_rw_disk;
-+	}
- 
- 	/*
- 	 * The HPT37x uses the CBLID pins as outputs for MA15/MA16
-@@ -1419,11 +1450,9 @@ static void __devinit init_hwif_hpt366(i
- 		PCI_FUNC(hwif->pci_dev->devfn));
- #endif /* DEBUG */
- 
--#ifdef HPT_SERIALIZE_IO
--	/* serialize access to this device */
--	if (hwif->mate)
-+	/* Serialize access to this device */
-+	if (serialize && hwif->mate)
- 		hwif->serialized = hwif->mate->serialized = 1;
--#endif
- 
- 	if (info->revision >= 3) {
- 		u8 reg5ah = 0;
-@@ -1491,7 +1520,7 @@ static void __devinit init_dma_hpt366(id
- 		return;
- 		
- 	if(info->speed == NULL) {
--		printk(KERN_WARNING "hpt: no known IDE timings, disabling DMA.\n");
-+		printk(KERN_WARNING "hpt366: no known IDE timings, disabling DMA.\n");
- 		return;
- 	}
- 
-@@ -1520,9 +1549,10 @@ static void __devinit init_dma_hpt366(id
- 
- static void __devinit init_iops_hpt366(ide_hwif_t *hwif)
- {
--	struct hpt_info *info = kzalloc(sizeof(struct hpt_info), GFP_KERNEL);
--	unsigned long dmabase = pci_resource_start(hwif->pci_dev, 4);
--	u8 did, rid;
-+	struct hpt_info *info	= kzalloc(sizeof(struct hpt_info), GFP_KERNEL);
-+	struct pci_dev  *dev	= hwif->pci_dev;
-+	u16 did			= dev->device;
-+	u8  rid			= 0;
- 
- 	if(info == NULL) {
- 		printk(KERN_WARNING "hpt366: out of memory.\n");
-@@ -1530,15 +1560,22 @@ static void __devinit init_iops_hpt366(i
- 	}
- 	ide_set_hwifdata(hwif, info);
- 
--	if(dmabase) {
--		did = inb(dmabase + 0x22);
--		rid = inb(dmabase + 0x28);
--
--		if((did == 4 && rid == 6) || (did == 5 && rid > 1))
--			info->flags |= IS_372N;
-+	/* Avoid doing the same thing twice. */
-+	if (hwif->channel && hwif->mate) {
-+		memcpy(info, ide_get_hwifdata(hwif->mate), sizeof(struct hpt_info));
-+		return;
- 	}
- 
--	info->revision = hpt_revision(hwif->pci_dev);
-+	pci_read_config_byte(dev, PCI_CLASS_REVISION, &rid);
-+
-+	if (( did == PCI_DEVICE_ID_TTI_HPT366  && rid == 6) ||
-+	    ((did == PCI_DEVICE_ID_TTI_HPT372  ||
-+	      did == PCI_DEVICE_ID_TTI_HPT302  ||
-+	      did == PCI_DEVICE_ID_TTI_HPT371) && rid > 1) ||
-+	      did == PCI_DEVICE_ID_TTI_HPT372N)
-+		info->flags |= IS_3xxN;
-+
-+	info->revision = hpt_revision(dev);
- 
- 	if (info->revision >= 3)
- 		hpt37x_clocking(hwif);
-@@ -1575,6 +1612,23 @@ static int __devinit init_setup_hpt37x(s
- 	return ide_setup_pci_device(dev, d);
- }
- 
-+static int __devinit init_setup_hpt371(struct pci_dev *dev, ide_pci_device_t *d)
-+{
-+	u8 mcr1 = 0;
-+
-+	/*
-+	 * HPT371 chips physically have only one channel, the secondary one,
-+	 * but the primary channel registers do exist!  Go figure...
-+	 * So,  we manually disable the non-existing channel here
-+	 * (if the BIOS hasn't done this already).
-+	 */
-+	pci_read_config_byte(dev, 0x50, &mcr1);
-+	if (mcr1 & 0x04)
-+		pci_write_config_byte(dev, 0x50, (mcr1 & ~0x04));
-+
-+	return ide_setup_pci_device(dev, d);
-+}
-+
- static int __devinit init_setup_hpt366(struct pci_dev *dev, ide_pci_device_t *d)
- {
- 	struct pci_dev *findev = NULL;
-@@ -1662,13 +1716,14 @@ static ide_pci_device_t hpt366_chipsets[
- 		.bootable	= OFF_BOARD,
- 	},{	/* 3 */
- 		.name		= "HPT371",
--		.init_setup	= init_setup_hpt37x,
-+		.init_setup	= init_setup_hpt371,
- 		.init_chipset	= init_chipset_hpt366,
- 		.init_iops	= init_iops_hpt366,
- 		.init_hwif	= init_hwif_hpt366,
- 		.init_dma	= init_dma_hpt366,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
-+		.enablebits	= {{0x50,0x04,0x04}, {0x54,0x04,0x04}},
- 		.bootable	= OFF_BOARD,
- 	},{	/* 4 */
- 		.name		= "HPT374",
+and
 
+    SuperBlock() : s_mount_opt(0), s_resuid(EXT3_DEF_RESUID), s_resgid(EXT3=
+_DEF_RESGID)
+    {}
 
+    ...
+    sbi =3D new SuperBlock;
+    if (!sbi)
+        return -ENOMEM;
 
---------------060405040107080402090600--
+apart that you don't get members initalized twice and get a shorter code :).
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.16-jam9 (gcc 4.1.1 20060330 (prerelease)) #1 SMP PREEMPT Tue
+
+--Sig_kBUjkrZJsttjK2f5DWPa0yz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFETU4xRlIHNEGnKMMRAuoMAKCVSsESkrxxAiyYXS2+/GljU/laCwCgnCtD
+6Ni1KLZ2WkSCPVghz/K7x/8=
+=PgXW
+-----END PGP SIGNATURE-----
+
+--Sig_kBUjkrZJsttjK2f5DWPa0yz--

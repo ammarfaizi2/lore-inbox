@@ -1,59 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWDXR00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWDXRaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbWDXR00 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 13:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWDXR00
+	id S1751027AbWDXRaG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 13:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWDXRaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 13:26:26 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:3256 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751022AbWDXR0Z (ORCPT
+	Mon, 24 Apr 2006 13:30:06 -0400
+Received: from mailgw4.ericsson.se ([193.180.251.62]:28330 "EHLO
+	mailgw4.ericsson.se") by vger.kernel.org with ESMTP
+	id S1751026AbWDXRaD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 13:26:25 -0400
-Message-ID: <444D0A3E.6070107@watson.ibm.com>
-Date: Mon, 24 Apr 2006 13:26:22 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Mon, 24 Apr 2006 13:30:03 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       jlan@engr.sgi.com
-Subject: Re: [Patch 1/8] Setup
-References: <444991EF.3080708@watson.ibm.com>	<4449939D.7@watson.ibm.com> <20060423190232.2fe43995.rdunlap@xenotime.net>
-In-Reply-To: <20060423190232.2fe43995.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [ANNOUNCE] Release Digsig 1.5: kernel module forrun-timeauthentication of binaries
+Date: Mon, 24 Apr 2006 13:29:37 -0400
+Message-ID: <6D19CA8D71C89C43A057926FE0D4ADAA29D363@ecamlmw720.eamcs.ericsson.se>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ANNOUNCE] Release Digsig 1.5: kernel module forrun-timeauthentication of binaries
+Thread-Index: AcZnvwAeRmTfxdSXS2eUkWN/iRuBRAAApI5Q
+From: "Makan Pourzandi \(QB/EMC\)" <makan.pourzandi@ericsson.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
+       "Serue Hallyen" <serue@us.ibm.com>,
+       "Axelle Apvrille" <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
+       <disec-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 24 Apr 2006 17:29:38.0768 (UTC) FILETIME=[A9DC5D00:01C667C4]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+ 
 
->On Fri, 21 Apr 2006 22:23:25 -0400 Shailabh Nagar wrote:
->
->  
->
->>Index: linux-2.6.17-rc1/include/linux/delayacct.h
->>===================================================================
->>--- /dev/null	1970-01-01 00:00:00.000000000 +0000
->>+++ linux-2.6.17-rc1/include/linux/delayacct.h	2006-04-21 19:39:29.000000000 -0400
->>@@ -0,0 +1,69 @@
->>+/* delayacct.h - per-task delay accounting
->>+ */
->>+
->>+#ifndef _LINUX_TASKDELAYS_H
->>+#define _LINUX_TASKDELAYS_H
->>    
->>
->
->Probably _LINUX_DELAYACCT_H.
->  
->
-Yup. Hangover from old name...will fix.
+> -----Original Message-----
+> From: Arjan van de Ven [mailto:arjan@infradead.org] 
+> Sent: April 24, 2006 12:48 PM
+> To: Makan Pourzandi (QB/EMC)
+> Cc: linux-kernel@vger.kernel.org; 
+> linux-security-module@vger.kernel.org; Serue Hallyen; Axelle 
+> Apvrille; disec-devel@lists.sourceforge.net
+> Subject: RE: [ANNOUNCE] Release Digsig 1.5: kernel module 
+> forrun-timeauthentication of binaries
 
->Or if I add linux/taskdelays.h, what #include guard should I use?
->
->---
->~Randy
->  
->
+> ok I have to admit that this answer worries me.
+> 
+> how can it be covered? How do you distinguish an elf loader 
+> application (which just uses open + mmap after all) with... 
+> say a grep-calling perl script?
+> 
+> As long as you allow apps to mmap (or even just read() a file 
+> into memory).... they can start acting like an elf loader if 
+> they chose to do so. And.. remember it's not the files WITH 
+> signature you're protecting against (which you could check) 
+> but the ones WITHOUT. And there are many of those; and you 
 
+Ok, I believe that now I see your point. You're right, to simplify if
+your application reads an ELF file and begins to interpret that, Digsig
+does not cover that case.  For me what you mention here rather concerns
+the bahavior of the application, which is not what we intend to
+implement here. Digsig functionality is limited to checking the validity
+of the signature of your binary when Linux loads it. And, IMO, it should
+be used with other security mechanisms and not alone. I believe though
+this simple functionality can do much to avoid executing viruses or
+other malware on your system.   
+
+Regards 
+Makan 
+
+
+> can't sign ALL files I think, not without going through 
+> really great hoops anyway.
+> 
+> 
+> 
+> 

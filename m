@@ -1,57 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWDXKX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWDXKp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWDXKX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 06:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWDXKX4
+	id S1750703AbWDXKp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 06:45:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWDXKp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 06:23:56 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:16504 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750716AbWDXKX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 06:23:56 -0400
-Date: Mon, 24 Apr 2006 18:23:52 +0800
-From: Akinobu Mita <mita@miraclelinux.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Matt Mackall <mpm@selenic.com>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [patch 4/4] change slab poison pattern
-Message-ID: <20060424102352.GA5789@miraclelinux.com>
-References: <20060424083333.217677000@localhost.localdomain> <20060424083342.743876000@localhost.localdomain> <1145870404.21484.2.camel@localhost>
-Mime-Version: 1.0
+	Mon, 24 Apr 2006 06:45:57 -0400
+Received: from 81-178-102-145.dsl.pipex.com ([81.178.102.145]:20129 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1750703AbWDXKp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 06:45:56 -0400
+Date: Mon, 24 Apr 2006 11:45:53 +0100
+To: linux-cifs-client@lists.samba.org, samba-technical@lists.samba.org
+Cc: sfrench@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] cifs experimental off leads to compile errors
+Message-ID: <20060424104553.GA1010@shadowen.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1145870404.21484.2.camel@localhost>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.11+cvs20060126
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24, 2006 at 12:20:03PM +0300, Pekka Enberg wrote:
-> > Because use-after-free poisoning make kref counter signed value.
-> > So this patch prevents it by changing poisoning pattern.
-> 
-> Then why not check against POISON_INUSE when CONFIG_SLAB_DEBUG in the
-> kref debugging code? I would prefer you didn't change the slab constants
-> (they're well known by everyone now) but if you must, at least stick a
-> big fat comment there.
+As of 2.6.17-rc2-git5 it seems that CIFS has stopped working
+if CIFS_EXPERIMENTAL isn't enabled .  The following sorts
+out the errors, but I am not sure if the semantics of the
+experimEnabled_write() are correct when CIFS_EXPERIMENTAL is
+disabled.
 
-This slab poisoning pattern change is not very important.
+-apw
 
-Because even if slab debugging is enalbed, kref_put() with unreferenced
-kref object will be detected as slab corruption.
+=== 8< ===
+cifs experimental off leads to compile errors
 
-Because kref_put() decrements the kref counter in freed slab object.
+When compiling with CIFS enabled but with CIFS_EXPERIMENTAL disabled
+you get link errors as below.
 
-Slab corruption: start=e0e8b698, len=32
-Redzone: 0x5a2cf071/0x5a2cf071.
-Last user: [<f08ea008>](release_test_kref+0x8/0x14 [test])
-000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-                 ^^
-The main reason I want to propose this kref debugging is because
-I can find many places where we can replace from atomic_t to
-struct kref by doing "grep -r atomic_dec_and_test .".
+  fs/built-in.o(.text+0x11bf8c): In function `.cifs_setup_session':
+  : undefined reference to `.CIFS_SessSetup'
 
-But I warried that replacing by kref will just increase atomic operations
-because of debugging code in kref (WARN_ON()es in kref.c)
+It seems that we need to help the optimiser out more when disabling
+this code.  This patch turns the experimEnabled variable into the
+constant (0) when experimental support is not compiled in.
 
-So patch 4/4 is not very important, I want to drop patch 4/4.
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+diff -upN reference/fs/cifs/cifs_debug.c current/fs/cifs/cifs_debug.c
+--- reference/fs/cifs/cifs_debug.c
++++ current/fs/cifs/cifs_debug.c
+@@ -616,6 +616,7 @@ experimEnabled_write(struct file *file, 
+ 	rc = get_user(c, buffer);
+ 	if (rc)
+ 		return rc;
++#ifdef CONFIG_CIFS_EXPERIMENTAL
+ 	if (c == '0' || c == 'n' || c == 'N')
+ 		experimEnabled = 0;
+ 	else if (c == '1' || c == 'y' || c == 'Y')
+@@ -624,6 +625,9 @@ experimEnabled_write(struct file *file, 
+ 		experimEnabled = 2;
+ 
+ 	return count;
++#else
++	return -ENOSYS;
++#endif
+ }
+ 
+ static int
+diff -upN reference/fs/cifs/cifsfs.c current/fs/cifs/cifsfs.c
+--- reference/fs/cifs/cifsfs.c
++++ current/fs/cifs/cifsfs.c
+@@ -52,7 +52,9 @@ int cifsFYI = 0;
+ int cifsERROR = 1;
+ int traceSMB = 0;
+ unsigned int oplockEnabled = 1;
++#ifdef CONFIG_CIFS_EXPERIMENTAL
+ unsigned int experimEnabled = 0;
++#endif
+ unsigned int linuxExtEnabled = 1;
+ unsigned int lookupCacheEnabled = 1;
+ unsigned int multiuser_mount = 0;
+diff -upN reference/fs/cifs/cifsglob.h current/fs/cifs/cifsglob.h
+--- reference/fs/cifs/cifsglob.h
++++ current/fs/cifs/cifsglob.h
+@@ -536,7 +536,11 @@ GLOBAL_EXTERN unsigned int multiuser_mou
+ 				have the uid/password or Kerberos credential 
+ 				or equivalent for current user */
+ GLOBAL_EXTERN unsigned int oplockEnabled;
++#ifdef CONFIG_CIFS_EXPERIMENTAL
+ GLOBAL_EXTERN unsigned int experimEnabled;
++#else
++#define experimEnabled (0)
++#endif
+ GLOBAL_EXTERN unsigned int lookupCacheEnabled;
+ GLOBAL_EXTERN unsigned int extended_security;	/* if on, session setup sent 
+ 				with more secure ntlmssp2 challenge/resp */

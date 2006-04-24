@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWDXPFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWDXPGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750865AbWDXPFK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 11:05:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWDXPFK
+	id S1750887AbWDXPGE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 11:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWDXPGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 11:05:10 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:23072 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750865AbWDXPFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 11:05:02 -0400
-Date: Mon, 24 Apr 2006 17:05:04 +0200
+	Mon, 24 Apr 2006 11:06:03 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:40527 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750872AbWDXPFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 11:05:42 -0400
+Date: Mon, 24 Apr 2006 17:05:44 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, shbader@de.ibm.com
-Subject: [patch 9/13] s390: tape 3590 changes.
-Message-ID: <20060424150504.GJ15613@skybase>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org, heiko.carstens@de.ibm.com
+Subject: [patch 11/13] s390: instruction processing damage handling.
+Message-ID: <20060424150544.GL15613@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,92 +21,77 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stefan Bader <shbader@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-[patch 9/13] s390: tape 3590 changes.
+[patch 11/13] s390: instruction processing damage handling.
 
-Added some changes that where proposed by Andrew Morton.
-Added 3592 device type.
+In case of an instruction processing damage (IPD) machine check in
+kernel mode the resulting action is always to stop the kernel.
+This is not necessarily the best solution since a retry of the
+failing instruction might succeed. Add logic to retry the instruction
+if no more than 30 instruction processing damage checks occured in
+the last 5 minutes.
 
-Signed-off-by: Stefan Bader <shbader@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/char/tape_3590.c |   22 +++++++++++-----------
- drivers/s390/char/tape_std.h  |    1 +
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ drivers/s390/s390mach.c |   33 ++++++++++++++++++++++++++++-----
+ 1 files changed, 28 insertions(+), 5 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/char/tape_3590.c linux-2.6-patched/drivers/s390/char/tape_3590.c
---- linux-2.6/drivers/s390/char/tape_3590.c	2006-04-24 16:47:00.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/char/tape_3590.c	2006-04-24 16:47:26.000000000 +0200
-@@ -230,14 +230,16 @@ tape_3590_read_attmsg(struct tape_device
-  * These functions are used to schedule follow-up actions from within an
-  * interrupt context (like unsolicited interrupts).
-  */
-+struct work_handler_data {
-+	struct tape_device *device;
-+	enum tape_op        op;
-+	struct work_struct  work;
-+};
+diff -urpN linux-2.6/drivers/s390/s390mach.c linux-2.6-patched/drivers/s390/s390mach.c
+--- linux-2.6/drivers/s390/s390mach.c	2006-03-20 06:53:29.000000000 +0100
++++ linux-2.6-patched/drivers/s390/s390mach.c	2006-04-24 16:47:28.000000000 +0200
+@@ -362,12 +362,19 @@ s390_revalidate_registers(struct mci *mc
+ 	return kill_task;
+ }
+ 
++#define MAX_IPD_COUNT	29
++#define MAX_IPD_TIME	(5 * 60 * 100 * 1000) /* 5 minutes */
 +
- static void
- tape_3590_work_handler(void *data)
+ /*
+  * machine check handler.
+  */
+ void
+ s390_do_machine_check(struct pt_regs *regs)
  {
--	struct {
--		struct tape_device *device;
--		enum tape_op op;
--		struct work_struct work;
--	} *p = data;
-+	struct work_handler_data *p = data;
- 
- 	switch (p->op) {
- 	case TO_MSEN:
-@@ -257,11 +259,7 @@ tape_3590_work_handler(void *data)
- static int
- tape_3590_schedule_work(struct tape_device *device, enum tape_op op)
- {
--	struct {
--		struct tape_device *device;
--		enum tape_op op;
--		struct work_struct work;
--	} *p;
-+	struct work_handler_data *p;
- 
- 	if ((p = kzalloc(sizeof(*p), GFP_ATOMIC)) == NULL)
- 		return -ENOMEM;
-@@ -316,7 +314,7 @@ tape_3590_bread(struct tape_device *devi
- 
- 	rq_for_each_bio(bio, req) {
- 		bio_for_each_segment(bv, bio, i) {
--			dst = kmap(bv->bv_page) + bv->bv_offset;
-+			dst = page_address(bv->bv_page) + bv->bv_offset;
- 			for (off = 0; off < bv->bv_len;
- 			     off += TAPEBLOCK_HSEC_SIZE) {
- 				ccw->flags = CCW_FLAG_CC;
-@@ -1168,6 +1166,7 @@ tape_3590_setup_device(struct tape_devic
- static void
- tape_3590_cleanup_device(struct tape_device *device)
- {
-+	flush_scheduled_work();
- 	tape_std_unassign(device);
- 
- 	kfree(device->discdata);
-@@ -1234,6 +1233,7 @@ static struct tape_discipline tape_disci
- 
- static struct ccw_device_id tape_3590_ids[] = {
- 	{CCW_DEVICE_DEVTYPE(0x3590, 0, 0x3590, 0), .driver_info = tape_3590},
-+	{CCW_DEVICE_DEVTYPE(0x3592, 0, 0x3592, 0), .driver_info = tape_3592},
- 	{ /* end of list */ }
- };
- 
-diff -urpN linux-2.6/drivers/s390/char/tape_std.h linux-2.6-patched/drivers/s390/char/tape_std.h
---- linux-2.6/drivers/s390/char/tape_std.h	2006-04-24 16:47:00.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/char/tape_std.h	2006-04-24 16:47:26.000000000 +0200
-@@ -153,6 +153,7 @@ enum s390_tape_type {
-         tape_3480,
-         tape_3490,
-         tape_3590,
-+        tape_3592,
- };
- 
- #endif // _TAPE_STD_H
++	static DEFINE_SPINLOCK(ipd_lock);
++	static unsigned long long last_ipd;
++	static int ipd_count;
++	unsigned long long tmp;
+ 	struct mci *mci;
+ 	struct mcck_struct *mcck;
+ 	int umode;
+@@ -404,11 +411,27 @@ s390_do_machine_check(struct pt_regs *re
+ 				s390_handle_damage("processing backup machine "
+ 						   "check with damage.");
+ 			}
+-			if (!umode)
+-				s390_handle_damage("processing backup machine "
+-						   "check in kernel mode.");
+-			mcck->kill_task = 1;
+-			mcck->mcck_code = *(unsigned long long *) mci;
++
++			/*
++			 * Nullifying exigent condition, therefore we might
++			 * retry this instruction.
++			 */
++
++			spin_lock(&ipd_lock);
++
++			tmp = get_clock();
++
++			if (((tmp - last_ipd) >> 12) < MAX_IPD_TIME)
++				ipd_count++;
++			else
++				ipd_count = 1;
++
++			last_ipd = tmp;
++
++			if (ipd_count == MAX_IPD_COUNT)
++				s390_handle_damage("too many ipd retries.");
++
++			spin_unlock(&ipd_lock);
+ 		}
+ 		else {
+ 			/* Processing damage -> stopping machine */

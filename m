@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWDXBKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWDXBOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWDXBKz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 21:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWDXBKy
+	id S1751471AbWDXBOc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 21:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751476AbWDXBOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 21:10:54 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:3566 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1750841AbWDXBKy (ORCPT
+	Sun, 23 Apr 2006 21:14:32 -0400
+Received: from rtr.ca ([64.26.128.89]:42979 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751471AbWDXBOb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 21:10:54 -0400
-Date: Mon, 24 Apr 2006 10:10:53 +0900
-From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
-To: sekharan@us.ibm.com
-Cc: akpm@osdl.org, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, " Valerie.Clement"@bull.net
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-In-Reply-To: <1145683725.21231.15.camel@linuxchandra>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-	<1145630992.3373.6.camel@localhost.localdomain>
-	<1145638722.14804.0.camel@linuxchandra>
-	<20060421155727.4212c41c.akpm@osdl.org>
-	<1145670536.15389.132.camel@linuxchandra>
-	<20060421191340.0b218c81.akpm@osdl.org>
-	<1145683725.21231.15.camel@linuxchandra>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.13; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 23 Apr 2006 21:14:31 -0400
+Message-ID: <444C2664.7060803@rtr.ca>
+Date: Sun, 23 Apr 2006 21:14:12 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Al Boldi <a1426z@gawab.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [FIX] ide-io: increase timeout value to allow for slave wakeup
+References: <200604222359.21652.a1426z@gawab.com> <200604230721.54550.a1426z@gawab.com> <20060422214356.0f8afbcb.akpm@osdl.org> <200604231422.31176.a1426z@gawab.com>
+In-Reply-To: <200604231422.31176.a1426z@gawab.com>
+Content-Type: text/plain; charset=windows-1256; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20060424011053.B89707402F@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Apr 2006 22:28:45 -0700
-Chandra Seetharaman <sekharan@us.ibm.com> wrote:
-
-> > > pzone based memory controller:
-> > > http://marc.theaimsgroup.com/?l=ckrm-tech&m=113867467006531&w=2
-> > 
-> > From a super-quick scan that looks saner.  Is it effective?  Is this the
-> > way you're planning on proceeding?
+Al Boldi wrote:
+ ..
+> Also apply this one to get rid of this message:
 > 
-> Yes, it is effective, and the reclamation is O(1) too. It has couple of
-> problems by design, (1) doesn't handle shared pages and (2) doesn't
-> provide support for both min_shares and max_shares.
+> 	hdb: set_drive_speed_status: status=0x40 { DriveReady }
+> 	ide: failed opcode was: unknown
+> 
+> Maybe someone on the ide list can comment on this first though.
+> 
+> --- 16/include/linux/ide.h.orig	2006-03-31 19:12:51.000000000 +0300
+> +++ 16/include/linux/ide.h	2006-04-23 13:06:32.000000000 +0300
+> @@ -120,7 +120,7 @@ typedef unsigned char	byte;	/* used ever
+>  #define IDE_BCOUNTL_REG		IDE_LCYL_REG
+>  #define IDE_BCOUNTH_REG		IDE_HCYL_REG
+>  
+> -#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==(good))
+> +#define OK_STAT(stat,good,bad)	(((stat)&((good)|(bad)))==((stat)&(good)))
+>  #define BAD_R_STAT		(BUSY_STAT   | ERR_STAT)
+>  #define BAD_W_STAT		(BAD_R_STAT  | WRERR_STAT)
+>  #define BAD_STAT		(BAD_R_STAT  | DRQ_STAT)
+> 
 
-Right.  I wanted to show proof-of-cencept of the pzone based controller
-and implemented minimal features necessary as the memory controller.
-So, the pzone based controller still needs development and some cleanup.
+Assuming hdb is a CDROM/optical drive, then this change makes sense for that.
+But I don't think it is a valid (good) change for regular ATA disks.
+
+A more complex patch is required, one which correctly handles each drive type.
+
+cheers

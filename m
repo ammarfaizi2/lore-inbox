@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWDXV33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWDXV34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWDXV33 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 17:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWDXVXo
+	id S1751302AbWDXV34 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 17:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWDXV3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 17:23:44 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:28611 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750971AbWDXVXl (ORCPT
+	Mon, 24 Apr 2006 17:29:55 -0400
+Received: from smtpout.mac.com ([17.250.248.184]:12024 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751302AbWDXV3o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 17:23:41 -0400
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+	Mon, 24 Apr 2006 17:29:44 -0400
+In-Reply-To: <444D3D32.1010104@argo.co.il>
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain> <444D3D32.1010104@argo.co.il>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Gary Poppitz <poppitzg@iomega.com>,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 1 of 13] ipath - fix race with exposing reset file
-X-Mercurial-Node: 61819d2519e0603795bf97a8d6cea9ad62261b57
-Message-Id: <61819d2519e0603795bf.1145913777@eng-12.pathscale.com>
-In-Reply-To: <patchbomb.1145913776@eng-12.pathscale.com>
-Date: Mon, 24 Apr 2006 14:22:57 -0700
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: rdreier@cisco.com
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Compiling C++ modules
+Date: Mon, 24 Apr 2006 17:29:24 -0400
+To: Avi Kivity <avi@argo.co.il>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We were accidentally exposing the "reset" sysfs file more than once
-per device.
+On Apr 24, 2006, at 17:03:46, Avi Kivity wrote:
+> Alan Cox wrote:
+>> There are a few anti C++ bigots around too, but the kernel choice  
+>> of C was based both on rational choices and experimentation early  
+>> on with the C++ compiler.
+>
+> Times have changed, though. The C++ compiler is much better now,  
+> and the recent slew of error handling bugs shows that C is a very  
+> unsafe language.
+>
+> I think it's easy to show that the equivalent C++ code would be  
+> shorter, faster, and safer.
 
-Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+Really?  What features exactly does C++ have over C that you think  
+make that true?  Implicit memory allocation? Exceptions?  Operator  
+overloading?  Tendency to use StudlyCaps?  What else can C++ do that  
+C can not?
 
-diff -r 8cc21848a9bb -r 61819d2519e0 drivers/infiniband/hw/ipath/ipath_diag.c
---- a/drivers/infiniband/hw/ipath/ipath_diag.c	Wed Apr 19 15:24:35 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_diag.c	Wed Apr 19 15:24:36 2006 -0700
-@@ -277,12 +277,13 @@ static int ipath_diag_open(struct inode 
- 
- bail:
- 	spin_unlock_irqrestore(&ipath_devs_lock, flags);
--	mutex_unlock(&ipath_mutex);
- 
- 	/* Only expose a way to reset the device if we
- 	   make it into diag mode. */
- 	if (ret == 0)
- 		ipath_expose_reset(&dd->pcidev->dev);
-+
-+	mutex_unlock(&ipath_mutex);
- 
- 	return ret;
- }
-diff -r 8cc21848a9bb -r 61819d2519e0 drivers/infiniband/hw/ipath/ipath_sysfs.c
---- a/drivers/infiniband/hw/ipath/ipath_sysfs.c	Wed Apr 19 15:24:35 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_sysfs.c	Wed Apr 19 15:24:36 2006 -0700
-@@ -711,10 +711,22 @@ static struct attribute_group dev_attr_g
-  * enters diag mode.  A device reset is quite likely to crash the
-  * machine entirely, so we don't want to normally make it
-  * available.
-+ *
-+ * Called with ipath_mutex held.
-  */
- int ipath_expose_reset(struct device *dev)
- {
--	return device_create_file(dev, &dev_attr_reset);
-+	static int exposed;
-+	int ret;
-+
-+	if (!exposed) {
-+		ret = device_create_file(dev, &dev_attr_reset);
-+		exposed = 1;
-+	}
-+	else
-+		ret = 0;
-+
-+	return ret;
- }
- 
- int ipath_driver_create_group(struct device_driver *drv)
+For example, I could write the following:
+
+class Foo {
+public:
+	Foo() { /* ... init code ... */ }
+	~Foo() { /* ... free code ... */ }
+	int do_thing(int arg) { /* ... code ... */ }
+
+private:
+	int data_member;
+};
+
+Or I could write it like this:
+
+struct foo {
+	int data_member;
+};
+
+int foo_init() { /* ... init code ... */ }
+int foo_destroy() { /* ... free code ... */ }
+int foo_do_thing(int arg) { /* ... code ... */ }
+
+
+The "advantages" of the former over the latter:
+
+(1)  Without exceptions (which are fragile in a kernel), the former  
+can't return an error instead of initializing the Foo.
+
+(2)  You can't control when you initialize the Foo.  For example in  
+this code, the "Foo item;" declarations seem to be trivially  
+relocatable, even if they're not.
+     spin_lock(&foo_lock);
+     Foo item1;
+     Foo item2;
+     spin_unlock(&foo_lock);
+
+(3)  Foo could theoretically implement overloaded operators.  How  
+exactly is it helpful to do math on structs?  Does that actually make  
+it any easier to understand the code?  How does it make it more  
+obvious to be able to write a "+" operator that allocates memory?
+
+
+Cheers,
+Kyle Moffett
+

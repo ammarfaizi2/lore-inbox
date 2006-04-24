@@ -1,57 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWDXOES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWDXOHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWDXOES (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 10:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWDXOES
+	id S1750835AbWDXOHh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 10:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWDXOHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 10:04:18 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:60369 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750826AbWDXOEQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 10:04:16 -0400
-Date: Mon, 24 Apr 2006 09:04:07 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Lars Marowsky-Bree <lmb@suse.de>,
-       Valdis.Kletnieks@vt.edu, Ken Brush <kbrush@gmail.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
-Message-ID: <20060424140407.GD22703@sergelap.austin.ibm.com>
-References: <4446D378.8050406@novell.com> <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu> <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com> <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu> <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com> <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu> <20060424082424.GH440@marowsky-bree.de> <1145882551.29648.23.camel@localhost.localdomain> <20060424125641.GD9311@sergelap.austin.ibm.com> <1145887333.29648.44.camel@localhost.localdomain>
+	Mon, 24 Apr 2006 10:07:37 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:21392 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750829AbWDXOHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 10:07:36 -0400
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7]
+	implementation of LSM hooks)
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Olivier Galibert <galibert@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Lars Marowsky-Bree <lmb@suse.de>, Valdis.Kletnieks@vt.edu,
+       Ken Brush <kbrush@gmail.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060424135421.GC22703@sergelap.austin.ibm.com>
+References: <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com>
+	 <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu>
+	 <20060424082424.GH440@marowsky-bree.de>
+	 <1145882551.29648.23.camel@localhost.localdomain>
+	 <20060424124556.GA92027@dspnet.fr.eu.org>
+	 <1145883251.3116.27.camel@laptopd505.fenrus.org>
+	 <20060424130949.GE9311@sergelap.austin.ibm.com>
+	 <1145884620.3116.33.camel@laptopd505.fenrus.org>
+	 <20060424132911.GB22703@sergelap.austin.ibm.com>
+	 <1145886047.3116.36.camel@laptopd505.fenrus.org>
+	 <20060424135421.GC22703@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Date: Mon, 24 Apr 2006 16:07:13 +0200
+Message-Id: <1145887633.3116.40.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145887333.29648.44.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Alan Cox (alan@lxorguk.ukuu.org.uk):
-> Thus this sort of stuff needs to be taken seriously. Can SuSE provide a
-> good reliable policy for AppArmour to people, can Red Hat do the same
-> with SELinux ?
+On Mon, 2006-04-24 at 08:54 -0500, Serge E. Hallyn wrote:
+> Quoting Arjan van de Ven (arjan@infradead.org):
+> > On Mon, 2006-04-24 at 08:29 -0500, Serge E. Hallyn wrote:
+> > > Quoting Arjan van de Ven (arjan@infradead.org):
+> > > > On Mon, 2006-04-24 at 08:09 -0500, Serge E. Hallyn wrote:
+> > > > > Quoting Arjan van de Ven (arjan@infradead.org):
+> > > > > > for all such things in the first place. In fact, we already know that to
+> > > > > > do auditing, LSM is the wrong thing to do (and that's why audit doesn't
+> > > > > > use LSM). It's one of those fundamental linux truths: Trying to be
+> > > > > 
+> > > > > As I recall it was simply decided that LSM must be "access control
+> > > > > only", and that was why it wasn't used for audit.
+> > > > 
+> > > > no you recall incorrectly.
+> > > > Audit needs to audit things that didn't work out, like filenames that
+> > > > don't exist. Audit needs to know what is going to happen before the
+> > > > entire "is this allowed" chain is going to be followed. SELInux and
+> > > > other LSM parts are just one part of that chain, and there's zero
+> > > > guarantee that you get to the LSM part in the chain.....  Now of course
+> > > 
+> > > Ah yes.  It needed to be authoritative.  I did recall incorrectly.
+> > > 
+> > > I suspect some would argue that you are right that LSM is broken, but
+> > > only because it wasn't allowed to be authoritative. 
+> > 
+> > authoritative isn't enough; think about it. The VFS isn't ever going to
+> > ask "can I open this file" if the file doesn't exist in the first place;
+> 
+> Current audit doesn't do that either, does it?  
 
-That's a little more than half the question.  The other 40% is can users
-write good policies.
+As far as I know, it actually does. (assuming you configure it do audit
+such events obviously)
 
-I think it will, and already has, become easier for selinux.  But in
-this case I wonder whether some sort of contest could be beneficial.  We
-all know of Russel Coker's open root selinux play machines.  That's a
-powerful statement.  Things I'd like to see in addition are
+> It labels the parent
+> inode, so if /var/spool/mail doesn't exist, and you look up
+> /var/spool/mail/hallyn, you won't get an audit record. 
 
-	a. a similar setup with apparmour
-	b. a similar setup where "mere mortals" set up the selinux policy
 
-For the first few rounds, rather than judge one way or the other, we
-could hopefully publish the results in a way to encourage a flurry of
-selinux policy tools - one of which may actually be useful.
+>  You'd have to do
+> that by auditing all open syscalls at the syscall level.
 
-Given that AA is a 'targeted' type of setup, I guess it would need to
-have a strict sshd policy, and the game would be whether the policy can
-keep anyone with the root password from escaping the policy.
+That's a wrong assumption. There is one level below the syscall level as
+well in Linux, and that is where you need to audit for this, and afaik
+audit actually does that.
 
-> Note I don't care about whether apparmour is integrated. If the code is
-> good and it can be shown it works then fine.
 
-thanks,
--serge
+

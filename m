@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWDXNIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWDXNIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWDXNIw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 09:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWDXNIw
+	id S1750743AbWDXNIG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 09:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWDXNIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 09:08:52 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:64452 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750766AbWDXNIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 09:08:51 -0400
-Subject: Re: Problems with EDAC coexisting with BIOS
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Gross, Mark" <mark.gross@intel.com>
-Cc: bluesmoke-devel@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
-In-Reply-To: <5389061B65D50446B1783B97DFDB392D998732@orsmsx411.amr.corp.intel.com>
-References: <5389061B65D50446B1783B97DFDB392D998732@orsmsx411.amr.corp.intel.com>
-Content-Type: text/plain
+	Mon, 24 Apr 2006 09:08:06 -0400
+Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:28422 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1750743AbWDXNIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 09:08:05 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Linux 2.6.17-rc2
+Date: Mon, 24 Apr 2006 14:08:09 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <63bym-4wt-3@gated-at.bofh.it> <64wre-2cg-35@gated-at.bofh.it> <444C5722.6080605@shaw.ca>
+In-Reply-To: <444C5722.6080605@shaw.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Apr 2006 14:19:07 +0100
-Message-Id: <1145884747.29648.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200604241408.09677.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2006-04-21 at 09:01 -0700, Gross, Mark wrote:
-> 1) The default AMI BIOS behavior on SMI is to check the chipset error
-> registers (Dev0:Fun1) and re-hide them.
+On Monday 24 April 2006 05:42, Robert Hancock wrote:
+> Alistair John Strachan wrote:
+> > On Saturday 22 April 2006 02:07, Andi Kleen wrote:
+> > [snip]
+> >
+> >> They probably forget to set PROT_EXEC in either mprotect or mmap
+> >> somewhere. You can check in /proc/*/maps which mapping contains the
+> >> address it is faulting on and then try to find where it is allocated or
+> >> mprotect'ed.
+> >
+> > Turned out this was exactly what the problem was. Wine attempts to match
+> > Windows as far as read/write/execute mappings go, and war3.exe tried to
+> > execute memory in a section with "MEM_EXECUTE" not set.
+> >
+> > I'm surprised the program works on Windows with DEP/NX enabled, but
+> > apparently it does.
+>
+> Are you sure that it does? NX is not enabled by default on XP except on
+> Windows system processes, even on CPUs supporting hardware NX, so it
+> might well have failed with it turned on (especially since the problem
+> seemed to show up after some no-CD crack was applied).
 
-The words "bad design" come to mind (followed by a large number of more
-accurate phrases that are inappropriate for a public list)
+Linux 2.6.16 worked, 2.6.17-rc does not. As far as I'm concerned, this is a 
+regression.
 
-> Basically if device 0 : function 1 is hidden by the platform at boot
-> time un-hiding and using the device and function is a risky thing to do,
+Linux should not be forced to make arguably silly policy decisions like 
+disabling NX for 32bit applications not but "system processes", and as Andi 
+has mentioned NX _is_ runtime configurable, should one wish to disable it for 
+a given binary on an NX-enforcing kernel.
 
-Intel provided patches that do exactly this for some of the chip
-workarounds. Are you saying the Intel chip work around also needs
-fixing ?
+Wine pretends to be Windows. Therefore Wine should enforce the same "default 
+policy" as Windows, or make it runtime configurable in the same manner. In 
+this case, the workaround is cheap, fixes a real world application, and does 
+not interfere with Linux's NX policy.
 
-> The driver should never get loaded by default or automatically.  If the
-> user knows enough about there BIOS to trust that the SMI behavior will
-> coexist with the driver then its OK to load otherwise using this driver
-> is not a safe thing to do.
+Ultimately, we'll see if Alexandre Julliard agrees with the change. If not, 
+then I guess this particular application will fail to work on 2.6.17, forcing 
+me to investigate alternatives.
 
-So Intel and/or the BIOS vendors also forgot to put in any kind of
-indicator ? How do they expect end users to know this, or OS vendors ?
-Is there a technote that covers this mess ?
+-- 
+Cheers,
+Alistair.
 
-> I think the best thing to do is to have the driver error out in its init
-> or probe code if the dev0:fun1 is hidden at boot time.
-> 
-> Comments?
-
-Why did Intel bother implementing this functionality and then screwing
-it up so that OS vendors can't use it ? It seems so bogus.
-
-At the very least we should print a warning advising the user that the
-BIOS is incompatible and to ask the BIOS vendor for an update so that
-they can enable error detection and management support. 
-
-Is only the AMI BIOS this braindamaged, should we just blacklist AMI
-bioses in EDAC or is this shared Intel supplied code that may be found
-in other vendors systems.
-
-Alan
-
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

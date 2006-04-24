@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWDXQnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWDXQtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750905AbWDXQnS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 12:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWDXQnS
+	id S1750906AbWDXQtF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 12:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWDXQtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 12:43:18 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:54998 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750897AbWDXQnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 12:43:17 -0400
-Message-ID: <444CFFE5.1020509@intel.com>
-Date: Mon, 24 Apr 2006 09:42:13 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5 (X11/20060417)
-MIME-Version: 1.0
-To: Ingo Oeser <ioe-lkml@rameria.de>
-CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Ingo Oeser <netdev@axxeo.de>, "David S. Miller" <davem@davemloft.net>,
-       simlo@phys.au.dk, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       netdev@vger.kernel.org
-Subject: Re: Van Jacobson's net channels and real-time
-References: <Pine.LNX.4.44L0.0604201819040.19330-100000@lifa01.phys.au.dk> <200604221529.59899.ioe-lkml@rameria.de> <20060422134956.GC6629@wohnheim.fh-wedel.de> <200604230205.33668.ioe-lkml@rameria.de>
-In-Reply-To: <200604230205.33668.ioe-lkml@rameria.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 24 Apr 2006 12:49:04 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:16593 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750906AbWDXQtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 12:49:03 -0400
+Subject: RE: [ANNOUNCE] Release Digsig 1.5: kernel module for
+	run-timeauthentication of binaries
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Makan Pourzandi (QB/EMC)" <makan.pourzandi@ericsson.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       Serue Hallyen <serue@us.ibm.com>,
+       Axelle Apvrille <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
+       disec-devel@lists.sourceforge.net
+In-Reply-To: <6D19CA8D71C89C43A057926FE0D4ADAA29D361@ecamlmw720.eamcs.ericsson.se>
+References: <6D19CA8D71C89C43A057926FE0D4ADAA29D361@ecamlmw720.eamcs.ericsson.se>
+Content-Type: text/plain
+Date: Mon, 24 Apr 2006 18:47:57 +0200
+Message-Id: <1145897277.3116.44.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
-> On Saturday, 22. April 2006 15:49, Jörn Engel wrote:
->> That was another main point, yes.  And the endpoints should be as
->> little burden on the bottlenecks as possible.  One bottleneck is the
->> receive interrupt, which shouldn't wait for cachelines from other cpus
->> too much.
+On Mon, 2006-04-24 at 12:27 -0400, Makan Pourzandi (QB/EMC) wrote:
+> Hi Arjan, 
 > 
-> Thats right. This will be made a non issue with early demuxing
-> on the NIC and MSI (or was it MSI-X?) which will select
-> the right CPU based on hardware channels.
+> I hope I correctly understood your question, DigSig uses LSM hooks to
+> check the digital signature before loading it, then as long as your elf
+> loader uses kernel system calls, it's covered by DigSig. 
 
-MSI-X. with MSI you still have only one cpu handling all MSI interrupts and 
-that doesn't look any different than ordinary interrupts. MSI-X will allow 
-much better interrupt handling across several cpu's.
+ok I have to admit that this answer worries me.
 
-Auke
+how can it be covered? How do you distinguish an elf loader application
+(which just uses open + mmap after all) with... say a grep-calling perl
+script?
+
+As long as you allow apps to mmap (or even just read() a file into
+memory).... they can start acting like an elf loader if they chose to do
+so. And.. remember it's not the files WITH signature you're protecting
+against (which you could check) but the ones WITHOUT. And there are many
+of those; and you can't sign ALL files I think, not without going
+through really great hoops anyway.
+
+
+

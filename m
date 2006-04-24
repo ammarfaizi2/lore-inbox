@@ -1,44 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWDXBV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWDXBvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751475AbWDXBV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 21:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWDXBV4
+	id S1751484AbWDXBvg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 21:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWDXBvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 21:21:56 -0400
-Received: from rtr.ca ([64.26.128.89]:38835 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751475AbWDXBV4 (ORCPT
+	Sun, 23 Apr 2006 21:51:36 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:14465 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S1751484AbWDXBvf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 21:21:56 -0400
-Message-ID: <444C2821.5090409@rtr.ca>
-Date: Sun, 23 Apr 2006 21:21:37 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Jeff Chua <jeff.chua.linux@gmail.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Chris Ball <cjb@mrao.cam.ac.uk>,
-       Pavel Machek <pavel@suse.cz>, Arkadiusz Miskiewicz <arekm@maven.pl>,
-       Jeff Garzik <jeff@garzik.org>, Matt Mackall <mpm@selenic.com>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sata suspend resume ... (fwd)
-References: <Pine.LNX.4.64.0604232153230.2890@boston.corp.fedex.com>
-In-Reply-To: <Pine.LNX.4.64.0604232153230.2890@boston.corp.fedex.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 23 Apr 2006 21:51:35 -0400
+Date: Mon, 24 Apr 2006 10:47:01 +0900 (JST)
+Message-Id: <20060424.104701.10576428.taka@valinux.co.jp>
+To: sekharan@us.ibm.com
+Cc: akpm@osdl.org, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <1145670536.15389.132.camel@linuxchandra>
+References: <1145638722.14804.0.camel@linuxchandra>
+	<20060421155727.4212c41c.akpm@osdl.org>
+	<1145670536.15389.132.camel@linuxchandra>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua wrote:
+Hi Chandra,
+
+> > Could I ask that you briefly enumerate
+> > 
+> > a) which controllers you think we'll need in the forseeable future
+> > 
 > 
-..
-> May be just me, not matter what I tried, it still doesn't work. Closest 
-> I can get is to use "resume=/dev/sda" on boot, able to suspend, able to 
-> resume to X windows, can do anything, but can't access disk. ... simple 
-> "ls" would hang. Dmesg is show SATA disk timeout.
-..
+> Our main object is to provide resource control for the hardware
+> resources: CPU, I/O and memory.
+> 
+> We have already posted the CPU controller.
+> 
+> We have two implementations of memory controller and a I/O controller. 
+> 
+> Memory controller is understandably more complex and controversial, and
+> that is the reason we haven't posted it this time around (we are looking
+> at ways to simplify the design and hence the complexity). Both the
+> memory controllers has been posted to linux-mm.
+> 
+> I/O controller is based on CFQ-scheduler.
+> 
+> > b) what they need to do
 
-Try Randy Dunlop's libata-acpi patches -- I've been using variants of them
-for a *very long time* here now, as they're the only thing that works for me.
+	(snip)
 
-Suspend/resume for RAM and DISK both need them.
+> I/O Controller that we are working on is based on CFQ scheduler and
+> provides bandwidth control.  
+> > 
+> > c) pointer to prototype code if poss
 
-Cheers
+	(snip)
+
+> i/o controller: This controller is not ported to the framework posted,
+> but can be taken for a prototype version. New version would be simpler
+> though.
+
+I think controlling I/O bandwidth is right way to go.
+
+However, I think you need to change the design of the controller a bit.
+A lot of I/O requests processes issue will be handled by other contexts.
+There are AIO, journaling, pdflush and vmscan, which some kernel threads
+treat instead of the processes.
+
+The current design looks not to care about this.
+
+Thanks,
+Hirokazu Takahashi.

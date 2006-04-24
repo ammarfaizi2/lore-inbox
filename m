@@ -1,133 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWDXWRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWDXWUB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbWDXWRN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 18:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWDXWRN
+	id S1751163AbWDXWUB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 18:20:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWDXWUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 18:17:13 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20412 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751105AbWDXWRN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 18:17:13 -0400
-Date: Tue, 25 Apr 2006 00:16:32 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
-Message-ID: <20060424221632.GQ3386@elf.ucw.cz>
-References: <200604242355.08111.rjw@sisk.pl>
-MIME-Version: 1.0
+	Mon, 24 Apr 2006 18:20:00 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:48818 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1751163AbWDXWT7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 18:19:59 -0400
+Date: Mon, 24 Apr 2006 16:19:57 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 05/16] GFS2: File and inode operations
+Message-ID: <20060424221957.GW6075@schatzie.adilger.int>
+Mail-Followup-To: Steven Whitehouse <swhiteho@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <1145636030.3856.102.camel@quoit.chygwyn.com> <20060423075525.GP6075@schatzie.adilger.int> <1145886796.3856.161.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200604242355.08111.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <1145886796.3856.161.camel@quoit.chygwyn.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Apr 24, 2006  14:53 +0100, Steven Whitehouse wrote:
+> On Sun, 2006-04-23 at 01:55 -0600, Andreas Dilger wrote:
+> > > +++ b/include/linux/iflags.h
+> > > @@ -0,0 +1,104 @@
+> > > +#define IFLAG_TOPDIR		__IFL(TopDir)		/* 0x00020000 */
+> > > +#define IFLAG_DIRECTIO		__IFL(DirectIO)		/* 0x00040000 */
+> > > +#define IFLAG_INHERITDIRECTIO	__IFL(InheritDirectIO)	/* 0x00080000 */
+> > > +#define IFLAG_INHERITJDATA	__IFL(InheritJdata)	/* 0x00100000 */
+> > > +#define IFLAG_RESERVED		__IFL(Reserved)		/* 0x80000000 */
+> > 
+> > Actually, the 0x0080000 flag has been reserved by e2fsprogs for ext3
+> > extents for a while already.  AFAICS, there are no other flags in the
+> > current e2fsprogs that aren't listed above.
+>
+> So if I call that one IFLAG_EXTENT, then I presume that will be ok?
+> What about the 0x00040000 flag? That would seem to be a gap in the
+> sequence (ignoring GFS flags for now), so should I leave that reserved
+> for use by ext2/3 as well?
 
-> The appended patch allows swsusp to break the "50% of the normal zone" limit.
-> This is achieved by using the observation that pages mapped by frozen
-> userland tasks need not be copied before saving.
+To be honest, I don't know if 0x40000 is used or not.  It isn't in the
+e2fsprogs version of ext2_fs.h.
 
-I've not followed the patch too carefully, but it is not as bad as I
-expected...
+> > The other tidbit is that new ext2/ext3 files generally inherit the flags
+> > from their parent directory, so it isn't clear if there is really a need
+> > for a distinction between DIRECTIO and INHERIT_DIRECTIO, and similarly
+> > JDATA and INHERIT_JDATA?  Generally, I'd think that JDATA isn't meaningful
+> > on directories (since they are metadata and journaled anyways), nor is
+> > DIRECTIO so their only meaning on a directory is "INHERIT for new files".
+> 
+> Yes, that sounds like a good plan. The only downside (purely from a GFS2
+> point of view, it won't affect anybody else) means that its no longer a
+> 1:1 relationship between flags, so in order to do the conversion, I'd
+> have to use something a little more elaborate than the inline function I
+> added to the iflags.h header file,
 
-> With this patch applied I was able to save (and restore ;-)) ~800 MB suspend
-> images on a box with 1 GB of RAM.
+Hmm, maybe I don't understand the GFS2 issue then?  Why not just use
+IFLAG_JDATA on the directory and remove the use of IFLAG_INHERITJDATA
+(equivalent) entirely from GFS2?  Does the implementation depend on a
+distinction between these on a directory?
 
-And did it also work second time? ;-).
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 
-Okay, so it can be done, and patch does not look too bad. It still
-scares me. Is 800MB image more responsive than 500MB after resume?
-
-I guess we can revert to old behaviour by simply returning 1 from
-need_to_copy, right?
-
-I assume that need_to_copy returns 1 in case page is shared by current
-and some other process?
-
-> [Please don't beat me very hard, just couldn't resist. ;-)]
-
-Well, you are about to force me to learn about mm internals. Plus you
-force everyone who tries to modify swsusp. ... it may be okay if
-benefit is great enough and if it gets proper testing. Not 2.6.17
-material.
-
-Is benefit worth it?
-
-
-> --- linux-2.6.17-rc1-mm3.orig/include/linux/rmap.h	2006-04-22 10:34:33.000000000 +0200
-> +++ linux-2.6.17-rc1-mm3/include/linux/rmap.h	2006-04-22 10:34:45.000000000 +0200
-> @@ -104,6 +104,12 @@ pte_t *page_check_address(struct page *,
->   */
->  unsigned long page_address_in_vma(struct page *, struct vm_area_struct *);
->  
-> +#ifdef CONFIG_SOFTWARE_SUSPEND
-> +int page_mapped_by_current(struct page *);
-> +#else
-> +static inline int page_mapped_by_current(struct page *page) { return 0; }
-> +#endif /* CONFIG_SOFTWARE_SUSPEND */
-
-I'd leave it undefined. That will prevent nasty surprise when someone
-tries to use it w/o CONFIG_SOFTWARE_SUSPEND set.
-
-> @@ -251,6 +253,14 @@ int restore_special_mem(void)
->  	return ret;
->  }
->  
-> +/* Represents a stacked allocated page to be used in the future */
-> +struct res_page {
-> +	struct res_page *next;
-> +	char padding[PAGE_SIZE - sizeof(void *)];
-> +};
-> +
-> +static struct res_page *page_list;
-> +
->  static int pfn_is_nosave(unsigned long pfn)
->  {
->  	unsigned long nosave_begin_pfn = __pa(&__nosave_begin) >>
-> PAGE_SHIFT;
-
-Is this part of some other patch?
-
-
-> @@ -490,6 +613,11 @@ void swsusp_free(void)
->  	buffer = NULL;
->  }
->  
-> +void swsusp_free(void)
-> +{
-> +	free_image();
-> +	restore_active_inactive_lists();
-> +}
-
-This still scares me. Nice test would be to
-save/restore_active_inactive_lists repeatedly in a loop ... on running
-system ... aha, but it probably can't work outside of refrigerator?
-
->  	case SNAPSHOT_UNFREEZE:
->  		if (!data->frozen)
->  			break;
-> +		if (data->ready) {
-> +			error = -EPERM;
-> +			break;
-> +		}
->  		down(&pm_sem);
->  		thaw_processes();
->  		enable_nonboot_cpus();
-
-Error from UNFREEZE is not nice:
-
-Unfreeze:
-        unfreeze(snapshot_fd);
-        return error;
-}
-... we don't handle it. OTOH I guess it will be all fixed on exit()?
-
-								Pavel
-
--- 
-Thanks for all the (sleeping) penguins.

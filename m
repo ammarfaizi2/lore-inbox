@@ -1,27 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWDXQtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWDXQyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750906AbWDXQtF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 12:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWDXQtE
+	id S1750968AbWDXQyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 12:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWDXQyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 12:49:04 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:16593 "EHLO
+	Mon, 24 Apr 2006 12:54:08 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:62632 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750906AbWDXQtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 12:49:03 -0400
-Subject: RE: [ANNOUNCE] Release Digsig 1.5: kernel module for
-	run-timeauthentication of binaries
+	id S1750711AbWDXQyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 12:54:07 -0400
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] 
+	implementation of LSM hooks)
 From: Arjan van de Ven <arjan@infradead.org>
-To: "Makan Pourzandi (QB/EMC)" <makan.pourzandi@ericsson.com>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       Serue Hallyen <serue@us.ibm.com>,
-       Axelle Apvrille <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
-       disec-devel@lists.sourceforge.net
-In-Reply-To: <6D19CA8D71C89C43A057926FE0D4ADAA29D361@ecamlmw720.eamcs.ericsson.se>
-References: <6D19CA8D71C89C43A057926FE0D4ADAA29D361@ecamlmw720.eamcs.ericsson.se>
+To: David Lang <dlang@digitalinsight.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Lars Marowsky-Bree <lmb@suse.de>, Valdis.Kletnieks@vt.edu,
+       Ken Brush <kbrush@gmail.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.62.0604240730030.30494@qynat.qvtvafvgr.pbz>
+References: <4446D378.8050406@novell.com>
+	 <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu>
+	 <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com>
+	 <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu>
+	 <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com>
+	 <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu>
+	 <20060424082424.GH440@marowsky-bree.de>
+	 <1145882551.29648.23.camel@localhost.localdomain>
+	 <20060424125641.GD9311@sergelap.austin.ibm.com>
+	 <1145887333.29648.44.camel@localhost.localdomain>
+	 <20060424140407.GD22703@sergelap.austin.ibm.com>
+	 <Pine.LNX.4.62.0604240730030.30494@qynat.qvtvafvgr.pbz>
 Content-Type: text/plain
-Date: Mon, 24 Apr 2006 18:47:57 +0200
-Message-Id: <1145897277.3116.44.camel@laptopd505.fenrus.org>
+Date: Mon, 24 Apr 2006 18:50:53 +0200
+Message-Id: <1145897454.3116.47.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -30,25 +41,19 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 12:27 -0400, Makan Pourzandi (QB/EMC) wrote:
-> Hi Arjan, 
+
 > 
-> I hope I correctly understood your question, DigSig uses LSM hooks to
-> check the digital signature before loading it, then as long as your elf
-> loader uses kernel system calls, it's covered by DigSig. 
+> the 'hard shell, soft center' approach isn't as secure as 'full 
+> hardening' (assuming that both are properly implemented), but the fact 
+> that it's far easier to understand and configure the hard shell means that 
+> it's also far more likly to be implemented properly.
 
-ok I have to admit that this answer worries me.
+I can certainly see value in a "take away degrees of freedom" approach.
+In fact many security approaches are just that, and that's just fine
+with me, and clearly of value.
 
-how can it be covered? How do you distinguish an elf loader application
-(which just uses open + mmap after all) with... say a grep-calling perl
-script?
-
-As long as you allow apps to mmap (or even just read() a file into
-memory).... they can start acting like an elf loader if they chose to do
-so. And.. remember it's not the files WITH signature you're protecting
-against (which you could check) but the ones WITHOUT. And there are many
-of those; and you can't sign ALL files I think, not without going
-through really great hoops anyway.
-
+There is a distinction between really taking away a degree of freedom
+and just appearing to do so + easy workaround. Which is why we're having
+this discussion, to make sure AppArmor is of the former type ;)
 
 

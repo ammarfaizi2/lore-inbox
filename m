@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWDXOe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWDXOja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWDXOe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 10:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbWDXOe3
+	id S1750788AbWDXOja (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 10:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWDXOja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 10:34:29 -0400
-Received: from mga01.intel.com ([192.55.52.88]:39817 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1750709AbWDXOe2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 10:34:28 -0400
-X-IronPort-AV: i="4.04,152,1144047600"; 
-   d="scan'208"; a="27789894:sNHT62138342"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 24 Apr 2006 10:39:30 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:60607 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750713AbWDXOj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 10:39:29 -0400
+Message-ID: <444CE310.7030006@linux.intel.com>
+Date: Mon, 24 Apr 2006 18:39:12 +0400
+From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Problems with EDAC coexisting with BIOS
-Date: Mon, 24 Apr 2006 22:32:25 +0800
-Message-ID: <C1989F6360C8E94B9645F0E4CF687C08C1EA07@pgsmsx412.gar.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problems with EDAC coexisting with BIOS
-Thread-Index: AcZnqikPaDZMG0OnTBixmBWaUAkmWAAACEoA
-From: "Ong, Soo Keong" <soo.keong.ong@intel.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Gross, Mark" <mark.gross@intel.com>,
-       <bluesmoke-devel@lists.sourceforge.net>,
-       "LKML" <linux-kernel@vger.kernel.org>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
-X-OriginalArrivalTime: 24 Apr 2006 14:32:27.0926 (UTC) FILETIME=[E9629B60:01C667AB]
+To: Pavel Machek <pavel@suse.cz>
+CC: Martin Mares <mj@ucw.cz>, Matthew Garrett <mjg59@srcf.ucam.org>,
+       "Yu, Luming" <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
+References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <mj+md-20060420.165714.18107.albireo@ucw.cz> <4447C020.3010003@linux.intel.com> <20060420220731.GF2352@ucw.cz> <444C761F.6010603@linux.intel.com> <20060424083102.GE26345@elf.ucw.cz>
+In-Reply-To: <20060424083102.GE26345@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are 4 occasions (that I aware of) during the OS times that could
-possibly trigger SMI
-
-1. Before OS USB driver disconnect SMI from USB controller
-2. ACPI driver call software SMI once
-3. SpeedStep using ACPI interface
-4. Error (connected to SMI) happens
-
-I know there are always ways to improve BIOS. Allow me to look at the OS
-first so that OS can be robust enough to handle different
-implementations.
-
-1 and 2 will be gone early in booting. 3 could be handled appropriately
-by OS because OS knows when SpeedStep ACPI interface is called and is
-done. 4 will be gone after error interrupt re-connection done by OS
-after phase 1 and 2.
-
-I am not the one who prefer error handling stay in BIOS, but many people
-have different opinion from me.
-
-I logout now.
-
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
-Sent: Monday, April 24, 2006 10:30 PM
-To: Ong, Soo Keong
-Cc: Gross, Mark; bluesmoke-devel@lists.sourceforge.net; LKML; Carbonari,
-Steven; Wang, Zhenyu Z
-Subject: RE: Problems with EDAC coexisting with BIOS
-
-On Llu, 2006-04-24 at 22:15 +0800, Ong, Soo Keong wrote:
-> To me, periodical is not a good design for error handling, it wastes
-> transaction bandwidth that should be used for other more productive
-> purposes.
-
-The periodical choice is mostly down to the brain damaged choice of NMI
-as the viable alternative, which is as good as 'not usable'
-
-> It is more appropriate to have single handler, either OS or BIOS.
-
-Agreed but then the BIOS must provide that service to the OS reliably
-and efficiently so that users can build that service into their system
-wide error management and control processes.
-
-> In general, the errors handler connect the errors to the interrupt or
-> interrutps. The handler should undhide (if it s hideable) the error
-> controller and read its registers upon interrupt, then carry out
-> appropriate actions to handle the erros.
-
-Actually I am dubious that the error handler can do that. If the OS
-kernel just issued the first half of a config cycle what occurs when the
-SMI tries to play with PCI config space ? 
+Pavel Machek wrote:
+> On Po 24-04-06 10:54:23, Alexey Starikovskiy wrote:
+>> Pavel Machek wrote:
+>>>>> I don't see any reason for treating some keys or buttons 
+>>>>> differently.
+>>>>> A key is just a key.
+>>>> There is one special key anyway -- reset...
+>>> Your point is? There's also hardware power button on many machines.
+>>> They are not controllable by software => they are not relevant to this
+>>> discussion.
+>>>
+>> Really? And you are what are you going to do with bugs about "my power 
+>> button doesn't remap, and always shuts down my machine?"
+> 
+> If they have hardware power button, I'll laugh at them (then
+> CLOSE/INVALID). Feel free to reassign such bugs to me.
+> 
+> Anyway stripping useful functinality because very old (386-era!)
+> machines don't support it is not a way to go.
+> 								Pavel
+Any new machine will have this same functionality if booted with acpi=off,ht etc, and this is done automatically on recent SUSE installs.

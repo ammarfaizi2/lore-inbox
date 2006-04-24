@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWDXIKn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWDXINn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWDXIKn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 04:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWDXIKn
+	id S1751153AbWDXINn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 04:13:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWDXINn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 04:10:43 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:22190 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S1751132AbWDXIKm (ORCPT
+	Mon, 24 Apr 2006 04:13:43 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:30638 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S1751141AbWDXINm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 04:10:42 -0400
-Date: Mon, 24 Apr 2006 10:11:30 +0200
+	Mon, 24 Apr 2006 04:13:42 -0400
+Date: Mon, 24 Apr 2006 10:14:34 +0200
 From: Lars Marowsky-Bree <lmb@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>, Neil Brown <neilb@suse.de>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-       James Morris <jmorris@namei.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Message-ID: <20060424081130.GF440@marowsky-bree.de>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <1145470463.3085.86.camel@laptopd505.fenrus.org> <p73mzeh2o38.fsf@bragg.suse.de> <1145522524.3023.12.camel@laptopd505.fenrus.org> <20060420192717.GA3828@sorel.sous-sol.org> <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil> <20060421173008.GB3061@sorel.sous-sol.org> <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil> <17484.20906.122444.964025@cse.unsw.edu.au> <1145862899.3116.3.camel@laptopd505.fenrus.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>, Nix <nix@esperi.org.uk>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Valdis.Kletnieks@vt.edu,
+       casey@schaufler-ca.com, James Morris <jmorris@namei.org>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       fireflier-devel@lists.sourceforge.net
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+Message-ID: <20060424081433.GG440@marowsky-bree.de>
+References: <20060419014857.35628.qmail@web36606.mail.mud.yahoo.com> <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com> <200604190656.k3J6uSGW010288@turing-police.cc.vt.edu> <32851499-DA27-46AF-A1A4-E668BBE0771D@mac.com> <1145536803.3313.32.camel@moss-spartans.epoch.ncsc.mil> <87y7xzu4hj.fsf@hades.wkstn.nix> <1145629477.21749.146.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1145862899.3116.3.camel@laptopd505.fenrus.org>
+In-Reply-To: <1145629477.21749.146.camel@moss-spartans.epoch.ncsc.mil>
 X-Ctuhulu: HASTUR
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-04-24T09:14:58, Arjan van de Ven <arjan@infradead.org> wrote:
+On 2006-04-21T10:24:37, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> does apparmor at least (offer) to kill the app when this happens?
-> (rationale: the app is hijacked, better kill it before it goes to do
-> damage)
+> > (With AppArmor, of course, you never lose labels at all, because there
+> > aren't any.)
+> But you do lose preservation of security properties, e.g. renaming a
+> file suddenly moves it under different protection.  Same end result.
 
-Heh, that was just my question to Crispin this morning, because that's
-what I'd prefer too.
-
-Not just for security, but simply because experience shows that error
-paths are not well auditted in general; even if it doesn't cause
-privilege escalation, I prefer if it doesn't shred the data it is
-allowed to access by hitting a misconfiguration in my profile...
-
+This is not correct, as far as I understand. As the app can only rename
+in it has access to both the old and the new path.
 
 
 -- 

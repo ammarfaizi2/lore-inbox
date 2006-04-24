@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751488AbWDXCAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWDXCjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751488AbWDXCAI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Apr 2006 22:00:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWDXCAI
+	id S1751490AbWDXCjX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Apr 2006 22:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWDXCjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Apr 2006 22:00:08 -0400
-Received: from xenotime.net ([66.160.160.81]:10389 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751488AbWDXCAG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Apr 2006 22:00:06 -0400
-Date: Sun, 23 Apr 2006 19:02:32 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       jlan@engr.sgi.com
-Subject: Re: [Patch 1/8] Setup
-Message-Id: <20060423190232.2fe43995.rdunlap@xenotime.net>
-In-Reply-To: <4449939D.7@watson.ibm.com>
-References: <444991EF.3080708@watson.ibm.com>
-	<4449939D.7@watson.ibm.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sun, 23 Apr 2006 22:39:23 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:55474 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751490AbWDXCjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Apr 2006 22:39:22 -0400
+Subject: Re: [Alsa-devel] Re: ALSA regression: oops on shutdown
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, perex@suse.cz,
+       alsa-devel@alsa-project.org
+In-Reply-To: <b6fcc0a0604231937h6f2754f9k68ec76dc19c7ddb9@mail.gmail.com>
+References: <20060423235730.GA7934@mipter.zuzino.mipt.ru>
+	 <20060423185721.39ff4207.akpm@osdl.org>
+	 <b6fcc0a0604231937h6f2754f9k68ec76dc19c7ddb9@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 23 Apr 2006 22:39:19 -0400
+Message-Id: <1145846360.31507.50.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Apr 2006 22:23:25 -0400 Shailabh Nagar wrote:
+On Sun, 2006-04-23 at 19:37 -0700, Alexey Dobriyan wrote:
+> On 4/23/06, Andrew Morton <akpm@osdl.org> wrote:
+> > Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> > >
+> > > ALSA oops I reported against 2.6.16-rc1-mm4 [1] sneaked into mainline
+> > >  after release.
+> >
+> > One wonders why the ALSA developers merged up which was known to cause
+> > oopses.
+> 
+> To be fair, I bisected it only to git-alsa.patch back then and only
+> now found enough time, so
+> blame me.
 
-> Index: linux-2.6.17-rc1/include/linux/delayacct.h
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.17-rc1/include/linux/delayacct.h	2006-04-21 19:39:29.000000000 -0400
-> @@ -0,0 +1,69 @@
-> +/* delayacct.h - per-task delay accounting
-> + */
-> +
-> +#ifndef _LINUX_TASKDELAYS_H
-> +#define _LINUX_TASKDELAYS_H
+Do you have procfs disabled?  Full config is needed to debug this more.
 
-Probably _LINUX_DELAYACCT_H.
-Or if I add linux/taskdelays.h, what #include guard should I use?
+Lee
 
----
-~Randy

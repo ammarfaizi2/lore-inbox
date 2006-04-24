@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWDXIyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWDXIzB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbWDXIyP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 04:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWDXIyP
+	id S932092AbWDXIzB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 04:55:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWDXIzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 04:54:15 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:52911 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S932091AbWDXIyO (ORCPT
+	Mon, 24 Apr 2006 04:55:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26191 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932092AbWDXIzA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 04:54:14 -0400
-Date: Mon, 24 Apr 2006 10:54:56 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
-Message-ID: <20060424085456.GL440@marowsky-bree.de>
-References: <20060417195146.GA8875@kroah.com> <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu> <4445484F.1050006@novell.com> <20060420211308.GB2360@ucw.cz> <444AF977.5050201@novell.com> <200604230933.k3N9XTZ8019756@turing-police.cc.vt.edu> <20060423145846.GA7495@thorium.jmh.mhn.de> <20060424082831.GI440@marowsky-bree.de> <1145867837.3116.7.camel@laptopd505.fenrus.org>
+	Mon, 24 Apr 2006 04:55:00 -0400
+Date: Mon, 24 Apr 2006 10:55:07 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jeff Chua <jeff.chua.linux@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       Chris Ball <cjb@mrao.cam.ac.uk>, Arkadiusz Miskiewicz <arekm@maven.pl>,
+       Jeff Garzik <jeff@garzik.org>, Matt Mackall <mpm@selenic.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sata suspend resume ... (fwd)
+Message-ID: <20060424085507.GH22614@suse.de>
+References: <Pine.LNX.4.64.0604232153230.2890@boston.corp.fedex.com> <20060424075511.GA26345@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1145867837.3116.7.camel@laptopd505.fenrus.org>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060424075511.GA26345@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-04-24T10:37:17, Arjan van de Ven <arjan@infradead.org> wrote:
+On Mon, Apr 24 2006, Pavel Machek wrote:
+> Hi!
+> 
+> > >>FWIW, this patch fixes S3 resume for me too.  I'm on an Alienware m5500
+> > >>using sd_mod and ata_piix, and I think your T43p is using AHCI, so it
+> > >>seems that this fixes a libata-wide problem rather than something
+> > >>specific to your hardware.
+> > >
+> > >Thanks for the info, that is useful; but in fact I'm ata_piix not ahci.
+> > 
+> > 
+> > May be just me, not matter what I tried, it still doesn't work. Closest I 
+> > can get is to use "resume=/dev/sda" on boot, able to suspend, able to 
+> > resume to X windows, can do anything, but can't access disk. ... simple 
+> > "ls" would hang. Dmesg is show SATA disk timeout.
+> > 
+> > 
+> > I've tried both "piix" and "ahci". Both suspend to disk and mem.
+> 
+> Do suspend-to-disk, first. It is easier.
+> 
+> > My config ...
+> > 	CONFIG_SUSPEND2_CRYPTO=y
+> > 	CONFIG_SUSPEND2=y
+> > 	CONFIG_SUSPEND2_SWAPWRITER=y
+> > 	CONFIG_SUSPEND2_DEFAULT_RESUME2="swap:/dev/sda3"
+> 
+> You'll want to go with vanilla kernel.
+> 
+> > Linux version is 2.6.17-rc2. IBM X60s is Pentium D, so SMP ... may be this 
+> > has something to do with it.
+> 
+> Disable SMP in kernel config, then; it makes perfect sense to test it
+> UP.
 
-> > Security models can be compromised by root or by dumb accomplices. Film
-> > at eleven.
-> well this security model wants to partition root, more or less. So to
-> some degree looking at it makes sense; just not so much in the given
-> example ;)
-
-True.
-
-> > Seriously, this is not helpful. Could we instead focus on the
-> > technical argument wrt the kernel patches?
-> I disagree with your stance here; trying to poke holes in the
-> mechanism IS useful and important. In addition to looking at the
-> kernel patches. 
-
-I agree, sort-of. Yet, I'd argue that the holes tried to poke here rely
-on the admin being sloppish not with regular operation, but _while
-configuring the security policy_. The only way to protect against that
-is to shoot the admin on sight.
-
-Which might not be a bad idea, looking at the stats of the human error
-still being the most dangerous detail in any equation, yet it may be
-considered impractical.
-
-> I understand your employer wants this merged asap, but that's no reason
-> to try to stop discussions that try to poke holes in the security model.
-
-I resent that remark. At the same level I could argue that some other
-people in this discussion do have a professional interest in getting it
-_not_ merged. (And LSM ripped out _now_ before it gets a chance to
-address the comments made so far.) I'd rather not go there. 
-
-But while we're there, just really briefly, it is important to point out
-that while Novell/SUSE obviously _does_ have a corporate interest, it is
-not required for this to be "ASAP", and I trust that Crispin, Tony et
-al will work to incorporate all feedback received. I don't think we're
-in any rush, and even if LSM _is_ ripped out, that just means that the
-patch series will be augmented with a further patch [01/xx] "Reinstate
-LSM hooks w/additional provisions to address code cleanliness."
-
-Going back to the technical side of things, I'd be more happy if the
-holes poked were something you could reasonably expect to be able to
-protect against.
-
-
-Sincerely,
-    Lars Marowsky-Brée
+If you can, try and test the SUSE kotd kernel. I have at least one
+report of the 10.1-RC1 kernel working just fine for STD on an x60s.
 
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+Jens Axboe
 

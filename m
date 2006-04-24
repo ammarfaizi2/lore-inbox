@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWDXVBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWDXVD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWDXVBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 17:01:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWDXVBK
+	id S1751275AbWDXVD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 17:03:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWDXVDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 17:01:10 -0400
-Received: from [212.33.162.202] ([212.33.162.202]:25101 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751198AbWDXVBJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 17:01:09 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] Direct I/O bio size regression
-Date: Mon, 24 Apr 2006 23:59:13 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, David Chinner <dgc@sgi.com>
-References: <200604242006.11758.a1426z@gawab.com> <20060424194910.GK29724@suse.de>
-In-Reply-To: <20060424194910.GK29724@suse.de>
+	Mon, 24 Apr 2006 17:03:55 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:2566 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1751275AbWDXVDz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 17:03:55 -0400
+Message-ID: <444D3D32.1010104@argo.co.il>
+Date: Tue, 25 Apr 2006 00:03:46 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1256"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Gary Poppitz <poppitzg@iomega.com>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain>
+In-Reply-To: <1145911546.1635.54.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604242359.14192.a1426z@gawab.com>
+X-OriginalArrivalTime: 24 Apr 2006 21:03:52.0490 (UTC) FILETIME=[9746B0A0:01C667E2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Mon, Apr 24 2006, Al Boldi wrote:
-> > On my system max_hw_sectors_kb is fixed at 1024, and max_sectors_kb
-> > defaults to 512, which leads to terribly fluctuating thruput.
-> >
-> > Setting max_sectors_kb = max_hw_sectors_kb makes things even worse.
-> >
-> > Tuning max_sectors_kb to ~192 only stabilizes this situation.
->
-> That sounds pretty strange. Do you have a test case?
+Alan Cox wrote:
+> There are a few anti C++ bigots around too, but the kernel choice of C
+> was based both on rational choices and experimentation early on with the
+> C++ compiler.
+>   
+Times have changed, though. The C++ compiler is much better now, and the 
+recent slew of error handling bugs shows that C is a very unsafe language.
 
-I would think that, if you could get your hands on some hw that defaults to 
-the same values, you may easily see the same problem by doing this:
+I think it's easy to show that the equivalent C++ code would be shorter, 
+faster, and safer.
 
-1. # vmstat 1 (or some other bio mon)
-2. < change vt >
-3. # cat /dev/hda > /dev/null &
-4. # cat /dev/hda > /dev/null
-Let this second cat run for a sec, then ^C.
-Depending on your hw specifics the bio should either go up or down by a 
-factor of 2 (on my system 25mb/s-48mb/s).  You may have to repeat step 4 a 
-few times to aggravate the situation.
-
-Note that this is not specific to cat, but can also be observed during normal 
-random disk access, although not in a controlled manner.
-
-Setting max_sectors_kb to ~192 seems to inhibit this problem.
-
-Thanks!
-
---
-Al
-
-
-
-
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

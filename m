@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWDXHPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWDXHPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWDXHPt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 03:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWDXHPt
+	id S1751046AbWDXHPr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 03:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWDXHPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 03:15:49 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:17515 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751032AbWDXHPs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 03:15:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Jza2oMJG63V4C7+UUnYXsGOvv+5+0sRhOxoAto83vhlxcmeKD1xuKhZkm0HjzwUrl4Mh1nqFuPdbvujtxWWh8aNWIRhxlu36KT43wEIwdyIorfgqF79vhA2zNt3aLiTdKRsc894YuetS4Tp1BEe+YLb1MgFAMZBnDkcv7Xjw4zc=
-Message-ID: <9a8748490604240015s61b8b897r34a8be65dc9bac22@mail.gmail.com>
-Date: Mon, 24 Apr 2006 09:15:47 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH] binfmt_elf CodingStyle cleanup and remove some pointless casts
-Cc: linux-kernel@vger.kernel.org, ericy@cais.com
-In-Reply-To: <20060423142648.6ef34b9f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200604231858.15646.jesper.juhl@gmail.com>
-	 <20060423142648.6ef34b9f.akpm@osdl.org>
+	Mon, 24 Apr 2006 03:15:46 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:38822 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751012AbWDXHPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 03:15:45 -0400
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+From: Arjan van de Ven <arjan@infradead.org>
+To: Neil Brown <neilb@suse.de>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
+       James Morris <jmorris@namei.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+In-Reply-To: <17484.20906.122444.964025@cse.unsw.edu.au>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <1145470463.3085.86.camel@laptopd505.fenrus.org>
+	 <p73mzeh2o38.fsf@bragg.suse.de>
+	 <1145522524.3023.12.camel@laptopd505.fenrus.org>
+	 <20060420192717.GA3828@sorel.sous-sol.org>
+	 <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060421173008.GB3061@sorel.sous-sol.org>
+	 <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil>
+	 <17484.20906.122444.964025@cse.unsw.edu.au>
+Content-Type: text/plain
+Date: Mon, 24 Apr 2006 09:14:58 +0200
+Message-Id: <1145862899.3116.3.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/23/06, Andrew Morton <akpm@osdl.org> wrote:
-> Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> >
-> > Here's a patch that does a CodingStyle cleanup of fs/binfmt_elf.c and also
-> > removes some pointless casts of kmalloc() return values in the same file.
-> >
->
-> Much-needed.
->
-Nice to know that doing it was worthwhile :)
+
+> A large part of the behaviour of an application is the path names that
+> it uses and what it does with them.  If an application started doing
+> unexpected things with unexpected paths (e.g. exec("/bin/sh") or
+> open("/etc/shadow",O_RDONLY)) then this is a sure sign that it has
+> been subverted and that AppArmor need to protect it, from itself.
+
+does apparmor at least (offer) to kill the app when this happens?
+(rationale: the app is hijacked, better kill it before it goes to do
+damage)
 
 
-[snip]
-> The typecasting for NEW_AUX_ENT is random, ugly, irrational and
-> undesirable.  It's always u32 or unsigned long.  Perhaps as a followup
-> patch you could look at removing the unneeded casts? (hopefully that'll
-> be all of them)
->
-Sure, I'll take a look at that this evening, hopefully that'll mean a
-follow-up patch in aproximately 12-16hrs.
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

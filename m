@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWDXQ76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWDXRCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbWDXQ76 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 12:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWDXQ76
+	id S1750967AbWDXRCH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 13:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbWDXRCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 12:59:58 -0400
-Received: from spirit.analogic.com ([204.178.40.4]:49927 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1750742AbWDXQ75 convert rfc822-to-8bit (ORCPT
+	Mon, 24 Apr 2006 13:02:07 -0400
+Received: from mail.gmx.net ([213.165.64.20]:14505 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750967AbWDXRCG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 12:59:57 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <444CFFE5.1020509@intel.com>
-X-OriginalArrivalTime: 24 Apr 2006 16:59:48.0525 (UTC) FILETIME=[7ECAF5D0:01C667C0]
-Content-class: urn:content-classes:message
-Subject: Re: Van Jacobson's net channels and real-time
-Date: Mon, 24 Apr 2006 12:59:42 -0400
-Message-ID: <Pine.LNX.4.61.0604241254180.24099@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Van Jacobson's net channels and real-time
-thread-index: AcZnwH7Ug/KEce3oQle4tiXzgsDumw==
-References: <Pine.LNX.4.44L0.0604201819040.19330-100000@lifa01.phys.au.dk> <200604221529.59899.ioe-lkml@rameria.de> <20060422134956.GC6629@wohnheim.fh-wedel.de> <200604230205.33668.ioe-lkml@rameria.de> <444CFFE5.1020509@intel.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Auke Kok" <auke-jan.h.kok@intel.com>
-Cc: "Ingo Oeser" <ioe-lkml@rameria.de>,
-       =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       "Ingo Oeser" <netdev@axxeo.de>, "David S. Miller" <davem@davemloft.net>,
-       <simlo@phys.au.dk>, <linux-kernel@vger.kernel.org>, <mingo@elte.hu>,
-       <netdev@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Mon, 24 Apr 2006 13:02:06 -0400
+X-Authenticated: #271361
+Date: Mon, 24 Apr 2006 19:02:00 +0200
+From: Edgar Toernig <froese@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: video4linux-list@redhat.com
+Subject: bttv 2.6.16: wrong VBI_OFFSET?
+Message-Id: <20060424190200.653333fe.froese@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Mon, 24 Apr 2006, Auke Kok wrote:
+in 2.6.16 the code in driver/media/video/bttv-vbi.c was changed
+a little bit.  Beside other things, the constant 244 for the vbi
+offset was replaced by a #define VBI_OFFSET 128.
 
-> Ingo Oeser wrote:
->> On Saturday, 22. April 2006 15:49, Jörn Engel wrote:
->>> That was another main point, yes.  And the endpoints should be as
->>> little burden on the bottlenecks as possible.  One bottleneck is the
->>> receive interrupt, which shouldn't wait for cachelines from other cpus
->>> too much.
->>
->> Thats right. This will be made a non issue with early demuxing
->> on the NIC and MSI (or was it MSI-X?) which will select
->> the right CPU based on hardware channels.
->
-> MSI-X. with MSI you still have only one cpu handling all MSI interrupts and
-> that doesn't look any different than ordinary interrupts. MSI-X will allow
-> much better interrupt handling across several cpu's.
->
-> Auke
-> -
+Afaics, the old value 244 was correct - was the change to 128
+intentionally?
 
-Message signaled interrupts are just a kudge to save a trace on a
-PC board (read make junk cheaper still). They are not faster and
-may even be slower. They will not be the salvation of any interrupt
-latency problems. The solutions for increasing networking speed,
-where the bit-rate on the wire gets close to the bit-rate on the
-bus, is to put more and more of the networking code inside the
-network board. The CPU get interrupted after most things (like
-network handshakes) are complete.
+The reason I ask is because it broke the teletext decoder AleVT.
+The teletext standard defines where the clock run-in pulses
+have to lie (13th bit at 12us/-1us/+0.4us).  For the complete
+16 bits of clock run-in that comes down to 9.2us for the start
+of the first bit and 12.9us for the end of the last bit.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+Here are two oscilloscope shots showing the difference between
+offset 244 and 128 - the red line is the interval 9.2us-12.9us:
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+	http://goron.de/~froese/vbi-offset244.gif
+	http://goron.de/~froese/vbi-offset128.gif
 
-Thank you.
+As one can see, offset 244 fits very well.  The clock run-in
+lies where it's expected.  With offset 128 it's completely
+off - no way to find it at that position.
+
+One can also see that the sampling starts somewhere within
+the color burst, not at the trailing edge of hsync as some
+comment in the code may imply.
+
+Ciao, ET.
+
+
+PS: In bttv_vb_try_fmt code was changed from 32 to 64 bit
+arithmetic:
+
+|        /* s64 to prevent overflow. */
+|        count0 = (s64) f->fmt.vbi.start[0] + f->fmt.vbi.count[0]
+|                - tvnorm->vbistart[0];
+|        ...
+
+What should that change fix?  These values will never overflow -
+they fit into 16 bits each.

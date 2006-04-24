@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWDXOja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWDXOpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWDXOja (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 10:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWDXOja
+	id S1750782AbWDXOpd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 10:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWDXOpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 10:39:30 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:60607 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750713AbWDXOj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 10:39:29 -0400
-Message-ID: <444CE310.7030006@linux.intel.com>
-Date: Mon, 24 Apr 2006 18:39:12 +0400
-From: Alexey Starikovskiy <alexey_y_starikovskiy@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Martin Mares <mj@ucw.cz>, Matthew Garrett <mjg59@srcf.ucam.org>,
-       "Yu, Luming" <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
+	Mon, 24 Apr 2006 10:45:33 -0400
+Received: from nz-out-0102.google.com ([64.233.162.203]:7377 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750775AbWDXOpc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 10:45:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OloTfHoErppvuNYpFMVGoIhOJFPnvfkRpIi3SLohS4/jh8xe0FMCMwMiS92NB5+7/5SGSIutrXAgQ/NJ+K+c2MLFNz6TsLiw4XWBBDgavYlaznOjAbG1Atta2OAORLY0MaG42en++BuVVrQ6/wrKEePIdRPRsZ8tBo9EQEDH9yU=
+Message-ID: <d120d5000604240745i71bd56b8n99b97130388d36f6@mail.gmail.com>
+Date: Mon, 24 Apr 2006 10:45:31 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Matthew Garrett" <mjg59@srcf.ucam.org>
 Subject: Re: [RFC] [PATCH] Make ACPI button driver an input device
-References: <554C5F4C5BA7384EB2B412FD46A3BAD1332980@pdsmsx411.ccr.corp.intel.com> <20060420073713.GA25735@srcf.ucam.org> <4447AA59.8010300@linux.intel.com> <20060420153848.GA29726@srcf.ucam.org> <4447AF4D.7030507@linux.intel.com> <mj+md-20060420.165714.18107.albireo@ucw.cz> <4447C020.3010003@linux.intel.com> <20060420220731.GF2352@ucw.cz> <444C761F.6010603@linux.intel.com> <20060424083102.GE26345@elf.ucw.cz>
-In-Reply-To: <20060424083102.GE26345@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: "Dominik Brodowski" <linux@dominikbrodowski.net>,
+       linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Richard Purdie" <rpurdie@rpsys.net>, "Pavel Machek" <pavel@suse.cz>
+In-Reply-To: <20060419202421.GA24318@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060419195356.GA24122@srcf.ucam.org>
+	 <20060419200447.GA2459@isilmar.linta.de>
+	 <20060419202421.GA24318@srcf.ucam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> On Po 24-04-06 10:54:23, Alexey Starikovskiy wrote:
->> Pavel Machek wrote:
->>>>> I don't see any reason for treating some keys or buttons 
->>>>> differently.
->>>>> A key is just a key.
->>>> There is one special key anyway -- reset...
->>> Your point is? There's also hardware power button on many machines.
->>> They are not controllable by software => they are not relevant to this
->>> discussion.
->>>
->> Really? And you are what are you going to do with bugs about "my power 
->> button doesn't remap, and always shuts down my machine?"
-> 
-> If they have hardware power button, I'll laugh at them (then
-> CLOSE/INVALID). Feel free to reassign such bugs to me.
-> 
-> Anyway stripping useful functinality because very old (386-era!)
-> machines don't support it is not a way to go.
-> 								Pavel
-Any new machine will have this same functionality if booted with acpi=off,ht etc, and this is done automatically on recent SUSE installs.
+On 4/19/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> On Wed, Apr 19, 2006 at 10:04:47PM +0200, Dominik Brodowski wrote:
+> > On Wed, Apr 19, 2006 at 08:53:58PM +0100, Matthew Garrett wrote:
+> > > +++ a/include/linux/input.h 2006-04-19 20:49:18 +0100
+> > > @@ -344,6 +344,7 @@
+> > >  #define KEY_FORWARDMAIL            233
+> > >  #define KEY_SAVE           234
+> > >  #define KEY_DOCUMENTS              235
+> > > +#define KEY_LID                    237
+> >
+> > What about 236?
+>
+> I sent a patch last month that uses 236 for KEY_BATTERY, so decided not
+> to conflict with it.
+>
+
+Yes, I still need to apply it.
+
+Matthew, I would recommend not adding KEY_LID but using one of the
+switch codes (SW_0?) for the lid.
+
+Richard, on your handhelds what switch would be most similar to
+notebook's lid? Should we alias one of the switches to SW_LID?
+
+--
+Dmitry

@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWDYVqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbWDYVux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWDYVqx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 17:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWDYVqx
+	id S1751560AbWDYVux (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 17:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWDYVux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 17:46:53 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51599 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751323AbWDYVqx (ORCPT
+	Tue, 25 Apr 2006 17:50:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45713 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751327AbWDYVux (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 17:46:53 -0400
-Date: Tue, 25 Apr 2006 23:46:13 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: dean gaudet <dean@arctic.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] off-by-1 in kernel/power/main.c
-Message-ID: <20060425214613.GF6379@elf.ucw.cz>
-References: <Pine.LNX.4.64.0604212055390.24100@twinlark.arctic.org> <20060422213754.GA23981@elf.ucw.cz> <Pine.LNX.4.64.0604231958020.22072@twinlark.arctic.org> <20060424075725.GB26345@elf.ucw.cz> <Pine.LNX.4.64.0604251413430.10855@twinlark.arctic.org>
+	Tue, 25 Apr 2006 17:50:53 -0400
+Date: Tue, 25 Apr 2006 14:50:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/4] Revert "[fuse] fix deadlock between fuse_put_super()
+ and request_end()"
+In-Reply-To: <E1FYJ3b-0006UZ-00@dorka.pomaz.szeredi.hu>
+Message-ID: <Pine.LNX.4.64.0604251447200.3701@g5.osdl.org>
+References: <E1FYJ0r-0006Tv-00@dorka.pomaz.szeredi.hu>
+ <E1FYJ3b-0006UZ-00@dorka.pomaz.szeredi.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604251413430.10855@twinlark.arctic.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > Valid way to power off machine is by shutdown -o now, and there's a
-> > > > syscall to do that. It should not be done by /sys/power/state.
-> > > 
-> > > hey... my shutdown doesn't have a -o option... where can i find that?
-> > 
-> > Not sure where I got it, because _my_ shutdown does not have -o,
-> > either. Sorry. It has 
-> > 
-> >        -P     Halt action is to turn off the power.
-> > 
-> > however. Plus there's a syscall you can use...
-> 
-> "shutdown -hP now" just causes the machine to power off... i need it to go 
-> into S5 -- because it'll only respond to wake-on-lan from S5.  it doesn't 
-> respond to WOL after a "shutdown -hP now"...
-> 
-> ironically the off-by-1 bug let me get into S5... and i thought i had my 
-> code working.
-> 
-> so what i'm really curious about now is the Right Way to go into S5...
-> 
-> somehow with fc4 "shutdown -h now" put it in S5, but with debian it 
-> doesn't... and i haven't figured out yet where the fedora/debian 
-> kernel/sysvinit patches differ on this behaviour.
 
-There should not be any difference between S5 and poweroff...
+On Tue, 25 Apr 2006, Miklos Szeredi wrote:
+>
+> This reverts 73ce8355c243a434524a34c05cc417dd0467996e commit.
 
-Well, probably driver calls are different in regular case and your
-"hacked up" one. Try to find the one that matters...
-								Pavel
--- 
-Thanks for all the (sleeping) penguins.
+Btw, I _really_ hate commit messages that just say "this reverts that".
+
+Please please _please_ say why it gets reverted, even if it's just a short 
+explanation of what was wrong, and what the right thing is.
+
+And if you have an old version of git that doesn't even start up an editor 
+to allow you to talk about why the revert happens (yeah, that was a 
+mistake), please do upgrade.
+
+Trust me, you'll find a lot of the other improvements to your liking too.
+
+		Linus

@@ -1,128 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWDYATm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWDYAVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWDYATm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 20:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWDYATm
+	id S932130AbWDYAVH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 20:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWDYAVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 20:19:42 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:39311 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932129AbWDYATl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 20:19:41 -0400
-Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: herbert@13thfloor.at, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
-       Alan Stern <stern@rowland.harvard.edu>, Ashok Raj <ashok.raj@intel.com>,
-       miles@gnu.org
-In-Reply-To: <20060424162817.764fa244.akpm@osdl.org>
-References: <Pine.LNX.4.64.0604182013560.3701@g5.osdl.org>
-	 <20060421110140.GC14841@MAIL.13thfloor.at>
-	 <1145655097.15389.12.camel@linuxchandra>
-	 <20060422005851.GA22917@MAIL.13thfloor.at>
-	 <1145913967.1400.59.camel@linuxchandra>
-	 <20060424150314.2de6373d.akpm@osdl.org>
-	 <1145919717.1400.67.camel@linuxchandra>
-	 <20060424162817.764fa244.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 24 Apr 2006 17:19:38 -0700
-Message-Id: <1145924378.1400.86.camel@linuxchandra>
+	Mon, 24 Apr 2006 20:21:06 -0400
+Received: from h80ad24de.async.vt.edu ([128.173.36.222]:60898 "EHLO
+	h80ad24de.async.vt.edu") by vger.kernel.org with ESMTP
+	id S932130AbWDYAVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 20:21:05 -0400
+Message-Id: <200604250019.k3P0JmJQ004798@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Nix <nix@esperi.org.uk>,
+       Kyle Moffett <mrmacman_g4@mac.com>, casey@schaufler-ca.com,
+       James Morris <jmorris@namei.org>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks 
+In-Reply-To: Your message of "Mon, 24 Apr 2006 10:14:34 +0200."
+             <20060424081433.GG440@marowsky-bree.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060419014857.35628.qmail@web36606.mail.mud.yahoo.com> <CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com> <200604190656.k3J6uSGW010288@turing-police.cc.vt.edu> <32851499-DA27-46AF-A1A4-E668BBE0771D@mac.com> <1145536803.3313.32.camel@moss-spartans.epoch.ncsc.mil> <87y7xzu4hj.fsf@hades.wkstn.nix> <1145629477.21749.146.camel@moss-spartans.epoch.ncsc.mil>
+            <20060424081433.GG440@marowsky-bree.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: multipart/signed; boundary="==_Exmh_1145924387_2476P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Apr 2006 20:19:47 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 16:28 -0700, Andrew Morton wrote:
-> Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+--==_Exmh_1145924387_2476P
+Content-Type: text/plain; charset=us-ascii
 
-<snip>
-
-> > Another issue... many of the notifier callback functions are marked as
-> > init calls (__cpuinit, __devinit etc.,) as in:
-> > 
-> > static int __cpuinit pageset_cpuup_callback(struct notifier_block *nfb,
-> >                 unsigned long action,
-> >                 void *hcpu)
+On Mon, 24 Apr 2006 10:14:34 +0200, Lars Marowsky-Bree said:
+> On 2006-04-21T10:24:37, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> hm.  This needs some care and thought.  We _should_ be oopsing all over the
-> place because of this.  So why aren't we?
-
-for that matter we should have been oopsing w.r.t __initdata also,
-right ?
-
+> > > (With AppArmor, of course, you never lose labels at all, because there
+> > > aren't any.)
+> > But you do lose preservation of security properties, e.g. renaming a
+> > file suddenly moves it under different protection.  Same end result.
 > 
-> iirc, the cpu notifier chain is never used after bootup if
-> !CONFIG_HOTPLUG_CPU, so there's a good chance that we have things on that
-> list which have been unloaded, but which never get accessed.
-> 
-> It could be similar with the __devinit things - they're on the list,
-> they're unloaded, but nothing ever happens in a !CONFIG_HOTPLUG kernel to
-> cause them to be dereferenced.
-> 
-> Really, these notifier chains just shouldn't exist at all if they're not
-> going to be used.  We're a bit sloppy here.  Ashok and I spent some time
-> working on making lots of code and data structures go away if
-> !CONFIG_HOTPLUG_CPU, but it's a bit tricky due to the way we do SMP
-> bringup.
-> 
-> I guess for now, bringing those things into .text and .data when there's
-> doubt is a reasonable thing to do.
+> This is not correct, as far as I understand. As the app can only rename
+> in it has access to both the old and the new path.
 
-Will do.
-> 
-> 
-> > I am generating a separate patch to take care of those too.
-> > > 
-> > > btw, it'd be pretty trivial to add runtime checking for this sort of thing:
-> > > 
-> > > int addr_in_init_section(void *addr)
-> > > {
-> > > 	return addr >= __init_begin && addr < __init_end;
-> > > }
-> > 
-> > I will add this to kernel/sys.c, and put a BUG_ON to check for both the
-> > notifier block and the callback function.
-> 
-> It's x86-only I think.  If all architectures use the same symbols then I
-> guess we could do an arch-neutral version, but one should check.
+People seem to have a blind spot for this sort of thing.  Given *two* processes,
+one of which can be convinced to do a rename, and another that can be convinced
+to write a file, you can subvert everything (quite possibly in opposite order -
+if you can get process A to write /etc/foobar, and process B to rename foobar
+to passwd, you've won).
 
-I checked all the architectures, only v850 doesn't seem to have
-__init_begin (instead it has __init_start and it is the only arch that
-defines __init_start). But, it does have __init_end.
-
-CC'd the author of the file.
-> 
-> If it won't work on all architectures then kernel/sys.c isn't the right
-> place for it.
-> 
-> Maybe it's not so useful.  If we're actually accessing these things then
-> someone should report oopses.  So this debugging infrastructure will only
-> detect things which a) are in __init, b) shouldn't be in __init and c) are
-> never actually accessed.
-
-We do not know how the __initdata initializations were _not_ oopsing
-till 2.6.16, but fails consistently in 2.6.17-rc2. We spent some time
-debugging the problem and got to this point.
-
-If for random reason, the __init functions also start failing for
-whatever reason then we have to go through this debug cycle again.
-
-On the other hand, if we add a panic or BUG_ON in
-notifier_chain_register, then the bug will be apparent.
-
-> So I'd be inclined to not bother about this for now.
-
-I 'd agree with this in regards to exporting the function.
-> 
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Those who think that 2 processes can't be subverted should consider that symlink
+attacks have been around for a quarter of a century - and in that time, it's
+*always* been "one process to create the symlink, another to follow it to disaster".
 
 
+--==_Exmh_1145924387_2476P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFETWsjcC3lWbTT17ARAnk6AKCQ3QYc080UPqerLvC/eTz3QO4dBQCfSylm
+lAiefsOHhy71UeLhn+myLKE=
+=qY93
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1145924387_2476P--

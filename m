@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWDYK0d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWDYK2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWDYK0d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 06:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWDYK0d
+	id S932179AbWDYK2t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 06:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWDYK2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 06:26:33 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:36500 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932179AbWDYK0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 06:26:33 -0400
-Date: Tue, 25 Apr 2006 11:26:28 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Steven Whitehouse <swhiteho@redhat.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 05/16] GFS2: File and inode operations
-Message-ID: <20060425102628.GA26219@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steven Whitehouse <swhiteho@redhat.com>,
-	Andreas Dilger <adilger@clusterfs.com>,
-	Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <1145636030.3856.102.camel@quoit.chygwyn.com> <20060423075525.GP6075@schatzie.adilger.int> <1145886796.3856.161.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1145886796.3856.161.camel@quoit.chygwyn.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 25 Apr 2006 06:28:48 -0400
+Received: from mailserv.trstone.com ([12.109.59.11]:59807 "EHLO
+	mailserv.trstone.com") by vger.kernel.org with ESMTP
+	id S932179AbWDYK2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 06:28:48 -0400
+Message-ID: <444DFA05.2060508@rosettastone.com>
+Date: Tue, 25 Apr 2006 11:29:25 +0100
+From: Brian Uhrain <buhrain@rosettastone.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060302)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>
+CC: gregkh@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16.6 ( - 2.6.16.11 ) compile failure on an alpha
+References: <20060425101647.GH4349@vega.lnet.lut.fi>
+In-Reply-To: <20060425101647.GH4349@vega.lnet.lut.fi>
+Content-Type: multipart/mixed;
+ boundary="------------060009080907040804010808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24, 2006 at 02:53:16PM +0100, Steven Whitehouse wrote:
-> > Actually, the 0x0080000 flag has been reserved by e2fsprogs for ext3
-> > extents for a while already.  AFAICS, there are no other flags in the
-> > current e2fsprogs that aren't listed above.
-> > 
-> So if I call that one IFLAG_EXTENT, then I presume that will be ok?
-> What about the 0x00040000 flag? That would seem to be a gap in the
-> sequence (ignoring GFS flags for now), so should I leave that reserved
-> for use by ext2/3 as well?
+This is a multi-part message in MIME format.
+--------------060009080907040804010808
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-note that at least reiserfs, jfs snd xfs seem to use additional flags aswell.
-It would be really helpful if we could get a linux/fflags.h that collects all
-of having them spread all over.  Anyone volunteering to create it?
+Hi,
 
+Tomi Lapinlampi wrote:
+> When trying to compile 2.6.16.11 on an alpha I encountered a compile
+> error in arch/alpha/kernel/setup.c. I found that the problem appears with
+> all kernels from 2.6.16.6 up to 2.6.16.11.
+> 2.6.16.5 compiles fine, just like all older 2.6.16 -releases.
+> I did not test this with 2.6.17-rc -kernels.
+
+The problem is that the version of the patch meant for the 2.6.17-rc 
+kernels was merged into 2.6.16.5.  'for_each_possible_cpu' does not 
+exist in the 2.6.16.x tree.  Attached is a patch that replaces the usage 
+of for_each_possible_cpu with the 2.6.16 equivalent.
+
+  - Brian
+
+--------------060009080907040804010808
+Content-Type: text/plain;
+ name="2.6.16.11-alpha-compile-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.6.16.11-alpha-compile-fix.patch"
+
+Signed-off-by: Brian Uhrain <buhrain@rosettastone.com>
+
+---
+ arch/alpha/kernel/setup.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+--- linux-2.6.16.11.orig/arch/alpha/kernel/setup.c	2006-04-25 11:21:03.000000000 +0100
++++ linux-2.6.16.11/arch/alpha/kernel/setup.c	2006-04-25 11:22:56.557266608 +0100
+@@ -483,11 +483,13 @@ register_cpus(void)
+ {
+ 	int i;
+ 
+-	for_each_possible_cpu(i) {
+-		struct cpu *p = kzalloc(sizeof(*p), GFP_KERNEL);
+-		if (!p)
+-			return -ENOMEM;
+-		register_cpu(p, i, NULL);
++	for (i = 0; i < NR_CPUS; i++) {
++		if (cpu_possible(i)) {
++			struct cpu *p = kzalloc(sizeof(*p), GFP_KERNEL);
++			if (!p)
++				return -ENOMEM;
++			register_cpu(p, i, NULL);
++		}
+ 	}
+ 	return 0;
+ }
+
+--------------060009080907040804010808--

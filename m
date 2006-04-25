@@ -1,84 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751527AbWDYVJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbWDYVMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751527AbWDYVJa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 17:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbWDYVJa
+	id S1751311AbWDYVMz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 17:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbWDYVMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 17:09:30 -0400
-Received: from xenotime.net ([66.160.160.81]:21644 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751527AbWDYVJ3 (ORCPT
+	Tue, 25 Apr 2006 17:12:55 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:43200 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751311AbWDYVMy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 17:09:29 -0400
-Date: Tue, 25 Apr 2006 14:11:54 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Alex Davis <alex14641@yahoo.com>
-Cc: linville@tuxdriver.com, linux-netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] compile error in ieee80211_ioctl.c
-Message-Id: <20060425141154.347c5889.rdunlap@xenotime.net>
-In-Reply-To: <20060425210450.72120.qmail@web50212.mail.yahoo.com>
-References: <20060425210450.72120.qmail@web50212.mail.yahoo.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 Apr 2006 17:12:54 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
+Date: Tue, 25 Apr 2006 23:12:25 +0200
+User-Agent: KMail/1.9.1
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Linux PM <linux-pm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <nigel@suspend2.net>
+References: <200604242355.08111.rjw@sisk.pl> <200604251739.13377.rjw@sisk.pl> <20060425203256.GD6379@elf.ucw.cz>
+In-Reply-To: <20060425203256.GD6379@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604252312.26249.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Apr 2006 14:04:50 -0700 (PDT) Alex Davis wrote:
+Hi,
 
-> Hello:
+On Tuesday 25 April 2006 22:32, Pavel Machek wrote:
+> > >   > -unsigned int count_data_pages(void)
+> > > > +/**
+> > > > + *	need_to_copy - determine if a page needs to be copied before saving.
+> > > > + *	Returns false if the page can be saved without copying.
+> > > > + */
+> > > > +
+> > > > +static int need_to_copy(struct page *page)
+> > > > +{
+> > > > +	if (!PageLRU(page) || PageCompound(page))
+> > > > +		return 1;
+> > > > +	if (page_mapped(page))
+> > > > +		return page_mapped_by_current(page);
+> > > > +
+> > > > +	return 1;
+> > > > +}
+> > > 
+> > > I'd much rather VM internal type stuff get moved *out* of kernel/power :(
+> > 
+> > Well, I kind of agree, but I don't know where to place it under mm/.
+> > 
+> > > It needs more comments too. Also, how important is it for the page to be
+> > > off the LRU?
+> > 
+> > Hm, I'm not sure if that's what you're asking about, but the pages off the LRU
+> > are handled in a usual way, ie. copied when snapshotting the system.  The
+> > pages _on_ the LRU may be included in the snapshot image without
+> > copying, but I require them additionally to be (a) mapped by someone and
+> > (b) not mapped by the current task.
 > 
-> I sent this patch earlier and got no response, so I'm sending it again.
+> Why do you _want_ them mapped by someone?
 
-There was at least one reply, from me.
+Because this means they belong to a task that is frozen and won't touch them
+(of course unless it's us).  The kernel has no reason to access them either
+(even after we resume devices) except for reclaiming, but that's handled
+explicitly.  Thus it's safe to include them in the image without copying.
 
-The third parameter of module_param() is being misused in your patch.
-It represents a "permission" value, such as 0, 0444, 0644, etc.
-Or you can use existing #defined values for it.
+As I said before, I think the page cache pages may be treated this way too.
+It probably applies to all of the LRU pages, but there may be some corner
+cases.  The mapped pages are just easy to single out.
 
-> I cloned git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-dev.git
-> last night and got compile errors while compiling net/d80211/ieee80211_ioctl.c
-> into a module:
+> > > b) Why are you clearing PageLRU outside the spinlock?
+> > 
+> > Well, good question. ;-)  Moreover it seems I don't need to acquire the
+> > spinlock at all, because this is done on one CPU with IRQs disabled and the
+> > other tasks frozen.
 > 
->   CC [M]  net/d80211/ieee80211_ioctl.o
-> net/d80211/ieee80211_ioctl.c:33: error: syntax error before string constant
-> net/d80211/ieee80211_ioctl.c:33: warning: type defaults to `int' in declaration of `MODULE_PARM'
-> net/d80211/ieee80211_ioctl.c:33: warning: function declaration isn't a prototype
-> net/d80211/ieee80211_ioctl.c:33: warning: data definition has no type or storage class
-> net/d80211/ieee80211_ioctl.c:43: error: syntax error before string constant
-> net/d80211/ieee80211_ioctl.c:43: warning: type defaults to `int' in declaration of `MODULE_PARM'
-> net/d80211/ieee80211_ioctl.c:43: warning: function declaration isn't a prototype
-> net/d80211/ieee80211_ioctl.c:43: warning: data definition has no type or storage class
-> make[2]: *** [net/d80211/ieee80211_ioctl.o] Error 1
-> make[1]: *** [net/d80211] Error 2
-> make: *** [net] Error 2
-> 
-> This patch fixes it.
-> 
-> Signed-off-by: Alex Davis <alex14641@yahoo.com>
-> 
-> diff --git a/net/d80211/ieee80211_ioctl.c b/net/d80211/ieee80211_ioctl.c
-> index 42a7abe..4949e52 100644
-> --- a/net/d80211/ieee80211_ioctl.c
-> +++ b/net/d80211/ieee80211_ioctl.c
-> @@ -30,7 +30,7 @@ #include "aes_ccm.h"
->  
->  
->  static int ieee80211_regdom = 0x10; /* FCC */
-> -MODULE_PARM(ieee80211_regdom, "i");
-> +module_param(ieee80211_regdom, int, 0x10);
->  MODULE_PARM_DESC(ieee80211_regdom, "IEEE 802.11 regulatory domain; 64=MKK");
->  
->  /*
-> @@ -40,7 +40,7 @@ MODULE_PARM_DESC(ieee80211_regdom, "IEEE
->   * module.
->   */
->  static int ieee80211_japan_5ghz /* = 0 */;
-> -MODULE_PARM(ieee80211_japan_5ghz, "i");
-> +module_param(ieee80211_japan_5ghz, int, 0);
->  MODULE_PARM_DESC(ieee80211_japan_5ghz, "Vendor-updated firmware for 5 GHz");
+> Well, it is probably better to still take the spinlock. That way, if
+> something goes wrong we get deadlock, not anything worse.
 
----
-~Randy
+OK, so I'll just clear/set the LRU flag under the spinlock.
+
+Greetings,
+Rafael

@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWDYO2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWDYOdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbWDYO2f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 10:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWDYO2e
+	id S932232AbWDYOdF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 10:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWDYOdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 10:28:34 -0400
-Received: from THUNK.ORG ([69.25.196.29]:17314 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S932232AbWDYO2d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 10:28:33 -0400
-Date: Tue, 25 Apr 2006 08:46:09 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: James Morris <jmorris@namei.org>
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
-       Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Message-ID: <20060425124609.GA10113@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	James Morris <jmorris@namei.org>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
-	linux-security-module@vger.kernel.org
-References: <20060425042542.53414.qmail@web36603.mail.mud.yahoo.com> <Pine.LNX.4.64.0604250254520.15998@d.namei>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604250254520.15998@d.namei>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Tue, 25 Apr 2006 10:33:04 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:27786 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932232AbWDYOdE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 10:33:04 -0400
+Subject: Re: [PATCH/RFC] s390: Hypervisor File System
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Michael Holzheu <holzheu@de.ibm.com>
+Cc: ioe-lkml@rameria.de, linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
+       joern@wohnheim.fh-wedel.de
+In-Reply-To: <20060424191941.7aa6412a.holzheu@de.ibm.com>
+References: <20060424191941.7aa6412a.holzheu@de.ibm.com>
+Date: Tue, 25 Apr 2006 17:33:01 +0300
+Message-Id: <1145975582.11508.13.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 25, 2006 at 03:50:00AM -0400, James Morris wrote:
-> To make a rough analogy (as Ted mentioned his IETF work earlier...): 
-> 
-> The fundamental mechanisms of IPsec are sound.  It has taken many, many 
-> years to get it to this stage, despite claims of it being "too 
-> complicated".  In that time, several "simple" protocols were designed and 
-> implemented to address the "complexity" issues, but it turns out, after 
-> all, that with the right level of abstraction and tools, IPsec is not too 
-> complicated to be secure or to use: by the obvious example of both its 
-> widespread adoption and, afaik, no systemic security failures.
+On Mon, 2006-04-24 at 19:19 +0200, Michael Holzheu wrote:
+> +static int hypfs_create_cpu_files(struct super_block *sb,
+> +				  struct dentry *cpus_dir, void *cpu_info)
+> +{
+> +	struct dentry *cpu_dir;
+> +	char buffer[TMP_SIZE];
 
-And yet, many people use SSH and TLS, and it is more than sufficient
-for their needs.  Despite being very involved with the development of
-IPSec, and Kerberos, there are plenty of times when I will tell people
-to *not* use those technologies because they are *just* *too*
-*complicated*.
+Holy cow! That's 1 KB allocated on the stack! Please use kmalloc()
+instead.
 
-Choice is good.
+> +static int hypfs_create_phys_cpu_files(struct super_block *sb,
+> +				       struct dentry *cpus_dir, void *cpu_info)
+> +{
+> +	struct dentry *cpu_dir;
+> +	char buffer[TMP_SIZE];
 
-SELinux should not be the only way to do things.
+Ditto.
 
-						- Ted
+> +static ssize_t hypfs_aio_write(struct kiocb *iocb, const char __user *buf,
+> +			       size_t count, loff_t pos)
+> +{
+> +	int rc;
+> +
+> +	mutex_lock(&hypfs_lock);
+> +	if (last_update_time == get_seconds()) {
+> +		rc = -EBUSY;
+> +		goto out;
+> +	}
+> +	hypfs_delete_tree(hypfs_sblk->s_root);
+
+To state what I said earlier: the use of a global hypfs_sblk is
+problematic because now we can only have the filesystem mounted once. So
+I would really like to see some other way of updating. How do you feel
+about the s_ops->fs_remount thing?
+
+				Pekka
+

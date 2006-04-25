@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWDYIz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWDYI6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932145AbWDYIz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 04:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWDYIz6
+	id S932147AbWDYI6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 04:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWDYI6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 04:55:58 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:4034 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932145AbWDYIz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 04:55:57 -0400
-Date: Tue, 25 Apr 2006 10:55:56 +0200
-From: Martin Mares <mj@ucw.cz>
-To: David Schwartz <davids@webmaster.com>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-Message-ID: <mj+md-20060425.085309.25473.atrey@ucw.cz>
-References: <mj+md-20060424.201044.18351.atrey@ucw.cz> <MDEHLPKNGKAHNMBLJOLKGEDHLIAB.davids@webmaster.com>
+	Tue, 25 Apr 2006 04:58:38 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:14096 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932147AbWDYI6i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 04:58:38 -0400
+Date: Tue, 25 Apr 2006 10:58:22 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Avi Kivity <avi@argo.co.il>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+Message-ID: <20060425085822.GA12258@mars.ravnborg.org>
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain> <444D3D32.1010104@argo.co.il> <444DA2CA.4060807@mbligh.org> <444DB3FC.3070802@argo.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEDHLIAB.davids@webmaster.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <444DB3FC.3070802@argo.co.il>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	I don't recall anyone asking you to so much as lift a finger. Feel free to
-> invest your effort where you feel it will do the most good, and try not to
-> criticize others for doing the same with their own resources.
+On Tue, Apr 25, 2006 at 08:30:36AM +0300, Avi Kivity wrote:
+> Martin J. Bligh wrote:
+> >
+> >So ... what exactly are you waiting for? We await the results with
+> >baited breath. This slick C++ kernel of which you speak can surely
+> >not be far away.
+> >
+> I'll start on converting 2.6.16 tomorrow, since you're anticipating it 
+> with such eagerness.
+If you search the archives you can find a simple kbuild patch to
+introduce C++ support.
+OK, googled a little:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0509.2/0549.html
 
-As far as they intend to stay away from the main kernel tree, I don't
-critize anybody. But for example renaming otherwise logically named structure
-members (`class' etc.) just for C++ compatibility _IS_ wasting time of
-other people, who need to remember new names, review the patch and so on.
+I wrote it for someone that requested it long ago - and never applied it
+to vanilla kernel.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-If at first you don't succeed, redefine success.
+They had done the hard stuff themself - adapting the rest of the kernel
+to be compileable by a C++ compiler.
+
+	Sam

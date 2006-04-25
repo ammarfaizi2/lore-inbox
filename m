@@ -1,35 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWDYG1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWDYGbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWDYG1K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 02:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWDYG1K
+	id S932118AbWDYGbA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 02:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWDYGbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 02:27:10 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:23293 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932116AbWDYG1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 02:27:09 -0400
-Date: Tue, 25 Apr 2006 14:27:07 +0800
-From: Akinobu Mita <mita@miraclelinux.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch 1/4] kref: warn kref_put() with unreferenced kref
-Message-ID: <20060425062707.GD5698@miraclelinux.com>
-References: <20060424083333.217677000@localhost.localdomain> <20060424083341.613638000@localhost.localdomain> <20060425035128.GB18085@kroah.com> <20060425043410.GA5698@miraclelinux.com> <20060425050951.GB23373@kroah.com>
+	Tue, 25 Apr 2006 02:31:00 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:34961 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932118AbWDYGa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 02:30:59 -0400
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for
+	run-timeauthentication of binaries
+From: Arjan van de Ven <arjan@infradead.org>
+To: Nix <nix@esperi.org.uk>
+Cc: "Makan Pourzandi (QB/EMC)" <makan.pourzandi@ericsson.com>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       Serue Hallyen <serue@us.ibm.com>,
+       Axelle Apvrille <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
+       disec-devel@lists.sourceforge.net
+In-Reply-To: <87zmiao8bq.fsf@hades.wkstn.nix>
+References: <6D19CA8D71C89C43A057926FE0D4ADAA29D361@ecamlmw720.eamcs.ericsson.se>
+	 <1145897277.3116.44.camel@laptopd505.fenrus.org>
+	 <87hd4ipvdk.fsf@hades.wkstn.nix>
+	 <1145911526.3116.71.camel@laptopd505.fenrus.org>
+	 <87zmiao8bq.fsf@hades.wkstn.nix>
+Content-Type: text/plain
+Date: Tue, 25 Apr 2006 08:30:50 +0200
+Message-Id: <1145946650.3114.13.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060425050951.GB23373@kroah.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there some reason you created these patches?  Were you trying to
-> debug something that was tracked down to a kref issue?
+On Tue, 2006-04-25 at 00:35 +0100, Nix wrote:
+> On Mon, 24 Apr 2006, Arjan van de Ven yowled:
+> > On Mon, 2006-04-24 at 21:32 +0100, Nix wrote:
+> >> It checks mmap and mprotect with PROT_EXEC, and execve().
+> > 
+> > so no jvm's or flash plugins.
+> 
+> Well, you'll have to sign the flash plugin. This isn't
+> sign-at-compilation-time; 
 
-I can find many places where I can replace refcounter with kref by doing
-"grep -r atomic_dec_and_test linux/".
+the point I made is that a jvm has executable memory capabilities (it
+has to) and can be made an elf loader. At which point.. game over.
 
-If we have this detection of kref_put() with unreferenced object,
-The work of kref convertions would be more than code cleanup and
-consolidation.
+
+
+> > so it's not all that easy as you make it sound
+> 
+> Everyone seems to want the One Security Fix To Rule Them All. 
+
+I'm not part of that "everyone". I'm all in favor of removing degrees of
+freedom. However this one doesn't, it's just pure fake. This is similar
+to posting a sign at your unlocked front door "please don't burgle me
+via my front door" while your windows are also open.
+

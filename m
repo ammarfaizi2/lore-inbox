@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWDYTLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWDYTN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbWDYTLj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 15:11:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWDYTLj
+	id S932296AbWDYTN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 15:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWDYTN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 15:11:39 -0400
-Received: from pne-smtpout3-sn1.fre.skanova.net ([81.228.11.120]:31653 "EHLO
-	pne-smtpout3-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932295AbWDYTLj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 15:11:39 -0400
-From: Jani-Matti =?iso-8859-1?q?H=E4tinen?= <jani-matti.hatinen@iki.fi>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: Lock-up with modprobe sdhci after suspending to ram
-Date: Tue, 25 Apr 2006 22:11:36 +0300
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <515ed10f0604240033i71781bfdp421ed244477fd200@mail.gmail.com> <84144f020604250312w43df9fb4n864647c8d313a588@mail.gmail.com>
-In-Reply-To: <84144f020604250312w43df9fb4n864647c8d313a588@mail.gmail.com>
-X-Face: #cyYMAd}qudd3k4*S6mac8z1vRgtwXAC'7r{jv<~p5y80oOWqj0)0~/;,QeB(P>fhDJ"=?iso-8859-1?q?lF=0A=09=7D-ls=26?="0:\(7!/S)a_ew$J?hey[-+u`<VOlVBz48@)SW{u#N=v1P~`\Cd9^zw[>=?iso-8859-1?q?Z=607l=26XK=24=0A=09Deyz7Uf=5Dx?=@r"kOgh|l?F~QrgBEd<$x`a)[]1C"NqvG<T3Gk"@_,cH7Q;HTlZgb*F>VR(=?iso-8859-1?q?3j=0A=09=5ByC?=>>hR;jXQ!K/Q]*HjPibvm_33AQC_N2Z$VnZ<=?iso-8859-1?q?gy*4-QB2q=3A=5BoZ=2E-8YNsF+WK=27ya6u/!J=0A=09-4g=3B?=
+	Tue, 25 Apr 2006 15:13:58 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:7945 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932296AbWDYTN5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 15:13:57 -0400
+Message-ID: <444E74ED.6090306@argo.co.il>
+Date: Tue, 25 Apr 2006 22:13:49 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200604252211.37635.jani-matti.hatinen@iki.fi>
+To: Michael Poole <mdpoole@troilus.org>
+CC: Valdis.Kletnieks@vt.edu, dtor_core@ameritech.net,
+       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>	<1145911546.1635.54.camel@localhost.localdomain>	<444D3D32.1010104@argo.co.il>	<A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>	<444DCAD2.4050906@argo.co.il>	<9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com>	<444E524A.10906@argo.co.il>	<d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com>	<444E5A3E.1020302@argo.co.il>	<d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com>	<444E61FD.7070408@argo.co.il>	<200604251808.k3PI8Y06004736@turing-police.cc.vt.edu>	<444E69E7.7020808@argo.co.il> <444E6CBD.5020904@argo.co.il> <87hd4hh4hw.fsf@graviton.dyn.troilus.org>
+In-Reply-To: <87hd4hh4hw.fsf@graviton.dyn.troilus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Apr 2006 19:13:56.0353 (UTC) FILETIME=[6615CF10:01C6689C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg kirjoitti viestissään (lähetysaika tiistai, 25. huhtikuuta 2006 
-13:12):
-> Hi Jani,
+Michael Poole wrote:
+>> How many of these leave something out? how much time is spent
+>> deciphering the code when something goes wrong, or is even suspected?
+>>     
 >
-> On 4/24/06, Jani-Matti Hätinen <jani-matti.hatinen@iki.fi> wrote:
-> >   I've tested this with 2.6.15-gentoo-r1 with the sdhci-0.11 patches
-> > and vanilla 2.6.17-rc2. Sadly nothing gets as far as to the log when
-> > the lock-up occurs.
->
-> If this is a regression from an earlier version, you could try git
-> bisect to isolate the broken changeset. See the following URL for more
-> details:
->
-> http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bis
->ect.txt.
+> Probably fewer cases and less time than you suspect, respectively.
+> Just as C++ gives you tools, C does too, but far more important than
+> language tools is the discipline used when writing code: discipline to
+> think through the code, to structure it rationally, and to reuse the
+> rational structures that others have devised in the past.  C++ gives
+> you well-tested helper classes to manage object locking.  Linux gives
+> you its own well-tested examples of known and tried design patterns.
+>   
+I agree. It certainly helps when you first write the code. But it's 
+still difficult to read and modify the code. And I'd prefer to see the 
+effort involved in coding to these patterns and in enforcing them used 
+to other purposes.
 
-AFAIK the sdhci driver in 2.6.17-rc2 is effectively the same as the sdhci-0.11 
-patches I used with 2.6.15-gentoo-r1. I haven't tested this with earlier 
-versions of the driver, but I will as soon as mmc.drzeus.cx comes back 
-online.
-  Thanks for the link.
+I also suspect drivers are written with less rigor.
 
 -- 
-Jani-Matti Hätinen
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

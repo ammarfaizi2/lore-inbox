@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWDYBmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751511AbWDYBsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWDYBmu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 21:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbWDYBmu
+	id S1751511AbWDYBsc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 21:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbWDYBsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 21:42:50 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:35979 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750749AbWDYBmt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 21:42:49 -0400
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: akpm@osdl.org, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, Valerie.Clement@bull.net,
-       kurosawa@valinux.co.jp
-In-Reply-To: <20060424.141846.31056103.taka@valinux.co.jp>
-References: <1145670536.15389.132.camel@linuxchandra>
-	 <20060421191340.0b218c81.akpm@osdl.org>
-	 <1145683725.21231.15.camel@linuxchandra>
-	 <20060424.141846.31056103.taka@valinux.co.jp>
-Content-Type: text/plain
-Organization: IBM
-Date: Mon, 24 Apr 2006 18:42:46 -0700
-Message-Id: <1145929366.1400.96.camel@linuxchandra>
+	Mon, 24 Apr 2006 21:48:32 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:64183 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751511AbWDYBsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 21:48:32 -0400
+Date: Tue, 25 Apr 2006 10:48:55 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: davej@codemonkey.org.uk, tony.luck@intel.com, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, bob.picco@hp.com, ak@suse.de,
+       linux-mm@kvack.org, mel@csn.ul.ie
+Subject: Re: [PATCH 0/7] [RFC] Sizing zones and holes in an architecture
+ independent manner V4
+Message-Id: <20060425104855.42c6ca62.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060424202009.20409.89016.sendpatchset@skynet>
+References: <20060424202009.20409.89016.sendpatchset@skynet>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 14:18 +0900, Hirokazu Takahashi wrote:
-> Hi Chandra, 
-<snip>
-> > Yes, it is effective, and the reclamation is O(1) too. It has couple of
-> > problems by design, (1) doesn't handle shared pages and (2) doesn't
-> > provide support for both min_shares and max_shares.
+On Mon, 24 Apr 2006 21:20:09 +0100 (IST)
+Mel Gorman <mel@csn.ul.ie> wrote:
+
+> This is V4 of the patchset to size zones and memory holes in an
+> architecture-independent manner.
 > 
-> I'm not sure all of them have to be managed under ckrm_core and rcfs
-> in kernel.
-> 
-> These functions you mentioned can be implemented in user space
-> to minimize the overhead in usual VM operations because it isn't
-> expected quick response to resize it. It is a bit different from
-> that of CPU resource.
 
-Agree, that is where the additional complexity arise from.
+Could you add some documentation about 'how to use' your generic funcs ?
+I think more archs can use your generic routine if well documented.
 
-If the user can achieve the same results with user space solution that
-would be good too. 
+All initialization path can be written in following way ?
+==
+for_all_memory_region()
+	add_active_range(nid, start, end)
+free_area_init_nodes(max_dma, max_dma32, max_low_pfn, max_pfn);
+==
 
-Thanks
+And following functions are really needed ?
+==
++extern void remove_all_active_ranges(void);
++extern void get_pfn_range_for_nid(unsigned int nid,
++			unsigned long *start_pfn, unsigned long *end_pfn);
++extern unsigned long find_min_pfn_with_active_regions(void);
++extern unsigned long find_max_pfn_with_active_regions(void);
++extern int early_pfn_to_nid(unsigned long pfn);
++extern void free_bootmem_with_active_regions(int nid,
++						unsigned long max_low_pfn);
++extern void sparse_memory_present_with_active_regions(int nid);
++extern unsigned long absent_pages_in_range(unsigned long start_pfn,
++						unsigned long end_pfn);
 
-chandra
-
-> You don't need to invent everything. I think you can reuse what
-> NUMA team is doing instead. This approach may not fit in your rcfs,
-> though.
-> 
-> > > This requirement is basically a glorified RLIMIT_RSS manager, isn't it? 
-> > > Just that it covers a group of mm's and not just the one mm?
-> > 
-> > Yes, that is the core object of ckrm, associate resources to a group of
-> > tasks.
-> 
-> Thanks,
-> Hirokazu Takahahsi.
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
+-Kame
 

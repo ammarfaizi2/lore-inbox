@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWDYSV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWDYSW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWDYSV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 14:21:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWDYSV5
+	id S932277AbWDYSW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 14:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWDYSW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 14:21:57 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:58238 "EHLO
+	Tue, 25 Apr 2006 14:22:58 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:55106 "EHLO
 	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932105AbWDYSV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 14:21:56 -0400
+	id S932273AbWDYSW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 14:22:57 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:to:cc:subject:message-id:mime-version:content-type:from;
-        b=gSx4z4IP6S2v1+9zUyezYdKehNPd4bLKqgIq69wczGWqBFEBLy3bdhTJcwydOXB7icpowx5MBvzGVXP5CpYPncMSShkAETp7IZpZTYGipIVsR61k7WDeClaIX4bn2hwowO0M3hsdQw17qPM4BVcNfWfZZ/sOOxSQazmSsFiu18g=
-Date: Tue, 25 Apr 2006 11:20:38 -0700 (PDT)
+        b=Zm5EUfpLAYae5Q5k8veyBDVkX2azPE+yqgfi2IlKjLwxtJ/kCsbsyPhAMsxAdhUwCMsRM3VlamwhTl2YHswh5guGlZNPr3mxoSzpbvmg5fNcINwnzduKlNers4fSvaJco+LagMo2CNiy3XP8NbyZw9X9b6IzwfDEVb93r+m/Kkc=
+Date: Tue, 25 Apr 2006 11:21:37 -0700 (PDT)
 To: linux-kernel@vger.kernel.org
-cc: akpm@osdl.org, linux-mm@vger.kernel.org
-Subject: [PATCH] likely cleanup: remove unlikely in sys_mprotect()
-Message-ID: <Pine.LNX.4.64.0604251118110.5810@localhost.localdomain>
+cc: akpm@osdl.org
+Subject: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
+Message-ID: <Pine.LNX.4.64.0604251120420.5810@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 From: Hua Zhong <hzhong@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With likely/unlikely profiling (see the recent patch dwalker@mvista.com sent), on my not-so-busy-typical-developmentsystem there are 5k misses vs 2k hits. So I guess we should remove the unlikely.
+On my system, it shows about 84K misses and 67K hits. So there are more kfree(NULL) than people realize.
+
+I know some people won't like it, but I think it's not worth the confusion and maintenance burden, so I'm giving it a shot. :-)
 
 Signed-off-by: Hua Zhong <hzhong@gmail.com>
 
-diff --git a/mm/mprotect.c b/mm/mprotect.c
-index 4c14d42..5faf01a 100644
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -205,8 +205,7 @@ sys_mprotect(unsigned long start, size_t
-  	/*
-  	 * Does the application expect PROT_READ to imply PROT_EXEC:
-  	 */
--	if (unlikely((prot & PROT_READ) &&
--			(current->personality & READ_IMPLIES_EXEC)))
-+	if ((prot & PROT_READ) && (current->personality & READ_IMPLIES_EXEC))
-  		prot |= PROT_EXEC;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+diff --git a/mm/slab.c b/mm/slab.c
+index e6ef9bd..0fbc854 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -3380,7 +3380,7 @@ void kfree(const void *objp)
+  	struct kmem_cache *c;
+  	unsigned long flags;
 
-  	vm_flags = calc_vm_prot_bits(prot);
+-	if (unlikely(!objp))
++	if (!objp)
+  		return;
+  	local_irq_save(flags);
+  	kfree_debugcheck(objp);

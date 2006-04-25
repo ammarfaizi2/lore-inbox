@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWDYTBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWDYTJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751497AbWDYTBI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 15:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWDYTBI
+	id S1751267AbWDYTJn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 15:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWDYTJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 15:01:08 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:4543 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751497AbWDYTBG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 15:01:06 -0400
-Subject: Re: [PATCH 3/3] Assert notifier_block and notifier_call are not in
-	init section
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, herbert@13thfloor.at, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com, Alan Stern <stern@rowland.harvard.edu>
-In-Reply-To: <Pine.LNX.4.64.0604241945570.3701@g5.osdl.org>
-References: <20060425023509.7529.84752.sendpatchset@localhost.localdomain>
-	 <20060425023527.7529.9096.sendpatchset@localhost.localdomain>
-	 <Pine.LNX.4.64.0604241945570.3701@g5.osdl.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Tue, 25 Apr 2006 12:01:03 -0700
-Message-Id: <1145991663.16539.8.camel@linuxchandra>
+	Tue, 25 Apr 2006 15:09:43 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:53996 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751267AbWDYTJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 15:09:42 -0400
+Message-Id: <200604251909.k3PJ9KJc008091@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Chris Boot <bootc@bootc.net>
+Cc: Axelle Apvrille <axelle_apvrille@yahoo.fr>, Nix <nix@esperi.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, drepper@gmail.com,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       disec-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries 
+In-Reply-To: Your message of "Tue, 25 Apr 2006 20:01:24 BST."
+             <9C02B13C-8615-440B-A08C-AC463CC2E0AE@bootc.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com>
+            <9C02B13C-8615-440B-A08C-AC463CC2E0AE@bootc.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: multipart/signed; boundary="==_Exmh_1145992160_2618P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Apr 2006 15:09:20 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 19:47 -0700, Linus Torvalds wrote:
-> 
-> On Mon, 24 Apr 2006, sekharan@us.ibm.com wrote:
-> > 
-> > 	Feel free to drop this patch if you think it is not needed.
-> 
-> It's incorrect.
-> 
-> The init section will be free'd, and as a result can be re-allocated to 
-> other uses. Thus testing that data is not in the init-section makes no 
-> sense.
->
-> Testing for _code_ not being in the init section can be sensible, since 
-> code never gets re-allocated (modulo module code, but that's never in the 
-> init section). So checking the "notifier_call" part may be sensible, but 
-> checking the notifier block data pointer definitely is not.
+--==_Exmh_1145992160_2618P
+Content-Type: text/plain; charset=us-ascii
 
-Two questions:
-1) related to this patch: Do you want me to generate a patch that
-asserts only notifier calls ?
+On Tue, 25 Apr 2006 20:01:24 BST, Chris Boot said:
 
-2) Unrelated to this patch: If the _code_ section is never reallocated
-or reused, what is the purpose of putting _code_ in the init section ?
-Only to make sure that the init calls are called in order ?
+> Wouldn't you need to sign, say, /lib/ld-linux.so? In that case, you  
+> can simply get it to load an execute almost anything that's ELF, even  
+> on filesystems marked noexec, if I'm not mistaken...
 
-Thanks
+2.6.0 included a fix to stop that from working from noexec filesystems.
 
-chandra
-PS: I fixed my mailer to put my name. sorry about that.
+--==_Exmh_1145992160_2618P
+Content-Type: application/pgp-signature
 
-> 
-> Patches 1-2 applied.
-> 
-> 		Linus
--- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+iD8DBQFETnPgcC3lWbTT17ARAtXBAJ41vMgh8sHuOV0myAxvhkY2vpVDbwCgrbdn
+LusCZz5fIWIAapR2amQXyXU=
+=R1ZR
+-----END PGP SIGNATURE-----
 
-
+--==_Exmh_1145992160_2618P--

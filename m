@@ -1,62 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751594AbWDYR2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbWDYR3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751594AbWDYR2O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 13:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751599AbWDYR2O
+	id S1751602AbWDYR3S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 13:29:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751611AbWDYR3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 13:28:14 -0400
-Received: from nz-out-0102.google.com ([64.233.162.194]:43819 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751566AbWDYR2O convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 13:28:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HlcI7vQ8qE5aPoLY2n6xabqXDVU7Y8eqQMTg1033hlhM0rOc5mTYE1eTY6zeBHi1jLkgvTFhAAYYOa9XPNjlAONFIr1noowrOFnDioK8oy+VXLHbaPu0LpTY3IKEzR7WYMTKWBZcoSg55fP23xkNKUlmAOO12JrpHKjlvK7oazg=
-Message-ID: <d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com>
-Date: Tue, 25 Apr 2006 13:28:13 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Avi Kivity" <avi@argo.co.il>
-Subject: Re: Compiling C++ modules
-Cc: "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <444E5A3E.1020302@argo.co.il>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 25 Apr 2006 13:29:17 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:948 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751599AbWDYR3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 13:29:17 -0400
+Date: Tue, 25 Apr 2006 12:29:41 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: Re: [uml-devel] [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
+Message-ID: <20060425162941.GB22807@ccure.user-mode-linux.org>
+References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <200604212034.53486.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
-	 <1145911546.1635.54.camel@localhost.localdomain>
-	 <444D3D32.1010104@argo.co.il>
-	 <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>
-	 <444DCAD2.4050906@argo.co.il>
-	 <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com>
-	 <444E524A.10906@argo.co.il>
-	 <d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com>
-	 <444E5A3E.1020302@argo.co.il>
+In-Reply-To: <200604212034.53486.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/25/06, Avi Kivity <avi@argo.co.il> wrote:
-> Dmitry Torokhov wrote:
-> >>>     TakeLock l(&lock);
-> >>>
-> >>>     do_something();
-> >>>     do_something_else();
-> >>>
-> >>> First of all, that extra TakeLock object chews up stack, at least 4 or
-> >>> 8 bytes of it, depending on your word size.
-> >>>
-> >> No, it's optimized out. gcc notices that &lock doesn't change and that
-> >> 'l' never escapes the function.
-> >>
-> >
-> > "l" that propects critical section gets thrown away???
-> Calm down, the storage for 'l' is thrown away, but its effects remain.
+On Fri, Apr 21, 2006 at 08:34:52PM +0200, Blaisorblade wrote:
+> >  #define PTRACE_GET_THREAD_AREA    25
+> >  #define PTRACE_SET_THREAD_AREA    26
+> > +#define PTRACE_SYSCALL_MASK	  27
+> 
+> I think there could be a reason we skipped that for SYSEMU - that's to see. 
+> Also, if this capability will be implemented in other archs, we should use 
+> the 0x4200-0x4300 range for it.
 
-Would you mind explaining implemenation details a little bit?
+Yeah, we need to decide somewhat carefully which number to use.
 
---
-Dmitry
+> > +		for(i = NR_syscalls; i < len * 8; i++){
+> > +			get_user(c, &mask[i / 8]);
+> 
+> This get_user() inside a loop is poor, it could slow down a valid call. It'd 
+> be simpler to copy the mask from userspace in a local variable (with 400 
+> syscalls that's 50 bytes, i.e. fully ok), and then perform the checks, if 
+> wanted (I disagree with Heiko's message, this check is needed
+> sometimes - see  my response to that).
+
+Agree, except that we need to be careful about when userspace knows
+about more system calls than the kernel.  We should copy-user as many
+bits as the kernel knows about (or the process passes in, which ever
+is less) and if the process knows about more system calls than the
+kernel, the extra bits should be checked (maybe in a get_user(c, ...)
+loop) to make sure that special treatment isn't being requested for
+unknown syscalls.
+
+> And only after that set all at once child->syscall_mask. You copy twice that 
+> little quantity of data but that's not at all time-critical, and you're 
+> forced to do that to avoid partial updates; btw you've saved getting twice 
+> the content from userspace (slow when address spaces are distinct, like for 
+> 4G/4G or SKAS implementation of copy_from_user).
+
+Yup.
+
+> Actually we would copy the whole struct in my API proposal (as I've
+> described in the other message, we need to pass another param IMHO,
+> so we'd pack them in a struct and pass its address).
+
+You mean adding a fifth argument to ptrace?  I don't really like that
+idea.  We could either make two new PTRACE_* operations (I don't like
+the MASK_STRICT_VERIFY option since that seems unnecessary and
+fragile) or make the data argument something like this
+	struct {
+		int flag;
+		void *mask;
+	}
+
+which seems to be something like what you're suggesting.  You'll want
+to stick the mask length in there as well, and leave the data argument
+unused.
+
+Except that passing pointers to pointers into system calls seems like
+a bad idea - it makes ptrace look (more) like ioctl.  So, you'd want
+something like
+	struct {
+		int flag;
+		char mask[(NR_syscalls + 7)/8];
+	}
+
+then you'd want the length back in data so you know how much data the
+process is giving you.  But then, you'll read the smaller of the
+kernel's and process's version of the structure, and if the process
+one is bigger, you need to read the extra bits to sanity-check them.
+Given that you'll need this extra treatment, I think it's simpler to
+just leave the addr argument as a pointer to the bits and add an extra
+ptrace op.
+
+				Jeff

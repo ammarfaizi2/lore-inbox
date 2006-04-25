@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWDYDxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWDYDwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbWDYDxa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 23:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWDYDxa
+	id S1751364AbWDYDwo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 23:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWDYDwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 23:53:30 -0400
-Received: from ns2.suse.de ([195.135.220.15]:52876 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751360AbWDYDx3 (ORCPT
+	Mon, 24 Apr 2006 23:52:44 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:48012 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751360AbWDYDwn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 23:53:29 -0400
-Date: Mon, 24 Apr 2006 20:52:16 -0700
+	Mon, 24 Apr 2006 23:52:43 -0400
+Date: Mon, 24 Apr 2006 20:51:28 -0700
 From: Greg KH <greg@kroah.com>
 To: Akinobu Mita <mita@miraclelinux.com>
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch 2/4] kref debugging config option
-Message-ID: <20060425035216.GC18085@kroah.com>
-References: <20060424083333.217677000@localhost.localdomain> <20060424083342.069630000@localhost.localdomain>
+Subject: Re: [patch 1/4] kref: warn kref_put() with unreferenced kref
+Message-ID: <20060425035128.GB18085@kroah.com>
+References: <20060424083333.217677000@localhost.localdomain> <20060424083341.613638000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060424083342.069630000@localhost.localdomain>
+In-Reply-To: <20060424083341.613638000@localhost.localdomain>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 24, 2006 at 04:33:35PM +0800, Akinobu Mita wrote:
-> This patch converts all WARN_ON() in kref code to BUG_ON().
-> And split them into new DEBUG_KREF config option.
+On Mon, Apr 24, 2006 at 04:33:34PM +0800, Akinobu Mita wrote:
+> This patch adds warning to detect kref_put() with unreferenced kref.
 > 
 > Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 > 
->  lib/Kconfig.debug |    7 +++++++
->  lib/kref.c        |   30 +++++++++++++++++++++++++-----
->  2 files changed, 32 insertions(+), 5 deletions(-)
+>  lib/kref.c |   14 ++++++++------
+>  1 files changed, 8 insertions(+), 6 deletions(-)
 > 
-> Index: 2.6-git/lib/Kconfig.debug
-> ===================================================================
-> --- 2.6-git.orig/lib/Kconfig.debug
-> +++ 2.6-git/lib/Kconfig.debug
-> @@ -130,6 +130,13 @@ config DEBUG_KOBJECT
->  	  If you say Y here, some extra kobject debugging messages will be sent
->  	  to the syslog. 
->  
-> +config DEBUG_KREF
-> +	bool "kref debugging"
-> +	depends on DEBUG_KERNEL
-> +	help
-> +	  This option enables addition error checking for kref,
-> +	  library routines for handling generic reference counted objects.
-> +
->  config DEBUG_HIGHMEM
->  	bool "Highmem debugging"
->  	depends on DEBUG_KERNEL && HIGHMEM
 > Index: 2.6-git/lib/kref.c
 > ===================================================================
 > --- 2.6-git.orig/lib/kref.c
 > +++ 2.6-git/lib/kref.c
-> @@ -20,16 +20,38 @@
+> @@ -49,6 +49,7 @@ void kref_get(struct kref *kref)
 >   */
->  void kref_init(struct kref *kref)
+>  int kref_put(struct kref *kref, void (*release)(struct kref *kref))
 >  {
-> -	atomic_set(&kref->refcount,1);
-> +	atomic_set(&kref->refcount, 1);
->  }
->  
-> +#ifdef CONFIG_DEBUG_KREF
-> +static void kref_get_debug_check(struct kref *kref)
-> +{
-> +	BUG_ON(!atomic_read(&kref->refcount));
-> +}
+> +	WARN_ON(atomic_read(&kref->refcount) < 1);
 
-Eeek, no, you do not want to do this.  Unless you never want to get a
-bug report with this enabled :)
+How can this ever be true?  If the refcount _ever_ goes below 1, the
+object is freed.
+
+> @@ -56,12 +57,13 @@ int kref_put(struct kref *kref, void (*r
+>  	 * if current count is one, we are the last user and can release object
+>  	 * right now, avoiding an atomic operation on 'refcount'
+>  	 */
+> -	if ((atomic_read(&kref->refcount) == 1) ||
+> -	    (atomic_dec_and_test(&kref->refcount))) {
+> -		release(kref);
+> -		return 1;
+> -	}
+> -	return 0;
+> +	if (atomic_read(&kref->refcount) == 1)
+> +		atomic_set(&kref->refcount, 0);
+> +	else if (!atomic_dec_and_test(&kref->refcount))
+> +		return 0;
+> +
+> +	release(kref);
+> +	return 1;
+
+What does this change do?  What are you trying to help out with?
+CONFIG_DEBUG_SLAB will check to see if you reference krefs that have
+already been freed.
 
 thanks,
 
-greg k-h
+greg k -h

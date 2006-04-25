@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWDYImF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWDYIm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbWDYImF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 04:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWDYImF
+	id S1751463AbWDYIm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 04:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWDYIm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 04:42:05 -0400
-Received: from hermes.drzeus.cx ([193.12.253.7]:52437 "EHLO mail.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751452AbWDYImD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 04:42:03 -0400
-Message-ID: <444DE0E6.8090801@drzeus.cx>
-Date: Tue, 25 Apr 2006 10:42:14 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Tue, 25 Apr 2006 04:42:28 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:51975 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1751463AbWDYIm1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 04:42:27 -0400
+Message-ID: <444DE0F0.8060706@argo.co.il>
+Date: Tue, 25 Apr 2006 11:42:24 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: "=?ISO-8859-1?Q?Jani-Matti_H=E4tinen?=" <jani-matti.hatinen@iki.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Lock-up with modprobe sdhci after suspending to ram
-References: <515ed10f0604240033i71781bfdp421ed244477fd200@mail.gmail.com> <444CC4A3.3040309@drzeus.cx> <200604251108.52515.jani-matti.hatinen@iki.fi>
-In-Reply-To: <200604251108.52515.jani-matti.hatinen@iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+To: Xavier Bestel <xavier.bestel@free.fr>
+CC: "J.A. Magallon" <jamagallon@able.es>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>
+Subject: Re: C++ pushback
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>	 <mj+md-20060424.201044.18351.atrey@ucw.cz>	 <444D44F2.8090300@wolfmountaingroup.com>	 <1145915533.1635.60.camel@localhost.localdomain>	 <20060425001617.0a536488@werewolf.auna.net> <1145952948.596.130.camel@capoeira>
+In-Reply-To: <1145952948.596.130.camel@capoeira>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Apr 2006 08:42:26.0092 (UTC) FILETIME=[2DBACEC0:01C66844]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jani-Matti Hätinen wrote:
->
-> Looks like some kind of routing problem. Even pings don't seem to get through 
-> to mmc.drzeus.cx, or list.drzeus.cx. With http I get a timeout from 
-> mmc.drzeus.cx. This is from IP 80.221.18.58
+Xavier Bestel wrote:
+> In the first case you know that exactely *one* kmalloc(GFP_KERNEL)
+> occurs. In the second case you have to browse SuperBlock's constructor
+> to check if it allocates things, needs to run with/without interrupts,
+> PREEMPT, whatever... (not even talking about exceptions).
 >   
+That seems to be a case against writing functions.
 
-Most of the domain is down right now (changing ISP). But the mail server
-is up at hermes.drzeus.cx:
+Why is a C function acceptable where a C++ constructor isn't?
 
-drzeus.cx.              86393   IN      MX      10 mail.drzeus.cx.
-list.drzeus.cx.         86400   IN      MX      10 mail.drzeus.cx.
-mail.drzeus.cx.         84586   IN      A       193.12.253.7
-hermes.drzeus.cx.       83892   IN      A       193.12.253.7
-
-> Unfortunately even text mode is completely speechless about it. The modprobe 
-> goes through cleanly and I get the regular prompt (with a blinking cursor 
-> even), but the machine's completely locked up.
->
->   
-
-Have you tried pinging it? For some reason the keyboard tends to bail
-out when there are outstanding MMC requests. I've only seen this with a
-card in the slot though.
-
-You could increase the log level sent to console and enable MMC_DEBUG.
-If you can find more closely where it hangs I have a better chance of
-finding it.
-
-Rgds
-Pierre
+-- 
+error compiling committee.c: too many arguments to function
 

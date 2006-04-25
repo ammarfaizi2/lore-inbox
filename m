@@ -1,95 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWDYVUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751589AbWDYVYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751570AbWDYVUm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 17:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751575AbWDYVUm
+	id S1751589AbWDYVYV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 17:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbWDYVYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 17:20:42 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:18651 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1751570AbWDYVUl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 17:20:41 -0400
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Tony Jones <tonyj@suse.de>
-Cc: Andi Kleen <ak@suse.de>, jwcart2@epoch.ncsc.mil,
-       Neil Brown <neilb@suse.de>, Chris Wright <chrisw@sous-sol.org>,
-       James Morris <jmorris@namei.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org
-In-Reply-To: <20060425181158.GB28479@suse.de>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	 <17485.55676.177514.848509@cse.unsw.edu.au>
-	 <1145968949.17374.10.camel@moss-lions.epoch.ncsc.mil>
-	 <200604251443.57885.ak@suse.de>
-	 <1145977265.21399.16.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060425181158.GB28479@suse.de>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Tue, 25 Apr 2006 17:25:09 -0400
-Message-Id: <1146000309.21399.150.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Apr 2006 17:24:21 -0400
+Received: from mga01.intel.com ([192.55.52.88]:31297 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751586AbWDYVYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 17:24:20 -0400
+X-IronPort-AV: i="4.04,154,1144047600"; 
+   d="scan'208"; a="28499595:sNHT43763972"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C668AE.9218D2CE"
+Subject: RE: Problems with EDAC coexisting with BIOS
+Date: Tue, 25 Apr 2006 14:24:00 -0700
+Message-ID: <5389061B65D50446B1783B97DFDB392DA97799@orsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problems with EDAC coexisting with BIOS
+Thread-Index: AcZooinUFmuobZodQRKda3DhCVAlUQADCSbg
+From: "Gross, Mark" <mark.gross@intel.com>
+To: "Corey Minyard" <minyard@acm.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       <bluesmoke-devel@lists.sourceforge.net>,
+       "LKML" <linux-kernel@vger.kernel.org>,
+       "Carbonari, Steven" <steven.carbonari@intel.com>,
+       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
+       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
+X-OriginalArrivalTime: 25 Apr 2006 21:24:01.0834 (UTC) FILETIME=[9283B0A0:01C668AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-25 at 11:11 -0700, Tony Jones wrote:
-> Maybe it will have to grow to handle more operations.  SELinux has grown in
-> terms of it's features and what it protects.  Clearly you have benefitted
-> from being open sourced for an extended period of time.  I'm sure you'd love
-> to debate the history of this :) but there doesn't seem much productive point.
+This is a multi-part message in MIME format.
 
-Well, for what it is worth, I think that even in its first public
-release in 2000, SELinux provided mediation of more operations than AA
-does even now, even if we exclude network controls from consideration
-(since SubDomain had some form of network controls in the past that were
-temporarily dropped due to LSM limitations).
+------_=_NextPart_001_01C668AE.9218D2CE
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-> But I agree, it isn't clear how the AA scheme applies to all forms of kernel
-> operations.
 
-Yes, and this is the real point - it is a question of whether the
-underlying model (if it can even be said to have one) generalizes.  With
-SELinux, there is a well-defined model and it does generalize.  With AA,
-I just don't see it.
 
-> Because it presumes that the application can easily be configured to function
-> in a jail.
+>-----Original Message-----
+>From: Corey Minyard [mailto:minyard@acm.org]
+>Sent: Tuesday, April 25, 2006 12:55 PM
+>To: Gross, Mark
+>Cc: Alan Cox; bluesmoke-devel@lists.sourceforge.net; LKML; Carbonari,
+>Steven; Ong, Soo Keong; Wang, Zhenyu Z
+>Subject: Re: Problems with EDAC coexisting with BIOS
+>
+>Shouldn't you provide a way (kernel command line) to override this
+check
+>if the function can be safely unhidden?
+>
 
-I'd expect even more compatibility issues with AA-style access controls
-than a jail/virtualization approach.
+Done.=20
+Signed-off-by: Mark Gross
 
-> How do you propose handling in a namespace the ability to create new files.
-> I can see how you could perhaps create a fixed scratch area inside the 
-> namespace, but what if the application wants to create /var/lib/foo/bar.xxx
-> 
-> You have obviously read the AppArmor docs. How would you propose to handle 
-> (approximately) the expressiveness of AppArmor policy. Also what does 
-> /srv/www/htdocs/**.html equate to when this namespace is configured for the 
-> application. Does the task need to be torn down and restarted if you populate 
-> more files?
-> 
-> The issue of namespaces being a better way of doing all of this has been raised
-> a couple of times.  It is an interesting idea for sure. I responded to one of
-> the posts with the same (above) questions but havn't yet seen a reply.
 
-I don't know whether existing jail/virtualization solutions can fully
-replicate your functionality, but be careful not to confuse the actual
-requirements with your current implementation and UI.  And you have to
-weigh the gains in robustness against any potential loss in
-expressiveness.
+--mgross
 
-> Other LSM hooks are an option also.  Clearly if we can add new hooks at more
-> optimal locations where pathnames are available it would be preferable to
-> the current scheme and (qualifier: the devil is in the details) probably 
-> preferable to trying to pass vfsmounts fully into the existing hooks.
+------_=_NextPart_001_01C668AE.9218D2CE
+Content-Type: application/octet-stream;
+	name="e752x_edac.patch"
+Content-Transfer-Encoding: base64
+Content-Description: e752x_edac.patch
+Content-Disposition: attachment;
+	filename="e752x_edac.patch"
 
-Not sure what this would look like, but if your module still ends up
-calling d_path or equivalent on every open, then it seems problematic
-regardless.
+ZGlmZiAtdXJOIC1YIGxpbnV4LTIuNi4xNi9Eb2N1bWVudGF0aW9uL2RvbnRkaWZmIGxpbnV4LTIu
+Ni4xNi9kcml2ZXJzL2VkYWMvZTc1MnhfZWRhYy5jIGxpbnV4LTIuNi4xNl9lZGFjL2RyaXZlcnMv
+ZWRhYy9lNzUyeF9lZGFjLmMKLS0tIGxpbnV4LTIuNi4xNi9kcml2ZXJzL2VkYWMvZTc1MnhfZWRh
+Yy5jCTIwMDYtMDMtMTkgMjE6NTM6MjkuMDAwMDAwMDAwIC0wODAwCisrKyBsaW51eC0yLjYuMTZf
+ZWRhYy9kcml2ZXJzL2VkYWMvZTc1MnhfZWRhYy5jCTIwMDYtMDQtMjUgMTM6NTk6NDUuMDAwMDAw
+MDAwIC0wNzAwCkBAIC0yOSw2ICsyOSw3IEBACiAKICNpbmNsdWRlICJlZGFjX21jLmgiCiAKK3N0
+YXRpYyBpbnQgZm9yY2VfZnVuY3Rpb25fdW5oaWRlID0gMDsKIAogI2lmbmRlZiBQQ0lfREVWSUNF
+X0lEX0lOVEVMXzc1MjBfMAogI2RlZmluZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzc1MjBfMCAgICAg
+IDB4MzU5MApAQCAtNzU1LDEwICs3NTYsMTkgQEAKIAlkZWJ1Z2YwKCJNQzogIiBfX0ZJTEVfXyAi
+OiAlcygpOiBtY2lcbiIsIF9fZnVuY19fKTsKIAlkZWJ1Z2YwKCJTdGFydGluZyBQcm9iZTFcbiIp
+OwogCi0JLyogZW5hYmxlIGRldmljZSAwIGZ1bmN0aW9uIDEgKi8KKwkvKiBjaGVjayB0byBzZWUg
+aWYgZGV2aWNlIDAgZnVuY3Rpb24gMSBpcyBlbmJhbGVkIGlmIGl0IGlzbid0IHdlCisJICogYXNz
+dW1lIHRoZSBCSU9TIGhhcyByZXNlcnZlZCBpdCBmb3IgYSByZWFzb24gYW5kIGlzIGV4cGVjdGlu
+ZworCSAqIGV4Y2x1c2l2ZSBhY2Nlc3MsIHdlIHRha2UgY2FyZSB0byBub3QgdmlvbGF0ZSB0aGF0
+IGFzc3VtcHRpb24gYW5kCisJICogZmFpbCB0aGUgcHJvYmUuICovCiAJcGNpX3JlYWRfY29uZmln
+X2J5dGUocGRldiwgRTc1MlhfREVWUFJFUzEsICZzdGF0OCk7Ci0Jc3RhdDggfD0gKDEgPDwgNSk7
+Ci0JcGNpX3dyaXRlX2NvbmZpZ19ieXRlKHBkZXYsIEU3NTJYX0RFVlBSRVMxLCBzdGF0OCk7CisJ
+aWYgKCEoc3RhdDggJiAoMSA8PCA1KSkpIHsKKwkJcHJpbnRrKEtFUk5fSU5GTyAiY29udGFjdCB5
+b3VyIGJpb3MgdmVuZG9yIHRvIHNlZSBpZiB0aGUgIiAKKwkJIkU3NTJ4IGVycm9yIHJlZ2lzdGVy
+cyBjYW4gYmUgc2FmZWx5IHVuLWhpZGRlblxuIik7CisJCWlmICghZm9yY2VfZnVuY3Rpb25fdW5o
+aWRlKQorCQkJZ290byBmYWlsOworCX0KKyAgICAgICAgc3RhdDggfD0gKDEgPDwgNSk7CisgICAg
+ICAgIHBjaV93cml0ZV9jb25maWdfYnl0ZShwZGV2LCBFNzUyWF9ERVZQUkVTMSwgc3RhdDgpOwog
+CiAJLyogbmVlZCB0byBmaW5kIG91dCB0aGUgbnVtYmVyIG9mIGNoYW5uZWxzICovCiAJcGNpX3Jl
+YWRfY29uZmlnX2R3b3JkKHBkZXYsIEU3NTJYX0RSQywgJmRyYyk7CkBAIC0xMDY5LDMgKzEwNzks
+OCBAQAogTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwogTU9EVUxFX0FVVEhPUigiTGludXggTmV0d29y
+eCAoaHR0cDovL2xueGkuY29tKSBUb20gWmltbWVybWFuXG4iKTsKIE1PRFVMRV9ERVNDUklQVElP
+TigiTUMgc3VwcG9ydCBmb3IgSW50ZWwgZTc1MnggbWVtb3J5IGNvbnRyb2xsZXJzIik7CisKK21v
+ZHVsZV9wYXJhbShmb3JjZV9mdW5jdGlvbl91bmhpZGUsIGludCwgMDY0NCk7CitNT0RVTEVfUEFS
+TV9ERVNDKGZvcmNlX2Z1bmN0aW9uX3VuaGlkZSwgImlmIEJJT1Mgc2V0cyBEZXYwOkZ1bjEgdXAg
+YXMgaGlkZGVuOiIKKyIgMT1mb3JjZSB1bmhpZGUgYW5kIGhvcGUgQklPUyBkb2Vzbid0IGZpZ2h0
+IGRyaXZlciBmb3IgRGV2MDpGdW4xIGFjY2VzcyIpOworCg==
 
--- 
-Stephen Smalley
-National Security Agency
-
+------_=_NextPart_001_01C668AE.9218D2CE--

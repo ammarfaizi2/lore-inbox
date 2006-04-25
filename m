@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWDYCsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWDYCtb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWDYCsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 22:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWDYCsZ
+	id S1751354AbWDYCtb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 22:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWDYCtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 22:48:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12688 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751351AbWDYCsY (ORCPT
+	Mon, 24 Apr 2006 22:49:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24720 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751350AbWDYCta (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 22:48:24 -0400
-Date: Mon, 24 Apr 2006 19:47:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: sekharan@us.ibm.com
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, herbert@13thfloor.at,
-       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
-       stern@rowland.harvard.edu
-Subject: Re: [PATCH 3/3] Assert notifier_block and notifier_call are not in
- init section
-In-Reply-To: <20060425023527.7529.9096.sendpatchset@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0604241945570.3701@g5.osdl.org>
-References: <20060425023509.7529.84752.sendpatchset@localhost.localdomain>
- <20060425023527.7529.9096.sendpatchset@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 24 Apr 2006 22:49:30 -0400
+Date: Mon, 24 Apr 2006 19:47:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: kernel@kolivas.org, mingo@elte.hu, suresh.b.siddha@intel.com,
+       efault@gmx.de, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: [PATCH] sched: Fix boolean expression in move_tasks()
+Message-Id: <20060424194746.715ddd89.akpm@osdl.org>
+In-Reply-To: <444D8B6F.7050601@bigpond.net.au>
+References: <444D637F.5040702@bigpond.net.au>
+	<20060424191358.08c73e31.akpm@osdl.org>
+	<444D8B6F.7050601@bigpond.net.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 24 Apr 2006, sekharan@us.ibm.com wrote:
+Peter Williams <pwil3058@bigpond.net.au> wrote:
+>
+> > What to do?
 > 
-> 	Feel free to drop this patch if you think it is not needed.
+>  Suresh's patch was wrong and this was intended as an alternative. 
 
-It's incorrect.
+OIC.
 
-The init section will be free'd, and as a result can be re-allocated to 
-other uses. Thus testing that data is not in the init-section makes no 
-sense.
+>  Unfortunately, it is also in adequate and the setting of 
+>  busiest_best_prio_seen needs to be moved to just after skip_for_load is 
+>  set.  I have another patch that does that (and adds to the comments). 
+>  Should I send that separately or roll the two patches together?
 
-Testing for _code_ not being in the init section can be sensible, since 
-code never gets re-allocated (modulo module code, but that's never in the 
-init section). So checking the "notifier_call" part may be sensible, but 
-checking the notifier block data pointer definitely is not.
-
-Patches 1-2 applied.
-
-		Linus
+I don't mind, really - rolled together, I guess.

@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWDYUpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWDYUwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWDYUpA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 16:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWDYUpA
+	id S1751265AbWDYUwM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 16:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWDYUwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 16:45:00 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:38837 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751325AbWDYUo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 16:44:59 -0400
-Date: Tue, 25 Apr 2006 14:32:51 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
-Message-ID: <20060425183251.GB22977@ccure.user-mode-linux.org>
-References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <20060420090514.GA9452@osiris.boeblingen.de.ibm.com> <444797F8.6020509@fujitsu-siemens.com>
+	Tue, 25 Apr 2006 16:52:12 -0400
+Received: from xenotime.net ([66.160.160.81]:56290 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751265AbWDYUwM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 16:52:12 -0400
+Date: Tue, 25 Apr 2006 13:54:36 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: stern@rowland.harvard.edu, sekharan@us.ibm.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, herbert@13thfloor.at,
+       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com
+Subject: Re: [PATCH 3/3] Assert notifier_block and notifier_call are not in
+ init section
+Message-Id: <20060425135436.5f4c51fd.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.64.0604251336090.3701@g5.osdl.org>
+References: <Pine.LNX.4.44L0.0604251624430.839-100000@iolanthe.rowland.org>
+	<Pine.LNX.4.64.0604251336090.3701@g5.osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <444797F8.6020509@fujitsu-siemens.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 20, 2006 at 04:17:28PM +0200, Bodo Stroesser wrote:
-> Shouldn't 'len' better be the number of bits in the mask than the number of 
-> chars?
+On Tue, 25 Apr 2006 13:38:22 -0700 (PDT) Linus Torvalds wrote:
 
-Yup.
+> 
+> 
+> On Tue, 25 Apr 2006, Alan Stern wrote:
+> > 
+> > What about loadable modules?  Is their code never loaded into memory that
+> > used to be part of an init section?
+> 
+> Their code might _physically_ reside in a re-allocation of an init 
+> section, but will have a virtual address far away (and it would be the 
+> virtual address that you'd see if you took the address of a function).
 
-> OTOH, I think UML shouldn't send the entire mask, but relevant part only. 
-> The missing end is filled with 0xff by host anyway. So it would be
-> enough to send the mask up to the highest bit representing a
-> syscall, that needs to be executed by host.  (currently, that is
-> __NR_gettimeofday). If UML would do so, no more problem results from
-> UML having a higher NR_syscall than the host (as long as the new
-> syscalls are to be intercepted and executed by UML)
+and the freed init data area is poisoned (in 386, x86_64, powerpc, and
+sparc64).
 
-Yup, that was part of the intent of sending in the mask length.
-
-> A greater problem might be a process in UML, that calls an invalid syscall 
-> number. AFAICS syscall number (orig_eax) isn't checked before it is
-> used in do_syscall_trace to address syscall_mask. This might result
-> in a crash. 
-
-Yeah, this needs fixing.
-
-				Heff
+---
+~Randy

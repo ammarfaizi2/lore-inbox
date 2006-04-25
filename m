@@ -1,102 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWDYSxn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWDYS4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWDYSxn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 14:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWDYSxn
+	id S1751373AbWDYS4o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 14:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWDYS4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 14:53:43 -0400
-Received: from lug-owl.de ([195.71.106.12]:36327 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751353AbWDYSxm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 14:53:42 -0400
-Date: Tue, 25 Apr 2006 20:53:40 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Brian Uhrain <buhrain@rosettastone.com>
-Cc: Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16.6 ( - 2.6.16.11 ) compile failure on an alpha
-Message-ID: <20060425185340.GH25520@lug-owl.de>
-Mail-Followup-To: Brian Uhrain <buhrain@rosettastone.com>,
-	Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>, gregkh@suse.de,
-	linux-kernel@vger.kernel.org
-References: <20060425101647.GH4349@vega.lnet.lut.fi> <444DFA05.2060508@rosettastone.com>
+	Tue, 25 Apr 2006 14:56:44 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:16545 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751373AbWDYS4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 14:56:43 -0400
+Message-Id: <200604251856.k3PIuGjt007346@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Neil Brown <neilb@suse.de>,
+       Chris Wright <chrisw@sous-sol.org>, James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview 
+In-Reply-To: Your message of "Tue, 25 Apr 2006 14:48:46 EDT."
+             <1145990926.21399.96.camel@moss-spartans.epoch.ncsc.mil> 
+From: Valdis.Kletnieks@vt.edu
+References: <1145470463.3085.86.camel@laptopd505.fenrus.org> <p73mzeh2o38.fsf@bragg.suse.de> <1145522524.3023.12.camel@laptopd505.fenrus.org> <20060420192717.GA3828@sorel.sous-sol.org> <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil> <20060421173008.GB3061@sorel.sous-sol.org> <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil> <17484.20906.122444.964025@cse.unsw.edu.au> <20060424070324.GA14720@thunk.org> <1145912876.14804.91.camel@moss-spartans.epoch.ncsc.mil> <20060424235215.GA5893@thunk.org> <1145983533.21399.56.camel@moss-spartans.epoch.ncsc.mil> <200604251834.k3PIYTS9006648@turing-police.cc.vt.edu>
+            <1145990926.21399.96.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pfTAc8Cvt8L6I27a"
-Content-Disposition: inline
-In-Reply-To: <444DFA05.2060508@rosettastone.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/signed; boundary="==_Exmh_1145991376_2618P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Apr 2006 14:56:16 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1145991376_2618P
+Content-Type: text/plain; charset=us-ascii
 
---pfTAc8Cvt8L6I27a
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 25 Apr 2006 14:48:46 EDT, Stephen Smalley said:
+> On Tue, 2006-04-25 at 14:34 -0400, Valdis.Kletnieks@vt.edu wrote:
+> > On Tue, 25 Apr 2006 12:45:33 EDT, Stephen Smalley said:
+> > 
+> > > pam_namespace in Fedora Core.  Not to mention that the restrictions you
+> > > mention only solve the problem within the jail, which is fine if we are
+> > > only talking about jail mechanisms.  Not so good for any kind of real
+> > > MAC.
+> > 
+> > Umm.. Stephen? Where in Fedora Core is it?  I'm running a Fedora Core Rawhide
+> > right now, and it's not on my system, and 'yum provides pam_namespace.so'
+> > doesn't find it either.  There *is* stuff over in the -lspp branch, but it
+> > (AFAIK) hasn't escaped into anything resembling general availability.  Was 
+this
+> > what you were referencing?
+> 
+> Today's rawhide.  0.99.3.0-3.  ChangeLog is:
+> * Tue Apr 25 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-3
+> - added pam_namespace module written by Janak Desai (per-user /tmp
+> support)
+> - new pam-redhat modules version
 
-On Tue, 2006-04-25 11:29:25 +0100, Brian Uhrain <buhrain@rosettastone.com> =
-wrote:
-> ---
->  arch/alpha/kernel/setup.c |   12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
->=20
-> --- linux-2.6.16.11.orig/arch/alpha/kernel/setup.c	2006-04-25 11:21:03.00=
-0000000 +0100
-> +++ linux-2.6.16.11/arch/alpha/kernel/setup.c	2006-04-25 11:22:56.5572666=
-08 +0100
-> @@ -483,11 +483,13 @@ register_cpus(void)
->  {
->  	int i;
-> =20
-> -	for_each_possible_cpu(i) {
-> -		struct cpu *p =3D kzalloc(sizeof(*p), GFP_KERNEL);
-> -		if (!p)
-> -			return -ENOMEM;
-> -		register_cpu(p, i, NULL);
-> +	for (i =3D 0; i < NR_CPUS; i++) {
+OK.. That one hasn't actually propagated out to where it's visible yet. :)
 
-Nope.  Please implement for_each_possible_cpu(). A patch for that flew
-along right today.
-
-> +		if (cpu_possible(i)) {
-> +			struct cpu *p =3D kzalloc(sizeof(*p), GFP_KERNEL);
-> +			if (!p)
-> +				return -ENOMEM;
-> +			register_cpu(p, i, NULL);
-> +		}
->  	}
->  	return 0;
->  }
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---pfTAc8Cvt8L6I27a
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--==_Exmh_1145991376_2618P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFETnA0Hb1edYOZ4bsRAjSPAKCHs39GgjKwjJ/BTS+uJc/Sq6XlzACfQc19
-O+4FQ3GAvl85uYE4C6G7rJM=
-=cSBB
+iD8DBQFETnDQcC3lWbTT17ARAqggAJwPOg0YAog8+SSSMK4Ni1FPwDezYwCcCrjb
+RP1B/NDlnPkyttRJfGg4zVo=
+=XN/A
 -----END PGP SIGNATURE-----
 
---pfTAc8Cvt8L6I27a--
+--==_Exmh_1145991376_2618P--

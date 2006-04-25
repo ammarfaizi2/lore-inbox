@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWDYUd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWDYUdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWDYUd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 16:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWDYUd7
+	id S932123AbWDYUdi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 16:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWDYUdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 16:33:59 -0400
-Received: from nz-out-0102.google.com ([64.233.162.207]:65302 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932298AbWDYUd6 convert rfc822-to-8bit (ORCPT
+	Tue, 25 Apr 2006 16:33:38 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13770 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932123AbWDYUdh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 16:33:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=F8loey1tt7GIWr/mtm9Sb6T6ui7YMVEIlhq7vhJhO7rQA5BeY0E3AbYjpmzjuy3ULNG4Os6jLSsuPBnOG/SGVhuyhaxr4E9Nq2rGlUdEJE5W9KcUZXx7kDQGgqZBeoG96iS3sGWiOA9u4gq/tmmn8ST6a+JBK+nqXoH3cb6fbs0=
-Message-ID: <d120d5000604251333s7ee66f22h6ee92189233790ea@mail.gmail.com>
-Date: Tue, 25 Apr 2006 16:33:57 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Matthew Garrett" <mjg59@srcf.ucam.org>
-Subject: Re: Telling the kernel that keys need soft release?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060425202526.GA29169@srcf.ucam.org>
+	Tue, 25 Apr 2006 16:33:37 -0400
+Date: Tue, 25 Apr 2006 22:32:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Linux PM <linux-pm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
+Message-ID: <20060425203256.GD6379@elf.ucw.cz>
+References: <200604242355.08111.rjw@sisk.pl> <444DF9B3.7080600@yahoo.com.au> <200604251739.13377.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060425202526.GA29169@srcf.ucam.org>
+In-Reply-To: <200604251739.13377.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/25/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> Dell laptops have hotkeys on the top of the keyboard for "hibernate",
-> "cd eject", "battery status" and so on. These can be mapped to
-> appropriate keycodes, and life is good except for the fact that they
-> never produce a key release event. The kernel appears to have code to
-> deal with this for the hangul key, but it's hardcoded rather than
-> generic.
->
-> Is there any way for userspace to tell the event layer that a certain
-> keycode should have soft-release? If not, would a patch for this be
-> accepted?
->
+Hi!
 
-Yes, with a proper DMI entry to activate it would be very welcome.
+> >   > -unsigned int count_data_pages(void)
+> > > +/**
+> > > + *	need_to_copy - determine if a page needs to be copied before saving.
+> > > + *	Returns false if the page can be saved without copying.
+> > > + */
+> > > +
+> > > +static int need_to_copy(struct page *page)
+> > > +{
+> > > +	if (!PageLRU(page) || PageCompound(page))
+> > > +		return 1;
+> > > +	if (page_mapped(page))
+> > > +		return page_mapped_by_current(page);
+> > > +
+> > > +	return 1;
+> > > +}
+> > 
+> > I'd much rather VM internal type stuff get moved *out* of kernel/power :(
+> 
+> Well, I kind of agree, but I don't know where to place it under mm/.
+> 
+> > It needs more comments too. Also, how important is it for the page to be
+> > off the LRU?
+> 
+> Hm, I'm not sure if that's what you're asking about, but the pages off the LRU
+> are handled in a usual way, ie. copied when snapshotting the system.  The
+> pages _on_ the LRU may be included in the snapshot image without
+> copying, but I require them additionally to be (a) mapped by someone and
+> (b) not mapped by the current task.
 
---
-Dmitry
+Why do you _want_ them mapped by someone?
+
+> > b) Why are you clearing PageLRU outside the spinlock?
+> 
+> Well, good question. ;-)  Moreover it seems I don't need to acquire the
+> spinlock at all, because this is done on one CPU with IRQs disabled and the
+> other tasks frozen.
+
+Well, it is probably better to still take the spinlock. That way, if
+something goes wrong we get deadlock, not anything worse.
+								Pavel
+-- 
+Thanks for all the (sleeping) penguins.

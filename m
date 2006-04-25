@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWDYHTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWDYHU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWDYHTq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 03:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWDYHTq
+	id S1751363AbWDYHU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 03:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWDYHU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 03:19:46 -0400
-Received: from mail.dgt.com.pl ([195.117.141.2]:34052 "EHLO dgt.com.pl")
-	by vger.kernel.org with ESMTP id S1751301AbWDYHTp (ORCPT
+	Tue, 25 Apr 2006 03:20:29 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:36357 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751363AbWDYHU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 03:19:45 -0400
-Message-ID: <444DCD8B.2000205@dgt.com.pl>
-Date: Tue, 25 Apr 2006 09:19:39 +0200
-From: Wojciech Kromer <wojciech.kromer@dgt.com.pl>
-Reply-To: wojciech.kromer@dgt.com.pl
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+	Tue, 25 Apr 2006 03:20:28 -0400
+Message-ID: <444DCDB8.4070807@argo.co.il>
+Date: Tue, 25 Apr 2006 10:20:24 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Own APR resolution in 2.4 kernel module
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>	 <1145911546.1635.54.camel@localhost.localdomain>	 <444D3D32.1010104@argo.co.il> <1145915918.1635.64.camel@localhost.localdomain>
+In-Reply-To: <1145915918.1635.64.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Apr 2006 07:20:26.0951 (UTC) FILETIME=[B9B17570:01C66838]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-I need own ARP resolution call in my module.
+Alan Cox wrote:
+> On Maw, 2006-04-25 at 00:03 +0300, Avi Kivity wrote:
+>   
+>> Alan Cox wrote:
+>> I think it's easy to show that the equivalent C++ code would be shorter, 
+>> faster, and safer.
+>>     
+>
+> Mathematically the answer is "no you couldn't". You might be able to
+> argue that a fortran implementation would be faster but not a C++ one.
+>   
+Maybe not mathematically, but I can try to hand-wave my way through.
 
-Now i'm using neigh_lookup.
-It's pretty fast, and works fine if my entry is already in arp_tbl,
-but   it doesn't send  any reqest if trere is no one.
+By using exceptions, you free the normal return paths from having to 
+check for errors. The exception paths can be kept in a dedicated 
+section, avoiding cache pollution. The total code (and data) size 
+increases, but the non-exception paths size decreases significantly and 
+becomes faster.
 
-I found  arp_solicit function, but it's not exported, and no 
-documentation found.
+Using C++ objects instead of C objects allows you to avoid void 
+pointers, which are difficult for the compiler to optimize due to aliasing.
+> And for strings C++ strings are suprisingly inefficient and need a lot
+> of memory allocations, which can fail and are not handled well without C
+> ++ exceptions and other joyous language features you don't want in a
+> kernel. C with 'safe' string handling is similar - look at glib.
+>
+> We have to make tradeoffs and the kernel tradeoffs have been to keep C
+> type fast string handling but to provide helpers in the hope people will
+> actually use them to avoid making mistakes.
+>   
+You might keep C strings (or something similar) for the vfs paths and 
+use C++ strings for non performance critical code.
 
-Probably I'm not the first one with such question, but not found any 
-sollution yet.
-
-PS Please reply on my priv too.
+-- 
+error compiling committee.c: too many arguments to function
 

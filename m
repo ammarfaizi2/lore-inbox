@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWDYVIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751527AbWDYVJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbWDYVIk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 17:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWDYVIk
+	id S1751527AbWDYVJa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 17:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751516AbWDYVJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 17:08:40 -0400
-Received: from mail-03.jhb.wbs.co.za ([196.2.97.2]:10832 "EHLO
-	mail-03.jhb.wbs.co.za") by vger.kernel.org with ESMTP
-	id S1751258AbWDYVIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 17:08:40 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AQAAAOoqTkSIbQEKDio
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: Avi Kivity <avi@argo.co.il>
-Subject: Re: Compiling C++ modules
-Date: Tue, 25 Apr 2006 23:08:42 +0200
-User-Agent: KMail/1.9.1
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <200604252229.36533.bonganilinux@mweb.co.za> <444E8895.8040404@argo.co.il>
-In-Reply-To: <444E8895.8040404@argo.co.il>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 25 Apr 2006 17:09:30 -0400
+Received: from xenotime.net ([66.160.160.81]:21644 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751527AbWDYVJ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 17:09:29 -0400
+Date: Tue, 25 Apr 2006 14:11:54 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Alex Davis <alex14641@yahoo.com>
+Cc: linville@tuxdriver.com, linux-netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] compile error in ieee80211_ioctl.c
+Message-Id: <20060425141154.347c5889.rdunlap@xenotime.net>
+In-Reply-To: <20060425210450.72120.qmail@web50212.mail.yahoo.com>
+References: <20060425210450.72120.qmail@web50212.mail.yahoo.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604252308.42847.bonganilinux@mweb.co.za>
-X-Original-Subject: Re: Compiling C++ modules
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 April 2006 22:37, Avi Kivity wrote:
-> Bongani Hlope wrote:
-> > To enable stack unwinding for exception handling, extra exception-related
-> > information about each function needs to be available for each stack
-> > frame. This information describes which destructors need to be called (so
-> > that local objects can be cleaned up), indicates whether the current
-> > function has a try block, and lists which exceptions the associated catch
-> > clauses can handle.
-> >
-> > Take a look at a typical OOPS trace and tell me if that will fit in a 4k
-> > stack with C++ and stack unwinding.
->
-> C++ on Linux does not put any information on the stack for exception
-> handling purposes. Windows implementations do that but (a) I think the
-> Windows kernel has a 12K stack (b) Linux is unlikely to use the
-> Microsoft C++ compiler.
+On Tue, 25 Apr 2006 14:04:50 -0700 (PDT) Alex Davis wrote:
 
-Cool thanx, I see that g++ (3,x) uses Dwarf2 to store the frame info. Unlike 
-Microsoft.
+> Hello:
+> 
+> I sent this patch earlier and got no response, so I'm sending it again.
+
+There was at least one reply, from me.
+
+The third parameter of module_param() is being misused in your patch.
+It represents a "permission" value, such as 0, 0444, 0644, etc.
+Or you can use existing #defined values for it.
+
+> I cloned git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-dev.git
+> last night and got compile errors while compiling net/d80211/ieee80211_ioctl.c
+> into a module:
+> 
+>   CC [M]  net/d80211/ieee80211_ioctl.o
+> net/d80211/ieee80211_ioctl.c:33: error: syntax error before string constant
+> net/d80211/ieee80211_ioctl.c:33: warning: type defaults to `int' in declaration of `MODULE_PARM'
+> net/d80211/ieee80211_ioctl.c:33: warning: function declaration isn't a prototype
+> net/d80211/ieee80211_ioctl.c:33: warning: data definition has no type or storage class
+> net/d80211/ieee80211_ioctl.c:43: error: syntax error before string constant
+> net/d80211/ieee80211_ioctl.c:43: warning: type defaults to `int' in declaration of `MODULE_PARM'
+> net/d80211/ieee80211_ioctl.c:43: warning: function declaration isn't a prototype
+> net/d80211/ieee80211_ioctl.c:43: warning: data definition has no type or storage class
+> make[2]: *** [net/d80211/ieee80211_ioctl.o] Error 1
+> make[1]: *** [net/d80211] Error 2
+> make: *** [net] Error 2
+> 
+> This patch fixes it.
+> 
+> Signed-off-by: Alex Davis <alex14641@yahoo.com>
+> 
+> diff --git a/net/d80211/ieee80211_ioctl.c b/net/d80211/ieee80211_ioctl.c
+> index 42a7abe..4949e52 100644
+> --- a/net/d80211/ieee80211_ioctl.c
+> +++ b/net/d80211/ieee80211_ioctl.c
+> @@ -30,7 +30,7 @@ #include "aes_ccm.h"
+>  
+>  
+>  static int ieee80211_regdom = 0x10; /* FCC */
+> -MODULE_PARM(ieee80211_regdom, "i");
+> +module_param(ieee80211_regdom, int, 0x10);
+>  MODULE_PARM_DESC(ieee80211_regdom, "IEEE 802.11 regulatory domain; 64=MKK");
+>  
+>  /*
+> @@ -40,7 +40,7 @@ MODULE_PARM_DESC(ieee80211_regdom, "IEEE
+>   * module.
+>   */
+>  static int ieee80211_japan_5ghz /* = 0 */;
+> -MODULE_PARM(ieee80211_japan_5ghz, "i");
+> +module_param(ieee80211_japan_5ghz, int, 0);
+>  MODULE_PARM_DESC(ieee80211_japan_5ghz, "Vendor-updated firmware for 5 GHz");
 
 ---
-    Choose the right tools, use them the right way. 
-     Refuse to compromise, expect  to succeed, 
-                      Then start again.
+~Randy

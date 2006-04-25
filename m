@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWDYUL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWDYUOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWDYUL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 16:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWDYUL4
+	id S1751427AbWDYUOw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 16:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWDYUOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 16:11:56 -0400
-Received: from mail-03.jhb.wbs.co.za ([196.2.97.2]:33189 "EHLO
-	mail-03.jhb.wbs.co.za") by vger.kernel.org with ESMTP
-	id S1751414AbWDYULz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 16:11:55 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AQAAALseTkSIbgEKDio
-From: Bongani Hlope <bhlope@mweb.co.za>
-To: Avi Kivity <avi@argo.co.il>
-Subject: Re: Compiling C++ modules
-Date: Tue, 25 Apr 2006 22:11:52 +0200
+	Tue, 25 Apr 2006 16:14:51 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:60408 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751427AbWDYUOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 16:14:51 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 11/13] s390: instruction processing damage handling.
+Date: Tue, 25 Apr 2006 22:14:38 +0200
 User-Agent: KMail/1.9.1
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com> <444E524A.10906@argo.co.il>
-In-Reply-To: <444E524A.10906@argo.co.il>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org,
+       heiko.carstens@de.ibm.com
+References: <20060424150544.GL15613@skybase> <20060424165823.0065c826.akpm@osdl.org>
+In-Reply-To: <20060424165823.0065c826.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200604252211.52474.bhlope@mweb.co.za>
-X-Original-Subject: Re: Compiling C++ modules
+Message-Id: <200604252214.38662.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 April 2006 18:46, Avi Kivity wrote:
-> Should you want to allocate from the heap, try this:
+Am Tuesday 25 April 2006 01:58 schrieb Andrew Morton:
+> Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+> > +			tmp = get_clock();
 >
-> {
->     spinlock_t::guard g(some_lock);
->     auto_ptr<Foo> item(new (gfp_mask) Foo);   /* or pass a kmem_cache_t */
->     item->do_something();
->     item->do_something_else();
->     return item.release();
-> }
+> s390 has a get_clock()?  I guess you don't use i2c much.
 >
+> We shouldn't use such generic-looking identifiers for arch-specific things.
+>  But I guess you can defer the great renaming to s390_get_clock() until
+> something actually breaks.
 
-I love C++, but you have to stop it now. Imagine how many auto_ptr<Foo> will 
-you use inside your kernel. The compiler will need to create a separete class 
-for each. Using templates in the kernel will be plain silly.
+Many places could probably just use get_cycles() if they don't need
+sub-cycle resolution. Also such an update could be combined with
+a move to the new store-clock-fast instruction.
+
+	Arnd <><

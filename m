@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWDYO1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWDYO2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWDYO1D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 10:27:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWDYO1D
+	id S932237AbWDYO2f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 10:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWDYO2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 10:27:03 -0400
-Received: from pat.uio.no ([129.240.10.6]:949 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932224AbWDYO1B (ORCPT
+	Tue, 25 Apr 2006 10:28:34 -0400
+Received: from THUNK.ORG ([69.25.196.29]:17314 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S932232AbWDYO2d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 10:27:01 -0400
-Subject: Re: question about nfs_execute_read: why do we need to do
-	lock_kernel?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4ae3c140604250708w438545c1lfa66233fdaa63cc@mail.gmail.com>
-References: <4ae3c140604242157k26f39f71qcf6eed811f1e2d8@mail.gmail.com>
-	 <1145941743.8164.6.camel@lade.trondhjem.org>
-	 <4ae3c140604250708w438545c1lfa66233fdaa63cc@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 25 Apr 2006 10:26:49 -0400
-Message-Id: <1145975209.8193.35.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.129, required 12,
-	autolearn=disabled, AWL 1.68, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 25 Apr 2006 10:28:33 -0400
+Date: Tue, 25 Apr 2006 08:46:09 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: James Morris <jmorris@namei.org>
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+       Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+Message-ID: <20060425124609.GA10113@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	James Morris <jmorris@namei.org>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
+	linux-security-module@vger.kernel.org
+References: <20060425042542.53414.qmail@web36603.mail.mud.yahoo.com> <Pine.LNX.4.64.0604250254520.15998@d.namei>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604250254520.15998@d.namei>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-25 at 10:08 -0400, Xin Zhao wrote:
-> Thanks for your reply. So the only reason is for rpc auditing? If so,
-> why not just lock the code that updating the audit information? Now
-> the code is:
+On Tue, Apr 25, 2006 at 03:50:00AM -0400, James Morris wrote:
+> To make a rough analogy (as Ted mentioned his IETF work earlier...): 
+> 
+> The fundamental mechanisms of IPsec are sound.  It has taken many, many 
+> years to get it to this stage, despite claims of it being "too 
+> complicated".  In that time, several "simple" protocols were designed and 
+> implemented to address the "complexity" issues, but it turns out, after 
+> all, that with the right level of abstraction and tools, IPsec is not too 
+> complicated to be secure or to use: by the obvious example of both its 
+> widespread adoption and, afaik, no systemic security failures.
 
-No. You misunderstood me.
+And yet, many people use SSH and TLS, and it is more than sufficient
+for their needs.  Despite being very involved with the development of
+IPSec, and Kerberos, there are plenty of times when I will tell people
+to *not* use those technologies because they are *just* *too*
+*complicated*.
 
-I said that we need to audit the _code_ for races.
+Choice is good.
 
-In the distant past, the rpc code was entirely protected by the BKL
-against concurrent access to shared objects (queues, structures,
-variables etc). Today, most of those shared objects have been given
-their own locks, but nobody has yet gone through the code line by line
-in order to check that it is safe to remove the BKL.
+SELinux should not be the only way to do things.
 
-Cheers,
- Trond
-
+						- Ted

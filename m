@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWDYUwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWDYVDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751265AbWDYUwM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 16:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWDYUwM
+	id S932306AbWDYVDE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 17:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWDYVDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 16:52:12 -0400
-Received: from xenotime.net ([66.160.160.81]:56290 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751265AbWDYUwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 16:52:12 -0400
-Date: Tue, 25 Apr 2006 13:54:36 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: stern@rowland.harvard.edu, sekharan@us.ibm.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, herbert@13thfloor.at,
-       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com
-Subject: Re: [PATCH 3/3] Assert notifier_block and notifier_call are not in
- init section
-Message-Id: <20060425135436.5f4c51fd.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.64.0604251336090.3701@g5.osdl.org>
-References: <Pine.LNX.4.44L0.0604251624430.839-100000@iolanthe.rowland.org>
-	<Pine.LNX.4.64.0604251336090.3701@g5.osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 25 Apr 2006 17:03:03 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:6873 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932306AbWDYVDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 17:03:01 -0400
+Message-Id: <200604252102.k3PL2iQJ013299@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Avi Kivity <avi@argo.co.il>
+Cc: Bongani Hlope <bhlope@mweb.co.za>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules 
+In-Reply-To: Your message of "Tue, 25 Apr 2006 23:26:17 +0300."
+             <444E85E9.70300@argo.co.il> 
+From: Valdis.Kletnieks@vt.edu
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com> <444E524A.10906@argo.co.il> <200604252211.52474.bhlope@mweb.co.za>
+            <444E85E9.70300@argo.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1145998964_2618P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Apr 2006 17:02:44 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Apr 2006 13:38:22 -0700 (PDT) Linus Torvalds wrote:
+--==_Exmh_1145998964_2618P
+Content-Type: text/plain; charset=us-ascii
 
-> 
-> 
-> On Tue, 25 Apr 2006, Alan Stern wrote:
-> > 
-> > What about loadable modules?  Is their code never loaded into memory that
-> > used to be part of an init section?
-> 
-> Their code might _physically_ reside in a re-allocation of an init 
-> section, but will have a virtual address far away (and it would be the 
-> virtual address that you'd see if you took the address of a function).
+On Tue, 25 Apr 2006 23:26:17 +0300, Avi Kivity said:
 
-and the freed init data area is poisoned (in 386, x86_64, powerpc, and
-sparc64).
+> auto_ptr<>'s are fully inlined so their impact is nil.
 
----
-~Randy
+Except for the punishment the i-cache takes.  There's reasons why we
+fight over "to inline or not to inline"....
+
+--==_Exmh_1145998964_2618P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFETo50cC3lWbTT17ARAod+AKD3BDhMZbkv86nBF+TuaGb7wjGB/wCePJd6
+catZYx7ci2KiLI6itfgdZhs=
+=Vvjj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1145998964_2618P--

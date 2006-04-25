@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWDYERS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWDYEZt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbWDYERS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 00:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWDYERS
+	id S1750903AbWDYEZt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 00:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWDYEZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 00:17:18 -0400
-Received: from dvhart.com ([64.146.134.43]:43732 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751361AbWDYERS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 00:17:18 -0400
-Message-ID: <444DA2CA.4060807@mbligh.org>
-Date: Mon, 24 Apr 2006 21:17:14 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Tue, 25 Apr 2006 00:25:49 -0400
+Received: from web36603.mail.mud.yahoo.com ([209.191.85.20]:36730 "HELO
+	web36603.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750926AbWDYEZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 00:25:48 -0400
+Message-ID: <20060425042542.53414.qmail@web36603.mail.mud.yahoo.com>
+X-RocketYMMF: rancidfat
+Date: Mon, 24 Apr 2006 21:25:42 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+To: Stephen Smalley <sds@tycho.nsa.gov>, "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+In-Reply-To: <1145912876.14804.91.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Avi Kivity <avi@argo.co.il>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain> <444D3D32.1010104@argo.co.il>
-In-Reply-To: <444D3D32.1010104@argo.co.il>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
-> Alan Cox wrote:
-> 
->> There are a few anti C++ bigots around too, but the kernel choice of C
->> was based both on rational choices and experimentation early on with the
->> C++ compiler.
-> 
-> Times have changed, though. The C++ compiler is much better now, and the 
-> recent slew of error handling bugs shows that C is a very unsafe language.
-> 
-> I think it's easy to show that the equivalent C++ code would be shorter, 
-> faster, and safer.
 
-So ... what exactly are you waiting for? We await the results with
-baited breath. This slick C++ kernel of which you speak can surely
-not be far away.
 
-M.
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+
+> Seems like a strawman.  We aren't claiming that
+> SELinux is perfect, and
+> there is plenty of work ongoing on SELinux
+> usability.  But a
+> fundamentally unsound mechanism is more dangerous
+> than one that is never
+> enabled; at least in the latter case, one knows
+> where one stands.  It is
+> the illusory sense of security that accompanies
+> path-based access
+> control that is dangerous.
+
+I suggest that this logic be applied to
+the "strict policy", "targeted policy",
+and "user written policy" presentations
+of SELinux. You never know what the policy
+might be.
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com

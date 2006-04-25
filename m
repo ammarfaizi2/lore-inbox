@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWDYU00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWDYU0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWDYU00 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 16:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWDYU00
+	id S932284AbWDYU0P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 16:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWDYU0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 16:26:26 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:11 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S932286AbWDYU0Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 16:26:25 -0400
-Message-ID: <444E85E9.70300@argo.co.il>
-Date: Tue, 25 Apr 2006 23:26:17 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Tue, 25 Apr 2006 16:26:15 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:57257 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932284AbWDYU0O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 16:26:14 -0400
+Date: Tue, 25 Apr 2006 16:26:12 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Chandra Seetharaman <sekharan@us.ibm.com>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <herbert@13thfloor.at>,
+       <linux-xfs@oss.sgi.com>, <xfs-masters@oss.sgi.com>
+Subject: Re: [PATCH 3/3] Assert notifier_block and notifier_call are not in
+ init section
+In-Reply-To: <Pine.LNX.4.64.0604251211510.3701@g5.osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0604251624430.839-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Bongani Hlope <bhlope@mweb.co.za>
-CC: Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com> <444E524A.10906@argo.co.il> <200604252211.52474.bhlope@mweb.co.za>
-In-Reply-To: <200604252211.52474.bhlope@mweb.co.za>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Apr 2006 20:26:24.0197 (UTC) FILETIME=[859A2750:01C668A6]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bongani Hlope wrote:
-> On Tuesday 25 April 2006 18:46, Avi Kivity wrote:
->   
->> Should you want to allocate from the heap, try this:
->>
->> {
->>     spinlock_t::guard g(some_lock);
->>     auto_ptr<Foo> item(new (gfp_mask) Foo);   /* or pass a kmem_cache_t */
->>     item->do_something();
->>     item->do_something_else();
->>     return item.release();
->> }
->>
->>     
->
-> I love C++, but you have to stop it now. Imagine how many auto_ptr<Foo> will 
-> you use inside your kernel. The compiler will need to create a separete class 
-> for each. Using templates in the kernel will be plain silly.
->   
-auto_ptr<>'s are fully inlined so their impact is nil.
+On Tue, 25 Apr 2006, Linus Torvalds wrote:
 
-(And actually I dislike C++, it only looks good next to C)
+> > 2) Unrelated to this patch: If the _code_ section is never reallocated
+> > or reused, what is the purpose of putting _code_ in the init section ?
+> > Only to make sure that the init calls are called in order ?
+> 
+> No, the code section is re-used, it's just never re-used for any other 
+> code (since we don't generate code on the fly). So if you pass in a 
+> function pointer, you know that if it's in the init section, it means that 
+> init-code that was discarded.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+What about loadable modules?  Is their code never loaded into memory that
+used to be part of an init section?
+
+Alan Stern
 

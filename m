@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWDYMOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWDYMWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWDYMOL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 08:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWDYMOL
+	id S932208AbWDYMWj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 08:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWDYMWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 08:14:11 -0400
-Received: from wip-ec-wd.wipro.com ([203.91.193.32]:979 "EHLO
-	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP id S932204AbWDYMOL convert rfc822-to-8bit
+	Tue, 25 Apr 2006 08:22:39 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:36606 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932208AbWDYMWi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 08:14:11 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 25 Apr 2006 08:22:38 -0400
+In-Reply-To: <1145950336.11463.8.camel@localhost>
+Subject: Re: [PATCH/RFC] s390: Hypervisor File System
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: ioe-lkml@rameria.de, joern@wohnheim.fh-wedel.de,
+       linux-kernel@vger.kernel.org, mschwid2@de.ibm.com, akpm@osdl.org
+X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
+Message-ID: <OFE6B79564.F8AA5D6A-ON4225715B.00433517-4225715B.0043FD0A@de.ibm.com>
+From: Michael Holzheu <HOLZHEU@de.ibm.com>
+Date: Tue, 25 Apr 2006 14:22:37 +0200
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 25/04/2006 14:23:40
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: problems with printk's
-Date: Tue, 25 Apr 2006 17:39:58 +0530
-Message-ID: <4F36B0A4CDAD6F46A61B2B32C33DC69C02502AEE@BLR-EC-MBX03.wipro.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: problems with printk's
-Thread-Index: AcZoYIv0/DBDDHDHRv29TYxz7NRelwAAAmNw
-From: <biswa.nayak@wipro.com>
-To: <vshrirama@gmail.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Apr 2006 12:13:48.0388 (UTC) FILETIME=[B4F79A40:01C66861]
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-  When i see the output of the driver using dmesg
+Pekka Enberg <penberg@cs.helsinki.fi> wrote on 04/25/2006 09:32:16 AM:
+> On Mon, 2006-04-24 at 19:19 +0200, Michael Holzheu wrote:
+> > > +#ifndef __HAVE_ARCH_STRRTRIM
+> > > +/**
+> > > + * strrtrim - Remove trailing characters specified in @reject
+> > > + * @s: The string to be searched
+> > > + * @reject: The string of letters to avoid
+> > > + */
+> > > +void strrtrim(char *s, const char *reject)
+>
+> On Tue, 2006-04-25 at 09:58 +0300, Pekka Enberg wrote:
+> > I think this should return s to be consistent with other string API
+> > functions.
+>
+> Hmm, thinking about this, I think a better API would be to not have that
+> reject parameter at all. Would something like this be accetable for your
+> use?
 
-  Only some of the prints are visible (some of them are not printed even
-though they
-   must get printed. i dont know why this is happening.
+Yes, strtrip() will work for us! If Andrew takes it, I will use it in my
+patch!
 
-  Is there any limit on printk (like number of messages....)
+Thanks
 
+Michael
 
-  How do i disable (ie printk should print irrespective of any limit or
-anything).
-
-
-Please check '/proc/sys/kernel/printk_ratelimit' and
-'/proc/sys/kernel/printk_ratelimit_burst'. The printk_ratelimit tells
-your system to stop logging messages for 'n' number of seconds and
-printk_ratelimit_burst tells the number of messages to allow before rate
-limiting. You can change these values to allow more messages.
-
-Warning: You can generate so many messages that the system can get
-unresponsive, and the buffer for kernel log message is also of fixed
-sized circular buffer. So if you write too many messages, you might
-overwrite some of your old useful logs too. Hope this helps.
-
-~Biswa

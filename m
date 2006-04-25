@@ -1,68 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWDZDlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWDZDl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbWDZDlz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 23:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751639AbWDZDli
+	id S932279AbWDZDl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 23:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWDZDlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 23:41:38 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:9695 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751640AbWDZDlc (ORCPT
+	Tue, 25 Apr 2006 23:41:36 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:21645 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751639AbWDZDlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 25 Apr 2006 23:41:32 -0400
-Date: Tue, 25 Apr 2006 15:30:02 -0500
+Date: Tue, 25 Apr 2006 14:06:37 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Nix <nix@esperi.org.uk>
-Cc: Ulrich Drepper <drepper@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
-       Makan Pourzandi <Makan.Pourzandi@ericsson.com>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       Serue Hallyen <serue@us.ibm.com>,
-       Axelle Apvrille <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
-       "disec-devel@lists.sourceforge.net" 
-	<disec-devel@lists.sourceforge.net>
-Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-time authentication of binaries
-Message-ID: <20060425203002.GB7228@sergelap.austin.ibm.com>
-References: <4448AC62.6090303@ericsson.com> <1145794712.3131.10.camel@laptopd505.fenrus.org> <a36005b50604230938k2f52186ek477850b3e3a7192@mail.gmail.com> <87psj6pvqo.fsf@hades.wkstn.nix>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       Olivier Galibert <galibert@pobox.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Marowsky-Bree <lmb@suse.de>,
+       Valdis.Kletnieks@vt.edu, Ken Brush <kbrush@gmail.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060425190637.GG5765@sergelap.austin.ibm.com>
+References: <20060424082424.GH440@marowsky-bree.de> <1145882551.29648.23.camel@localhost.localdomain> <20060424124556.GA92027@dspnet.fr.eu.org> <1145883251.3116.27.camel@laptopd505.fenrus.org> <20060424130949.GE9311@sergelap.austin.ibm.com> <1145884620.3116.33.camel@laptopd505.fenrus.org> <20060424132911.GB22703@sergelap.austin.ibm.com> <1145886047.3116.36.camel@laptopd505.fenrus.org> <20060424135421.GC22703@sergelap.austin.ibm.com> <1145887633.3116.40.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87psj6pvqo.fsf@hades.wkstn.nix>
+In-Reply-To: <1145887633.3116.40.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Nix (nix@esperi.org.uk):
-> On 23 Apr 2006, Ulrich Drepper prattled cheerily:
-> > On 4/23/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> >> does this also prevent people writing their own elf loader in a bit of
-> >> perl and just mmap the code ?
+Quoting Arjan van de Ven (arjan@infradead.org):
+> On Mon, 2006-04-24 at 08:54 -0500, Serge E. Hallyn wrote:
+> > Quoting Arjan van de Ven (arjan@infradead.org):
+> > > On Mon, 2006-04-24 at 08:29 -0500, Serge E. Hallyn wrote:
+> > > > Quoting Arjan van de Ven (arjan@infradead.org):
+> > > > > On Mon, 2006-04-24 at 08:09 -0500, Serge E. Hallyn wrote:
+> > > > > > Quoting Arjan van de Ven (arjan@infradead.org):
+> > > > > > > for all such things in the first place. In fact, we already know that to
+> > > > > > > do auditing, LSM is the wrong thing to do (and that's why audit doesn't
+> > > > > > > use LSM). It's one of those fundamental linux truths: Trying to be
+> > > > > > 
+> > > > > > As I recall it was simply decided that LSM must be "access control
+> > > > > > only", and that was why it wasn't used for audit.
+> > > > > 
+> > > > > no you recall incorrectly.
+> > > > > Audit needs to audit things that didn't work out, like filenames that
+> > > > > don't exist. Audit needs to know what is going to happen before the
+> > > > > entire "is this allowed" chain is going to be followed. SELInux and
+> > > > > other LSM parts are just one part of that chain, and there's zero
+> > > > > guarantee that you get to the LSM part in the chain.....  Now of course
+> > > > 
+> > > > Ah yes.  It needed to be authoritative.  I did recall incorrectly.
+> > > > 
+> > > > I suspect some would argue that you are right that LSM is broken, but
+> > > > only because it wasn't allowed to be authoritative. 
+> > > 
+> > > authoritative isn't enough; think about it. The VFS isn't ever going to
+> > > ask "can I open this file" if the file doesn't exist in the first place;
 > > 
-> > You will never get 100% protection from a mechanism like signed
-> > binaries.  What you can get in collaboration with other protections
-> > like SELinux is another layer of security.  That's good IMO.  Not
-> > being able to slide in modified and substituted binaries which then
-> > would be marked to get certain privileges is a plus.
+> > Current audit doesn't do that either, does it?  
 > 
-> Of course in order to use it in conjunction with SELinux right now you
-> need LSM stacking, which is a nest of dragons in itself (if not used
-> very carefully stacking can weaken security rather than strengthening
-> it...)
+> As far as I know, it actually does. (assuming you configure it do audit
+> such events obviously)
 
-Perhaps.  On the other hand, combining selinux with digsig you get:
+If the parent directory exists, yes.  LSM could do that too.  If the
+parent directory does not exist, then you cannot create an audit rule.
+I.e. if /var/spool/mail does not exist, you cannot watch
+/var/spool/mail/hallyn.  If you have an active rule for
+/var/spool/mail/hallyn and you rm -rf /var/spool/mail, the audit rule is
+implicitly deleted.  If you then recreate /var/spool/mail, and touch
+/var/spool/mail/hallyn, you get no audit entries.
 
-	1. selinux integrity controls on crucial digsig files, which
-	digsig does not (and should not) protect itself
-	2. digsig controls over selinux entry types.  So now you can
-	protect domain transitions with small, verifiable entry points
-	which are then signed to boot.
+> > It labels the parent
+> > inode, so if /var/spool/mail doesn't exist, and you look up
+> > /var/spool/mail/hallyn, you won't get an audit record. 
+> 
+> 
+> >  You'd have to do
+> > that by auditing all open syscalls at the syscall level.
+> 
+> That's a wrong assumption. There is one level below the syscall level as
 
-> `Stripped-down firewalls' on its own is a big niche.
+What is the wrong assumption?  That it has to be "at the syscall level"?
+Ok, it has to be done at syscall entry or exit, if you prefer.  Using
+syscall auditing, catching all fs events, and grepping with ausearch.
 
-Every home should have one.
+> well in Linux, and that is where you need to audit for this, and afaik
+> audit actually does that.
 
-> Combine it with SELinux, exec-shield, FORTIFY_SOURCE, -fstack-protector
-> and, say, a COWed filesystem read off a CD and reset with every boot,
-> and you start to get a bit less insecure than you would otherwise be.
-
-Sounds like a good basis for a new tiny distro.
+Nope.
 
 -serge

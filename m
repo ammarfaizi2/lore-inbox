@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751633AbWDYWkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751613AbWDYWlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751633AbWDYWkG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 18:40:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbWDYWkF
+	id S1751613AbWDYWlM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 18:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWDYWlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 18:40:05 -0400
-Received: from sccrmhc11.comcast.net ([204.127.200.81]:43999 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751633AbWDYWkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 18:40:04 -0400
-Message-ID: <444EA53F.20609@acm.org>
-Date: Tue, 25 Apr 2006 17:39:59 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Gross, Mark" <mark.gross@intel.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, bluesmoke-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
-Subject: Re: Problems with EDAC coexisting with BIOS
-References: <5389061B65D50446B1783B97DFDB392DA97799@orsmsx411.amr.corp.intel.com>
-In-Reply-To: <5389061B65D50446B1783B97DFDB392DA97799@orsmsx411.amr.corp.intel.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Apr 2006 18:41:12 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:64913 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751576AbWDYWlM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 18:41:12 -0400
+Date: Tue, 25 Apr 2006 15:39:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] class_device_add needs error checks
+Message-ID: <20060425223958.GA30677@kroah.com>
+References: <20060421134027.3198974e@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060421134027.3198974e@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gross, Mark wrote:
+On Fri, Apr 21, 2006 at 01:40:27PM -0700, Stephen Hemminger wrote:
+> +		if (atomic_read(&class_dev->kobj.kref.refcount))
+> +			kobject_del(&class_dev->kobj);
 
->>
->>    
->>
->
->Done. 
->Signed-off-by: Mark Gross
->
->
->--mgross
->  
->
-Yes, this is what I was talking about.  I believe the mode of
-module_param should be 444, since modifying this after the module is
-loaded won't do anything.  Also, it might be nice to print something
-different in the "force" case.
+Yeah, we can't do this, we should not be mucking around in the kref core
+like this.
 
-Thanks,
+Are you having problems where class_device_add() should be failing and
+it isn't?
 
--Corey
+Other than the above, the patch almost looked good :)
+
+thanks,
+
+greg k-h

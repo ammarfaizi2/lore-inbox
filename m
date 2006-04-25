@@ -1,36 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWDYGWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWDYGRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWDYGWX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 02:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWDYGWX
+	id S1750771AbWDYGRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 02:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWDYGRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 02:22:23 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:45748 "EHLO
+	Tue, 25 Apr 2006 02:17:09 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:14497 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751174AbWDYGWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 02:22:22 -0400
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+	id S1750771AbWDYGRH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 02:17:07 -0400
+Subject: Re: [patch] pciehp: dont call pci_enable_dev
 From: Arjan van de Ven <arjan@infradead.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Neil Brown <neilb@suse.de>,
-       Chris Wright <chrisw@sous-sol.org>, James Morris <jmorris@namei.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org
-In-Reply-To: <20060424235215.GA5893@thunk.org>
-References: <1145470463.3085.86.camel@laptopd505.fenrus.org>
-	 <p73mzeh2o38.fsf@bragg.suse.de>
-	 <1145522524.3023.12.camel@laptopd505.fenrus.org>
-	 <20060420192717.GA3828@sorel.sous-sol.org>
-	 <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060421173008.GB3061@sorel.sous-sol.org>
-	 <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <17484.20906.122444.964025@cse.unsw.edu.au>
-	 <20060424070324.GA14720@thunk.org>
-	 <1145912876.14804.91.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060424235215.GA5893@thunk.org>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: pcihpd-discuss@lists.sourceforge.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1145919059.6478.29.camel@whizzy>
+References: <1145919059.6478.29.camel@whizzy>
 Content-Type: text/plain
-Date: Tue, 25 Apr 2006 08:22:02 +0200
-Message-Id: <1145946122.3114.2.camel@laptopd505.fenrus.org>
+Date: Tue, 25 Apr 2006 08:16:59 +0200
+Message-Id: <1145945819.3114.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -39,11 +27,10 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-04-24 at 15:50 -0700, Kristen Accardi wrote:
+> Don't call pci_enable_device from pciehp because the pcie port service driver
+> already does this.
 
-> 
-> If you restrict namespaces and chroot,
-... and hardlinks
-
-but yes good points otherwise.
-
+hmmmm shouldn't pci_enable_device on a previously enabled device just
+succeed? Sounds more than logical to me to make it that way at least...
 

@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWDYJNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWDYJO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWDYJNS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 05:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWDYJNS
+	id S932159AbWDYJO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 05:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWDYJO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 05:13:18 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:38920 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932156AbWDYJNR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 05:13:17 -0400
-Message-ID: <444DE829.2000101@argo.co.il>
-Date: Tue, 25 Apr 2006 12:13:13 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Tue, 25 Apr 2006 05:14:27 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:10375 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932159AbWDYJO0
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Tue, 25 Apr 2006 05:14:26 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-To: Martin Mares <mj@ucw.cz>
-CC: Xavier Bestel <xavier.bestel@free.fr>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com> <mj+md-20060424.201044.18351.atrey@ucw.cz> <444D44F2.8090300@wolfmountaingroup.com> <1145915533.1635.60.camel@localhost.localdomain> <20060425001617.0a536488@werewolf.auna.net> <1145952948.596.130.camel@capoeira> <444DE0F0.8060706@argo.co.il> <mj+md-20060425.085030.25134.atrey@ucw.cz> <444DE539.4000804@argo.co.il> <mj+md-20060425.090134.27024.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060425.090134.27024.atrey@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Apr 2006 09:13:15.0123 (UTC) FILETIME=[7BD68C30:01C66848]
+Message-ID: <17485.59227.679738.701155@gargle.gargle.HOWL>
+Date: Tue, 25 Apr 2006 13:09:47 +0400
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: C++ pushback
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <20060425001617.0a536488@werewolf.auna.net>
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
+	<mj+md-20060424.201044.18351.atrey@ucw.cz>
+	<444D44F2.8090300@wolfmountaingroup.com>
+	<1145915533.1635.60.camel@localhost.localdomain>
+	<20060425001617.0a536488@werewolf.auna.net>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
->>> Calling a C function is simple and explicit -- a quick glance over
->>> the code is enough to tell what gets called.
->>>
->>>       
->> No, you need to check all the functions it calls as well.
->>     
->
-> Yes, but if it calls none (or calls basic functions I already know),
-> it's immediately visible without having to circumnavigate the globe
-> to find declarations of all sub-objects :)
->
->   
-Yes, but if the constructor constructs no sub objects (or basic objects 
-you already know) then it's immediately visible as well.
+J.A. Magallon writes:
 
+[...]
 
--- 
-error compiling committee.c: too many arguments to function
+ > 
+ > Tell me what is the difference between:
+ > 
+ > 
+ >     sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
+ >     if (!sbi)
+ >         return -ENOMEM;
+ >     sb->s_fs_info = sbi;
+ >     memset(sbi, 0, sizeof(*sbi));
+ >     sbi->s_mount_opt = 0;
+ >     sbi->s_resuid = EXT3_DEF_RESUID;
+ >     sbi->s_resgid = EXT3_DEF_RESGID;
+ > 
+ > and
+ > 
+ >     SuperBlock() : s_mount_opt(0), s_resuid(EXT3_DEF_RESUID), s_resgid(EXT3_DEF_RESGID)
+ >     {}
+ > 
+ >     ...
+ >     sbi = new SuperBlock;
+ >     if (!sbi)
+ >         return -ENOMEM;
+ > 
+ > apart that you don't get members initalized twice and get a shorter code :).
 
+The difference is that second fragment doesn't mention GFP_KERNEL, so
+it's most likely wrong. Moreover it's shorter only because it places
+multiple initializations on the same like, hence, contradicting
+CodingStyle.
+
+ > 
+ > --
+ > J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+
+Nikita.

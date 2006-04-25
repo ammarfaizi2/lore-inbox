@@ -1,76 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWDYKyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWDYK4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWDYKyD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 06:54:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWDYKyD
+	id S932187AbWDYK4J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 06:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWDYK4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 06:54:03 -0400
-Received: from [212.33.166.172] ([212.33.166.172]:55053 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932194AbWDYKyC (ORCPT
+	Tue, 25 Apr 2006 06:56:09 -0400
+Received: from mx2.suse.de ([195.135.220.15]:24244 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932187AbWDYK4I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 06:54:02 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH 1/1] threads_max: Simple lockout prevention patch
-Date: Tue, 25 Apr 2006 13:44:58 +0300
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Theodore Ts'o" <tytso@mit.edu>
-References: <200511142327.18510.a1426z@gawab.com> <200604241637.56637.a1426z@gawab.com> <444DCE65.5050906@yahoo.com.au>
-In-Reply-To: <444DCE65.5050906@yahoo.com.au>
+	Tue, 25 Apr 2006 06:56:08 -0400
+To: "Charles Majola" <chmj@rootcore.co.za>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EMT64T build error
+References: <40cb3b290604250350n60c91bfapae0a622cfdbb731d@mail.gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 25 Apr 2006 12:55:57 +0200
+In-Reply-To: <40cb3b290604250350n60c91bfapae0a622cfdbb731d@mail.gmail.com>
+Message-ID: <p73wtdd9b5u.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200604251344.58399.a1426z@gawab.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Al Boldi wrote:
-> > Nick Piggin wrote:
-> >>Al Boldi wrote:
-> >>>Could do that by:
-> >>>
-> >>>	# echo 1 > /proc/sys/kernel/su-pid
-> >>>
-> >>>which would imply nr-threads = 1
-> >>>
-> >>>So maybe introduce /proc/sys/kernel/nr-threads to allow that to be
-> >>>variable, but this isn't really critical.
-> >>
-> >>Why not just have su-nr-threads?
-> >
-> > Unless I am misunderstanding you, even root/root-proc can be hit by a
-> > runaway, so the threads-max limits this globally which is great, but
-> > this may lock-you out of being able to control the situation based on
-> > uid only.
-> >
-> > Thus this patch gives root the ability to allow a certain pid to exceed
-> > the threads-max limit, while all other pids are still limited.
->
-> But the point is that root is able to get their pids under control,
-> and can't be DoSed by unpriv users. Right?
+"Charles Majola" <chmj@rootcore.co.za> writes:
 
-Or even by root.
+> When i try to build 2.6.17-rc2 on amd64-generic machine with gcc 4.0.3
+> (Ubuntu 64 bit) I get the following error (i386 builds fine)..
 
-> Nothing is going to be perfect, I mean the su-pid pid could get "hit
-> bya runaway" and is arguably worse than nr-threads-su, because it has
-> no upper limit and coult take down the whole system.
+Do a make distclean after saving your .config.
 
-The su-pid is a temporary measure set by root after evaluating the current 
-situation, and additionally limiting this by su-nr(pid)-threads may probably 
-be a good idea.  Maybe something like this:
-
-	if (nr_threads >= max_threads)
-		if ((p->pid != su_pid) || (nr_threads >= (max_threads + su_pid_threads)))
-			goto bad_fork_cleanup_count;
-
-But I really don't think this is critical.
-
-Thanks!
-
---
-Al
-
+-Andi

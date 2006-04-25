@@ -1,82 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWDYWdk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWDYWhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751627AbWDYWdk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 18:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWDYWdk
+	id S1751629AbWDYWhj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 18:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbWDYWhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 18:33:40 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:30188 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751483AbWDYWdj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 18:33:39 -0400
-Subject: Re: [PATCH 3/3] Assert notifier_block and notifier_call are not in
-	init section
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, herbert@13thfloor.at,
-       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
-       Alan Stern <stern@rowland.harvard.edu>
-In-Reply-To: <Pine.LNX.4.64.0604251211510.3701@g5.osdl.org>
-References: <20060425023509.7529.84752.sendpatchset@localhost.localdomain>
-	 <20060425023527.7529.9096.sendpatchset@localhost.localdomain>
-	 <Pine.LNX.4.64.0604241945570.3701@g5.osdl.org>
-	 <1145991663.16539.8.camel@linuxchandra>
-	 <Pine.LNX.4.64.0604251211510.3701@g5.osdl.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Tue, 25 Apr 2006 15:33:36 -0700
-Message-Id: <1146004416.16539.11.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Apr 2006 18:37:39 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31912 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751483AbWDYWhi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 18:37:38 -0400
+Date: Wed, 26 Apr 2006 00:36:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
+Message-ID: <20060425223657.GH6379@elf.ucw.cz>
+References: <200604242355.08111.rjw@sisk.pl> <200604260021.08888.rjw@sisk.pl> <20060425222526.GG6379@elf.ucw.cz> <200604260830.57866.nigel@suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604260830.57866.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-25 at 12:16 -0700, Linus Torvalds wrote:
+On St 26-04-06 08:30:51, Nigel Cunningham wrote:
+> HI.
 > 
-> On Tue, 25 Apr 2006, Chandra Seetharaman wrote:
-> > 
-> > Two questions:
-> > 1) related to this patch: Do you want me to generate a patch that
-> > asserts only notifier calls ?
+> On Wednesday 26 April 2006 08:25, Pavel Machek wrote:
+> > Hi!
+> >
+> > > > It does apply to all of the LRU pages. This is what I've been doing for
+> > > > years now. The only corner case I've come across is XFS. It still wants
+> > > > to write data even when there's nothing to do and it's threads are
+> > > > frozen (IIRC - haven't looked at it for a while). I got around that by
+> > > > freezing bdevs when freezing processes.
+> > >
+> > > This means if we freeze bdevs, we'll be able to save all of the LRU
+> > > pages, except for the pages mapped by the current task, without copying. 
+> > > I think we can try to do this, but we'll need a patch to freeze bdevs for
+> > > this purpose. ;-)
+> >
+> > ...adding more dependencies to how vm/blockdevs work. I'd say current
+> > code is complex enough...
 > 
-> I don't really have any strong preferences. It seems a bit strange that 
-> we'd do it for notifiers but not for other people. It might be better to 
-> try to build it into the build system itself, and get it through the 
-> _normal_ "section checking".
+> You assume too much. This is just using existing code.
 
-I 'll hold off for now then.
-> 
-> One way to do that would be to make the "register_notifier()" thing just 
-> create this dummy asm() that just puts the arguments into a section that 
-> doesn't even get loaded, but that cna be checked.
-> 
-> > 2) Unrelated to this patch: If the _code_ section is never reallocated
-> > or reused, what is the purpose of putting _code_ in the init section ?
-> > Only to make sure that the init calls are called in order ?
-> 
-> No, the code section is re-used, it's just never re-used for any other 
-> code (since we don't generate code on the fly). So if you pass in a 
-> function pointer, you know that if it's in the init section, it means that 
-> init-code that was discarded.
-> 
-> But if you pass in a data pointer, you'll never know if it's a data 
-> pointer to the original init-code section, or if it was a data pointer 
-> that was just dynamically allocated after the init-code section was freed.
+Let's see the patch, then.
+								Pavel
 
-Thanks for the clarification. 
-> 
-> > PS: I fixed my mailer to put my name. sorry about that.
-> 
-> Looks good.
-> 
-> 		Linus
 -- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+Thanks for all the (sleeping) penguins.

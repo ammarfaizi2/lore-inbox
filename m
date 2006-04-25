@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751519AbWDYLF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWDYLSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751519AbWDYLF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 07:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWDYLF6
+	id S1751493AbWDYLSo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 07:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWDYLSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 07:05:58 -0400
-Received: from uproxy.gmail.com ([66.249.92.168]:34986 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751518AbWDYLF6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 07:05:58 -0400
+	Tue, 25 Apr 2006 07:18:44 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:34909 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751493AbWDYLSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 07:18:43 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bHG2ItyE70o33IxGAersO3xUTacIlUcsHiiE24bHjt9VLDQcJWk9oMLXQkbrV6SCgsTExmTaW9o6qOT50R/Pkw9XDvNDWqM5VUvkq14zDEObQYcoJ7HwFttfNX+BVnQnhh+RfHvUxCKLbRV1/8a5QUGOuLeKUEuHmIhL0dFRC+s=
-Message-ID: <40cb3b290604250405q1ddd77b5vef1e4aadd9ebd071@mail.gmail.com>
-Date: Tue, 25 Apr 2006 13:05:56 +0200
-From: "Charles Majola" <chmj@rootcore.co.za>
-To: linux-kernel@vger.kernel.org
-Subject: Re: EMT64T build error
-In-Reply-To: <p73wtdd9b5u.fsf@bragg.suse.de>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=19nGkdN1KEOlLNEBSmV/K3wFG1rU+SKj5n+f4dpPhC29sV582+dXpi++ReDeqhiK862I294pKOP1i03bVd3X8NCyOoQFRFZhEJEfdsRQWls+lyUWLOpCABTTT6vkUy2cco/OcMuFoEDbNMa/Uj9yC2zuvdrrYbityV7H+7onPFg=  ;
+Message-ID: <444DF5B4.6030004@yahoo.com.au>
+Date: Tue, 25 Apr 2006 20:11:00 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <40cb3b290604250350n60c91bfapae0a622cfdbb731d@mail.gmail.com>
-	 <p73wtdd9b5u.fsf@bragg.suse.de>
+To: Andrew Morton <akpm@osdl.org>
+CC: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       hzhong@gmail.com
+Subject: Re: [PATCH] Profile likely/unlikely macros
+References: <200604250257.k3P2vlEb012502@dwalker1.mvista.com> <20060424200657.0af43d6a.akpm@osdl.org>
+In-Reply-To: <20060424200657.0af43d6a.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-shoot, my bad, thanks
+Andrew Morton wrote:
+> Daniel Walker <dwalker@mvista.com> wrote:
+> 
+>> +	if (likeliness->type & LIKELY_UNSEEN) {
+>> +		if (atomic_dec_and_test(&likely_lock)) {
+>> +			if (likeliness->type & LIKELY_UNSEEN) {
+>> +				likeliness->type &= (~LIKELY_UNSEEN);
+>> +				likeliness->next = likeliness_head;
+>> +				likeliness_head = likeliness;
+>> +			}
+>> +		}
+>> +		atomic_inc(&likely_lock);
+> 
+> 
+> hm, good enough I guess.  It does need a comment explaining why we
+> don't just do spin_lock().
 
-On 25 Apr 2006 12:55:57 +0200, Andi Kleen <ak@suse.de> wrote:
-> "Charles Majola" <chmj@rootcore.co.za> writes:
->
-> > When i try to build 2.6.17-rc2 on amd64-generic machine with gcc 4.0.3
-> > (Ubuntu 64 bit) I get the following error (i386 builds fine)..
->
-> Do a make distclean after saving your .config.
->
-> -Andi
->
+I guess it is so it can be used in NMIs and interrupts without turning
+interrupts off (so is somewhat lightweight).
+
+But please Daniel, just use spinlocks and trylock. This is buggy because
+it doesn't get the required release consistency correct.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

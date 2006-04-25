@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWDYSW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWDYSYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWDYSW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 14:22:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWDYSW6
+	id S932282AbWDYSYA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 14:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWDYSX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 14:22:58 -0400
-Received: from nz-out-0102.google.com ([64.233.162.199]:55106 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932273AbWDYSW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 14:22:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:mime-version:content-type:from;
-        b=Zm5EUfpLAYae5Q5k8veyBDVkX2azPE+yqgfi2IlKjLwxtJ/kCsbsyPhAMsxAdhUwCMsRM3VlamwhTl2YHswh5guGlZNPr3mxoSzpbvmg5fNcINwnzduKlNers4fSvaJco+LagMo2CNiy3XP8NbyZw9X9b6IzwfDEVb93r+m/Kkc=
-Date: Tue, 25 Apr 2006 11:21:37 -0700 (PDT)
-To: linux-kernel@vger.kernel.org
-cc: akpm@osdl.org
-Subject: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
-Message-ID: <Pine.LNX.4.64.0604251120420.5810@localhost.localdomain>
+	Tue, 25 Apr 2006 14:23:59 -0400
+Received: from mga01.intel.com ([192.55.52.88]:18730 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932279AbWDYSX6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 14:23:58 -0400
+X-IronPort-AV: i="4.04,154,1144047600"; 
+   d="scan'208"; a="28422606:sNHT1495193973"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-From: Hua Zhong <hzhong@gmail.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] reverse pci config space restore order
+Date: Tue, 25 Apr 2006 14:22:08 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB6466300@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] reverse pci config space restore order
+Thread-Index: AcZoVimKfyIzOZkCRFq7XazB7+zxKgAPX90Q
+From: "Brown, Len" <len.brown@intel.com>
+To: "Arjan van de Ven" <arjan@infradead.org>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>, <abelay@MIT.EDU>
+Cc: "Yu, Luming" <luming.yu@intel.com>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Apr 2006 18:22:10.0226 (UTC) FILETIME=[2AB07120:01C66895]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my system, it shows about 84K misses and 67K hits. So there are more kfree(NULL) than people realize.
 
-I know some people won't like it, but I think it's not worth the confusion and maintenance burden, so I'm giving it a shot. :-)
+>On Tue, 2006-04-25 at 11:48 +0100, Matthew Garrett wrote:
+>> On Tue, Apr 25, 2006 at 02:50:57PM +0800, Yu, Luming wrote:
+>> 
+>> > -	for (i = 0; i < 16; i++)
+>> > +	for (i = 15; i >= 0 ; i--)
+>> 
+>> We certainly need to do /something/ here, but I'm not sure 
+>> this is it. 
+>> Adam Belay has code to limit PCI state restoration to the 
+>> PCI-specified 
+>> registers, with the idea being that individual drivers fix things up 
+>> properly. While this has the obvious drawback that almost every PCI 
+>> driver in the tree would then need fixing up, it's also probably the 
+>> right thing.
+>
+>it has a second drawback: it assumes all devices HAVE a driver, which
+>isn't normally the case...
 
-Signed-off-by: Hua Zhong <hzhong@gmail.com>
+Adam mentioned earlier, and I agree, that it is probably a bad
+idea for this code to blindly scribble on the BIST field at i=3.
+Probably we should clear that field before restoring it.
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-diff --git a/mm/slab.c b/mm/slab.c
-index e6ef9bd..0fbc854 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -3380,7 +3380,7 @@ void kfree(const void *objp)
-  	struct kmem_cache *c;
-  	unsigned long flags;
+Re: this patch
+I think that this patch is likely a positive forward step.
+It seems logical to restore the BARs before the CMD/STATUS in general,
+nothing specific to the ICH here.
 
--	if (unlikely(!objp))
-+	if (!objp)
-  		return;
-  	local_irq_save(flags);
-  	kfree_debugcheck(objp);
+But yes, this is a helper routine and devices where it hurts
+instead of helps should have their own routine.  Complex devices
+need to handle the device-specific config space state above these
+1st 16 locations anyway.
+
+-Len

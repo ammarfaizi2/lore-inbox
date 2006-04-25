@@ -1,94 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbWDYCfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWDYCfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751537AbWDYCfN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 22:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWDYCfN
+	id S1751536AbWDYCfT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 22:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWDYCfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 22:35:13 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:28823 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751537AbWDYCfL
+	Mon, 24 Apr 2006 22:35:19 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:51865 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751536AbWDYCfR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 22:35:11 -0400
+	Mon, 24 Apr 2006 22:35:17 -0400
 From: sekharan@us.ibm.com
 To: akpm@osdl.org, torvalds@osdl.org
 Cc: sekharan@us.ibm.com, linux-kernel@vger.kernel.org, herbert@13thfloor.at,
        linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
        stern@rowland.harvard.edu
-Date: Mon, 24 Apr 2006 19:35:09 -0700
-Message-Id: <20060425023509.7529.84752.sendpatchset@localhost.localdomain>
-Subject: [PATCH 0/3] Fix for the bug reported by Herbert on 2.6.17-rc2
+Date: Mon, 24 Apr 2006 19:35:15 -0700
+Message-Id: <20060425023515.7529.2994.sendpatchset@localhost.localdomain>
+In-Reply-To: <20060425023509.7529.84752.sendpatchset@localhost.localdomain>
+References: <20060425023509.7529.84752.sendpatchset@localhost.localdomain>
+Subject: [PATCH 1/3] Remove __devinitdata from notifier block definitions
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl (herbert_at_13thfloor.at) got a oops in 2.6.17-rc2 in
-notifier_chain_register(), when mounting an xfs filesystem (oops
-info at the end).
+Few of the notifier_chain_register() callers use __initdata in
+the definition of notifier_block data structure.  It is incorrect as 
+the data structure should be available after the initializations (they
+do not unregister them during initializations).
 
-I started debugging the oops and found that quite a few users of
-notifier call chains incorrectly use init section for notifier_block
-data structure definitions and notifier_call function definitions.
+This was leading to oops when notifier_chain_register() call is invoked
+for those callback chains after initialization.
 
-I went through all the usages of both of those (199 files in total),
-and fixed all of them.
-
-I could reproduce the problem that Herbert has reported without these
-patches and verified that they do not occur when these patches are
-applied.
-
-Herbert, please try this patchset and reply.
-
-chandra
+This patch fixes all such usages to _not_ have the notifier_block data
+structure in the init data section.
 --
+Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
 
-This patchset has 3 patches
+ arch/powerpc/kernel/sysfs.c        |    2 +-
+ arch/s390/appldata/appldata_base.c |    2 +-
+ block/ll_rw_blk.c                  |    2 +-
+ kernel/hrtimer.c                   |    2 +-
+ kernel/rcupdate.c                  |    2 +-
+ kernel/sched.c                     |    2 +-
+ kernel/softirq.c                   |    2 +-
+ kernel/softlockup.c                |    2 +-
+ kernel/timer.c                     |    2 +-
+ 9 files changed, 9 insertions(+), 9 deletions(-)
 
-remove_devinitdata - removes __devinit_data from all the defintions
-	of notifier_block
-remove_devinit - removed __devinit and __cpuinit from all the definitions
-	of notifier_call
-check_init_data - Adds an ASSERT to notifier_chain_register() to make 
-	sure that the notifier_block and the notifier_call are not in
-	the init section.
-
----- oops report by Herbert
-
-
-[   64.289157] BUG: unable to handle kernel paging request at virtual address c056a680
-[   64.290085]  printing eip:
-[   64.290402] c0129290
-[   64.290686] *pde = 005bd027
-[   64.291037] *pte = 0056a000
-[   64.291504] Oops: 0000 [#1]
-[   64.291823] SMP DEBUG_PAGEALLOC
-[   64.292820] Modules linked in:
-[   64.293453] CPU:    0
-[   64.293485] EIP:    0060:[<c0129290>]    Not tainted VLI
-[   64.293529] EFLAGS: 00000286   (2.6.17-rc2 #1) 
-[   64.295055] EIP is at notifier_chain_register+0x20/0x50
-[   64.295648] eax: c056a678   ebx: cf5e23f8   ecx: 00000000   edx: c04bea9c
-[   64.296362] esi: cf5e23f8   edi: cffc5000   ebp: cf5e2800   esp: cffdad5c
-[   64.297140] ds: 007b   es: 007b   ss: 0068
-[   64.297613] Process mount (pid: 34, threadinfo=cffda000 task=cff7e570)
-[   64.298258] Stack: <0>c04bea80 c0129454 c04bea9c cf5e23f8 cf5e2000 cf5e2000 c01367f7 c04bea80 
-[   64.299558]        cf5e23f8 c02d4b26 cf5e23f8 00000404 cf5e2000 cfd1f520 cffc5000 c02d1f53 
-[   64.300700]        cf5e2000 00000001 c02e65ef 00000424 00000001 cffc5000 cfd1f520 c02f2880 
-[   64.301841] Call Trace:
-[   64.302278]  <c0129454> blocking_notifier_chain_register+0x54/0x90   <c01367f7> register_cpu_notifier+0x17/0x20
-[   64.303684]  <c02d4b26> xfs_icsb_init_counters+0x46/0xb0   <c02d1f53> xfs_mount_init+0x23/0x160
-[   64.304844]  <c02e65ef> kmem_zalloc+0x1f/0x50   <c02f2880> bhv_insert_all_vfsops+0x10/0x50
-[   64.305940]  <c02f1f65> xfs_fs_fill_super+0x35/0x1f0   <c0313e97> snprintf+0x27/0x30
-[   64.307124]  <c01a24f4> disk_name+0x64/0xc0   <c0168f1f> sb_set_blocksize+0x1f/0x50
-[   64.308140]  <c0168869> get_sb_bdev+0x109/0x160   <c02f2150> xfs_fs_get_sb+0x30/0x40
-[   64.309129]  <c02f1f30> xfs_fs_fill_super+0x0/0x1f0   <c0168b10> do_kern_mount+0xa0/0x160
-[   64.310156]  <c0181187> do_new_mount+0x77/0xc0   <c018184f> do_mount+0x1bf/0x230
-[   64.311177]  <c03f4a68> iret_exc+0x3d4/0x6ab   <c0181633> copy_mount_options+0x63/0xc0
-[   64.312246]  <c03f427f> lock_kernel+0x2f/0x50   <c0181c5f> sys_mount+0x9f/0xe0
-[   64.313237]  <c0102b27> syscall_call+0x7/0xb  
-[   64.313917] Code: 90 90 90 90 90 90 90 90 90 90 90 53 8b 54 24 08 8b 5c 24 0c 8b 02 85 c0 74 31 8b 4b 08 8d b4 26 00 00 00
-00 8d bc 27 00 00 00 00 <3b> 48 08 7f 1b 8d 50 04 8b 40 04 85 c0 75 f1 31 c0 eb 0d 90 90 
-[   64.318371] EIP: [<c0129290>] notifier_chain_register+0x20/0x50 SS:ESP 0068:cffdad5c
-
-
+Index: linux-2617-rc2/arch/powerpc/kernel/sysfs.c
+===================================================================
+--- linux-2617-rc2.orig/arch/powerpc/kernel/sysfs.c	2006-04-24 06:56:50.000000000 -0700
++++ linux-2617-rc2/arch/powerpc/kernel/sysfs.c	2006-04-24 07:11:37.000000000 -0700
+@@ -297,7 +297,7 @@ static int __devinit sysfs_cpu_notify(st
+ 	return NOTIFY_OK;
+ }
+ 
+-static struct notifier_block __devinitdata sysfs_cpu_nb = {
++static struct notifier_block sysfs_cpu_nb = {
+ 	.notifier_call	= sysfs_cpu_notify,
+ };
+ 
+Index: linux-2617-rc2/arch/s390/appldata/appldata_base.c
+===================================================================
+--- linux-2617-rc2.orig/arch/s390/appldata/appldata_base.c	2006-04-24 06:56:50.000000000 -0700
++++ linux-2617-rc2/arch/s390/appldata/appldata_base.c	2006-04-24 06:57:34.000000000 -0700
+@@ -652,7 +652,7 @@ appldata_cpu_notify(struct notifier_bloc
+ 	return NOTIFY_OK;
+ }
+ 
+-static struct notifier_block __devinitdata appldata_nb = {
++static struct notifier_block appldata_nb = {
+ 	.notifier_call = appldata_cpu_notify,
+ };
+ 
+Index: linux-2617-rc2/block/ll_rw_blk.c
+===================================================================
+--- linux-2617-rc2.orig/block/ll_rw_blk.c	2006-04-19 10:17:08.000000000 -0700
++++ linux-2617-rc2/block/ll_rw_blk.c	2006-04-24 06:58:19.000000000 -0700
+@@ -3385,7 +3385,7 @@ static int blk_cpu_notify(struct notifie
+ }
+ 
+ 
+-static struct notifier_block __devinitdata blk_cpu_notifier = {
++static struct notifier_block blk_cpu_notifier = {
+ 	.notifier_call	= blk_cpu_notify,
+ };
+ 
+Index: linux-2617-rc2/kernel/hrtimer.c
+===================================================================
+--- linux-2617-rc2.orig/kernel/hrtimer.c	2006-04-19 10:17:15.000000000 -0700
++++ linux-2617-rc2/kernel/hrtimer.c	2006-04-24 07:11:37.000000000 -0700
+@@ -860,7 +860,7 @@ static int __devinit hrtimer_cpu_notify(
+ 	return NOTIFY_OK;
+ }
+ 
+-static struct notifier_block __devinitdata hrtimers_nb = {
++static struct notifier_block hrtimers_nb = {
+ 	.notifier_call = hrtimer_cpu_notify,
+ };
+ 
+Index: linux-2617-rc2/kernel/softirq.c
+===================================================================
+--- linux-2617-rc2.orig/kernel/softirq.c	2006-04-19 10:17:15.000000000 -0700
++++ linux-2617-rc2/kernel/softirq.c	2006-04-24 07:11:37.000000000 -0700
+@@ -484,7 +484,7 @@ static int __devinit cpu_callback(struct
+ 	return NOTIFY_OK;
+ }
+ 
+-static struct notifier_block __devinitdata cpu_nfb = {
++static struct notifier_block cpu_nfb = {
+ 	.notifier_call = cpu_callback
+ };
+ 
+Index: linux-2617-rc2/kernel/rcupdate.c
+===================================================================
+--- linux-2617-rc2.orig/kernel/rcupdate.c	2006-04-24 06:58:55.000000000 -0700
++++ linux-2617-rc2/kernel/rcupdate.c	2006-04-24 07:11:37.000000000 -0700
+@@ -537,7 +537,7 @@ static int __devinit rcu_cpu_notify(stru
+ 	return NOTIFY_OK;
+ }
+ 
+-static struct notifier_block __devinitdata rcu_nb = {
++static struct notifier_block rcu_nb = {
+ 	.notifier_call	= rcu_cpu_notify,
+ };
+ 
+Index: linux-2617-rc2/kernel/softlockup.c
+===================================================================
+--- linux-2617-rc2.orig/kernel/softlockup.c	2006-04-19 10:17:15.000000000 -0700
++++ linux-2617-rc2/kernel/softlockup.c	2006-04-24 07:00:06.000000000 -0700
+@@ -140,7 +140,7 @@ cpu_callback(struct notifier_block *nfb,
+ 	return NOTIFY_OK;
+ }
+ 
+-static struct notifier_block __devinitdata cpu_nfb = {
++static struct notifier_block cpu_nfb = {
+ 	.notifier_call = cpu_callback
+ };
+ 
+Index: linux-2617-rc2/kernel/timer.c
+===================================================================
+--- linux-2617-rc2.orig/kernel/timer.c	2006-04-24 06:54:40.000000000 -0700
++++ linux-2617-rc2/kernel/timer.c	2006-04-24 07:11:37.000000000 -0700
+@@ -1334,7 +1334,7 @@ static int __devinit timer_cpu_notify(st
+ 	return NOTIFY_OK;
+ }
+ 
+-static struct notifier_block __devinitdata timers_nb = {
++static struct notifier_block timers_nb = {
+ 	.notifier_call	= timer_cpu_notify,
+ };
+ 
+Index: linux-2617-rc2/kernel/sched.c
+===================================================================
+--- linux-2617-rc2.orig/kernel/sched.c	2006-04-24 06:54:41.000000000 -0700
++++ linux-2617-rc2/kernel/sched.c	2006-04-24 07:11:45.000000000 -0700
+@@ -4814,7 +4814,7 @@ static int migration_call(struct notifie
+ /* Register at highest priority so that task migration (migrate_all_tasks)
+  * happens before everything else.
+  */
+-static struct notifier_block __devinitdata migration_notifier = {
++static struct notifier_block migration_notifier = {
+ 	.notifier_call = migration_call,
+ 	.priority = 10
+ };
 
 -- 
 

@@ -1,93 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWDYHgD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWDYHp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWDYHgD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 03:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWDYHgB
+	id S1751397AbWDYHp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 03:45:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWDYHpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 03:36:01 -0400
-Received: from [202.125.80.34] ([202.125.80.34]:57890 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S932098AbWDYHgA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 03:36:00 -0400
-Subject: Problem Simulating REMOVAL Media
+	Tue, 25 Apr 2006 03:45:25 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:12890 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751397AbWDYHpZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 03:45:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=rp7+apC95HfaY48qPfpPnwrU3TRM2UF8VGbCMZ4GIOvZUE0KnijSPUN/YINE2vsyaYEUx6IgPuFAk2W0PnJAHTtS5dm4Svn6eJaVlRQXUJSeJP/T0HZkTzHayKohv/65i7X8SKZtJ96drh90+yOTCzEX7H+TUnMXmDVLKbRyNY8=  ;
+Message-ID: <444DCE65.5050906@yahoo.com.au>
+Date: Tue, 25 Apr 2006 17:23:17 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 25 Apr 2006 13:06:38 +0530
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B3FD46D@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problem Simulating REMOVAL Media
-Thread-Index: AcZoOvy7+NGlaKMeQ/OOZJvzsAGVwg==
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+To: Al Boldi <a1426z@gawab.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [PATCH 1/1] threads_max: Simple lockout prevention patch
+References: <200511142327.18510.a1426z@gawab.com> <200604241412.13267.a1426z@gawab.com> <444CB588.6090105@yahoo.com.au> <200604241637.56637.a1426z@gawab.com>
+In-Reply-To: <200604241637.56637.a1426z@gawab.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Al Boldi wrote:
+> Nick Piggin wrote:
+> 
+>>Al Boldi wrote:
+>>
+>>>Could do that by:
+>>>
+>>>	# echo 1 > /proc/sys/kernel/su-pid
+>>>
+>>>which would imply nr-threads = 1
+>>>
+>>>So maybe introduce /proc/sys/kernel/nr-threads to allow that to be
+>>>variable, but this isn't really critical.
+>>
+>>Why not just have su-nr-threads?
+> 
+> 
+> Unless I am misunderstanding you, even root/root-proc can be hit by a 
+> runaway, so the threads-max limits this globally which is great, but this 
+> may lock-you out of being able to control the situation based on uid only.
+> 
+> Thus this patch gives root the ability to allow a certain pid to exceed the 
+> threads-max limit, while all other pids are still limited.
 
-Dear Linux Kernel Govers,
+But the point is that root is able to get their pids under control,
+and can't be DoSed by unpriv users. Right?
 
-Here I am making an attempt to simulate the Removable media in a Simple
-block driver module.
-It results in a segmentation fault raising the kernel module count to 1
-which makes me to reboot it.
+Nothing is going to be perfect, I mean the su-pid pid could get "hit
+bya runaway" and is arguably worse than nr-threads-su, because it has
+no upper limit and coult take down the whole system.
 
-I am doing the following when trying to simulate the Removable media:
-
-/******* Simple block Driver request ********/ 
-static void sbd_request(request_queue_t *q)
-{
-    struct request *req;
-    int status;
-
-    while ((req = elv_next_request(q)) != NULL) {
-      if (! blk_fs_request(req)) {
-          printk (KERN_NOTICE "Skip non-CMD request\n");
-          end_request(req, 0);
-          continue;
-      }
-
-    /* Simple memcpy based on the request ; 
-  Returns success or failure which is passed to end_that_request_first()
-*/
-      status = sbd_transfer(&Device, req->sector,
-req->current_nr_sectors,
-                 req->buffer, rq_data_dir(req));
-
-      // end_request(req, 1);
-      if(!end_that_request_first(req, status, req->current_nr_sectors))
-{
-                  blkdev_dequeue_request(req);
-                  end_that_request_last(req);
-            }
-    }
-
-I issue an IOCTL from the application after the module is loaded and
-memory device is mounted.
-The IOCTL code executed is as follows:
-
-/* Simulate the Removal Media Disk */
-Case REMOVE_MOUNTED_DISK:
-            if(Device.bdev)
-                  invalidate_bdev(Device.bdev,1);
-            del_gendisk(Device.gd);
-            put_disk(Device.gd);
-            blk_cleanup_queue(Queue);
-            vfree(Device.data);
-            return 0;
-
-After this, I get a segmentation fault either when I issue a 
-#ls /mnt
-	OR
-When I try to unload the driver module?
-
-Result is module cannot be unloaded, and some times it hangs the console
-terminal.
-
-Regards,
-Mukund Jampala
-
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

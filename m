@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWDYMKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWDYMOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbWDYMKk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 08:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWDYMKk
+	id S932204AbWDYMOL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 08:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWDYMOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 08:10:40 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:44165 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751073AbWDYMKj
+	Tue, 25 Apr 2006 08:14:11 -0400
+Received: from wip-ec-wd.wipro.com ([203.91.193.32]:979 "EHLO
+	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP id S932204AbWDYMOL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 08:10:39 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Subject: Re: __FILE__ gets expanded to absolute pathname
-Date: Tue, 25 Apr 2006 15:08:50 +0300
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <200604251044.57373.vda@ilport.com.ua> <444E0D07.8060309@tls.msk.ru>
-In-Reply-To: <444E0D07.8060309@tls.msk.ru>
+	Tue, 25 Apr 2006 08:14:11 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604251508.51028.vda@ilport.com.ua>
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: problems with printk's
+Date: Tue, 25 Apr 2006 17:39:58 +0530
+Message-ID: <4F36B0A4CDAD6F46A61B2B32C33DC69C02502AEE@BLR-EC-MBX03.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: problems with printk's
+Thread-Index: AcZoYIv0/DBDDHDHRv29TYxz7NRelwAAAmNw
+From: <biswa.nayak@wipro.com>
+To: <vshrirama@gmail.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Apr 2006 12:13:48.0388 (UTC) FILETIME=[B4F79A40:01C66861]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 April 2006 14:50, Michael Tokarev wrote:
-> Denis Vlasenko wrote:
-> > Sometime ago I noticed that __FILE__ gets expanded into
-> > *absolute* pathname if one builds kernel in separate object directory.
-> > 
-> > I thought a bit about it but failed to arrive at any sensible
-> > solution.
-> > 
-> > Any thoughs?
-> > --
-> > vda
-> > 
-> > # strings vmlinux | grep /usr/src
-> > /.share/usr/src2/kernel/linux-2.6.16.via-rhine.src/drivers/net/3c505.c
-> > /.share/usr/src2/kernel/linux-2.6.16.via-rhine.src/arch/i386/kernel/time.c
-> ....
-> 
-> As far as I remember, this happens when compiling with O=xxx only, ie,
-> only when specifying alternative object (or source) directory.  Normally
-> (when you compile in the source directory) they'll be like drivers/net/3c505.c,
-> arch/i386/kernel/time.c etc, ie, relative to the kernel top source dir.
-> It's because when you specify O= etc, complete source dir is passed from
-> makefiles, instead of relative one.
-
-Yes, of course you are right.
  
-> But it was long time since I switched to symlink-tree + compile instead of
-> compiling with O=, and things may had changed since that.
+  When i see the output of the driver using dmesg
 
-Doable, but it's not a solution, it's more like a workaround.
-I'd prefer O=... build to not expand __FILE__ to full pathname.
---
-vda
+  Only some of the prints are visible (some of them are not printed even
+though they
+   must get printed. i dont know why this is happening.
+
+  Is there any limit on printk (like number of messages....)
+
+
+  How do i disable (ie printk should print irrespective of any limit or
+anything).
+
+
+Please check '/proc/sys/kernel/printk_ratelimit' and
+'/proc/sys/kernel/printk_ratelimit_burst'. The printk_ratelimit tells
+your system to stop logging messages for 'n' number of seconds and
+printk_ratelimit_burst tells the number of messages to allow before rate
+limiting. You can change these values to allow more messages.
+
+Warning: You can generate so many messages that the system can get
+unresponsive, and the buffer for kernel log message is also of fixed
+sized circular buffer. So if you write too many messages, you might
+overwrite some of your old useful logs too. Hope this helps.
+
+~Biswa

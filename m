@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbWDYCGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751526AbWDYCPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751524AbWDYCGm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 22:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWDYCGl
+	id S1751526AbWDYCPy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 22:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751530AbWDYCPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 22:06:41 -0400
-Received: from h80ad24de.async.vt.edu ([128.173.36.222]:49833 "EHLO
-	h80ad24de.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1751524AbWDYCGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 22:06:41 -0400
-Message-Id: <200604250206.k3P26Ogf015931@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Ken Brush <kbrush@gmail.com>, linux-security-module@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks) 
-In-Reply-To: Your message of "Mon, 24 Apr 2006 10:24:24 +0200."
-             <20060424082424.GH440@marowsky-bree.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu> <4445484F.1050006@novell.com> <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu> <4446D378.8050406@novell.com> <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu> <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com> <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu> <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com> <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu>
-            <20060424082424.GH440@marowsky-bree.de>
+	Mon, 24 Apr 2006 22:15:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44936 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751525AbWDYCPx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 22:15:53 -0400
+Date: Mon, 24 Apr 2006 19:13:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: kernel@kolivas.org, mingo@elte.hu, suresh.b.siddha@intel.com,
+       efault@gmx.de, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: [PATCH] sched: Fix boolean expression in move_tasks()
+Message-Id: <20060424191358.08c73e31.akpm@osdl.org>
+In-Reply-To: <444D637F.5040702@bigpond.net.au>
+References: <444D637F.5040702@bigpond.net.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1145930783_2476P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Mon, 24 Apr 2006 22:06:23 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1145930783_2476P
-Content-Type: text/plain; charset=us-ascii
+Peter Williams <pwil3058@bigpond.net.au> wrote:
+>
+> Negate the expression and apply de Marcos rule to simplify it.  This 
+>  patch is on top of 
+>  sched-avoid-unnecessarily-moving-highest-priority-task-move_tasks.patch
+> 
+>  Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+> 
+>  -- 
+>  Peter Williams                                   pwil3058@bigpond.net.au
+> 
+>  "Learning, n. The kind of ignorance distinguishing the studious."
+>    -- Ambrose Bierce
+> 
+> 
+> [smpnice-fix-boolean-expression  text/plain (824 bytes)]
+>  Index: MM-2.6.17-rc1-mm3/kernel/sched.c
+>  ===================================================================
+>  --- MM-2.6.17-rc1-mm3.orig/kernel/sched.c	2006-04-21 12:26:54.000000000 +1000
+>  +++ MM-2.6.17-rc1-mm3/kernel/sched.c	2006-04-25 09:09:54.000000000 +1000
+>  @@ -2108,7 +2108,7 @@ skip_queue:
+>   	 */
+>   	skip_for_load = tmp->load_weight > rem_load_move;
+>   	if (skip_for_load && idx < this_best_prio)
+>  -		skip_for_load = busiest_best_prio_seen || idx != busiest_best_prio;
+>  +		skip_for_load = !busiest_best_prio_seen && idx == busiest_best_prio;
 
-On Mon, 24 Apr 2006 10:24:24 +0200, Lars Marowsky-Bree said:
-> That is about the dumbest argument I've heard so far, sorry. With the
-> same argument, these people shouldn't be allowed to admin any computer
-> system and be given a broom to wipe the floor, and let the experts take
-> care of the world for them.
+But Suresh's
+sched-avoid-unnecessarily-moving-highest-priority-task-move_tasks-fix.patch
+changed all this code:
 
-Anybody who's worked with a large community of actual end users will
-agree that most of them *shouldn't* be allowed to admin their computer.
+	/*
+	 * To help distribute high priority tasks accross CPUs we don't
+	 * skip a task if it will be the highest priority task (i.e. smallest
+	 * prio value) on its new queue regardless of its load weight
+	 */
+	skip_for_load = tmp->load_weight > rem_load_move;
+	if (skip_for_load && idx < this_best_prio && idx == busiest_best_prio)
+		skip_for_load = !busiest_best_prio_seen &&
+				head->next == head->prev;
+	if (skip_for_load ||
+	    !can_migrate_task(tmp, busiest, this_cpu, sd, idle, &pinned)) {
+		if (curr != head)
+			goto skip_queue;
+		idx++;
+		goto skip_bitmap;
+	}
 
-> Now that's a perfectly reasonable line of thought, and I've most
-> certainly had it when it comes to HA and clusters myself, but in no
-> means is it a good reasoning against the _technology_. If it is simpler
-> to use, it will be simpler to use even for smart people, who can then
-> put more care into their security profiles instead of worrying about the
-> complexity.
 
-I believe I stated quite clearly that there's certainly a place for tools that
-allow smart people to do this work.  That's *totally* different from marketing
-the tool as "So simple, a chimpanzee could do it.".
-
---==_Exmh_1145930783_2476P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFETYQfcC3lWbTT17ARAmmvAJ9j5BdAh7u+lJtbcnCqPUuu0GsstACgvWJa
-wh5d29CrcddaPtF6oHGO2Eg=
-=wqLU
------END PGP SIGNATURE-----
-
---==_Exmh_1145930783_2476P--
+What to do?

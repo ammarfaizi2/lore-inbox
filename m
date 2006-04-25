@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751626AbWDZDkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWDZDle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751626AbWDZDkf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 23:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWDZDkf
+	id S932241AbWDZDle (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 23:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751642AbWDZDld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 23:40:35 -0400
-Received: from 72-29-64-84.dimenoc.com ([72.29.64.84]:64904 "EHLO
-	pluto.reallysimplehosting.com") by vger.kernel.org with ESMTP
-	id S1751626AbWDZDkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 23:40:35 -0400
-From: "Joshua Perrymon" <josh.perrymon@purehacking.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Debian Kernel with Squash and UnionFS installed
-Date: Wed, 26 Apr 2006 13:40:29 +1000
-Message-ID: <004001c668e3$2c002630$0100000a@domain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <21d7e9970604252028k2cb302fdr78cfc894b4678b02@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - pluto.reallysimplehosting.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - purehacking.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 25 Apr 2006 23:41:33 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:57735 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751638AbWDZDlc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 23:41:32 -0400
+Date: Tue, 25 Apr 2006 15:00:13 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Chris Boot <bootc@bootc.net>
+Cc: Axelle Apvrille <axelle_apvrille@yahoo.fr>, Nix <nix@esperi.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, drepper@gmail.com,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       disec-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries
+Message-ID: <20060425200013.GA7228@sergelap.austin.ibm.com>
+References: <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com> <9C02B13C-8615-440B-A08C-AC463CC2E0AE@bootc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9C02B13C-8615-440B-A08C-AC463CC2E0AE@bootc.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Guys,
+Quoting Chris Boot (bootc@bootc.net):
+> On 25 Apr 2006, at 17:11, Axelle Apvrille wrote:
+> 
+> >- finally, note you also have choice not to sign this
+> >elf loader of yours. If it isn't signed, it won't ever
+> >run ;-)
+> 
+> Wouldn't you need to sign, say, /lib/ld-linux.so?  In that case, you  
+> can simply get it to load an execute almost anything that's ELF, even  
 
-I'm looking to build a live linux distro using the live linux scripts..
-I'm not sure if I want to use slax because I haven't used it enough..
+It uses dlopen, which does mmap(PROT_EXEC), at which point digsig will
+check for a signature.
 
-I prefer Debian.. But I'm having trouble with the linux live scripts
-because SquashFS and UnionFS isn't working correctly..
+If you rewrite it to not use mmap(PROT_EXEC), then the signature will
+not match.  If you resign it, then you presumably know what you're
+doing.
 
-Anyone know of a new kernel for Debian Linux with Squash and UnionFS
-built in?
+I don't see the problem in this case.
 
-JP
-
-Joshua Perrymon, C.E.H.
-Sr. Security Consultant
-
+> on filesystems marked noexec, if I'm not mistaken...
 

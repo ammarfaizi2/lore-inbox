@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWDYBzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbWDYCGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWDYBzL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 21:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWDYBzL
+	id S1751524AbWDYCGm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 22:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWDYCGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 21:55:11 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:59012 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751248AbWDYBzJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 21:55:09 -0400
-Subject: Re: 2.6.17-rc1: kernel only boots one CPU on HT system
-From: Shaohua Li <shaohua.li@intel.com>
-To: Kevin Baradon <kevin.baradon@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200604241926.25239.Kevin.Baradon@gmail.com>
-References: <200604231434.59966.Kevin.Baradon@gmail.com>
-	 <20060423141519.314ae567.akpm@osdl.org>
-	 <1145843859.19994.63.camel@sli10-desk.sh.intel.com>
-	 <200604241926.25239.Kevin.Baradon@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 25 Apr 2006 09:53:48 +0800
-Message-Id: <1145930028.19994.68.camel@sli10-desk.sh.intel.com>
+	Mon, 24 Apr 2006 22:06:41 -0400
+Received: from h80ad24de.async.vt.edu ([128.173.36.222]:49833 "EHLO
+	h80ad24de.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1751524AbWDYCGl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 22:06:41 -0400
+Message-Id: <200604250206.k3P26Ogf015931@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Ken Brush <kbrush@gmail.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks) 
+In-Reply-To: Your message of "Mon, 24 Apr 2006 10:24:24 +0200."
+             <20060424082424.GH440@marowsky-bree.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <1145309184.14497.1.camel@localhost.localdomain> <200604180229.k3I2TXXA017777@turing-police.cc.vt.edu> <4445484F.1050006@novell.com> <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu> <4446D378.8050406@novell.com> <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu> <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com> <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu> <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com> <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu>
+            <20060424082424.GH440@marowsky-bree.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; boundary="==_Exmh_1145930783_2476P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 24 Apr 2006 22:06:23 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 19:26 +0200, Kevin Baradon wrote:
-> Le Lundi 24 Avril 2006 03:57, Shaohua Li a écrit :
-> > Hi,
-> 
-> Hello, 
-> >
-> > On Sun, 2006-04-23 at 14:15 -0700, Andrew Morton wrote:
-> > > Kevin Baradon <kevin.baradon@gmail.com> wrote:
-> > > > Hello,
-> > > >
-> > > > Starting with kernel 2.6.17-rc1 (also happens with 2.6.17-rc2), second
-> > > > logical-CPU of my Hyperthreading system no longer boots.
-> > > >
-> > > > I tracked up changes in APIC code, and it appears reverting commit
-> > > > 7c5c1e427b5e83807fd05419d1cf6991b9d87247 fixes this bug.
-> > >
-> > > That helps heaps, thanks.
-> >
-> > The commit doesn't look like the root cause to me. BIOS already assigns
-> > unique id to ioapic, and the cpu family is 15, so with/without the patch
-> > the code path hasn't any difference. Kevin, can you please make a clean
-> > build and check if the patch is the real cause?
-> >
-> 
-> You were right. Reverting this commit helps sometimes, but doesn't work 
-> reliably. When my computer booted this morning, I've had only one CPU 
-> detected. I've tried booting several times, even with a complete power down. 
-> Nothing changed. 
-> 
-> I've also tried with kernel 2.6.16-rc6, which booted fine and detected two 
-> CPUs.
-> 
-> I've applied your small patch. Debugging output is attached.
-> 
-> If you want, I can apply this small patch also to kernel 2.6.16-rc6, and send 
-> you debugging output.
-> 
-> > If it still doesn't work, you might apply a small change below to
-> > include/asm-i386/apic.h, and attach the dmesg, so we could analyze it.
-> >
-> 
-> File attached.
-The CPU doesn't startup. Sometime ago somebody reported a similar issue
-for 2.6.16.1. But the failure isn't reliably triggered. IIRC, there
-isn't a solution.
+--==_Exmh_1145930783_2476P
+Content-Type: text/plain; charset=us-ascii
 
-Thanks,
-Shaohua
+On Mon, 24 Apr 2006 10:24:24 +0200, Lars Marowsky-Bree said:
+> That is about the dumbest argument I've heard so far, sorry. With the
+> same argument, these people shouldn't be allowed to admin any computer
+> system and be given a broom to wipe the floor, and let the experts take
+> care of the world for them.
 
+Anybody who's worked with a large community of actual end users will
+agree that most of them *shouldn't* be allowed to admin their computer.
+
+> Now that's a perfectly reasonable line of thought, and I've most
+> certainly had it when it comes to HA and clusters myself, but in no
+> means is it a good reasoning against the _technology_. If it is simpler
+> to use, it will be simpler to use even for smart people, who can then
+> put more care into their security profiles instead of worrying about the
+> complexity.
+
+I believe I stated quite clearly that there's certainly a place for tools that
+allow smart people to do this work.  That's *totally* different from marketing
+the tool as "So simple, a chimpanzee could do it.".
+
+--==_Exmh_1145930783_2476P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFETYQfcC3lWbTT17ARAmmvAJ9j5BdAh7u+lJtbcnCqPUuu0GsstACgvWJa
+wh5d29CrcddaPtF6oHGO2Eg=
+=wqLU
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1145930783_2476P--

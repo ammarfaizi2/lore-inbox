@@ -1,98 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbWDYR3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWDYRjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751602AbWDYR3S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 13:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751611AbWDYR3R
+	id S1751251AbWDYRjS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 13:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWDYRjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 13:29:17 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:948 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751599AbWDYR3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 13:29:17 -0400
-Date: Tue, 25 Apr 2006 12:29:41 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: Re: [uml-devel] [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
-Message-ID: <20060425162941.GB22807@ccure.user-mode-linux.org>
-References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <200604212034.53486.blaisorblade@yahoo.it>
+	Tue, 25 Apr 2006 13:39:18 -0400
+Received: from mx1.suse.de ([195.135.220.2]:36759 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751251AbWDYRjR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 13:39:17 -0400
+Date: Tue, 25 Apr 2006 10:34:46 -0700
+From: Tony Jones <tonyj@suse.de>
+To: Valdis.Kletnieks@vt.edu
+Cc: Joshua Brindle <method@gentoo.org>, Andi Kleen <ak@suse.de>,
+       Neil Brown <neilb@suse.de>, Stephen Smalley <sds@tycho.nsa.gov>,
+       Chris Wright <chrisw@sous-sol.org>, James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+Message-ID: <20060425173446.GA28479@suse.de>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <17484.20906.122444.964025@cse.unsw.edu.au> <444CCE83.90704@gentoo.org> <200604241526.03127.ak@suse.de> <444CD507.70004@gentoo.org> <444CEBC9.5030802@gentoo.org> <200604251712.k3PHCbnj002821@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200604212034.53486.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200604251712.k3PHCbnj002821@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 21, 2006 at 08:34:52PM +0200, Blaisorblade wrote:
-> >  #define PTRACE_GET_THREAD_AREA    25
-> >  #define PTRACE_SET_THREAD_AREA    26
-> > +#define PTRACE_SYSCALL_MASK	  27
+On Tue, Apr 25, 2006 at 01:12:37PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 24 Apr 2006 11:16:25 EDT, Joshua Brindle said:
 > 
-> I think there could be a reason we skipped that for SYSEMU - that's to see. 
-> Also, if this capability will be implemented in other archs, we should use 
-> the 0x4200-0x4300 range for it.
-
-Yeah, we need to decide somewhat carefully which number to use.
-
-> > +		for(i = NR_syscalls; i < len * 8; i++){
-> > +			get_user(c, &mask[i / 8]);
+> > To make this much more real, the /usr/sbin/named policy that ships with 
+> > apparmor has the following line:
+> > /** r,
+> > Thats right, named can read any file on the system, I suppose this is 
+> > because the policy relies on named being chrooted. So if for any reason 
+> > named doesn't chroot its been granted read access on the entire 
+> > filesystem.
 > 
-> This get_user() inside a loop is poor, it could slow down a valid call. It'd 
-> be simpler to copy the mask from userspace in a local variable (with 400 
-> syscalls that's 50 bytes, i.e. fully ok), and then perform the checks, if 
-> wanted (I disagree with Heiko's message, this check is needed
-> sometimes - see  my response to that).
+> Somebody *please* tell me I hallucinated the posting that said AppArmor
+> restricts the use of chroot by confined processes...
 
-Agree, except that we need to be careful about when userspace knows
-about more system calls than the kernel.  We should copy-user as many
-bits as the kernel knows about (or the process passes in, which ever
-is less) and if the process knows about more system calls than the
-kernel, the extra bits should be checked (maybe in a get_user(c, ...)
-loop) to make sure that special treatment isn't being requested for
-unknown syscalls.
+Nope. I don't believe you've been chomping on any 'shrooms. The profile must 
+grant the confined task 'capability sys_chroot', even if the task already has 
+that capability in it's effective set.
 
-> And only after that set all at once child->syscall_mask. You copy twice that 
-> little quantity of data but that's not at all time-critical, and you're 
-> forced to do that to avoid partial updates; btw you've saved getting twice 
-> the content from userspace (slow when address spaces are distinct, like for 
-> 4G/4G or SKAS implementation of copy_from_user).
+> In any case, the incredibly brittle behavior of this policy in the face
+> of chroot() failure (from the people who should *know* how to write AppArmor
+> policy, no less) is just proof of why making it simple for non-experts to
+> write policy is a Bad Idea....
 
-Yup.
+I believe this was addressed in another post in this thread.
 
-> Actually we would copy the whole struct in my API proposal (as I've
-> described in the other message, we need to pass another param IMHO,
-> so we'd pack them in a struct and pass its address).
+But yes, without the ability to either generate an absolute pathname or to
+force a chrooted task into a distinct subprofile there currently exists (as 
+mentioned in the overview and patch descriptions) an issue of name collision
+within the one profile.  
 
-You mean adding a fifth argument to ptrace?  I don't really like that
-idea.  We could either make two new PTRACE_* operations (I don't like
-the MASK_STRICT_VERIFY option since that seems unnecessary and
-fragile) or make the data argument something like this
-	struct {
-		int flag;
-		void *mask;
-	}
+Improvements clearly need to be made. This was the purpose of posting for 
+feedback, but it's quite the claim to go from this to your above assertion of 
+"proof".
 
-which seems to be something like what you're suggesting.  You'll want
-to stick the mask length in there as well, and leave the data argument
-unused.
-
-Except that passing pointers to pointers into system calls seems like
-a bad idea - it makes ptrace look (more) like ioctl.  So, you'd want
-something like
-	struct {
-		int flag;
-		char mask[(NR_syscalls + 7)/8];
-	}
-
-then you'd want the length back in data so you know how much data the
-process is giving you.  But then, you'll read the smaller of the
-kernel's and process's version of the structure, and if the process
-one is bigger, you need to read the extra bits to sanity-check them.
-Given that you'll need this extra treatment, I think it's simpler to
-just leave the addr argument as a pointer to the bits and add an extra
-ptrace op.
-
-				Jeff
+Tony

@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWDYJTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWDYJV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWDYJTp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 05:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWDYJTp
+	id S932166AbWDYJV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 05:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWDYJV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 05:19:45 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:17853 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932162AbWDYJTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 05:19:45 -0400
-Date: Tue, 25 Apr 2006 11:19:43 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hzhong@gmail.com
-Subject: Re: [PATCH] Profile likely/unlikely macros
-Message-ID: <20060425091943.GA28917@rhlx01.fht-esslingen.de>
-References: <200604250257.k3P2vlEb012502@dwalker1.mvista.com>
+	Tue, 25 Apr 2006 05:21:59 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:11398 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932166AbWDYJV6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 05:21:58 -0400
+Subject: [PATCH 00/02] Process Events - Header Cleanup and License Change
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Nguyen Anh Quynh <aquynh@gmail.com>
+Content-Type: text/plain
+Date: Tue, 25 Apr 2006 02:08:29 -0700
+Message-Id: <1145956109.28976.133.camel@stark>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604250257.k3P2vlEb012502@dwalker1.mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew,
 
-On Mon, Apr 24, 2006 at 07:57:47PM -0700, Daniel Walker wrote:
-> This patch adds a very lightweight profiling feature to the
-> likely/unlikely macros. It should work in all contexts including
-> NMI, and during boot. The patch is for 2.6.17-rc2 . 
+	This series of patches cleans up the Process Events header in
+include/linux/cn_proc.h in the first patch and then changes the license
+of cn_proc.h to LGPL in the second patch. As copyright holders to the
+work the header was derived from (mentioned at the top of the header) I
+think Guillaume Thouvenin and Nguyen Anh Quynh should sign-off or [n]ack
+the second patch before it can go in.
 
-Wow, very nice! I had actually had that idea myself, so it's nice to see
-it already implemented, and with very nice output.
-Rest assured that I'll do my fair share of testing with it!
+	Please consider applying these to -mm.
 
-Thanks a lot!
+Thanks,
+	-Matt Helsley <matthltc@us.ibm.com>
 
-Andreas Mohr

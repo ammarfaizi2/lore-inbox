@@ -1,250 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWDYMBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWDYMIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWDYMBH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 08:01:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWDYMBG
+	id S932199AbWDYMIi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 08:08:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWDYMIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 08:01:06 -0400
-Received: from wip-ec-wd.wipro.com ([203.91.193.32]:58576 "EHLO
-	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP id S932196AbWDYMBF
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 08:01:05 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C6685F.B08AB68C"
-Subject: PCI ERROR: Segmentation fault in pci_do_scan_bus
-Date: Tue, 25 Apr 2006 17:25:32 +0530
-Message-ID: <4F36B0A4CDAD6F46A61B2B32C33DC69C02502ABC@BLR-EC-MBX03.wipro.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: PCI ERROR: Segmentation fault in pci_do_scan_bus
-Thread-Index: AcZoXyd/clqt2DyTSGi3uBf3OQSLPA==
-From: <biswa.nayak@wipro.com>
-To: <Linux-Kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Apr 2006 11:59:22.0706 (UTC) FILETIME=[B0FB0320:01C6685F]
+	Tue, 25 Apr 2006 08:08:38 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:62389 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750721AbWDYMIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 08:08:37 -0400
+Date: Tue, 25 Apr 2006 05:08:54 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, dipankar@in.ibm.com,
+       manfred@colorfullife.com, linux-kernel@vger.kernel.org,
+       davem@davemloft.net, schwidefsky@de.ibm.com
+Subject: Re: [patch] RCU: introduce rcu_soon_pending() interface
+Message-ID: <20060425120854.GF16719@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060424111141.GC16007@osiris.boeblingen.de.ibm.com> <20060424160943.4bbdb788.akpm@osdl.org> <20060425052721.GA9458@osiris.boeblingen.de.ibm.com> <20060425114656.GA16719@us.ibm.com> <20060425115226.GA9421@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060425115226.GA9421@osiris.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tue, Apr 25, 2006 at 01:52:26PM +0200, Heiko Carstens wrote:
+> > OK, got a look at your patch.
+> > 
+> > You are using this internally, as part of the RCU -implementation-.
+> > You are determining whether this CPU will still be needed by RCU,
+> > or whether it can be turned off.  So how 'bout calling the (internal)
+> > API something like rcu_needs_cpu()?
+> > 
+> > int rcu_needs_cpu(int cpu)
+> > {
+> > 	struct rcu_data *rdp = &per_cpu(rcu_data, cpu);
+> > 	struct rcu_data *rdp_bh = &per_cpu(rcu_bh_data, cpu);
+> > 
+> > 	return (!!rdp->curlist || !!rdp_bh->curlist || rcu_pending(cpu));
+> > }
+> > 
+> > Then you can drop the rcu_pending() check from your 390 patch.
+> > 
+> > Seem reasonable?
+> 
+> Looks fine to me! Will you post a patch or should I?
 
-------_=_NextPart_001_01C6685F.B08AB68C
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
+Given that I am getting 24Kbps right now, could you please post it?
 
-Hi=20
-
-I am getting segmentation fault, consistently on call to
-'pci_do_scan_bus'. This is a small test code ( attached with this mail)
-to test the APIs exposed by the PCI subsystem. I just checked where it
-faults and found out that inside 'sysfs_create_bin_file' it is not able
-to find the kobject out of the dev pointer passed to it. Now extracting
-of the dev object out of the bus pointer is done by
-'list_for_each_entry(dev, &bus->devices, bus_list)' in
-'pci_bus_add_devices'. Now I am not able to understand why the kobject
-is missing. Is it something that I am missing or is it a kernel defect?
-Any help in this will be really appreciated. The bug message is pasted
-below.
-
-The kernel version is linux 2.6.14. =20
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-kernel BUG at fs/sysfs/bin.c:184!
-invalid operand: 0000 [#1]
-Modules linked in: tpci parport_pc lp parport autofs4 sunrpc
-iptable_filter ip_tables button battery ac ipv6 uhci_hcd i2c_i801
-i2c_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm_oss
-snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc e1000
-floppy dm_snapshot dm_zero dm_mirror dm_mod
-CPU:    0
-EIP:    0060:[<c01a29a1>]    Not tainted VLI
-EFLAGS: 00010202   (2.6.14-skas3-v8.2)
-EIP is at sysfs_create_bin_file+0x41/0x50
-eax: c8bbf701   ebx: 00000000   ecx: 00000001   edx: c03bf700
-esi: c03bf700   edi: d76c83a0   ebp: 00000000   esp: d348fee8
-ds: 007b   es: 007b   ss: 0068
-Process test_pci (pid: 4626, threadinfo=3Dd348e000 task=3Dc8da5560)
-Stack: c893b400 c893b4ec c01feb5a c893b400 c893b400 d76c83b4 d76c83a0
-00000000
-       c01f967c d76c83a0 00000001 00006b08 c01fa9ea d76c83a0 00000000
-d8989631
-       d898a068 d76c83a0 00000000 d898924a d8989bb0 00000000 00000000
-00000000
-Call Trace:
- [<c01feb5a>] pci_create_sysfs_dev_files+0x4a/0x140
- [<c01f967c>] pci_bus_add_devices+0x3c/0xd0
- [<c01fa9ea>] pci_do_scan_bus+0x1a/0x30
- [<d8989631>] test_scan_bus+0x21/0x60 [tpci]
- [<d898924a>] tpci_ioctl+0x20a/0x2b0 [tpci]
- [<d8989040>] tpci_ioctl+0x0/0x2b0 [tpci]
- [<c0172bc0>] do_ioctl+0x50/0x80
- [<c0172d2e>] vfs_ioctl+0x5e/0x1c0
- [<c015f67f>] vfs_write+0x12f/0x180
- [<c0172f07>] sys_ioctl+0x77/0x90
- [<c010301f>] sysenter_past_esp+0x54/0x75
-Code: 94 c0 85 d2 0f 94 c2 09 d0 a8 01 75 1e 89 f2 89 d8 8b 74 24 04 8b
-1c 24 b9 08 00 00 00 83 c4 08 e9 85 df ff ff 8b 1d 30 00 00 00 <0f> 0b
-b8 00 52 ff 36 c0 eb d8 90 8d 74 26 00 8b 40 30 8b 12 e8
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-Please, let me know if any more info is required.
-
-Thanks
-Biswa
-
-
-
-------_=_NextPart_001_01C6685F.B08AB68C
-Content-Type: application/octet-stream;
-	name="test.tar.bz2"
-Content-Transfer-Encoding: base64
-Content-Description: test.tar.bz2
-Content-Disposition: attachment;
-	filename="test.tar.bz2"
-
-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
-
-------_=_NextPart_001_01C6685F.B08AB68C--
+							Thanx, Paul

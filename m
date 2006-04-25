@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWDYS04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWDYS2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWDYS04 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 14:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWDYS04
+	id S932278AbWDYS2r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 14:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWDYS2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 14:26:56 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:50183 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S932273AbWDYS0z (ORCPT
+	Tue, 25 Apr 2006 14:28:47 -0400
+Received: from gold.veritas.com ([143.127.12.110]:64695 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932278AbWDYS2q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 14:26:55 -0400
-Message-ID: <444E69E7.7020808@argo.co.il>
-Date: Tue, 25 Apr 2006 21:26:47 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Tue, 25 Apr 2006 14:28:46 -0400
+X-IronPort-AV: i="4.04,154,1144047600"; 
+   d="scan'208"; a="58936655:sNHT29151100"
+Date: Tue, 25 Apr 2006 19:28:41 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: David Wilk <davidwilk@gmail.com>
+cc: Chris Wright <chrisw@sous-sol.org>, Greg KH <greg@kroah.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, stable@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [stable] 2.6.16.6 breaks java... sort of
+In-Reply-To: <a4403ff60604251108x7ed6d4e3q10cb3597ea27876c@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0604251921180.11561@blonde.wat.veritas.com>
+References: <a4403ff60604191152u5a71e70fr9f54c104a654fc99@mail.gmail.com> 
+ <20060419192803.GA19852@kroah.com>  <Pine.LNX.4.64.0604192046590.17491@blonde.wat.veritas.com>
+  <Pine.LNX.4.64.0604201706540.14395@blonde.wat.veritas.com> 
+ <a4403ff60604211208gf64dfe2v7282a493f4853c@mail.gmail.com> 
+ <20060421192743.GH3061@sorel.sous-sol.org> 
+ <a4403ff60604211456j46a2f69fw39606ffec42ec95d@mail.gmail.com> 
+ <Pine.LNX.4.64.0604231312450.2515@blonde.wat.veritas.com> 
+ <a4403ff60604241359q408a6ea7je620cb05d3dafe8@mail.gmail.com>
+ <a4403ff60604251108x7ed6d4e3q10cb3597ea27876c@mail.gmail.com>
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: dtor_core@ameritech.net, Kyle Moffett <mrmacman_g4@mac.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain> <444D3D32.1010104@argo.co.il> <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com> <444DCAD2.4050906@argo.co.il> <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com> <444E524A.10906@argo.co.il> <d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com> <444E5A3E.1020302@argo.co.il> <d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com> <444E61FD.7070408@argo.co.il> <200604251808.k3PI8Y06004736@turing-police.cc.vt.edu>
-In-Reply-To: <200604251808.k3PI8Y06004736@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Apr 2006 18:26:53.0436 (UTC) FILETIME=[D37EDBC0:01C66895]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 25 Apr 2006 18:28:45.0422 (UTC) FILETIME=[163E90E0:01C66896]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->
-> On Tue, 25 Apr 2006 20:53:01 +0300, Avi Kivity said:
->
-> > Additionally, C++ guarantees that if an exception is thrown after
-> > spin_lock() is called, then the spin_unlock() will also be called.
-> > That's an interesting mechanism by itself.
->
-> Gaak.  So let me get this straight - We lock something, then we hit
-> an exception because something corrupted the lock.  Then we *unlock* it
-> so more code can trip over it.
->
-> Sometimes the correct semantic is to *leave it locked*.
->
-C++ doesn't force *any* semantic on you. It gives you tools to implement 
-the semantic you want. If you want the lock to remain unlocked, that is 
-of course doable.
+On Tue, 25 Apr 2006, David Wilk wrote:
+> Ok, I think I need to apologize to everyone here.  I have found the
+> problem, and it is not with your patch, Hugh.  For some reason, the
+> config for my 2.6.16.7 source tree had a 1G/3G user/kernel split
+> configured.
 
-Most often (almost always), the cause of the exception is not random 
-corruption, but an error (I/O error, out of memory, etc.) and you want 
-to unlock the lock. C++ helps you get it right without writing tons of 
-boilerplate code:
+Right, that's just the kind of explanation I came up with yesterday.
+Phew, I'll relax!  And thanks for the confession, David - absolved.
 
-[avi@cleopatra linux]$ grep -r out.*: . | wc -l
-10446
+It remains the case that my patch imposes a new constraint that
+could give rise to problems somewhere: but it closes the hole,
+and there have been no other reports of problems so far.
 
-How many times you want it unlocked but it's left locked because of an 
-obscure error path? When does 2.6.16.14 come out?
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Hugh

@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWDYAFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWDYAHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWDYAFg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Apr 2006 20:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWDYAFg
+	id S932138AbWDYAHp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Apr 2006 20:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWDYAHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 20:05:36 -0400
-Received: from ns.mimer.no ([213.184.200.1]:25581 "EHLO odin.mimer.no")
-	by vger.kernel.org with ESMTP id S932107AbWDYAFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 20:05:35 -0400
-From: Harald Arnesen <harald@skogtun.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
-	<mj+md-20060424.201044.18351.atrey@ucw.cz>
-	<444D44F2.8090300@wolfmountaingroup.com>
-	<1145915533.1635.60.camel@localhost.localdomain>
-	<20060425001617.0a536488@werewolf.auna.net>
-Date: Tue, 25 Apr 2006 02:05:29 +0200
-In-Reply-To: <20060425001617.0a536488@werewolf.auna.net> (J. A. Magallon's
-	message of "Tue, 25 Apr 2006 00:16:17 +0200")
-Message-ID: <87iroyr03a.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Mon, 24 Apr 2006 20:07:45 -0400
+Received: from mx21.sac.fedex.com ([199.81.218.126]:33478 "EHLO
+	mx21.sac.fedex.com") by vger.kernel.org with ESMTP id S932138AbWDYAHo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Apr 2006 20:07:44 -0400
+Date: Tue, 25 Apr 2006 08:07:32 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Pavel Machek <pavel@suse.cz>
+cc: Jeff Chua <jeff.chua.linux@gmail.com>, Hugh Dickins <hugh@veritas.com>,
+       Chris Ball <cjb@mrao.cam.ac.uk>, Arkadiusz Miskiewicz <arekm@maven.pl>,
+       Jeff Garzik <jeff@garzik.org>, Matt Mackall <mpm@selenic.com>,
+       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sata suspend resume ... (fwd)
+In-Reply-To: <20060424075511.GA26345@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.64.0604250806280.5533@boston.corp.fedex.com>
+References: <Pine.LNX.4.64.0604232153230.2890@boston.corp.fedex.com>
+ <20060424075511.GA26345@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 04/25/2006
+ 08:07:30 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 04/25/2006
+ 08:07:39 AM,
+	Serialize complete at 04/25/2006 08:07:39 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> writes:
 
-> Tell me what is the difference between:
->
->
->     sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
->     if (!sbi)
->         return -ENOMEM;
->     sb->s_fs_info = sbi;
->     memset(sbi, 0, sizeof(*sbi));
->     sbi->s_mount_opt = 0;
->     sbi->s_resuid = EXT3_DEF_RESUID;
->     sbi->s_resgid = EXT3_DEF_RESGID;
->
-> and
->
->     SuperBlock() : s_mount_opt(0), s_resuid(EXT3_DEF_RESUID), s_resgid(EXT3_DEF_RESGID)
->     {}
->
->     ...
->     sbi = new SuperBlock;
->     if (!sbi)
->         return -ENOMEM;
->
-> apart that you don't get members initalized twice and get a shorter code :).
+On Mon, 24 Apr 2006, Pavel Machek wrote:
 
-The former is easier to read and understand?
--- 
-Hilsen Harald.
+> Do suspend-to-disk, first. It is easier.
+> You'll want to go with vanilla kernel.
+> Disable SMP in kernel config, then; it makes perfect sense to test it
+> UP.
 
+Thanks for the very good suggestion. result ... success!
+
+Jeff.

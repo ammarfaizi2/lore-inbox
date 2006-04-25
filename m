@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWDYRNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWDYRUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWDYRNS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 13:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWDYRNS
+	id S1751181AbWDYRUF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 13:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWDYRUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 13:13:18 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:9367 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932271AbWDYRNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 13:13:17 -0400
-Message-Id: <200604251712.k3PHCbnj002821@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Joshua Brindle <method@gentoo.org>
-Cc: Andi Kleen <ak@suse.de>, Neil Brown <neilb@suse.de>,
-       Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-       James Morris <jmorris@namei.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview 
-In-Reply-To: Your message of "Mon, 24 Apr 2006 11:16:25 EDT."
-             <444CEBC9.5030802@gentoo.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <17484.20906.122444.964025@cse.unsw.edu.au> <444CCE83.90704@gentoo.org> <200604241526.03127.ak@suse.de> <444CD507.70004@gentoo.org>
-            <444CEBC9.5030802@gentoo.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1145985157_2618P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 25 Apr 2006 13:20:05 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:58629 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751181AbWDYRUE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 13:20:04 -0400
+Message-ID: <444E5A3E.1020302@argo.co.il>
+Date: Tue, 25 Apr 2006 20:19:58 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: dtor_core@ameritech.net
+CC: Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>	 <1145911546.1635.54.camel@localhost.localdomain>	 <444D3D32.1010104@argo.co.il>	 <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>	 <444DCAD2.4050906@argo.co.il>	 <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com>	 <444E524A.10906@argo.co.il> <d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com>
+In-Reply-To: <d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 25 Apr 2006 13:12:37 -0400
+X-OriginalArrivalTime: 25 Apr 2006 17:20:02.0639 (UTC) FILETIME=[7CDFCDF0:01C6688C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1145985157_2618P
-Content-Type: text/plain; charset=us-ascii
+Dmitry Torokhov wrote:
+>>>     TakeLock l(&lock);
+>>>
+>>>     do_something();
+>>>     do_something_else();
+>>>
+>>> First of all, that extra TakeLock object chews up stack, at least 4 or
+>>> 8 bytes of it, depending on your word size.
+>>>       
+>> No, it's optimized out. gcc notices that &lock doesn't change and that
+>> 'l' never escapes the function.
+>>     
+>
+> "l" that propects critical section gets thrown away??? 
+Calm down, the storage for 'l' is thrown away, but its effects remain.
+> What is the
+> name of the filesystem you ported? I mean, I need to know so I don't
+> use it by accident.
+>   
+It's very expensive, you can't use it by accident.
 
-On Mon, 24 Apr 2006 11:16:25 EDT, Joshua Brindle said:
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-> To make this much more real, the /usr/sbin/named policy that ships with 
-> apparmor has the following line:
-> /** r,
-> Thats right, named can read any file on the system, I suppose this is 
-> because the policy relies on named being chrooted. So if for any reason 
-> named doesn't chroot its been granted read access on the entire 
-> filesystem.
-
-Somebody *please* tell me I hallucinated the posting that said AppArmor
-restricts the use of chroot by confined processes...
-
-In any case, the incredibly brittle behavior of this policy in the face
-of chroot() failure (from the people who should *know* how to write AppArmor
-policy, no less) is just proof of why making it simple for non-experts to
-write policy is a Bad Idea....
-
---==_Exmh_1145985157_2618P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFETliFcC3lWbTT17ARAihyAKDH6eqGOKlq4+7FXhsjPpAxIOcaBQCfeg2j
-viocBdJF+98FVY3auK3KkS8=
-=lnOa
------END PGP SIGNATURE-----
-
---==_Exmh_1145985157_2618P--

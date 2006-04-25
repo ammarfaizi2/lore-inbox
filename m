@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWDYF10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWDYF1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWDYF10 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 01:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWDYF10
+	id S932111AbWDYF1H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 01:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWDYF1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 01:27:26 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:55650 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S932112AbWDYF1Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 01:27:25 -0400
-Date: Tue, 25 Apr 2006 07:27:21 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dipankar@in.ibm.com, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org, davem@davemloft.net,
-       schwidefsky@de.ibm.com, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [patch] RCU: introduce rcu_soon_pending() interface
-Message-ID: <20060425052721.GA9458@osiris.boeblingen.de.ibm.com>
-References: <20060424111141.GC16007@osiris.boeblingen.de.ibm.com> <20060424160943.4bbdb788.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060424160943.4bbdb788.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r802 (Linux)
+	Tue, 25 Apr 2006 01:27:07 -0400
+Received: from mtaout3.012.net.il ([84.95.2.7]:61306 "EHLO mtaout3.012.net.il")
+	by vger.kernel.org with ESMTP id S932111AbWDYF1G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 01:27:06 -0400
+Date: Tue, 25 Apr 2006 08:26:07 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [PATCH] x86-64: trivial gart clean-up
+In-reply-to: <200604250042.43910.ak@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Jon Mason <jdmason@us.ibm.com>, linux-kernel@vger.kernel.org
+Message-id: <20060425052607.GC28558@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20060424225342.GB14575@us.ibm.com> <200604250042.43910.ak@suse.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > @@ -485,6 +485,14 @@ int rcu_pending(int cpu)
-> >  		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
-> >  }
-> >  
-> > +int rcu_soon_pending(int cpu)
-> > +{
-> > +	struct rcu_data *rdp = &per_cpu(rcu_data, cpu);
-> > +	struct rcu_data *rdp_bh = &per_cpu(rcu_bh_data, cpu);
-> > +
-> > +	return (!!rdp->curlist || !!rdp_bh->curlist);
-> > +}
-> 
-> This patch sets my nerves a-jangling.
-> 
-> What are the units of soonness?  It's awfully waffly.  Can we specify this
-> more tightly?
-> 
-> Neither rcu_pending() nor rcu_soon_pending() are commented or documented. 
-> Pity the poor user trying to work out what they do, and how they differ. 
-> They're global symbols and they form part of the RCU API - they should be
-> kernel docified, please.
-> 
-> There's probably a reason why neither of these symbols are exported to
-> modules.  Once they're actually documented I mught be able to work out what
-> that reason is ;)
+On Tue, Apr 25, 2006 at 12:42:43AM +0200, Andi Kleen wrote:
 
-Maybe rcu_batch_pending() would be a better name for rcu_soon_pending(). Also
-rcu_batch_in_work() would be a more descriptive name for rcu_pending() as far
-as I can tell.
-Actually I was hoping for a better solution from the rcu experts, since I
-don't like this too, but couldn't find something better.
+> On Tuesday 25 April 2006 00:53, Jon Mason wrote:
+> > A trivial change to have gart_unmap_sg call gart_unmap_single directly,
+> > instead of bouncing through the dma_unmap_single wrapper in
+> > dma-mapping.h.  This change required moving the gart_unmap_single above
+> > gart_unmap_sg, and under gart_map_single (which seems a more logical
+> > place that its current location IMHO).
+> 
+> What advantage does that have? I think I prefer the old code.
+
+I don't know what Jon had in mind, but we do avoid a call through a
+function pointer this way. I agree with Jon that it also makes more
+sense - gart code can just call the gart code directly, without going
+through the dma_xxx wrapper that ends up calling it anyway.
+
+Cheers,
+Muli
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
+

@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWDYTJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbWDYTLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbWDYTJn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 15:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWDYTJn
+	id S932295AbWDYTLj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 15:11:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWDYTLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 15:09:43 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:53996 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751267AbWDYTJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 15:09:42 -0400
-Message-Id: <200604251909.k3PJ9KJc008091@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Chris Boot <bootc@bootc.net>
-Cc: Axelle Apvrille <axelle_apvrille@yahoo.fr>, Nix <nix@esperi.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, drepper@gmail.com,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       disec-devel@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries 
-In-Reply-To: Your message of "Tue, 25 Apr 2006 20:01:24 BST."
-             <9C02B13C-8615-440B-A08C-AC463CC2E0AE@bootc.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com>
-            <9C02B13C-8615-440B-A08C-AC463CC2E0AE@bootc.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1145992160_2618P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 25 Apr 2006 15:09:20 -0400
+	Tue, 25 Apr 2006 15:11:39 -0400
+Received: from pne-smtpout3-sn1.fre.skanova.net ([81.228.11.120]:31653 "EHLO
+	pne-smtpout3-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S932295AbWDYTLj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 15:11:39 -0400
+From: Jani-Matti =?iso-8859-1?q?H=E4tinen?= <jani-matti.hatinen@iki.fi>
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Subject: Re: Lock-up with modprobe sdhci after suspending to ram
+Date: Tue, 25 Apr 2006 22:11:36 +0300
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <515ed10f0604240033i71781bfdp421ed244477fd200@mail.gmail.com> <84144f020604250312w43df9fb4n864647c8d313a588@mail.gmail.com>
+In-Reply-To: <84144f020604250312w43df9fb4n864647c8d313a588@mail.gmail.com>
+X-Face: #cyYMAd}qudd3k4*S6mac8z1vRgtwXAC'7r{jv<~p5y80oOWqj0)0~/;,QeB(P>fhDJ"=?iso-8859-1?q?lF=0A=09=7D-ls=26?="0:\(7!/S)a_ew$J?hey[-+u`<VOlVBz48@)SW{u#N=v1P~`\Cd9^zw[>=?iso-8859-1?q?Z=607l=26XK=24=0A=09Deyz7Uf=5Dx?=@r"kOgh|l?F~QrgBEd<$x`a)[]1C"NqvG<T3Gk"@_,cH7Q;HTlZgb*F>VR(=?iso-8859-1?q?3j=0A=09=5ByC?=>>hR;jXQ!K/Q]*HjPibvm_33AQC_N2Z$VnZ<=?iso-8859-1?q?gy*4-QB2q=3A=5BoZ=2E-8YNsF+WK=27ya6u/!J=0A=09-4g=3B?=
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200604252211.37635.jani-matti.hatinen@iki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1145992160_2618P
-Content-Type: text/plain; charset=us-ascii
+Pekka Enberg kirjoitti viestissään (lähetysaika tiistai, 25. huhtikuuta 2006 
+13:12):
+> Hi Jani,
+>
+> On 4/24/06, Jani-Matti Hätinen <jani-matti.hatinen@iki.fi> wrote:
+> >   I've tested this with 2.6.15-gentoo-r1 with the sdhci-0.11 patches
+> > and vanilla 2.6.17-rc2. Sadly nothing gets as far as to the log when
+> > the lock-up occurs.
+>
+> If this is a regression from an earlier version, you could try git
+> bisect to isolate the broken changeset. See the following URL for more
+> details:
+>
+> http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bis
+>ect.txt.
 
-On Tue, 25 Apr 2006 20:01:24 BST, Chris Boot said:
+AFAIK the sdhci driver in 2.6.17-rc2 is effectively the same as the sdhci-0.11 
+patches I used with 2.6.15-gentoo-r1. I haven't tested this with earlier 
+versions of the driver, but I will as soon as mmc.drzeus.cx comes back 
+online.
+  Thanks for the link.
 
-> Wouldn't you need to sign, say, /lib/ld-linux.so? In that case, you  
-> can simply get it to load an execute almost anything that's ELF, even  
-> on filesystems marked noexec, if I'm not mistaken...
-
-2.6.0 included a fix to stop that from working from noexec filesystems.
-
---==_Exmh_1145992160_2618P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFETnPgcC3lWbTT17ARAtXBAJ41vMgh8sHuOV0myAxvhkY2vpVDbwCgrbdn
-LusCZz5fIWIAapR2amQXyXU=
-=R1ZR
------END PGP SIGNATURE-----
-
---==_Exmh_1145992160_2618P--
+-- 
+Jani-Matti Hätinen

@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWDYNAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWDYNQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWDYNAi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 09:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWDYNAi
+	id S932212AbWDYNQG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 09:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWDYNQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 09:00:38 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:64176 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S932212AbWDYNAh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 09:00:37 -0400
-Date: Tue, 25 Apr 2006 15:00:00 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Nix <nix@esperi.org.uk>,
-       "Makan Pourzandi (QB/EMC)" <makan.pourzandi@ericsson.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-security-module@vger.kernel.org, Serue Hallyen <serue@us.ibm.com>,
-       Axelle Apvrille <axelle_apvrille@rc1.vip.ukl.yahoo.com>,
-       disec-devel@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication
- of binaries
-In-Reply-To: <1145946650.3114.13.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.62.0604251459410.10839@pademelon.sonytel.be>
-References: <6D19CA8D71C89C43A057926FE0D4ADAA29D361@ecamlmw720.eamcs.ericsson.se>
- <1145897277.3116.44.camel@laptopd505.fenrus.org> <87hd4ipvdk.fsf@hades.wkstn.nix>
- <1145911526.3116.71.camel@laptopd505.fenrus.org> <87zmiao8bq.fsf@hades.wkstn.nix>
- <1145946650.3114.13.camel@laptopd505.fenrus.org>
+	Tue, 25 Apr 2006 09:16:05 -0400
+Received: from spirit.analogic.com ([204.178.40.4]:58888 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S932212AbWDYNQE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 09:16:04 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <8bf247760604250500r435c692es5e01e5617b515e50@mail.gmail.com>
+X-OriginalArrivalTime: 25 Apr 2006 13:16:03.0513 (UTC) FILETIME=[67467290:01C6686A]
+Content-class: urn:content-classes:message
+Subject: Re: problems with printk's
+Date: Tue, 25 Apr 2006 09:16:02 -0400
+Message-ID: <Pine.LNX.4.61.0604250909420.28468@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: problems with printk's
+thread-index: AcZoamdvXHuhf0fvSfydgVmbMvFm8Q==
+References: <8bf247760604250500r435c692es5e01e5617b515e50@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Ram" <vshrirama@gmail.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Apr 2006, Arjan van de Ven wrote:
-> On Tue, 2006-04-25 at 00:35 +0100, Nix wrote:
-> > On Mon, 24 Apr 2006, Arjan van de Ven yowled:
-> > > On Mon, 2006-04-24 at 21:32 +0100, Nix wrote:
-> > >> It checks mmap and mprotect with PROT_EXEC, and execve().
-> > > 
-> > > so no jvm's or flash plugins.
-> > 
-> > Well, you'll have to sign the flash plugin. This isn't
-> > sign-at-compilation-time; 
-> 
-> the point I made is that a jvm has executable memory capabilities (it
-> has to) and can be made an elf loader. At which point.. game over.
 
-Then don't sign the jvm ;-)
+On Tue, 25 Apr 2006, Ram wrote:
 
-Gr{oetje,eeting}s,
+> Hi,
+>  i am studing a driver's code.
+>
+>  i have added a line printk (KERN_DEBUG __FUNCTION)  which is supposed to
+>  print the name of the function.
+>
+[SNIPPED...]
 
-						Geert
+How about you use the correct built-in and syntax?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+     printk(KERN_DEBUG"%s\n",__FUNCTION__);
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

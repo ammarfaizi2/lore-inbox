@@ -1,83 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWDYRyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWDYRzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWDYRyz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 13:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWDYRyy
+	id S1751161AbWDYRzG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 13:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWDYRzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 13:54:54 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:35336 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750747AbWDYRyy convert rfc822-to-8bit (ORCPT
+	Tue, 25 Apr 2006 13:55:06 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:44736 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751161AbWDYRzE convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 13:54:54 -0400
+	Tue, 25 Apr 2006 13:55:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TfDChq0HjiqhHlTl8cPX3mx20i/8n1wP783ClzfAbgV1qNYAzZexif5hoCw4CcVGTyF5Pa81PXqDKu338/5f3KkZUO3HgfRhBXvvUx5PA208z2QJuANqqQDqVcFGcN2bHG1YzD2VHY9JY0/wVYKO09fWdVHnxdU+qbZR7XYdR84=
+Message-ID: <d120d5000604251054h69dcec1cudf98bcace711969b@mail.gmail.com>
+Date: Tue, 25 Apr 2006 13:54:53 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Samuel Thibault" <samuel.thibault@ens-lyon.org>,
+       linux-kernel@vger.kernel.org, dave@mielke.cc
+Subject: Re: How should an application ask for uinput module load?
+In-Reply-To: <20060328194210.GD4660@bouh.residence.ens-lyon.fr>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <444E5A3E.1020302@argo.co.il>
-X-OriginalArrivalTime: 25 Apr 2006 17:54:39.0374 (UTC) FILETIME=[52B46AE0:01C66891]
-Content-class: urn:content-classes:message
-Subject: Re: Compiling C++ modules
-Date: Tue, 25 Apr 2006 13:54:38 -0400
-Message-ID: <Pine.LNX.4.61.0604251347120.29056@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Compiling C++ modules
-thread-index: AcZokVK7GaU2hxoCRsqYWBCZrRVbEw==
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>  <1145911546.1635.54.camel@localhost.localdomain>  <444D3D32.1010104@argo.co.il>  <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>  <444DCAD2.4050906@argo.co.il>  <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com>  <444E524A.10906@argo.co.il> <d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com> <444E5A3E.1020302@argo.co.il>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Avi Kivity" <avi@argo.co.il>
-Cc: <dtor_core@ameritech.net>, "Kyle Moffett" <mrmacman_g4@mac.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <20060328194210.GD4660@bouh.residence.ens-lyon.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 25 Apr 2006, Avi Kivity wrote:
-
-> Dmitry Torokhov wrote:
->>>>     TakeLock l(&lock);
->>>>
->>>>     do_something();
->>>>     do_something_else();
->>>>
->>>> First of all, that extra TakeLock object chews up stack, at least 4 or
->>>> 8 bytes of it, depending on your word size.
->>>>
->>> No, it's optimized out. gcc notices that &lock doesn't change and that
->>> 'l' never escapes the function.
->>>
->>
->> "l" that propects critical section gets thrown away???
-> Calm down, the storage for 'l' is thrown away, but its effects remain.
->> What is the
->> name of the filesystem you ported? I mean, I need to know so I don't
->> use it by accident.
->>
-> It's very expensive, you can't use it by accident.
-
-Class Kernel
-{
-public:
-     virtual void starter(Scheduler *current) = 0x00;
-};
-
-Okay, I just started your new C++ kernel! Please send email when it
-is done. I will help test it.
-
-> --
-> Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+On 3/28/06, Samuel Thibault <samuel.thibault@ens-lyon.org> wrote:
+> Hi,
+>
+> Given a freshly booted linux box, hence uinput is not loaded (why would
+> it be, it doesn't drive any real hardware) ; what is the right way(tm)
+> for an application to have the uinput module loaded, so that it can open
+> /dev/input/uinput for emulating keypresses?
+>
+> - With good-old static /dev, we could just open /dev/input/uinput
+>  (installed by the distribution), and thanks to a
+>  alias char-major-10-223 uinput
+>  line somewhere in /etc/modprobe.d, uinput finally gets auto-loaded.
+>
+> - With devfs, it doesn't look like it works (/dev/misc/uinput is not
+>  present and opening it just like if it existed doesn't work). But I
+>  read in archives that it could be feasible.
+>
+> - With udev, this just cannot work. As explained in an earlier thread,
+>  even using a special filesystem that would report the opening attempt
+>  to udevd wouldn't work fine since udevd takes time for creating the
+>  device, and hence the original program needs to be notified ; this
+>  becomes racy.
+>
+> So what is the correct way to do it? I can see two approaches:
+>
+> Using modprobe:
+> - try to use /dev/input/uinput ; if it succeeds, fine.
+> - else, if errno != ENOENT, fail
+> - else, (ENOENT)
+>  - try to call `cat /proc/sys/kernel/modprobe` uinput
+>  - try to use /dev/input/uinput again ; if it succeeds, fine
+>    - else, assume that it really wasn't compiled, and hence fail.
+>
+> Triggering auto-load by creating one's own node.
+> - try to use /dev/input/uinput ; if it suceeds, fine.
+> - else, if errno != ENOENT, fail
+> - else, (ENOENT)
+>  - mknod /somewhere/safe/uinput c 10 223
+>  - use /somewhere/safe/uinput ; if it succeeds, fine
+>    - else, assume that it really wasn't compiled, and hence fail.
+>
+> I guess the same problem arises for loop devices and all such virtual
+> devices...
 >
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+Hi Samuel,
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+I am not sure about loop devices but for uinput there is most likely a
+daemon that needs to be started so I would just load the module
+(modprobe uinput) right from the same script that starts the daemon.
+You do not need to check if module has already been loaded, just try
+loading it unconditionally and use /dev/input/uinput.
 
-Thank you.
+--
+Dmitry

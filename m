@@ -1,96 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbWDYQwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWDYQxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751623AbWDYQwg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 12:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751622AbWDYQwg
+	id S932230AbWDYQxV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 12:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWDYQxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 12:52:36 -0400
-Received: from web26109.mail.ukl.yahoo.com ([217.12.10.233]:24212 "HELO
-	web26109.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751623AbWDYQwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 12:52:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=XZb4JTepZWvBKyqe3AIWndQ44fvKa1amEBcP1Oy9MAq7ZGVSJKBsPNF9Zjrf2w72xJ2lZQcknQ+Mw1Q3V+s971fOdGVqXAgklOZEfW6EB4FUXfCinqjH+GSZ6HMuNQOzIS5GftGWlb/6+rH9hF/ik4xhWJfASP7QjJhVgTKcens=  ;
-Message-ID: <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com>
-Date: Tue, 25 Apr 2006 18:11:39 +0200 (CEST)
-From: Axelle Apvrille <axelle_apvrille@yahoo.fr>
-Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries
-To: Nix <nix@esperi.org.uk>, Arjan van de Ven <arjan@infradead.org>,
-       drepper@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       disec-devel@lists.sourceforge.net
-In-Reply-To: <87slo2nn0b.fsf@hades.wkstn.nix>
+	Tue, 25 Apr 2006 12:53:20 -0400
+Received: from [84.204.75.166] ([84.204.75.166]:11958 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S932226AbWDYQxS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 12:53:18 -0400
+Message-ID: <444E53FC.5060100@oktetlabs.ru>
+Date: Tue, 25 Apr 2006 20:53:16 +0400
+From: "Artem B. Bityutskiy" <dedekind@oktetlabs.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060202 Fedora/1.7.12-1.5.2
+X-Accept-Language: en, ru, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 12/16] GFS2: Mounting & sysfs interface
+References: <1145636505.3856.116.camel@quoit.chygwyn.com>
+In-Reply-To: <1145636505.3856.116.camel@quoit.chygwyn.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Steven Whitehouse wrote:
+> +int gfs2_sys_fs_add(struct gfs2_sbd *sdp)
+> +{
+> +	int error;
+> +
+> +	sdp->sd_kobj.kset = &gfs2_kset;
+> +	sdp->sd_kobj.ktype = &gfs2_ktype;
+> +
+> +	error = kobject_set_name(&sdp->sd_kobj, "%s", sdp->sd_table_name);
+> +	if (error)
+> +		goto fail;
+> +
+> +	error = kobject_register(&sdp->sd_kobj);
+> +	if (error)
+> +		goto fail;
+> +
+> +	error = sysfs_create_group(&sdp->sd_kobj, &lockstruct_group);
+> +	if (error)
+> +		goto fail_reg;
+> +
+> +	error = sysfs_create_group(&sdp->sd_kobj, &counters_group);
+> +	if (error)
+> +		goto fail_lockstruct;
+> +
+> +	error = sysfs_create_group(&sdp->sd_kobj, &args_group);
+> +	if (error)
+> +		goto fail_counters;
+> +
+> +	error = sysfs_create_group(&sdp->sd_kobj, &tune_group);
+> +	if (error)
+> +		goto fail_args;
+> +
+> +	return 0;
 
-Just my few cents on signed binaries and DigSig. It's
-kind of a very partial reply to several parts of
-various emails (Arjan, Ulrich, Nix ...), sorry for
-that ;-)
+Hello,
 
-1- "does this also prevent people writing their own
-elf loader in a bit of perl and just mmap the code"
+last time I tried to use "bare" sysfs functions to create my sysfs 
+hierarchy I ended up with a problem that the module refcount is not 
+increased when those sysfs files are opened. So I could open a sysfs 
+file from userspace, do rmmod and enjoy oops.
 
-I'm not sure to exactly understand what you mean:
+Then I started using the class and class_device stuff, which have an 
+.owner field, and all became fine.
 
-- if you mean writing an application able to read &
-'interpret' an ELF executable: again, I think DigSig
-will prevent this, because when you mmap the code,
-this calls (at kernel level) do_mmap which triggers an
-LSM hook called file_mmap. And we implement checks in
-that hook...
+I'm not sure if this is a problem of sysfs, but I suspect it could take 
+care of module refcount better.
 
-- if you mean modifying the ELF loader so that do_mmap
-/ file_mmap aren't called, well you'll need to hack
-the kernel, won't you ?
+In your patch, I looked for THIS_MODULE pattern and did not find. I did 
+not try, but I suspect your code is not devoid of the problem I 
+described. So, this is just FYI and may be not the case.
 
-- finally, note you also have choice not to sign this
-elf loader of yours. If it isn't signed, it won't ever
-run ;-)
-
-2- "You will never get 100% protection from a
-mechanism like signed binaries"
-
-Sure. I entirely agree though, if we're honest, *no*
-system is ever a 100 % protection ;-)
-I think our paper (http://disec.sourceforge.net/ or
-http://www.usenix.org/events/lisa04/tech/apvrille.html)
-is clear about what we mean to protect and what we do
-not, and IMHO, 
-in security, we cannot expect more of any system.
-
-3- "I've found signed binaries principally useful on
-stripped-down firewalls and firewall UML instances"
-
-Indeed. I foresee use of DigSig for hosts that are not
-meant to change 'too' often (for example, not
-a developer or a user desktop - although I do
-personnally have DigSig on mine ;-)) ). Stripped-down
-servers or firewalls are good example (and they do
-indeed represent a big niche). BTW, I also
-foresee use of DigSig in small embedded systems, and
-actually, in that area, I heard of Umbrella,
-an open source project using DigSig (I don't know the
-status).
-
-
-Hope this helps !
-Best regards,
-
-Axelle.
-DigSig - http://disec.sourceforge.net
-
-
-	
-	
-		
-___________________________________________________________________________ 
-Nouveau : téléphonez moins cher avec Yahoo! Messenger. Appelez le monde entier à partir de 0,012 €/minute ! 
-Téléchargez sur http://fr.messenger.yahoo.com
+-- 
+Best regards, Artem B. Bityutskiy
+Oktet Labs (St. Petersburg), Software Engineer.
++7 812 4286709 (office) +7 911 2449030 (mobile)
+E-mail: dedekind@oktetlabs.ru, Web: www.oktetlabs.ru

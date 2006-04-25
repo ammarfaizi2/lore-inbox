@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWDYP0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWDYP1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWDYP0E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 11:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWDYP0E
+	id S1751226AbWDYP1i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 11:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWDYP1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 11:26:04 -0400
-Received: from styx.suse.cz ([82.119.242.94]:9452 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932260AbWDYP0D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 11:26:03 -0400
-Date: Tue, 25 Apr 2006 17:26:00 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: bjd <bjdouma@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 001/001] INPUT: new ioctl's to retrieve values of EV_REP and EV_SND event codes
-Message-ID: <20060425152600.GA30398@suse.cz>
-References: <20060422204844.GA16968@skyscraper.unix9.prv> <d120d5000604240731i5a3667f9g37e94de390485aac@mail.gmail.com> <20060424145747.GA5906@suse.cz> <d120d5000604240803q387343dt8e9801a8cf21a975@mail.gmail.com> <d120d5000604250619r6170c18bh8d26fc041141c056@mail.gmail.com> <20060425151628.GA11078@suse.cz> <d120d5000604250823p4f2ed2acv4287f7d70c71c7c0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000604250823p4f2ed2acv4287f7d70c71c7c0@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+	Tue, 25 Apr 2006 11:27:38 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:48285
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751226AbWDYP1h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 11:27:37 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: "marty fouts" <mf.danger@gmail.com>
+Subject: Re: Compiling C++ modules
+Date: Tue, 25 Apr 2006 17:32:15 +0200
+User-Agent: KMail/1.9.1
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com> <9f7850090604241450w885fa98v36657ba5f12f071c@mail.gmail.com>
+In-Reply-To: <9f7850090604241450w885fa98v36657ba5f12f071c@mail.gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Kyle Moffett" <mrmacman_g4@mac.com>
+MIME-Version: 1.0
+Message-Id: <200604251732.15494.mb@bu3sch.de>
+Content-Type: multipart/signed;
+  boundary="nextPart4986875.zBA9ySxkhK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 25, 2006 at 11:23:02AM -0400, Dmitry Torokhov wrote:
-> On 4/25/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Tue, Apr 25, 2006 at 09:19:42AM -0400, Dmitry Torokhov wrote:
-> > > On 4/24/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > > On 4/24/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > > > > On Mon, Apr 24, 2006 at 10:31:39AM -0400, Dmitry Torokhov wrote:
-> > > > > >
-> > > > > > Vojtech, could you remind me why EVIOC{G|S}REP were removed? Some
-> > > > > > people want to have ability to separate keyboards (via grabbing); they
-> > > > > > also might want to control repeat rate independently. Shoudl we
-> > > > > > reinstate these ioctls?
-> > > > >
-> > > > > I believe they were replaced by the ability to send EV_REP style events
-> > > > > to the device, setting the repeat rate.
-> > > > >
-> > > >
-> > > > Argh, why am I always forgetting about ability to write events into devices?
-> > >
-> > > Thinking about it some more - writing to the event device is an
-> > > elegant way to set repeat rate but how do you retrieve current repeat
-> > > rate for a given device?
-> >
-> > You can't. And that's likely a problem that needs fixing.
-> >
-> 
-> So do you agree that we need to ressurect EVIOCGREP (and EVIOCSREP
-> just to complement the interface)?
- 
-Yes. And EVIOCSREP should just generate the events needed to notify the
-drivers to do the change.
+--nextPart4986875.zBA9ySxkhK
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+On Monday 24 April 2006 23:50, you wrote:
+> Oh, and yeah, a =3D b + c *is* more readable than
+>=20
+> a =3D malloc(strlen(b) + strlen(c));
+> strcpy(a,b);
+> strcat(a,c);
+>=20
+> and contains fewer bugs ;)
+
+and a hidden memory allocation.
+Which GFP flag would you use for the allocation?
+(And how would you actually _pass_ it)
+GFP_KERNEL? Good luck, if you see a
+a =3D b + c;
+in atomic context.
+GFP_ATOMIC? Well, we both don't want that.
+Checking is_atomic() and deciding upon that?
+I call that overhead... .
+
+=2D-=20
+Greetings Michael.
+
+--nextPart4986875.zBA9ySxkhK
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBETkD/lb09HEdWDKgRAlLHAJ41QOXDaNlUK1USouoxC0urdfOLUgCeItF3
+IxuatjkeEnRqpEvLH8pJfdE=
+=c628
+-----END PGP SIGNATURE-----
+
+--nextPart4986875.zBA9ySxkhK--

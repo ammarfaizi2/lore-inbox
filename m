@@ -1,82 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWDYWcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWDYWdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbWDYWcD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 18:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWDYWcD
+	id S1751627AbWDYWdk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 18:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751578AbWDYWdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 18:32:03 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:27358 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1751244AbWDYWcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 18:32:02 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
-Date: Wed, 26 Apr 2006 08:30:51 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200604242355.08111.rjw@sisk.pl> <200604260021.08888.rjw@sisk.pl> <20060425222526.GG6379@elf.ucw.cz>
-In-Reply-To: <20060425222526.GG6379@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3177110.UtBlh3quKl";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 25 Apr 2006 18:33:40 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:30188 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751483AbWDYWdj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 18:33:39 -0400
+Subject: Re: [PATCH 3/3] Assert notifier_block and notifier_call are not in
+	init section
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, herbert@13thfloor.at,
+       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       Alan Stern <stern@rowland.harvard.edu>
+In-Reply-To: <Pine.LNX.4.64.0604251211510.3701@g5.osdl.org>
+References: <20060425023509.7529.84752.sendpatchset@localhost.localdomain>
+	 <20060425023527.7529.9096.sendpatchset@localhost.localdomain>
+	 <Pine.LNX.4.64.0604241945570.3701@g5.osdl.org>
+	 <1145991663.16539.8.camel@linuxchandra>
+	 <Pine.LNX.4.64.0604251211510.3701@g5.osdl.org>
+Content-Type: text/plain
+Organization: IBM
+Date: Tue, 25 Apr 2006 15:33:36 -0700
+Message-Id: <1146004416.16539.11.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604260830.57866.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3177110.UtBlh3quKl
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 2006-04-25 at 12:16 -0700, Linus Torvalds wrote:
+> 
+> On Tue, 25 Apr 2006, Chandra Seetharaman wrote:
+> > 
+> > Two questions:
+> > 1) related to this patch: Do you want me to generate a patch that
+> > asserts only notifier calls ?
+> 
+> I don't really have any strong preferences. It seems a bit strange that 
+> we'd do it for notifiers but not for other people. It might be better to 
+> try to build it into the build system itself, and get it through the 
+> _normal_ "section checking".
 
-HI.
+I 'll hold off for now then.
+> 
+> One way to do that would be to make the "register_notifier()" thing just 
+> create this dummy asm() that just puts the arguments into a section that 
+> doesn't even get loaded, but that cna be checked.
+> 
+> > 2) Unrelated to this patch: If the _code_ section is never reallocated
+> > or reused, what is the purpose of putting _code_ in the init section ?
+> > Only to make sure that the init calls are called in order ?
+> 
+> No, the code section is re-used, it's just never re-used for any other 
+> code (since we don't generate code on the fly). So if you pass in a 
+> function pointer, you know that if it's in the init section, it means that 
+> init-code that was discarded.
+> 
+> But if you pass in a data pointer, you'll never know if it's a data 
+> pointer to the original init-code section, or if it was a data pointer 
+> that was just dynamically allocated after the init-code section was freed.
 
-On Wednesday 26 April 2006 08:25, Pavel Machek wrote:
-> Hi!
->
-> > > It does apply to all of the LRU pages. This is what I've been doing f=
-or
-> > > years now. The only corner case I've come across is XFS. It still wan=
-ts
-> > > to write data even when there's nothing to do and it's threads are
-> > > frozen (IIRC - haven't looked at it for a while). I got around that by
-> > > freezing bdevs when freezing processes.
-> >
-> > This means if we freeze bdevs, we'll be able to save all of the LRU
-> > pages, except for the pages mapped by the current task, without copying=
-=2E=20
-> > I think we can try to do this, but we'll need a patch to freeze bdevs f=
-or
-> > this purpose. ;-)
->
-> ...adding more dependencies to how vm/blockdevs work. I'd say current
-> code is complex enough...
+Thanks for the clarification. 
+> 
+> > PS: I fixed my mailer to put my name. sorry about that.
+> 
+> Looks good.
+> 
+> 		Linus
+-- 
 
-You assume too much. This is just using existing code.
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
-Regards,
 
-Nigel
-
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart3177110.UtBlh3quKl
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBETqMhN0y+n1M3mo0RAr9tAJ9ifhv4Uj4nSLzTcsuMHnDIJjzeCgCg3zIB
-RImCXPYDKkoYy7h2vbDBwg4=
-=hDS7
------END PGP SIGNATURE-----
-
---nextPart3177110.UtBlh3quKl--

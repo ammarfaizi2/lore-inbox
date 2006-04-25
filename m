@@ -1,124 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWDYIE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWDYIFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbWDYIE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 04:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWDYIE6
+	id S932140AbWDYIFY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 04:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWDYIFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 04:04:58 -0400
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:21220 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S1751416AbWDYIE5 convert rfc822-to-8bit (ORCPT
+	Tue, 25 Apr 2006 04:05:24 -0400
+Received: from fc-cn.com ([218.25.172.144]:26638 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S1751417AbWDYIFW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 04:04:57 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 1.3.1
-cc: linux-kernel@vger.kernel.org
-Date: Tue, 25 Apr 2006 01:04:55 -0700
-Message-ID: <7v1wvm13o8.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 25 Apr 2006 04:05:22 -0400
+Date: Tue, 25 Apr 2006 16:07:31 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: Neil Brown <neilb@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [patch 1/2] raid6_end_write_request() spinlock fix
+Message-ID: <20060425080731.GA31828@localhost.localdomain>
+References: <20060425033542.GA4087@localhost.localdomain> <17485.45069.692725.551853@cse.unsw.edu.au> <20060425064310.GA29950@localhost.localdomain> <17485.50850.9186.130696@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17485.50850.9186.130696@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest maintenance release GIT 1.3.1 is available at the
-usual places:
+On Tue, Apr 25, 2006 at 04:50:10PM +1000, Neil Brown wrote:
+> On Tuesday April 25, qiyong@fc-cn.com wrote:
+> > On Tue, Apr 25, 2006 at 03:13:49PM +1000, Neil Brown wrote:
+> > > On Tuesday April 25, qiyong@fc-cn.com wrote:
+> > > > Hello,
+> > > > 
+> > > > Reduce the raid6_end_write_request() spinlock window.
+> > > 
+> > > Andrew: please don't include these in -mm.  This one and the
+> > > corresponding raid5 are wrong, and I'm not sure yet the unplug_device
+> > > changes.
+> > 
+> > I am sure with the unplug_device. Just look follow the path...
+> > 
+> 
+> What path?  There are probably several.  If I follow the path, will I
+> see the same things as you see?  Who knows, because you haven't
+> bothered to tell us what you see.
 
-	http://www.kernel.org/pub/software/scm/git/
+There are only two places where handle_list is possibly re-filled:
+__release_stripe() and raidX_activate_delayed().  So raidXd should only
+wakeup after these two points.
 
-	git-1.3.1.tar.{gz,bz2}			(tarball)
-	RPMS/$arch/git-*-1.3.1-1.$arch.rpm	(RPM)
+> 
+> > 
+> > Yes. Let's fix the error(). In any case, the current code is broken. (see raid5/6_end_read_request)
+> 
+> What will I see in raidX_end_read_request.  Surely it isn't that hard
+> to write a few more sentences?
 
-Just to let people who are new to the game know, 1.3.X (1<=X)
-series is purely bugfix maintenance on top of 1.3.0 release, and
-no new features will be added unless there is a compelling
-reason (think of them like 2.6.16.X releases of the kernel,
-slightly looser updates criteria).
+You should see md_error() in raidX_end_read_request isn't in any spinlocks.
 
-There are four primary branches in git.git repository.
+> conf->working_disks isn't atomic_t and so decrementing without a
+> spinlock isn't safe.  So lets just leave it all inside a spinlock.
 
- * Releases in the 1.3.X series come from the "maint" branch, which
-   was forked at 1.3.0.
+test_and_set_bit(Faulty, &rdev->flags) protects it as well imho.
+It can be enter only once.
 
- * All the new features and improvements start their life as
-   topic branches that are merged to the "pu" (proposed updates)
-   branch.  They are often incomplete and/or unstable.  You can
-   think of "pu" as the -mm.
+> 
+> Also I have a vague memory that clearing In_sync before Faulty is
+> important, but I'm not certain of that.
 
- * When these topic branches become stable enough, they are
-   merged into "next" branch.  I personally run "next" branch
-   for my work to trust my data to it, until very close to the
-   next feature release.
+Maybe, but seems not apply here.
 
- * After being cooked for a few days to a week in "next", these
-   good changes graduate to the "master" branch.  Some of them
-   die while being cooked there, but that does not happen very
-   often (bad apples are culled while in "pu").
+> 
+> Remember: the code is there for a reason.  It might not be a good
+> reason, and the code could well be wrong.  But it would be worth your
+> effort trying to find out what the reason is before blithely changing
+> it (as I discovered recently with a change I suggested to
+> invalidate_mapping_pages).
 
-I make feature release out of "master" branch periodically,
-which are tagged as X.Y.0 releases.  At that point, "maint"
-branch is forked to prepare X.Y.1 and onward.
-
-If you are an end user, the "maint" releases are the recommended
-stale releases, but you could miss out new features quickly.
-Please do send in bug reports for them, but do not expect new
-cool features to appear there.
-
-If you want to stay current and stable, I would recommend to
-track "master".
-
-If you are a git developer, being aware of what is happening in
-"next" would often be very helpful.  The infrastructure you plan
-to base your change on may be in the process of being updated
-and your changes to "master" can become useless when that
-happens.
-
-If you are a truly devoted git hacker, picking what is in "pu"
-can be exciting and useful from time to time.
-
-Post 1.3.0 "master" branch development currently contains major
-rewrite of log/show/whatchanged infrastructure, and will be
-getting updated pack-objects, faster write-tree, consolidated
-"git diff" that is not a shell script, and hopefully many
-others.  To reiterate, they will be part of 1.4.0 and no 1.3.X
-series release will have them.
-
-----------------------------------------------------------------
-
-Changes since v1.3.0 are as follows:
-
-Jonas Fonseca:
-      Fix filename scaling for binary files
-
-Junio C Hamano:
-      git-merge: a bit more readable user guidance.
-      pre-commit hook: complain about conflict markers.
-      git-commit --amend: two fixes.
-      pack-objects: do not stop at object that is "too small"
-      mailinfo: decode underscore used in "Q" encoding properly.
-
-Linus Torvalds:
-      git-log produces no output
-
-Nicolas Pitre:
-      fix pack-object buffer size
-
-Paul Mackerras:
-      rev-parse: better error message for ambiguous arguments
-
-Petr Baudis:
-      Document git-var -l listing also configuration variables
-      Document the configuration file
-
-Santi Béjar:
-      Reintroduce svn pools to solve the memory leak.
-
-Serge E. Hallyn:
-      socksetup: don't return on set_reuse_addr() error
-
-Shawn Pearce:
-      Document git-clone --reference
-
-
+Thanks :)
+-- 
+Coywolf Qi Hunt

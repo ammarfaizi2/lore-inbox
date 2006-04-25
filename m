@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWDYJNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWDYJNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWDYJNE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 05:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWDYJND
+	id S932156AbWDYJNS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 05:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWDYJNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 05:13:03 -0400
-Received: from mail.mimer.no ([213.184.200.1]:2746 "EHLO odin.mimer.no")
-	by vger.kernel.org with ESMTP id S932160AbWDYJNC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 05:13:02 -0400
-From: Harald Arnesen <harald@skogtun.org>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: jamagallon@able.es, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: C++ pushback
-References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
-	<mj+md-20060424.201044.18351.atrey@ucw.cz>
-	<444D44F2.8090300@wolfmountaingroup.com>
-	<1145915533.1635.60.camel@localhost.localdomain>
-	<20060425001617.0a536488@werewolf.auna.net>
-	<87iroyr03a.fsf@basilikum.skogtun.org>
-	<20060425024625.288f616e.diegocg@gmail.com>
-Date: Tue, 25 Apr 2006 11:12:52 +0200
-In-Reply-To: <20060425024625.288f616e.diegocg@gmail.com> (Diego Calleja's
-	message of "Tue, 25 Apr 2006 02:46:25 +0200")
-Message-ID: <87u08ivx0r.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 25 Apr 2006 05:13:18 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:38920 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932156AbWDYJNR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 05:13:17 -0400
+Message-ID: <444DE829.2000101@argo.co.il>
+Date: Tue, 25 Apr 2006 12:13:13 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Martin Mares <mj@ucw.cz>
+CC: Xavier Bestel <xavier.bestel@free.fr>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>
+Subject: Re: C++ pushback
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com> <mj+md-20060424.201044.18351.atrey@ucw.cz> <444D44F2.8090300@wolfmountaingroup.com> <1145915533.1635.60.camel@localhost.localdomain> <20060425001617.0a536488@werewolf.auna.net> <1145952948.596.130.camel@capoeira> <444DE0F0.8060706@argo.co.il> <mj+md-20060425.085030.25134.atrey@ucw.cz> <444DE539.4000804@argo.co.il> <mj+md-20060425.090134.27024.atrey@ucw.cz>
+In-Reply-To: <mj+md-20060425.090134.27024.atrey@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Apr 2006 09:13:15.0123 (UTC) FILETIME=[7BD68C30:01C66848]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja <diegocg@gmail.com> writes:
+Martin Mares wrote:
+>>> Calling a C function is simple and explicit -- a quick glance over
+>>> the code is enough to tell what gets called.
+>>>
+>>>       
+>> No, you need to check all the functions it calls as well.
+>>     
+>
+> Yes, but if it calls none (or calls basic functions I already know),
+> it's immediately visible without having to circumnavigate the globe
+> to find declarations of all sub-objects :)
+>
+>   
+Yes, but if the constructor constructs no sub objects (or basic objects 
+you already know) then it's immediately visible as well.
 
-> El Tue, 25 Apr 2006 02:05:29 +0200,
-> Harald Arnesen <harald@skogtun.org> escribió:
->
->> The former is easier to read and understand?
->
-> C is not perfect, it could very well get a bit improved so it helps to make 
-> the code more readable, etc (and I mean: just improvements, not "lets try to
-> turn C into a OO language"). That however requires modifying the current
-> C standards, gcc...
->
-> But that doesn't justifies adding C++ support to the kernel.
 
-It was the C version I found easier to understand.
 -- 
-Hilsen Harald.
+error compiling committee.c: too many arguments to function
 

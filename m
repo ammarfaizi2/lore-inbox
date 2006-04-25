@@ -1,83 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWDYPK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWDYPQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWDYPK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 11:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWDYPK1
+	id S932259AbWDYPQc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 11:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWDYPQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 11:10:27 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:25763 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932247AbWDYPK1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 11:10:27 -0400
-Date: Tue, 25 Apr 2006 17:10:29 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [patch] s390: futex atomic operations part 2.
-Message-ID: <20060425151029.GA16531@skybase>
-MIME-Version: 1.0
+	Tue, 25 Apr 2006 11:16:31 -0400
+Received: from styx.suse.cz ([82.119.242.94]:25579 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932251AbWDYPQb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 11:16:31 -0400
+Date: Tue, 25 Apr 2006 17:16:28 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: bjd <bjdouma@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001/001] INPUT: new ioctl's to retrieve values of EV_REP and EV_SND event codes
+Message-ID: <20060425151628.GA11078@suse.cz>
+References: <20060422204844.GA16968@skyscraper.unix9.prv> <d120d5000604240731i5a3667f9g37e94de390485aac@mail.gmail.com> <20060424145747.GA5906@suse.cz> <d120d5000604240803q387343dt8e9801a8cf21a975@mail.gmail.com> <d120d5000604250619r6170c18bh8d26fc041141c056@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <d120d5000604250619r6170c18bh8d26fc041141c056@mail.gmail.com>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-[patch] s390: futex atomic operations part 2.
-
-Add missing primitive futex_atomic_cmpxchg_inatomic. Remove incorrect
-type cast of uaddr memory constraint from __futex_atomic_op.
-
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
- include/asm-s390/futex.h |   31 +++++++++++++++++++++++++++++--
- 1 files changed, 29 insertions(+), 2 deletions(-)
-
-diff -urpN linux-2.6/include/asm-s390/futex.h linux-2.6-patched/include/asm-s390/futex.h
---- linux-2.6/include/asm-s390/futex.h	2006-04-25 13:41:36.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/futex.h	2006-04-25 15:24:01.000000000 +0200
-@@ -30,9 +30,9 @@
- 		     "2:\n"						\
- 		     __futex_atomic_fixup				\
- 		     : "=d" (ret), "=&d" (oldval), "=&d" (newval),	\
--		       "=m" (*(unsigned long __user *) uaddr)		\
-+		       "=m" (*uaddr)					\
- 		     : "0" (-EFAULT), "d" (oparg), "a" (uaddr),		\
--		       "m" (*(unsigned long __user *) uaddr) : "cc" );
-+		       "m" (*uaddr) : "cc" );
+On Tue, Apr 25, 2006 at 09:19:42AM -0400, Dmitry Torokhov wrote:
+> On 4/24/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > On 4/24/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > > On Mon, Apr 24, 2006 at 10:31:39AM -0400, Dmitry Torokhov wrote:
+> > > >
+> > > > Vojtech, could you remind me why EVIOC{G|S}REP were removed? Some
+> > > > people want to have ability to separate keyboards (via grabbing); they
+> > > > also might want to control repeat rate independently. Shoudl we
+> > > > reinstate these ioctls?
+> > >
+> > > I believe they were replaced by the ability to send EV_REP style events
+> > > to the device, setting the repeat rate.
+> > >
+> >
+> > Argh, why am I always forgetting about ability to write events into devices?
+> 
+> Thinking about it some more - writing to the event device is an
+> elegant way to set repeat rate but how do you retrieve current repeat
+> rate for a given device?
  
- static inline int futex_atomic_op_inuser (int encoded_op, int __user *uaddr)
- {
-@@ -90,5 +90,32 @@ static inline int futex_atomic_op_inuser
- 	return ret;
- }
- 
-+static inline int
-+futex_atomic_cmpxchg_inatomic(int __user *uaddr, int oldval, int newval)
-+{
-+	int ret;
-+
-+	if (! access_ok (VERIFY_WRITE, uaddr, sizeof(int)))
-+		return -EFAULT;
-+	asm volatile("   cs   %1,%4,0(%5)\n"
-+		     "0: lr   %0,%1\n"
-+		     "1:\n"
-+#ifndef __s390x__
-+		     ".section __ex_table,\"a\"\n"
-+		     "   .align 4\n"
-+		     "   .long  0b,1b\n"
-+		     ".previous"
-+#else /* __s390x__ */
-+		     ".section __ex_table,\"a\"\n"
-+		     "   .align 8\n"
-+		     "   .quad  0b,1b\n"
-+		     ".previous"
-+#endif /* __s390x__ */
-+		     : "=d" (ret), "+d" (oldval), "=m" (*uaddr)
-+		     : "0" (-EFAULT), "d" (newval), "a" (uaddr), "m" (*uaddr)
-+		     : "cc", "memory" );
-+	return oldval;
-+}
-+
- #endif /* __KERNEL__ */
- #endif /* _ASM_S390_FUTEX_H */
+You can't. And that's likely a problem that needs fixing.
+
+-- 
+Vojtech Pavlik
+Director SuSE Labs

@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWDYHU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWDYHXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbWDYHU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 03:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWDYHU3
+	id S1751381AbWDYHXw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 03:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWDYHXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 03:20:29 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:36357 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1751363AbWDYHU2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 03:20:28 -0400
-Message-ID: <444DCDB8.4070807@argo.co.il>
-Date: Tue, 25 Apr 2006 10:20:24 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Tue, 25 Apr 2006 03:23:52 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:16139 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751367AbWDYHXv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 03:23:51 -0400
+To: Valdis.Kletnieks@vt.edu
+Cc: Lars Marowsky-Bree <lmb@suse.de>, Stephen Smalley <sds@tycho.nsa.gov>,
+       Kyle Moffett <mrmacman_g4@mac.com>, casey@schaufler-ca.com,
+       James Morris <jmorris@namei.org>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org, fireflier-devel@lists.sourceforge.net
+Subject: Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks
+References: <20060419014857.35628.qmail@web36606.mail.mud.yahoo.com>
+	<CD11FD59-4E2E-4AD7-9DD0-5811CE792B24@mac.com>
+	<200604190656.k3J6uSGW010288@turing-police.cc.vt.edu>
+	<32851499-DA27-46AF-A1A4-E668BBE0771D@mac.com>
+	<1145536803.3313.32.camel@moss-spartans.epoch.ncsc.mil>
+	<87y7xzu4hj.fsf@hades.wkstn.nix>
+	<1145629477.21749.146.camel@moss-spartans.epoch.ncsc.mil>
+	<20060424081433.GG440@marowsky-bree.de>
+	<200604250019.k3P0JmJQ004798@turing-police.cc.vt.edu>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: well, why *shouldn't* you pay property taxes on your editor?
+Date: Tue, 25 Apr 2006 08:21:51 +0100
+In-Reply-To: <200604250019.k3P0JmJQ004798@turing-police.cc.vt.edu> (Valdis Kletnieks's message of "Mon, 24 Apr 2006 20:19:47 -0400")
+Message-ID: <87odyqnmr4.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>	 <1145911546.1635.54.camel@localhost.localdomain>	 <444D3D32.1010104@argo.co.il> <1145915918.1635.64.camel@localhost.localdomain>
-In-Reply-To: <1145915918.1635.64.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Apr 2006 07:20:26.0951 (UTC) FILETIME=[B9B17570:01C66838]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2006-04-25 at 00:03 +0300, Avi Kivity wrote:
->   
->> Alan Cox wrote:
->> I think it's easy to show that the equivalent C++ code would be shorter, 
->> faster, and safer.
->>     
->
-> Mathematically the answer is "no you couldn't". You might be able to
-> argue that a fortran implementation would be faster but not a C++ one.
->   
-Maybe not mathematically, but I can try to hand-wave my way through.
+On Mon, 24 Apr 2006, Valdis Kletnieks stated:
+>> This is not correct, as far as I understand. As the app can only rename
+>> in it has access to both the old and the new path.
+> 
+> People seem to have a blind spot for this sort of thing.  Given *two* processes,
+> one of which can be convinced to do a rename, and another that can be convinced
+> to write a file, you can subvert everything (quite possibly in opposite order -
+> if you can get process A to write /etc/foobar, and process B to rename foobar
+> to passwd, you've won).
 
-By using exceptions, you free the normal return paths from having to 
-check for errors. The exception paths can be kept in a dedicated 
-section, avoiding cache pollution. The total code (and data) size 
-increases, but the non-exception paths size decreases significantly and 
-becomes faster.
+If those processes are exposed enough that external attackers can talk
+to them at all, they should be confined. And anyone who allows confined
+processes to write to /etc or create or rename links in /etc at all is
+an idiot.
 
-Using C++ objects instead of C objects allows you to avoid void 
-pointers, which are difficult for the compiler to optimize due to aliasing.
-> And for strings C++ strings are suprisingly inefficient and need a lot
-> of memory allocations, which can fail and are not handled well without C
-> ++ exceptions and other joyous language features you don't want in a
-> kernel. C with 'safe' string handling is similar - look at glib.
->
-> We have to make tradeoffs and the kernel tradeoffs have been to keep C
-> type fast string handling but to provide helpers in the hope people will
-> actually use them to avoid making mistakes.
->   
-You might keep C strings (or something similar) for the vfs paths and 
-use C++ strings for non performance critical code.
+Are we *really* defending against people who write blatantly idiotic
+profiles? (What's more, unlike with SELinux, it's guaranteed to be easy
+to see that that profile is idiotic, because the policy language is so
+simple.)
+
+(Obviously creating or renaming links in /** is every bit as
+bad. Don't-write-stupid-profiles rule again.)
+
+(I'm assuming a post-chroot()-absolute-paths world: in the previous
+world, as exemplified by the current example profiles, /** is sane *if
+and only if* the confined app is always chrooted.)
 
 -- 
-error compiling committee.c: too many arguments to function
-
+`On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
+ because bringing Windows into the picture rescaled "brokenness" by
+ a factor of 10.' --- Peter da Silva

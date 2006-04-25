@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWDYI7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWDYJAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbWDYI7f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 04:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWDYI7f
+	id S932149AbWDYJAq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 05:00:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWDYJAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 04:59:35 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:54958 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932151AbWDYI7e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 04:59:34 -0400
-Date: Tue, 25 Apr 2006 10:59:30 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Martin Mares <mj@ucw.cz>
-cc: David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-In-Reply-To: <mj+md-20060425.085309.25473.atrey@ucw.cz>
-Message-ID: <Pine.LNX.4.61.0604251058280.26791@yvahk01.tjqt.qr>
-References: <mj+md-20060424.201044.18351.atrey@ucw.cz>
- <MDEHLPKNGKAHNMBLJOLKGEDHLIAB.davids@webmaster.com> <mj+md-20060425.085309.25473.atrey@ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Apr 2006 05:00:46 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:45547 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932149AbWDYJAp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 05:00:45 -0400
+Subject: Re: [PATCH/RFC] s390: Hypervisor File System
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: "=?ISO-8859-1?Q?J=F6rn?= Engel" <joern@wohnheim.fh-wedel.de>
+Cc: Michael Holzheu <holzheu@de.ibm.com>, ioe-lkml@rameria.de,
+       linux-kernel@vger.kernel.org, mschwid2@de.ibm.com
+In-Reply-To: <20060425085230.GA23127@wohnheim.fh-wedel.de>
+References: <20060424191941.7aa6412a.holzheu@de.ibm.com>
+	 <1145948304.11463.5.camel@localhost> <1145950336.11463.8.camel@localhost>
+	 <20060425085230.GA23127@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Tue, 25 Apr 2006 12:00:42 +0300
+Message-Id: <1145955643.27659.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 	I don't recall anyone asking you to so much as lift a finger. Feel free to
->> invest your effort where you feel it will do the most good, and try not to
->> criticize others for doing the same with their own resources.
->
->As far as they intend to stay away from the main kernel tree, I don't
->critize anybody. But for example renaming otherwise logically named structure
->members (`class' etc.) just for C++ compatibility _IS_ wasting time of
->other people, who need to remember new names, review the patch and so on.
->
-That said, VMware does use C++ in its kernel modules at one point. So, it 
-is possible to some degree with enough effort. Of the
-C++ kernel module writer, that is!
+On Tue, 25 April 2006 10:32:16 +0300, Pekka Enberg wrote:
+> > Hmm, thinking about this, I think a better API would be to not have that
+> > reject parameter at all. Would something like this be accetable for your
+> > use?
 
+On Tue, 2006-04-25 at 10:52 +0200, Jörn Engel wrote:
+> [...]
+> 
+> > +	while (*s && isspace(*s))
+> > +		s++;
+> 
+> Just checking.  This does remove a newline, right?
 
-Jan Engelhardt
--- 
+Yes, it does.
+
+				Pekka
+

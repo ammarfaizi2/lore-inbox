@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWDYKXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWDYK0d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWDYKXj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 06:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWDYKXj
+	id S932186AbWDYK0d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 06:26:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWDYK0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 06:23:39 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:63755 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932170AbWDYKXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 06:23:39 -0400
-Message-ID: <444DF8A7.8060505@superbug.co.uk>
-Date: Tue, 25 Apr 2006 11:23:35 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Avi Kivity <avi@argo.co.il>
-CC: Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain> <444D3D32.1010104@argo.co.il> <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com> <444DCAD2.4050906@argo.co.il>
-In-Reply-To: <444DCAD2.4050906@argo.co.il>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Apr 2006 06:26:33 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:36500 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932179AbWDYK0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 06:26:33 -0400
+Date: Tue, 25 Apr 2006 11:26:28 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 05/16] GFS2: File and inode operations
+Message-ID: <20060425102628.GA26219@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steven Whitehouse <swhiteho@redhat.com>,
+	Andreas Dilger <adilger@clusterfs.com>,
+	Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <1145636030.3856.102.camel@quoit.chygwyn.com> <20060423075525.GP6075@schatzie.adilger.int> <1145886796.3856.161.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1145886796.3856.161.camel@quoit.chygwyn.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
->>
->>
->> The "advantages" of the former over the latter:
->>
->> (1)  Without exceptions (which are fragile in a kernel), the former 
->> can't return an error instead of initializing the Foo.
-> Don't discount exceptions so fast. They're exactly what makes the code 
-> clearer and more robust.
->
-> A very large proportion of error handling consists of:
-> - detect the error
-> - undo local changes (freeing memory and unlocking spinlocks)
-> - propagate the error
->
-> Exceptions make that fully automatic. The kernel uses a mix of gotos 
-> and alternate returns which bloat the code and are incredibly error 
-> prone. See the recent 2.6.16.x for examples.
-C++ exceptions are much more error prone than C. Well not exactly error 
-prone, but more non-deterministic.
-This is one of the reasons that Software standards allow C++ at lower 
-levels, e.g. DAL E, but at higher levels, e.g. DAL B, C++ is not 
-allowed, but C is.
-So, one can conclude that a C program can be made more reliable than a 
-C++ program. One aim of a kernel is reliability.
+On Mon, Apr 24, 2006 at 02:53:16PM +0100, Steven Whitehouse wrote:
+> > Actually, the 0x0080000 flag has been reserved by e2fsprogs for ext3
+> > extents for a while already.  AFAICS, there are no other flags in the
+> > current e2fsprogs that aren't listed above.
+> > 
+> So if I call that one IFLAG_EXTENT, then I presume that will be ok?
+> What about the 0x00040000 flag? That would seem to be a gap in the
+> sequence (ignoring GFS flags for now), so should I leave that reserved
+> for use by ext2/3 as well?
 
-James
+note that at least reiserfs, jfs snd xfs seem to use additional flags aswell.
+It would be really helpful if we could get a linux/fflags.h that collects all
+of having them spread all over.  Anyone volunteering to create it?
+

@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWDYG1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWDYG1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWDYG1P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 02:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWDYG1O
+	id S932116AbWDYG1K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 02:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWDYG1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 02:27:14 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:46053 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932117AbWDYG1O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 02:27:14 -0400
-Subject: Re: [PATCH/RFC] s390: Hypervisor File System
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Michael Holzheu <HOLZHEU@de.ibm.com>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       mschwid2@de.ibm.com
-In-Reply-To: <OF346B0EC4.22389E6C-ON4225715A.00553273-4225715A.005EFC07@de.ibm.com>
-References: <OF346B0EC4.22389E6C-ON4225715A.00553273-4225715A.005EFC07@de.ibm.com>
-Date: Tue, 25 Apr 2006 09:27:10 +0300
-Message-Id: <1145946431.11463.3.camel@localhost>
+	Tue, 25 Apr 2006 02:27:10 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:23293 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932116AbWDYG1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 02:27:09 -0400
+Date: Tue, 25 Apr 2006 14:27:07 +0800
+From: Akinobu Mita <mita@miraclelinux.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 1/4] kref: warn kref_put() with unreferenced kref
+Message-ID: <20060425062707.GD5698@miraclelinux.com>
+References: <20060424083333.217677000@localhost.localdomain> <20060424083341.613638000@localhost.localdomain> <20060425035128.GB18085@kroah.com> <20060425043410.GA5698@miraclelinux.com> <20060425050951.GB23373@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060425050951.GB23373@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-04-24 at 19:17 +0200, Michael Holzheu wrote:
-> What about something like that:
-> 
-> /**
->  * strrtrim - Remove trailing characters specified in @reject
->  * @s: The string to be searched
->  * @reject: The string of letters to avoid
->  */
-> static inline void strrtrim(char *s, const char *reject)
+> Is there some reason you created these patches?  Were you trying to
+> debug something that was tracked down to a kref issue?
 
-Better to make it out-of-line to save kernel text.
+I can find many places where I can replace refcounter with kref by doing
+"grep -r atomic_dec_and_test linux/".
 
-> {
->       char *p;
->       const char *r;
-> 
->       for (p = s + strlen(s) - 1; s <= p; p--) {
->             for (r = reject; (*r != '\0') && (*p != *r); r++)
->                   /* nothing */;
->             if (*r == '\0')
->                   break;
->       }
->       *(p + 1) = '\0';
-> }
-> 
-> Regards
-> Michael
-> 
-
+If we have this detection of kref_put() with unreferenced object,
+The work of kref convertions would be more than code cleanup and
+consolidation.

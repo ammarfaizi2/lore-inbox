@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWDYIFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWDYIIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbWDYIFY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 04:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWDYIFY
+	id S1750711AbWDYIIT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 04:08:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbWDYIIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 04:05:24 -0400
-Received: from fc-cn.com ([218.25.172.144]:26638 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S1751417AbWDYIFW (ORCPT
+	Tue, 25 Apr 2006 04:08:19 -0400
+Received: from unthought.net ([212.97.129.88]:42250 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S1750711AbWDYIIS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 04:05:22 -0400
-Date: Tue, 25 Apr 2006 16:07:31 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: Neil Brown <neilb@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [patch 1/2] raid6_end_write_request() spinlock fix
-Message-ID: <20060425080731.GA31828@localhost.localdomain>
-References: <20060425033542.GA4087@localhost.localdomain> <17485.45069.692725.551853@cse.unsw.edu.au> <20060425064310.GA29950@localhost.localdomain> <17485.50850.9186.130696@cse.unsw.edu.au>
-MIME-Version: 1.0
+	Tue, 25 Apr 2006 04:08:18 -0400
+Date: Tue, 25 Apr 2006 10:08:17 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS client (10x) performance regression 2.6.14.7 -> 2.6.15
+Message-ID: <20060425080817.GQ14981@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org
+References: <20060331140816.GJ9811@unthought.net> <1143814889.8096.22.camel@lade.trondhjem.org> <20060331143500.GK9811@unthought.net> <1143820520.8096.24.camel@lade.trondhjem.org> <20060331160426.GN9811@unthought.net> <20060403152628.GA14981@unthought.net> <1144078900.9111.41.camel@lade.trondhjem.org> <20060403154519.GB14981@unthought.net> <20060404092243.GC14981@unthought.net> <1145916203.10974.55.camel@lade.trondhjem.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17485.50850.9186.130696@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <1145916203.10974.55.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 25, 2006 at 04:50:10PM +1000, Neil Brown wrote:
-> On Tuesday April 25, qiyong@fc-cn.com wrote:
-> > On Tue, Apr 25, 2006 at 03:13:49PM +1000, Neil Brown wrote:
-> > > On Tuesday April 25, qiyong@fc-cn.com wrote:
-> > > > Hello,
-> > > > 
-> > > > Reduce the raid6_end_write_request() spinlock window.
-> > > 
-> > > Andrew: please don't include these in -mm.  This one and the
-> > > corresponding raid5 are wrong, and I'm not sure yet the unplug_device
-> > > changes.
-> > 
-> > I am sure with the unplug_device. Just look follow the path...
-> > 
+On Mon, Apr 24, 2006 at 06:03:23PM -0400, Trond Myklebust wrote:
+...
 > 
-> What path?  There are probably several.  If I follow the path, will I
-> see the same things as you see?  Who knows, because you haven't
-> bothered to tell us what you see.
+> Sorry it has taken such a long time to get round to looking into this
+> problem. Can you see if the attached patch helps in any way?
 
-There are only two places where handle_list is possibly re-filled:
-__release_stripe() and raidX_activate_delayed().  So raidXd should only
-wakeup after these two points.
+No problem.
 
-> 
-> > 
-> > Yes. Let's fix the error(). In any case, the current code is broken. (see raid5/6_end_read_request)
-> 
-> What will I see in raidX_end_read_request.  Surely it isn't that hard
-> to write a few more sentences?
+I will test the patch 'as soon as possible', hopefully today -
+unfortunately the test machine is now in pretty heavy use but I should
+be able to reproduce the problem and test the patch on another system.
 
-You should see md_error() in raidX_end_read_request isn't in any spinlocks.
+Will let you know.
 
-> conf->working_disks isn't atomic_t and so decrementing without a
-> spinlock isn't safe.  So lets just leave it all inside a spinlock.
+Thanks,
 
-test_and_set_bit(Faulty, &rdev->flags) protects it as well imho.
-It can be enter only once.
-
-> 
-> Also I have a vague memory that clearing In_sync before Faulty is
-> important, but I'm not certain of that.
-
-Maybe, but seems not apply here.
-
-> 
-> Remember: the code is there for a reason.  It might not be a good
-> reason, and the code could well be wrong.  But it would be worth your
-> effort trying to find out what the reason is before blithely changing
-> it (as I discovered recently with a change I suggested to
-> invalidate_mapping_pages).
-
-Thanks :)
 -- 
-Coywolf Qi Hunt
+
+ / jakob
+

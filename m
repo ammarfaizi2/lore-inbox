@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWDYI6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWDYI7f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWDYI6i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 04:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWDYI6i
+	id S932151AbWDYI7f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 04:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWDYI7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 04:58:38 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:14096 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932147AbWDYI6i (ORCPT
+	Tue, 25 Apr 2006 04:59:35 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:54958 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932151AbWDYI7e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 04:58:38 -0400
-Date: Tue, 25 Apr 2006 10:58:22 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Avi Kivity <avi@argo.co.il>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-Message-ID: <20060425085822.GA12258@mars.ravnborg.org>
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain> <444D3D32.1010104@argo.co.il> <444DA2CA.4060807@mbligh.org> <444DB3FC.3070802@argo.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <444DB3FC.3070802@argo.co.il>
-User-Agent: Mutt/1.5.11
+	Tue, 25 Apr 2006 04:59:34 -0400
+Date: Tue, 25 Apr 2006 10:59:30 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Martin Mares <mj@ucw.cz>
+cc: David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: C++ pushback
+In-Reply-To: <mj+md-20060425.085309.25473.atrey@ucw.cz>
+Message-ID: <Pine.LNX.4.61.0604251058280.26791@yvahk01.tjqt.qr>
+References: <mj+md-20060424.201044.18351.atrey@ucw.cz>
+ <MDEHLPKNGKAHNMBLJOLKGEDHLIAB.davids@webmaster.com> <mj+md-20060425.085309.25473.atrey@ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 25, 2006 at 08:30:36AM +0300, Avi Kivity wrote:
-> Martin J. Bligh wrote:
-> >
-> >So ... what exactly are you waiting for? We await the results with
-> >baited breath. This slick C++ kernel of which you speak can surely
-> >not be far away.
-> >
-> I'll start on converting 2.6.16 tomorrow, since you're anticipating it 
-> with such eagerness.
-If you search the archives you can find a simple kbuild patch to
-introduce C++ support.
-OK, googled a little:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0509.2/0549.html
+>> 	I don't recall anyone asking you to so much as lift a finger. Feel free to
+>> invest your effort where you feel it will do the most good, and try not to
+>> criticize others for doing the same with their own resources.
+>
+>As far as they intend to stay away from the main kernel tree, I don't
+>critize anybody. But for example renaming otherwise logically named structure
+>members (`class' etc.) just for C++ compatibility _IS_ wasting time of
+>other people, who need to remember new names, review the patch and so on.
+>
+That said, VMware does use C++ in its kernel modules at one point. So, it 
+is possible to some degree with enough effort. Of the
+C++ kernel module writer, that is!
 
-I wrote it for someone that requested it long ago - and never applied it
-to vanilla kernel.
 
-They had done the hard stuff themself - adapting the rest of the kernel
-to be compileable by a C++ compiler.
-
-	Sam
+Jan Engelhardt
+-- 

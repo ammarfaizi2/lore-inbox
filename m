@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWDYTN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWDYTRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWDYTN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 15:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWDYTN6
+	id S932165AbWDYTRw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 15:17:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWDYTRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 15:13:58 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:7945 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932296AbWDYTN5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 15:13:57 -0400
-Message-ID: <444E74ED.6090306@argo.co.il>
-Date: Tue, 25 Apr 2006 22:13:49 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Tue, 25 Apr 2006 15:17:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48584 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932172AbWDYTRv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 15:17:51 -0400
+Date: Tue, 25 Apr 2006 12:16:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chandra Seetharaman <sekharan@us.ibm.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, herbert@13thfloor.at,
+       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] Assert notifier_block and notifier_call are not in
+ init section
+In-Reply-To: <1145991663.16539.8.camel@linuxchandra>
+Message-ID: <Pine.LNX.4.64.0604251211510.3701@g5.osdl.org>
+References: <20060425023509.7529.84752.sendpatchset@localhost.localdomain> 
+ <20060425023527.7529.9096.sendpatchset@localhost.localdomain> 
+ <Pine.LNX.4.64.0604241945570.3701@g5.osdl.org> <1145991663.16539.8.camel@linuxchandra>
 MIME-Version: 1.0
-To: Michael Poole <mdpoole@troilus.org>
-CC: Valdis.Kletnieks@vt.edu, dtor_core@ameritech.net,
-       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>	<1145911546.1635.54.camel@localhost.localdomain>	<444D3D32.1010104@argo.co.il>	<A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>	<444DCAD2.4050906@argo.co.il>	<9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com>	<444E524A.10906@argo.co.il>	<d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com>	<444E5A3E.1020302@argo.co.il>	<d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com>	<444E61FD.7070408@argo.co.il>	<200604251808.k3PI8Y06004736@turing-police.cc.vt.edu>	<444E69E7.7020808@argo.co.il> <444E6CBD.5020904@argo.co.il> <87hd4hh4hw.fsf@graviton.dyn.troilus.org>
-In-Reply-To: <87hd4hh4hw.fsf@graviton.dyn.troilus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Apr 2006 19:13:56.0353 (UTC) FILETIME=[6615CF10:01C6689C]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Poole wrote:
->> How many of these leave something out? how much time is spent
->> deciphering the code when something goes wrong, or is even suspected?
->>     
->
-> Probably fewer cases and less time than you suspect, respectively.
-> Just as C++ gives you tools, C does too, but far more important than
-> language tools is the discipline used when writing code: discipline to
-> think through the code, to structure it rationally, and to reuse the
-> rational structures that others have devised in the past.  C++ gives
-> you well-tested helper classes to manage object locking.  Linux gives
-> you its own well-tested examples of known and tried design patterns.
->   
-I agree. It certainly helps when you first write the code. But it's 
-still difficult to read and modify the code. And I'd prefer to see the 
-effort involved in coding to these patterns and in enforcing them used 
-to other purposes.
 
-I also suspect drivers are written with less rigor.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+On Tue, 25 Apr 2006, Chandra Seetharaman wrote:
+> 
+> Two questions:
+> 1) related to this patch: Do you want me to generate a patch that
+> asserts only notifier calls ?
 
+I don't really have any strong preferences. It seems a bit strange that 
+we'd do it for notifiers but not for other people. It might be better to 
+try to build it into the build system itself, and get it through the 
+_normal_ "section checking".
+
+One way to do that would be to make the "register_notifier()" thing just 
+create this dummy asm() that just puts the arguments into a section that 
+doesn't even get loaded, but that cna be checked.
+
+> 2) Unrelated to this patch: If the _code_ section is never reallocated
+> or reused, what is the purpose of putting _code_ in the init section ?
+> Only to make sure that the init calls are called in order ?
+
+No, the code section is re-used, it's just never re-used for any other 
+code (since we don't generate code on the fly). So if you pass in a 
+function pointer, you know that if it's in the init section, it means that 
+init-code that was discarded.
+
+But if you pass in a data pointer, you'll never know if it's a data 
+pointer to the original init-code section, or if it was a data pointer 
+that was just dynamically allocated after the init-code section was freed.
+
+> PS: I fixed my mailer to put my name. sorry about that.
+
+Looks good.
+
+		Linus

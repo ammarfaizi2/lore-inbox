@@ -1,118 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751547AbWDYVTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWDYVUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751547AbWDYVTu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 17:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWDYVTt
+	id S1751570AbWDYVUm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 17:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751575AbWDYVUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 17:19:49 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:65509 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1751547AbWDYVTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 17:19:49 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
-Date: Wed, 26 Apr 2006 07:18:36 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200604242355.08111.rjw@sisk.pl> <20060425203256.GD6379@elf.ucw.cz> <200604252312.26249.rjw@sisk.pl>
-In-Reply-To: <200604252312.26249.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1391673.hOPRmanWJe";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 25 Apr 2006 17:20:42 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:18651 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1751570AbWDYVUl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 17:20:41 -0400
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Tony Jones <tonyj@suse.de>
+Cc: Andi Kleen <ak@suse.de>, jwcart2@epoch.ncsc.mil,
+       Neil Brown <neilb@suse.de>, Chris Wright <chrisw@sous-sol.org>,
+       James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org
+In-Reply-To: <20060425181158.GB28479@suse.de>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <17485.55676.177514.848509@cse.unsw.edu.au>
+	 <1145968949.17374.10.camel@moss-lions.epoch.ncsc.mil>
+	 <200604251443.57885.ak@suse.de>
+	 <1145977265.21399.16.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060425181158.GB28479@suse.de>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Tue, 25 Apr 2006 17:25:09 -0400
+Message-Id: <1146000309.21399.150.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604260718.42681.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1391673.hOPRmanWJe
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 2006-04-25 at 11:11 -0700, Tony Jones wrote:
+> Maybe it will have to grow to handle more operations.  SELinux has grown in
+> terms of it's features and what it protects.  Clearly you have benefitted
+> from being open sourced for an extended period of time.  I'm sure you'd love
+> to debate the history of this :) but there doesn't seem much productive point.
 
-Hi.
+Well, for what it is worth, I think that even in its first public
+release in 2000, SELinux provided mediation of more operations than AA
+does even now, even if we exclude network controls from consideration
+(since SubDomain had some form of network controls in the past that were
+temporarily dropped due to LSM limitations).
 
-On Wednesday 26 April 2006 07:12, Rafael J. Wysocki wrote:
-> Hi,
->
-> On Tuesday 25 April 2006 22:32, Pavel Machek wrote:
-> > > >   > -unsigned int count_data_pages(void)
-> > > > >
-> > > > > +/**
-> > > > > + *	need_to_copy - determine if a page needs to be copied before
-> > > > > saving. + *	Returns false if the page can be saved without copyin=
-g.
-> > > > > + */
-> > > > > +
-> > > > > +static int need_to_copy(struct page *page)
-> > > > > +{
-> > > > > +	if (!PageLRU(page) || PageCompound(page))
-> > > > > +		return 1;
-> > > > > +	if (page_mapped(page))
-> > > > > +		return page_mapped_by_current(page);
-> > > > > +
-> > > > > +	return 1;
-> > > > > +}
-> > > >
-> > > > I'd much rather VM internal type stuff get moved *out* of
-> > > > kernel/power :(
-> > >
-> > > Well, I kind of agree, but I don't know where to place it under mm/.
-> > >
-> > > > It needs more comments too. Also, how important is it for the page =
-to
-> > > > be off the LRU?
-> > >
-> > > Hm, I'm not sure if that's what you're asking about, but the pages off
-> > > the LRU are handled in a usual way, ie. copied when snapshotting the
-> > > system.  The pages _on_ the LRU may be included in the snapshot image
-> > > without copying, but I require them additionally to be (a) mapped by
-> > > someone and (b) not mapped by the current task.
-> >
-> > Why do you _want_ them mapped by someone?
->
-> Because this means they belong to a task that is frozen and won't touch
-> them (of course unless it's us).  The kernel has no reason to access them
-> either (even after we resume devices) except for reclaiming, but that's
-> handled explicitly.  Thus it's safe to include them in the image without
-> copying.
->
-> As I said before, I think the page cache pages may be treated this way to=
-o.
-> It probably applies to all of the LRU pages, but there may be some corner
-> cases.  The mapped pages are just easy to single out.
+> But I agree, it isn't clear how the AA scheme applies to all forms of kernel
+> operations.
 
-It does apply to all of the LRU pages. This is what I've been doing for yea=
-rs=20
-now. The only corner case I've come across is XFS. It still wants to write=
-=20
-data even when there's nothing to do and it's threads are frozen (IIRC -=20
-haven't looked at it for a while). I got around that by freezing bdevs when=
-=20
-freezing processes.
+Yes, and this is the real point - it is a question of whether the
+underlying model (if it can even be said to have one) generalizes.  With
+SELinux, there is a well-defined model and it does generalize.  With AA,
+I just don't see it.
 
-Regards,
+> Because it presumes that the application can easily be configured to function
+> in a jail.
 
-Nigel
+I'd expect even more compatibility issues with AA-style access controls
+than a jail/virtualization approach.
 
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
+> How do you propose handling in a namespace the ability to create new files.
+> I can see how you could perhaps create a fixed scratch area inside the 
+> namespace, but what if the application wants to create /var/lib/foo/bar.xxx
+> 
+> You have obviously read the AppArmor docs. How would you propose to handle 
+> (approximately) the expressiveness of AppArmor policy. Also what does 
+> /srv/www/htdocs/**.html equate to when this namespace is configured for the 
+> application. Does the task need to be torn down and restarted if you populate 
+> more files?
+> 
+> The issue of namespaces being a better way of doing all of this has been raised
+> a couple of times.  It is an interesting idea for sure. I responded to one of
+> the posts with the same (above) questions but havn't yet seen a reply.
 
---nextPart1391673.hOPRmanWJe
-Content-Type: application/pgp-signature
+I don't know whether existing jail/virtualization solutions can fully
+replicate your functionality, but be careful not to confuse the actual
+requirements with your current implementation and UI.  And you have to
+weigh the gains in robustness against any potential loss in
+expressiveness.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+> Other LSM hooks are an option also.  Clearly if we can add new hooks at more
+> optimal locations where pathnames are available it would be preferable to
+> the current scheme and (qualifier: the devil is in the details) probably 
+> preferable to trying to pass vfsmounts fully into the existing hooks.
 
-iD8DBQBETpIyN0y+n1M3mo0RAkntAKDj+r9NEsWFiL6dBZVV/MyDFsfzlwCcDzPM
-8D40EMGtK/BzOYL8YAkNcGU=
-=9IJx
------END PGP SIGNATURE-----
+Not sure what this would look like, but if your module still ends up
+calling d_path or equivalent on every open, then it seems problematic
+regardless.
 
---nextPart1391673.hOPRmanWJe--
+-- 
+Stephen Smalley
+National Security Agency
+

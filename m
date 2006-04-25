@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWDYPuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWDYPtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbWDYPuP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 11:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWDYPuP
+	id S1751322AbWDYPtm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 11:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWDYPtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 11:50:15 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:6832 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751388AbWDYPuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 11:50:13 -0400
-Date: Tue, 25 Apr 2006 17:50:12 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Is there an easy way to collect how much memory is used for page cache?
-Message-ID: <20060425155012.GA19041@rhlx01.fht-esslingen.de>
-References: <4ae3c140604250827y67675fednba67ffdb67405b87@mail.gmail.com>
+	Tue, 25 Apr 2006 11:49:42 -0400
+Received: from xenotime.net ([66.160.160.81]:17899 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751322AbWDYPtm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 11:49:42 -0400
+Date: Tue, 25 Apr 2006 08:52:07 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/4] [doc] add paragraph about 'fs' subsystem to
+ sysfs.txt
+Message-Id: <20060425085207.be08fb19.rdunlap@xenotime.net>
+In-Reply-To: <E1FYJ6B-0006Va-00@dorka.pomaz.szeredi.hu>
+References: <E1FYJ0r-0006Tv-00@dorka.pomaz.szeredi.hu>
+	<E1FYJ6B-0006Va-00@dorka.pomaz.szeredi.hu>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4ae3c140604250827y67675fednba67ffdb67405b87@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 25 Apr 2006 10:40:43 +0200 Miklos Szeredi wrote:
 
-On Tue, Apr 25, 2006 at 11:27:08AM -0400, Xin Zhao wrote:
-> Specifically, how much memory is used to cache data for file systems? 
-> Any way to measure it?
+> diff --git a/Documentation/filesystems/sysfs.txt b/Documentation/filesystems/sysfs.txt
+> index c8bce82..1b3a952 100644
+> --- a/Documentation/filesystems/sysfs.txt
+> +++ b/Documentation/filesystems/sysfs.txt
+> @@ -246,6 +246,7 @@ class/
+>  devices/
+>  firmware/
+>  net/
+> +fs/
+>  
+>  devices/ contains a filesystem representation of the device tree. It maps
+>  directly to the internal kernel device tree, which is a hierarchy of
+> @@ -264,6 +265,10 @@ drivers/ contains a directory for each d
+>  for devices on that particular bus (this assumes that drivers do not
+>  span multiple bus types).
+>  
+> +fs/ contains a directory for some filesystems.  Currently each
+> +filesystem wanting to export attributes must create it's own hierarchy
+> +below fs/ (see ./fuse.txt for an example).
 
-cat /proc/slabinfo, possibly?
+s/it's/its/
+"it's" == "it is", which wouldn't be appropriate here.
 
-Andreas Mohr
-
--- 
-Please consider not buying any HDTV hardware! (extremely anti-consumer)
-Bitte kaufen Sie besser keinerlei HDTV-Geräte! (extrem verbraucherfeindlich)
-Infos:
-http://www.hdboycott.com   http://www.eff.org/IP/DRM/   http://bluraysucks.com
+---
+~Randy

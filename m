@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWDYF1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWDYFam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWDYF1H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 01:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWDYF1H
+	id S1751396AbWDYFam (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 01:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWDYFam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 01:27:07 -0400
-Received: from mtaout3.012.net.il ([84.95.2.7]:61306 "EHLO mtaout3.012.net.il")
-	by vger.kernel.org with ESMTP id S932111AbWDYF1G (ORCPT
+	Tue, 25 Apr 2006 01:30:42 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:28178 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751292AbWDYFam (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 01:27:06 -0400
-Date: Tue, 25 Apr 2006 08:26:07 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: [PATCH] x86-64: trivial gart clean-up
-In-reply-to: <200604250042.43910.ak@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Jon Mason <jdmason@us.ibm.com>, linux-kernel@vger.kernel.org
-Message-id: <20060425052607.GC28558@granada.merseine.nu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20060424225342.GB14575@us.ibm.com> <200604250042.43910.ak@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 25 Apr 2006 01:30:42 -0400
+Message-ID: <444DB3FC.3070802@argo.co.il>
+Date: Tue, 25 Apr 2006 08:30:36 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <1145911546.1635.54.camel@localhost.localdomain> <444D3D32.1010104@argo.co.il> <444DA2CA.4060807@mbligh.org>
+In-Reply-To: <444DA2CA.4060807@mbligh.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Apr 2006 05:30:39.0967 (UTC) FILETIME=[638B76F0:01C66829]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 25, 2006 at 12:42:43AM +0200, Andi Kleen wrote:
+Martin J. Bligh wrote:
+>
+> So ... what exactly are you waiting for? We await the results with
+> baited breath. This slick C++ kernel of which you speak can surely
+> not be far away.
+>
+I'll start on converting 2.6.16 tomorrow, since you're anticipating it 
+with such eagerness. I expect it to take some days. But a few years ago 
+I did convert a filesystem in C to C++. The code was shorter, faster, 
+and more robust. Fast enough to take the top position in SPEC SFS, and 
+robust enough to handle the disks being pulled from under its feet 
+(which a very popular Linux filesystem written in C could not at the 
+time, and maybe today).
 
-> On Tuesday 25 April 2006 00:53, Jon Mason wrote:
-> > A trivial change to have gart_unmap_sg call gart_unmap_single directly,
-> > instead of bouncing through the dma_unmap_single wrapper in
-> > dma-mapping.h.  This change required moving the gart_unmap_single above
-> > gart_unmap_sg, and under gart_map_single (which seems a more logical
-> > place that its current location IMHO).
-> 
-> What advantage does that have? I think I prefer the old code.
+The speed benefits were largely due to algorithmic improvements, not 
+language micro-optimizations; however I do claim that C++ allowed much 
+faster refactoring, so we could focus our efforts on algorithms instead 
+of finding our way in ever-more-convoluted error paths.
 
-I don't know what Jon had in mind, but we do avoid a call through a
-function pointer this way. I agree with Jon that it also makes more
-sense - gart code can just call the gart code directly, without going
-through the dma_xxx wrapper that ends up calling it anyway.
-
-Cheers,
-Muli
 -- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

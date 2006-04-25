@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWDYJLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWDYJNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbWDYJLL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 05:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWDYJLL
+	id S932157AbWDYJNE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 05:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWDYJND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 05:11:11 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:8172 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751493AbWDYJLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 05:11:10 -0400
-Subject: [PATCH 2/2] ipmi: strstrip conversion
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: akpm@osdl.org
-Cc: minyard@acm.org, linux-kernel@vger.kernel.org
-Date: Tue, 25 Apr 2006 12:11:07 +0300
-Message-Id: <1145956267.27659.24.camel@localhost>
-Mime-Version: 1.0
+	Tue, 25 Apr 2006 05:13:03 -0400
+Received: from mail.mimer.no ([213.184.200.1]:2746 "EHLO odin.mimer.no")
+	by vger.kernel.org with ESMTP id S932160AbWDYJNC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 05:13:02 -0400
+From: Harald Arnesen <harald@skogtun.org>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: jamagallon@able.es, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: C++ pushback
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
+	<mj+md-20060424.201044.18351.atrey@ucw.cz>
+	<444D44F2.8090300@wolfmountaingroup.com>
+	<1145915533.1635.60.camel@localhost.localdomain>
+	<20060425001617.0a536488@werewolf.auna.net>
+	<87iroyr03a.fsf@basilikum.skogtun.org>
+	<20060425024625.288f616e.diegocg@gmail.com>
+Date: Tue, 25 Apr 2006 11:12:52 +0200
+In-Reply-To: <20060425024625.288f616e.diegocg@gmail.com> (Diego Calleja's
+	message of "Tue, 25 Apr 2006 02:46:25 +0200")
+Message-ID: <87u08ivx0r.fsf@basilikum.skogtun.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pekka Enberg <penberg@cs.helsinki.fi>
+Diego Calleja <diegocg@gmail.com> writes:
 
-This patch switches an open-coded strstrip to use the new API.
+> El Tue, 25 Apr 2006 02:05:29 +0200,
+> Harald Arnesen <harald@skogtun.org> escribió:
+>
+>> The former is easier to read and understand?
+>
+> C is not perfect, it could very well get a bit improved so it helps to make 
+> the code more readable, etc (and I mean: just improvements, not "lets try to
+> turn C into a OO language"). That however requires modifying the current
+> C standards, gcc...
+>
+> But that doesn't justifies adding C++ support to the kernel.
 
-Cc: Corey Minyard <minyard@acm.org>
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
-
----
-
- drivers/char/ipmi/ipmi_watchdog.c |   25 +++++++++----------------
- 1 files changed, 9 insertions(+), 16 deletions(-)
-
-342eaae5800b0fd002f5101d66ccb02e786016d8
-diff --git a/drivers/char/ipmi/ipmi_watchdog.c b/drivers/char/ipmi/ipmi_watchdog.c
-index 2d11ddd..8f88671 100644
---- a/drivers/char/ipmi/ipmi_watchdog.c
-+++ b/drivers/char/ipmi/ipmi_watchdog.c
-@@ -212,24 +212,16 @@ static int set_param_str(const char *val
- {
- 	action_fn  fn = (action_fn) kp->arg;
- 	int        rv = 0;
--	const char *end;
--	char       valcp[16];
--	int        len;
--
--	/* Truncate leading and trailing spaces. */
--	while (isspace(*val))
--		val++;
--	end = val + strlen(val) - 1;
--	while ((end >= val) && isspace(*end))
--		end--;
--	len = end - val + 1;
--	if (len > sizeof(valcp) - 1)
--		return -EINVAL;
--	memcpy(valcp, val, len);
--	valcp[len] = '\0';
-+	char       *dup, *s;
-+
-+	dup = kstrdup(val, GFP_KERNEL);
-+	if (!dup)
-+		return -ENOMEM;
-+
-+	s = strstrip(dup);
- 
- 	down_read(&register_sem);
--	rv = fn(valcp, NULL);
-+	rv = fn(s, NULL);
- 	if (rv)
- 		goto out_unlock;
- 
-@@ -239,6 +231,7 @@ static int set_param_str(const char *val
- 
-  out_unlock:
- 	up_read(&register_sem);
-+	kfree(dup);
- 	return rv;
- }
- 
+It was the C version I found easier to understand.
 -- 
-1.3.0
-
-
+Hilsen Harald.
 

@@ -1,63 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWDYSwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWDYSxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWDYSwp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 14:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWDYSwp
+	id S1751353AbWDYSxn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 14:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWDYSxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 14:52:45 -0400
-Received: from 24-75-174-210-st.chvlva.adelphia.net ([24.75.174.210]:54704
-	"EHLO sanosuke.troilus.org") by vger.kernel.org with ESMTP
-	id S1751341AbWDYSwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 14:52:44 -0400
-To: Avi Kivity <avi@argo.co.il>
-Cc: Valdis.Kletnieks@vt.edu, dtor_core@ameritech.net,
-       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Tue, 25 Apr 2006 14:53:43 -0400
+Received: from lug-owl.de ([195.71.106.12]:36327 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1751353AbWDYSxm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 14:53:42 -0400
+Date: Tue, 25 Apr 2006 20:53:40 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Brian Uhrain <buhrain@rosettastone.com>
+Cc: Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>, gregkh@suse.de,
        linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
-	<1145911546.1635.54.camel@localhost.localdomain>
-	<444D3D32.1010104@argo.co.il>
-	<A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>
-	<444DCAD2.4050906@argo.co.il>
-	<9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com>
-	<444E524A.10906@argo.co.il>
-	<d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com>
-	<444E5A3E.1020302@argo.co.il>
-	<d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com>
-	<444E61FD.7070408@argo.co.il>
-	<200604251808.k3PI8Y06004736@turing-police.cc.vt.edu>
-	<444E69E7.7020808@argo.co.il> <444E6CBD.5020904@argo.co.il>
-From: Michael Poole <mdpoole@troilus.org>
-Date: 25 Apr 2006 14:52:43 -0400
-In-Reply-To: <444E6CBD.5020904@argo.co.il>
-Message-ID: <87hd4hh4hw.fsf@graviton.dyn.troilus.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: 2.6.16.6 ( - 2.6.16.11 ) compile failure on an alpha
+Message-ID: <20060425185340.GH25520@lug-owl.de>
+Mail-Followup-To: Brian Uhrain <buhrain@rosettastone.com>,
+	Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>, gregkh@suse.de,
+	linux-kernel@vger.kernel.org
+References: <20060425101647.GH4349@vega.lnet.lut.fi> <444DFA05.2060508@rosettastone.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pfTAc8Cvt8L6I27a"
+Content-Disposition: inline
+In-Reply-To: <444DFA05.2060508@rosettastone.com>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity writes:
 
-> Avi Kivity wrote:
-> >
-> > [avi@cleopatra linux]$ grep -r out.*: . | wc -l
-> > 10446
-> >
-> Not to mention:
-> 
-> [avi@cleopatra linux]$ grep -rw goto . | wc -l
-> 37448
-> 
-> How many of these leave something out? how much time is spent
-> deciphering the code when something goes wrong, or is even suspected?
+--pfTAc8Cvt8L6I27a
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Probably fewer cases and less time than you suspect, respectively.
-Just as C++ gives you tools, C does too, but far more important than
-language tools is the discipline used when writing code: discipline to
-think through the code, to structure it rationally, and to reuse the
-rational structures that others have devised in the past.  C++ gives
-you well-tested helper classes to manage object locking.  Linux gives
-you its own well-tested examples of known and tried design patterns.
+On Tue, 2006-04-25 11:29:25 +0100, Brian Uhrain <buhrain@rosettastone.com> =
+wrote:
+> ---
+>  arch/alpha/kernel/setup.c |   12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
+>=20
+> --- linux-2.6.16.11.orig/arch/alpha/kernel/setup.c	2006-04-25 11:21:03.00=
+0000000 +0100
+> +++ linux-2.6.16.11/arch/alpha/kernel/setup.c	2006-04-25 11:22:56.5572666=
+08 +0100
+> @@ -483,11 +483,13 @@ register_cpus(void)
+>  {
+>  	int i;
+> =20
+> -	for_each_possible_cpu(i) {
+> -		struct cpu *p =3D kzalloc(sizeof(*p), GFP_KERNEL);
+> -		if (!p)
+> -			return -ENOMEM;
+> -		register_cpu(p, i, NULL);
+> +	for (i =3D 0; i < NR_CPUS; i++) {
 
-Michael Poole
+Nope.  Please implement for_each_possible_cpu(). A patch for that flew
+along right today.
+
+> +		if (cpu_possible(i)) {
+> +			struct cpu *p =3D kzalloc(sizeof(*p), GFP_KERNEL);
+> +			if (!p)
+> +				return -ENOMEM;
+> +			register_cpu(p, i, NULL);
+> +		}
+>  	}
+>  	return 0;
+>  }
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--pfTAc8Cvt8L6I27a
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFETnA0Hb1edYOZ4bsRAjSPAKCHs39GgjKwjJ/BTS+uJc/Sq6XlzACfQc19
+O+4FQ3GAvl85uYE4C6G7rJM=
+=cSBB
+-----END PGP SIGNATURE-----
+
+--pfTAc8Cvt8L6I27a--

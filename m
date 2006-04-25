@@ -1,93 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWDYOsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWDYOtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWDYOsL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 10:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWDYOsL
+	id S932250AbWDYOtu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 10:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWDYOtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 10:48:11 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:8075 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932244AbWDYOsK convert rfc822-to-8bit (ORCPT
+	Tue, 25 Apr 2006 10:49:50 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:7398 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S932245AbWDYOtt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 10:48:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=SP16W02bEBYye3n2J8/7tulA4ijl27cCI2pAwGycRMTpJrGq17VuhC2z28ylNbCEqNr9239n82JHVgtFz5TrL/o1uGtNiVc1+CcXoEqm2qWPlmbhO+L7VdnTzRa5zwF9w5Vf6O1I5a2Z9CdXFlR7NizrqVJ2FgNBTBHc0QkdxGM=
-Message-ID: <6db17a060604250748u5fd3905ej23e5f7f1092bacc2@mail.gmail.com>
-Date: Tue, 25 Apr 2006 20:18:07 +0530
-From: "nani jampala" <nani.bhanu007@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Issues with removable media
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Tue, 25 Apr 2006 10:49:49 -0400
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Andi Kleen <ak@suse.de>
+Cc: Neil Brown <neilb@suse.de>, Stephen Smalley <sds@tycho.nsa.gov>,
+       Chris Wright <chrisw@sous-sol.org>, James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org
+In-Reply-To: <200604251443.57885.ak@suse.de>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <17485.55676.177514.848509@cse.unsw.edu.au>
+	 <1145968949.17374.10.camel@moss-lions.epoch.ncsc.mil>
+	 <200604251443.57885.ak@suse.de>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Tue, 25 Apr 2006 10:50:03 -0400
+Message-Id: <1145976603.17374.15.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux Kernel Govers,
+On Tue, 2006-04-25 at 14:43 +0200, Andi Kleen wrote:
+> On Tuesday 25 April 2006 14:42, James Carter wrote:
+> 
+> > I talk to one of the unconfined people at the table and ask them to
+> > rename the "knife" to "spoon".  Now I am free to do what I wish.
+> 
+> That assumes that your jail allows talking to other people. 
+> 
+> > You don't care about the name "knife", you care about the object it
+> > represents.
+> 
+> In the apparmor model you only care about what the application is allowed
+> to do. If it does anything extraordinary like trying to talk to people it 
+> shouldn't talk to it gets a veto.
 
-I have read through the LDD3 & LWN and got a fair understanding about
-implementing Linux removable block driver. I made an attempt to
-simulate the Removable media in a Simple block driver module.
+IIUC Apparmor does not confine IPC, so it can't stop an application from
+talking to one it shouldn't.
 
-I am doing the following when trying to simulate the Removable media:
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
-/******* Simple block Driver request ********/
-
- static void sbd_request(request_queue_t *q)
- {
-    struct request *req;
-    int status;
-
-    while ((req = elv_next_request(q)) != NULL) {
-      if (! blk_fs_request(req)) {
-          printk (KERN_NOTICE "Skip non-CMD request\n");
-          end_request(req, 0);
-          continue;
-      }
-
-      /* Simple memcpy based on the request ; Returns success or
-        failure which is passed to end_that_request_first() */
-      status = sbd_transfer(&Device, req->sector, req->current_nr_sectors,
-                 req->buffer, rq_data_dir(req));
-
-      if(!end_that_request_first(req, status, req->current_nr_sectors)) {
-                  blkdev_dequeue_request(req);
-                  end_that_request_last(req);
-            }
-  }
-
-Then, I prepared an IOCTL to simulate the removable media to the kernel.
-
-When the applications issues IOCTL, it performs the following to
-notify the kernel of removed disk.
-
-/* Simulate the Removal Media Disk */
-Case REMOVE_MOUNTED_DISK:
-
-            if(Device.bdev)
-                  invalidate_bdev(Device.bdev,1);
-            del_gendisk(Device.gd);
-            put_disk(Device.gd);
-            blk_cleanup_queue(Queue);
-            vfree(Device.data);
-            return 0;
-
-when I issue #ls /mnt (mount point) ( i.e. after the application
-issues the IOCTL)
-the Kernel crashes,
-	OR
-it crashes when tried to unload the module.
-
-I have been trying hard to understand the real problem with this
-module a long time from now.
-
-What wrong am I doing in this module?
-I will provide you with source code if you need it any time.
-Please let me know what additional things should I handle when writing
-code for removable media?
-
-Regards,
-Mukund Jampala

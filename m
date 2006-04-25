@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWDYVDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWDYVEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWDYVDE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 17:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWDYVDD
+	id S932309AbWDYVEv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 17:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWDYVEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 17:03:03 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:6873 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932306AbWDYVDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 17:03:01 -0400
-Message-Id: <200604252102.k3PL2iQJ013299@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Avi Kivity <avi@argo.co.il>
-Cc: Bongani Hlope <bhlope@mweb.co.za>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules 
-In-Reply-To: Your message of "Tue, 25 Apr 2006 23:26:17 +0300."
-             <444E85E9.70300@argo.co.il> 
-From: Valdis.Kletnieks@vt.edu
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com> <444E524A.10906@argo.co.il> <200604252211.52474.bhlope@mweb.co.za>
-            <444E85E9.70300@argo.co.il>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1145998964_2618P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 25 Apr 2006 17:02:44 -0400
+	Tue, 25 Apr 2006 17:04:51 -0400
+Received: from web50212.mail.yahoo.com ([206.190.39.176]:8100 "HELO
+	web50212.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932309AbWDYVEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 17:04:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=pjo2YRzuSH2J+u9yrtFLbEv++8KTEXxBvmiz5OnbmVXSktRlcNDEIdtPsO5nmtCZgxijVo+g5jYgtgmDG3PNVy7RzsoXVAf89b7VEwlbqR9WTSbemDS1fNrCEb6HQAh0gpJnQBa6Vj/BCOCDRxR3gX8AbEzjyuqz41YclaEAShw=  ;
+Message-ID: <20060425210450.72120.qmail@web50212.mail.yahoo.com>
+Date: Tue, 25 Apr 2006 14:04:50 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: [PATCH] compile error in ieee80211_ioctl.c
+To: linville@tuxdriver.com, linux-netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1145998964_2618P
-Content-Type: text/plain; charset=us-ascii
+Hello:
 
-On Tue, 25 Apr 2006 23:26:17 +0300, Avi Kivity said:
+I sent this patch earlier and got no response, so I'm sending it again.
 
-> auto_ptr<>'s are fully inlined so their impact is nil.
 
-Except for the punishment the i-cache takes.  There's reasons why we
-fight over "to inline or not to inline"....
+I cloned git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-dev.git
+last night and got compile errors while compiling net/d80211/ieee80211_ioctl.c
+into a module:
 
---==_Exmh_1145998964_2618P
-Content-Type: application/pgp-signature
+  CC [M]  net/d80211/ieee80211_ioctl.o
+net/d80211/ieee80211_ioctl.c:33: error: syntax error before string constant
+net/d80211/ieee80211_ioctl.c:33: warning: type defaults to `int' in declaration of `MODULE_PARM'
+net/d80211/ieee80211_ioctl.c:33: warning: function declaration isn't a prototype
+net/d80211/ieee80211_ioctl.c:33: warning: data definition has no type or storage class
+net/d80211/ieee80211_ioctl.c:43: error: syntax error before string constant
+net/d80211/ieee80211_ioctl.c:43: warning: type defaults to `int' in declaration of `MODULE_PARM'
+net/d80211/ieee80211_ioctl.c:43: warning: function declaration isn't a prototype
+net/d80211/ieee80211_ioctl.c:43: warning: data definition has no type or storage class
+make[2]: *** [net/d80211/ieee80211_ioctl.o] Error 1
+make[1]: *** [net/d80211] Error 2
+make: *** [net] Error 2
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+This patch fixes it.
 
-iD8DBQFETo50cC3lWbTT17ARAod+AKD3BDhMZbkv86nBF+TuaGb7wjGB/wCePJd6
-catZYx7ci2KiLI6itfgdZhs=
-=Vvjj
------END PGP SIGNATURE-----
+Signed-off-by: Alex Davis <alex14641@yahoo.com>
 
---==_Exmh_1145998964_2618P--
+diff --git a/net/d80211/ieee80211_ioctl.c b/net/d80211/ieee80211_ioctl.c
+index 42a7abe..4949e52 100644
+--- a/net/d80211/ieee80211_ioctl.c
++++ b/net/d80211/ieee80211_ioctl.c
+@@ -30,7 +30,7 @@ #include "aes_ccm.h"
+ 
+ 
+ static int ieee80211_regdom = 0x10; /* FCC */
+-MODULE_PARM(ieee80211_regdom, "i");
++module_param(ieee80211_regdom, int, 0x10);
+ MODULE_PARM_DESC(ieee80211_regdom, "IEEE 802.11 regulatory domain; 64=MKK");
+ 
+ /*
+@@ -40,7 +40,7 @@ MODULE_PARM_DESC(ieee80211_regdom, "IEEE
+  * module.
+  */
+ static int ieee80211_japan_5ghz /* = 0 */;
+-MODULE_PARM(ieee80211_japan_5ghz, "i");
++module_param(ieee80211_japan_5ghz, int, 0);
+ MODULE_PARM_DESC(ieee80211_japan_5ghz, "Vendor-updated firmware for 5 GHz");
+
+I code, therefore I am
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

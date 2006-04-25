@@ -1,85 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWDYORb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWDYO1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWDYORb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 10:17:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWDYORb
+	id S932224AbWDYO1D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 10:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWDYO1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 10:17:31 -0400
-Received: from mga01.intel.com ([192.55.52.88]:48263 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932230AbWDYORa convert rfc822-to-8bit (ORCPT
+	Tue, 25 Apr 2006 10:27:03 -0400
+Received: from pat.uio.no ([129.240.10.6]:949 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932224AbWDYO1B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 10:17:30 -0400
-X-IronPort-AV: i="4.04,153,1144047600"; 
-   d="scan'208"; a="28304750:sNHT62615539"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC] [PATCH] Make ACPI button driver an input device
-Date: Tue, 25 Apr 2006 22:17:23 +0800
-Message-ID: <554C5F4C5BA7384EB2B412FD46A3BAD11206CD@pdsmsx411.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC] [PATCH] Make ACPI button driver an input device
-Thread-Index: AcZlPhGEolz0htwGRxiyCILk9D3UmADLEJUw
-From: "Yu, Luming" <luming.yu@intel.com>
-To: <dtor_core@ameritech.net>
-Cc: "Alexey Starikovskiy" <alexey_y_starikovskiy@linux.intel.com>,
-       "Xavier Bestel" <xavier.bestel@free.fr>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>, <linux-acpi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Apr 2006 14:17:24.0685 (UTC) FILETIME=[F96CB7D0:01C66872]
+	Tue, 25 Apr 2006 10:27:01 -0400
+Subject: Re: question about nfs_execute_read: why do we need to do
+	lock_kernel?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4ae3c140604250708w438545c1lfa66233fdaa63cc@mail.gmail.com>
+References: <4ae3c140604242157k26f39f71qcf6eed811f1e2d8@mail.gmail.com>
+	 <1145941743.8164.6.camel@lade.trondhjem.org>
+	 <4ae3c140604250708w438545c1lfa66233fdaa63cc@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 25 Apr 2006 10:26:49 -0400
+Message-Id: <1145975209.8193.35.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.129, required 12,
+	autolearn=disabled, AWL 1.68, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> > There are keyboards with power/sleep buttons. It makes
->> >sense they have
->> >> > the same behavior than ACPI buttons.
->> >> Agree, make them behave like ACPI buttons -- remove them
->> >from input stream, as they do not belong there...
->> >
->> >What if there is no ACPI? What if I want to remap the button to do
->> >something else? Input layer is the proper place for them.
->>
->> If you define input layer as a universe place to all manual input
->> activity,
->
->Yes. If something is related to input it should be integrated 
->into input layer.
+On Tue, 2006-04-25 at 10:08 -0400, Xin Zhao wrote:
+> Thanks for your reply. So the only reason is for rpc auditing? If so,
+> why not just lock the code that updating the audit information? Now
+> the code is:
 
-Yes, it sounds reasonable. Then, at least, the user space Apps can
-rely on a single interface, and don't need to know the implementation  
-details for the common input event. That will save a lot of support
-effort. 
+No. You misunderstood me.
 
->
->> then I agree to port some type of ACPI event into
->> input layer.  But it shouldn't be a fake keyboard scancode,
->> My suggestion is to have a separate input event type,e.g. EV_ACPI
->> for acpi event layer.
->>
->
->The point is that it is not a fake scancode. There are keyboards that
->have these keys that don't have anything to do with ACPI. That's why
->they belong to input layer. The same goes for lid switch - we have
->EV_SW that is used by some PDAs.
+I said that we need to audit the _code_ for races.
 
-ok.
+In the distant past, the rpc code was entirely protected by the BKL
+against concurrent access to shared objects (queues, structures,
+variables etc). Today, most of those shared objects have been given
+their own locks, but nobody has yet gone through the code line by line
+in order to check that it is safe to remove the BKL.
 
->
->Note that I am not saying that other ACPI events, like battery status
->or device insertion/removal, should be propagated through input layer.
->But things that exist even without ACPI should not be ACPI-specific.
->
+Cheers,
+ Trond
 
-I'm NOT sure if it is reasonable to propagate other ACPI events 
-through input layer.  But from my understanding, Laptop with ACPI
-features 
-should be the super class of PDA. It would be nice to have input layer
-handle all ACPI events. Then, we can enjoy the advantage of a single 
-input interface for user Apps.
-
---Luming 

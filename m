@@ -1,57 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWDYNTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWDYNWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWDYNTp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 09:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWDYNTo
+	id S932218AbWDYNWA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 09:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWDYNWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 09:19:44 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:61802 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932214AbWDYNTo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 09:19:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KdTbob99eUTsfVnjJTpFzLB+luTIeQoyvAhQUo6acyzC4Gu07Uf7PTCgmbetM18jGBffjeyORONPuOT41IpepCkdjni8Ng61uorbjYixC9GbRrPAJn7GstgWncXLSaCNSjKnCmCzaYEXMBl9IwMWoW2lzeIjqiFm5nnGzSki+Tc=
-Message-ID: <d120d5000604250619r6170c18bh8d26fc041141c056@mail.gmail.com>
-Date: Tue, 25 Apr 2006 09:19:42 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Subject: Re: [PATCH 001/001] INPUT: new ioctl's to retrieve values of EV_REP and EV_SND event codes
-Cc: bjd <bjdouma@xs4all.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <d120d5000604240803q387343dt8e9801a8cf21a975@mail.gmail.com>
-MIME-Version: 1.0
+	Tue, 25 Apr 2006 09:22:00 -0400
+Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:11788 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932218AbWDYNV7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 09:21:59 -0400
+Date: Tue, 25 Apr 2006 15:22:02 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] I2C-MPC: Fix up error handling
+Message-Id: <20060425152202.ad8f16c8.khali@linux-fr.org>
+In-Reply-To: <Pine.LNX.4.44.0604181122360.15940-100000@gate.crashing.org>
+References: <Pine.LNX.4.44.0604181122360.15940-100000@gate.crashing.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060422204844.GA16968@skyscraper.unix9.prv>
-	 <d120d5000604240731i5a3667f9g37e94de390485aac@mail.gmail.com>
-	 <20060424145747.GA5906@suse.cz>
-	 <d120d5000604240803q387343dt8e9801a8cf21a975@mail.gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/24/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On 4/24/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Mon, Apr 24, 2006 at 10:31:39AM -0400, Dmitry Torokhov wrote:
-> > >
-> > > Vojtech, could you remind me why EVIOC{G|S}REP were removed? Some
-> > > people want to have ability to separate keyboards (via grabbing); they
-> > > also might want to control repeat rate independently. Shoudl we
-> > > reinstate these ioctls?
-> >
-> > I believe they were replaced by the ability to send EV_REP style events
-> > to the device, setting the repeat rate.
-> >
->
-> Argh, why am I always forgetting about ability to write events into devices?
->
+Hi Kumar,
 
-Thinking about it some more - writing to the event device is an
-elegant way to set repeat rate but how do you retrieve current repeat
-rate for a given device?
+Is there a datasheet available for this chip?
 
---
-Dmitry
+> * If we have an Unfinished (MCF) or Arbitration Lost (MAL) error and
+>   the bus is still busy reset the controller.  This prevents the
+>   controller from getting in a hung state for transactions for other
+>   devices.
+
+What "other devices" are you talking about? If the _bus_ is busy, it
+might be caused by any chip on the bus. Resetting the controller may or
+may not help. But it's hard for me to say more without technical
+documentation. Can you explain what the CSR_MBB bit means exactly?
+Please also explain the scenario you are trying to address here.
+
+> * Fixed up propogating the errors from i2c_wait.
+
+Yes, I like this.
+
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -115,11 +115,20 @@ static int i2c_wait(struct mpc_i2c *i2c,
+>  
+>  	if (!(x & CSR_MCF)) {
+>  		pr_debug("I2C: unfinished\n");
+> +
+> +		/* reset the controller if the bus is still busy */
+> +		if (x & CSR_MBB)
+> +			writeccr(i2c, 0);
+> +
+>  		return -EIO;
+>  	}
+>  
+>  	if (x & CSR_MAL) {
+>  		pr_debug("I2C: MAL\n");
+> +
+> +		/* reset the controller if the bus is still busy */
+> +		if (x & CSR_MBB)
+> +			writeccr(i2c, 0);
+>  		return -EIO;
+>  	}
+>  
+
+Please try being consistent with your blank lines.
+
+> @@ -246,8 +259,13 @@ static int mpc_xfer(struct i2c_adapter *
+>  			return -EINTR;
+>  		}
+>  		if (time_after(jiffies, orig_jiffies + HZ)) {
+> -			pr_debug("I2C: timeout\n");
+> -			return -EIO;
+> +			writeccr(i2c, 0);
+> +
+> +			/* try one more time before we error */
+> +			if (readb(i2c->base + MPC_I2C_SR) & CSR_MBB) {
+> +				pr_debug("I2C: timeout\n");
+> +				return -EIO;
+> +			}
+>  		}
+>  		schedule();
+>  	}
+> @@ -325,6 +343,7 @@ static int fsl_i2c_probe(struct platform
+>  			goto fail_irq;
+>  		}
+>  
+> +	writeccr(i2c, 0);
+>  	mpc_i2c_setclock(i2c);
+>  	platform_set_drvdata(pdev, i2c);
+
+These last two changes are not mentioned in your header comment. What
+are they? Why are they needed? They look like hacks to me.
+
+Thanks,
+-- 
+Jean Delvare

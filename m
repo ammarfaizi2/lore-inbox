@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWDYJcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWDYJfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWDYJcc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 05:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWDYJcc
+	id S932155AbWDYJfL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 05:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWDYJfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 05:32:32 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:10186 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932171AbWDYJcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 05:32:31 -0400
-In-Reply-To: <8e724d49e74bc1155f4e.1145913780@eng-12.pathscale.com>
-References: <8e724d49e74bc1155f4e.1145913780@eng-12.pathscale.com>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <1687B2F9-E947-4400-872E-163133854E13@kernel.crashing.org>
-Cc: rdreier@cisco.com, openib-general@openib.org, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH 4 of 13] ipath - change handling of PIO buffers
-Date: Tue, 25 Apr 2006 11:32:24 +0200
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-X-Mailer: Apple Mail (2.749.3)
+	Tue, 25 Apr 2006 05:35:10 -0400
+Received: from mail.suse.de ([195.135.220.2]:64192 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932155AbWDYJfJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 05:35:09 -0400
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Avoid printing pointless tsc skew msgs.
+References: <20060424215239.GA1178@redhat.com>
+From: Andi Kleen <ak@suse.de>
+Date: 25 Apr 2006 11:35:07 +0200
+In-Reply-To: <20060424215239.GA1178@redhat.com>
+Message-ID: <p731wvm9ewk.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> + * The problem with this is that it's global, but we'll use different
-> + * numbers for different chip types.  So the default value is not
-> + * very useful.  I've redefined it for the 1.3 release so that it's
+Dave Jones <davej@redhat.com> writes:
 
-----------------------------------------------^^^
-Change this to 2.6.17?
+> These messages are kinda silly..
+> 
+> CPU#0 had 0 usecs TSC skew, fixed it up.
+> CPU#1 had 0 usecs TSC skew, fixed it up.
+> 
+> inspired from: http://bugzilla.kernel.org/attachment.cgi?id=7713&action=view
 
-> + * zero unless set by the user to something else, in which case we
-> + * try to respect it.
+Actually it's not correct because if you fixed it up it won't be 0 usecs
+again because of the error it adds
 
+(I'm actually not sure how it even managed to measure 0 usecs) 
 
-Segher
-
+-Andi

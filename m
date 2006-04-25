@@ -1,99 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWDYJLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWDYJLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWDYJLI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 05:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWDYJLI
+	id S1751504AbWDYJLL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 05:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWDYJLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 05:11:08 -0400
+	Tue, 25 Apr 2006 05:11:11 -0400
 Received: from courier.cs.helsinki.fi ([128.214.9.1]:8172 "EHLO
 	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751491AbWDYJLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 05:11:07 -0400
-Subject: [PATCH 1/2] strstrip API
+	id S1751493AbWDYJLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 05:11:10 -0400
+Subject: [PATCH 2/2] ipmi: strstrip conversion
 From: Pekka Enberg <penberg@cs.helsinki.fi>
 To: akpm@osdl.org
-Cc: holzheu@de.ibm.com, ioe-lkml@rameria.de, joern@wohnheim.fh-wedel.de,
-       minyard@acm.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Tue, 25 Apr 2006 12:11:04 +0300
-Message-Id: <1145956265.27659.22.camel@localhost>
+Cc: minyard@acm.org, linux-kernel@vger.kernel.org
+Date: Tue, 25 Apr 2006 12:11:07 +0300
+Message-Id: <1145956267.27659.24.camel@localhost>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-This patch adds a new strstrip() function to lib/string.c for removing
-leading and trailing whitespace from a string.
+This patch switches an open-coded strstrip to use the new API.
 
-Cc: Michael Holzheu <holzheu@de.ibm.com>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: Jörn Engel <joern@wohnheim.fh-wedel.de>
 Cc: Corey Minyard <minyard@acm.org>
 Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 
 ---
 
- include/linux/string.h |    1 +
- lib/string.c           |   30 ++++++++++++++++++++++++++++++
- 2 files changed, 31 insertions(+), 0 deletions(-)
+ drivers/char/ipmi/ipmi_watchdog.c |   25 +++++++++----------------
+ 1 files changed, 9 insertions(+), 16 deletions(-)
 
-1a360da62131fb81460ca4abf93d20b9d0d390ff
-diff --git a/include/linux/string.h b/include/linux/string.h
-index c61306d..e4c7558 100644
---- a/include/linux/string.h
-+++ b/include/linux/string.h
-@@ -56,6 +56,7 @@ #endif
- #ifndef __HAVE_ARCH_STRRCHR
- extern char * strrchr(const char *,int);
- #endif
-+extern char * strstrip(char *);
- #ifndef __HAVE_ARCH_STRSTR
- extern char * strstr(const char *,const char *);
- #endif
-diff --git a/lib/string.c b/lib/string.c
-index 064f631..6307726 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -301,6 +301,36 @@ char *strnchr(const char *s, size_t coun
- EXPORT_SYMBOL(strnchr);
- #endif
+342eaae5800b0fd002f5101d66ccb02e786016d8
+diff --git a/drivers/char/ipmi/ipmi_watchdog.c b/drivers/char/ipmi/ipmi_watchdog.c
+index 2d11ddd..8f88671 100644
+--- a/drivers/char/ipmi/ipmi_watchdog.c
++++ b/drivers/char/ipmi/ipmi_watchdog.c
+@@ -212,24 +212,16 @@ static int set_param_str(const char *val
+ {
+ 	action_fn  fn = (action_fn) kp->arg;
+ 	int        rv = 0;
+-	const char *end;
+-	char       valcp[16];
+-	int        len;
+-
+-	/* Truncate leading and trailing spaces. */
+-	while (isspace(*val))
+-		val++;
+-	end = val + strlen(val) - 1;
+-	while ((end >= val) && isspace(*end))
+-		end--;
+-	len = end - val + 1;
+-	if (len > sizeof(valcp) - 1)
+-		return -EINVAL;
+-	memcpy(valcp, val, len);
+-	valcp[len] = '\0';
++	char       *dup, *s;
++
++	dup = kstrdup(val, GFP_KERNEL);
++	if (!dup)
++		return -ENOMEM;
++
++	s = strstrip(dup);
  
-+/**
-+ * strstrip - Removes leading and trailing whitespace from @s.
-+ * @s: The string to be stripped.
-+ *
-+ * Note that the first trailing whitespace is replaced with a %NUL-terminator
-+ * in the given string @s. Returns a pointer to the first non-whitespace
-+ * character in @s.
-+ */
-+char *strstrip(char *s)
-+{
-+	size_t size;
-+	char *end;
-+
-+	size = strlen(s);
-+
-+	if (!size)
-+		return s;
-+
-+	end = s + size - 1;
-+	while (end != s && isspace(*end))
-+		end--;
-+	*(end + 1) = '\0';
-+
-+	while (*s && isspace(*s))
-+		s++;
-+
-+	return s;
-+}
-+EXPORT_SYMBOL(strstrip);
-+
- #ifndef __HAVE_ARCH_STRLEN
- /**
-  * strlen - Find the length of a string
+ 	down_read(&register_sem);
+-	rv = fn(valcp, NULL);
++	rv = fn(s, NULL);
+ 	if (rv)
+ 		goto out_unlock;
+ 
+@@ -239,6 +231,7 @@ static int set_param_str(const char *val
+ 
+  out_unlock:
+ 	up_read(&register_sem);
++	kfree(dup);
+ 	return rv;
+ }
+ 
 -- 
 1.3.0
 

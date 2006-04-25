@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWDYHeE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWDYHfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWDYHeE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 03:34:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWDYHeE
+	id S932097AbWDYHfF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 03:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWDYHfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 03:34:04 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:3078 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S932096AbWDYHeC (ORCPT
+	Tue, 25 Apr 2006 03:35:05 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:24719 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S932097AbWDYHfD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 03:34:02 -0400
-Message-ID: <444DD0E7.5070005@argo.co.il>
-Date: Tue, 25 Apr 2006 10:33:59 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Martin Mares <mj@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: C++ pushback
-References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com> <mj+md-20060424.201044.18351.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060424.201044.18351.atrey@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Apr 2006 07:34:00.0920 (UTC) FILETIME=[9EDB4580:01C6683A]
+	Tue, 25 Apr 2006 03:35:03 -0400
+Date: Tue, 25 Apr 2006 09:36:00 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Valdis.Kletnieks@vt.edu
+Cc: Ken Brush <kbrush@gmail.com>, linux-security-module@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Time to remove LSM (was Re: [RESEND][RFC][PATCH 2/7] implementation of LSM hooks)
+Message-ID: <20060425073600.GJ440@marowsky-bree.de>
+References: <4445484F.1050006@novell.com> <200604182301.k3IN1qh6015356@turing-police.cc.vt.edu> <4446D378.8050406@novell.com> <200604201527.k3KFRNUC009815@turing-police.cc.vt.edu> <ef88c0e00604210823j3098b991re152997ef1b92d19@mail.gmail.com> <200604211951.k3LJp3Sn014917@turing-police.cc.vt.edu> <ef88c0e00604221352p3803c4e8xea6074e183afca9b@mail.gmail.com> <200604230945.k3N9jZDW020024@turing-police.cc.vt.edu> <20060424082424.GH440@marowsky-bree.de> <200604250206.k3P26Ogf015931@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604250206.k3P26Ogf015931@turing-police.cc.vt.edu>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[original poster de-cc'ed]
+On 2006-04-24T22:06:23, Valdis.Kletnieks@vt.edu wrote:
 
-Martin Mares wrote:
-> Can you name any reasons for why should we support C++ in the kernel?
->   
-1. Porting existing modules written in C++ - the trigger for this thread?
+> I believe I stated quite clearly that there's certainly a place for tools that
+> allow smart people to do this work.  That's *totally* different from marketing
+> the tool as "So simple, a chimpanzee could do it.".
 
-2. Shorter, faster, more robust code.
-> Why shouldn't we invest the effort to making it possible to write kernel
-> modules in Haskell instead?
->   
-C++ is a system programming language with good C compatibility. Making 
-the kernel compatible with C++ is doable.
+True. Yet, arguing with how a product is marketed is hardly a technical
+argument relevant to the Linux kernel.
 
-Haskell is an excellent language, but it is not a system programming 
-language. Kernel programming does not fit well into the functional model.
-> The kernel is written in C and its maintainers have so far agreed that
-> C is enough and adding any other language brings more pain than gain.
->
-> If you think otherwise, feel free to submit some real code which shows
-> the advantages of using a different language.
->   
-That's certainly doable, however it is quite pointless since we know 
-that the code will be rejected regardless of any technical merits it may 
-have.
-
--- 
-error compiling committee.c: too many arguments to function
 

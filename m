@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWDYPQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWDYPSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWDYPQc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 11:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWDYPQb
+	id S932256AbWDYPSg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 11:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWDYPSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 11:16:31 -0400
-Received: from styx.suse.cz ([82.119.242.94]:25579 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932251AbWDYPQb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 11:16:31 -0400
-Date: Tue, 25 Apr 2006 17:16:28 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: bjd <bjdouma@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 001/001] INPUT: new ioctl's to retrieve values of EV_REP and EV_SND event codes
-Message-ID: <20060425151628.GA11078@suse.cz>
-References: <20060422204844.GA16968@skyscraper.unix9.prv> <d120d5000604240731i5a3667f9g37e94de390485aac@mail.gmail.com> <20060424145747.GA5906@suse.cz> <d120d5000604240803q387343dt8e9801a8cf21a975@mail.gmail.com> <d120d5000604250619r6170c18bh8d26fc041141c056@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000604250619r6170c18bh8d26fc041141c056@mail.gmail.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.6i
+	Tue, 25 Apr 2006 11:18:36 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:1944
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S932256AbWDYPSg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 11:18:36 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: better leve triggered IRQ management needed
+Date: Tue, 25 Apr 2006 17:23:01 +0200
+User-Agent: KMail/1.9.1
+References: <20060424114105.113eecac@localhost.localdomain> <1145911417.3116.69.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0604241354200.3701@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604241354200.3701@g5.osdl.org>
+Cc: Alan Cox <alan@redhat.com>, Stephen Hemminger <shemminger@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2036234.226ERfZtuE";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604251723.01448.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 25, 2006 at 09:19:42AM -0400, Dmitry Torokhov wrote:
-> On 4/24/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On 4/24/06, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > > On Mon, Apr 24, 2006 at 10:31:39AM -0400, Dmitry Torokhov wrote:
-> > > >
-> > > > Vojtech, could you remind me why EVIOC{G|S}REP were removed? Some
-> > > > people want to have ability to separate keyboards (via grabbing); they
-> > > > also might want to control repeat rate independently. Shoudl we
-> > > > reinstate these ioctls?
-> > >
-> > > I believe they were replaced by the ability to send EV_REP style events
-> > > to the device, setting the repeat rate.
-> > >
-> >
-> > Argh, why am I always forgetting about ability to write events into devices?
-> 
-> Thinking about it some more - writing to the event device is an
-> elegant way to set repeat rate but how do you retrieve current repeat
-> rate for a given device?
- 
-You can't. And that's likely a problem that needs fixing.
+--nextPart2036234.226ERfZtuE
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+On Monday 24 April 2006 23:07, you wrote:
+> A long time ago, I had a machine with a 3c509 card that would sometimes=20
+
+Heh, I still have this one in my server. :)
+
+> The fake interrupt could even print out a warning if somebody returns=20
+> SA_HANDLED (since normally there _shouldn't_ have been any work to handle=
+=20
+> for it),
+
+Are you sure this can't race against the hardware?
+Something like this:
+Kernel                               Hardware
+=2D generate fake IRQ
+=2D enter the low level IRQ handling
+                                     - hardware generates an IRQ and
+                                       sets it's IRQ reason registers
+                                       to "I have smthng to do"
+=2D enter the handler and service
+  the IRQ
+=2D return SA_HANDLED
+
+=2D-=20
+Greetings Michael.
+
+--nextPart2036234.226ERfZtuE
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBETj7Vlb09HEdWDKgRAmcjAKCZcUJtGE4jZxaaHRf0uGpTyy8Z5ACfVtlT
+8vr3YmReBV268qrrEABaQso=
+=HkEb
+-----END PGP SIGNATURE-----
+
+--nextPart2036234.226ERfZtuE--

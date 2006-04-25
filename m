@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWDYS4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWDYS57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbWDYS4o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 14:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWDYS4o
+	id S1751498AbWDYS57 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 14:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWDYS57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 14:56:44 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:16545 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751373AbWDYS4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 14:56:43 -0400
-Message-Id: <200604251856.k3PIuGjt007346@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Neil Brown <neilb@suse.de>,
-       Chris Wright <chrisw@sous-sol.org>, James Morris <jmorris@namei.org>,
-       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview 
-In-Reply-To: Your message of "Tue, 25 Apr 2006 14:48:46 EDT."
-             <1145990926.21399.96.camel@moss-spartans.epoch.ncsc.mil> 
-From: Valdis.Kletnieks@vt.edu
-References: <1145470463.3085.86.camel@laptopd505.fenrus.org> <p73mzeh2o38.fsf@bragg.suse.de> <1145522524.3023.12.camel@laptopd505.fenrus.org> <20060420192717.GA3828@sorel.sous-sol.org> <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil> <20060421173008.GB3061@sorel.sous-sol.org> <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil> <17484.20906.122444.964025@cse.unsw.edu.au> <20060424070324.GA14720@thunk.org> <1145912876.14804.91.camel@moss-spartans.epoch.ncsc.mil> <20060424235215.GA5893@thunk.org> <1145983533.21399.56.camel@moss-spartans.epoch.ncsc.mil> <200604251834.k3PIYTS9006648@turing-police.cc.vt.edu>
-            <1145990926.21399.96.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1145991376_2618P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 25 Apr 2006 14:56:16 -0400
+	Tue, 25 Apr 2006 14:57:59 -0400
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:51720 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751358AbWDYS56
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 14:57:58 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Axelle Apvrille <axelle_apvrille@yahoo.fr>, drepper@gmail.com,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       disec-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries
+References: <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com>
+	<1145984201.3114.34.camel@laptopd505.fenrus.org>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: no job too big... no job.
+Date: Tue, 25 Apr 2006 19:57:39 +0100
+In-Reply-To: <1145984201.3114.34.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Tue, 25 Apr 2006 18:56:40 +0200")
+Message-ID: <878xpto53w.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1145991376_2618P
-Content-Type: text/plain; charset=us-ascii
-
-On Tue, 25 Apr 2006 14:48:46 EDT, Stephen Smalley said:
-> On Tue, 2006-04-25 at 14:34 -0400, Valdis.Kletnieks@vt.edu wrote:
-> > On Tue, 25 Apr 2006 12:45:33 EDT, Stephen Smalley said:
-> > 
-> > > pam_namespace in Fedora Core.  Not to mention that the restrictions you
-> > > mention only solve the problem within the jail, which is fine if we are
-> > > only talking about jail mechanisms.  Not so good for any kind of real
-> > > MAC.
-> > 
-> > Umm.. Stephen? Where in Fedora Core is it?  I'm running a Fedora Core Rawhide
-> > right now, and it's not on my system, and 'yum provides pam_namespace.so'
-> > doesn't find it either.  There *is* stuff over in the -lspp branch, but it
-> > (AFAIK) hasn't escaped into anything resembling general availability.  Was 
-this
-> > what you were referencing?
+On Tue, 25 Apr 2006, Arjan van de Ven said:
+> On Tue, 2006-04-25 at 18:11 +0200, Axelle Apvrille wrote:
+>> - finally, note you also have choice not to sign this
+>> elf loader of yours. If it isn't signed, it won't ever
+>> run ;-)
 > 
-> Today's rawhide.  0.99.3.0-3.  ChangeLog is:
-> * Tue Apr 25 2006 Tomas Mraz <tmraz@redhat.com> 0.99.3.0-3
-> - added pam_namespace module written by Janak Desai (per-user /tmp
-> support)
-> - new pam-redhat modules version
+> so you didn't sign perl ? or bash ?
 
-OK.. That one hasn't actually propagated out to where it's visible yet. :)
+You can write an elf loader in bash?!
 
---==_Exmh_1145991376_2618P
-Content-Type: application/pgp-signature
+(If you have, well, wow, can I see it? It sounds like an incredibly
+nifty hack. Nearly useless, of course, but incredibly nifty.)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFETnDQcC3lWbTT17ARAqggAJwPOg0YAog8+SSSMK4Ni1FPwDezYwCcCrjb
-RP1B/NDlnPkyttRJfGg4zVo=
-=XN/A
------END PGP SIGNATURE-----
-
---==_Exmh_1145991376_2618P--
+-- 
+`On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
+ because bringing Windows into the picture rescaled "brokenness" by
+ a factor of 10.' --- Peter da Silva

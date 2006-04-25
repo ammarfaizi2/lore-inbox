@@ -1,164 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWDYNp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWDYNyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbWDYNp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 09:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWDYNp7
+	id S932220AbWDYNyR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 09:54:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWDYNyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 09:45:59 -0400
-Received: from pne-smtpout4-sn2.hy.skanova.net ([81.228.8.154]:44707 "EHLO
-	pne-smtpout4-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S932221AbWDYNp6 convert rfc822-to-8bit (ORCPT
+	Tue, 25 Apr 2006 09:54:17 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:3239 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932220AbWDYNyQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 09:45:58 -0400
-From: Jani-Matti =?iso-8859-1?q?H=E4tinen?= <jani-matti.hatinen@iki.fi>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Subject: Re: Lock-up with modprobe sdhci after suspending to ram
-Date: Tue, 25 Apr 2006 16:45:57 +0300
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <515ed10f0604240033i71781bfdp421ed244477fd200@mail.gmail.com> <200604251108.52515.jani-matti.hatinen@iki.fi> <444DE0E6.8090801@drzeus.cx>
-In-Reply-To: <444DE0E6.8090801@drzeus.cx>
-X-Face: #cyYMAd}qudd3k4*S6mac8z1vRgtwXAC'7r{jv<~p5y80oOWqj0)0~/;,QeB(P>fhDJ"=?iso-8859-1?q?lF=0A=09=7D-ls=26?="0:\(7!/S)a_ew$J?hey[-+u`<VOlVBz48@)SW{u#N=v1P~`\Cd9^zw[>=?iso-8859-1?q?Z=607l=26XK=24=0A=09Deyz7Uf=5Dx?=@r"kOgh|l?F~QrgBEd<$x`a)[]1C"NqvG<T3Gk"@_,cH7Q;HTlZgb*F>VR(=?iso-8859-1?q?3j=0A=09=5ByC?=>>hR;jXQ!K/Q]*HjPibvm_33AQC_N2Z$VnZ<=?iso-8859-1?q?gy*4-QB2q=3A=5BoZ=2E-8YNsF+WK=27ya6u/!J=0A=09-4g=3B?=
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 25 Apr 2006 09:54:16 -0400
+Date: Tue, 25 Apr 2006 08:58:10 -0500
+From: Jon Mason <jdmason@us.ibm.com>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86-64: trivial gart clean-up
+Message-ID: <20060425135810.GA7779@us.ibm.com>
+References: <20060424225342.GB14575@us.ibm.com> <200604250042.43910.ak@suse.de> <20060425052607.GC28558@granada.merseine.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604251645.58421.jani-matti.hatinen@iki.fi>
+In-Reply-To: <20060425052607.GC28558@granada.merseine.nu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman kirjoitti viestissään (lähetysaika tiistai, 25. huhtikuuta 2006 
-11:42):
-> Jani-Matti Hätinen wrote:
-> > Looks like some kind of routing problem. Even pings don't seem to get
-> > through to mmc.drzeus.cx, or list.drzeus.cx. With http I get a timeout
-> > from mmc.drzeus.cx. This is from IP 80.221.18.58
->
-> Most of the domain is down right now (changing ISP). But the mail server
-> is up at hermes.drzeus.cx:
+On Tue, Apr 25, 2006 at 08:26:07AM +0300, Muli Ben-Yehuda wrote:
+> On Tue, Apr 25, 2006 at 12:42:43AM +0200, Andi Kleen wrote:
+> 
+> > On Tuesday 25 April 2006 00:53, Jon Mason wrote:
+> > > A trivial change to have gart_unmap_sg call gart_unmap_single directly,
+> > > instead of bouncing through the dma_unmap_single wrapper in
+> > > dma-mapping.h.  This change required moving the gart_unmap_single above
+> > > gart_unmap_sg, and under gart_map_single (which seems a more logical
+> > > place that its current location IMHO).
+> > 
+> > What advantage does that have? I think I prefer the old code.
+> 
+> I don't know what Jon had in mind, but we do avoid a call through a
+> function pointer this way. I agree with Jon that it also makes more
+> sense - gart code can just call the gart code directly, without going
+> through the dma_xxx wrapper that ends up calling it anyway.
 
-Ok. That explains it.
+Yes, that is exactly what I was trying to say in my comment above.
+Sorry for the confusion, and thanks for clearing it up Muli.
 
-> > Unfortunately even text mode is completely speechless about it. The
-> > modprobe goes through cleanly and I get the regular prompt (with a
-> > blinking cursor even), but the machine's completely locked up.
->
-> Have you tried pinging it? For some reason the keyboard tends to bail
-> out when there are outstanding MMC requests. I've only seen this with a
-> card in the slot though.
+The dma_unmap_single call is the only dma_XXX type call in the gart
+code.  All other calls use the gart_XXX equivalent.  It seems to me that
+this was an oversight.  Also, the dma_XXX type calls go through a
+wrapper in asm/dma-mapping.h, which translates this call to the gart
+equivalent.  It also makes the code 8 bytes smaller :)
 
-Yes, but the thing is deader than the cat I'm sitting on. Even SysRq is dead.
+Thanks,
+Jon
 
-> You could increase the log level sent to console and enable MMC_DEBUG.
-> If you can find more closely where it hangs I have a better chance of
-> finding it.
-
-Ok, this is what I get on Loglevel 9.
-  If I try to suspend with the module loaded and with a card in the reader I 
-get:
-Stopping tasks: ================================|
-ipw2200: Failed to send CARD_DISABLE: Command timed out
-ACPI: PCI interrupt for device 0000:01:05.0 disabled
-sdhci [sdhci_suspend()]: Suspending...
-MMC: starting cmd 07 arg 00000000 flags 00000000
-sdhci [sdhci_send_command()]: Sending cmd (7)
-
-And if I modprobe sdhci after suspend&resume I get the following:
-  First from the modprobe (not all of it is visible):
-sdhci: Sys addr: 0xffffffff | Version:  0x0000ffff
-sdhci: Blk size: 0x0000ffff | Blk cnt:  0x0000ffff
-sdhci: Argument: 0xffffffff | Trn mode: 0x0000ffff
-sdhci: Present:  0xffffffff | Host ctl: 0x000000ff
-sdhci: Power:    0x000000ff | Blk gap:  0x000000ff
-sdhci: Wake-up:  0x000000ff | Clock:    0x0000ffff
-sdhci: Timeout:  0x000000ff | Int stat: 0xffffffff
-sdhci: Int enab: 0xffffffff | Sig enab: 0xffffffff
-sdhci: AC12 err: 0x0000ffff | Slot int: 0x0000ffff
-sdhci: Caps:     0xffffffff | Max curr: 0xffffffff
-sdhci: ===========================================
-kobject mmc0: registering. parent: mmc_host, set: class_obj
-kobject_uevent
-fill_kobj_path: path = '/class/mmc_host/mmc0'
-fill_kobj_path: path = '/devices/pci0000:00/0000:00:1e.0/0000:01:03.2'
-sdhci [sdhci_set_ios()]: clock 0Hz busmode 1 powermode 0 cs 0 Vdd 0 width 0
-mmc0: SDHCI at 0xfe8fe000 irq 18 PIO
-sdhci [sdhci_set_ios()]: clock 0Hz busmode 1 powermode 1 cs 0 Vdd 21 width 0
-
-  Plus a prompt and:
-sdhci [sdhci_set_ios()]: clock 246093Hz busmode 1 powermode 2 cs 0 Vdd 21 
-width 0
-sdhci [sdhci_set_ios()]: clock 246093Hz busmode 1 powermode 2 cs 1 Vdd 21 
-width 0
-MMC: starting cmd 00 arg 00000000 flags 00000040
-sdhci [sdhci_send_command()]: Sending cmd (0)
-
-  Whereas, if I modprobe sdhci in a fresh boot I get:
-kobject sdhci: registering. parent: <NULL>, set: module
-kobject_uevent
-fill_kobj_path: path = '/module/sdhci'
-sdhci: Secure Digital Host Controller Interface driver, 0.11
-sdhci: Copyright(c) Pierre Ossman
-kobject sdhci: registering. parent: <NULL>, set: drivers
-kobject_uevent
-fill_kobj_path: path = '/bus/pci/drivers/sdhci'
-sdhci [sdhci_probe()]: found at 0000:01:03.2
-sdhci [sdhci_probe()]: found 1 slot(s)
-ACPI: PCI Interrupt 0000:01:03.2[C] -> GSI 20 (level, low) -> IRQ 18
-sdhci [sdhci_probe_slot()]: slot 0 at 0xfe8fe000, irq 18
-sdhci: ============== REGISTER DUMP ==============
-sdhci: Sys addr: 0x00000000 | Version:  0x00000200
-sdhci: Blk size: 0x00000000 | Blk cnt:  0x00000000
-sdhci: Argument: 0x00000000 | Trn mode: 0x00000000
-sdhci: Present:  0x01f20000 | Host ctl: 0x00000000
-sdhci: Power:    0x00000000 | Blk gap:  0x00000000
-sdhci: Wake-up:  0x00000000 | Clock:    0x00000000
-sdhci: Timeout:  0x0000000e | Int stat: 0x00000000
-sdhci: Int enab: 0xe1ff00cf | Sig enab: 0xe1ff00cf
-sdhci: AC12 err: 0x00000000 | Slot int: 0x00000000
-sdhci: Caps:     0x018021a1 | Max curr: 0x00000040
-kobject mmc0: registering. parent: mmc_host, set: class_obj
-kobject_uevent
-fill_kobj_path: path = '/class/mmc_host/mmc0'
-fill_kobj_path: path = '/devices/pci0000:00/0000:00:1e.0/0000:01:03.2'
-sdhci [sdhci_set_ios()]: clock 0Hz busmode 1 powermode 0 cs 0 Vdd 0 width 0
-mmc0: SDHCI at 0xfe8fe000 irq 18 PIO
-sdhci [sdhci_set_ios()]: clock 0Hz busmode 1 powermode 1 cs 0 Vdd 21 width 0
-sdhci [sdhci_set_ios()]: clock 128906Hz busmode 1 powermode 2 cs 0 Vdd 21 
-width 0
-sdhci [sdhci_set_ios()]: clock 128906Hz busmode 1 powermode 2 cs 1 Vdd 21 
-width 0
-
- Plus a prompt and:
-MMC: starting cmd 00 arg 00000000 flags 00000040
-sdhci [sdhci_tasklet_finish()]: Ending request, cmd (0)
-MMC: req done (00): 1: 00000000 00000000 00000000 00000000
-sdhci [sdhci_set_ios()]: clock 128906Hz busmode 1 powermode 2 cs 0 Vdd 21 
-width 0
-MMC: starting cmd 37 arg 00000000 flags 00000015
-sdhci [sdhci_tasklet_finish()]: Ending request, cmd (37)
-MMC: req done (37): 1: 00000000 00000000 00000000 00000000
-MMC: starting cmd 37 arg 00000000 flags 00000015
-sdhci [sdhci_tasklet_finish()]: Ending request, cmd (37)
-MMC: req done (37): 1: 00000000 00000000 00000000 00000000
-MMC: starting cmd 37 arg 00000000 flags 00000015
-sdhci [sdhci_tasklet_finish()]: Ending request, cmd (37)
-MMC: req done (37): 1: 00000000 00000000 00000000 00000000
-MMC: starting cmd 37 arg 00000000 flags 00000015
-sdhci [sdhci_tasklet_finish()]: Ending request, cmd (37)
-MMC: req done (37): 1: 00000000 00000000 00000000 00000000
-MMC: starting cmd 01 arg 00000000 flags 00000061
-sdhci [sdhci_tasklet_finish()]: Ending request, cmd (1)
-MMC: req done (01): 1: 00000000 00000000 00000000 00000000
-sdhci [sdhci_set_ios()]: clock 0Hz busmode 1 powermode 0 cs 0 Vdd 0 width 0
-
-So for some reason suspend&resume seems to screw up the registers and double 
-the clock speed.
-  Also I just noticed that if the machine has been through at least one 
-suspend&resume cycle, rebooting no longer works. All processes exit cleanly, 
-but the system just hangs when it should shut down.
-  So it seems quite likely that suspend&resume doesn't really work the way it 
-should in this machine (Asus S5A notebook) and sdhci triggers the problem.
-
--- 
-Jani-Matti Hätinen
+> 
+> Cheers,
+> Muli
+> -- 
+> Muli Ben-Yehuda
+> http://www.mulix.org | http://mulix.livejournal.com/
+> 

@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWDYS57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWDYTBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWDYS57 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 14:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751497AbWDYS57
+	id S932289AbWDYTBf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 15:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbWDYTBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 14:57:59 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:51720 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751358AbWDYS56
+	Tue, 25 Apr 2006 15:01:34 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:65256 "EHLO
+	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1751514AbWDYTBd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 14:57:58 -0400
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Axelle Apvrille <axelle_apvrille@yahoo.fr>, drepper@gmail.com,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       disec-devel@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries
+	Tue, 25 Apr 2006 15:01:33 -0400
+In-Reply-To: <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com>
 References: <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com>
-	<1145984201.3114.34.camel@laptopd505.fenrus.org>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: no job too big... no job.
-Date: Tue, 25 Apr 2006 19:57:39 +0100
-In-Reply-To: <1145984201.3114.34.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Tue, 25 Apr 2006 18:56:40 +0200")
-Message-ID: <878xpto53w.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.19 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Mime-Version: 1.0 (Apple Message framework v749.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <9C02B13C-8615-440B-A08C-AC463CC2E0AE@bootc.net>
+Cc: Nix <nix@esperi.org.uk>, Arjan van de Ven <arjan@infradead.org>,
+       drepper@gmail.com, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org,
+       disec-devel@lists.sourceforge.net
+Content-Transfer-Encoding: 7bit
+From: Chris Boot <bootc@bootc.net>
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries
+Date: Tue, 25 Apr 2006 20:01:24 +0100
+To: Axelle Apvrille <axelle_apvrille@yahoo.fr>
+X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Apr 2006, Arjan van de Ven said:
-> On Tue, 2006-04-25 at 18:11 +0200, Axelle Apvrille wrote:
->> - finally, note you also have choice not to sign this
->> elf loader of yours. If it isn't signed, it won't ever
->> run ;-)
-> 
-> so you didn't sign perl ? or bash ?
+On 25 Apr 2006, at 17:11, Axelle Apvrille wrote:
 
-You can write an elf loader in bash?!
+> - finally, note you also have choice not to sign this
+> elf loader of yours. If it isn't signed, it won't ever
+> run ;-)
 
-(If you have, well, wow, can I see it? It sounds like an incredibly
-nifty hack. Nearly useless, of course, but incredibly nifty.)
+Wouldn't you need to sign, say, /lib/ld-linux.so? In that case, you  
+can simply get it to load an execute almost anything that's ELF, even  
+on filesystems marked noexec, if I'm not mistaken...
+
+Chris
 
 -- 
-`On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
- because bringing Windows into the picture rescaled "brokenness" by
- a factor of 10.' --- Peter da Silva
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/
+
+

@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWDZRmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWDZRoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbWDZRmN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 13:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWDZRmN
+	id S964773AbWDZRoS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 13:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964772AbWDZRoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 13:42:13 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60946 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932311AbWDZRmM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 13:42:12 -0400
-Date: Wed, 26 Apr 2006 19:42:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
-Subject: Re: Lockless page cache test results
-Message-ID: <20060426174235.GC5002@suse.de>
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org>
+	Wed, 26 Apr 2006 13:44:18 -0400
+Received: from smtp-out.google.com ([216.239.33.17]:49238 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932326AbWDZRoR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 13:44:17 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:date:from:to:cc:subject:message-id:references:
+	mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+	b=ZtDWlx4B0kAsOBvlieQ77jVu59JzKZgBiUH6fO6LnmPWdtNVMdK+w5cyTElC6tg7S
+	VSkl6gb5P/315e2QHoBTw==
+Date: Wed, 26 Apr 2006 10:43:52 -0700
+From: Tim Hockin <thockin@google.com>
+To: Martin Bligh <mbligh@google.com>
+Cc: Ken Harrenstien <klh@google.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [kernel-reviewers] a small code review (2414483) Automated g4 rollback of changelist 2396062.
+Message-ID: <20060426174352.GC28519@google.com>
+References: <6599ad830604252300m27db3d20j39beafbe09788824@mail.google.com> <444F1218.6020601@google.com> <6599ad830604252334yd6d933w5386dccb4af4b971@mail.google.com> <444F9777.9090704@google.com> <444F989B.3040900@google.com> <444F9E2B.40704@google.com> <444FA2BB.2070908@google.com> <Pine.LNX.4.56.0604261002430.4623@minbar.corp.google.com> <20060426173225.GB28519@google.com> <444FAFB6.4070303@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060426095511.0cc7a3f9.akpm@osdl.org>
+In-Reply-To: <444FAFB6.4070303@google.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26 2006, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
+On Wed, Apr 26, 2006 at 10:36:54AM -0700, Martin Bligh wrote:
+> Tim Hockin wrote:
+> >On Wed, Apr 26, 2006 at 10:12:14AM -0700, Ken Harrenstien wrote:
 > >
-> > Running a splice benchmark on a 4-way IPF box, I decided to give the
-> >  lockless page cache patches from Nick a spin. I've attached the results
-> >  as a png, it pretty much speaks for itself.
+> >>That doesn't work because IIRC it only reports the amount of memory
+> >>the kernel has been told (eg via "mem=") to manage in a certain sense,
+> >>not how much is actually physically available.
+> >>
+> >>The I2 netboot kernel would really REALLY like some exported /proc
+> >>values that accurately report physical memory (if nothing else, the
+> >>number of DIMMs and their sizes).  It has to figure this out in order
+> >>to install the proper kernel with proper LILO command-line args.
+> >
+> >
+> >The kernel can't really know how much memory is in the system without
+> >getting chipset-specific.
+> >
+> >MTRR is a good way to hazard a guess, and will probably be right, but as
+> >you indicated, BIOS vendors have historically been REALLY bad about
+> >MTRRs.  Better now, but bad a few years ago.
+> >
+> >SMBIOS (on our boards) *does* accurately report the number of DIMMS and
+> >their sizes (and more!).  But it only works on Google BIOS.
 > 
-> It does.
-> 
-> What does the test do?
->
-> In particular, does it cause the kernel to take tree_lock once per
-> page, or once per batch-of-pages?
+> Are you saying our e820 maps and srat tables are wrong? that's a little
+> worrying ...
 
-Once per page, it's basically exercising the generic_file_splice_read()
-path. Basically X number of "clients" open the same file, and fill those
-pages into a pipe using splice. The output end of the pipe is then
-spliced to /dev/null to toss it away again. The top of the 4-client
-vanilla run profile looks like this:
+e820 is fine, except there's not a good kernel interface to it.  Parsing
+dmesg is *always* a last resort.
 
-samples  %        symbol name
-65328    47.8972  find_get_page
-
-Basically the machine is fully pegged, about 7% idle time.
-
-We can speedup the lookups with find_get_pages(). The test does 64k max,
-so with luck we should be able to pull 16 pages in at the time. I'll try
-and run such a test. But boy I wish find_get_pages_contig() was there
-for that. I think I'd prefer adding that instead of coding that logic in
-splice, it can get a little tricky.
-
--- 
-Jens Axboe
+We don;t currently have SRAT. :)
 

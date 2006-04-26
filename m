@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWDZRhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWDZRmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWDZRhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 13:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWDZRhP
+	id S932297AbWDZRmD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 13:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWDZRmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 13:37:15 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:5460 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932075AbWDZRhO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 13:37:14 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=gmiPfIXftjDCMXRhdZW/UgAMLUaCS8TgpOTi5StP/uKfxiK/4rii0zHckQiNJREjx
-	o5oSF8uGg7yjXEY+dcWXA==
-Message-ID: <444FAFB6.4070303@google.com>
-Date: Wed, 26 Apr 2006 10:36:54 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Wed, 26 Apr 2006 13:42:02 -0400
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:60585 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932318AbWDZRmB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 13:42:01 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [RFC: 2.6 patch] kernel/kthread.c: possible cleanups
+Date: Wed, 26 Apr 2006 19:39:22 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060423114022.GJ5010@stusta.de> <200604231537.55205.ioe-lkml@rameria.de> <20060426123111.GA1528@stusta.de>
+In-Reply-To: <20060426123111.GA1528@stusta.de>
 MIME-Version: 1.0
-To: Tim Hockin <thockin@google.com>
-CC: Ken Harrenstien <klh@google.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [kernel-reviewers] a small code review (2414483) Automated g4
- rollback of changelist 2396062.
-References: <444F0729.2020407@google.com> <444F0A94.70100@google.com> <6599ad830604252300m27db3d20j39beafbe09788824@mail.google.com> <444F1218.6020601@google.com> <6599ad830604252334yd6d933w5386dccb4af4b971@mail.google.com> <444F9777.9090704@google.com> <444F989B.3040900@google.com> <444F9E2B.40704@google.com> <444FA2BB.2070908@google.com> <Pine.LNX.4.56.0604261002430.4623@minbar.corp.google.com> <20060426173225.GB28519@google.com>
-In-Reply-To: <20060426173225.GB28519@google.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604261939.23535.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
-> On Wed, Apr 26, 2006 at 10:12:14AM -0700, Ken Harrenstien wrote:
-> 
->>That doesn't work because IIRC it only reports the amount of memory
->>the kernel has been told (eg via "mem=") to manage in a certain sense,
->>not how much is actually physically available.
->>
->>The I2 netboot kernel would really REALLY like some exported /proc
->>values that accurately report physical memory (if nothing else, the
->>number of DIMMs and their sizes).  It has to figure this out in order
->>to install the proper kernel with proper LILO command-line args.
-> 
-> 
-> The kernel can't really know how much memory is in the system without
-> getting chipset-specific.
-> 
-> MTRR is a good way to hazard a guess, and will probably be right, but as
-> you indicated, BIOS vendors have historically been REALLY bad about
-> MTRRs.  Better now, but bad a few years ago.
-> 
-> SMBIOS (on our boards) *does* accurately report the number of DIMMS and
-> their sizes (and more!).  But it only works on Google BIOS.
+Hi Adrian,
 
-cc: linux-kernel
-bcc: kernel-reviewers
+On Wednesday, 26. April 2006 14:31, Adrian Bunk wrote:
+> On Sun, Apr 23, 2006 at 03:37:40PM +0200, Ingo Oeser wrote:
+> > Could you cleanup the code paths as well?
+> > 
+> > Now s is always NULL in kthread_stop_sem() and
+> > kthread_stop_sem() is degenerated to kthread_stop().
+> > So it can be folded into the latter.
+> 
+> Sounds reasonable, updated patch below.
 
-Are you saying our e820 maps and srat tables are wrong? that's a little
-worrying ...
+Acked-by: Ingo Oeser <ioe-lkml@rameria.de>
 
-M.
+Beautiful! Making Linux better line by line :-)
+
+
+Regards
+
+Ingo Oeser

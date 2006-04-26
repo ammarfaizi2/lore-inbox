@@ -1,88 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWDZWMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWDZWNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbWDZWMT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 18:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbWDZWMT
+	id S964899AbWDZWNt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 18:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWDZWNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 18:12:19 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:46798 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S964896AbWDZWMR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 18:12:17 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 26 Apr 2006 18:13:49 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:31189 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964899AbWDZWNs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 18:13:48 -0400
+Date: Thu, 27 Apr 2006 00:13:40 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org, sam@ravnborg.org
+Subject: Re: [PATCH 0/19] kconfig patches
+In-Reply-To: <20060419205141.63298a26.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.64.0604262232460.32445@scrub.home>
+References: <Pine.LNX.4.64.0604091628240.21970@scrub.home>
+ <20060419205141.63298a26.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Subject: RE: [PATCH] i386: PAE entries must have their low word cleared
- first
-Date: Wed, 26 Apr 2006 17:11:19 -0500
-Message-ID: <99F8FA0D1537DC4EB2A639E8E60D782A6288D0@SAUSEXMB3.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] i386: PAE entries must have their low word cleared
- first
-Thread-Index: AcZpcKae7BtFqFoyQDmNUHL28drdpQACiB5Q
-From: "Brunner, Richard" <Richard.Brunner@amd.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Keir Fraser" <Keir.Fraser@cl.cam.ac.uk>
-cc: "Hugh Dickins" <hugh@veritas.com>, "Jan Beulich" <jbeulich@novell.com>,
-       "Zachary Amsden" <zach@vmware.com>, linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 26 Apr 2006 22:11:22.0224 (UTC)
- FILETIME=[59EE8F00:01C6697E]
-X-WSS-ID: 68512F834KW4350472-01-01
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+Hi,
 
-> -----Original Message-----
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+On Wed, 19 Apr 2006, Randy.Dunlap wrote:
 
-> Nick Piggin wrote
+> ~~~~~
+> Subject: [PATCH 12/19] kconfig: add symbol option config syntax
 > 
-> Keir Fraser wrote:
-> > 
-> > [snip]
-> > 
-> > In more detail the problem is that, since we're still running on the 
-> > page tables while clearing them, the CPU may choose to prefetch a 
-> > half-cleared pte into its TLB, and then execute speculative memory 
-> > accesses based on that mapping (including ones that may write-allocate 
-> > cachelines, leading to problems like the AMD AGP GART deadlock Linux had 
-> > a year or so back).
+> Do we have any examples of this?  (where)
+
+It's in patch 13.
+
+> ~~~~~
+> Subject: [PATCH 14/19] kconfig: Add search option for xconfig
 > 
-> What do you mean, you're still running on the page tables? The CPU can
-> still walk the pagetables?
+> How do I search?  I don't see it in the menu or any Help for it.
+
+It's in the File menu or Ctrl+F, it shouldn't be that hard to find. :)
+
+> ~~~~~
+> Subject: [PATCH 15/19] kconfig: finer customization via popup menus
 > 
-> Because if ptep_get_and_clear_full is passed non zero in the full
-> argument, then that specific translation should never see another
-> access. I didn't know CPUs now actually resolve TLB misses as part of
-> speculative prefetching... does this really happen?
+> How?  documentation?
 
-Yes, on AMD processors, speculative execution is allowed to install TLB translations. Assuming you are not in 64-bit mode, and can not use
-mmx or sse instructions to zero out the naturally aligned 64-bit pte,
-then what is being suggested makes sense: clear out the valid bit
-first by writing the low 32-bits. No invalid translations are ever 
-installed in the TLB.
+The right mouse button opens a context menu in the list header and in the 
+info text. I'm playing with ideas on how to document this best, e.g. like 
+adding a "What's this?" button. (I'm open to ideas/patches. :) )
 
+> ~~~~~
+> Subject: [PATCH 16/19] kconfig: create links in info window
+> 
+> How?  what does link look like?  are there any in the current
+> Kconfig menus?  I'd like to see one (or several).
+> ~~~~~
+> Subject: [PATCH 17/19] kconfig: jump to linked menu prompt
+> 
+> I'd like to see this too.  Where can I see it?
+> ~~~~~
 
-> Do you have a pointer to where the AMD AGP GART deadlock was 
-> discussed? Google is having some trouble finding it.
+As I mentioned it's only visible if you enable "Show Debug Info", but then 
+it shouldn't be that hard to miss. Did you expect something different?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102376926732464&w=2
-
-
-> > The barrier is needed to ensure that the bottom half is  cleared before 
-> > the top half. In fact it probably ought to be wmb() -- 
-> that's clearer in intent and actually reduces to barrier() on all PAE capable platforms.
-
-Maybe the barrier is needed for other architectures, but two writes
-to WB memory are not going to happen out of order and so no
-barrier is needed on x86 to the best of my knowledge.
- 
-
-	-Rich Brunner, AMD
-
-
+bye, Roman

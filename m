@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWDZPRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWDZPaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWDZPRD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 11:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWDZPRD
+	id S964818AbWDZPaF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 11:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWDZPaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 11:17:03 -0400
-Received: from pproxy.gmail.com ([64.233.166.178]:54506 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932440AbWDZPRB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 11:17:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qoSYvdwiJAX8QZWth0yCUNQ3pbUXYoG/KqbBwajwMw13cWbCeamhdK56/O+H7C9sBvPc4pPDutdgFZl5ywFxlGIv19qUx7CXT9IYdORL9cDYtiaBH4mTTEUy6eu+BnbseaGgle5+Skvxvar51M+OH1WEQx8TJXWqUkJw3cHvxAg=
-Message-ID: <2f4958ff0604260817l68235c77hb3430b2a800a96cf@mail.gmail.com>
-Date: Wed, 26 Apr 2006 17:17:00 +0200
-From: "=?ISO-8859-2?Q?Grzegorz_Ja=B6kiewicz?=" <gryzman@gmail.com>
-To: "Gene Heskett" <gene.heskett@verizon.net>
-Subject: Re: can't compile kernels lately (2.6.16.5 and up)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200604261102.12935.gene.heskett@verizon.net>
+	Wed, 26 Apr 2006 11:30:05 -0400
+Received: from post-23.mail.nl.demon.net ([194.159.73.193]:38385 "EHLO
+	post-23.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id S932479AbWDZPaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 11:30:02 -0400
+Message-ID: <444F91F8.80809@zonnet.nl>
+Date: Wed, 26 Apr 2006 17:30:00 +0200
+From: "David G." <kiddion@zonnet.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729 MultiZilla/1.7.9.0a
+X-Accept-Language: nl, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <2f4958ff0604260639n4874c2aua1e99ec4c32d2182@mail.gmail.com>
-	 <200604261102.12935.gene.heskett@verizon.net>
+To: linux-kernel@vger.kernel.org
+Cc: realoneone@gmail.com
+Subject: Re: How to re-send out the packets captured by my hook function at
+ NF_IP_PRE_ROUTING
+References: <65RDw-7AC-33@gated-at.bofh.it>
+In-Reply-To: <65RDw-7AC-33@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Apr 2006 15:32:11.0968 (UTC) FILETIME=[96778400:01C66946]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-don't think that's the issue man. I got 2.6.16.5 from tar.bz2, than
-just upgraded with patches to 2.6.16.9, where it stopped to compile.
-Now with 2.6.16.11 it still doens't work
+Real Oneone wrote:
+> Hi, I plugged a callback function into netfilter at the hook point of
+> NF_IP_PRE_ROUTING, tring to capture all the packets, make
+> some changes to some of them, and invoke skb->dev->hard_start_xmit to
+> send them out directly. However, the kernel crashed before I could get
+> any printked information.
+> 
+> If you have any idea of how to send the received packets out, please tell me.
 
+You might want to explore the possibilities of the existing "ip_queue"
+kernel extension instead, it was design to do packet
+capture/inspection/changing in userspace.
 
---
-GJ
+FireFlier works that way ( http://fireflier.sourceforge.net/ ) and so
+does inlined snort (http://www.snort.org/docs/snort_manual/node7.html).
+
+You can take a look at:
+http://www.linuxia.de/netfilter.en.html#userspace and
+http://www.cs.princeton.edu/~nakao/libipq.htm for an example application.

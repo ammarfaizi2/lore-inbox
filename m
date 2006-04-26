@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWDZUOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWDZUTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWDZUOw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 16:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWDZUOw
+	id S964849AbWDZUTM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 16:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWDZUTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 16:14:52 -0400
-Received: from xenotime.net ([66.160.160.81]:18569 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964851AbWDZUOv (ORCPT
+	Wed, 26 Apr 2006 16:19:12 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:684 "EHLO ZenIV.linux.org.uk")
+	by vger.kernel.org with ESMTP id S964849AbWDZUTM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 16:14:51 -0400
-Date: Wed, 26 Apr 2006 13:17:14 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: mgross@linux.intel.com
-Cc: mark.gross@intel.com, minyard@acm.org, alan@lxorguk.ukuu.org.uk,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       steven.carbonari@intel.com, soo.keong.ong@intel.com,
-       zhenyu.z.wang@intel.com
-Subject: Re: Problems with EDAC coexisting with BIOS
-Message-Id: <20060426131714.b402787d.rdunlap@xenotime.net>
-In-Reply-To: <20060426193915.GA30953@linux.intel.com>
-References: <5389061B65D50446B1783B97DFDB392DA97BD0@orsmsx411.amr.corp.intel.com>
-	<20060425193405.0ee50691.rdunlap@xenotime.net>
-	<20060426182638.GA28792@linux.intel.com>
-	<20060426113835.e3a05749.rdunlap@xenotime.net>
-	<20060426193915.GA30953@linux.intel.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 26 Apr 2006 16:19:12 -0400
+Date: Wed, 26 Apr 2006 21:19:09 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org,
+       David Schwartz <davids@webmaster.com>
+Subject: Re: C++ pushback
+Message-ID: <20060426201909.GN27946@ftp.linux.org.uk>
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Apr 2006 12:39:15 -0700 mark gross wrote:
+On Wed, Apr 26, 2006 at 01:09:38PM -0700, Linus Torvalds wrote:
+> The real problem with C++ for kernel modules is:
+> 
+>  - the language just sucks. Sorry, but it does.
+>  - some of the C features we use may or may not be usable from C++ 
+>    (statement expressions?)
+>  - the compilers are slower, and less reliable. This is _less_ of an issue 
+>    these days than it used to be (at least the reliability part), but it's 
+>    still true.
+>  - a lot of the C++ features just won't be supported sanely (ie the kernel 
+>    infrastructure just doesn't do exceptions for C++, nor will it run any 
+>    static constructors etc).
 
-> Sorry about that.  trying again.
-
-Thanks for keeping at it.
-Looks good.
-
----
-~Randy
+   - a lot of C++ advocates agree that some subset could be used sanely,
+     but there's no agreement as to _which_ subset would that be.

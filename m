@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWDZQMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWDZQQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbWDZQMS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 12:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWDZQMS
+	id S964804AbWDZQQe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 12:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWDZQQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 12:12:18 -0400
-Received: from cassarossa.samfundet.no ([129.241.93.19]:65166 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S932468AbWDZQMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 12:12:16 -0400
-Date: Wed, 26 Apr 2006 18:12:14 +0200
-From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kswapd oops reproduced with 2.6.17-rc2 (was Oops with 2.6.15.3 on amd64)
-Message-ID: <20060426161214.GA13689@uio.no>
-References: <20060422221232.GA6269@uio.no> <20060426151535.GA13203@uio.no> <200604261740.47107.Rafal.Wysocki@fuw.edu.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200604261740.47107.Rafal.Wysocki@fuw.edu.pl>
-X-Operating-System: Linux 2.6.14.3 on a x86_64
-X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
-User-Agent: Mutt/1.5.11+cvs20060403
-X-Spam-Score: -0.0 (/)
-X-Spam-Report: Status=No hits=-0.0 required=5.0 tests=NO_RELAYS version=3.1.0
+	Wed, 26 Apr 2006 12:16:34 -0400
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:20129 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S964804AbWDZQQd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 12:16:33 -0400
+In-Reply-To: <Pine.LNX.4.64.0604261652320.12529@blonde.wat.veritas.com>
+References: <444F95D8.76E4.0078.0@novell.com> <Pine.LNX.4.64.0604261538260.9915@blonde.wat.veritas.com> <946b367619cfd3dcd3ba547e216e494b@cl.cam.ac.uk> <444F955A.6050206@vmware.com> <Pine.LNX.4.64.0604261652320.12529@blonde.wat.veritas.com>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <fea09d592b7075d7c7525ba294a15b0f@cl.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
+Cc: Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       linux-kernel@vger.kernel.org
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [PATCH] i386: PAE entries must have their low word cleared first
+Date: Wed, 26 Apr 2006 17:12:44 +0100
+To: Hugh Dickins <hugh@veritas.com>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 05:40:46PM +0200, R. J. Wysocki wrote:
->> I reproduced this with 2.6.17-rc2 on the same machine:
->> 
->> [261604.531829] Unable to handle kernel paging request at ffff8000020369d8 RIP: 
->> [261604.536538] <ffffffff802509e6>{isolate_lru_pages+74}
-> If your kernel is compiled with the debug info, could you please do
-> "gdb vmlinux"  in the kernel sorces directory and then (in gdb)
-> "l *(isolate_lru_pages+74)" to see which source line it corresponds to?
 
-It isn't, but I hadn't changed the sources, .config or build environment
-since I built it, so I did a straight recompile with CONFIG_DEBUG_INFO set,
-and got:
+On 26 Apr 2006, at 16:57, Hugh Dickins wrote:
 
-  (gdb) l *(isolate_lru_pages+74)
-  0xffffffff80250c2a is in isolate_lru_pages (list.h:154).
+>> Proposed fix for ptep_get_and_clear_full PAE bug.  Pte_clear had the 
+>> same
+>> bug, so use the same fix for both.
+>
+> You need to expand that comment with text from Jan & Keir's patch:
+> Andrew will want to know just what this bug was.  The patch looks
+> good to me, except for the unnecessary do { } while (0) in the
+> definition of pte_clear: ah, you're only copying what was already
+> there, can't blame you for that, let's not worry about it.
 
-(I had to run gdb on a machine with 64-bit userspace, but I guess just
-copying the vmlinux file should suffice.)
+I agree: the patch comment is rather brief, but the patch itself looks 
+good. I suppose switching PAE's set_pte() from smp_wmb() to wmb() would 
+logically belong in a separate patch.
 
-/* Steinar */
--- 
-Homepage: http://www.sesse.net/
+  -- Keir
+

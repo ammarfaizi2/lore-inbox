@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWDZR7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWDZSEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWDZR7f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 13:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWDZR7f
+	id S932329AbWDZSEi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 14:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWDZSEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 13:59:35 -0400
-Received: from nproxy.gmail.com ([64.233.182.190]:14428 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932269AbWDZR7f convert rfc822-to-8bit
+	Wed, 26 Apr 2006 14:04:38 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:13441 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932329AbWDZSEh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 13:59:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YVL6vitiRV+DIGyo6eaxdGzVbBypmxu20btPyg16lnd6YE0ttPuf1C/rTEPVgMmEknbm7dSoPpFWEEHLh3vES/1TFQX+3J+r1Gxp4qAz5adE+m2O8vRaWXF2BMNSE5it1mSbeFRBKIpjImEcgyjoGrwzQPZl5oldjGDlsPzNGlk=
-Message-ID: <4de7f8a60604261059x7606d3ebl5efb26798293658@mail.gmail.com>
-Date: Wed, 26 Apr 2006 19:59:33 +0200
-From: "Jan Blunck" <jblunck@gmail.com>
-Reply-To: j.blunck@tu-harburg.de
-To: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Subject: Re: [patch 13/13] s390: dasd device identifiers.
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, horst.hummel@de.ibm.com
-In-Reply-To: <20060424150620.GN15613@skybase>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 26 Apr 2006 14:04:37 -0400
+Date: Wed, 26 Apr 2006 11:04:11 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: James Morris <jmorris@namei.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Chris Wright <chrisw@sous-sol.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] LSM: add missing hook to do_compat_readv_writev()
+Message-ID: <20060426180411.GF3107@sorel.sous-sol.org>
+References: <Pine.LNX.4.64.0604260237260.26341@d.namei>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060424150620.GN15613@skybase>
+In-Reply-To: <Pine.LNX.4.64.0604260237260.26341@d.namei>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/24/06, Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
-> +/*
-> + * Register the given device unique identifier into devmap struct.
-> + */
-> +int
-> +dasd_set_uid(struct ccw_device *cdev, struct dasd_uid *uid)
-> +{
-> +       struct dasd_devmap *devmap;
-> +
-> +       devmap = dasd_find_busid(cdev->dev.bus_id);
-> +       if (IS_ERR(devmap))
-> +               return PTR_ERR(devmap);
-> +       spin_lock(&dasd_devmap_lock);
-> +       devmap->uid = *uid;
-> +       spin_unlock(&dasd_devmap_lock);
-> +       return 0;
-> +}
-> +
+* James Morris (jmorris@namei.org) wrote:
+> This patch addresses a flaw in LSM, where there is no mediation of readv() 
+> and writev() in for 32-bit compatible apps using a 64-bit kernel.
+> 
+> This bug was discovered and fixed initially in the native readv/writev 
+> code [1], but was not fixed in the compat code.  Thanks to Al for spotting 
+> this one.
+> 
+> 
+> Please apply.
+> 
+> Signed-off-by: James Morris <jmorris@namei.org> 
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-EXPORT_SYMBOL(dasd_set_uid) is missing.
+Acked-by: Chris Wright <chrisw@sous-sol.org>
+
+thanks,
+-chris

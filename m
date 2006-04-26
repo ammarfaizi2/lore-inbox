@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWDZVOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWDZVRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWDZVOg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 17:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWDZVOf
+	id S932478AbWDZVRS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 17:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWDZVRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 17:14:35 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:47294 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S932474AbWDZVOf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 17:14:35 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 26 Apr 2006 14:14:16 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: kyle@pbx.org
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: accept()ing socket connections with level triggered epoll
-In-Reply-To: <20060426205557.GA5483@www.t3inc.us>
-Message-ID: <Pine.LNX.4.64.0604261411460.16727@alien.or.mcafeemobile.com>
-References: <20060426205557.GA5483@www.t3inc.us>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Wed, 26 Apr 2006 17:17:18 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:20426 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932478AbWDZVRR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 17:17:17 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
+Date: Wed, 26 Apr 2006 23:16:43 +0200
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <nigel@suspend2.net>, Pavel Machek <pavel@ucw.cz>,
+       Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+References: <200604242355.08111.rjw@sisk.pl> <200604261341.32500.nigel@suspend2.net> <444F9E2D.2000901@yahoo.com.au>
+In-Reply-To: <444F9E2D.2000901@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604262316.44162.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Apr 2006, kyle@pbx.org wrote:
+Hi,
 
-> I think I may have found a bug in Linux's implementation of epoll.  My
-> program creates a server socket that listens for incoming SOCK_STREAM
-> connections.  It uses epoll to wait for notification of a new connection
-> (and also to handle the client sockets).  While the client sockets use edge
-> triggered epoll, for performance reasons, the server socket uses level
-> triggered epoll.
->
-> I have found that when I open connections to my program very quickly, it is
-> sometimes possible to call accept more than once before reaching the point
-> where no more connections are available and EAGAIN is returned.  If I return
-> to epoll_wait without accepting all of the available connections, I should
-> immediately be notified that a read is still available on the server socket,
-> since I am using level triggered epoll for that descriptor (at least that is
-> my understanding of how all of this is supposed to work ;).  However, epoll
-> does not make this notification.  Even if the program accepts further
-> incoming connections, the missed connection is never accepted, and
-> eventually times out on the client side.
->
-> Kernel version is 2.6.9.  I can provide test code if needed.
+On Wednesday 26 April 2006 18:22, Nick Piggin wrote:
+> Nigel Cunningham wrote:
+> > On Wednesday 26 April 2006 12:24, Nick Piggin wrote:
+> > 
+> >>Rafael J. Wysocki wrote:
+> >>
+> >>>This means if we freeze bdevs, we'll be able to save all of the LRU pages,
+> >>>except for the pages mapped by the current task, without copying.  I think
+> >>>we can try to do this, but we'll need a patch to freeze bdevs for this
+> >>>purpose. ;-)
+> >>
+> >>Why not the current task? Does it exit the kernel? Or go through some
+> >>get_uesr_pages path?
+> > 
+> > 
+> > I think Rafael is asleep at the mo, so I'll answer for him - he's wanting it 
+> > to be compatible with using userspace to control what happens (uswsusp). In 
+> > that case, current will be the userspace program that's calling the ioctls to 
+> > get processes frozen etc.
 
-Correct, if it's LT you have to get the event because before returning 
-from epoll_wait(), the event is automatically re-armed if f_op->poll() 
-returns it. Can you post the *minimal* test code for this case?
+Thanks Nigel. :-)
 
+> OK, so what happens if, upon exit from kernel, that userspace task
+> subsequently changes some pagecache but doesn't have that mapped? Or
+> mmaps something then changes it?
 
+The page cache that is not mapped by anyone is copied before creating the
+image and the copy is included in the image.  However there would be a problem
+if some page cache mapped by someone else were mapped by the suspending
+task after it had exited the kernel.
 
-- Davide
+Fortunately this task is forbidden to open() or mmap() any files at that time
+anyway, because it would be likely to corrupt some filesystems if it did.
+In fact it must not _touch_ any filesystems after the image has been created.
 
-
+Greetings,
+Rafael

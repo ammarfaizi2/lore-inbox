@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWDZS6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWDZTAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWDZS6U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 14:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbWDZS6U
+	id S964829AbWDZTAg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 15:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWDZTAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 14:58:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:43399 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964811AbWDZS6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 14:58:19 -0400
-Date: Wed, 26 Apr 2006 19:58:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org, npiggin@suse.de,
-       linux-mm@kvack.org
-Subject: Re: Lockless page cache test results
-Message-ID: <20060426185813.GA26680@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-	linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org>
+	Wed, 26 Apr 2006 15:00:36 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:34753 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S964821AbWDZTAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 15:00:35 -0400
+Date: Wed, 26 Apr 2006 14:01:10 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [RFC] PATCH 0/4 - Time virtualization
+Message-ID: <20060426180110.GB8142@ccure.user-mode-linux.org>
+References: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org> <m1d5feotur.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060426111054.2b4f1736.akpm@osdl.org>
+In-Reply-To: <m1d5feotur.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 11:10:54AM -0700, Andrew Morton wrote:
-> > But boy I wish find_get_pages_contig() was there
-> > for that. I think I'd prefer adding that instead of coding that logic in
-> > splice, it can get a little tricky.
-> 
-> I guess it'd make sense - we haven't had a need for such a thing before.
-> 
-> umm, something like...
+On Wed, Apr 19, 2006 at 02:25:00AM -0600, Eric W. Biederman wrote:
+> That patch should probably be separated, from the rest.
+> But it looks like a fairly sane idea. 
 
-XFS would have a use for it, too.  In fact XFS would prefer a
-find_or_create_pages-like thing which is the thing splice wants in
-the end aswell.
+Yeah, I'll keep these together for now, but the ptrace one is
+conceptually different from the rest.
 
+> I think you missed a couple essential things to a time namespace.
+> Timers.  The posix timers, in particular.  The worst
+> of those is the monotonic timer.  
+
+Oops, thanks for pointing that out.
+
+> In the case of migration the ugly case to properly handle is the
+> monotonic timer.   That needs an offset yet it is absolutely forbidden
+> to provide that offset from the inside.  So this is the one namespace
+> that I think is inappropriate to use sys_unshare to create.
+> We need a system call so that we can specify the minimum or the
+> starting monotonic time base.
+
+For migration, it looks like the container will have to specify the
+time base at creation so that everything in it will have a consistent
+view of time if they get moved around.
+
+So, maybe it belongs in clone as a "backwards" flag similar to
+CLONE_NEWNS.
+
+				Jeff

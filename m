@@ -1,55 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWDZGSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWDZGUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWDZGSV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 02:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWDZGSU
+	id S1750802AbWDZGUu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 02:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWDZGUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 02:18:20 -0400
-Received: from mail.kroah.org ([69.55.234.183]:39116 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750785AbWDZGSU (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 02:18:20 -0400
-Date: Tue, 25 Apr 2006 23:13:28 -0700
-From: Greg KH <greg@kroah.com>
-To: biswa.nayak@wipro.com
-Cc: Linux-Kernel@vger.kernel.org
-Subject: Re: PCI ERROR: Segmentation fault in pci_do_scan_bus
-Message-ID: <20060426061328.GA2279@kroah.com>
-References: <4F36B0A4CDAD6F46A61B2B32C33DC69C02502ABC@BLR-EC-MBX03.wipro.com>
+	Wed, 26 Apr 2006 02:20:50 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:1997 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750802AbWDZGUt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 02:20:49 -0400
+Date: Wed, 26 Apr 2006 07:20:48 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: dbrownell@users.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: races in drivers/usb/gadget/inode.c, leak fix in the same file
+Message-ID: <20060426062048.GG27946@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4F36B0A4CDAD6F46A61B2B32C33DC69C02502ABC@BLR-EC-MBX03.wipro.com>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 25, 2006 at 05:25:32PM +0530, biswa.nayak@wipro.com wrote:
-> Hi 
-> 
-> I am getting segmentation fault, consistently on call to
-> 'pci_do_scan_bus'. This is a small test code ( attached with this mail)
-> to test the APIs exposed by the PCI subsystem.
+activate_ep_files() allocates a bunch of ep_data, creates inodes and
+dentries for them and sticks them into a cyclic list.  inode->u.generic_ip
+is set to created ep_data, refcount is 1.
 
-The module code you attached isn't exactly "small" :)
+destroy_ep_files() goes through that cyclic list, gets dentry from each
+ep_data on it and drops ep_data.  Then it kills dentry and inode by
+                /* break link to dcache */
+                mutex_lock (&parent->i_mutex);
+                d_delete (dentry);
+                dput (dentry);
+                mutex_unlock (&parent->i_mutex);
+Tries to kill, anyway.  The thing is, ep_open() (->open() on that sucker)
+does
+static int
+ep_open (struct inode *inode, struct file *fd)
+{
+        struct ep_data          *data = inode->u.generic_ip;
+        int                     value = -EBUSY;
 
-What chunk of code is causing the problem?
+        if (down_interruptible (&data->lock) != 0)
+                return -EINTR;
+followed eventually by pinning data (i.e. ep_data for that inode) down.
 
-Why are you scanning the PCI bus from a module?
+It's way too late - by the time we enter ep_open(), inode->u.generic_ip
+might be already pointing to freed memory.
 
->I just checked where it
-> faults and found out that inside 'sysfs_create_bin_file' it is not able
-> to find the kobject out of the dev pointer passed to it. Now extracting
-> of the dev object out of the bus pointer is done by
-> 'list_for_each_entry(dev, &bus->devices, bus_list)' in
-> 'pci_bus_add_devices'. Now I am not able to understand why the kobject
-> is missing. Is it something that I am missing or is it a kernel defect?
-> Any help in this will be really appreciated. The bug message is pasted
-> below.
+AFAICS, the cheapest way to deal with that would be to set ->u.generic_ip
+to NULL before dropping ep_data in ep_destroy_files(), have that done
+under global spinlock and have ep_open() et.al. start with checking if
+the pointer is NULL under the same spinlock and grabbing a reference if
+it isn't.
 
-I'm confused as to why you are trying to set up the pci bus for a pci
-bus that is already set up.  That's why the function is dying...
+There's another question: opened files are opened; what protects them
+from gadgetfs_unbind() freeing ep->req while ep is still pinned down
+by an opened file?  We do not hold dev->lock or ep->lock there...
 
-thanks,
+One more: what protects dev->state?  I don't see any lock that would
+be held over all places that modify it.
 
-greg k-h
+Oh, and a trivial leak fix, while we are at it:
+
+Subject: [PATCH] fix leak in activate_ep_files()
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+
+---
+
+ drivers/usb/gadget/inode.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+676113fa9fe777d13904017f8da5ae04c214567f
+diff --git a/drivers/usb/gadget/inode.c b/drivers/usb/gadget/inode.c
+index 42b4570..0eb010a 100644
+--- a/drivers/usb/gadget/inode.c
++++ b/drivers/usb/gadget/inode.c
+@@ -1614,6 +1614,7 @@ static int activate_ep_files (struct dev
+ 				data, &ep_config_operations,
+ 				&data->dentry);
+ 		if (!data->inode) {
++			usb_ep_free_request(ep, data->req);
+ 			kfree (data);
+ 			goto enomem;
+ 		}
+-- 
+1.3.0.g0080f
+

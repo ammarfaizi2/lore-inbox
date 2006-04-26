@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWDZJ4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWDZKFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWDZJ4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 05:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWDZJ4Z
+	id S1750953AbWDZKFk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 06:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWDZKFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 05:56:25 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:52357 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932072AbWDZJ4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 05:56:24 -0400
-Date: Wed, 26 Apr 2006 11:56:02 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, hzhong@gmail.com
-Subject: Re: [PATCH] Profile likely/unlikely macros
-Message-ID: <20060426095602.GB29108@wohnheim.fh-wedel.de>
-References: <200604250257.k3P2vlEb012502@dwalker1.mvista.com> <20060424200657.0af43d6a.akpm@osdl.org> <444DF5B4.6030004@yahoo.com.au> <1145989423.3674.17.camel@localhost.localdomain> <444EC7F9.8080208@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 26 Apr 2006 06:05:40 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18436 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750953AbWDZKFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 06:05:40 -0400
+Date: Wed, 26 Apr 2006 12:05:39 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, Hua Zhong <hzhong@gmail.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
+Message-ID: <20060426100539.GF9359@stusta.de>
+References: <Pine.LNX.4.64.0604251120420.5810@localhost.localdomain> <84144f020604260030v26f42b0bke639053928d5e471@mail.gmail.com> <1146038324.5956.0.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0604261112120.3522@sbz-30.cs.Helsinki.FI> <1146040038.7016.0.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <444EC7F9.8080208@yahoo.com.au>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1146040038.7016.0.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 April 2006 11:08:09 +1000, Nick Piggin wrote:
-> Daniel Walker wrote:
+On Wed, Apr 26, 2006 at 10:27:18AM +0200, Arjan van de Ven wrote:
+> On Wed, 2006-04-26 at 11:16 +0300, Pekka J Enberg wrote:
+> > On 4/25/06, Hua Zhong <hzhong@gmail.com> wrote:
+> > > > > diff --git a/mm/slab.c b/mm/slab.c
+> > > > > index e6ef9bd..0fbc854 100644
+> > > > > --- a/mm/slab.c
+> > > > > +++ b/mm/slab.c
+> > > > > @@ -3380,7 +3380,7 @@ void kfree(const void *objp)
+> > > > >         struct kmem_cache *c;
+> > > > >         unsigned long flags;
+> > > > >
+> > > > > -       if (unlikely(!objp))
+> > > > > +       if (!objp)
+> > > > >                 return;
+> > 
+> > > On Wed, 2006-04-26 at 10:30 +0300, Pekka Enberg wrote:
+> > > > NAK. Fix the callers instead.
+> > 
+> > On Wed, 26 Apr 2006, Arjan van de Ven wrote:
+> > > eh dude... they are being fixed... to remove the NULL check :)
+> > 
+> > Most of which are on error paths. The problem we're seeing is in handful 
+> > of fastpath offenders which should be fixed either by re-design or adding 
+> > the NULL check along with a big fat comment like Andrew is doing.
 > 
-> Ah, I see. Then you should be OK with either your current scheme, or
-> Andrew's suggestion, so long as you have a memory barrier before the
-> unlock (eg. smp_mb__before_clear_bit()).
-> 
-> >I'm not exactly sure what you mean by "release consistency" ?
-> 
-> Without a barrier, the stores to the linked list may be visible to another
-> CPU after the store that unlocks the atomic_t. Ie. the critical section can
-> leak out of the lock.
+> what I would like is kfree to become an inline wrapper that does the
+> null check inline, that way gcc can optimize it out (and it will in 4.1
+> with the VRP pass) if gcc can prove it's not NULL.
 
-Admitted, I'm a bit slow at times.  But why does this matter?
-According to my fairly limited brain, you take a potentially expensive
-barrier, so you pay with a bit of runtime.  What you buy is a smaller
-critical section, so you can save some runtime on other cpus.  When
-optimizing for the common case, which is one cpu, this is a net loss.
+In many cases it's not clear at compile time whether it will be NULL.
 
-There must be some correctness issue hidden that I cannot see.  Can
-you explain that to me?
+In such cases, your suggestion would result in bigger code.
 
-Jörn
+cu
+Adrian
 
 -- 
-A victorious army first wins and then seeks battle.
--- Sun Tzu
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

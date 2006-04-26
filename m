@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWDZPCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWDZPKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbWDZPCY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 11:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWDZPCX
+	id S932466AbWDZPKV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 11:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWDZPKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 11:02:23 -0400
-Received: from tayrelbas03.tay.hp.com ([161.114.80.246]:17064 "EHLO
-	tayrelbas03.tay.hp.com") by vger.kernel.org with ESMTP
-	id S932463AbWDZPCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 11:02:22 -0400
-Date: Wed, 26 Apr 2006 07:56:36 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: perfmon@napali.hpl.hp.com
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       perfctr-devel@lists.sourceforge.net
-Subject: beta of pfmon-3.2 available
-Message-ID: <20060426145636.GA6819@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+	Wed, 26 Apr 2006 11:10:21 -0400
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:8855 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S932466AbWDZPKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 11:10:21 -0400
+In-Reply-To: <Pine.LNX.4.64.0604261538260.9915@blonde.wat.veritas.com>
+References: <444F95D8.76E4.0078.0@novell.com> <Pine.LNX.4.64.0604261538260.9915@blonde.wat.veritas.com>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <946b367619cfd3dcd3ba547e216e494b@cl.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
+Cc: Jan Beulich <jbeulich@novell.com>, Zachary Amsden <zach@vmware.com>,
+       linux-kernel@vger.kernel.org
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [PATCH] i386: PAE entries must have their low word cleared first
+Date: Wed, 26 Apr 2006 16:06:31 +0100
+To: Hugh Dickins <hugh@veritas.com>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have finally released the first beta version of pfmon-3.2.
-This version is a major update of version 3.0 released
-2 years ago. They are many new features which I hope you'll find
-useful.
+On 26 Apr 2006, at 15:46, Hugh Dickins wrote:
 
-Here are some of the new features:
+> If that's so (I don't trust my judgement on matters of speculative
+> execution), then I think you'd do better to replace the *ptep = 
+> __pte(0)
+> by pte_clear(mm, addr, ptep), and so avoid your ugly #ifdef'ing: please
+> check, but I think you'll find that reduces to just the barrier you 
+> want.
+> CC'ed Zach since it's his optimization, and he'll judge that 
+> spexecution.
 
-	- support for perfmon v2.0 AND perfmon v2.2
-	- support for all Itanium processors including Montecito
-	- support for AMD X86-64 processors
-	- support for Intel Pentium M/P6 processors
-	- support for event sets and multiplexing (with perfmon v2.2)
-	- instruction-based histrogram sampling module format
-	- Data-EAR sampling module formats (Itanium only)
-	- ability to exclude idle task for system-wide measurements
-	- include or exclude interrupted triggered kernel execution for system
-	  wide measurements (Itanium and perfmon v2.2 only )
-	- support for rum/sum in monitored binaries (Itanium and perfmon v2.2 only)
-	- support for cpu sets
-	- man page for generic options
+In more detail the problem is that, since we're still running on the 
+page tables while clearing them, the CPU may choose to prefetch a 
+half-cleared pte into its TLB, and then execute speculative memory 
+accesses based on that mapping (including ones that may write-allocate 
+cachelines, leading to problems like the AMD AGP GART deadlock Linux 
+had a year or so back).
 
-For non Itanium processors, the perfmon v2.2 patch must be applied to the kernel.
-You need 2.6.17-rc1 or higher.
+The barrier is needed to ensure that the bottom half is cleared before 
+the top half. In fact it probably ought to be wmb() -- that's clearer 
+in intent and actually reduces to barrier() on all PAE-capable 
+platforms.
 
-The Montecito support is currently missing some of the multi-threading features
-as well as the cache MESI options for selected events.
+We cannot use pte_clear() unless we redefine it for PAE. Currently it 
+reduces to set_pte() which explicitly uses the wrong ordering (sets 
+high *then* low, because it's normally used to introduce a mapping).
 
-You need libpfm-3.2-060421 or newer to compile pfmon. Similarly you may
-want to use libunwind and libiberty to enable certain features. Make sure
-you look at the README.
+Also, I think wmb() should be used in PAE's set_pte(), rather than the 
+current smp_wmb(). They reduce to the same thing, but wmb() makes it 
+clear this is is not an issue specific to SMP systems.
 
-Full documentation including processors specific features is online at our
-project's web site.
+  -- Keir
 
-The tarball can be downloaded from our web site at:
-	
-		http://perfmon2.sf.net
-
-Please test pfmon in your configuration and report any problems to the
-perfmon mailing list.
-
-Enjoy,
-
---
--Stephane

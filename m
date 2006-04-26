@@ -1,100 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWDZCKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWDZCLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWDZCKU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 22:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWDZCKU
+	id S932340AbWDZCLY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 22:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWDZCLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 22:10:20 -0400
-Received: from nz-out-0102.google.com ([64.233.162.203]:45020 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932339AbWDZCKT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 22:10:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CRzefz50dQ1AlVEkIp50ilb0oT+N1mnlRUV3nApfBO0u2B3NzFcauXXdBxwllXkloT3GbpME8oiHJ+mkmAxJ06evoPCbHc7gqP6m5k4F1GRuJq3vlWdJuFJso4i53aawmmnNvPFg4SyYGD/nwh63QCjboabz9CW9Tu3ihQu+2sU=
-Message-ID: <9e4733910604251910t37b3b78o774a1c2bc38e9c66@mail.gmail.com>
-Date: Tue, 25 Apr 2006 22:10:18 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Dave Airlie" <airlied@linux.ie>
-Subject: Re: PCI ROM resource allocation issue with 2.6.17-rc2
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Matthew Reppert" <arashi@sacredchao.net>, linux-kernel@vger.kernel.org,
-       "Antonino A. Daplas" <adaplas@pol.net>,
-       "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-In-Reply-To: <Pine.LNX.4.64.0604260221560.31555@skynet.skynet.ie>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1145851361.3375.20.camel@minerva>
-	 <20060423222122.498a3dd2.akpm@osdl.org>
-	 <Pine.LNX.4.64.0604240652380.31142@skynet.skynet.ie>
-	 <Pine.LNX.4.64.0604241002460.3701@g5.osdl.org>
-	 <1145898993.3116.50.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0604241025120.3701@g5.osdl.org>
-	 <Pine.LNX.4.64.0604260221560.31555@skynet.skynet.ie>
+	Tue, 25 Apr 2006 22:11:24 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:9356 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932344AbWDZCLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 22:11:23 -0400
+Message-Id: <20060426021121.260553000@localhost.localdomain>
+References: <20060426021059.235216000@localhost.localdomain>
+Date: Wed, 26 Apr 2006 10:11:00 +0800
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, Akinobu Mita <mita@miraclelinux.com>,
+       Jens Axboe <axboe@suse.de>, Greg KH <greg@kroah.com>
+Subject: [patch 1/3] use kref for blk_queue_tag
+Content-Disposition: inline; filename=blk-queue-tag-use-kref.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/25/06, Dave Airlie <airlied@linux.ie> wrote:
->
-> >
-> > Maybe just add a DRM command to do it, so that old X versions (who don't
-> > know about it) will just do it by hand, and then new X versions can do
-> >
-> >       if (drm_ioctl(fd, DRM_SETUP_THE_DAMN_RESOURCES) < 0) {
-> >               /*
-> >                * I don't know what errno the drm-ioctl actually
-> >                * returns for unrecognized commands, so this is
-> >                * just an example
-> >                */
-> >               if (errno == ENOTTY) {
-> >                       old kernel: do it by hand
-> >               }
-> >       }
-> >
-> > which allows us to go forward in a sane way, and finally leave the broken
-> > X PCI-configuration-by-hand crap behind.
->
-> It doesn't help of course, the fb drivers also pci_enable the devices,
-> really X needs a kicking square, I'm trying to figure out some sort of fix
-> here, but X does't some really stupid things with PCI resources...
->
-> We really need a userspace way to pci_enable_device that X can call (via
-> sysfs) so for cards that don't have a DRM or fb loaded we still get
-> something..
+Use kref for reference counter of blk_queue_tag.
 
-You could make a null DRM driver that is loaded for every card that
-doesn't have a real one. Give it aliases to make it match the X driver
-names.
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+CC: Jens Axboe <axboe@suse.de>
+CC: Greg KH <greg@kroah.com>
 
-The right answer here is to start working towards a solution where the
-OS is actually in control of hardware resources instead of a user app.
-There can only be one entity in charge of PCI space or we will all go
-insane. If we continue to say that old X binaries have to work we will
-still have these same problems in 2060.
+ block/ll_rw_blk.c      |   35 ++++++++++++++++++++---------------
+ include/linux/blkdev.h |    2 +-
+ 2 files changed, 21 insertions(+), 16 deletions(-)
 
-
->
-> Dave.
->
-> --
-> David Airlie, Software Engineer
-> http://www.skynet.ie/~airlied / airlied at skynet.ie
-> Linux kernel - DRI, VAX / pam_smb / ILUG
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Index: 2.6-git/block/ll_rw_blk.c
+===================================================================
+--- 2.6-git.orig/block/ll_rw_blk.c
++++ 2.6-git/block/ll_rw_blk.c
+@@ -848,6 +848,23 @@ struct request *blk_queue_find_tag(reque
+ 
+ EXPORT_SYMBOL(blk_queue_find_tag);
+ 
++static void release_blk_queue_tag(struct kref *kref)
++{
++	struct blk_queue_tag *bqt = container_of(kref, struct blk_queue_tag,
++			kref);
++
++	BUG_ON(bqt->busy);
++	BUG_ON(!list_empty(&bqt->busy_list));
++
++	kfree(bqt->tag_index);
++	bqt->tag_index = NULL;
++
++	kfree(bqt->tag_map);
++	bqt->tag_map = NULL;
++
++	kfree(bqt);
++}
++
+ /**
+  * __blk_queue_free_tags - release tag maintenance info
+  * @q:  the request queue for the device
+@@ -863,19 +880,7 @@ static void __blk_queue_free_tags(reques
+ 	if (!bqt)
+ 		return;
+ 
+-	if (atomic_dec_and_test(&bqt->refcnt)) {
+-		BUG_ON(bqt->busy);
+-		BUG_ON(!list_empty(&bqt->busy_list));
+-
+-		kfree(bqt->tag_index);
+-		bqt->tag_index = NULL;
+-
+-		kfree(bqt->tag_map);
+-		bqt->tag_map = NULL;
+-
+-		kfree(bqt);
+-	}
+-
++	kref_put(&bqt->kref, release_blk_queue_tag);
+ 	q->queue_tags = NULL;
+ 	q->queue_flags &= ~(1 << QUEUE_FLAG_QUEUED);
+ }
+@@ -951,14 +956,14 @@ int blk_queue_init_tags(request_queue_t 
+ 
+ 		INIT_LIST_HEAD(&tags->busy_list);
+ 		tags->busy = 0;
+-		atomic_set(&tags->refcnt, 1);
++		kref_init(&tags->kref);
+ 	} else if (q->queue_tags) {
+ 		if ((rc = blk_queue_resize_tags(q, depth)))
+ 			return rc;
+ 		set_bit(QUEUE_FLAG_QUEUED, &q->queue_flags);
+ 		return 0;
+ 	} else
+-		atomic_inc(&tags->refcnt);
++		kref_get(&tags->kref);
+ 
+ 	/*
+ 	 * assign it, all done
+Index: 2.6-git/include/linux/blkdev.h
+===================================================================
+--- 2.6-git.orig/include/linux/blkdev.h
++++ 2.6-git/include/linux/blkdev.h
+@@ -315,7 +315,7 @@ struct blk_queue_tag {
+ 	int busy;			/* current depth */
+ 	int max_depth;			/* what we will send to device */
+ 	int real_max_depth;		/* what the array can hold */
+-	atomic_t refcnt;		/* map can be shared */
++	struct kref kref;		/* map can be shared */
+ };
+ 
+ struct request_queue
 
 --
-Jon Smirl
-jonsmirl@gmail.com

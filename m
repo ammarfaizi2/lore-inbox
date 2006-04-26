@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWDZOAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWDZOBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWDZOAv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 10:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWDZOAv
+	id S964774AbWDZOBX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 10:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbWDZOBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 10:00:51 -0400
-Received: from usea-naimss1.unisys.com ([192.61.61.103]:64772 "EHLO
-	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S932454AbWDZOAu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 10:00:50 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 26 Apr 2006 10:01:22 -0400
+Received: from wproxy.gmail.com ([64.233.184.228]:12535 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964776AbWDZOBV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 10:01:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RdvZrYKyRT6niiKFFXzn/DQK3OoL7h2bm4NCDlLN5Va/Dk6Ql3jcH+7YlNLZl6XTdpw3pDB7dFYgRG62d+PM4H35Snh5ilciANHUpAw9CTw84EJH/Mco3SrXAsAUTdg5tReepMsUlRJImvzn+nuPYyy5Ypb9CmjesM9s0m4B770=
+Message-ID: <bbe04eb10604260701h77d6f51fy1f95ea7e92e7c2b7@mail.gmail.com>
+Date: Wed, 26 Apr 2006 10:01:21 -0400
+From: "Kimball Murray" <kimball.murray@gmail.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Cc: "Brown, Len" <len.brown@intel.com>, linux-kernel@vger.kernel.org,
+       akpm@digeo.com, kmurray@redhat.com, natalie.protasevich@unisys.com,
+       linux-acpi@vger.kernel.org
+In-Reply-To: <bbe04eb10604260656h76064baev4f654a929290d35b@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Date: Wed, 26 Apr 2006 09:00:45 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0B98@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Thread-Index: AcZpMSEVs1tnMAkRRMKEWo8DYGUTlwACHdnA
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: <sergio@sergiomb.no-ip.org>, "Brown, Len" <len.brown@intel.com>
-Cc: "Kimball Murray" <kimball.murray@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <ak@suse.de>,
-       <kmurray@redhat.com>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 26 Apr 2006 14:00:46.0544 (UTC) FILETIME=[D0E63D00:01C66939]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <CFF307C98FEABE47A452B27C06B85BB6466487@hdsmsx411.amr.corp.intel.com>
+	 <200604261517.06505.ak@suse.de>
+	 <bbe04eb10604260656h76064baev4f654a929290d35b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think, it is about time, not thinking via quirks as 
-> workarounds, because all pcis (on via) are quirked, some are 
-> quirked twice.
-> And we should think in programmer interrupts of via chipset, 
-> in specific function for this propose, for me, doesn't make 
-> sense every time VIA put other ID out, we have to add quirks 
-> to this ID , as this was an exception. 
-> 
-> Thanks, 
+Oops, previous message got sent before I had typed anything!
 
-VIA's numerous pci quirks are not related to this patch. They only hit
-one problem with it having only 4 bits encoding their interrupt.
- 
-> On Tue, 2006-04-25 at 15:53 -0400, Brown, Len wrote:
-> > I'd rather see the original irq-renaming patch and its subsequent 
-> > multiple via workaround patches reverted than to further complicate 
-> > what is becoming a fragile mess.
-> > 
-> > -Len
+Andi, I just wanted to be clear that my patch is not a VIA workaround,
+it is a VIA workaround workaround.  So please don't remove my patch
+while leaving in the original VIA workaround.  That will break our
+platform, and possibly others.
 
-There are probably better ways to control 224 possible IRQs by their
-total number instead of their range, and per-cpu IDTs are the better
-answer to the IRQ shortage altogether. But just going back to the way it
-was wouldn't be right I think. We were able to run 2 generations of
-systems only because we had this compression, other big systems
-benefited from it as well.
-Thanks,
---Natalie
+I don't know if there's an easy way to have both the VIA workaround
+(Natalie's original patch) and the VIA workaround workaround (my
+patch) in a more unified construct.
+
+I believe our platform would work fine with the removal of my patch
+_and_ the VIA patch.  But, as you say, what about VIA?
+
+-kimball
+
+On 4/26/06, Kimball Murray <kimball.murray@gmail.com> wrote:
+> Hi Andi,
+>
+>
+>
+> On 4/26/06, Andi Kleen <ak@suse.de> wrote:
+> > On Tuesday 25 April 2006 21:53, Brown, Len wrote:
+> > > I'd rather see the original irq-renaming patch
+> > > and its subsequent multiple via workaround patches
+> > > reverted than to further complicate what is becoming
+> > > a fragile mess.
+> >
+> > Sorry rechecking - i already got the patch now. You want me to drop it again?
+> >
+> > I guess we could drop it all, but VIA must still work afterwards.
+> > How would we do that?
+> >
+> > -Andi
+> >
+>

@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWDZTG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWDZTIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964832AbWDZTG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 15:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWDZTG7
+	id S964834AbWDZTIu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 15:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWDZTIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 15:06:59 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:35508 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S964832AbWDZTG6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 15:06:58 -0400
-Date: Wed, 26 Apr 2006 15:06:57 -0400
-From: Yaroslav Halchenko <kernel@onerussian.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Highpoint SATA RAID (khe khe) status -- oopses, crashes, etc
-Message-ID: <20060426190657.GA17639@washoe.onerussian.com>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20060425172356.GD15201@washoe.onerussian.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060425172356.GD15201@washoe.onerussian.com>
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng/devel-r782 (Debian)
+	Wed, 26 Apr 2006 15:08:50 -0400
+Received: from smtpout.mac.com ([17.250.248.174]:4077 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S964834AbWDZTIs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 15:08:48 -0400
+In-Reply-To: <444F6FDD.7040000@etpmod.phys.tue.nl>
+References: <Pine.LNX.4.64.0604251120420.5810@localhost.localdomain> <84144f020604260030v26f42b0bke639053928d5e471@mail.gmail.com> <1146038324.5956.0.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0604261112120.3522@sbz-30.cs.Helsinki.FI> <1146040038.7016.0.camel@laptopd505.fenrus.org> <20060426100559.GC29108@wohnheim.fh-wedel.de> <1146046118.7016.5.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0604261354310.9797@sbz-30.cs.Helsinki.FI> <1146049414.7016.9.camel@laptopd505.fenrus.org> <20060426110656.GD29108@wohnheim.fh-wedel.de> <444F5B74.60809@etpmod.phys.tue.nl> <444F6FDD.7040000@etpmod.phys.tue.nl>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <CB27C57D-BABF-4900-9299-F342861CF1E0@mac.com>
+Cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Pekka J Enberg <penberg@cs.Helsinki.FI>, Hua Zhong <hzhong@gmail.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
+Date: Wed, 26 Apr 2006 15:07:28 -0400
+To: Bart Hartgers <bart@etpmod.phys.tue.nl>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a follow up: kernels <= 2.6.7 seems to be ok, ie they detect
-underlying drives without oopsing (tested 2.6.6 amd64 and 2.6.7 i386)
+Here's code that I've found works as well as can be expected under  
+both GCC 3 and GCC 4.  If xp is a known-NULL constant the whole  
+function will be optimized out completely.  If xp is known-not-NULL,  
+then it will optimize to a kfree function without the null check.   
+Otherwise it optimizes to call the out-of-line version.
 
-details are available for kernel 2.6.7 from
-http://www.onerussian.com/Linux/bugs/hpt.bug/2.6.7/
+Cheers,
+Kyle Moffett
 
-On Tue, 25 Apr 2006, Yaroslav Halchenko wrote:
+static inline void kfree(void *ptr)
+{
+	if (__builtin_constant_p((ptr == NULL))) {
+		if (ptr)
+			kfree_nonnull(ptr);
+	} else {
+		kfree_unknown(ptr);
+	}
+}
 
-> Dear Kernel Developers,
+void kfree_nonnull(void *ptr)
+{
+	/* kfree code here, no null check */
+}
 
-> I've search the archive and the web extensively: there were some reports
-> from the users of RocketRaid 1520 fakeraid about inability to use
-> propriatary drivers as well as their opensource drivers:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=113566695101306&w=2
-> and leaving the hope reply from Dr.Cox:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=113631066409179&w=2
+void kfree_unknown(void *ptr)
+{
+	if (ptr)
+		kfree_nonnull(ptr);
+}
 
-> compiled for amd64:
-> 2.6.8 kernel: oopsed but seems to somewhat perform after that
-> 2.6.15 kernel:  oopsed during boot (debian installer for some reason
-> tried it automatically.... grrr) and then it would halt any insmod of
-> any IDE driver
-
-> Details on my system and boot/install process can be found from
-> http://www.onerussian.com/Linux/bugs/hpt.bug/
-> This time I was using beta debian etch installer (which supposedly had
-> freshier kernel than sarge's 2.6.8)
-
-> Please advise: can I do anything about this crappy card or I better
-> setup nfsroot for now and just buy another supported SATA raid card?
-> Thank you in advance. I am willing to perform more testing if that is
-> necessary/possible
--- 
-Yaroslav Halchenko
-Research Assistant, Psychology Department, Rutgers-Newark
-Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
-        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07105
-Student  Ph.D. @ CS Dept. NJIT

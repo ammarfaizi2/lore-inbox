@@ -1,36 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWDZVB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWDZVES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWDZVB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 17:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWDZVB1
+	id S932318AbWDZVES (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 17:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWDZVES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 17:01:27 -0400
-Received: from cassarossa.samfundet.no ([129.241.93.19]:36284 "EHLO
-	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
-	id S932205AbWDZVB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 17:01:26 -0400
-Date: Wed, 26 Apr 2006 23:01:24 +0200
-From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: kswapd oops reproduced with 2.6.17-rc2 (was Oops with 2.6.15.3 on amd64)
-Message-ID: <20060426210124.GA15619@uio.no>
-References: <20060422221232.GA6269@uio.no> <200604261740.47107.Rafal.Wysocki@fuw.edu.pl> <20060426161214.GA13689@uio.no> <200604262259.39691.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200604262259.39691.rjw@sisk.pl>
-X-Operating-System: Linux 2.6.14.3 on a x86_64
-X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
-User-Agent: Mutt/1.5.11+cvs20060403
+	Wed, 26 Apr 2006 17:04:18 -0400
+Received: from xenotime.net ([66.160.160.81]:53454 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932318AbWDZVER (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 17:04:17 -0400
+Date: Wed, 26 Apr 2006 14:06:43 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Maurice Volaski <mvolaski@aecom.yu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: drbd-0.7.18 doesn't compile under 2.617-rc2 because
+ SLAB_NO_REAP is missing
+Message-Id: <20060426140643.d5775d55.rdunlap@xenotime.net>
+In-Reply-To: <a0623092dc075772b201c@[129.98.90.227]>
+References: <a0623092dc075772b201c@[129.98.90.227]>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 10:59:39PM +0200, Rafael J. Wysocki wrote:
-> This kind of agrees with my result ie. list_del() in isolate_lru_pages():
+On Wed, 26 Apr 2006 15:16:33 -0400 Maurice Volaski wrote:
 
-Well, look at the followup -- I'm not convinced the address lookup is right.
+> Being forwarded here from the drbd mailing list in case SLAB_NO_REAP 
+> got removed from the kernel source inadvertently....
 
-/* Steinar */
--- 
-Homepage: http://www.sesse.net/
+It's no longer used in the kernel tree.  Here's the patch
+that removed it:
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ac2b898ca6fb06196a26869c23b66afe7944e52e
+
+> >
+> >It was previously reported (twice) that drbd-0.7.17 didn't compile 
+> >under the initial releases of 2.6.17. Neither does 0.7.18.
+> >
+> >/var/tmp/portage/drbd-0.7.18/work/drbd-0.7.18/drbd/drbd_main.c: In 
+> >function `drbd_create_mempools':
+> >/var/tmp/portage/drbd-0.7.18/work/drbd-0.7.18/drbd/drbd_main.c:1547: 
+> >error: `SLAB_NO_REAP' undeclared (first use in this function)
+> >/var/tmp/portage/drbd-0.7.18/work/drbd-0.7.18/drbd/drbd_main.c:1547: 
+> >error: (Each undeclared identifier is reported only once
+> >/var/tmp/portage/drbd-0.7.18/work/drbd-0.7.18/drbd/drbd_main.c:1547: 
+> >error: for each function it appears in.)
+> >make[3]: *** 
+> >[/var/tmp/portage/drbd-0.7.18/work/drbd-0.7.18/drbd/drbd_main.o] 
+> >Error 1
+> >make[2]: *** 
+> >[_module_/var/tmp/portage/drbd-0.7.18/work/drbd-0.7.18/drbd] Error 2
+> >--
+
+---
+~Randy

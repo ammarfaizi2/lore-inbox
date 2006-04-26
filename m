@@ -1,170 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWDZNRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWDZN2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbWDZNRE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 09:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWDZNRE
+	id S932432AbWDZN2m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 09:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWDZN2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 09:17:04 -0400
-Received: from EXCHG2003.microtech-ks.com ([24.124.14.122]:9675 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S932422AbWDZNRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 09:17:02 -0400
-Message-ID: <444F72C8.4060401@atipa.com>
-Date: Wed, 26 Apr 2006 08:16:56 -0500
-From: Roger Heflin <rheflin@atipa.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Roger Heflin <rheflin@atipa.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: Issues with sata_nv and 2 disks under 2.6.16 and 2.6.17-rc2
-References: <444E5620.50404@atipa.com>
-In-Reply-To: <444E5620.50404@atipa.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Apr 2006 13:08:52.0952 (UTC) FILETIME=[910DCD80:01C66932]
+	Wed, 26 Apr 2006 09:28:42 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:25505 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932431AbWDZN2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 09:28:41 -0400
+Date: Wed, 26 Apr 2006 08:28:03 -0500
+From: Dean Nelson <dcn@sgi.com>
+To: Jes Sorensen <jes@sgi.com>
+Cc: akpm@osdl.org, tony.luck@intel.com, avolkov@varma-el.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       paulus@samba.org, holt@sgi.com
+Subject: Re: [PATCH] change gen_pool allocator to not touch managed memory
+Message-ID: <20060426132803.GA30360@sgi.com>
+References: <444D1A7E.mailx85W11DZZU@aqua.americas.sgi.com> <20060424181626.09966912.akpm@osdl.org> <20060425155051.GA19248@sgi.com> <444F3990.5030100@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <444F3990.5030100@sgi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Heflin wrote:
-> Hello,
+On Wed, Apr 26, 2006 at 11:12:48AM +0200, Jes Sorensen wrote:
+> Dean Nelson wrote:
+> > -unsigned long gen_pool_alloc(struct gen_pool *poolp, int size)
+> > +int gen_pool_add(struct gen_pool *pool, unsigned long addr, size_t size,
+> > +		 int nid)
+> >  {
+> > -	int j, i, s, max_chunk_size;
+> > -	unsigned long a, flags;
+> > -	struct gen_pool_link *h = poolp->h;
+> > +	struct gen_pool_chunk *chunk;
+> > +	int nbits = size >> pool->min_alloc_order;
+> > +	int nbytes = sizeof(struct gen_pool_chunk) +
+> > +				(nbits + BITS_PER_BYTE - 1) / BITS_PER_BYTE;
+> > +
+> > +	if (nbytes > PAGE_SIZE) {
+> > +		chunk = vmalloc_node(nbytes, nid);
+> > +	} else {
+> > +		chunk = kmalloc_node(nbytes, GFP_KERNEL, nid);
+> > +	}
 > 
-> I have several machines configured (10+) with K8N-DRE motherboards,
-> which have Nvidia CK804 chipsets and Sata controllers, all seem to
-> exhibit this behavior.   All machines have 16GB of ram, and are
-> running x86_64 versions.
-> 
-> With one disk running everything is fine, and there are no problems,
-> so if I do "dd if=/dev/sda of=/dev/null bs=64k" everything works,
-> if I background the command and start a second dd on sdb the io rate
-> about doubles (to 130k was about 65k) for about 1-2 seconds and then
-> goes to 0 and the machine hangs up (the dd's can be killed with alt-sysrq
-> keys or issuing a kill against the processes-but the processes are
-> in disk wait so it takes 10-30 seconds before the kill actually does
-> its job).   After the kill completes everything seems ok again, it
-> looks like access to the disks is completely blocked when this happens,
-> I cannot get anything that accesses the disks to run once the
-> dd's hang up.
-> 
-> I get these messages from dmesg when the event happens on 2.6.16:
-> 
-> ata1: command 0x25 timeout, stat 0x50 host_stat 0x24
-> ata2: command 0x25 timeout, stat 0x50 host_stat 0x24
-> 
-> On 2.6.17-rc2 the messages look slightly different:
-> 
-> 
-> ata1: command 0xc8 timeout, stat 0x50 host_stat 0x24
-> ata1: status=0x50 { DriveReady SeekComplete }
-> sda: Current: sense key: No Sense
->     Additional sense: No additional sense information
-> Info fld=0x3481ff
-> ata2: command 0xc8 timeout, stat 0x50 host_stat 0x24
-> ata2: status=0x50 { DriveReady SeekComplete }
-> sdb: Current: sense key: No Sense
->     Additional sense: No additional sense information
-> Info fld=0x166ff
-> ata1: command 0xc8 timeout, stat 0x50 host_stat 0x24
-> ata1: status=0x50 { DriveReady SeekComplete }
-> sda: Current: sense key: No Sense
->     Additional sense: No additional sense information
-> Info fld=0x3482ff
-> ata2: command 0xc8 timeout, stat 0x50 host_stat 0x24
-> ata2: status=0x50 { DriveReady SeekComplete }
-> sdb: Current: sense key: No Sense
->     Additional sense: No additional sense information
-> Info fld=0x167ff
-> ata1: command 0xca timeout, stat 0x50 host_stat 0x24
-> ata1: status=0x50 { DriveReady SeekComplete }
-> 
-> 
-> The bootup messages for the disks look like this:
-> 
-> SCSI subsystem initialized
-> libata version 1.20 loaded.
-> sata_nv 0000:00:07.0: version 0.8
-> PCI: Setting latency timer of device 0000:00:07.0 to 64
-> ata1: SATA max UDMA/133 cmd 0xF000 ctl 0xEC02 bmdma 0xE000 irq 7
-> ata2: SATA max UDMA/133 cmd 0xE800 ctl 0xE402 bmdma 0xE008 irq 7
-> logips2pp: Detected unknown logitech mouse model 1
-> ata1: SATA link up 1.5 Gbps (SStatus 113)
-> ata1: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3469 86:3c01 87:4003 
-> 88:203f
-> ata1: dev 0 ATA-6, max UDMA/100, 625142448 sectors: LBA48
-> nv_sata: Primary device added
-> nv_sata: Primary device removed
-> nv_sata: Secondary device added
-> nv_sata: Secondary device removed
-> ata1: dev 0 configured for UDMA/100
-> scsi0 : sata_nv
-> ata2: SATA link up 1.5 Gbps (SStatus 113)
-> input: PS/2 Logitech Mouse as /class/input/input1
-> ata2: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3469 86:3c01 87:4003 
-> 88:203f
-> ata2: dev 0 ATA-6, max UDMA/100, 625142448 sectors: LBA48
-> nv_sata: Primary device added
-> nv_sata: Primary device removed
-> nv_sata: Secondary device added
-> nv_sata: Secondary device removed
-> ata2: dev 0 configured for UDMA/100
-> scsi1 : sata_nv
->   Vendor: ATA       Model: WDC WD3200SD-01K  Rev: 08.0
->   Type:   Direct-Access                      ANSI SCSI revision: 05
-> SCSI device sda: 625142448 512-byte hdwr sectors (320073 MB)
-> sda: Write Protect is off
-> sda: Mode Sense: 00 3a 00 00
-> SCSI device sda: drive cache: write back
-> SCSI device sda: 625142448 512-byte hdwr sectors (320073 MB)
-> sda: Write Protect is off
-> sda: Mode Sense: 00 3a 00 00
-> SCSI device sda: drive cache: write back
->  sda:<4>nv_sata: Primary device added
-> nv_sata: Primary device removed
-> nv_sata: Secondary device added
-> nv_sata: Secondary device removed
->  sda1
-> sd 0:0:0:0: Attached scsi disk sda
->   Vendor: ATA       Model: WDC WD3200SD-01K  Rev: 08.0
->   Type:   Direct-Access                      ANSI SCSI revision: 05
-> SCSI device sdb: 625142448 512-byte hdwr sectors (320073 MB)
-> sdb: Write Protect is offsdb: Mode Sense: 00 3a 00 00
-> SCSI device sdb: drive cache: write back
-> SCSI device sdb: 625142448 512-byte hdwr sectors (320073 MB)
-> sdb: Write Protect is off
-> sdb: Mode Sense: 00 3a 00 00
-> SCSI device sdb: drive cache: write back
->  sdb:<4>nv_sata: Primary device added
-> nv_sata: Primary device removed
-> nv_sata: Secondary device added
-> nv_sata: Secondary device removed
->  sdb1
-> nv_sata: Primary device added
-> nv_sata: Primary device removed
-> nv_sata: Secondary device added
-> nv_sata: Secondary device removed
-> sd 1:0:0:0: Attached scsi disk sdb
-> PCI: Setting latency timer of device 0000:00:08.0 to 64
-> ata3: SATA max UDMA/133 cmd 0xDC00 ctl 0xD802 bmdma 0xCC00 irq 5
-> ata4: SATA max UDMA/133 cmd 0xD400 ctl 0xD002 bmdma 0xCC08 irq 5
-> ata3: SATA link down (SStatus 0)
-> scsi2 : sata_nv
-> ata4: SATA link down (SStatus 0)
-> scsi3 : sata_nv
-> 
-> I have not been able (so far) to get these messages only running
-> one disk at a time.  And it appears that I can run either disk by
-> itself with no issues.
-> 
-> I tested with 2 different FC5 2.6.16 variants, and with 2.6.17-rc2,
-> and both exhibit the same behavior.
-> 
-> What can I try to debug this?
-> 
->                      Roger Heflin
+> Any patch that adds vmalloc() calls to code always makes the little
+> hairs on the back of my neck stand up. Any chance we could get away with
+> alloc_pages_node() for this?
 
+Is it the mapping of the pages that bothers you? If using alloc_pages_node()
+is the preferred way, I certainly can make the change. But if I do there is
+a greater potential that we may have to return failure to the caller of
+gen_pool_add(), that is if we can't get the necessary number of contiguous
+pages. Now granted the likelyhood that anyone would require more than a
+page for a bitmap is very very small. I'd say the vast majority of callers
+will end up using kmalloc_node(). I can go either way, just let me know
+whether I should make the change or not.
 
-And if anyone is interested in trying to debug this, I can give full 
-access to
-the machine and I can probably provide whatever setup is best for debugging
-this sort of issue.
+> >  	ia64_pal_mc_drain();
+> > -	status = smp_call_function(uncached_ipi_mc_drain, NULL, 0, 1);
+> > -	if (status)
+> > -		printk(KERN_WARNING "smp_call_function failed for "
+> > -		       "uncached_ipi_mc_drain! (%i)\n", status);
+> > +	(void) smp_call_function(uncached_ipi_mc_drain, NULL, 0, 1);
+> 
+> This thing could in theory fail so having the error check there seems
+> the right thing to me. In either case, please don't (void) the function
+> return (this is a style issue, I know).
 
-                                  Roger
+The comment block preceding smp_call_function() says that it returns "0 on
+success, else a negative status code". So regardless of whether the current
+implementation for a given architecture is always returning 0 is probably
+irrelevant since that could change tommorrow. So now I'm thinking I should
+restore the check for an error return, something I will do in the next
+version of this patch.
+
+> > Index: linux-2.6/arch/ia64/sn/kernel/sn2/cache.c
+> > ===================================================================
+> > --- linux-2.6.orig/arch/ia64/sn/kernel/sn2/cache.c	2006-04-24 12:25:36.234717101 -0500
+> > +++ linux-2.6/arch/ia64/sn/kernel/sn2/cache.c	2006-04-24 12:27:56.012899026 -0500
+> 
+> This part we should maybe do in a seperate patch? It seems valid on it's
+> own?
+
+I thought of this, but if this patch were separated out then the remaining
+patch would be dependent on it since the uncached allocator is being
+changed to call sn_flush_all_caches() with an uncached address.
+It certainly could be done, but is it worth the effort? Let me know
+how I should proceed with this.
+
+Thanks,
+Dean

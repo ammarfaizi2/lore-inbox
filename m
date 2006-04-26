@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWDZPvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWDZPwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWDZPvO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 11:51:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWDZPvO
+	id S964838AbWDZPwi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 11:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWDZPwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 11:51:14 -0400
-Received: from xenotime.net ([66.160.160.81]:13978 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964833AbWDZPvN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 11:51:13 -0400
-Date: Wed, 26 Apr 2006 08:53:38 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Jan Beulich" <jbeulich@novell.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [PATCH] serialize assign_irq_vector() use of static variables
-Message-Id: <20060426085338.c1cd6b94.rdunlap@xenotime.net>
-In-Reply-To: <444F9AD9.76E4.0078.0@novell.com>
-References: <444F9AD9.76E4.0078.0@novell.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 26 Apr 2006 11:52:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:39315 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964838AbWDZPwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 11:52:37 -0400
+Subject: Re: [patch] pciehp: dont call pci_enable_dev
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: pcihpd-discuss@lists.sourceforge.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1146002437.6478.43.camel@whizzy>
+References: <1145919059.6478.29.camel@whizzy>
+	 <1145945819.3114.0.camel@laptopd505.fenrus.org>
+	 <1146002437.6478.43.camel@whizzy>
+Content-Type: text/plain
+Date: Wed, 26 Apr 2006 17:52:27 +0200
+Message-Id: <1146066747.7016.17.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Apr 2006 16:07:53 +0200 Jan Beulich wrote:
-
-> Since assign_irq_vector() can be called at runtime, its access of static
-> variables should be protected by a lock.
+On Tue, 2006-04-25 at 15:00 -0700, Kristen Accardi wrote:
+> On Tue, 2006-04-25 at 08:16 +0200, Arjan van de Ven wrote:
+> > On Mon, 2006-04-24 at 15:50 -0700, Kristen Accardi wrote:
+> > > Don't call pci_enable_device from pciehp because the pcie port service driver
+> > > already does this.
+> > 
+> > hmmmm shouldn't pci_enable_device on a previously enabled device just
+> > succeed? Sounds more than logical to me to make it that way at least...
 > 
-> Signed-off-by: Jan Beulich <jbeulich@novell.com>
+> I can't think of any reason why not.  Something like this what you had
+> in mind perhaps?
+> 
+> ---
 
-Hi,
-Would you include diffstat output also, as mentioned (optional)
-in Documentation/SubmittingPatches?  I'd really like to see a list
-of patched files without having to scan the entire patch.
-Thanks.
+the question then becomes if enable/disable should become "counting", eg
+enable twice disable once leaves enabled at count one....
 
-Oh, the diff filenames should begin at the linux-2.x.y level so
-that they can be applied with patch -p1.
-Lots of tools know how to do this.
 
-> diff -Npru /home/jbeulich/tmp/linux-2.6.17-rc2/arch/i386/kernel/io_apic.c
-> 2.6.17-rc2-x86-assign_irq_vector-lock/arch/i386/kernel/io_apic.c
-> --- /home/jbeulich/tmp/linux-2.6.17-rc2/arch/i386/kernel/io_apic.c	2006-04-26 10:55:11.000000000 +0200
-> +++ 2.6.17-rc2-x86-assign_irq_vector-lock/arch/i386/kernel/io_apic.c	2006-04-25 15:38:32.000000000 +0200
-> @@ -1163,16 +1170,21 @@ next:
->  
->  	if (current_vector >= FIRST_SYSTEM_VECTOR) {
->  		offset++;
-> -		if (!(offset%8))
-> +		if (!(offset%8)) {
-
-Use better spacing here:  (offset % 8)
-
-> +			spin_unlock(&vector_lock);
->  			return -ENOSPC;
-> +		}
->  		current_vector = FIRST_DEVICE_VECTOR + offset;
->  	}
->  
-
----
-~Randy

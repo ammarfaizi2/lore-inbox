@@ -1,50 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWDZSI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWDZSMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbWDZSI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 14:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWDZSI4
+	id S964781AbWDZSMo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 14:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWDZSMo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 14:08:56 -0400
-Received: from mail1.skjellin.no ([80.239.42.67]:21226 "EHLO mx1.skjellin.no")
-	by vger.kernel.org with ESMTP id S932364AbWDZSIz (ORCPT
+	Wed, 26 Apr 2006 14:12:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19639 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964781AbWDZSMn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 14:08:55 -0400
-Message-ID: <444FB742.40604@tomt.net>
-Date: Wed, 26 Apr 2006 20:09:06 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Nick Warne <nick@linicks.net>, Jens Axboe <axboe@suse.de>
-Subject: Re: scheduler question 2.6.16.x
-References: <200604251905.19004.nick@linicks.net> <20060425181530.GQ4102@suse.de> <200604251933.48363.nick@linicks.net>
-In-Reply-To: <200604251933.48363.nick@linicks.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 26 Apr 2006 14:12:43 -0400
+Date: Wed, 26 Apr 2006 11:10:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+Message-Id: <20060426111054.2b4f1736.akpm@osdl.org>
+In-Reply-To: <20060426174235.GC5002@suse.de>
+References: <20060426135310.GB5083@suse.de>
+	<20060426095511.0cc7a3f9.akpm@osdl.org>
+	<20060426174235.GC5002@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Warne wrote:
-> On Tuesday 25 April 2006 19:15, Jens Axboe wrote:
+Jens Axboe <axboe@suse.de> wrote:
+>
+> On Wed, Apr 26 2006, Andrew Morton wrote:
+> > Jens Axboe <axboe@suse.de> wrote:
+> > >
+> > > Running a splice benchmark on a 4-way IPF box, I decided to give the
+> > >  lockless page cache patches from Nick a spin. I've attached the results
+> > >  as a png, it pretty much speaks for itself.
+> > 
+> > It does.
+> > 
+> > What does the test do?
+> >
+> > In particular, does it cause the kernel to take tree_lock once per
+> > page, or once per batch-of-pages?
 > 
->>> But I can build both in... so I guess then the kernel decides what is
->>> the best to use?  Or should it be so I am only allowed to select one
->>> or the other and allowing both is an oversight?
->> See the option no more than two lines down from that, default io
->> scheduler. Also see Documentation/block/switching-sched.txt and/or
->> Documentation/kernel-parameters.txt (elevator=) section.
-> 
-> Hi Jens,
-> 
-> I haven't got the switching-sched.txt, although I found a sched-design.txt... 
-> but what I meant was if I select whatever default, do/can I still need to 
-> select either/or scheduler?
-> 
-> i.e. why doesn't 'default selection option' only allow that scheduler to be 
-> selected?
+> Once per page, it's basically exercising the generic_file_splice_read()
+> path. Basically X number of "clients" open the same file, and fill those
+> pages into a pipe using splice. The output end of the pipe is then
+> spliced to /dev/null to toss it away again.
 
-That would be a artificial (and silly!) limit - the io-scheduler is 
-pluggable and selectable at boot, you can even change it at run time at 
-a per block device level.
+OK.  That doesn't sound like something which a real application is likely
+to do ;)
 
-See the elevator= boot option and /sys/block/<device>/queue/scheduler
+> The top of the 4-client
+> vanilla run profile looks like this:
+> 
+> samples  %        symbol name
+> 65328    47.8972  find_get_page
+> 
+> Basically the machine is fully pegged, about 7% idle time.
+
+Most of the time an acquisition of tree_lock is associated with a disk
+read, or a page-size memset, or a page-size memcpy.  And often an
+acquisition of tree_lock is associated with multiple pages, not just a
+single page.
+
+So although the graph looks good, I wouldn't view this as a super-strong
+argument in favour of lockless pagecache.
+
+> We can speedup the lookups with find_get_pages(). The test does 64k max,
+> so with luck we should be able to pull 16 pages in at the time. I'll try
+> and run such a test.
+
+OK.
+
+> But boy I wish find_get_pages_contig() was there
+> for that. I think I'd prefer adding that instead of coding that logic in
+> splice, it can get a little tricky.
+
+I guess it'd make sense - we haven't had a need for such a thing before.
+
+umm, something like...
+
+unsigned find_get_pages_contig(struct address_space *mapping, pgoff_t start,
+			    unsigned int nr_pages, struct page **pages)
+{
+	unsigned int i;
+	unsigned int ret;
+	pgoff_t index = start;
+
+	read_lock_irq(&mapping->tree_lock);
+	ret = radix_tree_gang_lookup(&mapping->page_tree,
+				(void **)pages, start, nr_pages);
+	for (i = 0; i < ret; i++) {
+		if (pages[i]->mapping == NULL || pages[i]->index != index)
+			break;
+		page_cache_get(pages[i]);
+		index++;
+	}
+	read_unlock_irq(&mapping->tree_lock);
+	return i;
+}
+

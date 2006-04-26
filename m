@@ -1,87 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWDZU0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWDZU1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWDZU0v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 16:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWDZU0v
+	id S964866AbWDZU1u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 16:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWDZU1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 16:26:51 -0400
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:60382 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S964859AbWDZU0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 16:26:50 -0400
-Subject: Re: [uml-devel] Re: [RFC] PATCH 3/4 - Time virtualization :
-	PTRACE_SYSCALL_MASK
-From: "Charles P. Wright" <cwright@cs.sunysb.edu>
-To: Jeff Dike <jdike@addtoit.com>,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-In-Reply-To: <444797F8.6020509@fujitsu-siemens.com>
-References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org>
-	 <20060420090514.GA9452@osiris.boeblingen.de.ibm.com>
-	 <444797F8.6020509@fujitsu-siemens.com>
-Content-Type: text/plain
-Date: Wed, 26 Apr 2006 16:26:42 -0400
-Message-Id: <1146083202.10211.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 26 Apr 2006 16:27:49 -0400
+Received: from rtr.ca ([64.26.128.89]:15033 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S964866AbWDZU1s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 16:27:48 -0400
+From: Mark Lord <lkml@rtr.ca>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] drivers/scsi/sd.c: fix uninitialized variable in handling medium errors
+Date: Wed, 26 Apr 2006 16:27:29 -0400
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604261627.29419.lkml@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-20 at 16:17 +0200, Bodo Stroesser wrote:
-> Heiko Carstens wrote:
-> >>Add PTRACE_SYSCALL_MASK, which allows system calls to be selectively
-> >>traced.  It takes a bitmask and a length.  A system call is traced
-> >>if its bit is one.  Otherwise, it executes normally, and is
-> >>invisible to the ptracing parent.
-> >>[...]
-> >>+int set_syscall_mask(struct task_struct *child, char __user *mask,
-> >>+		     unsigned long len)
-> >>+{
-> >>+	int i, n = (NR_syscalls + 7) / 8;
-> >>+	char c;
-> >>+
-> >>+	if(len > n){
-> >>+		for(i = NR_syscalls; i < len * 8; i++){
-> >>+			get_user(c, &mask[i / 8]);
-> >>+			if(!(c & (1 << (i % 8)))){
-> >>+				printk("Out of range syscall at %d\n", i);
-> >>+				return -EINVAL;
-> >>+			}
-> >>+		}
-> >>+
-> >>+		len = n;
-> >>+	}
-> > 
-> > 
-> > Since it's quite likely that len > n will be true (e.g. after installing the
-> > latest version of your debug tool) it would be better to silently ignore all
-> > bits not within the range of NR_syscalls.
-> > There is no point in flooding the console. The tracing process won't see any
-> > of the non existant syscalls it requested to see anyway.
-> 
-> Shouldn't 'len' better be the number of bits in the mask than the number of chars?
-> Assume a syscall newly added to UML would be a candidate for processing on the host,
-> but the incremented NR_syscalls still would result in the same number of bytes. Also
-> assume, host doesn't yet have that new syscall. Current implementation doesn't catch
-> the fact, that host can't execute that syscall.
-> 
-> OTOH, I think UML shouldn't send the entire mask, but relevant part only. The missing
-> end is filled with 0xff by host anyway. So it would be enough to send the mask up to the
-> highest bit representing a syscall, that needs to be executed by host. (currently, that
-> is __NR_gettimeofday). If UML would do so, no more problem results from UML having
-> a higher NR_syscall than the host (as long as the new syscalls are to be intercepted
-> and executed by UML)
-> 
-> A greater problem might be a process in UML, that calls an invalid syscall number. AFAICS
-> syscall number (orig_eax) isn't checked before it is used in do_syscall_trace to address
-> syscall_mask. This might result in a crash.
-I have a similar local patch that I've been using.  I think it would be
-worthwhile to have an extra bit in the bitmap that says what to do with
-calls that fall outside the range [0, __NR_syscall].  That way the
-ptrace monitor can decide whether it is useful to get informed of these
-"bogus" calls.
+From: Mark Lord <lkml@rtr.ca>
 
-Charles
+I am looking into how SCSI/SATA handle medium (disk) errors,
+and the observed behaviour is a little more random than expected,
+due to a bug in sd.c.
 
+When scsi_get_sense_info_fld() fails (returns 0), it does NOT update the
+value of first_err_block.  But sd_rw_intr() merrily continues to use that
+variable regardless, possibly making incorrect decisions about retries and the like.
+
+This patch removes the randomness there, by using the first sector of the
+request (SCpnt->request->sector) in such cases, instead of first_err_block.
+
+The patch shows more context than usual, to help see what's going on.
+
+Signed-off-by: Mark Lord <lkml@rtr.ca>
+---
+--- linux-2.6.17-rc2-git8/drivers/scsi/sd.c	2006-04-26 15:36:12.000000000 -0400
++++ linux/drivers/scsi/sd.c	2006-04-26 16:07:39.000000000 -0400
+@@ -930,64 +930,66 @@
+ 			info_valid = scsi_get_sense_info_fld(
+ 				SCpnt->sense_buffer, SCSI_SENSE_BUFFERSIZE,
+ 				&first_err_block);
+ 			/*
+ 			 * May want to warn and skip if following cast results
+ 			 * in actual truncation (if sector_t < 64 bits)
+ 			 */
+ 			error_sector = (sector_t)first_err_block;
+ 			if (SCpnt->request->bio != NULL)
+ 				block_sectors = bio_sectors(SCpnt->request->bio);
+ 			switch (SCpnt->device->sector_size) {
+ 			case 1024:
+ 				error_sector <<= 1;
+ 				if (block_sectors < 2)
+ 					block_sectors = 2;
+ 				break;
+ 			case 2048:
+ 				error_sector <<= 2;
+ 				if (block_sectors < 4)
+ 					block_sectors = 4;
+ 				break;
+ 			case 4096:
+ 				error_sector <<=3;
+ 				if (block_sectors < 8)
+ 					block_sectors = 8;
+ 				break;
+ 			case 256:
+ 				error_sector >>= 1;
+ 				break;
+ 			default:
+ 				break;
+ 			}
++			if (!info_valid)
++				error_sector = SCpnt->request->sector;
+ 
+ 			error_sector &= ~(block_sectors - 1);
+ 			good_bytes = (error_sector - SCpnt->request->sector) << 9;
+ 			if (good_bytes < 0 || good_bytes >= this_count)
+ 				good_bytes = 0;
+ 			break;
+ 
+ 		case RECOVERED_ERROR: /* an error occurred, but it recovered */
+ 		case NO_SENSE: /* LLDD got sense data */
+ 			/*
+ 			 * Inform the user, but make sure that it's not treated
+ 			 * as a hard error.
+ 			 */
+ 			scsi_print_sense("sd", SCpnt);
+ 			SCpnt->result = 0;
+ 			memset(SCpnt->sense_buffer, 0, SCSI_SENSE_BUFFERSIZE);
+ 			good_bytes = this_count;
+ 			break;
+ 
+ 		case ILLEGAL_REQUEST:
+ 			if (SCpnt->device->use_10_for_rw &&
+ 			    (SCpnt->cmnd[0] == READ_10 ||
+ 			     SCpnt->cmnd[0] == WRITE_10))
+ 				SCpnt->device->use_10_for_rw = 0;
+ 			if (SCpnt->device->use_10_for_ms &&
+ 			    (SCpnt->cmnd[0] == MODE_SENSE_10 ||
+ 			     SCpnt->cmnd[0] == MODE_SELECT_10))
+ 				SCpnt->device->use_10_for_ms = 0;
+ 			break;
+ 
+ 		default:
+ 			break;

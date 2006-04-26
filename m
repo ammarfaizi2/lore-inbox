@@ -1,122 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWDZWEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWDZWE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWDZWEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 18:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWDZWEY
+	id S932405AbWDZWE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 18:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWDZWE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 18:04:24 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:12558 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932402AbWDZWEY
+	Wed, 26 Apr 2006 18:04:59 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:16654 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932405AbWDZWE6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 18:04:24 -0400
-Date: Wed, 26 Apr 2006 15:03:16 -0700
-Message-Id: <200604262203.k3QM3G9H009575@zach-dev.vmware.com>
-Subject: [PATCH 1/2] I386 fix pte clear
+	Wed, 26 Apr 2006 18:04:58 -0400
+Date: Wed, 26 Apr 2006 15:03:52 -0700
+Message-Id: <200604262203.k3QM3qOC009581@zach-dev.vmware.com>
+Subject: [PATCH 2/2] I386 convert pae wmb to non smp
 From: Zachary Amsden <zach@vmware.com>
 To: Andrew Morton <akpm@osdl.com>, Linux-Kernel <linux-kernel@vger.kernel.org>,
        Hugh Dickins <hugh@veritas.com>, Jan Beulich <jbeulich@novell.com>,
        Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
        Pratap Subrahmanyam <pratap@vmware.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>, Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 26 Apr 2006 22:04:22.0604 (UTC) FILETIME=[5FD1A0C0:01C6697D]
+X-OriginalArrivalTime: 26 Apr 2006 22:04:57.0833 (UTC) FILETIME=[74D12590:01C6697D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Proposed fix for ptep_get_and_clear_full PAE bug.  Pte_clear had the same bug,
-so use the same fix for both.
-
-The problem is rather intricate.  Page table entries in PAE mode are 64-bits
-wide, but the only atomic 8-byte write operation available in 32-bit mode is
-cmpxchg8b, which is expensive (at least on P4), and thus avoided.  But it can
-happen that the processor may prefetch entries into the TLB in the middle of an
-operation which clears a page table entry.  So one must always clear the P-bit
-in the low word of the page table entry first when clearing it.
-
-Since the sequence *ptep = __pte(0) leaves the order of the write dependent on
-the compiler, it must be coded explicitly as a clear of the low word followed
-by a clear of the high word.  Further, there must be a write memory barrier
-here to enforce proper ordering by the compiler (and, in the future, by the
-processor as well).
-
-On > 4GB memory machines, the implementation of pte_clear for PAE was clearly
-deficient, as it could leave virtual mappings of physical memory above 4GB
-aliased to memory below 4GB in the TLB.  The implementation of
-ptep_get_and_clear_full has a similar bug, although not nearly as likely to
-occur, since the mappings being cleared are in the process of being destroyed,
-and should never be dereferenced again.
-
-But, as luck would have it, it is possible to trigger bugs even without ever
-dereferencing these bogus TLB mappings, even if the clear is followed fairly
-soon after with a TLB flush or invalidation.  The problem is that memory above
-4GB may now be aliased into the first 4GB of memory, and in fact, may hit a
-region of memory with non-memory semantics.  These regions include AGP and PCI
-space.  As such, these memory regions are not cached by the processor.  This
-introduces the bug.
-
-The processor can speculate memory operations, including memory writes, as long
-as they are committed with the proper ordering.  Speculating a memory write to
-a linear address that has a bogus TLB mapping is possible.  Normally, the
-speculation is harmless.  But for cached memory, it does leave the falsely
-speculated cacheline unmodified, but in a dirty state.  This cache line will be
-eventually written back.  If this cacheline happens to intersect a region of
-memory that is not protected by the cache coherency protocol, it can corrupt
-data in I/O memory, which is generally a very bad thing to do, and can cause
-total system failure or just plain undefined behavior.
-
-These bugs are extremely unlikely, but the severity is of such magnitude, and
-the fix so simple that I think fixing them immediately is justified.
+Similar to the last bug, on set_pte, we don't want the compiler to re-order
+the write of the PTE, even in non-SMP configurations, since if the write of
+the low word occurs first, the TLB could prefetch a bad highmem mapping which
+has been aliased into low memory.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-Index: linux-2.6.17-rc/include/asm-i386/pgtable.h
-===================================================================
---- linux-2.6.17-rc.orig/include/asm-i386/pgtable.h	2006-04-25 15:41:06.000000000 -0700
-+++ linux-2.6.17-rc/include/asm-i386/pgtable.h	2006-04-26 08:39:42.000000000 -0700
-@@ -204,7 +204,6 @@ extern unsigned long long __PAGE_KERNEL,
- extern unsigned long pg0[];
- 
- #define pte_present(x)	((x).pte_low & (_PAGE_PRESENT | _PAGE_PROTNONE))
--#define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } while (0)
- 
- /* To avoid harmful races, pmd_none(x) should check only the lower when PAE */
- #define pmd_none(x)	(!(unsigned long)pmd_val(x))
-@@ -268,7 +267,7 @@ static inline pte_t ptep_get_and_clear_f
- 	pte_t pte;
- 	if (full) {
- 		pte = *ptep;
--		*ptep = __pte(0);
-+		pte_clear(mm, addr, ptep);
- 	} else {
- 		pte = ptep_get_and_clear(mm, addr, ptep);
- 	}
 Index: linux-2.6.17-rc/include/asm-i386/pgtable-3level.h
 ===================================================================
---- linux-2.6.17-rc.orig/include/asm-i386/pgtable-3level.h	2006-04-25 15:41:06.000000000 -0700
-+++ linux-2.6.17-rc/include/asm-i386/pgtable-3level.h	2006-04-26 08:38:57.000000000 -0700
-@@ -85,6 +85,13 @@ static inline void pud_clear (pud_t * pu
- #define pmd_offset(pud, address) ((pmd_t *) pud_page(*(pud)) + \
- 			pmd_index(address))
- 
-+static inline void pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
-+{
-+	ptep->pte_low = 0;
-+	wmb();
-+	ptep->pte_high = 0;
-+}
-+
- static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+--- linux-2.6.17-rc.orig/include/asm-i386/pgtable-3level.h	2006-04-26 08:38:57.000000000 -0700
++++ linux-2.6.17-rc/include/asm-i386/pgtable-3level.h	2006-04-26 14:45:12.000000000 -0700
+@@ -53,7 +53,7 @@ static inline int pte_exec_kernel(pte_t 
+ static inline void set_pte(pte_t *ptep, pte_t pte)
  {
- 	pte_t res;
-Index: linux-2.6.17-rc/include/asm-i386/pgtable-2level.h
-===================================================================
---- linux-2.6.17-rc.orig/include/asm-i386/pgtable-2level.h	2006-04-25 15:41:06.000000000 -0700
-+++ linux-2.6.17-rc/include/asm-i386/pgtable-2level.h	2006-04-26 08:37:34.000000000 -0700
-@@ -18,6 +18,8 @@
- #define set_pte_atomic(pteptr, pteval) set_pte(pteptr,pteval)
- #define set_pmd(pmdptr, pmdval) (*(pmdptr) = (pmdval))
- 
-+#define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } while (0)
-+
- #define ptep_get_and_clear(mm,addr,xp)	__pte(xchg(&(xp)->pte_low, 0))
- #define pte_same(a, b)		((a).pte_low == (b).pte_low)
- #define pte_page(x)		pfn_to_page(pte_pfn(x))
+ 	ptep->pte_high = pte.pte_high;
+-	smp_wmb();
++	wmb();
+ 	ptep->pte_low = pte.pte_low;
+ }
+ #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)

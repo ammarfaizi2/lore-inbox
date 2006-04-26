@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWDZOr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWDZOvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbWDZOr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 10:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWDZOr3
+	id S932458AbWDZOvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 10:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWDZOvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 10:47:29 -0400
-Received: from fwstl1-1.wul.qc.ec.gc.ca ([205.211.132.24]:2261 "EHLO
-	ecstlaurent8.quebec.int.ec.gc.ca") by vger.kernel.org with ESMTP
-	id S932459AbWDZOr2 convert rfc822-to-8bit (ORCPT
+	Wed, 26 Apr 2006 10:51:25 -0400
+Received: from www.rsbac.org ([81.169.139.228]:12782 "EHLO www.rsbac.org")
+	by vger.kernel.org with ESMTP id S932458AbWDZOvZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 10:47:28 -0400
-content-class: urn:content-classes:message
+	Wed, 26 Apr 2006 10:51:25 -0400
+From: Michal Purzynski <michal@rsbac.org>
+Organization: RSBAC
+To: linux-kernel@vger.kernel.org
+Subject: pcmcia subsystem completely broken
+Date: Wed, 26 Apr 2006 16:51:13 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Subject: RE: Issues with sata_nv and 2 disks under 2.6.16 and 2.6.17-rc2
-Date: Wed, 26 Apr 2006 10:46:53 -0400
-Message-ID: <8E8F647D7835334B985D069AE964A4F7011B260D@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Issues with sata_nv and 2 disks under 2.6.16 and 2.6.17-rc2
-Thread-Index: AcZpP6rpRW9i/MhBS86kKT3HHgZuTQAABGhg
-From: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
-To: "Roger Heflin" <rheflin@atipa.com>
-Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
-X-OriginalArrivalTime: 26 Apr 2006 14:47:27.0684 (UTC) FILETIME=[56824840:01C66940]
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604261651.18350.michal@rsbac.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is your OS installed either sda or sdb?
+hey,
 
-Because I get this type of message using a single disk... On which my FC5 stands...
+i'd like to ask how do i cope with new pcmcia subsystem which was introduced 
+after 2.6.13. previous one was working very well for me, yet i cannot get my 
+most important pcmcia card working with recent kernels. this card is an 
+Option Globetrotter GPRS pcmcia card, exposing "serial port" to linux when 
+properly detected.due to some braindamage linux is unable to detect this 
+serial port properly until i configure replacing CIS during start - than it 
+works. but, linux is not looking for it automagically when putting file 
+in /lib/firmware, all has to be forced manually in /etc/pcmcia/config, like 
+this
+card "Option Wireless Technology GSM/GPRS GlobeTrotter"
+#Use Manufacturing ID to match all GlobeTrotter variants
+manfid 0x0013, 0x0000
+cis "cis/GLOBETROTTER.cis"
+bind "serial_cs"
 
-I'll give it a try tonight and see if I can cause the problem manually but I doubt I'll be able to stop the system from hanging...  Unless my bug is not related.
+as you can see, i'm using old pcmcia-cs tools, since it's not possible to 
+replace firmware on demand with pcmciautils - 1st. hence first question - 
+when it will be possible ? i supposed old tools will finally stop working and 
+i'll be fried after that change.
 
-- vin
+second problem with it - even after serial port is detected properly, i'm 
+still unable to communicate with that card, no AT command is delivered, no 
+reaction from card.
 
------Message d'origine-----
-De : Roger Heflin [mailto:rheflin@atipa.com] 
-Envoyé : 26 avril 2006 10:42
-À : Fortier,Vincent [Montreal]
-Cc : Linux-Kernel; linux-ide@vger.kernel.org
-Objet : Re: Issues with sata_nv and 2 disks under 2.6.16 and 2.6.17-rc2
+what can be wrong with new pcmcia subsystem ? once again - it was working 
+excelent with old code, pre 2.6.13.
 
-Fortier,Vincent [Montreal] wrote:
-> I think I might be having the "same type of bug" or something related using sata_via?
-> Bug opened at bugzilla: 
-> http://bugzilla.kernel.org/show_bug.cgi?id=6317
-> 
-> This started appearing with 2.6.16.  It often does it using only one SATA HD.  It does not do it at every boot but often starts doing it after a little while (a few hours...) and finally hanging my PC.
-> 
-> - vin
-> 
->
+machine is an Apple PowerBook G4 laptop, revision 5,4.__
 
-I can duplicate my problem everything, and I can make it stop a will.
-
-doing "dd if=/dev/sda of=/dev/null bs=64k &"
-
-and then
-
-        "dd if=/dev/sdb of=/dev/null bs=64k &"
-
-will cause the problem within a couple of seconds.
-
-Doing "kill %1 %2" (assuming the dd's are %1 and %2) will stop the machine from hanging on disk io within 30-60 seconds.
-
-Once it hangs it does not appear to do any disk io until the offending processes are killed.
-
-                               Roger
-
+CC me, i'm not subscribed

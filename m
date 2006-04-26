@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWDZXKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWDZXMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWDZXKI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 19:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWDZXKH
+	id S932456AbWDZXMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 19:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWDZXMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 19:10:07 -0400
-Received: from main.gmane.org ([80.91.229.2]:39116 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932407AbWDZXKG (ORCPT
+	Wed, 26 Apr 2006 19:12:17 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52394 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932398AbWDZXMQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 19:10:06 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Roman Kononov <kononov195-far@yahoo.com>
-Subject: Re: C++ pushback
-Date: Wed, 26 Apr 2006 18:00:52 -0500
-Message-ID: <e2ou35$u5r$1@sea.gmane.org>
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org>
+	Wed, 26 Apr 2006 19:12:16 -0400
+Date: Wed, 26 Apr 2006 16:14:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: lkml@rtr.ca, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/scsi/sd.c: fix uninitialized variable in
+ handling medium errors
+Message-Id: <20060426161444.423a8296.akpm@osdl.org>
+In-Reply-To: <1146092161.12914.3.camel@mulgrave.il.steeleye.com>
+References: <200604261627.29419.lkml@rtr.ca>
+	<1146092161.12914.3.camel@mulgrave.il.steeleye.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-68-255-17-86.dsl.emhril.ameritech.net
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-In-Reply-To: <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Wed, 26 Apr 2006, Jan-Benedict Glaw wrote:
->> There's one _practical_ thing you need to keep in mind: you'll either
->> need 'C++'-clean kernel headers (to interface low-level kernel
->> functions) or a separate set of headers.
-> 
-> I suspect it would be easier to just do
-> 
-> 	extern "C" {
-> 	#include <linux/xyz.h>
-> 	...
-> 	}
-> 
-> instead of having anything really C++'aware in the headers.
-> 
-> If by "clean" you meant that the above works, then yeah, there might be 
-> _some_ cases where we use C++ keywords etc in the headers, but they should 
-> be pretty unusual and easy to fix.
-> 
-> The real problem with C++ for kernel modules is:
-> 
->  - the language just sucks. Sorry, but it does.
-Sorry, you do not know the language, and your statement is not 
-credible. I think that C sucks.
-
->  - some of the C features we use may or may not be usable from C++ 
->    (statement expressions?)
-Statement expressions are working fine in g++. The main difficulties are:
-    - GCC's structure member initialization extensions are syntax
-      errors in G++: struct foo_t foo={.member=0};
-    - empty structures are not zero-sized in g++, unless they are like
-      this one: struct really_empty_t { char dummy[0]; };
-
->  - the compilers are slower, and less reliable. This is _less_ of an issue 
->    these days than it used to be (at least the reliability part), but it's 
->    still true.
-G++ compiling heavy C++ is a bit slower than gcc. The g++ front end is 
-reliable enough. Do you have a particular bug in mind?
-
->  - a lot of the C++ features just won't be supported sanely (ie the kernel 
->    infrastructure just doesn't do exceptions for C++, nor will it run any 
->    static constructors etc).
-A lot of C++ features are already supported sanely. You simply need to 
-understand them. Especially templates and type checking. C++ 
-exceptions are not very useful tool in kernels. Static constructor 
-issue is trivial. I use all C++ features (except exceptions) in all 
-projects: Linux kernel modules, embedded real-time applications, 
-everywhere. They _really_ help a lot.
-
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
 >
-> Anyway, it should all be doable. Not necessarily even very hard. But I 
-> doubt it's worth it.
+> On Wed, 2006-04-26 at 16:27 -0400, Mark Lord wrote:
+> > From: Mark Lord <lkml@rtr.ca>
+> > 
+> > I am looking into how SCSI/SATA handle medium (disk) errors,
+> > and the observed behaviour is a little more random than expected,
+> > due to a bug in sd.c.
+> > 
+> > When scsi_get_sense_info_fld() fails (returns 0), it does NOT update the
+> > value of first_err_block.  But sd_rw_intr() merrily continues to use that
+> > variable regardless, possibly making incorrect decisions about retries and the like.
+> > 
+> > This patch removes the randomness there, by using the first sector of the
+> > request (SCpnt->request->sector) in such cases, instead of first_err_block.
+> > 
+> > The patch shows more context than usual, to help see what's going on.
 > 
-> 		Linus
+> Thanks for finding the bug.  Your solution is a bit, um, convoluted.
+> What it should really be doing if we find no valid information field is
+> a break so we go out with the default good_sectors of zero (rather than
+> arriving at that value via a circuitous route).
+> 
+> And, of course, I couldn't resist eliminating the superfluous info_valid
+> variable and tidying the logic to be programmatic instead of a switch
+> case.  How does this work?
 
-I think that allowing C++ code to co-exist with the kernel would be a 
-step forward.
+It'd be nice to have something simple-and-obvious for the
+simple-and-obvious -stable maintainers.  That's if we think -stable needs
+this fixed.
 
+> +				int sector_size_div =
+> +					512 / SCpnt->device->sector_size;
+> +				error_sector /= sector_size_div;
+
+You sure about this bit?

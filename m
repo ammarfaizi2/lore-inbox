@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWDZUjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWDZUlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750938AbWDZUjx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 16:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWDZUjw
+	id S932078AbWDZUlz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 16:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWDZUlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 16:39:52 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:45762 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750722AbWDZUjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 16:39:52 -0400
-Date: Wed, 26 Apr 2006 15:40:09 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: "Charles P. Wright" <cwright@cs.sunysb.edu>
-Cc: Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
-Message-ID: <20060426194009.GA9845@ccure.user-mode-linux.org>
-References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <20060420090514.GA9452@osiris.boeblingen.de.ibm.com> <444797F8.6020509@fujitsu-siemens.com> <1146083202.10211.1.camel@localhost.localdomain>
+	Wed, 26 Apr 2006 16:41:55 -0400
+Received: from xenotime.net ([66.160.160.81]:25009 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932078AbWDZUly convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 16:41:54 -0400
+Date: Wed, 26 Apr 2006 13:44:19 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: davids@webmaster.com, linux-kernel@vger.kernel.org
+Subject: Re: C++ pushback
+Message-Id: <20060426134419.a0515561.rdunlap@xenotime.net>
+In-Reply-To: <1146082192.11123.4.camel@bip.parateam.prv>
+References: <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com>
+	<1146082192.11123.4.camel@bip.parateam.prv>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1146083202.10211.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 04:26:42PM -0400, Charles P. Wright wrote:
-> I have a similar local patch that I've been using.  I think it would be
-> worthwhile to have an extra bit in the bitmap that says what to do with
-> calls that fall outside the range [0, __NR_syscall].  That way the
-> ptrace monitor can decide whether it is useful to get informed of these
-> "bogus" calls.
+On Wed, 26 Apr 2006 22:09:51 +0200 Xavier Bestel wrote:
 
-The bit needs to be somewhere, but I think sticking it in the syscall
-bitmask is a bad idea.  Mixing apples and oranges, as it were.
-Sticking it in the op is better, even though that's a bit of apples
-and oranges as well.
+> Le mercredi 26 avril 2006 à 12:25 -0700, David Schwartz a écrit :
+> 
+> > 	C++ has how many additional reserved words? I believe the list is delete,
+> > friend, private, protected, public, template, throw, try, and catch.
+> 
+> You forgot namespace, mutable, new, class, const_cast, dynamic_cast,
+> static_cast, reinterpret_cast, explicit, true, false, operator, typeid,
+> typename and virtual. Maybe I forgot some (interface ?). Probably some
+> new ones will appear.
 
-Another alternative would be to make it an option and set it with
-PTRACE_SETOPTIONS.
+I did a sparse patch to check for all(?) of those once (with Linus's
+help).  I don't know if it still applies or not...
 
-				Jeff
+It's at http://www.xenotime.net/linux/sparse/check_keywords_v7.patch
+(You'll also need the other patch there; they got a bit comingled:
+http://www.xenotime.net/linux/sparse/check_sizeof_v7.patch)
+
+---
+~Randy

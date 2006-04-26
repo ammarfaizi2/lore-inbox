@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWDZLTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWDZL2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWDZLTR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 07:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWDZLTR
+	id S932401AbWDZL2O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 07:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWDZL2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 07:19:17 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:41878 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932395AbWDZLTQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 07:19:16 -0400
-Message-ID: <444F5706.4030805@sgi.com>
-Date: Wed, 26 Apr 2006 13:18:30 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5 (X11/20060223)
-MIME-Version: 1.0
-To: Robin Holt <holt@sgi.com>
-CC: Dean Nelson <dcn@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       tony.luck@intel.com, avolkov@varma-el.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: Re: [PATCH] change gen_pool allocator to not touch managed memory
-References: <444D1A7E.mailx85W11DZZU@aqua.americas.sgi.com> <20060424181626.09966912.akpm@osdl.org> <20060425155051.GA19248@sgi.com> <444F3990.5030100@sgi.com> <20060426110856.GB19935@lnx-holt.americas.sgi.com>
-In-Reply-To: <20060426110856.GB19935@lnx-holt.americas.sgi.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 26 Apr 2006 07:28:14 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:15062 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S932398AbWDZL2N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 07:28:13 -0400
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: casey@schaufler-ca.com
+Cc: James Morris <jmorris@namei.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+In-Reply-To: <20060426035615.18418.qmail@web36605.mail.mud.yahoo.com>
+References: <20060426035615.18418.qmail@web36605.mail.mud.yahoo.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Wed, 26 Apr 2006 07:32:40 -0400
+Message-Id: <1146051160.28745.2.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Holt wrote:
-> On Wed, Apr 26, 2006 at 11:12:48AM +0200, Jes Sorensen wrote:
->>> -	if (status)
->>> -		printk(KERN_WARNING "smp_call_function failed for "
->>> -		       "uncached_ipi_mc_drain! (%i)\n", status);
->>> +	(void) smp_call_function(uncached_ipi_mc_drain, NULL, 0, 1);
->> This thing could in theory fail so having the error check there seems
->> the right thing to me. In either case, please don't (void) the function
->> return (this is a style issue, I know).
+On Tue, 2006-04-25 at 20:56 -0700, Casey Schaufler wrote:
 > 
-> I must be blind.  Both up and smp cases for smp_call_function appear to
-> always return 0.  What am I missing?
+> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > On Tue, 2006-04-25 at 09:00 -0700, Casey Schaufler
+> > wrote:
+> > > The underlying mechanisms are more complex than
+> > > Bell & LePadula MAC + Biba Integrity + POSIX Caps.
+> > 
+> > Until one also considers the set of trusted subjects
+> > in systems that
+> > rely on such models.
+> 
+> How so? It's pretty much the same set of subjects
+> as you'd find in SELinux.
+> 
+> > That's the point.  Those subjects are free to
+> > violate the "simple" models, at which point any
+> > analysis of the
+> > effective policy of the system has to include them
+> > as well.
+> 
+> Yup, and you're going to have to provide analysis
+> of the subjects under SELinux as well. No way are
+> you going to convince anyone that a half-million
+> lines of policy definition are 100% error free.
+> 
+> > SELinux/TE
+> > just makes the real situation explicit in the
+> > policy, and enables you to
+> > tailor the policy to the real needs of applications
+> > while still being
+> > able to analyze the result.
+> 
+> This is what I don't get. How can you claim that
+> you can analyse a policy definition that big?
+> Further, I remember arguments to the effect of
+> a programmer being able to knock off the policy
+> for a program in 10 minutes. Having written and
+> analysed as many MLS systems as anyone on the
+> planet you'll excuse my scepicism. And poor speling.
 
-Not on all architectures, at least PPC can return != 0 - dunno if this
-is a realistic case though. If not, maybe the prototype for
-smp_call_function() ought to be changed.
+Perhaps we aren't communicating very well.  There are already tools like
+apol and slat that perform information flow analysis of SELinux policies
+and that can be used to check properties.  
 
-Cheers,
-Jes
+-- 
+Stephen Smalley
+National Security Agency
+

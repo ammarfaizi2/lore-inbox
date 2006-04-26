@@ -1,108 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWDZM6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWDZNEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWDZM6f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 08:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWDZM6f
+	id S932427AbWDZNEc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 09:04:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWDZNEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 08:58:35 -0400
-Received: from smtp1.netcabo.pt ([212.113.174.28]:64098 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S932424AbWDZM6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 08:58:34 -0400
-X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov.localdomain
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:1(127.0.0.1):. Processed in 0.181999 secs Process 14780)
-Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Kimball Murray <kimball.murray@gmail.com>, linux-kernel@vger.kernel.org,
-       akpm@digeo.com, ak@suse.de, kmurray@redhat.com,
-       natalie.protasevich@unisys.com, linux-acpi@vger.kernel.org
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6466487@hdsmsx411.amr.corp.intel.com>
-References: <CFF307C98FEABE47A452B27C06B85BB6466487@hdsmsx411.amr.corp.intel.com>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-UIfERvHfqf7SWzFsETZ7"
-Date: Wed, 26 Apr 2006 13:58:24 +0100
-Message-Id: <1146056305.5155.24.camel@bastov.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-X-OriginalArrivalTime: 26 Apr 2006 12:58:31.0728 (UTC) FILETIME=[1EC68B00:01C66931]
+	Wed, 26 Apr 2006 09:04:32 -0400
+Received: from mailhost.tue.nl ([131.155.3.8]:20178 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S932427AbWDZNEb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 09:04:31 -0400
+Message-ID: <444F6FDD.7040000@etpmod.phys.tue.nl>
+Date: Wed, 26 Apr 2006 15:04:29 +0200
+From: Bart Hartgers <bart@etpmod.phys.tue.nl>
+User-Agent: Thunderbird 1.5 (X11/20060111)
+MIME-Version: 1.0
+To: Bart Hartgers <bart@etpmod.phys.tue.nl>
+Cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Pekka J Enberg <penberg@cs.Helsinki.FI>, Hua Zhong <hzhong@gmail.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
+References: <Pine.LNX.4.64.0604251120420.5810@localhost.localdomain> <84144f020604260030v26f42b0bke639053928d5e471@mail.gmail.com> <1146038324.5956.0.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0604261112120.3522@sbz-30.cs.Helsinki.FI> <1146040038.7016.0.camel@laptopd505.fenrus.org> <20060426100559.GC29108@wohnheim.fh-wedel.de> <1146046118.7016.5.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0604261354310.9797@sbz-30.cs.Helsinki.FI> <1146049414.7016.9.camel@laptopd505.fenrus.org> <20060426110656.GD29108@wohnheim.fh-wedel.de> <444F5B74.60809@etpmod.phys.tue.nl>
+In-Reply-To: <444F5B74.60809@etpmod.phys.tue.nl>
+Content-Type: multipart/mixed;
+ boundary="------------070608050708070500000609"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------070608050708070500000609
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
---=-UIfERvHfqf7SWzFsETZ7
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Bart Hartgers wrote:
+> Jörn Engel wrote:
+>> On Wed, 26 April 2006 13:03:34 +0200, Arjan van de Ven wrote:
+>>> On Wed, 2006-04-26 at 13:57 +0300, Pekka J Enberg wrote:
+>>>> On Wed, 26 April 2006 10:27:18 +0200, Arjan van de Ven wrote:
+>>>>>>> what I would like is kfree to become an inline wrapper that does the
+>>>>>>> null check inline, that way gcc can optimize it out (and it will in 4.1
+>>>>>>> with the VRP pass) if gcc can prove it's not NULL.
+>>>> On Wed, 2006-04-26 at 12:05 +0200, Jörn Engel wrote:
+>>>>>> How well can gcc optimize this case? 
+>>>> On Wed, 26 Apr 2006, Arjan van de Ven wrote:
+>>>>> if you deref'd the pointer it'll optimize it away (assuming a new enough
+>>>>> gcc, like 4.1)
+>>>> Here are the numbers for allyesconfig on my setup.
+>>>>
+>>>> 				Pekka
+>>>>
+>>>> gcc version 3.4.5 (Gentoo 3.4.5-r1, ssp-3.4.5-1.0, pie-8.7.9)
+>>> this is an ancient gcc without VRP so yeah the growth is expected ;)
+>> In other words, we shouldn't do this as long as most users don't have
+>> gcc 4.1 or higher installed.  So this is somewhat pointless at the
+>> moment.
+>>
+>> Still, if you could respin this with gcc 4.1 and post the numbers,
+>> Pekka, that would be quite interesting.
+>>
+>> Jörn
+>>
+> 
+> What about this:
+> 
+> static inline void my_kfree( void *ptr )
+> {
+>         if (__builtin_constant_p(ptr!=NULL)) {
+>                 if (ptr!=NULL)
+>                         my_fast_free(ptr); /* skips NULL check */
+>         } else {
+>                 my_checking_free(ptr); /* does a NULL check */
+>         }
+> }
+> 
+> That would skip the free when ptr is known to be NULL, and skip the
+> equal to NULL check if it is known to be not NULL, and do what happened
+> before otherwise. In other words, it is never worse than what we have now.
+> 
+> Attached is a small testcase in C and the resulting assembly. Note that
+> my compiler doesn't catch the "not equal to zero" case, but 4.1 is
+> supposed to do this.
+> 
+> Groeten,
+> Bart
+> 
 
-I think, it is about time, not thinking via quirks as workarounds,
-because all pcis (on via) are quirked, some are quirked twice.
-And we should think in programmer interrupts of via chipset, in specific
-function for this propose, for me, doesn't make sense every time VIA put
-other ID out, we have to add quirks to this ID , as this was an
-exception.=20
+Sorry about replying to my own mail, but I discovered that at least "gcc
+(GCC) 4.1.0 (SUSE Linux)" does not seem to combine the
+delete-null-pointer optimisation with the builtin_constant test. The
+compiler is happy to eliminate ptr==NULL tests, but does not consider
+the expression (ptr==NULL) constant! I managed to hack around this.
 
-Thanks,=20
+See the attached code, and:
 
+bart@gum15:~> gcc -DCASE_A -m32 -O3 -S -o testje-a.S testje.c
+bart@gum15:~> gcc -DCASE_B -m32 -O3 -S -o testje-b.S testje.c
+bart@gum15:~> diff -u testje-a.S testje-b.S
+--- testje-a.S  2006-04-26 14:57:50.000000000 +0200
++++ testje-b.S  2006-04-26 14:57:53.000000000 +0200
+@@ -16,7 +16,7 @@
+        addl    $4, %esp
+        popl    %ebx
+        popl    %ebp
+-       jmp     my_fast_free
++       jmp     my_slow_free
+        .size   test, .-test
+        .ident  "GCC: (GNU) 4.1.0 (SUSE Linux)"
+        .section        .note.GNU-stack,"",@progbits
 
-On Tue, 2006-04-25 at 15:53 -0400, Brown, Len wrote:
-> I'd rather see the original irq-renaming patch
-> and its subsequent multiple via workaround patches
-> reverted than to further complicate what is becoming
-> a fragile mess.
->=20
-> -Len
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
---=20
-S=E9rgio M.B.
+Anyway, CASE_A produces optimal code for gcc 4.1, and gcc 4.0 produces
+identical code in both cases.
 
---=-UIfERvHfqf7SWzFsETZ7
-Content-Type: application/x-pkcs7-signature; name=smime.p7s
-Content-Disposition: attachment; filename=smime.p7s
-Content-Transfer-Encoding: base64
+Groeten,
+Bart
+-- 
+Bart Hartgers - TUE Eindhoven - http://plasimo.phys.tue.nl/bart/contact/
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
-ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
-ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
-bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
-m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
-kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
-EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
-eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
-VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
-MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
-hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
-dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
-8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
-BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
-VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
-U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
-MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
-MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
-dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
-ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
-7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
-1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
-LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
-pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
-Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
-C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
-0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
-c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
-dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjA0MjYxMjU4MjRaMCMGCSqGSIb3DQEJBDEWBBQkT2nWfrMwPKIqyhubqzkD
-MUauIDANBgkqhkiG9w0BAQEFAASCAQB51uJJUCEyWK4wxFX8XPLpfinu4L+0DFdOeZpmJITBLuoB
-O+MZy9NnJBnRtfb9zLfDoAjC1G7xbsRYq94QrssO6bS+YGL+TjS/WG5OKyRIGjpvHkvaffSAQbpC
-JDmMmdB23vnVWkK9RIZnoNa5//gO8pilGRqTIX24LDL2Akmf1iLRwUkGNNIy4LVhuEEnFMV7hUBR
-iZdLlRAFl6lgRv4raWgM3bGYGZeb6i8JylM1f72mQYqyJCSVqyxBSffpQwa38/Cy3YZY+aR8dFbV
-6Ek86cqTGw381BlK/cbmqKELIQdWeYqyrvv/XelsaJI6geWjHiynlN2AagPQFntZXBSOAAAAAAAA
+--------------070608050708070500000609
+Content-Type: text/x-csrc;
+ name="testje.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="testje.c"
 
+#include <stddef.h>
 
+extern void my_fast_free(void *);
+extern void my_checking_free(void *);
 
---=-UIfERvHfqf7SWzFsETZ7--
+static inline void my_kfree( void *ptr )
+{
+#ifdef CASE_A
+	register int is_null = 0;
+	if (ptr == NULL)
+		is_null = 1;
+	if (__builtin_constant_p(is_null)) {
+#else /* CASE_B */
+	if (__builtin_constant_p(ptr==NULL)) {
+#endif
+		if (ptr != NULL)
+			my_fast_free(ptr);
+	} else {
+		my_slow_free(ptr);
+	}
+}
 
+void test( int *bla )
+{
+	char *hello = NULL;
+	my_kfree(hello);
+	my_kfree(bla);
+	*bla = 1;
+	my_kfree(bla);
+}
+
+--------------070608050708070500000609
+Content-Type: text/plain;
+ name="testje-a.S"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="testje-a.S"
+
+	.file	"testje.c"
+	.text
+	.p2align 4,,15
+.globl test
+	.type	test, @function
+test:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	subl	$4, %esp
+	movl	8(%ebp), %ebx
+	movl	%ebx, (%esp)
+	call	my_slow_free
+	movl	$1, (%ebx)
+	movl	%ebx, 8(%ebp)
+	addl	$4, %esp
+	popl	%ebx
+	popl	%ebp
+	jmp	my_fast_free
+	.size	test, .-test
+	.ident	"GCC: (GNU) 4.1.0 (SUSE Linux)"
+	.section	.note.GNU-stack,"",@progbits
+
+--------------070608050708070500000609--

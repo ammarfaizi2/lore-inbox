@@ -1,47 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWDZIeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWDZJNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbWDZIeA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 04:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWDZIeA
+	id S1751196AbWDZJNG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 05:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWDZJNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 04:34:00 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:8094 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751078AbWDZId7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 04:33:59 -0400
-Date: Wed, 26 Apr 2006 10:30:56 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Avi Kivity <avi@argo.co.il>, dtor_core@ameritech.net,
-       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-In-Reply-To: <Pine.LNX.4.61.0604251347120.29056@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0604261028290.8382@yvahk01.tjqt.qr>
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> 
- <1145911546.1635.54.camel@localhost.localdomain>  <444D3D32.1010104@argo.co.il>
-  <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>  <444DCAD2.4050906@argo.co.il>
-  <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com>  <444E524A.10906@argo.co.il>
- <d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com>
- <444E5A3E.1020302@argo.co.il> <Pine.LNX.4.61.0604251347120.29056@chaos.analogic.com>
+	Wed, 26 Apr 2006 05:13:05 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17805 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751196AbWDZJNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 05:13:04 -0400
+Message-ID: <444F3990.5030100@sgi.com>
+Date: Wed, 26 Apr 2006 11:12:48 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5 (X11/20060223)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dean Nelson <dcn@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, tony.luck@intel.com, avolkov@varma-el.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] change gen_pool allocator to not touch managed memory
+References: <444D1A7E.mailx85W11DZZU@aqua.americas.sgi.com> <20060424181626.09966912.akpm@osdl.org> <20060425155051.GA19248@sgi.com>
+In-Reply-To: <20060425155051.GA19248@sgi.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dean Nelson wrote:
+>>> Both Andrey Volkov and Jes Sorensen have expressed a desire that the
+>>> gen_pool allocator not write to the memory being managed. See the
+>>> following:
+>>>
+>>>   http://marc.theaimsgroup.com/?l=linux-kernel&m=113518602713125&w=2
+>>>   http://marc.theaimsgroup.com/?l=linux-kernel&m=113533568827916&w=2
+>> hm, fair enough.
+>>
+>> The patch is fairly large+intrusive.  I trust it's been broadly tested?
+> 
+> Yes, it was thoroughly tested. I even pulled the bitmap manipulation code
+> into a user app with which I could pre-set bits of a bitmap in order to
+> test boundary conditions with various contiguous bit lengths.
 
->Class Kernel
+I haven't been directly involved in this work, but I am very confident
+in Dean's work in this.
 
-Syntax error. Needs to be "class".
+Just a few minor nits below:
 
->{
->public:
->     virtual void starter(Scheduler *current) = 0x00;
->};
->
->Okay, I just started your new C++ kernel! Please send email when it
->is done. I will help test it.
->
+> -unsigned long gen_pool_alloc(struct gen_pool *poolp, int size)
+> +int gen_pool_add(struct gen_pool *pool, unsigned long addr, size_t size,
+> +		 int nid)
+>  {
+> -	int j, i, s, max_chunk_size;
+> -	unsigned long a, flags;
+> -	struct gen_pool_link *h = poolp->h;
+> +	struct gen_pool_chunk *chunk;
+> +	int nbits = size >> pool->min_alloc_order;
+> +	int nbytes = sizeof(struct gen_pool_chunk) +
+> +				(nbits + BITS_PER_BYTE - 1) / BITS_PER_BYTE;
+> +
+> +	if (nbytes > PAGE_SIZE) {
+> +		chunk = vmalloc_node(nbytes, nid);
+> +	} else {
+> +		chunk = kmalloc_node(nbytes, GFP_KERNEL, nid);
+> +	}
 
-Jan Engelhardt
--- 
+Any patch that adds vmalloc() calls to code always makes the little
+hairs on the back of my neck stand up. Any chance we could get away with
+alloc_pages_node() for this?
+
+>  	ia64_pal_mc_drain();
+> -	status = smp_call_function(uncached_ipi_mc_drain, NULL, 0, 1);
+> -	if (status)
+> -		printk(KERN_WARNING "smp_call_function failed for "
+> -		       "uncached_ipi_mc_drain! (%i)\n", status);
+> +	(void) smp_call_function(uncached_ipi_mc_drain, NULL, 0, 1);
+
+This thing could in theory fail so having the error check there seems
+the right thing to me. In either case, please don't (void) the function
+return (this is a style issue, I know).
+
+> Index: linux-2.6/arch/ia64/sn/kernel/sn2/cache.c
+> ===================================================================
+> --- linux-2.6.orig/arch/ia64/sn/kernel/sn2/cache.c	2006-04-24 12:25:36.234717101 -0500
+> +++ linux-2.6/arch/ia64/sn/kernel/sn2/cache.c	2006-04-24 12:27:56.012899026 -0500
+
+This part we should maybe do in a seperate patch? It seems valid on it's
+own?
+
+Cheers,
+Jes

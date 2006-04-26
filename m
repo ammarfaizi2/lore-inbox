@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWDZJxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWDZJ4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWDZJxE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 05:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWDZJxE
+	id S932071AbWDZJ4U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 05:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932072AbWDZJ4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 05:53:04 -0400
-Received: from [84.204.75.166] ([84.204.75.166]:14305 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP
-	id S1751410AbWDZJxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 05:53:02 -0400
-Message-ID: <444F42FC.8020306@oktetlabs.ru>
-Date: Wed, 26 Apr 2006 13:53:00 +0400
-From: "Artem B. Bityutskiy" <dedekind@oktetlabs.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060202 Fedora/1.7.12-1.5.2
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: David Teigland <teigland@redhat.com>
-Cc: Steven Whitehouse <swhiteho@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 12/16] GFS2: Mounting & sysfs interface
-References: <1145636505.3856.116.camel@quoit.chygwyn.com> <444E53FC.5060100@oktetlabs.ru> <20060425180433.GA17525@redhat.com>
-In-Reply-To: <20060425180433.GA17525@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 26 Apr 2006 05:56:19 -0400
+Received: from mga01.intel.com ([192.55.52.88]:20913 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932071AbWDZJ4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 05:56:19 -0400
+X-IronPort-AV: i="4.04,157,1144047600"; 
+   d="scan'208"; a="28740610:sNHT24343193"
+X-IronPort-AV: i="4.04,157,1144047600"; 
+   d="scan'208"; a="28740604:sNHT21699097"
+TrustInternalSourcedMail: True
+X-IronPort-AV: i="4.04,157,1144047600"; 
+   d="scan'208"; a="28740597:sNHT22676108"
+Subject: [PATCH] kprobe cleanup for VM_MASK judgement
+From: "mao, bibo" <bibo.mao@intel.com>
+To: Andrew Morton <akpm@osdl.org>,
+       Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
+       Jim Keniston <jkenisto@us.ibm.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       prasanna <prasanna@in.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       "systemtap@sources.redhat.com" <systemtap@sources.redhat.com>
+Content-Type: text/plain
+Date: Wed, 26 Apr 2006 17:56:26 +0800
+Message-Id: <1146045386.29367.8.camel@maobb.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Apr 2006 09:56:17.0725 (UTC) FILETIME=[A99A16D0:01C66917]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Teigland wrote:
-> On Tue, Apr 25, 2006 at 08:53:16PM +0400, Artem B. Bityutskiy wrote:
-> 
->>Hello,
->>
->>last time I tried to use "bare" sysfs functions to create my sysfs 
->>hierarchy I ended up with a problem that the module refcount is not 
->>increased when those sysfs files are opened. So I could open a sysfs 
->>file from userspace, do rmmod and enjoy oops.
->>
->>Then I started using the class and class_device stuff, which have an 
->>.owner field, and all became fine.
->>
->>I'm not sure if this is a problem of sysfs, but I suspect it could take 
->>care of module refcount better.
->>
->>In your patch, I looked for THIS_MODULE pattern and did not find. I did 
->>not try, but I suspect your code is not devoid of the problem I 
->>described. So, this is just FYI and may be not the case.
-> 
-> 
-> Others have also alluded to /sys/fs/ races that we'll probably need to
-> resolve.  In this case the question is more about umount than rmmod since
-> the mount should reference the module.
-Right. I just thought you expose sysfs files even if you're not mounted. 
-Sorry, I did not dig deeply.
+Hi,
+When trap happens in user space, kprobe_exceptions_notify() funtion will skip it. 
+This patch deletes some unnecessary code for VM_MASK judgement in eflags.
 
--- 
-Best regards, Artem B. Bityutskiy
-Oktet Labs (St. Petersburg), Software Engineer.
-+7 812 4286709 (office) +7 911 2449030 (mobile)
-E-mail: dedekind@oktetlabs.ru, Web: www.oktetlabs.ru
+Signed-off-by: bibo, mao <bibo.mao@intel.com>
+ 
+Thanks
+bibo,mao
+
+diff -Nruap 2.6.17-rc1-mm3.org/arch/i386/kernel/kprobes.c 2.6.17-rc1-mm3.new/arch/i386/kernel/kprobes.c
+--- 2.6.17-rc1-mm3.org/arch/i386/kernel/kprobes.c	2006-04-26 15:52:24.000000000 +0800
++++ 2.6.17-rc1-mm3.new/arch/i386/kernel/kprobes.c	2006-04-26 16:25:38.000000000 +0800
+@@ -242,10 +242,6 @@ static int __kprobes kprobe_handler(stru
+ 			kcb->kprobe_status = KPROBE_REENTER;
+ 			return 1;
+ 		} else {
+-			if (regs->eflags & VM_MASK) {
+-			/* We are in virtual-8086 mode. Return 0 */
+-				goto no_kprobe;
+-			}
+ 			if (*addr != BREAKPOINT_INSTRUCTION) {
+ 			/* The breakpoint instruction was removed by
+ 			 * another cpu right after we hit, no further
+@@ -265,11 +261,6 @@ static int __kprobes kprobe_handler(stru
+ 
+ 	p = get_kprobe(addr);
+ 	if (!p) {
+-		if (regs->eflags & VM_MASK) {
+-			/* We are in virtual-8086 mode. Return 0 */
+-			goto no_kprobe;
+-		}
+-
+ 		if (*addr != BREAKPOINT_INSTRUCTION) {
+ 			/*
+ 			 * The breakpoint instruction was removed right

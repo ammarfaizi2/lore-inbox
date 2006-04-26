@@ -1,98 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWDZGEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWDZGSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWDZGEr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 02:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWDZGEr
+	id S1750785AbWDZGSV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 02:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWDZGSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 02:04:47 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:42200 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1750702AbWDZGEr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 02:04:47 -0400
-From: Rolf Eike Beer <eike-hotplug@sf-tec.de>
-To: pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [Pcihpd-discuss] Re: [patch] pciehp: dont call pci_enable_dev
-Date: Wed, 26 Apr 2006 08:04:14 +0200
-User-Agent: KMail/1.9.1
-Cc: Kristen Accardi <kristen.c.accardi@intel.com>,
-       Arjan van de Ven <arjan@infradead.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-References: <1145919059.6478.29.camel@whizzy> <1145945819.3114.0.camel@laptopd505.fenrus.org> <1146002437.6478.43.camel@whizzy>
-In-Reply-To: <1146002437.6478.43.camel@whizzy>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1198302.aQXvYFEW2h";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200604260804.20178@bilbo.math.uni-mannheim.de>
+	Wed, 26 Apr 2006 02:18:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39116 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750785AbWDZGSU (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 02:18:20 -0400
+Date: Tue, 25 Apr 2006 23:13:28 -0700
+From: Greg KH <greg@kroah.com>
+To: biswa.nayak@wipro.com
+Cc: Linux-Kernel@vger.kernel.org
+Subject: Re: PCI ERROR: Segmentation fault in pci_do_scan_bus
+Message-ID: <20060426061328.GA2279@kroah.com>
+References: <4F36B0A4CDAD6F46A61B2B32C33DC69C02502ABC@BLR-EC-MBX03.wipro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4F36B0A4CDAD6F46A61B2B32C33DC69C02502ABC@BLR-EC-MBX03.wipro.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1198302.aQXvYFEW2h
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, Apr 25, 2006 at 05:25:32PM +0530, biswa.nayak@wipro.com wrote:
+> Hi 
+> 
+> I am getting segmentation fault, consistently on call to
+> 'pci_do_scan_bus'. This is a small test code ( attached with this mail)
+> to test the APIs exposed by the PCI subsystem.
 
-Am Mittwoch, 26. April 2006 00:00 schrieb Kristen Accardi:
->On Tue, 2006-04-25 at 08:16 +0200, Arjan van de Ven wrote:
->> On Mon, 2006-04-24 at 15:50 -0700, Kristen Accardi wrote:
->> > Don't call pci_enable_device from pciehp because the pcie port service
->> > driver already does this.
->>
->> hmmmm shouldn't pci_enable_device on a previously enabled device just
->> succeed? Sounds more than logical to me to make it that way at least...
->
->I can't think of any reason why not.  Something like this what you had
->in mind perhaps?
->
->---
-> drivers/pci/pci.c |   14 +++++++++-----
-> 1 files changed, 9 insertions(+), 5 deletions(-)
->
->--- 2.6-git-pcie.orig/drivers/pci/pci.c
->+++ 2.6-git-pcie/drivers/pci/pci.c
->@@ -504,11 +504,15 @@ pci_enable_device_bars(struct pci_dev *d
-> int
-> pci_enable_device(struct pci_dev *dev)
-> {
->-	int err =3D pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
->-	if (err)
->-		return err;
->-	pci_fixup_device(pci_fixup_enable, dev);
->-	dev->is_enabled =3D 1;
->+	int err;
->+
->+	if (!dev->is_enabled) {
->+		err =3D pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
->+		if (err)
->+			return err;
->+		pci_fixup_device(pci_fixup_enable, dev);
->+		dev->is_enabled =3D 1;
->+	}
-> 	return 0;
-> }
+The module code you attached isn't exactly "small" :)
 
-What about
+What chunk of code is causing the problem?
 
-if (dev->is_enabled)
-	return 0;
+Why are you scanning the PCI bus from a module?
 
-and leaving the rest as it is? This would save one level of identation.=20
-Opinions?
+>I just checked where it
+> faults and found out that inside 'sysfs_create_bin_file' it is not able
+> to find the kobject out of the dev pointer passed to it. Now extracting
+> of the dev object out of the bus pointer is done by
+> 'list_for_each_entry(dev, &bus->devices, bus_list)' in
+> 'pci_bus_add_devices'. Now I am not able to understand why the kobject
+> is missing. Is it something that I am missing or is it a kernel defect?
+> Any help in this will be really appreciated. The bug message is pasted
+> below.
 
-Eike
+I'm confused as to why you are trying to set up the pci bus for a pci
+bus that is already set up.  That's why the function is dying...
 
---nextPart1198302.aQXvYFEW2h
-Content-Type: application/pgp-signature
+thanks,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBETw1kXKSJPmm5/E4RAkO2AKCR5P3n9uh+JMdwMjShBSBl7Ii29gCgkop6
-soubmUf02y80fH1ZnKdcX+A=
-=1p8Z
------END PGP SIGNATURE-----
-
---nextPart1198302.aQXvYFEW2h--
+greg k-h

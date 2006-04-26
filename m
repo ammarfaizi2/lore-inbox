@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWDZNzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWDZNzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbWDZNzM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 09:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWDZNzM
+	id S932448AbWDZNzS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 09:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWDZNzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 09:55:12 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8250 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932446AbWDZNzK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 09:55:10 -0400
-Date: Wed, 26 Apr 2006 15:55:48 +0200
-From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] likely cleanup: revert unlikely in ll_back_merge_fn
-Message-ID: <20060426135548.GD5083@suse.de>
-References: <20060425183026.GR4102@suse.de> <004d01c668b0$a9c79540$853d010a@nuitysystems.com> <20060426052049.GV4102@suse.de> <1146059435.3908.3.camel@mulgrave.il.steeleye.com>
+	Wed, 26 Apr 2006 09:55:18 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:16182
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932448AbWDZNzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 09:55:17 -0400
+Message-Id: <444F9814.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Wed, 26 Apr 2006 15:56:04 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: <sam@ravnborg.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] adjust outputmakefile rule
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1146059435.3908.3.camel@mulgrave.il.steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26 2006, James Bottomley wrote:
-> On Wed, 2006-04-26 at 07:20 +0200, Jens Axboe wrote:
-> > But blk_recount_segments() sets the BIO_SEG_VALID flag. Ugh ok
-> > __bio_add_page() basically kills the flag. James, I think you are the
-> > author of that addition, does it really need to be so restrictive?
-> > 
-> >         /* If we may be able to merge these biovecs, force a recount */
-> >         if (bio->bi_vcnt && (BIOVEC_PHYS_MERGEABLE(bvec-1, bvec) ||
-> >             BIOVEC_VIRT_MERGEABLE(bvec-1, bvec)))
-> >                 bio->bi_flags &= ~(1 << BIO_SEG_VALID);
-> 
-> Help me out here ... I can't find this chunk of code in the current
-> tree.  Where is it?
+Change the conditional of the outputmakefile rule to be evaluated entirely
+in make, and to not touch the generated makefile when e.g. running
+'make install' as root while the build was done as non-root. Also adjust
+the comment describing this.
 
-Sorry, should have mentioned that. Current git tree (or 2.6.16 should be
-the same), fs/bio.c:__bio_add_page():401.
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
--- 
-Jens Axboe
+diff -Npru /home/jbeulich/tmp/linux-2.6.17-rc2/Makefile 2.6.17-rc2-mkmakefile/Makefile
+--- /home/jbeulich/tmp/linux-2.6.17-rc2/Makefile	2006-04-26 11:50:05.516723552 +0200
++++ 2.6.17-rc2-mkmakefile/Makefile	2006-04-24 12:28:36.000000000 +0200
+@@ -344,16 +344,18 @@ scripts_basic:
+ scripts/basic/%: scripts_basic ;
+ 
+ PHONY += outputmakefile
+-# outputmakefile generate a Makefile to be placed in output directory, if
+-# using a seperate output directory. This allows convinient use
+-# of make in output directory
++# outputmakefile generates a Makefile in the output directory, if
++# using a separate output directory. This allows convenient use
++# of make in the output directory.
+ outputmakefile:
+-	$(Q)if test ! $(srctree) -ef $(objtree); then \
+-	$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile              \
+-	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)         \
+-	    > $(objtree)/Makefile;                                 \
+-	    echo '  GEN    $(objtree)/Makefile';                   \
++ifneq ($(KBUILD_SRC),)
++	$(Q)if [ ! -r $(objtree)/Makefile -o -O $(objtree)/Makefile ]; then \
++	    echo '  GEN     $(objtree)/Makefile';                           \
++	    $(CONFIG_SHELL) $(srctree)/scripts/mkmakefile                   \
++		$(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)              \
++		> $(objtree)/Makefile;                                      \
+ 	fi
++endif
+ 
+ # To make sure we do not include .config for any of the *config targets
+ # catch them early, and hand them over to scripts/kconfig/Makefile
+
 

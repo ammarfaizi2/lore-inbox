@@ -1,114 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWDZCLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWDZCLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWDZCLY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 22:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWDZCLY
+	id S932347AbWDZCLp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 22:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWDZCLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 22:11:24 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:9356 "EHLO
+	Tue, 25 Apr 2006 22:11:25 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:12684 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932344AbWDZCLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932345AbWDZCLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 25 Apr 2006 22:11:23 -0400
-Message-Id: <20060426021121.260553000@localhost.localdomain>
+Message-Id: <20060426021121.689604000@localhost.localdomain>
 References: <20060426021059.235216000@localhost.localdomain>
-Date: Wed, 26 Apr 2006 10:11:00 +0800
+Date: Wed, 26 Apr 2006 10:11:01 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Akinobu Mita <mita@miraclelinux.com>,
        Jens Axboe <axboe@suse.de>, Greg KH <greg@kroah.com>
-Subject: [patch 1/3] use kref for blk_queue_tag
-Content-Disposition: inline; filename=blk-queue-tag-use-kref.patch
+Subject: [patch 2/3] use kref for io_context
+Content-Disposition: inline; filename=use-kref.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use kref for reference counter of blk_queue_tag.
+Use kref for reference counter of io_context.
+This patch also removes BUG_ON() for freeing unreferenced io_context.
+But kref can detect it if CONFIG_DEBUG_SLAB is enabled.
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 CC: Jens Axboe <axboe@suse.de>
 CC: Greg KH <greg@kroah.com>
 
- block/ll_rw_blk.c      |   35 ++++++++++++++++++++---------------
+ block/cfq-iosched.c    |    2 +-
+ block/ll_rw_blk.c      |   43 +++++++++++++++++++++----------------------
  include/linux/blkdev.h |    2 +-
- 2 files changed, 21 insertions(+), 16 deletions(-)
+ 3 files changed, 23 insertions(+), 24 deletions(-)
 
 Index: 2.6-git/block/ll_rw_blk.c
 ===================================================================
 --- 2.6-git.orig/block/ll_rw_blk.c
 +++ 2.6-git/block/ll_rw_blk.c
-@@ -848,6 +848,23 @@ struct request *blk_queue_find_tag(reque
- 
- EXPORT_SYMBOL(blk_queue_find_tag);
- 
-+static void release_blk_queue_tag(struct kref *kref)
+@@ -3536,29 +3536,29 @@ int __init blk_dev_init(void)
+ /*
+  * IO Context helper functions
+  */
++static void release_io_context(struct kref *kref)
 +{
-+	struct blk_queue_tag *bqt = container_of(kref, struct blk_queue_tag,
-+			kref);
++	struct io_context *ioc = container_of(kref, struct io_context, kref);
++	struct cfq_io_context *cic;
 +
-+	BUG_ON(bqt->busy);
-+	BUG_ON(!list_empty(&bqt->busy_list));
-+
-+	kfree(bqt->tag_index);
-+	bqt->tag_index = NULL;
-+
-+	kfree(bqt->tag_map);
-+	bqt->tag_map = NULL;
-+
-+	kfree(bqt);
++	rcu_read_lock();
++	if (ioc->aic && ioc->aic->dtor)
++		ioc->aic->dtor(ioc->aic);
++	if (ioc->cic_root.rb_node != NULL) {
++		struct rb_node *n = rb_first(&ioc->cic_root);
++		cic = rb_entry(n, struct cfq_io_context, rb_node);
++		cic->dtor(ioc);
++	}
++	rcu_read_unlock();
++	kmem_cache_free(iocontext_cachep, ioc);
 +}
 +
- /**
-  * __blk_queue_free_tags - release tag maintenance info
-  * @q:  the request queue for the device
-@@ -863,19 +880,7 @@ static void __blk_queue_free_tags(reques
- 	if (!bqt)
+ void put_io_context(struct io_context *ioc)
+ {
+ 	if (ioc == NULL)
  		return;
  
--	if (atomic_dec_and_test(&bqt->refcnt)) {
--		BUG_ON(bqt->busy);
--		BUG_ON(!list_empty(&bqt->busy_list));
+-	BUG_ON(atomic_read(&ioc->refcount) == 0);
 -
--		kfree(bqt->tag_index);
--		bqt->tag_index = NULL;
+-	if (atomic_dec_and_test(&ioc->refcount)) {
+-		struct cfq_io_context *cic;
 -
--		kfree(bqt->tag_map);
--		bqt->tag_map = NULL;
+-		rcu_read_lock();
+-		if (ioc->aic && ioc->aic->dtor)
+-			ioc->aic->dtor(ioc->aic);
+-		if (ioc->cic_root.rb_node != NULL) {
+-			struct rb_node *n = rb_first(&ioc->cic_root);
 -
--		kfree(bqt);
+-			cic = rb_entry(n, struct cfq_io_context, rb_node);
+-			cic->dtor(ioc);
+-		}
+-		rcu_read_unlock();
+-
+-		kmem_cache_free(iocontext_cachep, ioc);
 -	}
--
-+	kref_put(&bqt->kref, release_blk_queue_tag);
- 	q->queue_tags = NULL;
- 	q->queue_flags &= ~(1 << QUEUE_FLAG_QUEUED);
++	kref_put(&ioc->kref, release_io_context);
  }
-@@ -951,14 +956,14 @@ int blk_queue_init_tags(request_queue_t 
+ EXPORT_SYMBOL(put_io_context);
  
- 		INIT_LIST_HEAD(&tags->busy_list);
- 		tags->busy = 0;
--		atomic_set(&tags->refcnt, 1);
-+		kref_init(&tags->kref);
- 	} else if (q->queue_tags) {
- 		if ((rc = blk_queue_resize_tags(q, depth)))
- 			return rc;
- 		set_bit(QUEUE_FLAG_QUEUED, &q->queue_flags);
- 		return 0;
- 	} else
--		atomic_inc(&tags->refcnt);
-+		kref_get(&tags->kref);
+@@ -3606,7 +3606,7 @@ struct io_context *current_io_context(gf
  
- 	/*
- 	 * assign it, all done
+ 	ret = kmem_cache_alloc(iocontext_cachep, gfp_flags);
+ 	if (ret) {
+-		atomic_set(&ret->refcount, 1);
++		kref_init(&ret->kref);
+ 		ret->task = current;
+ 		ret->set_ioprio = NULL;
+ 		ret->last_waited = jiffies; /* doesn't matter... */
+@@ -3631,7 +3631,7 @@ struct io_context *get_io_context(gfp_t 
+ 	struct io_context *ret;
+ 	ret = current_io_context(gfp_flags);
+ 	if (likely(ret))
+-		atomic_inc(&ret->refcount);
++		kref_get(&ret->kref);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(get_io_context);
+@@ -3642,8 +3642,7 @@ void copy_io_context(struct io_context *
+ 	struct io_context *dst = *pdst;
+ 
+ 	if (src) {
+-		BUG_ON(atomic_read(&src->refcount) == 0);
+-		atomic_inc(&src->refcount);
++		kref_get(&src->kref);
+ 		put_io_context(dst);
+ 		*pdst = src;
+ 	}
 Index: 2.6-git/include/linux/blkdev.h
 ===================================================================
 --- 2.6-git.orig/include/linux/blkdev.h
 +++ 2.6-git/include/linux/blkdev.h
-@@ -315,7 +315,7 @@ struct blk_queue_tag {
- 	int busy;			/* current depth */
- 	int max_depth;			/* what we will send to device */
- 	int real_max_depth;		/* what the array can hold */
--	atomic_t refcnt;		/* map can be shared */
-+	struct kref kref;		/* map can be shared */
- };
+@@ -88,7 +88,7 @@ struct cfq_io_context {
+  * (apart from the atomic refcount), so require no locking.
+  */
+ struct io_context {
+-	atomic_t refcount;
++	struct kref kref;
+ 	struct task_struct *task;
  
- struct request_queue
+ 	int (*set_ioprio)(struct io_context *, unsigned int);
+Index: 2.6-git/block/cfq-iosched.c
+===================================================================
+--- 2.6-git.orig/block/cfq-iosched.c
++++ 2.6-git/block/cfq-iosched.c
+@@ -1068,7 +1068,7 @@ __cfq_dispatch_requests(struct cfq_data 
+ 		dispatched++;
+ 
+ 		if (!cfqd->active_cic) {
+-			atomic_inc(&crq->io_context->ioc->refcount);
++			kref_get(&crq->io_context->ioc->kref);
+ 			cfqd->active_cic = crq->io_context;
+ 		}
+ 
 
 --

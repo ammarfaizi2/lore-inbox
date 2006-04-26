@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWDZBXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWDZBsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWDZBXr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 21:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWDZBXr
+	id S932332AbWDZBsg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 21:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWDZBsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 21:23:47 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:10415 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932192AbWDZBXq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 21:23:46 -0400
-Date: Wed, 26 Apr 2006 02:23:40 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet.skynet.ie
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Matthew Reppert <arashi@sacredchao.net>, linux-kernel@vger.kernel.org,
-       "Antonino A. Daplas" <adaplas@pol.net>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: PCI ROM resource allocation issue with 2.6.17-rc2
-In-Reply-To: <Pine.LNX.4.64.0604241025120.3701@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0604260221560.31555@skynet.skynet.ie>
-References: <1145851361.3375.20.camel@minerva>  <20060423222122.498a3dd2.akpm@osdl.org>
-  <Pine.LNX.4.64.0604240652380.31142@skynet.skynet.ie> 
- <Pine.LNX.4.64.0604241002460.3701@g5.osdl.org> <1145898993.3116.50.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.64.0604241025120.3701@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 25 Apr 2006 21:48:36 -0400
+Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:42384 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S932332AbWDZBsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 21:48:36 -0400
+To: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [UPDATE][0/21]extend file size and filesystem size
+Message-Id: <20060426104827sho@rifu.tnes.nec.co.jp>
+Mime-Version: 1.0
+X-Mailer: WeMail32[2.51] ID:1K0086
+From: sho@tnes.nec.co.jp
+Date: Wed, 26 Apr 2006 10:48:27 +0900
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
->
-> Maybe just add a DRM command to do it, so that old X versions (who don't
-> know about it) will just do it by hand, and then new X versions can do
->
-> 	if (drm_ioctl(fd, DRM_SETUP_THE_DAMN_RESOURCES) < 0) {
-> 		/*
-> 		 * I don't know what errno the drm-ioctl actually
-> 		 * returns for unrecognized commands, so this is
-> 		 * just an example
-> 		 */
-> 		if (errno == ENOTTY) {
-> 			old kernel: do it by hand
-> 		}
-> 	}
->
-> which allows us to go forward in a sane way, and finally leave the broken
-> X PCI-configuration-by-hand crap behind.
+On Thu, 13 Apr 2006 12:20:28 -0400, Theodore Ts'o wrote:
+> Generalized NACK.  We can't just blindly change function signatures
+> of pre-existing functions in libext2fs, since this breaks the ABI
+> with pre-existing applications linked with current shared libraries
+> of libext2fs.
 
-It doesn't help of course, the fb drivers also pci_enable the devices, 
-really X needs a kicking square, I'm trying to figure out some sort of fix 
-here, but X does't some really stupid things with PCI resources...
+I see.
 
-We really need a userspace way to pci_enable_device that X can call (via 
-sysfs) so for cards that don't have a DRM or fb loaded we still get 
-something..
+Since I updated the following 4 patches, please replace old patches
+with new ones.
 
-Dave.
+These patches are against e2fsprogs-1.39-WIP-2006-04-09.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
+  [13/21] modify format strings in print
+          - change the format strings "%d" and "%ld" to "%u" and "%lu"
+            respectively.
 
+  [14/21] change the type of variables for a block or an inode
+          - Change the type of 4byte variables manipulating a block or
+            an inode from signed to unsigned.
+
+          - Cast the type of operation in which an overflow occurs to
+            long long.
+
+  [15/21] add new functions which manipulate bitmap with 64-bit blk64_t
+          - add new functions, which use 64-bit blk64_t and manipulate
+            bitmap, leaving existing functions as they are.
+
+  [16/21] enlarge file size and filesystem size
+          - Add new option "-O large_block" in mke2fs.
+
+          - With this option, the maximum size of a file is (blocksize)
+            * (2^32-1) bytes, and of a filesystem is (pagesize) *
+           (2^32-1).
+
+Any feedback and comments are welcome.
+
+Cheers, sho

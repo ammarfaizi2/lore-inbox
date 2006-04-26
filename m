@@ -1,103 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWDZK14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWDZK2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWDZK14 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 06:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbWDZK14
+	id S932381AbWDZK2x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 06:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWDZK2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 06:27:56 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:35924 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932318AbWDZK1z convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 06:27:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n7lFqh+f0IoD/eaD30Lj43LX9GPkmz8xYyqYPab4BxKfNG6lXh6l1uV/rY6tjYQ8xFn0IgbZdCoL0W1sLbERZckLm2Exbim1qo0PoE8xFyFcJz0/gqEPeUNB+Rd1IYRLj6DR/zbz6P/u5TU7zArJnk7nO8V+ywPOZhmtdvHsrCg=
-Message-ID: <9a8748490604260327pe936e87yc9105868cc14557a@mail.gmail.com>
-Date: Wed, 26 Apr 2006 12:27:54 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Dean Nelson" <dcn@sgi.com>
-Subject: Re: [PATCH] change gen_pool allocator to not touch managed memory
-Cc: "Andrew Morton" <akpm@osdl.org>, tony.luck@intel.com, jes@sgi.com,
-       avolkov@varma-el.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060425155051.GA19248@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 26 Apr 2006 06:28:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57998 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932381AbWDZK2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 06:28:52 -0400
+Date: Wed, 26 Apr 2006 11:28:42 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Sam Vilain <sam@vilain.net>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       ebiederm@xmission.com
+Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
+Message-ID: <20060426102842.GA1334@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Sam Vilain <sam@vilain.net>, "Serge E. Hallyn" <serue@us.ibm.com>,
+	linux-kernel@vger.kernel.org, ebiederm@xmission.com
+References: <20060407095132.455784000@sergelap> <20060407183600.E40C119B902@sergelap.hallyn.com> <4446547B.4080206@sw.ru> <m1wtdlmvmr.fsf@ebiederm.dsl.xmission.com> <20060419175123.GD1238@sergelap.austin.ibm.com> <m1ejztjua2.fsf@ebiederm.dsl.xmission.com> <4446AF56.9060706@vilain.net> <20060425220022.GD7228@sergelap.austin.ibm.com> <444EF25D.9070702@vilain.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <444D1A7E.mailx85W11DZZU@aqua.americas.sgi.com>
-	 <20060424181626.09966912.akpm@osdl.org>
-	 <20060425155051.GA19248@sgi.com>
+In-Reply-To: <444EF25D.9070702@vilain.net>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/25/06, Dean Nelson <dcn@sgi.com> wrote:
-> The following patch modifies the gen_pool allocator (lib/genalloc.c) to
-> utilize a bitmap scheme instead of the buddy scheme. The purpose of this
-> change is to eliminate the touching of the actual memory being allocated.
->
-> Since the change modifies the interface, a change to the uncached
-> allocator (arch/ia64/kernel/uncached.c) is also required.
->
-[snip]
+On Wed, Apr 26, 2006 at 04:09:01PM +1200, Sam Vilain wrote:
+> Eric has said that his understanding was that syscall switches (ie,
+> syscalls with subcommands) were bad form.
 
-A few small comments below.
+It's not just Eric, it's common sense and pretty broad consensus.
 
-> -unsigned long gen_pool_alloc(struct gen_pool *poolp, int size)
-> +int gen_pool_add(struct gen_pool *pool, unsigned long addr, size_t size,
-> +                int nid)
->  {
-> -       int j, i, s, max_chunk_size;
-> -       unsigned long a, flags;
-> -       struct gen_pool_link *h = poolp->h;
-> +       struct gen_pool_chunk *chunk;
-> +       int nbits = size >> pool->min_alloc_order;
-> +       int nbytes = sizeof(struct gen_pool_chunk) +
-> +                               (nbits + BITS_PER_BYTE - 1) / BITS_PER_BYTE;
-> +
-> +       if (nbytes > PAGE_SIZE) {
-> +               chunk = vmalloc_node(nbytes, nid);
-> +       } else {
-> +               chunk = kmalloc_node(nbytes, GFP_KERNEL, nid);
-> +       }
-
-No curly braces when not needed is usually prefered.
-
-       if (nbytes > PAGE_SIZE)
-               chunk = vmalloc_node(nbytes, nid);
-       else
-               chunk = kmalloc_node(nbytes, GFP_KERNEL, nid);
-
-
-> +static int
-> +uncached_add_chunk(struct gen_pool *pool, int nid)
-
-Why not
-
- +static int uncached_add_chunk(struct gen_pool *pool, int nid)
-
-There's room for it on one line and other functions in that file use
-just one line (more grep'able)...
-
-
->  void
-> -uncached_free_page(unsigned long maddr)
-> +uncached_free_page(unsigned long uc_addr)
-
-Move this to a single line perhaps?
-
- +void uncached_free_page(unsigned long uc_addr)
-
-
-> +static int __init
-> +uncached_init(void)
-
-One line ?
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

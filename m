@@ -1,112 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWDZUZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWDZU0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbWDZUZg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 16:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWDZUZf
+	id S964859AbWDZU0v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 16:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWDZU0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 16:25:35 -0400
-Received: from lug-owl.de ([195.71.106.12]:48797 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S964863AbWDZUZf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 16:25:35 -0400
-Date: Wed, 26 Apr 2006 22:25:33 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, David Schwartz <davids@webmaster.com>
-Subject: Re: C++ pushback
-Message-ID: <20060426202533.GT25520@lug-owl.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org, David Schwartz <davids@webmaster.com>
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org>
+	Wed, 26 Apr 2006 16:26:51 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:60382 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S964859AbWDZU0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 16:26:50 -0400
+Subject: Re: [uml-devel] Re: [RFC] PATCH 3/4 - Time virtualization :
+	PTRACE_SYSCALL_MASK
+From: "Charles P. Wright" <cwright@cs.sunysb.edu>
+To: Jeff Dike <jdike@addtoit.com>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+In-Reply-To: <444797F8.6020509@fujitsu-siemens.com>
+References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org>
+	 <20060420090514.GA9452@osiris.boeblingen.de.ibm.com>
+	 <444797F8.6020509@fujitsu-siemens.com>
+Content-Type: text/plain
+Date: Wed, 26 Apr 2006 16:26:42 -0400
+Message-Id: <1146083202.10211.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="z87VqPJ/HsYrR2WM"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-04-20 at 16:17 +0200, Bodo Stroesser wrote:
+> Heiko Carstens wrote:
+> >>Add PTRACE_SYSCALL_MASK, which allows system calls to be selectively
+> >>traced.  It takes a bitmask and a length.  A system call is traced
+> >>if its bit is one.  Otherwise, it executes normally, and is
+> >>invisible to the ptracing parent.
+> >>[...]
+> >>+int set_syscall_mask(struct task_struct *child, char __user *mask,
+> >>+		     unsigned long len)
+> >>+{
+> >>+	int i, n = (NR_syscalls + 7) / 8;
+> >>+	char c;
+> >>+
+> >>+	if(len > n){
+> >>+		for(i = NR_syscalls; i < len * 8; i++){
+> >>+			get_user(c, &mask[i / 8]);
+> >>+			if(!(c & (1 << (i % 8)))){
+> >>+				printk("Out of range syscall at %d\n", i);
+> >>+				return -EINVAL;
+> >>+			}
+> >>+		}
+> >>+
+> >>+		len = n;
+> >>+	}
+> > 
+> > 
+> > Since it's quite likely that len > n will be true (e.g. after installing the
+> > latest version of your debug tool) it would be better to silently ignore all
+> > bits not within the range of NR_syscalls.
+> > There is no point in flooding the console. The tracing process won't see any
+> > of the non existant syscalls it requested to see anyway.
+> 
+> Shouldn't 'len' better be the number of bits in the mask than the number of chars?
+> Assume a syscall newly added to UML would be a candidate for processing on the host,
+> but the incremented NR_syscalls still would result in the same number of bytes. Also
+> assume, host doesn't yet have that new syscall. Current implementation doesn't catch
+> the fact, that host can't execute that syscall.
+> 
+> OTOH, I think UML shouldn't send the entire mask, but relevant part only. The missing
+> end is filled with 0xff by host anyway. So it would be enough to send the mask up to the
+> highest bit representing a syscall, that needs to be executed by host. (currently, that
+> is __NR_gettimeofday). If UML would do so, no more problem results from UML having
+> a higher NR_syscall than the host (as long as the new syscalls are to be intercepted
+> and executed by UML)
+> 
+> A greater problem might be a process in UML, that calls an invalid syscall number. AFAICS
+> syscall number (orig_eax) isn't checked before it is used in do_syscall_trace to address
+> syscall_mask. This might result in a crash.
+I have a similar local patch that I've been using.  I think it would be
+worthwhile to have an extra bit in the bitmap that says what to do with
+calls that fall outside the range [0, __NR_syscall].  That way the
+ptrace monitor can decide whether it is useful to get informed of these
+"bogus" calls.
 
---z87VqPJ/HsYrR2WM
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Charles
 
-On Wed, 2006-04-26 13:09:38 -0700, Linus Torvalds <torvalds@osdl.org> wrote:
-> On Wed, 26 Apr 2006, Jan-Benedict Glaw wrote:
-> > There's one _practical_ thing you need to keep in mind: you'll either
-> > need 'C++'-clean kernel headers (to interface low-level kernel
-> > functions) or a separate set of headers.
->=20
-> I suspect it would be easier to just do
->=20
-> 	extern "C" {
-> 	#include <linux/xyz.h>
-> 	...
-> 	}
->=20
-> instead of having anything really C++'aware in the headers.
-
-=2E..but you need to admit that your left hand tried to make your right
-hand not typing this, didn't it?
-
->  - the language just sucks. Sorry, but it does.
->  - some of the C features we use may or may not be usable from C++=20
->    (statement expressions?)
-
-In the constructor pathes, I expect higher stack usage than we now
-have.
-
->  - a lot of the C++ features just won't be supported sanely (ie the kerne=
-l=20
->    infrastructure just doesn't do exceptions for C++, nor will it run any=
-=20
->    static constructors etc).
-
-So what actually can be made useable (and what actually makes sense):
-
-  * Classes with public and private funct^Wmembers, constructors.
-  * Namespaces? Don't think they're all _that_ useful for us.
-  * Static constructors probably won't fly.
-
-> Anyway, it should all be doable. Not necessarily even very hard. But I=20
-> doubt it's worth it.
-
-I guess if somebody has a large portion of well-separated C++ code
-(eg. a complete and complex filesystem), it would be easier to write
-some glue code to "run" the C++ code with the kernel.
-
-Though it would be even easier to use FUSE's bindings:-)
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---z87VqPJ/HsYrR2WM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFET9c9Hb1edYOZ4bsRAvHuAJ44AxiCv0C4VcwHkJIAOxutJUDsvgCePFdh
-7K2vmk+h6O3hj0AVQ9+yNe4=
-=JzTk
------END PGP SIGNATURE-----
-
---z87VqPJ/HsYrR2WM--

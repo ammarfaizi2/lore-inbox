@@ -1,44 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWDZNuw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWDZNwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWDZNuw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 09:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWDZNuw
+	id S932445AbWDZNwf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 09:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWDZNwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 09:50:52 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:5783 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932443AbWDZNuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 09:50:52 -0400
-Subject: Re: [PATCH] likely cleanup: revert unlikely in ll_back_merge_fn
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20060426052049.GV4102@suse.de>
-References: <20060425183026.GR4102@suse.de>
-	 <004d01c668b0$a9c79540$853d010a@nuitysystems.com>
-	 <20060426052049.GV4102@suse.de>
-Content-Type: text/plain
-Date: Wed, 26 Apr 2006 08:50:35 -0500
-Message-Id: <1146059435.3908.3.camel@mulgrave.il.steeleye.com>
+	Wed, 26 Apr 2006 09:52:34 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:60215 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932445AbWDZNwe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 09:52:34 -0400
+Date: Wed, 26 Apr 2006 15:53:10 +0200
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-mm@kvack.org
+Subject: Lockless page cache test results
+Message-ID: <20060426135310.GB5083@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="UfEAyuTBtIjiZzX6"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-26 at 07:20 +0200, Jens Axboe wrote:
-> But blk_recount_segments() sets the BIO_SEG_VALID flag. Ugh ok
-> __bio_add_page() basically kills the flag. James, I think you are the
-> author of that addition, does it really need to be so restrictive?
-> 
->         /* If we may be able to merge these biovecs, force a recount */
->         if (bio->bi_vcnt && (BIOVEC_PHYS_MERGEABLE(bvec-1, bvec) ||
->             BIOVEC_VIRT_MERGEABLE(bvec-1, bvec)))
->                 bio->bi_flags &= ~(1 << BIO_SEG_VALID);
 
-Help me out here ... I can't find this chunk of code in the current
-tree.  Where is it?
+--UfEAyuTBtIjiZzX6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-James
+Hi,
+
+Running a splice benchmark on a 4-way IPF box, I decided to give the
+lockless page cache patches from Nick a spin. I've attached the results
+as a png, it pretty much speaks for itself.
+
+The test in question splices a 1GiB file to a pipe and then splices that
+to some output. Normally that output would be something interesting, in
+this case it's simply /dev/null. So it tests the input side of things
+only, which is what I wanted to do here. To get adequate runtime, the
+operation is repeated a number of times (120 in this example). The
+benchmark does that number of loops with 1, 2, 3, and 4 clients each
+pinned to a private CPU. The pinning is mainly done for more stable
+results.
+
+-- 
+Jens Axboe
 
 
+--UfEAyuTBtIjiZzX6
+Content-Type: image/png
+Content-Disposition: attachment; filename="lockless.png"
+Content-Transfer-Encoding: base64
+
+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
+
+--UfEAyuTBtIjiZzX6--

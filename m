@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWDZARL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWDZATP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbWDZARL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 20:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWDZARL
+	id S932315AbWDZATP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 20:19:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWDZATP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 20:17:11 -0400
-Received: from BISCAYNE-ONE-STATION.MIT.EDU ([18.7.7.80]:4540 "EHLO
-	biscayne-one-station.mit.edu") by vger.kernel.org with ESMTP
-	id S932305AbWDZARJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 20:17:09 -0400
-Message-ID: <20060425195943.7a6apx4ci65ticos@webmail.mit.edu>
-Date: Tue, 25 Apr 2006 19:59:43 -0400
-From: abelay@MIT.EDU
-To: "Brown, Len" <len.brown@intel.com>, Arjan van de Ven <arjan@infradead.org>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, "Yu, Luming" <luming.yu@intel.com>,
-       Andrew Morton <akpm@osdl.org>, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] reverse pci config space restore order
-References: <CFF307C98FEABE47A452B27C06B85BB6466300@hdsmsx411.amr.corp.intel.com>
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB6466300@hdsmsx411.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format="flowed"
+	Tue, 25 Apr 2006 20:19:15 -0400
+Received: from mga05.intel.com ([192.55.52.89]:16227 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932315AbWDZATO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 20:19:14 -0400
+X-IronPort-AV: i="4.04,155,1144047600"; 
+   d="scan'208"; a="28569658:sNHT3147930961"
+X-IronPort-AV: i="4.04,155,1144047600"; 
+   d="scan'208"; a="27759391:sNHT2640118187"
+TrustInternalSourcedMail: True
+X-IronPort-AV: i="4.04,155,1144047600"; 
+   d="scan'208"; a="27785768:sNHT38516751"
+Date: Tue, 25 Apr 2006 17:15:21 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH] sched: fix evaluation of skip_for_load in move_tasks()
+Message-ID: <20060425171521.B24677@unix-os.sc.intel.com>
+References: <444D9290.6070706@bigpond.net.au> <20060425092840.A23188@unix-os.sc.intel.com> <444EAF74.8090705@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0.3)
-X-Spam-Score: -1.638
-X-Spam-Flag: NO
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <444EAF74.8090705@bigpond.net.au>; from pwil3058@bigpond.net.au on Wed, Apr 26, 2006 at 09:23:32AM +1000
+X-OriginalArrivalTime: 26 Apr 2006 00:18:26.0425 (UTC) FILETIME=[EFE58E90:01C668C6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting "Brown, Len" <len.brown@intel.com>:
+On Wed, Apr 26, 2006 at 09:23:32AM +1000, Peter Williams wrote:
+> Siddha, Suresh B wrote:
+> > I think we need to change this to
+> > 	if (skip_for_load && idx < this_best_prio && idx == busiest_best_prio)
+> > 		skip_for_load = !busiest_best_prio_seen;
+> > 
+> > Otherwise we will reset skip_for_load to '0' even for the tasks whose prio is 
+> > less than this_best_prio but not equal to busiest_best_prio.
+> 
+> And why is that a problem?  The intention of this code is to make sure 
+> at least one busiest_best_prio task doesn't get moved as a result of the 
+> "skip for reasons of load weight" mechanism being overridden by the "idx 
+> < this_best_prio" exception.  I can't see how this intention is being 
+> subverted.
 
->
->> On Tue, 2006-04-25 at 11:48 +0100, Matthew Garrett wrote:
->>> On Tue, Apr 25, 2006 at 02:50:57PM +0800, Yu, Luming wrote:
->>>
->>> > -	for (i = 0; i < 16; i++)
->>> > +	for (i = 15; i >= 0 ; i--)
->>>
->>> We certainly need to do /something/ here, but I'm not sure
->>> this is it.
->>> Adam Belay has code to limit PCI state restoration to the
->>> PCI-specified
->>> registers, with the idea being that individual drivers fix things up
->>> properly. While this has the obvious drawback that almost every PCI
->>> driver in the tree would then need fixing up, it's also probably the
->>> right thing.
->>
->> it has a second drawback: it assumes all devices HAVE a driver, which
->> isn't normally the case...
->
-> Adam mentioned earlier, and I agree, that it is probably a bad
-> idea for this code to blindly scribble on the BIST field at i=3.
-> Probably we should clear that field before restoring it.
->
-> Re: this patch
-> I think that this patch is likely a positive forward step.
-> It seems logical to restore the BARs before the CMD/STATUS in general,
-> nothing specific to the ICH here.
->
-> But yes, this is a helper routine and devices where it hurts
-> instead of helps should have their own routine.  Complex devices
-> need to handle the device-specific config space state above these
-> 1st 16 locations anyway.
+There might be scenarios where we will endup moving other priority tasks(
+not those with busiest_best_prio) which will still become highest priority
+on new queue. This may or may not be bad. But this was not our intention
+with the intended code, right?
 
-Right, and because we only restore the first 0x40 or so registers (they're all
-standard), I don't think implementing pci_save/restore_state() properly 
-is going
-to break much at all.  I'm planning to merge these changes with -mm, so
-hopefully it won't be difficult to tell. :)
-
-Re: devices without drivers
-
-We can certainly call a generic save and restore function when there isn't a
-driver available, but beyond handling standard registers mentioned in 
-the spec,
-if important hardware context is lost there's really no way around it.
-
--Adam
-
+thanks,
+suresh

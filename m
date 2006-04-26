@@ -1,34 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWDZNrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWDZNuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbWDZNrg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 09:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWDZNrg
+	id S932443AbWDZNuw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 09:50:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWDZNuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 09:47:36 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:39465 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932441AbWDZNrf convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 09:47:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ruy+9QTMbHNsAUJzo6rKN16Q6fHbOXcOvl1mdRc83+6Jxqt5VuPD6wOfnxRz+08ODv25iBMjo7gX0sVcsmnOw6Q/qDcDnGbJ8mEb0ukM0l1UBcukwC4ldRCl1LRihy16OUqTiC/IKDgiYtUIMllEW6X08tZOz9WIzERZ1k/A5zE=
-Message-ID: <4ae3c140604260647q3a69c4e1tebfeea66e193c8a8@mail.gmail.com>
-Date: Wed, 26 Apr 2006 09:47:30 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: how to use the new wait functions in wait.c?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 26 Apr 2006 09:50:52 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:5783 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932443AbWDZNuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 09:50:52 -0400
+Subject: Re: [PATCH] likely cleanup: revert unlikely in ll_back_merge_fn
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <20060426052049.GV4102@suse.de>
+References: <20060425183026.GR4102@suse.de>
+	 <004d01c668b0$a9c79540$853d010a@nuitysystems.com>
+	 <20060426052049.GV4102@suse.de>
+Content-Type: text/plain
+Date: Wed, 26 Apr 2006 08:50:35 -0500
+Message-Id: <1146059435.3908.3.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like linux kernel switched to new wait function sets in wait.c.
-But I cannot find any document about the new APIs. Can someone kindly
-let me know where I can find them or let me know how to use them?
-Thanks a lot!
+On Wed, 2006-04-26 at 07:20 +0200, Jens Axboe wrote:
+> But blk_recount_segments() sets the BIO_SEG_VALID flag. Ugh ok
+> __bio_add_page() basically kills the flag. James, I think you are the
+> author of that addition, does it really need to be so restrictive?
+> 
+>         /* If we may be able to merge these biovecs, force a recount */
+>         if (bio->bi_vcnt && (BIOVEC_PHYS_MERGEABLE(bvec-1, bvec) ||
+>             BIOVEC_VIRT_MERGEABLE(bvec-1, bvec)))
+>                 bio->bi_flags &= ~(1 << BIO_SEG_VALID);
 
-xin
+Help me out here ... I can't find this chunk of code in the current
+tree.  Where is it?
+
+James
+
+

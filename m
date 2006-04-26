@@ -1,99 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWDZOJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWDZOLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWDZOJb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 10:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWDZOJb
+	id S932442AbWDZOLH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 10:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWDZOLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 10:09:31 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:41017
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932442AbWDZOJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 10:09:30 -0400
-Message-Id: <444F9B65.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Wed, 26 Apr 2006 16:10:13 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andreas Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
-Cc: <discuss@x86-64.org>
-Subject: [PATCH] i386/x86-64: simplify ioapic_register_intr()
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 26 Apr 2006 10:11:06 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:40891 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932442AbWDZOLF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 10:11:05 -0400
+Date: Wed, 26 Apr 2006 17:11:03 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: "=?iso-8859-1?Q?J=F6rn?= Engel" <joern@wohnheim.fh-wedel.de>
+cc: Arjan van de Ven <arjan@infradead.org>, Hua Zhong <hzhong@gmail.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
+In-Reply-To: <20060426110656.GD29108@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.58.0604261710120.20454@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.64.0604251120420.5810@localhost.localdomain>
+ <84144f020604260030v26f42b0bke639053928d5e471@mail.gmail.com>
+ <1146038324.5956.0.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.58.0604261112120.3522@sbz-30.cs.Helsinki.FI>
+ <1146040038.7016.0.camel@laptopd505.fenrus.org> <20060426100559.GC29108@wohnheim.fh-wedel.de>
+ <1146046118.7016.5.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.58.0604261354310.9797@sbz-30.cs.Helsinki.FI>
+ <1146049414.7016.9.camel@laptopd505.fenrus.org> <20060426110656.GD29108@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simplify (remove duplication of) code in ioapic_register_intr().
+On Wed, 26 Apr 2006, Jörn Engel wrote:
+> Still, if you could respin this with gcc 4.1 and post the numbers,
+> Pekka, that would be quite interesting.
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+I can do that, certainly. I'll send them tomorrow.
 
-diff -Npru /home/jbeulich/tmp/linux-2.6.17-rc2/arch/i386/kernel/io_apic.c
-2.6.17-rc2-x86-ioapic_register_intr-simplify/arch/i386/kernel/io_apic.c
---- /home/jbeulich/tmp/linux-2.6.17-rc2/arch/i386/kernel/io_apic.c	2006-04-26 10:55:11.000000000 +0200
-+++ 2.6.17-rc2-x86-ioapic_register_intr-simplify/arch/i386/kernel/io_apic.c	2006-04-25 15:38:32.000000000 +0200
-@@ -1184,21 +1184,14 @@ static struct hw_interrupt_type ioapic_e
- 
- static inline void ioapic_register_intr(int irq, int vector, unsigned long trigger)
- {
--	if (use_pci_vector() && !platform_legacy_irq(irq)) {
--		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--				trigger == IOAPIC_LEVEL)
--			irq_desc[vector].handler = &ioapic_level_type;
--		else
--			irq_desc[vector].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[vector]);
--	} else	{
--		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--				trigger == IOAPIC_LEVEL)
--			irq_desc[irq].handler = &ioapic_level_type;
--		else
--			irq_desc[irq].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[irq]);
--	}
-+	unsigned idx = use_pci_vector() && !platform_legacy_irq(irq) ? vector : irq;
-+
-+	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
-+			trigger == IOAPIC_LEVEL)
-+		irq_desc[idx].handler = &ioapic_level_type;
-+	else
-+		irq_desc[idx].handler = &ioapic_edge_type;
-+	set_intr_gate(vector, interrupt[idx]);
- }
- 
- static void __init setup_IO_APIC_irqs(void)
-diff -Npru /home/jbeulich/tmp/linux-2.6.17-rc2/arch/x86_64/kernel/io_apic.c
-2.6.17-rc2-x86-ioapic_register_intr-simplify/arch/x86_64/kernel/io_apic.c
---- /home/jbeulich/tmp/linux-2.6.17-rc2/arch/x86_64/kernel/io_apic.c	2006-04-26 10:55:24.000000000 +0200
-+++ 2.6.17-rc2-x86-ioapic_register_intr-simplify/arch/x86_64/kernel/io_apic.c	2006-04-25 15:38:32.000000000 +0200
-@@ -846,21 +846,14 @@ static struct hw_interrupt_type ioapic_e
- 
- static inline void ioapic_register_intr(int irq, int vector, unsigned long trigger)
- {
--	if (use_pci_vector() && !platform_legacy_irq(irq)) {
--		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--				trigger == IOAPIC_LEVEL)
--			irq_desc[vector].handler = &ioapic_level_type;
--		else
--			irq_desc[vector].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[vector]);
--	} else	{
--		if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
--				trigger == IOAPIC_LEVEL)
--			irq_desc[irq].handler = &ioapic_level_type;
--		else
--			irq_desc[irq].handler = &ioapic_edge_type;
--		set_intr_gate(vector, interrupt[irq]);
--	}
-+	unsigned idx = use_pci_vector() && !platform_legacy_irq(irq) ? vector : irq;
-+
-+	if ((trigger == IOAPIC_AUTO && IO_APIC_irq_trigger(irq)) ||
-+			trigger == IOAPIC_LEVEL)
-+		irq_desc[idx].handler = &ioapic_level_type;
-+	else
-+		irq_desc[idx].handler = &ioapic_edge_type;
-+	set_intr_gate(vector, interrupt[idx]);
- }
- 
- static void __init setup_IO_APIC_irqs(void)
-
-
+				Pekka

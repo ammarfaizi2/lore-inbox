@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWDZC0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWDZCbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWDZC0k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 22:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWDZC0k
+	id S932337AbWDZCbk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 22:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWDZCbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 22:26:40 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:26343 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932348AbWDZC0k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 22:26:40 -0400
-Date: Wed, 26 Apr 2006 03:26:35 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, Jens Axboe <axboe@suse.de>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [patch 3/3] use kref for bio
-Message-ID: <20060426022635.GF27946@ftp.linux.org.uk>
-References: <20060426021059.235216000@localhost.localdomain> <20060426021122.069267000@localhost.localdomain>
+	Tue, 25 Apr 2006 22:31:40 -0400
+Received: from xenotime.net ([66.160.160.81]:12782 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932337AbWDZCbj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 22:31:39 -0400
+Date: Tue, 25 Apr 2006 19:34:05 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Gross, Mark" <mark.gross@intel.com>
+Cc: minyard@acm.org, alan@lxorguk.ukuu.org.uk,
+       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       steven.carbonari@intel.com, soo.keong.ong@intel.com,
+       zhenyu.z.wang@intel.com
+Subject: Re: Problems with EDAC coexisting with BIOS
+Message-Id: <20060425193405.0ee50691.rdunlap@xenotime.net>
+In-Reply-To: <5389061B65D50446B1783B97DFDB392DA97BD0@orsmsx411.amr.corp.intel.com>
+References: <5389061B65D50446B1783B97DFDB392DA97BD0@orsmsx411.amr.corp.intel.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060426021122.069267000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 10:11:02AM +0800, Akinobu Mita wrote:
-> Use kref for reference counter of bio.
-> This patch also removes BUG_ON() for freeing unreferenced bio.
-> But kref can detect it if CONFIG_DEBUG_SLAB is enabled.
- 
-*Ugh*
+On Tue, 25 Apr 2006 16:25:59 -0700 Gross, Mark wrote:
 
-Let's _not_.  It's extra overhead for no good reason.
+> 
+> How about printing nothing like it used too?
+> 
+> See attached.  
+> 
+> Signed-off-by: Mark Gross
 
-Just in case: any kref conversion for
-	* super_block
-	* inode
-	* dentry
-	* file
-is NAKed while we are at it.
+Hi Mark,
+
+This small patch will need some cleaning up:
+
+1.  Signed-off-by: Mark Gross <mark.gross@intel.com>
+
+2.  Try not to use attachments.  If you must, then make the attachment
+	type be text instead of octet-stream.
+
+3.  No need to init to 0:
++static int force_function_unhide = 0;
+
+4.  Typos:
+
++	/* check to see if device 0 function 1 is enbaled if it isn't we
+                                                  enabled; it it isn't, we
++	 * assume the BIOS has reserved it for a reason and is expecting
++	 * exclusive access, we take care to not violate that assumption and
+                                          not to violate
++	 * fail the probe. */
+
+5.  indentation, typos, and at least one trailing space:
+
++	if (!force_function_unhide && !(stat8 & (1 << 5))) {
++		printk(KERN_INFO "contact your bios vendor to see if the " 
+                                  Contact your BIOS
++		"E752x error registers can be safely un-hidden\n");
+		^indent one more tab
+
+---
+~Randy

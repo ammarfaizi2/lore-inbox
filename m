@@ -1,85 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWDZXH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWDZXKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbWDZXH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 19:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWDZXH1
+	id S932407AbWDZXKI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 19:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWDZXKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 19:07:27 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:23681 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751057AbWDZXH1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 19:07:27 -0400
-From: Dan Smith <danms@us.ibm.com>
-To: mingz@ele.uri.edu
-Cc: device-mapper development <dm-devel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [dm-devel] [RFC] dm-userspace
-References: <87u08g553l.fsf@caffeine.beaverton.ibm.com>
-	<1146092129.14129.333.camel@localhost.localdomain>
-Date: Wed, 26 Apr 2006 16:07:35 -0700
-In-Reply-To: <1146092129.14129.333.camel@localhost.localdomain> (Ming Zhang's
-	message of "Wed, 26 Apr 2006 18:55:28 -0400")
-Message-ID: <87psj45420.fsf@caffeine.beaverton.ibm.com>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 26 Apr 2006 19:10:07 -0400
+Received: from main.gmane.org ([80.91.229.2]:39116 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932407AbWDZXKG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 19:10:06 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Roman Kononov <kononov195-far@yahoo.com>
+Subject: Re: C++ pushback
+Date: Wed, 26 Apr 2006 18:00:52 -0500
+Message-ID: <e2ou35$u5r$1@sea.gmane.org>
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-255-17-86.dsl.emhril.ameritech.net
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+In-Reply-To: <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+Linus Torvalds wrote:
+> 
+> On Wed, 26 Apr 2006, Jan-Benedict Glaw wrote:
+>> There's one _practical_ thing you need to keep in mind: you'll either
+>> need 'C++'-clean kernel headers (to interface low-level kernel
+>> functions) or a separate set of headers.
+> 
+> I suspect it would be easier to just do
+> 
+> 	extern "C" {
+> 	#include <linux/xyz.h>
+> 	...
+> 	}
+> 
+> instead of having anything really C++'aware in the headers.
+> 
+> If by "clean" you meant that the above works, then yeah, there might be 
+> _some_ cases where we use C++ keywords etc in the headers, but they should 
+> be pretty unusual and easy to fix.
+> 
+> The real problem with C++ for kernel modules is:
+> 
+>  - the language just sucks. Sorry, but it does.
+Sorry, you do not know the language, and your statement is not 
+credible. I think that C sucks.
 
-MZ> just curious, will the speed be a problem here?=20
+>  - some of the C features we use may or may not be usable from C++ 
+>    (statement expressions?)
+Statement expressions are working fine in g++. The main difficulties are:
+    - GCC's structure member initialization extensions are syntax
+      errors in G++: struct foo_t foo={.member=0};
+    - empty structures are not zero-sized in g++, unless they are like
+      this one: struct really_empty_t { char dummy[0]; };
 
-I'm glad you asked... :)
+>  - the compilers are slower, and less reliable. This is _less_ of an issue 
+>    these days than it used to be (at least the reliability part), but it's 
+>    still true.
+G++ compiling heavy C++ is a bit slower than gcc. The g++ front end is 
+reliable enough. Do you have a particular bug in mind?
 
-MZ> considering each time it needs to contact user space for mapping a
-MZ> piece of data.=20
+>  - a lot of the C++ features just won't be supported sanely (ie the kernel 
+>    infrastructure just doesn't do exceptions for C++, nor will it run any 
+>    static constructors etc).
+A lot of C++ features are already supported sanely. You simply need to 
+understand them. Especially templates and type checking. C++ 
+exceptions are not very useful tool in kernels. Static constructor 
+issue is trivial. I use all C++ features (except exceptions) in all 
+projects: Linux kernel modules, embedded real-time applications, 
+everywhere. They _really_ help a lot.
 
-Actually, that's not the case.  The idea is for mappings to be cached
-in the kernel module so that the communication with userspace only
-needs to happen once per block.  The thought is to ask once for a
-read, and then remember that mapping until a write happens, which
-might change the story.  If so, we ask userspace again.
+>
+> Anyway, it should all be doable. Not necessarily even very hard. But I 
+> doubt it's worth it.
+> 
+> 		Linus
 
-Right now, the kernel module expires mappings in a pretty brain-dead
-way to make sure the list doesn't get too long.  An intelligent data
-structure and expiration method would probably improve performance
-quite a bit.
-
-I don't have any benchmark data to post right now.  I did some quick
-analysis a while back and found it to be not too bad.  When using loop
-devices as a backing store, I achieved performance as high as a little
-under 50% of native.
-
-MZ> and the size unit is per sector in dm?
-
-Well, for qcow it is a sector, yes.  The module itself, however, can
-use any block size (as long as it is a multiple of a sector).  Before
-I started work on qcow support, I wrote a test application that used
-2MiB blocks, which is where I got the approximately 50% performance
-value I described above.
-
-Our thought is that this would mostly be used for the OS images of
-virtual machines, which shouldn't change much, which would help to
-prevent constantly asking userspace to map blocks.
-
-=2D-=20
-Dan Smith
-IBM Linux Technology Center
-Open Hypervisor Team
-email: danms@us.ibm.com
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBET/03wtEf7b4GJVQRAjriAKCEJYwRg30sBHBsR108iXXGS2cp0gCfWQXg
-9/+VuCdkbTG4sDwHDQFUoNc=
-=07tN
------END PGP SIGNATURE-----
---=-=-=--
+I think that allowing C++ code to co-exist with the kernel would be a 
+step forward.
 

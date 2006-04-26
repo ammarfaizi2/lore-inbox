@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWDZEjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWDZEgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWDZEjI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 00:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWDZEjI
+	id S932258AbWDZEgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 00:36:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWDZEgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 00:39:08 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:51719 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S932358AbWDZEjH (ORCPT
+	Wed, 26 Apr 2006 00:36:16 -0400
+Received: from xenotime.net ([66.160.160.81]:58338 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932258AbWDZEgQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 00:39:07 -0400
-Message-ID: <444EF964.30704@argo.co.il>
-Date: Wed, 26 Apr 2006 07:39:00 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Alexander Shishckin <alexander.shishckin@gmail.com>
-CC: Valdis.Kletnieks@vt.edu, Bongani Hlope <bhlope@mweb.co.za>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>	 <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com>	 <444E524A.10906@argo.co.il> <200604252211.52474.bhlope@mweb.co.za>	 <444E85E9.70300@argo.co.il>	 <200604252102.k3PL2iQJ013299@turing-police.cc.vt.edu>	 <444E9174.8040909@argo.co.il> <71a0d6ff0604251646g4fc90b3dr30a03b8606360e7f@mail.gmail.com>
-In-Reply-To: <71a0d6ff0604251646g4fc90b3dr30a03b8606360e7f@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Wed, 26 Apr 2006 00:36:16 -0400
+Date: Tue, 25 Apr 2006 21:38:41 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jeff Chua <jchua@fedex.com>
+Cc: lkml@rtr.ca, jeff.chua.linux@gmail.com, hugh@veritas.com,
+       cjb@mrao.cam.ac.uk, pavel@suse.cz, arekm@maven.pl, jeff@garzik.org,
+       mpm@selenic.com, axboe@suse.de, randy_d_dunlap@linux.intel.com,
+       linux-kernel@vger.kernel.org, ncunningham@linuxmail.org
+Subject: Re: sata suspend resume ... (fwd)
+Message-Id: <20060425213841.63f0641e.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.64.0604250810370.5533@boston.corp.fedex.com>
+References: <Pine.LNX.4.64.0604232153230.2890@boston.corp.fedex.com>
+	<444C2821.5090409@rtr.ca>
+	<Pine.LNX.4.64.0604250810370.5533@boston.corp.fedex.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Apr 2006 04:39:05.0682 (UTC) FILETIME=[599ECB20:01C668EB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Shishckin wrote:
-> On 4/26/06, Avi Kivity <avi@argo.co.il> wrote:
->   
->> Not in this case. The constructor is an assignment. The destructor is an
->> if () followed by a delete. In this case, the if () is optimized away so
->> you are left with less generated code than the C case, for the
->> non-exceptional path.
->>     
-> Relying on compiler optimisations is just as well stupid as hunting
-> trialing writespaces in a dark room miles away.
->   
+On Tue, 25 Apr 2006 08:54:21 +0800 (SGT) Jeff Chua wrote:
 
-It'd like to see the output of 'size vmlinux' with optimizations turned 
-off. The kernel is full of forwarding functions and constructs that 
-optimize away to nothing.
+> 
+> On Sun, 23 Apr 2006, Mark Lord wrote:
+> 
+> > Try Randy Dunlop's libata-acpi patches -- I've been using variants of them
+> > for a *very long time* here now, as they're the only thing that works for me.
+> 
+> This the one that makes does it!!! I've tried just about all patches 
+> including the famous "mdelay(2000);" but none worked. ... perhaps it's 
+> just something to do with IBM X60s which is dual-core.
+> 
+> Here's what I did to make it work...
+> 
+> Linux is vanilla linux-2.6.17-rc2.
+> 
+> Pavel suggested the right step as I was going no where with SMP suspend. 
+> Switching to UP and using "suspend2" (CONFIG_SUSPEND2) didn't work either 
+> with PIIX or AHCI. Patch is suspend2-2.2.5-for-2.6.17-rc2.tar.bz2
+> 
+> Then I tried "suspend" (CONFIG_SOFTWARE_SUSPEND) with both PIIX and 
+> AHIC in UP mode ... still didn't work.
+> 
+> Next, I applied libata-acpi.patch with a little modification. No sure 
+> what the implication is but the original patch seems to use "i" outside 
+> the loop. Here's what I added to libata-acpi.patch ... can someone verify 
+> this or do we need this at all?
+> 
+> +
+> +       for (i = 0; i < ATA_MAX_DEVICES; i++)
+> +               ata_acpi_push_id(ap, i);
 
-Last time I tried, the kernel wouldn't even compile at -O0, but that may 
-have changed with the always_inline work.
+Yes, that looks appropriate.  The function that code lives in
+has changed quite a bit since this patch was written.
 
-And it is *not relying* on compiler optimizations that is stupid. It 
-means you're throwing away the work of the compiler folk, and doing it 
-instead *by hand* at every piece of code you write.
+> Tried both PIIX and AHCI in UP mode. Failed with AHCI, but worked in 
+> "suspend to disk" in PIIX mode (configured in BIOS under SATA -> 
+> "COMPATIBILITY").
 
-> It's almost about time to quit this thread and show us some code that
-> works. (Forked from 2.6.16, bootable on an average amount of
-> architectures...)
->   
-
-Ha ha.
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+---
+~Randy

@@ -1,55 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWDZNjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWDZNj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWDZNjR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 09:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWDZNjR
+	id S932431AbWDZNj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 09:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWDZNj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 09:39:17 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:46642
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932437AbWDZNjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 09:39:16 -0400
-Message-Id: <444F9452.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Wed, 26 Apr 2006 15:40:02 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: <cpufreq@lists.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] dprintk adjustments to cpufreq-nforce2
-Mime-Version: 1.0
+	Wed, 26 Apr 2006 09:39:58 -0400
+Received: from pproxy.gmail.com ([64.233.166.180]:51928 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932431AbWDZNj6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 09:39:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=iXz7L4IvCwHo4gT9T9a3DvY5TSQhLMxJDcwGQlGvKT4bfTiLJRckjsijU1gBu7ewzbf7grytX0M+GUlvBPd2ff3Udy4EPhNryYmOUUQCjuibYbu8rJ+CLRvvK9MkZStDvI11iBPawCWgfb/buNL3ULrGywsnsjYktVYeM9DXuFs=
+Message-ID: <2f4958ff0604260639n4874c2aua1e99ec4c32d2182@mail.gmail.com>
+Date: Wed, 26 Apr 2006 15:39:57 +0200
+From: "=?ISO-8859-2?Q?Grzegorz_Ja=B6kiewicz?=" <gryzman@gmail.com>
+To: "Kernel development list" <linux-kernel@vger.kernel.org>
+Subject: can't compile kernels lately (2.6.16.5 and up)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove KERN_* suffixes from some NForce2 cpufreq driver's dprintk-s.
+root@puppet:/usr/src/linux-2.6.16.11# make
+  CHK     include/linux/version.h
+  HOSTCC  scripts/mod/file2alias.o
+scripts/mod/file2alias.c:386: warning: 'struct input_device_id'
+declared inside parameter list
+scripts/mod/file2alias.c:386: warning: its scope is only this
+definition or declaration, which is probably not what you want
+scripts/mod/file2alias.c: In function 'do_input_entry':
+scripts/mod/file2alias.c:390: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:390: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:390: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:390: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:390: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:391: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:391: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:391: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:391: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:391: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:392: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:392: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:392: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:392: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:392: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:394: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:394: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:394: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:394: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:394: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:398: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:399: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:401: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:402: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:404: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:405: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:407: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:408: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:410: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:411: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:413: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:414: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:416: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:417: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:419: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:420: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:422: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:423: error: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c: In function 'handle_moddevtable':
+scripts/mod/file2alias.c:515: error: invalid application of 'sizeof'
+to incomplete type 'struct input_device_id'
+make[2]: *** [scripts/mod/file2alias.o] Error 1
+make[1]: *** [scripts/mod] Error 2
+make: *** [scripts] Error 2
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-diff -Npru /home/jbeulich/tmp/linux-2.6.17-rc2/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.c
-2.6.17-rc2-i386-cpufreq-nforce2-dprintk/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.c
---- /home/jbeulich/tmp/linux-2.6.17-rc2/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.c	2006-04-26 10:55:10.000000000
-+0200
-+++ 2.6.17-rc2-i386-cpufreq-nforce2-dprintk/arch/i386/kernel/cpu/cpufreq/cpufreq-nforce2.c	2006-04-24
-12:28:36.000000000 +0200
-@@ -266,7 +266,7 @@ static int nforce2_target(struct cpufreq
- 	if (freqs.old == freqs.new)
- 		return 0;
- 
--	dprintk(KERN_INFO "cpufreq: Old CPU frequency %d kHz, new %d kHz\n",
-+	dprintk("Old CPU frequency %d kHz, new %d kHz\n",
- 	       freqs.old, freqs.new);
- 
- 	cpufreq_notify_transition(&freqs, CPUFREQ_PRECHANGE);
-@@ -278,7 +278,7 @@ static int nforce2_target(struct cpufreq
- 		printk(KERN_ERR "cpufreq: Changing FSB to %d failed\n",
-                        target_fsb);
- 	else
--		dprintk(KERN_INFO "cpufreq: Changed FSB successfully to %d\n",
-+		dprintk("Changed FSB successfully to %d\n",
-                        target_fsb);
- 
- 	/* Enable IRQs */
-
-
+any hints ? I can see that file2alias.c is using kernel-only includes,
+there might be something missing to make it work (this is a hack, and
+you know it :P)
+--
+GJ

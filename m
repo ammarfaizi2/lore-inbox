@@ -1,78 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWDZL2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWDZL3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWDZL2O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 07:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWDZL2O
+	id S932400AbWDZL3p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 07:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWDZL3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 07:28:14 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:15062 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932398AbWDZL2N (ORCPT
+	Wed, 26 Apr 2006 07:29:45 -0400
+Received: from mx2.suse.de ([195.135.220.15]:23766 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932400AbWDZL3Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 07:28:13 -0400
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: James Morris <jmorris@namei.org>, "Theodore Ts'o" <tytso@mit.edu>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-In-Reply-To: <20060426035615.18418.qmail@web36605.mail.mud.yahoo.com>
-References: <20060426035615.18418.qmail@web36605.mail.mud.yahoo.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Wed, 26 Apr 2006 07:32:40 -0400
-Message-Id: <1146051160.28745.2.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Wed, 26 Apr 2006 07:29:24 -0400
+From: Andi Kleen <ak@suse.de>
+To: Kimball Murray <kimball.murray@gmail.com>
+Subject: Re: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Date: Wed, 26 Apr 2006 13:27:29 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, kmurray@redhat.com,
+       natalie.protasevich@unisys.com, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+References: <20060425160200.3424.89316.sendpatchset@dhcp83-97.boston.redhat.com>
+In-Reply-To: <20060425160200.3424.89316.sendpatchset@dhcp83-97.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604261327.29694.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-04-25 at 20:56 -0700, Casey Schaufler wrote:
-> 
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > On Tue, 2006-04-25 at 09:00 -0700, Casey Schaufler
-> > wrote:
-> > > The underlying mechanisms are more complex than
-> > > Bell & LePadula MAC + Biba Integrity + POSIX Caps.
-> > 
-> > Until one also considers the set of trusted subjects
-> > in systems that
-> > rely on such models.
-> 
-> How so? It's pretty much the same set of subjects
-> as you'd find in SELinux.
-> 
-> > That's the point.  Those subjects are free to
-> > violate the "simple" models, at which point any
-> > analysis of the
-> > effective policy of the system has to include them
-> > as well.
-> 
-> Yup, and you're going to have to provide analysis
-> of the subjects under SELinux as well. No way are
-> you going to convince anyone that a half-million
-> lines of policy definition are 100% error free.
-> 
-> > SELinux/TE
-> > just makes the real situation explicit in the
-> > policy, and enables you to
-> > tailor the policy to the real needs of applications
-> > while still being
-> > able to analyze the result.
-> 
-> This is what I don't get. How can you claim that
-> you can analyse a policy definition that big?
-> Further, I remember arguments to the effect of
-> a programmer being able to knock off the policy
-> for a program in 10 minutes. Having written and
-> analysed as many MLS systems as anyone on the
-> planet you'll excuse my scepicism. And poor speling.
+On Tuesday 25 April 2006 18:06, Kimball Murray wrote:
+> Per Andi Kleen's request, I have made slight changes to the patch I
+> submitted last week.  Look for the "snip" further down if you don't
+> want to re-read the original post.  Thanks!
 
-Perhaps we aren't communicating very well.  There are already tools like
-apol and slat that perform information flow analysis of SELinux policies
-and that can be used to check properties.  
+Added to my tree thanks.
 
--- 
-Stephen Smalley
-National Security Agency
+But next time please don't paste other patches in the introduction.
+It makes the patch merging scripts unhappy. Instead just resend the patch 
+with the full initial description again. I fixed it up.
 
+Thanks,
+
+-Ando

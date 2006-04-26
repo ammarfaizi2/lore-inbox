@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWDZN4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWDZN6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbWDZN4K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 09:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWDZN4J
+	id S932451AbWDZN6E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 09:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWDZN6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 09:56:09 -0400
-Received: from wproxy.gmail.com ([64.233.184.225]:56304 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932449AbWDZN4H convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 09:56:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gVyTC1Wm/GIWWtT1zWjMKvJtYbdCRuppbQoRvO2WxhsiPyobGXmYVXG81G/KHvIZ/meBxaa5cAYGnFSwR537udzhg8orJMZZlsSWXlUDDH6NPUPKUyFKurpBfb3CuOa1YkiEzLGO+Wo0lWKYUHyeVAgT2PKA5CJC8SkySnO3xG8=
-Message-ID: <bbe04eb10604260656h76064baev4f654a929290d35b@mail.gmail.com>
-Date: Wed, 26 Apr 2006 09:56:06 -0400
-From: "Kimball Murray" <kimball.murray@gmail.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Cc: "Brown, Len" <len.brown@intel.com>, linux-kernel@vger.kernel.org,
-       akpm@digeo.com, kmurray@redhat.com, natalie.protasevich@unisys.com,
-       linux-acpi@vger.kernel.org
-In-Reply-To: <200604261517.06505.ak@suse.de>
-MIME-Version: 1.0
+	Wed, 26 Apr 2006 09:58:04 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:54838
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932451AbWDZN6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 09:58:03 -0400
+Message-Id: <444F98B5.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Wed, 26 Apr 2006 15:58:45 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: <mpt_linux_developer@lsil.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mpt_interrupt() should return IRQ_NONE when
+	appropriate
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <CFF307C98FEABE47A452B27C06B85BB6466487@hdsmsx411.amr.corp.intel.com>
-	 <200604261517.06505.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+The way mpt_interrupt() was coded, it was impossible for the unhandled
+interrupt detection logic to ever trigger. All interrupt handlers should
+return IRQ_NONE when they have nothing to do.
+
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
+
+diff -Npru /home/jbeulich/tmp/linux-2.6.17-rc2/drivers/message/fusion/mptbase.c
+2.6.17-rc2-mpt_interrupt/drivers/message/fusion/mptbase.c
+--- /home/jbeulich/tmp/linux-2.6.17-rc2/drivers/message/fusion/mptbase.c	2006-04-26 11:50:44.000000000 +0200
++++ 2.6.17-rc2-mpt_interrupt/drivers/message/fusion/mptbase.c	2006-04-25 15:04:48.000000000 +0200
+@@ -372,20 +372,21 @@ static irqreturn_t
+ mpt_interrupt(int irq, void *bus_id, struct pt_regs *r)
+ {
+ 	MPT_ADAPTER *ioc = bus_id;
+-	u32 pa;
++	u32 pa = CHIPREG_READ32_dmasync(&ioc->chip->ReplyFifo);
++
++	if (pa == 0xFFFFFFFF)
++		return IRQ_NONE;
+ 
+ 	/*
+ 	 *  Drain the reply FIFO!
+ 	 */
+-	while (1) {
+-		pa = CHIPREG_READ32_dmasync(&ioc->chip->ReplyFifo);
+-		if (pa == 0xFFFFFFFF)
+-			return IRQ_HANDLED;
+-		else if (pa & MPI_ADDRESS_REPLY_A_BIT)
++	do {
++		if (pa & MPI_ADDRESS_REPLY_A_BIT)
+ 			mpt_reply(ioc, pa);
+ 		else
+ 			mpt_turbo_reply(ioc, pa);
+-	}
++		pa = CHIPREG_READ32_dmasync(&ioc->chip->ReplyFifo);
++	} while (pa != 0xFFFFFFFF);
+ 
+ 	return IRQ_HANDLED;
+ }
 
 
-
-On 4/26/06, Andi Kleen <ak@suse.de> wrote:
-> On Tuesday 25 April 2006 21:53, Brown, Len wrote:
-> > I'd rather see the original irq-renaming patch
-> > and its subsequent multiple via workaround patches
-> > reverted than to further complicate what is becoming
-> > a fragile mess.
->
-> Sorry rechecking - i already got the patch now. You want me to drop it again?
->
-> I guess we could drop it all, but VIA must still work afterwards.
-> How would we do that?
->
-> -Andi
->

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWDZG2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWDZGcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWDZG2M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 02:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWDZG2M
+	id S1750875AbWDZGcl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 02:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWDZGcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 02:28:12 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:14829 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750810AbWDZG2L
+	Wed, 26 Apr 2006 02:32:41 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:48607 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750875AbWDZGck
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 02:28:11 -0400
-Date: Wed, 26 Apr 2006 07:28:09 +0100
+	Wed, 26 Apr 2006 02:32:40 -0400
+Date: Wed, 26 Apr 2006 07:32:40 +0100
 From: Al Viro <viro@ftp.linux.org.uk>
-To: ralf@linux-mips.org
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix mips sys32_p{read,write}
-Message-ID: <20060426062809.GI27946@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: [PATCH] protect ext3 ioctl modifying append_only, immutable, etc. with i_mutex
+Message-ID: <20060426063240.GJ27946@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,99 +22,79 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Switched to use of sys_pread64()/sys_pwrite64() rather than keep duplicating
-their guts; among the little things that had been missing there were such as
-	ret = security_file_permission (file, MAY_READ);
-Gotta love the LSM robustness, right?
+	All modifications of ->i_flags in inodes that might be visible to
+somebody else must be under ->i_mutex.  That patch fixes ext3 ioctl()
+setting S_APPEND and friends.
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/mips/kernel/linux32.c |   64 +-------------------------------------------
- 1 files changed, 2 insertions(+), 62 deletions(-)
+ fs/ext3/ioctl.c |   18 ++++++++++++++----
+ 1 files changed, 14 insertions(+), 4 deletions(-)
 
-ed1914b47f964ab580f7e837df011c4a0f197ab6
-diff --git a/arch/mips/kernel/linux32.c b/arch/mips/kernel/linux32.c
-index 7c953bc..a7d2bb3 100644
---- a/arch/mips/kernel/linux32.c
-+++ b/arch/mips/kernel/linux32.c
-@@ -356,73 +356,13 @@ asmlinkage int sys32_llseek(unsigned int
- asmlinkage ssize_t sys32_pread(unsigned int fd, char __user * buf,
- 			       size_t count, u32 unused, u64 a4, u64 a5)
- {
--	ssize_t ret;
--	struct file * file;
--	ssize_t (*read)(struct file *, char __user *, size_t, loff_t *);
--	loff_t pos;
--
--	ret = -EBADF;
--	file = fget(fd);
--	if (!file)
--		goto bad_file;
--	if (!(file->f_mode & FMODE_READ))
--		goto out;
--	pos = merge_64(a4, a5);
--	ret = rw_verify_area(READ, file, &pos, count);
--	if (ret < 0)
--		goto out;
--	ret = -EINVAL;
--	if (!file->f_op || !(read = file->f_op->read))
--		goto out;
--	if (pos < 0)
--		goto out;
--	ret = -ESPIPE;
--	if (!(file->f_mode & FMODE_PREAD))
--		goto out;
--	ret = read(file, buf, count, &pos);
--	if (ret > 0)
--		dnotify_parent(file->f_dentry, DN_ACCESS);
--out:
--	fput(file);
--bad_file:
--	return ret;
-+	return sys_pread64(fd, buf, count, merge_64(a4, a5));
- }
+48ef5cddd158b0bbce7b646a16ba9ce3c599b0f1
+diff --git a/fs/ext3/ioctl.c b/fs/ext3/ioctl.c
+index aaf1da1..8c22aa9 100644
+--- a/fs/ext3/ioctl.c
++++ b/fs/ext3/ioctl.c
+@@ -48,6 +48,7 @@ int ext3_ioctl (struct inode * inode, st
+ 		if (!S_ISDIR(inode->i_mode))
+ 			flags &= ~EXT3_DIRSYNC_FL;
  
- asmlinkage ssize_t sys32_pwrite(unsigned int fd, const char __user * buf,
- 			        size_t count, u32 unused, u64 a4, u64 a5)
- {
--	ssize_t ret;
--	struct file * file;
--	ssize_t (*write)(struct file *, const char __user *, size_t, loff_t *);
--	loff_t pos;
--
--	ret = -EBADF;
--	file = fget(fd);
--	if (!file)
--		goto bad_file;
--	if (!(file->f_mode & FMODE_WRITE))
--		goto out;
--	pos = merge_64(a4, a5);
--	ret = rw_verify_area(WRITE, file, &pos, count);
--	if (ret < 0)
--		goto out;
--	ret = -EINVAL;
--	if (!file->f_op || !(write = file->f_op->write))
--		goto out;
--	if (pos < 0)
--		goto out;
--
--	ret = -ESPIPE;
--	if (!(file->f_mode & FMODE_PWRITE))
--		goto out;
--
--	ret = write(file, buf, count, &pos);
--	if (ret > 0)
--		dnotify_parent(file->f_dentry, DN_MODIFY);
--out:
--	fput(file);
--bad_file:
--	return ret;
-+	return sys_pwrite64(fd, buf, count, merge_64(a4, a5));
- }
++		mutex_lock(&inode->i_mutex);
+ 		oldflags = ei->i_flags;
  
- asmlinkage int sys32_sched_rr_get_interval(compat_pid_t pid,
+ 		/* The JOURNAL_DATA flag is modifiable only by root */
+@@ -60,8 +61,10 @@ int ext3_ioctl (struct inode * inode, st
+ 		 * This test looks nicer. Thanks to Pauline Middelink
+ 		 */
+ 		if ((flags ^ oldflags) & (EXT3_APPEND_FL | EXT3_IMMUTABLE_FL)) {
+-			if (!capable(CAP_LINUX_IMMUTABLE))
++			if (!capable(CAP_LINUX_IMMUTABLE)) {
++				mutex_unlock(&inode->i_mutex);
+ 				return -EPERM;
++			}
+ 		}
+ 
+ 		/*
+@@ -69,14 +72,18 @@ int ext3_ioctl (struct inode * inode, st
+ 		 * the relevant capability.
+ 		 */
+ 		if ((jflag ^ oldflags) & (EXT3_JOURNAL_DATA_FL)) {
+-			if (!capable(CAP_SYS_RESOURCE))
++			if (!capable(CAP_SYS_RESOURCE)) {
++				mutex_unlock(&inode->i_mutex);
+ 				return -EPERM;
++			}
+ 		}
+ 
+ 
+ 		handle = ext3_journal_start(inode, 1);
+-		if (IS_ERR(handle))
++		if (IS_ERR(handle)) {
++			mutex_unlock(&inode->i_mutex);
+ 			return PTR_ERR(handle);
++		}
+ 		if (IS_SYNC(inode))
+ 			handle->h_sync = 1;
+ 		err = ext3_reserve_inode_write(handle, inode, &iloc);
+@@ -93,11 +100,14 @@ int ext3_ioctl (struct inode * inode, st
+ 		err = ext3_mark_iloc_dirty(handle, inode, &iloc);
+ flags_err:
+ 		ext3_journal_stop(handle);
+-		if (err)
++		if (err) {
++			mutex_unlock(&inode->i_mutex);
+ 			return err;
++		}
+ 
+ 		if ((jflag ^ oldflags) & (EXT3_JOURNAL_DATA_FL))
+ 			err = ext3_change_inode_journal_flag(inode, jflag);
++		mutex_unlock(&inode->i_mutex);
+ 		return err;
+ 	}
+ 	case EXT3_IOC_GETVERSION:
 -- 
 1.3.0.g0080f
 

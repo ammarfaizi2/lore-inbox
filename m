@@ -1,111 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWDZUoW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWDZUpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWDZUoW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 16:44:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWDZUoW
+	id S932141AbWDZUpY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 16:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWDZUpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 16:44:22 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:18959 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932121AbWDZUoV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 16:44:21 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <torvalds@osdl.org>, "Jan-Benedict Glaw" <jbglaw@lug-owl.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: C++ pushback
-Date: Wed, 26 Apr 2006 13:43:57 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCEOELIAB.davids@webmaster.com>
+	Wed, 26 Apr 2006 16:45:24 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:8327 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932141AbWDZUpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 16:45:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=HJX1KdpqY6HKmgNXMipMJqtrgZwFS883rf7zD9B+mziLyGfczr5/Frd4BMYCWALDOE1y7OEEhd5hasgxvUXiVEqIrhfEANwJuLdNCGM/rK/SqHfFrk+Vp6NiNdVR1X7CVXABAw1eqLMGpS8LQgC+ZhL6evcq3UBlMbARPPRwsuY=  ;
+Message-ID: <444F9E2D.2000901@yahoo.com.au>
+Date: Thu, 27 Apr 2006 02:22:05 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Nigel Cunningham <nigel@suspend2.net>
+CC: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
+       Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
+References: <200604242355.08111.rjw@sisk.pl> <200604260021.08888.rjw@sisk.pl> <444ED9EB.5060205@yahoo.com.au> <200604261341.32500.nigel@suspend2.net>
+In-Reply-To: <200604261341.32500.nigel@suspend2.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 26 Apr 2006 13:39:57 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 26 Apr 2006 13:39:58 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Nigel,
+thanks
 
-Linus wrote:
+Nigel Cunningham wrote:
+> Hi Nick.
+> 
+> On Wednesday 26 April 2006 12:24, Nick Piggin wrote:
+> 
+>>Rafael J. Wysocki wrote:
+>>
+>>>This means if we freeze bdevs, we'll be able to save all of the LRU pages,
+>>>except for the pages mapped by the current task, without copying.  I think
+>>>we can try to do this, but we'll need a patch to freeze bdevs for this
+>>>purpose. ;-)
+>>
+>>Why not the current task? Does it exit the kernel? Or go through some
+>>get_uesr_pages path?
+> 
+> 
+> I think Rafael is asleep at the mo, so I'll answer for him - he's wanting it 
+> to be compatible with using userspace to control what happens (uswsusp). In 
+> that case, current will be the userspace program that's calling the ioctls to 
+> get processes frozen etc.
 
-> On Wed, 26 Apr 2006, Jan-Benedict Glaw wrote:
+OK, so what happens if, upon exit from kernel, that userspace task
+subsequently changes some pagecache but doesn't have that mapped? Or
+mmaps something then changes it?
 
-> > There's one _practical_ thing you need to keep in mind: you'll either
-> > need 'C++'-clean kernel headers (to interface low-level kernel
-> > functions) or a separate set of headers.
-
-> I suspect it would be easier to just do
->
-> 	extern "C" {
-> 	#include <linux/xyz.h>
-> 	...
-> 	}
-
-> instead of having anything really C++'aware in the headers.
-
-	I agree. This could include things like:
-
-#define class class_
-
-	You'd need two includes, one that goes first and one that goes last (to
-undefine these things). Yeah, it's ugly, but it imposes the minimum cost on
-those who don't care.
-
-> If by "clean" you meant that the above works, then yeah, there might be
-> _some_ cases where we use C++ keywords etc in the headers, but
-> they should
-> be pretty unusual and easy to fix.
-
-	They can be fixed ugly ways or nice ways, depending on a cost/benefit
-analysis.
-
-> The real problem with C++ for kernel modules is:
->
->  - the language just sucks. Sorry, but it does.
->  - some of the C features we use may or may not be usable from C++
->    (statement expressions?)
->  - the compilers are slower, and less reliable. This is _less_ of
-> an issue
->    these days than it used to be (at least the reliability part),
-> but it's
->    still true.
->  - a lot of the C++ features just won't be supported sanely (ie
-> the kernel
->    infrastructure just doesn't do exceptions for C++, nor will it run any
->    static constructors etc).
-
-	I would phrase the argument as such: any project that can really benefit
-from what C++ adds to C is probably too big and complex to belong in the
-kernel. Better to do what you need to get it out of the kernel.
-
-	A better project might be some compromise between kernel space and user
-space that doesn't abuse the kernel stack and where things like exceptions
-can be supported.
-
-> Anyway, it should all be doable. Not necessarily even very hard. But I
-> doubt it's worth it.
-
-	If FUSE made it so that you could just as well put a filesystem in user
-space as kernel space, I'd agree with you. File systems are the only kernel
-drivers I can think of that can justify sufficient complexity to get much
-benefit from C++. This may change though, and this could just be a lack of
-imagination on my part.
-
-	By the way, I am not a proponent of C++ in the kernel or of making changes
-to the kernel to support C++. I'm just someone who labels bullshit as such
-when he sees it.
-
-	DS
-
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

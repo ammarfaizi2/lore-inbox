@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWDZKnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWDZKqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWDZKnG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 06:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWDZKnG
+	id S932384AbWDZKqs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 06:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWDZKqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 06:43:06 -0400
-Received: from smtp-vbr5.xs4all.nl ([194.109.24.25]:22793 "EHLO
-	smtp-vbr5.xs4all.nl") by vger.kernel.org with ESMTP id S932371AbWDZKnF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 06:43:05 -0400
-Date: Wed, 26 Apr 2006 12:43:01 +0200
-From: bjdouma <bjdouma@xs4all.nl>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 001/001] INPUT: new ioctl's to retrieve values of EV_REP and EV_SND event codes
-Message-ID: <20060426104301.GA4634@skyscraper.unix9.prv>
-References: <20060422204844.GA16968@skyscraper.unix9.prv> <d120d5000604250823p4f2ed2acv4287f7d70c71c7c0@mail.gmail.com> <20060425152600.GA30398@suse.cz> <200604260106.38480.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604260106.38480.dtor_core@ameritech.net>
-X-Disclaimer: sorry
-X-Operating-System: human brain v1.04E11
-Organization: A training zoo
-User-Agent: Mutt/1.5.11
+	Wed, 26 Apr 2006 06:46:48 -0400
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:39399 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932384AbWDZKqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 06:46:47 -0400
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
+Date: Wed, 26 Apr 2006 13:41:27 +1000
+User-Agent: KMail/1.9.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
+       Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+References: <200604242355.08111.rjw@sisk.pl> <200604260021.08888.rjw@sisk.pl> <444ED9EB.5060205@yahoo.com.au>
+In-Reply-To: <444ED9EB.5060205@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3631143.1XjrAkghlY";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604261341.32500.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 01:06:38AM -0400, Dmitry Torokhov wrote:
+--nextPart3631143.1XjrAkghlY
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> What do you gius think about the patch below?
+Hi Nick.
 
-Works like a charm.
-Why is it though that we need EVIOCSREP, when I can set PERIOD and
-DELAY through writing a struct input_event directly to the file
-descriptor?  I've been doing that for quite some time, having
-softrepeat=1 (I need a quick keyboard, DELAY=120, PERIOD=18).
+On Wednesday 26 April 2006 12:24, Nick Piggin wrote:
+> Rafael J. Wysocki wrote:
+> >This means if we freeze bdevs, we'll be able to save all of the LRU page=
+s,
+> >except for the pages mapped by the current task, without copying.  I thi=
+nk
+> > we can try to do this, but we'll need a patch to freeze bdevs for this
+> > purpose. ;-)
+>
+> Why not the current task? Does it exit the kernel? Or go through some
+> get_uesr_pages path?
 
-One typo in the patch:
-+#define EVIOCSREP		_IOW('E', 0x03, int[2])			/* get repeat settings */
-should be:
-+#define EVIOCSREP		_IOW('E', 0x03, int[2])			/* set repeat settings */
+I think Rafael is asleep at the mo, so I'll answer for him - he's wanting i=
+t=20
+to be compatible with using userspace to control what happens (uswsusp). In=
+=20
+that case, current will be the userspace program that's calling the ioctls =
+to=20
+get processes frozen etc.
 
-Now, the EV_SND bitmap is still broken.
-I don't think it's simply a matter of adding change_bit(code,dev->snd)
-in the EV_SND part of input.c.  During a quick test the bitmap
-became confused, after setting both bell and tone through writing
-a struct input_event to the file descriptor of the pcspkr's event
-file in /dev/input/, then setting just bell to 0.
+Regards,
 
-bjd
+Nigel
+
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
+
+--nextPart3631143.1XjrAkghlY
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBETuvsN0y+n1M3mo0RAsApAKDD4OYZQ7Xi1CaGX0eGra2rPpcO8wCeJGtQ
+pAi57ra6EUGfKWVuf6Z2i/g=
+=LqDi
+-----END PGP SIGNATURE-----
+
+--nextPart3631143.1XjrAkghlY--

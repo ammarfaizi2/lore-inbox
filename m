@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWDZFUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWDZFUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbWDZFUO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 01:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWDZFUN
+	id S932376AbWDZFUu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 01:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWDZFUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 01:20:13 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14166 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932373AbWDZFUM (ORCPT
+	Wed, 26 Apr 2006 01:20:49 -0400
+Received: from mx1.suse.de ([195.135.220.2]:24295 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932376AbWDZFUt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 01:20:12 -0400
-Date: Wed, 26 Apr 2006 07:20:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Hua Zhong <hzhong@gmail.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, James.Bottomley@SteelEye.com
-Subject: Re: [PATCH] likely cleanup: revert unlikely in ll_back_merge_fn
-Message-ID: <20060426052049.GV4102@suse.de>
-References: <20060425183026.GR4102@suse.de> <004d01c668b0$a9c79540$853d010a@nuitysystems.com>
-Mime-Version: 1.0
+	Wed, 26 Apr 2006 01:20:49 -0400
+To: dragonfly@linux-vs.org
+Cc: alan@lxorguk.ukuu.org.uk, marcelo.tosatti@cyclades.com, jiwang@ios.ac.cn,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel-2.4.32 'drivers/net' bugs acknowledgement
+References: <1146027138.444efc82168e4@mail.linux-vs.org>
+From: Andi Kleen <ak@suse.de>
+Date: 26 Apr 2006 07:20:41 +0200
+In-Reply-To: <1146027138.444efc82168e4@mail.linux-vs.org>
+Message-ID: <p73bquo9al2.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <004d01c668b0$a9c79540$853d010a@nuitysystems.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 25 2006, Hua Zhong wrote:
-> It seems that new BIOs do not have BIO_SEG_VALID set. So when you do
-> sequential IO, the IO being back-merged should always have not had
-> valid segments.
-> 
-> I ran bonnie++ and it shows the same thing.
+dragonfly@linux-vs.org writes:
 
-But blk_recount_segments() sets the BIO_SEG_VALID flag. Ugh ok
-__bio_add_page() basically kills the flag. James, I think you are the
-author of that addition, does it really need to be so restrictive?
+> Hi,
+>     Recently, I did a cursory check to the 'drivers/net' directory of
+> the official 2.4.32 kernel sources with the help of a validity check
+> tool i developed. The following are the bugs i think to be,
+> sincerely apply your acknowledgement. Hope it helpful to improve great
+> Linux. 
 
-        /* If we may be able to merge these biovecs, force a recount */
-        if (bio->bi_vcnt && (BIOVEC_PHYS_MERGEABLE(bvec-1, bvec) ||
-            BIOVEC_VIRT_MERGEABLE(bvec-1, bvec)))
-                bio->bi_flags &= ~(1 << BIO_SEG_VALID);
+Can you perhaps do the same checks on 2.6? 2.4 is very old.
 
-with that in place, we may as well just remove ->bi_phys_segments
-and ->bi_hw_segments since we'll be calculating the values over and over
-again while building up a bio.
-
--- 
-Jens Axboe
-
+-Andi

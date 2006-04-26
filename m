@@ -1,144 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWDZCLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWDZCLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbWDZCLp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 22:11:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWDZCLZ
+	id S932344AbWDZCLq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 22:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWDZCL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 22:11:25 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:12684 "EHLO
+	Tue, 25 Apr 2006 22:11:26 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:14988 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932345AbWDZCLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932347AbWDZCLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 25 Apr 2006 22:11:23 -0400
-Message-Id: <20060426021121.689604000@localhost.localdomain>
+Message-Id: <20060426021122.069267000@localhost.localdomain>
 References: <20060426021059.235216000@localhost.localdomain>
-Date: Wed, 26 Apr 2006 10:11:01 +0800
+Date: Wed, 26 Apr 2006 10:11:02 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Akinobu Mita <mita@miraclelinux.com>,
        Jens Axboe <axboe@suse.de>, Greg KH <greg@kroah.com>
-Subject: [patch 2/3] use kref for io_context
-Content-Disposition: inline; filename=use-kref.patch
+Subject: [patch 3/3] use kref for bio
+Content-Disposition: inline; filename=kref-bio.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use kref for reference counter of io_context.
-This patch also removes BUG_ON() for freeing unreferenced io_context.
+Use kref for reference counter of bio.
+This patch also removes BUG_ON() for freeing unreferenced bio.
 But kref can detect it if CONFIG_DEBUG_SLAB is enabled.
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 CC: Jens Axboe <axboe@suse.de>
 CC: Greg KH <greg@kroah.com>
 
- block/cfq-iosched.c    |    2 +-
- block/ll_rw_blk.c      |   43 +++++++++++++++++++++----------------------
- include/linux/blkdev.h |    2 +-
- 3 files changed, 23 insertions(+), 24 deletions(-)
+ Documentation/block/biodoc.txt |    2 +-
+ fs/bio.c                       |   17 ++++++++++-------
+ fs/xfs/linux-2.6/xfs_aops.c    |    1 -
+ include/linux/bio.h            |    4 ++--
+ 4 files changed, 13 insertions(+), 11 deletions(-)
 
-Index: 2.6-git/block/ll_rw_blk.c
+Index: 2.6-git/Documentation/block/biodoc.txt
 ===================================================================
---- 2.6-git.orig/block/ll_rw_blk.c
-+++ 2.6-git/block/ll_rw_blk.c
-@@ -3536,29 +3536,29 @@ int __init blk_dev_init(void)
- /*
-  * IO Context helper functions
-  */
-+static void release_io_context(struct kref *kref)
+--- 2.6-git.orig/Documentation/block/biodoc.txt
++++ 2.6-git/Documentation/block/biodoc.txt
+@@ -462,7 +462,7 @@ struct bio {
+                                         used as index into pool */
+        struct bio_vec   *bi_io_vec;  /* the actual vec list */
+        bio_end_io_t	*bi_end_io;  /* bi_end_io (bio) */
+-       atomic_t		bi_cnt;	     /* pin count: free when it hits zero */
++       struct kref	bi_kref;     /* pin count */
+        void             *bi_private;
+        bio_destructor_t *bi_destructor; /* bi_destructor (bio) */
+ };
+Index: 2.6-git/fs/bio.c
+===================================================================
+--- 2.6-git.orig/fs/bio.c
++++ 2.6-git/fs/bio.c
+@@ -139,7 +139,7 @@ void bio_init(struct bio *bio)
+ 	bio->bi_size = 0;
+ 	bio->bi_max_vecs = 0;
+ 	bio->bi_end_io = NULL;
+-	atomic_set(&bio->bi_cnt, 1);
++	kref_init(&bio->bi_kref);
+ 	bio->bi_private = NULL;
+ }
+ 
+@@ -208,6 +208,14 @@ void zero_fill_bio(struct bio *bio)
+ }
+ EXPORT_SYMBOL(zero_fill_bio);
+ 
++static void release_bio(struct kref *kref)
 +{
-+	struct io_context *ioc = container_of(kref, struct io_context, kref);
-+	struct cfq_io_context *cic;
++	struct bio *bio = container_of(kref, struct bio, bi_kref);
 +
-+	rcu_read_lock();
-+	if (ioc->aic && ioc->aic->dtor)
-+		ioc->aic->dtor(ioc->aic);
-+	if (ioc->cic_root.rb_node != NULL) {
-+		struct rb_node *n = rb_first(&ioc->cic_root);
-+		cic = rb_entry(n, struct cfq_io_context, rb_node);
-+		cic->dtor(ioc);
-+	}
-+	rcu_read_unlock();
-+	kmem_cache_free(iocontext_cachep, ioc);
++	bio->bi_next = NULL;
++	bio->bi_destructor(bio);
 +}
 +
- void put_io_context(struct io_context *ioc)
+ /**
+  * bio_put - release a reference to a bio
+  * @bio:   bio to release reference to
+@@ -218,15 +226,10 @@ EXPORT_SYMBOL(zero_fill_bio);
+  **/
+ void bio_put(struct bio *bio)
  {
- 	if (ioc == NULL)
- 		return;
- 
--	BUG_ON(atomic_read(&ioc->refcount) == 0);
+-	BIO_BUG_ON(!atomic_read(&bio->bi_cnt));
 -
--	if (atomic_dec_and_test(&ioc->refcount)) {
--		struct cfq_io_context *cic;
--
--		rcu_read_lock();
--		if (ioc->aic && ioc->aic->dtor)
--			ioc->aic->dtor(ioc->aic);
--		if (ioc->cic_root.rb_node != NULL) {
--			struct rb_node *n = rb_first(&ioc->cic_root);
--
--			cic = rb_entry(n, struct cfq_io_context, rb_node);
--			cic->dtor(ioc);
--		}
--		rcu_read_unlock();
--
--		kmem_cache_free(iocontext_cachep, ioc);
+ 	/*
+ 	 * last put frees it
+ 	 */
+-	if (atomic_dec_and_test(&bio->bi_cnt)) {
+-		bio->bi_next = NULL;
+-		bio->bi_destructor(bio);
 -	}
-+	kref_put(&ioc->kref, release_io_context);
++	kref_put(&bio->bi_kref, release_bio);
  }
- EXPORT_SYMBOL(put_io_context);
  
-@@ -3606,7 +3606,7 @@ struct io_context *current_io_context(gf
- 
- 	ret = kmem_cache_alloc(iocontext_cachep, gfp_flags);
- 	if (ret) {
--		atomic_set(&ret->refcount, 1);
-+		kref_init(&ret->kref);
- 		ret->task = current;
- 		ret->set_ioprio = NULL;
- 		ret->last_waited = jiffies; /* doesn't matter... */
-@@ -3631,7 +3631,7 @@ struct io_context *get_io_context(gfp_t 
- 	struct io_context *ret;
- 	ret = current_io_context(gfp_flags);
- 	if (likely(ret))
--		atomic_inc(&ret->refcount);
-+		kref_get(&ret->kref);
- 	return ret;
- }
- EXPORT_SYMBOL(get_io_context);
-@@ -3642,8 +3642,7 @@ void copy_io_context(struct io_context *
- 	struct io_context *dst = *pdst;
- 
- 	if (src) {
--		BUG_ON(atomic_read(&src->refcount) == 0);
--		atomic_inc(&src->refcount);
-+		kref_get(&src->kref);
- 		put_io_context(dst);
- 		*pdst = src;
- 	}
-Index: 2.6-git/include/linux/blkdev.h
+ inline int bio_phys_segments(request_queue_t *q, struct bio *bio)
+Index: 2.6-git/fs/xfs/linux-2.6/xfs_aops.c
 ===================================================================
---- 2.6-git.orig/include/linux/blkdev.h
-+++ 2.6-git/include/linux/blkdev.h
-@@ -88,7 +88,7 @@ struct cfq_io_context {
-  * (apart from the atomic refcount), so require no locking.
+--- 2.6-git.orig/fs/xfs/linux-2.6/xfs_aops.c
++++ 2.6-git/fs/xfs/linux-2.6/xfs_aops.c
+@@ -272,7 +272,6 @@ xfs_end_bio(
+ 		return 1;
+ 
+ 	ASSERT(ioend);
+-	ASSERT(atomic_read(&bio->bi_cnt) >= 1);
+ 
+ 	/* Toss bio and pass work off to an xfsdatad thread */
+ 	if (!test_bit(BIO_UPTODATE, &bio->bi_flags))
+Index: 2.6-git/include/linux/bio.h
+===================================================================
+--- 2.6-git.orig/include/linux/bio.h
++++ 2.6-git/include/linux/bio.h
+@@ -106,7 +106,7 @@ struct bio {
+ 	struct bio_vec		*bi_io_vec;	/* the actual vec list */
+ 
+ 	bio_end_io_t		*bi_end_io;
+-	atomic_t		bi_cnt;		/* pin count */
++	struct kref		bi_kref;	/* pin count */
+ 
+ 	void			*bi_private;
+ 
+@@ -249,7 +249,7 @@ struct bio {
+  * returns. and then bio would be freed memory when if (bio->bi_flags ...)
+  * runs
   */
- struct io_context {
--	atomic_t refcount;
-+	struct kref kref;
- 	struct task_struct *task;
+-#define bio_get(bio)	atomic_inc(&(bio)->bi_cnt)
++#define bio_get(bio)	kref_get(&(bio)->bi_kref)
  
- 	int (*set_ioprio)(struct io_context *, unsigned int);
-Index: 2.6-git/block/cfq-iosched.c
-===================================================================
---- 2.6-git.orig/block/cfq-iosched.c
-+++ 2.6-git/block/cfq-iosched.c
-@@ -1068,7 +1068,7 @@ __cfq_dispatch_requests(struct cfq_data 
- 		dispatched++;
  
- 		if (!cfqd->active_cic) {
--			atomic_inc(&crq->io_context->ioc->refcount);
-+			kref_get(&crq->io_context->ioc->kref);
- 			cfqd->active_cic = crq->io_context;
- 		}
- 
+ /*
 
 --

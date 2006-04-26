@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWDZQWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWDZQYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbWDZQWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 12:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWDZQWQ
+	id S964809AbWDZQYR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 12:24:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWDZQYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 12:22:16 -0400
-Received: from pproxy.gmail.com ([64.233.166.181]:51622 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964802AbWDZQWQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 12:22:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aeMRHElkbcMARVYX7abh44ikuqVaDKj7/rzIVDxdOcq2iEN88eJ6LdhPykeAoz2WPZtw/j4nTl6qyfFUj+52z/vGxLfJrR7QOokbLTqWjoqrG9QB7RdS1lYyuczr3NMVYxvgAz88VkRbrUemwLXjeGubFByMhB2MA7rbwEvBXuw=
-Message-ID: <2f4958ff0604260922l6441d6c1s72d327c0f0ff2318@mail.gmail.com>
-Date: Wed, 26 Apr 2006 18:22:14 +0200
-From: "=?ISO-8859-2?Q?Grzegorz_Ja=B6kiewicz?=" <gryzman@gmail.com>
-To: "Ioan Ionita" <opslynx@gmail.com>
-Subject: Re: can't compile kernels lately (2.6.16.5 and up)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <df47b87a0604260906m519cc6f5ud4d8527d4e5a243e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <2f4958ff0604260639n4874c2aua1e99ec4c32d2182@mail.gmail.com>
-	 <200604261102.12935.gene.heskett@verizon.net>
-	 <2f4958ff0604260817l68235c77hb3430b2a800a96cf@mail.gmail.com>
-	 <df47b87a0604260906m519cc6f5ud4d8527d4e5a243e@mail.gmail.com>
+	Wed, 26 Apr 2006 12:24:16 -0400
+Received: from mga02.intel.com ([134.134.136.20]:19126 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964809AbWDZQYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 12:24:16 -0400
+X-IronPort-AV: i="4.04,158,1144047600"; 
+   d="scan'208"; a="28058688:sNHT49725851"
+Subject: Re: [patch] pciehp: dont call pci_enable_dev
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: pcihpd-discuss@lists.sourceforge.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1146066747.7016.17.camel@laptopd505.fenrus.org>
+References: <1145919059.6478.29.camel@whizzy>
+	 <1145945819.3114.0.camel@laptopd505.fenrus.org>
+	 <1146002437.6478.43.camel@whizzy>
+	 <1146066747.7016.17.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 26 Apr 2006 09:32:44 -0700
+Message-Id: <1146069164.25081.5.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 26 Apr 2006 16:23:17.0598 (UTC) FILETIME=[B9B987E0:01C6694D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/26/06, Ioan Ionita <opslynx@gmail.com> wrote:
-> Try again with a fresh complete tree.
-> http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.16.11.tar.bz2
+On Wed, 2006-04-26 at 17:52 +0200, Arjan van de Ven wrote:
+> On Tue, 2006-04-25 at 15:00 -0700, Kristen Accardi wrote:
+> > On Tue, 2006-04-25 at 08:16 +0200, Arjan van de Ven wrote:
+> > > On Mon, 2006-04-24 at 15:50 -0700, Kristen Accardi wrote:
+> > > > Don't call pci_enable_device from pciehp because the pcie port service driver
+> > > > already does this.
+> > > 
+> > > hmmmm shouldn't pci_enable_device on a previously enabled device just
+> > > succeed? Sounds more than logical to me to make it that way at least...
+> > 
+> > I can't think of any reason why not.  Something like this what you had
+> > in mind perhaps?
+> > 
+> > ---
+> 
+> the question then becomes if enable/disable should become "counting", eg
+> enable twice disable once leaves enabled at count one....
 
-that did the job, but I guess patches are provided for one and only
-reason - so I will not have to download over and over again big pile
-of bzipped source from the server. So you say patch is fscked up ?
+ugh, no.  1) I think we should avoid adding more counting unless it's
+absolutely necessary. 2) if a device calls pci_disable_device it should
+always actually disable the device, because it is generally called in
+drivers either when the device is being shutdown, or suspended.
 
---
-GJ
+   

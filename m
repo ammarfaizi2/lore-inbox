@@ -1,91 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWDZJNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWDZJPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWDZJNG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 05:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWDZJNF
+	id S1751219AbWDZJPz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 05:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWDZJPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 05:13:05 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17805 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751196AbWDZJNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 05:13:04 -0400
-Message-ID: <444F3990.5030100@sgi.com>
-Date: Wed, 26 Apr 2006 11:12:48 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5 (X11/20060223)
-MIME-Version: 1.0
-To: Dean Nelson <dcn@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, tony.luck@intel.com, avolkov@varma-el.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] change gen_pool allocator to not touch managed memory
-References: <444D1A7E.mailx85W11DZZU@aqua.americas.sgi.com> <20060424181626.09966912.akpm@osdl.org> <20060425155051.GA19248@sgi.com>
-In-Reply-To: <20060425155051.GA19248@sgi.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Apr 2006 05:15:55 -0400
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:5074 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751219AbWDZJPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 05:15:54 -0400
+To: torvalds@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [git patch] fuse fixes
+Message-Id: <E1FYg7Q-00013Z-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 26 Apr 2006 11:15:32 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dean Nelson wrote:
->>> Both Andrey Volkov and Jes Sorensen have expressed a desire that the
->>> gen_pool allocator not write to the memory being managed. See the
->>> following:
->>>
->>>   http://marc.theaimsgroup.com/?l=linux-kernel&m=113518602713125&w=2
->>>   http://marc.theaimsgroup.com/?l=linux-kernel&m=113533568827916&w=2
->> hm, fair enough.
->>
->> The patch is fairly large+intrusive.  I trust it's been broadly tested?
-> 
-> Yes, it was thoroughly tested. I even pulled the bitmap manipulation code
-> into a user app with which I could pre-set bits of a bitmap in order to
-> test boundary conditions with various contiguous bit lengths.
+Linus,
 
-I haven't been directly involved in this work, but I am very confident
-in Dean's work in this.
+I've addressed the comments from the previous submission:
 
-Just a few minor nits below:
+  - Added proper commit message to revert
+  - Fixed typo in sysfs.txt
 
-> -unsigned long gen_pool_alloc(struct gen_pool *poolp, int size)
-> +int gen_pool_add(struct gen_pool *pool, unsigned long addr, size_t size,
-> +		 int nid)
->  {
-> -	int j, i, s, max_chunk_size;
-> -	unsigned long a, flags;
-> -	struct gen_pool_link *h = poolp->h;
-> +	struct gen_pool_chunk *chunk;
-> +	int nbits = size >> pool->min_alloc_order;
-> +	int nbytes = sizeof(struct gen_pool_chunk) +
-> +				(nbits + BITS_PER_BYTE - 1) / BITS_PER_BYTE;
-> +
-> +	if (nbytes > PAGE_SIZE) {
-> +		chunk = vmalloc_node(nbytes, nid);
-> +	} else {
-> +		chunk = kmalloc_node(nbytes, GFP_KERNEL, nid);
-> +	}
+Please pull from 'for-linus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/mszeredi/fuse.git
 
-Any patch that adds vmalloc() calls to code always makes the little
-hairs on the back of my neck stand up. Any chance we could get away with
-alloc_pages_node() for this?
+to receive the following updates:
 
->  	ia64_pal_mc_drain();
-> -	status = smp_call_function(uncached_ipi_mc_drain, NULL, 0, 1);
-> -	if (status)
-> -		printk(KERN_WARNING "smp_call_function failed for "
-> -		       "uncached_ipi_mc_drain! (%i)\n", status);
-> +	(void) smp_call_function(uncached_ipi_mc_drain, NULL, 0, 1);
+ Documentation/filesystems/sysfs.txt |    5 ++++
+ fs/fuse/dev.c                       |   35 ++++++++++++++++++-------------
+ fs/fuse/fuse_i.h                    |   12 ++++++++--
+ fs/fuse/inode.c                     |   40 ++++++++++++++++--------------------
+ 4 files changed, 52 insertions(+), 40 deletions(-)
 
-This thing could in theory fail so having the error check there seems
-the right thing to me. In either case, please don't (void) the function
-return (this is a style issue, I know).
+Miklos Szeredi:
+      Revert "[fuse] fix deadlock between fuse_put_super() and request_end()"
+      [fuse] fix deadlock between fuse_put_super() and request_end(), try #2
+      [fuse] fix race between checking and setting file->private_data
+      [doc] add paragraph about 'fs' subsystem to sysfs.txt
 
-> Index: linux-2.6/arch/ia64/sn/kernel/sn2/cache.c
-> ===================================================================
-> --- linux-2.6.orig/arch/ia64/sn/kernel/sn2/cache.c	2006-04-24 12:25:36.234717101 -0500
-> +++ linux-2.6/arch/ia64/sn/kernel/sn2/cache.c	2006-04-24 12:27:56.012899026 -0500
-
-This part we should maybe do in a seperate patch? It seems valid on it's
-own?
-
-Cheers,
-Jes

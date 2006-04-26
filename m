@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWDZI2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWDZIeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWDZI2f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 04:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWDZI2f
+	id S1751078AbWDZIeA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 04:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWDZIeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 04:28:35 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:31945 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751184AbWDZI2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 04:28:35 -0400
-Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.58.0604261112120.3522@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.64.0604251120420.5810@localhost.localdomain>
-	 <84144f020604260030v26f42b0bke639053928d5e471@mail.gmail.com>
-	 <1146038324.5956.0.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.58.0604261112120.3522@sbz-30.cs.Helsinki.FI>
-Content-Type: text/plain
-Date: Wed, 26 Apr 2006 10:27:18 +0200
-Message-Id: <1146040038.7016.0.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 26 Apr 2006 04:34:00 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:8094 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751078AbWDZId7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 04:33:59 -0400
+Date: Wed, 26 Apr 2006 10:30:56 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Avi Kivity <avi@argo.co.il>, dtor_core@ameritech.net,
+       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+In-Reply-To: <Pine.LNX.4.61.0604251347120.29056@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0604261028290.8382@yvahk01.tjqt.qr>
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> 
+ <1145911546.1635.54.camel@localhost.localdomain>  <444D3D32.1010104@argo.co.il>
+  <A6E165E4-8D43-4CF8-B48C-D4B0B28498FB@mac.com>  <444DCAD2.4050906@argo.co.il>
+  <9E05E1FA-BEC8-4FA8-811E-93CBAE4D47D5@mac.com>  <444E524A.10906@argo.co.il>
+ <d120d5000604251010kd56580fl37a0d244da1eaf45@mail.gmail.com>
+ <444E5A3E.1020302@argo.co.il> <Pine.LNX.4.61.0604251347120.29056@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-26 at 11:16 +0300, Pekka J Enberg wrote:
-> On 4/25/06, Hua Zhong <hzhong@gmail.com> wrote:
-> > > > diff --git a/mm/slab.c b/mm/slab.c
-> > > > index e6ef9bd..0fbc854 100644
-> > > > --- a/mm/slab.c
-> > > > +++ b/mm/slab.c
-> > > > @@ -3380,7 +3380,7 @@ void kfree(const void *objp)
-> > > >         struct kmem_cache *c;
-> > > >         unsigned long flags;
-> > > >
-> > > > -       if (unlikely(!objp))
-> > > > +       if (!objp)
-> > > >                 return;
-> 
-> > On Wed, 2006-04-26 at 10:30 +0300, Pekka Enberg wrote:
-> > > NAK. Fix the callers instead.
-> 
-> On Wed, 26 Apr 2006, Arjan van de Ven wrote:
-> > eh dude... they are being fixed... to remove the NULL check :)
-> 
-> Most of which are on error paths. The problem we're seeing is in handful 
-> of fastpath offenders which should be fixed either by re-design or adding 
-> the NULL check along with a big fat comment like Andrew is doing.
 
-what I would like is kfree to become an inline wrapper that does the
-null check inline, that way gcc can optimize it out (and it will in 4.1
-with the VRP pass) if gcc can prove it's not NULL.
+>Class Kernel
 
+Syntax error. Needs to be "class".
 
+>{
+>public:
+>     virtual void starter(Scheduler *current) = 0x00;
+>};
+>
+>Okay, I just started your new C++ kernel! Please send email when it
+>is done. I will help test it.
+>
+
+Jan Engelhardt
+-- 

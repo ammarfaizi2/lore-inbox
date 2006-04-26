@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWDZPaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWDZPbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWDZPaF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 11:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWDZPaF
+	id S932479AbWDZPbm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 11:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWDZPbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 11:30:05 -0400
-Received: from post-23.mail.nl.demon.net ([194.159.73.193]:38385 "EHLO
-	post-23.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id S932479AbWDZPaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 11:30:02 -0400
-Message-ID: <444F91F8.80809@zonnet.nl>
-Date: Wed, 26 Apr 2006 17:30:00 +0200
-From: "David G." <kiddion@zonnet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729 MultiZilla/1.7.9.0a
-X-Accept-Language: nl, en-us, en
-MIME-Version: 1.0
+	Wed, 26 Apr 2006 11:31:42 -0400
+Received: from ntwklan-62-233-162-146.devs.futuro.pl ([62.233.162.146]:48887
+	"EHLO mail.softwaremind.pl") by vger.kernel.org with ESMTP
+	id S932479AbWDZPbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 11:31:41 -0400
+From: Marcin Hlybin <marcin.hlybin@swmind.com>
 To: linux-kernel@vger.kernel.org
-Cc: realoneone@gmail.com
-Subject: Re: How to re-send out the packets captured by my hook function at
- NF_IP_PRE_ROUTING
-References: <65RDw-7AC-33@gated-at.bofh.it>
-In-Reply-To: <65RDw-7AC-33@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii
+Subject: 3ware 8006-2LP on Linux 2.6 drive error, seagate disks
+Date: Wed, 26 Apr 2006 17:32:31 +0200
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Apr 2006 15:32:11.0968 (UTC) FILETIME=[96778400:01C66946]
+Content-Disposition: inline
+Message-Id: <200604261732.31327.marcin.hlybin@swmind.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Real Oneone wrote:
-> Hi, I plugged a callback function into netfilter at the hook point of
-> NF_IP_PRE_ROUTING, tring to capture all the packets, make
-> some changes to some of them, and invoke skb->dev->hard_start_xmit to
-> send them out directly. However, the kernel crashed before I could get
-> any printked information.
-> 
-> If you have any idea of how to send the received packets out, please tell me.
+Hello,
 
-You might want to explore the possibilities of the existing "ip_queue"
-kernel extension instead, it was design to do packet
-capture/inspection/changing in userspace.
+Recently I've come across a lot of problems with 3ware controller on Linux 
+2.6.15.4. Everything is in the Thomas-Krenn SR2400 server running on Debian.
 
-FireFlier works that way ( http://fireflier.sourceforge.net/ ) and so
-does inlined snort (http://www.snort.org/docs/snort_manual/node7.html).
+3WARE DEVICE:
+driver: 1.26.02.001
+model: 8006-2LP
+firmware: FE8S 1.05.00.068
+bios: BE7X 1.08.00.048
 
-You can take a look at:
-http://www.linuxia.de/netfilter.en.html#userspace and
-http://www.cs.princeton.edu/~nakao/libipq.htm for an example application.
+DISKS:
+2x Seagate ST3300831AS SATA 300GB
+
+I used tw_cli (AMCC/3ware CLI (version 2.00.03.013)) to create RAID1 unit. 
+After running cfdisk raid degraded and it can't be rebuilded. 
+Next I tried to make JBOD units for testing. A 3ware driver was compiled into 
+the kernel and also as a module. 
+
+ERRORS:
+Apr 26 15:07:10 krenn kernel: 3w-xxxx: scsi2: Command failed: status = 0xc7, 
+flags = 0xc, unit #0.
+Apr 26 15:07:14 krenn kernel: 3w-xxxx: scsi2: AEN: ERROR: Drive error: Port 
+#0.
+Apr 26 15:07:15 krenn kernel: 3w-xxxx: scsi2: Command failed: status = 0xc7, 
+flags = 0xc, unit #0.
+Apr 26 15:07:20 krenn kernel: 3w-xxxx: scsi2: Command failed: status = 0xc7, 
+flags = 0xc, unit #0.
+Apr 26 15:07:25 krenn kernel: 3w-xxxx: scsi2: Command failed: status = 0xc7, 
+flags = 0xc, unit #0.
+Apr 26 15:07:30 krenn kernel: 3w-xxxx: scsi2: Command failed: status = 0xc7, 
+flags = 0xc, unit #0.
+Apr 26 15:07:35 krenn kernel: 3w-xxxx: scsi2: Command failed: status = 0xc7, 
+flags = 0xc, unit #0.
+Apr 26 15:07:38 krenn kernel: sd 2:0:0:0: WARNING: Command (0x28) timed out, 
+resetting card.
+
+It looks like some incompatibility with driver. Cables and disks are new, no 
+badblocks. Tommorow I will try to compile driver from 3ware website with 2.4 
+kernel. 
+
+Thanks in advance. 
+
+-- 
+ Marcin Hlybin, marcin.hlybin@swmind.com
+ Sys/Net Administrator, tel. +48 12 2523 402
+
+ SoftwareMind, www.softwaremind.pl | Where quality meets the future

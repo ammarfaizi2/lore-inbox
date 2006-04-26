@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWDZX3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWDZXdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWDZX3T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 19:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWDZX3T
+	id S1751243AbWDZXdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 19:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWDZXdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 19:29:19 -0400
-Received: from rtr.ca ([64.26.128.89]:20167 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751117AbWDZX3S (ORCPT
+	Wed, 26 Apr 2006 19:33:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23727 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751127AbWDZXdH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 19:29:18 -0400
-Message-ID: <4450023B.4040802@rtr.ca>
-Date: Wed, 26 Apr 2006 19:28:59 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] drivers/scsi/sd.c: fix uninitialized variable	in	handling
- medium errors
-References: <200604261627.29419.lkml@rtr.ca>	 <1146092161.12914.3.camel@mulgrave.il.steeleye.com>	 <444FFC9B.4090603@rtr.ca> <1146093496.12914.11.camel@mulgrave.il.steeleye.com>
-In-Reply-To: <1146093496.12914.11.camel@mulgrave.il.steeleye.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 26 Apr 2006 19:33:07 -0400
+Date: Wed, 26 Apr 2006 16:35:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Lord <lkml@rtr.ca>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/scsi/sd.c: fix uninitialized variable in
+ handling medium errors
+Message-Id: <20060426163536.6f7bff77.akpm@osdl.org>
+In-Reply-To: <44500033.3010605@rtr.ca>
+References: <200604261627.29419.lkml@rtr.ca>
+	<1146092161.12914.3.camel@mulgrave.il.steeleye.com>
+	<20060426161444.423a8296.akpm@osdl.org>
+	<44500033.3010605@rtr.ca>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Wed, 2006-04-26 at 19:04 -0400, Mark Lord wrote:
->> Yes, but the difficulty there is that all of the convoluted logic
->> seems to still be wanted to set a correct "block_sectors" value,
->> needed as a parameter on the final call:
->>
->>     scsi_io_completion(SCpnt, good_bytes, block_sectors << 9);
+Mark Lord <lkml@rtr.ca> wrote:
+>
+> > That's if we think -stable needs this fixed.
 > 
-> Erm, but that's only used for volume overflow (or other single sector
-> errors), which this isn't ... Actually, as far as I can tell, the whole
-> block_sectors calculation can be killed as well.
+> Let's say a bunch of read bio's get coalesced into a single
+> 200+ sector request.  This then fails on one single bad sector
+> out of the 200+.  Without the patch, there is a very good chance
+> that sd.c will simply fail the entire request, all 200+ sectors.
+> 
+> With the patch, it will fail the first block, and then retry
+> the remaining blocks.  And repeat this until something works,
+> or until everything has failed one by one.
 
-I wonder if it can be done away with as a parameter for scsi_io_completion() ?
-If not, then we'll need some nice big comments in that function to warn
-against relying on a valid value for that parameter in specific cases.
+Yowch.  I have the feeling that this'll take our EIO-handling time from
+far-too-long to far-too-long*200.
 
-Cheers
+I am still traumatised by my recent ten-minute wait for a dodgy DVD to
+become ejectable.
+
+I don't think -stable needs this, personally.
+
+> Better, but still not the best.
+> 
+> What I need to have happen when a request is failed due to bad-media,
+> is have it split the request into a sequence of single-block requests
+> that are passed to the LLD one at a time.  The ones with real bad
+> sectors will then be independently failed, and the rest will get done.
+> 
+> Much better.  Much more complex.
+> 
+> I'm thinking about something like that, just not sure whether to put it
+> (initially) in libata, sd.c, or the block layer.
+
+block, I suspect.  My DVD trauma was IDE-induced.  Jens is mulling the
+problem - I'd suggest you coordinate with him.
+
+It would be a good thing to fix.
+
+It's moderately hard to test, though.  Easy enough for DVDs and CDs, but
+it's harder to take a marker pen to a hard drive.

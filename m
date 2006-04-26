@@ -1,39 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWDZWzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWDZWzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWDZWzF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 18:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWDZWzF
+	id S964879AbWDZWzt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 18:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWDZWzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 18:55:05 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:64933
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S932360AbWDZWzE (ORCPT
+	Wed, 26 Apr 2006 18:55:49 -0400
+Received: from orca.ele.uri.edu ([131.128.51.63]:40607 "EHLO orca.ele.uri.edu")
+	by vger.kernel.org with ESMTP id S964879AbWDZWzs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 18:55:04 -0400
-From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
-To: linux-kernel@vger.kernel.org
-Subject: snd_hda_intel on 2.6.16 (or higher)
-Date: Wed, 26 Apr 2006 16:55:03 -0600
-Message-Id: <20060426224924.M44901@linuxwireless.org>
-X-Mailer: Open WebMail 2.40 20040816
-X-OriginatingIP: 15.235.153.107 (abonilla@linuxwireless.org)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+	Wed, 26 Apr 2006 18:55:48 -0400
+Subject: Re: [dm-devel] [RFC] dm-userspace
+From: Ming Zhang <mingz@ele.uri.edu>
+Reply-To: mingz@ele.uri.edu
+To: device-mapper development <dm-devel@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87u08g553l.fsf@caffeine.beaverton.ibm.com>
+References: <87u08g553l.fsf@caffeine.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Wed, 26 Apr 2006 18:55:28 -0400
+Message-Id: <1146092129.14129.333.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+just curious, will the speed be a problem here? considering each time it
+needs to contact user space for mapping a piece of data. and the size
+unit is per sector in dm?
 
-I reported some snd_hda_intel problem a month ago. I have been using 2.6.15-21
-perfectly, but with 2.6.16 or even git 2.6.17-rc2 it is still going like at
-1.2x the speed it should go (1x is ok). You can notice Music will actually go
-faster and it may sometimes chipmonk.
+do u have any benchmark results about overhead?
 
-Please let me know what exact info is required if interested. This is on a
-Compaq V2000 Ubuntu Dapper Drake up to date and with 2.6.15-X it has worked
-perfectly and still is, until 2.6.16 or higher is loaded.
+ming
 
-Thanks,
 
-.Alejandro
+On Wed, 2006-04-26 at 15:45 -0700, Dan Smith wrote:
+> Xen needs to be able to directly access disk formats such as QEMU's
+> qcow, VMware's vmdk, and possibly others.  Most of these formats are
+> based on copy-on-write ideas, and thus have a base image and a bunch
+> of modified blocks stored elsewhere.  Presenting this to a virtual
+> machine transparently as a normal block device would be ideal.  The
+> solution I propose is to use device-mapper for redirecting block
+> accesses to the appropriate locations within either the base image or
+> the COW space, with the following constraints:
+> 
+> 1. The block-allocation algorithm and formatting scheme should not be
+>    in the kernel.  This gives the most flexibility and puts the
+>    complexity in userspace.
+> 2. Actual data flow should happen only in the kernel, and userspace
+>    should be able to control it without the blocks being passed back
+>    and forth.
+> 
+> So, I developed a generic device-mapper target called dm-userspace
+> which allows a userspace application to control the block mapping in a
+> mostly generic way.  With the functionality it provides, I was able to
+> write a userspace daemon that handles the mapping of blocks such that
+> a qcow file could be presented as a single block device, mounted and
+> accessed as if it were a normal disk.  If/when VMware releases their
+> vmdk spec under the GPL, adding support for it would be relatively
+> simple.  This would give us a unified block device to export to the
+> virtual machine, that would be backed by a complex format such as vmdk
+> or qcow.
+> 
+> In addition to providing support for the above scenario, dm-userspace
+> could be used for other things as well.  It's possible that new
+> device-mapper targets could be developed in userspace using a special
+> application that used dm-userspace to simulate the kernel
+> environment.  Additionally, filesystem debuggers may be able to use
+> dm-userspace to provide interactive control and logging of disk
+> writes. 
+> 
+> A patch against 2.6.16.9 to add dm-userspace to the kernel is
+> available here:
+> 
+>   http://static.danplanet.com/dm-userspace/dmu-2.6.16.9.patch
+> 
+> After you have a patched kernel, you can build the (very tiny) helper
+> library and example program, available here:
+> 
+>   http://static.danplanet.com/dm-userspace/libdmu-0.1.tar.gz
+> 
+> Comments would be appreciated :)
+> 
+> --
+> dm-devel mailing list
+> dm-devel@redhat.com
+> https://www.redhat.com/mailman/listinfo/dm-devel
+

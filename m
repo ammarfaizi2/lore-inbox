@@ -1,56 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWDZStM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWDZS5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbWDZStM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 14:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWDZStL
+	id S932108AbWDZS5U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 14:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWDZS5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 14:49:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:50250 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964821AbWDZStK (ORCPT
+	Wed, 26 Apr 2006 14:57:20 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:27986 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932108AbWDZS5T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 14:49:10 -0400
-Date: Wed, 26 Apr 2006 20:49:45 +0200
+	Wed, 26 Apr 2006 14:57:19 -0400
+Date: Wed, 26 Apr 2006 20:57:50 +0200
 From: Jens Axboe <axboe@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
-       npiggin@suse.de, linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
 Subject: Re: Lockless page cache test results
-Message-ID: <20060426184945.GL5002@suse.de>
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org> <Pine.LNX.4.64.0604261130450.19587@schroedinger.engr.sgi.com> <20060426114737.239806a2.akpm@osdl.org>
+Message-ID: <20060426185750.GM5002@suse.de>
+References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="SUOF0GtieIMvvwua"
 Content-Disposition: inline
-In-Reply-To: <20060426114737.239806a2.akpm@osdl.org>
+In-Reply-To: <20060426174235.GC5002@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26 2006, Andrew Morton wrote:
-> Christoph Lameter <clameter@sgi.com> wrote:
-> >
-> > On Wed, 26 Apr 2006, Andrew Morton wrote:
-> > 
-> > > OK.  That doesn't sound like something which a real application is likely
-> > > to do ;)
-> > 
-> > A real application scenario may be an application that has lots of threads 
-> > that are streaming data through multiple different disk channels (that 
-> > are able to transfer data simultanouesly. e.g. connected to different 
-> > nodes in a NUMA system) into the same address space.
-> > 
-> > Something like the above is fairly typical for multimedia filters 
-> > processing large amounts of data.
-> 
-> >From the same file?
-> 
-> To /dev/null?
 
-/dev/null doesn't have much to do with it, other than the fact that it
-basically stresses only the input side of things. Same file is the
-interesting bit of course, as that's the the granularity of the
-tree_lock.
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I haven't tested much else, I'll ask the tool to bench more files :)
+On Wed, Apr 26 2006, Jens Axboe wrote:
+> We can speedup the lookups with find_get_pages(). The test does 64k max,
+> so with luck we should be able to pull 16 pages in at the time. I'll try
+> and run such a test. But boy I wish find_get_pages_contig() was there
+> for that. I think I'd prefer adding that instead of coding that logic in
+> splice, it can get a little tricky.
+
+Here's such a run, graphed with the other two. I'll redo the lockless
+side as well now, it's only fair to compare with that batching as well.
 
 -- 
 Jens Axboe
 
+
+--SUOF0GtieIMvvwua
+Content-Type: image/png
+Content-Disposition: attachment; filename="lockless-2.png"
+Content-Transfer-Encoding: base64
+
+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
+
+--SUOF0GtieIMvvwua--

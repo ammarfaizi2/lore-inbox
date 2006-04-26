@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWDZOvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWDZOwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932458AbWDZOvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 10:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWDZOvZ
+	id S964798AbWDZOwT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 10:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWDZOwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 10:51:25 -0400
-Received: from www.rsbac.org ([81.169.139.228]:12782 "EHLO www.rsbac.org")
-	by vger.kernel.org with ESMTP id S932458AbWDZOvZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 10:51:25 -0400
-From: Michal Purzynski <michal@rsbac.org>
-Organization: RSBAC
-To: linux-kernel@vger.kernel.org
-Subject: pcmcia subsystem completely broken
-Date: Wed, 26 Apr 2006 16:51:13 +0200
-User-Agent: KMail/1.9.1
+	Wed, 26 Apr 2006 10:52:19 -0400
+Received: from EXCHG2003.microtech-ks.com ([24.124.14.122]:29705 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S932463AbWDZOwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 10:52:18 -0400
+Message-ID: <444F891B.3050808@atipa.com>
+Date: Wed, 26 Apr 2006 09:52:11 -0500
+From: Roger Heflin <rheflin@atipa.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: "Fortier,Vincent [Montreal]" <Vincent.Fortier1@EC.GC.CA>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: Issues with sata_nv and 2 disks under 2.6.16 and 2.6.17-rc2
+References: <8E8F647D7835334B985D069AE964A4F7011B260D@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
+In-Reply-To: <8E8F647D7835334B985D069AE964A4F7011B260D@ECQCMTLMAIL1.quebec.int.ec.gc.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604261651.18350.michal@rsbac.org>
+X-OriginalArrivalTime: 26 Apr 2006 14:44:07.0889 (UTC) FILETIME=[DF6BFC10:01C6693F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey,
+Fortier,Vincent [Montreal] wrote:
+> Is your OS installed either sda or sdb?
+> 
+> Because I get this type of message using a single disk... On which my FC5 stands...
+> 
+> I'll give it a try tonight and see if I can cause the problem manually but I doubt I'll be able to stop the system from hanging...  Unless my bug is not related.
+> 
+> - vin
+> 
+>
 
-i'd like to ask how do i cope with new pcmcia subsystem which was introduced 
-after 2.6.13. previous one was working very well for me, yet i cannot get my 
-most important pcmcia card working with recent kernels. this card is an 
-Option Globetrotter GPRS pcmcia card, exposing "serial port" to linux when 
-properly detected.due to some braindamage linux is unable to detect this 
-serial port properly until i configure replacing CIS during start - than it 
-works. but, linux is not looking for it automagically when putting file 
-in /lib/firmware, all has to be forced manually in /etc/pcmcia/config, like 
-this
-card "Option Wireless Technology GSM/GPRS GlobeTrotter"
-#Use Manufacturing ID to match all GlobeTrotter variants
-manfid 0x0013, 0x0000
-cis "cis/GLOBETROTTER.cis"
-bind "serial_cs"
+Vin,
 
-as you can see, i'm using old pcmcia-cs tools, since it's not possible to 
-replace firmware on demand with pcmciautils - 1st. hence first question - 
-when it will be possible ? i supposed old tools will finally stop working and 
-i'll be fried after that change.
+Please don't top post, many will yell at you on this list for that.
 
-second problem with it - even after serial port is detected properly, i'm 
-still unable to communicate with that card, no AT command is delivered, no 
-reaction from card.
+OS is on sda, nothing is on sdb which is probably why I don't have the
+behavior happening at unexpected times, sdb won't be used except for
+during my test.
 
-what can be wrong with new pcmcia subsystem ? once again - it was working 
-excelent with old code, pre 2.6.13.
+I believe I am seeing similar behavior on sata_mv controllers so
+it might be a more basic problem in libata, and not related to the specific
+sata_nv driver at all.
 
-machine is an Apple PowerBook G4 laptop, revision 5,4.__
-
-CC me, i'm not subscribed
+                                     Roger

@@ -1,79 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWDZT0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWDZT1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWDZT0U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 15:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWDZT0U
+	id S964847AbWDZT1J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 15:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWDZT1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 15:26:20 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:15365 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1750821AbWDZT0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 15:26:19 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: C++ pushback
-Date: Wed, 26 Apr 2006 12:25:19 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 26 Apr 2006 12:21:20 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 26 Apr 2006 12:21:22 -0700
+	Wed, 26 Apr 2006 15:27:09 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:24765 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964847AbWDZT1I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 15:27:08 -0400
+Date: Wed, 26 Apr 2006 13:27:01 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: sho@tnes.nec.co.jp
+Cc: "Theodore Ts'o" <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
+       Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [RFC][10/21]ext3 enlarge blocksize
+Message-ID: <20060426192701.GB10889@schatzie.adilger.int>
+Mail-Followup-To: sho@tnes.nec.co.jp, Theodore Ts'o <tytso@mit.edu>,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20060413160831sho@rifu.tnes.nec.co.jp> <20060413160739sho@rifu.tnes.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060413160831sho@rifu.tnes.nec.co.jp> <20060413160739sho@rifu.tnes.nec.co.jp>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Apr 13, 2006  16:07 +0900, sho@tnes.nec.co.jp wrote:
+>           - Add an incompat flag "EXT3_FEATURE_INCOMPAT_LARGE_BLOCK"
+>             which indicates that the filesystem is extended.
+>           - Allow block size till pagesize in ext3.
+> 
+> -	if (blocksize < EXT3_MIN_BLOCK_SIZE ||
+> -	    blocksize > EXT3_MAX_BLOCK_SIZE) {
+> -		printk(KERN_ERR 
+> -		       "EXT3-fs: Unsupported filesystem blocksize %d on %s.\n",
+> -		       blocksize, sb->s_id);
+> -		goto failed_mount;
+> +	if (EXT3_HAS_INCOMPAT_FEATURE(sb,
+> +	    EXT3_FEATURE_INCOMPAT_LARGE_BLOCK)) {
+> +		if (blocksize < EXT3_MIN_BLOCK_SIZE ||
+> +		    blocksize > PAGE_SIZE ||
+> +		    blocksize > EXT3_EXTENDED_MAX_BLOCK_SIZE) {
 
-> > 	As for remembering new names, that's a load of complete crap and I
-> > find it hard to believe that you're raising the argument for honest
-> > reasons.
+This in itself doesn't need an incompatible flag, since old kernels will
+prevent the mount for filesystems with blocksize > EXT3_MAX_BLOCK_SIZE
+anyways.  It is already incompatible with older kernels, and isn't really
+related to the other use of this flag - changing the i_blocks field to
+handle files > 2TB.
 
-> The scale of the kernel, the number and churn of developers, and the
-> importance of not breaking things in a stable kernel tend to argue
-> against you.  Humans develop the kernel.  Humans remember names well.
-> You may think that's arbitrary, but when you change naming across the
-> entire kernel, you confuse a very large and diverse group of people who
-> do this because they enjoy it.  It's hard enough when this has to happen
-> for useful or necessary reasons; you're asking the kernel developers to
-> accept it for a completely arbitrary whim that they have rejected
-> successfully several times in the past.
+> +			printk(KERN_ERR "EXT3-fs: Unsupported extended filesystem blocksize %d on %s.\n",
+> +				blocksize, sb->s_id);
 
-	C++ has how many additional reserved words? I believe the list is delete,
-friend, private, protected, public, template, throw, try, and catch.
-Renaming every symbol that currently has a name from this list to the
-corresponding name with a trailing underscore is an easily understood
-consistent change.
+May be better to have:
 
-	That you would argue against is with things like "not breaking things" is a
-load of complete crap.
++			printk(KERN_ERR "EXT3-fs: cannot mount filesystem with "
++			       "blocksize %u larger than PAGE_SIZE %u on %s\n",
++			       blocksize, PAGE_SIZE, sb->s_id);
 
-> You want C++?  Fork the freely
-> available source code at a convenient point and convert it yourself.  As
-> long as it stays GPL, you're perfectly within your rights so to do.
-> Hobson's choice is yours.  Belaboring this point is silly.
+On Apr 13, 2006  16:08 +0900, sho@tnes.nec.co.jp wrote:
+>   [11/21] enlarge file size(ext3)
+>           - If the flag is set to super block, i_blocks of disk inode
+>             (ext3_inode) is filesystem-block unit, and i_blocks of VFS
+>             inode is sector unit.
+> 
+>           - If the flag is set to super block, max file size is set to
+>             (FS blocksize) * (2^32 -1).
 
-	Making ridiculous arguments like that a consistent change of a small set of
-names is "breaking things in a stable kernel" is silly.
+I like this patch, but prefer if we maintain as much compatibility as
+possible.  There is not really a reason to make a filesystem incompatible
+unless there are actually files > 2TB stored in it (just like we didn't
+make filesystems incompatible for large_file unless there were files over
+2GB in the filesystem).
 
-	And, FWIW, it isn't even necessary to change those names. That is only
-needed to compile the kernel in C++, which is not what anyone was talking
-about. Supporting C++ modules, for example, would work fine even if the
-kernel had variables called 'class' or 'private'. (Though things could be
-done a lot more cleanly if it didn't as it would require some remapping
-before and after compilation.)
+> @@ -2627,7 +2628,13 @@ void ext3_read_inode(struct inode * inod
+> +	if (EXT3_HAS_INCOMPAT_FEATURE(sb,
+> +	    EXT3_FEATURE_INCOMPAT_LARGE_BLOCK)) {
+> +		inode->i_blocks = (blkcnt_t)le32_to_cpu(raw_inode->i_blocks)
+> +			<< (inode->i_blkbits - EXT3_SECTOR_BITS);
+> +	} else {
+> +		inode->i_blocks = le32_to_cpu(raw_inode->i_blocks);
+> +	} 
 
-	DS
+In particular, if INCOMPAT_LARGE_BLOCK is set on the filesystem, we could
+check a flag (a new EXT3_LARGE_BLOCK_FL = 0x40000, or whatever Ted would
+want there) in the inode to determine if the i_blocks is in fs blocksize
+units, or the default sector units.
 
+> @@ -2760,7 +2768,13 @@ static int ext3_do_update_inode(handle_t
+> +	if (EXT3_HAS_INCOMPAT_FEATURE(sb,
+> +	    EXT3_FEATURE_INCOMPAT_LARGE_BLOCK)) {
+> +		raw_inode->i_blocks = cpu_to_le32((inode->i_blocks)
+> +			>> (inode->i_blkbits - EXT3_SECTOR_BITS));
+> +	} else {
+> +		raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
+> +	}
+
+In this case, we would only set EXT3_LARGE_BLOCK_FL if the i_blocks count
+was over 2^32 sectors, and set the EXT3_FEATURE_INCOMPAT_LARGE_BLOCK flag
+in the superblock.  It would probably be best if this was implemented in
+a small helper function like ext3_set_feature(sb, compat, rocompat, incompat)
+that takes the code to check/set EXT3_FEATURE_RO_COMPAT_LARGE_FILE and
+update dynamic_rev.
+
+That way you get maximum compatibility, and only break compatibility for
+the very few cases where such large files are acutally needed.  It would
+also allow ext3 to handle > 2TB sparse files without being incompatible,
+since we don't need to know a-priori whether the file will have a lot of
+blocks allocated to it.
+
+I guess the only other question is whether this should be an INCOMPAT flag,
+or an ROCOMPAT one, since there is very little harm in getting the i_blocks
+count wrong on a read-only filesystem, and having it ROCOMPAT at least
+allows some form of system recovery if this flag is set by error.
+
+The flag for large files was also ROCOMPAT, and one could argue that
+the file size is 1000x more important than the number of blocks, since
+the size affects actually reading the file, while the blocks count is
+used by almost nothing.
+
+> +static loff_t ext3_max_size(int bits, struct super_block *sb)
+>  {
+> +	loff_t upper_limit;
+> +	if(EXT3_HAS_INCOMPAT_FEATURE(sb, 
+> +	   EXT3_FEATURE_INCOMPAT_LARGE_BLOCK)) {
+> +		upper_limit = (1LL << (bits + 32)) - 1;
+
+With the above changes, the upper limit could always be the higher value.
+
+> @@ -1703,6 +1709,15 @@ static int ext3_fill_super (struct super
+>  	 */
+>  
+>  	root = iget(sb, EXT3_ROOT_INO);
+> +	/* To appoint -O large block option, LSF needs to be enabled */
+> +	if (EXT3_HAS_INCOMPAT_FEATURE(sb,
+> +	    EXT3_FEATURE_INCOMPAT_LARGE_BLOCK)) {
+> +		if (sizeof(root->i_blocks) < sizeof(u64)) {
+> +			printk(KERN_ERR "EXT3-fs: %s: Unsupported large block option"\
+> +				"with LSF disabled.\n", sb->s_id);
+> +			goto failed_mount;
+> +		}
+
+This could be considered a failure only for write mounts, and not readonly.
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 

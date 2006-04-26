@@ -1,90 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWDZXG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWDZXH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbWDZXG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 19:06:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWDZXG1
+	id S1751057AbWDZXH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 19:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWDZXH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 19:06:27 -0400
-Received: from uproxy.gmail.com ([66.249.92.168]:6083 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750959AbWDZXGZ convert rfc822-to-8bit
+	Wed, 26 Apr 2006 19:07:27 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:23681 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751057AbWDZXH1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 19:06:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=d/CR7WbQEkJOqjosiTBMxlwIC5F1kCxzzNiTElNX1ErZ1pwad4IDkTARYo5JLZYWqUqBiL/pDczkYYd6s66Cxsq3Pd/VQBb/4NAppOxL+7mR6WfWC8l3KRX5Mf1IoksXhyDGriwtQGsuVaKpVEL2frmW4oJ5ct72ZtOYMSGdEM4=
-Message-ID: <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
-Date: Wed, 26 Apr 2006 16:06:24 -0700
-From: "Ken Brush" <kbrush@gmail.com>
-To: "Neil Brown" <neilb@suse.de>
-Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
-       "Chris Wright" <chrisw@sous-sol.org>,
-       "James Morris" <jmorris@namei.org>,
-       "Arjan van de Ven" <arjan@infradead.org>, "Andi Kleen" <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-In-Reply-To: <17487.61698.879132.891619@cse.unsw.edu.au>
+	Wed, 26 Apr 2006 19:07:27 -0400
+From: Dan Smith <danms@us.ibm.com>
+To: mingz@ele.uri.edu
+Cc: device-mapper development <dm-devel@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [dm-devel] [RFC] dm-userspace
+References: <87u08g553l.fsf@caffeine.beaverton.ibm.com>
+	<1146092129.14129.333.camel@localhost.localdomain>
+Date: Wed, 26 Apr 2006 16:07:35 -0700
+In-Reply-To: <1146092129.14129.333.camel@localhost.localdomain> (Ming Zhang's
+	message of "Wed, 26 Apr 2006 18:55:28 -0400")
+Message-ID: <87psj45420.fsf@caffeine.beaverton.ibm.com>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	 <20060420192717.GA3828@sorel.sous-sol.org>
-	 <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060421173008.GB3061@sorel.sous-sol.org>
-	 <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <17484.20906.122444.964025@cse.unsw.edu.au>
-	 <1145911526.14804.71.camel@moss-spartans.epoch.ncsc.mil>
-	 <17485.55676.177514.848509@cse.unsw.edu.au>
-	 <1145984831.21399.74.camel@moss-spartans.epoch.ncsc.mil>
-	 <17487.61698.879132.891619@cse.unsw.edu.au>
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/26/06, Neil Brown <neilb@suse.de> wrote:
->
-> I feel we have reached the stage where the questions/comments being
-> made are actually directly relevant to AppArmor.  I'm afraid I cannot
-> proceed any further now because I am not a security expert.
->
-> I would like to summarise what I think are the key points that you
-> have raised, and hope that someone who has a deeper understanding of
-> these things might answer them, or point to answers.
->
-> 1/ Does AppArmor's primary mechanism of confining an application to a
->   superset of it's expected behaviour actually achieve its secondary
->   gaol of protecting data?
->
->   Possibly it would be better to ask "When does ..."  as I think it is
->   easy to imagine application/profile pairs that clearly cannot allow
->   harm, and application/profile pairs that clearly could allow harm.
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Depends on the data. A properly constrained Apache webserver would be
-prevented from accessing data it shouldn't.
+MZ> just curious, will the speed be a problem here?=20
 
-> 2/ What advantages does AppArmor provide over techniques involving
->    virtualisation or gaol mechanisms?  Are these advantages worth
->    while?
+I'm glad you asked... :)
 
-If you just wish to run every application in a chrooted jail. Would
-you still need a MAC solution?
+MZ> considering each time it needs to contact user space for mapping a
+MZ> piece of data.=20
 
-> 3/ Is AppArmour's approach of using d_path to get a filename from a
->    dentry valid and acceptable?  If not, how can it get a path?  Can
->    suitable hooks be provided so that AppArmor can get a path in an
->    acceptable way at the times when that is meaningful?
+Actually, that's not the case.  The idea is for mappings to be cached
+in the kernel module so that the communication with userspace only
+needs to happen once per block.  The thought is to ask once for a
+read, and then remember that mapping until a write happens, which
+might change the story.  If so, we ask userspace again.
 
-I'll leave this for the others...
+Right now, the kernel module expires mappings in a pretty brain-dead
+way to make sure the list doesn't get too long.  An intelligent data
+structure and expiration method would probably improve performance
+quite a bit.
 
-> I believe that these are all good questions.  The last one is the only
-> one that it really relevant to linux-kernel I believe, however answers
-> to the first two might tell us how important it is to answer that last
-> one.
->
-> Thanks for your input.
->
-> NeilBrown
->
-[snipped]
+I don't have any benchmark data to post right now.  I did some quick
+analysis a while back and found it to be not too bad.  When using loop
+devices as a backing store, I achieved performance as high as a little
+under 50% of native.
 
--Ken
+MZ> and the size unit is per sector in dm?
+
+Well, for qcow it is a sector, yes.  The module itself, however, can
+use any block size (as long as it is a multiple of a sector).  Before
+I started work on qcow support, I wrote a test application that used
+2MiB blocks, which is where I got the approximately 50% performance
+value I described above.
+
+Our thought is that this would mostly be used for the OS images of
+virtual machines, which shouldn't change much, which would help to
+prevent constantly asking userspace to map blocks.
+
+=2D-=20
+Dan Smith
+IBM Linux Technology Center
+Open Hypervisor Team
+email: danms@us.ibm.com
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBET/03wtEf7b4GJVQRAjriAKCEJYwRg30sBHBsR108iXXGS2cp0gCfWQXg
+9/+VuCdkbTG4sDwHDQFUoNc=
+=07tN
+-----END PGP SIGNATURE-----
+--=-=-=--
+

@@ -1,35 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWDZCRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWDZCTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWDZCRV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Apr 2006 22:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWDZCRV
+	id S932346AbWDZCTL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Apr 2006 22:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWDZCTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Apr 2006 22:17:21 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:11917 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932345AbWDZCRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Apr 2006 22:17:20 -0400
-Date: Wed, 26 Apr 2006 10:17:19 +0800
-From: Akinobu Mita <mita@miraclelinux.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [patch 1/2] kref: detect kref_put() with unreferenced object
-Message-ID: <20060426021719.GA5619@miraclelinux.com>
-References: <20060425082137.028875000@localhost.localdomain> <20060425082359.767915000@localhost.localdomain> <20060426002628.GB24343@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060426002628.GB24343@kroah.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 25 Apr 2006 22:19:11 -0400
+Received: from rwcrmhc12.comcast.net ([204.127.192.82]:45964 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932346AbWDZCTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Apr 2006 22:19:11 -0400
+Message-ID: <444ED89D.8020405@acm.org>
+Date: Tue, 25 Apr 2006 21:19:09 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla Thunderbird 1.0.6-7.5.20060mdk (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Gross, Mark" <mark.gross@intel.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, bluesmoke-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>,
+       "Carbonari, Steven" <steven.carbonari@intel.com>,
+       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
+       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
+Subject: Re: Problems with EDAC coexisting with BIOS
+References: <5389061B65D50446B1783B97DFDB392DA97BD0@orsmsx411.amr.corp.intel.com>
+In-Reply-To: <5389061B65D50446B1783B97DFDB392DA97BD0@orsmsx411.amr.corp.intel.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I really don't see how this is going to make it easier to debug
-> anything.  Remember, when a kref goes to 0, it is automatically freed.
-> So any code that tries to use it afterward just dies a horrible death,
-> if CONFIG_DEBUG_SLAB is enabled.
+Gross, Mark wrote:
 
-Thanks, I finally understood it is not needed as you said.
-So I can just remove that BUG_ON()es for detecting zero atomic_t counter
-while I replace atomic_t counters with kref.
+>>Yes, this is what I was talking about.  I believe the mode of
+>>module_param should be 444, since modifying this after the module is
+>>loaded won't do anything.  Also, it might be nice to print something
+>>different in the "force" case.
+>>    
+>>
+>
+>How about printing nothing like it used too?
+>
+>See attached.  
+>  
+>
+This is fine with me.  I debated between printing nothing and a "You
+have chosen to override ..." print but didn't come out with any
+opinion.  I'm easy either way.
+
+The indenting in the "if (!force_function_unhide && !(stat8 & (1 << 5)))
+{" clause is kind of strange and you have some spaces instead of tabs
+right after that (where stat8 is set).
+
+Thanks again,
+
+-Corey

@@ -1,65 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWDZSYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWDZS3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWDZSYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 14:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWDZSYQ
+	id S964797AbWDZS3E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 14:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWDZS3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 14:24:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:5781 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964795AbWDZSYP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 14:24:15 -0400
-To: Martin Bligh <mbligh@google.com>
-Cc: Ken Harrenstien <klh@google.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [kernel-reviewers] a small code review (2414483) Automated g4 rollback of changelist 2396062.
-References: <444F0729.2020407@google.com> <444F0A94.70100@google.com>
-	<6599ad830604252300m27db3d20j39beafbe09788824@mail.google.com>
-	<444F1218.6020601@google.com>
-	<6599ad830604252334yd6d933w5386dccb4af4b971@mail.google.com>
-	<444F9777.9090704@google.com> <444F989B.3040900@google.com>
-	<444F9E2B.40704@google.com> <444FA2BB.2070908@google.com>
-	<Pine.LNX.4.56.0604261002430.4623@minbar.corp.google.com>
-	<20060426173225.GB28519@google.com> <444FAFB6.4070303@google.com>
-From: Andi Kleen <ak@suse.de>
-Date: 26 Apr 2006 20:24:13 +0200
-In-Reply-To: <444FAFB6.4070303@google.com>
-Message-ID: <p731wvk8ab6.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 26 Apr 2006 14:29:03 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:46787 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964797AbWDZS3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 14:29:02 -0400
+Date: Wed, 26 Apr 2006 11:26:38 -0700
+From: mark gross <mgross@linux.intel.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: "Gross, Mark" <mark.gross@intel.com>, minyard@acm.org,
+       alan@lxorguk.ukuu.org.uk, bluesmoke-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, steven.carbonari@intel.com,
+       soo.keong.ong@intel.com, zhenyu.z.wang@intel.com
+Subject: Re: Problems with EDAC coexisting with BIOS
+Message-ID: <20060426182638.GA28792@linux.intel.com>
+Reply-To: mgross@linux.intel.com
+References: <5389061B65D50446B1783B97DFDB392DA97BD0@orsmsx411.amr.corp.intel.com> <20060425193405.0ee50691.rdunlap@xenotime.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060425193405.0ee50691.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh <mbligh@google.com> writes:
+On Tue, Apr 25, 2006 at 07:34:05PM -0700, Randy.Dunlap wrote:
+> On Tue, 25 Apr 2006 16:25:59 -0700 Gross, Mark wrote:
+> 
+> > 
+> > How about printing nothing like it used too?
+> > 
+> > See attached.  
+> > 
+> > Signed-off-by: Mark Gross
+> 
+> Hi Mark,
+> 
+> This small patch will need some cleaning up:
+> 
+> 1.  Signed-off-by: Mark Gross <mark.gross@intel.com>
+> 
+> 2.  Try not to use attachments.  If you must, then make the attachment
+> 	type be text instead of octet-stream.
+> 
+> 3.  No need to init to 0:
+> +static int force_function_unhide = 0;
+> 
+> 4.  Typos:
+> 
+> +	/* check to see if device 0 function 1 is enbaled if it isn't we
+>                                                   enabled; it it isn't, we
+> +	 * assume the BIOS has reserved it for a reason and is expecting
+> +	 * exclusive access, we take care to not violate that assumption and
+>                                           not to violate
+> +	 * fail the probe. */
+> 
+> 5.  indentation, typos, and at least one trailing space:
+> 
+> +	if (!force_function_unhide && !(stat8 & (1 << 5))) {
+> +		printk(KERN_INFO "contact your bios vendor to see if the " 
+>                                   Contact your BIOS
+> +		"E752x error registers can be safely un-hidden\n");
+> 		^indent one more tab
+> 
+Signed-off-by: Mark Gross <mark.gross@intel.com>
 
-> Tim Hockin wrote:
-> > On Wed, Apr 26, 2006 at 10:12:14AM -0700, Ken Harrenstien wrote:
-> >
-> >>That doesn't work because IIRC it only reports the amount of memory
-> >>the kernel has been told (eg via "mem=") to manage in a certain sense,
-> >>not how much is actually physically available.
-> >>
-> >>The I2 netboot kernel would really REALLY like some exported /proc
-> >>values that accurately report physical memory (if nothing else, the
-> >>number of DIMMs and their sizes).  It has to figure this out in order
-> >>to install the proper kernel with proper LILO command-line args.
-> > The kernel can't really know how much memory is in the system without
-> > getting chipset-specific.
-> > MTRR is a good way to hazard a guess, and will probably be right,
-> > but as
-> > you indicated, BIOS vendors have historically been REALLY bad about
-> > MTRRs.  Better now, but bad a few years ago.
-> > SMBIOS (on our boards) *does* accurately report the number of DIMMS
-> > and
-> > their sizes (and more!).  But it only works on Google BIOS.
 
-Actually quite a lot of SMBIOS report DIMMs more or less correct.
-It works even on my laptop.
+Trying mutt.
+thanks,
 
-I implemented support for it in the latest mcelog (--dmi). Not all
-and a few big names screw it up (in particular the mappings from
-address range to interleave set). But overall it looks surprisingly
-good so far. 
 
--Andi
+diff -urN -X linux-2.6.16/Documentation/dontdiff linux-2.6.16/drivers/edac/e752x_edac.c linux-2.6.16_edac/drivers/edac/e752x_edac.c
+--- linux-2.6.16/drivers/edac/e752x_edac.c	2006-03-19 21:53:29.000000000 -0800
++++ linux-2.6.16_edac/drivers/edac/e752x_edac.c	2006-04-26 08:36:25.000000000 -0700
+@@ -29,6 +29,7 @@
+ 
+ #include "edac_mc.h"
+ 
++static int force_function_unhide;
+ 
+ #ifndef PCI_DEVICE_ID_INTEL_7520_0
+ #define PCI_DEVICE_ID_INTEL_7520_0      0x3590
+@@ -755,8 +756,16 @@
+ 	debugf0("MC: " __FILE__ ": %s(): mci\n", __func__);
+ 	debugf0("Starting Probe1\n");
+ 
+-	/* enable device 0 function 1 */
++	/* check to see if device 0 function 1 is enbaled; if it isn't, we
++	 * assume the BIOS has reserved it for a reason and is expecting
++	 * exclusive access, we take care not to violate that assumption and
++	 * fail the probe. */
+ 	pci_read_config_byte(pdev, E752X_DEVPRES1, &stat8);
++	if (!force_function_unhide && !(stat8 & (1 << 5))) {
++		printk(KERN_INFO "Contact your BIOS vendor to see if the "
++			"E752x error registers can be safely un-hidden\n");
++			goto fail;
++	}
+ 	stat8 |= (1 << 5);
+ 	pci_write_config_byte(pdev, E752X_DEVPRES1, stat8);
+ 
+@@ -1069,3 +1078,8 @@
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Linux Networx (http://lnxi.com) Tom Zimmerman\n");
+ MODULE_DESCRIPTION("MC support for Intel e752x memory controllers");
++
++module_param(force_function_unhide, int, 0444);
++MODULE_PARM_DESC(force_function_unhide, "if BIOS sets Dev0:Fun1 up as hidden:"
++" 1=force unhide and hope BIOS doesn't fight driver for Dev0:Fun1 access");
++

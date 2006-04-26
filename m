@@ -1,70 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWDZOBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWDZOHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbWDZOBX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 10:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbWDZOBW
+	id S964777AbWDZOHN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 10:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWDZOHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 10:01:22 -0400
-Received: from wproxy.gmail.com ([64.233.184.228]:12535 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964776AbWDZOBV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 10:01:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RdvZrYKyRT6niiKFFXzn/DQK3OoL7h2bm4NCDlLN5Va/Dk6Ql3jcH+7YlNLZl6XTdpw3pDB7dFYgRG62d+PM4H35Snh5ilciANHUpAw9CTw84EJH/Mco3SrXAsAUTdg5tReepMsUlRJImvzn+nuPYyy5Ypb9CmjesM9s0m4B770=
-Message-ID: <bbe04eb10604260701h77d6f51fy1f95ea7e92e7c2b7@mail.gmail.com>
-Date: Wed, 26 Apr 2006 10:01:21 -0400
-From: "Kimball Murray" <kimball.murray@gmail.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Cc: "Brown, Len" <len.brown@intel.com>, linux-kernel@vger.kernel.org,
-       akpm@digeo.com, kmurray@redhat.com, natalie.protasevich@unisys.com,
-       linux-acpi@vger.kernel.org
-In-Reply-To: <bbe04eb10604260656h76064baev4f654a929290d35b@mail.gmail.com>
-MIME-Version: 1.0
+	Wed, 26 Apr 2006 10:07:13 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:2361
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932442AbWDZOHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 10:07:11 -0400
+Message-Id: <444F9AD9.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Wed, 26 Apr 2006 16:07:53 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andreas Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Cc: <discuss@x86-64.org>
+Subject: [PATCH] serialize assign_irq_vector() use of static variables
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <CFF307C98FEABE47A452B27C06B85BB6466487@hdsmsx411.amr.corp.intel.com>
-	 <200604261517.06505.ak@suse.de>
-	 <bbe04eb10604260656h76064baev4f654a929290d35b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, previous message got sent before I had typed anything!
+Since assign_irq_vector() can be called at runtime, its access of static
+variables should be protected by a lock.
 
-Andi, I just wanted to be clear that my patch is not a VIA workaround,
-it is a VIA workaround workaround.  So please don't remove my patch
-while leaving in the original VIA workaround.  That will break our
-platform, and possibly others.
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-I don't know if there's an easy way to have both the VIA workaround
-(Natalie's original patch) and the VIA workaround workaround (my
-patch) in a more unified construct.
+diff -Npru /home/jbeulich/tmp/linux-2.6.17-rc2/arch/i386/kernel/io_apic.c
+2.6.17-rc2-x86-assign_irq_vector-lock/arch/i386/kernel/io_apic.c
+--- /home/jbeulich/tmp/linux-2.6.17-rc2/arch/i386/kernel/io_apic.c	2006-04-26 10:55:11.000000000 +0200
++++ 2.6.17-rc2-x86-assign_irq_vector-lock/arch/i386/kernel/io_apic.c	2006-04-25 15:38:32.000000000 +0200
+@@ -50,6 +50,7 @@ atomic_t irq_mis_count;
+ static struct { int pin, apic; } ioapic_i8259 = { -1, -1 };
+ 
+ static DEFINE_SPINLOCK(ioapic_lock);
++static DEFINE_SPINLOCK(vector_lock);
+ 
+ int timer_over_8254 __initdata = 1;
+ 
+@@ -1152,10 +1153,16 @@ u8 irq_vector[NR_IRQ_VECTORS] __read_mos
+ int assign_irq_vector(int irq)
+ {
+ 	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0;
++	int vector;
++
++	BUG_ON(irq != AUTO_ASSIGN && (unsigned)irq >= NR_IRQ_VECTORS);
++
++	spin_lock(&vector_lock);
+ 
+-	BUG_ON(irq >= NR_IRQ_VECTORS);
+-	if (irq != AUTO_ASSIGN && IO_APIC_VECTOR(irq) > 0)
++	if (irq != AUTO_ASSIGN && IO_APIC_VECTOR(irq) > 0) {
++		spin_unlock(&vector_lock);
+ 		return IO_APIC_VECTOR(irq);
++	}
+ next:
+ 	current_vector += 8;
+ 	if (current_vector == SYSCALL_VECTOR)
+@@ -1163,16 +1170,21 @@ next:
+ 
+ 	if (current_vector >= FIRST_SYSTEM_VECTOR) {
+ 		offset++;
+-		if (!(offset%8))
++		if (!(offset%8)) {
++			spin_unlock(&vector_lock);
+ 			return -ENOSPC;
++		}
+ 		current_vector = FIRST_DEVICE_VECTOR + offset;
+ 	}
+ 
+-	vector_irq[current_vector] = irq;
++	vector = current_vector;
++	vector_irq[vector] = irq;
+ 	if (irq != AUTO_ASSIGN)
+-		IO_APIC_VECTOR(irq) = current_vector;
++		IO_APIC_VECTOR(irq) = vector;
++
++	spin_unlock(&vector_lock);
+ 
+-	return current_vector;
++	return vector;
+ }
+ 
+ static struct hw_interrupt_type ioapic_level_type;
+diff -Npru /home/jbeulich/tmp/linux-2.6.17-rc2/arch/x86_64/kernel/io_apic.c
+2.6.17-rc2-x86-assign_irq_vector-lock/arch/x86_64/kernel/io_apic.c
+--- /home/jbeulich/tmp/linux-2.6.17-rc2/arch/x86_64/kernel/io_apic.c	2006-04-26 10:55:24.000000000 +0200
++++ 2.6.17-rc2-x86-assign_irq_vector-lock/arch/x86_64/kernel/io_apic.c	2006-04-25 15:38:32.000000000 +0200
+@@ -56,6 +56,7 @@ int timer_over_8254 __initdata = 0;
+ static struct { int pin, apic; } ioapic_i8259 = { -1, -1 };
+ 
+ static DEFINE_SPINLOCK(ioapic_lock);
++static DEFINE_SPINLOCK(vector_lock);
+ 
+ /*
+  * # of IRQ routing registers
+@@ -814,10 +815,16 @@ u8 irq_vector[NR_IRQ_VECTORS] __read_mos
+ int assign_irq_vector(int irq)
+ {
+ 	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0;
++	int vector;
+ 
+ 	BUG_ON(irq != AUTO_ASSIGN && (unsigned)irq >= NR_IRQ_VECTORS);
+-	if (irq != AUTO_ASSIGN && IO_APIC_VECTOR(irq) > 0)
++
++	spin_lock(&vector_lock);
++
++	if (irq != AUTO_ASSIGN && IO_APIC_VECTOR(irq) > 0) {
++		spin_unlock(&vector_lock);
+ 		return IO_APIC_VECTOR(irq);
++	}
+ next:
+ 	current_vector += 8;
+ 	if (current_vector == IA32_SYSCALL_VECTOR)
+@@ -829,11 +836,14 @@ next:
+ 		current_vector = FIRST_DEVICE_VECTOR + offset;
+ 	}
+ 
+-	vector_irq[current_vector] = irq;
++	vector = current_vector;
++	vector_irq[vector] = irq;
+ 	if (irq != AUTO_ASSIGN)
+-		IO_APIC_VECTOR(irq) = current_vector;
++		IO_APIC_VECTOR(irq) = vector;
++
++	spin_unlock(&vector_lock);
+ 
+-	return current_vector;
++	return vector;
+ }
+ 
+ extern void (*interrupt[NR_IRQS])(void);
 
-I believe our platform would work fine with the removal of my patch
-_and_ the VIA patch.  But, as you say, what about VIA?
 
--kimball
-
-On 4/26/06, Kimball Murray <kimball.murray@gmail.com> wrote:
-> Hi Andi,
->
->
->
-> On 4/26/06, Andi Kleen <ak@suse.de> wrote:
-> > On Tuesday 25 April 2006 21:53, Brown, Len wrote:
-> > > I'd rather see the original irq-renaming patch
-> > > and its subsequent multiple via workaround patches
-> > > reverted than to further complicate what is becoming
-> > > a fragile mess.
-> >
-> > Sorry rechecking - i already got the patch now. You want me to drop it again?
-> >
-> > I guess we could drop it all, but VIA must still work afterwards.
-> > How would we do that?
-> >
-> > -Andi
-> >
->

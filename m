@@ -1,81 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWDZWf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbWDZWpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWDZWf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 18:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWDZWf7
+	id S964881AbWDZWpO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 18:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWDZWpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 18:35:59 -0400
-Received: from xenotime.net ([66.160.160.81]:1491 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932422AbWDZWf6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 18:35:58 -0400
-Date: Wed, 26 Apr 2006 15:38:21 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, sam@ravnborg.org
-Subject: Re: [PATCH 0/19] kconfig patches
-Message-Id: <20060426153821.9bf0d535.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.64.0604262232460.32445@scrub.home>
-References: <Pine.LNX.4.64.0604091628240.21970@scrub.home>
-	<20060419205141.63298a26.rdunlap@xenotime.net>
-	<Pine.LNX.4.64.0604262232460.32445@scrub.home>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Apr 2006 18:45:14 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:62621 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964881AbWDZWpM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 18:45:12 -0400
+From: Dan Smith <danms@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: device-mapper development <dm-devel@redhat.com>
+Subject: [RFC] dm-userspace
+Date: Wed, 26 Apr 2006 15:45:02 -0700
+Message-ID: <87u08g553l.fsf@caffeine.beaverton.ibm.com>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Apr 2006 00:13:40 +0200 (CEST) Roman Zippel wrote:
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-> Hi,
-> 
-> On Wed, 19 Apr 2006, Randy.Dunlap wrote:
-> 
-> > ~~~~~
-> > Subject: [PATCH 12/19] kconfig: add symbol option config syntax
-> > 
-> > Do we have any examples of this?  (where)
-> 
-> It's in patch 13.
-> 
-> > ~~~~~
-> > Subject: [PATCH 14/19] kconfig: Add search option for xconfig
-> > 
-> > How do I search?  I don't see it in the menu or any Help for it.
-> 
-> It's in the File menu or Ctrl+F, it shouldn't be that hard to find. :)
+Xen needs to be able to directly access disk formats such as QEMU's
+qcow, VMware's vmdk, and possibly others.  Most of these formats are
+based on copy-on-write ideas, and thus have a base image and a bunch
+of modified blocks stored elsewhere.  Presenting this to a virtual
+machine transparently as a normal block device would be ideal.  The
+solution I propose is to use device-mapper for redirecting block
+accesses to the appropriate locations within either the base image or
+the COW space, with the following constraints:
 
-Yep, it helps to use -mm.  For some reason I thought that this was
-merged in 2.6.17-rc2, but it's not.  My bad.
+1. The block-allocation algorithm and formatting scheme should not be
+   in the kernel.  This gives the most flexibility and puts the
+   complexity in userspace.
+2. Actual data flow should happen only in the kernel, and userspace
+   should be able to control it without the blocks being passed back
+   and forth.
 
-> > ~~~~~
-> > Subject: [PATCH 15/19] kconfig: finer customization via popup menus
-> > 
-> > How?  documentation?
-> 
-> The right mouse button opens a context menu in the list header and in the 
-> info text. I'm playing with ideas on how to document this best, e.g. like 
-> adding a "What's this?" button. (I'm open to ideas/patches. :) )
-> 
-> > ~~~~~
-> > Subject: [PATCH 16/19] kconfig: create links in info window
-> > 
-> > How?  what does link look like?  are there any in the current
-> > Kconfig menus?  I'd like to see one (or several).
-> > ~~~~~
-> > Subject: [PATCH 17/19] kconfig: jump to linked menu prompt
-> > 
-> > I'd like to see this too.  Where can I see it?
-> > ~~~~~
-> 
-> As I mentioned it's only visible if you enable "Show Debug Info", but then 
-> it shouldn't be that hard to miss. Did you expect something different?
+So, I developed a generic device-mapper target called dm-userspace
+which allows a userspace application to control the block mapping in a
+mostly generic way.  With the functionality it provides, I was able to
+write a userspace daemon that handles the mapping of blocks such that
+a qcow file could be presented as a single block device, mounted and
+accessed as if it were a normal disk.  If/when VMware releases their
+vmdk spec under the GPL, adding support for it would be relatively
+simple.  This would give us a unified block device to export to the
+virtual machine, that would be backed by a complex format such as vmdk
+or qcow.
 
-I always have Debug Info etc. enabled.  Sorry, I was using the
-wrong kernel version, but your replies are still useful/helpful.
-Thanks. 
+In addition to providing support for the above scenario, dm-userspace
+could be used for other things as well.  It's possible that new
+device-mapper targets could be developed in userspace using a special
+application that used dm-userspace to simulate the kernel
+environment.  Additionally, filesystem debuggers may be able to use
+dm-userspace to provide interactive control and logging of disk
+writes.=20
 
----
-~Randy
+A patch against 2.6.16.9 to add dm-userspace to the kernel is
+available here:
+
+  http://static.danplanet.com/dm-userspace/dmu-2.6.16.9.patch
+
+After you have a patched kernel, you can build the (very tiny) helper
+library and example program, available here:
+
+  http://static.danplanet.com/dm-userspace/libdmu-0.1.tar.gz
+
+Comments would be appreciated :)
+
+=2D-=20
+Dan Smith
+IBM Linux Technology Center
+Open Hypervisor Team
+email: danms@us.ibm.com
+
+--=-=-=
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBET/f9wtEf7b4GJVQRAjj7AJ9Fu2hFEEVW9bnAhvLyPDk7Frc6mwCeNbGG
+NVpEU/eIoL3WGCKLlZWBGBU=
+=jcgr
+-----END PGP SIGNATURE-----
+--=-=-=--
+

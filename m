@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWDZXUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWDZXWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbWDZXUj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 19:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWDZXUj
+	id S1751099AbWDZXWN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 19:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWDZXWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 19:20:39 -0400
-Received: from rtr.ca ([64.26.128.89]:5837 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932429AbWDZXUi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 19:20:38 -0400
-Message-ID: <44500033.3010605@rtr.ca>
-Date: Wed, 26 Apr 2006 19:20:19 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
+	Wed, 26 Apr 2006 19:22:12 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:17582 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1750726AbWDZXWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 19:22:12 -0400
+Subject: Re: [PATCH] drivers/scsi/sd.c: fix uninitialized variable in
+	handling medium errors
+From: James Bottomley <James.Bottomley@SteelEye.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/scsi/sd.c: fix uninitialized variable in handling
- medium errors
-References: <200604261627.29419.lkml@rtr.ca>	<1146092161.12914.3.camel@mulgrave.il.steeleye.com> <20060426161444.423a8296.akpm@osdl.org>
+Cc: lkml@rtr.ca, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 In-Reply-To: <20060426161444.423a8296.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <200604261627.29419.lkml@rtr.ca>
+	 <1146092161.12914.3.camel@mulgrave.il.steeleye.com>
+	 <20060426161444.423a8296.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 26 Apr 2006 18:22:03 -0500
+Message-Id: <1146093723.12914.16.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
+On Wed, 2006-04-26 at 16:14 -0700, Andrew Morton wrote:
 > It'd be nice to have something simple-and-obvious for the
-> simple-and-obvious -stable maintainers.
+> simple-and-obvious -stable maintainers.  That's if we think -stable needs
+> this fixed.
 
-That's why I kept the original patch very simple and focused,
-rather than trying to fix all of the convoluted code around it.
+Well .. the original will do for that.  
 
-It's nice and simple, and *looks* correct.
+> > +				int sector_size_div =
+> > +					512 / SCpnt->device->sector_size;
+> > +				error_sector /= sector_size_div;
+> 
+> You sure about this bit?
 
-A longer term cleanup of that function is better left to James!
+Yes.  If the <hardware sector size> is < 512 bytes then to convert the
+listed error sector to the standard 512 byte sector size block index, we
+have to divide (512/<hardware sector size>).
 
-> That's if we think -stable needs this fixed.
+James
 
-Let's say a bunch of read bio's get coalesced into a single
-200+ sector request.  This then fails on one single bad sector
-out of the 200+.  Without the patch, there is a very good chance
-that sd.c will simply fail the entire request, all 200+ sectors.
-
-With the patch, it will fail the first block, and then retry
-the remaining blocks.  And repeat this until something works,
-or until everything has failed one by one.
-
-Better, but still not the best.
-
-What I need to have happen when a request is failed due to bad-media,
-is have it split the request into a sequence of single-block requests
-that are passed to the LLD one at a time.  The ones with real bad
-sectors will then be independently failed, and the rest will get done.
-
-Much better.  Much more complex.
-
-I'm thinking about something like that, just not sure whether to put it
-(initially) in libata, sd.c, or the block layer.
-
-Cheers
 

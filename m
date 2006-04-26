@@ -1,109 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWDZTkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWDZTl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWDZTkk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 15:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWDZTkk
+	id S964856AbWDZTl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 15:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWDZTl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 15:40:40 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:38537 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964855AbWDZTkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 15:40:39 -0400
-Date: Wed, 26 Apr 2006 12:39:15 -0700
-From: mark gross <mgross@linux.intel.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: mark.gross@intel.com, minyard@acm.org, alan@lxorguk.ukuu.org.uk,
-       bluesmoke-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       steven.carbonari@intel.com, soo.keong.ong@intel.com,
-       zhenyu.z.wang@intel.com
-Subject: Re: Problems with EDAC coexisting with BIOS
-Message-ID: <20060426193915.GA30953@linux.intel.com>
-Reply-To: mgross@linux.intel.com
-References: <5389061B65D50446B1783B97DFDB392DA97BD0@orsmsx411.amr.corp.intel.com> <20060425193405.0ee50691.rdunlap@xenotime.net> <20060426182638.GA28792@linux.intel.com> <20060426113835.e3a05749.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060426113835.e3a05749.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.9i
+	Wed, 26 Apr 2006 15:41:58 -0400
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:58788 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964856AbWDZTl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 15:41:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=12xzH4vvPDIdiipt4T31aFKH0dt8LUiL4r6a3VYQZW4LpVtFAkHF2MzLc8sL+4AgO6946lmt4eYoZoPNKO4LoG3saOpN9pQXNFRJcwhCXYpKQa316YE0dWcxueWmbcScVlSoFsdkjzVQB7SsZcybZm5JIaXhilx2aHp0+vfnQjU=  ;
+Message-ID: <444F8714.9060808@yahoo.com.au>
+Date: Thu, 27 Apr 2006 00:43:32 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org, Nick Piggin <npiggin@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+References: <20060426135310.GB5083@suse.de>
+In-Reply-To: <20060426135310.GB5083@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 11:38:35AM -0700, Randy.Dunlap wrote:
-> On Wed, 26 Apr 2006 11:26:38 -0700 mark gross wrote:
+Jens Axboe wrote:
+> Hi,
 > 
-> > Signed-off-by: Mark Gross <mark.gross@intel.com>
-> > 
-> > 
-> > Trying mutt.
+> Running a splice benchmark on a 4-way IPF box, I decided to give the
+> lockless page cache patches from Nick a spin. I've attached the results
+> as a png, it pretty much speaks for itself.
 > 
-> Yes, much better.  Almost there.
-> 
-> 
-> > diff -urN -X linux-2.6.16/Documentation/dontdiff linux-2.6.16/drivers/edac/e752x_edac.c linux-2.6.16_edac/drivers/edac/e752x_edac.c
-> > --- linux-2.6.16/drivers/edac/e752x_edac.c	2006-03-19 21:53:29.000000000 -0800
-> > +++ linux-2.6.16_edac/drivers/edac/e752x_edac.c	2006-04-26 08:36:25.000000000 -0700
-> > @@ -755,8 +756,16 @@
-> >  	debugf0("MC: " __FILE__ ": %s(): mci\n", __func__);
-> >  	debugf0("Starting Probe1\n");
-> >  
-> > -	/* enable device 0 function 1 */
-> > +	/* check to see if device 0 function 1 is enbaled; if it isn't, we
-> 
-> "enabled"
-> 
-> > +	 * assume the BIOS has reserved it for a reason and is expecting
-> > +	 * exclusive access, we take care not to violate that assumption and
-> > +	 * fail the probe. */
-> >  	pci_read_config_byte(pdev, E752X_DEVPRES1, &stat8);
-> > +	if (!force_function_unhide && !(stat8 & (1 << 5))) {
-> > +		printk(KERN_INFO "Contact your BIOS vendor to see if the "
-> > +			"E752x error registers can be safely un-hidden\n");
-> > +			goto fail;
-> 
-> The goto is indented too much...
-> 
-> > +	}
->
+> The test in question splices a 1GiB file to a pipe and then splices that
+> to some output. Normally that output would be something interesting, in
+> this case it's simply /dev/null. So it tests the input side of things
+> only, which is what I wanted to do here. To get adequate runtime, the
+> operation is repeated a number of times (120 in this example). The
+> benchmark does that number of loops with 1, 2, 3, and 4 clients each
+> pinned to a private CPU. The pinning is mainly done for more stable
+> results.
 
-Sorry about that.  trying again.
+Thanks Jens!
 
-Signed-off-by: Mark Gross <mark.gross@intel.com>
+It's interesting, single threaded performance is down a little. Is
+this significant? In some other results you showed me with 3 splices
+each running on their own file (ie. no tree_lock contention), lockless
+looked slightly faster on the same machine.
 
-diff -urN -X linux-2.6.16/Documentation/dontdiff linux-2.6.16/drivers/edac/e752x_edac.c linux-2.6.16_edac/drivers/edac/e752x_edac.c
---- linux-2.6.16/drivers/edac/e752x_edac.c	2006-03-19 21:53:29.000000000 -0800
-+++ linux-2.6.16_edac/drivers/edac/e752x_edac.c	2006-04-26 12:31:51.000000000 -0700
-@@ -29,6 +29,7 @@
- 
- #include "edac_mc.h"
- 
-+static int force_function_unhide;
- 
- #ifndef PCI_DEVICE_ID_INTEL_7520_0
- #define PCI_DEVICE_ID_INTEL_7520_0      0x3590
-@@ -755,8 +756,16 @@
- 	debugf0("MC: " __FILE__ ": %s(): mci\n", __func__);
- 	debugf0("Starting Probe1\n");
- 
--	/* enable device 0 function 1 */
-+	/* check to see if device 0 function 1 is enabled; if it isn't, we
-+	 * assume the BIOS has reserved it for a reason and is expecting
-+	 * exclusive access, we take care not to violate that assumption and
-+	 * fail the probe. */
- 	pci_read_config_byte(pdev, E752X_DEVPRES1, &stat8);
-+	if (!force_function_unhide && !(stat8 & (1 << 5))) {
-+		printk(KERN_INFO "Contact your BIOS vendor to see if the "
-+			"E752x error registers can be safely un-hidden\n");
-+		goto fail;
-+	}
- 	stat8 |= (1 << 5);
- 	pci_write_config_byte(pdev, E752X_DEVPRES1, stat8);
- 
-@@ -1069,3 +1078,8 @@
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Linux Networx (http://lnxi.com) Tom Zimmerman\n");
- MODULE_DESCRIPTION("MC support for Intel e752x memory controllers");
-+
-+module_param(force_function_unhide, int, 0444);
-+MODULE_PARM_DESC(force_function_unhide, "if BIOS sets Dev0:Fun1 up as hidden:"
-+" 1=force unhide and hope BIOS doesn't fight driver for Dev0:Fun1 access");
-+
+In my microbenchmarks, single threaded lockless is quite a bit faster
+than vanilla on both P4 and G5.
+
+It could well be that the speculative get_page operation is naturally
+a bit slower on Itanium CPUs -- there is a different mix of barriers,
+reads, writes, etc. If only someone gave me an IPF system... ;)
+
+As you said, it would be nice to see how this goes when the other end
+are 4 gigabit pipes or so... And then things like specweb and file
+serving workloads.
+
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

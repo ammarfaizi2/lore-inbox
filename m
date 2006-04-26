@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWDZVFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWDZVLp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbWDZVFo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 17:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWDZVFo
+	id S932472AbWDZVLp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 17:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbWDZVLp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 17:05:44 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16796 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932463AbWDZVFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 17:05:44 -0400
-Date: Wed, 26 Apr 2006 23:05:43 +0200
-From: Martin Mares <mj@ucw.cz>
-To: David Schwartz <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: C++ pushback
-Message-ID: <mj+md-20060426.210319.10242.atrey@ucw.cz>
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com>
+	Wed, 26 Apr 2006 17:11:45 -0400
+Received: from zakalwe.fi ([80.83.5.154]:30216 "EHLO zakalwe.fi")
+	by vger.kernel.org with ESMTP id S932472AbWDZVLp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 17:11:45 -0400
+Date: Wed, 26 Apr 2006 21:11:43 +0000
+From: Heikki Orsila <shd@zakalwe.fi>
+To: kyle@pbx.org
+Cc: Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
+Subject: Re: accept()ing socket connections with level triggered epoll
+Message-ID: <20060426211143.GA14413@zakalwe.fi>
+References: <20060426205557.GA5483@www.t3inc.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060426205557.GA5483@www.t3inc.us>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	C++ has how many additional reserved words? I believe the list is delete,
-> friend, private, protected, public, template, throw, try, and catch.
-> Renaming every symbol that currently has a name from this list to the
-> corresponding name with a trailing underscore is an easily understood
-> consistent change.
+On Wed, Apr 26, 2006 at 02:55:57PM -0600, kyle@pbx.org wrote:
+> Kernel version is 2.6.9.  I can provide test code if needed.
 
-... which, for the point of view of people developing most parts of the
-kernel (and thus not caring about C++ much) just makes the names ugly.
-When some struct member describes a device class the device belongs to,
-calling it anything else than "class" is silly.
+Does it happen with the latest kernel? And if so, please provide a test
+code.
 
-But yes, the C++ modules can redefine such things by macros when
-including kernel headers.
-
-				Have a nice fortnight
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Linux vs. Windows is a no-WIN situation.
+Heikki Orsila                   Barbie's law:
+heikki.orsila@iki.fi            "Math is hard, let's go shopping!"
+http://www.iki.fi/shd

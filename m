@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWDZOPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWDZOQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbWDZOPE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 10:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWDZOPE
+	id S964782AbWDZOQm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 10:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWDZOQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 10:15:04 -0400
-Received: from cantor.suse.de ([195.135.220.2]:51131 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932455AbWDZOPC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 10:15:02 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [PATCH] serialize assign_irq_vector() use of static variables
-Date: Wed, 26 Apr 2006 16:14:17 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <444F9AD9.76E4.0078.0@novell.com>
-In-Reply-To: <444F9AD9.76E4.0078.0@novell.com>
+	Wed, 26 Apr 2006 10:16:41 -0400
+Received: from mail.advantech.ca ([207.35.60.239]:25849 "EHLO
+	exch2k.Advantech.ca") by vger.kernel.org with ESMTP id S964782AbWDZOQl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 10:16:41 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604261614.17592.ak@suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: how to use the new wait functions in wait.c?
+Date: Wed, 26 Apr 2006 10:16:40 -0400
+Message-ID: <1A60C93388AFD3419AEE0E20A116D3201CFDAA@exch2k>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: how to use the new wait functions in wait.c?
+Thread-Index: AcZpOEVwsmMBA7fmTgy+i/8EAsEaIQAAisoQ
+From: "Michael Guo" <Michael.Guo@advantechAMT.com>
+To: "Xin Zhao" <uszhaoxin@gmail.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 April 2006 16:07, Jan Beulich wrote:
-> Since assign_irq_vector() can be called at runtime, its access of static
-> variables should be protected by a lock.
+You can refer the following books:
+ Love Robert -- Linux Kernel Development (2.6.x kernel)
+ Bovet,Daniel and Marco Cesate -- Understanding the Linux Kernel,Third Edition 
+ Jonathan Corbet, Alessandro Rubini and Greg Kroah-Hartman -- Linux device drivers Third Edition.
 
-Applied thanks.
+I hope those books could give a mountain view about Linux kernel.
 
--Andi
+Guo
+
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Xin Zhao
+Sent: Wednesday, April 26, 2006 9:48 AM
+To: linux-kernel
+Subject: how to use the new wait functions in wait.c?
+
+
+Looks like linux kernel switched to new wait function sets in wait.c.
+But I cannot find any document about the new APIs. Can someone kindly
+let me know where I can find them or let me know how to use them?
+Thanks a lot!
+
+xin
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

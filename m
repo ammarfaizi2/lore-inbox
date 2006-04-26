@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWDZK2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWDZKnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbWDZK2x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 06:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWDZK2x
+	id S932371AbWDZKnG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 06:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWDZKnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 06:28:53 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57998 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932381AbWDZK2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 06:28:52 -0400
-Date: Wed, 26 Apr 2006 11:28:42 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Sam Vilain <sam@vilain.net>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       ebiederm@xmission.com
-Subject: Re: [RFC][PATCH 4/5] utsname namespaces: sysctl hack
-Message-ID: <20060426102842.GA1334@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Sam Vilain <sam@vilain.net>, "Serge E. Hallyn" <serue@us.ibm.com>,
-	linux-kernel@vger.kernel.org, ebiederm@xmission.com
-References: <20060407095132.455784000@sergelap> <20060407183600.E40C119B902@sergelap.hallyn.com> <4446547B.4080206@sw.ru> <m1wtdlmvmr.fsf@ebiederm.dsl.xmission.com> <20060419175123.GD1238@sergelap.austin.ibm.com> <m1ejztjua2.fsf@ebiederm.dsl.xmission.com> <4446AF56.9060706@vilain.net> <20060425220022.GD7228@sergelap.austin.ibm.com> <444EF25D.9070702@vilain.net>
+	Wed, 26 Apr 2006 06:43:06 -0400
+Received: from smtp-vbr5.xs4all.nl ([194.109.24.25]:22793 "EHLO
+	smtp-vbr5.xs4all.nl") by vger.kernel.org with ESMTP id S932371AbWDZKnF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 06:43:05 -0400
+Date: Wed, 26 Apr 2006 12:43:01 +0200
+From: bjdouma <bjdouma@xs4all.nl>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001/001] INPUT: new ioctl's to retrieve values of EV_REP and EV_SND event codes
+Message-ID: <20060426104301.GA4634@skyscraper.unix9.prv>
+References: <20060422204844.GA16968@skyscraper.unix9.prv> <d120d5000604250823p4f2ed2acv4287f7d70c71c7c0@mail.gmail.com> <20060425152600.GA30398@suse.cz> <200604260106.38480.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <444EF25D.9070702@vilain.net>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200604260106.38480.dtor_core@ameritech.net>
+X-Disclaimer: sorry
+X-Operating-System: human brain v1.04E11
+Organization: A training zoo
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 04:09:01PM +1200, Sam Vilain wrote:
-> Eric has said that his understanding was that syscall switches (ie,
-> syscalls with subcommands) were bad form.
+On Wed, Apr 26, 2006 at 01:06:38AM -0400, Dmitry Torokhov wrote:
 
-It's not just Eric, it's common sense and pretty broad consensus.
+> What do you gius think about the patch below?
 
+Works like a charm.
+Why is it though that we need EVIOCSREP, when I can set PERIOD and
+DELAY through writing a struct input_event directly to the file
+descriptor?  I've been doing that for quite some time, having
+softrepeat=1 (I need a quick keyboard, DELAY=120, PERIOD=18).
+
+One typo in the patch:
++#define EVIOCSREP		_IOW('E', 0x03, int[2])			/* get repeat settings */
+should be:
++#define EVIOCSREP		_IOW('E', 0x03, int[2])			/* set repeat settings */
+
+Now, the EV_SND bitmap is still broken.
+I don't think it's simply a matter of adding change_bit(code,dev->snd)
+in the EV_SND part of input.c.  During a quick test the bitmap
+became confused, after setting both bell and tone through writing
+a struct input_event to the file descriptor of the pcspkr's event
+file in /dev/input/, then setting just bell to 0.
+
+bjd

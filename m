@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWDZUzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWDZUz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWDZUzt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 16:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWDZUzt
+	id S932461AbWDZUz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 16:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWDZUz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 16:55:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27268 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932462AbWDZUzs (ORCPT
+	Wed, 26 Apr 2006 16:55:58 -0400
+Received: from t3inc.us ([66.250.45.69]:21427 "EHLO www.t3inc.us")
+	by vger.kernel.org with ESMTP id S932461AbWDZUz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 16:55:48 -0400
-Date: Wed, 26 Apr 2006 13:58:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Cc: neilb@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove softlockup from invalidate_mapping_pages.
-Message-Id: <20060426135809.10a37ec3.akpm@osdl.org>
-In-Reply-To: <20060426204809.GA15462@uio.no>
-References: <20060420160549.7637.patches@notabene>
-	<1060420062955.7727@suse.de>
-	<20060420003839.1a41c36f.akpm@osdl.org>
-	<20060426204809.GA15462@uio.no>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Apr 2006 16:55:58 -0400
+Date: Wed, 26 Apr 2006 14:55:57 -0600
+From: kyle@pbx.org
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: accept()ing socket connections with level triggered epoll
+Message-ID: <20060426205557.GA5483@www.t3inc.us>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel-r796 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Steinar H. Gunderson" <sgunderson@bigfoot.com> wrote:
->
-> I tried this patch against 2.6.17-rc2 (I hoped that it might be fixing my
-> kswapd oopses too, as they seem related; see
-> http://lkml.org/lkml/2006/4/26/124 and followups), and it simply makes my
-> machine hang on bootup -- it seems to make modprobe hang forever on some lock
-> or something right after it loads raid6.ko (pulled in by evms_activate) in
-> initramfs. Without the patch, the machine boots just fine.
+Hello,
 
-It had a silly bug.  Fixed version:
+I think I may have found a bug in Linux's implementation of epoll.  My
+program creates a server socket that listens for incoming SOCK_STREAM
+connections.  It uses epoll to wait for notification of a new connection
+(and also to handle the client sockets).  While the client sockets use edge
+triggered epoll, for performance reasons, the server socket uses level
+triggered epoll.
 
+I have found that when I open connections to my program very quickly, it is
+sometimes possible to call accept more than once before reaching the point
+where no more connections are available and EAGAIN is returned.  If I return
+to epoll_wait without accepting all of the available connections, I should
+immediately be notified that a read is still available on the server socket,
+since I am using level triggered epoll for that descriptor (at least that is
+my understanding of how all of this is supposed to work ;).  However, epoll
+does not make this notification.  Even if the program accepts further
+incoming connections, the missed connection is never accepted, and
+eventually times out on the client side.
 
-diff -puN mm/truncate.c~remove-softlockup-from-invalidate_mapping_pages mm/truncate.c
---- devel/mm/truncate.c~remove-softlockup-from-invalidate_mapping_pages	2006-04-21 19:45:11.000000000 -0700
-+++ devel-akpm/mm/truncate.c	2006-04-21 19:46:14.000000000 -0700
-@@ -230,14 +230,24 @@ unsigned long invalidate_mapping_pages(s
- 			pagevec_lookup(&pvec, mapping, next, PAGEVEC_SIZE)) {
- 		for (i = 0; i < pagevec_count(&pvec); i++) {
- 			struct page *page = pvec.pages[i];
-+			pgoff_t index;
-+			int lock_failed;
- 
--			if (TestSetPageLocked(page)) {
--				next++;
--				continue;
--			}
--			if (page->index > next)
--				next = page->index;
-+			lock_failed = TestSetPageLocked(page);
-+
-+			/*
-+			 * We really shouldn't be looking at the ->index of an
-+			 * unlocked page.  But we're not allowed to lock these
-+			 * pages.  So we rely upon nobody altering the ->index
-+			 * of this (pinned-by-us) page.
-+			 */
-+			index = page->index;
-+			if (index > next)
-+				next = index;
- 			next++;
-+			if (lock_failed)
-+				continue;
-+
- 			if (PageDirty(page) || PageWriteback(page))
- 				goto unlock;
- 			if (page_mapped(page))
-_
+Kernel version is 2.6.9.  I can provide test code if needed.
 
+Thanks,
+Kyle Cronan
+<kyle@pbx.org>

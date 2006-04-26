@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWDZUaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWDZUbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWDZUaA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 16:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWDZUaA
+	id S964870AbWDZUbg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 16:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWDZUbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 16:30:00 -0400
-Received: from mga06.intel.com ([134.134.136.21]:21127 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964871AbWDZU37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 16:29:59 -0400
-X-IronPort-AV: i="4.04,158,1144047600"; 
-   d="scan'208"; a="28175236:sNHT48081082"
-X-IronPort-AV: i="4.04,158,1144047600"; 
-   d="scan'208"; a="28996935:sNHT3316920649"
-TrustInternalSourcedMail: True
-X-IronPort-AV: i="4.04,158,1144047600"; 
-   d="scan'208"; a="28175220:sNHT49095172"
-Date: Wed, 26 Apr 2006 13:26:45 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Chandra Seetharaman <sekharan@us.ibm.com>
-Cc: Ashok Raj <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Alan Stern <stern@rowland.harvard.edu>, herbert@13thfloor.at,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com
-Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
-Message-ID: <20060426132644.A31761@unix-os.sc.intel.com>
-References: <Pine.LNX.4.44L0.0604261144010.6376-100000@iolanthe.rowland.org> <1146075534.24650.11.camel@linuxchandra> <20060426114348.51e8e978.akpm@osdl.org> <20060426122926.A31482@unix-os.sc.intel.com> <1146082893.24650.27.camel@linuxchandra>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1146082893.24650.27.camel@linuxchandra>; from sekharan@us.ibm.com on Wed, Apr 26, 2006 at 01:21:33PM -0700
-X-OriginalArrivalTime: 26 Apr 2006 20:29:56.0207 (UTC) FILETIME=[2E620FF0:01C66970]
+	Wed, 26 Apr 2006 16:31:36 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38871 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964870AbWDZUbf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 16:31:35 -0400
+Date: Wed, 26 Apr 2006 13:31:14 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: dgc@sgi.com
+cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+In-Reply-To: <20060426184945.GL5002@suse.de>
+Message-ID: <Pine.LNX.4.64.0604261330310.20897@schroedinger.engr.sgi.com>
+References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org>
+ <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org>
+ <Pine.LNX.4.64.0604261130450.19587@schroedinger.engr.sgi.com>
+ <20060426114737.239806a2.akpm@osdl.org> <20060426184945.GL5002@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 01:21:33PM -0700, Chandra Seetharaman wrote:
+Dave: Can you tell us more about the tree_lock contentions on I/O that you 
+have seen?
+
+On Wed, 26 Apr 2006, Jens Axboe wrote:
+
+> On Wed, Apr 26 2006, Andrew Morton wrote:
+> > Christoph Lameter <clameter@sgi.com> wrote:
+> > >
+> > > On Wed, 26 Apr 2006, Andrew Morton wrote:
+> > > 
+> > > > OK.  That doesn't sound like something which a real application is likely
+> > > > to do ;)
+> > > 
+> > > A real application scenario may be an application that has lots of threads 
+> > > that are streaming data through multiple different disk channels (that 
+> > > are able to transfer data simultanouesly. e.g. connected to different 
+> > > nodes in a NUMA system) into the same address space.
+> > > 
+> > > Something like the above is fairly typical for multimedia filters 
+> > > processing large amounts of data.
 > > 
-> > The problem we ran into was some of the startup code depends on the notifier
-> > call chain for smp bringup, hence we couldn't nuke it similar to 
-> > hotcpu_notifier().
+> > >From the same file?
+> > 
+> > To /dev/null?
 > 
-> I do not understand the problem. If everybody that uses
-> register_cpu_notifier() starts using __cpuinit and __cpuinitdata (or the
-> devinit siblings), then the notifier mechanism will not be any different
-> than what they are now, right ? (both in hotplug cpu and non-hotplug cpu
-> case) Or am i missing something ?
-
-Well, register_cpu_notifier() is an exported function. There are several 
-modules that use this today like cpufreq etc which disqualifies it to be
-a init style function.
-
-either that function should be devinit and be present premanently, or
-should be mapped to null macro for correctness.
-
-Otherwise module loaders will start to oops when they call into 
-register.
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+> /dev/null doesn't have much to do with it, other than the fact that it
+> basically stresses only the input side of things. Same file is the
+> interesting bit of course, as that's the the granularity of the
+> tree_lock.
+> 
+> I haven't tested much else, I'll ask the tool to bench more files :)
+> 
+> -- 
+> Jens Axboe
+> 
+> 

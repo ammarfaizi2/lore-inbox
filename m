@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbWD0NBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbWD0NFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965031AbWD0NBv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 09:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbWD0NBv
+	id S965026AbWD0NFF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 09:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbWD0NFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 09:01:51 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:37786 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965031AbWD0NBv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 09:01:51 -0400
-Date: Thu, 27 Apr 2006 14:01:50 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Tom Horsley <tom.horsley@ccur.com>
+	Thu, 27 Apr 2006 09:05:05 -0400
+Received: from mail.ccur.com ([66.10.65.12]:54121 "EHLO mail.ccur.com")
+	by vger.kernel.org with ESMTP id S965026AbWD0NFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 09:05:04 -0400
+Subject: Re: CLONE_NEWNS and mount command?
+From: Tom Horsley <tom.horsley@ccur.com>
+To: Al Viro <viro@ftp.linux.org.uk>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        bugsy <bugsy@ccur.com>
-Subject: Re: CLONE_NEWNS and mount command?
-Message-ID: <20060427130149.GP27946@ftp.linux.org.uk>
+In-Reply-To: <20060427130149.GP27946@ftp.linux.org.uk>
 References: <1146142640.23667.9.camel@tweety>
+	 <20060427130149.GP27946@ftp.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 27 Apr 2006 09:05:02 -0400
+Message-Id: <1146143102.23667.11.camel@tweety>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1146142640.23667.9.camel@tweety>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 08:57:20AM -0400, Tom Horsley wrote:
-> It disappeared from the mounts listed by the "mount" command
-> in both the old and new namespace, but if I attempted to remount
-> the system in the old namespace I get an error telling me it is
-> already mounted (even though it doesn't show up). In the new
-> namespace where I unmounted it, I can remount it (then it shows
-> up again in the mount listing in both namespaces).
-> 
-> Should the /proc/mounts file be paying more attention to this
-> "namespace" thing? Is this a bug, or just the way things happen
-> to work out?
+On Thu, 2006-04-27 at 14:01 +0100, Al Viro wrote:
+> Huh?  a) /proc/mounts is the list for namespace of one who'd opened it
+> (it's a symlink to /proc/self/mounts).  b) are you sure that you do
+> not simply end up with chewing shared /etc/mtab?
 
-Huh?  a) /proc/mounts is the list for namespace of one who'd opened it
-(it's a symlink to /proc/self/mounts).  b) are you sure that you do
-not simply end up with chewing shared /etc/mtab?
+Very possible if there really is an mtab file these days. I was
+sorta hoping that the mount command used the /proc/mounts. I should
+do my experiment again looking only at /proc/mounts I guess.
+
+If there is a bug, maybe it is that a /etc/mtab file exists
+at all :-).
+

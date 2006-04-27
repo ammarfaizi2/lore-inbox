@@ -1,98 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWD0Uft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751640AbWD0Uft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751441AbWD0Uft (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751640AbWD0Uft (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 27 Apr 2006 16:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751638AbWD0Uft
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWD0UeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 16:35:49 -0400
-Received: from xenotime.net ([66.160.160.81]:52182 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751635AbWD0Ufj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 16:35:39 -0400
-Date: Thu, 27 Apr 2006 13:38:01 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] add Doc/SubmitChecklist
-Message-Id: <20060427133801.526bba5b.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Apr 2006 16:34:05 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31495 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751399AbWD0Udy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 16:33:54 -0400
+Date: Thu, 27 Apr 2006 22:33:52 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/media/video/vivi.c: possible cleanups
+Message-ID: <20060427203352.GS3570@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+This patch contains the following possible cleanup:
+- make needlessly global functions static
+- remove unused #ifndef kzalloc kzalloc() #define
+- remove inline's from functions
 
-Provide a checklist of techniques to aid kernel patch
-submitters in producing healthy patches and in lessening
-a burden on maintainers.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- Documentation/SubmitChecklist |   56 ++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 56 insertions(+)
-
---- /dev/null
-+++ linux-2617-rc3/Documentation/SubmitChecklist
-@@ -0,0 +1,56 @@
-+Linux Kernel patch sumbittal checklist
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+
-+Here are some basic things that developers should do if they
-+want to see their kernel patch submittals accepted quicker.
-+
-+These are all above and beyond the documentation that is provided
-+in Documentation/SubmittingPatches and elsewhere about submitting
-+Linux kernel patches.
-+
-+
-+
-+- Builds cleanly with applicable or modified CONFIG options =y, =m, and =n.
-+  No gcc warnings/errors, no linker warnings/errors.
-+
-+- Passes allnoconfig, allmodconfig
-+
-+- Builds on multiple CPU arch-es by using local cross-compile tools
-+  or something like PLM at OSDL.
-+
-+- ppc64 is a good architecture for cross-compilation checking because it
-+  tends to use `unsigned long' for 64-bit quantities.
-+
-+- Matches kernel coding style(!)
-+
-+- Any new or modified CONFIG options don't muck up the config menu.
-+
-+- All new Kconfig options have help text.
-+
-+- Has been carefully reviewed with respect to relevant Kconfig
-+  combinations.  This is very hard to get right with testing --
-+  brainpower pays off here.
-+
-+- Check cleanly with sparse.
-+
-+- Use 'make checkstack' and 'make namespacecheck' and fix any
-+  problems that they find.  Note:  checkstack does not point out
-+  problems explicitly, but any one function that uses more than
-+  512 bytes on the stack is a candidate for change.
-+
-+- Include kernel-doc to document global kernel APIs.  (Not required
-+  for static functions, but OK there also.)  Use 'make htmldocs'
-+  or 'make mandocs' to check the kernel-doc and fix any issues.
-+
-+- Has been tested with CONFIG_PREEMPT, CONFIG_DEBUG_SLAB,
-+  CONFIG_DEBUG_PAGEALLOC, CONFIG_DEBUG_MUTEXES, CONFIG_DEBUG_SPINLOCK,
-+  CONFIG_DEBUG_SPINLOCK_SLEEP all simultaneously enabled.
-+
-+- Has been build- and runtime tested with and without CONFIG_SMP and
-+  CONFIG_PREEMPT.
-+
-+- If the patch affects IO/Disk, etc: has been tested with and without
-+  CONFIG_LBD.
-+
-+
-+2006-APR-27
-
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
+
+This patch was already sent on:
+- 19 Apr 2006
+
+ drivers/media/video/vivi.c |   44 ++++++++++++++-----------------------
+ 1 file changed, 17 insertions(+), 27 deletions(-)
+
+--- linux-2.6.17-rc1-mm3-full/drivers/media/video/vivi.c.old	2006-04-18 21:39:05.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/drivers/media/video/vivi.c	2006-04-18 21:43:48.000000000 +0200
+@@ -47,16 +47,6 @@
+ 
+ #include "font.h"
+ 
+-#ifndef kzalloc
+-#define kzalloc(size, flags)                            \
+-({                                                      \
+-	void *__ret = kmalloc(size, flags);             \
+-	if (__ret)                                      \
+-		memset(__ret, 0, size);                 \
+-	__ret;                                          \
+-})
+-#endif
+-
+ MODULE_DESCRIPTION("Video Technology Magazine Virtual Video Capture Board");
+ MODULE_AUTHOR("Mauro Carvalho Chehab, Ted Walther and John Sokol");
+ MODULE_LICENSE("Dual BSD/GPL");
+@@ -247,7 +237,8 @@
+ #define TSTAMP_MAX_Y TSTAMP_MIN_Y+15
+ #define TSTAMP_MIN_X 64
+ 
+-void prep_to_addr(struct sg_to_addr to_addr[],struct videobuf_buffer *vb)
++static void prep_to_addr(struct sg_to_addr to_addr[],
++			 struct videobuf_buffer *vb)
+ {
+ 	int i, pos=0;
+ 
+@@ -258,7 +249,7 @@
+ 	}
+ }
+ 
+-inline int get_addr_pos(int pos, int pages, struct sg_to_addr to_addr[])
++static int get_addr_pos(int pos, int pages, struct sg_to_addr to_addr[])
+ {
+ 	int p1=0,p2=pages-1,p3=pages/2;
+ 
+@@ -279,8 +270,8 @@
+ 	return (p1);
+ }
+ 
+-void gen_line(struct sg_to_addr to_addr[],int inipos,int pages,int wmax,
+-					int hmax, int line, char *timestr)
++static void gen_line(struct sg_to_addr to_addr[],int inipos,int pages,int wmax,
++		     int hmax, int line, char *timestr)
+ {
+ 	int  w,i,j,pos=inipos,pgpos,oldpg,y;
+ 	char *p,*s,*basep;
+@@ -490,7 +481,7 @@
+ 		dprintk(1,"%s: %d buffers handled (should be 1)\n",__FUNCTION__,bc);
+ }
+ 
+-void vivi_sleep(struct vivi_dmaqueue  *dma_q)
++static void vivi_sleep(struct vivi_dmaqueue  *dma_q)
+ {
+ 	int timeout;
+ 	DECLARE_WAITQUEUE(wait, current);
+@@ -525,7 +516,7 @@
+ 	try_to_freeze();
+ }
+ 
+-int vivi_thread(void *data)
++static int vivi_thread(void *data)
+ {
+ 	struct vivi_dmaqueue  *dma_q=data;
+ 
+@@ -541,7 +532,7 @@
+ 	return 0;
+ }
+ 
+-int vivi_start_thread(struct vivi_dmaqueue  *dma_q)
++static int vivi_start_thread(struct vivi_dmaqueue  *dma_q)
+ {
+ 	dma_q->frame=0;
+ 	dma_q->ini_jiffies=jiffies;
+@@ -559,7 +550,7 @@
+ 	return 0;
+ }
+ 
+-void vivi_stop_thread(struct vivi_dmaqueue  *dma_q)
++static void vivi_stop_thread(struct vivi_dmaqueue  *dma_q)
+ {
+ 	dprintk(1,"%s\n",__FUNCTION__);
+ 	/* shutdown control thread */
+@@ -665,8 +656,7 @@
+ 	return 0;
+ }
+ 
+-void
+-free_buffer(struct videobuf_queue *vq, struct vivi_buffer *buf)
++static void free_buffer(struct videobuf_queue *vq, struct vivi_buffer *buf)
+ {
+ 	dprintk(1,"%s\n",__FUNCTION__);
+ 
+@@ -790,8 +780,8 @@
+ 	free_buffer(vq,buf);
+ }
+ 
+-int vivi_map_sg (void *dev, struct scatterlist *sg, int nents,
+-	   int direction)
++static int vivi_map_sg(void *dev, struct scatterlist *sg, int nents,
++		       int direction)
+ {
+ 	int i;
+ 
+@@ -807,15 +797,15 @@
+ 	return nents;
+ }
+ 
+-int vivi_unmap_sg(void *dev,struct scatterlist *sglist,int nr_pages,
+-					int direction)
++static int vivi_unmap_sg(void *dev,struct scatterlist *sglist,int nr_pages,
++			 int direction)
+ {
+ 	dprintk(1,"%s\n",__FUNCTION__);
+ 	return 0;
+ }
+ 
+-int vivi_dma_sync_sg(void *dev,struct scatterlist *sglist,int nr_pages,
+-					int direction)
++static int vivi_dma_sync_sg(void *dev,struct scatterlist *sglist, int nr_pages,
++			    int direction)
+ {
+ //	dprintk(1,"%s\n",__FUNCTION__);
+ 
+@@ -899,7 +889,7 @@
+ 	return 1;
+ }
+ 
+-static inline int res_locked(struct vivi_dev *dev)
++static int res_locked(struct vivi_dev *dev)
+ {
+ 	return (dev->resources);
+ }
+

@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbWD0KQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbWD0KSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965071AbWD0KQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 06:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbWD0KQ6
+	id S965076AbWD0KSA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 06:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWD0KSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 06:16:58 -0400
-Received: from ns2.suse.de ([195.135.220.15]:63209 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965071AbWD0KQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 06:16:57 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc2-mm1
-References: <20060427014141.06b88072.akpm@osdl.org>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Apr 2006 12:16:56 +0200
-In-Reply-To: <20060427014141.06b88072.akpm@osdl.org>
-Message-ID: <p73vesv727b.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 27 Apr 2006 06:18:00 -0400
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:5506 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S965076AbWD0KR7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 06:17:59 -0400
+Date: Thu, 27 Apr 2006 03:17:34 -0700
+From: Chris Wright <chrisw@sous-sol.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Ken Brush <kbrush@gmail.com>, Neil Brown <neilb@suse.de>,
+       Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
+       James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org
+Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+Message-ID: <20060427101734.GH3026@sorel.sous-sol.org>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <17487.61698.879132.891619@cse.unsw.edu.au> <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com> <200604270615.20554.ak@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604270615.20554.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
+* Andi Kleen (ak@suse.de) wrote:
+> > > 3/ Is AppArmour's approach of using d_path to get a filename from a
+> > >    dentry valid and acceptable? 
 > 
-> 
-> - It took six hours work to get this release building and linking in just a
->   basic fashion on eight-odd architectures.  It's getting out of control.
+> I suppose it needs at least to use the proper vfsmounts instead of
+> walking the global list. That would need better hooks. And probably 
+> some caching (trying to match dentries directly?) to get better performance.
 
-We all appreciate your hard work.
- 
->   The acphphp driver is still broken and v4l and memory hotplug are, I
->   suspect, only hanging in there by the skin of their teeth.
-> 
->   Could patch submitters _please_ be a lot more careful about getting the
->   Kconfig correct, testing various Kconfig combinations (yes sometimes
->   people will want to disable your lovely new feature) and just generally
->   think about these things a bit harder?  It isn't rocket science.
+Yes, walking the list is ugly.  I think you'd wind up having to pin
+those dentries in memory (or do what DTE tried with a shadow tree).
 
-Is this something that could be automated with some machine power? 
+> Regarding the basic use of pathnames I don't see a big problem. After
+> all the kernel uses dentries for everything too and dentries are
+> just a special form of path name too.
 
-e.g. every time a patch is added a small cluster could build the patches
-with some configurations on various architectures and if it doesn't build 
-autoflame the patch submitter.
+The biggest issue with pathnames is they are non-determinstic,
+esp. when recreated after the fact using d_path.  So the pathname as
+object argument makes sense when talking about objects (vfsmont/dentry),
+not strings (d_path).  Also, when mediating solely on pathname it's very
+difficult to reason about the contents of the inode that's pointed to by
+the pathname.  This means that policy which allows a subject the ability
+to write to the object whose handle is /tmp/my_unimportant_tmpfile may be
+a security problem if somebody in the system was tricked into a simple 'ln
+/etc/shadow /tmp/my_unimportant_tmpfile.'  In this case it's surprising
+that the same inode can have different permissions (esp. given traditional
+DAC uid/gid and mode bits are kept in inode) depending upon path taken.
 
-We use this in SUSE for the SUSE kernels and it works quite well.
+The AA stance is that the policy will protect the confined process from
+doing such namespace manipulations eliminating the possibiilty of the
+confined process and giving itself a mechanism to privilege escalation.
+This is reasonable with the caveat that the channels available to the
+confined process to collude with (or coerce) an unconfined process are
+still pretty high-bandwidth.  One could argue that having unconfined
+processes is ill-advised.  SELinux targeted policy has the same basic
+issue (channel richness notwithstanding), which is why I'd expect truely
+security sensitive environments would use a strict policy.
 
-Maybe someone could contribute the build power needed for that. I suppose
-it could be done by just a few scripts listening to mm-commits?
+I guess it's worth noting the AA atack is stopped by SELinux, while the
+opposite is also true.  A 'cp /etc/shadow /tmp; mv /tmp/shadow /etc' done
+by an unconfined process doesn't effect AA, while it kills the type
+label on /etc/shadow and could be an effective policy breach.  In each
+case somewhat subtle (i.e. not explicit relabel or policy change) can
+have holes.
 
--Andi
-
+thanks,
+-chris

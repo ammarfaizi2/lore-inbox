@@ -1,89 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWD0Tes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWD0Tmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbWD0Tes (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 15:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWD0Tes
+	id S1030211AbWD0Tmc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 15:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWD0Tmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 15:34:48 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:54923 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964928AbWD0Tes (ORCPT
+	Thu, 27 Apr 2006 15:42:31 -0400
+Received: from xenotime.net ([66.160.160.81]:59369 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964928AbWD0Tmb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 15:34:48 -0400
-Message-ID: <44511CCF.1080504@engr.sgi.com>
-Date: Thu, 27 Apr 2006 12:34:39 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: balbir@in.ibm.com
-Cc: Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [Patch 5/8] taskstats interface
-References: <444991EF.3080708@watson.ibm.com> <444996FB.8000103@watson.ibm.com> <44501A97.2060104@engr.sgi.com> <445041EB.7080205@watson.ibm.com> <20060427064237.GA14496@in.ibm.com> <445104DC.90401@engr.sgi.com> <20060427182719.GC14496@in.ibm.com>
-In-Reply-To: <20060427182719.GC14496@in.ibm.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 27 Apr 2006 15:42:31 -0400
+Date: Thu, 27 Apr 2006 12:44:52 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: checklist (Re: 2.6.17-rc2-mm1)
+Message-Id: <20060427124452.432ad80d.rdunlap@xenotime.net>
+In-Reply-To: <200604272126.30683.ak@suse.de>
+References: <20060427014141.06b88072.akpm@osdl.org>
+	<p73vesv727b.fsf@bragg.suse.de>
+	<20060427121930.2c3591e0.akpm@osdl.org>
+	<200604272126.30683.ak@suse.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Balbir,
 
-Balbir Singh wrote:
->>Are TASKSTATS_GENL_VERSION and TASKSTATS_VERSION the same thing?
->>If they are meant to serve different purposes, we still need it.
->>
+> > So at this point in time what I'd like to do is to encourage developers to
+> > do these very basic things.  That's the low-hanging fruit right now.
 > 
-> 
-> Yes, thats true. But for now from what I can see, one version should
-> be sufficient.
+> Write a checklist for that?
 
-If we envision a need of it in the future, we'd better put it in
-today. It would be nice to have the revision number at beginning of
-the struct. Shailabh's instruction says to add new field after existing
-fields.
+I've been meaning to write up one myself, so I'll give it a shot.
 
-> 
-> <snip> 
-> 
-> 
->>I was thinking of a bitmask thing. But instead of keying specific
->>fields, one bit may be used to key delay accounting, and another bit
->>for CSA, el at. This way you do not need to have CSA-specifc fields
->>in the payload and applications know how to correctly interpret the
->>payload. Taskstats and application do not need to have knowledge of
->>accounting packages, only need to set the bitmasks correctly.
->>
-> 
-> 
-> Yes, but scanning the entire payload for various types is also feasible. It is
-> a bit slow, but feasible and generally the recommended approach for
-> dealing with genetlink types. What you are saying is still possible, the
-> application can ignore types it does not understand.
-> 
-> 
->>When we start sending sys stats of each tasks to userland, that is
->>s lot of data. Note that BSD accounting even uses encode_comp_t()
->>routine to compress data into a 13-bit fraction with 3-bit exponent
->>field to shrink its size. Even though you do not need to care
->>about those zero's in taskstats, they still need to be delievered
->>through netlink socket.
-> 
-> 
-> Yes, thats true. We can leave the decision of compressing, etc to the
-> specific subsystem. It can encode it and the user level application
-> can decode the data.
+This is all above and beyond good patch log descriptions.
 
-I am sorry that i did not make myself clear. My suggestion of using
-the bitmask payload info is to be combined with #ifdef CONFIG_* to
-eliminate unnecessary fields from the traffic. I am concerned about
-losing data due to application not reading data fast enough.
 
-Well, we can revisit this suggestion when we start losing data
-though. ;-)
+1.  Build cleanly with applicable or modified CONFIG options =y, =m, and =n.
+    No gcc warnings/errors, no linker warnings/errors.
 
-Regards,
-  - jay
+2.  Build on multiple CPU arch-es by using local cross-compile tools
+    or something like PLM at OSDL.
 
+3.  Check cleanly with sparse.
+
+4.  Make sure that any new or modified CONFIG options don't muck up
+    the config menu.
+
+5.  Use 'make checkstack' and 'make namespacecheck' and fix any
+    problems that they find.  Note:  checkstack does not point out
+    problems explicitly, but any one function that uses more than
+    512 bytes on the stack is a candidate for change.
+
+6.  Include kernel-doc to document global kernel APIs.  (Not required
+    for static functions, but OK there also.)  Use 'make htmldocs'
+    or 'make mandocs' to check the kernel-doc and fix any issues.
+
+
+---
+~Randy

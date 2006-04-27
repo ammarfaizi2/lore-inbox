@@ -1,98 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbWD0Ny3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWD0N4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965104AbWD0Ny3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 09:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWD0Ny3
+	id S965051AbWD0N4H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 09:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWD0N4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 09:54:29 -0400
-Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:4746
-	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S965051AbWD0Ny2
+	Thu, 27 Apr 2006 09:56:07 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8676 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S965051AbWD0N4F
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 09:54:28 -0400
-From: Michael Buesch <mb@bu3sch.de>
-To: Roman Kononov <kononov195-far@yahoo.com>
+	Thu, 27 Apr 2006 09:56:05 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Avi Kivity <avi@argo.co.il>
 Subject: Re: C++ pushback
-Date: Thu, 27 Apr 2006 15:58:46 +0200
-User-Agent: KMail/1.9.1
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44505891.8080300@yahoo.com>
-In-Reply-To: <44505891.8080300@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
+Date: Thu, 27 Apr 2006 16:55:48 +0300
+User-Agent: KMail/1.8.2
+Cc: Kyle Moffett <mrmacman_g4@mac.com>,
+       Roman Kononov <kononov195-far@yahoo.com>,
+       LKML Kernel <linux-kernel@vger.kernel.org>
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il>
+In-Reply-To: <44507BB9.7070603@argo.co.il>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5882120.UtbjVi2nQC";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200604271558.46212.mb@bu3sch.de>
+Content-Disposition: inline
+Message-Id: <200604271655.48757.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5882120.UtbjVi2nQC
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thursday 27 April 2006 11:07, Avi Kivity wrote:
+> C++ compilation isn't slower because the compiler has to recognize more 
+> keywords. It's slower because it is doing more for you: checking types 
+> (C++ code is usually free of void *'s except for raw data) and expanding 
 
-On Thursday 27 April 2006 07:37, you wrote:
-> > If C++ doesn't work=20
-> > properly for a simple and clean example like struct list_head, why=20
-> > should we assume that it's going to work any better for more complicate=
-d=20
-> > examples in the rest of the kernel?  Whether or not some arbitrary=20
-> > function is inlined should be totally orthogonal to adding type-checkin=
-g.
->=20
-> You misunderstood something. The struct list_head is indeed a perfect=20
-> type to be templatized with all members inlined. C++ works properly in=20
-> this case.
+Today's C is much better at typechecking than ancient K&R C.
 
-I am not sure, if you can relieably use the container_of() magic
-in C++. Do you know?
-I have a C++ linked list example here:
-http://websvn.kde.org/trunk/extragear/security/pwmanager/pwmanager/libpwman=
-ager/linkedlist.h?rev=3D421676&view=3Dmarkup
-It is very simple and in some points different from the kernel
-linked lists. It has a separate "head" and "entry" class and it stores
-a pointer to the entry (the kernel linked lists would use container_of()
-instead)
+> those 4-line function to their 14-line goto-heavy equivalents.
 
-> Nothing works by default. I did not say that static constructors are=20
-> advantageous. I said that it is easy for the kernel to make static=20
-> constructors working. Global variables should be deprecated anyway.
+Where do you see goto-heavy code in kernel?
 
-You are kidding. Must be...
+> > Ok, help me understand here:  Instead of helping using one sensible 
+> > data structure and generating optimized code for that, the language 
+> > actively _encourages_ you to duplicate classes and interfaces, 
+> > providing even _more_ work for the compiler, making the code harder to 
+> > debug, and probably introducing inefficiencies as well.  If C++ 
+> > doesn't work properly for a simple and clean example like struct 
+> > list_head, why should we assume that it's going to work any better for 
+> > more complicated examples in the rest of the kernel?  Whether or not 
+> > some arbitrary function is inlined should be totally orthogonal to 
+> > adding type-checking.
+> 
+> C++ works excellently for things like list_head. The generated code is 
+> as efficient or better that the C equivalent,
 
-> > Plus this would=20
-> > break things like static spinlock initialization.  How would you make=20
-> > this work sanely for this static declaration:
-> >=20
-> > spinlock_t foo_lock =3D SPIN_LOCK_UNLOCKED;
-> >=20
-> > Under C that turns into (depending on config options):
-> >=20
-> > spinlock_t foo_lock =3D { .value =3D 0, .owner =3D NULL, (...) };
->=20
-> I would make it exactly like this:
-> 	#define SPIN_LOCK_UNLOCKED (spinlock_t){0,-1,whatever}
-> 	spinlock_t foo_lock=3DSPIN_LOCK_UNLOCKED;
-> This is easy to change. The empty structures look far more painful.
+"or better" part is pure BS, because there is no magic C++ compiler
+can possibly do which is not implementable in C.
 
-The lack of named initializers is one of the main reasons (for me)
-why C++ damn sucks. Hopefully they will include them in the
-next C++ standard.
+"as efficient", hmmm, let me see... gcc 3.4.3, presumably an contemporary
+C++ compiler, i.e. which is "rather good".
 
-=2D-=20
-Greetings Michael.
+Random example. gcc-3.4.3/include/g++-v3/bitset:
 
---nextPart5882120.UtbjVi2nQC
-Content-Type: application/pgp-signature
+  template<size_t _Nw>
+    struct _Base_bitset
+    {
+      typedef unsigned long _WordT;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+      /// 0 is the least significant word.
+      _WordT            _M_w[_Nw];
 
-iD8DBQBEUM4Wlb09HEdWDKgRAg8CAKCz/0BrBOtBIBkkOjt1p6TSpIyusACeL2h6
-FmzetV3ugDpECx8B18WbJIg=
-=Gd4M
------END PGP SIGNATURE-----
+      _Base_bitset() { _M_do_reset(); }
+...
+      void
+      _M_do_set()
+      {
+        for (size_t __i = 0; __i < _Nw; __i++)
+          _M_w[__i] = ~static_cast<_WordT>(0);
+      }
+      void
+      _M_do_reset() { memset(_M_w, 0, _Nw * sizeof(_WordT)); }
+...
 
---nextPart5882120.UtbjVi2nQC--
+A global or static variable of _Base_bitset or derived type
+would need an init function?! Why not just preset sequence of
+zeroes in data section?
+[this disproves that C++ is very efficient]
+
+Why _M_do_set() doesn't use memset()?
+Why _M_do_reset() is not inlined?
+[this disproves that today's C++ libs are well-written]?
+
+> and the API is *much*  
+> cleaner. You can iterate over a list without knowing the name of the 
+> field which contains your list_head (and possibly getting it wrong if 
+> there is more than one).
+
+But kernel folks tend to *want to know* everything, including
+names of the fields.
+
+> > How could that possibly work in C++ given what you've said?  Anything 
+> > that breaks code that simple is an automatic nonstarter for the 
+> > kernel.  Also remember that spinlocks are defined preinitialized at 
+> > the very earliest stages of init.  Of course I probably don't have to 
+> > say that anything that tries to run a function to iterate over all 
+> > statically-allocated spinlocks during init would be rejected out of hand.
+> 
+> Why would it be rejected?
+> 
+> A static constructor is just like a module init function. Why are 
+> modules not rejected out of hand?
+
+Because we do not like init functions which can be eliminated.
+That's bloat.
+--
+vda

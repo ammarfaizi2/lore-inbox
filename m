@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWD0TH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWD0TKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWD0TH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 15:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWD0TH6
+	id S1750934AbWD0TKg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 15:10:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWD0TKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 15:07:58 -0400
-Received: from pat.uio.no ([129.240.10.6]:40846 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750868AbWD0TH5 (ORCPT
+	Thu, 27 Apr 2006 15:10:36 -0400
+Received: from usea-naimss1.unisys.com ([192.61.61.103]:26640 "EHLO
+	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
+	id S1750933AbWD0TKf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 15:07:57 -0400
-Subject: Re: Why the RPC task structure adds a new field "tk_count"?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4ae3c140604271132u1f2db743t20aeb94993938086@mail.gmail.com>
-References: <4ae3c140604271132u1f2db743t20aeb94993938086@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 27 Apr 2006 15:07:46 -0400
-Message-Id: <1146164866.8101.46.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.821, required 12,
-	autolearn=disabled, AWL 1.18, UIO_MAIL_IS_INTERNAL -5.00)
+	Thu, 27 Apr 2006 15:10:35 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Date: Thu, 27 Apr 2006 14:10:30 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0B9F@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Thread-Index: AcZpMSEVs1tnMAkRRMKEWo8DYGUTlwACHdnAADruSwAAAgyb4A==
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Brown, Len" <len.brown@intel.com>, <sergio@sergiomb.no-ip.org>
+Cc: "Kimball Murray" <kimball.murray@gmail.com>,
+       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <ak@suse.de>,
+       <kmurray@redhat.com>, <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 27 Apr 2006 19:10:31.0631 (UTC) FILETIME=[40E335F0:01C66A2E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-27 at 14:32 -0400, Xin Zhao wrote:
-> I migrate from 2.6.11 to 2.6.16, but found that a new field tk_count
-> was added to the rpc task structure. In function rpc_release_task(), I
-> saw the following code:
 > 
-> 	if (!atomic_dec_and_test(&task->tk_count))
-> 		return;
+> >There are probably better ways to control 224 possible IRQs by their 
+> >total number instead of their range, and per-cpu IDTs are the better 
+> >answer to the IRQ shortage altogether. But just going back 
+> to the way 
+> >it was wouldn't be right I think.
+> >We were able to run 2 generations of
+> >systems only because we had this compression, other big systems 
+> >benefited from it as well.
 > 
+> I don't propose reverting the IRQ re-name patch and breaking 
+> the big iron without replacing it with something else that works.
+
+Len, maybe it sounds dramatic and/or extreme, but how about getting rid
+of IRQs and just having GSI-vector pair.
+I intuitively think that would be possible (not that I have all the
+details lined up :)
+And this would probably take away confusing IRQ abstraction out once and
+for all? I think something like that is done in ia64.
+
+--Natalie 
 > 
-> Looks like a task can be reused or refered multiple times? What's the
-> theory behind this? Why do we need this?
-
-It is used in several places in the NFSv4 code.
-
-Cheers,
-  Trond
-
+> My point is that the re-name patch has added unnecessary 
+> maintenance complexity to the 99.9% of systems that it runs 
+> on.  We pay that price in several ways, including 
+> mis-understandings about what devices are on what irqs, and 
+> mis-understandings about how the code is supposed to work.
+> 
+> -Len
+> 

@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWD0JHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbWD0JIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbWD0JHo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 05:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWD0JHn
+	id S964994AbWD0JIT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 05:08:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWD0JIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 05:07:43 -0400
-Received: from main.gmane.org ([80.91.229.2]:41945 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964992AbWD0JHn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 05:07:43 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: C++ pushback
-Date: Thu, 27 Apr 2006 15:09:28 +0600
-Message-ID: <e2q1iu$357$1@sea.gmane.org>
-References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>	<mj+md-20060424.201044.18351.atrey@ucw.cz>	<444D44F2.8090300@wolfmountaingroup.com>	<1145915533.1635.60.camel@localhost.localdomain> <20060425001617.0a536488@werewolf.auna.net>
+	Thu, 27 Apr 2006 05:08:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:43746 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964994AbWD0JIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 05:08:18 -0400
+Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <20060427085614.GE3570@stusta.de>
+References: <1146046118.7016.5.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.58.0604261354310.9797@sbz-30.cs.Helsinki.FI>
+	 <1146049414.7016.9.camel@laptopd505.fenrus.org>
+	 <20060426110656.GD29108@wohnheim.fh-wedel.de>
+	 <Pine.LNX.4.58.0604270853510.20454@sbz-30.cs.Helsinki.FI>
+	 <445061DC.5030008@yahoo.com.au>
+	 <Pine.LNX.4.58.0604270926380.20454@sbz-30.cs.Helsinki.FI>
+	 <1146120640.2894.1.camel@laptopd505.fenrus.org>
+	 <20060427083157.GD3570@stusta.de>
+	 <1146127273.2894.21.camel@laptopd505.fenrus.org>
+	 <20060427085614.GE3570@stusta.de>
+Content-Type: text/plain
+Date: Thu, 27 Apr 2006 11:08:05 +0200
+Message-Id: <1146128885.2894.27.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 212.220.94.19
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
-In-Reply-To: <20060425001617.0a536488@werewolf.auna.net>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> Tell me what is the difference between:
+On Thu, 2006-04-27 at 10:56 +0200, Adrian Bunk wrote:
+> On Thu, Apr 27, 2006 at 10:41:12AM +0200, Arjan van de Ven wrote:
+> > On Thu, 2006-04-27 at 10:31 +0200, Adrian Bunk wrote:
+> > > On Thu, Apr 27, 2006 at 08:50:40AM +0200, Arjan van de Ven wrote:
+> > > > On Thu, 2006-04-27 at 09:28 +0300, Pekka J Enberg wrote:
+> > > > > On Thu, 27 Apr 2006, Nick Piggin wrote:
+> > > > > > Not to dispute your conclusions or method, but I think doing a
+> > > > > > defconfig or your personal config might be more representative
+> > > > > > of % size increase of text that will actually be executed. And
+> > > > > > that is the expensive type of text.
+> > > > > 
+> > > > > True but I was under the impression that Arjan thought we'd get text 
+> > > > > savings with GCC 4.1 by making kfree() inline.
+> > > > 
+> > > > not savings in text size, I'll settle for the same size.
+> > > >...
+> > > 
+> > > It will always be bigger since there are cases where it's unknown at 
+> > > compile time whether it will be NULL when called.
+> > 
+> > if it's "unknown" you could call into a separate kfree() which does
+> > check out of line. (sure that's a dozen bytes bigger but that is
+> > noise ;)
 > 
-> 
->     sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
->     if (!sbi)
->         return -ENOMEM;
->     sb->s_fs_info = sbi;
->     memset(sbi, 0, sizeof(*sbi));
->     sbi->s_mount_opt = 0;
->     sbi->s_resuid = EXT3_DEF_RESUID;
->     sbi->s_resgid = EXT3_DEF_RESGID;
-> 
-> and
-> 
->     SuperBlock() : s_mount_opt(0), s_resuid(EXT3_DEF_RESUID), s_resgid(EXT3_DEF_RESGID)
->     {}
-> 
->     ...
->     sbi = new SuperBlock;
->     if (!sbi)
->         return -ENOMEM;
-> 
-> apart that you don't get members initalized twice and get a shorter code :).
+> It's noise and _much work.
 
-The second example is simply incorrect, because the operator new throws an 
-exception when we run out of memory, instead of returning a null pointer.
-
-So it has to be written as:
-
-sbi = new SuperBlock;
-/* The rest of code assumes that the sbi pointer is valid. If this was not the 
-case, let's hope that the caller caught std::bad_alloc properly */
-
--- 
-Alexander E. Patrakov
+not if the compiler can do it. The *compiler* knows a lot (4.1 at
+least)..
 

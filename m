@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWD0Lo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWD0Loy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWD0Lo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 07:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWD0Lo2
+	id S964955AbWD0Loy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 07:44:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbWD0Loy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 07:44:28 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:11868 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964976AbWD0Lo2 (ORCPT
+	Thu, 27 Apr 2006 07:44:54 -0400
+Received: from vsmtp12.tin.it ([212.216.176.206]:58256 "EHLO vsmtp12.tin.it")
+	by vger.kernel.org with ESMTP id S964955AbWD0Lox (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 07:44:28 -0400
-Date: Thu, 27 Apr 2006 13:45:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, npiggin@suse.de,
-       linux-mm@kvack.org
-Subject: Re: Lockless page cache test results
-Message-ID: <20060427114506.GE23137@suse.de>
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426185750.GM5002@suse.de> <20060427111937.deeed668.kamezawa.hiroyu@jp.fujitsu.com> <20060427080316.GL9211@suse.de> <20060427111625.GD23137@suse.de> <20060427204132.2150e5cb.kamezawa.hiroyu@jp.fujitsu.com>
+	Thu, 27 Apr 2006 07:44:53 -0400
+Message-ID: <10adb253380.hansanita3@virgilio.it>
+Date: Thu, 27 Apr 2006 12:39:09 +0100 (GMT+01:00)
+From: <hansanita3@virgilio.it>
+Reply-To: <hansanita3@virgilio.it>
+Subject: Ref No;ILPB642857301
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060427204132.2150e5cb.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: 193.173.20.130
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27 2006, KAMEZAWA Hiroyuki wrote:
-> On Thu, 27 Apr 2006 13:16:25 +0200
-> Jens Axboe <axboe@suse.de> wrote:
-> 
-> > Added, 1 vs 2/3/4 clients isn't very interesting, so to keep it short
-> > here are numbers for 2 clients to /dev/null and localhost.
-> > 
-> Thank you! looks splice has significant advantage :)
-> 
-> > Sending to /dev/null
-> > 
-> > ml370:/data # ./splice-bench -n2 -l10 -a -s -z file
-> > Waiting for clients
-> > Client1 (splice): 19030 MiB/sec (10240MiB in 551 msecs)
-> > Client0 (splice): 18961 MiB/sec (10240MiB in 553 msecs)
-> This maybe shows cost of gathering page-cache.
+Inorbit Promotion BV,
+Hovanstraat 28-35,
+3025RH, Rotterdam.
+Royal Dutch 
+Republic.
 
-Precisely, it's basically the cost of looking up the pages and adding
-them to the pipe.
+Ref No;ILPB642857301,
+Ticket No;483752202ch
 
-> > Client1 (mmap): 158875 MiB/sec (10240MiB in 66 msecs)
-> > Client0 (mmap): 158875 MiB/sec (10240MiB in 66 msecs)
-> This shows read/write system-call and user program cost. right ?
+This is to 
+inform you that, base on our  yearly draw of Inorbit 
+Promotion BV 
+carried out on the 24th, April 2006, your e-mail 
+address attached with 
+the above ticket No. popped out in the third 
+stake.
 
-It shows the cost of write()'ing the mmap'ed file area to /dev/null.
+This 
+automatically declares you the winner of our third prize of 
+Eight 
+Hundred and Fifty Thousand Dollars(US$850,000:00) in the open 
+charity 
+ballot device.
 
-> > Client1 (rw): 1691 MiB/sec (10240MiB in 6200 msecs)
-> > Client0 (rw): 1690 MiB/sec (10240MiB in 6201 msecs)
-> > 
-> This shows 10240MiB copy_to_user() cost.
-> BTW, How big are cpu-cache-size and read/write buffer size in this test ?
+The source of fund is majorly from well meaning 
+companies and 
+humananitarian sprited industries selected from european 
+community.
 
-This was done on a xeon with 2mb l2. The buffers size used was 64k in
-all cases.
+Be informed that in line with the sponsors' regulation, you 
+are to 
+contribute a substantial amount(at least 10%) to a recognized 
+non-governmental charity project in your environment.
 
-> > Sending/receiving over lo
-> > 
-> read from a file and write to lo ?
+This should be 
+given only after your fund has been acknowledged by you.
 
-I'd rather say input is a file and output is a socket going to lo, that
-is a little more precisely given the differing methods the clients use.
-But I suspect this is what you meant.
+Application 
+and inquiries should be forwarded to Mrs Juliana Van 
+Dijk via e-mail; 
+(dijk_juliana@inorbit.com).
 
--- 
-Jens Axboe
+Accept my heart felt congratulations.
+
+Mrs. Anita Hans
+PS:Kindly state your Ticket No in your expected 
+application.
 

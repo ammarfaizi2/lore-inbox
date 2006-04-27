@@ -1,88 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbWD0Rjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWD0Rqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965168AbWD0Rjh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 13:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbWD0Rjg
+	id S965002AbWD0Rqs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 13:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWD0Rqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 13:39:36 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:8373 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S965047AbWD0Rjf (ORCPT
+	Thu, 27 Apr 2006 13:46:48 -0400
+Received: from gate.crashing.org ([63.228.1.57]:19087 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965002AbWD0Rqs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 13:39:35 -0400
-Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11]
-	security: AppArmor - Overview
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ken Brush <kbrush@gmail.com>
-Cc: Neil Brown <neilb@suse.de>, Chris Wright <chrisw@sous-sol.org>,
-       James Morris <jmorris@namei.org>,
-       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-In-Reply-To: <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	 <20060420192717.GA3828@sorel.sous-sol.org>
-	 <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060421173008.GB3061@sorel.sous-sol.org>
-	 <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil>
-	 <17484.20906.122444.964025@cse.unsw.edu.au>
-	 <1145911526.14804.71.camel@moss-spartans.epoch.ncsc.mil>
-	 <17485.55676.177514.848509@cse.unsw.edu.au>
-	 <1145984831.21399.74.camel@moss-spartans.epoch.ncsc.mil>
-	 <17487.61698.879132.891619@cse.unsw.edu.au>
-	 <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Thu, 27 Apr 2006 13:43:53 -0400
-Message-Id: <1146159833.5238.95.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Apr 2006 13:46:48 -0400
+Date: Thu, 27 Apr 2006 12:43:31 -0500 (CDT)
+From: Kumar Gala <galak@kernel.crashing.org>
+X-X-Sender: galak@gate.crashing.org
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+cc: linux-pci@atrey.karlin.mff.cuni.cz, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] PCI: Add pci_assign_resource_fixed -- allow fixed address
+ assignments
+Message-ID: <Pine.LNX.4.44.0604271242410.25641-100000@gate.crashing.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-26 at 16:06 -0700, Ken Brush wrote:
-> On 4/26/06, Neil Brown <neilb@suse.de> wrote:
-> >
-> > I feel we have reached the stage where the questions/comments being
-> > made are actually directly relevant to AppArmor.  I'm afraid I cannot
-> > proceed any further now because I am not a security expert.
-> >
-> > I would like to summarise what I think are the key points that you
-> > have raised, and hope that someone who has a deeper understanding of
-> > these things might answer them, or point to answers.
-> >
-> > 1/ Does AppArmor's primary mechanism of confining an application to a
-> >   superset of it's expected behaviour actually achieve its secondary
-> >   gaol of protecting data?
-> >
-> >   Possibly it would be better to ask "When does ..."  as I think it is
-> >   easy to imagine application/profile pairs that clearly cannot allow
-> >   harm, and application/profile pairs that clearly could allow harm.
-> 
-> Depends on the data. A properly constrained Apache webserver would be
-> prevented from accessing data it shouldn't.
+On some embedded systems the PCI address for hotplug devices are not only
+known a priori but are required to be at a given PCI address for other
+master in the system to be able to access.
 
-No, it wouldn't.  The question itself is flawed - it presumes that AA
-does confine the application to its expected behavior.  But with
-incomplete mediation and ambiguous identifiers, there is no such
-guarantee.  No profile will meet the "clearly cannot allow harm"
-definition, because not all operations are controlled by it and of the
-operations that are controlled, the actual objects are not clearly
-identified, so harm is still possible.
+An example of such a system would be an FPGA which is setup from user space
+after the system has booted.  The FPGA may be access by DSPs in the system
+and those DSPs expect the FPGA at a fixed PCI address.
 
-> > 2/ What advantages does AppArmor provide over techniques involving
-> >    virtualisation or gaol mechanisms?  Are these advantages worth
-> >    while?
-> 
-> If you just wish to run every application in a chrooted jail. Would
-> you still need a MAC solution?
+Added pci_assign_resource_fixed() as a way to allow assignment of the PCI
+devices's BARs at fixed PCI addresses.
 
-If your goal is purely isolation, then virtualization may fit your
-needs.  If you want to support controlled sharing of data while still
-ensuring that certain confidentiality and integrity goals are met, then
-you want a MAC mechanism.  But AA really isn't a MAC mechanism, despite
-what its documentation may say.
+Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
--- 
-Stephen Smalley
-National Security Agency
+---
+commit cb0b39d6c2f3986dd86976062b0f899fa35358ae
+tree 4b0af5b9d630113fd4fdcfb35b61313f2b3efb41
+parent 2be4d50295e2b6f62c07b614e1b103e280dddb84
+author Kumar Gala <galak@kernel.crashing.org> Thu, 27 Apr 2006 12:45:02 -0500
+committer Kumar Gala <galak@kernel.crashing.org> Thu, 27 Apr 2006 12:45:02 -0500
+
+ drivers/pci/pci.c       |    1 +
+ drivers/pci/setup-res.c |   35 +++++++++++++++++++++++++++++++++++
+ include/linux/pci.h     |    1 +
+ 3 files changed, 37 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 2329f94..5dc7c14 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -947,6 +947,7 @@ EXPORT_SYMBOL_GPL(pci_intx);
+ EXPORT_SYMBOL(pci_set_dma_mask);
+ EXPORT_SYMBOL(pci_set_consistent_dma_mask);
+ EXPORT_SYMBOL(pci_assign_resource);
++EXPORT_SYMBOL(pci_assign_resource_fixed);
+ EXPORT_SYMBOL(pci_find_parent_resource);
+ 
+ EXPORT_SYMBOL(pci_set_power_state);
+diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+index ea9277b..f485958 100644
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -155,6 +155,41 @@ int pci_assign_resource(struct pci_dev *
+ 	return ret;
+ }
+ 
++int pci_assign_resource_fixed(struct pci_dev *dev, int resno)
++{
++	struct pci_bus *bus = dev->bus;
++	struct resource *res = dev->resource + resno;
++	unsigned int type_mask;
++	int i, ret = -EBUSY;
++
++	type_mask = IORESOURCE_IO | IORESOURCE_MEM | IORESOURCE_PREFETCH;
++
++	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
++		struct resource *r = bus->resource[i];
++		if (!r)
++			continue;
++
++		/* type_mask must match */
++		if ((res->flags ^ r->flags) & type_mask)
++			continue;
++
++		ret = request_resource(r, res);
++
++		if (ret == 0)
++			break;
++	}
++
++	if (ret) {
++		printk(KERN_ERR "PCI: Failed to allocate %s resource #%d:%lx@%lx for %s\n",
++		       res->flags & IORESOURCE_IO ? "I/O" : "mem",
++		       resno, res->end - res->start + 1, res->start, pci_name(dev));
++	} else if (resno < PCI_BRIDGE_RESOURCES) {
++		pci_update_resource(dev, res, resno);
++	}
++
++	return ret;
++}
++
+ /* Sort resources by alignment */
+ void __devinit
+ pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 3a6a4e3..704dae3 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -496,6 +496,7 @@ int pci_set_dma_mask(struct pci_dev *dev
+ int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
+ void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno);
+ int pci_assign_resource(struct pci_dev *dev, int i);
++int pci_assign_resource_fixed(struct pci_dev *dev, int i);
+ void pci_restore_bars(struct pci_dev *dev);
+ 
+ /* ROM control related routines */
+
 

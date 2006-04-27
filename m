@@ -1,35 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965127AbWD0O3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWD0OjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965127AbWD0O3T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 10:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbWD0O3S
+	id S965043AbWD0OjX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 10:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWD0OjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 10:29:18 -0400
-Received: from [211.106.62.73] ([211.106.62.73]:49927 "HELO email.it")
-	by vger.kernel.org with SMTP id S965128AbWD0O3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 10:29:18 -0400
-Message-ID: <D541C76C.BD3C3E2@email.it>
-Date: Fri, 28 Apr 2006 00:11:23 +0900
-From: "Emmett" <bbcsvvp@email.it>
-User-Agent: Mozilla 4.73 [de]C-CCK-MCD DT  (Win98; U)
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-hams@vger.kernel.org>
-Subject: is it me you looking for?
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+	Thu, 27 Apr 2006 10:39:23 -0400
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:15746 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S965043AbWD0OjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 10:39:23 -0400
+To: jeff@garzik.org
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+In-reply-to: <44509DF8.20107@garzik.org> (message from Jeff Garzik on Thu, 27
+	Apr 2006 06:33:28 -0400)
+Subject: Re: [git patch] fuse fixes
+References: <E1FYJ0r-0006Tv-00@dorka.pomaz.szeredi.hu> <444FD204.7040708@garzik.org> <E1FYzgA-0002V4-00@dorka.pomaz.szeredi.hu> <44509DF8.20107@garzik.org>
+Message-Id: <E1FZ7dq-0003A5-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 27 Apr 2006 16:38:50 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello my dear friend
-I was looking through the web few weaeks ago and found 
-ayour profile. Now I decided to email you to get to know
-youb bbetter. I am coming to your country in few weeks
-and thoubght may be we can meetb each other. I am pretty
-looking girl. I am 25. Do not reply to this address 
-directly.a Email me back at fleag@popmailme.com
+> >> This function is called from everywhere, and so, it looks like it should 
+> >> use SLAB_NOFS rather than SLAB_KERNEL.  I would audit every GFP_KERNEL 
+> >> and SLAB_KERNEL usage, and consider replacing with SLAB_NOFS or GFP_NOFS.
+> > 
+> > GFP_NOFS doesn't make much sense, since mm never calls back into FUSE
+> > anyway: FUSE writes through the page-cache, and hence never dirties
+> > any pages.
+> > 
+> > I'll add a comment to fuse_request_alloc().
+> 
+> If you're using loop, particularly something insane like swapping over 
+> loop, "the path" will certainly want to know that its passing through 
+> the VFS layer, regardless of specific page cache behavior, AFAICS.
 
+IIRC "loop" decouples the base filesystem from any user of the loop
+device by a kernel thread and mediating buffers.
 
+Miklos

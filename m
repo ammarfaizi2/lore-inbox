@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWD0OjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWD0Ojj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965043AbWD0OjX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 10:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWD0OjX
+	id S965038AbWD0Ojj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 10:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWD0Ojj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 10:39:23 -0400
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:15746 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S965043AbWD0OjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 10:39:23 -0400
-To: jeff@garzik.org
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
-In-reply-to: <44509DF8.20107@garzik.org> (message from Jeff Garzik on Thu, 27
-	Apr 2006 06:33:28 -0400)
-Subject: Re: [git patch] fuse fixes
-References: <E1FYJ0r-0006Tv-00@dorka.pomaz.szeredi.hu> <444FD204.7040708@garzik.org> <E1FYzgA-0002V4-00@dorka.pomaz.szeredi.hu> <44509DF8.20107@garzik.org>
-Message-Id: <E1FZ7dq-0003A5-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 27 Apr 2006 16:38:50 +0200
+	Thu, 27 Apr 2006 10:39:39 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:36852 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S965038AbWD0Oji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 10:39:38 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 05/16] ehca: InfiniBand query and multicast functionality
+Date: Thu, 27 Apr 2006 16:39:25 +0200
+User-Agent: KMail/1.9.1
+Cc: J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       Heiko J Schick <schihei@de.ibm.com>, openib-general@openib.org,
+       Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       Jeremy Kerr <jk@ozlabs.org>
+References: <4450A17D.4030708@de.ibm.com> <200604271405.36588.arnd@arndb.de> <20060427134525.GA20966@infradead.org>
+In-Reply-To: <20060427134525.GA20966@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604271639.26235.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> This function is called from everywhere, and so, it looks like it should 
-> >> use SLAB_NOFS rather than SLAB_KERNEL.  I would audit every GFP_KERNEL 
-> >> and SLAB_KERNEL usage, and consider replacing with SLAB_NOFS or GFP_NOFS.
-> > 
-> > GFP_NOFS doesn't make much sense, since mm never calls back into FUSE
-> > anyway: FUSE writes through the page-cache, and hence never dirties
-> > any pages.
-> > 
-> > I'll add a comment to fuse_request_alloc().
+On Thursday 27 April 2006 15:45, Christoph Hellwig wrote:
+
+> It's linewrapped here, too.  And the mailer on this box hasn't changed
+> for more than three years.  OTOH I got strangely looking mails from
+> you recently :)
 > 
-> If you're using loop, particularly something insane like swapping over 
-> loop, "the path" will certainly want to know that its passing through 
-> the VFS layer, regardless of specific page cache behavior, AFAICS.
+> 
+Hmm. I don't see line wrap problems on
+http://patchwork.ozlabs.org/linuxppc/patch?id=5174 . Maybe I'm just
+blind.
 
-IIRC "loop" decouples the base filesystem from any user of the loop
-device by a kernel thread and mediating buffers.
+However, /something/ went wrong with the way the patch
+showed up there. Half of it ended up in the comment section
+instead of the patch itself.
 
-Miklos
+	Arnd <><

@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWD0AFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWD0AF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWD0AFi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 20:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWD0AFi
+	id S1751303AbWD0AF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 20:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWD0AF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 20:05:38 -0400
-Received: from ms-smtp-01.southeast.rr.com ([24.25.9.100]:5579 "EHLO
-	ms-smtp-01.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S1751309AbWD0AFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 20:05:37 -0400
-Subject: s390 lcs incorrect test
-From: Greg Smith <gsmith@nc.rr.com>
-To: linux-kernel@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, pavlic@de.ibm.com
-Content-Type: text/plain
-Date: Wed, 26 Apr 2006 20:05:30 -0400
-Message-Id: <1146096330.3012.58.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Apr 2006 20:05:26 -0400
+Received: from t3inc.us ([66.250.45.69]:129 "EHLO www.t3inc.us")
+	by vger.kernel.org with ESMTP id S1751303AbWD0AFZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 20:05:25 -0400
+Date: Wed, 26 Apr 2006 18:05:20 -0600
+From: kyle@pbx.org
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Heikki Orsila <shd@zakalwe.fi>, Willy Tarreau <willy@w.ods.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: accept()ing socket connections with level triggered epoll
+Message-ID: <20060427000520.GA10880@www.t3inc.us>
+References: <20060426205557.GA5483@www.t3inc.us> <Pine.LNX.4.64.0604261411460.16727@alien.or.mcafeemobile.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0604261411460.16727@alien.or.mcafeemobile.com>
+User-Agent: mutt-ng/devel-r796 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While debugging why our LCS emulator is having some problems I noticed
-the following weirdness in drivers/s390/net/lcs.c routine lcs_irq:
+On Wed, Apr 26, 2006 at 03:14:16PM -0700, Davide Libenzi wrote:
+> 
+> Correct, if it's LT you have to get the event because before returning from 
+> epoll_wait(), the event is automatically re-armed if f_op->poll() returns it. 
+> Can you post the *minimal* test code for this case?
+> 
+> - Davide
+> 
 
---- lcs.c.orig	2006-04-24 16:20:24.000000000 -0400
-+++ lcs.c	2006-04-26 19:56:45.000000000 -0400
-@@ -1354,7 +1354,7 @@
- 		index = (struct ccw1 *) __va((addr_t) irb->scsw.cpa) 
- 			- channel->ccws;
- 		if ((irb->scsw.actl & SCSW_ACTL_SUSPENDED) ||
--		    (irb->scsw.cstat | SCHN_STAT_PCI))
-+		    (irb->scsw.cstat & SCHN_STAT_PCI))
- 			/* Bloody io subsystem tells us lies about cpa... */
- 			index = (index - 1) & (LCS_NUM_BUFFS - 1);
- 		while (channel->io_idx != index) {
+I tried reducing the code I have to the minimum necessary to demonstrate the
+problem.  It went away, I'm afraid.  Since I'm already aware of a workaround
+(call accept in a loop until you get EAGAIN), I guess I'll just forget about
+it.  Unfortunately I can't post the full code, not that you'd want to dig
+through all of it anyway.
 
-The `if' statement is always true since SCHN_STAT_PCI is defined as
-0x80.  Don't know if this has anything to do with our LCS problems but
-thought I would pass it on.
+Thanks to everyone that responded.
 
-Greg Smith
-
-
+Kyle
+<kyle@pbx.org>

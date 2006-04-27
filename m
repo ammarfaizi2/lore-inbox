@@ -1,65 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751686AbWD0VXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbWD0V1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751686AbWD0VXa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 17:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWD0VXa
+	id S1751687AbWD0V1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 17:27:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751689AbWD0V1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 17:23:30 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:62198 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751685AbWD0VXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 17:23:30 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=OFuAwgP35iIqte70hQ6lxt/sInaS+8eRhG1ypSvAeAhubRAz0qxCbfK8EhXzNeW5g
-	yUBJbIpOirrlQDc/V6Fsg==
-Message-ID: <44513624.4040801@google.com>
-Date: Thu, 27 Apr 2006 14:22:44 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: checklist (Re: 2.6.17-rc2-mm1)
-References: <20060427014141.06b88072.akpm@osdl.org> <200604272156.11606.ak@suse.de> <445130E7.3060402@google.com> <200604272211.41923.ak@suse.de>
-In-Reply-To: <200604272211.41923.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Apr 2006 17:27:25 -0400
+Received: from main.gmane.org ([80.91.229.2]:47557 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751685AbWD0V1Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 17:27:24 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Heiko J Schick <info@schihei.de>
+Subject: Re: [PATCH 01/16] ehca: integration in Linux kernel	build system
+Date: Thu, 27 Apr 2006 23:26:59 +0200
+Message-ID: <e2rcv0$920$1@sea.gmane.org>
+References: <4450B384.4020601@de.ibm.com> <200604271307.36987.arnd.bergmann@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p50814d44.dip.t-dialin.net
+User-Agent: Unison/1.7.5
+Cc: linuxppc-dev@ozlabs.org, openib-general@openib.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thursday 27 April 2006 23:00, Martin Bligh wrote:
-> 
->>>Some Unixes have a cstyle(1). Maybe there is a free variant of it
->>>somewhere. But such a tool might put a lot of people on l-k out of job @)
->>
->>heh. we could do some basic stuff at least. run through lindent, and see
->>if it changes ;-)
-> 
-> Good luck weeding out the false positives from that.
+On 2006-04-27 13:07:36 +0200, Arnd Bergmann <arnd.bergmann@de.ibm.com> said:
 
-Yes, I was joking.
+> It would be more practical to put this patch last instead of
+> first so you don't break the build system with partial applies.
 
->>Can't tell whether that was meant to be positive or negative feedback.
->>All this would require is "email patch to test-thingy@test.kernel.org".
-> 
-> 
-> I meant it would be better if it happened automatically when the patch
-> is submitted through the normal channels.
+I agree. I Will change set for the next patchset.
 
-It would, and it pretty much does right now, in that we test -mm
-(OK, we don't run sparse, but that's easy to fix). What I was trying to
-do was take the burden off Andrew for handling the testing of every
-single patch, which means getting the developer to deal with it.
-Personally, I don't think "please email your patch in for automated
-testing" is too much to ask from them.
 
-It'd be easy to make the automated tester forward it to Andrew or
-whatever, if it passed the tests.
-
-M.

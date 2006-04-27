@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWD0HbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWD0Has@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWD0HbV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 03:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWD0HbV
+	id S1751260AbWD0Has (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 03:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWD0Has
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 03:31:21 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28939 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932388AbWD0HbU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 03:31:20 -0400
-Date: Fri, 21 Apr 2006 08:43:24 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Ondrej Zary <linux@rainbow-software.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: Re: Trying to get swsusp working on DTK FortisPro TOP-5A notebook
-Message-ID: <20060421084323.GA2376@ucw.cz>
-References: <444E4F4C.1030509@rainbow-software.org>
+	Thu, 27 Apr 2006 03:30:48 -0400
+Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:52942 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S1751260AbWD0Har (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 03:30:47 -0400
+To: adilger@clusterfs.com
+Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [UPDATE][14/21]e2fsprogs modify variables to exceed 2G
+Message-Id: <20060427163038sho@rifu.tnes.nec.co.jp>
 Mime-Version: 1.0
+X-Mailer: WeMail32[2.51] ID:1K0086
+From: sho@tnes.nec.co.jp
+Date: Thu, 27 Apr 2006 16:30:38 +0900
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <444E4F4C.1030509@rainbow-software.org>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 25-04-06 18:33:16, Ondrej Zary wrote:
-> Hello,
-> I'm trying to get swsusp working on my DTK FortisPro 
-> TOP-5A notebook. I compiled 2.6.16 kernel with drivers 
-> compiled in (ES1869 sound, TI CardBus, Xircom PCMCIA 
-> ethernet, Orinoco wifi and maybe something more). There 
-> is no ACPI as BIOS does not support it. The problem is 
-> that when I do "echo disk >/sys/power/state", it refuses 
-> to suspend:
-> 
-> Stopping tasks: =============================|
-> Shrinking memory... done (8698 pages freed)
-> pnp: Device 00:19 disabled.
-> pnp: Failed to disable device 00:16.
-> Could not suspend device 00:16: error -5
-> pnp: Device 00:19 activated.
-> PCI: Found IRQ 11 for device 0000:00:01.2
-> PCI: Found IRQ 9 for device 0000:00:0e.0
-> PCI: Found IRQ 11 for device 0000:00:0e.1
-> eth0: autonegotiation failed; using 10mbs
-> eth0: MII selected
-> eth0: media 10BaseT, silicon revision 4
-> Some devices failed to suspend
-> Restarting tasks... done
-> 
-> 
-> Device 00:19 is gameport of the sound card (it seems to 
-> suspend fine), however device 00:16 does not. It seems to 
-> be the synaptics touchpad:
+Thanks for your comment, Andreas
 
-rmmod touchpad driver before suspend; if it helps, fix psmouse.
+On Apr 26, 2006, Andreas wrote:
+> > +	blk64_t	end, save_blocks_count, i;
+> > +		(EXT2_BLOCKS_PER_GROUP(fs->super) *
+> (__u64)fs->group_desc_count) - 1;
+> > +	blk64_t         start_blk, last_blk;
+> > +	last_blk = (__u64) group_blk +
+> fs->super->s_blocks_per_group - 1;
+> >  
+> > +		start_blk = (__u64) group_blk +
+> fs->inode_blocks_per_group;
+> 
+> If a variable is declared as blk64_t it should be cast to
+> (blk64_t) instead of (__u64) I think.
 
--- 
-Thanks, Sharp!
+I see your point.  I checked the whole patches, and found other places.
+And now I resend 4 update-patches.
+
+Cheers, sho

@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965146AbWD0PKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbWD0PMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965146AbWD0PKU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbWD0PKU
+	id S965148AbWD0PMg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbWD0PMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:10:20 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:38792 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S965146AbWD0PKT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:10:19 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Avi Kivity <avi@argo.co.il>
-Subject: Re: Compiling C++ modules
-Date: Thu, 27 Apr 2006 18:10:07 +0300
-User-Agent: KMail/1.8.2
-Cc: dtor_core@ameritech.net, Kyle Moffett <mrmacman_g4@mac.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com> <444E61FD.7070408@argo.co.il>
-In-Reply-To: <444E61FD.7070408@argo.co.il>
+	Thu, 27 Apr 2006 11:12:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54213 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965148AbWD0PMf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 11:12:35 -0400
+Date: Thu, 27 Apr 2006 08:12:28 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+In-Reply-To: <44505B59.1060308@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0604270804420.3701@g5.osdl.org>
+References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org>
+ <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org>
+ <Pine.LNX.4.64.0604261144290.3701@g5.osdl.org> <44505B59.1060308@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604271810.07575.vda@ilport.com.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 April 2006 20:53, Avi Kivity wrote:
-> Very often one needs to acquire a resource, do something with it, and 
-> then free the resource. Here, "resource" can mean a file descriptor, a 
-> reference into a reference counted object, or, in our case, a spinlock. 
-> And we want "free" to mean "free no matter what", e.g. on a normal path 
-> or an exception path.
 
-...
 
-> Additionally, C++ guarantees that if an exception is thrown after 
-> spin_lock() is called, then the spin_unlock() will also be called. 
-> That's an interesting mechanism by itself.
+On Thu, 27 Apr 2006, Nick Piggin wrote:
+> > 
+> > Of course, with small files, the actual filename lookup is likely to be the
+> > real limiter.
+> 
+> Although that's lockless so it scales. find_get_page will overtake it
+> at some point.
 
-Life gets even more interesting when you hit another exception
-inside destructor(s) being executed due to first one.
-Say, spin_unlock() discovers that lock is already unlocked
-and does "throw BUG_double_unlock".
+filename lookup is only lockless for independent files. You end up getting 
+the "dentry->d_lock" for a successful lookup in the lookup path, so if you 
+have multiple threads looking up the same files (or - MUCH more commonly - 
+directories), you're not going to be lockless.
 
-Even if you
-(a) remember what standard says about it
-(b) implemented nested exception handling correctly,
-	then you are still left with
-(c) let's pray gcc has no bugs in stack unwinding
-    and nested exceptions and nested destructor calls.
+I don't know how we could improve it. I've several times thought that we 
+_should_ be able to do the directory lookups under the rcu read lock and 
+never touch their d_count or d_lock at all, but the locking against 
+directory renaming depends very intimately on d_lock.
 
-Mozilla crashes over such things. For Mozilla, crash is not
-*that* catastrophic. For OS kernel, it is.
---
-vda
+It is _possible_ that we should be able to handle it purely with just 
+memory ordering rather than depending on d_lock. That would be wonderful.
+
+Of course, we do actually scale pretty damn well already. I'm just saying 
+that it's not perfect.
+
+See __d_lookup() for details.
+
+			Linus

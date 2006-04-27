@@ -1,80 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWD0ENZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWD0EPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964925AbWD0ENZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 00:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbWD0ENZ
+	id S964923AbWD0EPm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 00:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWD0EPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 00:13:25 -0400
-Received: from narn.hozed.org ([209.234.73.39]:21656 "EHLO narn.hozed.org")
-	by vger.kernel.org with ESMTP id S964922AbWD0ENY (ORCPT
+	Thu, 27 Apr 2006 00:15:42 -0400
+Received: from mx2.suse.de ([195.135.220.15]:37067 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964923AbWD0EPl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 00:13:24 -0400
-Date: Wed, 26 Apr 2006 23:13:24 -0500
-From: Troy Benjegerdes <hozer@hozed.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: mst@mellanox.co.il, rick.jones2@hp.com, netdev@vger.kernel.org,
-       rdreier@cisco.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: TSO and IPoIB performance degradation
-Message-ID: <20060427041323.GX15855@narn.hozed.org>
-References: <20060320090629.GA11352@mellanox.co.il> <20060320.015500.72136710.davem@davemloft.net> <20060320102234.GV29929@mellanox.co.il> <20060320.023704.70907203.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 Apr 2006 00:15:41 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Ken Brush" <kbrush@gmail.com>
+Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+Date: Thu, 27 Apr 2006 06:15:19 +0200
+User-Agent: KMail/1.9.1
+Cc: "Neil Brown" <neilb@suse.de>, "Stephen Smalley" <sds@tycho.nsa.gov>,
+       "Chris Wright" <chrisw@sous-sol.org>,
+       "James Morris" <jmorris@namei.org>,
+       "Arjan van de Ven" <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <17487.61698.879132.891619@cse.unsw.edu.au> <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
+In-Reply-To: <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060320.023704.70907203.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200604270615.20554.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 20, 2006 at 02:37:04AM -0800, David S. Miller wrote:
-> From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-> Date: Mon, 20 Mar 2006 12:22:34 +0200
-> 
-> > Quoting r. David S. Miller <davem@davemloft.net>:
-> > > The path an SKB can take is opaque and unknown until the very last
-> > > moment it is actually given to the device transmit function.
-> > 
-> > Why, I was proposing looking at dst cache. If that's NULL, well,
-> > we won't stretch ACKs. Worst case we apply the wrong optimization.
-> > Right?
-> 
-> Where you receive a packet from isn't very useful for determining
-> even the full patch on which that packet itself flowed.
-> 
-> More importantly, packets also do not necessarily go back out over the
-> same path on which packets are received for a connection.  This is
-> actually quite common.
-> 
-> Maybe packets for this connection come in via IPoIB but go out via
-> gigabit ethernet and another route altogether.
-> 
-> > What I'd like to clarify, however: rfc2581 explicitly states that in
-> > some cases it might be OK to generate ACKs less frequently than
-> > every second full-sized segment. Given Matt's measurements, TCP on
-> > top of IP over InfiniBand on Linux seems to hit one of these cases.
-> > Do you agree to that?
-> 
-> I disagree with Linux changing it's behavior.  It would be great to
-> turn off congestion control completely over local gigabit networks,
-> but that isn't determinable in any way, so we don't do that.
-> 
-> The IPoIB situation is no different, you can set all the bits you want
-> in incoming packets, the barrier to doing this remains the same.
-> 
-> It hurts performance if any packet drop occurs because it will require
-> an extra round trip for recovery to begin to be triggered at the
-> sender.
-> 
-> The network is a black box, routes to and from a destination are
-> arbitrary, and so is packet rewriting and reflection, so being able to
-> say "this all occurs on IPoIB" is simply infeasible.
-> 
-> I don't know how else to say this, we simply cannot special case IPoIB
-> or any other topology type.
+On Thursday 27 April 2006 01:06, Ken Brush wrote:
 
-David is right. If you care about performance, you are already using SDP
-or verbs layer for the transport anyway. If I am going to be doing IPoIB,
-it's because eventually I expect the packet might get off the IB network
-and onto some other network and go halfway across the country.
+> > 2/ What advantages does AppArmor provide over techniques involving
+> >    virtualisation or gaol mechanisms?  Are these advantages worth
+> >    while?
 
+I would guess the advantage is easier administration. e.g. I always
+found it a PITA to synchronize files like /etc/resolv.conf and similar
+files into chroots.
+
+It's similar as to why managing a single machine is much easier
+than a cluster. Chroots already get you many of the drawbacks from
+a cluster. That said it has its places, but chroot is not always
+the answer.
+
+> If you just wish to run every application in a chrooted jail. Would
+> you still need a MAC solution?
+
+Current chroot is probably not strong enough - if someone gets root
+inside it it is easy to escape.
+
+> > 3/ Is AppArmour's approach of using d_path to get a filename from a
+> >    dentry valid and acceptable? 
+
+I suppose it needs at least to use the proper vfsmounts instead of
+walking the global list. That would need better hooks. And probably 
+some caching (trying to match dentries directly?) to get better performance.
+
+Regarding the basic use of pathnames I don't see a big problem. After
+all the kernel uses dentries for everything too and dentries are
+just a special form of path name too.
+
+-Andi

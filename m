@@ -1,56 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbWD0SAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWD0SDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965018AbWD0SAT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 14:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWD0SAS
+	id S965047AbWD0SDN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 14:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWD0SDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 14:00:18 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3334 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965018AbWD0SAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 14:00:17 -0400
-Date: Thu, 27 Apr 2006 20:00:15 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Manoj Naik <manoj@almaden.ibm.com>,
-       Trond Myklebust <Trond.Myklebust@netapp.com>
+	Thu, 27 Apr 2006 14:03:13 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:5266 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965047AbWD0SDM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 14:03:12 -0400
+Date: Thu, 27 Apr 2006 14:02:27 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Matthieu CASTET <castet.matthieu@free.fr>
 Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] fs/nfs/inode.c: make nfs_follow_referral()
-Message-ID: <20060427180015.GI3570@stusta.de>
-References: <20060427014141.06b88072.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: 2.6.17-rc2-mm1
+Message-ID: <20060427180227.GA1404@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060427014141.06b88072.akpm@osdl.org> <pan.2006.04.27.15.47.20.688183@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060427014141.06b88072.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <pan.2006.04.27.15.47.20.688183@free.fr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 01:41:41AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.17-rc1-mm3:
->...
->  git-nfs.patch
->...
->  git trees
->...
+On Thu, Apr 27, 2006 at 05:47:25PM +0200, Matthieu CASTET wrote:
+> Hi Andrew,
+> 
+> Le Thu, 27 Apr 2006 01:41:41 -0700, Andrew Morton a écrit :
+> 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
+> > 
+> 
+> 64 bit resources core changes in ioport.h break pnp sysfs interface.
+> 
+> A patch like this is needed.
+> 
+> Matthieu
+> 
+> Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
+> 
+> --- 1/drivers/pnp/interface.c	2006-01-03 04:21:10.000000000 +0100
+> +++ 2/drivers/pnp/interface.c	2006-04-14 22:54:45.000000000 +0200
+> @@ -264,7 +264,7 @@
+>  			if (pnp_port_flags(dev, i) & IORESOURCE_DISABLED)
+>  				pnp_printf(buffer," disabled\n");
+>  			else
+> -				pnp_printf(buffer," 0x%lx-0x%lx\n",
+> +				pnp_printf(buffer," 0x%llx-0x%llx\n",
+>  						pnp_port_start(dev, i),
+>  						pnp_port_end(dev, i));
 
+I think it would break on ppc64 as u64 is unsigned long. It should be
+explicitly typecasted to unsigned long long. Same is true for all the
+instances.
 
-This patch makes the needlessly global nfs_follow_referral() static.
+(unsigned long long) pnp_port_start(dev, i)
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+-vivek
 
---- linux-2.6.17-rc2-mm1-full/fs/nfs/inode.c.old	2006-04-27 19:45:08.000000000 +0200
-+++ linux-2.6.17-rc2-mm1-full/fs/nfs/inode.c	2006-04-27 19:45:26.000000000 +0200
-@@ -2677,8 +2677,9 @@
-  * @addr - host addr of new server
-  *
-  */
--struct vfsmount *nfs_follow_referral(const struct vfsmount *mnt_parent,
--	     const struct dentry *dentry, struct nfs4_fs_locations *locations)
-+static struct vfsmount *nfs_follow_referral(const struct vfsmount *mnt_parent,
-+					    const struct dentry *dentry,
-+					    struct nfs4_fs_locations *locations)
- {
- 	struct vfsmount *mnt = ERR_PTR(-ENOENT);
- 	struct nfs_clone_mount mountdata = {
-
+>  		}
+> @@ -275,7 +275,7 @@
+>  			if (pnp_mem_flags(dev, i) & IORESOURCE_DISABLED)
+>  				pnp_printf(buffer," disabled\n");
+>  			else
+> -				pnp_printf(buffer," 0x%lx-0x%lx\n",
+> +				pnp_printf(buffer," 0x%llx-0x%llx\n",
+>  						pnp_mem_start(dev, i),
+>  						pnp_mem_end(dev, i));
+>  		}
+> @@ -286,7 +286,7 @@
+>  			if (pnp_irq_flags(dev, i) & IORESOURCE_DISABLED)
+>  				pnp_printf(buffer," disabled\n");
+>  			else
+> -				pnp_printf(buffer," %ld\n",
+> +				pnp_printf(buffer," %lld\n",
+>  						pnp_irq(dev, i));
+>  		}
+>  	}
+> @@ -296,7 +296,7 @@
+>  			if (pnp_dma_flags(dev, i) & IORESOURCE_DISABLED)
+>  				pnp_printf(buffer," disabled\n");
+>  			else
+> -				pnp_printf(buffer," %ld\n",
+> +				pnp_printf(buffer," %lld\n",
+>  						pnp_dma(dev, i));
+>  		}
+>  	}
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

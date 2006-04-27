@@ -1,121 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWD0Rqs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWD0Rr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbWD0Rqs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 13:46:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWD0Rqs
+	id S965003AbWD0Rr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 13:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbWD0Rr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 13:46:48 -0400
-Received: from gate.crashing.org ([63.228.1.57]:19087 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965002AbWD0Rqs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 13:46:48 -0400
-Date: Thu, 27 Apr 2006 12:43:31 -0500 (CDT)
-From: Kumar Gala <galak@kernel.crashing.org>
-X-X-Sender: galak@gate.crashing.org
-To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-cc: linux-pci@atrey.karlin.mff.cuni.cz, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] PCI: Add pci_assign_resource_fixed -- allow fixed address
- assignments
-Message-ID: <Pine.LNX.4.44.0604271242410.25641-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 27 Apr 2006 13:47:59 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:8065 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965005AbWD0Rr6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 13:47:58 -0400
+Subject: [PATCH] slab: redzone double-free detection
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: akpm@osdl.org
+Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org
+Date: Thu, 27 Apr 2006 20:47:56 +0300
+Message-Id: <1146160076.11272.5.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On some embedded systems the PCI address for hotplug devices are not only
-known a priori but are required to be at a given PCI address for other
-master in the system to be able to access.
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-An example of such a system would be an FPGA which is setup from user space
-after the system has booted.  The FPGA may be access by DSPs in the system
-and those DSPs expect the FPGA at a fixed PCI address.
+This patch adds double-free detection to redzone verification when freeing
+an object. As explained by Manfred, when we are freeing an object, both
+redzones should be RED_ACTIVE. However, if both are RED_INACTIVE, we are
+trying to free an object that was already free'd.
 
-Added pci_assign_resource_fixed() as a way to allow assignment of the PCI
-devices's BARs at fixed PCI addresses.
-
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
-
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
-commit cb0b39d6c2f3986dd86976062b0f899fa35358ae
-tree 4b0af5b9d630113fd4fdcfb35b61313f2b3efb41
-parent 2be4d50295e2b6f62c07b614e1b103e280dddb84
-author Kumar Gala <galak@kernel.crashing.org> Thu, 27 Apr 2006 12:45:02 -0500
-committer Kumar Gala <galak@kernel.crashing.org> Thu, 27 Apr 2006 12:45:02 -0500
 
- drivers/pci/pci.c       |    1 +
- drivers/pci/setup-res.c |   35 +++++++++++++++++++++++++++++++++++
- include/linux/pci.h     |    1 +
- 3 files changed, 37 insertions(+), 0 deletions(-)
+ slab.c |   32 +++++++++++++++++++++++---------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 2329f94..5dc7c14 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -947,6 +947,7 @@ EXPORT_SYMBOL_GPL(pci_intx);
- EXPORT_SYMBOL(pci_set_dma_mask);
- EXPORT_SYMBOL(pci_set_consistent_dma_mask);
- EXPORT_SYMBOL(pci_assign_resource);
-+EXPORT_SYMBOL(pci_assign_resource_fixed);
- EXPORT_SYMBOL(pci_find_parent_resource);
- 
- EXPORT_SYMBOL(pci_set_power_state);
-diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
-index ea9277b..f485958 100644
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -155,6 +155,41 @@ int pci_assign_resource(struct pci_dev *
- 	return ret;
+diff --git a/mm/slab.c b/mm/slab.c
+index e6ef9bd..7d982c1 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -2585,6 +2585,28 @@ static void kfree_debugcheck(const void 
+ 	}
  }
  
-+int pci_assign_resource_fixed(struct pci_dev *dev, int resno)
++static inline void verify_redzone_free(struct kmem_cache *cache, void *obj)
 +{
-+	struct pci_bus *bus = dev->bus;
-+	struct resource *res = dev->resource + resno;
-+	unsigned int type_mask;
-+	int i, ret = -EBUSY;
++	unsigned long redzone1, redzone2;
 +
-+	type_mask = IORESOURCE_IO | IORESOURCE_MEM | IORESOURCE_PREFETCH;
++	redzone1 = *dbg_redzone1(cache, obj);
++	redzone2 = *dbg_redzone2(cache, obj);
 +
-+	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
-+		struct resource *r = bus->resource[i];
-+		if (!r)
-+			continue;
++	/*
++	 * Redzone is ok.
++	 */
++	if (redzone1 == RED_ACTIVE && redzone2 == RED_ACTIVE)
++		return;
 +
-+		/* type_mask must match */
-+		if ((res->flags ^ r->flags) & type_mask)
-+			continue;
++	if (redzone1 == RED_INACTIVE && redzone2 == RED_INACTIVE)
++		slab_error(cache, "double free detected");
++	else
++		slab_error(cache, "memory outside object was overwritten");
 +
-+		ret = request_resource(r, res);
-+
-+		if (ret == 0)
-+			break;
-+	}
-+
-+	if (ret) {
-+		printk(KERN_ERR "PCI: Failed to allocate %s resource #%d:%lx@%lx for %s\n",
-+		       res->flags & IORESOURCE_IO ? "I/O" : "mem",
-+		       resno, res->end - res->start + 1, res->start, pci_name(dev));
-+	} else if (resno < PCI_BRIDGE_RESOURCES) {
-+		pci_update_resource(dev, res, resno);
-+	}
-+
-+	return ret;
++	printk(KERN_ERR "%p: redzone 1:0x%lx, redzone 2:0x%lx.\n",
++			obj, redzone1, redzone2);
 +}
 +
- /* Sort resources by alignment */
- void __devinit
- pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 3a6a4e3..704dae3 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -496,6 +496,7 @@ int pci_set_dma_mask(struct pci_dev *dev
- int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
- void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno);
- int pci_assign_resource(struct pci_dev *dev, int i);
-+int pci_assign_resource_fixed(struct pci_dev *dev, int i);
- void pci_restore_bars(struct pci_dev *dev);
+ static void *cache_free_debugcheck(struct kmem_cache *cachep, void *objp,
+ 				   void *caller)
+ {
+@@ -2608,15 +2630,7 @@ static void *cache_free_debugcheck(struc
+ 	slabp = page_get_slab(page);
  
- /* ROM control related routines */
+ 	if (cachep->flags & SLAB_RED_ZONE) {
+-		if (*dbg_redzone1(cachep, objp) != RED_ACTIVE ||
+-				*dbg_redzone2(cachep, objp) != RED_ACTIVE) {
+-			slab_error(cachep, "double free, or memory outside"
+-						" object was overwritten");
+-			printk(KERN_ERR "%p: redzone 1:0x%lx, "
+-					"redzone 2:0x%lx.\n",
+-			       objp, *dbg_redzone1(cachep, objp),
+-			       *dbg_redzone2(cachep, objp));
+-		}
++		verify_redzone_free(cachep, objp);
+ 		*dbg_redzone1(cachep, objp) = RED_INACTIVE;
+ 		*dbg_redzone2(cachep, objp) = RED_INACTIVE;
+ 	}
 
 

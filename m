@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWD0HEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWD0HKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWD0HEg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 03:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWD0HEg
+	id S1751117AbWD0HKc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 03:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWD0HKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 03:04:36 -0400
-Received: from smtp-vbr12.xs4all.nl ([194.109.24.32]:30222 "EHLO
-	smtp-vbr12.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1751374AbWD0HEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 03:04:35 -0400
-Date: Thu, 27 Apr 2006 09:04:25 +0200
-From: bjdouma <bjdouma@xs4all.nl>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: PATCH: two additions to ./linux/Documentation/ioctl-number.txt
-Message-ID: <20060427070425.GA4892@skyscraper.unix9.prv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 Apr 2006 03:10:32 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:43946 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1750754AbWD0HKb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 03:10:31 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Simple header cleanups
+Date: Thu, 27 Apr 2006 10:10:06 +0300
+User-Agent: KMail/1.8.2
+Cc: David Woodhouse <dwmw2@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <1146104023.2885.15.camel@hades.cambridge.redhat.com> <1146107871.2885.60.camel@hades.cambridge.redhat.com> <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Disclaimer: sorry
-X-Operating-System: human brain v1.04E11
-Organization: A training zoo
-User-Agent: Mutt/1.5.11
+Message-Id: <200604271010.06711.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- ./linux/Documentation/ioctl-number.txt.orig	2006-01-04 03:04:44.000000000 +0100
-+++ ./linux/Documentation/ioctl-number.txt	2006-04-27 08:58:29.000000000 +0200
-@@ -87,7 +87,9 @@ Code	Seq#	Include File		Comments
- 					<mailto:maassen@uni-freiburg.de>
- 'C'	all	linux/soundcard.h
- 'D'	all	asm-s390/dasd.h
-+'E'	all	linux/input.h
- 'F'	all	linux/fb.h
-+'H'	all	linux/hiddev.h
- 'I'	all	linux/isdn.h
- 'J'	00-1F	drivers/scsi/gdth_ioctl.h
- 'K'	all	linux/kd.h
+On Thursday 27 April 2006 06:31, Linus Torvalds wrote:
+> 
+> On Thu, 27 Apr 2006, David Woodhouse wrote:
+> > 
+> > Agreed. And distributions and library maintainers _will_ fix them. Are
+> > we to deny those people the tools which will help them to keep track of
+> > our breakage and submit patches to fix it?
+> 
+> No. As mentioned, as long as the target audience is distributions and 
+> library maintainers, I definitely think we should do help them as much as 
+> possible. Our problems have historically been "random people" who have 
+> /usr/include/linux being the symlink to "kernel source of the day", which 
+> is an unsupportable situation.
 
-Nothing new, they just weren't present.
-The list may still not be complete.
+Maybe we should have a script which processes kernel's include/linux/*
+files and produces sanitized set of headers (by deleting
+"#ifdef __KERNEL__" blocks, etc), which will be treated at
+*the* official kernel<->userspace API and will be used by glibc etc?
 
-Regards,
+Such "kernel header sanitizator" script is to be maintained
+and distributed as part of kernel tree.
 
-Bauke Jan Douma
-
+glibc people will then know where to look/what part of kernel to patch
+if they will stumble on incorrect sanitized header. I.e., they will need
+to either fix original kernel header so that translation of it becomes ok
+(for example, a missing #ifdef __KERNEL) or by modifying
+sanitizator script.
+--
+vda

@@ -1,76 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWD0Gcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWD0Ghr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964964AbWD0Gcv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 02:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWD0Gcv
+	id S964965AbWD0Ghr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 02:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWD0Ghr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 02:32:51 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:28115 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S964964AbWD0Gcu
+	Thu, 27 Apr 2006 02:37:47 -0400
+Received: from wproxy.gmail.com ([64.233.184.227]:14751 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964965AbWD0Ghq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 02:32:50 -0400
-Date: Thu, 27 Apr 2006 08:32:49 +0200
-From: DervishD <lkml@dervishd.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: O_DIRECT, ext3fs, kernel 2.4.32... again
-Message-ID: <20060427063249.GH761@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 27 Apr 2006 02:37:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QPyTtxyaxAu/fYfYeh1GnQ6mShApt4RmVXN+Sg+Bks25s5ql62Rw5eC12T9ON8G/XRri0mRR8Eg4MNJ23vqKJYi378+J6oZFhUgMMONXmA34XfLTPrc/IuoWXIb+aQcPC39hh/S3IwBI0hkiU/rLyBYG2TmKVu+TGf+jl5E5xZI=
+Message-ID: <9cde8bff0604262337t3031928chcb96ba893a94e777@mail.gmail.com>
+Date: Thu, 27 Apr 2006 15:37:43 +0900
+From: "Nguyen Anh Quynh" <aquynh@gmail.com>
+To: "Matt Helsley" <matthltc@us.ibm.com>
+Subject: Re: [PATCH 02/02] Process Events - License Change
+Cc: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       "Guillaume Thouvenin" <guillaume.thouvenin@bull.net>
+In-Reply-To: <1145956350.28976.141.camel@stark>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+References: <1145956109.28976.133.camel@stark>
+	 <1145956350.28976.141.camel@stark>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :)
+Hi,
 
-    I don't know if the patch to backport O_DIRECT support for ext3
-under kernel 2.4.3x was finally accepted or not, but I'm having what
-I consider inconsistent behaviour due to O_DIRECT under ext3fs and
-kernel 2.4.32.
+I agree with the license change proposed by Matt Helsley.
 
-    I can understand that ext3 doesn't support O_DIRECT, and that's
-not a problem for me. In fact, if an app really needs O_DIRECT and
-the underlying filesystem doesn't support it, the app should fail, no
-more and no less.
+Acked-by: Nguyen Anh Quynh <aquynh@gmail.com>
 
-    The problem I'm having is with dvd+rw-tools. Apart from all the
-problems regarding DVD writing, I have another problem: the open64
-call with the O_DIRECT flag succeeds, but any subsequent read
-operation fails. IMHO, if the filesystem is going to return EINVAL
-for any read/write operation over an O_DIRECT'ed filehandle, it
-should return an error when opening, too.
+On 4/25/06, Matt Helsley <matthltc@us.ibm.com> wrote:
+> Change the license on the process event structure passed between kernel and
+> userspace.
+>
+> Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
+>
+> --
+>
+> Index: linux-2.6.17-rc2/include/linux/cn_proc.h
+> ===================================================================
+> --- linux-2.6.17-rc2.orig/include/linux/cn_proc.h
+> +++ linux-2.6.17-rc2/include/linux/cn_proc.h
+> @@ -1,27 +1,20 @@
+>  /*
+>   * cn_proc.h - process events connector
+>   *
+>   * Copyright (C) Matt Helsley, IBM Corp. 2005
+>   * Based on cn_fork.h by Nguyen Anh Quynh and Guillaume Thouvenin
+> - * Original copyright notice follows:
+>   * Copyright (C) 2005 Nguyen Anh Quynh <aquynh@gmail.com>
+>   * Copyright (C) 2005 Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+>   *
+> - * This program is free software; you can redistribute it and/or modify
+> - * it under the terms of the GNU General Public License as published by
+> - * the Free Software Foundation; either version 2 of the License, or
+> - * (at your option) any later version.
+> - *
+> - * This program is distributed in the hope that it will be useful,
+> - * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> - * GNU General Public License for more details.
+> - *
+> - * You should have received a copy of the GNU General Public License
+> - * along with this program; if not, write to the Free Software
+> - * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of version 2.1 of the GNU Lesser General Public License
+> + * as published by the Free Software Foundation.
+> + *
+> + * This program is distributed in the hope that it would be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+>   */
+>
+>  #ifndef CN_PROC_H
+>  #define CN_PROC_H
+>
+>
+>
+>
 
-    The growisofs program tries to open a file using O_DIRECT and the
-call succeeds, so it tries to read from that filehandle and the
-result is always EINVAL. I've tried a test program, just in case the
-problem was memory alignment of the buffer, but nothing is solved (I
-used posix_memalign and some recipe I found in this list, using the
-st_blksize and the st_size of the file). The problem seems to be in
-the O_DIRECT flag, because removing it from the open call makes all
-work.
 
-    Shouldn't ext3fs return an error when the O_DIRECT flag is used
-in the open call? Is the open call userspace only and thus only libc
-can return such error? Am I misunderstanding the entire issue and
-this is a perfectly legal behaviour (allowing the open, failing in
-the read operation)?
-
-    Thanks a lot in advance :)))
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to... RAmen!
+--
+Regards,
+Quynh

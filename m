@@ -1,82 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWD0LPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbWD0LTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbWD0LPw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 07:15:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWD0LPw
+	id S932470AbWD0LTv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 07:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWD0LTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 07:15:52 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:9537 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932449AbWD0LPv (ORCPT
+	Thu, 27 Apr 2006 07:19:51 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:1379 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932470AbWD0LTu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 07:15:51 -0400
-Date: Thu, 27 Apr 2006 13:16:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, npiggin@suse.de,
-       linux-mm@kvack.org
-Subject: Re: Lockless page cache test results
-Message-ID: <20060427111625.GD23137@suse.de>
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426185750.GM5002@suse.de> <20060427111937.deeed668.kamezawa.hiroyu@jp.fujitsu.com> <20060427080316.GL9211@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 Apr 2006 07:19:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JEdBBQGNEo3aP0uTbkJide/5l4+SVFgdX9yRbnIkAhreAmMbWr4TIs2pFa39LpBmpXdOtbH7arN9camcyCRydscFPkKJ5N8PpSXOjDja1ksNqy8HGzICSPHb+PDL1MUM7hm6kwIL/KWeRBIQoZvJt0fxnEjBfpsCG9ywxdlYML4=
+Message-ID: <84144f020604270419s10696877he2ec27ae6d52e486@mail.gmail.com>
+Date: Thu, 27 Apr 2006 14:19:49 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Or Gerlitz" <ogerlitz@voltaire.com>
+Subject: Re: possible bug in kmem_cache related code
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
+       open-iscsi@googlegroups.com, clameter@sgi.com,
+       "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0604271138370.16357-101000@zuben>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060427080316.GL9211@suse.de>
+References: <Pine.LNX.4.44.0604271138370.16357-101000@zuben>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27 2006, Jens Axboe wrote:
-> On Thu, Apr 27 2006, KAMEZAWA Hiroyuki wrote:
-> > On Wed, 26 Apr 2006 20:57:50 +0200
-> > Jens Axboe <axboe@suse.de> wrote:
-> > 
-> > > On Wed, Apr 26 2006, Jens Axboe wrote:
-> > > > We can speedup the lookups with find_get_pages(). The test does 64k max,
-> > > > so with luck we should be able to pull 16 pages in at the time. I'll try
-> > > > and run such a test. But boy I wish find_get_pages_contig() was there
-> > > > for that. I think I'd prefer adding that instead of coding that logic in
-> > > > splice, it can get a little tricky.
-> > > 
-> > > Here's such a run, graphed with the other two. I'll redo the lockless
-> > > side as well now, it's only fair to compare with that batching as well.
-> > > 
-> > 
-> > Hi, thank you for interesting tests.
-> > 
-> > >From user's view, I want to see the comparison among 
-> > - splice(file,/dev/null),
-> > - mmap+madvise(file,WILLNEED)/write(/dev/null),
-> > - read(file)/write(/dev/null)
-> > in this 1-4 threads test. 
-> > 
-> > This will show when splice() can be used effectively.
-> 
-> Sure, should be easy enough to do.
+On 4/27/06, Or Gerlitz <ogerlitz@voltaire.com> wrote:
+> With 2.6.17-rc3 I'm running into something which seems as a bug related
+> to kmem_cache. Doing some allocations/deallocations from a kmem_cache and
+> later attempting to destroy it yields the following message and trace
 
-Added, 1 vs 2/3/4 clients isn't very interesting, so to keep it short
-here are numbers for 2 clients to /dev/null and localhost.
+Tested on 2.6.16.7 and works ok. Christoph, could this be related to
+the cache draining patches that went in 2.6.17-rc1?
 
-Sending to /dev/null
+                                                    Pekka
 
-ml370:/data # ./splice-bench -n2 -l10 -a -s -z file
-Waiting for clients
-Client1 (splice): 19030 MiB/sec (10240MiB in 551 msecs)
-Client0 (splice): 18961 MiB/sec (10240MiB in 553 msecs)
-Client1 (mmap): 158875 MiB/sec (10240MiB in 66 msecs)
-Client0 (mmap): 158875 MiB/sec (10240MiB in 66 msecs)
-Client1 (rw): 1691 MiB/sec (10240MiB in 6200 msecs)
-Client0 (rw): 1690 MiB/sec (10240MiB in 6201 msecs)
-
-Sending/receiving over lo
-
-ml370:/data # ./splice-bench -n2 -l10 -a -s file
-Waiting for clients
-Client0 (splice): 3007 MiB/sec (10240MiB in 3486 msecs)
-Client1 (splice): 3003 MiB/sec (10240MiB in 3491 msecs)
-Client0 (mmap): 555 MiB/sec (8192MiB in 15094 msecs)
-Client1 (mmap): 580 MiB/sec (9216MiB in 16257 msecs)
-Client0 (rw): 538 MiB/sec (8192MiB in 15573 msecs)
-Client1 (rw): 541 MiB/sec (8192MiB in 15498 msecs)
-
--- 
-Jens Axboe
-
+>
+> ============================================================================
+> slab error in kmem_cache_destroy(): cache `my_cache': Can't free all objects
+>
+> Call Trace: <ffffffff8106e46b>{kmem_cache_destroy+150}
+>        <ffffffff88204033>{:my_kcache:kcache_cleanup_module+51}
+>        <ffffffff81044cd3>{sys_delete_module+415} <ffffffff8112fb5b>{__up_write+20}
+>        <ffffffff8105d42b>{sys_munmap+91} <ffffffff8100966a>{system_call+126}
+>
+> Failed to destroy cache
+> ============================================================================
+>
+> I was hitting it as an Infiniband/iSCSI user as IB/iSCSI/SCSI code use
+> kmem_caches, but since the failure happens on a code which works fine on
+> 2.6.16 i have decided to try it with a synthetic module and had this hit...
+>
+> Below is a sample code that reproduces it, if i only do kmem_cache_create
+> and later destroy it does not happen, attached is my .config please note
+> that some of the CONFIG_DEBUG_ options are open.
+>
+> Please CC openib-general@openib.org at least with the resolution of the
+> matter since it kind of hard to do testing over 2.6.17-rcX with this
+> issue, the tests run fine but some modules are crashing on rmmod so a
+> reboot it needed...
+>
+> thanks,
+>
+> Or.
+>
+> This is the related slab info line once the module is loaded
+>
+> my_cache  256    264    328   12    1 : tunables   32   16    8
+> : slabdata     22     22      0 : globalstat     264    264    22    0
+>
+> --- /deb/null   1970-01-01 02:00:00.000000000 +0200
+> +++ kcache/kcache.c     2006-04-27 10:43:18.000000000 +0300
+> @@ -0,0 +1,61 @@
+> +#include <linux/module.h>
+> +#include <linux/slab.h>
+> +
+> +kmem_cache_t *cache;
+> +
+> +struct foo {
+> +       char bar[300];
+> +};
+> +
+> +
+> +#define TRIES 256
+> +
+> +struct foo *foo_arr[TRIES];
+> +
+> +static int __init kcache_init_module(void)
+> +{
+> +       int i, j;
+> +
+> +       cache = kmem_cache_create("my_cache",
+> +                                 sizeof (struct foo),
+> +                                 0,
+> +                                 SLAB_HWCACHE_ALIGN,
+> +                                 NULL,
+> +                                 NULL);
+> +       if (!cache) {
+> +               printk(KERN_ERR "couldn't create cache\n");
+> +               goto error1;
+> +       }
+> +
+> +       for (i = 0; i < TRIES; i++) {
+> +               foo_arr[i] = kmem_cache_alloc(cache, GFP_KERNEL);
+> +               if (foo_arr[i] == NULL) {
+> +                       printk(KERN_ERR "couldn't allocate from cache\n");
+> +                       goto error2;
+> +               }
+> +       }
+> +
+> +       return 0;
+> +error2:
+> +       for (j = 0; j < i; j++)
+> +               kmem_cache_free(cache, foo_arr[j]);
+> +error1:
+> +       return -ENOMEM;
+> +}
+> +
+> +static void __exit kcache_cleanup_module(void)
+> +{
+> +       int i;
+> +
+> +       for (i = 0; i < TRIES; i++)
+> +               kmem_cache_free(cache, foo_arr[i]);
+> +
+> +       if (kmem_cache_destroy(cache)) {
+> +               printk(KERN_DEBUG "Failed to destroy cache\n");
+> +       }
+> +}
+> +
+> +MODULE_LICENSE("GPL");
+> +
+> +module_init(kcache_init_module);
+> +module_exit(kcache_cleanup_module);
+>
+>
+>
+>
+>

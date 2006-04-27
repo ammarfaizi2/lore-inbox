@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWD0Dli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWD0Dt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964915AbWD0Dli (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 23:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWD0Dli
+	id S964916AbWD0Dt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 23:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWD0Dt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 23:41:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:16107 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932354AbWD0Dlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 23:41:37 -0400
-Subject: Re: Simple header cleanups
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
-References: <1146104023.2885.15.camel@hades.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0604261917270.3701@g5.osdl.org>
-	 <1146105458.2885.37.camel@hades.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0604261954480.3701@g5.osdl.org>
-	 <1146107871.2885.60.camel@hades.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
-Content-Type: text/plain
-Date: Thu, 27 Apr 2006 04:41:34 +0100
-Message-Id: <1146109295.2885.71.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 26 Apr 2006 23:49:59 -0400
+Received: from pproxy.gmail.com ([64.233.166.182]:63876 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932354AbWD0Dt6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 23:49:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bxLMBz7z7PRAYMwm7NyT6krTAASpv0CEKaHLMqcpH038hvPFi4Vv1AVOPP0JzYElmoe8tsW56hpxpquPxoF/cVx8QugGC9Mmoq+gDYKTHIfIIUGGuTmSvGOsRshBCZEntI3y+Q3eBnNpIBhR8L8OiypAkA3e3AqrINtBrqaZL60=
+Message-ID: <aec7e5c30604262049v3ae18915le415ee33b2f80fc4@mail.gmail.com>
+Date: Thu, 27 Apr 2006 12:49:49 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Dave McCracken" <dmccr@us.ibm.com>
+Subject: Re: [RFC/PATCH] Shared Page Tables [1/2]
+Cc: "Dave Hansen" <haveblue@us.ibm.com>, "Hugh Dickins" <hugh@veritas.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Linux Memory Management" <linux-mm@kvack.org>
+In-Reply-To: <C7A8E6F316A73810A5FF466E@10.1.1.4>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1144685591.570.36.camel@wildcat.int.mccr.org>
+	 <1144695296.31255.16.camel@localhost.localdomain>
+	 <C7A8E6F316A73810A5FF466E@10.1.1.4>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-26 at 20:31 -0700, Linus Torvalds wrote:
-> No. As mentioned, as long as the target audience is distributions and 
-> library maintainers, I definitely think we should do help them as much as 
-> possible. Our problems have historically been "random people" who have 
-> /usr/include/linux being the symlink to "kernel source of the day", which 
-> is an unsupportable situation. 
+On 4/11/06, Dave McCracken <dmccr@us.ibm.com> wrote:
+> --On Monday, April 10, 2006 11:54:56 -0700 Dave Hansen
+> <haveblue@us.ibm.com> wrote:
+>
+> >> Complete the macro definitions for pxd_page/pxd_page_kernel
+> >
+> > Could you explain a bit why these are needed for shared page tables?
+>
+> The existing definitions define pte_page and pmd_page to return the struct
+> page for the pfn contained in that entry, and pmd_page_kernel returns the
+> kernel virtual address of it.  However, pud_page and pgd_page are defined
+> to return the kernel virtual address.  There are no macros that return the
+> struct page.
+>
+> No one actually uses any of the pud_page and pgd_page macros (other than
+> one reference in the same include file).  After some discussion on the list
+> the last time I posted the patches, we agreed that changing pud_page and
+> pgd_page to be consistent with pmd_page is the best solution.  We also
+> agreed that I should go ahead and propagate that change across all
+> architectures even though not all of them currently support shared page
+> tables.  This patch is the result of that work.
 
-Right. I'm not interested in helping random people who want the kernel
-source of the day; my point here is to just help the distributions get
-their collective act together w.r.t. the kernel headers which we _have_
-to ship in some form or other.
+What is the merge status of this patch?
 
-In particular, my reason for getting started on it was because for my
-sins I own the glibc-kernheaders package in Fedora, and it's a complete
-pain in my wossname.
+I've written some generic page table creation code for kexec, but the
+fact that pud_page() returns struct page * on i386 but unsigned long
+on other architectures makes it hard to write clean generic code.
 
-We _do_ need to update periodically. I'd been doing it by cherry-picking
-stuff like new ioctls and syscalls manually, and it was horrid. The
-answer was obviously to have some way to at least partially automate the
-process of updating from the real kernel... and it's fairly obvious how
-we got from that requirement to the second of the git trees I'm showing
-you now, having consulted the people who maintain equivalent packages in
-other distributions along the way.
+Any merge objections, or was this patch simply overlooked?
 
--- 
-dwmw2
-
+/ magnus

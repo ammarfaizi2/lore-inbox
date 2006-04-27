@@ -1,106 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965075AbWD0UUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWD0UUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965075AbWD0UUU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 16:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWD0UUU
+	id S1030225AbWD0UUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 16:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWD0UUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 16:20:20 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18583 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965072AbWD0UUS (ORCPT
+	Thu, 27 Apr 2006 16:20:21 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19095 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965073AbWD0UUT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 16:20:18 -0400
+	Thu, 27 Apr 2006 16:20:19 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 2/5] Kobject: fix build error
+Cc: Adrian Bunk <bunk@stusta.de>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 4/5] Kobject: possible cleanups
 Reply-To: Greg KH <greg@kroah.com>
-Date: Thu, 27 Apr 2006 13:18:42 -0700
-Message-Id: <11461691262921-git-send-email-greg@kroah.com>
+Date: Thu, 27 Apr 2006 13:18:44 -0700
+Message-Id: <11461691263127-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.3.1
-In-Reply-To: <11461691251083-git-send-email-greg@kroah.com>
+In-Reply-To: <1146169126913-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kay Sievers <kay.sievers@vrfy.org>
+From: Adrian Bunk <bunk@stusta.de>
 
-This fixes a build error for various odd combinations of CONFIG_HOTPLUG
-and CONFIG_NET.
+This patch contains the following possible cleanups:
+- #if 0 the following unused global function:
+  - subsys_remove_file()
+- remove the following unused EXPORT_SYMBOL's:
+  - kset_find_obj
+  - subsystem_init
+- remove the following unused EXPORT_SYMBOL_GPL:
+  - kobject_add_dir
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
 
- include/linux/kobject.h |    2 +-
- lib/kobject_uevent.c    |    8 +++++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ include/linux/kobject.h |    1 -
+ lib/kobject.c           |    7 ++-----
+ 2 files changed, 2 insertions(+), 6 deletions(-)
 
-4d17ffda331ba6030bb8c233c73d6a87954d8ea7
+5b3ef14e3e9d745a512d65fcb4ef9be541226d80
 diff --git a/include/linux/kobject.h b/include/linux/kobject.h
-index dcd0623..e38bb35 100644
+index e38bb35..c187c53 100644
 --- a/include/linux/kobject.h
 +++ b/include/linux/kobject.h
-@@ -259,7 +259,7 @@ struct subsys_attribute {
+@@ -257,7 +257,6 @@ struct subsys_attribute {
+ };
+ 
  extern int subsys_create_file(struct subsystem * , struct subsys_attribute *);
- extern void subsys_remove_file(struct subsystem * , struct subsys_attribute *);
+-extern void subsys_remove_file(struct subsystem * , struct subsys_attribute *);
  
--#if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
-+#if defined(CONFIG_HOTPLUG)
+ #if defined(CONFIG_HOTPLUG)
  void kobject_uevent(struct kobject *kobj, enum kobject_action action);
+diff --git a/lib/kobject.c b/lib/kobject.c
+index 01d9575..b46350c 100644
+--- a/lib/kobject.c
++++ b/lib/kobject.c
+@@ -422,7 +422,6 @@ struct kobject *kobject_add_dir(struct k
  
- int add_uevent_var(char **envp, int num_envp, int *cur_index,
-diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
-index 982226d..7f20e7b 100644
---- a/lib/kobject_uevent.c
-+++ b/lib/kobject_uevent.c
-@@ -25,11 +25,13 @@ #include <net/sock.h>
- #define BUFFER_SIZE	2048	/* buffer for the variables */
- #define NUM_ENVP	32	/* number of env pointers */
+ 	return k;
+ }
+-EXPORT_SYMBOL_GPL(kobject_add_dir);
  
--#if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
-+#if defined(CONFIG_HOTPLUG)
- u64 uevent_seqnum;
- char uevent_helper[UEVENT_HELPER_PATH_LEN] = "/sbin/hotplug";
- static DEFINE_SPINLOCK(sequence_lock);
-+#if defined(CONFIG_NET)
- static struct sock *uevent_sock;
-+#endif
- 
- static char *action_to_string(enum kobject_action action)
+ /**
+  *	kset_init - initialize a kset for use
+@@ -569,7 +568,7 @@ int subsys_create_file(struct subsystem 
+  *	@s:	subsystem.
+  *	@a:	attribute desciptor.
+  */
+-
++#if 0
+ void subsys_remove_file(struct subsystem * s, struct subsys_attribute * a)
  {
-@@ -155,6 +157,7 @@ void kobject_uevent(struct kobject *kobj
- 	spin_unlock(&sequence_lock);
- 	sprintf(seq_buff, "SEQNUM=%llu", (unsigned long long)seq);
- 
-+#if defined(CONFIG_NET)
- 	/* send netlink message */
- 	if (uevent_sock) {
- 		struct sk_buff *skb;
-@@ -179,6 +182,7 @@ void kobject_uevent(struct kobject *kobj
- 			netlink_broadcast(uevent_sock, skb, 0, 1, GFP_KERNEL);
- 		}
+ 	if (subsys_get(s)) {
+@@ -577,6 +576,7 @@ void subsys_remove_file(struct subsystem
+ 		subsys_put(s);
  	}
-+#endif
- 
- 	/* call uevent_helper, usually only enabled during early boot */
- 	if (uevent_helper[0]) {
-@@ -249,6 +253,7 @@ int add_uevent_var(char **envp, int num_
  }
- EXPORT_SYMBOL_GPL(add_uevent_var);
++#endif  /*  0  */
  
-+#if defined(CONFIG_NET)
- static int __init kobject_uevent_init(void)
- {
- 	uevent_sock = netlink_kernel_create(NETLINK_KOBJECT_UEVENT, 1, NULL,
-@@ -264,5 +269,6 @@ static int __init kobject_uevent_init(vo
- }
+ EXPORT_SYMBOL(kobject_init);
+ EXPORT_SYMBOL(kobject_register);
+@@ -588,10 +588,7 @@ EXPORT_SYMBOL(kobject_del);
  
- postcore_initcall(kobject_uevent_init);
-+#endif
+ EXPORT_SYMBOL(kset_register);
+ EXPORT_SYMBOL(kset_unregister);
+-EXPORT_SYMBOL(kset_find_obj);
  
- #endif /* CONFIG_HOTPLUG */
+-EXPORT_SYMBOL(subsystem_init);
+ EXPORT_SYMBOL(subsystem_register);
+ EXPORT_SYMBOL(subsystem_unregister);
+ EXPORT_SYMBOL(subsys_create_file);
+-EXPORT_SYMBOL(subsys_remove_file);
 -- 
 1.3.1
 

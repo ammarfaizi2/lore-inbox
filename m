@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbWD0UhC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbWD0Uhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751631AbWD0UhC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 16:37:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWD0UhB
+	id S1751645AbWD0Uhw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 16:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWD0Uhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 16:37:01 -0400
-Received: from usea-naimss1.unisys.com ([192.61.61.103]:6415 "EHLO
-	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S1751631AbWD0Ug7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 16:36:59 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 27 Apr 2006 16:37:51 -0400
+Received: from smtp-out.google.com ([216.239.33.17]:34536 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751646AbWD0Uhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 16:37:48 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=rGRwHR9FFBMEqPRXpjpHpF+z3s/cATiZ6CkY1opXghVh0Tn0cif3eSXZzOcbNQr9S
+	k8Tb7Vb7/Kiy1uI8jgneQ==
+Message-ID: <44512B61.4040000@google.com>
+Date: Thu, 27 Apr 2006 13:36:49 -0700
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Date: Thu, 27 Apr 2006 15:36:50 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0BA3@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Thread-Index: AcZqLrm0CstwPjwYTeCfW3rkdEC5VgAAeUBgAAIwilA=
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Brown, Len" <len.brown@intel.com>, "Andi Kleen" <ak@suse.de>
-Cc: <sergio@sergiomb.no-ip.org>, "Kimball Murray" <kimball.murray@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
-       <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 27 Apr 2006 20:36:51.0156 (UTC) FILETIME=[50200140:01C66A3A]
+To: Andrew Morton <akpm@osdl.org>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: checklist (Re: 2.6.17-rc2-mm1)
+References: <20060427014141.06b88072.akpm@osdl.org>	<p73vesv727b.fsf@bragg.suse.de>	<20060427121930.2c3591e0.akpm@osdl.org>	<200604272126.30683.ak@suse.de>	<20060427124452.432ad80d.rdunlap@xenotime.net> <20060427131100.05970d65.akpm@osdl.org>
+In-Reply-To: <20060427131100.05970d65.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >But I guess using GSI/vector internally only would be fine.
+> A lot of these are pretty hard and labor-intensive for people to set up and
+> run.  It would be nice, but from a global perspective it's not efficient
+> for every member of the kernel team to do all these things.  It's OK I
+> think if a few specialists run these tools against lots of people's patches
+> all at once.
 > 
-> The last time I tried to name a variable "gsi" instead of "irq",
-> Linus launched into a tirade that "GSI" doesn't mean anything to him,
-> or anybody else that googles it.  On the other hand "IRQ" means
-> something
-> to everybody, and if you google it you find all kinds of interesting
-> interrupt-related things.
-> 
-> My point was that "IRQ" means so many "interrupt related" things to
-> different people in different contexts, that it is effectively
-> meaningless.
-> 
-> But Linus was not swayed.
-> 
+> Which is basically what we're doing now, although I suspect we could be
+> more rigorous about it.
 
-Oh Len, let's call this thing IRQ why not ;) I kind of agree that this
-is more popular and well-known term, like an old trade mark. I just see
-all those layers of code right now to map those to GSIs, pins, whatever
-it is, that can be replaced with... well, much smaller layers of code :)
-and maybe less "assumpti-ous" too.
+How about if I set up an automated email drop - you email it a patch and 
+it will compile test it on a few different configs and run sparse, will 
+send you back mail when it's done.
 
---Natalie 
+I don't want to boot it, as that gets into security nightmares, but I 
+should be able to provide something that does static testing.
+
+> - Matches kernel coding style(!)
+
+E_NEEDS_AUTOMATED_FILTER / lint of some form.
+
+The others all look doable.
+
+The intent would not be that you get burdened with this, but that 
+developers send it there before sending it to you. It could even
+hand out
+
+Signed-off-by: Magic-testing-framework <basictest@test.kernel.org>
+
+tokens to people who use it ;-)
+
+M.

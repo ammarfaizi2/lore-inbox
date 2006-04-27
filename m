@@ -1,49 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWD0P20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbWD0P2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbWD0P20 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWD0P20
+	id S965154AbWD0P2F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbWD0P2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:28:26 -0400
-Received: from mx2.suse.de ([195.135.220.15]:26779 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030184AbWD0P2Z (ORCPT
+	Thu, 27 Apr 2006 11:28:05 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:46545 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965154AbWD0P2D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:28:25 -0400
-Date: Thu, 27 Apr 2006 08:26:57 -0700
-From: Greg KH <gregkh@suse.de>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc2-mm1
-Message-ID: <20060427152657.GB15806@suse.de>
-References: <20060427014141.06b88072.akpm@osdl.org> <6bffcb0e0604270327n76e24687s1a36d8985f8c2d27@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 Apr 2006 11:28:03 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
+Date: Thu, 27 Apr 2006 17:27:38 +0200
+User-Agent: KMail/1.9.1
+Cc: Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <nigel@suspend2.net>
+References: <200604242355.08111.rjw@sisk.pl> <20060425100408.GF4789@elf.ucw.cz> <200604251231.57577.rjw@sisk.pl>
+In-Reply-To: <200604251231.57577.rjw@sisk.pl>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <6bffcb0e0604270327n76e24687s1a36d8985f8c2d27@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604271727.39194.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 12:27:53PM +0200, Michal Piotrowski wrote:
-> Hi Andrew,
-> 
-> On 27/04/06, Andrew Morton <akpm@osdl.org> wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
-> >
-> [snip]
-> > +gregkh-devfs-ndevfs.patch
-> 
-> "You don't really want to run this.  But if you did, here's a simple hack
-> showing how easy it is to do it.
-> 
-> Note, this patch will NOT be merged into mainline, so don't get your
-> panties into a bind..."
-> http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-devfs/ndevfs.patch
-> 
-> Please drop this patch.
+Hi,
 
-Why drop it?  Is it causing you any problems?
+On Tuesday 25 April 2006 12:31, Rafael J. Wysocki wrote:
+> On Tuesday 25 April 2006 12:04, Pavel Machek wrote:
+> > > > Okay, so it can be done, and patch does not look too bad. It still
+> > > > scares me. Is 800MB image more responsive than 500MB after resume?
+> > > 
+> > > Yes, it is, slightly, but I think 800 meg images are impractical for
+> > > performance reasons (like IMO everything above 500 meg with the current
+> > > hardware).  However this means we can save 80% of RAM with the patch
+> > > and that should be 400 meg instead of 250 on a 500 meg machine, or
+> > > 200 meg instead of 125 on a 250 meg machine.
+> > 
+> > Could we get few people trying it on such small machines to see if it
+> > is really that noticeable?
+> 
+> OK, I'll try to run some tests on a machine with smaller RAM (and slower CPU).
 
-thanks,
+Done, although it was not so easy to find the box.  This was a PII 350MHz w/
+256 MB of RAM.
 
-greg k-h
+I invented the following test:
+- ran KDE with 4 desktops,
+- ran Firefox, OpenOffice.org 1.1 (with a simple spreadsheet), and GIMP (with
+2 pictures) each on its own desktop,
+- ran the memory meter from the KDE's Info Center and two konsoles
+on the remaining desktop - one konsole with a kernel compilation and the
+other with a root session used for suspending the box (the built-in swsusp
+was used),
+so the box's RAM was almost fully occupied with ~30% taken by the page cache.
+
+Then I suspended the box and measured the time from the start of resume
+(ie. leaving GRUB) to the point at which I had all of the application windows
+fully rendered on their respective desktops (I always switched the desktops
+in the same order, starting from the memory meter's one, through the OOo's
+and Firefox's, finishing on the GIMP's one and I always switched the
+desktop as soon as the window(s) on it were fully rendered).
+
+I ran it a couple of times on the 2.6.17-rc1-mm2 kernel with and without
+the patch and the results (on the average) are the following:
+
+(a) 25-28s with the patch
+(b) 30-33s without it
+
+Moreover, with the patch the image size was about 49000 of pages (only
+~7000 - 12000 pages had to be copied during suspend) and without the patch
+it was about 30000 of pages, so with the patch much smaller number of
+pages was in the swap after resume.
+
+Greetings,
+Rafael

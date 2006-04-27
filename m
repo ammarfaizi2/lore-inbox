@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWD0Tmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWD0Tu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030211AbWD0Tmc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 15:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbWD0Tmb
+	id S1751127AbWD0Tu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 15:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWD0Tu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 15:42:31 -0400
-Received: from xenotime.net ([66.160.160.81]:59369 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964928AbWD0Tmb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 15:42:31 -0400
-Date: Thu, 27 Apr 2006 12:44:52 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: checklist (Re: 2.6.17-rc2-mm1)
-Message-Id: <20060427124452.432ad80d.rdunlap@xenotime.net>
-In-Reply-To: <200604272126.30683.ak@suse.de>
-References: <20060427014141.06b88072.akpm@osdl.org>
-	<p73vesv727b.fsf@bragg.suse.de>
-	<20060427121930.2c3591e0.akpm@osdl.org>
-	<200604272126.30683.ak@suse.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Thu, 27 Apr 2006 15:50:27 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29657
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750754AbWD0Tu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 15:50:27 -0400
+Date: Thu, 27 Apr 2006 12:50:25 -0700 (PDT)
+Message-Id: <20060427.125025.39345603.davem@davemloft.net>
+To: jan.kiszka@googlemail.com
+Cc: simlo@phys.au.dk, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: Van Jacobson's net channels and real-time
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <58d0dbf10604270300s6b6d2e1dg54bcd8ad2d3a1571@mail.gmail.com>
+References: <58d0dbf10604270109j13ba5208h78f9b4de891370a8@mail.gmail.com>
+	<20060427.011646.41961134.davem@davemloft.net>
+	<58d0dbf10604270300s6b6d2e1dg54bcd8ad2d3a1571@mail.gmail.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Jan Kiszka" <jan.kiszka@googlemail.com>
+Date: Thu, 27 Apr 2006 12:00:53 +0200
 
-> > So at this point in time what I'd like to do is to encourage developers to
-> > do these very basic things.  That's the low-hanging fruit right now.
-> 
-> Write a checklist for that?
+> Sorry that you had to remind of the different primary goals. I think
+> we may look for something pluggable to support both large-scale rule
+> tables as well as small ones for embedded RT-systems.
 
-I've been meaning to write up one myself, so I'll give it a shot.
-
-This is all above and beyond good patch log descriptions.
-
-
-1.  Build cleanly with applicable or modified CONFIG options =y, =m, and =n.
-    No gcc warnings/errors, no linker warnings/errors.
-
-2.  Build on multiple CPU arch-es by using local cross-compile tools
-    or something like PLM at OSDL.
-
-3.  Check cleanly with sparse.
-
-4.  Make sure that any new or modified CONFIG options don't muck up
-    the config menu.
-
-5.  Use 'make checkstack' and 'make namespacecheck' and fix any
-    problems that they find.  Note:  checkstack does not point out
-    problems explicitly, but any one function that uses more than
-    512 bytes on the stack is a candidate for change.
-
-6.  Include kernel-doc to document global kernel APIs.  (Not required
-    for static functions, but OK there also.)  Use 'make htmldocs'
-    or 'make mandocs' to check the kernel-doc and fix any issues.
-
-
----
-~Randy
+Even for such objectives, very specific understanding exists
+in the algorithmic community for what is known to work best
+for various kinds of packet classification.

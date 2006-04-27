@@ -1,116 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWD0N4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbWD0OJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWD0N4H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 09:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWD0N4H
+	id S965117AbWD0OJE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 10:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbWD0OJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 09:56:07 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8676 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S965051AbWD0N4F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 09:56:05 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Avi Kivity <avi@argo.co.il>
-Subject: Re: C++ pushback
-Date: Thu, 27 Apr 2006 16:55:48 +0300
-User-Agent: KMail/1.8.2
-Cc: Kyle Moffett <mrmacman_g4@mac.com>,
-       Roman Kononov <kononov195-far@yahoo.com>,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il>
-In-Reply-To: <44507BB9.7070603@argo.co.il>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Apr 2006 10:09:03 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:60821 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S965117AbWD0OJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 10:09:02 -0400
+Date: Thu, 27 Apr 2006 10:51:19 -0300
+From: Harald Welte <laforge@netfilter.org>
+To: Maurice Volaski <mvolaski@aecom.yu.edu>
+Cc: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: iptables is complaining with bogus unknown error 18446744073709551615
+Message-ID: <20060427135119.GB5177@rama>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	Maurice Volaski <mvolaski@aecom.yu.edu>,
+	netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
+References: <200604210738.k3L7cBGO010103@mailgw.aecom.yu.edu> <a06230901c075ca078b8d@[129.98.90.227]>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yNb1oOkm5a9FJOVX"
 Content-Disposition: inline
-Message-Id: <200604271655.48757.vda@ilport.com.ua>
+In-Reply-To: <a06230901c075ca078b8d@[129.98.90.227]>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 April 2006 11:07, Avi Kivity wrote:
-> C++ compilation isn't slower because the compiler has to recognize more 
-> keywords. It's slower because it is doing more for you: checking types 
-> (C++ code is usually free of void *'s except for raw data) and expanding 
 
-Today's C is much better at typechecking than ancient K&R C.
+--yNb1oOkm5a9FJOVX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> those 4-line function to their 14-line goto-heavy equivalents.
+On Wed, Apr 26, 2006 at 09:12:38PM -0400, Maurice Volaski wrote:
+> Automatic kernel module loading! That is an option and it's off by
+> default. When it's off, attempts to load kernel modules are ignored
+> internally, and that's why iptables was failing. It tried to load=20
+> xt_tcpudp, but was ignored by the kernel.
 
-Where do you see goto-heavy code in kernel?
+What do you mean by "it's an option" and "is off by default".  I would
+claim that any major linux distribution that I've seen in the last ten
+years has support for module auto loading (enabled by default).
 
-> > Ok, help me understand here:  Instead of helping using one sensible 
-> > data structure and generating optimized code for that, the language 
-> > actively _encourages_ you to duplicate classes and interfaces, 
-> > providing even _more_ work for the compiler, making the code harder to 
-> > debug, and probably introducing inefficiencies as well.  If C++ 
-> > doesn't work properly for a simple and clean example like struct 
-> > list_head, why should we assume that it's going to work any better for 
-> > more complicated examples in the rest of the kernel?  Whether or not 
-> > some arbitrary function is inlined should be totally orthogonal to 
-> > adding type-checking.
-> 
-> C++ works excellently for things like list_head. The generated code is 
-> as efficient or better that the C equivalent,
+There are many userspace programs that try to autoload modules, such as
+device-mapper, ipsec, etc. =20
 
-"or better" part is pure BS, because there is no magic C++ compiler
-can possibly do which is not implementable in C.
+If you disable module autoloading, it's your own responsibility to load
+modules manually.
 
-"as efficient", hmmm, let me see... gcc 3.4.3, presumably an contemporary
-C++ compiler, i.e. which is "rather good".
+So the only thing that I really consider a bug is that bogus error
+message of iptables.  This has been fixed in SVN, case closed.
 
-Random example. gcc-3.4.3/include/g++-v3/bitset:
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
-  template<size_t _Nw>
-    struct _Base_bitset
-    {
-      typedef unsigned long _WordT;
+--yNb1oOkm5a9FJOVX
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-      /// 0 is the least significant word.
-      _WordT            _M_w[_Nw];
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-      _Base_bitset() { _M_do_reset(); }
-...
-      void
-      _M_do_set()
-      {
-        for (size_t __i = 0; __i < _Nw; __i++)
-          _M_w[__i] = ~static_cast<_WordT>(0);
-      }
-      void
-      _M_do_reset() { memset(_M_w, 0, _Nw * sizeof(_WordT)); }
-...
+iD8DBQFEUMxXXaXGVTD0i/8RAk4rAJsHQ3b+gPR4259+l1AUEIeS1fdAlgCcDD3b
+a9ytrRZZ11XgkS75AVTn9/s=
+=efeV
+-----END PGP SIGNATURE-----
 
-A global or static variable of _Base_bitset or derived type
-would need an init function?! Why not just preset sequence of
-zeroes in data section?
-[this disproves that C++ is very efficient]
-
-Why _M_do_set() doesn't use memset()?
-Why _M_do_reset() is not inlined?
-[this disproves that today's C++ libs are well-written]?
-
-> and the API is *much*  
-> cleaner. You can iterate over a list without knowing the name of the 
-> field which contains your list_head (and possibly getting it wrong if 
-> there is more than one).
-
-But kernel folks tend to *want to know* everything, including
-names of the fields.
-
-> > How could that possibly work in C++ given what you've said?  Anything 
-> > that breaks code that simple is an automatic nonstarter for the 
-> > kernel.  Also remember that spinlocks are defined preinitialized at 
-> > the very earliest stages of init.  Of course I probably don't have to 
-> > say that anything that tries to run a function to iterate over all 
-> > statically-allocated spinlocks during init would be rejected out of hand.
-> 
-> Why would it be rejected?
-> 
-> A static constructor is just like a module init function. Why are 
-> modules not rejected out of hand?
-
-Because we do not like init functions which can be eliminated.
-That's bloat.
---
-vda
+--yNb1oOkm5a9FJOVX--

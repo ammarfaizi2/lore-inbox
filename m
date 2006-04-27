@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965085AbWD0K1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWD0K1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965085AbWD0K1y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 06:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbWD0K1y
+	id S965067AbWD0K1G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 06:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWD0K1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 06:27:54 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:32156 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965081AbWD0K1y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 06:27:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DK9Tx8SmYhwqPvf/fNmTxcIHMPReZFfOJiCceLseBHXFf7zTfIOVQLVFVI2oi5z5/mPG3e2BC3FPuuzueReSKV3NhOFkSW2kmEE5bm4cxrrj2mXpBcxTm6hOwBciry4RgUikF+Z+knGr3QZv1UG0pYdWYKEdEYGyICDQoWHTcaU=
-Message-ID: <6bffcb0e0604270327n76e24687s1a36d8985f8c2d27@mail.gmail.com>
-Date: Thu, 27 Apr 2006 12:27:53 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.17-rc2-mm1
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-In-Reply-To: <20060427014141.06b88072.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 27 Apr 2006 06:27:06 -0400
+Received: from kevlar.burdell.org ([66.92.73.214]:4830 "EHLO
+	kevlar.burdell.org") by vger.kernel.org with ESMTP id S965074AbWD0K1F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 06:27:05 -0400
+Date: Thu, 27 Apr 2006 06:27:00 -0400
+From: Sonny Rao <sonny@burdell.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, Hugh Dickins <hugh@veritas.com>,
+       Jan Beulich <jbeulich@novell.com>, Zachary Amsden <zach@vmware.com>,
+       linux-kernel@vger.kernel.org, anton@samba.org
+Subject: Re: [PATCH] i386: PAE entries must have their low word cleared first
+Message-ID: <20060427102700.GA1299@kevlar.burdell.org>
+References: <444F95D8.76E4.0078.0@novell.com> <Pine.LNX.4.64.0604261538260.9915@blonde.wat.veritas.com> <946b367619cfd3dcd3ba547e216e494b@cl.cam.ac.uk> <444F98B2.8020003@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060427014141.06b88072.akpm@osdl.org>
+In-Reply-To: <444F98B2.8020003@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Thu, Apr 27, 2006 at 01:58:42AM +1000, Nick Piggin wrote:
+> Keir Fraser wrote:
+> >
+> >On 26 Apr 2006, at 15:46, Hugh Dickins wrote:
+> >
+> >>If that's so (I don't trust my judgement on matters of speculative
+> >>execution), then I think you'd do better to replace the *ptep = __pte(0)
+> >>by pte_clear(mm, addr, ptep), and so avoid your ugly #ifdef'ing: please
+> >>check, but I think you'll find that reduces to just the barrier you want.
+> >>CC'ed Zach since it's his optimization, and he'll judge that spexecution.
+> >
+> >
+> >In more detail the problem is that, since we're still running on the 
+> >page tables while clearing them, the CPU may choose to prefetch a 
+> >half-cleared pte into its TLB, and then execute speculative memory 
+> >accesses based on that mapping (including ones that may write-allocate 
+> >cachelines, leading to problems like the AMD AGP GART deadlock Linux had 
+> >a year or so back).
+> 
+> What do you mean, you're still running on the page tables? The CPU can
+> still walk the pagetables?
+> 
+> Because if ptep_get_and_clear_full is passed non zero in the full
+> argument, then that specific translation should never see another
+> access. I didn't know CPUs now actually resolve TLB misses as part of
+> speculative prefetching... does this really happen?
 
-On 27/04/06, Andrew Morton <akpm@osdl.org> wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
->
-[snip]
-> +gregkh-devfs-ndevfs.patch
+For instance, during speculative execution on POWER, we can take a
+TLB miss for a speculative load and start a table-walk.
 
-"You don't really want to run this.  But if you did, here's a simple hack
-showing how easy it is to do it.
+I'm not sure what "speculative prefetching" means in this case... just
+regular hardware-initiated prefetching (where I suppose one could use the
+modifier "speculative") on POWER will only prefetch to a page-boundary.
 
-Note, this patch will NOT be merged into mainline, so don't get your
-panties into a bind..."
-http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-devfs/ndevfs.patch
+So, slightly OT, as this is not about x86 CPUs... but thought people
+might be interested.
 
-Please drop this patch.
+(Added Anton to CC to call any BS on my part :-)
 
-Regards,
-Michal
-
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+Sonny

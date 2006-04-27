@@ -1,146 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbWD0LTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWD0LTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932470AbWD0LTv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 07:19:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWD0LTv
+	id S932428AbWD0LTM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 07:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWD0LTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 07:19:51 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:1379 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932470AbWD0LTu convert rfc822-to-8bit (ORCPT
+	Thu, 27 Apr 2006 07:19:11 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:22982 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932428AbWD0LTK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 07:19:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JEdBBQGNEo3aP0uTbkJide/5l4+SVFgdX9yRbnIkAhreAmMbWr4TIs2pFa39LpBmpXdOtbH7arN9camcyCRydscFPkKJ5N8PpSXOjDja1ksNqy8HGzICSPHb+PDL1MUM7hm6kwIL/KWeRBIQoZvJt0fxnEjBfpsCG9ywxdlYML4=
-Message-ID: <84144f020604270419s10696877he2ec27ae6d52e486@mail.gmail.com>
-Date: Thu, 27 Apr 2006 14:19:49 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Or Gerlitz" <ogerlitz@voltaire.com>
-Subject: Re: possible bug in kmem_cache related code
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       open-iscsi@googlegroups.com, clameter@sgi.com,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0604271138370.16357-101000@zuben>
+	Thu, 27 Apr 2006 07:19:10 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 06/16] ehca: common include files
+Date: Thu, 27 Apr 2006 13:19:06 +0200
+User-Agent: KMail/1.9.1
+Cc: Heiko J Schick <schihei@de.ibm.com>, openib-general@openib.org,
+       Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+References: <4450A183.6030405@de.ibm.com>
+In-Reply-To: <4450A183.6030405@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <Pine.LNX.4.44.0604271138370.16357-101000@zuben>
+Message-Id: <200604271319.06844.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/27/06, Or Gerlitz <ogerlitz@voltaire.com> wrote:
-> With 2.6.17-rc3 I'm running into something which seems as a bug related
-> to kmem_cache. Doing some allocations/deallocations from a kmem_cache and
-> later attempting to destroy it yields the following message and trace
+On Thursday 27 April 2006 12:48, Heiko J Schick wrote:
 
-Tested on 2.6.16.7 and works ok. Christoph, could this be related to
-the cache draining patches that went in 2.6.17-rc1?
+> +/**
+> + * ehca_adr_bad - Handle to be used for adress translation mechanisms,
+> + * currently a placeholder.
+> + */
+> +inline static int ehca_adr_bad(void *adr)
 
-                                                    Pekka
+'static inline', not 'inline static', by convention.
 
->
-> ============================================================================
-> slab error in kmem_cache_destroy(): cache `my_cache': Can't free all objects
->
-> Call Trace: <ffffffff8106e46b>{kmem_cache_destroy+150}
->        <ffffffff88204033>{:my_kcache:kcache_cleanup_module+51}
->        <ffffffff81044cd3>{sys_delete_module+415} <ffffffff8112fb5b>{__up_write+20}
->        <ffffffff8105d42b>{sys_munmap+91} <ffffffff8100966a>{system_call+126}
->
-> Failed to destroy cache
-> ============================================================================
->
-> I was hitting it as an Infiniband/iSCSI user as IB/iSCSI/SCSI code use
-> kmem_caches, but since the failure happens on a code which works fine on
-> 2.6.16 i have decided to try it with a synthetic module and had this hit...
->
-> Below is a sample code that reproduces it, if i only do kmem_cache_create
-> and later destroy it does not happen, attached is my .config please note
-> that some of the CONFIG_DEBUG_ options are open.
->
-> Please CC openib-general@openib.org at least with the resolution of the
-> matter since it kind of hard to do testing over 2.6.17-rcX with this
-> issue, the tests run fine but some modules are crashing on rmmod so a
-> reboot it needed...
->
-> thanks,
->
-> Or.
->
-> This is the related slab info line once the module is loaded
->
-> my_cache  256    264    328   12    1 : tunables   32   16    8
-> : slabdata     22     22      0 : globalstat     264    264    22    0
->
-> --- /deb/null   1970-01-01 02:00:00.000000000 +0200
-> +++ kcache/kcache.c     2006-04-27 10:43:18.000000000 +0300
-> @@ -0,0 +1,61 @@
-> +#include <linux/module.h>
-> +#include <linux/slab.h>
+
+> +/* We will remove this lines in SVN when it is included in the Linux kernel.
+> + * We don't want to introducte unnecessary dependencies to a patched kernel.
+> + */
+> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,17)
+
+Well, you should also remove this for submission, I guess ;-)
+
+> +#define EHCA_EDEB_TRACE_MASK_SIZE 32
+> +extern u8 ehca_edeb_mask[EHCA_EDEB_TRACE_MASK_SIZE];
+> +#define EDEB_ID_TO_U32(str4) (str4[3] | (str4[2] << 8) | (str4[1] << 16) | \
+> +			      (str4[0] << 24))
 > +
-> +kmem_cache_t *cache;
-> +
-> +struct foo {
-> +       char bar[300];
-> +};
-> +
-> +
-> +#define TRIES 256
-> +
-> +struct foo *foo_arr[TRIES];
-> +
-> +static int __init kcache_init_module(void)
+> +inline static u64 ehca_edeb_filter(const u32 level,
+> +				   const u32 id, const u32 line)
+
+'static inline' again. best grep all your source for this, there are probably
+more places.
+
 > +{
-> +       int i, j;
+> +	u64 ret = 0;
+> +	u32 filenr = 0;
+> +	u32 filter_level = 9;
+> +	u32 dynamic_level = 0;
 > +
-> +       cache = kmem_cache_create("my_cache",
-> +                                 sizeof (struct foo),
-> +                                 0,
-> +                                 SLAB_HWCACHE_ALIGN,
-> +                                 NULL,
-> +                                 NULL);
-> +       if (!cache) {
-> +               printk(KERN_ERR "couldn't create cache\n");
-> +               goto error1;
-> +       }
+> +	/* This is code written for the gcc -O2 optimizer which should colapse
+> +	 * to two single ints filter_level is the first level kicked out by
+> +	 * compiler means trace everythin below 6. */
+> +	if (id == EDEB_ID_TO_U32("ehav")) {
+> +		filenr = 0x01;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("clas")) {
+> +		filenr = 0x02;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("cqeq")) {
+> +		filenr = 0x03;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("shca")) {
+> +		filenr = 0x05;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("eirq")) {
+> +		filenr = 0x06;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("lMad")) {
+> +		filenr = 0x07;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("mcas")) {
+> +		filenr = 0x08;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("mrmw")) {
+> +		filenr = 0x09;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("vpd ")) {
+> +		filenr = 0x0a;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("e_qp")) {
+> +		filenr = 0x0b;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("uqes")) {
+> +		filenr = 0x0c;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("PHYP")) {
+> +		filenr = 0x0d;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("hcpi")) {
+> +		filenr = 0x0e;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("iptz")) {
+> +		filenr = 0x0f;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("spta")) {
+> +		filenr = 0x10;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("simp")) {
+> +		filenr = 0x11;
+> +		filter_level = 8;
+> +	}
+> +	if (id == EDEB_ID_TO_U32("reqs")) {
+> +		filenr = 0x12;
+> +		filter_level = 8;
+> +	}
+
+I guess you can convert that to
+
+switch (id) {
+	case EBEB_ID_CLAS:
+		...
+	case EDEB_ID_CQEQ:
+		...
+}
+
 > +
-> +       for (i = 0; i < TRIES; i++) {
-> +               foo_arr[i] = kmem_cache_alloc(cache, GFP_KERNEL);
-> +               if (foo_arr[i] == NULL) {
-> +                       printk(KERN_ERR "couldn't allocate from cache\n");
-> +                       goto error2;
-> +               }
-> +       }
+> +#ifdef EHCA_USE_HCALL_KERNEL
+> +#ifdef CONFIG_PPC_PSERIES
 > +
-> +       return 0;
-> +error2:
-> +       for (j = 0; j < i; j++)
-> +               kmem_cache_free(cache, foo_arr[j]);
-> +error1:
-> +       return -ENOMEM;
-> +}
+> +#include <asm/paca.h>
 > +
-> +static void __exit kcache_cleanup_module(void)
-> +{
-> +       int i;
-> +
-> +       for (i = 0; i < TRIES; i++)
-> +               kmem_cache_free(cache, foo_arr[i]);
-> +
-> +       if (kmem_cache_destroy(cache)) {
-> +               printk(KERN_DEBUG "Failed to destroy cache\n");
-> +       }
-> +}
-> +
-> +MODULE_LICENSE("GPL");
-> +
-> +module_init(kcache_init_module);
-> +module_exit(kcache_cleanup_module);
->
->
->
->
->
+
+You could make everything down from here a separate header
+for hcall.

@@ -1,39 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751763AbWD0XKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751765AbWD0XMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751763AbWD0XKl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 19:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751764AbWD0XKl
+	id S1751765AbWD0XMD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 19:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWD0XMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 19:10:41 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:21172 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751763AbWD0XKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 19:10:40 -0400
-Subject: Re: Simple header cleanups
-From: David Woodhouse <dwmw2@infradead.org>
+	Thu, 27 Apr 2006 19:12:03 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5129 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751765AbWD0XMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 19:12:01 -0400
+Date: Fri, 28 Apr 2006 01:12:00 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: David Woodhouse <dwmw2@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Simple header cleanups
+Message-ID: <20060427231200.GW3570@stusta.de>
+References: <1146104023.2885.15.camel@hades.cambridge.redhat.com> <Pine.LNX.4.64.0604261917270.3701@g5.osdl.org> <1146105458.2885.37.camel@hades.cambridge.redhat.com> <Pine.LNX.4.64.0604261954480.3701@g5.osdl.org> <1146107871.2885.60.camel@hades.cambridge.redhat.com> <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org> <20060427213754.GU3570@stusta.de> <Pine.LNX.4.64.0604271439100.3701@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.64.0604271439100.3701@g5.osdl.org>
-References: <1146104023.2885.15.camel@hades.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0604261917270.3701@g5.osdl.org>
-	 <1146105458.2885.37.camel@hades.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0604261954480.3701@g5.osdl.org>
-	 <1146107871.2885.60.camel@hades.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
-	 <20060427213754.GU3570@stusta.de>
-	 <Pine.LNX.4.64.0604271439100.3701@g5.osdl.org>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 00:11:01 +0100
-Message-Id: <1146179462.13540.131.camel@shinybook.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-27 at 15:00 -0700, Linus Torvalds wrote:
+On Thu, Apr 27, 2006 at 03:00:16PM -0700, Linus Torvalds wrote:
+> 
+> On Thu, 27 Apr 2006, Adrian Bunk wrote:
+> > 
+> > A definition of the kernel <-> userspace ABI is required.
+> 
+> Well, we can get certain hints by just looking at every single type that 
+> is used as a __user pointer. That should give us a lot of the type 
+> information.
+> 
+> The other big piece ends up being argument values passed in to system 
+> calls, most notably ioctl numbers, but there are certainly others too.
+> 
+> And then there are the system call numbers themselves, and their calling 
+> conventions (fairly small part).
+
+Currently, it's sometimes non-trivial to figure out what is part of the 
+ABI and what is not.
+
+E.g. if you want to change a struct, how do you know whether it's part 
+of the userspace ABI?
+
+> > Create an include/kabi/linux/ with the following properties:
+> 
+> I do hate your naming.
+> 
+> Why is that "linux" there? We're not going to have FreeBSD kabi files. And 
+> what about the (pretty common) architecture-specific ones?
+
+Agreed.
+
+But let's discuss the naming after this discussion.
+
+> The dependency chain is also quite often nontrivial. The ABI's all end up 
+> depending on the basic types, and often on each other (eg the ioctl 
+> numbers depend on the sizes of all the structures, which in turn depend on 
+> the architecture-specific structure layout and low-level types).
+> 
+> So it's _not_ usually possible to just do one file that does one thing, 
+> because they do actually have linkages.
+
+Sure.
+
+> And the linkages can be nasty, because they can easily be linkages that 
+> POSIX - and other standards - forbid them from being visible (you cannot 
+> expose certain typenames if they weren't _explicitly_ included, regardless 
+> of whether you need the type defines).
+> 
 > This is one reason why we shouldn't even _plan_ on having header files 
 > that can just be _directly_ used by the C libraries etc, even if it's just 
 > a "small" kernel ABI header.
@@ -43,83 +82,68 @@ On Thu, 2006-04-27 at 15:00 -0700, Linus Torvalds wrote:
 > 
 > And if we say "you can use these headers unmodified", that _is_ what we're 
 > going to get blamed for. I'm so _not_ interested in having to care or 
-> worry. 
+> worry.
+> 
+> So I seriously think we should aim for making it _easier_ for system 
+> libraries to get the information, but we should at the same time make it 
+> clear that we make it easier for them to get the basic info, BUT WE DO NOT 
+> CARE ABOUT THE RANDOM USER STANDARD OF THE DAY.
+> 
+> Have you looked in /usr/include lately? Have you _looked_ at the "expose 
+> BSD names" vs "GNU extended source" vs "strict POSIX" vs 
+> "_XOPEN_SOURCE==600" bs "_USE_MISC" vs a million random and strange 
+> things?
+> 
+> The day I see somebody adding crap like that to the kernel headers is the 
+> day I pull the plug on any "KABI" interfaces. 
+> 
+> And don't tell me this has got nothing to do with the kernel constants. Go 
+> look in something like /usr/include/bits/fcntl.h, and cry. See how it's 
+> using _exactly_ the kernel constants, but it has added all the random 
+> standard-of-the-day #ifdef (whether real standards, or the "GNU standards" 
+> or just "legacy BSD-like" etc).
+> 
+> And THAT is why I don't think the simplistic "kabi" directory approach 
+> that people have brought up many times over many years is actually 
+> realistic. People don't realize that glibcs makes "struct flock" actually 
+> look different in user space depending on whether "__USE_FILE_OFFSET64" is 
+> defined or not.
+> 
+> You just haven't seen just how NASTY those user-space headers are. They 
+> can't use _any_ kernel headers directly, because even when they want a 
+> _raw_ kernel data structure, they actually end up doing things differently 
+> in the _middle_ of that data structure. 
+> 
+> Really.
+> 
+> So we should try to help those system libc people perhaps _find_ the 
+> values and structures they need, but no, I will _never_ allow the kernel 
+> headers to be used directly. And it doesn't _matter_ if they've been moved 
+> to a "kabi" subdirectory. That's not the issue. The issue is that user 
+> space does insane things that aren't acceptable in kernel space.
 
-OK... I wasn't going to go here, because I don't want a potentially
-contentious discussion to get in the way of the other cleanups which
-I've been doing. We made that mistake at least year's Kernel Summit, and
-we've made no progress since then despite having an almost unanimous
-consensus on where we need to go.
+I do still not get your point.
 
-But since Adrian's drawn you onto the topic, and since you've given me
-an insight into what your objection is, I'll respond...
+The ABI headers will be used by C libraries.
 
-I don't think anyone imagines that a potential 'kabi' directory would be
-used to specify anything like a _library_ interface, or that random
-userspace programs would use stuff like 'struct stat' directly from it.
-That would be like going back to the dark old days of libc5, and makes
-me shudder as much as it does you.
+And by some programs doing low-level Linux specific things - but these 
+are exceptions.
 
-Glibc has all that crap to define the interface between it and _its_
-users. Its version of stuff like 'struct stat' may indeed vary according
-to __USE_FILEOFFSET64 and the random standard of the day. We certainly
-don't want to get involved with that kind of mess, I agree.
+Normal userspace programs will simply not care about the contents of the 
+kernel ABI headers - the libc will present them pretty headers adhering 
+to all past, current and future standards.
 
-Our headers describe only _our_ interface to userspace, which often
-bears no relation to glibc's interface to its users. We don't need to
-care about our headers being usable in general by userspace
-applications; only that they're useful for glibc. (With the exception of
-stuff which defines ioctls, sockopts, etc.; obviously those are used by
-system libraries and utilities rather than just glibc, but still -- it's
-not just "random cross-platform POSIX userspace".)
+This works today and it will continue to work.
 
-Nobody _wants_ the hellish things you seem concerned about. All we want
-to do is _think_ a little bit about avoiding gratuitous namespace
-pollution in the headers -- for example, we should use only types like
-__u32 instead of uint32_t and u32, we should refrain from exposing
-private helper inlines, etc.
+> 			Linus
 
-That's precisely what my cleanups have been fixing. It's not about
-conforming to POSIX and other random standards so that our headers are
-'clean' for direct inclusion as part of standard headers. This is _our_
-interface, and our definition of it. It's just a case of being a little
-bit disciplined about it rather than polluting it with internal crap.
-
-Distinct from the cleanups, my existing 'make headers_install' takes the
-limited set of headers which actually contain user-visible stuff, and
-runs them through unifdef to get a consistent set of headers which all
-distributions can use. The cleanups are just what was necessary to get
-the resulting exported headers to the point where I can build glibc
-against them on ppc, ppc64, i386, x86_64, s390, s390x and ia64. That's a
-massive step forward, and it's all I really want to concentrate on right
-now rather than talking about any potential 'next step'. What I'm doing
-now stands on its own and is necessary.
-
-However, there does seem to be a consensus that ifdefs are best avoided,
-and that we should avoid them by splitting private stuff into one file,
-public stuff into another, then including the latter from the former. I
-haven't done that in the hdrcleanup-2.6.git tree; I've mostly just moved
-stuff inside _existing_ '#ifdef __KERNEL__' guards within the same file.
-But I _have_ done it in the past for include/linux/mtd/ (and put the
-user-visible bits into linux/mtd/) and it's _much_ nicer that way.
-
-_If_ we do that kind of thing, then it also makes some sense for the
-user-visible files to be in one directory, and the private files to be
-in another directory. That's just good practice.
-
-That's all Adrian and others are talking about when they talk of a 'kabi
-directory', I believe -- not your dystopian vision of trying to make our
-headers conform to random standards-du-jour, but just treating them the
-the same as we try to do in the actual C files through out the kernel --
-avoiding ifdefs by splitting stuff into separate files, and grouping
-those files into appropriate directories.
-
-I think they're right, but I'm not arguing that point right now because
-it's secondary to my task at hand, which is identifying the private vs.
-public stuff in the first place and reducing the pollution so that our
-headers are actually usable to build glibc again. In particular, I don't
-want that discussion to get in the way of what I'm doing right now.
+cu
+Adrian
 
 -- 
-dwmw2
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

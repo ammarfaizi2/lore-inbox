@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbWD0Loy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbWD0LpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964955AbWD0Loy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 07:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbWD0Loy
+	id S965023AbWD0LpR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 07:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWD0LpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 07:44:54 -0400
-Received: from vsmtp12.tin.it ([212.216.176.206]:58256 "EHLO vsmtp12.tin.it")
-	by vger.kernel.org with ESMTP id S964955AbWD0Lox (ORCPT
+	Thu, 27 Apr 2006 07:45:16 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:50876 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S965024AbWD0LpO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 07:44:53 -0400
-Message-ID: <10adb253380.hansanita3@virgilio.it>
-Date: Thu, 27 Apr 2006 12:39:09 +0100 (GMT+01:00)
-From: <hansanita3@virgilio.it>
-Reply-To: <hansanita3@virgilio.it>
-Subject: Ref No;ILPB642857301
+	Thu, 27 Apr 2006 07:45:14 -0400
+Date: Thu, 27 Apr 2006 13:45:12 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Akinobu Mita <mita@miraclelinux.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch 1/4] kref: warn kref_put() with unreferenced kref
+Message-ID: <20060427114512.GA6533@bitwizard.nl>
+References: <20060424083333.217677000@localhost.localdomain> <20060424083341.613638000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: 193.173.20.130
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060424083341.613638000@localhost.localdomain>
+Organization: BitWizard.nl
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Inorbit Promotion BV,
-Hovanstraat 28-35,
-3025RH, Rotterdam.
-Royal Dutch 
-Republic.
+On Mon, Apr 24, 2006 at 04:33:34PM +0800, Akinobu Mita wrote:
+> @@ -56,12 +57,13 @@ int kref_put(struct kref *kref, void (*r
+>  	 * if current count is one, we are the last user and can release object
+>  	 * right now, avoiding an atomic operation on 'refcount'
+>  	 */
+> -	if ((atomic_read(&kref->refcount) == 1) ||
+> -	    (atomic_dec_and_test(&kref->refcount))) {
+> -		release(kref);
+> -		return 1;
+> -	}
+> -	return 0;
+> +	if (atomic_read(&kref->refcount) == 1)
+> +		atomic_set(&kref->refcount, 0);
+> +	else if (!atomic_dec_and_test(&kref->refcount))
+> +		return 0;
 
-Ref No;ILPB642857301,
-Ticket No;483752202ch
+This is WRONG. The refcount can be incremented (to two) AFTER the
+atomic_read ==1 and the "atomic_set". The original code seems 
+ok in this respect. 
 
-This is to 
-inform you that, base on our  yearly draw of Inorbit 
-Promotion BV 
-carried out on the 24th, April 2006, your e-mail 
-address attached with 
-the above ticket No. popped out in the third 
-stake.
+	Roger. 
 
-This 
-automatically declares you the winner of our third prize of 
-Eight 
-Hundred and Fifty Thousand Dollars(US$850,000:00) in the open 
-charity 
-ballot device.
 
-The source of fund is majorly from well meaning 
-companies and 
-humananitarian sprited industries selected from european 
-community.
-
-Be informed that in line with the sponsors' regulation, you 
-are to 
-contribute a substantial amount(at least 10%) to a recognized 
-non-governmental charity project in your environment.
-
-This should be 
-given only after your fund has been acknowledged by you.
-
-Application 
-and inquiries should be forwarded to Mrs Juliana Van 
-Dijk via e-mail; 
-(dijk_juliana@inorbit.com).
-
-Accept my heart felt congratulations.
-
-Mrs. Anita Hans
-PS:Kindly state your Ticket No in your expected 
-application.
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
+Does it sit on the couch all day? Is it unemployed? Please be specific! 
+Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ

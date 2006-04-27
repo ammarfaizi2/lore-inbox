@@ -1,191 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWD0Fhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWD0Fjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbWD0Fhf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 01:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWD0Fhf
+	id S964938AbWD0Fjc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 01:39:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWD0Fjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 01:37:35 -0400
-Received: from main.gmane.org ([80.91.229.2]:6876 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964939AbWD0Fhe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 01:37:34 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Roman Kononov <kononov195-far@yahoo.com>
-Subject: Re: C++ pushback
-Date: Thu, 27 Apr 2006 00:37:21 -0500
-Message-ID: <44505891.8080300@yahoo.com>
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org> <e2ou35$u5r$1@sea.gmane.org> <6B929F57-12EB-4E91-A191-2F0DABB77962@mac.com> <445026EB.8010407@yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Thu, 27 Apr 2006 01:39:32 -0400
+Received: from mga03.intel.com ([143.182.124.21]:59146 "EHLO
+	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
+	id S964938AbWD0Fjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 01:39:32 -0400
+Message-Id: <4t153d$r2dpi@azsmga001.ch.intel.com>
+X-IronPort-AV: i="4.04,160,1144047600"; 
+   d="scan'208"; a="28391218:sNHT15950137"
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Jens Axboe'" <axboe@suse.de>, "'Nick Piggin'" <nickpiggin@yahoo.com.au>
+Cc: <linux-kernel@vger.kernel.org>, "'Nick Piggin'" <npiggin@suse.de>,
+       "'Andrew Morton'" <akpm@osdl.org>, <linux-mm@kvack.org>
+Subject: RE: Lockless page cache test results
+Date: Wed, 26 Apr 2006 22:39:30 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-69-219-188-74.dsl.chcgil.ameritech.net
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-In-Reply-To: <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com>
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZpaiWAl+qYKSuVRgOo7PZDvNcEbwAUXPRQ
+In-Reply-To: <20060426194623.GD9211@suse.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
-> On Apr 26, 2006, at 22:05:31, Roman Kononov wrote:
->> Kyle Moffett wrote:
->>> On Apr 26, 2006, at 19:00:52, Roman Kononov wrote:
->>>> Linus Torvalds wrote:
->>>>>  - some of the C features we use may or may not be usable from 
->>>>> C++    (statement expressions?)
->>>>
->>>> Statement expressions are working fine in g++. The main difficulties 
->>>> are:
->>>>    - GCC's structure member initialization extensions are syntax
->>>>      errors in G++: struct foo_t foo={.member=0};
->>>
->>> And that breaks a _massive_ amount of kernel code, including such 
->>> core functionality like SPIN_LOCK_UNLOCKED and a host of others.  
->>> There are all sorts of macros that use member initialization of that 
->>> form.
->>
->> This does not break the code at run time, this breaks the code at 
->> compile time, and should be less painful.
+Jens Axboe wrote on Wednesday, April 26, 2006 12:46 PM
+> > It's interesting, single threaded performance is down a little. Is
+> > this significant? In some other results you showed me with 3 splices
+> > each running on their own file (ie. no tree_lock contention), lockless
+> > looked slightly faster on the same machine.
 > 
-> So breaking 90% of the source code at compile time is ok?  I think not.  
-> The kernel relies really _really_ heavily on such structure 
-> initializers, and breaking them would effectively break the world as far 
-> as the kernel is concerned.
+> I can do the same numbers on a 2-way em64t for comparison, that should
+> get us a little better coverage.
 
-I agree: do not break code, fix it. Make it more robust language-wise.
 
->>>> G++ compiling heavy C++ is a bit slower than gcc. The g++ front end 
->>>> is reliable enough. Do you have a particular bug in mind?
->>>
->>> A lot of people would consider the "significantly slower" to be a 
->>> major bug.  Many people moaned when the kernel stopped supporting GCC 
->>> 2.x because that compiler was much faster than modern C compilers.  
->>> I've seen up to a 3x slowdown when compiling the same files with g++ 
->>> instead of gcc, and such would be unacceptable to a _lot_ of people 
->>> on this list.
->>
->> I agree, it would be a bad idea to compile the existing C code by 
->> g++.  The good idea is to be able to produce new C++ modules etc.
-> 
-> No, this is a reason why C++ modules are _not_ a good idea.  If you 
-> could write the module in C or C++, but in C++ it compiled 100-200% 
-> slower, then you would write it in C.  Why?  A simple matter of numbers:
-> 
-> Say it takes you 100 hours to write and debug the module in C++, and 140 
-> to write and debug it in C.  I estimate that at least 200,000 people 
-> would download and compile a single version of the kernel with your 
-> module (not an unreasonable estimate).  Note that I'm not even including 
-> the people who do repeated regression testing of versions, or people who 
-> download and compile multiple versions of the kernel.   If the source 
-> file takes an average of 1.0 seconds to compile in C and 2.0 seconds to 
-> compile in C++, then:
-> 
-> (2.0 sec - 1.0 sec) * 200,000 = 200,000 seconds = 55.6 hours
-> 140 hours - 100 hours = 40 hours
-> 40 hours < 55.6 hours
-> 
-> So for a single version of the kernel your module, you've already wasted 
-> 15.6 hours of time across people using it.  Over time that number is 
-> just going to grow, _especially_ if people start writing more and more 
-> modules in C++ because they can.  If you want to build C++ in the 
-> kernel, write a compiler that does not include all the problematic C++ 
-> features that add so much parsing time (overloaded operators, etc).
+I throw the lockless patch and Jens splice-bench into our benchmark harness,
+here are the numbers I collected, on the following hardware:
 
-It is hard take this seriously. For people like me, it is 5 times faster 
-to type and debug C++ code. And debug time is 50 times more expensive 
-then compile time.
+(1) 2P Intel Xeon, 3.4 GHz/HT, 2M L2
+(2) 4P Intel Xeon, 3.0 GHz/HT, 8M L3
+(3) 4P Intel Xeon, 3.0 GHz/DC/HT, 2M L2 (per core)
 
->>>> A lot of C++ features are already supported sanely. You simply need 
->>>> to understand them. Especially templates and type checking.
->>>
->>> First of all, the only way to sanely use templated classes is to 
->>> write them completely inline, which causes massive bloat.  Look at 
->>> the kernel "struct list_head" and show me the "type-safe C++" way to 
->>> do that.  It uses a templated inline class, right?  That templated 
->>> inline class gets duplicated for each different type of object put in 
->>> a linked list, no?  Think about how many linked lists we have in the 
->>> kernel and tell me why that would be a good thing.
->>
->> You mentioned a bad example. The struct list_head has [almost?] all 
->> "members" inlined. If they were not, one could simply make a base 
->> class having [some] members outlined, and which class does not enforce 
->> type safety and is for inheritance only.  The template class would 
->> then inherit the base one enforcing type safety by having inline 
->> members. This technique is well known, trust me. If you need real life 
->> examples, tell me.
-> 
-> Ok, help me understand here:  Instead of helping using one sensible data 
-> structure and generating optimized code for that, the language actively 
-> _encourages_ you to duplicate classes and interfaces, providing even 
-> _more_ work for the compiler, making the code harder to debug, and 
-> probably introducing inefficiencies as well.
+Here are the graph:
 
-The C++ language does not encourage anything like this. Instead it 
-actively debugs my code. And it does not produce inefficiencies at run 
-time unless I do something stupid.
+(1) 2P Intel Xeon, 3.4 GHz/HT, 2M L2
+http://kernel-perf.sourceforge.net/splice/2P-3.4Ghz.png
 
-> If C++ doesn't work 
-> properly for a simple and clean example like struct list_head, why 
-> should we assume that it's going to work any better for more complicated 
-> examples in the rest of the kernel?  Whether or not some arbitrary 
-> function is inlined should be totally orthogonal to adding type-checking.
+(2) 4P Intel Xeon, 3.0 GHz/HT, 8M L3
+http://kernel-perf.sourceforge.net/splice/4P-3.0Ghz.png
 
-You misunderstood something. The struct list_head is indeed a perfect 
-type to be templatized with all members inlined. C++ works properly in 
-this case.
+(3) 4P Intel Xeon, 3.0 GHz/DC/HT, 2M L2 (per core)
+http://kernel-perf.sourceforge.net/splice/4P-3.0Ghz-DCHT.png
 
->>>> Static constructor issue is trivial.
->>>
->>> How so?  When do you want the static constructors to be run?  There 
->>> are many different major stages of kernel-level initialization; 
->>> picking one is likely to make them useless for other code.
->>
->> For #defines core_initcall() ... late_initcall() I would type 
->> something like this:
->>     class foo_t { foo_t(); ~foo_t(); }
->>     static char foo_storage[sizeof(foo_t)];
->>     static foo_t& foo=*reinterpret_cast<foo_t*>(foo_storage);
->>     static void __init foo_init() { new(foo_storage) foo_t; }
->>     core_initcall(foo_init);
->>
->> This ugly-looking code can be nicely wrapped into a template, which, 
->> depending on the type (foo_t in this case), at compile time, picks the 
->> proper stage for initialization.
-> 
-> You proved my point.  Static constructors can't work.  You can add silly 
-> wrapper initcall functions which create objects in static memory at 
-> various times, but the language-defined static constructors are yet 
-> another C++ feature that doesn't work by default and has to be hacked 
-> around.  C++ gives us no advantage over C here either.
+(4) everything on one graph:
+http://kernel-perf.sourceforge.net/splice/splice.png
 
-Nothing works by default. I did not say that static constructors are 
-advantageous. I said that it is easy for the kernel to make static 
-constructors working. Global variables should be deprecated anyway.
-
-> Plus this would 
-> break things like static spinlock initialization.  How would you make 
-> this work sanely for this static declaration:
-> 
-> spinlock_t foo_lock = SPIN_LOCK_UNLOCKED;
-> 
-> Under C that turns into (depending on config options):
-> 
-> spinlock_t foo_lock = { .value = 0, .owner = NULL, (...) };
-
-I would make it exactly like this:
-	#define SPIN_LOCK_UNLOCKED (spinlock_t){0,-1,whatever}
-	spinlock_t foo_lock=SPIN_LOCK_UNLOCKED;
-This is easy to change. The empty structures look far more painful.
-
-> How could that possibly work in C++ given what you've said?  Anything 
-> that breaks code that simple is an automatic nonstarter for the kernel.  
-> Also remember that spinlocks are defined preinitialized at the very 
-> earliest stages of init.  Of course I probably don't have to say that 
-> anything that tries to run a function to iterate over all 
-> statically-allocated spinlocks during init would be rejected out of hand.
-
-Apparently this would be rejected. Why would it?
-
-Regards
-Roman Kononov
-
+- Ken

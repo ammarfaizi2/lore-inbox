@@ -1,71 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWD0Dg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbWD0DhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbWD0Dg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 23:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWD0Dg3
+	id S932412AbWD0DhK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 23:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWD0DhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 23:36:29 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:16570 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964914AbWD0Dg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 23:36:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Qv+M+8COusswyspmIDc+lV1yHQgrCTGSo6cmDLuX6gplZLGu6qftp262dDfGGBoSoP4Oejfdw4fjzzLEgBIcD84WZ8em9L2e9Z5bM1TwTx1nobCGa4ObHWXpLS0WL9hDBapY586Fqto4N/99WUx3SjjaLn4XsObulxjhH7n+94w=  ;
-Message-ID: <44503C34.3070901@yahoo.com.au>
-Date: Thu, 27 Apr 2006 13:36:20 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Sam Abu-Nassar <djanssen1@hotmail.com>
-CC: linux-kernel@vger.kernel.org, karl.kiniger@med.ge.com
-Subject: Re: Using remap_pfn_range causes system hang on app close in 2.6.15
- & up
-References: <BAY101-F13D9FEC07E274B8565DD3BF4BC0@phx.gbl>
-In-Reply-To: <BAY101-F13D9FEC07E274B8565DD3BF4BC0@phx.gbl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 26 Apr 2006 23:37:10 -0400
+Received: from smtpout.mac.com ([17.250.248.185]:38128 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932412AbWD0DhI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 23:37:08 -0400
+In-Reply-To: <445026EB.8010407@yahoo.com>
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org> <e2ou35$u5r$1@sea.gmane.org> <6B929F57-12EB-4E91-A191-2F0DABB77962@mac.com> <445026EB.8010407@yahoo.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com>
+Cc: LKML Kernel <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: C++ pushback
+Date: Wed, 26 Apr 2006 23:37:05 -0400
+To: Roman Kononov <kononov195-far@yahoo.com>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Abu-Nassar wrote:
-
+On Apr 26, 2006, at 22:05:31, Roman Kononov wrote:
+> Kyle Moffett wrote:
+>> On Apr 26, 2006, at 19:00:52, Roman Kononov wrote:
+>>> Linus Torvalds wrote:
+>>>>  - some of the C features we use may or may not be usable from C+ 
+>>>> +    (statement expressions?)
+>>>
+>>> Statement expressions are working fine in g++. The main  
+>>> difficulties are:
+>>>    - GCC's structure member initialization extensions are syntax
+>>>      errors in G++: struct foo_t foo={.member=0};
 >>
->> Nick Piggin wrote:
->> Well, I think I said it shouldn't oops like this... I don't think it
->> is particularly robust WRT error cases or concurrent page faults
->> (between mmap and ioctl).
+>> And that breaks a _massive_ amount of kernel code, including such  
+>> core functionality like SPIN_LOCK_UNLOCKED and a host of others.   
+>> There are all sorts of macros that use member initialization of  
+>> that form.
+>
+> This does not break the code at run time, this breaks the code at  
+> compile time, and should be less painful.
+
+So breaking 90% of the source code at compile time is ok?  I think  
+not.  The kernel relies really _really_ heavily on such structure  
+initializers, and breaking them would effectively break the world as  
+far as the kernel is concerned.
+
+
+>>> G++ compiling heavy C++ is a bit slower than gcc. The g++ front  
+>>> end is reliable enough. Do you have a particular bug in mind?
 >>
->> As we established earlier with a debug patch, the reason for the oops
->> is that VM_PFNMAP has been cleared from your vma->vm_flags for some
->> reason. This is causing the unmap code to mistakenly try to remove
->> reverse maps and refcounts from the struct pages.
+>> A lot of people would consider the "significantly slower" to be a  
+>> major bug.  Many people moaned when the kernel stopped supporting  
+>> GCC 2.x because that compiler was much faster than modern C  
+>> compilers.  I've seen up to a 3x slowdown when compiling the same  
+>> files with g++ instead of gcc, and such would be unacceptable to a  
+>> _lot_ of people on this list.
+>
+> I agree, it would be a bad idea to compile the existing C code by g+ 
+> +.  The good idea is to be able to produce new C++ modules etc.
+
+No, this is a reason why C++ modules are _not_ a good idea.  If you  
+could write the module in C or C++, but in C++ it compiled 100-200%  
+slower, then you would write it in C.  Why?  A simple matter of numbers:
+
+Say it takes you 100 hours to write and debug the module in C++, and  
+140 to write and debug it in C.  I estimate that at least 200,000  
+people would download and compile a single version of the kernel with  
+your module (not an unreasonable estimate).  Note that I'm not even  
+including the people who do repeated regression testing of versions,  
+or people who download and compile multiple versions of the kernel.    
+If the source file takes an average of 1.0 seconds to compile in C  
+and 2.0 seconds to compile in C++, then:
+
+(2.0 sec - 1.0 sec) * 200,000 = 200,000 seconds = 55.6 hours
+140 hours - 100 hours = 40 hours
+40 hours < 55.6 hours
+
+So for a single version of the kernel your module, you've already  
+wasted 15.6 hours of time across people using it.  Over time that  
+number is just going to grow, _especially_ if people start writing  
+more and more modules in C++ because they can.  If you want to build C 
+++ in the kernel, write a compiler that does not include all the  
+problematic C++ features that add so much parsing time (overloaded  
+operators, etc).
+
+
+>>> A lot of C++ features are already supported sanely. You simply  
+>>> need to understand them. Especially templates and type checking.
 >>
->> I don't know why VM_PFNMAP should be getting cleared. But if it
->> remains set then the oops should go away.
+>> First of all, the only way to sanely use templated classes is to  
+>> write them completely inline, which causes massive bloat.  Look at  
+>> the kernel "struct list_head" and show me the "type-safe C++" way  
+>> to do that.  It uses a templated inline class, right?  That  
+>> templated inline class gets duplicated for each different type of  
+>> object put in a linked list, no?  Think about how many linked  
+>> lists we have in the kernel and tell me why that would be a good  
+>> thing.
 >
+> You mentioned a bad example. The struct list_head has [almost?] all  
+> "members" inlined. If they were not, one could simply make a base  
+> class having [some] members outlined, and which class does not  
+> enforce type safety and is for inheritance only.  The template  
+> class would then inherit the base one enforcing type safety by  
+> having inline members. This technique is well known, trust me. If  
+> you need real life examples, tell me.
+
+Ok, help me understand here:  Instead of helping using one sensible  
+data structure and generating optimized code for that, the language  
+actively _encourages_ you to duplicate classes and interfaces,  
+providing even _more_ work for the compiler, making the code harder  
+to debug, and probably introducing inefficiencies as well.  If C++  
+doesn't work properly for a simple and clean example like struct  
+list_head, why should we assume that it's going to work any better  
+for more complicated examples in the rest of the kernel?  Whether or  
+not some arbitrary function is inlined should be totally orthogonal  
+to adding type-checking.
+
+>>> Static constructor issue is trivial.
+>>
+>> How so?  When do you want the static constructors to be run?   
+>> There are many different major stages of kernel-level  
+>> initialization; picking one is likely to make them useless for  
+>> other code.
 >
+> For #defines core_initcall() ... late_initcall() I would type  
+> something like this:
+> 	class foo_t { foo_t(); ~foo_t(); }
+> 	static char foo_storage[sizeof(foo_t)];
+> 	static foo_t& foo=*reinterpret_cast<foo_t*>(foo_storage);
+> 	static void __init foo_init() { new(foo_storage) foo_t; }
+> 	core_initcall(foo_init);
 >
-> As one of my tests, I manually added the VM_PFNMAP flag before calling 
-> remap_pfn_range().  This did not resolve the issue.  Also, I checked 
-> the kernel source (vanilla Fedora Core 5) and VM_PFNMAP is always 
-> added inside remap_pfn_range() anyway, along with VM_IO & VM_RESERVED.
+> This ugly-looking code can be nicely wrapped into a template,  
+> which, depending on the type (foo_t in this case), at compile time,  
+> picks the proper stage for initialization.
 
+You proved my point.  Static constructors can't work.  You can add  
+silly wrapper initcall functions which create objects in static  
+memory at various times, but the language-defined static constructors  
+are yet another C++ feature that doesn't work by default and has to  
+be hacked around.  C++ gives us no advantage over C here either.   
+Plus this would break things like static spinlock initialization.   
+How would you make this work sanely for this static declaration:
 
-Yes, VM_PFNMAP is being removed after the remap_pfn_range.
+spinlock_t foo_lock = SPIN_LOCK_UNLOCKED;
 
-> Note that the kernel oops I posted only happened rarely.  Most of the 
-> time, the system completely froze immediately when the file descriptor 
-> was closed and I didn't get any oops message.
+Under C that turns into (depending on config options):
 
+spinlock_t foo_lock = { .value = 0, .owner = NULL, (...) };
 
-Quite likely to do all sorts of weird stuff because it will attempt to free
-these pages to the page allocator which may get allocated for kernel 
-internal
-use for example.
+How could that possibly work in C++ given what you've said?  Anything  
+that breaks code that simple is an automatic nonstarter for the  
+kernel.  Also remember that spinlocks are defined preinitialized at  
+the very earliest stages of init.  Of course I probably don't have to  
+say that anything that tries to run a function to iterate over all  
+statically-allocated spinlocks during init would be rejected out of  
+hand.
 
---
+Cheers,
+Kyle Moffett
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 

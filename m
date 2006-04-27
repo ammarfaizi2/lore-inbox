@@ -1,66 +1,65 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWDXOCi (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 24 Apr 2006 10:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWDXOCi
+	id S965194AbWD1Fuf (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 28 Apr 2006 01:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965208AbWD1Fue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Apr 2006 10:02:38 -0400
-Received: from vsmtp4.tin.it ([212.216.176.224]:31426 "EHLO vsmtp4.tin.it")
-	by vger.kernel.org with ESMTP id S1750786AbWDXOCi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Apr 2006 10:02:38 -0400
-Message-ID: <10acc3528a2.charlesbrown_13@virgilio.it>
-Date: Mon, 24 Apr 2006 15:02:16 +0100 (GMT+01:00)
-From: Charles Brown <charlesbrown_13@virgilio.it>
-Reply-To: charlesbrowns12@yahoo.com.hk
-Subject: Greetings
-Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: 81.208.107.106
+	Fri, 28 Apr 2006 01:50:34 -0400
+Received: from [210.73.88.250] ([210.73.88.250]:61422 "HELO
+	gmail.cn\(210.73.88.250\)") by vger.kernel.org with SMTP
+	id S965199AbWD1Fuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 01:50:32 -0400
+X-Antivirus-gmail.cn-Mail-From: andong_liu1000@gmail.cn via 3w.gmail.cn
+X-Antivirus-gmail.cn: 1.24-st-qms (Clear:RC:1(127.0.0.1):. Processed in 0.090124 secs Process 46529)
+Message-ID: <56276.213.185.118.196.1146158189.squirrel@3w.gmail.cn>
+Date: Fri, 28 Apr 2006 01:16:29 +0800 (CST)
+Subject: AGENTS NEEDED
+From: "sinosteel corporation" <andong_liu1000@gmail.cn>
+Reply-To: andong_liu05@yahoo.com.cn
+User-Agent: SquirrelMail/1.4.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750786AbWDXOCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965194AbWD1Fuf@vger.kernel.org>
 
-FROM:CHARLES BROWN
-No. 12 Northwest lane Abuja.
-Private phone:+234 802 
-680 7970
-Reply to: charlesbrownonlaw@latinmail.com
+17B Xichang'an Street,West District,
+Beijing 100031 P.R.CHINA.
 
-ATTN: Strictly 
-confidential.
+Dear Sir/Madam,
 
-It's my pleasure to contact you for a business  venture 
-which I , intend to establish in your country. 
- 
-Though I have not met 
-with you  before but I believe,one has to risk confiding in someone to 
-succeed  sometimes in life. There is this huge amount of Twleve million 
-USA  dollars ($12,000,000.00) which my late Client  in a  security 
-storage  house here  before he was poisoned by unknow persons.Now I 
-decided to  invest these money in your country or anywhere safe  enough 
-outside the  country for security and political reasons.We want  you to 
-help us to  transfer this fund to your country for investment  purposes 
-on the  followings below:  If you can be of an  assistance to us I will 
-be  pleased to offer you 20% Of the total fund. 
- 
-It is very 
-important  that you forward to me your full name ,your private  
-telephone and fax 
-numbers/occupation,to enable me send all relevant  
-documents pertaining   the deposit of this fund to you. 
- 
-Hence I will 
-not be exposed to avoid loosing the money. 
-I await for your soonest 
-response. 
- 
-Thank you and God bless you. 
-Sincerely, 
- 
-CHARLES  
-BROWN.
-private phone:+234 802 680 7970
-Reply to: 
-charlesbrownonlaw@latinmail.com
+I am  Mr.Shunpui Anderson, CEO of Sinosteel Corporation. We are searching
+for representatives who can help us establish a medium of getting to our
+costumers in the Canada,America,North America and Europe as well as making
+payments through you to us.
+
+ We deals on products like Baosteel, Wuhan Iron & Steel Corp, Anshan Iron
+& Steel Corp. and Taiyuan Iron & Steel Corp etc, we export these raw
+materials into Europe, America, Africa and Canada.
+
+Baosteel
+Wuhan Iron & Steel Corp
+Anshan Iron & Steel Corp
+Taiyuan Iron & Steel Corp
+
+Please if you are interested in transacting business with us we will be
+glad. Please contact us for more information; Subject to your satisfaction
+you will be given the opportunity to negotiate your mode for  which we
+will pay for your services as our representative in Canada,America,North
+America and Europe.
+
+Please if you are interested forward to us your phone number/fax and your
+full contact addresses.
+
+Thanks in advance
+Please,for further enquiery/informations contact,(i.e reply to):
+CHIEF ACCOUNTANT,
+Mr.'Andong Liu'on this email(andong_liu05@yahoo.com.cn)
+
+Mr.Shunpui Anderson
+CEO.
+SINOSTEEL CORPORATION
+

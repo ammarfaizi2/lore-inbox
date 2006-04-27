@@ -1,157 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWD0LTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbWD0LVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932428AbWD0LTM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 07:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWD0LTL
+	id S964954AbWD0LVq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 07:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbWD0LVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 07:19:11 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:22982 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932428AbWD0LTK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 07:19:10 -0400
-From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Organization: IBM Deutschland Entwicklung GmbH
-To: linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 06/16] ehca: common include files
-Date: Thu, 27 Apr 2006 13:19:06 +0200
-User-Agent: KMail/1.9.1
-Cc: Heiko J Schick <schihei@de.ibm.com>, openib-general@openib.org,
-       Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-References: <4450A183.6030405@de.ibm.com>
-In-Reply-To: <4450A183.6030405@de.ibm.com>
+	Thu, 27 Apr 2006 07:21:46 -0400
+Received: from pproxy.gmail.com ([64.233.166.178]:30177 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964954AbWD0LVq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 07:21:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Nk/TjkK295rMSni9UaKkxr92dcwKFc8BilAO8+fddI4ILPaR5y9wanWdntx6nH+hmp9iS6uGoxJ2f1MxDdMpOuB3uf7yTBqIMDcf8cppaYQnCBisXZ0CIoylRf9I2RRq+tGWOxKlF2Bg3JwB8QsyJ+owUF2tSB5A03EORLzAO/w=
+Message-ID: <9570b4cc0604270421n37caa3eeq51475ee5b9ce76cc@mail.gmail.com>
+Date: Thu, 27 Apr 2006 19:21:45 +0800
+From: Porpoise <porpoise.chiang@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: When CONFIG_BASE_SAMLL=1, the kernel 2.6.16.11 (cascade() in kernel/timer.c) may enter the infinite loop.
+Cc: "Alan Cox" <alan@redhat.com>
+In-Reply-To: <9570b4cc0604270356m36b48173sf443d04ecfa528ec@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200604271319.06844.arnd.bergmann@de.ibm.com>
+References: <9570b4cc0604270356m36b48173sf443d04ecfa528ec@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 April 2006 12:48, Heiko J Schick wrote:
+Dear all,
 
-> +/**
-> + * ehca_adr_bad - Handle to be used for adress translation mechanisms,
-> + * currently a placeholder.
-> + */
-> +inline static int ehca_adr_bad(void *adr)
+  Sorry. There is a typo.
+  The patch should be "#if CONFIG_BASE_SMALL!=0",
+  not "#ifdef CONFIG_BASE_SMALL".
 
-'static inline', not 'inline static', by convention.
+Regards,
+Porpoise
 
+============================
+--- linux-2.6.16.11org/kernel/timer.c	2006-04-25 04:20:24.000000000 +0800
++++ linux-2.6.16.11/kernel/timer.c	2006-04-27 18:49:55.000000000 +0800
+@@ -394,6 +394,34 @@
+ EXPORT_SYMBOL(del_timer_sync);
+ #endif
 
-> +/* We will remove this lines in SVN when it is included in the Linux kernel.
-> + * We don't want to introducte unnecessary dependencies to a patched kernel.
-> + */
-> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,17)
-
-Well, you should also remove this for submission, I guess ;-)
-
-> +#define EHCA_EDEB_TRACE_MASK_SIZE 32
-> +extern u8 ehca_edeb_mask[EHCA_EDEB_TRACE_MASK_SIZE];
-> +#define EDEB_ID_TO_U32(str4) (str4[3] | (str4[2] << 8) | (str4[1] << 16) | \
-> +			      (str4[0] << 24))
-> +
-> +inline static u64 ehca_edeb_filter(const u32 level,
-> +				   const u32 id, const u32 line)
-
-'static inline' again. best grep all your source for this, there are probably
-more places.
-
-> +{
-> +	u64 ret = 0;
-> +	u32 filenr = 0;
-> +	u32 filter_level = 9;
-> +	u32 dynamic_level = 0;
-> +
-> +	/* This is code written for the gcc -O2 optimizer which should colapse
-> +	 * to two single ints filter_level is the first level kicked out by
-> +	 * compiler means trace everythin below 6. */
-> +	if (id == EDEB_ID_TO_U32("ehav")) {
-> +		filenr = 0x01;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("clas")) {
-> +		filenr = 0x02;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("cqeq")) {
-> +		filenr = 0x03;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("shca")) {
-> +		filenr = 0x05;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("eirq")) {
-> +		filenr = 0x06;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("lMad")) {
-> +		filenr = 0x07;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("mcas")) {
-> +		filenr = 0x08;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("mrmw")) {
-> +		filenr = 0x09;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("vpd ")) {
-> +		filenr = 0x0a;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("e_qp")) {
-> +		filenr = 0x0b;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("uqes")) {
-> +		filenr = 0x0c;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("PHYP")) {
-> +		filenr = 0x0d;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("hcpi")) {
-> +		filenr = 0x0e;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("iptz")) {
-> +		filenr = 0x0f;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("spta")) {
-> +		filenr = 0x10;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("simp")) {
-> +		filenr = 0x11;
-> +		filter_level = 8;
-> +	}
-> +	if (id == EDEB_ID_TO_U32("reqs")) {
-> +		filenr = 0x12;
-> +		filter_level = 8;
-> +	}
-
-I guess you can convert that to
-
-switch (id) {
-	case EBEB_ID_CLAS:
-		...
-	case EDEB_ID_CQEQ:
-		...
-}
-
-> +
-> +#ifdef EHCA_USE_HCALL_KERNEL
-> +#ifdef CONFIG_PPC_PSERIES
-> +
-> +#include <asm/paca.h>
-> +
-
-You could make everything down from here a separate header
-for hcall.
++#if CONFIG_BASE_SMALL!=0
++static int cascade_safe(tvec_base_t *base, tvec_t *tv, int index)
++{
++	/* cascade all the timers from tv up one level */
++	struct list_head *head, *curr;
++	struct list_head dummy_head;
++	
++	head = tv->vec + index;
++
++	list_add(&dummy_head,head);
++	list_del_init(head);
++
++	curr = dummy_head.next;
++	while (curr != &dummy_head) {
++		struct timer_list *tmp;
++
++		tmp = list_entry(curr, struct timer_list, entry);
++		BUG_ON(tmp->base != &base->t_base);
++		curr = curr->next;
++		internal_add_timer(base, tmp);
++	}
++
++	return index;
++}
++#else
++#define cascade_safe(base,tv,index) cascade(base,tv,index)
++#endif
++
+ static int cascade(tvec_base_t *base, tvec_t *tv, int index)
+ {
+ 	/* cascade all the timers from tv up one level */
+@@ -444,7 +472,7 @@
+ 			(!cascade(base, &base->tv2, INDEX(0))) &&
+ 				(!cascade(base, &base->tv3, INDEX(1))) &&
+ 					!cascade(base, &base->tv4, INDEX(2)))
+-			cascade(base, &base->tv5, INDEX(3));
++			cascade_safe(base, &base->tv5, INDEX(3));
+ 		++base->timer_jiffies;
+ 		list_splice_init(base->tv1.vec + index, &work_list);
+ 		while (!list_empty(head)) {

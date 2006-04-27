@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWD0M52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbWD0M56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbWD0M52 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 08:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbWD0M52
+	id S965017AbWD0M56 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 08:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbWD0M56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 08:57:28 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:18560 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S964985AbWD0M51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 08:57:27 -0400
-Date: Thu, 27 Apr 2006 14:57:26 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Heiko J Schick <schihei@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       linuxppc-dev@ozlabs.org, Marcus Eder <MEDER@de.ibm.com>,
-       Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, schickhj@de.ibm.com
-Subject: Re: [PATCH 00/16] ehca: IBM eHCA InfiniBand Device Driver
-Message-ID: <20060427125726.GK32127@wohnheim.fh-wedel.de>
-References: <4450B378.9000705@de.ibm.com>
+	Thu, 27 Apr 2006 08:57:58 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:58800 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S965026AbWD0M55 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 08:57:57 -0400
+Date: Thu, 27 Apr 2006 16:57:45 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH -mm] W1_CON: add W1 to depends
+Message-ID: <20060427125745.GA12840@2ka.mipt.ru>
+References: <20060426212131.1c566d19.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4450B378.9000705@de.ibm.com>
+In-Reply-To: <20060426212131.1c566d19.rdunlap@xenotime.net>
 User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 27 Apr 2006 16:57:45 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 April 2006 14:05:12 +0200, Heiko J Schick wrote:
+On Wed, Apr 26, 2006 at 09:21:31PM -0700, Randy.Dunlap (rdunlap@xenotime.net) wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
 > 
-> many thanks for your comments. They are very helpful for us. All
-> 17 patches have to be applied, otherwise the driver won't compile.
+> W1_CON should depend on W1 also.
 
-Don't expect much cheer and rejoicing over this.  I suspect that akpm
-or Linus will either want the 17 patches merged into one or have a
-patchset where every single patch leaves the kernel in a working
-state, including working eHCA driver.
-
-Generally, there seemed to be a bit more SHOUTING when compared to
-other kernel code.  Might be something to look at as well.
-
-Jörn
+I have no problem with the patch, but does dependency absence introduce
+some problems? This config option is only used when w1 is enabled.
 
 -- 
-Rules of Optimization:
-Rule 1: Don't do it.
-Rule 2 (for experts only): Don't do it yet.
--- M.A. Jackson 
+	Evgeniy Polyakov

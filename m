@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWD0Bgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWD0Bnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbWD0Bgh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 21:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWD0Bgh
+	id S964857AbWD0Bnm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 21:43:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWD0Bnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 21:36:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7885 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964872AbWD0Bgh (ORCPT
+	Wed, 26 Apr 2006 21:43:42 -0400
+Received: from rtr.ca ([64.26.128.89]:44952 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S964857AbWD0Bnl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 21:36:37 -0400
-Date: Wed, 26 Apr 2006 18:34:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de,
-       ralf@linux-mips.org, paulus@samba.org, schwidefsky@de.ibm.com,
-       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp, ysato@users.sourceforge.jp
-Subject: Re: [PATCH] Handle CONFIG_LBD and CONFIG_LSF in one place
-Message-Id: <20060426183442.78e40e3b.akpm@osdl.org>
-In-Reply-To: <20060419140540.GK24104@parisc-linux.org>
-References: <20060419140540.GK24104@parisc-linux.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 26 Apr 2006 21:43:41 -0400
+Message-ID: <445021B8.3070705@rtr.ca>
+Date: Wed, 26 Apr 2006 21:43:20 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] drivers/scsi/sd.c: fix uninitialized variable in handling
+ medium errors
+References: <200604261627.29419.lkml@rtr.ca>	<1146092161.12914.3.camel@mulgrave.il.steeleye.com>	<20060426161444.423a8296.akpm@osdl.org>	<44500033.3010605@rtr.ca> <20060426163536.6f7bff77.akpm@osdl.org>
+In-Reply-To: <20060426163536.6f7bff77.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox <matthew@wil.cx> wrote:
->
->  CONFIG_LBD and CONFIG_LSF are spread into asm/types.h for no particularly
->  good reason.  Centralising the definition in linux/types.h means that arch
->  maintainers don't need to bother adding it, as well as fixing the problem
->  with x86-64 users being asked to make a decision that has absolutely no
->  effect.  The H8/300 porters seem particularly confused since I'm not aware
->  of any microcontrollers that need to support 2TB filesystems these days.
+Andrew Morton wrote:
+> Mark Lord <lkml@rtr.ca> wrote:
+>>> That's if we think -stable needs this fixed.
+>> Let's say a bunch of read bio's get coalesced into a single
+>> 200+ sector request.  This then fails on one single bad sector
+>> out of the 200+.  Without the patch, there is a very good chance
+>> that sd.c will simply fail the entire request, all 200+ sectors.
+>>
+>> With the patch, it will fail the first block, and then retry
+>> the remaining blocks.  And repeat this until something works,
+>> or until everything has failed one by one.
+> 
+> Yowch.  I have the feeling that this'll take our EIO-handling time from
+> far-too-long to far-too-long*200.
 
-x86_64:
+That's how it always used to work (eg. SUSE9 2.6.5+ kernels; Jens?).
 
-include/linux/types.h:137: error: conflicting types for 'sector_t'
-include/asm/types.h:51: error: previous declaration of 'sector_t' was here
+>> What I need to have happen when a request is failed due to bad-media,
+>> is have it split the request into a sequence of single-block requests
+>> that are passed to the LLD one at a time.  The ones with real bad
+>> sectors will then be independently failed, and the rest will get done.
+>>
+>> Much better.  Much more complex.
+>>
+>> I'm thinking about something like that, just not sure whether to put it
+>> (initially) in libata, sd.c, or the block layer.
+> 
+> block, I suspect.  My DVD trauma was IDE-induced.  Jens is mulling the
+> problem - I'd suggest you coordinate with him.
+
+I've been pinging Jens about it for a couple of weeks now; no response.
+
+> It would be a good thing to fix.
+> 
+> It's moderately hard to test, though.  Easy enough for DVDs and CDs, but
+> it's harder to take a marker pen to a hard drive.
+
+I have a bunch of "pre-marked" SATA drives here just for the purpose..
+
+Cheers
 

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWD0Ktz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWD0KwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbWD0Ktz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 06:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWD0KtY
+	id S965108AbWD0KwB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 06:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965092AbWD0Kve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 06:49:24 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:58794 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S965094AbWD0Kso
+	Thu, 27 Apr 2006 06:51:34 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:9899 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S965099AbWD0KtS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 06:48:44 -0400
-Message-ID: <4450A1A6.6030201@de.ibm.com>
-Date: Thu, 27 Apr 2006 12:49:10 +0200
+	Thu, 27 Apr 2006 06:49:18 -0400
+Message-ID: <4450A1C8.7090407@de.ibm.com>
+Date: Thu, 27 Apr 2006 12:49:44 +0200
 From: Heiko J Schick <schihei@de.ibm.com>
 User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
 X-Accept-Language: en-us, en
@@ -19,7 +19,7 @@ To: openib-general@openib.org, Christoph Raisch <RAISCH@de.ibm.com>,
        Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
        schihei@de.ibm.com, linux-kernel@vger.kernel.org,
        linuxppc-dev@ozlabs.org
-Subject: [PATCH 09/16] ehca: protection domain and address vector
+Subject: [PATCH 14/16] ehca: hardware interface
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,333 +28,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Signed-off-by: Heiko J Schick <schickhj@de.ibm.com>
 
 
-  ehca_av.c |  309 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  ehca_pd.c |  122 ++++++++++++++++++++++++
-  2 files changed, 431 insertions(+)
+  hipz_fns.h      |   73 ++++++++++
+  hipz_fns_core.h |  126 +++++++++++++++++
+  hipz_hw.h       |  398 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  3 files changed, 597 insertions(+)
 
 
 
---- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/ehca_av.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/ehca_av.c	2006-04-11 15:25:50.000000000 +0200
-@@ -0,0 +1,309 @@
+--- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/hipz_fns.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/hipz_fns.h	2006-04-25 10:31:46.000000000 +0200
+@@ -0,0 +1,73 @@
 +/*
 + *  IBM eServer eHCA Infiniband device driver for Linux on POWER
 + *
-+ *  adress vector functions
-+ *
-+ *  Authors: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
-+ *           Khadija Souissi <souissik@de.ibm.com>
-+ *           Reinhard Ernst <rernst@de.ibm.com>
-+ *           Christoph Raisch <raisch@de.ibm.com>
-+ *
-+ *  Copyright (c) 2005 IBM Corporation
-+ *
-+ *  All rights reserved.
-+ *
-+ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
-+ *  BSD.
-+ *
-+ * OpenIB BSD License
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ * Redistributions of source code must retain the above copyright notice, this
-+ * list of conditions and the following disclaimer.
-+ *
-+ * Redistributions in binary form must reproduce the above copyright notice,
-+ * this list of conditions and the following disclaimer in the documentation
-+ * and/or other materials
-+ * provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-+ * POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ *  $Id: ehca_av.c,v 1.12 2006/04/11 13:25:50 nguyen Exp $
-+ */
-+
-+
-+#define DEB_PREFIX "ehav"
-+
-+#include <asm/current.h>
-+
-+#include "ehca_kernel.h"
-+#include "ehca_tools.h"
-+#include "ehca_iverbs.h"
-+#include "hcp_if.h"
-+
-+struct ib_ah *ehca_create_ah(struct ib_pd *pd, struct ib_ah_attr *ah_attr)
-+{
-+	extern struct ehca_module ehca_module;
-+	extern int ehca_static_rate;
-+	int retcode = 0;
-+	struct ehca_av *av = NULL;
-+	struct ehca_shca *shca = NULL;
-+
-+	EHCA_CHECK_PD_P(pd);
-+	EHCA_CHECK_ADR_P(ah_attr);
-+
-+	shca = container_of(pd->device, struct ehca_shca, ib_device);
-+
-+	EDEB_EN(7,"pd=%p ah_attr=%p", pd, ah_attr);
-+
-+	av = kmem_cache_alloc(ehca_module.cache_av, SLAB_KERNEL);
-+	if (av == NULL) {
-+		EDEB_ERR(4,"Out of memory pd=%p ah_attr=%p", pd, ah_attr);
-+		retcode = -ENOMEM;
-+		goto create_ah_exit0;
-+	}
-+
-+	av->av.sl = ah_attr->sl;
-+	av->av.dlid = ntohs(ah_attr->dlid);
-+	av->av.slid_path_bits = ah_attr->src_path_bits;
-+
-+	if (ehca_static_rate < 0) {
-+		int ah_mult = ib_rate_to_mult(ah_attr->static_rate);
-+		int ehca_mult =
-+			ib_rate_to_mult(shca->sport[ah_attr->port_num].rate );
-+
-+		if (ah_mult >= ehca_mult)
-+			av->av.ipd = 0;
-+		else
-+			av->av.ipd = (ah_mult > 0) ?
-+				((ehca_mult - 1) / ah_mult) : 0;
-+	} else
-+	        av->av.ipd = ehca_static_rate;
-+
-+	EDEB(7,"IPD av->av.ipd set =%x  ah_attr->static_rate=%x "
-+	       "shca_ib_rate=%x ",av->av.ipd, ah_attr->static_rate,
-+	     shca->sport[ah_attr->port_num].rate);
-+
-+	av->av.lnh = ah_attr->ah_flags;
-+	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_IPVERSION_MASK, 6);
-+	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_TCLASS_MASK,
-+					    ah_attr->grh.traffic_class);
-+	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_FLOWLABEL_MASK,
-+					    ah_attr->grh.flow_label);
-+	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_HOPLIMIT_MASK,
-+					    ah_attr->grh.hop_limit);
-+	av->av.grh.word_0 |= EHCA_BMASK_SET(GRH_NEXTHEADER_MASK, 0x1B);
-+	/* IB transport */
-+	av->av.grh.word_0 = be64_to_cpu(av->av.grh.word_0);
-+	/* set sgid in grh.word_1 */
-+	if (ah_attr->ah_flags & IB_AH_GRH) {
-+		int rc = 0;
-+		struct ib_port_attr port_attr;
-+		union ib_gid gid;
-+		memset(&port_attr, 0, sizeof(port_attr));
-+		rc = ehca_query_port(pd->device, ah_attr->port_num,
-+				     &port_attr);
-+		if (rc != 0) { /* invalid port number */
-+			retcode = -EINVAL;
-+			EDEB_ERR(4, "Invalid port number "
-+				 "ehca_query_port() returned %x "
-+				 "pd=%p ah_attr=%p", rc, pd, ah_attr);
-+			goto create_ah_exit1;
-+		}
-+		memset(&gid, 0, sizeof(gid));
-+		rc = ehca_query_gid(pd->device,
-+				    ah_attr->port_num,
-+				    ah_attr->grh.sgid_index, &gid);
-+		if (rc != 0) {
-+			retcode = -EINVAL;
-+			EDEB_ERR(4, "Failed to retrieve sgid "
-+				 "ehca_query_gid() returned %x "
-+				 "pd=%p ah_attr=%p", rc, pd, ah_attr);
-+			goto create_ah_exit1;
-+		}
-+		memcpy(&av->av.grh.word_1, &gid, sizeof(gid));
-+	}
-+	/* for the time being we use a hard coded PMTU of 2048 Bytes */
-+	av->av.pmtu = 4;
-+
-+	/* dgid comes in grh.word_3 */
-+	memcpy(&av->av.grh.word_3, &ah_attr->grh.dgid,
-+	       sizeof(ah_attr->grh.dgid));
-+
-+	EHCA_REGISTER_AV(device, pd);
-+
-+	EDEB_EX(7,"pd=%p ah_attr=%p av=%p", pd, ah_attr, av);
-+	return (&av->ib_ah);
-+
-+create_ah_exit1:
-+	kmem_cache_free(ehca_module.cache_av, av);
-+
-+create_ah_exit0:
-+	EDEB_EX(7,"retcode=%x pd=%p ah_attr=%p", retcode, pd, ah_attr);
-+	return ERR_PTR(retcode);
-+}
-+
-+int ehca_modify_ah(struct ib_ah *ah, struct ib_ah_attr *ah_attr)
-+{
-+	struct ehca_av *av = NULL;
-+	struct ehca_ud_av new_ehca_av;
-+        struct ehca_pd *my_pd = NULL;
-+        u32 cur_pid = current->tgid;
-+	int ret = 0;
-+
-+	EHCA_CHECK_AV(ah);
-+	EHCA_CHECK_ADR(ah_attr);
-+
-+	EDEB_EN(7,"ah=%p ah_attr=%p", ah, ah_attr);
-+
-+        my_pd = container_of(ah->pd, struct ehca_pd, ib_pd);
-+        if (my_pd->ib_pd.uobject!=NULL && my_pd->ib_pd.uobject->context!=NULL &&
-+            my_pd->ownpid!=cur_pid) {
-+                EDEB_ERR(4, "Invalid caller pid=%x ownpid=%x",
-+                         cur_pid, my_pd->ownpid);
-+                return -EINVAL;
-+        }
-+
-+	memset(&new_ehca_av, 0, sizeof(new_ehca_av));
-+	new_ehca_av.sl = ah_attr->sl;
-+	new_ehca_av.dlid = ntohs(ah_attr->dlid);
-+	new_ehca_av.slid_path_bits = ah_attr->src_path_bits;
-+	new_ehca_av.ipd = ah_attr->static_rate;
-+	new_ehca_av.lnh = EHCA_BMASK_SET(GRH_FLAG_MASK,
-+					 ((ah_attr->ah_flags & IB_AH_GRH) > 0));
-+	new_ehca_av.grh.word_0 = EHCA_BMASK_SET(GRH_TCLASS_MASK,
-+						ah_attr->grh.traffic_class);
-+	new_ehca_av.grh.word_0 |= EHCA_BMASK_SET(GRH_FLOWLABEL_MASK,
-+						 ah_attr->grh.flow_label);
-+	new_ehca_av.grh.word_0 |= EHCA_BMASK_SET(GRH_HOPLIMIT_MASK,
-+						 ah_attr->grh.hop_limit);
-+	new_ehca_av.grh.word_0 |= EHCA_BMASK_SET(GRH_NEXTHEADER_MASK, 0x1b);
-+	new_ehca_av.grh.word_0 = be64_to_cpu(new_ehca_av.grh.word_0);
-+
-+	/* set sgid in grh.word_1 */
-+	if (ah_attr->ah_flags & IB_AH_GRH) {
-+		int rc = 0;
-+		struct ib_port_attr port_attr;
-+		union ib_gid gid;
-+		memset(&port_attr, 0, sizeof(port_attr));
-+		rc = ehca_query_port(ah->device, ah_attr->port_num,
-+				     &port_attr);
-+		if (rc != 0) { /* invalid port number */
-+			ret = -EINVAL;
-+			EDEB_ERR(4, "Invalid port number "
-+				 "ehca_query_port() returned %x "
-+				 "ah=%p ah_attr=%p port_num=%x",
-+				 rc, ah, ah_attr, ah_attr->port_num);
-+			goto modify_ah_exit1;
-+		}
-+		memset(&gid, 0, sizeof(gid));
-+		rc = ehca_query_gid(ah->device,
-+				    ah_attr->port_num,
-+				    ah_attr->grh.sgid_index, &gid);
-+		if (rc != 0) {
-+			ret = -EINVAL;
-+			EDEB_ERR(4,
-+				 "Failed to retrieve sgid "
-+				 "ehca_query_gid() returned %x "
-+				 "ah=%p ah_attr=%p port_num=%x "
-+				 "sgid_index=%x",
-+				 rc, ah, ah_attr, ah_attr->port_num,
-+				 ah_attr->grh.sgid_index);
-+			goto modify_ah_exit1;
-+		}
-+		memcpy(&new_ehca_av.grh.word_1, &gid, sizeof(gid));
-+	}
-+
-+	new_ehca_av.pmtu = 4; /* see also comment in create_ah() */
-+
-+	memcpy(&new_ehca_av.grh.word_3, &ah_attr->grh.dgid,
-+	       sizeof(ah_attr->grh.dgid));
-+
-+	av = container_of(ah, struct ehca_av, ib_ah);
-+	av->av = new_ehca_av;
-+
-+modify_ah_exit1:
-+	EDEB_EX(7,"ret=%x ah=%p ah_attr=%p", ret, ah, ah_attr);
-+
-+	return ret;
-+}
-+
-+int ehca_query_ah(struct ib_ah *ah, struct ib_ah_attr *ah_attr)
-+{
-+	int ret = 0;
-+	struct ehca_av *av = NULL;
-+        struct ehca_pd *my_pd = NULL;
-+        u32 cur_pid = current->tgid;
-+
-+	EHCA_CHECK_AV(ah);
-+	EHCA_CHECK_ADR(ah_attr);
-+
-+	EDEB_EN(7,"ah=%p ah_attr=%p", ah, ah_attr);
-+
-+        my_pd = container_of(ah->pd, struct ehca_pd, ib_pd);
-+        if (my_pd->ib_pd.uobject!=NULL && my_pd->ib_pd.uobject->context!=NULL &&
-+            my_pd->ownpid!=cur_pid) {
-+                EDEB_ERR(4, "Invalid caller pid=%x ownpid=%x",
-+                         cur_pid, my_pd->ownpid);
-+                return -EINVAL;
-+        }
-+
-+	av = container_of(ah, struct ehca_av, ib_ah);
-+	memcpy(&ah_attr->grh.dgid, &av->av.grh.word_3,
-+	       sizeof(ah_attr->grh.dgid));
-+	ah_attr->sl = av->av.sl;
-+
-+	ah_attr->dlid = av->av.dlid;
-+
-+	ah_attr->src_path_bits = av->av.slid_path_bits;
-+	ah_attr->static_rate = av->av.ipd;
-+	ah_attr->ah_flags = EHCA_BMASK_GET(GRH_FLAG_MASK, av->av.lnh);
-+	ah_attr->grh.traffic_class = EHCA_BMASK_GET(GRH_TCLASS_MASK,
-+						    av->av.grh.word_0);
-+	ah_attr->grh.hop_limit = EHCA_BMASK_GET(GRH_HOPLIMIT_MASK,
-+						av->av.grh.word_0);
-+	ah_attr->grh.flow_label = EHCA_BMASK_GET(GRH_FLOWLABEL_MASK,
-+						 av->av.grh.word_0);
-+
-+	EDEB_EX(7,"ah=%p ah_attr=%p ret=%x", ah, ah_attr, ret);
-+	return ret;
-+}
-+
-+int ehca_destroy_ah(struct ib_ah *ah)
-+{
-+	extern struct ehca_module ehca_module;
-+        struct ehca_pd *my_pd = NULL;
-+        u32 cur_pid = current->tgid;
-+	int ret = 0;
-+
-+	EHCA_CHECK_AV(ah);
-+	EHCA_DEREGISTER_AV(ah);
-+
-+	EDEB_EN(7,"ah=%p", ah);
-+
-+        my_pd = container_of(ah->pd, struct ehca_pd, ib_pd);
-+        if (my_pd->ib_pd.uobject!=NULL && my_pd->ib_pd.uobject->context!=NULL &&
-+            my_pd->ownpid!=cur_pid) {
-+                EDEB_ERR(4, "Invalid caller pid=%x ownpid=%x",
-+                         cur_pid, my_pd->ownpid);
-+                return -EINVAL;
-+        }
-+
-+	kmem_cache_free(ehca_module.cache_av,
-+			container_of(ah, struct ehca_av, ib_ah));
-+
-+	EDEB_EX(7,"ret=%x ah=%p", ret, ah);
-+	return ret;
-+}
---- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/ehca_pd.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/ehca_pd.c	2006-03-27 11:23:18.000000000 +0200
-@@ -0,0 +1,122 @@
-+/*
-+ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
-+ *
-+ *  PD functions
++ *  HW abstraction register functions
 + *
 + *  Authors: Christoph Raisch <raisch@de.ibm.com>
++ *           Reinhard Ernst <rernst@de.ibm.com>
 + *
 + *  Copyright (c) 2005 IBM Corporation
 + *
@@ -388,89 +78,569 @@ Signed-off-by: Heiko J Schick <schickhj@de.ibm.com>
 + * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 + * POSSIBILITY OF SUCH DAMAGE.
 + *
-+ *  $Id: ehca_pd.c,v 1.5 2006/03/27 09:23:18 schickhj Exp $
++ *  $Id: hipz_fns.h,v 1.8 2006/04/25 08:31:46 schickhj Exp $
 + */
 +
++#ifndef __HIPZ_FNS_H__
++#define __HIPZ_FNS_H__
 +
-+#define DEB_PREFIX "vpd "
++#include "ehca_classes.h"
++#include "hipz_hw.h"
++#ifndef EHCA_USE_HCALL
++#include "sim_gal.h"
++#endif
 +
-+#include <asm/current.h>
++#include "hipz_fns_core.h"
 +
-+#include "ehca_kernel.h"
++#define hipz_galpa_store_eq(gal, offset, value) \
++	hipz_galpa_store(gal, EQTEMM_OFFSET(offset), value)
++
++#define hipz_galpa_load_eq(gal, offset) \
++	hipz_galpa_load(gal, EQTEMM_OFFSET(offset))
++
++#define hipz_galpa_store_qped(gal, offset, value) \
++	hipz_galpa_store(gal, QPEDMM_OFFSET(offset), value)
++
++#define hipz_galpa_load_qped(gal, offset) \
++	hipz_galpa_load(gal, QPEDMM_OFFSET(offset))
++
++#define hipz_galpa_store_mrmw(gal, offset, value) \
++	hipz_galpa_store(gal, MRMWMM_OFFSET(offset), value)
++
++#define hipz_galpa_load_mrmw(gal, offset) \
++	hipz_galpa_load(gal, MRMWMM_OFFSET(offset))
++
++#endif
+--- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/hipz_fns_core.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/hipz_fns_core.h	2006-03-31 13:43:52.000000000 +0200
+@@ -0,0 +1,126 @@
++/*
++ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
++ *
++ *  HW abstraction register functions
++ *
++ *  Authors: Christoph Raisch <raisch@de.ibm.com>
++ *           Heiko J Schick <schickhj@de.ibm.com>
++ *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *           Reinhard Ernst <rernst@de.ibm.com>
++ *
++ *  Copyright (c) 2005 IBM Corporation
++ *
++ *  All rights reserved.
++ *
++ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
++ *  BSD.
++ *
++ * OpenIB BSD License
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ * Redistributions of source code must retain the above copyright notice, this
++ * list of conditions and the following disclaimer.
++ *
++ * Redistributions in binary form must reproduce the above copyright notice,
++ * this list of conditions and the following disclaimer in the documentation
++ * and/or other materials
++ * provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
++ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
++ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ *
++ *  $Id: hipz_fns_core.h,v 1.6 2006/03/31 11:43:52 nguyen Exp $
++ */
++
++#ifndef __HIPZ_FNS_CORE_H__
++#define __HIPZ_FNS_CORE_H__
++
++#include "hcp_phyp.h"
++#include "hipz_hw.h"
++
++#define hipz_galpa_store_cq(gal,offset,value)\
++	hipz_galpa_store(gal,CQTEMM_OFFSET(offset),value)
++#define hipz_galpa_load_cq(gal,offset)\
++	hipz_galpa_load(gal,CQTEMM_OFFSET(offset))
++
++#define hipz_galpa_store_qp(gal,offset,value)\
++	hipz_galpa_store(gal,QPTEMM_OFFSET(offset),value)
++#define hipz_galpa_load_qp(gal,offset)\
++	hipz_galpa_load(gal,QPTEMM_OFFSET(offset))
++
++inline static void hipz_update_sqa(struct ehca_qp *qp, u16 nr_wqes)
++{
++	struct h_galpa gal;
++
++	EDEB_EN(7, "qp=%p", qp);
++	gal = qp->galpas.kernel;
++	/*  ringing doorbell :-) */
++	hipz_galpa_store_qp(gal, qpx_sqa, EHCA_BMASK_SET(QPX_SQADDER, nr_wqes));
++	EDEB_EX(7, "qp=%p QPx_SQA = %i", qp, nr_wqes);
++}
++
++inline static void hipz_update_rqa(struct ehca_qp *qp, u16 nr_wqes)
++{
++	struct h_galpa gal;
++
++	EDEB_EN(7, "qp=%p", qp);
++	gal = qp->galpas.kernel;
++	/*  ringing doorbell :-) */
++	hipz_galpa_store_qp(gal, qpx_rqa, EHCA_BMASK_SET(QPX_RQADDER, nr_wqes));
++	EDEB_EX(7, "qp=%p QPx_RQA = %i", qp, nr_wqes);
++}
++
++inline static void hipz_update_feca(struct ehca_cq *cq, u32 nr_cqes)
++{
++	struct h_galpa gal;
++
++	EDEB_EN(7, "cq=%p", cq);
++	gal = cq->galpas.kernel;
++	hipz_galpa_store_cq(gal, cqx_feca,
++			    EHCA_BMASK_SET(CQX_FECADDER, nr_cqes));
++	EDEB_EX(7, "cq=%p CQx_FECA = %i", cq, nr_cqes);
++}
++
++inline static void hipz_set_cqx_n0(struct ehca_cq *cq, u32 value)
++{
++	struct h_galpa gal;
++	u64 CQx_N0_reg = 0;
++
++	EDEB_EN(7, "cq=%p event on solicited completion -- write CQx_N0",
++		cq);
++	gal = cq->galpas.kernel;
++	hipz_galpa_store_cq(gal, cqx_n0,
++			    EHCA_BMASK_SET(CQX_N0_GENERATE_SOLICITED_COMP_EVENT,
++					   value));
++	CQx_N0_reg = hipz_galpa_load_cq(gal, cqx_n0);
++	EDEB_EX(7, "cq=%p loaded CQx_N0=%lx", cq,
++		(unsigned long)CQx_N0_reg);
++}
++
++inline static void hipz_set_cqx_n1(struct ehca_cq *cq, u32 value)
++{
++	struct h_galpa gal;
++	u64 CQx_N1_reg = 0;
++
++	EDEB_EN(7, "cq=%p event on completion -- write CQx_N1",
++		cq);
++	gal = cq->galpas.kernel;
++	hipz_galpa_store_cq(gal, cqx_n1,
++			    EHCA_BMASK_SET(CQX_N1_GENERATE_COMP_EVENT, value));
++	CQx_N1_reg = hipz_galpa_load_cq(gal, cqx_n1);
++	EDEB_EX(7, "cq=%p loaded CQx_N1=%lx", cq,
++		(unsigned long)CQx_N1_reg);
++}
++
++#endif /* __HIPZ_FNC_CORE_H__ */
+--- linux-2.6.17-rc2-orig/drivers/infiniband/hw/ehca/hipz_hw.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.17-rc2/drivers/infiniband/hw/ehca/hipz_hw.h	2006-03-13 14:07:20.000000000 +0100
+@@ -0,0 +1,398 @@
++/*
++ *  IBM eServer eHCA Infiniband device driver for Linux on POWER
++ *
++ *  eHCA register definitions
++ *
++ *  Authors: Waleri Fomin <fomin@de.ibm.com>
++ *           Christoph Raisch <raisch@de.ibm.com>
++ *           Reinhard Ernst <rernst@de.ibm.com>
++ *
++ *  Copyright (c) 2005 IBM Corporation
++ *
++ *  All rights reserved.
++ *
++ *  This source code is distributed under a dual license of GPL v2.0 and OpenIB
++ *  BSD.
++ *
++ * OpenIB BSD License
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ * Redistributions of source code must retain the above copyright notice, this
++ * list of conditions and the following disclaimer.
++ *
++ * Redistributions in binary form must reproduce the above copyright notice,
++ * this list of conditions and the following disclaimer in the documentation
++ * and/or other materials
++ * provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
++ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
++ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
++ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
++ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
++ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
++ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
++ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
++ * POSSIBILITY OF SUCH DAMAGE.
++ *
++ *  $Id: hipz_hw.h,v 1.8 2006/03/13 13:07:20 fomin Exp $
++ */
++
++#ifndef __HIPZ_HW_H__
++#define __HIPZ_HW_H__
++
 +#include "ehca_tools.h"
-+#include "ehca_iverbs.h"
++#include "ehca_kernel.h"
 +
-+struct ib_pd *ehca_alloc_pd(struct ib_device *device,
-+			    struct ib_ucontext *context, struct ib_udata *udata)
-+{
-+	extern struct ehca_module ehca_module;
-+	struct ib_pd *mypd = NULL;
-+	struct ehca_pd *pd = NULL;
++/** QP Table Entry Memory Map
++ */
++struct hipz_qptemm {
++	u64 qpx_hcr;
++	u64 qpx_c;
++	u64 qpx_herr;
++	u64 qpx_aer;
++/* 0x20*/
++	u64 qpx_sqa;
++	u64 qpx_sqc;
++	u64 qpx_rqa;
++	u64 qpx_rqc;
++/* 0x40*/
++	u64 qpx_st;
++	u64 qpx_pmstate;
++	u64 qpx_pmfa;
++	u64 qpx_pkey;
++/* 0x60*/
++	u64 qpx_pkeya;
++	u64 qpx_pkeyb;
++	u64 qpx_pkeyc;
++	u64 qpx_pkeyd;
++/* 0x80*/
++	u64 qpx_qkey;
++	u64 qpx_dqp;
++	u64 qpx_dlidp;
++	u64 qpx_portp;
++/* 0xa0*/
++	u64 qpx_slidp;
++	u64 qpx_slidpp;
++	u64 qpx_dlida;
++	u64 qpx_porta;
++/* 0xc0*/
++	u64 qpx_slida;
++	u64 qpx_slidpa;
++	u64 qpx_slvl;
++	u64 qpx_ipd;
++/* 0xe0*/
++	u64 qpx_mtu;
++	u64 qpx_lato;
++	u64 qpx_rlimit;
++	u64 qpx_rnrlimit;
++/* 0x100*/
++	u64 qpx_t;
++	u64 qpx_sqhp;
++	u64 qpx_sqptp;
++	u64 qpx_nspsn;
++/* 0x120*/
++	u64 qpx_nspsnhwm;
++	u64 reserved1;
++	u64 qpx_sdsi;
++	u64 qpx_sdsbc;
++/* 0x140*/
++	u64 qpx_sqwsize;
++	u64 qpx_sqwts;
++	u64 qpx_lsn;
++	u64 qpx_nssn;
++/* 0x160 */
++	u64 qpx_mor;
++	u64 qpx_cor;
++	u64 qpx_sqsize;
++	u64 qpx_erc;
++/* 0x180*/
++	u64 qpx_rnrrc;
++	u64 qpx_ernrwt;
++	u64 qpx_rnrresp;
++	u64 qpx_lmsna;
++/* 0x1a0 */
++	u64 qpx_sqhpc;
++	u64 qpx_sqcptp;
++	u64 qpx_sigt;
++	u64 qpx_wqecnt;
++/* 0x1c0*/
 +
-+	EDEB_EN(7, "device=%p context=%p udata=%p", device, context, udata);
++	u64 qpx_rqhp;
++	u64 qpx_rqptp;
++	u64 qpx_rqsize;
++	u64 qpx_nrr;
++/* 0x1e0*/
++	u64 qpx_rdmac;
++	u64 qpx_nrpsn;
++	u64 qpx_lapsn;
++	u64 qpx_lcr;
++/* 0x200*/
++	u64 qpx_rwc;
++	u64 qpx_rwva;
++	u64 qpx_rdsi;
++	u64 qpx_rdsbc;
++/* 0x220*/
++	u64 qpx_rqwsize;
++	u64 qpx_crmsn;
++	u64 qpx_rdd;
++	u64 qpx_larpsn;
++/* 0x240*/
++	u64 qpx_pd;
++	u64 qpx_scqn;
++	u64 qpx_rcqn;
++	u64 qpx_aeqn;
++/* 0x260*/
++	u64 qpx_aaelog;
++	u64 qpx_ram;
++	u64 qpx_rdmaqe0;
++	u64 qpx_rdmaqe1;
++/* 0x280*/
++	u64 qpx_rdmaqe2;
++	u64 qpx_rdmaqe3;
++	u64 qpx_nrpsnhwm;
++/* 0x298*/
++	u64 reserved[(0x400 - 0x298) / 8];
++/* 0x400 extended data */
++	u64 reserved_ext[(0x500 - 0x400) / 8];
++/* 0x500 */
++	u64 reserved2[(0x1000 - 0x500) / 8];
++/* 0x1000      */
++};
 +
-+	EHCA_CHECK_DEVICE_P(device);
++#define QPX_SQADDER EHCA_BMASK_IBM(48,63)
++#define QPX_RQADDER EHCA_BMASK_IBM(48,63)
 +
-+	pd = kmem_cache_alloc(ehca_module.cache_pd, SLAB_KERNEL);
-+	if (pd == NULL) {
-+		EDEB_ERR(4, "ERROR device=%p context=%p pd=%p"
-+			 " out of memory", device, context, mypd);
-+		return ERR_PTR(-ENOMEM);
-+	}
++#define QPTEMM_OFFSET(x) offsetof(struct hipz_qptemm,x)
 +
-+	memset(pd, 0, sizeof(struct ehca_pd));
-+	pd->ownpid = current->tgid;
++/** MRMWPT Entry Memory Map
++ */
++struct hipz_mrmwmm {
++	/* 0x00 */
++	u64 mrx_hcr;
 +
-+	/* Kernel PD: when device = -1, 0
-+	 * User   PD: when context != -1
-+	 */
-+	if (context == NULL) {
-+		/* Kernel PDs after init reuses always
-+		 * the one created in ehca_shca_reopen()
-+		 */
-+		struct ehca_shca *shca = container_of(device, struct ehca_shca,
-+						      ib_device);
-+		pd->fw_pd.value = shca->pd->fw_pd.value;
-+	} else {
-+		pd->fw_pd.value = (u64)pd;
-+	}
++	u64 mrx_c;
++	u64 mrx_herr;
++	u64 mrx_aer;
++	/* 0x20 */
++	u64 mrx_pp;
++	u64 reserved1;
++	u64 reserved2;
++	u64 reserved3;
++	/* 0x40 */
++	u64 reserved4[(0x200 - 0x40) / 8];
++	/* 0x200 */
++	u64 mrx_ctl[64];
 +
-+	mypd = &pd->ib_pd;
++};
 +
-+	EHCA_REGISTER_PD(device, pd);
++#define MRX_HCR_LPARID_VALID EHCA_BMASK_IBM(0,0)
 +
-+	EDEB_EX(7, "device=%p context=%p pd=%p", device, context, mypd);
++#define MRMWMM_OFFSET(x) offsetof(struct hipz_mrmwmm,x)
 +
-+	return (mypd);
-+}
++struct hipz_qpedmm {
++	/* 0x00 */
++	u64 reserved0[(0x400) / 8];
++	/* 0x400 */
++	u64 qpedx_phh;
++	u64 qpedx_ppsgp;
++	/* 0x410 */
++	u64 qpedx_ppsgu;
++	u64 qpedx_ppdgp;
++	/* 0x420 */
++	u64 qpedx_ppdgu;
++	u64 qpedx_aph;
++	/* 0x430 */
++	u64 qpedx_apsgp;
++	u64 qpedx_apsgu;
++	/* 0x440 */
++	u64 qpedx_apdgp;
++	u64 qpedx_apdgu;
++	/* 0x450 */
++	u64 qpedx_apav;
++	u64 qpedx_apsav;
++	/* 0x460  */
++	u64 qpedx_hcr;
++	u64 reserved1[4];
++	/* 0x488 */
++	u64 qpedx_rrl0;
++	/* 0x490 */
++	u64 qpedx_rrrkey0;
++	u64 qpedx_rrva0;
++	/* 0x4a0 */
++	u64 reserved2;
++	u64 qpedx_rrl1;
++	/* 0x4b0 */
++	u64 qpedx_rrrkey1;
++	u64 qpedx_rrva1;
++	/* 0x4c0 */
++	u64 reserved3;
++	u64 qpedx_rrl2;
++	/* 0x4d0 */
++	u64 qpedx_rrrkey2;
++	u64 qpedx_rrva2;
++	/* 0x4e0 */
++	u64 reserved4;
++	u64 qpedx_rrl3;
++	/* 0x4f0 */
++	u64 qpedx_rrrkey3;
++	u64 qpedx_rrva3;
++};
 +
-+int ehca_dealloc_pd(struct ib_pd *pd)
-+{
-+	extern struct ehca_module ehca_module;
-+	int ret = 0;
-+	u32 cur_pid = current->tgid;
-+	struct ehca_pd *my_pd = NULL;
++#define QPEDMM_OFFSET(x) offsetof(struct hipz_QPEDMM,x)
 +
-+	EDEB_EN(7, "pd=%p", pd);
++/** CQ Table Entry Memory Map
++ */
++struct hipz_cqtemm {
++	u64 cqx_hcr;
++	u64 cqx_c;
++	u64 cqx_herr;
++	u64 cqx_aer;
++/* 0x20  */
++	u64 cqx_ptp;
++	u64 cqx_tp;
++	u64 cqx_fec;
++	u64 cqx_feca;
++/* 0x40  */
++	u64 cqx_ep;
++	u64 cqx_eq;
++/* 0x50  */
++	u64 reserved1;
++	u64 cqx_n0;
++/* 0x60  */
++	u64 cqx_n1;
++	u64 reserved2[(0x1000 - 0x60) / 8];
++/* 0x1000 */
++};
 +
-+	EHCA_CHECK_PD(pd);
-+	my_pd = container_of(pd, struct ehca_pd, ib_pd);
-+        if (my_pd->ib_pd.uobject!=NULL && my_pd->ib_pd.uobject->context!=NULL &&
-+            my_pd->ownpid!=cur_pid) {
-+                EDEB_ERR(4, "Invalid caller pid=%x ownpid=%x",
-+                         cur_pid, my_pd->ownpid);
-+                return -EINVAL;
-+        }
++#define CQX_FEC_CQE_CNT           EHCA_BMASK_IBM(32,63)
++#define CQX_FECADDER              EHCA_BMASK_IBM(32,63)
++#define CQX_N0_GENERATE_SOLICITED_COMP_EVENT EHCA_BMASK_IBM(0,0)
++#define CQX_N1_GENERATE_COMP_EVENT EHCA_BMASK_IBM(0,0)
 +
-+	EHCA_DEREGISTER_PD(pd);
++#define CQTEMM_OFFSET(x) offsetof(struct hipz_cqtemm,x)
 +
-+	kmem_cache_free(ehca_module.cache_pd,
-+			container_of(pd, struct ehca_pd, ib_pd));
++/** EQ Table Entry Memory Map
++ */
++struct hipz_eqtemm {
++	u64 eqx_hcr;
++	u64 eqx_c;
 +
-+	EDEB_EX(7, "pd=%p", pd);
++	u64 eqx_herr;
++	u64 eqx_aer;
++/* 0x20 */
++	u64 eqx_ptp;
++	u64 eqx_tp;
++	u64 eqx_ssba;
++	u64 eqx_psba;
 +
-+	return ret;
-+}
++/* 0x40 */
++	u64 eqx_cec;
++	u64 eqx_meql;
++	u64 eqx_xisbi;
++	u64 eqx_xisc;
++/* 0x60 */
++	u64 eqx_it;
++
++};
++
++#define EQTEMM_OFFSET(x) offsetof(struct hipz_eqtemm,x)
++
++/* access control defines for MR/MW */
++#define HIPZ_ACCESSCTRL_L_WRITE  0x00800000
++#define HIPZ_ACCESSCTRL_R_WRITE  0x00400000
++#define HIPZ_ACCESSCTRL_R_READ   0x00200000
++#define HIPZ_ACCESSCTRL_R_ATOMIC 0x00100000
++#define HIPZ_ACCESSCTRL_MW_BIND  0x00080000
++
++/* query hca response block */
++struct hipz_query_hca {
++	u32 cur_reliable_dg;
++	u32 cur_qp;
++	u32 cur_cq;
++	u32 cur_eq;
++	u32 cur_mr;
++	u32 cur_mw;
++	u32 cur_ee_context;
++	u32 cur_mcast_grp;
++	u32 cur_qp_attached_mcast_grp;
++	u32 reserved1;
++	u32 cur_ipv6_qp;
++	u32 cur_eth_qp;
++	u32 cur_hp_mr;
++	u32 reserved2[3];
++	u32 max_rd_domain;
++	u32 max_qp;
++	u32 max_cq;
++	u32 max_eq;
++	u32 max_mr;
++	u32 max_hp_mr;
++	u32 max_mw;
++	u32 max_mrwpte;
++	u32 max_special_mrwpte;
++	u32 max_rd_ee_context;
++	u32 max_mcast_grp;
++	u32 max_qps_attached_all_mcast_grp;
++	u32 max_qps_attached_mcast_grp;
++	u32 max_raw_ipv6_qp;
++	u32 max_raw_ethy_qp;
++	u32 internal_clock_frequency;
++	u32 max_pd;
++	u32 max_ah;
++	u32 max_cqe;
++	u32 max_wqes_wq;
++	u32 max_partitions;
++	u32 max_rr_ee_context;
++	u32 max_rr_qp;
++	u32 max_rr_hca;
++	u32 max_act_wqs_ee_context;
++	u32 max_act_wqs_qp;
++	u32 max_sge;
++	u32 max_sge_rd;
++	u32 memory_page_size_supported;
++	u64 max_mr_size;
++	u32 local_ca_ack_delay;
++	u32 num_ports;
++	u32 vendor_id;
++	u32 vendor_part_id;
++	u32 hw_ver;
++	u64 node_guid;
++	u64 hca_cap_indicators;
++	u32 data_counter_register_size;
++	u32 max_shared_rq;
++	u32 max_isns_eq;
++	u32 max_neq;
++} __attribute__ ((packed));
++
++/* query port response block */
++struct hipz_query_port {
++	u32 state;
++	u32 bad_pkey_cntr;
++	u32 lmc;
++	u32 lid;
++	u32 subnet_timeout;
++	u32 qkey_viol_cntr;
++	u32 sm_sl;
++	u32 sm_lid;
++	u32 capability_mask;
++	u32 init_type_reply;
++	u32 pkey_tbl_len;
++	u32 gid_tbl_len;
++	u64 gid_prefix;
++	u32 port_nr;
++	u16 pkey_entries[16];
++	u8  reserved1[32];
++	u32 trent_size;
++	u32 trbuf_size;
++	u64 max_msg_sz;
++	u32 max_mtu;
++	u32 vl_cap;
++	u8  reserved2[1900];
++	u64 guid_entries[255];
++} __attribute__ ((packed));
++
++#endif
 
 
 

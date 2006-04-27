@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751702AbWD0Vjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751699AbWD0VkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751702AbWD0Vjg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 17:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWD0Vjf
+	id S1751699AbWD0VkF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 17:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWD0VkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 17:39:35 -0400
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:26485 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751702AbWD0Vje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 17:39:34 -0400
-Message-ID: <44513A0C.3020403@tmr.com>
-Date: Thu, 27 Apr 2006 17:39:24 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
-MIME-Version: 1.0
-To: Nick Warne <nick@linicks.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: scheduler question 2.6.16.x
-References: <200604251905.19004.nick@linicks.net> <20060425181530.GQ4102@suse.de> <200604251933.48363.nick@linicks.net>
-In-Reply-To: <200604251933.48363.nick@linicks.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Apr 2006 17:40:04 -0400
+Received: from main.gmane.org ([80.91.229.2]:19435 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751699AbWD0VkD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 17:40:03 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Heiko J Schick <info@schihei.de>
+Subject: Re: [PATCH 06/16] ehca: common include files
+Date: Thu, 27 Apr 2006 23:31:41 +0200
+Message-ID: <e2rd7t$94v$1@sea.gmane.org>
+References: <4450A183.6030405@de.ibm.com> <200604271319.06844.arnd.bergmann@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p50814d44.dip.t-dialin.net
+User-Agent: Unison/1.7.5
+Cc: openib-general@openib.org, linuxppc-dev@ozlabs.org
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Warne wrote:
-> On Tuesday 25 April 2006 19:15, Jens Axboe wrote:
-> 
->>> But I can build both in... so I guess then the kernel decides what is
->>> the best to use?  Or should it be so I am only allowed to select one
->>> or the other and allowing both is an oversight?
->> See the option no more than two lines down from that, default io
->> scheduler. Also see Documentation/block/switching-sched.txt and/or
->> Documentation/kernel-parameters.txt (elevator=) section.
-> 
-> Hi Jens,
-> 
-> I haven't got the switching-sched.txt, although I found a sched-design.txt... 
-> but what I meant was if I select whatever default, do/can I still need to 
-> select either/or scheduler?
-> 
-> i.e. why doesn't 'default selection option' only allow that scheduler to be 
-> selected?
+On 2006-04-27 13:19:06 +0200, Arnd Bergmann <arnd.bergmann@de.ibm.com> said:
 
-Not clear is you mean "allow that to the the only selection" which it 
-does, or "only allow that selection" which makes no sense, you can boot 
-using any compiled scheduler.
+> Well, you should also remove this for submission, I guess ;-)
 
-My configuration for beverage is set to "cask conditioned IPA" but I 
-have most of the "Microbrewed" selections for IPA, PA, Stout and Porter 
-compiled in. The "bland American and imported brews" section is 
-disabled, with "water" enabled as a module.
+Yeah, I've planed to remove this lines when 2.6.17 official came out.
+It is still included because we don't want to introduce unnecessary
+dependencies.
 
-The preference is what you use by default, but not an irrevocable choice.
+I will remove it for the next patchset.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Regards,
+	Heiko
+
+

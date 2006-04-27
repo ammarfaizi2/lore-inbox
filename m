@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWD0K1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbWD0Kdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965067AbWD0K1G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 06:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbWD0K1G
+	id S965082AbWD0Kdc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 06:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbWD0Kdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 06:27:06 -0400
-Received: from kevlar.burdell.org ([66.92.73.214]:4830 "EHLO
-	kevlar.burdell.org") by vger.kernel.org with ESMTP id S965074AbWD0K1F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 06:27:05 -0400
-Date: Thu, 27 Apr 2006 06:27:00 -0400
-From: Sonny Rao <sonny@burdell.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, Hugh Dickins <hugh@veritas.com>,
-       Jan Beulich <jbeulich@novell.com>, Zachary Amsden <zach@vmware.com>,
-       linux-kernel@vger.kernel.org, anton@samba.org
-Subject: Re: [PATCH] i386: PAE entries must have their low word cleared first
-Message-ID: <20060427102700.GA1299@kevlar.burdell.org>
-References: <444F95D8.76E4.0078.0@novell.com> <Pine.LNX.4.64.0604261538260.9915@blonde.wat.veritas.com> <946b367619cfd3dcd3ba547e216e494b@cl.cam.ac.uk> <444F98B2.8020003@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <444F98B2.8020003@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+	Thu, 27 Apr 2006 06:33:32 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:9894 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965082AbWD0Kdc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 06:33:32 -0400
+Message-ID: <44509DF8.20107@garzik.org>
+Date: Thu, 27 Apr 2006 06:33:28 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Miklos Szeredi <miklos@szeredi.hu>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patch] fuse fixes
+References: <E1FYJ0r-0006Tv-00@dorka.pomaz.szeredi.hu> <444FD204.7040708@garzik.org> <E1FYzgA-0002V4-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1FYzgA-0002V4-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.0 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.0 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 01:58:42AM +1000, Nick Piggin wrote:
-> Keir Fraser wrote:
-> >
-> >On 26 Apr 2006, at 15:46, Hugh Dickins wrote:
-> >
-> >>If that's so (I don't trust my judgement on matters of speculative
-> >>execution), then I think you'd do better to replace the *ptep = __pte(0)
-> >>by pte_clear(mm, addr, ptep), and so avoid your ugly #ifdef'ing: please
-> >>check, but I think you'll find that reduces to just the barrier you want.
-> >>CC'ed Zach since it's his optimization, and he'll judge that spexecution.
-> >
-> >
-> >In more detail the problem is that, since we're still running on the 
-> >page tables while clearing them, the CPU may choose to prefetch a 
-> >half-cleared pte into its TLB, and then execute speculative memory 
-> >accesses based on that mapping (including ones that may write-allocate 
-> >cachelines, leading to problems like the AMD AGP GART deadlock Linux had 
-> >a year or so back).
+Miklos Szeredi wrote:
+>> This function is called from everywhere, and so, it looks like it should 
+>> use SLAB_NOFS rather than SLAB_KERNEL.  I would audit every GFP_KERNEL 
+>> and SLAB_KERNEL usage, and consider replacing with SLAB_NOFS or GFP_NOFS.
 > 
-> What do you mean, you're still running on the page tables? The CPU can
-> still walk the pagetables?
+> GFP_NOFS doesn't make much sense, since mm never calls back into FUSE
+> anyway: FUSE writes through the page-cache, and hence never dirties
+> any pages.
 > 
-> Because if ptep_get_and_clear_full is passed non zero in the full
-> argument, then that specific translation should never see another
-> access. I didn't know CPUs now actually resolve TLB misses as part of
-> speculative prefetching... does this really happen?
+> I'll add a comment to fuse_request_alloc().
 
-For instance, during speculative execution on POWER, we can take a
-TLB miss for a speculative load and start a table-walk.
+If you're using loop, particularly something insane like swapping over 
+loop, "the path" will certainly want to know that its passing through 
+the VFS layer, regardless of specific page cache behavior, AFAICS.
 
-I'm not sure what "speculative prefetching" means in this case... just
-regular hardware-initiated prefetching (where I suppose one could use the
-modifier "speculative") on POWER will only prefetch to a page-boundary.
+	Jeff
 
-So, slightly OT, as this is not about x86 CPUs... but thought people
-might be interested.
 
-(Added Anton to CC to call any BS on my part :-)
 
-Sonny

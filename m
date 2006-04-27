@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWD0HnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWD0HnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWD0HnP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 03:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWD0HnO
+	id S932422AbWD0HnB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 03:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWD0HnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 03:43:14 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:32128 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932425AbWD0HnN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 03:43:13 -0400
-Date: Thu, 27 Apr 2006 00:40:08 -0700
-From: Chris Wright <chrisw@sous-sol.org>
+	Thu, 27 Apr 2006 03:43:01 -0400
+Received: from smtp-out3.iol.cz ([194.228.2.91]:58782 "EHLO smtp-out3.iol.cz")
+	by vger.kernel.org with ESMTP id S932422AbWD0HnA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 03:43:00 -0400
+Date: Thu, 27 Apr 2006 09:42:11 +0200 (CEST)
+From: Karel Gardas <kgardas@objectsecurity.com>
+X-X-Sender: karel@silence.gardas.net
 To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andi Kleen <ak@suse.de>, Ken Brush <kbrush@gmail.com>,
-       Neil Brown <neilb@suse.de>, Stephen Smalley <sds@tycho.nsa.gov>,
-       Chris Wright <chrisw@sous-sol.org>, James Morris <jmorris@namei.org>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Message-ID: <20060427074008.GE3026@sorel.sous-sol.org>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <17487.61698.879132.891619@cse.unsw.edu.au> <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com> <200604270615.20554.ak@suse.de> <1146120771.2894.10.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1146120771.2894.10.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.16.11] Xircom RealPort RBEM56G-100 link change issue
+In-Reply-To: <1146122314.2894.14.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.63.0604270941240.3859@silence.gardas.net>
+References: <Pine.LNX.4.63.0604262337530.3859@silence.gardas.net>
+ <1146122314.2894.14.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Arjan van de Ven (arjan@infradead.org) wrote:
-> On Thu, 2006-04-27 at 06:15 +0200, Andi Kleen wrote:
-> > On Thursday 27 April 2006 01:06, Ken Brush wrote:
-> > 
-> > > > 2/ What advantages does AppArmor provide over techniques involving
-> > > >    virtualisation or gaol mechanisms?  Are these advantages worth
-> > > >    while?
-> > 
-> > I would guess the advantage is easier administration. e.g. I always
-> > found it a PITA to synchronize files like /etc/resolv.conf and similar
-> > files into chroots.
-> 
-> there's another option than just chroots; construct a namespace with
-> just the allowed files bind-mounted in. That is 100% scriptable and also
-> doesn't have the "stale files" problem
+On Thu, 27 Apr 2006, Arjan van de Ven wrote:
 
-That doesn't support different access modes aside of DAC, which defeats
-the point.  So either way, there's a need for better infrastructure.
+> On Wed, 2006-04-26 at 23:46 +0200, Karel Gardas wrote:
+>> Hello,
+>>
+>> I'm trying to get working linux with Xircom RealPort CardBus Ethernet
+>> 10/100+Modem 56 PCMCIA card. I only need ethernet working. The problem
+>> with this is that I'm losing too many packets while syslog is filled with
+>> messages like:
+>>
+>> Apr 26 23:17:31 thinkpad kernel: pccard: CardBus card inserted into slot 1
+>> Apr 26 23:18:13 thinkpad kernel: PCI: Enabling device 0000:06:00.0 (0000 -> 0003)
+>> Apr 26 23:18:13 thinkpad kernel: PCI: Setting latency timer of device 0000:06:00.0 to 64
+>> Apr 26 23:18:13 thinkpad kernel: eth1: Xircom cardbus revision 3 at irq 11
+>> Apr 26 23:19:31 thinkpad kernel: xircom cardbus adaptor found, registering as eth1, using irq 11
+>> Apr 26 23:19:52 thinkpad kernel: xircom_cb: Link status has changed
+>> Apr 26 23:19:52 thinkpad kernel: xircom_cb: Link is 100 mbit
+>> Apr 26 23:19:52 thinkpad kernel: xircom_cb: Link status has changed
+>> Apr 26 23:19:52 thinkpad kernel: xircom_cb: Link is 0 mbit
+>> Apr 26 23:19:54 thinkpad kernel: xircom_cb: Link status has changed
+>
+> you should really check your cable; the card is flip-flopping between
+> link-nolink-link-nolink ...
+>
+> that's either a cable bug or something like a mismatching duplex...
+> (well most of the time at least, in my experience)
+
+And your experience is right! After switching the cable everything works 
+as expected. Thanks a lot for your help!
+
+Karel
+--
+Karel Gardas                  kgardas@objectsecurity.com
+ObjectSecurity Ltd.           http://www.objectsecurity.com

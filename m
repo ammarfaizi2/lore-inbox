@@ -1,81 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWD0T0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWD0Tbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbWD0T0e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 15:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWD0T0e
+	id S1030194AbWD0Tbo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 15:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWD0Tbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 15:26:34 -0400
-Received: from mail.suse.de ([195.135.220.2]:5553 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965019AbWD0T0d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 15:26:33 -0400
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-rc2-mm1
-Date: Thu, 27 Apr 2006 21:26:30 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060427014141.06b88072.akpm@osdl.org> <p73vesv727b.fsf@bragg.suse.de> <20060427121930.2c3591e0.akpm@osdl.org>
-In-Reply-To: <20060427121930.2c3591e0.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Apr 2006 15:31:44 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:23443 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S965069AbWD0Tbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 15:31:44 -0400
+Date: Thu, 27 Apr 2006 16:24:30 -0300
+From: Harald Welte <laforge@netfilter.org>
+To: Maurice Volaski <mvolaski@aecom.yu.edu>
+Cc: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: CONFIG_KMOD in x86_64/defconfig (was Re: iptables is complaining with bogus unknown error 18446744073709551615)
+Message-ID: <20060427192430.GE21823@rama>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	Maurice Volaski <mvolaski@aecom.yu.edu>,
+	netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
+References: <200604210738.k3L7cBGO010103@mailgw.aecom.yu.edu> <a06230901c075ca078b8d@[129.98.90.227]> <20060427135119.GB5177@rama> <a06230904c07687df0a33@[129.98.90.227]>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bajzpZikUji1w+G9"
 Content-Disposition: inline
-Message-Id: <200604272126.30683.ak@suse.de>
+In-Reply-To: <a06230904c07687df0a33@[129.98.90.227]>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 April 2006 21:19, Andrew Morton wrote:
-> Andi Kleen <ak@suse.de> wrote:
-> >
-> > >   The acphphp driver is still broken and v4l and memory hotplug are, I
-> >  >   suspect, only hanging in there by the skin of their teeth.
-> >  > 
-> >  >   Could patch submitters _please_ be a lot more careful about getting the
-> >  >   Kconfig correct, testing various Kconfig combinations (yes sometimes
-> >  >   people will want to disable your lovely new feature) and just generally
-> >  >   think about these things a bit harder?  It isn't rocket science.
-> > 
-> >  Is this something that could be automated with some machine power? 
-> > 
-> >  e.g. every time a patch is added a small cluster could build the patches
-> >  with some configurations on various architectures and if it doesn't build 
-> >  autoflame the patch submitter.
-> > 
-> >  We use this in SUSE for the SUSE kernels and it works quite well.
-> > 
-> >  Maybe someone could contribute the build power needed for that. I suppose
-> >  it could be done by just a few scripts listening to mm-commits?
-> 
-> I suspect something like that would be quite a lot of work to set up -
-> first-up one has to get all the patches to actually apply, and then work
-> through any compile-time interactions between them.   Dunno.
 
-The invariant could be that any single new patch added should still
-compile. And it should apply of course. If not then warn the submitter.
-Might generate quite a lot of email though.
+--bajzpZikUji1w+G9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Problem is when people add new stuff in multiple pieces that only
-compile together though. iirc they go to mm-commits as individual
-pieces, not a bundle right now.
+On Thu, Apr 27, 2006 at 11:41:40AM -0400, Maurice Volaski wrote:
+> >On Wed, Apr 26, 2006 at 09:12:38PM -0400, Maurice Volaski wrote:
+> >> Automatic kernel module loading! That is an option and it's off by
+> >> default. When it's off, attempts to load kernel modules are ignored
+> >> internally, and that's why iptables was failing. It tried to load
+> >> xt_tcpudp, but was ignored by the kernel.
+> >What do you mean by "it's an option" and "is off by default".  I would
+> >claim that any major linux distribution that I've seen in the last ten
+> >years has support for module auto loading (enabled by default).
+>=20
+> Distribution vendors are free to change it to whatever they want, I guess=
+, but it's OFF by=20
+> default in the official kernel (.config).
 
-It would probably not catch everything - just a few common
-configurations and architectures.
+apparently architecture-specific:
 
-> 
-> I don't like dropping patches.  Because then the thing needs to be fixed up
-> and resent and remerged and re-reviewed and rejects need to re-fixed-up and
-> this adds emailing overhead and 12-24 hour turnaround, etc.  I very much
-> prefer to hang onto the patch and get it fixed up.  This means that I
-> usually have to do the fixing-up.
+grep KMOD arch/i386/defconfig
+CONFIG_KMOD=3Dy
 
-If it's caught early enough the submitter can be warned and they
-might even fix it up themselves and send a new patch.
+grep KMOD arch/x86_64/defconfig
+CONFIG_KMOD is not set
 
-> So at this point in time what I'd like to do is to encourage developers to
-> do these very basic things.  That's the low-hanging fruit right now.
+don't know why x86_64 turns it off by default.  the help message says
+'if unsure, say Y' (which makes sense!)
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
-Write a checklist for that?
+--bajzpZikUji1w+G9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--Andi 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFEURpuXaXGVTD0i/8RAo70AJ4gXihEWtdsN/L0ft8JGl2XrY6DOACcCqgI
+g7E79jG0ptEY7pOZIg69oKI=
+=vcPr
+-----END PGP SIGNATURE-----
+
+--bajzpZikUji1w+G9--

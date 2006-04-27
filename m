@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWD0S7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWD0TH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbWD0S7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 14:59:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWD0S7Y
+	id S1750868AbWD0TH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 15:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWD0TH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 14:59:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:16591 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965019AbWD0S7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 14:59:24 -0400
-Subject: Re: [RFC: 2.6 patch] fs/read_write.c: unexport iov_shorten
-From: Arjan van de Ven <arjan@infradead.org>
-To: Badari Pulavarty <pbadari@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1146163983.8365.28.camel@dyn9047017100.beaverton.ibm.com>
-References: <20060427180331.GK3570@stusta.de>
-	 <1146163983.8365.28.camel@dyn9047017100.beaverton.ibm.com>
+	Thu, 27 Apr 2006 15:07:58 -0400
+Received: from pat.uio.no ([129.240.10.6]:40846 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750868AbWD0TH5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 15:07:57 -0400
+Subject: Re: Why the RPC task structure adds a new field "tk_count"?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Xin Zhao <uszhaoxin@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4ae3c140604271132u1f2db743t20aeb94993938086@mail.gmail.com>
+References: <4ae3c140604271132u1f2db743t20aeb94993938086@mail.gmail.com>
 Content-Type: text/plain
-Date: Thu, 27 Apr 2006 20:59:20 +0200
-Message-Id: <1146164361.2894.41.camel@laptopd505.fenrus.org>
+Date: Thu, 27 Apr 2006 15:07:46 -0400
+Message-Id: <1146164866.8101.46.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.821, required 12,
+	autolearn=disabled, AWL 1.18, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-27 at 11:52 -0700, Badari Pulavarty wrote:
-> On Thu, 2006-04-27 at 20:03 +0200, Adrian Bunk wrote:
-> > This patch removes the unused EXPORT_SYMBOL(iov_shorten).
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > 
-> > ---
-> > 
-> > This patch was already sent on:
-> > - 23 Apr 2006
-> > 
-> > --- linux-2.6.17-rc1-mm3-full/fs/read_write.c.old	2006-04-23 15:51:52.000000000 +0200
-> > +++ linux-2.6.17-rc1-mm3-full/fs/read_write.c	2006-04-23 15:52:02.000000000 +0200
-> > @@ -436,8 +436,6 @@
-> >  	return seg;
-> >  }
-> >  
-> > -EXPORT_SYMBOL(iov_shorten);
-> > -
-> >  /* A write operation does a read from user space and vice versa */
-> >  #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
-> >  
+On Thu, 2006-04-27 at 14:32 -0400, Xin Zhao wrote:
+> I migrate from 2.6.11 to 2.6.16, but found that a new field tk_count
+> was added to the rpc task structure. In function rpc_release_task(), I
+> saw the following code:
 > 
-> How about this ? Wondering if we need to make this "inline" also (since
-> its used only in one place).
+> 	if (!atomic_dec_and_test(&task->tk_count))
+> 		return;
+> 
+> 
+> Looks like a task can be reused or refered multiple times? What's the
+> theory behind this? Why do we need this?
 
+It is used in several places in the NFSv4 code.
 
-no real need; if it's static modern gcc will inline it anyway
+Cheers,
+  Trond
 

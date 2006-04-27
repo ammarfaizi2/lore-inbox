@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWD0BMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbWD0BMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbWD0BMR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 21:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWD0BMR
+	id S964860AbWD0BMv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 21:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWD0BMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 21:12:17 -0400
-Received: from [125.247.115.130] ([125.247.115.130]:23821 "HELO virgilio.it")
-	by vger.kernel.org with SMTP id S964819AbWD0BMR (ORCPT
+	Wed, 26 Apr 2006 21:12:51 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:3718 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964860AbWD0BMu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 21:12:17 -0400
-Message-ID: <fd1201c6698d$dabde0e0$415acdc0@venserinvestmentcompanyvenseri>
-Reply-To: "Venser Investment Company" 
-	  <venserinvestmentcompanyvenseri@virgilio.it>
-From: "Venser Investment Company" 
-	<venserinvestmentcompanyvenseri@virgilio.it>
-To: "Investment" <linux-kernel@vger.kernel.org>
-Subject: Invest funds in your Country
-Date: Thu, 27 Apr 2006 00:02:20 +0100
+	Wed, 26 Apr 2006 21:12:50 -0400
+Message-ID: <44501A97.2060104@engr.sgi.com>
+Date: Wed, 26 Apr 2006 18:12:55 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Shailabh Nagar <nagar@watson.ibm.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>
+Subject: Re: [Patch 5/8] taskstats interface
+References: <444991EF.3080708@watson.ibm.com> <444996FB.8000103@watson.ibm.com>
+In-Reply-To: <444996FB.8000103@watson.ibm.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Venser  Investment Company.
- 
-Dear Sir/ Madam,
- 
-Allow me introduce our company to you, we are a modest Cayman Islands based
-European Business and Finance Consultancy, offering service to midline
-businesses and individuals in the Europe who desire to expand into other
-countries or business activities.
- 
-We are presently confronted with a request to invest funds in your country,
-the funds belong legitimately to widower from Saudi Arabia and the funds are
-deposited with the Pott Exchange of Netherlands. 
- 
-Against this background we are seeking your indulgence to respond to us
-indicating if you are capable and wiling to partner with us in the
-investment of Twenty Five Million US Dollars, in a covert expedient and
-confidential manner.
- 
-The investor in this case is interested in Industry and real estate, and
-your advice will be much valuable and highly regarded in this matter.
- 
-Your swift response will be appreciated, and we will like you to include a
-brief profile of yourself family or business, along with your complete
-contact information in your response.
- 
-Thank you so much and we look forward to doing business with you.
- 
-Warlter Miller. MBA.
-For: Venser  Investment Company.
-Email: venserinvestment@netscape.net
+Hi Shailabh,
 
- 
+Thanks for your effort in taskstats interface! Really appreciated!
+I think this interface can offer a good foundation for other packages
+to build on.
+
+Here are a few more comments:
+
+1) You mentioned the "version number within the (taskstats)
+    structure" in taskstats.txt and a few other places, but i do not see
+    that field defined in struct taskstats in taskstats.h?
+
+2) In taskstats.txt "Extending taskstats" section, you mentioned two
+    ways to extend the interface. The second method looks like a method
+    to encoureage other package developers to create their own interface
+   (ie, not taskstats) based on generic netlink to avoid reading large
+number
+    of fields not interested to other particular applications? I will be
+fine
+    with this as long as it is understood and agreed.
+
+    Alternatively, you may have considered the pros and cons of #ifdef
+    fields specific to only one accounting package in the struct taskstats.
+    If you do, care to share your thoughts? Specific payload information
+    can be carried in the version field. I am sure the version number of
+struct
+    taskstats does not need 64 bits. With the version number and payload
+    info, application can surely interpret the taskstats data correctly.  
+
+3) In taskstats.txt "Usage" section, you mentioned "... in the Advanced
+    Usage section below...", but that section does not exist.
+
+4) In do_exit() routine, you do:
++ taskstats_exit_alloc(&tidstats, &tgidstats);
+
+    The tidstats and tgidstats are checked in taskstats_exit_send() in
+    taskstats.c for allocation failure, but a lot has been processed before
+    the check. The allocation failure happens when system is stressed in
+    memory. I  think we want to do the check earlier?
+   
+Regards,
+ - jay
 

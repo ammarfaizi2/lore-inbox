@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWD0TV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbWD0T0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbWD0TV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 15:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWD0TV4
+	id S965070AbWD0T0x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 15:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbWD0T0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 15:21:56 -0400
-Received: from 10.121.9.213.dsl.getacom.de ([213.9.121.10]:11712 "EHLO
-	ds666.l4x.org") by vger.kernel.org with ESMTP id S965008AbWD0TVy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 15:21:54 -0400
-Message-ID: <445119CD.40509@l4x.org>
-Date: Thu, 27 Apr 2006 21:21:49 +0200
-From: Jan Dittmer <jdi@l4x.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060228 Thunderbird/1.5 Mnenhy/0.6.0.104
+	Thu, 27 Apr 2006 15:26:53 -0400
+Received: from usea-naimss3.unisys.com ([192.61.61.105]:3332 "EHLO
+	usea-naimss3.unisys.com") by vger.kernel.org with ESMTP
+	id S965060AbWD0T0w convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 15:26:52 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: jgarzik@pobox.com
-CC: jdi@l4x.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060427185813.GB6039@l4x.org>
-In-Reply-To: <20060427185813.GB6039@l4x.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 192.168.1.149
-X-SA-Exim-Mail-From: jdi@l4x.org
-Subject: Re: sata_sil24 resetting controller...
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
-X-SA-Exim-Scanned: Yes (on ds666.l4x.org)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Date: Thu, 27 Apr 2006 14:26:47 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0BA0@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Thread-Index: AcZqLrPZ8liuU3IFQUy6mho67jNQ9QAADEBQ
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Brown, Len" <len.brown@intel.com>, <sergio@sergiomb.no-ip.org>,
+       "Kimball Murray" <kimball.murray@gmail.com>,
+       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
+       <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 27 Apr 2006 19:26:48.0400 (UTC) FILETIME=[87165500:01C66A30]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jdi@l4x.org wrote:
-> so I started to reshape my raid5 array. Since the reshape
-> started my kernel log gets swamped with the following messages:
+> > Len, maybe it sounds dramatic and/or extreme, but how about getting 
+> > rid of IRQs and just having GSI-vector pair.
+> > I intuitively think that would be possible (not that I have all the 
+> > details lined up :) And this would probably take away confusing IRQ 
+> > abstraction out once and for all? I think something like 
+> that is done 
+> > in ia64.
 > 
-> [4297871.909000] sata_sil24 ata1: resetting controller...
-> [4297871.909000] ata1: status=0x50 { DriveReady SeekComplete }
-> [4297871.909000] sdc: Current: sense key=0x0
-> [4297871.909000]     ASC=0x0 ASCQ=0x0
-> [4297873.266000] ata1: error interrupt on port0
-> [4297873.266000]   stat=0x80000001 irq=0xb60002 cmd_err=35 sstatus=0x123
-> serror=0x0
+> x86 users are attached to their interrupt numbers I think 
+> back from the bad old days with only 16 interrupts and 
+> interrupt sharing didn't work. We might have a revolt in the 
+> user base if /proc/interrupts didn't display them anymore @)
 > 
-> The time between these events varies from .5s to up to 10s, resync speed is
+> But I guess using GSI/vector internally only would be fine.
+> 
+Oh I completely agree there are probably few strings attached that have
+to be mimicked and kept (especially those 16), but I think that can be
+done.
+It feels like not a small change to me, but would probably be
+worthwhile. It is such a boring thing trying to fit new chipsets and
+system dimensions into old inflexible format...
 
-Just one more observation:
-The time between the messages seems to be correlated to the resync speed.
-The faster the resync, the more messages.
-
-Jan
+--Natalie

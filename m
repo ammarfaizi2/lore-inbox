@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWD0WzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751743AbWD0W7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751637AbWD0WzU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 18:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751737AbWD0WzU
+	id S1751743AbWD0W7L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 18:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751748AbWD0W7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 18:55:20 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:14237 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751611AbWD0WzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 18:55:19 -0400
-In-Reply-To: <20060427114828.GC32127@wohnheim.fh-wedel.de>
-References: <4450A1AD.7040506@de.ibm.com> <20060427114828.GC32127@wohnheim.fh-wedel.de>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <6C0D7610-D6A3-43CC-9327-926948167D43@kernel.crashing.org>
-Cc: Heiko J Schick <schihei@de.ibm.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, linuxppc-dev@ozlabs.org,
-       Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>
+	Thu, 27 Apr 2006 18:59:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:33251 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751747AbWD0W7K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 18:59:10 -0400
+Date: Thu, 27 Apr 2006 16:01:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
+       Vivek Goyal <vgoyal@in.ibm.com>
+Subject: Re: [PATCH] register hot-added memory to iomem resource
+Message-Id: <20060427160130.6149550f.akpm@osdl.org>
+In-Reply-To: <20060427204904.5037f6ea.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060427204904.5037f6ea.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [PATCH 10/16] ehca: event queue
-Date: Fri, 28 Apr 2006 00:55:10 +0200
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> +	if (ret != H_SUCCESS) {
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 >
-> Common convention is to return 0 on success and -ESOMETHING on eror.
-> You might want to follow that and remove H_SUCCESS from the complete
-> code.
+> This patch registers hot-added memory to iomem_resource.
+> By this, /proc/iomem can show hot-added memory.
+> This patch is against 2.6.17-rc2-mm1.
+> 
+> Note: kdump uses /proc/iomem to catch memory range when it is installed.
+>       So, kdump should be re-installed after /proc/iomem change.
+> 
 
-This return code doesn't come from anywhere within the kernel, though.
-If we change this, we should get rid of _every_ #define bladibla 0
-Do we want that?  (I do ;-) )
+What do you mean by "kdump should be reinstalled"?  The kdump userspace
+tools need to re-run kexec_load()?
 
->> +		if (!(vpage = ipz_qpageit_get_inc(&eq->ipz_queue))) {
->
-> I personally despise assignments in conditionals.  Not sure if this is
-> documented in CodingStyle, but IME most kernel hackers tend to dislike
-> it as well.
+If so, why?
 
-In this case it's obvious; put it on a separate line.
+And how is kdump to know that memory was hot-added?  Do we generate a
+hotplug event?
 
-
-Segher
-
+Thanks.

@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWD0Sa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWD0SdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWD0Sa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 14:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWD0Sa5
+	id S932473AbWD0SdE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 14:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWD0SdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 14:30:57 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:15335 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964950AbWD0Sa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 14:30:56 -0400
-Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <20060427182306.GL3570@stusta.de>
-References: <1146049414.7016.9.camel@laptopd505.fenrus.org>
-	 <20060426110656.GD29108@wohnheim.fh-wedel.de>
-	 <Pine.LNX.4.58.0604270853510.20454@sbz-30.cs.Helsinki.FI>
-	 <445061DC.5030008@yahoo.com.au>
-	 <Pine.LNX.4.58.0604270926380.20454@sbz-30.cs.Helsinki.FI>
-	 <1146120640.2894.1.camel@laptopd505.fenrus.org>
-	 <20060427083157.GD3570@stusta.de>
-	 <1146127273.2894.21.camel@laptopd505.fenrus.org>
-	 <20060427085614.GE3570@stusta.de>
-	 <1146128885.2894.27.camel@laptopd505.fenrus.org>
-	 <20060427182306.GL3570@stusta.de>
-Content-Type: text/plain
-Date: Thu, 27 Apr 2006 20:29:48 +0200
-Message-Id: <1146162588.2894.36.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 27 Apr 2006 14:33:04 -0400
+Received: from nz-out-0102.google.com ([64.233.162.199]:63775 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964950AbWD0SdC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 14:33:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=WWdczO4qIbsP89mtU7ceitDsQK+yeJjre0UesO7MCLfLs+UE47h4JbNUZDiff2fJhdCmVms92szQs1ZboL2sXe6oPxCQkD0VImOncwC16Ij4vzi9YVp2Nlu9X5r9J/4P+RYFzEIz2/KcOvHJv3RCFdrj9mr6BYTwkxazCYJPa8g=
+Message-ID: <4ae3c140604271132u1f2db743t20aeb94993938086@mail.gmail.com>
+Date: Thu, 27 Apr 2006 14:32:57 -0400
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Why the RPC task structure adds a new field "tk_count"?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I migrate from 2.6.11 to 2.6.16, but found that a new field tk_count
+was added to the rpc task structure. In function rpc_release_task(), I
+saw the following code:
 
-> But for using your suggested "separate kfree() which does check out of 
-> line" for not having the (otherwise unavoidable) space increast, we have 
-> to manually change kfree() callers.
-
-I don't follow you. Sorry.
+	if (!atomic_dec_and_test(&task->tk_count))
+		return;
 
 
+Looks like a task can be reused or refered multiple times? What's the
+theory behind this? Why do we need this?
+
+Thanks,
+
+Xin

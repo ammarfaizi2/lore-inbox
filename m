@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWD0P7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbWD0QDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbWD0P7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:59:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWD0P7Z
+	id S965166AbWD0QDm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 12:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWD0QDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:59:25 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:34959 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S965161AbWD0P7Y (ORCPT
+	Thu, 27 Apr 2006 12:03:41 -0400
+Received: from proof.pobox.com ([207.106.133.28]:11962 "EHLO proof.pobox.com")
+	by vger.kernel.org with ESMTP id S965164AbWD0QDk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:59:24 -0400
-Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11]
-	security: AppArmor - Overview
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Karl MacMillan <kmacmillan@tresys.com>, Andi Kleen <ak@suse.de>,
-       Ken Brush <kbrush@gmail.com>, Neil Brown <neilb@suse.de>,
-       James Morris <jmorris@namei.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org
-In-Reply-To: <20060427101734.GH3026@sorel.sous-sol.org>
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
-	 <17487.61698.879132.891619@cse.unsw.edu.au>
-	 <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
-	 <200604270615.20554.ak@suse.de>  <20060427101734.GH3026@sorel.sous-sol.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Thu, 27 Apr 2006 12:03:47 -0400
-Message-Id: <1146153827.5238.47.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Thu, 27 Apr 2006 12:03:40 -0400
+Message-ID: <4450EB3E.7000902@pobox.com>
+Date: Thu, 27 Apr 2006 12:03:10 -0400
+From: Mark Lord <mlord@pobox.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/scsi/sd.c: fix uninitialized variable in handling
+ medium errors
+References: <200604261627.29419.lkml@rtr.ca>	<1146092161.12914.3.camel@mulgrave.il.steeleye.com>	<20060426161444.423a8296.akpm@osdl.org>	<44500033.3010605@rtr.ca> <20060426163536.6f7bff77.akpm@osdl.org>
+In-Reply-To: <20060426163536.6f7bff77.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-27 at 03:17 -0700, Chris Wright wrote:
->   This means that policy which allows a subject the ability
-> to write to the object whose handle is /tmp/my_unimportant_tmpfile may be
-> a security problem if somebody in the system was tricked into a simple 'ln
-> /etc/shadow /tmp/my_unimportant_tmpfile.'  In this case it's surprising
-> that the same inode can have different permissions (esp. given traditional
-> DAC uid/gid and mode bits are kept in inode) depending upon path taken.
+Andrew Morton wrote:
+> Mark Lord <lkml@rtr.ca> wrote:
+>>> That's if we think -stable needs this fixed.
+>> Let's say a bunch of read bio's get coalesced into a single
+>> 200+ sector request.  This then fails on one single bad sector
+>> out of the 200+.  Without the patch, there is a very good chance
+>> that sd.c will simply fail the entire request, all 200+ sectors.
+>>
+>> With the patch, it will fail the first block, and then retry
+>> the remaining blocks.  And repeat this until something works,
+>> or until everything has failed one by one.
 > 
-> The AA stance is that the policy will protect the confined process from
-> doing such namespace manipulations eliminating the possibiilty of the
-> confined process and giving itself a mechanism to privilege escalation.
-> This is reasonable with the caveat that the channels available to the
-> confined process to collude with (or coerce) an unconfined process are
-> still pretty high-bandwidth.  One could argue that having unconfined
-> processes is ill-advised.  SELinux targeted policy has the same basic
-> issue (channel richness notwithstanding), which is why I'd expect truely
-> security sensitive environments would use a strict policy.
+> Yowch.  I have the feeling that this'll take our EIO-handling time from
+> far-too-long to far-too-long*200.
+> 
+> I am still traumatised by my recent ten-minute wait for a dodgy DVD to
+> become ejectable.
+> 
+> I don't think -stable needs this, personally.
 
-Even in the absence of any "unconfined" processes, the potential for
-collusion among multiple "confined" processes (via coordinated attack)
-shouldn't be overlooked.  Thus, the base mechanism needs to be resilient
-in the face of such collusion.
+Perhaps, perhaps not.  The current behaviour is semi *random*, though.
+Sometimes it may just fail the entire request (wrong!),
+sometimes it may do the (almost as wrong) fail a block at a time
+from the beginning, until the bad sector is passed, and then succeed
+on the remainder.
 
-> I guess it's worth noting the AA atack is stopped by SELinux, while the
-> opposite is also true.  A 'cp /etc/shadow /tmp; mv /tmp/shadow /etc' done
-> by an unconfined process doesn't effect AA, while it kills the type
-> label on /etc/shadow and could be an effective policy breach.  In each
-> case somewhat subtle (i.e. not explicit relabel or policy change) can
-> have holes.
-
-Not sure about the example here, as the type in that case would actually
-be lost upon the cp by the unconfined process to the /tmp location, in
-which case you have an issue for both AA and SELinux - the data has
-become accessible under a different name and label which may now be
-accessible beyond the original intent.  If you had used appropriate
-options to cp to preserve the attribute, then it would have preserved
-the type throughout the transaction.  Of course, the real problem here
-is that you have an unconfined process copying the data at all, at which
-point you have no real guarantees about it, and the loss in label is the
-least of your worries.
+Ugh.
+>> What I need to have happen when a request is failed due to bad-media,
+>> is have it split the request into a sequence of single-block requests
+>> that are passed to the LLD one at a time.  The ones with real bad
+>> sectors will then be independently failed, and the rest will get done.
+>>
+>> Much better.  Much more complex.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Mark Lord
+Real-Time Remedies Inc.
+mlord@pobox.com

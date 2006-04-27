@@ -1,63 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbWD0PB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWD0PC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965140AbWD0PB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbWD0PB7
+	id S965143AbWD0PC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965145AbWD0PC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:01:59 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:30227 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965140AbWD0PB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:01:58 -0400
-Date: Thu, 27 Apr 2006 17:01:56 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>,
-       Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de, len.brown@intel.com,
-       linux-acpi@vger.kernel.org
-Subject: 2.6.17-rc2-mm1: ACPI_DOCK=n, HOTPLUG_PCI_ACPI=y compile error
-Message-ID: <20060427150156.GF3570@stusta.de>
-References: <20060427014141.06b88072.akpm@osdl.org>
+	Thu, 27 Apr 2006 11:02:28 -0400
+Received: from xproxy.gmail.com ([66.249.82.193]:40621 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965143AbWD0PC1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 11:02:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Dzhsle0z88ERfIbh/zreFAHRRPXn9CX2q7wqaEvnQppYjn5A+jmrjVDSd7aBONKU4IxOFwsW3OluYcqWftppg68GsaC1dKeppg3cl4tr8sAoKIV2z5dU/O2cBzSdaAe0SwXK+Wfr/jy3taEeh1dBJWB6ZqsnmDieX8/Rj+ov67Q=
+Message-ID: <84d7d9cf0604270802n308c2c9cs67ca0a7e4fbb8458@mail.gmail.com>
+Date: Thu, 27 Apr 2006 23:02:26 +0800
+From: "Real Oneone" <realoneone@gmail.com>
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How to re-send out the packets captured by my hook function at NF_IP_PRE_ROUTING
+In-Reply-To: <AF63F67E8D577C4390B25443CBE3B9F73C0A@esnmail.esntechnologies.co.in>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060427014141.06b88072.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+References: <AF63F67E8D577C4390B25443CBE3B9F73C0A@esnmail.esntechnologies.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Although not mentioned in the changelog, acpi-dock-driver.patch was 
-updated in 2.6.17-rc2-mm1.
+Thanks for your reply, Srinivas!
 
-The changes cause the following compile error with CONFIG_ACPI_DOCK=n, 
-CONFIG_HOTPLUG_PCI_ACPI=y:
+But maybe I failed to describe the problem that I am facing. It's ture
+as you said that I have a module, which registers  a function to a
+netfilter hook. Whenever there is an incoming packet, the function
+could catch it and make some changes to it : wrap it in a new iphdr,
+change the src and dst ip, etc. This is what I've done.
 
-<--  snip  -->
+Now a problem comes that, how do I send it out directly? -- By
+'directly', I mean to do it just in the kernel space, not first
+passing it to a userspace application(thru NF_QUEUE like you said, or
+netlink socket, anyway) and then let the application send it out.
 
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function 
-`is_pci_dock_device':acpiphp_glue.c:(.text+0x1a08a): undefined reference to `is_dock_device'
-drivers/built-in.o: In function `cleanup_bridge':
-acpiphp_glue.c:(.text+0x1a127): undefined reference to `is_dock_device'
-:acpiphp_glue.c:(.text+0x1a133): undefined reference to `unregister_hotplug_dock_device'
-:acpiphp_glue.c:(.text+0x1a13b): undefined reference to `unregister_dock_notifier'
-drivers/built-in.o: In function `register_slot':
-acpiphp_glue.c:(.text+0x1b545): undefined reference to `is_dock_device'
-:acpiphp_glue.c:(.text+0x1b742): undefined reference to `is_dock_device'
-:acpiphp_glue.c:(.text+0x1b759): undefined reference to `register_hotplug_dock_device'
-:acpiphp_glue.c:(.text+0x1b786): undefined reference to `register_dock_notifier'
-make: *** [.tmp_vmlinux1] Error 1
+The difficulty is that, since I changed the src and dst ip, the mac
+address information is totally unavailable. That may be able to
+explain the reason why I used skb->dev->hard_start_xmit(...) and then
+the kernel crashed.
 
-<--  snip  -->
+Is there any way to achieve my goal? Or that is mission impossible?
 
-cu
-Adrian
+Wish I've explained clearly enough.
 
--- 
+Many thanks for your help indeed!
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Best regards,
+Gu, Xinxing
 
+
+
+2006/4/27, Srinivas G. <srinivasg@esntechnologies.co.in>:
+>
+> > I've read what you mentioned and since I've done most of the work in
+> > kernelspace, I wonder if there is any way to send out the modified
+> > packet directly, when of course the mac address is not filled?
+>
+> I am trying to understand your current situation. So you have a kernel
+> module that is subscribed to a certain netfilter hook and as a result
+> starts
+> receiving packets; and now you want to pass these packets from your
+> kernel
+> module to a userspace application? Is this correct?
+>
+> If this is your current situation, you should issue a NF_QUEUE verdict
+> for
+> arriving packets in your kernel module to queue the packets to
+> userspace.
+> Subsequently, you will need to create a user space application to
+> receive the queued packets and run it. You can use libipq to write a
+> userspace
+> application that will accept queued packets. See the man page of libipq
+> for
+> more information on how to do this (the man page contains a fully
+> working
+> example).
+>
+> Regards,
+> Srinivas G
+>
+>

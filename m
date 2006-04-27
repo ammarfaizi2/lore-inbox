@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWD0Pbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWD0PdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWD0Pbc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWD0Pbc
+	id S1030189AbWD0PdT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWD0PdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:31:32 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:18192 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1030187AbWD0Pbb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:31:31 -0400
-Message-ID: <4450E3CB.1090206@argo.co.il>
-Date: Thu, 27 Apr 2006 18:31:23 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Thu, 27 Apr 2006 11:33:19 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:65528 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030189AbWD0PdS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 11:33:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jZRuMusUe+G62rLcfLQ5u+1K1FOb1LZmD/gUG8Njd38aEMjR0IweqQdzp4i5gmPr5qJu4NwGfWLMQzP1AvD0CvjX+p2QJx9y1UsP7etoQslH8IT6quPKcZMAZsYjjduphQEG4SWUTenVOGHn9Qy1K1omQDJmuIzin01Vx++AFYM=
+Message-ID: <6bffcb0e0604270832o514f97bi45f871e2cfc832c6@mail.gmail.com>
+Date: Thu, 27 Apr 2006 17:32:43 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Greg KH" <gregkh@suse.de>
+Subject: Re: 2.6.17-rc2-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060427152802.GC15806@suse.de>
 MIME-Version: 1.0
-To: Martin Mares <mj@ucw.cz>
-CC: Denis Vlasenko <vda@ilport.com.ua>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Roman Kononov <kononov195-far@yahoo.com>,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il> <200604271655.48757.vda@ilport.com.ua> <4450D4E9.4050606@argo.co.il> <mj+md-20060427.145744.9154.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060427.145744.9154.atrey@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Apr 2006 15:31:29.0472 (UTC) FILETIME=[A78CE400:01C66A0F]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060427014141.06b88072.akpm@osdl.org>
+	 <6bffcb0e0604270327n76e24687s1a36d8985f8c2d27@mail.gmail.com>
+	 <6bffcb0e0604270607r1b902c67pb20691a5b6c1ac63@mail.gmail.com>
+	 <20060427152802.GC15806@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
->> As an example, you can easily get C++ to inline the hash function in a 
->> generic hashtable or the compare in a sort. I dare you to do it in C.
->>     
->
-> As you wish :-)
->
-> http://atrey.karlin.mff.cuni.cz/~mj/tmp/hashtable.h
->   
-Touche :)
+Hi Greg,
 
-This is pushing all boundaries, however. That code is horrible.
-> It's somewhat ugly inside, but an equally strong generic structure build
-> with templates will be probably even uglier.
+On 27/04/06, Greg KH <gregkh@suse.de> wrote:
+[snip]
 >
->   
-Not at all.
+> Ah, I guess it is causing you problems :)
+>
+> > Here is config:
+> > http://www.stardust.webpages.pl/files/mm/2.6.17-rc2-mm1/mm-config
+>
+> If you set CONFIG_NDEV_FS=n does the oops go away?
 
--- 
-error compiling committee.c: too many arguments to function
+Yes.
 
+>
+> thanks,
+>
+> greg k-h
+>
+
+Regards,
+Michal
+
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

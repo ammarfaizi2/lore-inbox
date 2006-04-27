@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWD0Ojj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWD0Oip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965038AbWD0Ojj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 10:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWD0Ojj
+	id S965035AbWD0Oip (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 10:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWD0Oip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 10:39:39 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:36852 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S965038AbWD0Oji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 10:39:38 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 05/16] ehca: InfiniBand query and multicast functionality
-Date: Thu, 27 Apr 2006 16:39:25 +0200
-User-Agent: KMail/1.9.1
-Cc: J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       Heiko J Schick <schihei@de.ibm.com>, openib-general@openib.org,
-       Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       Jeremy Kerr <jk@ozlabs.org>
-References: <4450A17D.4030708@de.ibm.com> <200604271405.36588.arnd@arndb.de> <20060427134525.GA20966@infradead.org>
-In-Reply-To: <20060427134525.GA20966@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Apr 2006 10:38:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:9513 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S965035AbWD0Oio (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 10:38:44 -0400
+Date: Thu, 27 Apr 2006 16:39:23 +0200
+From: Jens Axboe <axboe@suse.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] likely cleanup: revert unlikely in ll_back_merge_fn
+Message-ID: <20060427143922.GQ23137@suse.de>
+References: <20060425183026.GR4102@suse.de> <004d01c668b0$a9c79540$853d010a@nuitysystems.com> <20060426052049.GV4102@suse.de> <1146059435.3908.3.camel@mulgrave.il.steeleye.com> <20060426135548.GD5083@suse.de> <1146061455.3908.11.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604271639.26235.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <1146061455.3908.11.camel@mulgrave.il.steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 April 2006 15:45, Christoph Hellwig wrote:
-
-> It's linewrapped here, too.  And the mailer on this box hasn't changed
-> for more than three years.  OTOH I got strangely looking mails from
-> you recently :)
+On Wed, Apr 26 2006, James Bottomley wrote:
+> On Wed, 2006-04-26 at 15:55 +0200, Jens Axboe wrote:
+> > On Wed, Apr 26 2006, James Bottomley wrote:
+> > > On Wed, 2006-04-26 at 07:20 +0200, Jens Axboe wrote:
+> > > > But blk_recount_segments() sets the BIO_SEG_VALID flag. Ugh ok
+> > > > __bio_add_page() basically kills the flag. James, I think you are the
+> > > > author of that addition, does it really need to be so restrictive?
+> > > > 
+> > > >         /* If we may be able to merge these biovecs, force a recount */
+> > > >         if (bio->bi_vcnt && (BIOVEC_PHYS_MERGEABLE(bvec-1, bvec) ||
+> > > >             BIOVEC_VIRT_MERGEABLE(bvec-1, bvec)))
+> > > >                 bio->bi_flags &= ~(1 << BIO_SEG_VALID);
+> > > 
+> > > Help me out here ... I can't find this chunk of code in the current
+> > > tree.  Where is it?
+> > 
+> > Sorry, should have mentioned that. Current git tree (or 2.6.16 should be
+> > the same), fs/bio.c:__bio_add_page():401.
 > 
+> OK, that's this change.
 > 
-Hmm. I don't see line wrap problems on
-http://patchwork.ozlabs.org/linuxppc/patch?id=5174 . Maybe I'm just
-blind.
+> http://www.kernel.org/git/?p=linux/kernel/git/tglx/history.git;a=commit;h=2fed84384a0b084d78252aa14d6bfae03deb268f
+> 
+> I think the reason for this is that the bi_hw_back_size and bi_hw_front
+> size aren't updated without a segment recount, so you could get rid of
+> the valid flag clearing if you introduce a heuristic to update them.
 
-However, /something/ went wrong with the way the patch
-showed up there. Half of it ended up in the comment section
-instead of the patch itself.
+Hmm yes, I'll ponder that a bit. Do you have any ideas on how to best
+handle that? I guess it's not a huge deal, would be nice to avoid the
+repeat segment calculations though.
 
-	Arnd <><
+-- 
+Jens Axboe
+

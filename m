@@ -1,69 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbWD0Pnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbWD0Psg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965156AbWD0Pnw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWD0Pnw
+	id S965040AbWD0Psg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWD0Psg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:43:52 -0400
-Received: from nz-out-0102.google.com ([64.233.162.201]:30839 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965157AbWD0Pnw convert rfc822-to-8bit (ORCPT
+	Thu, 27 Apr 2006 11:48:36 -0400
+Received: from main.gmane.org ([80.91.229.2]:4005 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S965040AbWD0Psf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:43:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G3f9RX1SNspApDEvDHqRMXEwKYH9v6/FOVsV2/Zbeqm7FAhz6XQNl8/tvWCPhJKRTXWB5p8c5f15Hro/je54eeWgItRhVbVaPIdgCAW8BHlEEdgojNnRbqX8Vm8Wc7QBZa+EYuhDu7IoHLk0IyCs/KZQd2d8h336xFDyMMRtmqE=
-Message-ID: <6bffcb0e0604270843l2e68b7e0v5943ea9013aaedb5@mail.gmail.com>
-Date: Thu, 27 Apr 2006 17:43:51 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Greg KH" <gregkh@suse.de>
+	Thu, 27 Apr 2006 11:48:35 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
 Subject: Re: 2.6.17-rc2-mm1
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060427152657.GB15806@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Date: Thu, 27 Apr 2006 17:47:25 +0200
+Message-ID: <pan.2006.04.27.15.47.20.688183@free.fr>
 References: <20060427014141.06b88072.akpm@osdl.org>
-	 <6bffcb0e0604270327n76e24687s1a36d8985f8c2d27@mail.gmail.com>
-	 <20060427152657.GB15806@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/04/06, Greg KH <gregkh@suse.de> wrote:
-> On Thu, Apr 27, 2006 at 12:27:53PM +0200, Michal Piotrowski wrote:
-> > Hi Andrew,
-> >
-> > On 27/04/06, Andrew Morton <akpm@osdl.org> wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
-> > >
-> > [snip]
-> > > +gregkh-devfs-ndevfs.patch
-> >
-> > "You don't really want to run this.  But if you did, here's a simple hack
-> > showing how easy it is to do it.
-> >
-> > Note, this patch will NOT be merged into mainline, so don't get your
-> > panties into a bind..."
-> > http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-devfs/ndevfs.patch
-> >
-> > Please drop this patch.
->
-> Why drop it?
+Hi Andrew,
 
-As long as it doesn't go to mainline we shouldn't care about it in -mm.
+Le Thu, 27 Apr 2006 01:41:41 -0700, Andrew Morton a écrit :
 
->
-> thanks,
->
-> greg k-h
->
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
+> 
 
-Regards,
-Michal
+64 bit resources core changes in ioport.h break pnp sysfs interface.
 
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+A patch like this is needed.
+
+Matthieu
+
+Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
+
+--- 1/drivers/pnp/interface.c	2006-01-03 04:21:10.000000000 +0100
++++ 2/drivers/pnp/interface.c	2006-04-14 22:54:45.000000000 +0200
+@@ -264,7 +264,7 @@
+ 			if (pnp_port_flags(dev, i) & IORESOURCE_DISABLED)
+ 				pnp_printf(buffer," disabled\n");
+ 			else
+-				pnp_printf(buffer," 0x%lx-0x%lx\n",
++				pnp_printf(buffer," 0x%llx-0x%llx\n",
+ 						pnp_port_start(dev, i),
+ 						pnp_port_end(dev, i));
+ 		}
+@@ -275,7 +275,7 @@
+ 			if (pnp_mem_flags(dev, i) & IORESOURCE_DISABLED)
+ 				pnp_printf(buffer," disabled\n");
+ 			else
+-				pnp_printf(buffer," 0x%lx-0x%lx\n",
++				pnp_printf(buffer," 0x%llx-0x%llx\n",
+ 						pnp_mem_start(dev, i),
+ 						pnp_mem_end(dev, i));
+ 		}
+@@ -286,7 +286,7 @@
+ 			if (pnp_irq_flags(dev, i) & IORESOURCE_DISABLED)
+ 				pnp_printf(buffer," disabled\n");
+ 			else
+-				pnp_printf(buffer," %ld\n",
++				pnp_printf(buffer," %lld\n",
+ 						pnp_irq(dev, i));
+ 		}
+ 	}
+@@ -296,7 +296,7 @@
+ 			if (pnp_dma_flags(dev, i) & IORESOURCE_DISABLED)
+ 				pnp_printf(buffer," disabled\n");
+ 			else
+-				pnp_printf(buffer," %ld\n",
++				pnp_printf(buffer," %lld\n",
+ 						pnp_dma(dev, i));
+ 		}
+ 	}
+

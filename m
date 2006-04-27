@@ -1,93 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWD0AiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWD0ArK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751029AbWD0AiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 20:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbWD0AiJ
+	id S932245AbWD0ArK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 20:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWD0ArK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 20:38:09 -0400
-Received: from smtpout.mac.com ([17.250.248.171]:5847 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751029AbWD0AiI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 20:38:08 -0400
-In-Reply-To: <e2ou35$u5r$1@sea.gmane.org>
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org> <e2ou35$u5r$1@sea.gmane.org>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <6B929F57-12EB-4E91-A191-2F0DABB77962@mac.com>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 26 Apr 2006 20:47:10 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:47011 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751137AbWD0ArJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 20:47:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=mfiocy1TQVbaBLIiDUcHRkPbS9+CbEdSrAAGee+Va0Y49WU6knVJn7G+mgs+/5bF4U0pATylX2YYu8GPkq1HprOzWwVLmLolBBh0dlxsJ9/2RM8Fx1jGzwC2NDVcZdvph++SrYRUDBbvT6N7Z/gxyYLirWuoleATCicC4B9sbMc=  ;
+Message-ID: <445009A2.3030305@yahoo.com.au>
+Date: Thu, 27 Apr 2006 10:00:34 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zachary Amsden <zach@vmware.com>
+CC: Andrew Morton <akpm@osdl.com>, Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Jan Beulich <jbeulich@novell.com>,
+       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
+       Pratap Subrahmanyam <pratap@vmware.com>
+Subject: Re: [PATCH 2/2] I386 convert pae wmb to non smp
+References: <200604262203.k3QM3qOC009581@zach-dev.vmware.com>
+In-Reply-To: <200604262203.k3QM3qOC009581@zach-dev.vmware.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: C++ pushback
-Date: Wed, 26 Apr 2006 20:38:05 -0400
-To: Roman Kononov <kononov195-far@yahoo.com>
-X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 26, 2006, at 19:00:52, Roman Kononov wrote:
-> Linus Torvalds wrote:
->>  - some of the C features we use may or may not be usable from C+ 
->> +    (statement expressions?)
+Zachary Amsden wrote:
+
+>Similar to the last bug, on set_pte, we don't want the compiler to re-order
+>the write of the PTE, even in non-SMP configurations, since if the write of
+>the low word occurs first, the TLB could prefetch a bad highmem mapping which
+>has been aliased into low memory.
 >
-> Statement expressions are working fine in g++. The main  
-> difficulties are:
->    - GCC's structure member initialization extensions are syntax
->      errors in G++: struct foo_t foo={.member=0};
 
-And that breaks a _massive_ amount of kernel code, including such  
-core functionality like SPIN_LOCK_UNLOCKED and a host of others.   
-There are all sorts of macros that use member initialization of that  
-form.
+wmb() means that it also orders IO memory. It is no difference for
+i386, but smp_wmb() actually has the right semantics of the abstract
+Linux memory model.
 
-
->    - empty structures are not zero-sized in g++, unless they are like
->      this one: struct really_empty_t { char dummy[0]; };
-
-And that provides yet more ways to break binary compatibility.  Not  
-to mention the fact that it appears to change other aspects of the  
-way structs are packed.  Since the kernel uses a lot of data  
-structures to strictly define binary formats for transmission to  
-hardware, across a network, or to userspace, such changes can cause  
-nothing but heartache.
-
-
->>  - the compilers are slower, and less reliable. This is _less_ of  
->> an issue    these days than it used to be (at least the  
->> reliability part), but it's still true.
+>Signed-off-by: Zachary Amsden <zach@vmware.com>
 >
-> G++ compiling heavy C++ is a bit slower than gcc. The g++ front end  
-> is reliable enough. Do you have a particular bug in mind?
-
-A lot of people would consider the "significantly slower" to be a  
-major bug.  Many people moaned when the kernel stopped supporting GCC  
-2.x because that compiler was much faster than modern C compilers.   
-I've seen up to a 3x slowdown when compiling the same files with g++  
-instead of gcc, and such would be unacceptable to a _lot_ of people  
-on this list.
-
-
->>  - a lot of the C++ features just won't be supported sanely (ie  
->> the kernel    infrastructure just doesn't do exceptions for C++,  
->> nor will it run any    static constructors etc).
+>Index: linux-2.6.17-rc/include/asm-i386/pgtable-3level.h
+>===================================================================
+>--- linux-2.6.17-rc.orig/include/asm-i386/pgtable-3level.h	2006-04-26 08:38:57.000000000 -0700
+>+++ linux-2.6.17-rc/include/asm-i386/pgtable-3level.h	2006-04-26 14:45:12.000000000 -0700
+>@@ -53,7 +53,7 @@ static inline int pte_exec_kernel(pte_t 
+> static inline void set_pte(pte_t *ptep, pte_t pte)
+> {
+> 	ptep->pte_high = pte.pte_high;
+>-	smp_wmb();
+>+	wmb();
+> 	ptep->pte_low = pte.pte_low;
+> }
+> #define set_pte_at(mm,addr,ptep,pteval) set_pte(ptep,pteval)
 >
-> A lot of C++ features are already supported sanely. You simply need  
-> to understand them. Especially templates and type checking.
+>  
+>
 
-First of all, the only way to sanely use templated classes is to  
-write them completely inline, which causes massive bloat.  Look at  
-the kernel "struct list_head" and show me the "type-safe C++" way to  
-do that.  It uses a templated inline class, right?  That templated  
-inline class gets duplicated for each different type of object put in  
-a linked list, no?  Think about how many linked lists we have in the  
-kernel and tell me why that would be a good thing.
-
-
-> Static constructor issue is trivial.
-
-How so?  When do you want the static constructors to be run?  There  
-are many different major stages of kernel-level initialization;  
-picking one is likely to make them useless for other code.
-
-Cheers,
-Kyle Moffett
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

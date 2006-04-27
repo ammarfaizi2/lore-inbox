@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWD0Dt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWD0D5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964916AbWD0Dt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 23:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWD0Dt7
+	id S964917AbWD0D5i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 23:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWD0D5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 23:49:59 -0400
-Received: from pproxy.gmail.com ([64.233.166.182]:63876 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932354AbWD0Dt6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 23:49:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bxLMBz7z7PRAYMwm7NyT6krTAASpv0CEKaHLMqcpH038hvPFi4Vv1AVOPP0JzYElmoe8tsW56hpxpquPxoF/cVx8QugGC9Mmoq+gDYKTHIfIIUGGuTmSvGOsRshBCZEntI3y+Q3eBnNpIBhR8L8OiypAkA3e3AqrINtBrqaZL60=
-Message-ID: <aec7e5c30604262049v3ae18915le415ee33b2f80fc4@mail.gmail.com>
-Date: Thu, 27 Apr 2006 12:49:49 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Dave McCracken" <dmccr@us.ibm.com>
-Subject: Re: [RFC/PATCH] Shared Page Tables [1/2]
-Cc: "Dave Hansen" <haveblue@us.ibm.com>, "Hugh Dickins" <hugh@veritas.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Linux Memory Management" <linux-mm@kvack.org>
-In-Reply-To: <C7A8E6F316A73810A5FF466E@10.1.1.4>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 26 Apr 2006 23:57:38 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:8964 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932417AbWD0D5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 23:57:37 -0400
+Date: Thu, 27 Apr 2006 05:57:09 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Roman Kononov <kononov195-far@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: C++ pushback
+Message-ID: <20060427035709.GF13027@w.ods.org>
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org> <e2ou35$u5r$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1144685591.570.36.camel@wildcat.int.mccr.org>
-	 <1144695296.31255.16.camel@localhost.localdomain>
-	 <C7A8E6F316A73810A5FF466E@10.1.1.4>
+In-Reply-To: <e2ou35$u5r$1@sea.gmane.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/11/06, Dave McCracken <dmccr@us.ibm.com> wrote:
-> --On Monday, April 10, 2006 11:54:56 -0700 Dave Hansen
-> <haveblue@us.ibm.com> wrote:
->
-> >> Complete the macro definitions for pxd_page/pxd_page_kernel
-> >
-> > Could you explain a bit why these are needed for shared page tables?
->
-> The existing definitions define pte_page and pmd_page to return the struct
-> page for the pfn contained in that entry, and pmd_page_kernel returns the
-> kernel virtual address of it.  However, pud_page and pgd_page are defined
-> to return the kernel virtual address.  There are no macros that return the
-> struct page.
->
-> No one actually uses any of the pud_page and pgd_page macros (other than
-> one reference in the same include file).  After some discussion on the list
-> the last time I posted the patches, we agreed that changing pud_page and
-> pgd_page to be consistent with pmd_page is the best solution.  We also
-> agreed that I should go ahead and propagate that change across all
-> architectures even though not all of them currently support shared page
-> tables.  This patch is the result of that work.
+On Wed, Apr 26, 2006 at 06:00:52PM -0500, Roman Kononov wrote:
+> Linus Torvalds wrote:
+> > - the compilers are slower, and less reliable. This is _less_ of an 
+> > issue these days than it used to be (at least the reliability part), 
+> >   but it's still true.
+> G++ compiling heavy C++ is a bit slower than gcc. The g++ front end is 
+> reliable enough. Do you have a particular bug in mind?
 
-What is the merge status of this patch?
+Obviously you're not interested in gcc evolutions. I suggest that you
+take your browser to http://gcc.gnu.org/gcc-3.4/changes.html#3.4.5
+This is the last version which showed per-subsystem problem reports
+before they used SVN. Just count the lines : 9 bugs fixed for C, 45
+for C++. And when you read those bugs, you don't have the feeling of
+reading a description of something that people make their code rely on.
 
-I've written some generic page table creation code for kexec, but the
-fact that pud_page() returns struct page * on i386 but unsigned long
-on other architectures makes it hard to write clean generic code.
+Regards,
+Willy
 
-Any merge objections, or was this patch simply overlooked?
-
-/ magnus

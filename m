@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWD0AF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWD0AVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWD0AF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 20:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWD0AF0
+	id S964854AbWD0AVh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 20:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWD0AVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 20:05:26 -0400
-Received: from t3inc.us ([66.250.45.69]:129 "EHLO www.t3inc.us")
-	by vger.kernel.org with ESMTP id S1751303AbWD0AFZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 20:05:25 -0400
-Date: Wed, 26 Apr 2006 18:05:20 -0600
-From: kyle@pbx.org
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Heikki Orsila <shd@zakalwe.fi>, Willy Tarreau <willy@w.ods.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: accept()ing socket connections with level triggered epoll
-Message-ID: <20060427000520.GA10880@www.t3inc.us>
-References: <20060426205557.GA5483@www.t3inc.us> <Pine.LNX.4.64.0604261411460.16727@alien.or.mcafeemobile.com>
+	Wed, 26 Apr 2006 20:21:37 -0400
+Received: from web36603.mail.mud.yahoo.com ([209.191.85.20]:17300 "HELO
+	web36603.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964854AbWD0AVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 20:21:37 -0400
+Message-ID: <20060427002136.24536.qmail@web36603.mail.mud.yahoo.com>
+X-RocketYMMF: rancidfat
+Date: Wed, 26 Apr 2006 17:21:36 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+In-Reply-To: <1146053725.28745.50.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604261411460.16727@alien.or.mcafeemobile.com>
-User-Agent: mutt-ng/devel-r796 (Linux)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 03:14:16PM -0700, Davide Libenzi wrote:
-> 
-> Correct, if it's LT you have to get the event because before returning from 
-> epoll_wait(), the event is automatically re-armed if f_op->poll() returns it. 
-> Can you post the *minimal* test code for this case?
-> 
-> - Davide
-> 
 
-I tried reducing the code I have to the minimum necessary to demonstrate the
-problem.  It went away, I'm afraid.  Since I'm already aware of a workaround
-(call accept in a loop until you get EAGAIN), I guess I'll just forget about
-it.  Unfortunately I can't post the full code, not that you'd want to dig
-through all of it anyway.
 
-Thanks to everyone that responded.
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Kyle
-<kyle@pbx.org>
+> On Tue, 2006-04-25 at 20:42 -0700, Casey Schaufler
+> wrote:
+
+> > Conflating my forehead!
+> 
+> The policy is analyzable, and there are tools (apol
+> and slat) that do precisely that.
+
+Ok. I remain unconvinced, in part because the analysis
+requires tools.
+
+> Including information flow analysis
+> and invariant checking.
+
+Ok. Fair enough.
+
+> What's your problem, again?
+
+You keep asking that.
+
+I seem to have fallen off topic, which happens
+sometimes, and I apologize for falling into this
+long standing and overly religeous debate. I
+have failed to present my case with sufficient
+clarity to prove convincing once again. Perhaps
+one day I'll get it right. Perhaps one day I'll
+figure out why I'm wrong.
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com

@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWD0AVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWD0AZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbWD0AVh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 20:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWD0AVh
+	id S1751321AbWD0AZg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 20:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWD0AZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 20:21:37 -0400
-Received: from web36603.mail.mud.yahoo.com ([209.191.85.20]:17300 "HELO
-	web36603.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964854AbWD0AVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 20:21:37 -0400
-Message-ID: <20060427002136.24536.qmail@web36603.mail.mud.yahoo.com>
-X-RocketYMMF: rancidfat
-Date: Wed, 26 Apr 2006 17:21:36 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-In-Reply-To: <1146053725.28745.50.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 26 Apr 2006 20:25:36 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:9209 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751321AbWD0AZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 20:25:35 -0400
+Date: Wed, 26 Apr 2006 20:25:33 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: can't compile kernels lately (2.6.16.5 and up)
+In-reply-to: <2f4958ff0604260817l68235c77hb3430b2a800a96cf@mail.gmail.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <200604262025.33796.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=utf-8
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
+References: <2f4958ff0604260639n4874c2aua1e99ec4c32d2182@mail.gmail.com>
+ <200604261102.12935.gene.heskett@verizon.net>
+ <2f4958ff0604260817l68235c77hb3430b2a800a96cf@mail.gmail.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 26 April 2006 11:17, Grzegorz Jaśkiewicz wrote:
+>don't think that's the issue man. I got 2.6.16.5 from tar.bz2, than
+>just upgraded with patches to 2.6.16.9, where it stopped to compile.
+>Now with 2.6.16.11 it still doens't work
 
+I'm now booted to 2.6.16.11, and here, from my buildit script, is the 
+list of patches used, most of them simply saved to /usr/src from this 
+list:
+VEROLD="linux-2.6.16.9"
+# This is the src file to be used
+VERSRC="linux-2.6.16"
+# These are the patchfile(s) to be used
+VERP1="../patch-2.6.16.3"
+VERP2="../patch-2.6.16.3-2.6.16.4"
+VERP3="../patch-2.6.16.5"
+VERP4="../patch-2.6.16.6"
+VERP5="../patch-2.6.16.7"
+VERP6="../patch-2.6.16.8"
+VERP7="../patch-2.6.16.9"
+VERP8="../patch-2.6.16.10"
+VERP9="../patch-2.6.16.11"
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+They are applied in the above sequence further down in the script, and 
+they are all error free in application, and now in running that kernel 
+too.
+[root@coyote src]# uname -r
+2.6.16.11
 
-> On Tue, 2006-04-25 at 20:42 -0700, Casey Schaufler
-> wrote:
+Anyplace you are using a bz2, replace it with the .gz version and see if 
+you still have the problem.  I'm not betting one way or the other, but 
+it sure tastes like it to me.
 
-> > Conflating my forehead!
-> 
-> The policy is analyzable, and there are tools (apol
-> and slat) that do precisely that.
-
-Ok. I remain unconvinced, in part because the analysis
-requires tools.
-
-> Including information flow analysis
-> and invariant checking.
-
-Ok. Fair enough.
-
-> What's your problem, again?
-
-You keep asking that.
-
-I seem to have fallen off topic, which happens
-sometimes, and I apologize for falling into this
-long standing and overly religeous debate. I
-have failed to present my case with sufficient
-clarity to prove convincing once again. Perhaps
-one day I'll get it right. Perhaps one day I'll
-figure out why I'm wrong.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

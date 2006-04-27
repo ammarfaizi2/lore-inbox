@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWD0IdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWD0Ifi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbWD0IdA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 04:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWD0IdA
+	id S964981AbWD0Ifi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 04:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWD0Ifi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 04:33:00 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:21941 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964978AbWD0Ic7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 04:32:59 -0400
-Subject: Re: A possibility of turning off file caching for certain
-	operations
-From: Arjan van de Ven <arjan@infradead.org>
-To: Artem Tashkinov <t.artem@lycos.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060427082922.77DB586B12@ws7-1.us4.outblaze.com>
-References: <20060427082922.77DB586B12@ws7-1.us4.outblaze.com>
-Content-Type: text/plain
-Date: Thu, 27 Apr 2006 10:32:56 +0200
-Message-Id: <1146126777.2894.18.camel@laptopd505.fenrus.org>
+	Thu, 27 Apr 2006 04:35:38 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:63851 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964981AbWD0Ifh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 04:35:37 -0400
+Date: Thu, 27 Apr 2006 10:36:17 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+Message-ID: <20060427083617.GO9211@suse.de>
+References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org> <Pine.LNX.4.64.0604261144290.3701@g5.osdl.org> <20060426191557.GA9211@suse.de> <20060426131200.516cbabc.akpm@osdl.org> <20060427074533.GJ9211@suse.de> <4450796A.2030908@yahoo.com.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4450796A.2030908@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-04-27 at 00:29 -0800, Artem Tashkinov wrote:
-> A nice feature of emptying files and buffer cache was introduced in kernel 2.6.16 but my question is: Is it possible to turn off file caching for certain operations? E.g. I do not want the kernel to cache an ISO image which is being copied from HDD to the LAN or burned to CD.
+On Thu, Apr 27 2006, Nick Piggin wrote:
+> Jens Axboe wrote:
+> 
+> >Things look pretty bad for the lockless kernel though, Nick any idea
+> >what is going on there? The splice change is pretty simple, see the top
+> >three patches here:
+> 
+> Could just be the use of spin lock instead of read lock.
+> 
+> I don't think it would be hard to convert find_get_pages_contig
+> to be lockless.
 
+Ah, certainly, it's not lockless like find_get_page(). Care to do such a
+patch?
 
-it's called O_DIRECT and madvise()
+> Patched vanilla numbers look nicer, but I'm curious as to why
+> __do_page_cache was so bad before, if the file was in cache.
+> Presumably it should not more than double tree_lock acquisition...
+> it isn't getting called multiple times for each page, is it?
 
-but do you rEALLY REALLY want to disable caching? Caching, even a little
-bit, is essential to get ok performance; if you disable caching it's
-your responsibility to do all the things needed to get good IO
-performance.
+It still does a lot of extra work that's completely wasted. With
+page_cache_readahead(), we should hit the RA_FLAG_INCACHE flag and be
+done with it.
+
+-- 
+Jens Axboe
 

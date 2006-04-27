@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWD0PdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWD0Phw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbWD0PdT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWD0PdT
+	id S1030192AbWD0Phw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWD0Phw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:33:19 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:65528 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030189AbWD0PdS convert rfc822-to-8bit (ORCPT
+	Thu, 27 Apr 2006 11:37:52 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:33165 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1030192AbWD0Phv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:33:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jZRuMusUe+G62rLcfLQ5u+1K1FOb1LZmD/gUG8Njd38aEMjR0IweqQdzp4i5gmPr5qJu4NwGfWLMQzP1AvD0CvjX+p2QJx9y1UsP7etoQslH8IT6quPKcZMAZsYjjduphQEG4SWUTenVOGHn9Qy1K1omQDJmuIzin01Vx++AFYM=
-Message-ID: <6bffcb0e0604270832o514f97bi45f871e2cfc832c6@mail.gmail.com>
-Date: Thu, 27 Apr 2006 17:32:43 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Greg KH" <gregkh@suse.de>
-Subject: Re: 2.6.17-rc2-mm1
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060427152802.GC15806@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 27 Apr 2006 11:37:51 -0400
+Date: Thu, 27 Apr 2006 19:37:38 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH -mm] W1_CON: add W1 to depends
+Message-ID: <20060427153738.GA31564@2ka.mipt.ru>
+References: <20060426212131.1c566d19.rdunlap@xenotime.net> <20060427125745.GA12840@2ka.mipt.ru> <20060427082525.4b1ee4db.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-References: <20060427014141.06b88072.akpm@osdl.org>
-	 <6bffcb0e0604270327n76e24687s1a36d8985f8c2d27@mail.gmail.com>
-	 <6bffcb0e0604270607r1b902c67pb20691a5b6c1ac63@mail.gmail.com>
-	 <20060427152802.GC15806@suse.de>
+In-Reply-To: <20060427082525.4b1ee4db.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 27 Apr 2006 19:37:39 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Thu, Apr 27, 2006 at 08:25:25AM -0700, Randy.Dunlap (rdunlap@xenotime.net) wrote:
+> On Thu, 27 Apr 2006 16:57:45 +0400 Evgeniy Polyakov wrote:
+> 
+> > On Wed, Apr 26, 2006 at 09:21:31PM -0700, Randy.Dunlap (rdunlap@xenotime.net) wrote:
+> > > From: Randy Dunlap <rdunlap@xenotime.net>
+> > > 
+> > > W1_CON should depend on W1 also.
+> > 
+> > I have no problem with the patch, but does dependency absence introduce
+> > some problems? This config option is only used when w1 is enabled.
+> 
+> Not quite true, or I wouldn't have seen a problem and sent a patch
+> for it.
+> With W1 disabled and doing 'make oldconfig', I got a prompt for
+> 
+>   Userspace communication over connector (W1_CON)? [Y/m/n]
+> 
+> which shouldn't happen.
 
-On 27/04/06, Greg KH <gregkh@suse.de> wrote:
-[snip]
->
-> Ah, I guess it is causing you problems :)
->
-> > Here is config:
-> > http://www.stardust.webpages.pl/files/mm/2.6.17-rc2-mm1/mm-config
->
-> If you set CONFIG_NDEV_FS=n does the oops go away?
+I mean that it is asked to be enabled or not, but some compilation and
+other logic is only turned on when w1 is enabled.
 
-Yes.
+But you are right, it should not appear if w1 is not enabled.
+I will take care of your patch, thank you, Randy.
 
->
-> thanks,
->
-> greg k-h
->
+> ---
+> ~Randy
 
-Regards,
-Michal
-
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+-- 
+	Evgeniy Polyakov

@@ -1,81 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbWD0Otq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965131AbWD0Ou6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965129AbWD0Otq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 10:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965133AbWD0Otq
+	id S965131AbWD0Ou6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 10:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWD0Ou6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 10:49:46 -0400
-Received: from tresys.irides.com ([216.250.243.126]:63903 "EHLO
-	exchange.columbia.tresys.com") by vger.kernel.org with ESMTP
-	id S965129AbWD0Otp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 10:49:45 -0400
-Subject: Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-From: Karl MacMillan <kmacmillan@tresys.com>
-To: casey@schaufler-ca.com
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org
-In-Reply-To: <20060427002136.24536.qmail@web36603.mail.mud.yahoo.com>
-References: <20060427002136.24536.qmail@web36603.mail.mud.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Apr 2006 10:47:43 -0400
-Message-Id: <1146149263.2759.55.camel@jackjack.columbia.tresys.com>
+	Thu, 27 Apr 2006 10:50:58 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:25874 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S965131AbWD0Ou6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 10:50:58 -0400
+Date: Thu, 27 Apr 2006 16:50:54 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Roman Kononov <kononov195-far@yahoo.com>,
+       LKML Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: C++ pushback
+Message-ID: <20060427145054.GA19502@mars.ravnborg.org>
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org> <e2ou35$u5r$1@sea.gmane.org> <6B929F57-12EB-4E91-A191-2F0DABB77962@mac.com> <445026EB.8010407@yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-26 at 17:21 -0700, Casey Schaufler wrote:
+On Wed, Apr 26, 2006 at 11:37:05PM -0400, Kyle Moffett wrote:
+> >
+> >I agree, it would be a bad idea to compile the existing C code by g+ 
+> >+.  The good idea is to be able to produce new C++ modules etc.
 > 
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > On Tue, 2006-04-25 at 20:42 -0700, Casey Schaufler
-> > wrote:
-> 
-> > > Conflating my forehead!
-> > 
-> > The policy is analyzable, and there are tools (apol
-> > and slat) that do precisely that.
-> 
-> Ok. I remain unconvinced, in part because the analysis
-> requires tools.
-> 
+> No, this is a reason why C++ modules are _not_ a good idea.  If you  
+> could write the module in C or C++, but in C++ it compiled 100-200%  
+> slower, then you would write it in C.
+The original issue was the possibility to add support for C++
+solely to support an existing implementation of a filesystem.
+Not to rewrite the kernel in C++, neither to encourage the use of C++.
+And with this in mind the figures above does not matter.
 
-Not certain what you mean by requires - it is possible to do policy
-analysis manually, though the tools certainly bring more rigor. Analysis
-of SELinux policies is not simply possible in theory - it has been done
-by us (Tresys) and others.
+Likewise does neiter of the many arguments in this thread.
+Now if the C++ fans could present what is needed to actually support
+building a module in C++ instead of arguing.....
 
-Karl
-
--- 
-Karl MacMillan
-Tresys Technology
-www.tresys.com
-
-> > Including information flow analysis
-> > and invariant checking.
-> 
-> Ok. Fair enough.
-> 
-> > What's your problem, again?
-> 
-> You keep asking that.
-> 
-> I seem to have fallen off topic, which happens
-> sometimes, and I apologize for falling into this
-> long standing and overly religeous debate. I
-> have failed to present my case with sufficient
-> clarity to prove convincing once again. Perhaps
-> one day I'll get it right. Perhaps one day I'll
-> figure out why I'm wrong.
-> 
-> 
-> 
-> Casey Schaufler
-> casey@schaufler-ca.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+	Sam

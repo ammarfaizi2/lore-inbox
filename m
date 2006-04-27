@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751814AbWD0WJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbWD0WJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751814AbWD0WJT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 18:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWD0WJT
+	id S1751815AbWD0WJg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 18:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751821AbWD0WJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 18:09:19 -0400
-Received: from nz-out-0102.google.com ([64.233.162.207]:21743 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751814AbWD0WJS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 18:09:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=W5b/rEbFh8tlwCqhvuSNilhc5eW68RH4e7gg+A5bXYQHaMIM8SMXU/ktI/E1ZaI1O52KJITsrzqJwttA79ktPCcHdI3G/0FdRxBR4arig+qKe516lpLMQzttMaFKdYGQMQRWUiLSSepoc9PC/K+52NRDk0ZPJ30oH3jLecEco1Q=
-Message-ID: <6bffcb0e0604271509t1be7bbfar25d1f0065d6929ea@mail.gmail.com>
-Date: Fri, 28 Apr 2006 00:09:18 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Greg KH" <gregkh@suse.de>
-Subject: Re: 2.6.17-rc2-mm1
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060427205319.GA30610@suse.de>
+	Thu, 27 Apr 2006 18:09:36 -0400
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:2709 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751815AbWD0WJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 18:09:35 -0400
+Message-ID: <4451410D.10004@tmr.com>
+Date: Thu, 27 Apr 2006 18:09:17 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060427014141.06b88072.akpm@osdl.org>
-	 <6bffcb0e0604270327n76e24687s1a36d8985f8c2d27@mail.gmail.com>
-	 <6bffcb0e0604270607r1b902c67pb20691a5b6c1ac63@mail.gmail.com>
-	 <20060427152802.GC15806@suse.de>
-	 <6bffcb0e0604270832o514f97bi45f871e2cfc832c6@mail.gmail.com>
-	 <20060427205319.GA30610@suse.de>
+To: Gary Poppitz <poppitzg@iomega.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: C++ pushback
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
+In-Reply-To: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/04/06, Greg KH <gregkh@suse.de> wrote:
-[snip]
-> Ok, I've spent a bit of time trying to reproduce this and I can't.  So
-> I'm just going to drop it from the patch set, because as you point out,
-> it's never going to go to mainline anyway, it was just a fun hack.
->
-> Sorry for the noise,
->
-> greg k-h
->
+Gary Poppitz wrote:
+>> We know they are "incompatible", why else would we allow "private" and
+>> "struct class" in the kernel source if we some how expected it to work
+>> with a C++ compiler?
+> 
+> 
+> I can see that this was intentional, not an oversight.
 
-Thanks.
+Possibly, what difference would it make?
+> 
+> If there is a childish temper tantrum mentality about C++ then I have no 
+> reason or desire to be on this list.
 
-Regards,
-Michal
+I only see one temper tantrum, and when you leave there will be none. 
+Oh, FORTRAN, PASCAL, and LISP aren't compatible either. And the comments 
+are all in English, without subtitles, how can people from other 
+cultures ever cope? Answer: nicely, it takes a native speaker of the 
+language to really botch the grammar.
+> 
+> Grow up.
 
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+You're whining because the kernel wasn't written for your convenience 
+and you tell US to grow up? Someone needs a time out.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

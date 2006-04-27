@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWD0EPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWD0ETI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWD0EPm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 00:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWD0EPm
+	id S964924AbWD0ETI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 00:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWD0ETI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 00:15:42 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37067 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964923AbWD0EPl (ORCPT
+	Thu, 27 Apr 2006 00:19:08 -0400
+Received: from xenotime.net ([66.160.160.81]:20612 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964924AbWD0ETG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 00:15:41 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Ken Brush" <kbrush@gmail.com>
-Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Date: Thu, 27 Apr 2006 06:15:19 +0200
-User-Agent: KMail/1.9.1
-Cc: "Neil Brown" <neilb@suse.de>, "Stephen Smalley" <sds@tycho.nsa.gov>,
-       "Chris Wright" <chrisw@sous-sol.org>,
-       "James Morris" <jmorris@namei.org>,
-       "Arjan van de Ven" <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <17487.61698.879132.891619@cse.unsw.edu.au> <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
-In-Reply-To: <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 27 Apr 2006 00:19:06 -0400
+Date: Wed, 26 Apr 2006 21:21:31 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: johnpol@2ka.mipt.ru, akpm <akpm@osdl.org>
+Subject: [PATCH -mm] W1_CON: add W1 to depends
+Message-Id: <20060426212131.1c566d19.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604270615.20554.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 April 2006 01:06, Ken Brush wrote:
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-> > 2/ What advantages does AppArmor provide over techniques involving
-> >    virtualisation or gaol mechanisms?  Are these advantages worth
-> >    while?
+W1_CON should depend on W1 also.
 
-I would guess the advantage is easier administration. e.g. I always
-found it a PITA to synchronize files like /etc/resolv.conf and similar
-files into chroots.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/w1/Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-It's similar as to why managing a single machine is much easier
-than a cluster. Chroots already get you many of the drawbacks from
-a cluster. That said it has its places, but chroot is not always
-the answer.
+--- linux-2.6.17-rc1-mm3.orig/drivers/w1/Kconfig
++++ linux-2.6.17-rc1-mm3/drivers/w1/Kconfig
+@@ -13,7 +13,7 @@ config W1
+ 	  will be called wire.ko.
+ 
+ config W1_CON
+-	depends on CONNECTOR
++	depends on CONNECTOR && W1
+ 	bool "Userspace communication over connector"
+ 	default y
+ 	--- help ---
 
-> If you just wish to run every application in a chrooted jail. Would
-> you still need a MAC solution?
 
-Current chroot is probably not strong enough - if someone gets root
-inside it it is easy to escape.
-
-> > 3/ Is AppArmour's approach of using d_path to get a filename from a
-> >    dentry valid and acceptable? 
-
-I suppose it needs at least to use the proper vfsmounts instead of
-walking the global list. That would need better hooks. And probably 
-some caching (trying to match dentries directly?) to get better performance.
-
-Regarding the basic use of pathnames I don't see a big problem. After
-all the kernel uses dentries for everything too and dentries are
-just a special form of path name too.
-
--Andi
+---

@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbWD0PlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbWD0Pnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965160AbWD0PlV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWD0PlV
+	id S965156AbWD0Pnw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWD0Pnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:41:21 -0400
-Received: from mailgw.aecom.yu.edu ([129.98.1.16]:38059 "EHLO
-	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP id S965040AbWD0PlU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:41:20 -0400
-Mime-Version: 1.0
-Message-Id: <a06230904c07687df0a33@[129.98.90.227]>
-In-Reply-To: <20060427135119.GB5177@rama>
-References: <200604210738.k3L7cBGO010103@mailgw.aecom.yu.edu>
- <a06230901c075ca078b8d@[129.98.90.227]> <20060427135119.GB5177@rama>
-Date: Thu, 27 Apr 2006 11:41:40 -0400
-To: Harald Welte <laforge@netfilter.org>
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Re: iptables is complaining with bogus unknown error
- 18446744073709551615
-Cc: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	Thu, 27 Apr 2006 11:43:52 -0400
+Received: from nz-out-0102.google.com ([64.233.162.201]:30839 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965157AbWD0Pnw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 11:43:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G3f9RX1SNspApDEvDHqRMXEwKYH9v6/FOVsV2/Zbeqm7FAhz6XQNl8/tvWCPhJKRTXWB5p8c5f15Hro/je54eeWgItRhVbVaPIdgCAW8BHlEEdgojNnRbqX8Vm8Wc7QBZa+EYuhDu7IoHLk0IyCs/KZQd2d8h336xFDyMMRtmqE=
+Message-ID: <6bffcb0e0604270843l2e68b7e0v5943ea9013aaedb5@mail.gmail.com>
+Date: Thu, 27 Apr 2006 17:43:51 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Greg KH" <gregkh@suse.de>
+Subject: Re: 2.6.17-rc2-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060427152657.GB15806@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060427014141.06b88072.akpm@osdl.org>
+	 <6bffcb0e0604270327n76e24687s1a36d8985f8c2d27@mail.gmail.com>
+	 <20060427152657.GB15806@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Wed, Apr 26, 2006 at 09:12:38PM -0400, Maurice Volaski wrote:
->>  Automatic kernel module loading! That is an option and it's off by
->>  default. When it's off, attempts to load kernel modules are ignored
->>  internally, and that's why iptables was failing. It tried to load
->>  xt_tcpudp, but was ignored by the kernel.
+On 27/04/06, Greg KH <gregkh@suse.de> wrote:
+> On Thu, Apr 27, 2006 at 12:27:53PM +0200, Michal Piotrowski wrote:
+> > Hi Andrew,
+> >
+> > On 27/04/06, Andrew Morton <akpm@osdl.org> wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
+> > >
+> > [snip]
+> > > +gregkh-devfs-ndevfs.patch
+> >
+> > "You don't really want to run this.  But if you did, here's a simple hack
+> > showing how easy it is to do it.
+> >
+> > Note, this patch will NOT be merged into mainline, so don't get your
+> > panties into a bind..."
+> > http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-devfs/ndevfs.patch
+> >
+> > Please drop this patch.
 >
->What do you mean by "it's an option" and "is off by default".  I would
->claim that any major linux distribution that I've seen in the last ten
->years has support for module auto loading (enabled by default).
+> Why drop it?
+
+As long as it doesn't go to mainline we shouldn't care about it in -mm.
+
+>
+> thanks,
+>
+> greg k-h
 >
 
-Distribution vendors are free to change it to whatever they want, I 
-guess, but it's OFF by default in the official kernel (.config).
--- 
+Regards,
+Michal
 
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

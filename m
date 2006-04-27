@@ -1,266 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWD0GEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbWD0GE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbWD0GEA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 02:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWD0GEA
+	id S964945AbWD0GE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 02:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWD0GE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 02:04:00 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:35256 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S964944AbWD0GD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 02:03:59 -0400
-Date: Thu, 27 Apr 2006 00:03:55 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de,
-       ralf@linux-mips.org, paulus@samba.org, schwidefsky@de.ibm.com,
-       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp, ysato@users.sourceforge.jp
-Subject: Re: [PATCH] Handle CONFIG_LBD and CONFIG_LSF in one place
-Message-ID: <20060427060355.GC29147@parisc-linux.org>
-References: <20060419140540.GK24104@parisc-linux.org> <20060426183442.78e40e3b.akpm@osdl.org> <20060427050459.GB29147@parisc-linux.org> <20060426221519.24d15939.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060426221519.24d15939.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+	Thu, 27 Apr 2006 02:04:59 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:53146 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964945AbWD0GE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 02:04:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=gDKjJ7UeT0O9+LpqXZX0zWbrSV3FXDXnP15qAb+7/2bAc3wD2Rp0OHxFUq0WPNefH+yPH5qVZ2FF5xyU+NyPzitabaZd0g+MEUSH7awBKu9xXbfVz31NXmqzyiFvt/LcJi0lTwmStmNGM3OMxK3DgRMTsBZovlc1oDXoba0yFm8=  ;
+Message-ID: <44505B59.1060308@yahoo.com.au>
+Date: Thu, 27 Apr 2006 15:49:13 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org> <Pine.LNX.4.64.0604261144290.3701@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604261144290.3701@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 10:15:19PM -0700, Andrew Morton wrote:
-> > is the conflicting patch available somewhere so i can put a patch in for
-> > it?
+Linus Torvalds wrote:
+
+> The question, of course, is whether the part that remains (the actual page 
+> lookup) is important enough to matter, once it is part of a bigger chain 
+> in a real application.
+
+It can be. If one applies a rough estimate, reading only 512MB/s
+from the same file from pagecache on each CPU simply cannot scale
+past about 16 CPUs before it becomes tree_lock bound (depending
+on what sort of lock transfer latency numbers one plugs into the
+model).
+
+> And the "reading from the same file in multiple threads" _is_ a real load. 
+> It may sound stupid, but it would happen for any server that has a lot of 
+> locality across clients (and that's very much true for web-servers, for 
+> example).
+
+I think something like postgresql, which uses a WAL via pagecache, things
+that use shared memory (which is more important now that fork got lazier.
+
+
+And it isn't even reading from the same file in multiple threads (although
+that's obviously my poster child).
+
+If one has F files in cache, and N CPUs each accessing a random file, the
+number of files whos tree_lock a CPU last touched is F/N. The chance of a
+CPU next hitting one of these is (F/N) / F = 1/N -> 0 pretty quickly.
+include/ perhaps.
+
+Now this won't be so bad as everyone piling up on a single cacheline, but
+it will still hurt, especially on systems with fsb bus, broadcast snoop
+(Opteron, POWER) etc.
+
+Nor will it only be the read side which is significant. Consider a single
+CPU reading a very large file, and each node's kswapd running on other CPUs
+to reclaim pagecache (which needs to take the write lock).
+
 > 
-> I don't think there was any conflicting patch.  I have no other patches
-> touching include/linux/types.h or include/asm-x86_64/types.h.
+> That said, under most real loads, the page cach elookup is obviously 
+> always going to be just a tiny tiny part (as shown by the fact that Jens 
+> quotes 35 GB/s throughput - possible only because splice to /dev/null 
+> doesn't need to actually ever even _touch_ the data).
+> 
+> The fact that it drops to "just" 3GB/s for four clients is somewhat 
+> interesting, though, since that does put a limit on how well we can serve 
+> the same file (of course, 3GB/s is still a lot faster than any modern 
+> network will ever be able to push things around, but it's getting closer 
+> to the possibilities for real hardware (ie IB over PCI-X should be able to 
+> do about 1GB/s in "real life")
+> 
+> So the fact that basically just lookup/locking overhead can limit things 
+> to 3GB/s is absolutely not totally uninteresting. Even if in practice 
+> there are other limits that would probably hit us much earlier.
+> 
+> It would be interesting to see where doing gang-lookup moves the target, 
+> but on the other hand, with smaller files (and small files are still 
+> common), gang lookup isn't going to help as much.
+> 
+> Of course, with small files, the actual filename lookup is likely to be 
+> the real limiter.
 
-hm.  weird.  looks like i overlooked something somehow.  i swear i
-grepped for it.
+Although that's lockless so it scales. find_get_page will overtake it
+at some point.
 
-Updated patch:
-
-CONFIG_LBD and CONFIG_LSF are spread into asm/types.h for no particularly
-good reason.  Centralising the definition in linux/types.h means that arch
-maintainers don't need to bother adding it, as well as fixing the problem
-with x86-64 users being asked to make a decision that has absolutely no
-effect.  The H8/300 porters seem particularly confused since I'm not aware
-of any microcontrollers that need to support 2TB filesystems these days.
-
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
-
-Index: ./block/Kconfig
-===================================================================
-RCS file: /var/cvs/linux-2.6/block/Kconfig,v
-retrieving revision 1.4
-diff -u -p -r1.4 Kconfig
---- ./block/Kconfig	3 Apr 2006 13:44:01 -0000	1.4
-+++ ./block/Kconfig	19 Apr 2006 13:43:26 -0000
-@@ -1,11 +1,9 @@
- #
- # Block layer core configuration
- #
--#XXX - it makes sense to enable this only for 32-bit subarch's, not for x86_64
--#for instance.
- config LBD
- 	bool "Support for Large Block Devices"
--	depends on X86 || (MIPS && 32BIT) || PPC32 || (S390 && !64BIT) || SUPERH || UML
-+	depends on !64BIT
- 	help
- 	  Say Y here if you want to attach large (bigger than 2TB) discs to
- 	  your machine, or if you want to have a raid or loopback device
-@@ -26,7 +24,7 @@ config BLK_DEV_IO_TRACE
- 
- config LSF
- 	bool "Support for Large Single Files"
--	depends on X86 || (MIPS && 32BIT) || PPC32 || ARCH_S390_31 || SUPERH || UML
-+	depends on !64BIT
- 	help
- 	  Say Y here if you want to be able to handle very large files (bigger
- 	  than 2TB), otherwise say N.
-Index: ./include/asm-h8300/types.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/asm-h8300/types.h,v
-retrieving revision 1.5
-diff -u -p -r1.5 types.h
---- ./include/asm-h8300/types.h	3 Apr 2006 13:45:48 -0000	1.5
-+++ ./include/asm-h8300/types.h	19 Apr 2006 13:40:47 -0000
-@@ -55,12 +55,6 @@ typedef unsigned long long u64;
- 
- typedef u32 dma_addr_t;
- 
--#define HAVE_SECTOR_T
--typedef u64 sector_t;
--
--#define HAVE_BLKCNT_T
--typedef u64 blkcnt_t;
--
- #endif /* __KERNEL__ */
- 
- #endif /* __ASSEMBLY__ */
-Index: ./include/asm-i386/types.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/asm-i386/types.h,v
-retrieving revision 1.4
-diff -u -p -r1.4 types.h
---- ./include/asm-i386/types.h	3 Apr 2006 13:45:49 -0000	1.4
-+++ ./include/asm-i386/types.h	19 Apr 2006 13:36:02 -0000
-@@ -58,16 +58,6 @@ typedef u32 dma_addr_t;
- #endif
- typedef u64 dma64_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-Index: ./include/asm-mips/types.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/asm-mips/types.h,v
-retrieving revision 1.6
-diff -u -p -r1.6 types.h
---- ./include/asm-mips/types.h	3 Apr 2006 13:45:53 -0000	1.6
-+++ ./include/asm-mips/types.h	19 Apr 2006 13:36:08 -0000
-@@ -94,16 +94,6 @@ typedef unsigned long long phys_t;
- typedef unsigned long phys_t;
- #endif
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-Index: ./include/asm-powerpc/types.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/asm-powerpc/types.h,v
-retrieving revision 1.3
-diff -u -p -r1.3 types.h
---- ./include/asm-powerpc/types.h	3 Apr 2006 13:45:55 -0000	1.3
-+++ ./include/asm-powerpc/types.h	19 Apr 2006 13:36:14 -0000
-@@ -98,16 +98,6 @@ typedef struct {
- 	unsigned long env;
- } func_descr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-Index: ./include/asm-s390/types.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/asm-s390/types.h,v
-retrieving revision 1.6
-diff -u -p -r1.6 types.h
---- ./include/asm-s390/types.h	3 Apr 2006 13:45:56 -0000	1.6
-+++ ./include/asm-s390/types.h	19 Apr 2006 13:36:20 -0000
-@@ -88,16 +88,6 @@ typedef union {
- 	} subreg;
- } register_pair;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* ! __s390x__   */
- #endif /* __ASSEMBLY__  */
- #endif /* __KERNEL__    */
-Index: ./include/asm-sh/types.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/asm-sh/types.h,v
-retrieving revision 1.5
-diff -u -p -r1.5 types.h
---- ./include/asm-sh/types.h	3 Apr 2006 13:45:57 -0000	1.5
-+++ ./include/asm-sh/types.h	19 Apr 2006 13:36:26 -0000
-@@ -53,16 +53,6 @@ typedef unsigned long long u64;
- 
- typedef u32 dma_addr_t;
- 
--#ifdef CONFIG_LBD
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--#endif
--
--#ifdef CONFIG_LSF
--typedef u64 blkcnt_t;
--#define HAVE_BLKCNT_T
--#endif
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-Index: ./include/asm-x86_64/types.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/asm-x86_64/types.h,v
-retrieving revision 1.5
-diff -u -p -r1.5 types.h
---- ./include/asm-x86_64/types.h	14 Sep 2005 12:57:48 -0000	1.5
-+++ ./include/asm-x86_64/types.h	27 Apr 2006 05:44:25 -0000
-@@ -48,9 +48,6 @@ typedef unsigned long long u64;
- typedef u64 dma64_addr_t;
- typedef u64 dma_addr_t;
- 
--typedef u64 sector_t;
--#define HAVE_SECTOR_T
--
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-Index: ./include/linux/types.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/linux/types.h,v
-retrieving revision 1.11
-diff -u -p -r1.11 types.h
---- ./include/linux/types.h	3 Apr 2006 13:46:02 -0000	1.11
-+++ ./include/linux/types.h	19 Apr 2006 13:40:32 -0000
-@@ -130,14 +130,19 @@ typedef		__s64		int64_t;
- 
- /*
-  * The type used for indexing onto a disc or disc partition.
-- * If required, asm/types.h can override it and define
-- * HAVE_SECTOR_T
-  */
--#ifndef HAVE_SECTOR_T
-+#ifdef CONFIG_LBD
-+typedef u64 sector_t;
-+#else
- typedef unsigned long sector_t;
- #endif
- 
--#ifndef HAVE_BLKCNT_T
-+/*
-+ * The type of the inode's block count.
-+ */
-+#ifdef CONFIG_LSF
-+typedef u64 blkcnt_t;
-+#else
- typedef unsigned long blkcnt_t;
- #endif
- 
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

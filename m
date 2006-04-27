@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWD0GMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWD0GPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbWD0GMl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 02:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWD0GMl
+	id S964953AbWD0GPY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 02:15:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964954AbWD0GPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 02:12:41 -0400
-Received: from pproxy.gmail.com ([64.233.166.178]:24191 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964951AbWD0GMj (ORCPT
+	Thu, 27 Apr 2006 02:15:24 -0400
+Received: from mx1.suse.de ([195.135.220.2]:55228 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964953AbWD0GPX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 02:12:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:in-reply-to:message-id:references:mime-version:content-type:from;
-        b=nzEXmFmmORMQy1M2cULtvEsJ8/0KkolHyvqbhgFM2xwI7SLCTD3PuIZlgoOqCyCGq48bdUFDmpWILuDPEFOgxyeYTjfwu5feYf5AqVT6tJbYWr80qMl63cJA9RiCVjU5DzPKr+gcJYXXqisw3W9Sw2Zd8VLs2fSnqOByyS9SlGI=
-Date: Wed, 26 Apr 2006 23:10:50 -0700 (PDT)
-To: akpm@osdl.org, dwalker@mvista.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Profile likely/unlikely macros -v2
-In-Reply-To: <Pine.LNX.4.64.0604262156100.11930@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0604262309190.2329@localhost.localdomain>
-References: <Pine.LNX.4.64.0604262156100.11930@localhost.localdomain>
+	Thu, 27 Apr 2006 02:15:23 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: Lockless page cache test results
+Date: Thu, 27 Apr 2006 08:15:18 +0200
+User-Agent: KMail/1.9.1
+Cc: "'Jens Axboe'" <axboe@suse.de>, "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, "'Nick Piggin'" <npiggin@suse.de>,
+       "'Andrew Morton'" <akpm@osdl.org>, linux-mm@kvack.org
+References: <4t153d$r2dpi@azsmga001.ch.intel.com>
+In-Reply-To: <4t153d$r2dpi@azsmga001.ch.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-From: Hua Zhong <hzhong@gmail.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604270815.18575.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, this seems a better fix. Clearly the unlikely and that particular kmalloc don't play well together. However, the same setup a couple of lines later have no issue.
-
-Signed-off-by: Hua Zhong <hzhong@gmail.com>
-
-diff --git a/arch/i386/kernel/cpu/intel_cacheinfo.c b/arch/i386/kernel/cpu/intel_cacheinfo.c
-index c8547a6..9dfcf0e 100644
---- a/arch/i386/kernel/cpu/intel_cacheinfo.c
-+++ b/arch/i386/kernel/cpu/intel_cacheinfo.c
-@@ -572,7 +572,7 @@ static int __cpuinit cpuid4_cache_sysfs_
+On Thursday 27 April 2006 07:39, Chen, Kenneth W wrote:
  
- 	/* Allocate all required memory */
- 	cache_kobject[cpu] = kmalloc(sizeof(struct kobject), GFP_KERNEL);
--	if (unlikely(cache_kobject[cpu] == NULL))
-+	if (cache_kobject[cpu] == NULL)
- 		goto err_out;
- 	memset(cache_kobject[cpu], 0, sizeof(struct kobject));
- 
+> (1) 2P Intel Xeon, 3.4 GHz/HT, 2M L2
+> http://kernel-perf.sourceforge.net/splice/2P-3.4Ghz.png
+> 
+> (2) 4P Intel Xeon, 3.0 GHz/HT, 8M L3
+> http://kernel-perf.sourceforge.net/splice/4P-3.0Ghz.png
+> 
+> (3) 4P Intel Xeon, 3.0 GHz/DC/HT, 2M L2 (per core)
+> http://kernel-perf.sourceforge.net/splice/4P-3.0Ghz-DCHT.png
+> 
+> (4) everything on one graph:
+> http://kernel-perf.sourceforge.net/splice/splice.png
+
+Looks like a clear improvement for lockless unless I'm misreading the graphs.
+(Can you please use different colors next time?)
+
+-Andi
+

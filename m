@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWD0EHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWD0ENZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964921AbWD0EHt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 00:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWD0EHt
+	id S964925AbWD0ENZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 00:13:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbWD0ENZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 00:07:49 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:11268 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S964921AbWD0EHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 00:07:49 -0400
-Date: Thu, 27 Apr 2006 06:07:23 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: kyle@pbx.org
-Cc: Davide Libenzi <davidel@xmailserver.org>, Heikki Orsila <shd@zakalwe.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: accept()ing socket connections with level triggered epoll
-Message-ID: <20060427040723.GG13027@w.ods.org>
-References: <20060426205557.GA5483@www.t3inc.us> <Pine.LNX.4.64.0604261411460.16727@alien.or.mcafeemobile.com> <20060427000520.GA10880@www.t3inc.us>
+	Thu, 27 Apr 2006 00:13:25 -0400
+Received: from narn.hozed.org ([209.234.73.39]:21656 "EHLO narn.hozed.org")
+	by vger.kernel.org with ESMTP id S964922AbWD0ENY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 00:13:24 -0400
+Date: Wed, 26 Apr 2006 23:13:24 -0500
+From: Troy Benjegerdes <hozer@hozed.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mst@mellanox.co.il, rick.jones2@hp.com, netdev@vger.kernel.org,
+       rdreier@cisco.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: TSO and IPoIB performance degradation
+Message-ID: <20060427041323.GX15855@narn.hozed.org>
+References: <20060320090629.GA11352@mellanox.co.il> <20060320.015500.72136710.davem@davemloft.net> <20060320102234.GV29929@mellanox.co.il> <20060320.023704.70907203.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060427000520.GA10880@www.t3inc.us>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20060320.023704.70907203.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 06:05:20PM -0600, kyle@pbx.org wrote:
-> On Wed, Apr 26, 2006 at 03:14:16PM -0700, Davide Libenzi wrote:
-> > 
-> > Correct, if it's LT you have to get the event because before returning from 
-> > epoll_wait(), the event is automatically re-armed if f_op->poll() returns it. 
-> > Can you post the *minimal* test code for this case?
-> > 
-> > - Davide
-> > 
+On Mon, Mar 20, 2006 at 02:37:04AM -0800, David S. Miller wrote:
+> From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+> Date: Mon, 20 Mar 2006 12:22:34 +0200
 > 
-> I tried reducing the code I have to the minimum necessary to demonstrate the
-> problem.  It went away, I'm afraid.  Since I'm already aware of a workaround
-> (call accept in a loop until you get EAGAIN), I guess I'll just forget about
-> it.  Unfortunately I can't post the full code, not that you'd want to dig
-> through all of it anyway.
+> > Quoting r. David S. Miller <davem@davemloft.net>:
+> > > The path an SKB can take is opaque and unknown until the very last
+> > > moment it is actually given to the device transmit function.
+> > 
+> > Why, I was proposing looking at dst cache. If that's NULL, well,
+> > we won't stretch ACKs. Worst case we apply the wrong optimization.
+> > Right?
+> 
+> Where you receive a packet from isn't very useful for determining
+> even the full patch on which that packet itself flowed.
+> 
+> More importantly, packets also do not necessarily go back out over the
+> same path on which packets are received for a connection.  This is
+> actually quite common.
+> 
+> Maybe packets for this connection come in via IPoIB but go out via
+> gigabit ethernet and another route altogether.
+> 
+> > What I'd like to clarify, however: rfc2581 explicitly states that in
+> > some cases it might be OK to generate ACKs less frequently than
+> > every second full-sized segment. Given Matt's measurements, TCP on
+> > top of IP over InfiniBand on Linux seems to hit one of these cases.
+> > Do you agree to that?
+> 
+> I disagree with Linux changing it's behavior.  It would be great to
+> turn off congestion control completely over local gigabit networks,
+> but that isn't determinable in any way, so we don't do that.
+> 
+> The IPoIB situation is no different, you can set all the bits you want
+> in incoming packets, the barrier to doing this remains the same.
+> 
+> It hurts performance if any packet drop occurs because it will require
+> an extra round trip for recovery to begin to be triggered at the
+> sender.
+> 
+> The network is a black box, routes to and from a destination are
+> arbitrary, and so is packet rewriting and reflection, so being able to
+> say "this all occurs on IPoIB" is simply infeasible.
+> 
+> I don't know how else to say this, we simply cannot special case IPoIB
+> or any other topology type.
 
-Sorry, I misunderstood you the first time. I thought that it was *when*
-your accept looped that you encountered the problem. If you need performance,
-I *really* encourage you to loop on accept() as much as you can. Missing an
-accept() and reading EAGAIN is cheap, while looping through all your event
-loop is usually more expensive. In haproxy, I had performance problems 5
-years ago, I could not get above 1500-2000 sessions/s because I was doing
-one accept at a time. After putting a small "while" loop around, it
-immediately jumped over 10000.
-
-Regards,
-Willy
+David is right. If you care about performance, you are already using SDP
+or verbs layer for the transport anyway. If I am going to be doing IPoIB,
+it's because eventually I expect the packet might get off the IB network
+and onto some other network and go halfway across the country.
 

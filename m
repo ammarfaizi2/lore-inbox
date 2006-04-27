@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWD0PR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWD0PXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWD0PR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:17:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWD0PR0
+	id S965151AbWD0PXA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWD0PXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:17:26 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:61852 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965150AbWD0PRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:17:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=etyi9gzezKycvx89PCMeb5VjIffogLDuzDpqua6fc5do6n6Jua6sj5AyOlPaGOSPQGU77Hn6RAaVzycGhCmpvl6JS8SZOjNIuhfS0wBjy6R9YSu+FS7WI0ioFzIolWkGT+016WoARx6Apf6If6aVr2vqrTsOVB0KKtsk427L3JY=  ;
-Message-ID: <4450C8C6.9040309@yahoo.com.au>
-Date: Thu, 27 Apr 2006 23:36:06 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
-Subject: Re: Lockless page cache test results
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org> <Pine.LNX.4.64.0604261144290.3701@g5.osdl.org> <20060426191557.GA9211@suse.de> <20060426131200.516cbabc.akpm@osdl.org> <20060427074533.GJ9211@suse.de> <4450796A.2030908@yahoo.com.au> <44507AA9.2010005@yahoo.com.au> <20060427090000.GA23137@suse.de>
-In-Reply-To: <20060427090000.GA23137@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 27 Apr 2006 11:23:00 -0400
+Received: from xenotime.net ([66.160.160.81]:38080 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965151AbWD0PW7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 11:22:59 -0400
+Date: Thu, 27 Apr 2006 08:25:25 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH -mm] W1_CON: add W1 to depends
+Message-Id: <20060427082525.4b1ee4db.rdunlap@xenotime.net>
+In-Reply-To: <20060427125745.GA12840@2ka.mipt.ru>
+References: <20060426212131.1c566d19.rdunlap@xenotime.net>
+	<20060427125745.GA12840@2ka.mipt.ru>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Thu, Apr 27 2006, Nick Piggin wrote:
+On Thu, 27 Apr 2006 16:57:45 +0400 Evgeniy Polyakov wrote:
 
->>Hmm, what's more, find_get_pages_contig shouldn't result in any
->>fewer tree_lock acquires than the open coded thing there now
->>(for the densely populated pagecache case).
+> On Wed, Apr 26, 2006 at 09:21:31PM -0700, Randy.Dunlap (rdunlap@xenotime.net) wrote:
+> > From: Randy Dunlap <rdunlap@xenotime.net>
+> > 
+> > W1_CON should depend on W1 also.
 > 
-> 
-> How do you figure? The open coded one does a find_get_page() on each
-> page in that range, so for x number of pages we'll grab and release
-> ->tree_lock x times.
+> I have no problem with the patch, but does dependency absence introduce
+> some problems? This config option is only used when w1 is enabled.
 
-Yeah you're right. I had in mind that you were using
-find_get_pages_contig in readahead, rather than in splice.
+Not quite true, or I wouldn't have seen a problem and sent a patch
+for it.
+With W1 disabled and doing 'make oldconfig', I got a prompt for
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+  Userspace communication over connector (W1_CON)? [Y/m/n]
+
+which shouldn't happen.
+
+---
+~Randy

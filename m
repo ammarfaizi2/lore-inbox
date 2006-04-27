@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWD0BKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWD0Bgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWD0BKB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 21:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWD0BKB
+	id S964872AbWD0Bgh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 21:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWD0Bgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 21:10:01 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:21508 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751007AbWD0BKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 21:10:00 -0400
-Message-ID: <445019E7.80900@vmware.com>
-Date: Wed, 26 Apr 2006 18:09:59 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.com>, Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Jan Beulich <jbeulich@novell.com>,
-       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
-       Pratap Subrahmanyam <pratap@vmware.com>
-Subject: Re: [PATCH 2/2] I386 convert pae wmb to non smp
-References: <200604262203.k3QM3qOC009581@zach-dev.vmware.com> <445009A2.3030305@yahoo.com.au>
-In-Reply-To: <445009A2.3030305@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 26 Apr 2006 21:36:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7885 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964872AbWD0Bgh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 21:36:37 -0400
+Date: Wed, 26 Apr 2006 18:34:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, ak@suse.de,
+       ralf@linux-mips.org, paulus@samba.org, schwidefsky@de.ibm.com,
+       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp, ysato@users.sourceforge.jp
+Subject: Re: [PATCH] Handle CONFIG_LBD and CONFIG_LSF in one place
+Message-Id: <20060426183442.78e40e3b.akpm@osdl.org>
+In-Reply-To: <20060419140540.GK24104@parisc-linux.org>
+References: <20060419140540.GK24104@parisc-linux.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Zachary Amsden wrote:
+Matthew Wilcox <matthew@wil.cx> wrote:
 >
->> Similar to the last bug, on set_pte, we don't want the compiler to 
->> re-order
->> the write of the PTE, even in non-SMP configurations, since if the 
->> write of
->> the low word occurs first, the TLB could prefetch a bad highmem 
->> mapping which
->> has been aliased into low memory.
->>
->
-> wmb() means that it also orders IO memory. It is no difference for
-> i386, but smp_wmb() actually has the right semantics of the abstract
-> Linux memory model.
+>  CONFIG_LBD and CONFIG_LSF are spread into asm/types.h for no particularly
+>  good reason.  Centralising the definition in linux/types.h means that arch
+>  maintainers don't need to bother adding it, as well as fixing the problem
+>  with x86-64 users being asked to make a decision that has absolutely no
+>  effect.  The H8/300 porters seem particularly confused since I'm not aware
+>  of any microcontrollers that need to support 2TB filesystems these days.
 
-The name is pretty confused.  smp_wmb seems to imply an SMP-only 
-barrier, whereas we want here a write barrier on regular memory.  Both 
-smp_wmb and wmb() are identical in that they both reduce to barrier 
-today, but I confess not to know which one semantically is correct.  
-Your call on this patch - it is unecessary, I thought it was more 
-semantically correct, but you probably know that better than me.  So, 
-drop part 2 of this patch?
+x86_64:
 
-Zach
+include/linux/types.h:137: error: conflicting types for 'sector_t'
+include/asm/types.h:51: error: previous declaration of 'sector_t' was here
+

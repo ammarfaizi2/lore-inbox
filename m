@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWD0SdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWD0Sfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbWD0SdE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 14:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWD0SdE
+	id S964950AbWD0Sfm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 14:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWD0Sfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 14:33:04 -0400
-Received: from nz-out-0102.google.com ([64.233.162.199]:63775 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964950AbWD0SdC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 14:33:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=WWdczO4qIbsP89mtU7ceitDsQK+yeJjre0UesO7MCLfLs+UE47h4JbNUZDiff2fJhdCmVms92szQs1ZboL2sXe6oPxCQkD0VImOncwC16Ij4vzi9YVp2Nlu9X5r9J/4P+RYFzEIz2/KcOvHJv3RCFdrj9mr6BYTwkxazCYJPa8g=
-Message-ID: <4ae3c140604271132u1f2db743t20aeb94993938086@mail.gmail.com>
-Date: Thu, 27 Apr 2006 14:32:57 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Why the RPC task structure adds a new field "tk_count"?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 27 Apr 2006 14:35:41 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:32193 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964950AbWD0Sfl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 14:35:41 -0400
+Subject: Re: [RFC: 2.6 patch] fs/read_write.c: unexport iov_shorten
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060427180331.GK3570@stusta.de>
+References: <20060427180331.GK3570@stusta.de>
+Content-Type: text/plain
+Date: Thu, 27 Apr 2006 11:36:37 -0700
+Message-Id: <1146162997.8365.25.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I migrate from 2.6.11 to 2.6.16, but found that a new field tk_count
-was added to the rpc task structure. In function rpc_release_task(), I
-saw the following code:
+On Thu, 2006-04-27 at 20:03 +0200, Adrian Bunk wrote:
+> This patch removes the unused EXPORT_SYMBOL(iov_shorten).
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+> This patch was already sent on:
+> - 23 Apr 2006
+> 
+> --- linux-2.6.17-rc1-mm3-full/fs/read_write.c.old	2006-04-23 15:51:52.000000000 +0200
+> +++ linux-2.6.17-rc1-mm3-full/fs/read_write.c	2006-04-23 15:52:02.000000000 +0200
+> @@ -436,8 +436,6 @@
+>  	return seg;
+>  }
+>  
+> -EXPORT_SYMBOL(iov_shorten);
+> -
+>  /* A write operation does a read from user space and vice versa */
+>  #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
 
-	if (!atomic_dec_and_test(&task->tk_count))
-		return;
-
-
-Looks like a task can be reused or refered multiple times? What's the
-theory behind this? Why do we need this?
+While you are at it, why not move iov_shorten() to only file its
+currently used from filemap.c, make it static and take it out from
+uio.h ? (filemap.c may not be the right place for it, but ..)
 
 Thanks,
+Badari
 
-Xin

@@ -1,93 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWD0IAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWD0ICn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbWD0IAu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 04:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWD0IAt
+	id S964885AbWD0ICn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 04:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWD0ICn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 04:00:49 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:21720 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S964869AbWD0IAt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 04:00:49 -0400
-Date: Thu, 27 Apr 2006 10:00:39 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Nguyen Anh Quynh <aquynh@gmail.com>
-Subject: Re: [PATCH 02/02] Process Events - License Change
-Message-ID: <20060427100039.4e8cfa3e@localhost.localdomain>
-In-Reply-To: <1145956350.28976.141.camel@stark>
-References: <1145956109.28976.133.camel@stark>
-	<1145956350.28976.141.camel@stark>
-Organization: Bull S.A.
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Thu, 27 Apr 2006 04:02:43 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3152 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964885AbWD0ICm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 04:02:42 -0400
+Date: Thu, 27 Apr 2006 10:03:16 +0200
+From: Jens Axboe <axboe@suse.de>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, npiggin@suse.de,
+       linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+Message-ID: <20060427080316.GL9211@suse.de>
+References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426185750.GM5002@suse.de> <20060427111937.deeed668.kamezawa.hiroyu@jp.fujitsu.com>
 Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 27/04/2006 10:03:28,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 27/04/2006 10:03:28,
-	Serialize complete at 27/04/2006 10:03:28
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060427111937.deeed668.kamezawa.hiroyu@jp.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
- Changing the license is okay for me,
-
-Cheers,
-
-Acked-by: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-
-On Tue, 25 Apr 2006 02:12:30 -0700
-Matt Helsley <matthltc@us.ibm.com> wrote:
-
-> Change the license on the process event structure passed between kernel and
-> userspace.
+On Thu, Apr 27 2006, KAMEZAWA Hiroyuki wrote:
+> On Wed, 26 Apr 2006 20:57:50 +0200
+> Jens Axboe <axboe@suse.de> wrote:
 > 
-> Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
+> > On Wed, Apr 26 2006, Jens Axboe wrote:
+> > > We can speedup the lookups with find_get_pages(). The test does 64k max,
+> > > so with luck we should be able to pull 16 pages in at the time. I'll try
+> > > and run such a test. But boy I wish find_get_pages_contig() was there
+> > > for that. I think I'd prefer adding that instead of coding that logic in
+> > > splice, it can get a little tricky.
+> > 
+> > Here's such a run, graphed with the other two. I'll redo the lockless
+> > side as well now, it's only fair to compare with that batching as well.
+> > 
 > 
-> --
+> Hi, thank you for interesting tests.
 > 
-> Index: linux-2.6.17-rc2/include/linux/cn_proc.h
-> ===================================================================
-> --- linux-2.6.17-rc2.orig/include/linux/cn_proc.h
-> +++ linux-2.6.17-rc2/include/linux/cn_proc.h
-> @@ -1,27 +1,20 @@
->  /*
->   * cn_proc.h - process events connector
->   *
->   * Copyright (C) Matt Helsley, IBM Corp. 2005
->   * Based on cn_fork.h by Nguyen Anh Quynh and Guillaume Thouvenin
-> - * Original copyright notice follows:
->   * Copyright (C) 2005 Nguyen Anh Quynh <aquynh@gmail.com>
->   * Copyright (C) 2005 Guillaume Thouvenin <guillaume.thouvenin@bull.net>
->   *
-> - * This program is free software; you can redistribute it and/or modify
-> - * it under the terms of the GNU General Public License as published by
-> - * the Free Software Foundation; either version 2 of the License, or
-> - * (at your option) any later version.
-> - *
-> - * This program is distributed in the hope that it will be useful,
-> - * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> - * GNU General Public License for more details.
-> - *
-> - * You should have received a copy of the GNU General Public License
-> - * along with this program; if not, write to the Free Software
-> - * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of version 2.1 of the GNU Lesser General Public License
-> + * as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it would be useful, but
-> + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
->   */
->  
->  #ifndef CN_PROC_H
->  #define CN_PROC_H
->  
+> >From user's view, I want to see the comparison among 
+> - splice(file,/dev/null),
+> - mmap+madvise(file,WILLNEED)/write(/dev/null),
+> - read(file)/write(/dev/null)
+> in this 1-4 threads test. 
 > 
-> 
+> This will show when splice() can be used effectively.
+
+Sure, should be easy enough to do.
+
+-- 
+Jens Axboe
+

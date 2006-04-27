@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751642AbWD0UwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751653AbWD0Uyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751642AbWD0UwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 16:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751649AbWD0UwQ
+	id S1751653AbWD0Uyr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 16:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751656AbWD0Uyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 16:52:16 -0400
-Received: from 10.121.9.213.dsl.getacom.de ([213.9.121.10]:30913 "EHLO
-	ds666.l4x.org") by vger.kernel.org with ESMTP id S1751642AbWD0UwP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 16:52:15 -0400
-Message-ID: <44512EF0.2090700@ppp0.net>
-Date: Thu, 27 Apr 2006 22:52:00 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060228 Thunderbird/1.5 Mnenhy/0.6.0.104
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Randy.Dunlap" <rdunlap@xenotime.net>, ak@suse.de,
-       linux-kernel@vger.kernel.org
-References: <20060427014141.06b88072.akpm@osdl.org>	<p73vesv727b.fsf@bragg.suse.de>	<20060427121930.2c3591e0.akpm@osdl.org>	<200604272126.30683.ak@suse.de>	<20060427124452.432ad80d.rdunlap@xenotime.net> <20060427131100.05970d65.akpm@osdl.org>
-In-Reply-To: <20060427131100.05970d65.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 192.168.1.149
-X-SA-Exim-Mail-From: jdittmer@ppp0.net
-Subject: Re: checklist (Re: 2.6.17-rc2-mm1)
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
-X-SA-Exim-Scanned: Yes (on ds666.l4x.org)
+	Thu, 27 Apr 2006 16:54:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:61117 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751648AbWD0Uyq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 16:54:46 -0400
+Date: Thu, 27 Apr 2006 13:53:19 -0700
+From: Greg KH <gregkh@suse.de>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc2-mm1
+Message-ID: <20060427205319.GA30610@suse.de>
+References: <20060427014141.06b88072.akpm@osdl.org> <6bffcb0e0604270327n76e24687s1a36d8985f8c2d27@mail.gmail.com> <6bffcb0e0604270607r1b902c67pb20691a5b6c1ac63@mail.gmail.com> <20060427152802.GC15806@suse.de> <6bffcb0e0604270832o514f97bi45f871e2cfc832c6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6bffcb0e0604270832o514f97bi45f871e2cfc832c6@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Adrian does some of the other steps.  I'm not aware of anyone who is doing
-> regular sparse and kernel-doc checking on -mm.
+On Thu, Apr 27, 2006 at 05:32:43PM +0200, Michal Piotrowski wrote:
+> Hi Greg,
+> 
+> On 27/04/06, Greg KH <gregkh@suse.de> wrote:
+> [snip]
+> >
+> > Ah, I guess it is causing you problems :)
+> >
+> > > Here is config:
+> > > http://www.stardust.webpages.pl/files/mm/2.6.17-rc2-mm1/mm-config
+> >
+> > If you set CONFIG_NDEV_FS=n does the oops go away?
+> 
+> Yes.
 
-Sparse checks are in the results at http://l4x.org/k/ . There is just
-someone missing who looks at the results :(
+Ok, I've spent a bit of time trying to reproduce this and I can't.  So
+I'm just going to drop it from the patch set, because as you point out,
+it's never going to go to mainline anyway, it was just a fun hack.
 
-Jan
+Sorry for the noise,
+
+greg k-h

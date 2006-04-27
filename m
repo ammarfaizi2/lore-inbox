@@ -1,176 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751640AbWD0Uft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbWD0UhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751640AbWD0Uft (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 16:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWD0UeF
+	id S1751631AbWD0UhC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 16:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751635AbWD0UhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 16:34:05 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:31495 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751399AbWD0Udy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 16:33:54 -0400
-Date: Thu, 27 Apr 2006 22:33:52 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/media/video/vivi.c: possible cleanups
-Message-ID: <20060427203352.GS3570@stusta.de>
+	Thu, 27 Apr 2006 16:37:01 -0400
+Received: from usea-naimss1.unisys.com ([192.61.61.103]:6415 "EHLO
+	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
+	id S1751631AbWD0Ug7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 16:36:59 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Date: Thu, 27 Apr 2006 15:36:50 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0BA3@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Thread-Index: AcZqLrm0CstwPjwYTeCfW3rkdEC5VgAAeUBgAAIwilA=
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Brown, Len" <len.brown@intel.com>, "Andi Kleen" <ak@suse.de>
+Cc: <sergio@sergiomb.no-ip.org>, "Kimball Murray" <kimball.murray@gmail.com>,
+       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
+       <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 27 Apr 2006 20:36:51.0156 (UTC) FILETIME=[50200140:01C66A3A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanup:
-- make needlessly global functions static
-- remove unused #ifndef kzalloc kzalloc() #define
-- remove inline's from functions
+> >But I guess using GSI/vector internally only would be fine.
+> 
+> The last time I tried to name a variable "gsi" instead of "irq",
+> Linus launched into a tirade that "GSI" doesn't mean anything to him,
+> or anybody else that googles it.  On the other hand "IRQ" means
+> something
+> to everybody, and if you google it you find all kinds of interesting
+> interrupt-related things.
+> 
+> My point was that "IRQ" means so many "interrupt related" things to
+> different people in different contexts, that it is effectively
+> meaningless.
+> 
+> But Linus was not swayed.
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Oh Len, let's call this thing IRQ why not ;) I kind of agree that this
+is more popular and well-known term, like an old trade mark. I just see
+all those layers of code right now to map those to GSIs, pins, whatever
+it is, that can be replaced with... well, much smaller layers of code :)
+and maybe less "assumpti-ous" too.
 
----
-
-This patch was already sent on:
-- 19 Apr 2006
-
- drivers/media/video/vivi.c |   44 ++++++++++++++-----------------------
- 1 file changed, 17 insertions(+), 27 deletions(-)
-
---- linux-2.6.17-rc1-mm3-full/drivers/media/video/vivi.c.old	2006-04-18 21:39:05.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/drivers/media/video/vivi.c	2006-04-18 21:43:48.000000000 +0200
-@@ -47,16 +47,6 @@
- 
- #include "font.h"
- 
--#ifndef kzalloc
--#define kzalloc(size, flags)                            \
--({                                                      \
--	void *__ret = kmalloc(size, flags);             \
--	if (__ret)                                      \
--		memset(__ret, 0, size);                 \
--	__ret;                                          \
--})
--#endif
--
- MODULE_DESCRIPTION("Video Technology Magazine Virtual Video Capture Board");
- MODULE_AUTHOR("Mauro Carvalho Chehab, Ted Walther and John Sokol");
- MODULE_LICENSE("Dual BSD/GPL");
-@@ -247,7 +237,8 @@
- #define TSTAMP_MAX_Y TSTAMP_MIN_Y+15
- #define TSTAMP_MIN_X 64
- 
--void prep_to_addr(struct sg_to_addr to_addr[],struct videobuf_buffer *vb)
-+static void prep_to_addr(struct sg_to_addr to_addr[],
-+			 struct videobuf_buffer *vb)
- {
- 	int i, pos=0;
- 
-@@ -258,7 +249,7 @@
- 	}
- }
- 
--inline int get_addr_pos(int pos, int pages, struct sg_to_addr to_addr[])
-+static int get_addr_pos(int pos, int pages, struct sg_to_addr to_addr[])
- {
- 	int p1=0,p2=pages-1,p3=pages/2;
- 
-@@ -279,8 +270,8 @@
- 	return (p1);
- }
- 
--void gen_line(struct sg_to_addr to_addr[],int inipos,int pages,int wmax,
--					int hmax, int line, char *timestr)
-+static void gen_line(struct sg_to_addr to_addr[],int inipos,int pages,int wmax,
-+		     int hmax, int line, char *timestr)
- {
- 	int  w,i,j,pos=inipos,pgpos,oldpg,y;
- 	char *p,*s,*basep;
-@@ -490,7 +481,7 @@
- 		dprintk(1,"%s: %d buffers handled (should be 1)\n",__FUNCTION__,bc);
- }
- 
--void vivi_sleep(struct vivi_dmaqueue  *dma_q)
-+static void vivi_sleep(struct vivi_dmaqueue  *dma_q)
- {
- 	int timeout;
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -525,7 +516,7 @@
- 	try_to_freeze();
- }
- 
--int vivi_thread(void *data)
-+static int vivi_thread(void *data)
- {
- 	struct vivi_dmaqueue  *dma_q=data;
- 
-@@ -541,7 +532,7 @@
- 	return 0;
- }
- 
--int vivi_start_thread(struct vivi_dmaqueue  *dma_q)
-+static int vivi_start_thread(struct vivi_dmaqueue  *dma_q)
- {
- 	dma_q->frame=0;
- 	dma_q->ini_jiffies=jiffies;
-@@ -559,7 +550,7 @@
- 	return 0;
- }
- 
--void vivi_stop_thread(struct vivi_dmaqueue  *dma_q)
-+static void vivi_stop_thread(struct vivi_dmaqueue  *dma_q)
- {
- 	dprintk(1,"%s\n",__FUNCTION__);
- 	/* shutdown control thread */
-@@ -665,8 +656,7 @@
- 	return 0;
- }
- 
--void
--free_buffer(struct videobuf_queue *vq, struct vivi_buffer *buf)
-+static void free_buffer(struct videobuf_queue *vq, struct vivi_buffer *buf)
- {
- 	dprintk(1,"%s\n",__FUNCTION__);
- 
-@@ -790,8 +780,8 @@
- 	free_buffer(vq,buf);
- }
- 
--int vivi_map_sg (void *dev, struct scatterlist *sg, int nents,
--	   int direction)
-+static int vivi_map_sg(void *dev, struct scatterlist *sg, int nents,
-+		       int direction)
- {
- 	int i;
- 
-@@ -807,15 +797,15 @@
- 	return nents;
- }
- 
--int vivi_unmap_sg(void *dev,struct scatterlist *sglist,int nr_pages,
--					int direction)
-+static int vivi_unmap_sg(void *dev,struct scatterlist *sglist,int nr_pages,
-+			 int direction)
- {
- 	dprintk(1,"%s\n",__FUNCTION__);
- 	return 0;
- }
- 
--int vivi_dma_sync_sg(void *dev,struct scatterlist *sglist,int nr_pages,
--					int direction)
-+static int vivi_dma_sync_sg(void *dev,struct scatterlist *sglist, int nr_pages,
-+			    int direction)
- {
- //	dprintk(1,"%s\n",__FUNCTION__);
- 
-@@ -899,7 +889,7 @@
- 	return 1;
- }
- 
--static inline int res_locked(struct vivi_dev *dev)
-+static int res_locked(struct vivi_dev *dev)
- {
- 	return (dev->resources);
- }
-
+--Natalie 

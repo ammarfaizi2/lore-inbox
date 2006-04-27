@@ -1,43 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWD0RU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbWD0Rjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWD0RU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 13:20:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWD0RU1
+	id S965168AbWD0Rjh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 13:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965165AbWD0Rjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 13:20:27 -0400
-Received: from mailfe10.swipnet.se ([212.247.155.33]:48547 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S1750746AbWD0RU0 (ORCPT
+	Thu, 27 Apr 2006 13:39:36 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:8373 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S965047AbWD0Rjf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 13:20:26 -0400
-X-T2-Posting-ID: KOikJrdL7LwNU9E7lpGMzWVS2MIh7gpHPSCSN1tL6ME=
-X-Cloudmark-Score: 0.000000 []
-From: Leonard Peterson <l.pinguin_N0$PAM@gmail.com>
-To: Roman Kononov <kononov195-far@yahoo.com>
-Subject: Re: C++ pushback (when does this religious thread end?)
-Date: Thu, 27 Apr 2006 19:20:37 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org> <e2ou35$u5r$1@sea.gmane.org>
-In-Reply-To: <e2ou35$u5r$1@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 27 Apr 2006 13:39:35 -0400
+Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11]
+	security: AppArmor - Overview
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ken Brush <kbrush@gmail.com>
+Cc: Neil Brown <neilb@suse.de>, Chris Wright <chrisw@sous-sol.org>,
+       James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+In-Reply-To: <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
+References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com>
+	 <20060420192717.GA3828@sorel.sous-sol.org>
+	 <1145621926.21749.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <20060421173008.GB3061@sorel.sous-sol.org>
+	 <1145642853.21749.232.camel@moss-spartans.epoch.ncsc.mil>
+	 <17484.20906.122444.964025@cse.unsw.edu.au>
+	 <1145911526.14804.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <17485.55676.177514.848509@cse.unsw.edu.au>
+	 <1145984831.21399.74.camel@moss-spartans.epoch.ncsc.mil>
+	 <17487.61698.879132.891619@cse.unsw.edu.au>
+	 <ef88c0e00604261606g64ed5844j67890e8c3d7974a9@mail.gmail.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 27 Apr 2006 13:43:53 -0400
+Message-Id: <1146159833.5238.95.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604271920.37208.l.pinguin_N0$PAM@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What about support for JAVA-modules in the kernel? Or modules written in C#? 
+On Wed, 2006-04-26 at 16:06 -0700, Ken Brush wrote:
+> On 4/26/06, Neil Brown <neilb@suse.de> wrote:
+> >
+> > I feel we have reached the stage where the questions/comments being
+> > made are actually directly relevant to AppArmor.  I'm afraid I cannot
+> > proceed any further now because I am not a security expert.
+> >
+> > I would like to summarise what I think are the key points that you
+> > have raised, and hope that someone who has a deeper understanding of
+> > these things might answer them, or point to answers.
+> >
+> > 1/ Does AppArmor's primary mechanism of confining an application to a
+> >   superset of it's expected behaviour actually achieve its secondary
+> >   gaol of protecting data?
+> >
+> >   Possibly it would be better to ask "When does ..."  as I think it is
+> >   easy to imagine application/profile pairs that clearly cannot allow
+> >   harm, and application/profile pairs that clearly could allow harm.
+> 
+> Depends on the data. A properly constrained Apache webserver would be
+> prevented from accessing data it shouldn't.
 
-In my opinion there are many decent languages (just like C++) and I am 
-convinced that there are people out there who think that the Linux kernel 
-should support any language they can imagine, because it has such and such 
-nice/good/robust/etc. feature.
+No, it wouldn't.  The question itself is flawed - it presumes that AA
+does confine the application to its expected behavior.  But with
+incomplete mediation and ambiguous identifiers, there is no such
+guarantee.  No profile will meet the "clearly cannot allow harm"
+definition, because not all operations are controlled by it and of the
+operations that are controlled, the actual objects are not clearly
+identified, so harm is still possible.
 
-Neither C or C++ sucks, its just the programmer that sucks.
+> > 2/ What advantages does AppArmor provide over techniques involving
+> >    virtualisation or gaol mechanisms?  Are these advantages worth
+> >    while?
+> 
+> If you just wish to run every application in a chrooted jail. Would
+> you still need a MAC solution?
 
-So Please, end this religious discussion, it leads to nowhere...
+If your goal is purely isolation, then virtualization may fit your
+needs.  If you want to support controlled sharing of data while still
+ensuring that certain confidentiality and integrity goals are met, then
+you want a MAC mechanism.  But AA really isn't a MAC mechanism, despite
+what its documentation may say.
 
+-- 
+Stephen Smalley
+National Security Agency
 
-Leonard

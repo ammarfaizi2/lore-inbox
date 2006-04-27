@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbWD0Uhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWD0UhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751645AbWD0Uhw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 16:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWD0Uhv
+	id S1751638AbWD0UhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 16:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbWD0UhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 16:37:51 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:34536 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751646AbWD0Uhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 16:37:48 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=rGRwHR9FFBMEqPRXpjpHpF+z3s/cATiZ6CkY1opXghVh0Tn0cif3eSXZzOcbNQr9S
-	k8Tb7Vb7/Kiy1uI8jgneQ==
-Message-ID: <44512B61.4040000@google.com>
-Date: Thu, 27 Apr 2006 13:36:49 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 27 Apr 2006 16:37:08 -0400
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:20779 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751638AbWD0UhG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 16:37:06 -0400
+Message-ID: <44512B69.2030504@tmr.com>
+Date: Thu, 27 Apr 2006 16:36:57 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Randy.Dunlap" <rdunlap@xenotime.net>, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: checklist (Re: 2.6.17-rc2-mm1)
-References: <20060427014141.06b88072.akpm@osdl.org>	<p73vesv727b.fsf@bragg.suse.de>	<20060427121930.2c3591e0.akpm@osdl.org>	<200604272126.30683.ak@suse.de>	<20060427124452.432ad80d.rdunlap@xenotime.net> <20060427131100.05970d65.akpm@osdl.org>
-In-Reply-To: <20060427131100.05970d65.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+To: =?UTF-8?B?R3J6ZWdvcnogSmHFm2tpZXdpY3o=?= <gryzman@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: can't compile kernels lately (2.6.16.5 and up)
+References: <2f4958ff0604260639n4874c2aua1e99ec4c32d2182@mail.gmail.com>
+In-Reply-To: <2f4958ff0604260639n4874c2aua1e99ec4c32d2182@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A lot of these are pretty hard and labor-intensive for people to set up and
-> run.  It would be nice, but from a global perspective it's not efficient
-> for every member of the kernel team to do all these things.  It's OK I
-> think if a few specialists run these tools against lots of people's patches
-> all at once.
-> 
-> Which is basically what we're doing now, although I suspect we could be
-> more rigorous about it.
+Grzegorz Jaśkiewicz wrote:
+> root@puppet:/usr/src/linux-2.6.16.11# make
+>   CHK     include/linux/version.h
+>   HOSTCC  scripts/mod/file2alias.o
+> scripts/mod/file2alias.c:386: warning: 'struct input_device_id'
+> declared inside parameter list
+> scripts/mod/file2alias.c:386: warning: its scope is only this
+> definition or declaration, which is probably not what you want
 
-How about if I set up an automated email drop - you email it a patch and 
-it will compile test it on a few different configs and run sparse, will 
-send you back mail when it's done.
+Did you try
+- save .config
+- make distclean (or mrproper)
+- restore .config
+- make oldconfig
 
-I don't want to boot it, as that gets into security nightmares, but I 
-should be able to provide something that does static testing.
+I think there's a corner case which patch application leaves file mod 
+dates wrong somehow.just "make clean" is a cure, but this is the big gun.
 
-> - Matches kernel coding style(!)
+I realize you probably know this and tried it before asking, but it sure 
+looks like what I see which I brain fart and don't clean properly before 
+the next build,.
 
-E_NEEDS_AUTOMATED_FILTER / lint of some form.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 
-The others all look doable.
-
-The intent would not be that you get burdened with this, but that 
-developers send it there before sending it to you. It could even
-hand out
-
-Signed-off-by: Magic-testing-framework <basictest@test.kernel.org>
-
-tokens to people who use it ;-)
-
-M.

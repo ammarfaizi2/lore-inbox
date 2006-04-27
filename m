@@ -1,220 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWD0WCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWD0WDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751791AbWD0WCx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 18:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751810AbWD0WCw
+	id S1751809AbWD0WDj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 18:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751810AbWD0WDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 18:02:52 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:54468 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751809AbWD0WCu (ORCPT
+	Thu, 27 Apr 2006 18:03:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38095 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751809AbWD0WDh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 18:02:50 -0400
-Date: Thu, 27 Apr 2006 15:01:22 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       greg@kroah.com, kay.sievers@suse.de
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation (try 2)
-Message-ID: <20060427220122.GA9039@suse.de>
-References: <20060427211012.GA1719@kroah.com> <20060427143528.ddd304c8.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060427143528.ddd304c8.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+	Thu, 27 Apr 2006 18:03:37 -0400
+Date: Thu, 27 Apr 2006 15:00:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: David Woodhouse <dwmw2@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Simple header cleanups
+In-Reply-To: <20060427213754.GU3570@stusta.de>
+Message-ID: <Pine.LNX.4.64.0604271439100.3701@g5.osdl.org>
+References: <1146104023.2885.15.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.64.0604261917270.3701@g5.osdl.org> <1146105458.2885.37.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.64.0604261954480.3701@g5.osdl.org> <1146107871.2885.60.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org> <20060427213754.GU3570@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 02:35:28PM -0700, Randy.Dunlap wrote:
-> On Thu, 27 Apr 2006 14:10:12 -0700 Greg KH wrote:
+
+
+On Thu, 27 Apr 2006, Adrian Bunk wrote:
 > 
-> > In short, we really need a way to document the different interfaces that
-> > the kernel has between userspace and kernelspace.  Traditionally this
-> > has only been with the syscall interface, and a few odd proc files and
-> > sysctls.  In recent years that interface has grown to accommodate a
-> > variety of ram-based filesystems, and other fun ways to get data in and
-> > out of the kernel (netlink, connector, etc.)
-> > 
-> > This patch proposes that _all_ kernel interfaces between userspace and
-> > the kernel be documented in some manner.  Now this doesn't mean that the
-> > man-pages for the different syscalls need to be included here, but we
-> > really need to try to get a handle of what is changing and what will be
-> > affected if we do change things.
-> 
-> Yes.  Thank you.
-> 
-> > --------------
-> > 
-> > --- /dev/null
-> > +++ gregkh-2.6/Documentation/ABI/README
-> > @@ -0,0 +1,77 @@
-> > +This directory attempts to document the ABI between the Linux kernel and
-> > +userspace, and the relative stability of these interfaces.  Due to the
-> > +ever changing nature of Linux, and the differing maturity levels, these
->    everchanging
+> A definition of the kernel <-> userspace ABI is required.
 
-Fixed.
+Well, we can get certain hints by just looking at every single type that 
+is used as a __user pointer. That should give us a lot of the type 
+information.
 
-> > +interfaces should be used by userspace programs in different ways.
-> > +
-> > +We have four different levels of ABI stability, as shown by the four
-> > +different subdirectorys in this location.  Interfaces may change levels
->              subdirectories
+The other big piece ends up being argument values passed in to system 
+calls, most notably ioctl numbers, but there are certainly others too.
 
-Fixed.
+And then there are the system call numbers themselves, and their calling 
+conventions (fairly small part).
 
-> > +of stability according to the rules described below.
-> > +
-> > +The different levels of stability are:
-> > +
-> > +  stable/
-> > +	This directory documents the interfaces that have the developer
->                                                 that the developer
+> Create an include/kabi/linux/ with the following properties:
 
-Fixed.
+I do hate your naming.
 
-> > +	has defined to be stable.  Userspace programs are free to use
-> > +	these interfaces with no restrictions, and backward
-> > +	compatibility for them will be guaranteed for at least 2 years.
-> > +	Most simple interfaces (like syscalls) are expected to never
-> > +	change and always be available.
-> 
-> IMO "Most simple interfaces" isn't explicit enough.  We could argue
-> all day on which interfaces are simple and which are not.
+Why is that "linux" there? We're not going to have FreeBSD kabi files. And 
+what about the (pretty common) architecture-specific ones?
 
-Great point, I've dropped the "simple" word now.
+The dependency chain is also quite often nontrivial. The ABI's all end up 
+depending on the basic types, and often on each other (eg the ioctl 
+numbers depend on the sizes of all the structures, which in turn depend on 
+the architecture-specific structure layout and low-level types).
 
-> > +What:		Short description of the interface
-> > +Date:		Date created
-> > +KernelVersion:	Kernel version this feature first showed up in.
-> > +Contact:	Primary contact for this interface (may be a mailing list)
-> > +Description:	Long description of the interface and how to use it.
-> > +Users:		All users of this interface who wish to be notified for
-> drop ending "for"
+So it's _not_ usually possible to just do one file that does one thing, 
+because they do actually have linkages.
 
-Dropped.
+And the linkages can be nasty, because they can easily be linkages that 
+POSIX - and other standards - forbid them from being visible (you cannot 
+expose certain typenames if they weren't _explicitly_ included, regardless 
+of whether you need the type defines).
 
-> > +		when it changes.  This is very important for interfaces in
-> > +		the "testing" stage, so that kernel developers can work
-> > +		with userspace developers to ensure that things do not
-> > +		break in ways that are unacceptable.  It is also important
-> > +		to get feedback for these interfaces to make sure they are
-> > +		working in a proper way and do not need to be changed
-> > +		further.
-> > +
-> > +
-> > +How things move between states:
-> 
-> s/states/levels/
+This is one reason why we shouldn't even _plan_ on having header files 
+that can just be _directly_ used by the C libraries etc, even if it's just 
+a "small" kernel ABI header.
 
-Changed.
+Selling it as that kind of idea will inevitably mean that we then get 
+blamed for not knowing magic rule #579 for SuS v2.1.6 subsection 8(a).
 
-> > +Interfaces in stable may move to obsolete, as long as the proper
-> > +notification is given.
-> > +
-> > +Interfaces may be removed from obsolete and the kernel as long as the
-> > +documented amount of time has gone by.
-> > +
-> > +Interfaces in the testing state can move to the stable state when the
-> > +developers feel they are finished.  They can not be removed from the
-> 
-> "cannot"
+And if we say "you can use these headers unmodified", that _is_ what we're 
+going to get blamed for. I'm so _not_ interested in having to care or 
+worry.
 
-Fixed.
+So I seriously think we should aim for making it _easier_ for system 
+libraries to get the information, but we should at the same time make it 
+clear that we make it easier for them to get the basic info, BUT WE DO NOT 
+CARE ABOUT THE RANDOM USER STANDARD OF THE DAY.
 
-> > +kernel tree without going through the obsolete state first.
-> > +
-> > +It's up to the developer to place their interface in the category they
-> 
-> s/their/an/
-> better:  s/their interface/interfaces/
+Have you looked in /usr/include lately? Have you _looked_ at the "expose 
+BSD names" vs "GNU extended source" vs "strict POSIX" vs 
+"_XOPEN_SOURCE==600" bs "_USE_MISC" vs a million random and strange 
+things?
 
-I like the "better" change.
+The day I see somebody adding crap like that to the kernel headers is the 
+day I pull the plug on any "KABI" interfaces. 
 
-> > --- /dev/null
-> > +++ gregkh-2.6/Documentation/ABI/stable/syscalls
-> > @@ -0,0 +1,10 @@
-> > +What:		The kernel syscall interface
-> > +Description:
-> > +	This interface matches much of the POSIX interface and is based
-> > +	on it and other Unix based interfaces.  It will only be added to
-> > +	over time, and not have things removed from it.
-> > +
-> > +	Note that this interface is different for every architecture
-> > +	that Linux supports.  Please see the arch specific documentation
-> 
-> "arch-specific" or "architecture-specific"
+And don't tell me this has got nothing to do with the kernel constants. Go 
+look in something like /usr/include/bits/fcntl.h, and cry. See how it's 
+using _exactly_ the kernel constants, but it has added all the random 
+standard-of-the-day #ifdef (whether real standards, or the "GNU standards" 
+or just "legacy BSD-like" etc).
 
-Fixed.
+And THAT is why I don't think the simplistic "kabi" directory approach 
+that people have brought up many times over many years is actually 
+realistic. People don't realize that glibcs makes "struct flock" actually 
+look different in user space depending on whether "__USE_FILE_OFFSET64" is 
+defined or not.
 
-> > --- /dev/null
-> > +++ gregkh-2.6/Documentation/ABI/stable/sysfs-module
-> > @@ -0,0 +1,29 @@
-> > +What:		/sys/module
-> > +Description:
-> > +	The /sys/module tree consists of the following structure:
-> > +
-> > +	/sys/module/MODULENAME
-> > +		The name of the module that is in the kernel.
-> > +		This module name will show up both if the module is built
-> s/both/either/
+You just haven't seen just how NASTY those user-space headers are. They 
+can't use _any_ kernel headers directly, because even when they want a 
+_raw_ kernel data structure, they actually end up doing things differently 
+in the _middle_ of that data structure. 
 
-Fixed.
+Really.
 
-> > +		directly into the kernel, or if it is loaded as a dyanmic
-> > +		module.
-> > +
-> > +	/sys/module/MODULENAME/parameters
-> > +		This directory contains individual files that are each
-> > +		individual parameters into the module that are are able to be
-> drop one "are"
-> s/into/of/
+So we should try to help those system libc people perhaps _find_ the 
+values and structures they need, but no, I will _never_ allow the kernel 
+headers to be used directly. And it doesn't _matter_ if they've been moved 
+to a "kabi" subdirectory. That's not the issue. The issue is that user 
+space does insane things that aren't acceptable in kernel space.
 
-Fixed.
-
-> > +		changed at runtime.  See the individual module documentation as
-> > +		to the contents of these parameters and what they accomplish.
-> > +
-> > +		Note: The individual parameter names and values are not
-> > +		considered stable, only the fact that they will be placed into
-> s/into/in/
-
-Fixed.
-
-> > --- /dev/null
-> > +++ gregkh-2.6/Documentation/ABI/testing/sysfs-devices
-> > @@ -0,0 +1,25 @@
-> > +What:		/sys/devices
-> > +Date:		February 2006
-> > +Contact:	Greg Kroah-Hartman <gregkh@suse.de>
-> > +Description:
-> > +		The /sys/devices tree contains a snapshot of the
-> > +		internal state of the kernel device tree.  Devices will
-> > +		be added and removed dynamically as the machine runs,
-> > +		and between different kernel versions, the layout of the
-> > +		devices within this tree will change.
-> > +
-> > +		Please do not rely on the format of this tree because of
-> > +		this.  If a program wishes to find different things in
-> > +		the tree, please use the /sys/class structure and rely
-> > +		on the symlinks there to point to the proper location
-> > +		within the /sys/devices tree of the individual devices.
-> > +		Or rely on the uevent messages to notify programs of
-> > +		devices being added and removed from this tree to find
-> > +		the location of those devices.
-> > +
-> > +		Note that sometimes not all devices along the directory
-> > +		chain will have emitted uevent messages, so userspace
-> > +		programs must be able to handle such occurances.
-> "occurrences"
-
-Fixed.
-
-> So where is the uevent message interface documented?
-
-It will go into Documentation/ABI/stable/uevent when this tree is set up
-:)
-
-thanks a lot for the fixes.
-
-greg k-h
+			Linus

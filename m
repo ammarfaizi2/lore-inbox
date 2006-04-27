@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWD0Fjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWD0Fxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964938AbWD0Fjc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 01:39:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWD0Fjc
+	id S964943AbWD0Fxi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 01:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbWD0Fxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 01:39:32 -0400
-Received: from mga03.intel.com ([143.182.124.21]:59146 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S964938AbWD0Fjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 01:39:32 -0400
-Message-Id: <4t153d$r2dpi@azsmga001.ch.intel.com>
-X-IronPort-AV: i="4.04,160,1144047600"; 
-   d="scan'208"; a="28391218:sNHT15950137"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Jens Axboe'" <axboe@suse.de>, "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: <linux-kernel@vger.kernel.org>, "'Nick Piggin'" <npiggin@suse.de>,
-       "'Andrew Morton'" <akpm@osdl.org>, <linux-mm@kvack.org>
-Subject: RE: Lockless page cache test results
-Date: Wed, 26 Apr 2006 22:39:30 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 27 Apr 2006 01:53:38 -0400
+Received: from main.gmane.org ([80.91.229.2]:21134 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964943AbWD0Fxi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 01:53:38 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Roman Kononov <kononov195-far@yahoo.com>
+Subject: Re: C++ pushback
+Date: Thu, 27 Apr 2006 00:53:22 -0500
+Message-ID: <44505C52.2080709@yahoo.com>
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org> <e2ou35$u5r$1@sea.gmane.org> <20060427035709.GF13027@w.ods.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZpaiWAl+qYKSuVRgOo7PZDvNcEbwAUXPRQ
-In-Reply-To: <20060426194623.GD9211@suse.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-69-219-188-74.dsl.chcgil.ameritech.net
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+In-Reply-To: <20060427035709.GF13027@w.ods.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote on Wednesday, April 26, 2006 12:46 PM
-> > It's interesting, single threaded performance is down a little. Is
-> > this significant? In some other results you showed me with 3 splices
-> > each running on their own file (ie. no tree_lock contention), lockless
-> > looked slightly faster on the same machine.
+On 04/26/2006 22:57, Willy Tarreau wrote:
+> On Wed, Apr 26, 2006 at 06:00:52PM -0500, Roman Kononov wrote:
+>> Linus Torvalds wrote:
+>>> - the compilers are slower, and less reliable. This is _less_ of an 
+>>> issue these days than it used to be (at least the reliability part), 
+>>>   but it's still true.
+>> G++ compiling heavy C++ is a bit slower than gcc. The g++ front end is 
+>> reliable enough. Do you have a particular bug in mind?
 > 
-> I can do the same numbers on a 2-way em64t for comparison, that should
-> get us a little better coverage.
+> Obviously you're not interested in gcc evolutions. I suggest that you
+> take your browser to http://gcc.gnu.org/gcc-3.4/changes.html#3.4.5
+> This is the last version which showed per-subsystem problem reports
+> before they used SVN. Just count the lines : 9 bugs fixed for C, 45
+> for C++. And when you read those bugs, you don't have the feeling of
+> reading a description of something that people make their code rely on.
 
+I am interested very much. And if one really understands the bugs 
+listed, he can say that they are minor for both C and C++. I would 
+certainly recommend rely on g++.
 
-I throw the lockless patch and Jens splice-bench into our benchmark harness,
-here are the numbers I collected, on the following hardware:
+Regards,
+Roman
 
-(1) 2P Intel Xeon, 3.4 GHz/HT, 2M L2
-(2) 4P Intel Xeon, 3.0 GHz/HT, 8M L3
-(3) 4P Intel Xeon, 3.0 GHz/DC/HT, 2M L2 (per core)
-
-Here are the graph:
-
-(1) 2P Intel Xeon, 3.4 GHz/HT, 2M L2
-http://kernel-perf.sourceforge.net/splice/2P-3.4Ghz.png
-
-(2) 4P Intel Xeon, 3.0 GHz/HT, 8M L3
-http://kernel-perf.sourceforge.net/splice/4P-3.0Ghz.png
-
-(3) 4P Intel Xeon, 3.0 GHz/DC/HT, 2M L2 (per core)
-http://kernel-perf.sourceforge.net/splice/4P-3.0Ghz-DCHT.png
-
-(4) everything on one graph:
-http://kernel-perf.sourceforge.net/splice/splice.png
-
-- Ken

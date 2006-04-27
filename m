@@ -1,86 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751695AbWD0Vh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751702AbWD0Vjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751695AbWD0Vh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 17:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWD0Vh5
+	id S1751702AbWD0Vjg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 17:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWD0Vjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 17:37:57 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9224 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751694AbWD0Vh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 17:37:56 -0400
-Date: Thu, 27 Apr 2006 23:37:54 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Simple header cleanups
-Message-ID: <20060427213754.GU3570@stusta.de>
-References: <1146104023.2885.15.camel@hades.cambridge.redhat.com> <Pine.LNX.4.64.0604261917270.3701@g5.osdl.org> <1146105458.2885.37.camel@hades.cambridge.redhat.com> <Pine.LNX.4.64.0604261954480.3701@g5.osdl.org> <1146107871.2885.60.camel@hades.cambridge.redhat.com> <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
+	Thu, 27 Apr 2006 17:39:35 -0400
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:26485 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751702AbWD0Vje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 17:39:34 -0400
+Message-ID: <44513A0C.3020403@tmr.com>
+Date: Thu, 27 Apr 2006 17:39:24 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060403
+To: Nick Warne <nick@linicks.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: scheduler question 2.6.16.x
+References: <200604251905.19004.nick@linicks.net> <20060425181530.GQ4102@suse.de> <200604251933.48363.nick@linicks.net>
+In-Reply-To: <200604251933.48363.nick@linicks.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 08:31:00PM -0700, Linus Torvalds wrote:
+Nick Warne wrote:
+> On Tuesday 25 April 2006 19:15, Jens Axboe wrote:
 > 
-> On Thu, 27 Apr 2006, David Woodhouse wrote:
-> > 
-> > Agreed. And distributions and library maintainers _will_ fix them. Are
-> > we to deny those people the tools which will help them to keep track of
-> > our breakage and submit patches to fix it?
+>>> But I can build both in... so I guess then the kernel decides what is
+>>> the best to use?  Or should it be so I am only allowed to select one
+>>> or the other and allowing both is an oversight?
+>> See the option no more than two lines down from that, default io
+>> scheduler. Also see Documentation/block/switching-sched.txt and/or
+>> Documentation/kernel-parameters.txt (elevator=) section.
 > 
-> No. As mentioned, as long as the target audience is distributions and 
-> library maintainers, I definitely think we should do help them as much as 
-> possible. Our problems have historically been "random people" who have 
-> /usr/include/linux being the symlink to "kernel source of the day", which 
-> is an unsupportable situation.
->...
+> Hi Jens,
+> 
+> I haven't got the switching-sched.txt, although I found a sched-design.txt... 
+> but what I meant was if I select whatever default, do/can I still need to 
+> select either/or scheduler?
+> 
+> i.e. why doesn't 'default selection option' only allow that scheduler to be 
+> selected?
 
+Not clear is you mean "allow that to the the only selection" which it 
+does, or "only allow that selection" which makes no sense, you can boot 
+using any compiled scheduler.
 
-A definition of the kernel <-> userspace ABI is required.
+My configuration for beverage is set to "cask conditioned IPA" but I 
+have most of the "Microbrewed" selections for IPA, PA, Stout and Porter 
+compiled in. The "bland American and imported brews" section is 
+disabled, with "water" enabled as a module.
 
-Currently, each distribution does it slightly different.
-
-Currently we might accidentially touch the userspace ABI of the kernel 
-without even noticing it.
-
-
-I'd like to do the following:
-
-Create an include/kabi/linux/ with the following properties:
-- the goal is that include/kabi/linux an be copied verbatim to
-  /usr/include/ (by distributions and library maintainers, normal users
-  should use the copy installed by their distribution in /usr/include/)
-- kernel code outside include/ wouldn't notice, since for each ABI 
-  header include/kabi/linux/foo.h there's a header include/linux/foo.h 
-  that does #include <kabi/linux/foo.h>
-- moving stuff to kabi/linux can happen incrementially
-- once the move is complete, we can announce this as the official ABI 
-  headers
-- moving to the kabi/ headers shouldn't cause compile time or
-  runtime breakages for userspace software [1]
-
-
-I'd be willing to work on this, but if you have any problems with this 
-approach, I'd like to understand them
-
-
-> 		Linus
-
-
-cu
-Adrian
-
-[1] with the exception of header abuses like the MySQL asm/atomic.h usage
+The preference is what you use by default, but not an irrevocable choice.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

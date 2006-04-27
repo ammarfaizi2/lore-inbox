@@ -1,98 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWD0JGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWD0JHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964991AbWD0JGA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 05:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbWD0JGA
+	id S964992AbWD0JHo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 05:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWD0JHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 05:06:00 -0400
-Received: from iona.labri.fr ([147.210.8.143]:44508 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S964991AbWD0JF7 (ORCPT
+	Thu, 27 Apr 2006 05:07:43 -0400
+Received: from main.gmane.org ([80.91.229.2]:41945 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964992AbWD0JHn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 05:05:59 -0400
-Date: Thu, 27 Apr 2006 11:06:20 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: linux-kernel@vger.kernel.org, bonachead@comcast.net, torvalds@osdl.org
-Subject: Re: PROBLEM: pthread-safety bug in write(2) on Linux 2.6.x
-Message-ID: <20060427090620.GF4649@implementation.labri.fr>
-Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	linux-kernel@vger.kernel.org, bonachead@comcast.net,
-	torvalds@osdl.org
+	Thu, 27 Apr 2006 05:07:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: C++ pushback
+Date: Thu, 27 Apr 2006 15:09:28 +0600
+Message-ID: <e2q1iu$357$1@sea.gmane.org>
+References: <4024F493-F668-4F03-9EB7-B334F312A558@iomega.com>	<mj+md-20060424.201044.18351.atrey@ucw.cz>	<444D44F2.8090300@wolfmountaingroup.com>	<1145915533.1635.60.camel@localhost.localdomain> <20060425001617.0a536488@werewolf.auna.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 212.220.94.19
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.2) Gecko/20060405 SeaMonkey/1.0.1
+In-Reply-To: <20060425001617.0a536488@werewolf.auna.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+J.A. Magallon wrote:
+> Tell me what is the difference between:
+> 
+> 
+>     sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
+>     if (!sbi)
+>         return -ENOMEM;
+>     sb->s_fs_info = sbi;
+>     memset(sbi, 0, sizeof(*sbi));
+>     sbi->s_mount_opt = 0;
+>     sbi->s_resuid = EXT3_DEF_RESUID;
+>     sbi->s_resgid = EXT3_DEF_RESGID;
+> 
+> and
+> 
+>     SuperBlock() : s_mount_opt(0), s_resuid(EXT3_DEF_RESUID), s_resgid(EXT3_DEF_RESGID)
+>     {}
+> 
+>     ...
+>     sbi = new SuperBlock;
+>     if (!sbi)
+>         return -ENOMEM;
+> 
+> apart that you don't get members initalized twice and get a shorter code :).
 
-I'm getting a bit late in the discussion, but this is a bug that we've
-here known for quite some time now. The easy fix for getting correct
-concurrent writes was to add a pipe: instead of calling
+The second example is simply incorrect, because the operator new throws an 
+exception when we run out of memory, instead of returning a null pointer.
 
-my_parallel_program > log
+So it has to be written as:
 
-just call
+sbi = new SuperBlock;
+/* The rest of code assumes that the sbi pointer is valid. If this was not the 
+case, let's hope that the caller caught std::bad_alloc properly */
 
-my_parallel_program | tee log
+-- 
+Alexander E. Patrakov
 
-the pipe guarantees atomicity.
-
-Another testcase was the following program:
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-int main(int argc, char *argv[])
-{
-  int n, num = 0, lus = 0;
-  char c;
-
-  if(argc >= 2) num = atoi(argv[1]) - 1;
-
-  while (num) {
-    if(fork() == 0) break;
-    num--;
-  }
-
-  for(;;) {
-    n = read(STDIN_FILENO, &c, 1);
-    if(n == 1) lus++;
-    else break;
-  }
-
-  printf("Proc %d read %d bytes\n", num, lus);
-  return 0;
-}
-
-Running it with no parameter runs fine:
-
-$ ls -l foo
--rwxr-xr-x 1 samy samy 8174 2006-04-07 11:21 testlocale
-$ ./lire < foo
-Proc 0 read 8174 bytes
-
-Running it with a given number of processes shows the non-atomicity of
-offset update, even on UP:
-
-$ ./lire 2 < foo
-Proc 0 read 3903 bytes
-Proc 1 read 8174 bytes
-
-And it is getting worse as the number of processes increase. When we
-discovered this, we checked such atomicity (i.e. each byte of the file
-is read exactly by one process) on several systems:
-
-- As shown, linux completely fails.
-- OS X almost succeeds: on a dual SMP system, with 10 processes on a
-900KB file, 68 bytes got read by more that one process.
-- OSF succeeds: on a 8-way SMP system, with 10 processes on a 50MB
-file, _no_ byte got read by more than one process.
-- Solaris completely fails.
-- AIX completely fails.
-
-So I guess that people should just _not_ rely on such atomicity.
-
-Regards,
-Samuel

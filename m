@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965155AbWD0Pip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbWD0PlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965155AbWD0Pip (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:38:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbWD0Pip
+	id S965160AbWD0PlV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWD0PlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:38:45 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23941 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965155AbWD0Pip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:38:45 -0400
-Date: Thu, 27 Apr 2006 17:38:44 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Roman Kononov <kononov195-far@yahoo.com>,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-Message-ID: <mj+md-20060427.153429.15386.atrey@ucw.cz>
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il> <200604271655.48757.vda@ilport.com.ua> <4450D4E9.4050606@argo.co.il> <mj+md-20060427.145744.9154.atrey@ucw.cz> <4450E3CB.1090206@argo.co.il>
+	Thu, 27 Apr 2006 11:41:21 -0400
+Received: from mailgw.aecom.yu.edu ([129.98.1.16]:38059 "EHLO
+	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP id S965040AbWD0PlU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 11:41:20 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4450E3CB.1090206@argo.co.il>
-User-Agent: Mutt/1.5.9i
+Message-Id: <a06230904c07687df0a33@[129.98.90.227]>
+In-Reply-To: <20060427135119.GB5177@rama>
+References: <200604210738.k3L7cBGO010103@mailgw.aecom.yu.edu>
+ <a06230901c075ca078b8d@[129.98.90.227]> <20060427135119.GB5177@rama>
+Date: Thu, 27 Apr 2006 11:41:40 -0400
+To: Harald Welte <laforge@netfilter.org>
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: Re: iptables is complaining with bogus unknown error
+ 18446744073709551615
+Cc: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is pushing all boundaries, however. That code is horrible.
+>On Wed, Apr 26, 2006 at 09:12:38PM -0400, Maurice Volaski wrote:
+>>  Automatic kernel module loading! That is an option and it's off by
+>>  default. When it's off, attempts to load kernel modules are ignored
+>>  internally, and that's why iptables was failing. It tried to load
+>>  xt_tcpudp, but was ignored by the kernel.
 >
-> >It's somewhat ugly inside, but an equally strong generic structure build
-> >with templates will be probably even uglier.
-> >
-> Not at all.
+>What do you mean by "it's an option" and "is off by default".  I would
+>claim that any major linux distribution that I've seen in the last ten
+>years has support for module auto loading (enabled by default).
+>
 
-So, show your version :-)
-
-(as fast as this one, of course)
-
-				Have a nice fortnight
+Distribution vendors are free to change it to whatever they want, I 
+guess, but it's OFF by default in the official kernel (.config).
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Outside of a dog, a book is man's best friend. Inside a dog, it's too dark to read.
+
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

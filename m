@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWD0WOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751719AbWD0WXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751817AbWD0WOy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 18:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWD0WOy
+	id S1751719AbWD0WXI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 18:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751730AbWD0WXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 18:14:54 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:46286 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751817AbWD0WOx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 18:14:53 -0400
-Date: Fri, 28 Apr 2006 00:14:52 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] -mm: i386 i8259.c simplify i8259A_irq_real()
-Message-ID: <20060427221452.GA29019@rhlx01.fht-esslingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+	Thu, 27 Apr 2006 18:23:08 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:21212 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751719AbWD0WXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 18:23:07 -0400
+Date: Thu, 27 Apr 2006 15:22:53 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: Or Gerlitz <ogerlitz@voltaire.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, open-iscsi@googlegroups.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: possible bug in kmem_cache related code
+In-Reply-To: <84144f020604270419s10696877he2ec27ae6d52e486@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0604271510240.27370@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0604271138370.16357-101000@zuben>
+ <84144f020604270419s10696877he2ec27ae6d52e486@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Thu, 27 Apr 2006, Pekka Enberg wrote:
 
-I noticed the very "non-nice" asymmetry of i8259A_irq_real(),
-so I decided to fix the weirdly aligned branches.
-While doing this, I noticed that it could be streamlined much more,
-resulting in an astonishing 208 byte object code saving for such a tiny code
-fragment! (gcc 3.2.3)
+> On 4/27/06, Or Gerlitz <ogerlitz@voltaire.com> wrote:
+> > With 2.6.17-rc3 I'm running into something which seems as a bug related
+> > to kmem_cache. Doing some allocations/deallocations from a kmem_cache and
+> > later attempting to destroy it yields the following message and trace
+> 
+> Tested on 2.6.16.7 and works ok. Christoph, could this be related to
+> the cache draining patches that went in 2.6.17-rc1?
 
-Review appreciated, I believe it's correct but I've only tested it shortly
-and it's slowpath anyway.
+What happened to that part of the slab allocator? Looks completely  
+changed to when I saw it the last time?
 
-Patch against 2.6.17-rc2-mm1.
+This directly fails in kmem_cache_destroy?
 
-Thanks!
+So it tries to free all the slab entries from the free list and then 
+returns 1 or 2 if there are entries left on the partial and full 
+list? So the bug happens if cache entries are left.
 
-Signed-off-by: Andreas Mohr <andi@lisas.de>
+Guess the reason for this failure is then that not all cache entries have 
+been freed before calling kmem_cache_destroy()?
 
 
---- linux-2.6.17-rc2-mm1.orig/arch/i386/kernel/i8259.c	2006-04-18 11:45:21.000000000 +0200
-+++ linux-2.6.17-rc2-mm1/arch/i386/kernel/i8259.c	2006-04-27 23:57:34.000000000 +0200
-@@ -145,17 +145,20 @@
- static inline int i8259A_irq_real(unsigned int irq)
- {
- 	int value;
--	int irqmask = 1<<irq;
-+	int irqmask;
-+	int reg;
- 
- 	if (irq < 8) {
--		outb(0x0B,PIC_MASTER_CMD);	/* ISR register */
--		value = inb(PIC_MASTER_CMD) & irqmask;
--		outb(0x0A,PIC_MASTER_CMD);	/* back to the IRR register */
--		return value;
-+		reg = PIC_MASTER_CMD;
-+		irqmask = 1 << irq;
-+	} else {
-+		reg = PIC_SLAVE_CMD;
-+		irqmask = 1 << (irq - 8);
- 	}
--	outb(0x0B,PIC_SLAVE_CMD);	/* ISR register */
--	value = inb(PIC_SLAVE_CMD) & (irqmask >> 8);
--	outb(0x0A,PIC_SLAVE_CMD);	/* back to the IRR register */
-+
-+	outb(0x0B, reg);	/* ISR register */
-+	value = inb(reg) & irqmask;
-+	outb(0x0A, reg);	/* back to the IRR register */
- 	return value;
- }
- 

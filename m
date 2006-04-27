@@ -1,97 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWD0SaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWD0Sa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbWD0SaT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 14:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWD0SaT
+	id S965006AbWD0Sa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 14:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWD0Sa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 14:30:19 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:28548 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964942AbWD0SaS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 14:30:18 -0400
-Date: Thu, 27 Apr 2006 23:57:19 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [Patch 5/8] taskstats interface
-Message-ID: <20060427182719.GC14496@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <444991EF.3080708@watson.ibm.com> <444996FB.8000103@watson.ibm.com> <44501A97.2060104@engr.sgi.com> <445041EB.7080205@watson.ibm.com> <20060427064237.GA14496@in.ibm.com> <445104DC.90401@engr.sgi.com>
+	Thu, 27 Apr 2006 14:30:57 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:15335 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964950AbWD0Sa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 14:30:56 -0400
+Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <20060427182306.GL3570@stusta.de>
+References: <1146049414.7016.9.camel@laptopd505.fenrus.org>
+	 <20060426110656.GD29108@wohnheim.fh-wedel.de>
+	 <Pine.LNX.4.58.0604270853510.20454@sbz-30.cs.Helsinki.FI>
+	 <445061DC.5030008@yahoo.com.au>
+	 <Pine.LNX.4.58.0604270926380.20454@sbz-30.cs.Helsinki.FI>
+	 <1146120640.2894.1.camel@laptopd505.fenrus.org>
+	 <20060427083157.GD3570@stusta.de>
+	 <1146127273.2894.21.camel@laptopd505.fenrus.org>
+	 <20060427085614.GE3570@stusta.de>
+	 <1146128885.2894.27.camel@laptopd505.fenrus.org>
+	 <20060427182306.GL3570@stusta.de>
+Content-Type: text/plain
+Date: Thu, 27 Apr 2006 20:29:48 +0200
+Message-Id: <1146162588.2894.36.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <445104DC.90401@engr.sgi.com>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jay,
 
-> Hi Shailabh and Balbir,
-> 
-> Are TASKSTATS_GENL_VERSION and TASKSTATS_VERSION the same thing?
-> If they are meant to serve different purposes, we still need it.
-> 
+> But for using your suggested "separate kfree() which does check out of 
+> line" for not having the (otherwise unavoidable) space increast, we have 
+> to manually change kfree() callers.
 
-Yes, thats true. But for now from what I can see, one version should
-be sufficient.
+I don't follow you. Sorry.
 
-<snip> 
 
-> I was thinking of a bitmask thing. But instead of keying specific
-> fields, one bit may be used to key delay accounting, and another bit
-> for CSA, el at. This way you do not need to have CSA-specifc fields
-> in the payload and applications know how to correctly interpret the
-> payload. Taskstats and application do not need to have knowledge of
-> accounting packages, only need to set the bitmasks correctly.
->
-
-Yes, but scanning the entire payload for various types is also feasible. It is
-a bit slow, but feasible and generally the recommended approach for
-dealing with genetlink types. What you are saying is still possible, the
-application can ignore types it does not understand.
-
-> When we start sending sys stats of each tasks to userland, that is
-> s lot of data. Note that BSD accounting even uses encode_comp_t()
-> routine to compress data into a 13-bit fraction with 3-bit exponent
-> field to shrink its size. Even though you do not need to care
-> about those zero's in taskstats, they still need to be delievered
-> through netlink socket.
-
-Yes, thats true. We can leave the decision of compressing, etc to the
-specific subsystem. It can encode it and the user level application
-can decode the data.
-
-> 
-> I must admit that this may create a point of failure due to the
-> payload info not set correctly according to the CONFIG flags.
-> 
-> The idea was to eliminate the need of #2 methods, but maybe
-> #2 method is better...
-> 
-> I am a little confused after reading Balbir's reply. It seems to
-> me that Shailabh suggested to create a different struct to contain
-> stats data. Is that also what Balbir talked about? If a different
-> package builds a different taskstat-like interface as suggested
-> in #2, would the data travel on the same socket as delay
-> accounting?
-
-Sorry for the confusion. Yes, even I would recommend creating a different
-struct for the stats data. The data will pass over the same socket as delay
-accounting (separate sockets can be used, but that would become inefficient).
-
-> 
-> I would suggest to do the check at the beginning of
-> taskstats_exit_send() before mutex_lock(&taskstats_exit_mutex).
-
-Good suggestion, we can move the check to that point.
-
-> 
-> Regards,
->  - jay
-
---
-					Warm Regards, 
-					<---	Balbir

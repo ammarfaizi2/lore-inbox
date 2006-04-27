@@ -1,97 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWD0Ue6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWD0Uem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbWD0Ue6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 16:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbWD0Uem
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1751420AbWD0Uem (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 27 Apr 2006 16:34:42 -0400
-Received: from nproxy.gmail.com ([64.233.182.186]:36767 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751441AbWD0Ue1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 16:34:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=ga8ZCYRATF+fxTOnrTMuXJviZcsZ2A2jXO3j9dlqQwusL4hrrWT1UT/Yk5tqP+eHdaVG5PQS9ZWfR8hsZ6JZojP1MlApLJ466GmHwHr9k+6Q+0qXLE5t+vfQZTA5/FwwN9pZuaMg8A5eOVrUDGSKs9rOA8GSIN1v+V3V8HdwH58=
-Date: Fri, 28 Apr 2006 00:32:09 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWD0UeI
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 27 Apr 2006 16:34:08 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29447 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751461AbWD0Udu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 16:33:50 -0400
+Date: Thu, 27 Apr 2006 22:33:48 +0200
+From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Don't trigger full rebuild via CONFIG_MTRR
-Message-ID: <20060427203209.GA7166@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: [2.6 patch] let CONFIG_SECCOMP default to n
+Message-ID: <20060427203348.GQ3570@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only drm, framebuffer, mtrr parts + misc files here and there.
+From: Ingo Molnar <mingo@elte.hu>
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+I was profiling the scheduler on x86 and noticed some overhead related 
+to SECCOMP, and indeed, SECCOMP runs disable_tsc() at _every_ 
+context-switch:
 
- arch/i386/kernel/cpu/common.c |    1 +
- arch/i386/power/cpu.c         |    1 +
- include/asm-i386/mtrr.h       |    4 ++++
- include/asm-i386/processor.h  |    8 --------
- 4 files changed, 6 insertions(+), 8 deletions(-)
+        if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
+                handle_io_bitmap(next, tss);
 
---- a/arch/i386/kernel/cpu/common.c
-+++ b/arch/i386/kernel/cpu/common.c
-@@ -11,6 +11,7 @@
- #include <asm/msr.h>
- #include <asm/io.h>
- #include <asm/mmu_context.h>
-+#include <asm/mtrr.h>
- #ifdef CONFIG_X86_LOCAL_APIC
- #include <asm/mpspec.h>
- #include <asm/apic.h>
---- a/arch/i386/power/cpu.c
-+++ b/arch/i386/power/cpu.c
-@@ -10,6 +10,7 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/suspend.h>
-+#include <asm/mtrr.h>
- 
- static struct saved_context saved_context;
- 
---- a/include/asm-i386/mtrr.h
-+++ b/include/asm-i386/mtrr.h
-@@ -77,6 +77,8 @@ extern int mtrr_add_page (unsigned long 
- extern int mtrr_del (int reg, unsigned long base, unsigned long size);
- extern int mtrr_del_page (int reg, unsigned long base, unsigned long size);
- extern void mtrr_centaur_report_mcr(int mcr, u32 lo, u32 hi);
-+extern void mtrr_ap_init(void);
-+extern void mtrr_bp_init(void);
- #  else
- static __inline__ int mtrr_add (unsigned long base, unsigned long size,
- 				unsigned int type, char increment)
-@@ -101,6 +103,8 @@ static __inline__ int mtrr_del_page (int
- 
- static __inline__ void mtrr_centaur_report_mcr(int mcr, u32 lo, u32 hi) {;}
- 
-+#define mtrr_ap_init() do {} while (0)
-+#define mtrr_bp_init() do {} while (0)
- #  endif
- 
- #endif
---- a/include/asm-i386/processor.h
-+++ b/include/asm-i386/processor.h
-@@ -729,14 +729,6 @@ extern unsigned long boot_option_idle_ov
- extern void enable_sep_cpu(void);
- extern int sysenter_setup(void);
- 
--#ifdef CONFIG_MTRR
--extern void mtrr_ap_init(void);
--extern void mtrr_bp_init(void);
--#else
--#define mtrr_ap_init() do {} while (0)
--#define mtrr_bp_init() do {} while (0)
--#endif
--
- #ifdef CONFIG_X86_MCE
- extern void mcheck_init(struct cpuinfo_x86 *c);
- #else
+        disable_tsc(prev_p, next_p);
+
+        return prev_p;
+
+these are a couple of instructions in the hottest scheduler codepath!
+
+x86_64 already removed disable_tsc() from switch_to(), but i think the 
+right solution is to turn SECCOMP off by default.
+
+besides the runtime overhead, there are a couple of other reasons as 
+well why this should be done:
+
+ - CONFIG_SECCOMP=y adds 836 bytes of bloat to the kernel:
+
+       text    data     bss     dec     hex filename
+    4185360  867112  391012 5443484  530f9c vmlinux-noseccomp
+    4185992  867316  391012 5444320  5312e0 vmlinux-seccomp
+
+ - virtually nobody seems to be using it (but cpushare.com, which seems
+   pretty inactive)
+
+ - users/distributions can still turn it on if they want it
+
+ - http://www.cpushare.com/legal seems to suggest that it is pursuing a
+   software patent to utilize the seccomp concept in a distributed 
+   environment, and seems to give a promise that 'end users' will not be
+   affected by that patent. How about non-end-users [i.e. server-side]?
+   Has the Linux kernel become a vehicle for a propriety server-side
+   feature, with every Linux user paying the price of it?
+
+so the patch below just does the minimal common-sense change: turn it 
+off by default.
+
+Adrian Bunk:
+I've removed the superfluous "default n"'s the original patch introduced.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+----
+
+This patch was already sent on:
+- 19 Apr 2006
+- 11 Apr 2006
+- 10 Mar 2006
+- 29 Jan 2006
+- 21 Jan 2006
+
+This patch was sent by Ingo Molnar on:
+- 9 Jan 2006
+
+Index: linux/arch/i386/Kconfig
+===================================================================
+--- linux.orig/arch/i386/Kconfig
++++ linux/arch/i386/Kconfig
+@@ -637,7 +637,6 @@ config REGPARM
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/mips/Kconfig
+===================================================================
+--- linux.orig/arch/mips/Kconfig
++++ linux/arch/mips/Kconfig
+@@ -1787,7 +1787,6 @@ config BINFMT_ELF32
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS && BROKEN
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/powerpc/Kconfig
+===================================================================
+--- linux.orig/arch/powerpc/Kconfig
++++ linux/arch/powerpc/Kconfig
+@@ -666,7 +666,6 @@ endif
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/ppc/Kconfig
+===================================================================
+--- linux.orig/arch/ppc/Kconfig
++++ linux/arch/ppc/Kconfig
+@@ -1127,7 +1127,6 @@ endif
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/sparc64/Kconfig
+===================================================================
+--- linux.orig/arch/sparc64/Kconfig
++++ linux/arch/sparc64/Kconfig
+@@ -64,7 +64,6 @@ endchoice
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/x86_64/Kconfig
+===================================================================
+--- linux.orig/arch/x86_64/Kconfig
++++ linux/arch/x86_64/Kconfig
+@@ -466,7 +466,6 @@ config PHYSICAL_START
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
 

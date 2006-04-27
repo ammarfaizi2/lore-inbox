@@ -1,56 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751753AbWD0XcU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWD0XiD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751753AbWD0XcU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 19:32:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751754AbWD0XcT
+	id S1751247AbWD0XiD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 19:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWD0XiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 19:32:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:54763 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751753AbWD0XcT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 19:32:19 -0400
-Date: Thu, 27 Apr 2006 16:34:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] -mm: i386 i8259.c simplify i8259A_irq_real()
-Message-Id: <20060427163447.6c6c18a1.akpm@osdl.org>
-In-Reply-To: <20060427221452.GA29019@rhlx01.fht-esslingen.de>
-References: <20060427221452.GA29019@rhlx01.fht-esslingen.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+	Thu, 27 Apr 2006 19:38:01 -0400
+Received: from nproxy.gmail.com ([64.233.182.189]:46901 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751247AbWD0XiB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 19:38:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=kzonkdituxJdp9zXupcyu9ZDRKS0RgT0GnwFfctAmNRyruVngvbZc14Qmdud0Jt2K7ESRvpF9iyINt50PsUJeA44yjA/DnoW9AWL2PhaGRQLiBJHkR0HVGeIB2wY81sqQblH+RBkGYzwaAYr9VG5CxCzyq0k2LTjipWzVKZhmjg=
+Message-ID: <7da560840604271637n65106962k180234c116614d94@mail.gmail.com>
+Date: Thu, 27 Apr 2006 16:37:59 -0700
+From: "Muthu Kumar" <muthu.lkml@gmail.com>
+To: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: functions named similar (pci_acpi_init)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
->
-> Hello all,
-> 
-> I noticed the very "non-nice" asymmetry of i8259A_irq_real(),
-> so I decided to fix the weirdly aligned branches.
-> While doing this, I noticed that it could be streamlined much more,
-> resulting in an astonishing 208 byte object code saving for such a tiny code
-> fragment! (gcc 3.2.3)
+Hi,
+While looking at something else, got drifted to looking into
+initcall<n>.init. I found two instance of pci_acpi_init() function,
+one in drivers/pci/pci-acpi.c and another in i386/pci/acpi.c.
+I understand this doesnot cause any problem since they are static, but
+someone new looking at the code could fall for it? Is it worth
+changing one of its name or should I just go away :)
 
-It saves an astonishing two bytes here, with gcc-3.2.1
-
-   text    data     bss     dec     hex filename
-   1302     388      10    1700     6a4 arch/i386/kernel/i8259.o
-
-   1300     388      10    1698     6a2 arch/i386/kernel/i8259.o
-
-;)
-
-
-
-And with gcc-4.2.0:
-
-bix:/usr/src/25> size arch/i386/kernel/i8259.o
-   text    data     bss     dec     hex filename
-   1340     356      12    1708     6ac arch/i386/kernel/i8259.o
-
-   1335     356      12    1703     6a7 arch/i386/kernel/i8259.o
-
-
+Muthu.

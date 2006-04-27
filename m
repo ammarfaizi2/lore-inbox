@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWD0Etm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWD0E7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbWD0Etm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 00:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWD0Etm
+	id S964933AbWD0E7j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 00:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWD0E7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 00:49:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:33158 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964926AbWD0Etl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 00:49:41 -0400
-Date: Wed, 26 Apr 2006 21:48:08 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com, hzhong@gmail.com
+	Thu, 27 Apr 2006 00:59:39 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:43915 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964905AbWD0E7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 00:59:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mime-version:content-type:from;
+        b=e3lm7JUjFwRt1jg6+39oQj4Rd9JK31mV+PBziezS3a4cLJjOp/VlimRmWn/bCGjexqNazmbsCgWb4PNnwoh2gUnuTa3Jng4oafvimycVU0G8bdhyAVDMEeuqr7vlcx2NRCq56sxpVzWzoONmanfBPzPWLNP/Gc8woypTjzO/QUY=
+Date: Wed, 26 Apr 2006 21:58:14 -0700 (PDT)
+To: akpm@osdl.org, dwalker@mvista.com
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Profile likely/unlikely macros -v2
-Message-Id: <20060426214808.6c478edc.akpm@osdl.org>
-In-Reply-To: <200604262145.k3QLjixA005676@dwalker1.mvista.com>
-References: <200604262145.k3QLjixA005676@dwalker1.mvista.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.64.0604262156100.11930@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Hua Zhong <hzhong@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker <dwalker@mvista.com> wrote:
->
-> Changes are switched to test_and_set_bit()/clear_bit() , 
->  comment explaining test_and_set_bit(), and most every
->  other comment ..
+> I cannot use this patch until we find a workaround.
 
-I too am getting undefined you_cannot_kmalloc_that_much on x86_64.  Coming
-out of
+Well, this is the workaround I used. :-)
 
-	cache_kobject[cpu] = kmalloc(sizeof(struct kobject), GFP_KERNEL);
+I'm glad you've seen this too. Maybe someone on the list could figure out the real fix.
 
-in arch/i386/kernel/cpu/intel_cacheinfo.c
-
-It has to be a compiler bug, I think.
-
-	gcc (GCC) 3.4.2 20041017 (Red Hat 3.4.2-6.fc3)
-
-I cannot use this patch until we find a workaround.
+diff --git a/arch/i386/kernel/cpu/intel_cacheinfo.c b/arch/i386/kernel/cpu/intel_cacheinfo.c
+index c8547a6..c33182a 100644
+--- a/arch/i386/kernel/cpu/intel_cacheinfo.c
++++ b/arch/i386/kernel/cpu/intel_cacheinfo.c
+@@ -571,7 +571,7 @@ static int __cpuinit cpuid4_cache_sysfs_
+ 		return -ENOENT;
+ 
+ 	/* Allocate all required memory */
+-	cache_kobject[cpu] = kmalloc(sizeof(struct kobject), GFP_KERNEL);
++	cache_kobject[cpu] = __kmalloc(sizeof(struct kobject), GFP_KERNEL);
+ 	if (unlikely(cache_kobject[cpu] == NULL))
+ 		goto err_out;
+ 	memset(cache_kobject[cpu], 0, sizeof(struct kobject));

@@ -1,107 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbWD0OW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbWD0O2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965122AbWD0OW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 10:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWD0OW4
+	id S965028AbWD0O2A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 10:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbWD0O17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 10:22:56 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:56328 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S965122AbWD0OWz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 10:22:55 -0400
+	Thu, 27 Apr 2006 10:27:59 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:29966 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S965028AbWD0O17
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 10:27:59 -0400
+Message-ID: <4450D4E9.4050606@argo.co.il>
+Date: Thu, 27 Apr 2006 17:27:53 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <200604271558.46212.mb@bu3sch.de>
-X-OriginalArrivalTime: 27 Apr 2006 14:22:52.0000 (UTC) FILETIME=[11588600:01C66A06]
-Content-class: urn:content-classes:message
+To: Denis Vlasenko <vda@ilport.com.ua>
+CC: Kyle Moffett <mrmacman_g4@mac.com>,
+       Roman Kononov <kononov195-far@yahoo.com>,
+       LKML Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: C++ pushback
-Date: Thu, 27 Apr 2006 10:22:51 -0400
-Message-ID: <Pine.LNX.4.61.0604271006500.4040@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: C++ pushback
-thread-index: AcZqBhFixMrZ5MEsQi6VyeL3lkp2qA==
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44505891.8080300@yahoo.com> <200604271558.46212.mb@bu3sch.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Michael Buesch" <mb@bu3sch.de>
-Cc: "Roman Kononov" <kononov195-far@yahoo.com>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il> <200604271655.48757.vda@ilport.com.ua>
+In-Reply-To: <200604271655.48757.vda@ilport.com.ua>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Apr 2006 14:27:56.0581 (UTC) FILETIME=[C6E3E550:01C66A06]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Denis Vlasenko wrote:
+> On Thursday 27 April 2006 11:07, Avi Kivity wrote:
+>   
+>> C++ compilation isn't slower because the compiler has to recognize more 
+>> keywords. It's slower because it is doing more for you: checking types 
+>> (C++ code is usually free of void *'s except for raw data) and expanding 
+>>     
+> Today's C is much better at typechecking than ancient K&R C.
+>   
 
-On Thu, 27 Apr 2006, Michael Buesch wrote:
+It still can't typecheck void pointers. With C++ they're very rare.
 
-> On Thursday 27 April 2006 07:37, you wrote:
->>> If C++ doesn't work
->>> properly for a simple and clean example like struct list_head, why
->>> should we assume that it's going to work any better for more complicated
->>> examples in the rest of the kernel?  Whether or not some arbitrary
->>> function is inlined should be totally orthogonal to adding type-checking.
+Look at the contortions needed to get the min() macro to be typesafe.
+
+>> those 4-line function to their 14-line goto-heavy equivalents.
+>>     
+>
+> Where do you see goto-heavy code in kernel?
+>
+>   
+
+[avi@cleopatra linux]$ grep -rw goto . | wc -l
+37448
+
+Repeat without 'wc' to get a detailed listing.
+
+>> C++ works excellently for things like list_head. The generated code is 
+>> as efficient or better that the C equivalent,
+>>     
+>
+> "or better" part is pure BS, because there is no magic C++ compiler
+> can possibly do which is not implementable in C.
+>
+>   
+
+For list_head, no. But coding more complex data structures as type-safe 
+macros is not practicable.
+
+As an example, you can easily get C++ to inline the hash function in a 
+generic hashtable or the compare in a sort. I dare you to do it in C.
+
+> "as efficient", hmmm, let me see... gcc 3.4.3, presumably an contemporary
+> C++ compiler, i.e. which is "rather good".
+>   
+
+4.1.0 is the latest.
+
+> Random example. gcc-3.4.3/include/g++-v3/bitset:
+>   
+
+You're looking at a library while we were talking about the language and 
+compiler. But anyway.
+
+>   template<size_t _Nw>
+>     struct _Base_bitset
+>     {
+>       typedef unsigned long _WordT;
+>
+>       /// 0 is the least significant word.
+>       _WordT            _M_w[_Nw];
+>
+>       _Base_bitset() { _M_do_reset(); }
+> ...
+>       void
+>       _M_do_set()
+>       {
+>         for (size_t __i = 0; __i < _Nw; __i++)
+>           _M_w[__i] = ~static_cast<_WordT>(0);
+>       }
+>       void
+>       _M_do_reset() { memset(_M_w, 0, _Nw * sizeof(_WordT)); }
+> ...
+>
+> A global or static variable of _Base_bitset or derived type
+> would need an init function?! Why not just preset sequence of
+> zeroes in data section?
+>   
+
+I wouldn't count startup time as efficiency, unless you have several 
+million global bitset objects.
+
+> [this disproves that C++ is very efficient]
+>   
+
+Add a constructor which does not touch the data members, and the data 
+will (probably) end up in .bss.
+
+> Why _M_do_set() doesn't use memset()?
+>   
+
+Patches accepted :)
+
+It's just a library, you're free to optimize it. I'd guess that 
+_M_do_set() is very rarely called, and that the performance difference 
+is small anyway.
+
+> Why _M_do_reset() is not inlined?
+>   
+
+It is inlined. Why do you think it is not?
+
+> [this disproves that today's C++ libs are well-written]?
+>
+>   
+
+Certainly, one can't claim that all C++ libraries are will written. But 
+gcc library mostly is.
+
+Again, if you don't like some library, don't use it. The kernel would 
+use its own version anyway since it has to be freestanding.
+
+>> and the API is *much*  
+>> cleaner. You can iterate over a list without knowing the name of the 
+>> field which contains your list_head (and possibly getting it wrong if 
+>> there is more than one).
+>>     
+>
+> But kernel folks tend to *want to know* everything, including
+> names of the fields.
+>   
+
+The names of the fields are not hidden. You just don't have to 
+mindlessly repeat them.
+
+The 'know everything' argument seems to apply equally well to ordinary 
+functions: "I *must know* about calls to schedule() and those expensive 
+atomic operations, don't hide them behind mutex_lock()!"
+
+>>> How could that possibly work in C++ given what you've said?  Anything 
+>>> that breaks code that simple is an automatic nonstarter for the 
+>>> kernel.  Also remember that spinlocks are defined preinitialized at 
+>>> the very earliest stages of init.  Of course I probably don't have to 
+>>> say that anything that tries to run a function to iterate over all 
+>>> statically-allocated spinlocks during init would be rejected out of hand.
+>>>       
+>> Why would it be rejected?
 >>
->> You misunderstood something. The struct list_head is indeed a perfect
->> type to be templatized with all members inlined. C++ works properly in
->> this case.
+>> A static constructor is just like a module init function. Why are 
+>> modules not rejected out of hand?
+>>     
 >
-> I am not sure, if you can relieably use the container_of() magic
-> in C++. Do you know?
-> I have a C++ linked list example here:
-> http://websvn.kde.org/trunk/extragear/security/pwmanager/pwmanager/libpwmanager/linkedlist.h?rev=421676&view=markup
-> It is very simple and in some points different from the kernel
-> linked lists. It has a separate "head" and "entry" class and it stores
-> a pointer to the entry (the kernel linked lists would use container_of()
-> instead)
->
->> Nothing works by default. I did not say that static constructors are
->> advantageous. I said that it is easy for the kernel to make static
->> constructors working. Global variables should be deprecated anyway.
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> Because we do not like init functions which can be eliminated.
+> That's bloat.
 
-Any operating system kernel needs globals.
+I'm sure you can eliminate them if you want, but working to remove some 
+microseconds of boot time is a complete waste of effort IMO.
 
-1	CPUs require structures existing in physical memory. Such
-structures are page-tables, interrupt descriptor tables, and global
-descriptor tables.
+-- 
+error compiling committee.c: too many arguments to function
 
-2	The first element (at least) of a linked-list, accessed by
-more than one task needs a global anchor-point.
-
-3	The first element (at least) of an interrupt dispatch table
-needs to be global. More efficient code makes the whole table
-global for efficient indexing.
-
-4	The first element (at least) of a kernel function request
-dispatch table needs to be global. More efficient code makes the
-whole table global.
-
-5	Hardware, a.k.a., PCI bus access is global. There is no
-way around that. If the operating system interfaces with hardware,
-it interfaces with global objects. They might be artifically
-"private", but still global.
-
-6	Spin-lock and semaphore variables need to be global, existing
-in non-paged memory. Again, they might be artifically "private", but
-are still global.
-
-This is just a handful of examples. If you are going to use a tool
-to make an O.S., you need to use the correct tool(s).
-
-> You are kidding. Must be...
->
-[SNIPPED Rest...]
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
-New book: http://www.lymanschool.com
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWD0SXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWD0SYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWD0SXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 14:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWD0SXJ
+	id S932073AbWD0SYF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 14:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWD0SYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 14:23:09 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18182 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751389AbWD0SXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 14:23:08 -0400
-Date: Thu, 27 Apr 2006 20:23:07 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Hua Zhong <hzhong@gmail.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
-Message-ID: <20060427182306.GL3570@stusta.de>
-References: <1146049414.7016.9.camel@laptopd505.fenrus.org> <20060426110656.GD29108@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0604270853510.20454@sbz-30.cs.Helsinki.FI> <445061DC.5030008@yahoo.com.au> <Pine.LNX.4.58.0604270926380.20454@sbz-30.cs.Helsinki.FI> <1146120640.2894.1.camel@laptopd505.fenrus.org> <20060427083157.GD3570@stusta.de> <1146127273.2894.21.camel@laptopd505.fenrus.org> <20060427085614.GE3570@stusta.de> <1146128885.2894.27.camel@laptopd505.fenrus.org>
+	Thu, 27 Apr 2006 14:24:05 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:41203 "EHLO
+	ms-smtp-03.texas.rr.com") by vger.kernel.org with ESMTP
+	id S964947AbWD0SYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 14:24:04 -0400
+Date: Thu, 27 Apr 2006 13:23:58 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Magnus Damm <magnus.damm@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC/PATCH] Shared Page Tables [1/2]
+Message-ID: <BD6BD4B5349C1A151BF41FDF@[10.1.1.4]>
+In-Reply-To: <44506023.4060609@yahoo.com.au>
+References: <1144685591.570.36.camel@wildcat.int.mccr.org>	
+ <1144695296.31255.16.camel@localhost.localdomain>	
+ <C7A8E6F316A73810A5FF466E@10.1.1.4>
+ <aec7e5c30604262049v3ae18915le415ee33b2f80fc4@mail.gmail.com>
+ <44506023.4060609@yahoo.com.au>
+X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1146128885.2894.27.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 11:08:05AM +0200, Arjan van de Ven wrote:
-> On Thu, 2006-04-27 at 10:56 +0200, Adrian Bunk wrote:
-> > On Thu, Apr 27, 2006 at 10:41:12AM +0200, Arjan van de Ven wrote:
-> > > On Thu, 2006-04-27 at 10:31 +0200, Adrian Bunk wrote:
-> > > > On Thu, Apr 27, 2006 at 08:50:40AM +0200, Arjan van de Ven wrote:
-> > > > > On Thu, 2006-04-27 at 09:28 +0300, Pekka J Enberg wrote:
-> > > > > > On Thu, 27 Apr 2006, Nick Piggin wrote:
-> > > > > > > Not to dispute your conclusions or method, but I think doing a
-> > > > > > > defconfig or your personal config might be more representative
-> > > > > > > of % size increase of text that will actually be executed. And
-> > > > > > > that is the expensive type of text.
-> > > > > > 
-> > > > > > True but I was under the impression that Arjan thought we'd get text 
-> > > > > > savings with GCC 4.1 by making kfree() inline.
-> > > > > 
-> > > > > not savings in text size, I'll settle for the same size.
-> > > > >...
-> > > > 
-> > > > It will always be bigger since there are cases where it's unknown at 
-> > > > compile time whether it will be NULL when called.
-> > > 
-> > > if it's "unknown" you could call into a separate kfree() which does
-> > > check out of line. (sure that's a dozen bytes bigger but that is
-> > > noise ;)
-> > 
-> > It's noise and _much work.
+
+--On Thursday, April 27, 2006 16:09:39 +1000 Nick Piggin
+<nickpiggin@yahoo.com.au> wrote:
+
+> Magnus Damm wrote:
+>> On 4/11/06, Dave McCracken <dmccr@us.ibm.com> wrote:
 > 
-> not if the compiler can do it. The *compiler* knows a lot (4.1 at
-> least)..
+>>> No one actually uses any of the pud_page and pgd_page macros (other than
+>>> one reference in the same include file).  After some discussion on the
+>>> list the last time I posted the patches, we agreed that changing
+>>> pud_page and pgd_page to be consistent with pmd_page is the best
+>>> solution.  We also agreed that I should go ahead and propagate that
+>>> change across all architectures even though not all of them currently
+>>> support shared page tables.  This patch is the result of that work.
+>> 
+>> 
+>> What is the merge status of this patch?
+>> 
+>> I've written some generic page table creation code for kexec, but the
+>> fact that pud_page() returns struct page * on i386 but unsigned long
+>> on other architectures makes it hard to write clean generic code.
+>> 
+>> Any merge objections, or was this patch simply overlooked?
+> 
+> Don't think there would be any objections. If someone sends
+> along a broken out patch, I'm sure it could get into 2.6.18.
 
-But for using your suggested "separate kfree() which does check out of 
-line" for not having the (otherwise unavoidable) space increast, we have 
-to manually change kfree() callers.
+This patch is broken out.  It only contains the changes necessary to
+standardize the pxd_page/pxd_page_kernel macros across the architectures.
 
-My main question repeated:
-Do you have any benchmarks where your approach brings a measurable
-benefit? I wouldn't have expected kfree() being in many hotpaths.
+As far as I know the only reason it isn't being considered for merge is
+that no one other than shared page tables has been using the macros.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Dave McCracken
 

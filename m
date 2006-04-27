@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbWD0Psg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWD0PyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965040AbWD0Psg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWD0Psg
+	id S1030190AbWD0PyE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWD0PyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:48:36 -0400
-Received: from main.gmane.org ([80.91.229.2]:4005 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S965040AbWD0Psf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:48:35 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: 2.6.17-rc2-mm1
-Date: Thu, 27 Apr 2006 17:47:25 +0200
-Message-ID: <pan.2006.04.27.15.47.20.688183@free.fr>
-References: <20060427014141.06b88072.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+	Thu, 27 Apr 2006 11:54:04 -0400
+Received: from uproxy.gmail.com ([66.249.92.172]:63433 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965157AbWD0PyC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 11:54:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FvJ2HKPLEvgmNV92ufZwa3X11gup4xrDsg5E4T5gU2bN9C161qDC5AilpnZVpewt+Nrve8N/p/0JMh2q90UCuMeiyqOROSBhjJFp3Z+oiWsqkIKdj3a34DftOUKe7Swg72B3zWFdJmP4ix1kYYIEKS50Za5CU5LPvjiQbNv783c=
+Message-ID: <b6c5339f0604270854k4ca4b2e0mc66ae6972a42b418@mail.gmail.com>
+Date: Thu, 27 Apr 2006 11:54:00 -0400
+From: "Bob Copeland" <me@bobcopeland.com>
+To: "Denis Vlasenko" <vda@ilport.com.ua>
+Subject: Re: C++ pushback
+Cc: "Avi Kivity" <avi@argo.co.il>, "Kyle Moffett" <mrmacman_g4@mac.com>,
+       "Roman Kononov" <kononov195-far@yahoo.com>,
+       "LKML Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200604271756.30679.vda@ilport.com.ua>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com>
+	 <200604271655.48757.vda@ilport.com.ua> <4450D4E9.4050606@argo.co.il>
+	 <200604271756.30679.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On 4/27/06, Denis Vlasenko <vda@ilport.com.ua> wrote:
+> On Thursday 27 April 2006 17:27, Avi Kivity wrote:
+> > > Where do you see goto-heavy code in kernel?
+> > >
+> > >
+> >
+> > [avi@cleopatra linux]$ grep -rw goto . | wc -l
+> > 37448
+> >
+> > Repeat without 'wc' to get a detailed listing.
+>
+> In 1999 Dave 'Barc0de' Jones, Paranoid wierdo noize making geek,
+> wrote this:
+>
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/9901.2/0939.html
+>
+> I failed to find a link, but in 2004 Dave Jones, a well-known
+> kernel hacker, wrote something like "Wow, it's fun to read
+> my own old mail, how naive I was back then :)"
 
-Le Thu, 27 Apr 2006 01:41:41 -0700, Andrew Morton a écrit :
+Possibly:
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
-> 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104246373424112
 
-64 bit resources core changes in ioport.h break pnp sysfs interface.
-
-A patch like this is needed.
-
-Matthieu
-
-Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
-
---- 1/drivers/pnp/interface.c	2006-01-03 04:21:10.000000000 +0100
-+++ 2/drivers/pnp/interface.c	2006-04-14 22:54:45.000000000 +0200
-@@ -264,7 +264,7 @@
- 			if (pnp_port_flags(dev, i) & IORESOURCE_DISABLED)
- 				pnp_printf(buffer," disabled\n");
- 			else
--				pnp_printf(buffer," 0x%lx-0x%lx\n",
-+				pnp_printf(buffer," 0x%llx-0x%llx\n",
- 						pnp_port_start(dev, i),
- 						pnp_port_end(dev, i));
- 		}
-@@ -275,7 +275,7 @@
- 			if (pnp_mem_flags(dev, i) & IORESOURCE_DISABLED)
- 				pnp_printf(buffer," disabled\n");
- 			else
--				pnp_printf(buffer," 0x%lx-0x%lx\n",
-+				pnp_printf(buffer," 0x%llx-0x%llx\n",
- 						pnp_mem_start(dev, i),
- 						pnp_mem_end(dev, i));
- 		}
-@@ -286,7 +286,7 @@
- 			if (pnp_irq_flags(dev, i) & IORESOURCE_DISABLED)
- 				pnp_printf(buffer," disabled\n");
- 			else
--				pnp_printf(buffer," %ld\n",
-+				pnp_printf(buffer," %lld\n",
- 						pnp_irq(dev, i));
- 		}
- 	}
-@@ -296,7 +296,7 @@
- 			if (pnp_dma_flags(dev, i) & IORESOURCE_DISABLED)
- 				pnp_printf(buffer," disabled\n");
- 			else
--				pnp_printf(buffer," %ld\n",
-+				pnp_printf(buffer," %lld\n",
- 						pnp_dma(dev, i));
- 		}
- 	}
-
+-Bob

@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751709AbWD0X0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751753AbWD0XcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751709AbWD0X0O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 19:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751750AbWD0X0O
+	id S1751753AbWD0XcU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 19:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751754AbWD0XcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 19:26:14 -0400
-Received: from mx2.suse.de ([195.135.220.15]:23248 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751709AbWD0X0O (ORCPT
+	Thu, 27 Apr 2006 19:32:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54763 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751753AbWD0XcT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 19:26:14 -0400
-Date: Thu, 27 Apr 2006 16:24:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: Matthieu CASTET <castet.matthieu@free.fr>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc2-mm1
-Message-ID: <20060427232444.GA23934@kroah.com>
-References: <20060427014141.06b88072.akpm@osdl.org> <pan.2006.04.27.15.47.20.688183@free.fr> <20060427180227.GA1404@in.ibm.com>
+	Thu, 27 Apr 2006 19:32:19 -0400
+Date: Thu, 27 Apr 2006 16:34:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] -mm: i386 i8259.c simplify i8259A_irq_real()
+Message-Id: <20060427163447.6c6c18a1.akpm@osdl.org>
+In-Reply-To: <20060427221452.GA29019@rhlx01.fht-esslingen.de>
+References: <20060427221452.GA29019@rhlx01.fht-esslingen.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060427180227.GA1404@in.ibm.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 02:02:27PM -0400, Vivek Goyal wrote:
-> On Thu, Apr 27, 2006 at 05:47:25PM +0200, Matthieu CASTET wrote:
-> > Hi Andrew,
-> > 
-> > Le Thu, 27 Apr 2006 01:41:41 -0700, Andrew Morton a ?crit?:
-> > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
-> > > 
-> > 
-> > 64 bit resources core changes in ioport.h break pnp sysfs interface.
-> > 
-> > A patch like this is needed.
-> > 
-> > Matthieu
-> > 
-> > Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
-> > 
-> > --- 1/drivers/pnp/interface.c	2006-01-03 04:21:10.000000000 +0100
-> > +++ 2/drivers/pnp/interface.c	2006-04-14 22:54:45.000000000 +0200
-> > @@ -264,7 +264,7 @@
-> >  			if (pnp_port_flags(dev, i) & IORESOURCE_DISABLED)
-> >  				pnp_printf(buffer," disabled\n");
-> >  			else
-> > -				pnp_printf(buffer," 0x%lx-0x%lx\n",
-> > +				pnp_printf(buffer," 0x%llx-0x%llx\n",
-> >  						pnp_port_start(dev, i),
-> >  						pnp_port_end(dev, i));
+Andreas Mohr <andi@rhlx01.fht-esslingen.de> wrote:
+>
+> Hello all,
 > 
-> I think it would break on ppc64 as u64 is unsigned long. It should be
-> explicitly typecasted to unsigned long long. Same is true for all the
-> instances.
+> I noticed the very "non-nice" asymmetry of i8259A_irq_real(),
+> so I decided to fix the weirdly aligned branches.
+> While doing this, I noticed that it could be streamlined much more,
+> resulting in an astonishing 208 byte object code saving for such a tiny code
+> fragment! (gcc 3.2.3)
 
-Does ppc64 use the PnP code?
+It saves an astonishing two bytes here, with gcc-3.2.1
 
-thanks,
+   text    data     bss     dec     hex filename
+   1302     388      10    1700     6a4 arch/i386/kernel/i8259.o
 
-greg k-h
+   1300     388      10    1698     6a2 arch/i386/kernel/i8259.o
+
+;)
+
+
+
+And with gcc-4.2.0:
+
+bix:/usr/src/25> size arch/i386/kernel/i8259.o
+   text    data     bss     dec     hex filename
+   1340     356      12    1708     6ac arch/i386/kernel/i8259.o
+
+   1335     356      12    1703     6a7 arch/i386/kernel/i8259.o
+
+

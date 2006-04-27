@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbWD0NqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbWD0Nrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965064AbWD0NqW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 09:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWD0NqV
+	id S965053AbWD0Nrh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 09:47:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWD0Nrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 09:46:21 -0400
-Received: from smtp3.nextra.sk ([195.168.1.142]:54802 "EHLO mailhub3.nextra.sk")
-	by vger.kernel.org with ESMTP id S965053AbWD0NqV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 09:46:21 -0400
-Message-ID: <4450CB27.8030108@rainbow-software.org>
-Date: Thu, 27 Apr 2006 15:46:15 +0200
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Trying to get swsusp working on DTK FortisPro TOP-5A notebook
-References: <444E4F4C.1030509@rainbow-software.org> <20060421084323.GA2376@ucw.cz> <20060427074025.GA11322@suse.cz>
-In-Reply-To: <20060427074025.GA11322@suse.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Apr 2006 09:47:37 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:35210 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S965053AbWD0Nrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 09:47:36 -0400
+Date: Thu, 27 Apr 2006 15:47:03 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Heiko J Schick <schihei@de.ibm.com>, openib-general@openib.org,
+       Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: Re: [PATCH 13/16] ehca: firmware InfiniBand interface
+Message-ID: <20060427134703.GL32127@wohnheim.fh-wedel.de>
+References: <4450A1C0.3080209@de.ibm.com> <20060427123701.GG32127@wohnheim.fh-wedel.de> <84144f020604270642j788be2ecp82841ac3b3ebcaad@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <84144f020604270642j788be2ecp82841ac3b3ebcaad@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Fri, Apr 21, 2006 at 08:43:24AM +0000, Pavel Machek wrote:
->> On Tue 25-04-06 18:33:16, Ondrej Zary wrote:
->>> Hello,
->>> I'm trying to get swsusp working on my DTK FortisPro 
->>> TOP-5A notebook. I compiled 2.6.16 kernel with drivers 
->>> compiled in (ES1869 sound, TI CardBus, Xircom PCMCIA 
->>> ethernet, Orinoco wifi and maybe something more). There 
->>> is no ACPI as BIOS does not support it. The problem is 
->>> that when I do "echo disk >/sys/power/state", it refuses 
->>> to suspend:
->>>
->>> Stopping tasks: =============================|
->>> Shrinking memory... done (8698 pages freed)
->>> pnp: Device 00:19 disabled.
->>> pnp: Failed to disable device 00:16.
->>> Could not suspend device 00:16: error -5
->>> pnp: Device 00:19 activated.
->>> PCI: Found IRQ 11 for device 0000:00:01.2
->>> PCI: Found IRQ 9 for device 0000:00:0e.0
->>> PCI: Found IRQ 11 for device 0000:00:0e.1
->>> eth0: autonegotiation failed; using 10mbs
->>> eth0: MII selected
->>> eth0: media 10BaseT, silicon revision 4
->>> Some devices failed to suspend
->>> Restarting tasks... done
->>>
->>>
->>> Device 00:19 is gameport of the sound card (it seems to 
->>> suspend fine), however device 00:16 does not. It seems to 
->>> be the synaptics touchpad:
->> rmmod touchpad driver before suspend; if it helps, fix psmouse.
+On Thu, 27 April 2006 16:42:52 +0300, Pekka Enberg wrote:
+> On 4/27/06, Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+> > The whole patch is full of parameter-happy functions with this one
+> > being the ugly top of the iceberg.  I sincerely hope this is not a
+> > defined ABI and can still be changed.
 > 
-> This is a problem in ACPI PnP layer - the device doesn't have a disable
-> method (it simply doesn't support disabling in hardware). Not being able
-> to disable it probably should be ignored when suspending.
-> 
-But I don't have ACPI compiled in (as the BIOS is APM-only). Does it matter?
+> It's not in mainline, so it can be changed.
+
+I was thinking more about firmware ABI.
+
+Jörn
 
 -- 
-Ondrej Zary
+But this is not to say that the main benefit of Linux and other GPL
+software is lower-cost. Control is the main benefit--cost is secondary.
+-- Bruce Perens

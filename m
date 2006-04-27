@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbWD0IL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWD0IRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbWD0IL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 04:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbWD0IL7
+	id S964971AbWD0IRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 04:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWD0IRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 04:11:59 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:8686 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S964970AbWD0IL6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 04:11:58 -0400
-Date: Thu, 27 Apr 2006 10:11:56 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: [patch] RCU: add comments to rcu_pending/rcu_needs_cpu
-Message-ID: <20060427081156.GB9457@osiris.boeblingen.de.ibm.com>
-References: <20060424111141.GC16007@osiris.boeblingen.de.ibm.com> <20060424160943.4bbdb788.akpm@osdl.org> <20060425052721.GA9458@osiris.boeblingen.de.ibm.com> <20060425114656.GA16719@us.ibm.com> <20060425115226.GA9421@osiris.boeblingen.de.ibm.com> <20060425120854.GF16719@us.ibm.com> <20060425122706.GB9421@osiris.boeblingen.de.ibm.com> <20060426141205.58675763.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060426141205.58675763.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r802 (Linux)
+	Thu, 27 Apr 2006 04:17:15 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:51378
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964971AbWD0IRP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 04:17:15 -0400
+Date: Thu, 27 Apr 2006 01:16:46 -0700 (PDT)
+Message-Id: <20060427.011646.41961134.davem@davemloft.net>
+To: jan.kiszka@googlemail.com
+Cc: simlo@phys.au.dk, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: Van Jacobson's net channels and real-time
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <58d0dbf10604270109j13ba5208h78f9b4de891370a8@mail.gmail.com>
+References: <58d0dbf10604210153r208504d4r4a7f4139e711ff7f@mail.gmail.com>
+	<Pine.LNX.4.64.0604212332110.30761-100000@localhost>
+	<58d0dbf10604270109j13ba5208h78f9b4de891370a8@mail.gmail.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: "Jan Kiszka" <jan.kiszka@googlemail.com>
+Date: Thu, 27 Apr 2006 10:09:06 +0200
 
-Add some comments to rcu_pending() and rcu_needs_cpu().
+> What about this:
 
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+Can I recommend a trip to the local university engineering library for
+a quick readup on the current state of the art wrt.  packet
+classification algorithms?
 
-Wording might be poor, but probably better than no comments at all.
+Barring that, a read of chapter 12 "Packet Classification"
+from Networking Algorithmics will give you a great primer.
 
- kernel/rcupdate.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+I'm suggesting this, because all I see is fishing around with
+painfully inefficient algorithms.
 
-diff -purN a/kernel/rcupdate.c b/kernel/rcupdate.c
---- a/kernel/rcupdate.c	2006-04-27 09:30:23.000000000 +0200
-+++ b/kernel/rcupdate.c	2006-04-27 09:56:51.000000000 +0200
-@@ -479,12 +479,30 @@ static int __rcu_pending(struct rcu_ctrl
- 	return 0;
- }
- 
-+/**
-+ * rcu_pending - Check for pending RCU work on cpu.
-+ * @cpu: cpu to check.
-+ *
-+ * Does RCU have some work pending on the specified cpu, so that there is a
-+ * need to invoke rcu_check_callbacks() on the cpu?
-+ */
- int rcu_pending(int cpu)
- {
- 	return __rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)) ||
- 		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
- }
- 
-+/**
-+ * rcu_needs_cpu - Determine if cpu will still be needed by RCU.
-+ * @cpu: cpu to check.
-+ *
-+ * Determine whether the specified cpu will still be needed by RCU, or whether
-+ * it can be turned off (e.g. by entering a tickless idle state).
-+ * Note the difference to rcu_pending() which checks if there is some work to
-+ * do that can be done immediately. While this function in addition checks if
-+ * there would be some work to do if e.g. a different cpu finished working on
-+ * the current batch.
-+ */
- int rcu_needs_cpu(int cpu)
- {
- 	struct rcu_data *rdp = &per_cpu(rcu_data, cpu);
+In any event, the initial net channel implementation will likely just
+do straight socket hash lookups identical to how TCP does socket
+lookups in the current stack.  Full match on established sockets, and
+failing that fall back to the listening socket lookup which allows
+some forms of wildcarding.
+
+Thanks.

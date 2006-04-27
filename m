@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbWD0TNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbWD0TVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbWD0TNm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 15:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWD0TNm
+	id S964919AbWD0TVG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 15:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWD0TVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 15:13:42 -0400
-Received: from ns1.suse.de ([195.135.220.2]:28591 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964919AbWD0TNl (ORCPT
+	Thu, 27 Apr 2006 15:21:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:414 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964919AbWD0TVF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 15:13:41 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
-Subject: Re: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Date: Thu, 27 Apr 2006 21:13:24 +0200
-User-Agent: KMail/1.9.1
-Cc: "Brown, Len" <len.brown@intel.com>, sergio@sergiomb.no-ip.org,
-       "Kimball Murray" <kimball.murray@gmail.com>,
-       linux-kernel@vger.kernel.org, akpm@digeo.com, kmurray@redhat.com,
-       linux-acpi@vger.kernel.org
-References: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0B9F@USRV-EXCH4.na.uis.unisys.com>
-In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0B9F@USRV-EXCH4.na.uis.unisys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 27 Apr 2006 15:21:05 -0400
+Date: Thu, 27 Apr 2006 12:19:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc2-mm1
+Message-Id: <20060427121930.2c3591e0.akpm@osdl.org>
+In-Reply-To: <p73vesv727b.fsf@bragg.suse.de>
+References: <20060427014141.06b88072.akpm@osdl.org>
+	<p73vesv727b.fsf@bragg.suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604272113.24705.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 April 2006 21:10, Protasevich, Natalie wrote:
-> > 
-> > >There are probably better ways to control 224 possible IRQs by their 
-> > >total number instead of their range, and per-cpu IDTs are the better 
-> > >answer to the IRQ shortage altogether. But just going back 
-> > to the way 
-> > >it was wouldn't be right I think.
-> > >We were able to run 2 generations of
-> > >systems only because we had this compression, other big systems 
-> > >benefited from it as well.
-> > 
-> > I don't propose reverting the IRQ re-name patch and breaking 
-> > the big iron without replacing it with something else that works.
+Andi Kleen <ak@suse.de> wrote:
+>
+> >   The acphphp driver is still broken and v4l and memory hotplug are, I
+>  >   suspect, only hanging in there by the skin of their teeth.
+>  > 
+>  >   Could patch submitters _please_ be a lot more careful about getting the
+>  >   Kconfig correct, testing various Kconfig combinations (yes sometimes
+>  >   people will want to disable your lovely new feature) and just generally
+>  >   think about these things a bit harder?  It isn't rocket science.
 > 
-> Len, maybe it sounds dramatic and/or extreme, but how about getting rid
-> of IRQs and just having GSI-vector pair.
-> I intuitively think that would be possible (not that I have all the
-> details lined up :)
-> And this would probably take away confusing IRQ abstraction out once and
-> for all? I think something like that is done in ia64.
+>  Is this something that could be automated with some machine power? 
+> 
+>  e.g. every time a patch is added a small cluster could build the patches
+>  with some configurations on various architectures and if it doesn't build 
+>  autoflame the patch submitter.
+> 
+>  We use this in SUSE for the SUSE kernels and it works quite well.
+> 
+>  Maybe someone could contribute the build power needed for that. I suppose
+>  it could be done by just a few scripts listening to mm-commits?
 
-x86 users are attached to their interrupt numbers I think back from the bad old
-days with only 16 interrupts and interrupt sharing didn't work. We might have a revolt
-in the user base if /proc/interrupts didn't display them anymore @)
+I suspect something like that would be quite a lot of work to set up -
+first-up one has to get all the patches to actually apply, and then work
+through any compile-time interactions between them.   Dunno.
 
-But I guess using GSI/vector internally only would be fine.
+I don't like dropping patches.  Because then the thing needs to be fixed up
+and resent and remerged and re-reviewed and rejects need to re-fixed-up and
+this adds emailing overhead and 12-24 hour turnaround, etc.  I very much
+prefer to hang onto the patch and get it fixed up.  This means that I
+usually have to do the fixing-up.
 
--Andi
+And that's OK - it's one of the things I do.  But it's striking how silly
+so many of these problems are - they demonstrate a very basic lack of care
+and thought.
 
+It's obvious that the originators haven't even compiled their feature with
+its config option disabled, or they haven't spent the requisite 30
+seconds thinking about their Kconfig dependencies, or they haven't verified
+that all architectures support the architecture functions which they're
+relying upon or they haven't grepped the tree for symbol clashes, etc.
+
+So at this point in time what I'd like to do is to encourage developers to
+do these very basic things.  That's the low-hanging fruit right now.

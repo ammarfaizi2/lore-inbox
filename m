@@ -1,84 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751742AbWD0W7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751755AbWD0XCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751742AbWD0W7E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 18:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWD0W7D
+	id S1751755AbWD0XCH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 19:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751756AbWD0XCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 18:59:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27107 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751742AbWD0W7B (ORCPT
+	Thu, 27 Apr 2006 19:02:06 -0400
+Received: from ozlabs.org ([203.10.76.45]:37256 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751755AbWD0XCF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 18:59:01 -0400
-Date: Thu, 27 Apr 2006 15:56:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@surriel.com,
-       nickpiggin@yahoo.com.au, ak@suse.de
-Subject: Re: [PATCH 1/2 (repost)] mm: serialize OOM kill operations
-Message-Id: <20060427155613.15d565b1.akpm@osdl.org>
-In-Reply-To: <200604271308.10080.dsp@llnl.gov>
-References: <200604271308.10080.dsp@llnl.gov>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 27 Apr 2006 19:02:05 -0400
+Subject: Re: [PATCH 04/16] ehca: userspace support
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Heiko J Schick <schihei@de.ibm.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, linuxppc-dev@ozlabs.org,
+       Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>
+In-Reply-To: <20060427114355.GB32127@wohnheim.fh-wedel.de>
+References: <4450A176.9000008@de.ibm.com>
+	 <20060427114355.GB32127@wohnheim.fh-wedel.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DttCo3RYPgfK2sXFjrj9"
+Date: Fri, 28 Apr 2006 08:36:28 +1000
+Message-Id: <1146177388.19236.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Peterson <dsp@llnl.gov> wrote:
->
-> The patch below modifies the behavior of the OOM killer so that only
-> one OOM kill operation can be in progress at a time.  When running a
-> test program that eats lots of memory, I was observing behavior where
-> the OOM killer gets impatient and shoots one or more system daemons
-> in addition to the program that is eating lots of memory.  This fixes
-> the problematic behavior.
-> 
-> ...
->
-> @@ -379,6 +380,15 @@ void mmput(struct mm_struct *mm)
->  			spin_unlock(&mmlist_lock);
->  		}
->  		put_swap_token(mm);
-> +
-> +		if (unlikely(test_bit(MM_FLAG_OOM_NOTIFY, &mm->flags)))
-> +			/* Terminate a pending OOM kill operation.  No tasks
-> +			 * actually spin on the lock.  Tasks only do
-> +			 * spin_trylock() (and abort OOM kill operation if
-> +			 * lock is already taken).
-> +			 */
-> +			spin_unlock(&oom_kill_lock);
-> +
 
-Gad.  I guess if we're going to do this then a better implementation would
-be to use test_and_set_bit(some_unsigned_long).  And perhaps call some
-oom_kill.c interface function here rather than directly accessing
-oom-killer data structures (could be an inlined function).
+--=-DttCo3RYPgfK2sXFjrj9
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-But the broader question is "what do we want to do here".
+On Thu, 2006-04-27 at 13:43 +0200, J=C3=B6rn Engel wrote:
+> More minors.
+>=20
+> On Thu, 27 April 2006 12:48:22 +0200, Heiko J Schick wrote:
+> > +
+> > +	EDEB_EN(7,
+> > +		"vm_start=3D%lx vm_end=3D%lx vm_page_prot=3D%lx vm_fileoff=3D%lx "
+> > +		"address=3D%lx",
+> > +		vma->vm_start, vma->vm_end, vma->vm_page_prot, fileoffset,
+> > +		address);
+>=20
+> Gesundheit!  Seriously, I suspect "EDEB_EN" is not the best possible
+> name to pick.
 
-If we've picked a task and we've signalled it then the right thing to do
-would appear to be just to block all tasks as they enter the oom-killer. 
-Send them to sleep until the killed task actually exits.  But
+Try pr_debug() in include/linux/kernel.h
 
-a) memory can become free (or reclaimable) for other reasons, so those
-   now-sleeping tasks shouldn't be sleeping any more (this is a minor
-   problem).
+cheers
 
-b) one of the sleeping tasks may be holding a lock which prevents the
-   killed task from reaching do_exit().  This is a showstopper.
+--=20
+Michael Ellerman
+IBM OzLabs
 
-But I think b) stops your show as well:
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
 
-- task A enters the oom-killer, decides to kill task Z.
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
 
-- task A holds a lock which is preventing task Z from exitting
+--=-DttCo3RYPgfK2sXFjrj9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-- but oom_kill_lock is now held.  task A just keeps on trying to reclaim
-  memory and trying (and failing) to kill tasks.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-- user hits reset button.
+iD8DBQBEUUdsdSjSd0sB4dIRAj0oAJsGDP1vf81gjsm70yJv2YavVDNFSQCfWDUZ
+r38dlv6fWBtVbx2K8c9RctU=
+=cK1T
+-----END PGP SIGNATURE-----
 
-
-IOW: we just have to keep killing more tasks until something happens.
+--=-DttCo3RYPgfK2sXFjrj9--
 

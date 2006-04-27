@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbWD0PAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbWD0PB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965134AbWD0PAT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 11:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWD0PAT
+	id S965140AbWD0PB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 11:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbWD0PB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 11:00:19 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33154 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965134AbWD0PAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 11:00:18 -0400
-Date: Thu, 27 Apr 2006 17:00:17 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Roman Kononov <kononov195-far@yahoo.com>,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-Message-ID: <mj+md-20060427.145744.9154.atrey@ucw.cz>
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il> <200604271655.48757.vda@ilport.com.ua> <4450D4E9.4050606@argo.co.il>
-Mime-Version: 1.0
+	Thu, 27 Apr 2006 11:01:59 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:30227 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965140AbWD0PB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 11:01:58 -0400
+Date: Thu, 27 Apr 2006 17:01:56 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>,
+       Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+Subject: 2.6.17-rc2-mm1: ACPI_DOCK=n, HOTPLUG_PCI_ACPI=y compile error
+Message-ID: <20060427150156.GF3570@stusta.de>
+References: <20060427014141.06b88072.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4450D4E9.4050606@argo.co.il>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060427014141.06b88072.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As an example, you can easily get C++ to inline the hash function in a 
-> generic hashtable or the compare in a sort. I dare you to do it in C.
+Although not mentioned in the changelog, acpi-dock-driver.patch was 
+updated in 2.6.17-rc2-mm1.
 
-As you wish :-)
+The changes cause the following compile error with CONFIG_ACPI_DOCK=n, 
+CONFIG_HOTPLUG_PCI_ACPI=y:
 
-http://atrey.karlin.mff.cuni.cz/~mj/tmp/hashtable.h
+<--  snip  -->
 
-It's somewhat ugly inside, but an equally strong generic structure build
-with templates will be probably even uglier.
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function 
+`is_pci_dock_device':acpiphp_glue.c:(.text+0x1a08a): undefined reference to `is_dock_device'
+drivers/built-in.o: In function `cleanup_bridge':
+acpiphp_glue.c:(.text+0x1a127): undefined reference to `is_dock_device'
+:acpiphp_glue.c:(.text+0x1a133): undefined reference to `unregister_hotplug_dock_device'
+:acpiphp_glue.c:(.text+0x1a13b): undefined reference to `unregister_dock_notifier'
+drivers/built-in.o: In function `register_slot':
+acpiphp_glue.c:(.text+0x1b545): undefined reference to `is_dock_device'
+:acpiphp_glue.c:(.text+0x1b742): undefined reference to `is_dock_device'
+:acpiphp_glue.c:(.text+0x1b759): undefined reference to `register_hotplug_dock_device'
+:acpiphp_glue.c:(.text+0x1b786): undefined reference to `register_dock_notifier'
+make: *** [.tmp_vmlinux1] Error 1
 
-				Have a nice fortnight
+<--  snip  -->
+
+cu
+Adrian
+
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Immanuel doesn't pun, he Kant.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

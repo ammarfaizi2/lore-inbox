@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWD0DZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWD0DbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbWD0DZt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Apr 2006 23:25:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbWD0DZt
+	id S964908AbWD0DbG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Apr 2006 23:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWD0DbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Apr 2006 23:25:49 -0400
-Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:52406 "EHLO
-	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S964907AbWD0DZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Apr 2006 23:25:49 -0400
-Date: Wed, 26 Apr 2006 23:25:46 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH] selinux: check for failed kmalloc in security_sid_to_context
-In-Reply-To: <20060427020740.GA23112@sergelap.austin.ibm.com>
-Message-ID: <Pine.LNX.4.64.0604262325090.5735@d.namei>
-References: <20060427020740.GA23112@sergelap.austin.ibm.com>
+	Wed, 26 Apr 2006 23:31:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:52965 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964908AbWD0DbF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Apr 2006 23:31:05 -0400
+Date: Wed, 26 Apr 2006 20:31:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Simple header cleanups
+In-Reply-To: <1146107871.2885.60.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
+References: <1146104023.2885.15.camel@hades.cambridge.redhat.com> 
+ <Pine.LNX.4.64.0604261917270.3701@g5.osdl.org> 
+ <1146105458.2885.37.camel@hades.cambridge.redhat.com> 
+ <Pine.LNX.4.64.0604261954480.3701@g5.osdl.org> <1146107871.2885.60.camel@hades.cambridge.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Apr 2006, Serge E. Hallyn wrote:
 
-> Check for NULL kmalloc return value before writing to it.
+
+On Thu, 27 Apr 2006, David Woodhouse wrote:
 > 
-> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+> Agreed. And distributions and library maintainers _will_ fix them. Are
+> we to deny those people the tools which will help them to keep track of
+> our breakage and submit patches to fix it?
 
-Acked-by: James Morris <jmorris@namei.org>
+No. As mentioned, as long as the target audience is distributions and 
+library maintainers, I definitely think we should do help them as much as 
+possible. Our problems have historically been "random people" who have 
+/usr/include/linux being the symlink to "kernel source of the day", which 
+is an unsupportable situation.
 
+(And yes, for a short while back in the early nineties, that symlink was 
+even the proper thing to do. But exactly because it's unsupportable, it 
+pretty quickly got to be a "don't do that then", but I still occasionally 
+hear from people who use bad distributions).
 
-> ---
-> 
->  security/selinux/ss/services.c |    4 ++++
->  1 files changed, 4 insertions(+), 0 deletions(-)
-> 
-> 3d9cf05c7fa2578f87648dd0862e70cf7959ad7a
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 6149248..20b1065 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -593,6 +593,10 @@ int security_sid_to_context(u32 sid, cha
->  
->  			*scontext_len = strlen(initial_sid_to_string[sid]) + 1;
->  			scontextp = kmalloc(*scontext_len,GFP_ATOMIC);
-> +			if (!scontextp) {
-> +				rc = -ENOMEM;
-> +				goto out;
-> +			}
->  			strcpy(scontextp, initial_sid_to_string[sid]);
->  			*scontext = scontextp;
->  			goto out;
-> 
-
--- 
-James Morris
-<jmorris@namei.org>
-
+		Linus

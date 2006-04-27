@@ -1,149 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWD0GpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbWD0GrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWD0GpY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 02:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbWD0GpY
+	id S964967AbWD0GrK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 02:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWD0GrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 02:45:24 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:24735 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964927AbWD0GpX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 02:45:23 -0400
-Date: Thu, 27 Apr 2006 12:12:37 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Jay Lan <jlan@engr.sgi.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [Patch 5/8] taskstats interface
-Message-ID: <20060427064237.GA14496@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <444991EF.3080708@watson.ibm.com> <444996FB.8000103@watson.ibm.com> <44501A97.2060104@engr.sgi.com> <445041EB.7080205@watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <445041EB.7080205@watson.ibm.com>
-User-Agent: Mutt/1.5.10i
+	Thu, 27 Apr 2006 02:47:10 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:62866 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964967AbWD0GrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 02:47:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=clCotitZpNz/tJghqBqadcxz51+BxKe+j4NTU3lx4T5sbBmGUaWesiP8ZO4Vkzf8xSS7IZO/BRB8QmiycyHKnxMuii/Dgk8EOt/RJm1qqwMmQN6k5C2MO3D9bxaQUCRi7kMmJX/v/IsY7xbsqFmhaLxACOOsmNTYHaL52mkhz4c=  ;
+Message-ID: <445066B0.1010104@yahoo.com.au>
+Date: Thu, 27 Apr 2006 16:37:36 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+CC: Kyle Moffett <mrmacman_g4@mac.com>,
+       Bart Hartgers <bart@etpmod.phys.tue.nl>,
+       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Arjan van de Ven <arjan@infradead.org>, Hua Zhong <hzhong@gmail.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] likely cleanup: remove unlikely for kfree(NULL)
+References: <Pine.LNX.4.64.0604251120420.5810@localhost.localdomain> <84144f020604260030v26f42b0bke639053928d5e471@mail.gmail.com> <1146038324.5956.0.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0604261112120.3522@sbz-30.cs.Helsinki.FI> <1146040038.7016.0.camel@laptopd505.fenrus.org> <20060426100559.GC29108@wohnheim.fh-wedel.de> <1146046118.7016.5.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0604261354310.9797@sbz-30.cs.Helsinki.FI> <1146049414.7016.9.camel@laptopd505.fenrus.org> <20060426110656.GD29108@wohnheim.fh-wedel.de> <444F5B74.60809@etpmod.phys.tue.nl> <444F6FDD.7040000@etpmod.phys.tue.nl> <CB27C57D-BABF-4900-9299-F342861CF1E0@mac.com> <Pine.LNX.4.58.0604270928170.20454@sbz-30.cs.Helsinki.FI>
+In-Reply-To: <Pine.LNX.4.58.0604270928170.20454@sbz-30.cs.Helsinki.FI>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 12:00:43AM -0400, Shailabh Nagar wrote:
-> Jay Lan wrote:
+Pekka J Enberg wrote:
+> On Wed, 26 Apr 2006, Kyle Moffett wrote:
 > 
-> >Hi Shailabh,
-> >
-> >Thanks for your effort in taskstats interface! Really appreciated!
-> >I think this interface can offer a good foundation for other packages
-> >to build on.
-> >
-> >Here are a few more comments:
-> >
-> >1) You mentioned the "version number within the (taskstats)
-> >   structure" in taskstats.txt and a few other places, but i do not see
-> >   that field defined in struct taskstats in taskstats.h?
-> > 
-> >
-> Missed out on that. Need to add it back in.
+>>Here's code that I've found works as well as can be expected under both GCC 3
+>>and GCC 4.  If xp is a known-NULL constant the whole function will be
+>>optimized out completely.  If xp is known-not-NULL, then it will optimize to a
+>>kfree function without the null check.  Otherwise it optimizes to call the
+>>out-of-line version.
+> 
+> 
+> Wouldn't it be better to simply remove calls to kfree() with known 
+> NULL constant?
 
-There is a version field in genl_family as well. That can be used
-for versioning as well. When we user space tool queries for the family
-id, it can obtain and interpret the version information.
+Yes, but this will optimise away the check for known non-NULL.
 
-> 
-> >2) In taskstats.txt "Extending taskstats" section, you mentioned two
-> >   ways to extend the interface. The second method looks like a method
-> >   to encoureage other package developers to create their own interface
-> >  (ie, not taskstats) based on generic netlink to avoid reading large
-> >number
-> >   of fields not interested to other particular applications? I will be
-> >fine
-> >   with this as long as it is understood and agreed.
-> > 
-> >
-> Yes, the second method is for other packages, which have very little in 
-> common with the struct
-> taskstats to extend the stats returned (using netlink attribs to extend 
-> rather than extending the structure).
+At the cost of icache footprint.
 
-The second method will require the following
+I think unmeasurable micro-optimisations that go against historic
+CPU trends (eg. size for speed) aren't worth wasting too much
+sleep over. If it is a 0.0001% speedup today, it'll be a 0.0001%
+slowdown tomorrow :)
 
-1. An API to return the length of data it wants to fill in
-2. Another API to fill in the statistics along with the type -
-   Like Shailabh mentioned, this will require creating a new TASKSTATS_TYPE_XXXX
-
-> 
-> >   Alternatively, you may have considered the pros and cons of #ifdef
-> >   fields specific to only one accounting package in the struct taskstats.
-> >   If you do, care to share your thoughts? 
-> >
-> I'd rather avoid doing an #ifdef'ed definition of the fields based on 
-> configuration of one or the other
-> accounting package...it'll add complexity for userspace parsing of the 
-> structure.
-> 
-> Its quite acceptable to have the fields have zero as content if the 
-> corresponding package isn't configured.
->
-
-I agree with Shailabh, building in knowledge of other subsystems into
-taskstats.h might not be the best choice. 
- 
-> 
-> >Specific payload information
-> >   can be carried in the version field. I am sure the version number of
-> >struct
-> >   taskstats does not need 64 bits. With the version number and payload
-> >   info, application can surely interpret the taskstats data correctly.  
-> > 
-> >
-> By "payload info" you mean some sort of bitmask (or encoding) which 
-> specifies which fields are present
-> or absent ? I suppose that could be done but it adds unnecessary 
-> complexity ? e.g once delay accounting is there,
-> all six to eight fields corresponding to it will be present...I don't 
-> see much value in further being able to configure
-> cpu delays, mem delays etc. separately. Is that different for CSA ?
-
-Netlink attributes can be used to determine which attribute types are
-present in the payload. libnl does a great job of providing a good set of
-APIs to determine all attribute types present. This is one of the biggest
-advantages I see of genetlink (attributes are optional and can co-exist
-simultaneously)
-
-> 
-> 
-> >3) In taskstats.txt "Usage" section, you mentioned "... in the Advanced
-> >   Usage section below...", but that section does not exist.
-> > 
-> >
-> Thanks for pointing it out. Should replace it with "per-tgid stats section".
-> 
-> >4) In do_exit() routine, you do:
-> >+ taskstats_exit_alloc(&tidstats, &tgidstats);
-> >
-> >   The tidstats and tgidstats are checked in taskstats_exit_send() in
-> >   taskstats.c for allocation failure, but a lot has been processed before
-> >   the check. The allocation failure happens when system is stressed in
-> >   memory. I  think we want to do the check earlier?
-> > 
-> >
-> Since accounting is non-critical, I didn't see the need for doing the 
-> check earlier if we're not going to do
-> anything about it. The first use of the allocated structure is in the 
-> taskstats_exit_send() where filling of the
-> stats is not done if allocation failed. What would you suggest we do, on 
-> allocation failure, if the check is
-> performed immediately after the alloc ?
-> 
-> --Shailabh
-> 
-> >  
-> >Regards,
-> >- jay
-> >
-> > 
-> >
-> 
-> 
->
-<snip> 
-					<---	Balbir
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

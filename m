@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWD0Qyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWD0Q5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbWD0Qyh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 12:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWD0Qyh
+	id S1030188AbWD0Q5M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 12:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWD0Q5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 12:54:37 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:8515 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030195AbWD0Qyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 12:54:36 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-	b=ty+RLvnzFz87/Rj4tDKF/0Ie0ZL5NIxfR/w4jutuZRIAPWvVTeYk7ucGkSoMeIOND
-	kByUEzDl2a2ZLzaYqCmcw==
-Message-ID: <4450F732.90704@google.com>
-Date: Thu, 27 Apr 2006 09:54:10 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 27 Apr 2006 12:57:12 -0400
+Received: from smtp-4.llnl.gov ([128.115.41.84]:11759 "EHLO smtp-4.llnl.gov")
+	by vger.kernel.org with ESMTP id S1030188AbWD0Q5M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 12:57:12 -0400
+From: Dave Peterson <dsp@llnl.gov>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH 1/2] mm: serialize OOM kill operations
+Date: Thu, 27 Apr 2006 09:56:15 -0700
+User-Agent: KMail/1.5.3
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, riel@surriel.com,
+       akpm@osdl.org
+References: <200604251701.31899.dsp@llnl.gov> <200604261014.15008.dsp@llnl.gov> <44503BA2.7000405@yahoo.com.au>
+In-Reply-To: <44503BA2.7000405@yahoo.com.au>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>, Andy Whitcroft <apw@shadowen.org>,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: 2.6.17-rc2-mm1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604270956.15658.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, one more time, cause I'm an idiot, and can't type.
+On Wednesday 26 April 2006 20:33, Nick Piggin wrote:
+> Dave Peterson wrote:
+> >If you prefer the above implementation, I can rework the patch as
+> >above.
+>
+> I think you need a semaphore?
 
---------------------------------
+In this particular case, I think a semaphore is unnecessary because
+we just want out_of_memory() to return to its caller if an OOM kill
+is already in progress (as opposed to waiting in out_of_memory() and
+then starting a new OOM kill operation).  What I want to avoid is the
+the following type of behavior:
 
-Still crashes in LTP on x86_64:
-(introduced in previous release)
+    1.  Two processes (A and B) call out_of_memory() at roughly the
+        same time and race for oom_kill_lock.  Let's say A wins and B
+        is delayed.
 
-http://test.kernel.org/abat/29674/debug/console.log
+    2.  Process A shoots some process and releases oom_kill_lock.
 
-Different panic on 2-way ppp64  blade, again during LTP.
+    3.  Process B now acquires oom_kill_lock and shoots another
+        process.  However this isn't really what we want to do if
+        the OOM kill done by A above freed enough memory to resolve
+        the OOM condition.
 
-http://test.kernel.org/abat/29675/debug/console.log
+> Either way, drop the trivial wrappers.
 
-  Oops: Kernel access of bad area, sig: 11 [#1]
-SMP NR_CPUS=128 NUMA
-Modules linked in: evdev joydev st sr_mod ipv6 usbcore sg dm_mod
-NIP: C000000000048F0C LR: C0000000000AF854 CTR: 800000000000A984
-REGS: c0000000074af560 TRAP: 0300   Not tainted  (2.6.17-rc2-mm1-autokern1)
-MSR: 8000000000001032 <ME,IR,DR>  CR: 24002024  XER: 00000010
-DAR: C00001800056B0B0, DSISR: 0000000040010000
-TASK = c000000007460800[84] 'kswapd0' THREAD: c0000000074ac000 CPU: 1
-GPR00: 8000000000001032 C0000000074AF7E0 C000000000691420 C0000000007586A8
-GPR04: 000000000000000F 0000000000000000 0000000000000000 0000000000000000
-GPR08: C0000000FE80AAD8 C00001800056B080 0000000000000001 C0000000007586A8
-GPR12: 0000000024002024 C00000000056B280 0000000000000020 0000000000000020
-GPR16: 0000000000000020 0000000000000000 0000000000000000 000000000000000F
-GPR20: C0000000074AF860 0000000000000000 C0000000FFFF3098 0000000000000001
-GPR24: C0000000074AFE00 C00000000059FCC0 0000000000000001 C0000000007586A8
-GPR28: C000000000545680 0000000000000022 C0000000005A4DA8 C00000000056B080
-NIP [C000000000048F0C] .try_to_wake_up+0x98/0x598
-LR [C0000000000AF854] .add_to_swapped_list+0x23c/0x264
-Call Trace:
-[C0000000074AF7E0] [C0000000005A4DA8] 0xc0000000005a4da8 (unreliable)
-[C0000000074AF8F0] [C0000000000AF854] .add_to_swapped_list+0x23c/0x264
-[C0000000074AF990] [C000000000098290] .remove_mapping+0x88/0x174
-[C0000000074AFA20] [C000000000099340] .shrink_zone+0xc74/0xf9c
-[C0000000074AFD30] [C00000000009A008] .kswapd+0x3e4/0x54c
-[C0000000074AFED0] [C0000000000705C8] .kthread+0x174/0x1c4
-[C0000000074AFF90] [C000000000024AB0] .kernel_thread+0x4c/0x68
-Instruction dump:
-3a810080 7d2000a6 79208042 f9340000 78008000 7c010164 e97b0008 ebfe8008
-eb9e8000 812b0010 79294da4 7d29fa14 <e8090030> 7fbc0214 7fa3eb78 4841f615
--- 0:conmux-control -- time-stamp -- Apr/27/06  5:10:48 --
+Ok, I'll drop the wrappers.
 
+> >>Second, can you arrange it without using the extra field in mm_struct
+> >>and operation in the mmput fast path?
+> >
+> >I'm open to suggestions on other ways of implementing this.  However I
+> >think the performance impact of the proposed implementation should be
+> >miniscule.  The code added to mmput() executes only when the referece
+> >count has reached 0; not on every decrement of the reference count.
+> >Once the reference count has reached 0, the common-case behavior is
+> >still only testing a boolean flag followed by a not-taken branch.  The
+> >use of unlikely() should help the compiler and CPU branch prediction
+> >hardware minimize overhead in the typical case where oom_kill_finish()
+> >is not called.
+>
+> Mainly the cost of increasing cacheline footprint. I think someone
+> suggested using a flag bit somewhere... that'd be preferable.
+
+Ok, I'll add a ->flags member to mm_struct and just use one bit for
+the oom_notify value.  Then if other users of mm_struct need flag
+bits for other things in the future they can all share ->flags.  I'll
+rework my patches and repost shortly...
+
+Dave

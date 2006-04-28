@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbWD1CwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWD1DCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965204AbWD1CwN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 22:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965202AbWD1CwK
+	id S1030212AbWD1DCR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 23:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWD1DCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 22:52:10 -0400
-Received: from ns.suse.de ([195.135.220.2]:20355 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965194AbWD1Cvy (ORCPT
+	Thu, 27 Apr 2006 23:02:17 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:40893 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030212AbWD1DCQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 22:51:54 -0400
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 28 Apr 2006 12:51:50 +1000
-Message-Id: <1060428025150.30782@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 004 of 5] md: Improve detection of lack of barrier support in raid1
-References: <20060428124313.29510.patches@notabene>
+	Thu, 27 Apr 2006 23:02:16 -0400
+Date: Fri, 28 Apr 2006 08:29:27 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [Patch 5/8] taskstats interface
+Message-ID: <20060428025927.GD14496@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <444991EF.3080708@watson.ibm.com> <444996FB.8000103@watson.ibm.com> <44501A97.2060104@engr.sgi.com> <445041EB.7080205@watson.ibm.com> <20060427064237.GA14496@in.ibm.com> <445104DC.90401@engr.sgi.com> <20060427182719.GC14496@in.ibm.com> <44511CCF.1080504@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44511CCF.1080504@engr.sgi.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If we envision a need of it in the future, we'd better put it in
+> today. It would be nice to have the revision number at beginning of
+> the struct. Shailabh's instruction says to add new field after existing
+> fields.
+>
 
-Move the test for 'do barrier work' down a bit so that if the first
-write to a raid1 is a BIO_RW_BARRIER write, the checking done by
-superblock writes will cause the right thing to happen.
+Yes, true. It does not hurt to have a version number for taskstats.
+I will add it in.
 
-
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./drivers/md/raid1.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
-
-diff ./drivers/md/raid1.c~current~ ./drivers/md/raid1.c
---- ./drivers/md/raid1.c~current~	2006-04-28 12:17:27.000000000 +1000
-+++ ./drivers/md/raid1.c	2006-04-28 12:17:40.000000000 +1000
-@@ -753,18 +753,24 @@ static int make_request(request_queue_t 
- 	const int rw = bio_data_dir(bio);
- 	int do_barriers;
+<snip>
  
--	if (unlikely(!mddev->barriers_work && bio_barrier(bio))) {
--		bio_endio(bio, bio->bi_size, -EOPNOTSUPP);
--		return 0;
--	}
--
- 	/*
- 	 * Register the new request and wait if the reconstruction
- 	 * thread has put up a bar for new requests.
- 	 * Continue immediately if no resync is active currently.
-+	 * We test barriers_work *after* md_write_start as md_write_start
-+	 * may cause the first superblock write, and that will check out
-+	 * if barriers work.
- 	 */
-+
- 	md_write_start(mddev, bio); /* wait on superblock update early */
- 
-+	if (unlikely(!mddev->barriers_work && bio_barrier(bio))) {
-+		if (rw == WRITE)
-+			md_write_end(mddev);
-+		bio_endio(bio, bio->bi_size, -EOPNOTSUPP);
-+		return 0;
-+	}
-+
- 	wait_barrier(conf);
- 
- 	disk_stat_inc(mddev->gendisk, ios[rw]);
+> 
+> I am sorry that i did not make myself clear. My suggestion of using
+> the bitmask payload info is to be combined with #ifdef CONFIG_* to
+> eliminate unnecessary fields from the traffic. I am concerned about
+> losing data due to application not reading data fast enough.
+> 
+> Well, we can revisit this suggestion when we start losing data
+> though. ;-)
+
+Like Shailabh said #ifdef CONFIG_* adds complexity for userspace parsing
+of the structure, but if it helps avoid sending unnecessary data we
+can consider using that approach. 
+
+Would something like the structure below be useful?
+
+struct csastats {
+#if defined(CONFIG_CSA) || defined(CONFIG_CSA_MODULE)
+       char    acctent[sizeof(struct acctcsa) +
+                       sizeof(struct acctmem) +
+                       sizeof(struct acctio)];
+       int     filled;
+#endif
+};
+
+The filled member can be a bool or an int to indicate that the structure
+contains meaningful data and the CONFIG_* is used to control the
+inclusion of meaningful fields. Instead of using a bitmap we use
+the filled member.
+
+Is this what you had in mind?
+
+-- 
+					<---	Balbir

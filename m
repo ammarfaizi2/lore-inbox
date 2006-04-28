@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbWD1F2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbWD1FeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965188AbWD1F2t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 01:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWD1F2t
+	id S1030213AbWD1FeM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 01:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWD1FeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 01:28:49 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:22936 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965188AbWD1F2s (ORCPT
+	Fri, 28 Apr 2006 01:34:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:455 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030213AbWD1FeL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 01:28:48 -0400
-Date: Fri, 28 Apr 2006 07:28:46 +0200
-From: "Andi Kleen" <ak@suse.de>
-To: torvalds@osdl.org
-Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [3/4] i386: Fix overflow in e820_all_mapped
-Message-ID: <4451A80E.mailNZX1XN4A8@suse.de>
-User-Agent: nail 10.6 11/15/03
+	Fri, 28 Apr 2006 01:34:11 -0400
+Date: Thu, 27 Apr 2006 22:34:05 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+In-Reply-To: <4451A00A.2030606@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0604272230230.3701@g5.osdl.org>
+References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org>
+ <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org>
+ <Pine.LNX.4.64.0604261144290.3701@g5.osdl.org> <44505B59.1060308@yahoo.com.au>
+ <Pine.LNX.4.64.0604270804420.3701@g5.osdl.org> <4451A00A.2030606@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The 32bit version of e820_all_mapped() needs to use u64 to avoid
-overflows on PAE systems.  Pointed out by Jan Beulich
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+On Fri, 28 Apr 2006, Nick Piggin wrote:
+> > 
+> > See __d_lookup() for details.
+> 
+> Yes I see. Perhaps a seqlock could do the trick (hmm, there already is one),
+> however we still have to increment the refcount, so there'll always be a
+> shared cacheline.
 
----
- arch/i386/kernel/setup.c |    2 +-
- include/asm-i386/e820.h  |    3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+Actually, the thing I'd really _like_ to see is not even incrementing the 
+refcount for intermediate directories (and those are actually the most 
+common case).
 
-Index: linux/arch/i386/kernel/setup.c
-===================================================================
---- linux.orig/arch/i386/kernel/setup.c
-+++ linux/arch/i386/kernel/setup.c
-@@ -970,7 +970,7 @@ efi_memory_present_wrapper(unsigned long
-   * not-overlapping, which is the case
-   */
- int __init
--e820_all_mapped(unsigned long start, unsigned long end, unsigned type)
-+e820_all_mapped(u64 start, u64 end, unsigned type)
- {
- 	int i;
- 	for (i = 0; i < e820.nr_map; i++) {
-Index: linux/include/asm-i386/e820.h
-===================================================================
---- linux.orig/include/asm-i386/e820.h
-+++ linux/include/asm-i386/e820.h
-@@ -36,8 +36,7 @@ struct e820map {
- 
- extern struct e820map e820;
- 
--extern int e820_all_mapped(unsigned long start, unsigned long end,
--			   unsigned type);
-+extern int e820_all_mapped(u64 start, u64 end, unsigned type);
- 
- #endif/*!__ASSEMBLY__*/
- 
+It should be possible in theory to do a lookup of a long path all using 
+the rcu_read_lock, and only do the refcount increment (and then you might 
+as well do the d_lock thing) for the final component of the path.
+
+Of course, it's not possible right now. We do each component separately, 
+and we very much depend on the d_lock. For some things, we _have_ to do it 
+that way (revalidation etc), so the "possible in theory" isn't always even 
+true.
+
+And every time I look at it, I decide that it's too damn complex, and the 
+end result would look horrible, and that I'd probably get it wrong anyway.
+
+Still, I've _looked_ at it several times.
+
+		Linus

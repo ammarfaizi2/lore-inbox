@@ -1,166 +1,273 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWD1Bew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbWD1Be6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbWD1Bew (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 21:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWD1Bew
+	id S1030241AbWD1Be6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 21:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbWD1Be5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 21:34:52 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:47318 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030239AbWD1Bep
+	Thu, 27 Apr 2006 21:34:57 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:28817 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030235AbWD1Bee
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 21:34:45 -0400
+	Thu, 27 Apr 2006 21:34:34 -0400
 From: Chandra Seetharaman <sekharan@us.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org,
        ckrm-tech@lists.sourceforge.net
 Cc: Chandra Seetharaman <sekharan@us.ibm.com>
-Date: Thu, 27 Apr 2006 18:34:43 -0700
-Message-Id: <20060428013443.27212.13392.sendpatchset@localhost.localdomain>
+Date: Thu, 27 Apr 2006 18:34:32 -0700
+Message-Id: <20060428013432.27212.51985.sendpatchset@localhost.localdomain>
 In-Reply-To: <20060428013410.27212.45968.sendpatchset@localhost.localdomain>
 References: <20060428013410.27212.45968.sendpatchset@localhost.localdomain>
-Subject: [PATCH 06/12] Add proc interface to get resource group info of task
+Subject: [PATCH 04/12] Add task logic to resource groups
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-06/12: task_procsupport
+04/12 - tasksupport
 
-Adds an interface in /proc to get the name of a resource group to which
-a task is attached.
+Adds logic to support adding/removing task to/from a resource group
+Provides interface to set a task's resource group.
 --
 
 Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
-Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
 
- fs/proc/base.c            |   19 +++++++++++++++++++
- include/linux/res_group.h |    2 ++
- kernel/res_group/task.c   |   32 +++++++++++++++++++++++++++++++-
- 3 files changed, 52 insertions(+), 1 deletion(-)
+ include/linux/sched.h        |    4 +
+ kernel/res_group/Makefile    |    2 
+ kernel/res_group/local.h     |    1 
+ kernel/res_group/res_group.c |   25 +++++++
+ kernel/res_group/task.c      |  145 +++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 176 insertions(+), 1 deletion(-)
 
-Index: linux-2617-rc3/fs/proc/base.c
+Index: linux-2617-rc3/include/linux/sched.h
 ===================================================================
---- linux-2617-rc3.orig/fs/proc/base.c	2006-04-27 09:18:03.000000000 -0700
-+++ linux-2617-rc3/fs/proc/base.c	2006-04-27 09:22:27.000000000 -0700
-@@ -70,6 +70,7 @@
- #include <linux/ptrace.h>
- #include <linux/seccomp.h>
- #include <linux/cpuset.h>
-+#include <linux/res_group.h>
- #include <linux/audit.h>
- #include <linux/poll.h>
- #include "internal.h"
-@@ -115,6 +116,9 @@ enum pid_directory_inos {
- #ifdef CONFIG_CPUSETS
- 	PROC_TGID_CPUSET,
- #endif
+--- linux-2617-rc3.orig/include/linux/sched.h	2006-04-27 09:22:14.000000000 -0700
++++ linux-2617-rc3/include/linux/sched.h	2006-04-27 09:22:16.000000000 -0700
+@@ -888,6 +888,10 @@ struct task_struct {
+ 	 * cache last used pipe for splice
+ 	 */
+ 	struct pipe_inode_info *splice_pipe;
 +#ifdef CONFIG_RES_GROUPS
-+	PROC_TGID_RES_GROUP,
-+#endif
- #ifdef CONFIG_SECURITY
- 	PROC_TGID_ATTR,
- 	PROC_TGID_ATTR_CURRENT,
-@@ -156,6 +160,9 @@ enum pid_directory_inos {
- #ifdef CONFIG_CPUSETS
- 	PROC_TID_CPUSET,
- #endif
-+#ifdef CONFIG_RES_GROUPS
-+	PROC_TID_RES_GROUP,
-+#endif
- #ifdef CONFIG_SECURITY
- 	PROC_TID_ATTR,
- 	PROC_TID_ATTR_CURRENT,
-@@ -219,6 +226,9 @@ static struct pid_entry tgid_base_stuff[
- #ifdef CONFIG_CPUSETS
- 	E(PROC_TGID_CPUSET,    "cpuset",  S_IFREG|S_IRUGO),
- #endif
-+#ifdef CONFIG_RES_GROUPS
-+	E(PROC_TGID_RES_GROUP,"res_group",S_IFREG|S_IRUGO),
-+#endif
- 	E(PROC_TGID_OOM_SCORE, "oom_score",S_IFREG|S_IRUGO),
- 	E(PROC_TGID_OOM_ADJUST,"oom_adj", S_IFREG|S_IRUGO|S_IWUSR),
- #ifdef CONFIG_AUDITSYSCALL
-@@ -261,6 +271,9 @@ static struct pid_entry tid_base_stuff[]
- #ifdef CONFIG_CPUSETS
- 	E(PROC_TID_CPUSET,     "cpuset",  S_IFREG|S_IRUGO),
- #endif
-+#ifdef CONFIG_RES_GROUPS
-+	E(PROC_TID_RES_GROUP, "res_group",S_IFREG|S_IRUGO),
-+#endif
- 	E(PROC_TID_OOM_SCORE,  "oom_score",S_IFREG|S_IRUGO),
- 	E(PROC_TID_OOM_ADJUST, "oom_adj", S_IFREG|S_IRUGO|S_IWUSR),
- #ifdef CONFIG_AUDITSYSCALL
-@@ -1823,6 +1836,12 @@ static struct dentry *proc_pident_lookup
- 			inode->i_fop = &proc_cpuset_operations;
- 			break;
- #endif
-+#ifdef CONFIG_RES_GROUPS
-+		case PROC_TID_RES_GROUP:
-+		case PROC_TGID_RES_GROUP:
-+			inode->i_fop = &proc_res_group_operations;
-+			break;
-+#endif
- 		case PROC_TID_OOM_SCORE:
- 		case PROC_TGID_OOM_SCORE:
- 			inode->i_fop = &proc_info_file_operations;
-Index: linux-2617-rc3/kernel/res_group/task.c
-===================================================================
---- linux-2617-rc3.orig/kernel/res_group/task.c	2006-04-27 09:22:20.000000000 -0700
-+++ linux-2617-rc3/kernel/res_group/task.c	2006-04-27 09:22:27.000000000 -0700
-@@ -13,7 +13,8 @@
-  * (at your option) any later version.
-  *
-  */
--#include <linux/sched.h>
-+#include <linux/seq_file.h>
-+#include <linux/proc_fs.h>
- #include <linux/module.h>
- #include "local.h"
- 
-@@ -194,4 +195,33 @@ next_task:
- 	kref_put(&rgroup->ref, release_res_group);
- }
- 
-+static int proc_res_group_show(struct seq_file *m, void *v)
-+{
-+	struct task_struct *tsk = m->private;
-+	struct resource_group *rgroup = tsk->res_group;
-+
-+	if (!rgroup)
-+		return -EINVAL;
-+
-+	kref_get(&rgroup->ref);
-+	seq_puts(m, "/");
-+	if (!is_res_group_root(rgroup))
-+		seq_puts(m, rgroup->name);
-+	seq_putc(m, '\n');
-+	kref_put(&rgroup->ref, release_res_group);
-+	return 0;
-+}
-+
-+static int res_group_open(struct inode *inode, struct file *file)
-+{
-+	struct task_struct *tsk = PROC_I(inode)->task;
-+	return single_open(file, proc_res_group_show, tsk);
-+}
-+
-+struct file_operations proc_res_group_operations = {
-+	.open		= res_group_open,
-+	.read		= seq_read,
-+	.llseek 	= seq_lseek,
-+	.release	= single_release,
-+};
- EXPORT_SYMBOL_GPL(set_res_group);
-Index: linux-2617-rc3/include/linux/res_group.h
-===================================================================
---- linux-2617-rc3.orig/include/linux/res_group.h	2006-04-27 09:22:20.000000000 -0700
-+++ linux-2617-rc3/include/linux/res_group.h	2006-04-27 09:22:27.000000000 -0700
-@@ -94,6 +94,8 @@ struct resource_group {
- 	struct list_head children;	/* head of children */
++	struct resource_group *res_group;
++	struct list_head member_list; /* list of tasks in the resource group */
++#endif /* CONFIG_RES_GROUPS */
  };
  
-+extern struct file_operations proc_res_group_operations;
+ static inline pid_t process_group(struct task_struct *tsk)
+Index: linux-2617-rc3/kernel/res_group/task.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2617-rc3/kernel/res_group/task.c	2006-04-27 09:22:16.000000000 -0700
+@@ -0,0 +1,145 @@
++/* task.c - Resource Groups
++ *
++ * Copyright (C) Hubertus Franke, IBM Corp. 2003,2004
++ *		(C) Shailabh Nagar,  IBM Corp. 2003
++ *		(C) Chandra Seetharaman,  IBM Corp. 2003, 2004, 2005
++ *		(C) Vivek Kashyap,	IBM Corp. 2004
++ *
++ * Latest version, more details at http://ckrm.sf.net
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++#include <linux/sched.h>
++#include <linux/module.h>
++#include "local.h"
 +
- extern void init_task_res_group(struct task_struct *);
- extern void clear_task_res_group(struct task_struct *);
- extern void res_group_init(void);
++static inline struct resource_group
++			*remove_from_old_rgroup(struct task_struct *tsk)
++{
++	struct resource_group *rgroup;
++
++retry:
++	rgroup = tsk->res_group;
++	if (rgroup == NO_RES_GROUP)
++		goto done;
++
++	spin_lock(&rgroup->group_lock);
++	if (rgroup != tsk->res_group) { /* lost the race, retry */
++		spin_unlock(&rgroup->group_lock);
++		goto retry;
++	}
++	/* take out of old resource group */
++	list_del_init(&tsk->member_list);
++	tsk->res_group = NO_RES_GROUP;
++	spin_unlock(&rgroup->group_lock);
++done:
++	return rgroup;
++}
++
++static void move_to_new_rgroup(struct task_struct *tsk,
++				struct resource_group *new_rgroup)
++{
++	BUG_ON(!list_empty(&tsk->member_list));
++	BUG_ON(tsk->res_group != NO_RES_GROUP);
++
++	spin_lock(&new_rgroup->group_lock);
++	tsk->res_group = new_rgroup;
++	list_add(&tsk->member_list, &new_rgroup->task_list);
++	spin_unlock(&new_rgroup->group_lock);
++}
++
++static void notify_res_ctlrs(struct task_struct *tsk,
++	struct resource_group *old_rgroup, struct resource_group *new_rgroup)
++{
++	int i;
++	struct res_controller *ctlr;
++	struct res_shares *old_shares, *new_shares;
++
++	for (i = 0; i < MAX_RES_CTLRS; i++) {
++		ctlr = get_controller_by_id(i);
++		if (ctlr == NULL)
++			continue;
++		if (ctlr->move_task) {
++			old_shares = get_controller_shares(old_rgroup, ctlr);
++			new_shares = get_controller_shares(new_rgroup, ctlr);
++			ctlr->move_task(tsk, old_shares, new_shares);
++		}
++		put_controller(ctlr);
++	}
++}
++
++/*
++ * Change the resource group of the given task to "new_rgroup"
++ *
++ * Caller is responsible to make sure the task structure stays put
++ * through this function.
++ *
++ * This function should be called without holding group_lock of
++ * new_rgroup and tsk->res_group.
++ *
++ * Called with a reference to the new resource group held. The reference is
++ * dropped only when the task is assigned to a different resource group
++ * or when the task exits.
++ */
++static void __set_res_group(struct task_struct *tsk,
++				struct resource_group *new_rgroup)
++{
++	struct resource_group *old_rgroup;
++
++retry:
++	old_rgroup = remove_from_old_rgroup(tsk);
++
++	/* task is exiting or is moving to a different resource group. */
++	if (old_rgroup == NO_RES_GROUP) {
++		/* In the exit path, must succeed */
++		if (new_rgroup == NO_RES_GROUP)
++			goto retry;
++		kref_put(&new_rgroup->ref, release_res_group);
++		return;
++	}
++
++	/*
++	 * notify resource controllers before we actually set the resource
++	 * group in the task to avoid a race with notify_res_ctlrs being
++	 * called from another __set_res_group.
++	 */
++	notify_res_ctlrs(tsk, old_rgroup, new_rgroup);
++	if (new_rgroup != NO_RES_GROUP)
++		move_to_new_rgroup(tsk, new_rgroup);
++	kref_put(&old_rgroup->ref, release_res_group);
++}
++
++/*
++ * Set resource group of the task associated with pid to rgroup.
++ * returns 0 on success, -errno on error.
++ */
++int set_res_group(pid_t pid, struct resource_group *rgroup)
++{
++	int rc = 0;
++	struct task_struct *tsk;
++
++	read_lock(&tasklist_lock);
++	tsk = find_task_by_pid(pid);
++	if (tsk == NULL) {
++		read_unlock(&tasklist_lock);
++		return -ESRCH; /* pid not found */
++	}
++	get_task_struct(tsk);
++	read_unlock(&tasklist_lock);
++
++	/* Check permissions */
++	if ((!capable(CAP_SYS_NICE)) &&
++		(!capable(CAP_SYS_RESOURCE)) && (current->user != tsk->user))
++		rc = -EPERM;
++	else {
++		kref_get(&rgroup->ref);
++		__set_res_group(tsk, rgroup);
++	}
++	put_task_struct(tsk);
++	return rc;
++}
++EXPORT_SYMBOL_GPL(set_res_group);
+Index: linux-2617-rc3/kernel/res_group/Makefile
+===================================================================
+--- linux-2617-rc3.orig/kernel/res_group/Makefile	2006-04-27 09:22:14.000000000 -0700
++++ linux-2617-rc3/kernel/res_group/Makefile	2006-04-27 09:22:16.000000000 -0700
+@@ -1 +1 @@
+-obj-y = res_group.o shares.o
++obj-y = res_group.o shares.o task.o
+Index: linux-2617-rc3/kernel/res_group/res_group.c
+===================================================================
+--- linux-2617-rc3.orig/kernel/res_group/res_group.c	2006-04-27 09:22:14.000000000 -0700
++++ linux-2617-rc3/kernel/res_group/res_group.c	2006-04-27 09:22:16.000000000 -0700
+@@ -251,6 +251,27 @@ static int add_controller(struct res_con
+ 	return ret;
+ }
+ /*
++ * Helper function to move all tasks in a resource group to/from the
++ * registering/unregistering resource controller.
++ *
++ * Assumes ctlr is valid and rgroup is initialized with resource
++ * controller's shares.
++ */
++static void move_tasks(struct resource_group *rgroup,
++		struct res_controller *ctlr,
++		struct res_shares *from, struct res_shares *to)
++{
++	struct task_struct *tsk;
++
++	if (!ctlr->move_task)
++		return;
++	spin_lock(&rgroup->group_lock);
++	list_for_each_entry(tsk, &rgroup->task_list, member_list)
++		ctlr->move_task(tsk, from, to);
++	spin_unlock(&rgroup->group_lock);
++}
++
++/*
+  * Interface for registering a resource controller.
+  *
+  * Returns the 0 on success, -errno for failure.
+@@ -287,6 +308,8 @@ int register_controller(struct res_contr
+ 		kref_get(&rgroup->ref);
+ 		read_unlock(&res_group_lock);
+   		do_alloc_shares_struct(rgroup, ctlr);
++		move_tasks(rgroup, ctlr, NO_SHARE,
++					rgroup->shares[ctlr->ctlr_id]);
+ 		if (prev_rgroup)
+ 			kref_put(&prev_rgroup->ref, release_res_group);
+ 		prev_rgroup = rgroup;
+@@ -333,6 +356,8 @@ int unregister_controller(struct res_con
+ 	list_for_each_entry_reverse(rgroup, &res_groups, group_list) {
+ 		kref_get(&rgroup->ref);
+ 		read_unlock(&res_group_lock);
++		move_tasks(rgroup, ctlr, rgroup->shares[ctlr->ctlr_id],
++								NO_SHARE);
+   		do_free_shares_struct(rgroup, ctlr);
+ 		if (prev_rgroup)
+ 			kref_put(&prev_rgroup->ref, release_res_group);
+Index: linux-2617-rc3/kernel/res_group/local.h
+===================================================================
+--- linux-2617-rc3.orig/kernel/res_group/local.h	2006-04-27 09:22:14.000000000 -0700
++++ linux-2617-rc3/kernel/res_group/local.h	2006-04-27 09:22:16.000000000 -0700
+@@ -18,3 +18,4 @@ extern int set_controller_shares(struct 
+ extern void set_shares_to_default(struct resource_group *,
+ 						struct res_controller *);
+ extern void res_group_teardown(void);
++extern int set_res_group(pid_t, struct resource_group *);
 
 -- 
 

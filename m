@@ -1,335 +1,256 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbWD1BmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWD1Blf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030274AbWD1BmI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 21:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbWD1BiJ
+	id S1030243AbWD1Blf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 21:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030267AbWD1BlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 21:38:09 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:54509 "EHLO
+	Thu, 27 Apr 2006 21:41:21 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:750 "EHLO
 	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030252AbWD1Bh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 21:37:59 -0400
+	id S1030243AbWD1BiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 21:38:14 -0400
 From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org,
        ckrm-tech@lists.sourceforge.net
 Cc: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-Date: Fri, 28 Apr 2006 10:37:35 +0900
-Message-Id: <20060428013735.9582.46323.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+Date: Fri, 28 Apr 2006 10:37:40 +0900
+Message-Id: <20060428013740.9582.93563.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 In-Reply-To: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-Subject: [PATCH 1/9] CPU controller - Add class load estimation support
+Subject: [PATCH 2/9] CPU controller - Add class hungry detection support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1/9: cpurc_load_estimation
+2/9: cpurc_hungry_detection
 
-This patch corresponds to section 1 in Documentation/res_group/cpurc-internals,
-adding load estimation of task in a resource group that is
-grouped by the cpurc structure.  Load estimation is necessary for controlling
-CPU resource because the CPU resource controller need to know whether
-the resource assigned to a resource group is enough or not.
+This patch corresponds to section 2 in Documentation/res_group/cpurc-internals,
+adding the detection code that checks whether a task group needs more CPU
+resource or not.  The CPU resource controller have to distinguish whether
+tasks in the group actually need more resource or they are just sleepy.
+If they need more resource, the resource controller must give more resource,
+otherwise it must not.
 
 Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
 Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
 
- include/linux/cpu_rc.h |   65 ++++++++++++++++++++++++++++++++++++++++
- include/linux/sched.h  |    5 +++
- init/Kconfig           |    9 +++++
- kernel/Makefile        |    1 
- kernel/cpu_rc.c        |   79 +++++++++++++++++++++++++++++++++++++++++++++++++
- kernel/exit.c          |    2 +
- kernel/sched.c         |   14 ++++++++
- 7 files changed, 175 insertions(+)
+ include/linux/cpu_rc.h |   17 ++++++++
+ include/linux/sched.h  |    1 
+ kernel/cpu_rc.c        |   96 +++++++++++++++++++++++++++++++++++++++++++++++++
+ kernel/sched.c         |    5 ++
+ 4 files changed, 118 insertions(+), 1 deletion(-)
 
 Index: linux-2.6.17-rc3/include/linux/cpu_rc.h
 ===================================================================
---- /dev/null
+--- linux-2.6.17-rc3.orig/include/linux/cpu_rc.h
 +++ linux-2.6.17-rc3/include/linux/cpu_rc.h
-@@ -0,0 +1,65 @@
-+#ifndef _LINUX_CPU_RC_H_
-+#define _LINUX_CPU_RC_H_
-+/*
-+ *  CPU resource controller interface
-+ *
-+ *  Copyright 2005-2006 FUJITSU LIMITED
-+ *
-+ *  This file is subject to the terms and conditions of the GNU General Public
-+ *  License.  See the file COPYING in the main directory of the Linux
-+ *  distribution for more details.
-+ */
+@@ -17,10 +17,14 @@
+ 
+ #define CPU_RC_SPREAD_PERIOD	(10 * HZ)
+ #define CPU_RC_LOAD_SCALE	(2 * CPU_RC_SPREAD_PERIOD)
+-#define CPU_RC_GUAR_SCALE	100
++#define CPU_RC_SHARE_SCALE	100
++#define CPU_RC_TSFACTOR_MAX	CPU_RC_SHARE_SCALE
++#define CPU_RC_HCOUNT_INC	2
++#define CPU_RC_RECALC_INTERVAL	HZ
+ 
+ struct cpu_rc_domain {
+ 	spinlock_t lock;
++	unsigned int hungry_count;
+ 	unsigned long timestamp;
+ 	cpumask_t cpus;
+ 	int numcpus;
+@@ -28,16 +32,25 @@ struct cpu_rc_domain {
+ };
+ 
+ struct cpu_rc {
++	int share;
++	int is_hungry;
+ 	struct cpu_rc_domain *rcd;
+ 	struct {
+ 		unsigned long timestamp;
+ 		unsigned int load;
++		int maybe_hungry;
+ 	} stat[NR_CPUS];	/* XXX  need alignment */
+ };
+ 
+ extern struct cpu_rc *cpu_rc_get(task_t *);
+ extern unsigned int cpu_rc_load(struct cpu_rc *);
+ extern void cpu_rc_account(task_t *, unsigned long);
++extern void cpu_rc_detect_hunger(task_t *);
 +
-+#include <linux/config.h>
-+#include <linux/sched.h>
-+
-+#ifdef CONFIG_CPU_RC
-+
-+#define CPU_RC_SPREAD_PERIOD	(10 * HZ)
-+#define CPU_RC_LOAD_SCALE	(2 * CPU_RC_SPREAD_PERIOD)
-+#define CPU_RC_GUAR_SCALE	100
-+
-+struct cpu_rc_domain {
-+	spinlock_t lock;
-+	unsigned long timestamp;
-+	cpumask_t cpus;
-+	int numcpus;
-+	int numcrs;
-+};
-+
-+struct cpu_rc {
-+	struct cpu_rc_domain *rcd;
-+	struct {
-+		unsigned long timestamp;
-+		unsigned int load;
-+	} stat[NR_CPUS];	/* XXX  need alignment */
-+};
-+
-+extern struct cpu_rc *cpu_rc_get(task_t *);
-+extern unsigned int cpu_rc_load(struct cpu_rc *);
-+extern void cpu_rc_account(task_t *, unsigned long);
-+
-+static inline void cpu_rc_record_allocation(task_t *tsk,
-+					    unsigned int slice,
-+					    unsigned long now)
++static inline void cpu_rc_record_activated(task_t *tsk, unsigned long now)
 +{
-+	if (slice == 0) {
-+		/* minimal allocated time_slice is 1 (see sched_fork()). */
-+		slice = 1;
-+	}
-+
-+	tsk->last_slice = slice;
-+	tsk->ts_alloced = now;
++	tsk->last_activated = now;
 +}
-+
-+#else /* CONFIG_CPU_RC */
-+
-+static inline void cpu_rc_account(task_t *tsk, unsigned long now) {}
-+static inline void cpu_rc_record_allocation(task_t *tsk,
-+					    unsigned int slice,
-+					    unsigned long now) {}
-+
-+#endif /* CONFIG_CPU_RC */
-+
-+#endif /* _LINUX_CPU_RC_H_ */
-+
+ 
+ static inline void cpu_rc_record_allocation(task_t *tsk,
+ 					    unsigned int slice,
+@@ -55,6 +68,8 @@ static inline void cpu_rc_record_allocat
+ #else /* CONFIG_CPU_RC */
+ 
+ static inline void cpu_rc_account(task_t *tsk, unsigned long now) {}
++static inline void cpu_rc_detect_hunger(task_t *tsk) {}
++static inline void cpu_rc_record_activated(task_t *tsk, unsigned long now) {}
+ static inline void cpu_rc_record_allocation(task_t *tsk,
+ 					    unsigned int slice,
+ 					    unsigned long now) {}
 Index: linux-2.6.17-rc3/include/linux/sched.h
 ===================================================================
 --- linux-2.6.17-rc3.orig/include/linux/sched.h
 +++ linux-2.6.17-rc3/include/linux/sched.h
-@@ -892,6 +892,11 @@ struct task_struct {
- 	struct resource_group *res_group;
- 	struct list_head member_list; /* list of tasks in the resource group */
- #endif /* CONFIG_RES_GROUPS */
-+#ifdef CONFIG_CPU_RC
-+	unsigned int last_slice;
-+	unsigned long ts_alloced;
-+#endif
-+
+@@ -895,6 +895,7 @@ struct task_struct {
+ #ifdef CONFIG_CPU_RC
+ 	unsigned int last_slice;
+ 	unsigned long ts_alloced;
++	unsigned long last_activated;
+ #endif
+ 
  };
- 
- static inline pid_t process_group(struct task_struct *tsk)
-Index: linux-2.6.17-rc3/init/Kconfig
-===================================================================
---- linux-2.6.17-rc3.orig/init/Kconfig
-+++ linux-2.6.17-rc3/init/Kconfig
-@@ -261,6 +261,15 @@ config RELAY
- 
- 	  If unsure, say N.
- 
-+config CPU_RC
-+	bool "CPU resource controller"
-+	depends on RES_GROUPS_RES_CPU
-+	help
-+	  This options will let you control the CPU resource by scaling
-+	  the timeslice allocated for each tasks.
-+
-+	  Say N if unsure.
-+
- source "usr/Kconfig"
- 
- config UID16
-Index: linux-2.6.17-rc3/kernel/Makefile
-===================================================================
---- linux-2.6.17-rc3.orig/kernel/Makefile
-+++ linux-2.6.17-rc3/kernel/Makefile
-@@ -27,6 +27,7 @@ obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_KEXEC) += kexec.o
- obj-$(CONFIG_COMPAT) += compat.o
- obj-$(CONFIG_CPUSETS) += cpuset.o
-+obj-$(CONFIG_CPU_RC) += cpu_rc.o
- obj-$(CONFIG_IKCONFIG) += configs.o
- obj-$(CONFIG_STOP_MACHINE) += stop_machine.o
- obj-$(CONFIG_AUDIT) += audit.o auditfilter.o
 Index: linux-2.6.17-rc3/kernel/cpu_rc.c
 ===================================================================
---- /dev/null
+--- linux-2.6.17-rc3.orig/kernel/cpu_rc.c
 +++ linux-2.6.17-rc3/kernel/cpu_rc.c
-@@ -0,0 +1,79 @@
-+/*
-+ *  kernel/cpu_rc.c
-+ *
-+ *  CPU resource controller by scaling time_slice of the task.
-+ *
-+ *  Copyright 2005-2006 FUJITSU LIMITED
-+ *
-+ *  This file is subject to the terms and conditions of the GNU General Public
-+ *  License.  See the file COPYING in the main directory of the Linux
-+ *  distribution for more details.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/sched.h>
-+#include <linux/cpu_rc.h>
-+
-+/*
-+ * cpu_rc_load() calculates a resource group load
-+ */
-+unsigned int cpu_rc_load(struct cpu_rc *cr)
+@@ -14,6 +14,72 @@
+ #include <linux/sched.h>
+ #include <linux/cpu_rc.h>
+ 
++static inline int cpu_rc_is_hungry(struct cpu_rc *cr)
 +{
-+	unsigned int load;
-+	int i, n;
++	return cr->is_hungry;
++}
 +
-+	BUG_ON(!cr);
++static inline void cpu_rc_set_hungry(struct cpu_rc *cr)
++{
++	cr->is_hungry++;
++	cr->rcd->hungry_count += CPU_RC_HCOUNT_INC;
++}
 +
-+	load = 0;
-+	n = 0;
++static inline void cpu_rc_set_satisfied(struct cpu_rc *cr)
++{
++	cr->is_hungry = 0;
++}
 +
-+	/* Just reading the value, so no locking... */
-+	for_each_cpu_mask(i, cr->rcd->cpus) {
-+		if (jiffies - cr->stat[i].timestamp <= CPU_RC_SPREAD_PERIOD)
-+			load += cr->stat[i].load;
-+		n++;
-+	}
-+
-+	return load / n * CPU_RC_GUAR_SCALE / CPU_RC_LOAD_SCALE;
++static inline int cpu_rc_is_anyone_hungry(struct cpu_rc *cr)
++{
++	return cr->rcd->hungry_count > 0;
 +}
 +
 +/*
-+ * cpu_rc_account() calculates the task load when the timeslice is expired
++ * cpu_rc_recalc_tsfactor() uptates the timeslice scale factor
 + */
-+void cpu_rc_account(task_t *tsk, unsigned long now)
++static inline void cpu_rc_recalc_tsfactor(struct cpu_rc *cr)
++{
++	unsigned long now = jiffies;
++	unsigned long interval = now - cr->rcd->timestamp;
++	unsigned int load;
++	int maybe_hungry;
++	int i, n;
++
++	n = 0;
++	load = 0;
++	maybe_hungry = 0;
++
++	cpu_rcd_lock(cr);
++	if (cr->rcd->timestamp == 0)	{
++		cr->rcd->timestamp = now;
++	} else	if (interval > CPU_RC_SPREAD_PERIOD) {
++		cr->rcd->hungry_count = 0;
++		cr->rcd->timestamp = now;
++	} else if (interval > CPU_RC_RECALC_INTERVAL) {
++		cr->rcd->hungry_count >>= 1;
++		cr->rcd->timestamp = now;
++	}
++
++	for_each_cpu_mask(i, cr->rcd->cpus) {
++		load += cr->stat[i].load;
++		maybe_hungry += cr->stat[i].maybe_hungry;
++		cr->stat[i].maybe_hungry = 0;
++		n++;
++	}
++
++	BUG_ON(n == 0);
++	load = load / n;
++
++	if ((load * CPU_RC_SHARE_SCALE >= cr->share * CPU_RC_LOAD_SCALE) ||
++	    !maybe_hungry)
++		cpu_rc_set_satisfied(cr);
++	else
++		cpu_rc_set_hungry(cr);
++
++	cpu_rcd_unlock(cr);
++}
++
+ /*
+  * cpu_rc_load() calculates a resource group load
+  */
+@@ -77,3 +143,33 @@ void cpu_rc_account(task_t *tsk, unsigne
+ out:
+ 	put_cpu();
+ }
++
++/*
++ * cpu_rc_detect_hunger() judges if the rerouce group is maybe hungry
++ */
++void cpu_rc_detect_hunger(task_t *tsk)
 +{
 +	struct cpu_rc *cr;
-+	int cpu = get_cpu();
-+	unsigned long last;
-+	unsigned int resgrp_load, tsk_load;
-+	unsigned long base, update;
++	unsigned long wait;
++	int cpu = smp_processor_id();
 +
 +	if (tsk == idle_task(task_cpu(tsk)))
-+		goto out;
++		return;
++
++	if (tsk->last_activated == 0)
++		return;
 +
 +	cr = cpu_rc_get(tsk);
-+	if (!cr)
-+		goto out;
++	if (!cr) {
++		tsk->last_activated = 0;
++		return;
++	}
 +
-+	base = now - tsk->ts_alloced;
-+	if (base == 0)
-+		goto out;  /* duration too small. can not collect statistics. */
++	BUG_ON(tsk->last_slice == 0);
++	wait = jiffies - tsk->last_activated;
++	if (CPU_RC_GUAR_SCALE * tsk->last_slice	/ (wait + tsk->last_slice)
++			< cr->share)
++		cr->stat[cpu].maybe_hungry++;
 +
-+	tsk_load = CPU_RC_LOAD_SCALE * (tsk->last_slice - tsk->time_slice)
-+			+ (CPU_RC_LOAD_SCALE / 2);
-+	if (base > CPU_RC_SPREAD_PERIOD)
-+		tsk_load = CPU_RC_SPREAD_PERIOD * tsk_load / base;
-+
-+	last = cr->stat[cpu].timestamp;
-+	update = now - last;
-+	if (update > CPU_RC_SPREAD_PERIOD)
-+		resgrp_load = 0;  /* statistics data obsolete. */
-+	else
-+		resgrp_load = cr->stat[cpu].load
-+			 * (CPU_RC_SPREAD_PERIOD - update);
-+
-+	cr->stat[cpu].timestamp = now;
-+	cr->stat[cpu].load = (resgrp_load + tsk_load) / CPU_RC_SPREAD_PERIOD;
-+out:
-+	put_cpu();
++	tsk->last_activated = 0;
 +}
 Index: linux-2.6.17-rc3/kernel/sched.c
 ===================================================================
 --- linux-2.6.17-rc3.orig/kernel/sched.c
 +++ linux-2.6.17-rc3/kernel/sched.c
-@@ -43,6 +43,7 @@
- #include <linux/rcupdate.h>
- #include <linux/cpu.h>
- #include <linux/cpuset.h>
-+#include <linux/cpu_rc.h>
- #include <linux/percpu.h>
- #include <linux/kthread.h>
- #include <linux/seq_file.h>
-@@ -1377,6 +1378,7 @@ int fastcall wake_up_state(task_t *p, un
- void fastcall sched_fork(task_t *p, int clone_flags)
- {
- 	int cpu = get_cpu();
-+	unsigned long now;
+@@ -716,6 +716,7 @@ static void __activate_task(task_t *p, r
  
- #ifdef CONFIG_SMP
- 	cpu = sched_balance_self(cpu, SD_BALANCE_FORK);
-@@ -1416,6 +1418,9 @@ void fastcall sched_fork(task_t *p, int 
- 	p->first_time_slice = 1;
- 	current->time_slice >>= 1;
- 	p->timestamp = sched_clock();
-+	now = jiffies;
-+	cpu_rc_record_allocation(current, current->time_slice, now);
-+	cpu_rc_record_allocation(p, p->time_slice, now);
- 	if (unlikely(!current->time_slice)) {
+ 	if (unlikely(batch_task(p) || (expired_starving(rq) && !rt_task(p))))
+ 		target = rq->expired;
++	cpu_rc_record_activated(p, jiffies);
+ 	enqueue_task(p, target);
+ 	rq->nr_running++;
+ }
+@@ -1478,6 +1479,7 @@ void fastcall wake_up_new_task(task_t *p
+ 				p->array = current->array;
+ 				p->array->nr_active++;
+ 				rq->nr_running++;
++				cpu_rc_record_activated(p, jiffies);
+ 			}
+ 			set_need_resched();
+ 		} else
+@@ -2686,6 +2688,8 @@ void scheduler_tick(void)
+ 				rq->best_expired_prio = p->static_prio;
+ 		} else
+ 			enqueue_task(p, rq->active);
++
++		cpu_rc_record_activated(p, jnow);
+ 	} else {
  		/*
- 		 * This case is rare, it happens when the parent has only
-@@ -1533,6 +1538,8 @@ void fastcall sched_exit(task_t *p)
- 		p->parent->time_slice += p->time_slice;
- 		if (unlikely(p->parent->time_slice > task_timeslice(p)))
- 			p->parent->time_slice = task_timeslice(p);
-+		cpu_rc_record_allocation(p->parent,
-+					 p->parent->time_slice, jiffies);
- 	}
- 	if (p->sleep_avg < p->parent->sleep_avg)
- 		p->parent->sleep_avg = p->parent->sleep_avg /
-@@ -2617,6 +2624,7 @@ void scheduler_tick(void)
- 	runqueue_t *rq = this_rq();
- 	task_t *p = current;
- 	unsigned long long now = sched_clock();
-+	unsigned long jnow;
+ 		 * Prevent a too long timeslice allowing a task to monopolize
+@@ -3079,6 +3083,7 @@ switch_tasks:
+ 	rcu_qsctr_inc(task_cpu(prev));
  
- 	update_cpu_clock(p, rq, now);
+ 	update_cpu_clock(prev, rq, now);
++	cpu_rc_detect_hunger(next);
  
-@@ -2651,6 +2659,9 @@ void scheduler_tick(void)
- 			p->time_slice = task_timeslice(p);
- 			p->first_time_slice = 0;
- 			set_tsk_need_resched(p);
-+#ifdef CONFIG_CPU_RC
-+			/* XXX  need accounting even for rt_task? */
-+#endif
- 
- 			/* put it at the end of the queue: */
- 			requeue_task(p, rq->active);
-@@ -2660,9 +2671,12 @@ void scheduler_tick(void)
- 	if (!--p->time_slice) {
- 		dequeue_task(p, rq->active);
- 		set_tsk_need_resched(p);
-+		jnow = jiffies;
-+		cpu_rc_account(p, jnow);
- 		p->prio = effective_prio(p);
- 		p->time_slice = task_timeslice(p);
- 		p->first_time_slice = 0;
-+		cpu_rc_record_allocation(p, p->time_slice, jnow);
- 
- 		if (!rq->expired_timestamp)
- 			rq->expired_timestamp = jiffies;
-Index: linux-2.6.17-rc3/kernel/exit.c
-===================================================================
---- linux-2.6.17-rc3.orig/kernel/exit.c
-+++ linux-2.6.17-rc3/kernel/exit.c
-@@ -36,6 +36,7 @@
- #include <linux/compat.h>
- #include <linux/pipe_fs_i.h>
- #include <linux/res_group.h>
-+#include <linux/cpu_rc.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -852,6 +853,7 @@ fastcall NORET_TYPE void do_exit(long co
- 	int group_dead;
- 
- 	profile_task_exit(tsk);
-+	cpu_rc_account(tsk, jiffies);
- 
- 	WARN_ON(atomic_read(&tsk->fs_excl));
- 
+ 	prev->sleep_avg -= run_time;
+ 	if ((long)prev->sleep_avg <= 0)

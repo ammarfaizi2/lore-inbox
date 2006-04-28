@@ -1,172 +1,203 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWD1Bgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWD1Bgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbWD1Bgc (ORCPT <rfc822;willy@w.ods.org>);
+	id S1030244AbWD1Bgc (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 27 Apr 2006 21:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWD1Bf6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWD1Bf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 21:35:58 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:4274 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030236AbWD1BfC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 21:35:02 -0400
+	Thu, 27 Apr 2006 21:35:56 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:38629 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030244AbWD1BfI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 21:35:08 -0400
 From: Chandra Seetharaman <sekharan@us.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org,
        ckrm-tech@lists.sourceforge.net
 Cc: Chandra Seetharaman <sekharan@us.ibm.com>
-Date: Thu, 27 Apr 2006 18:35:00 -0700
-Message-Id: <20060428013500.27212.70582.sendpatchset@localhost.localdomain>
+Date: Thu, 27 Apr 2006 18:35:06 -0700
+Message-Id: <20060428013506.27212.17402.sendpatchset@localhost.localdomain>
 In-Reply-To: <20060428013410.27212.45968.sendpatchset@localhost.localdomain>
 References: <20060428013410.27212.45968.sendpatchset@localhost.localdomain>
-Subject: [PATCH 09/12] Add stats file support to RGCS
+Subject: [PATCH 10/12] Add shares file support to RGCS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-09/12 - user_interface_stats
+10/12 - user_interface_shares
 
-Adds attr_store and attr_show support for stats file.
+Adds attr_store and attr_show support for shares file.
 --
 
 Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
 Signed-Off-By: Shailabh Nagar <nagar@watson.ibm.com>
 Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
 
- rgcs.c |  112 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 files changed, 110 insertions(+), 2 deletions(-)
+ rgcs.c |  136 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 136 insertions(+)
 
 Index: linux-2617-rc3/kernel/res_group/rgcs.c
 ===================================================================
---- linux-2617-rc3.orig/kernel/res_group/rgcs.c	2006-04-27 10:18:44.000000000 -0700
-+++ linux-2617-rc3/kernel/res_group/rgcs.c	2006-04-27 10:18:45.000000000 -0700
-@@ -20,8 +20,102 @@
- #include <linux/parser.h>
+--- linux-2617-rc3.orig/kernel/res_group/rgcs.c	2006-04-27 10:18:45.000000000 -0700
++++ linux-2617-rc3/kernel/res_group/rgcs.c	2006-04-27 10:18:47.000000000 -0700
+@@ -21,6 +21,9 @@
  #include "local.h"
  
--static struct configfs_subsystem rgcs_subsys;
--static struct config_item_type rgcs_item_type;
-+#define RES_STRING "res"
+ #define RES_STRING "res"
++#define MIN_SHARES_STRING "min_shares"
++#define MAX_SHARES_STRING "max_shares"
++#define CHILD_SHARES_DIVISOR_STRING "child_shares_divisor"
+ 
+ static ssize_t show_stats(struct resource_group *rgroup, char *buf)
+ {
+@@ -117,6 +120,128 @@ done:
+ 	return rc;
+ }
+ 
 +
-+static ssize_t show_stats(struct resource_group *rgroup, char *buf)
-+{
-+	int i, j = 0, rc = 0;
-+	size_t buf_size = PAGE_SIZE-1; /* allow only PAGE_SIZE # of bytes */
-+	struct res_controller *ctlr;
-+	struct res_shares *shares;
-+
-+	for (i = 0; i < MAX_RES_CTLRS; i++, j = 0) {
-+		if (buf_size <= 0)
-+			break;
-+		ctlr = get_controller_by_id(i);
-+		if (!ctlr)
-+			 continue;
-+		shares = get_controller_shares(rgroup, ctlr);
-+		if (shares && ctlr->show_stats)
-+			j = ctlr->show_stats(shares, buf, buf_size);
-+		put_controller(ctlr);
-+		rc += j;
-+		buf += j;
-+		buf_size -= j;
-+	}
-+	if (i < MAX_RES_CTLRS)
-+		rc = -ENOSPC;
-+	return rc;
-+}
-+
-+enum parse_token_t {
-+	parse_res_type, parse_err
++enum share_token_t {
++	MIN_SHARES_TOKEN,
++	MAX_SHARES_TOKEN,
++	CHILD_SHARES_DIVISOR_TOKEN,
++	RESOURCE_TYPE_TOKEN,
++	ERROR_TOKEN
 +};
 +
-+static match_table_t parse_tokens = {
-+	{parse_res_type, RES_STRING"=%s"},
-+	{parse_err, NULL}
++/* Token matching for parsing input to this magic file */
++static match_table_t shares_tokens = {
++	{RESOURCE_TYPE_TOKEN, RES_STRING"=%s"},
++	{MIN_SHARES_TOKEN, MIN_SHARES_STRING"=%d"},
++	{MAX_SHARES_TOKEN, MAX_SHARES_STRING"=%d"},
++	{CHILD_SHARES_DIVISOR_TOKEN, CHILD_SHARES_DIVISOR_STRING"=%d"},
++	{ERROR_TOKEN, NULL}
 +};
 +
-+static int stats_parse(const char *options,
-+				char **resname, char **remaining_line)
++static int shares_parse(const char *options, char **resname,
++					struct res_shares *shares)
 +{
-+	char *p, *str;
-+	int rc = -EINVAL;
++	char *p;
++	int option, rc = -EINVAL;
 +
++	*resname = NULL;
 +	if (!options)
-+		return -EINVAL;
-+
++		goto done;
 +	while ((p = strsep((char **)&options, ",")) != NULL) {
 +		substring_t args[MAX_OPT_ARGS];
 +		int token;
 +
 +		if (!*p)
 +			continue;
-+		token = match_token(p, parse_tokens, args);
-+		if (token == parse_res_type) {
++		token = match_token(p, shares_tokens, args);
++		switch (token) {
++		case RESOURCE_TYPE_TOKEN:
++			if (*resname)
++				goto done;
 +			*resname = match_strdup(args);
-+			str = p + strlen(p) + 1;
-+			*remaining_line = kmalloc(strlen(str) + 1, GFP_KERNEL);
-+			if (*remaining_line == NULL) {
-+				kfree(*resname);
-+				*resname = NULL;
-+				rc = -ENOMEM;
-+			} else {
-+				strcpy(*remaining_line, str);
-+				rc = 0;
-+			}
 +			break;
++		case MIN_SHARES_TOKEN:
++			if (match_int(args, &option))
++				goto done;
++			shares->min_shares = option;
++			break;
++		case MAX_SHARES_TOKEN:
++			if (match_int(args, &option))
++				goto done;
++			shares->max_shares = option;
++			break;
++		case CHILD_SHARES_DIVISOR_TOKEN:
++			if (match_int(args, &option))
++				goto done;
++			shares->child_shares_divisor = option;
++			break;
++		default:
++			goto done;
 +		}
 +	}
-+	return rc;
-+}
-+
-+static int reset_stats(struct resource_group *rgroup, const char *str)
-+{
-+	int rc;
-+	char *resname = NULL, *statstr = NULL;
-+	struct res_controller *ctlr;
-+	struct res_shares *shares;
-+
-+	rc = stats_parse(str, &resname, &statstr);
-+	if (rc)
-+		return rc;
-+
-+	ctlr = get_controller_by_name(resname);
-+	if (!ctlr) {
-+		rc = -EINVAL;
-+		goto done;
-+	}
-+	shares = get_controller_shares(rgroup, ctlr);
-+	if (shares && ctlr->reset_stats)
-+		rc = ctlr->reset_stats(shares, statstr);
-+	put_controller(ctlr);
++	rc = 0;
 +done:
-+	kfree(resname);
-+	kfree(statstr);
++	if (rc) {
++		kfree(*resname);
++		*resname = NULL;
++	}
 +	return rc;
 +}
- 
++
++static int set_shares(struct resource_group *rgroup, const char *str)
++{
++	char *resname = NULL;
++	int rc;
++	struct res_controller *ctlr;
++	struct res_shares shares = {
++		.min_shares = SHARE_UNCHANGED,
++		.max_shares = SHARE_UNCHANGED,
++		.child_shares_divisor = SHARE_UNCHANGED,
++	};
++
++	rc = shares_parse(str, &resname, &shares);
++	if (!rc) {
++		ctlr = get_controller_by_name(resname);
++		if (ctlr) {
++			rc = set_controller_shares(rgroup, ctlr, &shares);
++			put_controller(ctlr);
++		} else
++			rc = -EINVAL;
++		kfree(resname);
++	}
++	return rc;
++}
++
++static ssize_t show_shares(struct resource_group *rgroup, char *buf)
++{
++	int i;
++	ssize_t j, rc = 0, bufsize = PAGE_SIZE;
++	struct res_shares *shares;
++	struct res_controller *ctlr;
++
++	for (i = 0; i < MAX_RES_CTLRS; i++) {
++		ctlr = get_controller_by_id(i);
++		if (!ctlr)
++			continue;
++		shares = get_controller_shares(rgroup, ctlr);
++		if (shares) {
++			if (bufsize <= 0)
++				break;
++			j = snprintf(buf, bufsize, "%s=%s,%s=%d,%s=%d,%s=%d\n",
++				RES_STRING, ctlr->name,
++				MIN_SHARES_STRING, shares->min_shares,
++				MAX_SHARES_STRING, shares->max_shares,
++				CHILD_SHARES_DIVISOR_STRING,
++				shares->child_shares_divisor);
++			rc += j; buf += j; bufsize -= j;
++		}
++		put_controller(ctlr);
++	}
++	if (i < MAX_RES_CTLRS)
++		rc = -ENOSPC;
++	return rc;
++}
++
  struct rgroup_attribute {
  	struct configfs_attribute configfs_attr;
-@@ -29,6 +123,19 @@ struct rgroup_attribute {
- 	int (*store)(struct resource_group *, const char *);
+ 	ssize_t (*show)(struct resource_group *, char *);
+@@ -133,6 +258,16 @@ struct rgroup_attribute stats_attr = {
+ 	.store = reset_stats
  };
  
-+struct rgroup_attribute stats_attr = {
++struct rgroup_attribute shares_attr = {
 +	.configfs_attr = {
-+		.ca_name = "stats",
++		.ca_name = "shares",
 +		.ca_owner = THIS_MODULE,
 +		.ca_mode = S_IRUGO | S_IWUSR
 +	},
-+	.show = show_stats,
-+	.store = reset_stats
++	.show = show_shares,
++	.store = set_shares
 +};
 +
-+static struct configfs_subsystem rgcs_subsys;
-+static struct config_item_type rgcs_item_type;
-+
- struct rgcs_rgroup {
- 	char *name;
- 	struct resource_group *core;
-@@ -173,6 +280,7 @@ static struct configfs_group_operations 
- };
+ static struct configfs_subsystem rgcs_subsys;
+ static struct config_item_type rgcs_item_type;
+ 
+@@ -281,6 +416,7 @@ static struct configfs_group_operations 
  
  static struct configfs_attribute *rgroup_attrs[] = {
-+	&stats_attr.configfs_attr,
+ 	&stats_attr.configfs_attr,
++	&shares_attr.configfs_attr,
  	NULL
  };
  

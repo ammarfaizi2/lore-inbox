@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbWD1PzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbWD1P5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030446AbWD1PzA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 11:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030447AbWD1PzA
+	id S1030447AbWD1P5M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 11:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030453AbWD1P5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 11:55:00 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:18382 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1030446AbWD1Py7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 11:54:59 -0400
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 28 Apr 2006 11:57:12 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:22192 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030448AbWD1P5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 11:57:11 -0400
+Date: Fri, 28 Apr 2006 17:56:52 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Avi Kivity <avi@argo.co.il>
+cc: Martin Mares <mj@ucw.cz>, Davi Arnaut <davi.lkml@gmail.com>,
+       Willy Tarreau <willy@w.ods.org>, Denis Vlasenko <vda@ilport.com.ua>,
+       dtor_core@ameritech.net, Kyle Moffett <mrmacman_g4@mac.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+In-Reply-To: <4451FCCC.4010006@argo.co.il>
+Message-ID: <Pine.LNX.4.61.0604281755360.9011@yvahk01.tjqt.qr>
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>
+ <d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com>
+ <444E61FD.7070408@argo.co.il> <200604271810.07575.vda@ilport.com.ua>
+ <20060427201531.GH13027@w.ods.org> <750c918d0604271408y2afef6fflf380e4d0a6c1cec6@mail.gmail.com>
+ <4451E185.9030107@argo.co.il> <mj+md-20060428.105455.7620.atrey@ucw.cz>
+ <4451FCCC.4010006@argo.co.il>
 MIME-Version: 1.0
-Subject: [PATCH] [1/1] slab: fix crash on __drain_alien_cahce() during
- CPU Hotplug
-Date: Fri, 28 Apr 2006 10:54:37 -0500
-Message-ID: <B3870AD84389624BAF87A3C7B83149930293583F@SAUSEXMB2.amd.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [1/1] slab: fix crash on __drain_alien_cahce()
- during CPU Hotplug
-Thread-Index: AcZq3A0GXCLHYlL3TJKw8dMonPWNtg==
-From: "shin, jacob" <jacob.shin@amd.com>
-To: torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, clameter@sgi.com,
-       ak@suse.de, "Langsdorf, Mark" <mark.langsdorf@amd.com>
-X-OriginalArrivalTime: 28 Apr 2006 15:54:37.0828 (UTC)
- FILETIME=[0D7CF440:01C66ADC]
-X-WSS-ID: 684CE5374KW4803087-01-01
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-transfer_objects should only be called when all of the cpus in the
-node are online.  CPU_DEAD notifier callback marks l3->shared to NULL.
+>
+> The high level language allows you to concentrate on the algorithms which is
+> where the performance comes from.
+>
+Do you consider e.g. Perl or Python highlevel?
+If so: I doubt that's where performance can come from. Ever. (Unless you 
+cheat by using XS.)
 
-Signed-off-by: Jacob Shin <jacob.shin@amd.com>
 
----
- mm/slab.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---- linux.orig/mm/slab.c	2006-04-26 21:19:25.000000000 -0500
-+++ linux/mm/slab.c	2006-04-28 09:45:53.000000000 -0500
-@@ -979,7 +979,8 @@ static void __drain_alien_cache(struct k
- 		 * That way we could avoid the overhead of putting the objects
- 		 * into the free lists and getting them back later.
- 		 */
--		transfer_objects(rl3->shared, ac, ac->limit);
-+		if (rl3->shared)
-+			transfer_objects(rl3->shared, ac, ac->limit);
- 
- 		free_block(cachep, ac->entry, ac->avail, node);
- 		ac->avail = 0;
-
+Jan Engelhardt
+-- 

@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWD1UoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751802AbWD1Use@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbWD1UoH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 16:44:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWD1UoH
+	id S1751802AbWD1Use (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 16:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWD1Use
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 16:44:07 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:43935 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751234AbWD1UoG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 16:44:06 -0400
-Date: Sat, 29 Apr 2006 02:11:16 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: "Mauricio Lin" <mauriciolin@gmail.com>
-Cc: nagar@watson.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: schedstats: sched_info_switch() invocation without checking (prev != next) before
-Message-ID: <20060428204116.GA8301@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <3f250c710604281216k79ebe2c8ie63fb337cec8481a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3f250c710604281216k79ebe2c8ie63fb337cec8481a@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+	Fri, 28 Apr 2006 16:48:34 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:20048 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1751787AbWD1Usd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 16:48:33 -0400
+Message-ID: <44527F9B.6040500@tls.msk.ru>
+Date: Sat, 29 Apr 2006 00:48:27 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mail/News 1.5 (X11/20060318)
+MIME-Version: 1.0
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Ulrich Drepper <drepper@gmail.com>,
+       Axelle Apvrille <axelle_apvrille@yahoo.fr>, Nix <nix@esperi.org.uk>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       disec-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication
+ of binaries
+References: <87slo2nn0b.fsf@hades.wkstn.nix> <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com> <a36005b50604280833k5a811384r5f3a6f92dd707256@mail.gmail.com> <20060428160914.GA31473@sergelap.austin.ibm.com> <1146240670.3126.20.camel@laptopd505.fenrus.org> <20060428162904.GB31473@sergelap.austin.ibm.com>
+In-Reply-To: <20060428162904.GB31473@sergelap.austin.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+OpenPGP: id=4F9CF57E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Serge E. Hallyn wrote:
+> Quoting Arjan van de Ven (arjan@infradead.org):
+>>> A one time effort to write it *and sign it*.
+>> you don't sign nor need to sign perl or bash scripts. Why would a loader
+>> be written in ELF itself? There's absolutely no reason for that.
 > 
-> Look that sched_info_switch() is being invoked before verifying if the
-> prev and next tasks are different or not. IMHO the more logical place
-> to put sched_info_switch() function is inside the if (likely(prev !=
-> next) { } block according to the comments mentioned previously.
+> Yup, that's an unfortunate shortcoming.  We'd been wanting to re-post to
+> lkml for a long time to get ideas to fix that.
 > 
-> Any comments?
-> 
+> I had an extension to digsig earlier which enabled signing shellscripts
+> using xattrs (just because it was a trivial task), but that's clearly
+> insufficient as it would catch "./myscript.pl" but not "perl
+> myscript.pl".
 
-Yes, I think your analysis seems correct. There is an advantages
-to calling sched_info_switch() before checking for prev != next in
-the if (likely()).
+Another thing to do is to modify perl to verify signatures of
+the scripts it's executing, sign *that* perl binary, and disallow
+executing of unsigned perl scripts...
 
-if prev == next, sched_info_switch() updates the task and runqueue statistics
-information (that helps keeping it up to date). This might be useful
-for SCHED_FIFO.
-
--- 
-					<---	Balbir
+/mjt, who's joking only partially.

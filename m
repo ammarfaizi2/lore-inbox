@@ -1,206 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWD1Bgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030258AbWD1BiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030244AbWD1Bgc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 21:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWD1Bf4
+	id S1030258AbWD1BiI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 21:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbWD1Bh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 21:35:56 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:38629 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030244AbWD1BfI
+	Thu, 27 Apr 2006 21:37:58 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:61918 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030252AbWD1Bfx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 21:35:08 -0400
+	Thu, 27 Apr 2006 21:35:53 -0400
 From: Chandra Seetharaman <sekharan@us.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org,
        ckrm-tech@lists.sourceforge.net
 Cc: Chandra Seetharaman <sekharan@us.ibm.com>
-Date: Thu, 27 Apr 2006 18:35:06 -0700
-Message-Id: <20060428013506.27212.17402.sendpatchset@localhost.localdomain>
-In-Reply-To: <20060428013410.27212.45968.sendpatchset@localhost.localdomain>
-References: <20060428013410.27212.45968.sendpatchset@localhost.localdomain>
-Subject: [PATCH 10/12] Add shares file support to RGCS
+Date: Thu, 27 Apr 2006 18:35:52 -0700
+Message-Id: <20060428013552.27212.84332.sendpatchset@localhost.localdomain>
+In-Reply-To: <20060428013518.27212.954.sendpatchset@localhost.localdomain>
+References: <20060428013518.27212.954.sendpatchset@localhost.localdomain>
+Subject: [PATCH 6/6] numtasks - Documentation for Numtasks controller
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-10/12 - user_interface_shares
+6/6: numtasks_docs
 
-Adds attr_store and attr_show support for shares file.
+Documents what the numtasks controller does and how to use it.
 --
 
 Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
-Signed-Off-By: Shailabh Nagar <nagar@watson.ibm.com>
 Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
 
- rgcs.c |  136 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 136 insertions(+)
+ numtasks |  133 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 133 insertions(+)
 
-Index: linux-2617-rc3/kernel/res_group/rgcs.c
+Index: linux-2617-rc3/Documentation/res_groups/numtasks
 ===================================================================
---- linux-2617-rc3.orig/kernel/res_group/rgcs.c	2006-04-27 10:18:45.000000000 -0700
-+++ linux-2617-rc3/kernel/res_group/rgcs.c	2006-04-27 10:18:47.000000000 -0700
-@@ -21,6 +21,9 @@
- #include "local.h"
- 
- #define RES_STRING "res"
-+#define MIN_SHARES_STRING "min_shares"
-+#define MAX_SHARES_STRING "max_shares"
-+#define CHILD_SHARES_DIVISOR_STRING "child_shares_divisor"
- 
- static ssize_t show_stats(struct resource_group *rgroup, char *buf)
- {
-@@ -117,6 +120,128 @@ done:
- 	return rc;
- }
- 
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2617-rc3/Documentation/res_groups/numtasks	2006-04-27 10:14:30.000000000 -0700
+@@ -0,0 +1,133 @@
++Introduction
++-------------
 +
-+enum share_token_t {
-+	MIN_SHARES_TOKEN,
-+	MAX_SHARES_TOKEN,
-+	CHILD_SHARES_DIVISOR_TOKEN,
-+	RESOURCE_TYPE_TOKEN,
-+	ERROR_TOKEN
-+};
++Numtasks is a resource controller under the Resource Groups framework that
++allows the user/sysadmin to
++	- manage the number of tasks a resource group can create.
++       - limit the fork rate across the system.
 +
-+/* Token matching for parsing input to this magic file */
-+static match_table_t shares_tokens = {
-+	{RESOURCE_TYPE_TOKEN, RES_STRING"=%s"},
-+	{MIN_SHARES_TOKEN, MIN_SHARES_STRING"=%d"},
-+	{MAX_SHARES_TOKEN, MAX_SHARES_STRING"=%d"},
-+	{CHILD_SHARES_DIVISOR_TOKEN, CHILD_SHARES_DIVISOR_STRING"=%d"},
-+	{ERROR_TOKEN, NULL}
-+};
++As with any other resource under the Resource Groups framework, numtasks also
++assigns all the resources to the default resource group(/config/res_groups).
++Since, the number of tasks in a system is not limited, this resource controller
++provides a way to set the total number of tasks available in the system through
++the config file. The config variable that affect this is total_numtasks.
 +
-+static int shares_parse(const char *options, char **resname,
-+					struct res_shares *shares)
-+{
-+	char *p;
-+	int option, rc = -EINVAL;
++This resource controller also allows the sysadmin to limit the number of forks
++that are allowed in the system within the specified number of seconds. This
++can be acheived by changing the attributes forkrate and forkrate_interval in
++the config file. Using this feature one can protect the system from being
++attacked by fork bomb type applications.
 +
-+	*resname = NULL;
-+	if (!options)
-+		goto done;
-+	while ((p = strsep((char **)&options, ",")) != NULL) {
-+		substring_t args[MAX_OPT_ARGS];
-+		int token;
++Configuration parameters of numtasks controller (forkrate, total_numtasks
++and forkrate_interval) can be read/changed through the modparam interface
++/sys/module/numtasks/parameters/
 +
-+		if (!*p)
-+			continue;
-+		token = match_token(p, shares_tokens, args);
-+		switch (token) {
-+		case RESOURCE_TYPE_TOKEN:
-+			if (*resname)
-+				goto done;
-+			*resname = match_strdup(args);
-+			break;
-+		case MIN_SHARES_TOKEN:
-+			if (match_int(args, &option))
-+				goto done;
-+			shares->min_shares = option;
-+			break;
-+		case MAX_SHARES_TOKEN:
-+			if (match_int(args, &option))
-+				goto done;
-+			shares->max_shares = option;
-+			break;
-+		case CHILD_SHARES_DIVISOR_TOKEN:
-+			if (match_int(args, &option))
-+				goto done;
-+			shares->child_shares_divisor = option;
-+			break;
-+		default:
-+			goto done;
-+		}
-+	}
-+	rc = 0;
-+done:
-+	if (rc) {
-+		kfree(*resname);
-+		*resname = NULL;
-+	}
-+	return rc;
-+}
++Installation
++-------------
 +
-+static int set_shares(struct resource_group *rgroup, const char *str)
-+{
-+	char *resname = NULL;
-+	int rc;
-+	struct res_controller *ctlr;
-+	struct res_shares shares = {
-+		.min_shares = SHARE_UNCHANGED,
-+		.max_shares = SHARE_UNCHANGED,
-+		.child_shares_divisor = SHARE_UNCHANGED,
-+	};
++1. Configure "Number of Tasks Resource Manager" under Resource Groups (see
++      Documentation/res_groups/installation).
 +
-+	rc = shares_parse(str, &resname, &shares);
-+	if (!rc) {
-+		ctlr = get_controller_by_name(resname);
-+		if (ctlr) {
-+			rc = set_controller_shares(rgroup, ctlr, &shares);
-+			put_controller(ctlr);
-+		} else
-+			rc = -EINVAL;
-+		kfree(resname);
-+	}
-+	return rc;
-+}
++2. Reboot the system with the new kernel.
 +
-+static ssize_t show_shares(struct resource_group *rgroup, char *buf)
-+{
-+	int i;
-+	ssize_t j, rc = 0, bufsize = PAGE_SIZE;
-+	struct res_shares *shares;
-+	struct res_controller *ctlr;
++3. Verify the controller's presence by reading the file
++   /config/res_groups/shares (should show a line with res=numtasks)
 +
-+	for (i = 0; i < MAX_RES_CTLRS; i++) {
-+		ctlr = get_controller_by_id(i);
-+		if (!ctlr)
-+			continue;
-+		shares = get_controller_shares(rgroup, ctlr);
-+		if (shares) {
-+			if (bufsize <= 0)
-+				break;
-+			j = snprintf(buf, bufsize, "%s=%s,%s=%d,%s=%d,%s=%d\n",
-+				RES_STRING, ctlr->name,
-+				MIN_SHARES_STRING, shares->min_shares,
-+				MAX_SHARES_STRING, shares->max_shares,
-+				CHILD_SHARES_DIVISOR_STRING,
-+				shares->child_shares_divisor);
-+			rc += j; buf += j; bufsize -= j;
-+		}
-+		put_controller(ctlr);
-+	}
-+	if (i < MAX_RES_CTLRS)
-+		rc = -ENOSPC;
-+	return rc;
-+}
++Usage
++-----
 +
- struct rgroup_attribute {
- 	struct configfs_attribute configfs_attr;
- 	ssize_t (*show)(struct resource_group *, char *);
-@@ -133,6 +258,16 @@ struct rgroup_attribute stats_attr = {
- 	.store = reset_stats
- };
- 
-+struct rgroup_attribute shares_attr = {
-+	.configfs_attr = {
-+		.ca_name = "shares",
-+		.ca_owner = THIS_MODULE,
-+		.ca_mode = S_IRUGO | S_IWUSR
-+	},
-+	.show = show_shares,
-+	.store = set_shares
-+};
++For brevity, unless otherwise specified all the following commands are
++executed in the default resource group(/config/res_groups).
 +
- static struct configfs_subsystem rgcs_subsys;
- static struct config_item_type rgcs_item_type;
- 
-@@ -281,6 +416,7 @@ static struct configfs_group_operations 
- 
- static struct configfs_attribute *rgroup_attrs[] = {
- 	&stats_attr.configfs_attr,
-+	&shares_attr.configfs_attr,
- 	NULL
- };
- 
++As explained above, files in /sys/module/numtasks/parameters/
++shows total_numtasks and forkrate info.
++
++   # cd /sys/module/numtasks/parameters/
++   # ls
++   .  ..  forkrate  forkrate_interval  total_numtasks
++   # cat total_numtasks
++   2147483647
++   		# value is INT_MAX which means unlimited
++   # cat forkrate
++   2147483647
++   		# value is INT_MAX which means unlimited
++   # cat forkrate_interval
++   1
++   		# forkrate forks are allowed per 1 sec
++
++By default, the total_numtasks is set to "unlimited", forkrate is set
++to "unlimited" and forkrate_interval is set to 1 second. Which means the
++total number of tasks in a system is unlimited and the forks per second is
++also unlimited.
++
++sysadmin can change these values by just writing the attribute/value pair
++to the config file.
++
++   # echo 10000 > forkrate
++   # cat forkrate
++   10000
++   # echo 100001 > total_numtasks
++   # cat total_numtasks
++   100001
++
++By making child_shares_divisor to be same as total_numtasks, sysadmin can
++make the numbers in shares file be same as the number of tasks for a
++resource group.
++In other words, the numbers in shares file will be the absolute number of
++tasks a resource group is allowed.
++
++   # cd /config/res_groups
++   # cat shares
++   res=numtasks,min_shares=-3,max_shares=-3,child_shares_divisor=100
++   # echo res=numtasks,child_shares_divisor=1000 > shares
++   # cat shares
++   res=numtasks,min_shares=-3,max_shares=-3,child_shares_divisor=1000
++
++Class creation
++--------------
++
++   # mkdir c1
++
++Its initial share is don't care. The parent's share values will be unchanged.
++
++Setting a new resource group share
++-------------------------
++
++'min_shares' specifies the number of tasks this resource group is entitled
++to get
++'max_shares' is the maximum number of tasks this resource group can get.
++
++Following command will set the min_shares of resource group c1 to be 250
++and max_shares to be 500
++
++   # echo 'res=numtasks,min_shares=250,max_shares=500' > c1/shares
++   # cat c1/shares
++   res=numtasks,min_shares=250,max_shares=500,child_shares_divisor=100
++
++Note that the min_shares of 250 and max_shares of 500 is w.r.t the
++paren't's 1000 above, and not the absolute numbers.
++
++Limiting forks in a time period
++-------------------------------
++By default, this resource controller allows unlimited forks per second.
++
++Following commands would change it to allow only 100 forks per 10 seconds
++
++   # cd /sys/module/numtasks/parameters
++   # cat 100 > forkrate
++   # cat 10 > forkrate_interval
++
++Note that the same set of values is used across the system. In other words,
++each individual resource group will be allowed 'forkrate' forks in
++'forkrate_interval' seconds.
++
++Monitoring
++----------
++
++stats file shows statistics of the number of tasks usage of a resource
++group
++   # cd /config/res_groups
++   # cat stats
++   numtasks: Number of successes 12554
++   numtasks: Number of failures 0
++   numtasks: Number of forkrate failures 0
 
 -- 
 

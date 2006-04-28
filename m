@@ -1,72 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965001AbWD1XsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWD1XxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965001AbWD1XsG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 19:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbWD1XsG
+	id S932457AbWD1XxT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 19:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWD1XxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 19:48:06 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:60318 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965001AbWD1XsE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 19:48:04 -0400
-Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, ashok.raj@intel.com,
-       Alan Stern <stern@rowland.harvard.edu>, herbert@13thfloor.at,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com
-In-Reply-To: <Pine.LNX.4.64.0604281632150.3701@g5.osdl.org>
-References: <Pine.LNX.4.44L0.0604261144010.6376-100000@iolanthe.rowland.org>
-	 <1146075534.24650.11.camel@linuxchandra>
-	 <20060426114348.51e8e978.akpm@osdl.org>
-	 <20060426122926.A31482@unix-os.sc.intel.com>
-	 <1146082893.24650.27.camel@linuxchandra>
-	 <20060426132644.A31761@unix-os.sc.intel.com>
-	 <1146265920.7063.133.camel@linuxchandra>
-	 <20060428162302.79926325.akpm@osdl.org>
-	 <Pine.LNX.4.64.0604281632150.3701@g5.osdl.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 28 Apr 2006 16:48:02 -0700
-Message-Id: <1146268082.7063.144.camel@linuxchandra>
+	Fri, 28 Apr 2006 19:53:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14496 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932457AbWD1XxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 19:53:19 -0400
+Date: Fri, 28 Apr 2006 16:55:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 0/6] UML - Small patches for 2.6.17
+Message-Id: <20060428165534.6067f5aa.akpm@osdl.org>
+In-Reply-To: <200604281601.k3SG11MJ007510@ccure.user-mode-linux.org>
+References: <200604281601.k3SG11MJ007510@ccure.user-mode-linux.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 16:33 -0700, Linus Torvalds wrote:
-> 
-> On Fri, 28 Apr 2006, Andrew Morton wrote:
-> > 
-> > hm.  I'm leaning more towards doing something expedient and obvious for
-> > 2.6.17.  It's pretty late in the cycle, and the only downside is the loss
-> > of a kbyte or two.  Plus I'll be at linuxtag next week and won't be around to
-> > help out.
-> > 
-> > So if it's OK, can we do something minimal, revisit it after 2.6.17?
-> 
-> I'm personally fine with the current state: it should be stable and work.
+Jeff Dike <jdike@addtoit.com> wrote:
+>
+> These patches are 2.6.17 material.
 
-in that case _no_ change would be the best option.
+"remove NULL checks and add some CodingStyle" isn't.  Unless one considers
+UML coding style to be a bug, which is an attractive idea ;)
 
-> If there are any remaining _bugs_ that people know about, please send 
-> fixes to me, but I think we can definitely leave the "free the unnecessary
-
-No bugs that i know of.
- 
-> memory" stuff to after 2.6.17.
-
-sounds good.
-> 
-> 		Linus
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+So I gave that one an extra-special look - I'll push it along, thanks.

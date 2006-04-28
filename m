@@ -1,44 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbWD1Qvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWD1Q6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030452AbWD1Qvf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 12:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030456AbWD1Qvf
+	id S1751424AbWD1Q6J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 12:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWD1Q6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 12:51:35 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:18953 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1030452AbWD1Qve (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 12:51:34 -0400
-Message-ID: <44524811.4060405@argo.co.il>
-Date: Fri, 28 Apr 2006 19:51:29 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Denis Vlasenko <vda@ilport.com.ua>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Roman Kononov <kononov195-far@yahoo.com>,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il> <200604271655.48757.vda@ilport.com.ua> <4450D4E9.4050606@argo.co.il> <Pine.LNX.4.61.0604281748470.9011@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0604281748470.9011@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 28 Apr 2006 12:58:09 -0400
+Received: from tresys.irides.com ([216.250.243.126]:7638 "EHLO
+	exchange.columbia.tresys.com") by vger.kernel.org with ESMTP
+	id S1751399AbWD1Q6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 12:58:07 -0400
+Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11]
+	security: AppArmor - Overview
+From: Karl MacMillan <kmacmillan@tresys.com>
+To: casey@schaufler-ca.com
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
+       Andi Kleen <ak@suse.de>, Ken Brush <kbrush@gmail.com>,
+       Neil Brown <neilb@suse.de>, James Morris <jmorris@namei.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org
+In-Reply-To: <20060428154928.40409.qmail@web36603.mail.mud.yahoo.com>
+References: <20060428154928.40409.qmail@web36603.mail.mud.yahoo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Apr 2006 16:51:32.0810 (UTC) FILETIME=[00F9DAA0:01C66AE4]
+Date: Fri, 28 Apr 2006 12:56:05 -0400
+Message-Id: <1146243365.15747.40.camel@jackjack.columbia.tresys.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->> It still can't typecheck void pointers. With C++ they're very rare.
->>
->>     
-> Using C++ just because one can't verify that all type conversions in a C 
-> program from/to void* are as they are supposed to be is... well, think of 
-> something.
->   
+On Fri, 2006-04-28 at 08:49 -0700, Casey Schaufler wrote:
+> 
+> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> 
+> > But this is a temporary situation, until we have the
+> > infrastructure and
+> > tools developed to make MAC truly manageable by
+> > typical end users.  Not
+> > an inherent problem.
+> 
+> Oh come on! I've been hearing that saw continueously
+> since 1987. Mandatory MAC (as opposed to targeted MAC)
+> is hard on sysadmins. It will remain so. SELinux,
+> Trusted Solaris, Trusted IRIX, and anyone else are all
+> a pain in the bum and will remain so.
 
-If you remove the 'just', I'd say 'a way to catch more bugs at compile 
-time'.
+Grouping SELinux with previous trusted systems doesn't make sense to me.
+
+Administering non-MLS SELinux systems is already easier than
+administering traditional MAC systems like Trusted Solaris and Trusted
+IRIX. Much of the pain from tradition MAC systems comes from the
+mismatch between MLS and the real world of unix and unix administration.
+I know that you will disagree with this because you believe that MLS and
+BIBA are simplier than TE, but that doesn't match my experience or the
+feedback we get from our customers.
+
+
+Karl
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+Karl MacMillan
+Tresys Technology
+www.tresys.com
+
+> Tools are going
+> to help only to a limited extent, they never make all
+> the pain go away. Smarter people than I have been
+> working on the problem for 20 years and I believe that
+> it's safe to say there is no magic wand that will
+> make the problems all go away.
+> 
+> I like MAC. I like the Iron Fist approach to software
+> security. I just don't believe that there's a glove
+> with velvet thick enough to please the masses.
+> 
+> 
+> Casey Schaufler
+> casey@schaufler-ca.com
 

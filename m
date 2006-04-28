@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbWD1IKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWD1IPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030317AbWD1IKE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 04:10:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWD1IKE
+	id S1030315AbWD1IPl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 04:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbWD1IPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 04:10:04 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:41366 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1030317AbWD1IKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 04:10:03 -0400
-Date: Fri, 28 Apr 2006 11:10:00 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Christoph Lameter <clameter@sgi.com>
-cc: Or Gerlitz <ogerlitz@voltaire.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, open-iscsi@googlegroups.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: possible bug in kmem_cache related code
-In-Reply-To: <Pine.LNX.4.64.0604271510240.27370@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0604281108110.12202@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.44.0604271138370.16357-101000@zuben>
- <84144f020604270419s10696877he2ec27ae6d52e486@mail.gmail.com>
- <Pine.LNX.4.64.0604271510240.27370@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 28 Apr 2006 04:15:41 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:40569 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030315AbWD1IPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 04:15:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Rxq41u7/Dm6xUBPWfayUwBHuxtP4Mk8rBuNSHQJHSnoCO++fkWaz7fxZoGO8Yw7C08Bncyn6jQycht+Go3eNUgZyoQkHNH7st9ppUSJRiSzWVfpht+t5n7oxA41OCKd89F5HbV46XLniUHof6kSWZLzmbIlyJLDNpDthelC+6Ms=  ;
+Message-ID: <4451CA41.5070101@yahoo.com.au>
+Date: Fri, 28 Apr 2006 17:54:41 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Magnus Damm <magnus.damm@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: i386 and PAE: pud_present()
+References: <aec7e5c30604280040p60cc7c7dqc6fb6fbdd9506a6b@mail.gmail.com>
+In-Reply-To: <aec7e5c30604280040p60cc7c7dqc6fb6fbdd9506a6b@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/27/06, Or Gerlitz <ogerlitz@voltaire.com> wrote:
-> > > With 2.6.17-rc3 I'm running into something which seems as a bug related
-> > > to kmem_cache. Doing some allocations/deallocations from a kmem_cache and
-> > > later attempting to destroy it yields the following message and trace
-
-On Thu, 27 Apr 2006, Pekka Enberg wrote:
-> > Tested on 2.6.16.7 and works ok. Christoph, could this be related to
-> > the cache draining patches that went in 2.6.17-rc1?
-
-On Thu, 27 Apr 2006, Christoph Lameter wrote:
-> What happened to that part of the slab allocator? Looks completely  
-> changed to when I saw it the last time?
+Magnus Damm wrote:
+> Hi guys,
 > 
-> This directly fails in kmem_cache_destroy?
+> In file include/asm-i386/pgtable-3level.h:
 > 
-> So it tries to free all the slab entries from the free list and then 
-> returns 1 or 2 if there are entries left on the partial and full 
-> list? So the bug happens if cache entries are left.
+> On i386 with PAE enabled, shouldn't pud_present() return (pud_val(pud)
+> & _PAGE_PRESENT) instead of constant 1?
 > 
-> Guess the reason for this failure is then that not all cache entries have 
-> been freed before calling kmem_cache_destroy()?
+> Today pud_present() returns constant 1 regardless of PAE or not. This
+> looks wrong to me, but maybe I'm misunderstanding how to fold the page
+> tables... =)
 
-I can't reproduce this with Linus' git head on User-mode Linux running on 
-UP i386. Or, can you reproduce this at will? Any local modifications? Can 
-we see your .config, please.
+Take a look a little further down the page for the comment.
 
-					Pekka
+In i386 + PAE, pud is always present.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965141AbWD1A1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbWD1AUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965141AbWD1A1N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 20:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWD1A1H
+	id S1751824AbWD1AUi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 20:20:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbWD1AUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 20:27:07 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:40157 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S965141AbWD1A1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 20:27:03 -0400
-Date: Fri, 28 Apr 2006 09:27:54 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
-       vgoyal@in.ibm.com, ebiederm@xmission.com, nanhai.zou@intel.com
-Subject: Re: [Lhms-devel] Re: [PATCH] register hot-added memory to iomem
- resource
-Message-Id: <20060428092754.cf382d03.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060427160130.6149550f.akpm@osdl.org>
-References: <20060427204904.5037f6ea.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060427160130.6149550f.akpm@osdl.org>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Thu, 27 Apr 2006 20:20:06 -0400
+Received: from mx1.suse.de ([195.135.220.2]:29401 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751735AbWD1AUA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 20:20:00 -0400
+Date: Thu, 27 Apr 2006 17:18:27 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Michael Krufky <mkrufky@linuxtv.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 08/24] get_dvb_firmware: download nxt2002 firmware from new driver location
+Message-ID: <20060428001827.GI18750@kroah.com>
+References: <20060428001226.204293000@quad.kroah.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="get_dvb_firmware-download-nxt2002-firmware-from-new-driver-location.patch"
+In-Reply-To: <20060428001557.GA18750@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Apr 2006 16:01:30 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+-stable review patch.  If anyone has any objections, please let us know.
 
-> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
-> >
-> > This patch registers hot-added memory to iomem_resource.
-> > By this, /proc/iomem can show hot-added memory.
-> > This patch is against 2.6.17-rc2-mm1.
-> > 
-> > Note: kdump uses /proc/iomem to catch memory range when it is installed.
-> >       So, kdump should be re-installed after /proc/iomem change.
-> > 
-> 
-> What do you mean by "kdump should be reinstalled"?  The kdump userspace
-> tools need to re-run kexec_load()?
-> 
-yes. I heard an admin has to re-run kexec_load.
-- http://www.uwsg.indiana.edu/hypermail/linux/kernel/0604.0/0821.html
-- http://www.uwsg.indiana.edu/hypermail/linux/kernel/0604.0/0829.html
-Added CC to ebiederm@xmission.com, nanhai.zou@intel.com
+------------------
+From: Michael Krufky <mkrufky@linuxtv.org>
 
-> If so, why?
-> 
-It reads physical memory list from /proc/iomem now.
-The physical memory list is read and saved at kdump kernel loading time
-instead of crashing time. 
+BBTI has updated their driver, and removed the old one from their website.
+This patch updates the get_dvb_firmware script to download the firmware
+from the new driver location.
 
-> And how is kdump to know that memory was hot-added?  Do we generate a
-> hotplug event?
-> 
-A user program has to make memory section online from sysfs , anyway.
-
-The hotplug script for memory hotplug will run at memory hotplug event 
-from ACPI. If a user uses /probe interface (powerpc, x86_64),
-he knows what he does. 
-
-hot-add -> online memory -> kexec_load() is a scenario I think of.
-
-Thanks,
--Kame
+Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
+---
+ Documentation/dvb/get_dvb_firmware |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
+--- linux-2.6.16.11.orig/Documentation/dvb/get_dvb_firmware
++++ linux-2.6.16.11/Documentation/dvb/get_dvb_firmware
+@@ -240,9 +240,9 @@ sub dibusb {
+ }
+ 
+ sub nxt2002 {
+-    my $sourcefile = "Broadband4PC_4_2_11.zip";
++    my $sourcefile = "Technisat_DVB-PC_4_4_COMPACT.zip";
+     my $url = "http://www.bbti.us/download/windows/$sourcefile";
+-    my $hash = "c6d2ea47a8f456d887ada0cfb718ff2a";
++    my $hash = "476befae8c7c1bb9648954060b1eec1f";
+     my $outfile = "dvb-fe-nxt2002.fw";
+     my $tmpdir = tempdir(DIR => "/tmp", CLEANUP => 1);
+ 
+@@ -250,8 +250,8 @@ sub nxt2002 {
+ 
+     wgetfile($sourcefile, $url);
+     unzip($sourcefile, $tmpdir);
+-    verify("$tmpdir/SkyNETU.sys", $hash);
+-    extract("$tmpdir/SkyNETU.sys", 375832, 5908, $outfile);
++    verify("$tmpdir/SkyNET.sys", $hash);
++    extract("$tmpdir/SkyNET.sys", 331624, 5908, $outfile);
+ 
+     $outfile;
+ }
+
+--

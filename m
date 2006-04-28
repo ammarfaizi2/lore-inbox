@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbWD1IjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbWD1JLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030369AbWD1IjG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 04:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbWD1IjG
+	id S1030328AbWD1JLD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 05:11:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965205AbWD1JLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 04:39:06 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:5962 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030369AbWD1IjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 04:39:05 -0400
-Date: Fri, 28 Apr 2006 10:39:03 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [patch 11/13] s390: instruction processing damage handling.
-Message-ID: <20060428083903.GA11819@osiris.boeblingen.de.ibm.com>
-References: <20060424150544.GL15613@skybase> <20060428073358.GA15166@filer.fsl.cs.sunysb.edu>
+	Fri, 28 Apr 2006 05:11:03 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52940 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965201AbWD1JLB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 05:11:01 -0400
+Date: Fri, 28 Apr 2006 11:10:16 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <npiggin@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+Message-ID: <20060428091006.GA12001@elf.ucw.cz>
+References: <20060426135310.GB5083@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060428073358.GA15166@filer.fsl.cs.sunysb.edu>
-User-Agent: mutt-ng/devel-r802 (Linux)
+In-Reply-To: <20060426135310.GB5083@suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 28, 2006 at 04:33:58AM -0400, Josef Sipek wrote:
-> On Mon, Apr 24, 2006 at 05:05:44PM +0200, Martin Schwidefsky wrote:
-> > +++ linux-2.6-patched/drivers/s390/s390mach.c	2006-04-24 16:47:28.000000000 +0200
-> ...
-> > +#define MAX_IPD_TIME	(5 * 60 * 100 * 1000) /* 5 minutes */
+On St 26-04-06 15:53:10, Jens Axboe wrote:
+> Hi,
 > 
-> I'm no s390 expert, but shouldn't the above use something like HZ?
+> Running a splice benchmark on a 4-way IPF box, I decided to give the
+> lockless page cache patches from Nick a spin. I've attached the results
+> as a png, it pretty much speaks for itself.
+> 
+> The test in question splices a 1GiB file to a pipe and then splices that
+> to some output. Normally that output would be something interesting, in
+> this case it's simply /dev/null. So it tests the input side of things
+> only, which is what I wanted to do here. To get adequate runtime, the
+> operation is repeated a number of times (120 in this example). The
+> benchmark does that number of loops with 1, 2, 3, and 4 clients each
+> pinned to a private CPU. The pinning is mainly done for more stable
+> results.
 
-Using HZ here feels just wrong to me. MAX_IPD_TIME has nothing to do with the
-timer frequency. In this case it's used to tell if there were 30 machine
-checks within the last 5 minutes (in a usec granularity). It's just by
-accident that this could be expressed using HZ.
-(5 * 60 * USEC_PER_SEC) would probably look better...
+35GB/sec, AFAICS? Not sure how significant this benchmark is.. even
+with 4 clients, you have 2.5GB/sec, and that is better than almost
+anything you can splice to...
+								Pavel
+-- 
+Thanks for all the (sleeping) penguins.

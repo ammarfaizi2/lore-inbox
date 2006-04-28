@@ -1,77 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbWD1CEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbWD1CKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbWD1CEb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 22:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbWD1CEb
+	id S965176AbWD1CKV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 22:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbWD1CKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 22:04:31 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:3815 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965147AbWD1CEa (ORCPT
+	Thu, 27 Apr 2006 22:10:21 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:48359 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965176AbWD1CKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 22:04:30 -0400
+	Thu, 27 Apr 2006 22:10:21 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 28 Apr 2006 12:04:25 +1000
+Date: Fri, 28 Apr 2006 12:10:09 +1000
+Message-Id: <1060428021009.22231@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: [PATCH INTRO] Re: [RFC] copy_from_user races with readpage
-In-Reply-To: message from Andrew Morton on Wednesday April 19
-References: <200604191318.45738.mason@suse.com>
-	<20060419134148.262c61cd.akpm@osdl.org>
-Subject: [PATCH 000 of 2] Introduction
-Message-ID: <20060428114321.21969.patches@notabene>
+Subject: [PATCH 001 of 2] Prepare  for __copy_from_user_inatomic to not zero missed bytes.
+References: <20060428114321.21969.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday April 19, akpm@osdl.org wrote:
-> Chris Mason <mason@suse.com> wrote:
-> >
-> > Hello everyone,
-> > 
-> > I've been working with IBM on a long standing bug where zeros unexpectedly pop 
-> > up during a disk certification test.  We tracked it down to copy_from_user.  
-....
-> 
-> I'd have thought that a sufficient fix would be to change
-> __copy_from_user_inatomic() to not do the zeroing, then review all users to
-> make sure that they cannot leak uninitialised memory.
 
-So I'm following this up and trying to figure out how best to make this
-"right".
+There is a problem with __copy_from_user_inatomic zeroing the tail of
+the buffer in the case of an error.  As it is called in atomic
+context, the error may be transient, so it results in zeros being
+written where maybe they shouldn't be.
 
-Following are two patches.  
-The first is the result of the suggested "review".
-The only users of copy_from_user_inatomic that cannot safely lose the
-zeroing are two separate (but similar:-() implmentations of 
-  copy_from_user_iovec
-These I have 'fixed'.
+In the usage in filemap, this opens a window for a well timed read to
+see data (zeros) which is not consistent with any ordering of reads
+and writes.
 
-It is unfortunate that both chose to "know" exactly the difference between
-the _inatomic and the regular versions, and call _inatomic not in atomic context.
-It seems to suggest poor interface design, but I'm not sure exactly what
-the poor choice is.
+Most cases where __copy_from_user_inatomic is called, a failure results
+in __copy_from_user being called immediately.  As long as the latter
+zeros the tail, the former doesn't need to.
+However in *copy_from_user_iovec implementations (in both filemap 
+and ntfs/file), it is assumed that copy_from_user_inatomic will zero the
+tail.
 
-Also after reading this code I am very aware that on architectures that
-aren't saddled with highmem (e.g. 64bit) the duplication of copy_from_user
-is simply wasted icache space.  Possibly it might make sense to guard the first
-_inatomic copy with "if(PageHighMem(page))" which should complie it away to
-nothing when highmem isn't present.
+This patch removes that assumption, so that after this patch it will
+be safe for copy_from_user_inatomic to not zero the tail.
 
-The second patch changes __copy_from_user_inatomic to not do zeroing
-in i386.  I'm quite open to the possiblity of being told that something
-I did there is either very silly or very ugly or both.  However not being
-very experienced in arch/asm code I'm not sure what.  Constructive
-criticism very welcome.
+This patch also adds some commentary to filemap.h and asm-i386/uaccess.h.
 
-If happiness is achieved with these patches, we then need to look at similar
-patches for powerpc, mips, and sparc.
+After this patch, all architectures that might disable preempt when
+kmap_atomic is called need to have their __copy_from_user_inatomic* "fixed".
+This includes
+ - powerpc
+ - i386
+ - mips
+ - sparc
 
-Thanks for your time.
+Interestingly 'frv' disables preempt in kmap_atomic, but its
+copy_from_user doesn't expect faults and never zeros the tail...
 
-NeilBrown
+Signed-off-by: Neil Brown <neilb@suse.de>
 
+### Diffstat output
+ ./fs/ntfs/file.c             |   26 ++++++++++++++------------
+ ./include/asm-i386/uaccess.h |    6 ++++++
+ ./mm/filemap.c               |    8 ++------
+ ./mm/filemap.h               |   26 ++++++++++++++++++--------
+ 4 files changed, 40 insertions(+), 26 deletions(-)
 
- [PATCH 001 of 2] Prepare  for __copy_from_user_inatomic to not zero missed bytes.
- [PATCH 002 of 2] Make copy_from_user_inatomic NOT zero the tail on i386
+diff ./fs/ntfs/file.c~current~ ./fs/ntfs/file.c
+--- ./fs/ntfs/file.c~current~	2006-04-28 10:07:37.000000000 +1000
++++ ./fs/ntfs/file.c	2006-04-28 09:39:25.000000000 +1000
+@@ -1358,7 +1358,7 @@ err_out:
+ 	goto out;
+ }
+ 
+-static size_t __ntfs_copy_from_user_iovec(char *vaddr,
++static size_t __ntfs_copy_from_user_iovec_inatomic(char *vaddr,
+ 		const struct iovec *iov, size_t iov_ofs, size_t bytes)
+ {
+ 	size_t total = 0;
+@@ -1376,10 +1376,6 @@ static size_t __ntfs_copy_from_user_iove
+ 		bytes -= len;
+ 		vaddr += len;
+ 		if (unlikely(left)) {
+-			/*
+-			 * Zero the rest of the target like __copy_from_user().
+-			 */
+-			memset(vaddr, 0, bytes);
+ 			total -= left;
+ 			break;
+ 		}
+@@ -1420,11 +1416,13 @@ static inline void ntfs_set_next_iovec(c
+  * pages (out to offset + bytes), to emulate ntfs_copy_from_user()'s
+  * single-segment behaviour.
+  *
+- * We call the same helper (__ntfs_copy_from_user_iovec()) both when atomic and
+- * when not atomic.  This is ok because __ntfs_copy_from_user_iovec() calls
+- * __copy_from_user_inatomic() and it is ok to call this when non-atomic.  In
+- * fact, the only difference between __copy_from_user_inatomic() and
+- * __copy_from_user() is that the latter calls might_sleep().  And on many
++ * We call the same helper (__ntfs_copy_from_user_iovec_inatomic()) both
++ * when atomic and when not atomic.  This is ok because
++ * __ntfs_copy_from_user_iovec_inatomic() calls __copy_from_user_inatomic()
++ * and it is ok to call this when non-atomic.
++ * Infact, the only difference between __copy_from_user_inatomic() and
++ * __copy_from_user() is that the latter calls might_sleep() and the former
++ * should not zero the tail of the buffer on error.  And on many
+  * architectures __copy_from_user_inatomic() is just defined to
+  * __copy_from_user() so it makes no difference at all on those architectures.
+  */
+@@ -1441,14 +1439,18 @@ static inline size_t ntfs_copy_from_user
+ 		if (len > bytes)
+ 			len = bytes;
+ 		kaddr = kmap_atomic(*pages, KM_USER0);
+-		copied = __ntfs_copy_from_user_iovec(kaddr + ofs,
++		copied = __ntfs_copy_from_user_iovec_inatomic(kaddr + ofs,
+ 				*iov, *iov_ofs, len);
+ 		kunmap_atomic(kaddr, KM_USER0);
+ 		if (unlikely(copied != len)) {
+ 			/* Do it the slow way. */
+ 			kaddr = kmap(*pages);
+-			copied = __ntfs_copy_from_user_iovec(kaddr + ofs,
++			copied = __ntfs_copy_from_user_iovec_inatomic(kaddr + ofs,
+ 					*iov, *iov_ofs, len);
++			/*
++			 * Zero the rest of the target like __copy_from_user().
++			 */
++			memset(kaddr + ofs + copied, 0, len - copied);
+ 			kunmap(*pages);
+ 			if (unlikely(copied != len))
+ 				goto err_out;
+
+diff ./include/asm-i386/uaccess.h~current~ ./include/asm-i386/uaccess.h
+--- ./include/asm-i386/uaccess.h~current~	2006-04-28 10:07:37.000000000 +1000
++++ ./include/asm-i386/uaccess.h	2006-04-28 10:08:04.000000000 +1000
+@@ -459,6 +459,12 @@ __copy_to_user(void __user *to, const vo
+  *
+  * If some data could not be copied, this function will pad the copied
+  * data to the requested size using zero bytes.
++ *
++ * An alternate version - __copy_from_user_inatomic() - may be called from
++ * atomic context and will fail rather than sleep.  In this case the
++ * uncopied bytes will *NOT* be padded with zeros.  See fs/filemap.h
++ * for explanation of why this is needed.
++ * FIXME this isn't implimented yet EMXIF
+  */
+ static __always_inline unsigned long
+ __copy_from_user_inatomic(void *to, const void __user *from, unsigned long n)
+
+diff ./mm/filemap.c~current~ ./mm/filemap.c
+--- ./mm/filemap.c~current~	2006-04-28 10:07:37.000000000 +1000
++++ ./mm/filemap.c	2006-04-28 10:01:43.000000000 +1000
+@@ -1799,7 +1799,7 @@ int remove_suid(struct dentry *dentry)
+ EXPORT_SYMBOL(remove_suid);
+ 
+ size_t
+-__filemap_copy_from_user_iovec(char *vaddr, 
++__filemap_copy_from_user_iovec_inatomic(char *vaddr,
+ 			const struct iovec *iov, size_t base, size_t bytes)
+ {
+ 	size_t copied = 0, left = 0;
+@@ -1815,12 +1815,8 @@ __filemap_copy_from_user_iovec(char *vad
+ 		vaddr += copy;
+ 		iov++;
+ 
+-		if (unlikely(left)) {
+-			/* zero the rest of the target like __copy_from_user */
+-			if (bytes)
+-				memset(vaddr, 0, bytes);
++		if (unlikely(left))
+ 			break;
+-		}
+ 	}
+ 	return copied - left;
+ }
+
+diff ./mm/filemap.h~current~ ./mm/filemap.h
+--- ./mm/filemap.h~current~	2006-04-28 10:07:37.000000000 +1000
++++ ./mm/filemap.h	2006-04-28 10:02:03.000000000 +1000
+@@ -16,15 +16,23 @@
+ #include <linux/uaccess.h>
+ 
+ size_t
+-__filemap_copy_from_user_iovec(char *vaddr,
+-			       const struct iovec *iov,
+-			       size_t base,
+-			       size_t bytes);
++__filemap_copy_from_user_iovec_inatomic(char *vaddr,
++					const struct iovec *iov,
++					size_t base,
++					size_t bytes);
+ 
+ /*
+  * Copy as much as we can into the page and return the number of bytes which
+  * were sucessfully copied.  If a fault is encountered then clear the page
+  * out to (offset+bytes) and return the number of bytes which were copied.
++ *
++ * NOTE: For this to work reliably we really want copy_from_user_inatomic_nocache
++ * to *NOT* zero any tail of the buffer that it failed to copy.  If it does,
++ * and if the following non-atomic copy succeeds, then there is a small window
++ * where the target page contains neither the data before the write, nor the
++ * data after the write (it contains zero).  A read at this time will see
++ * data that is inconsistent with any ordering of the read and the write.
++ * (This has been detected in practice).
+  */
+ static inline size_t
+ filemap_copy_from_user(struct page *page, unsigned long offset,
+@@ -60,13 +68,15 @@ filemap_copy_from_user_iovec(struct page
+ 	size_t copied;
+ 
+ 	kaddr = kmap_atomic(page, KM_USER0);
+-	copied = __filemap_copy_from_user_iovec(kaddr + offset, iov,
+-						base, bytes);
++	copied = __filemap_copy_from_user_iovec_inatomic(kaddr + offset, iov,
++							 base, bytes);
+ 	kunmap_atomic(kaddr, KM_USER0);
+ 	if (copied != bytes) {
+ 		kaddr = kmap(page);
+-		copied = __filemap_copy_from_user_iovec(kaddr + offset, iov,
+-							base, bytes);
++		copied = __filemap_copy_from_user_iovec_inatomic(kaddr + offset, iov,
++								 base, bytes);
++		if (bytes - copied)
++			memset(kaddr + offset + copied, 0, bytes - copied);
+ 		kunmap(page);
+ 	}
+ 	return copied;

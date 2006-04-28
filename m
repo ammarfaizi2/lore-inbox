@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWD1XME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751787AbWD1XTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932486AbWD1XME (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 19:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWD1XME
+	id S1751787AbWD1XTp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 19:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWD1XTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 19:12:04 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:60873 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932486AbWD1XMD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 19:12:03 -0400
-Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
-Cc: Ashok Raj <ashok.raj@intel.com>, Alan Stern <stern@rowland.harvard.edu>,
-       herbert@13thfloor.at, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com, xfs-masters@oss.sgi.com
-In-Reply-To: <20060426132644.A31761@unix-os.sc.intel.com>
-References: <Pine.LNX.4.44L0.0604261144010.6376-100000@iolanthe.rowland.org>
-	 <1146075534.24650.11.camel@linuxchandra>
-	 <20060426114348.51e8e978.akpm@osdl.org>
-	 <20060426122926.A31482@unix-os.sc.intel.com>
-	 <1146082893.24650.27.camel@linuxchandra>
-	 <20060426132644.A31761@unix-os.sc.intel.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 28 Apr 2006 16:12:00 -0700
-Message-Id: <1146265920.7063.133.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Fri, 28 Apr 2006 19:19:45 -0400
+Received: from smtpout.mac.com ([17.250.248.185]:37073 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932491AbWD1XTo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 19:19:44 -0400
+In-Reply-To: <200604281409.00287.dvhltc@us.ibm.com>
+References: <200604281409.00287.dvhltc@us.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <E4F03A99-DFD6-4D59-81AA-DCE4129495DA@mac.com>
+Cc: Ingo Molnar <mingo@elte.hu>, "lkml, " <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: RT interrupt handling
+Date: Fri, 28 Apr 2006 19:19:29 -0400
+To: Darren Hart <dvhltc@us.ibm.com>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-04-26 at 13:26 -0700, Ashok Raj wrote:
+On Apr 28, 2006, at 17:08:59, Darren Hart wrote:
+> I ran into a situation where binding a realtime testsuite to cpu 0  
+> (on a 4 way opteron machine) locked the machine hard while binding  
+> it to cpu 2 worked fine.  Some investigation suggests that the  
+> interrupt handlers for eth0 and ioc0 (IRQ 24 and 26) had the  
+> smp_affinity mask set to only cpu 0.  With the test case running  
+> threads with rt prios in the 90s and the irqs running in the ~40s  
+> (don't recall, somewhere around there I think), it isn't surprising  
+> that the machine locked up.
+>
+> I'd like to hear people's thoughts on the following:
+>
+> o Why would those irqs be bound to just cpu 0?  Why not all cpus?
 
-Hi All,
+Are you running an irq balancing daemon of some sort?  (Or kernel IRQ  
+balancer?)  I believe those alter the CPU affinity for various  
+interrupt threads to optimize IRQ efficiency.
 
-Looks like the patches I provided is a step backward from where Ashok &
-Andrew were taking the register_cpu_notifier stuff to.
 
-After some discussions with Ashok we both think the following would be
-the right direction:
-	1 revert the changes i pushed recently
-	2 make all usages of register_cpu_notifier to be _init and 
-          __initdata (if hotplug cpu is defined these are removed)
-	3 export the symbols register_cpu_notifier and
-          unregister_cpu_notifier only in CONFIG_HOTPLUG_CPU is defined
-	4 move the hot plug cpu based usages of register_cpu_notifier
-	  inside #ifdef CONFIG_HOTPLUF_CPU(like xfs's usage).
+> o Is it reasonable to extend the smp_affinity for all interrupts to  
+> all cpus to minimize this type of problem?
 
-I have few questions:
- - any problems with the above direction (mainly 3) ?
- - Should we proceed in this direction ?
- - is it too late for 2.6.17 ? if not late how much time do we have ?
- 
-Many thanks to Alan for bringing up the issue.
+Probably so, although I would bet that it is already (unless I  
+misunderstand the situation).
 
-regards,
 
-chandra
+> o Should a userspace RT task be able to take down the system?  Do  
+> we roll with the spiderman addage "With great power comes great  
+> responsibility" when  discussing RT systems, or should we consider  
+> some kind of priority boosting mechanism for kernel services that  
+> must be run every so often to keep the system running?
 
-> On Wed, Apr 26, 2006 at 01:21:33PM -0700, Chandra Seetharaman wrote:
-> > > 
-> > > The problem we ran into was some of the startup code depends on the notifier
-> > > call chain for smp bringup, hence we couldn't nuke it similar to 
-> > > hotcpu_notifier().
-> > 
-> > I do not understand the problem. If everybody that uses
-> > register_cpu_notifier() starts using __cpuinit and __cpuinitdata (or the
-> > devinit siblings), then the notifier mechanism will not be any different
-> > than what they are now, right ? (both in hotplug cpu and non-hotplug cpu
-> > case) Or am i missing something ?
-> 
-> Well, register_cpu_notifier() is an exported function. There are several 
-> modules that use this today like cpufreq etc which disqualifies it to be
-> a init style function.
-> 
-> either that function should be devinit and be present premanently, or
-> should be mapped to null macro for correctness.
-> 
-> Otherwise module loaders will start to oops when they call into 
-> register.
-> 
--- 
+The general consensus is that Linux RT code strives to be as hard-RT  
+as possible, which means if you prioritize your code over the  
+networking interrupt, you expect to get runtime even when the network  
+card has work to do.  If you don't want it that way, don't set the  
+priorities that way :-D.
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
+Cheers,
+Kyle Moffett
 

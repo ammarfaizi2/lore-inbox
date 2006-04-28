@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbWD1AYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbWD1AX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965165AbWD1AYK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 20:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWD1AYI
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 20:24:08 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:63701 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965037AbWD1AX1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S965011AbWD1AX1 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 27 Apr 2006 20:23:27 -0400
-Date: Thu, 27 Apr 2006 17:21:54 -0700
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbWD1AXL
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 27 Apr 2006 20:23:11 -0400
+Received: from cantor.suse.de ([195.135.220.2]:12506 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965011AbWD1AXH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 20:23:07 -0400
+Date: Thu, 27 Apr 2006 17:21:29 -0700
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org,
        git-commits-head@vger.kernel.org
@@ -18,14 +18,14 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       James Morris <jmorris@namei.org>, Al Viro <viro@zeniv.linux.org.uk>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Chris Wright <chrisw@sous-sol.org>
-Subject: [patch 18/24] LSM: add missing hook to do_compat_readv_writev()
-Message-ID: <20060428002154.GS18750@kroah.com>
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 17/24] Alpha: strncpy() fix
+Message-ID: <20060428002129.GR18750@kroah.com>
 References: <20060428001226.204293000@quad.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="lsm-add-missing-hook-to-do_compat_readv_writev.patch"
+Content-Disposition: inline; filename="alpha-strncpy-fix.patch"
 In-Reply-To: <20060428001557.GA18750@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,39 +34,47 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: James Morris <jmorris@namei.org>
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 
-This patch addresses a flaw in LSM, where there is no mediation of readv()
-and writev() in for 32-bit compatible apps using a 64-bit kernel.
+[PATCH] Alpha: strncpy() fix
 
-This bug was discovered and fixed initially in the native readv/writev
-code [1], but was not fixed in the compat code.  Thanks to Al for spotting
-this one.
+As it turned out after recent SCSI changes, strncpy() was broken -
+it mixed up the return values from __stxncpy() in registers $24 and $27.
 
-  [1] http://lwn.net/Articles/154282/
+Thanks to Mathieu Chouquet-Stringer for tracking down the problem
+and providing an excellent test case.
 
-Signed-off-by: James Morris <jmorris@namei.org>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 
 ---
- fs/compat.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/alpha/lib/strncpy.S |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- linux-2.6.16.11.orig/fs/compat.c
-+++ linux-2.6.16.11/fs/compat.c
-@@ -1215,6 +1215,10 @@ static ssize_t compat_do_readv_writev(in
- 	if (ret < 0)
- 		goto out;
+--- linux-2.6.16.11.orig/arch/alpha/lib/strncpy.S
++++ linux-2.6.16.11/arch/alpha/lib/strncpy.S
+@@ -43,8 +43,8 @@ strncpy:
  
-+	ret = security_file_permission(file, type == READ ? MAY_READ:MAY_WRITE);
-+	if (ret)
-+		goto out;
-+
- 	fnv = NULL;
- 	if (type == READ) {
- 		fn = file->f_op->read;
+ 	.align	4
+ $multiword:
+-	subq	$24, 1, $2	# clear the final bits in the prev word
+-	or	$2, $24, $2
++	subq	$27, 1, $2	# clear the final bits in the prev word
++	or	$2, $27, $2
+ 	zapnot	$1, $2, $1
+ 	subq	$18, 1, $18
+ 
+@@ -70,8 +70,8 @@ $multiword:
+ 	bne	$18, 0b
+ 
+ 1:	ldq_u	$1, 0($16)	# clear the leading bits in the final word
+-	subq	$27, 1, $2
+-	or	$2, $27, $2
++	subq	$24, 1, $2
++	or	$2, $24, $2
+ 
+ 	zap	$1, $2, $1
+ 	stq_u	$1, 0($16)
 
 --

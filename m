@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWD1Hjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbWD1Hk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbWD1Hjh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 03:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWD1Hjg
+	id S1030302AbWD1Hk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 03:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWD1Hk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 03:39:36 -0400
-Received: from mail.gmx.de ([213.165.64.20]:9652 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030301AbWD1Hjg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 03:39:36 -0400
-X-Authenticated: #14349625
-Subject: Re: [PATCH 0/9] CPU controller
-From: Mike Galbraith <efault@gmx.de>
-To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-In-Reply-To: <20060428162612.7760628d.maeda.naoaki@jp.fujitsu.com>
-References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-	 <1146201936.7523.15.camel@homer>
-	 <20060428144859.a07bb5b2.maeda.naoaki@jp.fujitsu.com>
-	 <1146207589.7551.7.camel@homer>
-	 <20060428162612.7760628d.maeda.naoaki@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 09:41:09 +0200
-Message-Id: <1146210069.7551.31.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 28 Apr 2006 03:40:59 -0400
+Received: from pproxy.gmail.com ([64.233.166.183]:8465 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030302AbWD1Hk6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 03:40:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=OW6YAD5YkTZAtQQCg6wVskuet4rvUfocWklTj1qjoK4auABv+4Ixg9AxPeDAatDXhSHIIp2bY+Mn8rSw/EFMkH8aD6OJ03KgXH4GRZVrcLnIW2LvOuAR5MnYsq7eODTfQy6zQcqit15HObHjHHWOuzZkq2fId+qNk/krK94HBiA=
+Message-ID: <aec7e5c30604280040p60cc7c7dqc6fb6fbdd9506a6b@mail.gmail.com>
+Date: Fri, 28 Apr 2006 16:40:57 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Linux Memory Management" <linux-mm@kvack.org>
+Subject: i386 and PAE: pud_present()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 16:26 +0900, MAEDA Naoaki wrote:
-> On Fri, 28 Apr 2006 08:59:49 +0200
-> Mike Galbraith <efault@gmx.de> wrote:
-> > You simply cannot ignore interactive tasks.  At the very least, you have
-> > to disallow requeue if the resource limit has been exceeded, otherwise,
-> > this patch set is non-functional.
-> 
-> It can be easily implemented on top of the current code. Do you know a good
-> sample program that is judged as interactive but consumes lots of cpu?
+Hi guys,
 
-X sometimes, Mozilla sometimes,... KDE konsole when scrolling,...
-anything that on average sleeps more than roughly 5% of it's slice can
-starve you to death either alone, or (worse) with peers.
+In file include/asm-i386/pgtable-3level.h:
 
-	-Mike
+On i386 with PAE enabled, shouldn't pud_present() return (pud_val(pud)
+& _PAGE_PRESENT) instead of constant 1?
 
+Today pud_present() returns constant 1 regardless of PAE or not. This
+looks wrong to me, but maybe I'm misunderstanding how to fold the page
+tables... =)
+
+Thanks,
+
+/ magnus

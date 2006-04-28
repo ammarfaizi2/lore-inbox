@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751780AbWD1SFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWD1SOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751780AbWD1SFo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 14:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWD1SFo
+	id S1751781AbWD1SOu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 14:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWD1SOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 14:05:44 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:4266 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751780AbWD1SFn (ORCPT
+	Fri, 28 Apr 2006 14:14:50 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52406 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751781AbWD1SOt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 14:05:43 -0400
-Date: Fri, 28 Apr 2006 14:05:33 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc2-mm1
-Message-ID: <20060428180533.GC7061@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060427014141.06b88072.akpm@osdl.org> <pan.2006.04.27.15.47.20.688183@free.fr> <20060427180227.GA1404@in.ibm.com> <44523DB5.1050206@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 28 Apr 2006 14:14:49 -0400
+Date: Fri, 28 Apr 2006 20:14:05 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Ian Kent <raven@themaw.net>, Matt Mackall <mpm@selenic.com>
+Subject: Re: initcall warnings in 2.6.17
+Message-ID: <20060428181404.GB26821@elf.ucw.cz>
+References: <200604281406.34217.ak@suse.de> <20060428105403.250eb2d6.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <44523DB5.1050206@free.fr>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060428105403.250eb2d6.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 28, 2006 at 06:07:17PM +0200, matthieu castet wrote:
-> Vivek Goyal wrote:
-> >On Thu, Apr 27, 2006 at 05:47:25PM +0200, Matthieu CASTET wrote:
+On Pá 28-04-06 10:54:03, Andrew Morton wrote:
+> Andi Kleen <ak@suse.de> wrote:
 > >
-> >
-> >I think it would break on ppc64 as u64 is unsigned long. It should be
-> >explicitly typecasted to unsigned long long. Same is true for all the
-> >instances.
-> On 64 bits platform, unsigned long isn't the same as unsigned long long ?
+> > I still get
+> > 
+> > initcall at 0xffffffff807414c2: pci_iommu_init+0x0/0x501(): returned with error code -1
 > 
-> Do you mean there will be a warning ?
-
-Yes.
-
-> But pnp_printf is a variadic fonction (with no attribute format printf), 
-> so gcc can't check the arguments type.
+> Should be returning -ENODEV.
 > 
+> > initcall at 0xffffffff80748b4d: init_autofs4_fs+0x0/0xc(): returned with error code -16
+> 
+> hm.  Why'd that happen?
+> 
+> > initcall at 0xffffffff803c7d5c: init_netconsole+0x0/0x6b(): returned with error code -22
+> 
+> Yeah.  I think netconsole is just being wrong here.  If it wasn't enabled
+> there's no error.
+> 
+> > initcall at 0xffffffff80249307: software_resume+0x0/0xcf(): returned with error code -2
+> 
+> Similarly, there's no resume file configured so should we really consider
+> this an error?
 
-You are right. I did not notice that for pnp_printf(), attribute format
-printf is not specified. So gcc won't do the type checking on format string
-arguments.
-
-( __attribute__ ((format (printf, 2, 3)));
-
-Thanks
-Vivek
+That one is easier to solve. But "configured but image not present"
+will also produce warning I guess. If I return -ENODEV, will it keep
+debugging system quiet?
+								Pavel
+-- 
+Thanks for all the (sleeping) penguins.

@@ -1,158 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965174AbWD1Cqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965192AbWD1Cvq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965174AbWD1Cqf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 22:46:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbWD1Cqe
+	id S965192AbWD1Cvq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 22:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965194AbWD1Cvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 22:46:34 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:65216 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S965174AbWD1Cqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 22:46:34 -0400
-Date: Fri, 28 Apr 2006 11:47:32 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: LHMS <lhms-devel@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] catch valid mem range at onlining memory
-Message-Id: <20060428114732.e889ad2d.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Apr 2006 22:51:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49901 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965192AbWD1Cvo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 22:51:44 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 28 Apr 2006 12:51:39 +1000
+Message-Id: <1060428025139.30758@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 002 of 5] md: Fixed refcounting/locking when attempting read error correction in raid10
+References: <20060428124313.29510.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows hot-add memory which is not aligned to section.
-Based on linux-2.6.17-rc2-mm1 + memory hotadd ioresource register patch.
 
-iomem resource patch is here.
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0604.3/1188.html
-
-Now, hot-added memory has to be aligned to section size.
-Considering big section sized archs, this is not useful.
-
-When hot-added memory is registerd as iomem resoruce by iomem resource patch,
-we can make use of that information to detect valid memory range.
-
-Note: With this, not-aligned memory can be registerd. To allow hot-add
-      memory with holes, we have to do more work around add_memory().
-      (It doesn't allows add memory to already existing mem section.)
-      
-
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+We need to hold a reference to rdevs while reading
+and writing to attempt to correct read errors.  This
+reference must be taken under an rcu lock.
 
 
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-Index: linux-2.6.17-rc2-mm1/kernel/resource.c
-===================================================================
---- linux-2.6.17-rc2-mm1.orig/kernel/resource.c	2006-04-27 18:00:16.000000000 +0900
-+++ linux-2.6.17-rc2-mm1/kernel/resource.c	2006-04-28 11:19:25.000000000 +0900
-@@ -242,6 +242,45 @@
+### Diffstat output
+ ./drivers/md/raid10.c |   44 ++++++++++++++++++++++++++++++--------------
+ 1 file changed, 30 insertions(+), 14 deletions(-)
+
+diff ./drivers/md/raid10.c~current~ ./drivers/md/raid10.c
+--- ./drivers/md/raid10.c~current~	2006-04-28 12:13:20.000000000 +1000
++++ ./drivers/md/raid10.c	2006-04-28 12:16:54.000000000 +1000
+@@ -1407,36 +1407,45 @@ static void raid10d(mddev_t *mddev)
+ 				if (s > (PAGE_SIZE>>9))
+ 					s = PAGE_SIZE >> 9;
  
- EXPORT_SYMBOL(release_resource);
++				rcu_read_lock();
+ 				do {
+ 					int d = r10_bio->devs[sl].devnum;
+-					rdev = conf->mirrors[d].rdev;
++					rdev = rcu_dereference(conf->mirrors[d].rdev);
+ 					if (rdev &&
+-					    test_bit(In_sync, &rdev->flags) &&
+-					    sync_page_io(rdev->bdev,
+-							 r10_bio->devs[sl].addr +
+-							 sect + rdev->data_offset,
+-							 s<<9,
+-							 conf->tmppage, READ))
+-						success = 1;
+-					else {
+-						sl++;
+-						if (sl == conf->copies)
+-							sl = 0;
++					    test_bit(In_sync, &rdev->flags)) {
++						atomic_inc(&rdev->nr_pending);
++						rcu_read_unlock();
++						success = sync_page_io(rdev->bdev,
++								       r10_bio->devs[sl].addr +
++								       sect + rdev->data_offset,
++								       s<<9,
++								       conf->tmppage, READ);
++						rdev_dec_pending(rdev, mddev);
++						rcu_read_lock();
++						if (success)
++							break;
+ 					}
++					sl++;
++					if (sl == conf->copies)
++						sl = 0;
+ 				} while (!success && sl != r10_bio->read_slot);
++				rcu_read_unlock();
  
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+/*
-+ * Finds the lowest memory reosurce exists within [res->start.res->end)
-+ * the caller must specify res->start, res->end, res->flags.
-+ * If found, returns 0, res is overwritten, if not found, returns -1.
-+ */
-+int find_next_system_ram(struct resource *res)
-+{
-+	u64 start, end;
-+	struct resource *p;
-+
-+	BUG_ON(!res);
-+
-+	start = res->start;
-+	end = res->end;
-+
-+	read_lock(&resource_lock);
-+	for( p = iomem_resource.child; p ; p = p->sibling) {
-+		/* system ram is just marked as IORESOURCE_MEM */
-+		if (p->flags != res->flags)
-+			continue;
-+		if (p->start > end) {
-+			p = NULL;
-+			break;
-+		}
-+		if (p->start >= start)
-+			break;
-+	}
-+	read_unlock(&resource_lock);
-+	if (!p)
-+		return -1;
-+	/* copy data */
-+	res->start = p->start;
-+	res->end = p->end;
-+	return 0;
-+}
-+
-+#endif
-+
- /*
-  * Find empty slot in the resource tree given range and alignment.
-  */
-Index: linux-2.6.17-rc2-mm1/include/linux/ioport.h
-===================================================================
---- linux-2.6.17-rc2-mm1.orig/include/linux/ioport.h	2006-04-27 18:00:16.000000000 +0900
-+++ linux-2.6.17-rc2-mm1/include/linux/ioport.h	2006-04-27 21:47:25.000000000 +0900
-@@ -105,6 +105,10 @@
- 			     void *alignf_data);
- int adjust_resource(struct resource *res, u64 start,
- 		    u64 size);
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+/* get registered SYSTEM_RAM resources in specified area */
-+extern int find_next_system_ram(struct resource *res);
-+#endif
- 
- /* Convenience shorthand with allocation */
- #define request_region(start,n,name)	__request_region(&ioport_resource, (start), (n), (name))
-Index: linux-2.6.17-rc2-mm1/mm/memory_hotplug.c
-===================================================================
---- linux-2.6.17-rc2-mm1.orig/mm/memory_hotplug.c	2006-04-27 20:21:32.000000000 +0900
-+++ linux-2.6.17-rc2-mm1/mm/memory_hotplug.c	2006-04-28 11:11:43.000000000 +0900
-@@ -123,6 +123,9 @@
- 	unsigned long i;
- 	unsigned long flags;
- 	unsigned long onlined_pages = 0;
-+	struct resource res;
-+	u64 section_end;
-+	unsigned long start_pfn;
- 	struct zone *zone;
- 	int need_zonelists_rebuild = 0;
- 
-@@ -145,10 +148,27 @@
- 	if (!populated_zone(zone))
- 		need_zonelists_rebuild = 1;
- 
--	for (i = 0; i < nr_pages; i++) {
--		struct page *page = pfn_to_page(pfn + i);
--		online_page(page);
--		onlined_pages++;
-+	res.start = (u64)pfn << PAGE_SHIFT;
-+	res.end = res.start + ((u64)nr_pages << PAGE_SHIFT) - 1;
-+	res.flags = IORESOUECE_MEM; /* we just need system ram */
-+	section_end = res.end;
-+
-+	while (find_next_system_ram(&res) >= 0) {
-+		start_pfn = (unsigned long)(res.start >> PAGE_SHIFT);
-+		nr_pages = (unsigned long)
-+                           ((res.end + 1 - res.start) >> PAGE_SHIFT);
-+
-+		if (PageReserved(pfn_to_page(start_pfn))) {
-+			/* this region's page is not onlined now */
-+			for (i = 0; i < nr_pages; i++) {
-+				struct page *page = pfn_to_page(start_pfn + i);
-+				online_page(page);
-+				onlined_pages++;
-+			}
-+		}
-+
-+		res.start = res.end + 1;
-+		res.end = section_end;
- 	}
- 	zone->present_pages += onlined_pages;
- 	zone->zone_pgdat->node_present_pages += onlined_pages;
-
+ 				if (success) {
+ 					int start = sl;
+ 					/* write it back and re-read */
++					rcu_read_lock();
+ 					while (sl != r10_bio->read_slot) {
+ 						int d;
+ 						if (sl==0)
+ 							sl = conf->copies;
+ 						sl--;
+ 						d = r10_bio->devs[sl].devnum;
+-						rdev = conf->mirrors[d].rdev;
++						rdev = rcu_dereference(conf->mirrors[d].rdev);
+ 						if (rdev &&
+ 						    test_bit(In_sync, &rdev->flags)) {
++							atomic_inc(&rdev->nr_pending);
++							rcu_read_unlock();
+ 							atomic_add(s, &rdev->corrected_errors);
+ 							if (sync_page_io(rdev->bdev,
+ 									 r10_bio->devs[sl].addr +
+@@ -1444,6 +1453,8 @@ static void raid10d(mddev_t *mddev)
+ 									 s<<9, conf->tmppage, WRITE) == 0)
+ 								/* Well, this device is dead */
+ 								md_error(mddev, rdev);
++							rdev_dec_pending(rdev, mddev);
++							rcu_read_lock();
+ 						}
+ 					}
+ 					sl = start;
+@@ -1453,17 +1464,22 @@ static void raid10d(mddev_t *mddev)
+ 							sl = conf->copies;
+ 						sl--;
+ 						d = r10_bio->devs[sl].devnum;
+-						rdev = conf->mirrors[d].rdev;
++						rdev = rcu_dereference(conf->mirrors[d].rdev);
+ 						if (rdev &&
+ 						    test_bit(In_sync, &rdev->flags)) {
++							atomic_inc(&rdev->nr_pending);
++							rcu_read_unlock();
+ 							if (sync_page_io(rdev->bdev,
+ 									 r10_bio->devs[sl].addr +
+ 									 sect + rdev->data_offset,
+ 									 s<<9, conf->tmppage, READ) == 0)
+ 								/* Well, this device is dead */
+ 								md_error(mddev, rdev);
++							rdev_dec_pending(rdev, mddev);
++							rcu_read_lock();
+ 						}
+ 					}
++					rcu_read_unlock();
+ 				} else {
+ 					/* Cannot read from anywhere -- bye bye array */
+ 					md_error(mddev, conf->mirrors[r10_bio->devs[r10_bio->read_slot].devnum].rdev);

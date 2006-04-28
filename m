@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbWD1K6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbWD1LDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbWD1K6L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 06:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965004AbWD1K6L
+	id S964946AbWD1LDW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 07:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbWD1LDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 06:58:11 -0400
-Received: from wproxy.gmail.com ([64.233.184.233]:41137 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965000AbWD1K6J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 06:58:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jq3Yb1gJbzQ6HFRs2rsGd7ajAYfOURcWlSoRQmO2A0i2Ov00OFmhyuL0uYxtl6E6yQDUXwosA3K3LoelZtQNWuk5LBYZvexcluZOqm+mkLTc2hiZp0/k3hutWEoZLO0Wuwz4OVQHDWvV9Zg7Krg0eQr3aLhAUc1u7geRRPUcTqU=
-Message-ID: <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
-Date: Fri, 28 Apr 2006 13:58:04 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "David Vrabel" <dvrabel@cantab.net>,
-       "Francois Romieu" <romieu@fr.zoreil.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: IP1000 gigabit nic driver
-In-Reply-To: <20060428075725.GA18957@fargo>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 28 Apr 2006 07:03:22 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37343 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S964946AbWD1LDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 07:03:21 -0400
+Date: Fri, 28 Apr 2006 13:03:20 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Davi Arnaut <davi.lkml@gmail.com>, Willy Tarreau <willy@w.ods.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, dtor_core@ameritech.net,
+       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+Message-ID: <mj+md-20060428.105455.7620.atrey@ucw.cz>
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com> <444E61FD.7070408@argo.co.il> <200604271810.07575.vda@ilport.com.ua> <20060427201531.GH13027@w.ods.org> <750c918d0604271408y2afef6fflf380e4d0a6c1cec6@mail.gmail.com> <4451E185.9030107@argo.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060427142939.GA31473@fargo>
-	 <20060427185627.GA30871@electric-eye.fr.zoreil.com>
-	 <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo>
+In-Reply-To: <4451E185.9030107@argo.co.il>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/28/06, David Gómez <david@pleyades.net> wrote:
-> I could help. What things do you think need to be fixed before
-> submitting the driver?
+> FWIW, userspace is moving away from C as unproductive and unsafe. KDE is 
+> of course C++, mozilla, openoffice are C++, and gnome is moving towards 
+> (of all things) C#.
 
-Needs some serious coding style cleanup and conversion to proper 2.6
-APIs for starters.
+Maybe continuing to write application programs in C instead of using
+higher-level languages is silly and backward, but _stopping_ at the
+level of C++ or C# is equally silly.
+
+However, in the kernel space the main problems the people are spending
+their time with are rarely related to the language.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Q: Do you believe in One God? A: Yes, up to isomorphism.

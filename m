@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbWD1FSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965182AbWD1FYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965175AbWD1FSi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 01:18:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbWD1FSi
+	id S965182AbWD1FYD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 01:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbWD1FYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 01:18:38 -0400
-Received: from ns2.suse.de ([195.135.220.15]:46486 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965175AbWD1FSi (ORCPT
+	Fri, 28 Apr 2006 01:24:03 -0400
+Received: from mail.gmx.de ([213.165.64.20]:38616 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965182AbWD1FYC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 01:18:38 -0400
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: zach@vmware.com, torvalds@osdl.org
-Subject: Re: [PATCH] x86/PAE: Fix pte_clear for the >4GB RAM case
-References: <200604272001.k3RK1dmX007637@hera.kernel.org>
-From: Andi Kleen <ak@suse.de>
-Date: 28 Apr 2006 07:18:27 +0200
-In-Reply-To: <200604272001.k3RK1dmX007637@hera.kernel.org>
-Message-ID: <p73mze66zx8.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 28 Apr 2006 01:24:02 -0400
+X-Authenticated: #14349625
+Subject: Re: [PATCH 0/9] CPU controller
+From: Mike Galbraith <efault@gmx.de>
+To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+In-Reply-To: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+Content-Type: text/plain
+Date: Fri, 28 Apr 2006 07:25:35 +0200
+Message-Id: <1146201936.7523.15.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List <linux-kernel@vger.kernel.org> writes:
-> +/*
-> + * For PTEs and PDEs, we must clear the P-bit first when clearing a page table
-> + * entry, so clear the bottom half first and enforce ordering with a compiler
-> + * barrier.
-> + */
-> +static inline void pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
-> +{
-> +	ptep->pte_low = 0;
-> +	smp_wmb();
-> +	ptep->pte_high = 0;
-> +}
-> +
-> +static inline void pmd_clear(pmd_t *pmd)
-> +{
-> +	u32 *tmp = (u32 *)pmd;
-> +	*tmp = 0;
-> +	smp_wmb();
-> +	*(tmp + 1) = 0;
-> +}
+On Fri, 2006-04-28 at 10:37 +0900, MAEDA Naoaki wrote:
+> Andrew,
+> 
+> This patchset adds a CPU resource controller on top of Resource Groups. 
+> The CPU resource controller manages CPU resources by scaling timeslice
+> allocated for each task without changing the algorithm of the O(1)
+> scheduler.
+> 
+> Please consider these for inclusion in -mm tree.
 
-I think that's still wrong - it should be wmb() not smp_wmb because this
-problem can happen on a UP kernel already.
+This patch set professes to be a resource controller, yet 100% of high
+priority tasks are uncontrolled.  Distribution of CPU among high
+priority tasks isn't important, but distribution of what they leave
+behind is?
 
--Andi
+	-Mike
 

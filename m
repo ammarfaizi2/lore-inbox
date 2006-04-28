@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbWD1Lcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWD1Ldq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965133AbWD1Lcb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 07:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbWD1Lca
+	id S965110AbWD1Ldq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 07:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965145AbWD1Ldq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 07:32:30 -0400
-Received: from ns2.hostinglmi.net ([213.194.149.12]:9622 "EHLO
-	ns2.hostinglmi.net") by vger.kernel.org with ESMTP id S965004AbWD1Lc3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 07:32:29 -0400
-Date: Fri, 28 Apr 2006 13:37:55 +0200
-From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: David Vrabel <dvrabel@cantab.net>, Francois Romieu <romieu@fr.zoreil.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: IP1000 gigabit nic driver
-Message-ID: <20060428113755.GA7419@fargo>
-Mail-Followup-To: Pekka Enberg <penberg@cs.helsinki.fi>,
-	David Vrabel <dvrabel@cantab.net>,
-	Francois Romieu <romieu@fr.zoreil.com>,
-	Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-References: <20060427142939.GA31473@fargo> <20060427185627.GA30871@electric-eye.fr.zoreil.com> <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo> <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Fri, 28 Apr 2006 07:33:46 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:45238 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S965110AbWD1Ldq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 07:33:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=4Y+USFw97dSZljSXttWdgcw11ZcXuZcOh+1S2dQod+ORrLhF5pX5+NNGUE998pCShNOPjCOB3b/d8SlYJnpwozaL+PRB9UHCWAfVP1nrtWUrVMryrzTwYg4UEvXp2pXq/ogN0sZb2R7EWUCPQwMBmNglsvyaaLqZoxVgBq0JmaU=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [RFC] PATCH 0/4 - Time virtualization
+Date: Fri, 28 Apr 2006 13:33:40 +0200
+User-Agent: KMail/1.8.3
+Cc: Jeff Dike <jdike@addtoit.com>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+References: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org> <m1d5feotur.fsf@ebiederm.dsl.xmission.com> <20060426180110.GB8142@ccure.user-mode-linux.org>
+In-Reply-To: <20060426180110.GB8142@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns2.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - pleyades.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Message-Id: <200604281333.41358.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pekka,
+On Wednesday 26 April 2006 20:01, Jeff Dike wrote:
+> On Wed, Apr 19, 2006 at 02:25:00AM -0600, Eric W. Biederman wrote:
 
-On Apr 28 at 01:58:04, Pekka Enberg wrote:
-> Needs some serious coding style cleanup and conversion to proper 2.6
-> APIs for starters.
+> > In the case of migration the ugly case to properly handle is the
+> > monotonic timer.   That needs an offset yet it is absolutely forbidden
+> > to provide that offset from the inside.  So this is the one namespace
+> > that I think is inappropriate to use sys_unshare to create.
+> > We need a system call so that we can specify the minimum or the
+> > starting monotonic time base.
 
-Ok, i could take care of that, and it's a good way of getting my hands
-dirty with kernel programming ;). David, if it's ok to you i'll do the
-cleanup thing.
+> For migration, it looks like the container will have to specify the
+> time base at creation so that everything in it will have a consistent
+> view of time if they get moved around.
 
-What about 2.4/2.2 code? It's supposed to stay for compatibility
-or it should be removed before submitting?
+> So, maybe it belongs in clone as a "backwards" flag similar to
+> CLONE_NEWNS.
 
-cheers,
+I must note that currently every (?) flag allowed for unshare is also allowed 
+for clone, so you need to do that anyway.
 
 -- 
-David Gómez                                      Jabber ID: davidge@jabber.org
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

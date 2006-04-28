@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWD1UvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWD1VJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWD1UvE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 16:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWD1UvD
+	id S1750932AbWD1VJG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 17:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWD1VJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 16:51:03 -0400
-Received: from www.osadl.org ([213.239.205.134]:30132 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751451AbWD1UvC (ORCPT
+	Fri, 28 Apr 2006 17:09:06 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:5798 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750932AbWD1VJF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 16:51:02 -0400
-Subject: Re: [BUG 2.6.16-rt18] BUG at kernel/rtmutex.c:639!
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Vernon Mauery <vernux@us.ibm.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <200604280713.45219.vernux@us.ibm.com>
-References: <200604280713.45219.vernux@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 22:53:09 +0200
-Message-Id: <1146257590.1322.637.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Fri, 28 Apr 2006 17:09:05 -0400
+From: Darren Hart <dvhltc@us.ibm.com>
+Organization: IBM Linux Technology Center
+To: Ingo Molnar <mingo@elte.hu>
+Subject: RT interrupt handling
+Date: Fri, 28 Apr 2006 14:08:59 -0700
+User-Agent: KMail/1.8.3
+Cc: "lkml, " <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604281409.00287.dvhltc@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 07:13 -0700, Vernon Mauery wrote:
-> Ingo,
-> 
-> On an IBM Intellistation A-Pro I am seeing the bug regularly as seen below.
-> We also see this bug on an LS-20 blade.  The way this bug is triggered is
-> to add 'irqpoll' to the kernel command line.  If we remove this from the
-> command line, we don't see this bug.  I know the easy answer is that if you
-> don't want to see the bug, don't use irqpoll.  So we don't.  But we thought
-> that just in case this bug does expose something real that it should be
-> reported.
+I ran into a situation where binding a realtime testsuite to cpu 0 (on a 4 way 
+opteron machine) locked the machine hard while binding it to cpu 2 worked 
+fine.  Some investigation suggests that the interrupt handlers for eth0 and 
+ioc0 (IRQ 24 and 26) had the smp_affinity mask set to only cpu 0.  With the 
+test case running threads with rt prios in the 90s and the irqs running in 
+the ~40s (don't recall, somewhere around there I think), it isn't surprising 
+that the machine locked up.
 
-That's a lock recursion caused by the irqpoll option. Needs some
-thoughts to fix it. Thanks for reporting though.
+I'd like to hear people's thoughts on the following:
 
-	tglx
+o Why would those irqs be bound to just cpu 0?  Why not all cpus?
 
+o Is it reasonable to extend the smp_affinity for all interrupts to all cpus 
+to minimize this type of problem?
 
+o Should a userspace RT task be able to take down the system?  Do we roll with 
+the spiderman addage "With great power comes great responsibility" when 
+discussing RT systems, or should we consider some kind of priority boosting 
+mechanism for kernel services that must be run every so often to keep the 
+system running?
+
+Thanks!
+
+-- 
+Darren Hart
+IBM Linux Technology Center
+Realtime Linux Team

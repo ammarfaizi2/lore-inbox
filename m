@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWD1I3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWD1IaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030362AbWD1I3i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 04:29:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWD1I3i
+	id S1030358AbWD1IaL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 04:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWD1IaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 04:29:38 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:33964 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030362AbWD1I3h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 04:29:37 -0400
-Date: Fri, 28 Apr 2006 17:28:48 +0900
-From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: efault@gmx.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, maeda.naoaki@jp.fujitsu.com
-Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
-Message-Id: <20060428172848.df4baead.maeda.naoaki@jp.fujitsu.com>
-In-Reply-To: <4451AEA4.1040108@sw.ru>
-References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-	<1146201936.7523.15.camel@homer>
-	<4451AEA4.1040108@sw.ru>
-Organization: FUJITSU LIMITED
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 28 Apr 2006 04:30:11 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:22795 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1030358AbWD1IaJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 04:30:09 -0400
+Message-ID: <4451D28B.7000207@argo.co.il>
+Date: Fri, 28 Apr 2006 11:30:03 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Martin Mares <mj@ucw.cz>
+CC: Denis Vlasenko <vda@ilport.com.ua>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Roman Kononov <kononov195-far@yahoo.com>,
+       LKML Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: C++ pushback
+References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il> <200604271655.48757.vda@ilport.com.ua> <4450D4E9.4050606@argo.co.il> <mj+md-20060427.145744.9154.atrey@ucw.cz> <4450E3CB.1090206@argo.co.il> <mj+md-20060427.153429.15386.atrey@ucw.cz> <4451CF7A.5040902@argo.co.il>
+In-Reply-To: <4451CF7A.5040902@argo.co.il>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Apr 2006 08:30:08.0243 (UTC) FILETIME=[F52D3C30:01C66A9D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Apr 2006 09:56:52 +0400
-Kirill Korotaev <dev@sw.ru> wrote:
+Avi Kivity wrote:
+>    void put(Value& value)
+>    {
+>        // assumes value (or a value with an equal key) is not already in
+>        Link& head = _buckets[Traits::hash(value) & (_size - 1)];
+>        static_cast<Link&>(value).next = &head;
+>        head.next= &value;
+>    }
+s/&head/head.next/ in the third line, of course.
 
-> Also, as it turned out these doesn't do good fair scheduling under some 
-> curcemstances (with busy loops on SMP) :(. Which was reported to MAEDA.
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-Although it has buggy behaviour under some circumstances, 
-the foundamental problem of load unfairness on SMP comes from
-the fact that a single task can not use more than one CPU at a time.
-On condtion that there aren't enough number of runnable tasks on SMP,
-achievable shares very depend on how tasks are allocated to CPU. 
-
-So a few busy loops on SMP is a tough case. It is alleviated
-by increasing the number of runnable tasks.
-
-Thanks,
-MAEDA Naoaki

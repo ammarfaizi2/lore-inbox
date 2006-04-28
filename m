@@ -1,105 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWD1BjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWD1BlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWD1BjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 21:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWD1Biq
+	id S1030260AbWD1BlV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 21:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWD1BiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 21:38:46 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:53922 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030264AbWD1Bi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 21:38:29 -0400
-From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-Cc: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-Date: Fri, 28 Apr 2006 10:38:12 +0900
-Message-Id: <20060428013812.9582.20493.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-In-Reply-To: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-Subject: [PATCH 8/9] CPU controller - Add cpu hotplug support
+	Thu, 27 Apr 2006 21:38:13 -0400
+Received: from compunauta.com ([69.36.170.169]:16011 "EHLO compunauta.com")
+	by vger.kernel.org with ESMTP id S1030256AbWD1BiH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 21:38:07 -0400
+From: Gustavo Guillermo =?utf-8?q?P=C3=A9rez?= <gustavo@compunauta.com>
+Organization: www.compunauta.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCSI trow USB-STORAGE or SBP2 Debug for buggy device Kernels 2.6.X
+User-Agent: KMail/1.8.2
+References: <200604241029.14932.gustavo@compunauta.com> <200604251641.54084.gustavo@compunauta.com> <1146001711.3529.58.camel@mulgrave.il.steeleye.com>
+In-Reply-To: <1146001711.3529.58.camel@mulgrave.il.steeleye.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Date: Thu, 27 Apr 2006 20:38:06 -0500
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200604272038.06167.gustavo@compunauta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-8/9: cpu_hotplug
+El Martes, 25 de Abril de 2006 16:48, James Bottomley escribió:
+> OK ... My best guess has to be that this device accepted and completed
+> the command but is still processing it on the medium, hence the return.
+> Try the attached; I think it makes for these cases.  I could be
+> persuaded to drop format and reconstruction in progress, because those
+> can be *very* long operations.
+Let me see, the patch of course does not apply, but I can figure out how to 
+proceed on kernel 2.6.16.
 
-Adds cpu hotplug notifier for the Resouce Groups CPU controller.
+But guess who, not Device busy as error, of course and NO BAD SECTORS With 
+pktcdvd UDF.
 
-Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
+:)
 
- kernel/res_group/cpu.c |   47 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 47 insertions(+)
+Txs, do you think this modification I can use without care on Sata o other 
+devices going trow SCSI?, cause I be wonder if this could be into main kernel 
+line.
 
-Index: linux-2.6.17-rc3/kernel/res_group/cpu.c
-===================================================================
---- linux-2.6.17-rc3.orig/kernel/res_group/cpu.c
-+++ linux-2.6.17-rc3/kernel/res_group/cpu.c
-@@ -231,6 +231,50 @@ static ssize_t cpu_show_stats(struct res
- 	return i;
- }
- 
-+static void clear_stat_and_propagate(struct cpu_res * res, int cpu)
-+{
-+	struct resource_group *child = NULL;
-+	struct cpu_res *childres;
-+
-+	cpu_rc_clear_stat(&res->cpu_rc, cpu);
-+
-+	/* propagate to children */
-+	spin_lock(&res->rgroup->group_lock);
-+	for_each_child(child, res->rgroup) {
-+		childres = get_res_group_cpu(child);
-+		if (childres)
-+			clear_stat_and_propagate(childres, cpu);
-+	}
-+	spin_unlock(&res->rgroup->group_lock);
-+}
-+
-+static int __devinit cpu_notify(struct notifier_block *self,
-+				unsigned long action, void *hcpu)
-+{
-+	struct resource_group *root = &default_res_group;
-+	struct cpu_res *res;
-+	int	cpu = (long) hcpu;
-+
-+	switch (action)	{
-+
-+	case CPU_DEAD:
-+		res = get_res_group_cpu(root);
-+		clear_stat_and_propagate(res, cpu);
-+		/* FALL THROUGH */
-+	case CPU_ONLINE:
-+		grcd.cpus = cpu_online_map;
-+		grcd.numcpus = cpus_weight(cpu_online_map);
-+		break;
-+	default:
-+		break;
-+	}
-+	return NOTIFY_OK;
-+}
-+
-+static struct notifier_block cpu_nb = {
-+	.notifier_call	= cpu_notify,
-+};
-+
- struct res_controller cpu_ctlr = {
- 	.name = res_ctlr_name,
- 	.depth_supported = 3,
-@@ -246,6 +290,8 @@ int __init init_cpu_res(void)
- 	if (cpu_ctlr.ctlr_id != NO_RES_ID)
- 		return -EBUSY; /* already registered */
- 	cpu_rc_init_rcd(&grcd);
-+ 	/* Register notifier for hot plugged/unplugged CPUs */
-+ 	register_cpu_notifier(&cpu_nb);
- 	return register_controller(&cpu_ctlr);
- }
- 
-@@ -256,6 +302,7 @@ void __exit exit_cpu_res(void)
- 		rc = unregister_controller(&cpu_ctlr);
- 	} while (rc == -EBUSY);
- 	BUG_ON(rc != 0);
-+	unregister_cpu_notifier(&cpu_nb);
- }
- 
- module_init(init_cpu_res)
+Regards!!!!
+
+> James
+>
+> diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+> index 7b0f9a3..764a8b3 100644
+> --- a/drivers/scsi/scsi_lib.c
+> +++ b/drivers/scsi/scsi_lib.c
+> @@ -1067,16 +1067,29 @@ void scsi_io_completion(struct scsi_cmnd
+>  			break;
+>  		case NOT_READY:
+>  			/*
+> -			 * If the device is in the process of becoming ready,
+> -			 * retry.
+> +			 * If the device is in the process of becoming
+> +			 * ready, or has a temporary blockage, retry.
+>  			 */
+> -			if (sshdr.asc == 0x04 && sshdr.ascq == 0x01) {
+> -				scsi_requeue_command(q, cmd);
+> -				return;
+> +			if (sshdr.asc == 0x04) {
+> +				switch (sshdr.ascq) {
+> +				case 0x01: /* becoming ready */
+> +				case 0x04: /* format in progress */
+> +				case 0x05: /* rebuild in progress */
+> +				case 0x06: /* recalculation in progress */
+> +				case 0x07: /* operation in progress */
+> +				case 0x08: /* Long write in progress */
+> +				case 0x09: /* self test in progress */
+> +					scsi_requeue_command(q, cmd);
+> +					return;
+> +				default:
+> +					break;
+> +				}
+>  			}
+> -			if (!(req->flags & REQ_QUIET))
+> +			if (!(req->flags & REQ_QUIET)) {
+>  				scmd_printk(KERN_INFO, cmd,
+> -					   "Device not ready.\n");
+> +					   "Device not ready: ");
+> +				scsi_print_sense_hdr("", &sshdr);
+> +			}
+>  			scsi_end_request(cmd, 0, this_count, 1);
+>  			return;
+>  		case VOLUME_OVERFLOW:
+
+-- 
+Gustavo Guillermo Pérez
+Compunauta uLinux
+www.compunauta.com

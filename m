@@ -1,120 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWD1HmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWD1HpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbWD1HmX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 03:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbWD1HmX
+	id S1030300AbWD1HpA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 03:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWD1HpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 03:42:23 -0400
-Received: from nproxy.gmail.com ([64.233.182.189]:31443 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030303AbWD1HmW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 03:42:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Sk9uG/8SAbiXNSrvt2bqw6lwITgiX2eR9BvuOsSBPh5VdhkfEDBeaGuoX4lTqicbHG3UNAoYGoUus97vcXFVUKoPkCay90zCk9iYzDMuUpzHOVEyxJzMHP1ce7t7J8n7zLwfdWcmCCvlNa838AFKDqD7/sRVNv3dawlVlUerLdw=
-Message-ID: <7da560840604280042q33450573p9b21751c9046500c@mail.gmail.com>
-Date: Fri, 28 Apr 2006 00:42:21 -0700
-From: "Muthu Kumar" <muthu.lkml@gmail.com>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: functions named similar (pci_acpi_init)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060428032354.GA20578@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <7da560840604271637n65106962k180234c116614d94@mail.gmail.com>
-	 <20060428000026.GA29421@kroah.com>
-	 <7da560840604271727q185af577sb666ac82a33d78d6@mail.gmail.com>
-	 <20060428032354.GA20578@kroah.com>
+	Fri, 28 Apr 2006 03:45:00 -0400
+Received: from mail.gmx.net ([213.165.64.20]:24007 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030300AbWD1HpA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 03:45:00 -0400
+X-Authenticated: #14349625
+Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
+From: Mike Galbraith <efault@gmx.de>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+In-Reply-To: <1146208288.7551.19.camel@homer>
+References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+	 <1146201936.7523.15.camel@homer>  <4451AEA4.1040108@sw.ru>
+	 <1146208288.7551.19.camel@homer>
+Content-Type: text/plain
+Date: Fri, 28 Apr 2006 09:46:35 +0200
+Message-Id: <1146210395.7551.37.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] ACPI PCI: Rename the functions to avoid multiple instances.
+On Fri, 2006-04-28 at 09:11 +0200, Mike Galbraith wrote:
+> On Fri, 2006-04-28 at 09:56 +0400, Kirill Korotaev wrote:
+> > I'm also pretty sure, that CPU controller based on timeslice tricks 
+> > behaves poorly on burstable load patterns as well and with interactive 
+> > tasks. So before commiting I propose to perform a good testing on 
+> > different load patterns.
+> 
+> Yes, it can only react very slowly.
 
-There were two instances of pci_acpi_init(), one in
-drivers/pci/pci-acpi.c and another in arch/i386/pci/acpi.c.
-Rename the one in pci-acpi.c and make it consistent with
-other names in the same file.
+Actually, this might not be that much of a problem.  I know I can
+traverse queue heads periodically very cheaply.  Traversing both active
+and expired arrays to requeue starving tasks once every 100ms costs max
+4usecs (3GHz P4) for a typical distribution.
 
-Signed-off-by: Muthukumar R <muthur@gmail.com>
+	-Mike
 
-diff --git a/drivers/pci/pci-acpi.c b/drivers/pci/pci-acpi.c
-index 6917c6c..d84e25c 100644
---- a/drivers/pci/pci-acpi.c
-+++ b/drivers/pci/pci-acpi.c
-@@ -257,7 +257,7 @@ static int acpi_pci_set_power_state(stru
-
-
- /* ACPI bus type */
--static int pci_acpi_find_device(struct device *dev, acpi_handle *handle)
-+static int acpi_pci_find_device(struct device *dev, acpi_handle *handle)
- {
-        struct pci_dev * pci_dev;
-        acpi_integer    addr;
-@@ -271,7 +271,7 @@ static int pci_acpi_find_device(struct d
-        return 0;
- }
-
--static int pci_acpi_find_root_bridge(struct device *dev, acpi_handle *handle)
-+static int acpi_pci_find_root_bridge(struct device *dev, acpi_handle *handle)
- {
-        int num;
-        unsigned int seg, bus;
-@@ -289,21 +289,21 @@ static int pci_acpi_find_root_bridge(str
-        return 0;
- }
-
--static struct acpi_bus_type pci_acpi_bus = {
-+static struct acpi_bus_type acpi_pci_bus = {
-        .bus = &pci_bus_type,
--       .find_device = pci_acpi_find_device,
--       .find_bridge = pci_acpi_find_root_bridge,
-+       .find_device = acpi_pci_find_device,
-+       .find_bridge = acpi_pci_find_root_bridge,
- };
-
--static int __init pci_acpi_init(void)
-+static int __init acpi_pci_init(void)
- {
-        int ret;
-
--       ret = register_acpi_bus_type(&pci_acpi_bus);
-+       ret = register_acpi_bus_type(&acpi_pci_bus);
-        if (ret)
-                return 0;
-        platform_pci_choose_state = acpi_pci_choose_state;
-        platform_pci_set_power_state = acpi_pci_set_power_state;
-        return 0;
- }
--arch_initcall(pci_acpi_init);
-+arch_initcall(acpi_pci_init);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-On 4/27/06, Greg KH <greg@kroah.com> wrote:
-> On Thu, Apr 27, 2006 at 05:27:49PM -0700, Muthu Kumar wrote:
-> > thanks.. How about the following to make the names consistent with others in
-> > that file:
->
-> Looks good to me.  Can you resend it with a proper changelog comments
-> and a Signed-off-by: so I can apply it?
->
-> thanks,
->
-> greg k-h
->

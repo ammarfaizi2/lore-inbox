@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbWD1HpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWD1HtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbWD1HpA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 03:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWD1HpA
+	id S1030309AbWD1HtY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 03:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWD1HtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 03:45:00 -0400
-Received: from mail.gmx.net ([213.165.64.20]:24007 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030300AbWD1HpA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 03:45:00 -0400
-X-Authenticated: #14349625
-Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
-From: Mike Galbraith <efault@gmx.de>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-In-Reply-To: <1146208288.7551.19.camel@homer>
-References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-	 <1146201936.7523.15.camel@homer>  <4451AEA4.1040108@sw.ru>
-	 <1146208288.7551.19.camel@homer>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 09:46:35 +0200
-Message-Id: <1146210395.7551.37.camel@homer>
+	Fri, 28 Apr 2006 03:49:24 -0400
+Received: from ns2.hostinglmi.net ([213.194.149.12]:15842 "EHLO
+	ns2.hostinglmi.net") by vger.kernel.org with ESMTP id S1030306AbWD1HtX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 03:49:23 -0400
+Date: Fri, 28 Apr 2006 09:54:52 +0200
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Subject: Re: IP1000 gigabit nic driver
+Message-ID: <20060428075452.GA18740@fargo>
+Mail-Followup-To: Francois Romieu <romieu@fr.zoreil.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+References: <20060427142939.GA31473@fargo> <20060427185627.GA30871@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20060427185627.GA30871@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns2.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - pleyades.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 09:11 +0200, Mike Galbraith wrote:
-> On Fri, 2006-04-28 at 09:56 +0400, Kirill Korotaev wrote:
-> > I'm also pretty sure, that CPU controller based on timeslice tricks 
-> > behaves poorly on burstable load patterns as well and with interactive 
-> > tasks. So before commiting I propose to perform a good testing on 
-> > different load patterns.
+Hi Francois,
+
+On Apr 27 at 08:56:27, Francois Romieu wrote:
+> /me goes to http://www.icplus.com.tw/driver-pp-IP1000A.html
 > 
-> Yes, it can only react very slowly.
+> $ unzip -c IP1000A-Linux-driver-v2.09f.zip | grep MODULE_LICENSE
+>     MODULE_LICENSE("GPL");
 
-Actually, this might not be that much of a problem.  I know I can
-traverse queue heads periodically very cheaply.  Traversing both active
-and expired arrays to requeue starving tasks once every 100ms costs max
-4usecs (3GHz P4) for a typical distribution.
+Thanks, i didn't notice it ;-)
 
-	-Mike
+> It's a bit bloaty but it does not seem too bad (not mergeable "as
+> is" though). Do you volunteer to test random cra^W^W carefully
+> engineered code on your computer to help the rework/merging process ?
 
+Yes, i am. Send me all the the cra ;-), i'm ready to
+test it.
+
+cheers,
+
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

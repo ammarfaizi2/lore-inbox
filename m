@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030411AbWD1ODa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbWD1OLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030411AbWD1ODa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 10:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030408AbWD1ODa
+	id S1030412AbWD1OLD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 10:11:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030413AbWD1OLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 10:03:30 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:40098 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S1030411AbWD1OD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 10:03:29 -0400
-Message-ID: <445220AB.9000606@grupopie.com>
-Date: Fri, 28 Apr 2006 15:03:23 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: checklist (Re: 2.6.17-rc2-mm1)
-References: <20060427014141.06b88072.akpm@osdl.org>	<p73vesv727b.fsf@bragg.suse.de>	<20060427121930.2c3591e0.akpm@osdl.org>	<200604272126.30683.ak@suse.de>	<20060427124452.432ad80d.rdunlap@xenotime.net> <20060427131100.05970d65.akpm@osdl.org> <44512B61.4040000@google.com>
-In-Reply-To: <44512B61.4040000@google.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Apr 2006 10:11:03 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:2444 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030412AbWD1OLB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 10:11:01 -0400
+Date: Sat, 29 Apr 2006 00:10:41 +1000
+From: David Chinner <dgc@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Lameter <clameter@sgi.com>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, npiggin@suse.de, linux-mm@kvack.org
+Subject: Re: Lockless page cache test results
+Message-ID: <20060428141041.GB4657648@melbourne.sgi.com>
+References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org> <Pine.LNX.4.64.0604261130450.19587@schroedinger.engr.sgi.com> <20060426114737.239806a2.akpm@osdl.org> <20060426184945.GL5002@suse.de> <Pine.LNX.4.64.0604261330310.20897@schroedinger.engr.sgi.com> <20060428140146.GA4657648@melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060428140146.GA4657648@melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh wrote:
->>[...]
-> I don't want to boot it, as that gets into security nightmares, but I 
-> should be able to provide something that does static testing.
+On Sat, Apr 29, 2006 at 12:01:47AM +1000, David Chinner wrote:
+> 
+> 
+> Loads   Type    blksize count   av_time    tput    usr%   sys%   intr%
+> -----   ----    ------- -----   ------- -------    ----   ----   -----
 
-Actually, booting might not be that bad using a virtual machine with qemu.
+Sorry, I forgot units:              (s)   (MiB/s)      (cpu usage)
 
-You can use a command like:
+>   1      read   256.00K 256.00K   82.92  789.59    1.80  215.40   18.40
+>   2      read   256.00K 256.00K   53.97 1191.56    2.10  389.40   22.60
+>   4      read   256.00K 256.00K   37.83 1724.63    2.20  776.00   29.30
+>   8      read   256.00K 256.00K   52.57 1213.63    2.20 1423.60   24.30
+>   16     read   256.00K 256.00K   60.05 1057.03    1.90 1951.10   24.30
+>   32     read   256.00K 256.00K   82.13  744.73    2.00 2277.50   18.60
+>                                         ^^^^^^^         ^^^^^^^
 
-qemu -nographic -kernel <kernel_image> -append <command line> -initrd 
-<initrd file>
+And the reader is dd to /dev/null.
 
-and then set up the <command line> to use the serial console, and the 
-initrd to something simple that just outputs "[SUCCESS]" and powers off.
+Cheers,
 
-You can then monitor the standard output of this process. If after a 
-minute (for instance) no "[SUCCESS]" appears on its standard output, it 
-didn't boot and you have the dmesg data to (hopefully) show why it 
-didn't boot.
-
-If it outputs "[SUCCESS]", then it booted fine. You still can append the 
-dmesg output to the test report.
-
-Of course, the kernel configuration must include support for serial 
-console and the initrd filesystem used, at least.
-
-Well, just my 2 cents,
-
+Dave.
 -- 
-Paulo Marques - www.grupopie.com
-
-Pointy-Haired Boss: I don't see anything that could stand in our way.
-            Dilbert: Sanity? Reality? The laws of physics?
+Dave Chinner
+R&D Software Enginner
+SGI Australian Software Group

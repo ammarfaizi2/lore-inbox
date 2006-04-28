@@ -1,38 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWD1GrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWD1G6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030277AbWD1GrL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 02:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030278AbWD1GrL
+	id S1030281AbWD1G6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 02:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbWD1G6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 02:47:11 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:6031 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030277AbWD1GrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 02:47:09 -0400
-Date: Thu, 27 Apr 2006 23:46:55 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Shirley Ma <xma@us.ibm.com>
-cc: Pekka J Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Or Gerlitz <ogerlitz@voltaire.com>,
-       open-iscsi@googlegroups.com, openib-general@openib.org,
-       openib-general-bounces@openib.org
-Subject: Re: [openib-general] Re: possible bug in kmem_cache related code
-In-Reply-To: <OF74DEDEC9.CB33A0DB-ON8725715E.0023266E-8825715E.002874C1@us.ibm.com>
-Message-ID: <Pine.LNX.4.64.0604272345290.30557@schroedinger.engr.sgi.com>
-References: <OF74DEDEC9.CB33A0DB-ON8725715E.0023266E-8825715E.002874C1@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 28 Apr 2006 02:58:16 -0400
+Received: from mail.gmx.net ([213.165.64.20]:26601 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030281AbWD1G6O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 02:58:14 -0400
+X-Authenticated: #14349625
+Subject: Re: [PATCH 0/9] CPU controller
+From: Mike Galbraith <efault@gmx.de>
+To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+In-Reply-To: <20060428144859.a07bb5b2.maeda.naoaki@jp.fujitsu.com>
+References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+	 <1146201936.7523.15.camel@homer>
+	 <20060428144859.a07bb5b2.maeda.naoaki@jp.fujitsu.com>
+Content-Type: text/plain
+Date: Fri, 28 Apr 2006 08:59:49 +0200
+Message-Id: <1146207589.7551.7.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Apr 2006, Shirley Ma wrote:
-
-> I hit a similar problem while calling kzalloc(). it happened on 
-> linux-2.6.17-rc1 + ppc64.
+On Fri, 2006-04-28 at 14:48 +0900, MAEDA Naoaki wrote:
+> Hi Mike,
 > 
-> kernel BUG in __cache_alloc_node at mm/slab.c:2934!
-> which is 
->         BUG_ON(slabp->inuse == cachep->num);
+> On Fri, 28 Apr 2006 07:25:35 +0200
+> Mike Galbraith <efault@gmx.de> wrote:
+> 
+> > On Fri, 2006-04-28 at 10:37 +0900, MAEDA Naoaki wrote:
+> > > Andrew,
+> > > 
+> > > This patchset adds a CPU resource controller on top of Resource Groups. 
+> > > The CPU resource controller manages CPU resources by scaling timeslice
+> > > allocated for each task without changing the algorithm of the O(1)
+> > > scheduler.
+> > > 
+> > > Please consider these for inclusion in -mm tree.
+> > 
+> > This patch set professes to be a resource controller, yet 100% of high
+> > priority tasks are uncontrolled.  Distribution of CPU among high
+> > priority tasks isn't important, but distribution of what they leave
+> > behind is?
+> 
+> Do you mean niced tasks are uncontrolled by the controller? 
+> TASK_INTERACTIVEs are left untouched intentionally, but niced tasks
+> are also controlled.
 
-More entries were added to a slab than allowed? This suggests a race on
-slabp->inuse.
+Until they attain interactive status.  Note that attaining this status
+requires only one sleep, and once attained, it can be sustained.  I
+don't know what the current exact numbers are, but until recently, the
+numbers were that once sleep_avg became full, a non-niced task could
+sustain ~95% cpu indefinitely.
+
+You simply cannot ignore interactive tasks.  At the very least, you have
+to disallow requeue if the resource limit has been exceeded, otherwise,
+this patch set is non-functional.
+
+	-Mike
+

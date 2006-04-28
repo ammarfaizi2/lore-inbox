@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWD1TUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751732AbWD1TWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWD1TUT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 15:20:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751426AbWD1TUT
+	id S1751732AbWD1TWr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 15:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWD1TWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 15:20:19 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:35538 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S1751056AbWD1TUS
+	Fri, 28 Apr 2006 15:22:47 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:53705 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751432AbWD1TWq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 15:20:18 -0400
-Date: Fri, 28 Apr 2006 15:20:17 -0400
-From: Yaroslav Halchenko <kernel@onerussian.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       woodys@xandros.com
-Subject: Re: Highpoint SATA RAID (khe khe) status -- oopses, crashes, etc
-Message-ID: <20060428192017.GH17639@washoe.onerussian.com>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	woodys@xandros.com
-References: <20060425172356.GD15201@washoe.onerussian.com> <20060426190657.GA17639@washoe.onerussian.com> <20060427053528.GB17639@washoe.onerussian.com>
-MIME-Version: 1.0
+	Fri, 28 Apr 2006 15:22:46 -0400
+Date: Fri, 28 Apr 2006 14:22:43 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Ulrich Drepper <drepper@gmail.com>,
+       Axelle Apvrille <axelle_apvrille@yahoo.fr>, Nix <nix@esperi.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@vger.kernel.org,
+       disec-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries
+Message-ID: <20060428192243.GD31473@sergelap.austin.ibm.com>
+References: <87slo2nn0b.fsf@hades.wkstn.nix> <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com> <a36005b50604280833k5a811384r5f3a6f92dd707256@mail.gmail.com> <20060428160914.GA31473@sergelap.austin.ibm.com> <20060428181612.GA19898@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060427053528.GB17639@washoe.onerussian.com>
-X-URL: http://www.onerussian.com
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-X-PGP-Key: http://www.onerussian.com/gpg-yoh.asc
-X-fingerprint: 3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-User-Agent: mutt-ng/devel-r782 (Debian)
+In-Reply-To: <20060428181612.GA19898@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Woody and the others,
+Quoting Christoph Hellwig (hch@infradead.org):
+> On Fri, Apr 28, 2006 at 11:09:14AM -0500, Serge E. Hallyn wrote:
+> > BS - you can stack another LSM to prevent that.
+> > 
+> > Or, stack it with SELinux.  I've tested that combination before with no
+> > problems.
+> 
+> The real question here is why use lsm at all?  lsm sounds like the wrong
+> set of hooks for something like this.  If you look at the hooks they are
+> clearly for access control handling, which this isn't at all.  I bet
+> your code would be a lot simpler if you just hooked into the right places
+> directly.  and made it controllable by selinux or $lsm.
 
-Is there anything else we could try to make this damn hpt366 work to
-somewhat better extent? now 700kBps is too slow -- I just gave up
-waiting while it would rebuild RAID1 on those two drives. and that also
-slowed down another RAID present in the system (nice Areca one)
+The evm code (which should be released soon) introduces an integrity
+subsystem, using TPM.  The crypto part of digsig could become another
+user of that subsystem.
 
-> Alan Cox's newest and greatest ide-on-sata falls back to the 33MHz
-> timings
-Isn't what it the libata implementation which oopsed? May be I should
-try older "Support for SATA", but kernel menu item says that it
-conflicts with libata SATA driver, so I am not sure how stable that
-solution will be either... but I know that on 2.6.7 there were no
-problem detecting the beast
+At that point like you say selinux could mark types which can cause
+domain transitions as needing to be signed, and, if lsm's not dead,
+other lsm's could use it other ways if they like.
 
-I am not much of a kernel hacker that is why my question is so vague...
-but many be I can be of some help if pointed to the right direction
-
-Thank you in advance
--- 
-Yaroslav Halchenko
-Research Assistant, Psychology Department, Rutgers-Newark
-Office: (973) 353-5440x263 | FWD: 82823 | Fax: (973) 353-1171
-        101 Warren Str, Smith Hall, Rm 4-105, Newark NJ 07105
-Student  Ph.D. @ CS Dept. NJIT
+thanks,
+-serge

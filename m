@@ -1,100 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWD1H6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWD1IFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbWD1H6f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 03:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWD1H6e
+	id S1030319AbWD1IFt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 04:05:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWD1IFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 03:58:34 -0400
-Received: from lug-owl.de ([195.71.106.12]:1426 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1030314AbWD1H6e (ORCPT
+	Fri, 28 Apr 2006 04:05:49 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:8613 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1030319AbWD1IFs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 03:58:34 -0400
-Date: Fri, 28 Apr 2006 09:58:32 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: make O="<dir>" install; output not relocated; 2.6.16.11(kbuild)
-Message-ID: <20060428075832.GD25520@lug-owl.de>
-Mail-Followup-To: Linda Walsh <lkml@tlinx.org>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <4451B77D.7070000@tlinx.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="chE8DYtGH5bd9Y2b"
-Content-Disposition: inline
-In-Reply-To: <4451B77D.7070000@tlinx.org>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Fri, 28 Apr 2006 04:05:48 -0400
+Message-ID: <4451CEB7.6080509@sw.ru>
+Date: Fri, 28 Apr 2006 12:13:43 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
+Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
+References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>	 <1146201936.7523.15.camel@homer>  <4451AEA4.1040108@sw.ru>	 <1146208288.7551.19.camel@homer> <1146210395.7551.37.camel@homer>
+In-Reply-To: <1146210395.7551.37.camel@homer>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>I'm also pretty sure, that CPU controller based on timeslice tricks 
+>>>behaves poorly on burstable load patterns as well and with interactive 
+>>>tasks. So before commiting I propose to perform a good testing on 
+>>>different load patterns.
+>>
+>>Yes, it can only react very slowly.
+> 
+> 
+> Actually, this might not be that much of a problem.  I know I can
+> traverse queue heads periodically very cheaply.  Traversing both active
+> and expired arrays to requeue starving tasks once every 100ms costs max
+> 4usecs (3GHz P4) for a typical distribution.
 
---chE8DYtGH5bd9Y2b
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+with fair scheduling with can be a big problem, as tasks working less 
+then a tick are hard to account :/
 
-On Thu, 2006-04-27 23:34:37 -0700, Linda Walsh <lkml@tlinx.org> wrote:
-> From "make help", the "O=3D" param to make is said to
->  'Locate all output files in "dir", including .config'
->=20
-> I first did:
->    "make O=3D$PWD/root bzImage modules"   # (Note: PWD=3D/usr/src/ast-261=
-611)
-[...]
-> Instead, it appears the "O=3D" parameter is _partially_ ignored.
+Thanks,
+Kirill
 
-> ishtar:/usr/src/ast-261611> make V=3D1 O=3D$PWD/root modules_install
 
-The  modules_install  target uses O=3D for its _input_ files (that is,
-for the readily compiled modules) and outputs to
-$(INSTALL_MOD_PATH)/lib/modules/$VERSION/ .  So you may want to set
-$(INSTALL_MOD_PATH) in the same way as you've set V=3D or O=3D before.
-
-If you're trying to prepare something to be copied over to a target
-system, the tar-pkg, targz-pkg and tarbz2-pkg targets may be exactly
-what you're searching for.
-
->    Is this a bug or a feature?  I.e. is the "make help" misleading in
-
-Feature. Modules won't ever be searched inside some kernel source
-directory, modprobe expects them to be in /lib/modules/.
-
-> saying "O=3D<dir>" can be used to specify the output directory of a
-> make run?  Or should this be working?
-
-It's maybe a bit misleading, but `modules_install' isn't a compilation
-run, it's an installation run. O=3D was ment to hold all
-compiled/generated objects, but to have a working installation, you
-need to break out of that (or have INSTALL_MOD_PATH set.)
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---chE8DYtGH5bd9Y2b
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEUcsoHb1edYOZ4bsRAjKnAJwKfRc/gNrBLAdnSc+ag+SQReJi+wCeJ8Xa
-dXnoNqbXO+y+928IMfpUjUw=
-=R6xU
------END PGP SIGNATURE-----
-
---chE8DYtGH5bd9Y2b--

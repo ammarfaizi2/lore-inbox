@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWD1PdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWD1PeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030433AbWD1PdI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 11:33:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWD1PdI
+	id S1030437AbWD1PeG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 11:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbWD1PeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 11:33:08 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:13218 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1030433AbWD1PdH (ORCPT
+	Fri, 28 Apr 2006 11:34:05 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:17633 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030437AbWD1PeB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 11:33:07 -0400
-Date: Fri, 28 Apr 2006 17:32:24 +0200 (MEST)
+	Fri, 28 Apr 2006 11:34:01 -0400
+Date: Fri, 28 Apr 2006 17:33:48 +0200 (MEST)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Adrian Bunk <bunk@stusta.de>, David Woodhouse <dwmw2@infradead.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Simple header cleanups
-In-Reply-To: <Pine.LNX.4.64.0604271656390.3701@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0604281729250.9011@yvahk01.tjqt.qr>
-References: <1146104023.2885.15.camel@hades.cambridge.redhat.com>
- <Pine.LNX.4.64.0604261917270.3701@g5.osdl.org> <1146105458.2885.37.camel@hades.cambridge.redhat.com>
- <Pine.LNX.4.64.0604261954480.3701@g5.osdl.org> <1146107871.2885.60.camel@hades.cambridge.redhat.com>
- <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org> <20060427213754.GU3570@stusta.de>
- <Pine.LNX.4.64.0604271439100.3701@g5.osdl.org> <20060427231200.GW3570@stusta.de>
- <Pine.LNX.4.64.0604271656390.3701@g5.osdl.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: mark gross <mgross@linux.intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: test
+In-Reply-To: <Pine.LNX.4.61.0604270815300.3795@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0604281732450.9011@yvahk01.tjqt.qr>
+References: <20060426181830.GA24812@linux.intel.com>
+ <Pine.LNX.4.61.0604261514230.32685@chaos.analogic.com>
+ <Pine.LNX.4.61.0604271204170.20284@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0604270815300.3795@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>> Now, if you'd only used Outlook-Express, I could send you something
+>>> that would fix it --for good!
+>>>
+>>> Can't you smuggle in something that runs pine?
+>>>
+>> Pine for WIN32.
 >
->Last I heard, a lot of people wanted to avoid that duplication, and 
->actually wanted the kabi headers exactly because they wanted just _one_ 
->place for these things.
+>Real people don't use WIN32 );... Except for getting notices from
+>the Human Resources Departments.
 >
-Sounds like they want it BSD-style. Do they realize that?
-New release, new headers, making it necessary to recompile every app, 
-because a struct could have changed. That'd seriously impact 
-compatibility.
+Sometimes you are forced to use WIN32, and you can't do anything about.
+In which case you should make it as comfortable as possible.
 
 
 Jan Engelhardt

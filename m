@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWD1SoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751798AbWD1TBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWD1SoE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 14:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWD1SoE
+	id S1751798AbWD1TBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 15:01:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWD1TBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 14:44:04 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:14818 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751437AbWD1SoC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 14:44:02 -0400
-Date: Fri, 28 Apr 2006 14:43:49 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net, ebiederm@xmission.com,
-       nanhai.zou@intel.com
-Subject: Re: [Lhms-devel] Re: [PATCH] register hot-added memory to iomem resource
-Message-ID: <20060428184349.GA28994@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <20060427204904.5037f6ea.kamezawa.hiroyu@jp.fujitsu.com> <20060427160130.6149550f.akpm@osdl.org> <20060428092754.cf382d03.kamezawa.hiroyu@jp.fujitsu.com>
+	Fri, 28 Apr 2006 15:01:25 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:18381
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751119AbWD1TBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 15:01:24 -0400
+Date: Fri, 28 Apr 2006 12:00:33 -0700 (PDT)
+Message-Id: <20060428.120033.86347954.davem@davemloft.net>
+To: spereira@tusc.com.au
+Cc: akpm@osdl.org, netdev@vger.kernel.org, eis@baty.hanse.de,
+       linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1]x25: fix for spinlock recurse and spinlock lockup
+ with timer handler in x25
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1145509403.16180.10.camel@spereira05.tusc.com.au>
+References: <1145509403.16180.10.camel@spereira05.tusc.com.au>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060428092754.cf382d03.kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 28, 2006 at 09:27:54AM +0900, KAMEZAWA Hiroyuki wrote:
-> > And how is kdump to know that memory was hot-added?  Do we generate a
-> > hotplug event?
-> > 
-> A user program has to make memory section online from sysfs , anyway.
-> 
-> The hotplug script for memory hotplug will run at memory hotplug event 
-> from ACPI. If a user uses /probe interface (powerpc, x86_64),
-> he knows what he does. 
-> 
-> hot-add -> online memory -> kexec_load() is a scenario I think of.
-> 
+From: Shaun Pereira <spereira@tusc.com.au>
+Date: Thu, 20 Apr 2006 15:03:23 +1000
 
-Did a quick search but can't locate a memory hotplug agent. Can you give
-some pointers.
+> From: spereira@tusc.com.au
+> 
+> When the sk_timer function x25_heartbeat_expiry() is called by the kernel
+> in a running/terminating process, spinlock-recursion and spinlock-lockup
+> locks up the kernel. 
+> This has happened with testing on some distro's and the patch below fixed it.
+> 
+> Signed-off-by:Shaun Pereira <spereira@tusc.com.au>
 
-Thanks
-Vivek
+Applied, thanks.

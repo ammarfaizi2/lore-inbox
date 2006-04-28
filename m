@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030443AbWD1Pri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030438AbWD1Psw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030443AbWD1Pri (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 11:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030444AbWD1Pri
+	id S1030438AbWD1Psw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 11:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030439AbWD1Psv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 11:47:38 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:28879 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1030443AbWD1Prh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 11:47:37 -0400
-Date: Fri, 28 Apr 2006 17:47:04 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Avi Kivity <avi@argo.co.il>
-cc: Martin Mares <mj@ucw.cz>, Denis Vlasenko <vda@ilport.com.ua>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Roman Kononov <kononov195-far@yahoo.com>,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-In-Reply-To: <4451CF7A.5040902@argo.co.il>
-Message-ID: <Pine.LNX.4.61.0604281744310.9011@yvahk01.tjqt.qr>
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com>
- <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il>
- <200604271655.48757.vda@ilport.com.ua> <4450D4E9.4050606@argo.co.il>
- <mj+md-20060427.145744.9154.atrey@ucw.cz> <4450E3CB.1090206@argo.co.il>
- <mj+md-20060427.153429.15386.atrey@ucw.cz> <4451CF7A.5040902@argo.co.il>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 28 Apr 2006 11:48:51 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:15341 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1030438AbWD1Psu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 11:48:50 -0400
+Date: Fri, 28 Apr 2006 17:48:39 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Cc: akpm@osdl.org, ioe-lkml@rameria.de, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com, penberg@cs.helsinki.fi
+Subject: Re: [PATCH] s390: Hypervisor File System
+Message-ID: <20060428154839.GD30532@wohnheim.fh-wedel.de>
+References: <20060428094320.GC30532@wohnheim.fh-wedel.de> <OF5222FCF0.13191785-ON4225715E.00410FC5-4225715E.00415AAD@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <OF5222FCF0.13191785-ON4225715E.00410FC5-4225715E.00415AAD@de.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> #include <cassert>
->
-> template <typename Key, class Value, class Traits>
-> class Hashtable
-> {
-> public:
-> class Link {
+On Fri, 28 April 2006 13:53:50 +0200, Michael Holzheu wrote:
+> 
+> We discussed that! If we would have more than two data formats
+> we would have taken your approach. But for only two, I think
+> it is ok to do it my way!
 
-Does not match CodingStyle. SCNR.
+Sounds fair.  Sorry I missed the previous discussion.
 
->   assert((_size & (_size -  1)) == 0);
+Jörn
 
-Names with underscores are usually reserved.
-
-> // example program
->
-> static unsigned hash(const char* key)
-> {
-> // assume this is jenkin's hash.
-> unsigned h = 0;
-> while (*key) {
-> h = (h << 3) | (h >> 29);
-> h ^= (unsigned char)*key++;
-
-No const_cast<> and static_cast<> here?
-
-
-
-Jan Engelhardt
 -- 
+All art is but imitation of nature.
+-- Lucius Annaeus Seneca

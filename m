@@ -1,116 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbWD1B6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbWD1CEb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964996AbWD1B6a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 21:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965172AbWD1B6a
+	id S965147AbWD1CEb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 22:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbWD1CEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 21:58:30 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:41159 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964996AbWD1B63
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 21:58:29 -0400
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
+	Thu, 27 Apr 2006 22:04:31 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:3815 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965147AbWD1CEa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 22:04:30 -0400
+From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-In-Reply-To: <20060421191340.0b218c81.akpm@osdl.org>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-	 <1145630992.3373.6.camel@localhost.localdomain>
-	 <1145638722.14804.0.camel@linuxchandra>
-	 <20060421155727.4212c41c.akpm@osdl.org>
-	 <1145670536.15389.132.camel@linuxchandra>
-	 <20060421191340.0b218c81.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 27 Apr 2006 18:58:25 -0700
-Message-Id: <1146189505.24650.221.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Date: Fri, 28 Apr 2006 12:04:25 +1000
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: [PATCH INTRO] Re: [RFC] copy_from_user races with readpage
+In-Reply-To: message from Andrew Morton on Wednesday April 19
+References: <200604191318.45738.mason@suse.com>
+	<20060419134148.262c61cd.akpm@osdl.org>
+Subject: [PATCH 000 of 2] Introduction
+Message-ID: <20060428114321.21969.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-21 at 19:13 -0700, Andrew Morton wrote:
-> Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+On Wednesday April 19, akpm@osdl.org wrote:
+> Chris Mason <mason@suse.com> wrote:
 > >
-> > > 
-> > > c) pointer to prototype code if poss
+> > Hello everyone,
 > > 
-> > Both the memory controllers are fully functional. We need to trim them
-> > down.
-> > 
-> > active/inactive list per class memory controller:
-> > http://prdownloads.sourceforge.net/ckrm/mem_rc-f0.4-2615-v2.tz?download
+> > I've been working with IBM on a long standing bug where zeros unexpectedly pop 
+> > up during a disk certification test.  We tracked it down to copy_from_user.  
+....
 > 
-> Oh my gosh.  That converts memory reclaim from per-zone LRU to
-> per-CKRM-class LRU.  If configured.
-> 
-> This is huge.  It means that we have basically two quite different versions
-> of memory reclaim to test and maintain.   This is a problem.
-> 
-> (I hope that's the before-we-added-comments version of the patch btw).
-> 
-> > pzone based memory controller:
-> > http://marc.theaimsgroup.com/?l=ckrm-tech&m=113867467006531&w=2
-> 
-> From a super-quick scan that looks saner.  Is it effective?  Is this the
-> way you're planning on proceeding?
-> 
-> This requirement is basically a glorified RLIMIT_RSS manager, isn't it? 
-> Just that it covers a group of mm's and not just the one mm?
-> 
-> Do you attempt to manage just pagecache?  So if class A tries to read 10GB
-> from disk, does that get more aggressively reclaimed based on class A's
-> resource limits?
-> 
-> This all would have been more comfortable if done on top of the 2.4
-> kernel's virtual scanner.
-> 
-> (btw, using the term "class" to identify a group of tasks isn't very
-> comfortable - it's an instance, not a class...)
-> 
-> 
-> Worried.
+> I'd have thought that a sufficient fix would be to change
+> __copy_from_user_inatomic() to not do the zeroing, then review all users to
+> make sure that they cannot leak uninitialised memory.
 
-The object of this infrastructure is to get a unified interface for
-resource management, irrespective of the resource that is being managed.
+So I'm following this up and trying to figure out how best to make this
+"right".
 
-As I mentioned in my earlier email, subsystem experts are the ones who
-will finally decide what type resource controller they will accept. With
-VM experts' direction and advice, i am positive that we will get an
-excellent memory controller (as well as other controllers).
+Following are two patches.  
+The first is the result of the suggested "review".
+The only users of copy_from_user_inatomic that cannot safely lose the
+zeroing are two separate (but similar:-() implmentations of 
+  copy_from_user_iovec
+These I have 'fixed'.
 
-As you might have noticed, we have gone through major changes to come to
-community's acceptance levels. We are now making use of all possible
-features (kref, process event connector, configfs, module parameter,
-kzalloc) in this infrastructure.
+It is unfortunate that both chose to "know" exactly the difference between
+the _inatomic and the regular versions, and call _inatomic not in atomic context.
+It seems to suggest poor interface design, but I'm not sure exactly what
+the poor choice is.
 
-Having a CPU controller, two memory controllers, an I/O controller and a
-numtasks controller proves that the infrastructure does handle major
-resources nicely and is also capable of managing virtual resources.
+Also after reading this code I am very aware that on architectures that
+aren't saddled with highmem (e.g. 64bit) the duplication of copy_from_user
+is simply wasted icache space.  Possibly it might make sense to guard the first
+_inatomic copy with "if(PageHighMem(page))" which should complie it away to
+nothing when highmem isn't present.
 
-Hope i reduced your worries (at least some :).
+The second patch changes __copy_from_user_inatomic to not do zeroing
+in i386.  I'm quite open to the possiblity of being told that something
+I did there is either very silly or very ugly or both.  However not being
+very experienced in arch/asm code I'm not sure what.  Constructive
+criticism very welcome.
 
-regards,
+If happiness is achieved with these patches, we then need to look at similar
+patches for powerpc, mips, and sparc.
 
-chandra
-> 
-> 
-> -------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
+Thanks for your time.
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+NeilBrown
 
 
+ [PATCH 001 of 2] Prepare  for __copy_from_user_inatomic to not zero missed bytes.
+ [PATCH 002 of 2] Make copy_from_user_inatomic NOT zero the tail on i386

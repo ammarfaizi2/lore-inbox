@@ -1,82 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWD1UWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWD1U24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWD1UWa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 16:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWD1UWa
+	id S1751449AbWD1U24 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 16:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbWD1U24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 16:22:30 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:28838 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1751406AbWD1UW3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 16:22:29 -0400
-Message-ID: <4452797F.70700@dgreaves.com>
-Date: Fri, 28 Apr 2006 21:22:23 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Mail/News 1.5 (X11/20060228)
+	Fri, 28 Apr 2006 16:28:56 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:48045 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751787AbWD1U2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 16:28:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=V3nVyB8x9FSVC21OTUOvGhqs4HrhOW5KWSkxMBbpi8ayNiad7VTlKhNrnewnCHr302ukZs8j58ky7NOn9kkZbwWe1FozMn8GUyd42zrM09irC2qZWR1h9eu4eqM5/Oclkl8/adGAZoRisNYioHqPK91PQ4M7rXiIMoovnI+Ygrg=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
+Date: Fri, 28 Apr 2006 22:28:46 +0200
+User-Agent: KMail/1.8.3
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <200604261747.54660.blaisorblade@yahoo.it> <20060426154607.GA8628@ccure.user-mode-linux.org>
+In-Reply-To: <20060426154607.GA8628@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       linux-xfs@oss.sgi.com
-Subject: Bad page state in process 'nfsd' with xfs
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200604282228.46681.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wednesday 26 April 2006 17:46, Jeff Dike wrote:
+> On Wed, Apr 26, 2006 at 05:47:54PM +0200, Blaisorblade wrote:
 
-This was with 2.6.16.9
+> Why not just zero out the bits that the kernel knows about?  Then, if
+> we return -EINVAL, the process just looks at the remaining bits that
+> are set to see what system calls the kernel didn't know about.
 
-There's an nfs export from an xfs on an lvm on a raid5 on some
-libata/sata disks.
-(cc'ing xfs since I recall rumoured(?) badness in old nfs/xfs/md/lvm
-setups and xfs_sendfile is mentioned)
+Good idea. When you're leaving the whole mask to 1 _except_ some bits set to 0 
+what do you suggest? Setting everything to 1 so the process sees the invalid 
+0 bits?
 
-dmesg had:
+However, I've had a new idea for the API form - sigprocmask() is used to 
+either enable or disable some bits in the _signal_ mask. But you pass in both 
+cases the bits to toggle. Making the API more similar to this would be good.
 
-Bad page state in process 'nfsd'
-page:b1602060 flags:0x80000008 mapping:00000000 mapcount:0 count:16777216
-Trying to fix it up, but a reboot is needed
-Backtrace:
- [<b013bda2>] bad_page+0x62/0x90
- [<b013c1c8>] prep_new_page+0x78/0x80
- [<b013c6b6>] buffered_rmqueue+0xf6/0x1f0
- [<b013c8e2>] get_page_from_freelist+0x92/0xb0
- [<b013c956>] __alloc_pages+0x56/0x300
- [<b013f00c>] __do_page_cache_readahead+0xdc/0x120
- [<b013f1b9>] blockable_page_cache_readahead+0x59/0xd0
- [<b013f2aa>] make_ahead_window+0x7a/0xb0
- [<b013f39f>] page_cache_readahead+0xbf/0x1b0
- [<b0138b91>] do_generic_mapping_read+0x4b1/0x4c0
- [<b01390e2>] generic_file_sendfile+0x62/0x70
- [<f1097080>] nfsd_read_actor+0x0/0xd0 [nfsd]
- [<b021bab0>] xfs_sendfile+0xc0/0x190
- [<f1097080>] nfsd_read_actor+0x0/0xd0 [nfsd]
- [<b0217fe8>] linvfs_open+0x48/0x50
- [<b0217f97>] linvfs_sendfile+0x57/0x60
- [<f1097080>] nfsd_read_actor+0x0/0xd0 [nfsd]
- [<f109734f>] nfsd_vfs_read+0x1ff/0x370 [nfsd]
- [<f1097080>] nfsd_read_actor+0x0/0xd0 [nfsd]
- [<f1097933>] nfsd_read+0x103/0x120 [nfsd]
- [<f109e234>] nfsd3_proc_read+0xe4/0x170 [nfsd]
- [<f1093649>] nfsd_dispatch+0xd9/0x210 [nfsd]
- [<f10e4792>] svc_process+0x482/0x670 [sunrpc]
- [<f10933fc>] nfsd+0x18c/0x300 [nfsd]
- [<f1093270>] nfsd+0x0/0x300 [nfsd]
- [<b0101391>] kernel_thread_helper+0x5/0x14
+Even if the semantics of both settings and clearing bits are unclear. 
+Probably, simply making both calls _set_ the mask but one of them (i.e. 
+MASK_DEFAULT_TRACE) reverse the mask before setting and after zero-extending 
+it to the right.
 
-more info on request but I have rebooted as suggested.
+Ok, this gives us a definite proposal, which I finally like:
 
-David
+* to exclude sys_tee:
 
-- --
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+bitmask = 0;
+set_bit(__NR_tee, bitmask);
+ptrace(PTRACE_SET_NOTRACE, bitmask);
 
-iD8DBQFEUnl+8LvjTle4P1gRAip3AJ9izpp3+/6/fPgzSbJdxuc74Uus5wCZAWtF
-QHY+xcDh9cf6bYhBCx+DzJE=
-=XZDc
------END PGP SIGNATURE-----
+* to trace only sys_tee:
 
+bitmask = 0;
+set_bit(__NR_tee, bitmask);
+ptrace(PTRACE_SET_TRACEONLY, bitmask);
+
+Semantics:
+
+in both cases, the mask is first zero-extended to the right (for syscalls not 
+known to userspace), bits for syscall not known to the kernel are checked and 
+the call fails if any of them is 1, and in the failure case E2BIG or 
+EOVERFLOW is returned (I want to avoid EINVAL and ENOSYS to avoid confusion) 
+and the part of the mask known to the kernel is 0-ed.
+
+In case of success, for NOTRACE (which was DEFAULT_TRACE) the mask is reversed 
+before copying in the kernel syscall mask, for TRACEONLY it's copied there 
+directly.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

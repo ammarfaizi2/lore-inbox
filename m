@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWD1UTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWD1UWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWD1UTl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 16:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWD1UTl
+	id S1751406AbWD1UWa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 16:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWD1UWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 16:19:41 -0400
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:36749 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751443AbWD1UTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 16:19:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=O4NQ8YeMOSJjwCCl4Tq19ON3oTiQ/Lsdm58ev22qDE7PzLOZ9ziAZSHcoIlamPsuoBpWue/UpdsyDkLrYVAmF9RjOtW85dBJVIfS0wSBXIANt3ljGXPuqsaxsF1oUN50Szit0KqAP/tYeBAyaTfMREcEWh4UoXMlOh6+OKM+BS4=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [uml-devel] Re: [RFC] PATCH 0/4 - Time virtualization
-Date: Fri, 28 Apr 2006 22:10:17 +0200
-User-Agent: KMail/1.8.3
-Cc: user-mode-linux-devel@lists.sourceforge.net,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, JANAK DESAI <janak@us.ibm.com>
-References: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org> <200604281554.32665.blaisorblade@yahoo.it> <20060428151543.GA7397@ccure.user-mode-linux.org>
-In-Reply-To: <20060428151543.GA7397@ccure.user-mode-linux.org>
+	Fri, 28 Apr 2006 16:22:30 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:28838 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1751406AbWD1UW3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 16:22:29 -0400
+Message-ID: <4452797F.70700@dgreaves.com>
+Date: Fri, 28 Apr 2006 21:22:23 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Mail/News 1.5 (X11/20060228)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       linux-xfs@oss.sgi.com
+Subject: Bad page state in process 'nfsd' with xfs
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604282210.17956.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 April 2006 17:15, Jeff Dike wrote:
-> On Fri, Apr 28, 2006 at 03:54:31PM +0200, Blaisorblade wrote:
-> > Additionally, if this flag ever goes into clone, it mustn't be named
-> > CLONE_TIME, but CLONE_NEWTIME (or CLONE_NEWUTS). And given CLONE_NEWNS,
-> > it's IMHO ok to have unshare(CLONE_NEWTIME) to mean "unshare time
-> > namespace", even if it's incoherent with unshare(CLONE_FS) - the
-> > incoherency already exists with CLONE_NEWNS.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I wonder if they should be CLONE_* at all.
+This was with 2.6.16.9
 
-I've wondered about this too. It makes some sense to renforce the relationship 
-with clone, but when you read the call to unshare you must do you get 
-nonsense. Like the above incoherence.
+There's an nfs export from an xfs on an lvm on a raid5 on some
+libata/sata disks.
+(cc'ing xfs since I recall rumoured(?) badness in old nfs/xfs/md/lvm
+setups and xfs_sendfile is mentioned)
 
-> Given that we are likely 
-> to run out of free CLONE_* bits, unshare will have to reuse bits that
-> don't have anything to do with sharing resources (CSIGNAL,
-> CLONE_VFORK, etc), and it doesn't seem that nice to have two different
-> CLONE_* flags with the same value, different meaning, only one of
-> which can actually be used in clone.
+dmesg had:
 
-> It seems better to use UNSHARE_*, with the current bits that are
-> common to unshare and clone being defined the same, i.e.
-> 	#define UNSHARE_VM CLONE_VM
-I indeed agree with this. With 
+Bad page state in process 'nfsd'
+page:b1602060 flags:0x80000008 mapping:00000000 mapcount:0 count:16777216
+Trying to fix it up, but a reboot is needed
+Backtrace:
+ [<b013bda2>] bad_page+0x62/0x90
+ [<b013c1c8>] prep_new_page+0x78/0x80
+ [<b013c6b6>] buffered_rmqueue+0xf6/0x1f0
+ [<b013c8e2>] get_page_from_freelist+0x92/0xb0
+ [<b013c956>] __alloc_pages+0x56/0x300
+ [<b013f00c>] __do_page_cache_readahead+0xdc/0x120
+ [<b013f1b9>] blockable_page_cache_readahead+0x59/0xd0
+ [<b013f2aa>] make_ahead_window+0x7a/0xb0
+ [<b013f39f>] page_cache_readahead+0xbf/0x1b0
+ [<b0138b91>] do_generic_mapping_read+0x4b1/0x4c0
+ [<b01390e2>] generic_file_sendfile+0x62/0x70
+ [<f1097080>] nfsd_read_actor+0x0/0xd0 [nfsd]
+ [<b021bab0>] xfs_sendfile+0xc0/0x190
+ [<f1097080>] nfsd_read_actor+0x0/0xd0 [nfsd]
+ [<b0217fe8>] linvfs_open+0x48/0x50
+ [<b0217f97>] linvfs_sendfile+0x57/0x60
+ [<f1097080>] nfsd_read_actor+0x0/0xd0 [nfsd]
+ [<f109734f>] nfsd_vfs_read+0x1ff/0x370 [nfsd]
+ [<f1097080>] nfsd_read_actor+0x0/0xd0 [nfsd]
+ [<f1097933>] nfsd_read+0x103/0x120 [nfsd]
+ [<f109e234>] nfsd3_proc_read+0xe4/0x170 [nfsd]
+ [<f1093649>] nfsd_dispatch+0xd9/0x210 [nfsd]
+ [<f10e4792>] svc_process+0x482/0x670 [sunrpc]
+ [<f10933fc>] nfsd+0x18c/0x300 [nfsd]
+ [<f1093270>] nfsd+0x0/0x300 [nfsd]
+ [<b0101391>] kernel_thread_helper+0x5/0x14
 
-cg log -r v2.6.16-rc1:v2.6.16 kernel/fork.c
+more info on request but I have rebooted as suggested.
 
-We can see the people involved in commits for sys_unshare (there's little 
-other work in there).
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+David
 
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+- --
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEUnl+8LvjTle4P1gRAip3AJ9izpp3+/6/fPgzSbJdxuc74Uus5wCZAWtF
+QHY+xcDh9cf6bYhBCx+DzJE=
+=XZDc
+-----END PGP SIGNATURE-----
+

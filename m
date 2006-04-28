@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965213AbWD1Okd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965216AbWD1OvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965213AbWD1Okd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 10:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965214AbWD1Okd
+	id S965216AbWD1OvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 10:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965214AbWD1OvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 10:40:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:8381 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965213AbWD1Okc (ORCPT
+	Fri, 28 Apr 2006 10:51:03 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:18306 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965216AbWD1OvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 10:40:32 -0400
-Date: Fri, 28 Apr 2006 10:40:21 -0400
+	Fri, 28 Apr 2006 10:51:01 -0400
+Date: Fri, 28 Apr 2006 10:50:41 -0400
 From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Matthieu CASTET <castet.matthieu@free.fr>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc2-mm1
-Message-ID: <20060428144021.GA7061@in.ibm.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net, vgoyal@in.ibm.com,
+       ebiederm@xmission.com, nanhai.zou@intel.com
+Subject: Re: [Lhms-devel] Re: [PATCH] register hot-added memory to iomem resource
+Message-ID: <20060428145041.GB7061@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
-References: <20060427014141.06b88072.akpm@osdl.org> <pan.2006.04.27.15.47.20.688183@free.fr> <20060427180227.GA1404@in.ibm.com> <20060427232444.GA23934@kroah.com>
+References: <20060427204904.5037f6ea.kamezawa.hiroyu@jp.fujitsu.com> <20060427160130.6149550f.akpm@osdl.org> <20060428092754.cf382d03.kamezawa.hiroyu@jp.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060427232444.GA23934@kroah.com>
+In-Reply-To: <20060428092754.cf382d03.kamezawa.hiroyu@jp.fujitsu.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 04:24:44PM -0700, Greg KH wrote:
-> On Thu, Apr 27, 2006 at 02:02:27PM -0400, Vivek Goyal wrote:
-> > On Thu, Apr 27, 2006 at 05:47:25PM +0200, Matthieu CASTET wrote:
-> > > Hi Andrew,
-> > > 
-> > > Le Thu, 27 Apr 2006 01:41:41 -0700, Andrew Morton a ?crit?:
-> > > 
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc2/2.6.17-rc2-mm1/
-> > > > 
-> > > 
-> > > 64 bit resources core changes in ioport.h break pnp sysfs interface.
-> > > 
-> > > A patch like this is needed.
-> > > 
-> > > Matthieu
-> > > 
-> > > Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
-> > > 
-> > > --- 1/drivers/pnp/interface.c	2006-01-03 04:21:10.000000000 +0100
-> > > +++ 2/drivers/pnp/interface.c	2006-04-14 22:54:45.000000000 +0200
-> > > @@ -264,7 +264,7 @@
-> > >  			if (pnp_port_flags(dev, i) & IORESOURCE_DISABLED)
-> > >  				pnp_printf(buffer," disabled\n");
-> > >  			else
-> > > -				pnp_printf(buffer," 0x%lx-0x%lx\n",
-> > > +				pnp_printf(buffer," 0x%llx-0x%llx\n",
-> > >  						pnp_port_start(dev, i),
-> > >  						pnp_port_end(dev, i));
-> > 
-> > I think it would break on ppc64 as u64 is unsigned long. It should be
-> > explicitly typecasted to unsigned long long. Same is true for all the
-> > instances.
+On Fri, Apr 28, 2006 at 09:27:54AM +0900, KAMEZAWA Hiroyuki wrote:
+> On Thu, 27 Apr 2006 16:01:30 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> Does ppc64 use the PnP code?
+> > KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> > >
+> > > This patch registers hot-added memory to iomem_resource.
+> > > By this, /proc/iomem can show hot-added memory.
+> > > This patch is against 2.6.17-rc2-mm1.
+> > > 
+> > > Note: kdump uses /proc/iomem to catch memory range when it is installed.
+> > >       So, kdump should be re-installed after /proc/iomem change.
+> > > 
+> > 
+> > What do you mean by "kdump should be reinstalled"?  The kdump userspace
+> > tools need to re-run kexec_load()?
+> > 
+> yes. I heard an admin has to re-run kexec_load.
+> - http://www.uwsg.indiana.edu/hypermail/linux/kernel/0604.0/0821.html
+> - http://www.uwsg.indiana.edu/hypermail/linux/kernel/0604.0/0829.html
+> Added CC to ebiederm@xmission.com, nanhai.zou@intel.com
+> 
+> > If so, why?
+> > 
+> It reads physical memory list from /proc/iomem now.
+> The physical memory list is read and saved at kdump kernel loading time
+> instead of crashing time. 
 > 
 
-I had assumed it. Just now did a allmodconfig on ppc64 and came to know
-there is no such option as CONFIG_PNP. Sorry for the noise.
+True. If some meory is added, kdump kernel has to be re-loaded.
+
+> > And how is kdump to know that memory was hot-added?  Do we generate a
+> > hotplug event?
+> > 
+> A user program has to make memory section online from sysfs , anyway.
+> 
+> The hotplug script for memory hotplug will run at memory hotplug event 
+> from ACPI. If a user uses /probe interface (powerpc, x86_64),
+> he knows what he does. 
+> 
+> hot-add -> online memory -> kexec_load() is a scenario I think of.
+> 
+
+I will look into it.
 
 Thanks
-Vivek 
+Vivek

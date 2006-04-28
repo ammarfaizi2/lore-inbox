@@ -1,76 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWD1H04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWD1HeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030288AbWD1H04 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 03:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWD1H04
+	id S1030294AbWD1HeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 03:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbWD1HeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 03:26:56 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:11697 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030288AbWD1H0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 03:26:55 -0400
-Date: Fri, 28 Apr 2006 16:26:12 +0900
-From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, maeda.naoaki@jp.fujitsu.com
-Subject: Re: [PATCH 0/9] CPU controller
-Message-Id: <20060428162612.7760628d.maeda.naoaki@jp.fujitsu.com>
-In-Reply-To: <1146207589.7551.7.camel@homer>
-References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-	<1146201936.7523.15.camel@homer>
-	<20060428144859.a07bb5b2.maeda.naoaki@jp.fujitsu.com>
-	<1146207589.7551.7.camel@homer>
-Organization: FUJITSU LIMITED
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Fri, 28 Apr 2006 03:34:16 -0400
+Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:11932 "EHLO
+	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
+	id S1030294AbWD1HeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 03:34:16 -0400
+Date: Fri, 28 Apr 2006 03:33:58 -0400
+From: Josef Sipek <jsipek@fsl.cs.sunysb.edu>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, heiko.carstens@de.ibm.com
+Subject: Re: [patch 11/13] s390: instruction processing damage handling.
+Message-ID: <20060428073358.GA15166@filer.fsl.cs.sunysb.edu>
+References: <20060424150544.GL15613@skybase>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060424150544.GL15613@skybase>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Apr 2006 08:59:49 +0200
-Mike Galbraith <efault@gmx.de> wrote:
+On Mon, Apr 24, 2006 at 05:05:44PM +0200, Martin Schwidefsky wrote:
+> +++ linux-2.6-patched/drivers/s390/s390mach.c	2006-04-24 16:47:28.000000000 +0200
+...
+> +#define MAX_IPD_TIME	(5 * 60 * 100 * 1000) /* 5 minutes */
 
-> On Fri, 2006-04-28 at 14:48 +0900, MAEDA Naoaki wrote:
-> > Hi Mike,
-> > 
-> > On Fri, 28 Apr 2006 07:25:35 +0200
-> > Mike Galbraith <efault@gmx.de> wrote:
-> > 
-> > > On Fri, 2006-04-28 at 10:37 +0900, MAEDA Naoaki wrote:
-> > > > Andrew,
-> > > > 
-> > > > This patchset adds a CPU resource controller on top of Resource Groups. 
-> > > > The CPU resource controller manages CPU resources by scaling timeslice
-> > > > allocated for each task without changing the algorithm of the O(1)
-> > > > scheduler.
-> > > > 
-> > > > Please consider these for inclusion in -mm tree.
-> > > 
-> > > This patch set professes to be a resource controller, yet 100% of high
-> > > priority tasks are uncontrolled.  Distribution of CPU among high
-> > > priority tasks isn't important, but distribution of what they leave
-> > > behind is?
-> > 
-> > Do you mean niced tasks are uncontrolled by the controller? 
-> > TASK_INTERACTIVEs are left untouched intentionally, but niced tasks
-> > are also controlled.
-> 
-> Until they attain interactive status.  Note that attaining this status
-> requires only one sleep, and once attained, it can be sustained.  I
-> don't know what the current exact numbers are, but until recently, the
-> numbers were that once sleep_avg became full, a non-niced task could
-> sustain ~95% cpu indefinitely.
-> 
-> You simply cannot ignore interactive tasks.  At the very least, you have
-> to disallow requeue if the resource limit has been exceeded, otherwise,
-> this patch set is non-functional.
+I'm no s390 expert, but shouldn't the above use something like HZ?
 
-It can be easily implemented on top of the current code. Do you know a good
-sample program that is judged as interactive but consumes lots of cpu?
-
-Thanks,
-MAEDA Naoaki
-
-
+Josef 'Jeff' Sipek.

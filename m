@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030480AbWD1QUD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWD1QYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030480AbWD1QUD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 12:20:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbWD1QUD
+	id S1030473AbWD1QYr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 12:24:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWD1QYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 12:20:03 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:35555 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030480AbWD1QUA (ORCPT
+	Fri, 28 Apr 2006 12:24:47 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:8174 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1030473AbWD1QYq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 12:20:00 -0400
-Date: Fri, 28 Apr 2006 21:47:55 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Suzanne Wood <suzannew@cs.pdx.edu>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
-Subject: Re: [PATCH] Fix file lookup without ref
-Message-ID: <20060428161755.GA2309@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <200604232315.k3NNFIC4017623@murzim.cs.pdx.edu>
+	Fri, 28 Apr 2006 12:24:46 -0400
+Date: Sat, 29 Apr 2006 01:25:19 +0900 (JST)
+Message-Id: <20060429.012519.126141613.anemo@mba.ocn.ne.jp>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [PATCH] RTC: rtc-dev tweak for 64-bit kernel
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200604232315.k3NNFIC4017623@murzim.cs.pdx.edu>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Suzanne,
+Make rtc-dev more friendly to 64-bit platforms with 32-bit userland.
+This tweak is came from genrtc driver.
 
-Sorry about the late reply, I have been offline for a while.
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-On Sun, Apr 23, 2006 at 04:15:18PM -0700, Suzanne Wood wrote:
-> Do you mind explaining what you mean by "don't hold a reference"
-> in the places you replace rcu_read_lock() with spin_lock() in
-> settings with nested fcheck_files() or files_fdtable() which 
-> in turn call rcu_dereference()?  How, for example, are the 
-
-Well, we use different methods of reference counting with
-RCU based objects and fd table is one of those. With the
-fd table, when you look up a file without holding
-the fd table spinlock, the file structure you get may
-be getting torn down on another CPU. We can safely
-do this only if we *successfully* increment the reference
-count of the file structure using atomic_inc_not_zero()
-primitive which is based on cmpxchg. If atomic_inc_not_zero()
-fails, we assume that the reference count of the file
-structure had become zero and is getting destroyed.
-If atomic_inc_not_zero() was successful, then we
-"hold" a reference to the file structure and it is
-safe to access it.
-
-> occurences in proc_readfd() and tid_fd_revalidate() in 
-> fs/proc/base.c different?  tid_fid_revalidate() doesn't make
-> a local assignment and has the FASTCALL put_files_struct, but
-> is there reasoning that proc_readfd() isn't similar to steal_locks()
-> in fs/locks.c?
-
-In both proc_readfd() and tid_fd_revalidate(), we don't access
-the file structure itself in the lock-free section. We just
-check if the file exists or not in the fd table. Worst case,
-we may see state data in /proc.
-
-Thanks
-Dipankar
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+index b1e3e61..ae6adc4 100644
+--- a/drivers/rtc/rtc-dev.c
++++ b/drivers/rtc/rtc-dev.c
+@@ -58,7 +58,7 @@ rtc_dev_read(struct file *file, char __u
+ 	unsigned long data;
+ 	ssize_t ret;
+ 
+-	if (count < sizeof(unsigned long))
++	if (count != sizeof (unsigned int) && count < sizeof (unsigned long))
+ 		return -EINVAL;
+ 
+ 	add_wait_queue(&rtc->irq_queue, &wait);
+@@ -92,9 +92,13 @@ rtc_dev_read(struct file *file, char __u
+ 		if (rtc->ops->read_callback)
+ 			data = rtc->ops->read_callback(rtc->class_dev.dev, data);
+ 
+-		ret = put_user(data, (unsigned long __user *)buf);
+-		if (ret == 0)
+-			ret = sizeof(unsigned long);
++		if (sizeof (int) != sizeof (long) &&
++		    count == sizeof (unsigned int))
++			ret = put_user(data, (unsigned int __user *)buf) ?:
++				sizeof(unsigned int);
++		else
++			ret = put_user(data, (unsigned long __user *)buf) ?:
++				sizeof(unsigned long);
+ 	}
+ 	return ret;
+ }

@@ -1,203 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWD1Bi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWD1Bin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbWD1Bi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 21:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWD1Biv
+	id S1030255AbWD1Bin (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 21:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbWD1Bim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 21:38:51 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:9454 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030256AbWD1BiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 21:38:25 -0400
+	Thu, 27 Apr 2006 21:38:42 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:54690 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030266AbWD1Bib (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 21:38:31 -0400
 From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org,
        ckrm-tech@lists.sourceforge.net
 Cc: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-Date: Fri, 28 Apr 2006 10:37:46 +0900
-Message-Id: <20060428013746.9582.56441.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+Date: Fri, 28 Apr 2006 10:37:56 +0900
+Message-Id: <20060428013756.9582.84189.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 In-Reply-To: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-Subject: [PATCH 3/9] CPU controller - Add timeslice scaling support
+Subject: [PATCH 5/9] CPU controller - Documentation how the controller works
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-3/9: cpurc_timeslice_scaling
+5/9: cpurc_docs
 
-This patch corresponds to section 3 in Documentation/res_group/cpurc-internals, 
-adding the CPU resource control by scaling timeslices given to each tasks.
-The scaling factors of timeslices are changed based on the difference between
-the share of the resource and the actual load.
+Documentation that describes how the CPU resource controller works.
 
 Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
 Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
 
- include/linux/cpu_rc.h |   12 +++++++++
- kernel/cpu_rc.c        |   63 +++++++++++++++++++++++++++++++++++++++++++++++--
- kernel/sched.c         |   11 +++++++-
- 3 files changed, 82 insertions(+), 4 deletions(-)
+ Documentation/res_groups/cpurc-internals |  167 +++++++++++++++++++++++++++++++
+ 1 files changed, 167 insertions(+)
 
-Index: linux-2.6.17-rc3/include/linux/cpu_rc.h
+Index: linux-2.6.17-rc3/Documentation/res_groups/cpurc-internals
 ===================================================================
---- linux-2.6.17-rc3.orig/include/linux/cpu_rc.h
-+++ linux-2.6.17-rc3/include/linux/cpu_rc.h
-@@ -17,8 +17,11 @@
- 
- #define CPU_RC_SPREAD_PERIOD	(10 * HZ)
- #define CPU_RC_LOAD_SCALE	(2 * CPU_RC_SPREAD_PERIOD)
-+#define CPU_RC_LOAD_MARGIN	1
- #define CPU_RC_SHARE_SCALE	100
- #define CPU_RC_TSFACTOR_MAX	CPU_RC_SHARE_SCALE
-+#define CPU_RC_TSFACTOR_INC_HI	5
-+#define CPU_RC_TSFACTOR_INC_LO	2
- #define CPU_RC_HCOUNT_INC	2
- #define CPU_RC_RECALC_INTERVAL	HZ
- 
-@@ -34,6 +37,8 @@ struct cpu_rc_domain {
- struct cpu_rc {
- 	int share;
- 	int is_hungry;
-+	unsigned int ts_factor;
-+	unsigned long last_recalc;
- 	struct cpu_rc_domain *rcd;
- 	struct {
- 		unsigned long timestamp;
-@@ -44,6 +49,7 @@ struct cpu_rc {
- 
- extern struct cpu_rc *cpu_rc_get(task_t *);
- extern unsigned int cpu_rc_load(struct cpu_rc *);
-+extern unsigned int cpu_rc_scale_timeslice(task_t *, unsigned int);
- extern void cpu_rc_account(task_t *, unsigned long);
- extern void cpu_rc_detect_hunger(task_t *);
- 
-@@ -74,6 +80,12 @@ static inline void cpu_rc_record_allocat
- 					    unsigned int slice,
- 					    unsigned long now) {}
- 
-+static inline unsigned int cpu_rc_scale_timeslice(task_t *tsk,
-+						  unsigned int slice)
-+{
-+	return slice;
-+}
+--- /dev/null
++++ linux-2.6.17-rc3/Documentation/res_groups/cpurc-internals
+@@ -0,0 +1,167 @@
++CPU resource controller internals
 +
- #endif /* CONFIG_CPU_RC */
- 
- #endif /* _LINUX_CPU_RC_H_ */
-Index: linux-2.6.17-rc3/kernel/cpu_rc.c
-===================================================================
---- linux-2.6.17-rc3.orig/kernel/cpu_rc.c
-+++ linux-2.6.17-rc3/kernel/cpu_rc.c
-@@ -14,6 +14,16 @@
- #include <linux/sched.h>
- #include <linux/cpu_rc.h>
- 
-+static inline void cpu_rcd_lock(struct cpu_rc *cr)
-+{
-+	spin_lock(&cr->rcd->lock);
-+}
++ There are 3 components in the CPU resource controller:
 +
-+static inline void cpu_rcd_unlock(struct cpu_rc *cr)
-+{
-+	spin_unlock(&cr->rcd->lock);
-+}
++ (1)  load estimation
++ (2)  hungry detection
++ (3)  timeslice scaling
 +
- static inline int cpu_rc_is_hungry(struct cpu_rc *cr)
- {
- 	return cr->is_hungry;
-@@ -77,6 +87,33 @@ static inline void cpu_rc_recalc_tsfacto
- 	else
- 		cpu_rc_set_hungry(cr);
- 
-+	if (!cpu_rc_is_anyone_hungry(cr)) {
-+		/* Everyone satisfied.  Extend time_slice. */
-+		cr->ts_factor += CPU_RC_TSFACTOR_INC_HI;
-+	} else {
-+		if (cpu_rc_is_hungry(cr)) {
-+			/* Extend time_slice a little. */
-+			cr->ts_factor += CPU_RC_TSFACTOR_INC_LO;
-+		} else if (load * CPU_RC_SHARE_SCALE >
-+			   (cr->share + CPU_RC_LOAD_MARGIN)
-+				* CPU_RC_LOAD_SCALE) {
-+			/*
-+			 * scale time_slice only when load is higher than
-+			 * the share.
-+			 */
-+			cr->ts_factor = cr->ts_factor * cr->share
-+				* CPU_RC_LOAD_SCALE
-+				/ (load * CPU_RC_SHARE_SCALE);
-+		}
-+	}
++ We need to estimate the resource group load in order to check whether
++ the share is satisfied or not.  Resource group load also gets lower than
++ the share when all the tasks in the resoruce group tends to sleep. We need to
++ check whether the resource group needs to schedule more or not by hungry
++ detection.  If a resource group needs to schedule more, timeslices of tasks
++ are scaled by timeslice scaling.
 +
-+	if (cr->ts_factor == 0)
-+		cr->ts_factor = 1;
-+	else if (cr->ts_factor > CPU_RC_TSFACTOR_MAX)
-+		cr->ts_factor = CPU_RC_TSFACTOR_MAX;
++1. Load estimation
 +
-+	cr->last_recalc = now;
++ We calculate the resource group load as the accumulation of task loads in the
++ resource group.  We need to calculate the task load first, then calculate the
++ resource group load from the task loads.
 +
- 	cpu_rcd_unlock(cr);
- }
- 
-@@ -100,7 +137,29 @@ unsigned int cpu_rc_load(struct cpu_rc *
- 		n++;
- 	}
- 
--	return load / n * CPU_RC_GUAR_SCALE / CPU_RC_LOAD_SCALE;
-+	return load / n * CPU_RC_SHARE_SCALE / CPU_RC_LOAD_SCALE;
-+}
++ Task load estimation
 +
-+/*
-+ * cpu_rc_scale_timeslice scales the task timeslice based on the scale factor
-+ */
-+unsigned int cpu_rc_scale_timeslice(task_t *tsk, unsigned int slice)
-+{
-+	struct cpu_rc *cr;
-+	unsigned int scaled;
++  Task load is estimated as the ratio of:
++   * the timeslice value allocated to the task (Ts)
++  to:
++   * the time that is taken for the task to run out the allocated timeslice
++     (Tr).
++  If a task can use all the CPU time, Ts / Tr becomes 1 for example.
 +
-+	cr = cpu_rc_get(tsk);
-+	if (!cr)
-+		return slice;
++  The detailed procedure of the calculation is as follows:
++  (1) Record the timeslice (Ts) and the time when the timeslice is
++      allocated to the task (by calling cpu_rc_record_allocation()).
++      * The timeslice value is recorded to task->last_slice ( = Ts).
++      * The time is recorded to task->ts_alloced.
++  (2) Calculate the task load when the timeslice is expired
++      (by calling cpu_rc_account()).
++      Tr is calculated as:
++       Tr = jiffies - task->ts_alloced
++      Then task load (Ts / Tr) becomes:
++       Ts / Tr = task->last_slice / (jiffies - task->ts_alloced)
 +
-+	if (jiffies - cr->last_recalc > CPU_RC_RECALC_INTERVAL)
-+		cpu_rc_recalc_tsfactor(cr);
++      The load value is scaled by CPU_RC_LOAD_SCALE.
++      If the load value equals to CPU_RC_LOAD_SCALE, it indicates 100%
++      CPU usage.
 +
-+	scaled = slice * cr->ts_factor / CPU_RC_TSFACTOR_MAX;
-+	if (scaled == 0)
-+		scaled = 1;
++          task->ts_alloced   task scheduled             now
++             v               v                          v
++             |---------------===========================|
 +
-+	return scaled;
- }
- 
- /*
-@@ -167,7 +226,7 @@ void cpu_rc_detect_hunger(task_t *tsk)
- 
- 	BUG_ON(tsk->last_slice == 0);
- 	wait = jiffies - tsk->last_activated;
--	if (CPU_RC_GUAR_SCALE * tsk->last_slice	/ (wait + tsk->last_slice)
-+	if (CPU_RC_SHARE_SCALE * tsk->last_slice / (wait + tsk->last_slice)
- 			< cr->share)
- 		cr->stat[cpu].maybe_hungry++;
- 
-Index: linux-2.6.17-rc3/kernel/sched.c
-===================================================================
---- linux-2.6.17-rc3.orig/kernel/sched.c
-+++ linux-2.6.17-rc3/kernel/sched.c
-@@ -173,10 +173,17 @@
- 
- static unsigned int task_timeslice(task_t *p)
- {
-+	unsigned int timeslice;
++                             |<------------------------>|
++                               Ts ( = task->last_slice)
 +
- 	if (p->static_prio < NICE_TO_PRIO(0))
--		return SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
-+		timeslice = SCALE_PRIO(DEF_TIMESLICE*4, p->static_prio);
- 	else
--		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
-+		timeslice = SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
++             |<---------------------------------------->|
++                Tr ( = now - task->ts_alloced)
 +
-+	if (!TASK_INTERACTIVE(p))
-+		timeslice = cpu_rc_scale_timeslice(p, timeslice);
++             |<------------->|
++               the time that the task isn't scheduled
 +
-+	return timeslice;
- }
- #define task_hot(p, now, sd) ((long long) ((now) - (p)->last_ran)	\
- 				< (long long) (sd)->cache_hot_time)
++
++      Note that task load calculation is also needed for strict
++      accuracy when a task forks or exits, because timeslice is
++      changed on fork and exit.  But we don't do that in order to
++      simplify the code and in order not to introduce overhead on fork
++      and exit.  Probably we can get enough accurate number without
++      calculating the task load on fork/exit.
++
++ Resource group load estimation:
++
++  Resource group load is the accumulation of load values of tasks in
++  the resource group in the duration of CPU_RC_SPREAD_PERIOD.
++  Per-CPU resource group load is recalculated each time the task load is
++  calculated in the cpu_rc_account() function.
++  Then on CPU_RC_RECALC_INTERVAL intervals, the resource group load value
++  per-CPU value is calculated as the average of the per-CPU resource group load.
++
++  Task load is accumulated to the per-CPU resource group load as if the resource
++  group uses Ts/Tr of the CPU time from task->ts_alloced to now (the time
++  the timeslice expired).
++
++  So the time that the task has used the CPU from (now - CPU_RC_SPREAD_PERIOD)
++  to now (Ttsk) should be:
++
++   if task->ts_alloced < now - CPU_RC_SPREAD_PERIOD:
++     Ts/Tr * CPU_RC_SPREAD_PERIOD
++     (We assume that the task has used the CPU at the constant rate of Ts/Tr.)
++
++                    now-CPU_RC_SPREAD_PERIOD                now
++                    v                                       v
++                    |---------------------------------------|
++         |==================================================| load: Ts/Tr
++         ^
++         task->ts_alloced
++
++   else:
++     Ts
++
++                    now-CPU_RC_SPREAD_PERIOD                now
++                    v                                       v
++                    |---------------------------------------|
++                               |============================| load: Ts/Tr
++                               ^
++                               task->ts_alloced
++
++  Also, we assume that the resource group uses the CPU at the rate of
++  the resource group load from (now - CPU_RC_SPREAD_PERIOD) to the last time
++  the per-CPU resource group load was calculated 
++  (stored in struct cpu_rc::stat[cpu].timestamp).  
++  If cpu_rc::stat[cpu].timestamp < now - CPU_RC_SPREAD_PERIOD, we assume that
++  the resource group doesn't use the CPU from (now - CPU_RC_SPREAD_PERIOD) to
++  task->ts_alloced.
++
++  So the time that the resource group use the CPU from 
++  (now - CPU_RC_SPREAD_PERIOD) to now (Trgrp) should be:
++   if cpu_rc::stat[cpu].timestamp < now - CPU_RC_SPREAD_PERIOD:
++     0
++   else:
++     cpu_rc::stat[cpu].load * (cpu_rc::stat[cpu].timestamp - (now - CPU_RC_SPREAD_PERIOD))
++
++  The new per-CPU resource group load that will be assigned to
++  cpu_rc::stat[cpu].load is calculated as:
++    (Ttsk + Trgrp) / CPU_RC_SPREAD_PERIOD
++
++2. Hungry detection
++
++ When the resource group load is less than the share, there are 2 cases:
++  (a) the share is enough and tasks in the resource group have time for sleep
++  (b) tasks in other resource groups overuse the CPU
++
++ We should not scale the timeslice in case (a) even if the resource group load
++ is lower than the share.  In order to distinguish case (b) from
++ case (a), we measure the time (Tsch) from when a task is activated
++ (stored in task->last_activated) till when the task is actually
++ scheduled.  If the resource group load is lower than the share but tasks
++ in the resource group are quickly scheduled, it can be classified to case (a).
++ If Tsch / timeslice of a task is lower than the share, the resource group
++ that has the task is marked as "maybe hungry."  If the resource group load of
++ the resource group that is marked as "maybe hungry" is lower than the
++ share, it is treated as hungry and the timeslices of tasks in
++ other resource groups will be scaled down.
++
++
++3. Timeslice scaling
++
++ If there are hungry resource groups, we need to adjust timeslices to satisfy
++ the share.  To scale timeslices, we introduce a scaling factor
++ used for scaling timeslices.  The scaling factor is associated with
++ the resource group (stored in the cpu_rc structure) and adaptively adjusted
++ according to the resource group load and the share.
++
++ If some resource groups are hungry, the scaling factor of the resource group
++ that is not hungry is calculated as follows (note: F is the scaling factor):
++   F_new = F * share / resource_group_load
++
++ And the scaling factor of the hungry resource group is calculated as:
++   F_new = F + CPU_RC_TSFACTOR_INC_LO   (CPU_RC_TSFACTOR_INC_LO is defined as 2)
++
++ When all the resource groups are not hungry, the scaling factor is calculated
++ as follows in order to recover the timeslices:
++   F_new = F + CPU_RC_TSFACTOR_INC_HI   (CPU_RC_TSFACTOR_INC_HI is defined as 5)
++
++ Note that the maximum value of F is limited to CPU_RC_TSFACTOR_MAX.
++ The timeslice assigned to each task is:
++   timeslice_scaled = timeslice_orig * F / CPU_RC_TSFACTOR_MAX
++
++ where timeslice_orig is the value that is calculated by the conventional
++ O(1) scheduler.

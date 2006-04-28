@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWD1Eyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbWD1FD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbWD1Eyp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 00:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWD1Eyp
+	id S1751040AbWD1FD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 01:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWD1FD2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 00:54:45 -0400
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:56419 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750912AbWD1Eyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 00:54:45 -0400
+	Fri, 28 Apr 2006 01:03:28 -0400
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:2416 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750985AbWD1FD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 01:03:28 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=NHP1DsxapK1D7vpTS0NhiqR5NPIVKinvMSRmIKLtfiKscxYmtOP/G8UxpuR7C8oWI68aWmrKdeWPOAdlnMEnuoyuLMlWtuBcvk7mA/TrxUOCK1AdQHNTHtIo9bY5WQfjftvu8fW8XdLGudxthkx7sDRwanKsFwE/ITySL4qaJN4=  ;
-Message-ID: <4451A00A.2030606@yahoo.com.au>
-Date: Fri, 28 Apr 2006 14:54:34 +1000
+  b=fYWunThjA7Fz7Fm8SJI+zpPtqbCt+OzMVdQOsELCHlNvmi3jjQsNbGDI206Ygs5MaRjQejElmbadhVBnCZUWBb21/tESWs2PQ/Pt6eqN0zJjMzHyDnoL0ip2bn5SOlfZS6h99caYMuSSrSByOPVkESUx6yqnAYg1erY4ryltC40=  ;
+Message-ID: <4451A163.5020304@yahoo.com.au>
+Date: Fri, 28 Apr 2006 15:00:19 +1000
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
-Subject: Re: Lockless page cache test results
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org> <Pine.LNX.4.64.0604261144290.3701@g5.osdl.org> <44505B59.1060308@yahoo.com.au> <Pine.LNX.4.64.0604270804420.3701@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0604270804420.3701@g5.osdl.org>
+To: Dave Peterson <dsp@llnl.gov>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, riel@surriel.com,
+       akpm@osdl.org
+Subject: Re: [PATCH 1/2] mm: serialize OOM kill operations
+References: <200604251701.31899.dsp@llnl.gov> <200604261014.15008.dsp@llnl.gov> <44503BA2.7000405@yahoo.com.au> <200604270956.15658.dsp@llnl.gov>
+In-Reply-To: <200604270956.15658.dsp@llnl.gov>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Dave Peterson wrote:
+> On Wednesday 26 April 2006 20:33, Nick Piggin wrote:
 > 
-> On Thu, 27 Apr 2006, Nick Piggin wrote:
-> 
->>>Of course, with small files, the actual filename lookup is likely to be the
->>>real limiter.
+>>Dave Peterson wrote:
 >>
->>Although that's lockless so it scales. find_get_page will overtake it
->>at some point.
+>>>If you prefer the above implementation, I can rework the patch as
+>>>above.
+>>
+>>I think you need a semaphore?
 > 
 > 
-> filename lookup is only lockless for independent files. You end up getting 
-> the "dentry->d_lock" for a successful lookup in the lookup path, so if you 
-> have multiple threads looking up the same files (or - MUCH more commonly - 
-> directories), you're not going to be lockless.
+> In this particular case, I think a semaphore is unnecessary because
+> we just want out_of_memory() to return to its caller if an OOM kill
+> is already in progress (as opposed to waiting in out_of_memory() and
+> then starting a new OOM kill operation).  What I want to avoid is the
 
-Oh that's true, I forgot. So the many small files case will often have
-as much d_lock activity as tree_lock.
+When you are holding the spinlock, you can't schedule and the lock
+really should be released by the same process that took it. Are you
+OK with that?
 
+>>
+>>Mainly the cost of increasing cacheline footprint. I think someone
+>>suggested using a flag bit somewhere... that'd be preferable.
 > 
-> I don't know how we could improve it. I've several times thought that we 
-> _should_ be able to do the directory lookups under the rcu read lock and 
-> never touch their d_count or d_lock at all, but the locking against 
-> directory renaming depends very intimately on d_lock.
 > 
-> It is _possible_ that we should be able to handle it purely with just 
-> memory ordering rather than depending on d_lock. That would be wonderful.
-> 
-> Of course, we do actually scale pretty damn well already. I'm just saying 
-> that it's not perfect.
-> 
-> See __d_lookup() for details.
+> Ok, I'll add a ->flags member to mm_struct and just use one bit for
+> the oom_notify value.  Then if other users of mm_struct need flag
+> bits for other things in the future they can all share ->flags.  I'll
+> rework my patches and repost shortly...
 
-Yes I see. Perhaps a seqlock could do the trick (hmm, there already is one),
-however we still have to increment the refcount, so there'll always be a
-shared cacheline.
+mm_struct already has what you want -- dumpable:2 -- if you just put
+your bit in an adjacent bitfield, you'll be right.
 
 -- 
 SUSE Labs, Novell Inc.

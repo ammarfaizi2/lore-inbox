@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWD1FjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWD1Fti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbWD1FjW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 01:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWD1FjW
+	id S964876AbWD1Fti (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 01:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbWD1Fti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 01:39:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27336 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030234AbWD1FjV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 01:39:21 -0400
-Date: Thu, 27 Apr 2006 22:39:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [3/4] i386: Fix overflow in e820_all_mapped
-In-Reply-To: <4451A80E.mailNZX1XN4A8@suse.de>
-Message-ID: <Pine.LNX.4.64.0604272237430.3701@g5.osdl.org>
-References: <4451A80E.mailNZX1XN4A8@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 28 Apr 2006 01:49:38 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:8653 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964876AbWD1Fth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 01:49:37 -0400
+Date: Fri, 28 Apr 2006 14:48:59 +0900
+From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+Subject: Re: [PATCH 0/9] CPU controller
+Message-Id: <20060428144859.a07bb5b2.maeda.naoaki@jp.fujitsu.com>
+In-Reply-To: <1146201936.7523.15.camel@homer>
+References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+	<1146201936.7523.15.camel@homer>
+Organization: FUJITSU LIMITED
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Mike,
 
+On Fri, 28 Apr 2006 07:25:35 +0200
+Mike Galbraith <efault@gmx.de> wrote:
 
-On Fri, 28 Apr 2006, Andi Kleen wrote:
+> On Fri, 2006-04-28 at 10:37 +0900, MAEDA Naoaki wrote:
+> > Andrew,
+> > 
+> > This patchset adds a CPU resource controller on top of Resource Groups. 
+> > The CPU resource controller manages CPU resources by scaling timeslice
+> > allocated for each task without changing the algorithm of the O(1)
+> > scheduler.
+> > 
+> > Please consider these for inclusion in -mm tree.
 > 
-> The 32bit version of e820_all_mapped() needs to use u64 to avoid
-> overflows on PAE systems.  Pointed out by Jan Beulich
+> This patch set professes to be a resource controller, yet 100% of high
+> priority tasks are uncontrolled.  Distribution of CPU among high
+> priority tasks isn't important, but distribution of what they leave
+> behind is?
 
-I don't think that's true.
+Do you mean niced tasks are uncontrolled by the controller? 
+TASK_INTERACTIVEs are left untouched intentionally, but niced tasks
+are also controlled.
 
-It can't be called with 64-bit arguments anyway. If the base address 
-doesn't fit in 32-bit, we'd be screwed in other places, afaik.
-
-		Linus
+Thanks,
+MAEDA Naoaki

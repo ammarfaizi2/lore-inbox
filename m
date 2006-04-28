@@ -1,132 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965086AbWD1L1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbWD1Lal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965086AbWD1L1z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 07:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWD1L1z
+	id S965092AbWD1Lal (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 07:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWD1Lal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 07:27:55 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:36566 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S965086AbWD1L1y (ORCPT
+	Fri, 28 Apr 2006 07:30:41 -0400
+Received: from fw5.argo.co.il ([194.90.79.130]:13328 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S965092AbWD1Lak (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 07:27:54 -0400
-Message-ID: <346223668.21667@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Fri, 28 Apr 2006 19:28:35 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
-Subject: Re: Lockless page cache test results
-Message-ID: <20060428112835.GA8072@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org, npiggin@suse.de,
-	linux-mm@kvack.org
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org> <Pine.LNX.4.64.0604261144290.3701@g5.osdl.org> <20060426191557.GA9211@suse.de> <20060426131200.516cbabc.akpm@osdl.org>
+	Fri, 28 Apr 2006 07:30:40 -0400
+Message-ID: <4451FCCC.4010006@argo.co.il>
+Date: Fri, 28 Apr 2006 14:30:20 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060426131200.516cbabc.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Martin Mares <mj@ucw.cz>
+CC: Davi Arnaut <davi.lkml@gmail.com>, Willy Tarreau <willy@w.ods.org>,
+       Denis Vlasenko <vda@ilport.com.ua>, dtor_core@ameritech.net,
+       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com> <444E61FD.7070408@argo.co.il> <200604271810.07575.vda@ilport.com.ua> <20060427201531.GH13027@w.ods.org> <750c918d0604271408y2afef6fflf380e4d0a6c1cec6@mail.gmail.com> <4451E185.9030107@argo.co.il> <mj+md-20060428.105455.7620.atrey@ucw.cz>
+In-Reply-To: <mj+md-20060428.105455.7620.atrey@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Apr 2006 11:30:31.0826 (UTC) FILETIME=[2888EF20:01C66AB7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 26, 2006 at 01:12:00PM -0700, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > With a 16-page gang lookup in splice, the top profile for the 4-client
-> > case (which is now at 4GiB/sec instead of 3) are:
-> > 
-> > samples  %        symbol name
-> > 30396    36.7217  __do_page_cache_readahead
-> > 25843    31.2212  find_get_pages_contig
-> > 9699     11.7174  default_idle
-> 
-> __do_page_cache_readahead() should use gang lookup.  We never got around to
-> that, mainly because nothing really demonstrated a need.
+Martin Mares wrote:
+> Maybe continuing to write application programs in C instead of using
+> higher-level languages is silly and backward, but _stopping_ at the
+> level of C++ or C# is equally silly.
+>
+>   
 
-I have been testing a patch for this for a while. The new function
-looks like
+Agree. Look at how well mercurial turned out compared to git, and it is 
+written in such a slow language.
 
-static int
-__do_page_cache_readahead(struct address_space *mapping, struct file *filp,
-			pgoff_t offset, unsigned long nr_to_read)
-{
-	struct inode *inode = mapping->host;
-	struct page *page;
-	LIST_HEAD(page_pool);
-	pgoff_t last_index;	/* The last page we want to read */
-	pgoff_t hole_index;
-	int ret = 0;
-	loff_t isize = i_size_read(inode);
+The high level language allows you to concentrate on the algorithms 
+which is where the performance comes from.
 
-	last_index = ((isize - 1) >> PAGE_CACHE_SHIFT);
+> However, in the kernel space the main problems the people are spending
+> their time with are rarely related to the language.
+>   
 
-	if (unlikely(!isize || !nr_to_read))
-		goto out;
-	if (unlikely(last_index < offset))
-		goto out;
+If you're using a more productive language, you get more things done, in 
+userspace and in the kernel.
 
-	if (last_index > offset + nr_to_read - 1 &&
-		offset < offset + nr_to_read)
-		last_index = offset + nr_to_read - 1;
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-	/*
-	 * Go through ranges of holes and preallocate all the absent pages.
-	 */
-next_hole_range:
-	cond_resched();
-
-	read_lock_irq(&mapping->tree_lock);
-	hole_index = radix_tree_scan_hole(&mapping->page_tree,
-					offset, last_index - offset + 1);
-
-	if (hole_index > last_index) {	/* no more holes? */
-		read_unlock_irq(&mapping->tree_lock);
-		goto submit_io;
-	}
-
-	offset = radix_tree_scan_data(&mapping->page_tree, (void **)&page,
-						hole_index, last_index);
-	read_unlock_irq(&mapping->tree_lock);
-
-	ddprintk("ra range %lu-%lu(%p)-%lu\n", hole_index, offset, page, last_index);
-
-	for (;;) {
-                page = page_cache_alloc_cold(mapping);
-		if (!page)
-			break;
-
-		page->index = hole_index;
-		list_add(&page->lru, &page_pool);
-		ret++;
-		BUG_ON(ret > nr_to_read);
-
-		if (hole_index >= last_index)
-			break;
-
-		if (++hole_index >= offset)
-			goto next_hole_range;
-	}
-
-submit_io:
-	/*
-	 * Now start the IO.  We ignore I/O errors - if the page is not
-	 * uptodate then the caller will launch readpage again, and
-	 * will then handle the error.
-	 */
-	if (ret)
-		read_pages(mapping, filp, &page_pool, ret);
-	BUG_ON(!list_empty(&page_pool));
-out:
-	return ret;
-}
-
-The radix_tree_scan_data()/radix_tree_scan_hole() functions called
-above are more flexible than the original __lookup(). Perhaps we can
-rebase radix_tree_gang_lookup() and find_get_pages_contig() on them.
-
-If it is deemed ok, I'll clean it up and submit the patch asap.
-
-Thanks,
-Wu

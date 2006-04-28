@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751823AbWD1RAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751832AbWD1RAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751823AbWD1RAv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 13:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751841AbWD1RAt
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1751832AbWD1RAt (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 28 Apr 2006 13:00:49 -0400
-Received: from [83.101.157.13] ([83.101.157.13]:49938 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751727AbWD1RAm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 13:00:42 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/1] threads_max: Simple lockout prevention patch
-Date: Fri, 28 Apr 2006 19:58:59 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200511142327.18510.a1426z@gawab.com> <20060423221157.6a4b5c8e.akpm@osdl.org> <200604241412.13267.a1426z@gawab.com>
-In-Reply-To: <200604241412.13267.a1426z@gawab.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200604281958.59137.a1426z@gawab.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWD1RAs
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 28 Apr 2006 13:00:48 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:34776 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751739AbWD1RAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 13:00:46 -0400
+Message-Id: <200604281601.k3SG14wD007517@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       "Victor V. Vengerov" <Victor.Vengerov@oktetlabs.ru>
+Subject: [PATCH 1/6] UML - Fix iomem list traversal
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 28 Apr 2006 12:01:04 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Andrew Morton wrote:
-> > Al Boldi <a1426z@gawab.com> wrote:
-> > > This is a another resend, which was ignored before w/o comment.
-> > > Andrew, can you at least comment on it?  Thanks!
-> >
-> > I don't have a clue what it's for.
->
-> Quoting from the 'Resource limits' thread on lkml on 27/09/05:
+From: "Victor V. Vengerov" <Victor.Vengerov@oktetlabs.ru>
 
-Has this cleared things up, or is this patch still deemed useless?
+We need to walk the region list properly.
 
-Thanks!
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
---
-Al
+Index: linux-2.6.16/arch/um/kernel/physmem.c
+===================================================================
+--- linux-2.6.16.orig/arch/um/kernel/physmem.c	2006-04-03 08:48:13.000000000 -0400
++++ linux-2.6.16/arch/um/kernel/physmem.c	2006-04-05 11:16:38.000000000 -0400
+@@ -407,6 +407,8 @@ unsigned long find_iomem(char *driver, u
+ 			*len_out = region->size;
+ 			return(region->virt);
+ 		}
++
++		region = region->next;
+ 	}
+ 
+ 	return(0);
 

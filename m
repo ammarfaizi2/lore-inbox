@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWD1IFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbWD1IKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbWD1IFt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 04:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbWD1IFt
+	id S1030317AbWD1IKE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 04:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWD1IKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 04:05:49 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:8613 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030319AbWD1IFs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 04:05:48 -0400
-Message-ID: <4451CEB7.6080509@sw.ru>
-Date: Fri, 28 Apr 2006 12:13:43 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
-References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>	 <1146201936.7523.15.camel@homer>  <4451AEA4.1040108@sw.ru>	 <1146208288.7551.19.camel@homer> <1146210395.7551.37.camel@homer>
-In-Reply-To: <1146210395.7551.37.camel@homer>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 28 Apr 2006 04:10:04 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:41366 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1030317AbWD1IKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 04:10:03 -0400
+Date: Fri, 28 Apr 2006 11:10:00 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Christoph Lameter <clameter@sgi.com>
+cc: Or Gerlitz <ogerlitz@voltaire.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, open-iscsi@googlegroups.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: possible bug in kmem_cache related code
+In-Reply-To: <Pine.LNX.4.64.0604271510240.27370@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0604281108110.12202@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.44.0604271138370.16357-101000@zuben>
+ <84144f020604270419s10696877he2ec27ae6d52e486@mail.gmail.com>
+ <Pine.LNX.4.64.0604271510240.27370@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>I'm also pretty sure, that CPU controller based on timeslice tricks 
->>>behaves poorly on burstable load patterns as well and with interactive 
->>>tasks. So before commiting I propose to perform a good testing on 
->>>different load patterns.
->>
->>Yes, it can only react very slowly.
+On 4/27/06, Or Gerlitz <ogerlitz@voltaire.com> wrote:
+> > > With 2.6.17-rc3 I'm running into something which seems as a bug related
+> > > to kmem_cache. Doing some allocations/deallocations from a kmem_cache and
+> > > later attempting to destroy it yields the following message and trace
+
+On Thu, 27 Apr 2006, Pekka Enberg wrote:
+> > Tested on 2.6.16.7 and works ok. Christoph, could this be related to
+> > the cache draining patches that went in 2.6.17-rc1?
+
+On Thu, 27 Apr 2006, Christoph Lameter wrote:
+> What happened to that part of the slab allocator? Looks completely  
+> changed to when I saw it the last time?
 > 
+> This directly fails in kmem_cache_destroy?
 > 
-> Actually, this might not be that much of a problem.  I know I can
-> traverse queue heads periodically very cheaply.  Traversing both active
-> and expired arrays to requeue starving tasks once every 100ms costs max
-> 4usecs (3GHz P4) for a typical distribution.
+> So it tries to free all the slab entries from the free list and then 
+> returns 1 or 2 if there are entries left on the partial and full 
+> list? So the bug happens if cache entries are left.
+> 
+> Guess the reason for this failure is then that not all cache entries have 
+> been freed before calling kmem_cache_destroy()?
 
-with fair scheduling with can be a big problem, as tasks working less 
-then a tick are hard to account :/
+I can't reproduce this with Linus' git head on User-mode Linux running on 
+UP i386. Or, can you reproduce this at will? Any local modifications? Can 
+we see your .config, please.
 
-Thanks,
-Kirill
-
-
+					Pekka

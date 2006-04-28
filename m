@@ -1,162 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbWD1IRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWD1IWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030323AbWD1IRH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 04:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWD1IRH
+	id S1030326AbWD1IWS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 04:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbWD1IWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 04:17:07 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:65290 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1030323AbWD1IRF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 04:17:05 -0400
-Message-ID: <4451CF7A.5040902@argo.co.il>
-Date: Fri, 28 Apr 2006 11:16:58 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Martin Mares <mj@ucw.cz>
-CC: Denis Vlasenko <vda@ilport.com.ua>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Roman Kononov <kononov195-far@yahoo.com>,
-       LKML Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: C++ pushback
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <4EE8AD21-55B6-4653-AFE9-562AE9958213@mac.com> <44507BB9.7070603@argo.co.il> <200604271655.48757.vda@ilport.com.ua> <4450D4E9.4050606@argo.co.il> <mj+md-20060427.145744.9154.atrey@ucw.cz> <4450E3CB.1090206@argo.co.il> <mj+md-20060427.153429.15386.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060427.153429.15386.atrey@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 28 Apr 2006 04:22:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50307 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030326AbWD1IWR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 04:22:17 -0400
+Date: Fri, 28 Apr 2006 01:20:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Bligh <mbligh@google.com>
+Cc: apw@shadowen.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc2-mm1
+Message-Id: <20060428012022.7b73c77b.akpm@osdl.org>
+In-Reply-To: <4450F5AD.9030200@google.com>
+References: <4450F5AD.9030200@google.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Apr 2006 08:17:03.0243 (UTC) FILETIME=[2147BDB0:01C66A9C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
->> This is pushing all boundaries, however. That code is horrible.
->>
->>     
->>> It's somewhat ugly inside, but an equally strong generic structure build
->>> with templates will be probably even uglier.
->>>
->>>       
->> Not at all.
->>     
+
+(I did s/linux-kernel@google.com/linux-kernel@vger.kernel.org/)
+
+Martin Bligh <mbligh@google.com> wrote:
 >
-> So, show your version :-)
->
-> (as fast as this one, of course)
->
-> 				Have a nice fortnight
->   
-Here you go. In practice one would probably uninline get() and possibly put().
+> Still crashes in LTP on x86_64:
+> (introduced in previous release)
+> 
+> http://test.kernel.org/abat/29674/debug/console.log
 
-It doesn't do all that your example does (a 15 minute hack), but it is easily expandable. It 
-also allows a value to belong to two different hash tables (on two different keys) simultaneously.
+What a mess.  A doublefault inside an NMI watchdog timeout.  I think.  It's
+hard to see.  Some CPUs are stuck on a CPU scheduler lock, others seem to
+be stuck in flush_tlb_others.  One of these could be a consequence of the
+other, or both could be a consequence of something else.
 
-#include <cassert>
+> Different panic on 2-way ppp64  blade, again during LTP.
+> 
+> http://test.kernel.org/abat/29675/debug/console.log
+> 
+>   Oops: Kernel access of bad area, sig: 11 [#1]
+> SMP NR_CPUS=128 NUMA
+> Modules linked in: evdev joydev st sr_mod ipv6 usbcore sg dm_mod
+> NIP: C000000000048F0C LR: C0000000000AF854 CTR: 800000000000A984
+> REGS: c0000000074af560 TRAP: 0300   Not tainted  (2.6.17-rc2-mm1-autokern1)
+> MSR: 8000000000001032 <ME,IR,DR>  CR: 24002024  XER: 00000010
+> DAR: C00001800056B0B0, DSISR: 0000000040010000
+> TASK = c000000007460800[84] 'kswapd0' THREAD: c0000000074ac000 CPU: 1
+> GPR00: 8000000000001032 C0000000074AF7E0 C000000000691420 C0000000007586A8
+> GPR04: 000000000000000F 0000000000000000 0000000000000000 0000000000000000
+> GPR08: C0000000FE80AAD8 C00001800056B080 0000000000000001 C0000000007586A8
+> GPR12: 0000000024002024 C00000000056B280 0000000000000020 0000000000000020
+> GPR16: 0000000000000020 0000000000000000 0000000000000000 000000000000000F
+> GPR20: C0000000074AF860 0000000000000000 C0000000FFFF3098 0000000000000001
+> GPR24: C0000000074AFE00 C00000000059FCC0 0000000000000001 C0000000007586A8
+> GPR28: C000000000545680 0000000000000022 C0000000005A4DA8 C00000000056B080
+> NIP [C000000000048F0C] .try_to_wake_up+0x98/0x598
+> LR [C0000000000AF854] .add_to_swapped_list+0x23c/0x264
+> Call Trace:
+> [C0000000074AF7E0] [C0000000005A4DA8] 0xc0000000005a4da8 (unreliable)
+> [C0000000074AF8F0] [C0000000000AF854] .add_to_swapped_list+0x23c/0x264
+> [C0000000074AF990] [C000000000098290] .remove_mapping+0x88/0x174
+> [C0000000074AFA20] [C000000000099340] .shrink_zone+0xc74/0xf9c
+> [C0000000074AFD30] [C00000000009A008] .kswapd+0x3e4/0x54c
+> [C0000000074AFED0] [C0000000000705C8] .kthread+0x174/0x1c4
+> [C0000000074AFF90] [C000000000024AB0] .kernel_thread+0x4c/0x68
+> Instruction dump:
+> 3a810080 7d2000a6 79208042 f9340000 78008000 7c010164 e97b0008 ebfe8008
+> eb9e8000 812b0010 79294da4 7d29fa14 <e8090030> 7fbc0214 7fa3eb78 4841f615
+> -- 0:conmux-control -- time-stamp -- Apr/27/06  5:10:48 --
 
-template <typename Key, class Value, class Traits>
-class Hashtable
-{
-public:
-    class Link {
-    private:
-        Link* next;
-        Value& value()
-        {
-            return *static_cast<Value*>(this);
-        }
-        friend class Hashtable;
-    };
-public:
-    explicit Hashtable(int size)
-        : _size(size)
-        , _buckets(new Link[size])
-    {
-        assert((_size & (_size -  1)) == 0);
-    }
-    ~Hashtable()
-    {
-        delete[] _buckets;
-    }
-    Value* get(const Key& key)
-    {
-        Link* link = _buckets[Traits::hash(key) & (_size - 1)].next;
-        while (link && !Traits::equal(key, link->value()))
-            link = link->next;
-        if (link)
-            return &link->value();
-        return 0;
-    }
-    void put(Value& value)
-    {
-        // assumes value (or a value with an equal key) is not already in
-        Link& head = _buckets[Traits::hash(value) & (_size - 1)];
-        static_cast<Link&>(value).next = &head;
-        head.next= &value;
-    }
-private:
-    int _size;
-    Link* _buckets;
-};
-
-// example program
-
-#include <iostream>
-#include <string.h>
-
-struct Word;
-struct WordHashTraits;
-typedef Hashtable<const char*, Word, WordHashTraits> WordHash;
-
-struct Word : WordHash::Link
-{
-    explicit Word(const char* _word) : word(_word), count(0) {}
-    const char* word;
-    int count;
-};
-
-struct WordHashTraits
-{
-    static unsigned hash(const char* key)
-    {
-        // assume this is jenkin's hash.
-        unsigned h = 0;
-        while (*key) {
-            h = (h << 3) | (h >> 29);
-            h ^= (unsigned char)*key++;
-        }
-        return h;
-    }
-    static unsigned hash(const Word& value)
-    {
-        return hash(value.word);
-    }
-    static bool equal(const char* key, const Word& value)
-    {
-        return strcmp(key, value.word) == 0;
-    }
-};
-
-int main(int ac, const char** av)
-{
-    WordHash hashtable(16); // make collisions likely
-    for (int i = 1; i < ac; ++i) {
-        const char* word = av[i];
-        Word* word_in_hash = hashtable.get(word);
-        if (!word_in_hash) {
-            word_in_hash = new Word(word);
-            hashtable.put(*word_in_hash);
-        }
-        ++word_in_hash->count;
-        std::cout << "word: " << word << " count " << word_in_hash->count << "\n";
-    }
-}
-
-
-
-
-
-
-
-
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Well that's silly.  kswapd died trying to wake up kprefetchd.  That code's
+bog-simple, so I'd assume something's gone wrong with a CPU scheduler data
+structure.  So if there's a common strand here, it's breakage of sched data
+structures by mtest01.   Let me see if I can provoke it here.

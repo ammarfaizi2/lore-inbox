@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965212AbWD1Lrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965088AbWD1LwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965212AbWD1Lrm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 07:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965211AbWD1Lrm
+	id S965088AbWD1LwE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 07:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965208AbWD1LwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 07:47:42 -0400
-Received: from mx1.suse.de ([195.135.220.2]:47311 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965209AbWD1Lrl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 07:47:41 -0400
-From: Andi Kleen <ak@suse.de>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11] security: AppArmor - Overview
-Date: Fri, 28 Apr 2006 13:47:27 +0200
-User-Agent: KMail/1.9.1
-Cc: Ken Brush <kbrush@gmail.com>, Neil Brown <neilb@suse.de>,
-       Chris Wright <chrisw@sous-sol.org>, James Morris <jmorris@namei.org>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-security-module@vger.kernel.org
-References: <20060419174905.29149.67649.sendpatchset@ermintrude.int.wirex.com> <ef88c0e00604271058q203d0553sf45401914a892799@mail.gmail.com> <1146223713.11817.7.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1146223713.11817.7.camel@moss-spartans.epoch.ncsc.mil>
+	Fri, 28 Apr 2006 07:52:04 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:6815 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965088AbWD1LwC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 07:52:02 -0400
+Date: Fri, 28 Apr 2006 14:51:58 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: "David =?utf-8?B?R8OzbWV6?=" <david@pleyades.net>
+cc: David Vrabel <dvrabel@cantab.net>, Francois Romieu <romieu@fr.zoreil.com>,
+       Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Subject: Re: IP1000 gigabit nic driver
+In-Reply-To: <20060428113755.GA7419@fargo>
+Message-ID: <Pine.LNX.4.58.0604281445590.19801@sbz-30.cs.Helsinki.FI>
+References: <20060427142939.GA31473@fargo> <20060427185627.GA30871@electric-eye.fr.zoreil.com>
+ <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo>
+ <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
+ <20060428113755.GA7419@fargo>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604281347.28185.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 April 2006 13:28, Stephen Smalley wrote:
+On Apr 28 at 01:58:04, Pekka Enberg wrote:
+> > Needs some serious coding style cleanup and conversion to proper 2.6
+> > APIs for starters.
 
-> So you are only worried about script kiddies?  Further, once someone
-> crafts an exploit specifically targeting AA, knowing full well its
-> limitations, that exploit will become fodder for the kiddies as well.
-> If a security mechanism only prevents attacks that weren't designed
-> against it, what good is it aside from a temporary stopgap?
-
-The same could be said about selinux. Or what are you doing
-to e.g. stop DOS attacks? Nothing is 100% water tight. The question
-is just if the subsets of controls it implements matches the requirements of 
-the administrator. These requirements both include easiness of use
-and security. Usually there is a tradeoff there and it's not the
-same for everybody.
-
-> > I have no requirements like that. I just would prefer that when people
-> > try to exploit my internet services, that the programs are not allowed
-> > to do things that I would rather it not do. AA seems to fulfill that
-> > requirement.
+On Fri, 28 Apr 2006, David Gómezz wrote:
+> Ok, i could take care of that, and it's a good way of getting my hands
+> dirty with kernel programming ;). David, if it's ok to you i'll do the
+> cleanup thing.
 > 
-> Why can't you use existing virtualization solutions ala Vservers or
-> OpenVZ or whatever?
+> What about 2.4/2.2 code? It's supposed to stay for compatibility
+> or it should be removed before submitting?
 
-I guess he doesn't want to administrate a "cluster" of machines with many
-/s, just a single box.
+It's preferred not to have compatability cruft for 2.6 patch submissions, 
+so I'd say kill them.
 
--Andi
+					Pekka

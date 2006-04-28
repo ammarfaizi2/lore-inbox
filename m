@@ -1,30 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030469AbWD1QgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbWD1QiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030469AbWD1QgL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 12:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030472AbWD1QgL
+	id S1030455AbWD1QiY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 12:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbWD1QiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 12:36:11 -0400
-Received: from arkroyal.concentric.net ([207.155.252.5]:4605 "EHLO
-	arkroyal.cnchost.com") by vger.kernel.org with ESMTP
-	id S1030469AbWD1QgK convert rfc822-to-8bit (ORCPT
+	Fri, 28 Apr 2006 12:38:24 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:30447 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1030456AbWD1QiY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 12:36:10 -0400
-Message-ID: <200604281636.MAA06562@arkroyal.cnchost.com>
-From: Rick Niles <niles@rickniles.com>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: Rick Niles <niles@rickniles.com>
-Subject: add a few integer math ops (sqrt, atan) to kernel headers?
-Date: Fri, 28 Apr 2006 12:36:09 -0400 (EDT)
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	Fri, 28 Apr 2006 12:38:24 -0400
+Date: Sat, 29 Apr 2006 01:38:57 +0900 (JST)
+Message-Id: <20060429.013857.37531336.anemo@mba.ocn.ne.jp>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH] genrtc: fix read on 64-bit platforms
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forgive me if it's already in the kernel somewhere, but I need some basic (large) integer based math functions for a GPS device driver I maintain (OSGPS on sourceforge)and I've got to wonder if other drivers might be able use them.  Right now we have: sqrt(x), atan2(y, x), and rss(x,y) [root-sum-squared].  The functions just deal with large integers to compute anything reasonable.  Of course they're approximations since the output has to be an integer. The atan2() function returns an angle such that 1 radian == 16384.  It seems like these should go in some integer math kernel header file for everyone to use.
+Fix genrtc's read() routine for 64-bit platforms.
 
-I know what some of you are thinking right now.  That sort of math belongs in userspace, but to close a correlator tracking loop in real-time you need it in the device driver. Either than or require your userland program be a real-time program, which I'd rather not do.
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-They're all less than 30 lines long. If people think this is a good idea, then I can submit a patch.  Suggestions about what to call this header file or where to put it are appreciated.  Also, if anyone wants to add more functions or improve the algorithm we use that would also be nice.
+diff --git a/drivers/char/genrtc.c b/drivers/char/genrtc.c
+index d3a2bc3..588fca5 100644
+--- a/drivers/char/genrtc.c
++++ b/drivers/char/genrtc.c
+@@ -200,13 +200,13 @@ static ssize_t gen_rtc_read(struct file 
+ 	/* first test allows optimizer to nuke this case for 32-bit machines */
+ 	if (sizeof (int) != sizeof (long) && count == sizeof (unsigned int)) {
+ 		unsigned int uidata = data;
+-		retval = put_user(uidata, (unsigned long __user *)buf);
++		retval = put_user(uidata, (unsigned int __user *)buf) ?:
++			sizeof(unsigned int);
+ 	}
+ 	else {
+-		retval = put_user(data, (unsigned long __user *)buf);
++		retval = put_user(data, (unsigned long __user *)buf) ?:
++			sizeof(unsigned long);
+ 	}
+-	if (!retval)
+-		retval = sizeof(unsigned long);
+  out:
+ 	current->state = TASK_RUNNING;
+ 	remove_wait_queue(&gen_rtc_wait, &wait);

@@ -1,53 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751795AbWD1S1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWD1Sit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751795AbWD1S1p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 14:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWD1S1p
+	id S1751433AbWD1Sit (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 14:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWD1Sis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 14:27:45 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:13037 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751795AbWD1S1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 14:27:44 -0400
-Subject: Re: [PATCH] 'make headers_install' kbuild target.
-From: David Woodhouse <dwmw2@infradead.org>
-To: Rob Landley <rob@landley.net>
-Cc: Adrian Bunk <bunk@stusta.de>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200604281415.53325.rob@landley.net>
-References: <1145672241.16166.156.camel@shinybook.infradead.org>
-	 <20060422142853.GB25926@mars.ravnborg.org>
-	 <20060422145000.GF5010@stusta.de>  <200604281415.53325.rob@landley.net>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 19:27:39 +0100
-Message-Id: <1146248859.11909.565.camel@pmac.infradead.org>
+	Fri, 28 Apr 2006 14:38:48 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:39901 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751433AbWD1Sis (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 14:38:48 -0400
+Date: Sat, 29 Apr 2006 00:05:59 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [Patch 5/8] taskstats interface
+Message-ID: <20060428183559.GB8349@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <444991EF.3080708@watson.ibm.com> <444996FB.8000103@watson.ibm.com> <44501A97.2060104@engr.sgi.com> <445041EB.7080205@watson.ibm.com> <20060427064237.GA14496@in.ibm.com> <445104DC.90401@engr.sgi.com> <20060427182719.GC14496@in.ibm.com> <44511CCF.1080504@engr.sgi.com> <20060428025927.GD14496@in.ibm.com> <44525CE5.3060800@engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44525CE5.3060800@engr.sgi.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 14:15 -0400, Rob Landley wrote:
-> Fedora recently migrated from a linux-kernel-headers package that smells a bit 
-> like Mazur's to the glibc-kernheaders package.
+> >Is this what you had in mind?
+> >  
+> No exactly. The payload information must be always available for
+> application.
+> 
+> On a second thought, the idea of one big taskstats struct with many
+> #ifconfig is not really a good idea. My goal is to cut down unnecessary
+> data being transfered throught the socket.
 
-Fedora used to be on an ancient version of the headers, forked and
-manually sanitised from 2.4 some time ago and manually (but
-inconsistently) updated to date with new syscalls &c as and when bugs
-got filed against the package.
+Yes, so we agree that #ifdef CONFIG_* is not good.
 
-As of two days ago, Fedora is using the result of 'make headers_install'
-instead. Speaking as maintainer of Fedora's glibc-kernheaders, I think
-it's a massive improvement, 
+> 
+> Here is my Take 2. We can have a  taskstats header containing taskstats
+> version and other general fields useful to more than one taskstats
+> application including a payload information. Then, we define
+> accounting subsystem specific structs for delayacct, csa, etc.
+> The kernel/{delayacct.c,csa.c,etc.c} set the payload information and
+> fill the buffer with desired subsystem structs. The header thus contain
+> enough information to tell  applications how to map the data following
+> the header.
 
-Other distributions look like they should be able to change too -- the
-whole point in approaching them before implementing this was to confirm
-that they'd be happy with it. I don't know _when_ that'll happen though.
-Obviously it makes sense for them to wait while I use Fedora rawhide as
-a test bed.
+I agree with this suggestion.
+
+Each netlink attribute contains the following fields (also referred to as TLV)
+
++----+--------+------+
+|Type| length | value|
++----+--------+------+
+
+The type is meant to serve the purpose of the header you describe. The
+type value can be used by the application to map the data. 
+getdelays.c is a sample application posted in the previous patches,
+it interprets data based on type.
+
+
+> 
+> Would IBM propose more accounting subsystems besides delayacct?
+> If we only see delayacct and csa on the horizon, this scheme is really
+> not necessary since delayacct does not have as much data (as csa :))
+> and csa can use part of the delayacct data. You gain more than
+> csa can benefit from this. ;-) I guess i just speak from design point
+> of view. :)
+> 
+> But, if one day somebody who does not need a paycheck decides
+> to convert BSD accounting to use taskstats interface, this can
+> be helpful.
+> 
+
+Yes, I think in the long term it would be more useful to use the scheme
+of adding subsystem structs. taskstats.txt explains the process of 
+extending taskstats. Point #2 is the same as what we have just discussed.
+Could you please see if the text needs any changes based on our discussions
+so far (taskstats.txt was posted in the delayacct-doc.patch).
+
+> Thanks,
+>  - jay
+> 
+> 
 
 -- 
-dwmw2
-
+					<---	Balbir

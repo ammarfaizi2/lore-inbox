@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751770AbWD1ASR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751826AbWD1AUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751770AbWD1ASR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 20:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751731AbWD1ASR
+	id S1751826AbWD1AUE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 20:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWD1AT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 20:18:17 -0400
-Received: from mx2.suse.de ([195.135.220.15]:12757 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751735AbWD1ASP (ORCPT
+	Thu, 27 Apr 2006 20:19:56 -0400
+Received: from ns.suse.de ([195.135.220.2]:23001 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751735AbWD1ATb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 20:18:15 -0400
-Date: Thu, 27 Apr 2006 17:16:27 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       git-commits-head@vger.kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Arnaud MAZIN <arnaud.mazin@gmail.com>,
-       Stelian Pop <stelian@poppies.net>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 01/24] sonypi: correct detection of new ICH7-based laptops
-Message-ID: <20060428001627.GB18750@kroah.com>
-References: <20060428001226.204293000@quad.kroah.org>
+	Thu, 27 Apr 2006 20:19:31 -0400
+Date: Thu, 27 Apr 2006 17:17:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI: Add pci_assign_resource_fixed -- allow fixed address assignments
+Message-ID: <20060428001758.GA18917@kroah.com>
+References: <Pine.LNX.4.44.0604271242410.25641-100000@gate.crashing.org> <20060427153432.5f3f4c12.akpm@osdl.org> <116674A8-64F4-4F49-8AAC-06C94159B3B3@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="sonypi-correct-detection-of-new-ich7-based-laptops.patch"
-In-Reply-To: <20060428001557.GA18750@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <116674A8-64F4-4F49-8AAC-06C94159B3B3@kernel.crashing.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+On Thu, Apr 27, 2006 at 07:12:14PM -0500, Kumar Gala wrote:
+> 
+> On Apr 27, 2006, at 5:34 PM, Andrew Morton wrote:
+> 
+> >Kumar Gala <galak@kernel.crashing.org> wrote:
+> >>
+> >>On some embedded systems the PCI address for hotplug devices are  
+> >>not only
+> >>known a priori but are required to be at a given PCI address for  
+> >>other
+> >>master in the system to be able to access.
+> >>
+> >>An example of such a system would be an FPGA which is setup from  
+> >>user space
+> >>after the system has booted.  The FPGA may be access by DSPs in  
+> >>the system
+> >>and those DSPs expect the FPGA at a fixed PCI address.
+> >>
+> >>Added pci_assign_resource_fixed() as a way to allow assignment of  
+> >>the PCI
+> >>devices's BARs at fixed PCI addresses.
+> >
+> >Is there any sane way in which we can arrange for this function to  
+> >not be
+> >present in vmlinux's which don't need it?
+> >
+> >Options would be
+> >
+> >a) Put it in a .a file.
+> >
+> >   - messy from a source perspective
+> >
+> >   - doesn't work if the only reference is from a module
+> >
+> >   - small gains anyway.
+> >
+> >b) Use CONFIG_EMBEDDED.
+> 
+> I'm fine with wrapping it in a CONFIG_EMBEDDED, Greg?
 
-------------------
-From: Arnaud MAZIN <arnaud.mazin@gmail.com>
+That's fine with me.  Care to send me an updated patch?  I'll drop the
+other one then.
 
-[PATCH] sonypi: correct detection of new ICH7-based laptops
+thanks,
 
-Add a test to detect the ICH7 based Core Duo SONY laptops (such as the SZ1)
-as type3 models.
-
-Signed-off-by: Arnaud MAZIN <arnaud.mazin@gmail.com>
-Acked-by: Stelian Pop <stelian@poppies.net>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/char/sonypi.c |    3 +++
- 1 file changed, 3 insertions(+)
-
---- linux-2.6.16.11.orig/drivers/char/sonypi.c
-+++ linux-2.6.16.11/drivers/char/sonypi.c
-@@ -1341,6 +1341,9 @@ static int __devinit sonypi_probe(struct
- 	else if ((pcidev = pci_get_device(PCI_VENDOR_ID_INTEL,
- 					  PCI_DEVICE_ID_INTEL_ICH6_1, NULL)))
- 		sonypi_device.model = SONYPI_DEVICE_MODEL_TYPE3;
-+	else if ((pcidev = pci_get_device(PCI_VENDOR_ID_INTEL,
-+					  PCI_DEVICE_ID_INTEL_ICH7_1, NULL)))
-+		sonypi_device.model = SONYPI_DEVICE_MODEL_TYPE3;
- 	else
- 		sonypi_device.model = SONYPI_DEVICE_MODEL_TYPE2;
- 
-
---
+greg k-h

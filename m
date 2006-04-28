@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWD1JX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030338AbWD1JYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030336AbWD1JX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 05:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWD1JX4
+	id S1030338AbWD1JYl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 05:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbWD1JYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 05:23:56 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:47884 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1030336AbWD1JXx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 05:23:53 -0400
-Message-ID: <4451DF24.20408@argo.co.il>
-Date: Fri, 28 Apr 2006 12:23:48 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org,
-       David Schwartz <davids@webmaster.com>
-Subject: Re: C++ pushback
-References: <20060426034252.69467.qmail@web81908.mail.mud.yahoo.com> <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com> <20060426200134.GS25520@lug-owl.de> <Pine.LNX.4.64.0604261305010.3701@g5.osdl.org> <20060426201909.GN27946@ftp.linux.org.uk> <20060426213700.GB22894@mars.ravnborg.org>
-In-Reply-To: <20060426213700.GB22894@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 28 Apr 2006 05:24:41 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:4100 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030335AbWD1JYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 05:24:40 -0400
+Subject: Re: [patch 11/13] s390: instruction processing damage handling.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Josef Sipek <jsipek@fsl.cs.sunysb.edu>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <20060428083903.GA11819@osiris.boeblingen.de.ibm.com>
+References: <20060424150544.GL15613@skybase>
+	 <20060428073358.GA15166@filer.fsl.cs.sunysb.edu>
+	 <20060428083903.GA11819@osiris.boeblingen.de.ibm.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Fri, 28 Apr 2006 11:24:44 +0200
+Message-Id: <1146216285.5138.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Apr 2006 09:23:51.0539 (UTC) FILETIME=[76692C30:01C66AA5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> The original question was related to port existing C++ code to be used
-> as a kernel module.
-> Magically this always ends up in long discussions about how applicable
-> C++ is the the kernel as such which was not the original intent.
->
-> So following the original intent it does not matter what subset is
-> sanely used, only what adaptions is needed to kernel proper to support
-> modules written in C++.
->
->   
+On Fri, 2006-04-28 at 10:39 +0200, Heiko Carstens wrote:
+> > > +++ linux-2.6-patched/drivers/s390/s390mach.c	2006-04-24 16:47:28.000000000 +0200
+> > ...
+> > > +#define MAX_IPD_TIME	(5 * 60 * 100 * 1000) /* 5 minutes */
+> > 
+> > I'm no s390 expert, but shouldn't the above use something like HZ?
+> 
+> Using HZ here feels just wrong to me. MAX_IPD_TIME has nothing to do with the
+> timer frequency. In this case it's used to tell if there were 30 machine
+> checks within the last 5 minutes (in a usec granularity). It's just by
+> accident that this could be expressed using HZ.
+> (5 * 60 * USEC_PER_SEC) would probably look better...
 
-Here at last is a sane response. If the kernel were enhanced/bastardized 
-(pick one) to support C++ modules, we could evaluate how C++ actually 
-does in terms of runtime and developer performance.
-
-> But I have seen no patches this time either, so required modifications
-> are yet to be identified.
->   
-
-Since such patches are sure to be rejected (apparently renaming 'struct 
-class' would wreak havoc on the development process), I doubt that they 
-will appear. Not to mention the attacks on the submitters that would follow.
+Using HZ would be wrong. The check that uses MAX_IPD_TIME compares it
+against the result of a get_clock() call. That uses the TOD Clock
+directly, there is no dependency on HZ.
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
 

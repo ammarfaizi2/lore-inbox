@@ -1,121 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751793AbWD1WmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWD1WtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751793AbWD1WmV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 18:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWD1WmU
+	id S932080AbWD1WtA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 18:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWD1WtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 18:42:20 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:39345 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751793AbWD1WmU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 18:42:20 -0400
-Date: Fri, 28 Apr 2006 17:42:18 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH]: powerpc/pseries: Print PCI slot location code on failure
-Message-ID: <20060428224218.GE22621@austin.ibm.com>
+	Fri, 28 Apr 2006 18:49:00 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:18397 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S932080AbWD1Ws7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 18:48:59 -0400
+Date: Fri, 28 Apr 2006 19:50:03 -0300
+From: Harald Welte <laforge@netfilter.org>
+To: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
+Cc: linux-kernel@vger.kernel.org, netfilter@lists.netfilter.org
+Subject: Re: linux/iptables + smp question
+Message-ID: <20060428225003.GF5598@rama>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
+	Juan Pablo Abuyeres <jpabuyer@tecnoera.com>,
+	linux-kernel@vger.kernel.org, netfilter@lists.netfilter.org
+References: <44520085.3030909@tecnoera.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ILuaRSyQpoVaJ1HG"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: linas@austin.ibm.com (Linas Vepstas)
+In-Reply-To: <44520085.3030909@tecnoera.com>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Paul,
+--ILuaRSyQpoVaJ1HG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-A low-priority patch the improves diagnostic printing on EEH failures.
-Please review and forward upstream as appropriate.
+On Fri, Apr 28, 2006 at 07:46:13AM -0400, Juan Pablo Abuyeres wrote:
+> Hi guys,
 
---linas
+Hi, please follow up to the netfilter mailinglist, since this is not a
+kernel [development] question.
 
-[PATCH]: powerpc/pseries: Print PCI slot location code on failure
+> I've been using an old single processor / linux 2.4 iptables based firewa=
+ll for a few years.
+>
+> Now it's time to upgrade that machine, so, I am wondering, would it be of=
+ real benefit if I put a=20
+> two-processor system for a firewall? This machine is going to have 4 NICs=
+, it's going to make=20
+> routing (lots of routes), and firewall (iptables). I don't know if these =
+kind of tasks take=20
+> advantage from a multiple-processor architecture. Please enlighten me :)
 
-The PCI error recovery code will printk diagnostic info when
-a PCI error event occurs. Change the messages to include the slot
-location code, which is how most sysadmins will know the device.
+some notes:
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+1) 2.6. network stack scales better on smp
+2) iptables and routing both scale very good on smp systems, if you use
+   multiple interfaces and distribute the interrupts over multiple cpus
+3) connection tracking inherently scales less good on SMP systems
 
-----
- arch/powerpc/platforms/pseries/eeh_driver.c |   33 ++++++++++++++++------------
- 1 files changed, 20 insertions(+), 13 deletions(-)
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
-Index: linux-2.6.17-rc1/arch/powerpc/platforms/pseries/eeh_driver.c
-===================================================================
---- linux-2.6.17-rc1.orig/arch/powerpc/platforms/pseries/eeh_driver.c	2006-04-28 17:31:31.000000000 -0500
-+++ linux-2.6.17-rc1/arch/powerpc/platforms/pseries/eeh_driver.c	2006-04-28 17:31:39.000000000 -0500
-@@ -261,16 +261,20 @@ struct pci_dn * handle_eeh_events (struc
- 	struct pci_bus *frozen_bus;
- 	int rc = 0;
- 	enum pci_ers_result result = PCI_ERS_RESULT_NONE;
--	const char *pci_str, *drv_str;
-+	const char *location, *pci_str, *drv_str;
- 
- 	frozen_dn = find_device_pe(event->dn);
- 	frozen_bus = pcibios_find_pci_bus(frozen_dn);
- 
- 	if (!frozen_dn) {
--		printk(KERN_ERR "EEH: Error: Cannot find partition endpoint for %s\n",
--		        pci_name(event->dev));
-+
-+		location = (char *) get_property(event->dn, "ibm,loc-code", NULL);
-+		printk(KERN_ERR "EEH: Error: Cannot find partition endpoint "
-+		                "for location=%s pci addr=%s\n",
-+		        location, pci_name(event->dev));
- 		return NULL;
- 	}
-+	location = (char *) get_property(frozen_dn, "ibm,loc-code", NULL);
- 
- 	/* There are two different styles for coming up with the PE.
- 	 * In the old style, it was the highest EEH-capable device
-@@ -282,8 +286,9 @@ struct pci_dn * handle_eeh_events (struc
- 		frozen_bus = pcibios_find_pci_bus (frozen_dn->parent);
- 
- 	if (!frozen_bus) {
--		printk(KERN_ERR "EEH: Cannot find PCI bus for %s\n",
--		        frozen_dn->full_name);
-+		printk(KERN_ERR "EEH: Cannot find PCI bus "
-+		        "for location=%s dn=%s\n",
-+		        location, frozen_dn->full_name);
- 		return NULL;
- 	}
- 
-@@ -318,8 +323,9 @@ struct pci_dn * handle_eeh_events (struc
- 
- 	eeh_slot_error_detail(frozen_pdn, 1 /* Temporary Error */);
- 	printk(KERN_WARNING
--	   "EEH: This PCI device has failed %d times since last reboot: %s - %s\n",
--		frozen_pdn->eeh_freeze_count, drv_str, pci_str);
-+	   "EEH: This PCI device has failed %d times since last reboot: "
-+		"location=%s driver=%s pci addr=%s\n",
-+		frozen_pdn->eeh_freeze_count, location, drv_str, pci_str);
- 
- 	/* Walk the various device drivers attached to this slot through
- 	 * a reset sequence, giving each an opportunity to do what it needs
-@@ -368,17 +374,18 @@ excess_failures:
- 	 * due to actual, failed cards.
- 	 */
- 	printk(KERN_ERR
--	   "EEH: PCI device %s - %s has failed %d times \n"
--	   "and has been permanently disabled.  Please try reseating\n"
--	   "this device or replacing it.\n",
--		drv_str, pci_str, frozen_pdn->eeh_freeze_count);
-+	   "EEH: PCI device at location=%s driver=%s pci addr=%s \n"
-+		"has failed %d times and has been permanently disabled. \n"
-+		"Please try reseating this device or replacing it.\n",
-+		location, drv_str, pci_str, frozen_pdn->eeh_freeze_count);
- 	goto perm_error;
- 
- hard_fail:
- 	printk(KERN_ERR
--	   "EEH: Unable to recover from failure of PCI device %s - %s\n"
-+	   "EEH: Unable to recover from failure of PCI device "
-+	   "at location=%s driver=%s pci addr=%s \n"
- 	   "Please try reseating this device or replacing it.\n",
--		drv_str, pci_str);
-+		location, drv_str, pci_str);
- 
- perm_error:
- 	eeh_slot_error_detail(frozen_pdn, 2 /* Permanent Error */);
+--ILuaRSyQpoVaJ1HG
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQFEUpwbXaXGVTD0i/8RApw2AKCFWxyvFb9TzA9mAQCmWXEUvAx62QCeNn/v
+volpm1hk2KEzZvGUICE6kmo=
+=wtmq
+-----END PGP SIGNATURE-----
+
+--ILuaRSyQpoVaJ1HG--

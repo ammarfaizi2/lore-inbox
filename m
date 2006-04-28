@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbWD1NnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbWD1Nyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbWD1NnH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 09:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030403AbWD1NnG
+	id S1030405AbWD1Nyj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 09:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbWD1Nyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 09:43:06 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:25325 "EHLO
-	linuxbipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S1030400AbWD1NnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 09:43:05 -0400
-Message-ID: <44521BE6.8040500@grupopie.com>
-Date: Fri, 28 Apr 2006 14:43:02 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
-X-Accept-Language: en-us, en
+	Fri, 28 Apr 2006 09:54:39 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:63659 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1030405AbWD1Nyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 09:54:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=Rnf/9Edqd1hQI2rgF9UcaiKXhUpcGUyr5cefYqn61INzXyyi/I+NFTz2/naAgn7T3pr1SMm5f37w7yija2hsUMft8xOUfUvtLO+hUForenqDILHLARgwXAPo/tWoXPn33rdcqdyi9ST1ps9shVfGNLwTm/DnJy1VeXpsbAOkAHI=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] Re: [RFC] PATCH 0/4 - Time virtualization
+Date: Fri, 28 Apr 2006 15:54:31 +0200
+User-Agent: KMail/1.8.3
+Cc: user-mode-linux-devel@lists.sourceforge.net,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+References: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org> <200604281333.41358.blaisorblade@yahoo.it> <20060428114823.GA3641@ccure.user-mode-linux.org>
+In-Reply-To: <20060428114823.GA3641@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-To: schwidefsky@de.ibm.com
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Josef Sipek <jsipek@fsl.cs.sunysb.edu>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [patch 11/13] s390: instruction processing damage handling.
-References: <20060424150544.GL15613@skybase>	 <20060428073358.GA15166@filer.fsl.cs.sunysb.edu>	 <20060428083903.GA11819@osiris.boeblingen.de.ibm.com> <1146216285.5138.1.camel@localhost>
-In-Reply-To: <1146216285.5138.1.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604281554.32665.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky wrote:
-> On Fri, 2006-04-28 at 10:39 +0200, Heiko Carstens wrote:
-> 
->>>>+++ linux-2.6-patched/drivers/s390/s390mach.c	2006-04-24 16:47:28.000000000 +0200
->>>...
->>>>+#define MAX_IPD_TIME	(5 * 60 * 100 * 1000) /* 5 minutes */
-                                 ^^^^^^^^^^^^^^^^^^^^
-				Expression A
+On Friday 28 April 2006 13:48, Jeff Dike wrote:
+> On Fri, Apr 28, 2006 at 01:33:40PM +0200, Blaisorblade wrote:
+> > > So, maybe it belongs in clone as a "backwards" flag similar to
+> > > CLONE_NEWNS.
 
->>>I'm no s390 expert, but shouldn't the above use something like HZ?
->>
->>Using HZ here feels just wrong to me. MAX_IPD_TIME has nothing to do with the
->>timer frequency. In this case it's used to tell if there were 30 machine
->>checks within the last 5 minutes (in a usec granularity). It's just by
->>accident that this could be expressed using HZ.
->>(5 * 60 * USEC_PER_SEC) would probably look better...
-   ^^^^^^^^^^^^^^^^^^^^^^^
-   Expression B
+> > I must note that currently every (?) flag allowed for unshare is also
+> > allowed for clone, so you need to do that anyway.
 
-I'm no s390 expert either, but just wanted to point out that expression 
-B is 10 times larger than expression A, so something's fishy here.
+> Currently.  We are running out of CLONE_ bits - in mainline, there are
+> three left, and two of them are likely to be used by CLONE_TIME and
+> CLONE_UTSNAME (or whatever that turns out to be called).
 
-> Using HZ would be wrong. The check that uses MAX_IPD_TIME compares it
-> against the result of a get_clock() call. That uses the TOD Clock
-> directly, there is no dependency on HZ.
+> And why should there be any overlap between clone flags and unshare
+> flags?  Isn't
+> 	clone(CLONE_TIME);
+> the same as
+> 	clone();
+> 	unshare(CLONE_TIME);
+> ?
 
-Looking at include/asm-s390/timex.h:
+Now that unshare() exists, you're right, the current situation is just due to 
+unshare() being an afterthought; the second form (clone() + unshare()) is 
+actually more similar to the classical fork() API conceptually (i.e. you 
+don't need a call with thousands of parameters to create a process, you can 
+specify everything later).
 
-#define CLOCK_TICK_RATE	1193180 /* Underlying HZ */
+So we get back to Eric's objection (which I haven't understood but that's my 
+problem).
 
-makes me wonder if this should be:
-
-#define MAX_IPD_TIME	(5 * 60 * CLOCK_TICK_RATE) /* 5 minutes */
-
+Additionally, if this flag ever goes into clone, it mustn't be named 
+CLONE_TIME, but CLONE_NEWTIME (or CLONE_NEWUTS). And given CLONE_NEWNS, it's 
+IMHO ok to have unshare(CLONE_NEWTIME) to mean "unshare time namespace", even 
+if it's incoherent with unshare(CLONE_FS) - the incoherency already exists 
+with CLONE_NEWNS.
 -- 
-Paulo Marques - www.grupopie.com
-
-Pointy-Haired Boss: I don't see anything that could stand in our way.
-            Dilbert: Sanity? Reality? The laws of physics?
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

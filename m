@@ -1,75 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWD1Gei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWD1GrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbWD1Gei (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 02:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWD1Gei
+	id S1030277AbWD1GrL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 02:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030278AbWD1GrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 02:34:38 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:14227 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1030275AbWD1Geh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 02:34:37 -0400
-Message-ID: <4451B77D.7070000@tlinx.org>
-Date: Thu, 27 Apr 2006 23:34:37 -0700
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Fri, 28 Apr 2006 02:47:11 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:6031 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030277AbWD1GrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 02:47:09 -0400
+Date: Thu, 27 Apr 2006 23:46:55 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Shirley Ma <xma@us.ibm.com>
+cc: Pekka J Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Or Gerlitz <ogerlitz@voltaire.com>,
+       open-iscsi@googlegroups.com, openib-general@openib.org,
+       openib-general-bounces@openib.org
+Subject: Re: [openib-general] Re: possible bug in kmem_cache related code
+In-Reply-To: <OF74DEDEC9.CB33A0DB-ON8725715E.0023266E-8825715E.002874C1@us.ibm.com>
+Message-ID: <Pine.LNX.4.64.0604272345290.30557@schroedinger.engr.sgi.com>
+References: <OF74DEDEC9.CB33A0DB-ON8725715E.0023266E-8825715E.002874C1@us.ibm.com>
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: make O="<dir>" install; output not relocated; 2.6.16.11(kbuild) 
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- From "make help", the "O=" param to make is said to
-  'Locate all output files in "dir", including .config'
+On Thu, 27 Apr 2006, Shirley Ma wrote:
 
-I first did:
-    "make O=$PWD/root bzImage modules"   # (Note: PWD=/usr/src/ast-261611)
+> I hit a similar problem while calling kzalloc(). it happened on 
+> linux-2.6.17-rc1 + ppc64.
+> 
+> kernel BUG in __cache_alloc_node at mm/slab.c:2934!
+> which is 
+>         BUG_ON(slabp->inuse == cachep->num);
 
-That worked w/no apparent problems.
-
-I wanted the output of "make install modules_install" placed
-in a working directory (for transfer to the target system).
-
-Instead, it appears the "O=" parameter is _partially_ ignored.
-
-It is used for the "input" to the "make install" and the
-"make modules_install", but seems to be ignored for "output":
-
-ishtar:/usr/src/ast-261611> make V=1 O=$PWD/root modules_install
-  make -C /usr/src/ast-261611/root \
-    KBUILD_SRC=/usr/src/ast-261611 \
-    KBUILD_EXTMOD="" -f /usr/src/ast-261611/Makefile modules_install
-  mkdir: cannot create directory `/lib/modules/2.6.16.11-astarte': 
-Permission denied
-  make[1]: *** [_modinst_] Error 1
-  make: *** [modules_install] Error 2
-
-ishtar:/usr/src/ast-261611> make V=1 O=$PWD/root install       
-  make -C /usr/src/ast-261611/root \
-    KBUILD_SRC=/usr/src/ast-261611 \
-    KBUILD_EXTMOD="" -f /usr/src/ast-261611/Makefile install
-    make -f /usr/src/ast-261611/scripts/Makefile.build 
-obj=arch/i386/boot BOOTIMAGE=arch/i386/boot/bzImage install
-      sh /usr/src/ast-261611/arch/i386/boot/install.sh 2.6.16.11-astarte 
-arch/i386/boot/bzImage System.map "/boot"
-      ln: cannot remove `/boot/vmlinuz': Permission denied
-      rm: cannot remove `/boot/System.map': Permission denied
-      cp: cannot create regular file `/boot/vmlinuz-2.6.16.11-astarte': 
-Permission denied
-      cp: cannot create regular file 
-`/boot/System.map-2.6.16.11-astarte': Permission denied
-      ln: cannot remove `/boot/vmlinuz': Permission denied
-      You may need to create an initial ramdisk now.
-----
-
-    Is this a bug or a feature?  I.e. is the "make help" misleading in
-saying "O=<dir>" can be used to specify the output directory of a
-make run?  Or should this be working?
-
-Thanks,
-Linda'
-
-
-
+More entries were added to a slab than allowed? This suggests a race on
+slabp->inuse.

@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbWD1J05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWD1J3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030335AbWD1J05 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 05:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbWD1J05
+	id S1030337AbWD1J3T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 05:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWD1J3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 05:26:57 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.206]:19140 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1030335AbWD1J04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 05:26:56 -0400
-To: adilger@clusterfs.com
-Cc: tytso@mit.edu, sct@redhat.com, Ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re:[Ext2-devel] [RFC][10/21]ext3 enlarge blocksize
-Message-Id: <20060428182647sho@rifu.tnes.nec.co.jp>
+	Fri, 28 Apr 2006 05:29:19 -0400
+Received: from mail.gmx.net ([213.165.64.20]:60132 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030337AbWD1J3S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 05:29:18 -0400
+X-Authenticated: #14349625
+Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
+From: Mike Galbraith <efault@gmx.de>
+To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net
+In-Reply-To: <20060428165639.0e4f9a03.maeda.naoaki@jp.fujitsu.com>
+References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+	 <1146201936.7523.15.camel@homer>
+	 <20060428144859.a07bb5b2.maeda.naoaki@jp.fujitsu.com>
+	 <1146207589.7551.7.camel@homer>
+	 <20060428162612.7760628d.maeda.naoaki@jp.fujitsu.com>
+	 <1146210069.7551.31.camel@homer>
+	 <20060428165639.0e4f9a03.maeda.naoaki@jp.fujitsu.com>
+Content-Type: text/plain
+Date: Fri, 28 Apr 2006 11:29:12 +0200
+Message-Id: <1146216552.8067.11.camel@homer>
 Mime-Version: 1.0
-X-Mailer: WeMail32[2.51] ID:1K0086
-From: sho@tnes.nec.co.jp
-Date: Fri, 28 Apr 2006 18:26:46 +0900
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your advice, Andreas
+On Fri, 2006-04-28 at 16:56 +0900, MAEDA Naoaki wrote:
+> On Fri, 28 Apr 2006 09:41:09 +0200
+> Mike Galbraith <efault@gmx.de> wrote:
+> 
+> > On Fri, 2006-04-28 at 16:26 +0900, MAEDA Naoaki wrote:
+> > > On Fri, 28 Apr 2006 08:59:49 +0200
+> > > Mike Galbraith <efault@gmx.de> wrote:
+> > > > You simply cannot ignore interactive tasks.  At the very least, you have
+> > > > to disallow requeue if the resource limit has been exceeded, otherwise,
+> > > > this patch set is non-functional.
+> > > 
+> > > It can be easily implemented on top of the current code. Do you know a good
+> > > sample program that is judged as interactive but consumes lots of cpu?
+> > 
+> > X sometimes, Mozilla sometimes,... KDE konsole when scrolling,...
+> > anything that on average sleeps more than roughly 5% of it's slice can
+> > starve you to death either alone, or (worse) with peers.
+> 
+> They are true interactive tasks, aren't they? 
+> Oh! I should say "that is not interactive, but judged as interactive
+> and consumes lots of cpu". 
 
-> I like this patch, but prefer if we maintain as much compatibility as
-> possible.  There is not really a reason to make a filesystem 
-> incompatible
-> unless there are actually files > 2TB stored in it (just like 
-> we didn't
-> make filesystems incompatible for large_file unless there 
-> were files over
-> 2GB in the filesystem).
- 
-I agree your opinion.  I'll consider deeply what to do to maintain as
-much compatibility as possible, based on your comment.
+Why do you care?  There is only one thing that matters, and that is the
+fact that cpu can be used and remain utterly uncontrolled.  This renders
+your system non-functional for resource management.  Period.  All stop.
 
-BTW, I'll take nine days vacation on the next week and restart this
-work after that.
+	-Mike
 
-Cheers, sho

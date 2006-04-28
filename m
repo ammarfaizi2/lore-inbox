@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWD1Hee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbWD1Hju@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbWD1Hee (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 03:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbWD1Hee
+	id S1030299AbWD1Hju (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 03:39:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbWD1Hju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 03:34:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:23210 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030296AbWD1Hed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 03:34:33 -0400
-Subject: Re: [discuss] Re: [PATCH] [3/4] i386: Fix overflow in
-	e820_all_mapped
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-In-Reply-To: <4451DB47.76E4.0078.0@novell.com>
-References: <4451A80E.mailNZX1XN4A8@suse.de>
-	 <Pine.LNX.4.64.0604272237430.3701@g5.osdl.org>
-	 <4451DB47.76E4.0078.0@novell.com>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 09:34:02 +0200
-Message-Id: <1146209643.3126.7.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 28 Apr 2006 03:39:50 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:19121 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030299AbWD1Hjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 03:39:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=gqUCKnJyy+WDm81I4dQTqXQozXxQcw/lcNZImHEzwZyb74ixtLYkthw+BfASlVWs1ddJg9ESmnAZq1gS9gsuadcrQbrNXPd8tffUPzzuI/ByiuPgZpBi+1cGIgM2b/sK2V0HpHu0mIrGwziMpxDoU19Q2FjV0CLV8LsynNbu6q8=  ;
+Message-ID: <4451C23D.5000002@yahoo.com.au>
+Date: Fri, 28 Apr 2006 17:20:29 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       zach@vmware.com, torvalds@osdl.org
+Subject: Re: [PATCH] x86/PAE: Fix pte_clear for the >4GB RAM case
+References: <200604272001.k3RK1dmX007637@hera.kernel.org> <200604280808.44496.ak@suse.de> <20060428062704.GH2909@sorel.sous-sol.org> <200604280829.29164.ak@suse.de>
+In-Reply-To: <200604280829.29164.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 09:07 +0200, Jan Beulich wrote:
-> >>> Linus Torvalds <torvalds@osdl.org> 28.04.06 07:39 >>>
-> >
-> >
-> >On Fri, 28 Apr 2006, Andi Kleen wrote:
-> >> 
-> >> The 32bit version of e820_all_mapped() needs to use u64 to avoid
-> >> overflows on PAE systems.  Pointed out by Jan Beulich
-> >
-> >I don't think that's true.
-> >
-> >It can't be called with 64-bit arguments anyway. If the base address 
-> >doesn't fit in 32-bit, we'd be screwed in other places, afaik.
+Andi Kleen wrote:
+
+> No it was me who was confused sorry. Somehow i thought it was defined
+> away for !SMP
 > 
-> The arguments don't necessarily need to be u64, but (at least some of)
-> the calculations inside the function do. Otherwise, a region starting
-> below 4G and extending to or beyond 4G would not be considered
-> correctly.
+> (which would make sense because why would you want a compile barrier
+> for a barrier that is only needed on SMP?) 
 
-since this is use-once __init code I rather keep it simple and safe (eg
-use u64) than do complex tricks to make it safe in another way.. and the
-4G thing is a real potential problem that's easily fixed with the u64
-thing.
+It is maybe not clearly named. smp_wmb() is a memory barrier to the
+regular (eg. RAM) cache coherency domain AFAICT. wmb() is also a
+barrier to io memory.
 
+There is nothing to distinguish SMP and UP. I guess sometimes smp_
+barriers would not even have to be a barrier() on UP, but other
+times they would have to be (eg. in the case of concurrent
+interrupts, context switches).
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

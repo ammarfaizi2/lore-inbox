@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWD1J3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbWD1JeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030337AbWD1J3T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 05:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWD1J3T
+	id S1030339AbWD1JeG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 05:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWD1JeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 05:29:19 -0400
-Received: from mail.gmx.net ([213.165.64.20]:60132 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030337AbWD1J3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 05:29:18 -0400
-X-Authenticated: #14349625
-Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
-From: Mike Galbraith <efault@gmx.de>
-To: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net
-In-Reply-To: <20060428165639.0e4f9a03.maeda.naoaki@jp.fujitsu.com>
-References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-	 <1146201936.7523.15.camel@homer>
-	 <20060428144859.a07bb5b2.maeda.naoaki@jp.fujitsu.com>
-	 <1146207589.7551.7.camel@homer>
-	 <20060428162612.7760628d.maeda.naoaki@jp.fujitsu.com>
-	 <1146210069.7551.31.camel@homer>
-	 <20060428165639.0e4f9a03.maeda.naoaki@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 11:29:12 +0200
-Message-Id: <1146216552.8067.11.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Fri, 28 Apr 2006 05:34:05 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:15117 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1030339AbWD1JeE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 05:34:04 -0400
+Message-ID: <4451E185.9030107@argo.co.il>
+Date: Fri, 28 Apr 2006 12:33:57 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Davi Arnaut <davi.lkml@gmail.com>
+CC: Willy Tarreau <willy@w.ods.org>, Denis Vlasenko <vda@ilport.com.ua>,
+       dtor_core@ameritech.net, Kyle Moffett <mrmacman_g4@mac.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>	 <d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com>	 <444E61FD.7070408@argo.co.il> <200604271810.07575.vda@ilport.com.ua>	 <20060427201531.GH13027@w.ods.org> <750c918d0604271408y2afef6fflf380e4d0a6c1cec6@mail.gmail.com>
+In-Reply-To: <750c918d0604271408y2afef6fflf380e4d0a6c1cec6@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-OriginalArrivalTime: 28 Apr 2006 09:34:03.0102 (UTC) FILETIME=[E2EE47E0:01C66AA6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 16:56 +0900, MAEDA Naoaki wrote:
-> On Fri, 28 Apr 2006 09:41:09 +0200
-> Mike Galbraith <efault@gmx.de> wrote:
-> 
-> > On Fri, 2006-04-28 at 16:26 +0900, MAEDA Naoaki wrote:
-> > > On Fri, 28 Apr 2006 08:59:49 +0200
-> > > Mike Galbraith <efault@gmx.de> wrote:
-> > > > You simply cannot ignore interactive tasks.  At the very least, you have
-> > > > to disallow requeue if the resource limit has been exceeded, otherwise,
-> > > > this patch set is non-functional.
-> > > 
-> > > It can be easily implemented on top of the current code. Do you know a good
-> > > sample program that is judged as interactive but consumes lots of cpu?
-> > 
-> > X sometimes, Mozilla sometimes,... KDE konsole when scrolling,...
-> > anything that on average sleeps more than roughly 5% of it's slice can
-> > starve you to death either alone, or (worse) with peers.
-> 
-> They are true interactive tasks, aren't they? 
-> Oh! I should say "that is not interactive, but judged as interactive
-> and consumes lots of cpu". 
+Davi Arnaut wrote:
+>>
+>> Mozilla is written in C++ ? I start to better understand where the
+>> 160 MB bloat comes from...
+>>     
+>
+> Evolution is written in C.
+>   
 
-Why do you care?  There is only one thing that matters, and that is the
-fact that cpu can be used and remain utterly uncontrolled.  This renders
-your system non-functional for resource management.  Period.  All stop.
+FWIW, userspace is moving away from C as unproductive and unsafe. KDE is 
+of course C++, mozilla, openoffice are C++, and gnome is moving towards 
+(of all things) C#.
 
-	-Mike
+GCC considered adopting a C++ subset. My impressions of the discussion 
+was that (a) a majority of the developers would like that (b) RMS would 
+never allow it (c) there were concerns about bootstrap on platforms 
+where a C++ compiler was not available.
+
+Kernels of other operating systems (Windows, AIX (?)) allow C++. And 
+don't start about Windows crashing whenever you sneeze at it - it's so 1998.
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

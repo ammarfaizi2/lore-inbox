@@ -1,94 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWD1R5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751780AbWD1SFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751769AbWD1R5T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 13:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWD1R5S
+	id S1751780AbWD1SFo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 14:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWD1SFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 13:57:18 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:17370 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751769AbWD1R5S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 13:57:18 -0400
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Andrew Morton <akpm@osdl.org>, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-In-Reply-To: <4451B122.1010206@sw.ru>
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>
-	 <1145630992.3373.6.camel@localhost.localdomain>
-	 <1145638722.14804.0.camel@linuxchandra>
-	 <20060421155727.4212c41c.akpm@osdl.org>
-	 <1145670536.15389.132.camel@linuxchandra>
-	 <20060421191340.0b218c81.akpm@osdl.org>
-	 <1146189505.24650.221.camel@linuxchandra>  <4451B122.1010206@sw.ru>
-Content-Type: text/plain
-Organization: IBM
-Date: Fri, 28 Apr 2006 10:57:14 -0700
-Message-Id: <1146247034.7063.10.camel@linuxchandra>
+	Fri, 28 Apr 2006 14:05:44 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:4266 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751780AbWD1SFn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 14:05:43 -0400
+Date: Fri, 28 Apr 2006 14:05:33 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc2-mm1
+Message-ID: <20060428180533.GC7061@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060427014141.06b88072.akpm@osdl.org> <pan.2006.04.27.15.47.20.688183@free.fr> <20060427180227.GA1404@in.ibm.com> <44523DB5.1050206@free.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44523DB5.1050206@free.fr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 10:07 +0400, Kirill Korotaev wrote:
-> >>Worried.
-> > The object of this infrastructure is to get a unified interface for
-> > resource management, irrespective of the resource that is being managed.
-> > 
-> > As I mentioned in my earlier email, subsystem experts are the ones who
-> > will finally decide what type resource controller they will accept. With
-> > VM experts' direction and advice, i am positive that we will get an
-> > excellent memory controller (as well as other controllers).
-> > 
-> > As you might have noticed, we have gone through major changes to come to
-> > community's acceptance levels. We are now making use of all possible
-> > features (kref, process event connector, configfs, module parameter,
-> > kzalloc) in this infrastructure.
-> > 
-> > Having a CPU controller, two memory controllers, an I/O controller and a
-> > numtasks controller proves that the infrastructure does handle major
-> > resources nicely and is also capable of managing virtual resources.
-> > 
-> > Hope i reduced your worries (at least some :).
-> Not all :) Let me explain.
+On Fri, Apr 28, 2006 at 06:07:17PM +0200, matthieu castet wrote:
+> Vivek Goyal wrote:
+> >On Thu, Apr 27, 2006 at 05:47:25PM +0200, Matthieu CASTET wrote:
+> >
+> >
+> >I think it would break on ppc64 as u64 is unsigned long. It should be
+> >explicitly typecasted to unsigned long long. Same is true for all the
+> >instances.
+> On 64 bits platform, unsigned long isn't the same as unsigned long long ?
 > 
-> Until you provided something more complex then numtasks, this 
-> infrastructure is pure theory. For example, in your infrastracture, when 
-> you will add memory resource controller with data sharing, you will face 
-> that changing CKRM class of the tasks is almost impossible in a suitable 
+> Do you mean there will be a warning ?
 
-I do not see a problem here, there could be 2 solutions:
- - do not account shared pages against the resource group(put them in
-   the default resource group (as some other OSs do)).
- - when you are moving the task to a different class, calculate the
-   resource group's usage depending on how many users are using a 
-   specific page.
-> way. Another possible situation: hierarchical classes with shared memory 
-> are even more complicated thing.
+Yes.
 
-Hierarchy is not an issue. Resource controller can calculate the
-absolute number of resources (say no. of pages in this case) when the
-shares are assigned and then treat all resource groups as flat.
-
+> But pnp_printf is a variadic fonction (with no attribute format printf), 
+> so gcc can't check the arguments type.
 > 
-> In both cases you can end up with a poor/complicated/slow solution or 
-> dropping some of your infrastructre features (changing class on the fly, 
-> hierarchy) or which is worse IMHO with incosistency between controllers 
-> and interfaces.
 
-I am not convinced (based on the above explanations).
-> 
-> Thanks,
-> Kirill
-> 
--- 
+You are right. I did not notice that for pnp_printf(), attribute format
+printf is not specified. So gcc won't do the type checking on format string
+arguments.
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+( __attribute__ ((format (printf, 2, 3)));
 
-
+Thanks
+Vivek

@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030478AbWD1Q23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030484AbWD1Q3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030478AbWD1Q23 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 12:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbWD1Q23
+	id S1030484AbWD1Q3O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 12:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030482AbWD1Q3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 12:28:29 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:23997 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030478AbWD1Q22
+	Fri, 28 Apr 2006 12:29:13 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:48553 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030479AbWD1Q3M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 12:28:28 -0400
-From: Vernon Mauery <vernux@us.ibm.com>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG 2.6.16-rt18] machine stops before reboot
-Date: Fri, 28 Apr 2006 09:28:26 -0700
-User-Agent: KMail/1.8.3
-Cc: Ingo Molnar <mingo@elte.hu>
-References: <200604280912.24578.vernux@us.ibm.com>
-In-Reply-To: <200604280912.24578.vernux@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Apr 2006 12:29:12 -0400
+Date: Fri, 28 Apr 2006 11:29:04 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Ulrich Drepper <drepper@gmail.com>,
+       Axelle Apvrille <axelle_apvrille@yahoo.fr>, Nix <nix@esperi.org.uk>,
+       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+       disec-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries
+Message-ID: <20060428162904.GB31473@sergelap.austin.ibm.com>
+References: <87slo2nn0b.fsf@hades.wkstn.nix> <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com> <a36005b50604280833k5a811384r5f3a6f92dd707256@mail.gmail.com> <20060428160914.GA31473@sergelap.austin.ibm.com> <1146240670.3126.20.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200604280928.26996.vernux@us.ibm.com>
+In-Reply-To: <1146240670.3126.20.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 April 2006 09:12, Vernon Mauery wrote:
-> Ingo,
->
-> On the Intellistation and LS-20 configuration I just reported the irqpoll
-> bug about, if we don't use irqpoll to boot and it actually boots up and
-> things seem to be working fine, when we go to reboot, it doesn't ever
-> completely shut down:
-...
-> Shutting down loopback interface:  [  OK  ]
-> Starting killall:  [  OK  ]
-> Sending all processes the TERM signal...
->
-> And it gets stuck here.  That machine is not dead or hung.  I can type
-> stuff and it shows up on the terminal, but it does not seem to be running
-> anything. I can reboot it with the sysrq keys.
->
-> I tested this against 2.6.16-rt16 and I haven't seen this problem after
-> about 6 reboots.  So I think this is a regression.
+Quoting Arjan van de Ven (arjan@infradead.org):
+> 
+> > A one time effort to write it *and sign it*.
+> you don't sign nor need to sign perl or bash scripts. Why would a loader
+> be written in ELF itself? There's absolutely no reason for that.
 
-Right after I sent this email, 2.6.16-rt16 got stuck at the next step:
-Sending all processes the KILL signal... 
+Yup, that's an unfortunate shortcoming.  We'd been wanting to re-post to
+lkml for a long time to get ideas to fix that.
 
-So maybe this is a long standing problem?
+I had an extension to digsig earlier which enabled signing shellscripts
+using xattrs (just because it was a trivial task), but that's clearly
+insufficient as it would catch "./myscript.pl" but not "perl
+myscript.pl".
 
---Vernon
+For now obviously the only thing to do is make sure that sensitive
+accounts (i.e. accounts not severely restricted through selinux) can't
+use anything but, say, rsh.  I assume this is what previous posters
+using digsig do?
 
->
-> --Vernon
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Anyone have any better ideas for properly handling shellscripts?
+
+-serge

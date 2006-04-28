@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWD1Ts7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWD1TqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbWD1Ts7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 15:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWD1Ts7
+	id S1751119AbWD1TqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 15:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWD1TqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 15:48:59 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:30413 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751438AbWD1Ts6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 15:48:58 -0400
-Date: Fri, 28 Apr 2006 14:48:46 -0500 (CDT)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Pat Gefre <pfg@sgi.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] 2.6 Altix : correct ioc3 port order
-In-Reply-To: <200604281931.k3SJVBjR063404@fsgi900.americas.sgi.com>
-Message-ID: <20060428144745.O67051@chenjesu.americas.sgi.com>
-References: <200604281931.k3SJVBjR063404@fsgi900.americas.sgi.com>
-Organization: "Silicon Graphics, Inc."
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 28 Apr 2006 15:46:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46028 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751119AbWD1TqY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 15:46:24 -0400
+Date: Fri, 28 Apr 2006 12:44:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Cc: ioe-lkml@rameria.de, joern@wohnheim.fh-wedel.de,
+       linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
+       penberg@cs.helsinki.fi
+Subject: Re: [PATCH] s390: Hypervisor File System
+Message-Id: <20060428124416.6215714e.akpm@osdl.org>
+In-Reply-To: <OF41D6EA13.CE34B289-ON4225715E.00501AB1-4225715E.0060B9BD@de.ibm.com>
+References: <20060428025621.2c7577a0.akpm@osdl.org>
+	<OF41D6EA13.CE34B289-ON4225715E.00501AB1-4225715E.0060B9BD@de.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Apr 2006, Pat Gefre wrote:
+Michael Holzheu <HOLZHEU@de.ibm.com> wrote:
+>
+> > > +   if (filp->f_mode & FMODE_WRITE) {
+>  > > +      if (!(inode->i_mode & S_IWUGO))
+>  > > +         return -EACCES;
+>  > > +   }
+>  > > +   if (filp->f_mode & FMODE_READ) {
+>  > > +      if (!(inode->i_mode & S_IRUGO))
+>  > > +         return -EACCES;
+>  > > +   }
+>  >
+>  > Is the standard VFS permission checking not appropriate?
+>  >
+>  > (A comment should be added here).
+> 
+>  You mean using .permission in the inode operations
+>  and using the generic_permission() function?
+> 
+>  Currently I do not have own inode operations (and
+>  I don't want to have them ...)
 
-> Currently loading the ioc3 as a module will cause the ports to be
-> numbered in reverse order. This mod maintains the proper order of cards
-> for port numbering.
+The VFS-level open() code implements standard permission-checking so I
+_think_ you don't need to do anything in here.  See how ramfs does it.
 
-Pat,
+ramfs does have an inode_operations, for ->getattr() support.  So it can
+return a correct number in stat->blocks.
 
-Since the sn/ioc3.c code came from sn/ioc4.c, do we have the same
-problem there as well?
+sysfs implements inode_operations, so it can do stuff in ->setattr().
 
-Brent
+I don't think hypfs needs either of those, so you still shouldn't need a
+file_inode_operations.
 
--- 
-Brent Casavant                          All music is folk music.  I ain't
-bcasavan@sgi.com                        never heard a horse sing a song.
-Silicon Graphics, Inc.                    -- Louis Armstrong

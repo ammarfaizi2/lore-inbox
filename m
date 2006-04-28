@@ -1,26 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbWD1FeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWD1FjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030213AbWD1FeM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 01:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWD1FeM
+	id S1030234AbWD1FjW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 01:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWD1FjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 01:34:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:455 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030213AbWD1FeL (ORCPT
+	Fri, 28 Apr 2006 01:39:22 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27336 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030234AbWD1FjV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 01:34:11 -0400
-Date: Thu, 27 Apr 2006 22:34:05 -0700 (PDT)
+	Fri, 28 Apr 2006 01:39:21 -0400
+Date: Thu, 27 Apr 2006 22:39:17 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       linux-kernel@vger.kernel.org, npiggin@suse.de, linux-mm@kvack.org
-Subject: Re: Lockless page cache test results
-In-Reply-To: <4451A00A.2030606@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0604272230230.3701@g5.osdl.org>
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org>
- <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org>
- <Pine.LNX.4.64.0604261144290.3701@g5.osdl.org> <44505B59.1060308@yahoo.com.au>
- <Pine.LNX.4.64.0604270804420.3701@g5.osdl.org> <4451A00A.2030606@yahoo.com.au>
+To: Andi Kleen <ak@suse.de>
+cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [3/4] i386: Fix overflow in e820_all_mapped
+In-Reply-To: <4451A80E.mailNZX1XN4A8@suse.de>
+Message-ID: <Pine.LNX.4.64.0604272237430.3701@g5.osdl.org>
+References: <4451A80E.mailNZX1XN4A8@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,30 +24,14 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 28 Apr 2006, Nick Piggin wrote:
-> > 
-> > See __d_lookup() for details.
+On Fri, 28 Apr 2006, Andi Kleen wrote:
 > 
-> Yes I see. Perhaps a seqlock could do the trick (hmm, there already is one),
-> however we still have to increment the refcount, so there'll always be a
-> shared cacheline.
+> The 32bit version of e820_all_mapped() needs to use u64 to avoid
+> overflows on PAE systems.  Pointed out by Jan Beulich
 
-Actually, the thing I'd really _like_ to see is not even incrementing the 
-refcount for intermediate directories (and those are actually the most 
-common case).
+I don't think that's true.
 
-It should be possible in theory to do a lookup of a long path all using 
-the rcu_read_lock, and only do the refcount increment (and then you might 
-as well do the d_lock thing) for the final component of the path.
-
-Of course, it's not possible right now. We do each component separately, 
-and we very much depend on the d_lock. For some things, we _have_ to do it 
-that way (revalidation etc), so the "possible in theory" isn't always even 
-true.
-
-And every time I look at it, I decide that it's too damn complex, and the 
-end result would look horrible, and that I'd probably get it wrong anyway.
-
-Still, I've _looked_ at it several times.
+It can't be called with 64-bit arguments anyway. If the base address 
+doesn't fit in 32-bit, we'd be screwed in other places, afaik.
 
 		Linus

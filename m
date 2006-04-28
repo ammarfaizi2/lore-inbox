@@ -1,111 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWD1Bj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWD1BjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030265AbWD1Bj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 21:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWD1BjS
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1030263AbWD1BjS (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 27 Apr 2006 21:39:18 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:8867 "EHLO
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWD1Biq
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 27 Apr 2006 21:38:46 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:53922 "EHLO
 	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030266AbWD1Bi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 21:38:58 -0400
+	id S1030264AbWD1Bi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 21:38:29 -0400
 From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org,
        ckrm-tech@lists.sourceforge.net
 Cc: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
-Date: Fri, 28 Apr 2006 10:38:17 +0900
-Message-Id: <20060428013817.9582.60748.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
+Date: Fri, 28 Apr 2006 10:38:12 +0900
+Message-Id: <20060428013812.9582.20493.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 In-Reply-To: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
 References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-Subject: [PATCH 9/9] CPU controller - Documentation how to use the controller
+Subject: [PATCH 8/9] CPU controller - Add cpu hotplug support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-9/9: cpu_docs
+8/9: cpu_hotplug
 
-Documentation how to use the CPU controller
+Adds cpu hotplug notifier for the Resouce Groups CPU controller.
 
 Signed-off-by: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
 Signed-off-by: Kurosawa Takahiro <kurosawa@valinux.co.jp>
 
- Documentation/res_groups/cpurc |   72 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 72 insertions(+)
+ kernel/res_group/cpu.c |   47 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 47 insertions(+)
 
-Index: linux-2.6.17-rc3/Documentation/res_groups/cpurc
+Index: linux-2.6.17-rc3/kernel/res_group/cpu.c
 ===================================================================
---- /dev/null
-+++ linux-2.6.17-rc3/Documentation/res_groups/cpurc
-@@ -0,0 +1,73 @@
-+Introduction
-+------------
+--- linux-2.6.17-rc3.orig/kernel/res_group/cpu.c
++++ linux-2.6.17-rc3/kernel/res_group/cpu.c
+@@ -231,6 +231,50 @@ static ssize_t cpu_show_stats(struct res
+ 	return i;
+ }
+ 
++static void clear_stat_and_propagate(struct cpu_res * res, int cpu)
++{
++	struct resource_group *child = NULL;
++	struct cpu_res *childres;
 +
-+CPU resource controller enables user/sysadmin to control CPU time
-+percentage of tasks in a resouce group. It controls time_slice of tasks based on
-+the feedback of difference between the target value and the current usage
-+in order to control the percentage of the CPU usage to the target value.
++	cpu_rc_clear_stat(&res->cpu_rc, cpu);
 +
-+Installation
-+------------
++	/* propagate to children */
++	spin_lock(&res->rgroup->group_lock);
++	for_each_child(child, res->rgroup) {
++		childres = get_res_group_cpu(child);
++		if (childres)
++			clear_stat_and_propagate(childres, cpu);
++	}
++	spin_unlock(&res->rgroup->group_lock);
++}
 +
-+1. Configure "CPU Resource Controller" under RES_GROUPS. Currently, this cannot
-+be configured as a module.
++static int __devinit cpu_notify(struct notifier_block *self,
++				unsigned long action, void *hcpu)
++{
++	struct resource_group *root = &default_res_group;
++	struct cpu_res *res;
++	int	cpu = (long) hcpu;
 +
-+2. Reboot the system with the new kernel.
++	switch (action)	{
 +
-+3. Verify that the CPU resource controller is present by reading
-+the file /config/res_groups/shares (should show a line with res=cpu).
++	case CPU_DEAD:
++		res = get_res_group_cpu(root);
++		clear_stat_and_propagate(res, cpu);
++		/* FALL THROUGH */
++	case CPU_ONLINE:
++		grcd.cpus = cpu_online_map;
++		grcd.numcpus = cpus_weight(cpu_online_map);
++		break;
++	default:
++		break;
++	}
++	return NOTIFY_OK;
++}
 +
-+Assigning shares
-+----------------
++static struct notifier_block cpu_nb = {
++	.notifier_call	= cpu_notify,
++};
 +
-+Follows the general approach of setting shares for a resource group in Resource
-+Groups.
-+
-+# echo "res=cpu,min_shares=val" > shares
-+
-+sets the min_shares of a resource group.
-+
-+The CPU resource controller calculates an effective min_shares in percent
-+for each resoruce group. Following is an example of resource groups/min_shares
-+settings and each effective min_shares.
-+
-+			/
-+			  effective_min_shares
-+			  = 100% - 50% - 30%
-+			  = 20%
-+	+---------------+---------------+
-+	/A min_shares=50%		/B min_shares=30%
-+	   effective_min_shares		   effective_min_shares
-+	   = 50% - 10% - 25%	    	   = 30% - 0%
-+	   = 15%			   = 30%
-++---------------+---------------+
-+/C min_shares=20%		/D min_shares=50%
-+effective_min_shares		   effective_min_shares
-+= 20% of 50% - 0% = 10%	   = 50% of 50% - 0 %
-+= 10%			   = 25%
-+
-+If the min_shares in the resource group /A is changed 50% to 40% in the above
-+example, the effective_min_shares of the resource group /A, /C and /D are
-+automatically changed to 12%, 8% and 20% respectively.
-+
-+Although the child_shares_divisor can be changed, the effective_min_shares is
-+always calculated in percent.
-+
-+Note that the CPU resource controller doesn't support the limit, so assigning
-+the limit for "res=cpu" will have no effect.
-+
-+Monitoring
-+----------
-+
-+stats file shows the effective min_shares and the current cpu usage of a resouce
-+group in percentage.
-+
-+# cat stats
-+cpu:effective_min_shares=50, load=40
-+
-+That means the effective min_shares of the resource group is 50% and the current
-+load average of the resource group is 40%.
-+
-+Since the tasks in the resource group do not always try to consume CPU,
-+the load could be less or greater than the effective_min_shares. Both cases
-+are normal.
+ struct res_controller cpu_ctlr = {
+ 	.name = res_ctlr_name,
+ 	.depth_supported = 3,
+@@ -246,6 +290,8 @@ int __init init_cpu_res(void)
+ 	if (cpu_ctlr.ctlr_id != NO_RES_ID)
+ 		return -EBUSY; /* already registered */
+ 	cpu_rc_init_rcd(&grcd);
++ 	/* Register notifier for hot plugged/unplugged CPUs */
++ 	register_cpu_notifier(&cpu_nb);
+ 	return register_controller(&cpu_ctlr);
+ }
+ 
+@@ -256,6 +302,7 @@ void __exit exit_cpu_res(void)
+ 		rc = unregister_controller(&cpu_ctlr);
+ 	} while (rc == -EBUSY);
+ 	BUG_ON(rc != 0);
++	unregister_cpu_notifier(&cpu_nb);
+ }
+ 
+ module_init(init_cpu_res)

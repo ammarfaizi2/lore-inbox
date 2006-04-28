@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbWD1KDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbWD1KKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030352AbWD1KDt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 06:03:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030354AbWD1KDt
+	id S1030354AbWD1KKL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 06:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWD1KKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 06:03:49 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:63501 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1030352AbWD1KDs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 06:03:48 -0400
-Message-ID: <4451E87D.1000102@argo.co.il>
-Date: Fri, 28 Apr 2006 13:03:41 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Fri, 28 Apr 2006 06:10:11 -0400
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:2501 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030354AbWD1KKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 06:10:10 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
+Date: Fri, 28 Apr 2006 20:09:40 +1000
+User-Agent: KMail/1.9.1
+Cc: Mike Galbraith <efault@gmx.de>, Kirill Korotaev <dev@sw.ru>,
+       MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net
+References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp> <1146208288.7551.19.camel@homer> <1146210395.7551.37.camel@homer>
+In-Reply-To: <1146210395.7551.37.camel@homer>
 MIME-Version: 1.0
-To: Davi Arnaut <davi.lkml@gmail.com>
-CC: Willy Tarreau <willy@w.ods.org>, Denis Vlasenko <vda@ilport.com.ua>,
-       dtor_core@ameritech.net, Kyle Moffett <mrmacman_g4@mac.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com>	 <d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com>	 <444E61FD.7070408@argo.co.il> <200604271810.07575.vda@ilport.com.ua>	 <20060427201531.GH13027@w.ods.org> <750c918d0604271408y2afef6fflf380e4d0a6c1cec6@mail.gmail.com> <4451E185.9030107@argo.co.il>
-In-Reply-To: <4451E185.9030107@argo.co.il>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Apr 2006 10:03:47.0211 (UTC) FILETIME=[0A57B5B0:01C66AAB]
+Content-Disposition: inline
+Message-Id: <200604282009.41725.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avi Kivity wrote:
+On Friday 28 April 2006 17:46, Mike Galbraith wrote:
+> On Fri, 2006-04-28 at 09:11 +0200, Mike Galbraith wrote:
+> > On Fri, 2006-04-28 at 09:56 +0400, Kirill Korotaev wrote:
+> > > I'm also pretty sure, that CPU controller based on timeslice tricks
+> > > behaves poorly on burstable load patterns as well and with interactive
+> > > tasks. So before commiting I propose to perform a good testing on
+> > > different load patterns.
+> >
+> > Yes, it can only react very slowly.
 >
-> Kernels of other operating systems (Windows, AIX (?)) allow C++. And 
-> don't start about Windows crashing whenever you sneeze at it - it's so 
-> 1998.
->
+> Actually, this might not be that much of a problem.  I know I can
+> traverse queue heads periodically very cheaply.  Traversing both active
+> and expired arrays to requeue starving tasks once every 100ms costs max
+> 4usecs (3GHz P4) for a typical distribution.
 
-Oh, and it looks like some guy even wrote a kernel [1] in C++! Lucky we 
-don't have people like that working on Linux.
-
-[1] http://www.zipworld.com.au/~akpm/#rtos
-
-
-(Sorry, couldn't resist)
+How many tasks? Your function was O(n) so the more tasks the longer that max 
+value was.
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+-ck

@@ -1,40 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbWD1HLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWD1H04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbWD1HLy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 03:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbWD1HLy
+	id S1030288AbWD1H04 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 03:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWD1H04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 03:11:54 -0400
-Received: from mail.gmx.net ([213.165.64.20]:59039 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030284AbWD1HLx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 03:11:53 -0400
-X-Authenticated: #14349625
-Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
-From: Mike Galbraith <efault@gmx.de>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-In-Reply-To: <4451AEA4.1040108@sw.ru>
+	Fri, 28 Apr 2006 03:26:56 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:11697 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030288AbWD1H0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 03:26:55 -0400
+Date: Fri, 28 Apr 2006 16:26:12 +0900
+From: MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, maeda.naoaki@jp.fujitsu.com
+Subject: Re: [PATCH 0/9] CPU controller
+Message-Id: <20060428162612.7760628d.maeda.naoaki@jp.fujitsu.com>
+In-Reply-To: <1146207589.7551.7.camel@homer>
 References: <20060428013730.9582.9351.sendpatchset@moscone.dvs.cs.fujitsu.co.jp>
-	 <1146201936.7523.15.camel@homer>  <4451AEA4.1040108@sw.ru>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 09:11:28 +0200
-Message-Id: <1146208288.7551.19.camel@homer>
+	<1146201936.7523.15.camel@homer>
+	<20060428144859.a07bb5b2.maeda.naoaki@jp.fujitsu.com>
+	<1146207589.7551.7.camel@homer>
+Organization: FUJITSU LIMITED
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 09:56 +0400, Kirill Korotaev wrote:
-> I'm also pretty sure, that CPU controller based on timeslice tricks 
-> behaves poorly on burstable load patterns as well and with interactive 
-> tasks. So before commiting I propose to perform a good testing on 
-> different load patterns.
+On Fri, 28 Apr 2006 08:59:49 +0200
+Mike Galbraith <efault@gmx.de> wrote:
 
-Yes, it can only react very slowly.
+> On Fri, 2006-04-28 at 14:48 +0900, MAEDA Naoaki wrote:
+> > Hi Mike,
+> > 
+> > On Fri, 28 Apr 2006 07:25:35 +0200
+> > Mike Galbraith <efault@gmx.de> wrote:
+> > 
+> > > On Fri, 2006-04-28 at 10:37 +0900, MAEDA Naoaki wrote:
+> > > > Andrew,
+> > > > 
+> > > > This patchset adds a CPU resource controller on top of Resource Groups. 
+> > > > The CPU resource controller manages CPU resources by scaling timeslice
+> > > > allocated for each task without changing the algorithm of the O(1)
+> > > > scheduler.
+> > > > 
+> > > > Please consider these for inclusion in -mm tree.
+> > > 
+> > > This patch set professes to be a resource controller, yet 100% of high
+> > > priority tasks are uncontrolled.  Distribution of CPU among high
+> > > priority tasks isn't important, but distribution of what they leave
+> > > behind is?
+> > 
+> > Do you mean niced tasks are uncontrolled by the controller? 
+> > TASK_INTERACTIVEs are left untouched intentionally, but niced tasks
+> > are also controlled.
+> 
+> Until they attain interactive status.  Note that attaining this status
+> requires only one sleep, and once attained, it can be sustained.  I
+> don't know what the current exact numbers are, but until recently, the
+> numbers were that once sleep_avg became full, a non-niced task could
+> sustain ~95% cpu indefinitely.
+> 
+> You simply cannot ignore interactive tasks.  At the very least, you have
+> to disallow requeue if the resource limit has been exceeded, otherwise,
+> this patch set is non-functional.
 
-	-Mike
+It can be easily implemented on top of the current code. Do you know a good
+sample program that is judged as interactive but consumes lots of cpu?
+
+Thanks,
+MAEDA Naoaki
+
 

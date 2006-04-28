@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965092AbWD1Lal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbWD1Lcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965092AbWD1Lal (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 07:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965088AbWD1Lal
+	id S965133AbWD1Lcb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 07:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965110AbWD1Lca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 07:30:41 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:13328 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S965092AbWD1Lak (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 07:30:40 -0400
-Message-ID: <4451FCCC.4010006@argo.co.il>
-Date: Fri, 28 Apr 2006 14:30:20 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Martin Mares <mj@ucw.cz>
-CC: Davi Arnaut <davi.lkml@gmail.com>, Willy Tarreau <willy@w.ods.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, dtor_core@ameritech.net,
-       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> <d120d5000604251028h67e552ccq7084986db6f1cdeb@mail.gmail.com> <444E61FD.7070408@argo.co.il> <200604271810.07575.vda@ilport.com.ua> <20060427201531.GH13027@w.ods.org> <750c918d0604271408y2afef6fflf380e4d0a6c1cec6@mail.gmail.com> <4451E185.9030107@argo.co.il> <mj+md-20060428.105455.7620.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060428.105455.7620.atrey@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Apr 2006 11:30:31.0826 (UTC) FILETIME=[2888EF20:01C66AB7]
+	Fri, 28 Apr 2006 07:32:30 -0400
+Received: from ns2.hostinglmi.net ([213.194.149.12]:9622 "EHLO
+	ns2.hostinglmi.net") by vger.kernel.org with ESMTP id S965004AbWD1Lc3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 07:32:29 -0400
+Date: Fri, 28 Apr 2006 13:37:55 +0200
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: David Vrabel <dvrabel@cantab.net>, Francois Romieu <romieu@fr.zoreil.com>,
+       Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Subject: Re: IP1000 gigabit nic driver
+Message-ID: <20060428113755.GA7419@fargo>
+Mail-Followup-To: Pekka Enberg <penberg@cs.helsinki.fi>,
+	David Vrabel <dvrabel@cantab.net>,
+	Francois Romieu <romieu@fr.zoreil.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+References: <20060427142939.GA31473@fargo> <20060427185627.GA30871@electric-eye.fr.zoreil.com> <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo> <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns2.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - pleyades.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
-> Maybe continuing to write application programs in C instead of using
-> higher-level languages is silly and backward, but _stopping_ at the
-> level of C++ or C# is equally silly.
->
->   
+Hi Pekka,
 
-Agree. Look at how well mercurial turned out compared to git, and it is 
-written in such a slow language.
+On Apr 28 at 01:58:04, Pekka Enberg wrote:
+> Needs some serious coding style cleanup and conversion to proper 2.6
+> APIs for starters.
 
-The high level language allows you to concentrate on the algorithms 
-which is where the performance comes from.
+Ok, i could take care of that, and it's a good way of getting my hands
+dirty with kernel programming ;). David, if it's ok to you i'll do the
+cleanup thing.
 
-> However, in the kernel space the main problems the people are spending
-> their time with are rarely related to the language.
->   
+What about 2.4/2.2 code? It's supposed to stay for compatibility
+or it should be removed before submitting?
 
-If you're using a more productive language, you get more things done, in 
-userspace and in the kernel.
+cheers,
 
 -- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+David Gómez                                      Jabber ID: davidge@jabber.org

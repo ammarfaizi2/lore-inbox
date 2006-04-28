@@ -1,22 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbWD1F2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbWD1F2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965191AbWD1F2p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 01:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWD1F2p
+	id S965188AbWD1F2t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 01:28:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965189AbWD1F2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 01:28:45 -0400
-Received: from ns1.suse.de ([195.135.220.2]:64413 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965188AbWD1F2p (ORCPT
+	Fri, 28 Apr 2006 01:28:49 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:22936 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965188AbWD1F2s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 01:28:45 -0400
-Date: Fri, 28 Apr 2006 07:28:43 +0200
+	Fri, 28 Apr 2006 01:28:48 -0400
+Date: Fri, 28 Apr 2006 07:28:46 +0200
 From: "Andi Kleen" <ak@suse.de>
 To: torvalds@osdl.org
-Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       len.brown@intel.com
-Subject: [PATCH] [2/4] i386/x86-64: Fix ACPI disabled LAPIC handling 
- mismerge
-Message-ID: <4451A80B.mailNXH1OHM2B@suse.de>
+Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [3/4] i386: Fix overflow in e820_all_mapped
+Message-ID: <4451A80E.mailNZX1XN4A8@suse.de>
 User-Agent: nail 10.6 11/15/03
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,41 +23,40 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-The patch I submitted earlier to fix disabled LAPIC handling in ACPI
-was mismerged for some reason I still don't quite understand. Parts
-of it was applied to the wrong function.
-
-This patch fixes it up.
-
-Cc: len.brown@intel.com
+The 32bit version of e820_all_mapped() needs to use u64 to avoid
+overflows on PAE systems.  Pointed out by Jan Beulich
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
 ---
- arch/i386/kernel/acpi/boot.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+ arch/i386/kernel/setup.c |    2 +-
+ include/asm-i386/e820.h  |    3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-Index: linux/arch/i386/kernel/acpi/boot.c
+Index: linux/arch/i386/kernel/setup.c
 ===================================================================
---- linux.orig/arch/i386/kernel/acpi/boot.c
-+++ linux/arch/i386/kernel/acpi/boot.c
-@@ -215,7 +215,7 @@ static int __init acpi_parse_madt(unsign
+--- linux.orig/arch/i386/kernel/setup.c
++++ linux/arch/i386/kernel/setup.c
+@@ -970,7 +970,7 @@ efi_memory_present_wrapper(unsigned long
+   * not-overlapping, which is the case
+   */
+ int __init
+-e820_all_mapped(unsigned long start, unsigned long end, unsigned type)
++e820_all_mapped(u64 start, u64 end, unsigned type)
  {
- 	struct acpi_table_madt *madt = NULL;
+ 	int i;
+ 	for (i = 0; i < e820.nr_map; i++) {
+Index: linux/include/asm-i386/e820.h
+===================================================================
+--- linux.orig/include/asm-i386/e820.h
++++ linux/include/asm-i386/e820.h
+@@ -36,8 +36,7 @@ struct e820map {
  
--	if (!phys_addr || !size || !cpu_has_apic)
-+	if (!phys_addr || !size)
- 		return -EINVAL;
+ extern struct e820map e820;
  
- 	madt = (struct acpi_table_madt *)__acpi_map_table(phys_addr, size);
-@@ -1151,6 +1151,9 @@ int __init acpi_boot_init(void)
+-extern int e820_all_mapped(unsigned long start, unsigned long end,
+-			   unsigned type);
++extern int e820_all_mapped(u64 start, u64 end, unsigned type);
  
- 	acpi_table_parse(ACPI_BOOT, acpi_parse_sbf);
+ #endif/*!__ASSEMBLY__*/
  
-+	if (!cpu_has_apic)
-+		return -ENODEV;
-+
- 	/*
- 	 * set sci_int and PM timer address
- 	 */

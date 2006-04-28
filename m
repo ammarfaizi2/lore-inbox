@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWD1VJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWD1VtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbWD1VJG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 17:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWD1VJG
+	id S1751107AbWD1VtP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 17:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWD1VtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 17:09:06 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:5798 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750932AbWD1VJF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 17:09:05 -0400
-From: Darren Hart <dvhltc@us.ibm.com>
-Organization: IBM Linux Technology Center
-To: Ingo Molnar <mingo@elte.hu>
-Subject: RT interrupt handling
-Date: Fri, 28 Apr 2006 14:08:59 -0700
-User-Agent: KMail/1.8.3
-Cc: "lkml, " <linux-kernel@vger.kernel.org>
+	Fri, 28 Apr 2006 17:49:15 -0400
+Received: from mail5.sea5.speakeasy.net ([69.17.117.7]:10694 "EHLO
+	mail5.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751107AbWD1VtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 17:49:15 -0400
+Date: Fri, 28 Apr 2006 17:49:11 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Some Concrete AppArmor Questions - was Re: [RFC][PATCH 0/11]
+ security: AppArmor - Overview
+In-Reply-To: <20060428090425.160194e6@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0604281742001.22310@d.namei>
+References: <1146229328.11817.73.camel@moss-spartans.epoch.ncsc.mil>
+ <20060428154928.40409.qmail@web36603.mail.mud.yahoo.com>
+ <20060428090425.160194e6@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604281409.00287.dvhltc@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran into a situation where binding a realtime testsuite to cpu 0 (on a 4 way 
-opteron machine) locked the machine hard while binding it to cpu 2 worked 
-fine.  Some investigation suggests that the interrupt handlers for eth0 and 
-ioc0 (IRQ 24 and 26) had the smp_affinity mask set to only cpu 0.  With the 
-test case running threads with rt prios in the 90s and the irqs running in 
-the ~40s (don't recall, somewhere around there I think), it isn't surprising 
-that the machine locked up.
+On Fri, 28 Apr 2006, Stephen Hemminger wrote:
 
-I'd like to hear people's thoughts on the following:
+> SELinux on the other hand takes a real security view of the world. If
+> you have ever worked with real security environment with "need to
+> know", you will understand that it is hard to keep secure and requires
+> too many restrictions for normal users.
 
-o Why would those irqs be bound to just cpu 0?  Why not all cpus?
+It depends on the type of SELinux policy you have loaded.  The one which 
+most people use, "targeted policy", is aimed at confining network facing 
+services while allowing the local user level stuff to run generally 
+without confinement.
 
-o Is it reasonable to extend the smp_affinity for all interrupts to all cpus 
-to minimize this type of problem?
 
-o Should a userspace RT task be able to take down the system?  Do we roll with 
-the spiderman addage "With great power comes great responsibility" when 
-discussing RT systems, or should we consider some kind of priority boosting 
-mechanism for kernel services that must be run every so often to keep the 
-system running?
-
-Thanks!
-
+- James
 -- 
-Darren Hart
-IBM Linux Technology Center
-Realtime Linux Team
+James Morris
+<jmorris@namei.org>

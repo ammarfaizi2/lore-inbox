@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWD1GAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWD1GIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030231AbWD1GAO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 02:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWD1GAO
+	id S1030257AbWD1GIr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 02:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965201AbWD1GIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 02:00:14 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:39046 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1030231AbWD1GAM (ORCPT
+	Fri, 28 Apr 2006 02:08:47 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:46235 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965195AbWD1GIq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 02:00:12 -0400
-Message-ID: <4451B122.1010206@sw.ru>
-Date: Fri, 28 Apr 2006 10:07:30 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Fri, 28 Apr 2006 02:08:46 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] [3/4] i386: Fix overflow in e820_all_mapped
+Date: Fri, 28 Apr 2006 08:08:15 +0200
+User-Agent: KMail/1.9.1
+Cc: discuss@x86-64.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       jbeulich@novell.com
+References: <4451A80E.mailNZX1XN4A8@suse.de> <Pine.LNX.4.64.0604272237430.3701@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0604272237430.3701@g5.osdl.org>
 MIME-Version: 1.0
-To: sekharan@us.ibm.com
-CC: Andrew Morton <akpm@osdl.org>, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, ckrm-tech@lists.sourceforge.net
-Subject: Re: [ckrm-tech] [RFC] [PATCH 00/12] CKRM after a major overhaul
-References: <20060421022411.6145.83939.sendpatchset@localhost.localdomain>	 <1145630992.3373.6.camel@localhost.localdomain>	 <1145638722.14804.0.camel@linuxchandra>	 <20060421155727.4212c41c.akpm@osdl.org>	 <1145670536.15389.132.camel@linuxchandra>	 <20060421191340.0b218c81.akpm@osdl.org> <1146189505.24650.221.camel@linuxchandra>
-In-Reply-To: <1146189505.24650.221.camel@linuxchandra>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604280808.16256.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Worried.
-> The object of this infrastructure is to get a unified interface for
-> resource management, irrespective of the resource that is being managed.
+On Friday 28 April 2006 07:39, Linus Torvalds wrote:
 > 
-> As I mentioned in my earlier email, subsystem experts are the ones who
-> will finally decide what type resource controller they will accept. With
-> VM experts' direction and advice, i am positive that we will get an
-> excellent memory controller (as well as other controllers).
+> On Fri, 28 Apr 2006, Andi Kleen wrote:
+> > 
+> > The 32bit version of e820_all_mapped() needs to use u64 to avoid
+> > overflows on PAE systems.  Pointed out by Jan Beulich
 > 
-> As you might have noticed, we have gone through major changes to come to
-> community's acceptance levels. We are now making use of all possible
-> features (kref, process event connector, configfs, module parameter,
-> kzalloc) in this infrastructure.
+> I don't think that's true.
 > 
-> Having a CPU controller, two memory controllers, an I/O controller and a
-> numtasks controller proves that the infrastructure does handle major
-> resources nicely and is also capable of managing virtual resources.
-> 
-> Hope i reduced your worries (at least some :).
-Not all :) Let me explain.
+> It can't be called with 64-bit arguments anyway. If the base address 
+> doesn't fit in 32-bit, we'd be screwed in other places, afaik.
 
-Until you provided something more complex then numtasks, this 
-infrastructure is pure theory. For example, in your infrastracture, when 
-you will add memory resource controller with data sharing, you will face 
-that changing CKRM class of the tasks is almost impossible in a suitable 
-way. Another possible situation: hierarchical classes with shared memory 
-are even more complicated thing.
+To quote Jan's original description (should have put that in)
+I think it's needed.
 
-In both cases you can end up with a poor/complicated/slow solution or 
-dropping some of your infrastructre features (changing class on the fly, 
-hierarchy) or which is worse IMHO with incosistency between controllers 
-and interfaces.
+-Andi
 
-Thanks,
-Kirill
+>>>
 
+>> It would seem to me that using 'unsigned long' for start and end is inappropriate on 32bits; at least start should
+be
+>> 'unsigned long long' as it gets updated from ei->addr + ei->size, which may (truncated to 32 bits) happen to be
+zero.
+>
+>the current user has it 32 bit for sure; once another user appears we certainly can fix this...
+
+The effect is not on the current user's parameter passing, but in the result the function may produce. If, say, for the
+PCI mmconfig and BIOS space, there is a (reserved) entry starting at E0000000 and being 20000000 in size, then as far as
+I can tell the function will return zero (rather than one).
+
+<<<

@@ -1,346 +1,479 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965193AbWD1Bec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbWD1BeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965193AbWD1Bec (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 21:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbWD1Beb
+	id S965187AbWD1BeS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 21:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbWD1BeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 21:34:31 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:53973 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965188AbWD1BeX
+	Thu, 27 Apr 2006 21:34:18 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:39637 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S965187AbWD1BeR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 21:34:23 -0400
+	Thu, 27 Apr 2006 21:34:17 -0400
 From: Chandra Seetharaman <sekharan@us.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org,
        ckrm-tech@lists.sourceforge.net
 Cc: Chandra Seetharaman <sekharan@us.ibm.com>
-Date: Thu, 27 Apr 2006 18:34:21 -0700
-Message-Id: <20060428013421.27212.73375.sendpatchset@localhost.localdomain>
+Date: Thu, 27 Apr 2006 18:34:15 -0700
+Message-Id: <20060428013415.27212.36269.sendpatchset@localhost.localdomain>
 In-Reply-To: <20060428013410.27212.45968.sendpatchset@localhost.localdomain>
 References: <20060428013410.27212.45968.sendpatchset@localhost.localdomain>
-Subject: [PATCH 02/12] Resource group creation/deletion
+Subject: [PATCH 01/12] Register/Unregister interface for Controllers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-02/12 - resource_group_support
+01/12 - controller_support
 
-Provides functions to alloc and free a user defined resource group.
-Provides utility macro to walk through the resource group hierarchy.
+This patch defines data structures for defining a resource group and
+resource controller.
+Provides register/unregister functions for a controller.
+Provides utility functions to get a controller's data structure.
 --
 
 Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
 Signed-Off-By: Hubertus Franke <frankeh@us.ibm.com>
 Signed-Off-By: Shailabh Nagar <nagar@watson.ibm.com>
 Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
-Signed-Off-By: Vivek Kashyap <kashyapv@us.ibm.com>
 Signed-Off-By: Matt Helsley <matthltc@us.ibm.com>
 
- include/linux/res_group.h    |    9 ++
- include/linux/res_group_rc.h |    9 ++
- kernel/res_group/local.h     |    4 +
- kernel/res_group/res_group.c |  167 +++++++++++++++++++++++++++++++++++++++----
- 4 files changed, 176 insertions(+), 13 deletions(-)
+ include/linux/res_group.h    |   75 +++++++++++++++
+ include/linux/res_group_rc.h |   68 +++++++++++++
+ init/Kconfig                 |   14 ++
+ kernel/Makefile              |    1 
+ kernel/res_group/Makefile    |    1 
+ kernel/res_group/local.h     |   10 ++
+ kernel/res_group/res_group.c |  214 +++++++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 383 insertions(+)
 
 Index: linux-2617-rc3/include/linux/res_group.h
 ===================================================================
---- linux-2617-rc3.orig/include/linux/res_group.h	2006-04-27 09:21:46.000000000 -0700
-+++ linux-2617-rc3/include/linux/res_group.h	2006-04-27 09:22:04.000000000 -0700
-@@ -38,6 +38,7 @@
- #define SHARE_DEFAULT_DIVISOR 	(100)
- 
- #define MAX_RES_CTLRS	8	/* max # of resource controllers */
-+#define MAX_DEPTH	5	/* max depth of hierarchy supported */
- 
- #define NO_RES_GROUP		NULL
- #define NO_SHARE		NULL
-@@ -60,6 +61,8 @@ struct res_shares {
-  * registered a resource controller (see include/linux/res_group_rc.h).
-  */
- struct resource_group {
-+	const char *name;
-+	struct kref ref;
- 	int depth;		/* depth of this resource group. root == 0 */
- 	spinlock_t group_lock;	/* protects task_list, shares and children
- 				 * When grabbing group_lock in a hierarchy,
-@@ -69,6 +72,12 @@ struct resource_group {
- 				 * grabbing resource specific lock */
- 	struct res_shares *shares[MAX_RES_CTLRS];/* resource shares */
- 	struct list_head group_list;	/* entry in system-wide list */
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2617-rc3/include/linux/res_group.h	2006-04-27 09:21:46.000000000 -0700
+@@ -0,0 +1,75 @@
++/*
++ *  res_group.h - Header file to be used by Resource Groups
++ *
++ * Copyright (C) Hubertus Franke, IBM Corp. 2003, 2004
++ *		(C) Shailabh Nagar,  IBM Corp. 2003, 2004
++ *		(C) Chandra Seetharaman, IBM Corp. 2003, 2004, 2005
++ *
++ * Provides data structures, macros and kernel APIs
++ *
++ * More details at http://ckrm.sf.net
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
 +
-+	struct list_head task_list;	/* this resource groups's tasks */
++#ifndef _LINUX_RES_GROUP_H
++#define _LINUX_RES_GROUP_H
 +
-+	struct resource_group *parent;
-+	struct list_head siblings;	/* entry in list of siblings */
-+	struct list_head children;	/* head of children */
- };
- 
- #endif /* CONFIG_RES_GROUPS */
-Index: linux-2617-rc3/kernel/res_group/res_group.c
-===================================================================
---- linux-2617-rc3.orig/kernel/res_group/res_group.c	2006-04-27 09:21:46.000000000 -0700
-+++ linux-2617-rc3/kernel/res_group/res_group.c	2006-04-27 09:22:04.000000000 -0700
-@@ -20,14 +20,26 @@
-  */
- 
- #include <linux/module.h>
--#include <linux/res_group_rc.h>
-+#include "local.h"
- 
- static struct res_controller *res_controllers[MAX_RES_CTLRS];
- /* res_ctlrs_lock protects res_controllers array and count in controllers*/
- static spinlock_t res_ctlrs_lock = SPIN_LOCK_UNLOCKED;
- 
- static LIST_HEAD(res_groups);/* list of system-wide resource groups */
--static rwlock_t res_group_lock = RW_LOCK_UNLOCKED; /* protects res_groups */
-+static int num_res_groups;	/* Number of user defined resource groups */
-+static rwlock_t res_group_lock = RW_LOCK_UNLOCKED;
-+			/* protects res_groups list and num_res_groups */
++#ifdef CONFIG_RES_GROUPS
++#include <linux/spinlock.h>
++#include <linux/list.h>
++#include <linux/kref.h>
 +
-+struct resource_group default_res_group = {
-+	.task_list = LIST_HEAD_INIT(default_res_group.task_list),
-+	.group_lock = SPIN_LOCK_UNLOCKED,
-+	.name = "task",
-+	.group_list = LIST_HEAD_INIT(default_res_group.group_list),
-+	.siblings = LIST_HEAD_INIT(default_res_group.siblings),
-+	.children = LIST_HEAD_INIT(default_res_group.children),
++#define SHARE_UNCHANGED	(-1)	/* implicitly specified by userspace,
++					 * never stored in a resource group'
++					 * shares struct; never displayed */
++#define SHARE_UNSUPPORTED	(-2)	/* If the resource controller doesn't
++					 * support user changing a shares value
++					 * it sets the corresponding share
++					 * value to UNSUPPORTED when it returns
++					 * the newly allocated shares data
++					 * structure */
++#define SHARE_DONT_CARE	(-3)
++
++#define SHARE_DEFAULT_DIVISOR 	(100)
++
++#define MAX_RES_CTLRS	8	/* max # of resource controllers */
++
++#define NO_RES_GROUP		NULL
++#define NO_SHARE		NULL
++#define NO_RES_ID		MAX_RES_CTLRS /* Invalid ID */
++
++/*
++ * Share quantities are a child's fraction of the parent's resource
++ * specified by a divisor in the parent and a dividend in the child.
++ *
++ * Shares are represented as a relative quantity between parent and child
++ * to simplify locking when propagating modifications to the shares of a
++ * resource group. Only the parent and the children of the modified
++ * resource group need to be locked.
++*/
++struct res_shares {
 +};
 +
- 
- /* Must be called with res_ctlr_lock held */
- static inline int is_ctlr_id_valid(unsigned int ctlr_id)
-@@ -98,6 +110,59 @@ static void do_alloc_shares_struct(struc
- 		get_controller(ctlr);
- }
- 
-+static void init_res_group(struct resource_group *rgroup)
++/*
++ * Class is the grouping of tasks with shares of each resource that has
++ * registered a resource controller (see include/linux/res_group_rc.h).
++ */
++struct resource_group {
++	int depth;		/* depth of this resource group. root == 0 */
++	spinlock_t group_lock;	/* protects task_list, shares and children
++				 * When grabbing group_lock in a hierarchy,
++				 * grab parent's group_lock first.
++				 * If resource controller uses a resource_group
++				 * specific lock, grab group_lock before
++				 * grabbing resource specific lock */
++	struct res_shares *shares[MAX_RES_CTLRS];/* resource shares */
++	struct list_head group_list;	/* entry in system-wide list */
++};
++
++#endif /* CONFIG_RES_GROUPS */
++#endif /* _LINUX_RES_GROUP_H */
+Index: linux-2617-rc3/include/linux/res_group_rc.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2617-rc3/include/linux/res_group_rc.h	2006-04-27 09:21:46.000000000 -0700
+@@ -0,0 +1,68 @@
++/*
++ *  res_group_rc.h - Header file to be used by Resource controllers of
++ *		      Resource Groups
++ *
++ * Copyright (C) Hubertus Franke, IBM Corp. 2003
++ *		(C) Shailabh Nagar,  IBM Corp. 2003
++ *		(C) Chandra Seetharaman, IBM Corp. 2003, 2004, 2005
++ *		(C) Vivek Kashyap , IBM Corp. 2004
++ *
++ * Provides data structures, macros and kernel API of Resource Groups for
++ * resource controllers.
++ *
++ * More details at http://ckrm.sf.net
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#ifndef _LINUX_RES_GROUP_RC_H
++#define _LINUX_RES_GROUP_RC_H
++
++#include <linux/res_group.h>
++
++struct res_controller {
++	const char *name;
++	int depth_supported;/* maximum hierarchy supported by controller */
++	unsigned int ctlr_id;
++
++	/*
++	 * Keeps number of references to this controller structure. kref
++	 * does not work as we want to be able to allow removal of a
++	 * controller even when some resource group are still defined.
++	 */
++	atomic_t count;
++
++	/*
++	 * Allocate a new shares struct for this resource controller.
++	 * Called when registering a resource controller with pre-existing
++	 * resource groups and when new resource group is created by the user.
++	 */
++	struct res_shares *(*alloc_shares_struct)(struct resource_group *);
++	/* Corresponding free of shares struct for this resource controller */
++	void (*free_shares_struct)(struct res_shares *);
++
++	/* Notifies the controller when the shares are changed */
++	void (*shares_changed)(struct res_shares *);
++
++	/* resource statistics */
++	ssize_t (*show_stats)(struct res_shares *, char *, size_t);
++	int (*reset_stats)(struct res_shares *, const char *);
++
++	/*
++	 * move_task is called when a task moves from one resource group to
++	 * another. First parameter is the task that is moving, the second
++	 * is the resource specific shares of the resource group the task
++	 * was in, and the third is the shares of the resource group the
++	 * task has moved to.
++	 */
++	void (*move_task)(struct task_struct *, struct res_shares *,
++				struct res_shares *);
++};
++
++extern int register_controller(struct res_controller *);
++extern int unregister_controller(struct res_controller *);
++#endif /* _LINUX_RES_GROUP_RC_H */
+Index: linux-2617-rc3/kernel/res_group/res_group.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2617-rc3/kernel/res_group/res_group.c	2006-04-27 09:21:46.000000000 -0700
+@@ -0,0 +1,214 @@
++/* res_group.c - Resource Groups: Resource management through grouping of
++ *		  unrelated tasks.
++ *
++ * Copyright (C) Hubertus Franke, IBM Corp. 2003, 2004
++ *		(C) Shailabh Nagar, IBM Corp. 2003, 2004
++ *		(C) Chandra Seetharaman, IBM Corp. 2003, 2004, 2005
++ *		(C) Vivek Kashyap, IBM Corp. 2004
++ *		(C) Matt Helsley, IBM Corp. 2006
++ *
++ * Provides kernel API of Resource Groups for in-kernel,per-resource
++ * controllers (one each for cpu, memory and io).
++ *
++ * Latest version, more details at http://ckrm.sf.net
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/res_group_rc.h>
++
++static struct res_controller *res_controllers[MAX_RES_CTLRS];
++/* res_ctlrs_lock protects res_controllers array and count in controllers*/
++static spinlock_t res_ctlrs_lock = SPIN_LOCK_UNLOCKED;
++
++static LIST_HEAD(res_groups);/* list of system-wide resource groups */
++static rwlock_t res_group_lock = RW_LOCK_UNLOCKED; /* protects res_groups */
++
++/* Must be called with res_ctlr_lock held */
++static inline int is_ctlr_id_valid(unsigned int ctlr_id)
 +{
-+	rgroup->group_lock = SPIN_LOCK_UNLOCKED;
-+	kref_init(&rgroup->ref);
-+	INIT_LIST_HEAD(&rgroup->task_list);
-+	INIT_LIST_HEAD(&rgroup->children);
-+	INIT_LIST_HEAD(&rgroup->siblings);
++	return ((ctlr_id < MAX_RES_CTLRS) &&
++			(res_controllers[ctlr_id] != NULL));
 +}
 +
-+struct resource_group *alloc_res_group(struct resource_group *parent,
-+						const char *name)
++struct res_controller *get_controller_by_id(unsigned int ctlr_id)
 +{
-+	int i;
++	/*
++	 * inc of controller[i].count has to be atomically done with
++	 * checking the array res_controllers, as remove_controller()
++	 * checks controller[i].count and clears res_controllers[i]
++	 * atomically, under res_ctlrs_lock.
++	 */
++	spin_lock(&res_ctlrs_lock);
++	if (!is_ctlr_id_valid(ctlr_id)) {
++		spin_unlock(&res_ctlrs_lock);
++		return NULL;
++	}
++	atomic_inc(&res_controllers[ctlr_id]->count);
++	spin_unlock(&res_ctlrs_lock);
++	return res_controllers[ctlr_id];
++}
++
++struct res_controller *get_controller_by_name(const char *name)
++{
++	struct res_controller *ctlr;
++	unsigned int i;
++
++	spin_lock(&res_ctlrs_lock);
++	for (i = 0; i < MAX_RES_CTLRS; i++, ctlr = NULL) {
++		ctlr = res_controllers[i];
++		if (!ctlr)
++			continue;
++		if (!strcmp(name, ctlr->name)) {
++			atomic_inc(&res_controllers[i]->count);
++			break;
++		}
++	}
++	spin_unlock(&res_ctlrs_lock);
++	return ctlr;
++}
++
++static void get_controller(struct res_controller *ctlr)
++{
++	atomic_inc(&ctlr->count);
++}
++
++void put_controller(struct res_controller *ctlr)
++{
++	atomic_dec(&ctlr->count);
++}
++
++/* Allocate resource specific information for a resource group */
++static void do_alloc_shares_struct(struct resource_group *rgroup,
++					struct res_controller *ctlr)
++{
++	if (rgroup->shares[ctlr->ctlr_id]) /* already allocated */
++		return;
++
++	if (rgroup->depth > ctlr->depth_supported)
++		return;
++
++	rgroup->shares[ctlr->ctlr_id] = ctlr->alloc_shares_struct(rgroup);
++	if (rgroup->shares[ctlr->ctlr_id] != NULL)
++		get_controller(ctlr);
++}
++
++/* Free up the given resource specific information in a resource group */
++static void do_free_shares_struct(struct resource_group *rgroup,
++						struct res_controller *ctlr)
++{
++	struct res_shares *shares = rgroup->shares[ctlr->ctlr_id];
++
++	/* No shares alloced previously */
++	if (shares == NULL)
++		return;
++
++	spin_lock(&rgroup->group_lock);
++	rgroup->shares[ctlr->ctlr_id] = NULL;
++	spin_unlock(&rgroup->group_lock);
++	ctlr->free_shares_struct(shares);
++	put_controller(ctlr); /* Drop reference acquired in do_alloc */
++}
++
++static int add_controller(struct res_controller *ctlr)
++{
++	int ctlr_id, ret = -ENOSPC;
++
++	spin_lock(&res_ctlrs_lock);
++	for (ctlr_id = 0; ctlr_id < MAX_RES_CTLRS; ctlr_id++)
++		if (res_controllers[ctlr_id] == NULL) {
++			res_controllers[ctlr_id] = ctlr;
++			ret = ctlr_id;
++			break;
++		}
++	spin_unlock(&res_ctlrs_lock);
++	return ret;
++}
++
++/*
++ * Interface for registering a resource controller.
++ *
++ * Returns the 0 on success, -errno for failure.
++ * Fills ctlr->ctlr_id with a valid controller id on success.
++ */
++int register_controller(struct res_controller *ctlr)
++{
++	int ret;
 +	struct resource_group *rgroup;
 +
-+	BUG_ON(parent == NULL);
++	if (!ctlr)
++		return -EINVAL;
 +
-+	/* Only upto MAX_DEPTH level of hierarchy is supported */
-+	if (parent->depth == MAX_DEPTH)
-+		return NULL;
++	/* Make sure there is an alloc and a free */
++	if (!ctlr->alloc_shares_struct || !ctlr->free_shares_struct)
++		return -EINVAL;
 +
-+	kref_get(&parent->ref);
-+	rgroup = kzalloc(sizeof(struct resource_group), GFP_KERNEL);
-+	if (!rgroup) {
-+		kref_put(&parent->ref, release_res_group);
-+		return NULL;
-+	}
-+	init_res_group(rgroup);
-+	rgroup->name = name;
-+	rgroup->depth = parent->depth + 1;
++	ret = add_controller(ctlr);
 +
-+	/* Add to parent */
-+	spin_lock(&parent->group_lock);
-+	rgroup->parent = parent;
-+	list_add(&rgroup->siblings, &parent->children);
-+	spin_unlock(&parent->group_lock);
++	if (ret < 0)
++		return ret;
 +
-+	write_lock(&res_group_lock);
-+	list_add_tail(&rgroup->group_list, &res_groups);
-+	num_res_groups++;
-+	write_unlock(&res_group_lock);
++	ctlr->ctlr_id = ret;
 +
-+	for (i = 0; i < MAX_RES_CTLRS; i++) {
-+		struct res_controller *ctlr = get_controller_by_id(i);
-+		if (!ctlr)
-+			continue;
++	atomic_set(&ctlr->count, 0);
++
++	/*
++	 * Run through all resource groups and create the controller specific
++	 * data structures.
++	 */
++	read_lock(&res_group_lock);
++	list_for_each_entry(rgroup, &res_groups, group_list)
 +		do_alloc_shares_struct(rgroup, ctlr);
-+		put_controller(ctlr);
-+	}
-+
-+	return rgroup;
-+}
-+
- /* Free up the given resource specific information in a resource group */
- static void do_free_shares_struct(struct resource_group *rgroup,
- 						struct res_controller *ctlr)
-@@ -115,6 +180,60 @@ static void do_free_shares_struct(struct
- 	put_controller(ctlr); /* Drop reference acquired in do_alloc */
- }
- 
-+/*
-+ * Release a resource group
-+ *  requires that all tasks were previously reassigned to another resource
-+ *  group.
-+ *
-+ * Returns 0 on success -errno on failure.
-+ */
-+void release_res_group(struct kref *kref)
-+{
-+	int i;
-+	struct resource_group *rgroup = container_of(kref,
-+				struct resource_group, ref);
-+	struct resource_group *parent = rgroup->parent;
-+
-+	BUG_ON(is_res_group_root(rgroup));
-+
-+	for (i = 0; i < MAX_RES_CTLRS; i++) {
-+		struct res_controller *ctlr = get_controller_by_id(i);
-+		if (!ctlr)
-+			continue;
-+		do_free_shares_struct(rgroup, ctlr);
-+		put_controller(ctlr);
-+	}
-+
-+	/* Remove this resource group from the list system-wide groups */
-+	write_lock(&res_group_lock);
-+	list_del(&rgroup->group_list);
-+	num_res_groups--;
-+	write_unlock(&res_group_lock);
-+
-+	/* remove from parent */
-+	spin_lock(&parent->group_lock);
-+	list_del(&rgroup->siblings);
-+	rgroup->parent = NO_RES_GROUP;
-+	spin_unlock(&parent->group_lock);
-+
-+	kref_put(&parent->ref, release_res_group);
-+	kfree(rgroup);
-+}
-+
-+int free_res_group(struct resource_group *rgroup)
-+{
-+	BUG_ON(is_res_group_root(rgroup));
-+	spin_lock(&rgroup->group_lock);
-+	if (!list_empty(&rgroup->children)) {
-+		spin_unlock(&rgroup->group_lock);
-+		return -EBUSY;
-+	}
-+	spin_unlock(&rgroup->group_lock);
-+	kref_put(&rgroup->ref, release_res_group);
++	read_unlock(&res_group_lock);
 +	return 0;
 +}
 +
-+
- static int add_controller(struct res_controller *ctlr)
- {
- 	int ctlr_id, ret = -ENOSPC;
-@@ -129,7 +248,6 @@ static int add_controller(struct res_con
- 	spin_unlock(&res_ctlrs_lock);
- 	return ret;
- }
--
- /*
-  * Interface for registering a resource controller.
-  *
-@@ -139,7 +257,7 @@ static int add_controller(struct res_con
- int register_controller(struct res_controller *ctlr)
- {
- 	int ret;
--	struct resource_group *rgroup;
-+	struct resource_group *rgroup, *prev_rgroup;
- 
- 	if (!ctlr)
- 		return -EINVAL;
-@@ -161,10 +279,20 @@ int register_controller(struct res_contr
- 	 * Run through all resource groups and create the controller specific
- 	 * data structures.
- 	 */
--	read_lock(&res_group_lock);
--	list_for_each_entry(rgroup, &res_groups, group_list)
--		do_alloc_shares_struct(rgroup, ctlr);
--	read_unlock(&res_group_lock);
-+	prev_rgroup = NULL;
-+  	read_lock(&res_group_lock);
-+	list_for_each_entry(rgroup, &res_groups, group_list) {
-+		kref_get(&rgroup->ref);
-+		read_unlock(&res_group_lock);
-+  		do_alloc_shares_struct(rgroup, ctlr);
-+		if (prev_rgroup)
-+			kref_put(&prev_rgroup->ref, release_res_group);
-+		prev_rgroup = rgroup;
-+		read_lock(&res_group_lock);
-+	}
-+  	read_unlock(&res_group_lock);
-+	if (prev_rgroup)
-+		kref_put(&prev_rgroup->ref, release_res_group);
- 	return 0;
- }
- 
-@@ -189,7 +317,7 @@ static int remove_controller(struct res_
-  */
- int unregister_controller(struct res_controller *ctlr)
- {
--	struct resource_group *rgroup;
-+	struct resource_group *rgroup, *prev_rgroup;
- 
- 	if (!ctlr)
- 		return -EINVAL;
-@@ -198,10 +326,20 @@ int unregister_controller(struct res_con
- 		return -EINVAL;
- 
- 	/* free shares structs for this resource from all resource groups */
--	read_lock(&res_group_lock);
--	list_for_each_entry_reverse(rgroup, &res_groups, group_list)
--		do_free_shares_struct(rgroup, ctlr);
--	read_unlock(&res_group_lock);
-+	prev_rgroup = NULL;
-+  	read_lock(&res_group_lock);
-+	list_for_each_entry_reverse(rgroup, &res_groups, group_list) {
-+		kref_get(&rgroup->ref);
-+		read_unlock(&res_group_lock);
-+  		do_free_shares_struct(rgroup, ctlr);
-+		if (prev_rgroup)
-+			kref_put(&prev_rgroup->ref, release_res_group);
-+		prev_rgroup = rgroup;
-+		read_lock(&res_group_lock);
-+	}
-+  	read_unlock(&res_group_lock);
-+	if (prev_rgroup)
-+		kref_put(&prev_rgroup->ref, release_res_group);
- 
- 	put_controller(ctlr);
- 	return remove_controller(ctlr);
-@@ -212,3 +350,6 @@ EXPORT_SYMBOL_GPL(unregister_controller)
- EXPORT_SYMBOL_GPL(get_controller_by_name);
- EXPORT_SYMBOL_GPL(get_controller_by_id);
- EXPORT_SYMBOL_GPL(put_controller);
-+EXPORT_SYMBOL_GPL(alloc_res_group);
-+EXPORT_SYMBOL_GPL(free_res_group);
-+EXPORT_SYMBOL_GPL(default_res_group);
-Index: linux-2617-rc3/include/linux/res_group_rc.h
-===================================================================
---- linux-2617-rc3.orig/include/linux/res_group_rc.h	2006-04-27 09:21:46.000000000 -0700
-+++ linux-2617-rc3/include/linux/res_group_rc.h	2006-04-27 09:22:04.000000000 -0700
-@@ -65,4 +65,13 @@ struct res_controller {
- 
- extern int register_controller(struct res_controller *);
- extern int unregister_controller(struct res_controller *);
-+extern struct resource_group default_res_group;
-+static inline int is_res_group_root(const struct resource_group *rgroup)
++static int remove_controller(struct res_controller *ctlr)
 +{
-+	return (rgroup == &default_res_group);
++	spin_lock(&res_ctlrs_lock);
++	if (atomic_read(&ctlr->count) > 0) {
++		spin_unlock(&res_ctlrs_lock);
++		return -EBUSY;
++	}
++
++	res_controllers[ctlr->ctlr_id] = NULL;
++	ctlr->ctlr_id = NO_RES_ID;
++	spin_unlock(&res_ctlrs_lock);
++	return 0;
 +}
 +
-+#define for_each_child(child, parent)	\
-+	list_for_each_entry(child, &parent->children, siblings)
++/*
++ * Unregistering resource controller.
++ *
++ * Returns 0 on success -errno for failure.
++ */
++int unregister_controller(struct res_controller *ctlr)
++{
++	struct resource_group *rgroup;
 +
- #endif /* _LINUX_RES_GROUP_RC_H */
++	if (!ctlr)
++		return -EINVAL;
++
++	if (get_controller_by_id(ctlr->ctlr_id) != ctlr)
++		return -EINVAL;
++
++	/* free shares structs for this resource from all resource groups */
++	read_lock(&res_group_lock);
++	list_for_each_entry_reverse(rgroup, &res_groups, group_list)
++		do_free_shares_struct(rgroup, ctlr);
++	read_unlock(&res_group_lock);
++
++	put_controller(ctlr);
++	return remove_controller(ctlr);
++}
++
++EXPORT_SYMBOL_GPL(register_controller);
++EXPORT_SYMBOL_GPL(unregister_controller);
++EXPORT_SYMBOL_GPL(get_controller_by_name);
++EXPORT_SYMBOL_GPL(get_controller_by_id);
++EXPORT_SYMBOL_GPL(put_controller);
+Index: linux-2617-rc3/kernel/Makefile
+===================================================================
+--- linux-2617-rc3.orig/kernel/Makefile	2006-04-27 09:18:25.000000000 -0700
++++ linux-2617-rc3/kernel/Makefile	2006-04-27 09:20:59.000000000 -0700
+@@ -38,6 +38,7 @@ obj-$(CONFIG_GENERIC_HARDIRQS) += irq/
+ obj-$(CONFIG_SECCOMP) += seccomp.o
+ obj-$(CONFIG_RCU_TORTURE_TEST) += rcutorture.o
+ obj-$(CONFIG_RELAY) += relay.o
++obj-$(CONFIG_RES_GROUPS) += res_group/
+ 
+ ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
+ # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+Index: linux-2617-rc3/kernel/res_group/Makefile
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2617-rc3/kernel/res_group/Makefile	2006-04-27 09:21:42.000000000 -0700
+@@ -0,0 +1 @@
++obj-y = res_group.o
+Index: linux-2617-rc3/init/Kconfig
+===================================================================
+--- linux-2617-rc3.orig/init/Kconfig	2006-04-27 09:18:25.000000000 -0700
++++ linux-2617-rc3/init/Kconfig	2006-04-27 09:20:59.000000000 -0700
+@@ -150,6 +150,20 @@ config BSD_PROCESS_ACCT_V3
+ 	  for processing it. A preliminary version of these tools is available
+ 	  at <http://www.physik3.uni-rostock.de/tim/kernel/utils/acct/>.
+ 
++menu "Resource Groups"
++
++config RES_GROUPS
++	bool "Resource Groups"
++	depends on EXPERIMENTAL
++	help
++	  Resource Groups is a framework for controlling and monitoring
++	  resource allocation of user-defined groups of tasks. For more
++	  information, please visit http://ckrm.sf.net.
++
++	  If you say Y here, enable the Resource Group File System and at least
++	  one of the resource controllers below. Say N if you are unsure.
++
++endmenu
+ config SYSCTL
+ 	bool "Sysctl support"
+ 	---help---
 Index: linux-2617-rc3/kernel/res_group/local.h
 ===================================================================
---- linux-2617-rc3.orig/kernel/res_group/local.h	2006-04-27 09:21:46.000000000 -0700
-+++ linux-2617-rc3/kernel/res_group/local.h	2006-04-27 09:22:04.000000000 -0700
-@@ -8,3 +8,7 @@
- extern struct res_controller *get_controller_by_name(const char *);
- extern struct res_controller *get_controller_by_id(unsigned int);
- extern void put_controller(struct res_controller *);
-+extern struct resource_group *alloc_res_group(struct resource_group *,
-+							const char *);
-+extern int free_res_group(struct resource_group *);
-+extern void release_res_group(struct kref *);
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2617-rc3/kernel/res_group/local.h	2006-04-27 09:21:46.000000000 -0700
+@@ -0,0 +1,10 @@
++/*
++ * Contains function definitions that are local to the Resource Groups.
++ * NOT to be included by controllers.
++ */
++
++#include <linux/res_group_rc.h>
++
++extern struct res_controller *get_controller_by_name(const char *);
++extern struct res_controller *get_controller_by_id(unsigned int);
++extern void put_controller(struct res_controller *);
 
 -- 
 

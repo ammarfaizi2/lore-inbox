@@ -1,118 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751843AbWD1R2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWD1Ray@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751843AbWD1R2x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 13:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751754AbWD1R2v
+	id S1751428AbWD1Ray (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 13:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWD1Rax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 13:28:51 -0400
-Received: from mga03.intel.com ([143.182.124.21]:27440 "EHLO
-	azsmga101-1.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1751429AbWD1R2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 13:28:50 -0400
-X-IronPort-AV: i="4.04,164,1144047600"; 
-   d="scan'208"; a="29156525:sNHT50452787"
-Subject: Re: [Pcihpd-discuss] [PATCH] correct pciehp init recovery
-From: Kristen Accardi <kristen.c.accardi@intel.com>
-To: Jan Beulich <jbeulich@novell.com>
-Cc: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <445249FE.76E4.0078.0@novell.com>
-References: <445249FE.76E4.0078.0@novell.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 28 Apr 2006 10:38:23 -0700
-Message-Id: <1146245903.25490.10.camel@whizzy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-X-OriginalArrivalTime: 28 Apr 2006 17:28:49.0086 (UTC) FILETIME=[35E67DE0:01C66AE9]
+	Fri, 28 Apr 2006 13:30:53 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:15323 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751428AbWD1Rax convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 13:30:53 -0400
+From: "=?iso-8859-2?q?Rafa=B3_J=2E?= Wysocki" <rjwysocki@sisk.pl>
+To: Martin Bligh <mbligh@google.com>
+Subject: Re: checklist (Re: 2.6.17-rc2-mm1)
+Date: Fri, 28 Apr 2006 19:30:28 +0200
+User-Agent: KMail/1.9.1
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+References: <20060427014141.06b88072.akpm@osdl.org> <200604272211.41923.ak@suse.de> <44513624.4040801@google.com>
+In-Reply-To: <44513624.4040801@google.com>
+Organization: SiSK
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200604281930.29239.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-04-28 at 16:59 +0200, Jan Beulich wrote:
-> Clean up the recovery path from errors during pcie_init().
-> 
-> Signed-off-by: Jan Beulich <jbeulich@novell.com>
-> 
-> diff -Npru /home/jbeulich/tmp/linux-2.6.17-rc3/drivers/pci/hotplug/pciehp_hpc.c
-> 2.6.17-rc3-pciehp-init-recovery/drivers/pci/hotplug/pciehp_hpc.c
-> --- /home/jbeulich/tmp/linux-2.6.17-rc3/drivers/pci/hotplug/pciehp_hpc.c	2006-04-27 17:49:41.000000000 +0200
-> +++ 2.6.17-rc3-pciehp-init-recovery/drivers/pci/hotplug/pciehp_hpc.c	2006-04-28 09:20:55.000000000 +0200
-> @@ -1474,7 +1474,7 @@ int pcie_init(struct controller * ctrl, 
->  	rc = hp_register_read_word(pdev, SLOT_CTRL(ctrl->cap_base), temp_word);
->  	if (rc) {
->  		err("%s : hp_register_read_word SLOT_CTRL failed\n", __FUNCTION__);
-> -		goto abort_free_ctlr;
-> +		goto abort_free_irq;
->  	}
->  
+Hi,
 
-It's possible that this driver never actually requested an irq if was in
-poll mode.  Then you will call free_irq, when what you really want to do
-is kill the timer that may have been started. 
+On Thursday 27 April 2006 23:22, Martin Bligh wrote:
+> Andi Kleen wrote:
+> > On Thursday 27 April 2006 23:00, Martin Bligh wrote:
+> > 
+> >>>Some Unixes have a cstyle(1). Maybe there is a free variant of it
+> >>>somewhere. But such a tool might put a lot of people on l-k out of job @)
+> >>
+> >>heh. we could do some basic stuff at least. run through lindent, and see
+> >>if it changes ;-)
+> > 
+> > Good luck weeding out the false positives from that.
+> 
+> Yes, I was joking.
+> 
+> >>Can't tell whether that was meant to be positive or negative feedback.
+> >>All this would require is "email patch to test-thingy@test.kernel.org".
+> > 
+> > 
+> > I meant it would be better if it happened automatically when the patch
+> > is submitted through the normal channels.
+> 
+> It would, and it pretty much does right now, in that we test -mm
+> (OK, we don't run sparse, but that's easy to fix). What I was trying to
+> do was take the burden off Andrew for handling the testing of every
+> single patch, which means getting the developer to deal with it.
+> Personally, I don't think "please email your patch in for automated
+> testing" is too much to ask from them.
+> 
+> It'd be easy to make the automated tester forward it to Andrew or
+> whatever, if it passed the tests.
 
+I think an automated tester would be a good tool for developers if it could
+email the results back to them.  At least I would be using it. :-)
 
+And if you want to make developers use it, you can design it to generate
+a unique tag for each patch successfully tested and ask the developers to
+include these tags in the patch headers.
 
->  	intr_enable = intr_enable | PRSN_DETECT_ENABLE;
-> @@ -1500,19 +1500,19 @@ int pcie_init(struct controller * ctrl, 
->  	rc = hp_register_write_word(pdev, SLOT_CTRL(ctrl->cap_base), temp_word);
->  	if (rc) {
->  		err("%s : hp_register_write_word SLOT_CTRL failed\n", __FUNCTION__);
-> -		goto abort_free_ctlr;
-> +		goto abort_free_irq;
->  	}
->  	rc = hp_register_read_word(php_ctlr->pci_dev, SLOT_STATUS(ctrl->cap_base), slot_status);
->  	if (rc) {
->  		err("%s : hp_register_read_word SLOT_STATUS failed\n", __FUNCTION__);
-> -		goto abort_free_ctlr;
-> +		goto abort_disable_intr;
->  	}
->  	
->  	temp_word =  0x1F; /* Clear all events */
->  	rc = hp_register_write_word(php_ctlr->pci_dev, SLOT_STATUS(ctrl->cap_base), temp_word);
->  	if (rc) {
->  		err("%s : hp_register_write_word SLOT_STATUS failed\n", __FUNCTION__);
-> -		goto abort_free_ctlr;
-> +		goto abort_disable_intr;
->  	}
->  	
->  	if (pciehp_force) {
-> @@ -1521,7 +1521,7 @@ int pcie_init(struct controller * ctrl, 
->  	} else {
->  		rc = pciehp_get_hp_hw_control_from_firmware(ctrl->pci_dev);
->  		if (rc)
-> -			goto abort_free_ctlr;
-> +			goto abort_disable_intr;
->  	}
->  
->  	/*  Add this HPC instance into the HPC list */
-> @@ -1548,6 +1548,18 @@ int pcie_init(struct controller * ctrl, 
->  	return 0;
->  
->  	/* We end up here for the many possible ways to fail this API.  */
-> +abort_disable_intr:
-> +	rc = hp_register_read_word(pdev, SLOT_CTRL(ctrl->cap_base), temp_word);
-> +	if (!rc) {
-> +		temp_word &= ~(intr_enable | HP_INTR_ENABLE);
-> +		rc = hp_register_write_word(pdev, SLOT_CTRL(ctrl->cap_base), temp_word);
-> +	}
-> +	if (rc)
-> +		err("%s : disabling interrupts failed\n", __FUNCTION__);
-> +
-> +abort_free_irq:
-> +	free_irq(php_ctlr->irq, ctrl);
-> +
->  abort_free_ctlr:
->  	pcie_cap_base = saved_cap_base;
->  	kfree(php_ctlr);
-> 
-> 
-> 
-> 
-> -------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> Pcihpd-discuss mailing list
-> Pcihpd-discuss@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/pcihpd-discuss
+Greetings,
+Rafael
+
+-- 
+dr Rafa³ J. Wysocki
+Systemy i Sieci Komputerowe
++48 605 05 36 93

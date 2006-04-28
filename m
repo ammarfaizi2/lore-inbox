@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWD1SOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751782AbWD1SPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751781AbWD1SOu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 14:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWD1SOu
+	id S1751782AbWD1SPF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 14:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWD1SPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 14:14:50 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52406 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751781AbWD1SOt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 14:14:49 -0400
-Date: Fri, 28 Apr 2006 20:14:05 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Ian Kent <raven@themaw.net>, Matt Mackall <mpm@selenic.com>
-Subject: Re: initcall warnings in 2.6.17
-Message-ID: <20060428181404.GB26821@elf.ucw.cz>
-References: <200604281406.34217.ak@suse.de> <20060428105403.250eb2d6.akpm@osdl.org>
+	Fri, 28 Apr 2006 14:15:05 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:54918
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751783AbWD1SPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 14:15:03 -0400
+From: Rob Landley <rob@landley.net>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH] 'make headers_install' kbuild target.
+Date: Fri, 28 Apr 2006 14:13:04 -0400
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, bunk@stusta.de, sam@ravnborg.org
+References: <1145672241.16166.156.camel@shinybook.infradead.org>
+In-Reply-To: <1145672241.16166.156.camel@shinybook.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060428105403.250eb2d6.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200604281413.05335.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Pá 28-04-06 10:54:03, Andrew Morton wrote:
-> Andi Kleen <ak@suse.de> wrote:
-> >
-> > I still get
-> > 
-> > initcall at 0xffffffff807414c2: pci_iommu_init+0x0/0x501(): returned with error code -1
-> 
-> Should be returning -ENODEV.
-> 
-> > initcall at 0xffffffff80748b4d: init_autofs4_fs+0x0/0xc(): returned with error code -16
-> 
-> hm.  Why'd that happen?
-> 
-> > initcall at 0xffffffff803c7d5c: init_netconsole+0x0/0x6b(): returned with error code -22
-> 
-> Yeah.  I think netconsole is just being wrong here.  If it wasn't enabled
-> there's no error.
-> 
-> > initcall at 0xffffffff80249307: software_resume+0x0/0xcf(): returned with error code -2
-> 
-> Similarly, there's no resume file configured so should we really consider
-> this an error?
+On Friday 21 April 2006 10:17 pm, David Woodhouse wrote:
+> Attached is the current patch from mainline to my working tree at
+> git://git.infradead.org/~dwmw2/headers-2.6.git -- visible in gitweb at
+> http://git.infradead.org/?p=users/dwmw2/headers-2.6.git;a=summary
+>
+> It adds a 'make headers_install' target to the kernel makefiles, which
+> exports a subset of the headers and runs 'unifdef' on them to clean them
+> up for installation in /usr/include.
 
-That one is easier to solve. But "configured but image not present"
-will also produce warning I guess. If I return -ENODEV, will it keep
-debugging system quiet?
-								Pavel
+I'd like to test this out.  Is there an easy way for a non-git-user to get a 
+patch against a known -linus release via the above web interface?
+
+Rob
 -- 
-Thanks for all the (sleeping) penguins.
+Never bet against the cheap plastic solution.

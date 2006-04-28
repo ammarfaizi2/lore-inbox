@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbWD1A0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965141AbWD1A1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965069AbWD1A0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Apr 2006 20:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWD1AZv
+	id S965141AbWD1A1N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Apr 2006 20:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWD1A1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 20:25:51 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:33238 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965068AbWD1AZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 20:25:39 -0400
-Date: Thu, 27 Apr 2006 17:24:04 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Win Treese <treese@acm.org>, Ralf Baechle <ralf@linux-mips.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 24/24] MIPS: Fix branch emulation for floating-point exceptions.
-Message-ID: <20060428002404.GY18750@kroah.com>
-References: <20060428001226.204293000@quad.kroah.org>
+	Thu, 27 Apr 2006 20:27:07 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:40157 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S965141AbWD1A1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Apr 2006 20:27:03 -0400
+Date: Fri, 28 Apr 2006 09:27:54 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net,
+       vgoyal@in.ibm.com, ebiederm@xmission.com, nanhai.zou@intel.com
+Subject: Re: [Lhms-devel] Re: [PATCH] register hot-added memory to iomem
+ resource
+Message-Id: <20060428092754.cf382d03.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060427160130.6149550f.akpm@osdl.org>
+References: <20060427204904.5037f6ea.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060427160130.6149550f.akpm@osdl.org>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="MIPS-0004.patch"
-In-Reply-To: <20060428001557.GA18750@kroah.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+On Thu, 27 Apr 2006 16:01:30 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-------------------
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> >
+> > This patch registers hot-added memory to iomem_resource.
+> > By this, /proc/iomem can show hot-added memory.
+> > This patch is against 2.6.17-rc2-mm1.
+> > 
+> > Note: kdump uses /proc/iomem to catch memory range when it is installed.
+> >       So, kdump should be re-installed after /proc/iomem change.
+> > 
+> 
+> What do you mean by "kdump should be reinstalled"?  The kdump userspace
+> tools need to re-run kexec_load()?
+> 
+yes. I heard an admin has to re-run kexec_load.
+- http://www.uwsg.indiana.edu/hypermail/linux/kernel/0604.0/0821.html
+- http://www.uwsg.indiana.edu/hypermail/linux/kernel/0604.0/0829.html
+Added CC to ebiederm@xmission.com, nanhai.zou@intel.com
 
-From: Win Treese <treese@acm.org>
+> If so, why?
+> 
+It reads physical memory list from /proc/iomem now.
+The physical memory list is read and saved at kdump kernel loading time
+instead of crashing time. 
 
-In the branch emulation for floating-point exceptions, __compute_return_epc
-must determine for bc1f et al which condition code bit to test. This is
-based on bits <4:2> of the rt field. The switch statement to distinguish
-bc1f et al needs to use only the two low bits of rt, but the old code tests
-on the whole rt field.  This patch masks off the proper bits.
+> And how is kdump to know that memory was hot-added?  Do we generate a
+> hotplug event?
+> 
+A user program has to make memory section online from sysfs , anyway.
 
-Signed-off-by: Win Treese <treese@acm.org>
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+The hotplug script for memory hotplug will run at memory hotplug event 
+from ACPI. If a user uses /probe interface (powerpc, x86_64),
+he knows what he does. 
 
----
- arch/mips/kernel/branch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+hot-add -> online memory -> kexec_load() is a scenario I think of.
 
---- linux-2.6.16.11.orig/arch/mips/kernel/branch.c
-+++ linux-2.6.16.11/arch/mips/kernel/branch.c
-@@ -184,7 +184,7 @@ int __compute_return_epc(struct pt_regs 
- 		bit = (insn.i_format.rt >> 2);
- 		bit += (bit != 0);
- 		bit += 23;
--		switch (insn.i_format.rt) {
-+		switch (insn.i_format.rt & 3) {
- 		case 0:	/* bc1f */
- 		case 2:	/* bc1fl */
- 			if (~fcr31 & (1 << bit))
+Thanks,
+-Kame
 
---
+
+

@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbWD1Pde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030433AbWD1PdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030436AbWD1Pde (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 11:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030438AbWD1Pde
+	id S1030433AbWD1PdI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 11:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWD1PdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 11:33:34 -0400
-Received: from wproxy.gmail.com ([64.233.184.229]:56539 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030436AbWD1Pdd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 11:33:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bawxGCMFBsIHYYBlUs2mZvklv0EaAY+iBNtSz7j9LkeM4VbRCIJKhGgIJ6CohU4AeCU7PIs8AtCO9gRQmNjBuAQFlmhVba8R/JhIz6K+oarLYEfYZFq4c+GxpeK9fqo8HCeba+2u9zoxfWedxHt/l8juL33OjUP9A3UYo5g0eEY=
-Message-ID: <a36005b50604280833k5a811384r5f3a6f92dd707256@mail.gmail.com>
-Date: Fri, 28 Apr 2006 08:33:32 -0700
-From: "Ulrich Drepper" <drepper@gmail.com>
-To: "Axelle Apvrille" <axelle_apvrille@yahoo.fr>
-Subject: Re: [ANNOUNCE] Release Digsig 1.5: kernel module for run-timeauthentication of binaries
-Cc: Nix <nix@esperi.org.uk>, "Arjan van de Ven" <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
-       disec-devel@lists.sourceforge.net
-In-Reply-To: <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com>
+	Fri, 28 Apr 2006 11:33:08 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:13218 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030433AbWD1PdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 11:33:07 -0400
+Date: Fri, 28 Apr 2006 17:32:24 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Adrian Bunk <bunk@stusta.de>, David Woodhouse <dwmw2@infradead.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Simple header cleanups
+In-Reply-To: <Pine.LNX.4.64.0604271656390.3701@g5.osdl.org>
+Message-ID: <Pine.LNX.4.61.0604281729250.9011@yvahk01.tjqt.qr>
+References: <1146104023.2885.15.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.64.0604261917270.3701@g5.osdl.org> <1146105458.2885.37.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.64.0604261954480.3701@g5.osdl.org> <1146107871.2885.60.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.64.0604262028130.3701@g5.osdl.org> <20060427213754.GU3570@stusta.de>
+ <Pine.LNX.4.64.0604271439100.3701@g5.osdl.org> <20060427231200.GW3570@stusta.de>
+ <Pine.LNX.4.64.0604271656390.3701@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <87slo2nn0b.fsf@hades.wkstn.nix>
-	 <20060425161139.87285.qmail@web26109.mail.ukl.yahoo.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/25/06, Axelle Apvrille <axelle_apvrille@yahoo.fr> wrote:
-> 1- "does this also prevent people writing their own
-> elf loader in a bit of perl and just mmap the code"
 >
-> I'm not sure to exactly understand what you mean:
+>Last I heard, a lot of people wanted to avoid that duplication, and 
+>actually wanted the kabi headers exactly because they wanted just _one_ 
+>place for these things.
 >
-> - if you mean writing an application able to read &
-> 'interpret' an ELF executable: again, I think DigSig
-> will prevent this, because when you mmap the code,
-> this calls (at kernel level) do_mmap which triggers an
-> LSM hook called file_mmap. And we implement checks in
-> that hook...
->
-> - if you mean modifying the ELF loader so that do_mmap
-> / file_mmap aren't called, well you'll need to hack
-> the kernel, won't you ?
->
-> - finally, note you also have choice not to sign this
-> elf loader of yours. If it isn't signed, it won't ever
-> run ;-)
+Sounds like they want it BSD-style. Do they realize that?
+New release, new headers, making it necessary to recompile every app, 
+because a struct could have changed. That'd seriously impact 
+compatibility.
 
-No, there no problem writing a loader.  All you need is to create
-anonymous mappings.  Via mmap, maybe on the stack, some heaps are
-still executable.  Then you load the code, fix it up for the address,
-and be done.  The kernel cannot and will not prevent a read(2) call on
-the binary.  That's all that's needed.  And without the SELinux
-support in place you cannot prevent non-exec memory creation and even
-then, some people need it (jvms, OpenGL libs, etc) to generate code on
-the fly.  So it's never completely ruled out.  Again, look at the code
-in http://people.redhat.com/drepper/selinux-mem.html.
 
-Given you have executable anonymous memory it is a one-time small
-effort to write a loader and you're done.  Nothing your signature
-detection code can do about it.  This is snake oil.
+Jan Engelhardt
+-- 

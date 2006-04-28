@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751826AbWD1AUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751713AbWD1AUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751826AbWD1AUE (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751713AbWD1AUE (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 27 Apr 2006 20:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWD1AT4
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751827AbWD1ATy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Apr 2006 20:19:56 -0400
-Received: from ns.suse.de ([195.135.220.2]:23001 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751735AbWD1ATb (ORCPT
+	Thu, 27 Apr 2006 20:19:54 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:32213 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751732AbWD1ATh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Apr 2006 20:19:31 -0400
-Date: Thu, 27 Apr 2006 17:17:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI: Add pci_assign_resource_fixed -- allow fixed address assignments
-Message-ID: <20060428001758.GA18917@kroah.com>
-References: <Pine.LNX.4.44.0604271242410.25641-100000@gate.crashing.org> <20060427153432.5f3f4c12.akpm@osdl.org> <116674A8-64F4-4F49-8AAC-06C94159B3B3@kernel.crashing.org>
+	Thu, 27 Apr 2006 20:19:37 -0400
+Date: Thu, 27 Apr 2006 17:18:04 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Eric Sesterhenn <snakebyte@gmx.de>, smurf@smurf.noris.de,
+       Adrian Bunk <bunk@stusta.de>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 06/24] USB: fix array overrun in drivers/usb/serial/option.c
+Message-ID: <20060428001804.GG18750@kroah.com>
+References: <20060428001226.204293000@quad.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <116674A8-64F4-4F49-8AAC-06C94159B3B3@kernel.crashing.org>
+Content-Disposition: inline; filename="usb-fix-array-overrun-in-drivers-usb-serial-option.c.patch"
+In-Reply-To: <20060428001557.GA18750@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 27, 2006 at 07:12:14PM -0500, Kumar Gala wrote:
-> 
-> On Apr 27, 2006, at 5:34 PM, Andrew Morton wrote:
-> 
-> >Kumar Gala <galak@kernel.crashing.org> wrote:
-> >>
-> >>On some embedded systems the PCI address for hotplug devices are  
-> >>not only
-> >>known a priori but are required to be at a given PCI address for  
-> >>other
-> >>master in the system to be able to access.
-> >>
-> >>An example of such a system would be an FPGA which is setup from  
-> >>user space
-> >>after the system has booted.  The FPGA may be access by DSPs in  
-> >>the system
-> >>and those DSPs expect the FPGA at a fixed PCI address.
-> >>
-> >>Added pci_assign_resource_fixed() as a way to allow assignment of  
-> >>the PCI
-> >>devices's BARs at fixed PCI addresses.
-> >
-> >Is there any sane way in which we can arrange for this function to  
-> >not be
-> >present in vmlinux's which don't need it?
-> >
-> >Options would be
-> >
-> >a) Put it in a .a file.
-> >
-> >   - messy from a source perspective
-> >
-> >   - doesn't work if the only reference is from a module
-> >
-> >   - small gains anyway.
-> >
-> >b) Use CONFIG_EMBEDDED.
-> 
-> I'm fine with wrapping it in a CONFIG_EMBEDDED, Greg?
+-stable review patch.  If anyone has any objections, please let us know.
 
-That's fine with me.  Care to send me an updated patch?  I'll drop the
-other one then.
+------------------
+From: Eric Sesterhenn <snakebyte@gmx.de>
 
-thanks,
+since the arrays are declared as in_urbs[N_IN_URB]
+and out_urbs[N_OUT_URB] both for loops, go one
+over the end of the array. This fixes coverity id #555
 
-greg k-h
+This patch was already included in Linus' tree.
+
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ drivers/usb/serial/option.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.16.11.orig/drivers/usb/serial/option.c
++++ linux-2.6.16.11/drivers/usb/serial/option.c
+@@ -582,14 +582,14 @@ static void option_setup_urbs(struct usb
+ 	portdata = usb_get_serial_port_data(port);
+ 
+ 	/* Do indat endpoints first */
+-	for (j = 0; j <= N_IN_URB; ++j) {
++	for (j = 0; j < N_IN_URB; ++j) {
+ 		portdata->in_urbs[j] = option_setup_urb (serial,
+                   port->bulk_in_endpointAddress, USB_DIR_IN, port,
+                   portdata->in_buffer[j], IN_BUFLEN, option_indat_callback);
+ 	}
+ 
+ 	/* outdat endpoints */
+-	for (j = 0; j <= N_OUT_URB; ++j) {
++	for (j = 0; j < N_OUT_URB; ++j) {
+ 		portdata->out_urbs[j] = option_setup_urb (serial,
+                   port->bulk_out_endpointAddress, USB_DIR_OUT, port,
+                   portdata->out_buffer[j], OUT_BUFLEN, option_outdat_callback);
+
+--

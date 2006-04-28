@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030422AbWD1O4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030423AbWD1O5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030422AbWD1O4J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 10:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030426AbWD1O4J
+	id S1030423AbWD1O5h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 10:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWD1O5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 10:56:09 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:23211 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1030422AbWD1O4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 10:56:08 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Subject: Re: [ckrm-tech] Re: [PATCH 0/9] CPU controller
-Date: Sat, 29 Apr 2006 00:55:27 +1000
-User-Agent: KMail/1.9.1
-Cc: maeda.naoaki@jp.fujitsu.com, linux-kernel@vger.kernel.org, efault@gmx.de,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net
-References: <200604282011.36917.kernel@kolivas.org> <200604282309.32320.kernel@kolivas.org> <20060428.225541.124090656.taka@valinux.co.jp>
-In-Reply-To: <20060428.225541.124090656.taka@valinux.co.jp>
+	Fri, 28 Apr 2006 10:57:36 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8171 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030423AbWD1O5g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 10:57:36 -0400
+Date: Fri, 28 Apr 2006 07:54:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Chris Wright <chrisw@sous-sol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       zach@vmware.com
+Subject: Re: [PATCH] x86/PAE: Fix pte_clear for the >4GB RAM case
+In-Reply-To: <200604280829.29164.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0604280753290.3701@g5.osdl.org>
+References: <200604272001.k3RK1dmX007637@hera.kernel.org> <200604280808.44496.ak@suse.de>
+ <20060428062704.GH2909@sorel.sous-sol.org> <200604280829.29164.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604290055.27919.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 28 April 2006 23:55, Hirokazu Takahashi wrote:
-> I think you can introduce some threshold to estimate whether
-> a process should be treated as an interactive process or not
-> while vanilla kernel defines it statically.
 
-The static definition (TASK_INTERACTIVE) used is based on what the cpu 
-scheduler already knows about the tasks so although it's static, it is based 
-on the dynamic behaviour and most recent sleep/run data. Unfortunately we 
-can't define it any clearer than that. We have no better metric that states 
-clearly that anything is definitely interactive. Thus there is no clearly 
-defined threshold we can use either. If it was that simple the estimator 
-would be simpler and we wouldn't have half a dozen alternative cpu schedulers 
-available all looking to tackle much the same thing.
 
--- 
--ck
+On Fri, 28 Apr 2006, Andi Kleen wrote:
+> > 
+> > I must be confused.  Doesn't that become a barrier() on UP?
+> 
+> No it was me who was confused sorry. Somehow i thought it was defined
+> away for !SMP
+> 
+> (which would make sense because why would you want a compile barrier
+> for a barrier that is only needed on SMP?) 
+
+If the write barrier is needed on SMP, then UP needs a compiler barrier. 
+Even UP has interrupts (and preemption) that can expose ordering of the 
+interrupted code.
+
+		Linus

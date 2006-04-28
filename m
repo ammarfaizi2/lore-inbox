@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965159AbWD1FM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbWD1FSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965159AbWD1FM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 01:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbWD1FM7
+	id S965175AbWD1FSi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 01:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965177AbWD1FSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 01:12:59 -0400
-Received: from ms-smtp-02.southeast.rr.com ([24.25.9.101]:27077 "EHLO
-	ms-smtp-02.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S965159AbWD1FM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 01:12:59 -0400
-Subject: Re: s390 lcs incorrect test
-From: Greg Smith <gsmith@nc.rr.com>
-To: Frank Pavlic <PAVLIC@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mschwid2@de.ibm.com
-In-Reply-To: <OFD0B5D01B.AB09BC08-ONC125715D.0018D87C-C125715D.00190DD5@de.ibm.com>
-References: <OFD0B5D01B.AB09BC08-ONC125715D.0018D87C-C125715D.00190DD5@de.ibm.com>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 01:12:52 -0400
-Message-Id: <1146201172.3064.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-Content-Transfer-Encoding: 7bit
+	Fri, 28 Apr 2006 01:18:38 -0400
+Received: from ns2.suse.de ([195.135.220.15]:46486 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965175AbWD1FSi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 01:18:38 -0400
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: zach@vmware.com, torvalds@osdl.org
+Subject: Re: [PATCH] x86/PAE: Fix pte_clear for the >4GB RAM case
+References: <200604272001.k3RK1dmX007637@hera.kernel.org>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Apr 2006 07:18:27 +0200
+In-Reply-To: <200604272001.k3RK1dmX007637@hera.kernel.org>
+Message-ID: <p73mze66zx8.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have discovered today our bug regarding lcs emulation and everything
-seems to work fine even with the incorrect test.  Which leads me to
-think that the lcs code has been crafted to withstand the incorrect
-test.  Meaning that correcting the test may have implications.
+Linux Kernel Mailing List <linux-kernel@vger.kernel.org> writes:
+> +/*
+> + * For PTEs and PDEs, we must clear the P-bit first when clearing a page table
+> + * entry, so clear the bottom half first and enforce ordering with a compiler
+> + * barrier.
+> + */
+> +static inline void pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
+> +{
+> +	ptep->pte_low = 0;
+> +	smp_wmb();
+> +	ptep->pte_high = 0;
+> +}
+> +
+> +static inline void pmd_clear(pmd_t *pmd)
+> +{
+> +	u32 *tmp = (u32 *)pmd;
+> +	*tmp = 0;
+> +	smp_wmb();
+> +	*(tmp + 1) = 0;
+> +}
 
-Greg Smith
+I think that's still wrong - it should be wmb() not smp_wmb because this
+problem can happen on a UP kernel already.
 
-On Thu, 2006-04-27 at 06:34 +0200, Frank Pavlic wrote:
-> I agree , it's really weird ...
-> 
-> Thank you Greg for the patch ...
-
+-Andi
 

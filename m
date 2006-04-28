@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030499AbWD1QNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030471AbWD1QPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030499AbWD1QNr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 12:13:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030502AbWD1QNr
+	id S1030471AbWD1QPN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 12:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030490AbWD1QPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 12:13:47 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:17598 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1030499AbWD1QNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 12:13:46 -0400
-Subject: [PATCH] buglet in radix_tree_tag_set
-From: Peter Zijlstra <peter@programming.kicks-ass.net>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-Content-Type: text/plain
-Date: Fri, 28 Apr 2006 18:13:42 +0200
-Message-Id: <1146240822.4932.3.camel@lappy>
+	Fri, 28 Apr 2006 12:15:12 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:4824 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1030471AbWD1QPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 12:15:11 -0400
+Date: Fri, 28 Apr 2006 11:15:43 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: [RFC] PATCH 0/4 - Time virtualization
+Message-ID: <20060428151543.GA7397@ccure.user-mode-linux.org>
+References: <200604131719.k3DHJcZG004674@ccure.user-mode-linux.org> <200604281333.41358.blaisorblade@yahoo.it> <20060428114823.GA3641@ccure.user-mode-linux.org> <200604281554.32665.blaisorblade@yahoo.it>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200604281554.32665.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 28, 2006 at 03:54:31PM +0200, Blaisorblade wrote:
+> Additionally, if this flag ever goes into clone, it mustn't be named 
+> CLONE_TIME, but CLONE_NEWTIME (or CLONE_NEWUTS). And given CLONE_NEWNS, it's 
+> IMHO ok to have unshare(CLONE_NEWTIME) to mean "unshare time namespace", even
+> if it's incoherent with unshare(CLONE_FS) - the incoherency already exists 
+> with CLONE_NEWNS.
 
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+I wonder if they should be CLONE_* at all.  Given that we are likely
+to run out of free CLONE_* bits, unshare will have to reuse bits that
+don't have anything to do with sharing resources (CSIGNAL,
+CLONE_VFORK, etc), and it doesn't seem that nice to have two different
+CLONE_* flags with the same value, different meaning, only one of
+which can actually be used in clone.
 
-The comment states: 'Setting a tag on a not-present item is a BUG.'
-Hence if 'index' is larger than the maxindex; the item _cannot_
-be presen; it should also be a BUG.
+It seems better to use UNSHARE_*, with the current bits that are
+common to unshare and clone being defined the same, i.e.
+	#define UNSHARE_VM CLONE_VM
 
-Also, this allows the following statement (assume a fresh tree):
-
-  radix_tree_tag_set(root, 16, 1);
-
-to fail silently, but when preceded by:
-
-  radix_tree_insert(root, 32, item);
-
-it would BUG, because the height has been extended by the insert.
-
-In neither case was 16 present.
-
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Acked-by: Nick Piggin <npiggin@suse.de>
-
- lib/radix-tree.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-Index: linux-2.6/lib/radix-tree.c
-===================================================================
---- linux-2.6.orig/lib/radix-tree.c	2006-04-07 10:54:43.000000000 +0200
-+++ linux-2.6/lib/radix-tree.c	2006-04-28 17:56:14.000000000 +0200
-@@ -365,8 +365,7 @@ void *radix_tree_tag_set(struct radix_tr
- 	struct radix_tree_node *slot;
- 
- 	height = root->height;
--	if (index > radix_tree_maxindex(height))
--		return NULL;
-+	BUG_ON(index > radix_tree_maxindex(height))
- 
- 	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
- 	slot = root->rnode;
-
-
+				Jeff

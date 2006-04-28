@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbWD1Mtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030378AbWD1Mys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030375AbWD1Mtr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 08:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbWD1Mtr
+	id S1030378AbWD1Mys (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 08:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbWD1Mys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 08:49:47 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17063 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030373AbWD1Mtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 08:49:46 -0400
-Message-ID: <44520F54.7010209@sgi.com>
-Date: Fri, 28 Apr 2006 14:49:24 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5 (X11/20060223)
+	Fri, 28 Apr 2006 08:54:48 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:36584 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1030378AbWD1Mys (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 08:54:48 -0400
+From: Mikael Pettersson <mikpe@user.it.uu.se>
 MIME-Version: 1.0
-To: Dean Nelson <dcn@sgi.com>
-CC: akpm@osdl.org, tony.luck@intel.com, avolkov@varma-el.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       paulus@samba.org, holt@sgi.com
-Subject: Re: [PATCH] change gen_pool allocator to not touch managed memory
-References: <444D1A7E.mailx85W11DZZU@aqua.americas.sgi.com> <20060424181626.09966912.akpm@osdl.org> <20060425155051.GA19248@sgi.com> <444F3990.5030100@sgi.com> <20060426132803.GA30360@sgi.com> <444F78AB.6030803@sgi.com> <20060426163151.GA8037@sgi.com>
-In-Reply-To: <20060426163151.GA8037@sgi.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17490.4240.578291.222262@alkaid.it.uu.se>
+Date: Fri, 28 Apr 2006 14:54:40 +0200
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.6.17-rc3 broke FP exceptions on x86
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dean Nelson wrote:
-> The following patch modifies the gen_pool allocator (lib/genalloc.c) to
-> utilize a bitmap scheme instead of the buddy scheme. The purpose of this
-> change is to eliminate the touching of the actual memory being allocated.
-> 
-> Since the change modifies the interface, a change to the uncached
-> allocator (arch/ia64/kernel/uncached.c) is also required.
-> 
-> Signed-off-by: Dean Nelson <dcn@sgi.com>
+Running an FP exception using user-space application
+(the runtime system for the Erlang programming language
+in my case) on an Athlon64 with a 32-bit 2.6.17-rc3 kernel
+quickly results in a complete system hang: mouse is dead,
+keyboard is dead, the network doesn't reply to pings.
+Had to reboot via the power switch to get the machine back.
 
-Acked-by: Jes Sorensen <jes@sgi.com>
+This happended twice in a row. With 2.6.17-rc2 things
+work fine like they always have before.
 
-Jes
+Just FYI. I'll try to debug this this weekend if noone
+beats me to it.
+
+/Mikael

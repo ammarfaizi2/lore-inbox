@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWD2Ol1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWD2PJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWD2Ol1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 10:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWD2Ol1
+	id S1750740AbWD2PJb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 11:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWD2PJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 10:41:27 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:17585 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750735AbWD2Ol0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 10:41:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=cL0kUxzKFXr7W6fBW2NY8ZmGEU7Zj52ZaLi8lGvZVS/faQ1BPkYP0gTNjMtI2dRKPfMXhWRJmG28lksbWvDL/hSoAzj8jAn4LVVCkBLt6KwXhn2N7AfE8nC3cCPzTTYNXjKdlHhl5McNp0Wd4czUHwU6WltiSyTOeQBr9P+/QI0=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [PATCH 0/6] UML - Small patches for 2.6.17
-Date: Sat, 29 Apr 2006 16:41:18 +0200
-User-Agent: KMail/1.8.3
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>,
-       linux-kernel@vger.kernel.org
-References: <200604281601.k3SG11MJ007510@ccure.user-mode-linux.org> <20060428165534.6067f5aa.akpm@osdl.org>
-In-Reply-To: <20060428165534.6067f5aa.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 29 Apr 2006 11:09:31 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:481 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1750740AbWD2PJa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 11:09:30 -0400
+Date: Sun, 30 Apr 2006 00:10:03 +0900 (JST)
+Message-Id: <20060430.001003.52129547.anemo@mba.ocn.ne.jp>
+To: akpm@osdl.org
+Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RTC: rtc-dev UIE emulation
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060428232306.5049c30d.akpm@osdl.org>
+	<20060429093108.77ced705@inspiron>
+References: <20060429.011648.25910123.anemo@mba.ocn.ne.jp>
+	<20060428232306.5049c30d.akpm@osdl.org>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604291641.19864.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 April 2006 01:55, Andrew Morton wrote:
-> Jeff Dike <jdike@addtoit.com> wrote:
-> > These patches are 2.6.17 material.
->
-> "remove NULL checks and add some CodingStyle" isn't.
+Thanks for your detailed review, Andrew.  Basically I just merged
+genrtc's stuff, but obviously it seems there are lots of things to
+fix/refine/improve.  I'll try to do but it will take some times.
 
-Being restrictive is ok, but keeping patches in queues for longer than needed 
-creates more headaches than it solves, in my experience.
+Alessandro, following comments are against for this patch, right?
 
-> Unless one considers 
-> UML coding style to be a bug, which is an attractive idea ;)
+On Sat, 29 Apr 2006 09:31:08 +0200, Alessandro Zummo <alessandro.zummo@towertech.it> wrote:
+>   this patch will conflict with rtc drivers that have proper UIE
+>  support, please remove it from the tree.
+> 
+>   A generic UIE emulation should at least check if the ioctl
+>  has not been already handled by the underlaying rtc driver.
+> 
+>   That means that every driver should be modified to return
+>  -ENOIOCTLCMD if it gets passed an unknown IOCTL and that
+>  this patch should check for this code before trying to emulate.
 
-Well, we're slowly working on that... very slowly... I've thought multiple 
-times to at least run Lindent on arch/um but I've not spoken up because of 
-all the conflicts we (me and Jeff) would get with patches in our queues.
+Since rtc_dev_ioctl() calls underlaying rtc driver's ioctl() first and
+checks -EINVAL, so I think it will not conflict.  Is it wrong?
 
-However, there are occasions in which we get conflicts anyway for other 
-reorganization, and in that case Lindent would be useful. Ok Jeff? I'm 
-speaking for instance about moving to os-Linux and such.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+---
+Atsushi Nemoto

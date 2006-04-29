@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWD2GjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWD2GoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbWD2GjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 02:39:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWD2GjQ
+	id S1751465AbWD2GoU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 02:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWD2GoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 02:39:16 -0400
-Received: from schihei.net ([81.169.184.117]:29199 "EHLO schihei.org")
-	by vger.kernel.org with ESMTP id S1750820AbWD2GjP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 02:39:15 -0400
-X-PGP-Universal: processed;
-	by Achilles.local on Sat, 29 Apr 2006 08:39:06 +0200
-In-Reply-To: <84144f020604272332s6101032cy6936096230f3637c@mail.gmail.com>
-References: <4450A176.9000008@de.ibm.com> <20060427114355.GB32127@wohnheim.fh-wedel.de> <1146177388.19236.1.camel@localhost.localdomain> <6C4A3B96-4752-4FF9-8FBE-C383B00AE014@schihei.de> <84144f020604272332s6101032cy6936096230f3637c@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <4044CACC-FB5A-415E-8974-27136269B5C1@schihei.de>
-Cc: "Michael Ellerman" <michael@ellerman.id.au>,
-       =?ISO-8859-1?Q? "J=F6rn_Engel" ?= <joern@wohnheim.fh-wedel.de>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       linuxppc-dev@ozlabs.org, "Christoph Raisch" <RAISCH@de.ibm.com>,
-       "Hoang-Nam Nguyen" <HNGUYEN@de.ibm.com>,
-       "Marcus Eder" <MEDER@de.ibm.com>
+	Sat, 29 Apr 2006 02:44:20 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:10176 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751465AbWD2GoT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 02:44:19 -0400
+Subject: Re: [openib-general] Re: possible bug in kmem_cache related code
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Or Gerlitz <or.gerlitz@gmail.com>
+Cc: Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       open-iscsi@googlegroups.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <15ddcffd0604281224i4308b08fs93f9ebaf7e9a16b3@mail.gmail.com>
+References: <Pine.LNX.4.44.0604271138370.16357-101000@zuben>
+	 <84144f020604270419s10696877he2ec27ae6d52e486@mail.gmail.com>
+	 <Pine.LNX.4.64.0604271510240.27370@schroedinger.engr.sgi.com>
+	 <Pine.LNX.4.58.0604281108110.12202@sbz-30.cs.Helsinki.FI>
+	 <15ddcffd0604281224i4308b08fs93f9ebaf7e9a16b3@mail.gmail.com>
+Date: Sat, 29 Apr 2006 09:44:15 +0300
+Message-Id: <1146293055.11279.2.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-From: Heiko J Schick <info@schihei.de>
-Subject: Re: [openib-general] Re: [PATCH 04/16] ehca: userspace support
-Date: Sat, 29 Apr 2006 08:38:46 +0200
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-X-Mailer: Apple Mail (2.749.3)
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 2006-04-28 at 21:24 +0200, Or Gerlitz wrote:
+> Yes, i can reproduce this at will, no local modifications, my system
+> is amd dual x86_64, i have attached my .config to the first email of
+> this thread, and also mentioned that some CONFIG_DEBUG_ options are
+> set, including one related to slab debugging.
+> 
+> Also, by "User mode Linux" you mean linux kernel that runs as a user
+> process on your system?
 
-On 28.04.2006, at 08:32, Pekka Enberg wrote:
+Yeah, arch/um/. Unfortunately I don't have a SMP box, so I probably
+can't reproduce this. You could try git bisect to isolate the offending
+changeset.
 
->> The problem I see with pr_debug() is that it could only activated via
->> a compile flag. To use the debug outputs you have to re-compile /
->> compile your own kernel.
->
-> Do you really need this heavy debug logging in the first place? You
-> can use kprobes for arbitrary run-time inspection anyway, so logging
-> everything seems wasteful.
+				Pekka
 
-The problem I see with kprobes is that you have to set several kernel
-configuration options (e.g. CONFIG_KPROBES, CONFIG_DEBUG_INFO, etc.)
-on compile time to use it. Same problem with pr_debug().
-
-Regards,
-	Heiko

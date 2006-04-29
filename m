@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWD2VAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWD2VOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWD2VAo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 17:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWD2VAo
+	id S1750803AbWD2VOV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 17:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWD2VOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 17:00:44 -0400
-Received: from main.gmane.org ([80.91.229.2]:26761 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750742AbWD2VAn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 17:00:43 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: [RFC] make PC Speaker driver work on x86-64
-Date: Sat, 29 Apr 2006 23:00:15 +0200
-Message-ID: <pan.2006.04.29.21.00.09.180837@free.fr>
-References: <200604291830.k3TIUA23009336@harpo.it.uu.se>
+	Sat, 29 Apr 2006 17:14:21 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37261 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750803AbWD2VOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 17:14:20 -0400
+Subject: Re: better leve triggered IRQ management needed
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060424114105.113eecac@localhost.localdomain>
+References: <20060424114105.113eecac@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 29 Apr 2006 22:25:11 +0100
+Message-Id: <1146345911.3302.36.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-Cc: discuss@x86-64.org
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Llu, 2006-04-24 at 11:41 -0700, Stephen Hemminger wrote:
+> I am seeing repeated problems with misconfigured systems that have shared IRQ
+> devices configured for edge-triggered.
 
-Le Sat, 29 Apr 2006 20:30:10 +0200, Mikael Pettersson a écrit :
+I've been thinking about this a chunk more. The embedded folks have been
+having a related argument about SA_EDGE and SA_LEVEL or similar. On some
+embedded platforms the driver really has to pass this information
+according to the board configuration.
 
-
-> 
-> Is there a better way to do this? ACPI?
-> 
-Yes, I believe using PNP layer (that use ACPI with pnpacpi) with PNP0800
-will be cleaner.
-
-Matthieu
+Trying to guess the current IRQ level v edge on a PC is very hard.
+Trying to set it correctly from the driver is rather easier.
 

@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWD2Klt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWD2LFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWD2Klt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 06:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWD2Klt
+	id S1750720AbWD2LFK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 07:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWD2LFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 06:41:49 -0400
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:29886 "EHLO
-	mtaout02-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1750716AbWD2Klt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 06:41:49 -0400
-From: Daniel Drake <dsd@gentoo.org>
-To: dwmw2@infradead.org
+	Sat, 29 Apr 2006 07:05:10 -0400
+Received: from cantor.suse.de ([195.135.220.2]:20615 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750720AbWD2LFI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 07:05:08 -0400
+From: Andi Kleen <ak@suse.de>
+To: minyard@acm.org
+Subject: Re: [PATCH] x86_64: add nmi_exit to die_nmi
+Date: Sat, 29 Apr 2006 12:58:55 +0200
+User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
-Cc: linux-mtd@lists.infradead.org
-Cc: toralf.foerster@gmx.de
-Subject: [PATCH] mtd: SC520CDP should depend on MTD_CONCAT
-Message-Id: <20060429104144.4D7AC87EA56@zog.reactivated.net>
-Date: Sat, 29 Apr 2006 11:41:44 +0100 (BST)
+References: <20060427175551.GA22941@i2.minyard.local>
+In-Reply-To: <20060427175551.GA22941@i2.minyard.local>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604291258.55430.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Toralf Förster found a compile error when CONFIG_MTD_SC520CDP=y and
-CONFIG_MTD_CONCAT=n:
+On Thursday 27 April 2006 19:55, Corey Minyard wrote:
+> Playing with NMI watchdog on x86_64, I discovered that it didn't
+> do what I expected.  It always panic-ed, even when it didn't
+> happen from interrupt context.  
 
-drivers/built-in.o: In function `init_sc520cdp':
-sc520cdp.c:(.init.text+0xb4de): undefined reference to `mtd_concat_create'
-drivers/built-in.o: In function `cleanup_sc520cdp':
-sc520cdp.c:(.exit.text+0x14bc): undefined reference to `mtd_concat_destroy'
+Hmm, I don't think that's true. Or at least it worked at some point.
+Ok maybe something regressed.
 
-This patch fixes it.
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+> This patch solves that 
+> problem for me.  Also, in this case, do_exit() will be called
+> with interrupts disabled, I believe.  Would it be wise to also
+> call local_irq_enable() after nmi_exit()?
 
-Index: linux-2.6.17-rc3-test/drivers/mtd/maps/Kconfig
-===================================================================
---- linux-2.6.17-rc3-test.orig/drivers/mtd/maps/Kconfig
-+++ linux-2.6.17-rc3-test/drivers/mtd/maps/Kconfig
-@@ -78,7 +78,7 @@ config MTD_PNC2000
- 
- config MTD_SC520CDP
- 	tristate "CFI Flash device mapped on AMD SC520 CDP"
--	depends on X86 && MTD_CFI
-+	depends on X86 && MTD_CFI && MTD_CONCAT
- 	help
- 	  The SC520 CDP board has two banks of CFI-compliant chips and one
- 	  Dual-in-line JEDEC chip. This 'mapping' driver supports that
+
+Probably yes. I added that with the the patch.
+
+Thanks,
+-Andi
+

@@ -1,47 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWD2Nwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWD2N4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbWD2Nwh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 09:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWD2Nwh
+	id S1750722AbWD2N4S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 09:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWD2N4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 09:52:37 -0400
-Received: from uproxy.gmail.com ([66.249.92.173]:41032 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750719AbWD2Nwg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 09:52:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h8xZ+9d2TJBANPSobAtxqLGCqUVCQ8DGHYhN8sT9uRqS/LlGK/DlxDFM6fqQkF2Bs1jiQLrSXhefFrcclRwEgvvAx3hV5LlzufHEFLXaB0YZNGrxdFl1TpoAcK4Hi3P5uTiforTMH4H2SriLtbNHbECIFUD3/NJyY/hertiPWcc=
-Message-ID: <625fc13d0604290652q3cd325d2hfdd21b8933ad3ce5@mail.gmail.com>
-Date: Sat, 29 Apr 2006 08:52:35 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "Daniel Drake" <dsd@gentoo.org>
-Subject: Re: [PATCH] mtd: SC520CDP should depend on MTD_CONCAT
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org, toralf.foerster@gmx.de
-In-Reply-To: <20060429104144.4D7AC87EA56@zog.reactivated.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <20060429104144.4D7AC87EA56@zog.reactivated.net>
+	Sat, 29 Apr 2006 09:56:17 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:31452 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1750722AbWD2N4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 09:56:17 -0400
+Date: Sat, 29 Apr 2006 22:56:50 +0900 (JST)
+Message-Id: <20060429.225650.108120558.anemo@mba.ocn.ne.jp>
+To: akpm@osdl.org
+Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RTC: rtc-dev tweak for 64-bit kernel
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060428233152.4da54d33.akpm@osdl.org>
+References: <20060429.012519.126141613.anemo@mba.ocn.ne.jp>
+	<20060428233152.4da54d33.akpm@osdl.org>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/29/06, Daniel Drake <dsd@gentoo.org> wrote:
-> Toralf Förster found a compile error when CONFIG_MTD_SC520CDP=y and
-> CONFIG_MTD_CONCAT=n:
->
-> drivers/built-in.o: In function `init_sc520cdp':
-> sc520cdp.c:(.init.text+0xb4de): undefined reference to `mtd_concat_create'
-> drivers/built-in.o: In function `cleanup_sc520cdp':
-> sc520cdp.c:(.exit.text+0x14bc): undefined reference to `mtd_concat_destroy'
->
-> This patch fixes it.
->
-> Signed-off-by: Daniel Drake <dsd@gentoo.org>
+On Fri, 28 Apr 2006 23:31:52 -0700, Andrew Morton <akpm@osdl.org> wrote:
+> > Make rtc-dev more friendly to 64-bit platforms with 32-bit userland.
+> > This tweak is came from genrtc driver.
+> 
+> Please define "friendly".  It's not clear what this patch does...
+...
+> 
+> We normally omit the space between "sizeof" and "(".
 
-I added this in my tree.  Thanks!
+Thanks for your comments.  Here is an updated patch.
 
-josh
+
+Make rtc-dev work well on 64-bit platforms with 32-bit userland.  On
+those platforms, users might try to read 32-bit integer value.  This
+patch make rtc-dev's read() work well for both "int" and "long" size.
+This tweak is came from genrtc driver.
+
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+index b1e3e61..6c9ad92 100644
+--- a/drivers/rtc/rtc-dev.c
++++ b/drivers/rtc/rtc-dev.c
+@@ -58,7 +58,7 @@ rtc_dev_read(struct file *file, char __u
+ 	unsigned long data;
+ 	ssize_t ret;
+ 
+-	if (count < sizeof(unsigned long))
++	if (count != sizeof(unsigned int) && count < sizeof(unsigned long))
+ 		return -EINVAL;
+ 
+ 	add_wait_queue(&rtc->irq_queue, &wait);
+@@ -90,11 +90,16 @@ rtc_dev_read(struct file *file, char __u
+ 	if (ret == 0) {
+ 		/* Check for any data updates */
+ 		if (rtc->ops->read_callback)
+-			data = rtc->ops->read_callback(rtc->class_dev.dev, data);
++			data = rtc->ops->read_callback(rtc->class_dev.dev,
++						       data);
+ 
+-		ret = put_user(data, (unsigned long __user *)buf);
+-		if (ret == 0)
+-			ret = sizeof(unsigned long);
++		if (sizeof(int) != sizeof(long) &&
++		    count == sizeof(unsigned int))
++			ret = put_user(data, (unsigned int __user *)buf) ?:
++				sizeof(unsigned int);
++		else
++			ret = put_user(data, (unsigned long __user *)buf) ?:
++				sizeof(unsigned long);
+ 	}
+ 	return ret;
+ }

@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWD2PJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWD2PZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWD2PJb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 11:09:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWD2PJb
+	id S1750739AbWD2PZf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 11:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWD2PZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 11:09:31 -0400
-Received: from mba.ocn.ne.jp ([210.190.142.172]:481 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S1750740AbWD2PJa (ORCPT
+	Sat, 29 Apr 2006 11:25:35 -0400
+Received: from hermes.drzeus.cx ([193.12.253.7]:32667 "EHLO mail.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1750739AbWD2PZf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 11:09:30 -0400
-Date: Sun, 30 Apr 2006 00:10:03 +0900 (JST)
-Message-Id: <20060430.001003.52129547.anemo@mba.ocn.ne.jp>
-To: akpm@osdl.org
-Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RTC: rtc-dev UIE emulation
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060428232306.5049c30d.akpm@osdl.org>
-	<20060429093108.77ced705@inspiron>
-References: <20060429.011648.25910123.anemo@mba.ocn.ne.jp>
-	<20060428232306.5049c30d.akpm@osdl.org>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 29 Apr 2006 11:25:35 -0400
+Message-ID: <44538581.50608@drzeus.cx>
+Date: Sat, 29 Apr 2006 17:25:53 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: "=?ISO-8859-1?Q?Jani-Matti_H=E4tinen?=" <jani-matti.hatinen@iki.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Lock-up with modprobe sdhci after suspending to ram
+References: <515ed10f0604240033i71781bfdp421ed244477fd200@mail.gmail.com> <200604251108.52515.jani-matti.hatinen@iki.fi> <444DE0E6.8090801@drzeus.cx> <200604251645.58421.jani-matti.hatinen@iki.fi>
+In-Reply-To: <200604251645.58421.jani-matti.hatinen@iki.fi>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your detailed review, Andrew.  Basically I just merged
-genrtc's stuff, but obviously it seems there are lots of things to
-fix/refine/improve.  I'll try to do but it will take some times.
+Jani-Matti Hätinen wrote:
+>
+> Ok, this is what I get on Loglevel 9.
+>   If I try to suspend with the module loaded and with a card in the reader I 
+> get:
+> Stopping tasks: ================================|
+> ipw2200: Failed to send CARD_DISABLE: Command timed out
+> ACPI: PCI interrupt for device 0000:01:05.0 disabled
+> sdhci [sdhci_suspend()]: Suspending...
+> MMC: starting cmd 07 arg 00000000 flags 00000000
+> sdhci [sdhci_send_command()]: Sending cmd (7)
+>
+> And if I modprobe sdhci after suspend&resume I get the following:
+>   First from the modprobe (not all of it is visible):
+> sdhci: Sys addr: 0xffffffff | Version:  0x0000ffff
+> sdhci: Blk size: 0x0000ffff | Blk cnt:  0x0000ffff
+> sdhci: Argument: 0xffffffff | Trn mode: 0x0000ffff
+> sdhci: Present:  0xffffffff | Host ctl: 0x000000ff
+> sdhci: Power:    0x000000ff | Blk gap:  0x000000ff
+> sdhci: Wake-up:  0x000000ff | Clock:    0x0000ffff
+> sdhci: Timeout:  0x000000ff | Int stat: 0xffffffff
+> sdhci: Int enab: 0xffffffff | Sig enab: 0xffffffff
+> sdhci: AC12 err: 0x0000ffff | Slot int: 0x0000ffff
+> sdhci: Caps:     0xffffffff | Max curr: 0xffffffff
+> sdhci: ===========================================
+>   
 
-Alessandro, following comments are against for this patch, right?
+Now this is horribly broken and would explain why things go south. I
+guess the chip needs a reset early in the detection sequence to function
+properly. Try putting:
 
-On Sat, 29 Apr 2006 09:31:08 +0200, Alessandro Zummo <alessandro.zummo@towertech.it> wrote:
->   this patch will conflict with rtc drivers that have proper UIE
->  support, please remove it from the tree.
-> 
->   A generic UIE emulation should at least check if the ioctl
->  has not been already handled by the underlaying rtc driver.
-> 
->   That means that every driver should be modified to return
->  -ENOIOCTLCMD if it gets passed an unknown IOCTL and that
->  this patch should check for this code before trying to emulate.
+    sdhci_reset(host, SDHCI_RESET_ALL);
 
-Since rtc_dev_ioctl() calls underlaying rtc driver's ioctl() first and
-checks -EINVAL, so I think it will not conflict.  Is it wrong?
+just before the driver does a readl() on the capabilities register (in
+sdhci_probe_slot()).
 
----
-Atsushi Nemoto
+>   Also I just noticed that if the machine has been through at least one 
+> suspend&resume cycle, rebooting no longer works. All processes exit cleanly, 
+> but the system just hangs when it should shut down.
+>   
+
+That's just probably a broken ACPI. Laptops tend to be buggy as hell.
+File a report with the ACPI guys.
+
+Rgds
+Pierre
+

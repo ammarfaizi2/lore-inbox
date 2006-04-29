@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWD2IBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWD2IGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWD2IBF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 04:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWD2IBE
+	id S1751094AbWD2IGn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 04:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWD2IGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 04:01:04 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:50662 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751088AbWD2IBD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 04:01:03 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: michael@ellerman.id.au
-Subject: Re: [PATCH 1/3] powerpc: Make rtas console _much_ faster
-Date: Sat, 29 Apr 2006 10:00:52 +0200
-User-Agent: KMail/1.9.1
-Cc: Paul Mackerras <paulus@samba.org>, cbe-oss-dev@ozlabs.org,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Ryan Arnold <rsa@us.ibm.com>
-References: <20060429004019.126937000@localhost.localdomain> <200604290245.57507.arnd@arndb.de> <1146275817.14733.2.camel@localhost.localdomain>
-In-Reply-To: <1146275817.14733.2.camel@localhost.localdomain>
+	Sat, 29 Apr 2006 04:06:43 -0400
+Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:55435 "EHLO
+	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751094AbWD2IGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 04:06:43 -0400
+Date: Sat, 29 Apr 2006 04:00:49 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [BUG] 2.6.17-rc3 broke FP exceptions on x86
+To: Mikael Pettersson <mikpe@user.it.uu.se>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200604290403_MC3-1-BE46-A30@compuserve.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200604291000.52541.arnd@arndb.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 April 2006 03:56, Michael Ellerman wrote:
-> I'll clean this one up a little before merging it as per Ryan's email of
-> a week or two ago. New patch today or tomorrow.
+In-Reply-To: <17490.4240.578291.222262@alkaid.it.uu.se>
 
-Ok, I misremembered the discussion on that patch and it didn't occur
-to me that a one-line patch needs cleanup ;-)
+On Fri, 28 Apr 2006 14:54:40 +0200, Mikael Pettersson wrote:
 
-Thanks!
+> Running an FP exception using user-space application
+> (the runtime system for the Erlang programming language
+> in my case) on an Athlon64 with a 32-bit 2.6.17-rc3 kernel
+> quickly results in a complete system hang: mouse is dead,
+> keyboard is dead, the network doesn't reply to pings.
+> Had to reboot via the power switch to get the machine back.
+> 
+> This happended twice in a row. With 2.6.17-rc2 things
+> work fine like they always have before.
 
-> Even though this is 1/3 the rest of the series should be fine to merge,
-> right Arnd?
+This should fix it... please test.
 
-Yes.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-	Arnd <><
+--- 2.6.17-rc3-d4.orig/include/asm-i386/i387.h
++++ 2.6.17-rc3-d4/include/asm-i386/i387.h
+@@ -58,13 +58,13 @@ static inline void __save_init_fpu( stru
+ 	alternative_input(
+ 		"fnsave %[fx] ;fwait;" GENERIC_NOP8 GENERIC_NOP4,
+ 		"fxsave %[fx]\n"
+-		"bt $7,%[fsw] ; jc 1f ; fnclex\n1:",
++		"bt $7,%[fsw] ; jnc 1f ; fnclex\n1:",
+ 		X86_FEATURE_FXSR,
+ 		[fx] "m" (tsk->thread.i387.fxsave),
+ 		[fsw] "m" (tsk->thread.i387.fxsave.swd) : "memory");
+ 	/* AMD K7/K8 CPUs don't save/restore FDP/FIP/FOP unless an exception
+ 	   is pending.  Clear the x87 state here by setting it to fixed
+-   	   values. __per_cpu_offset[0] is a random variable that should be in L1 */
++   	   values. safe_address is a random variable that should be in L1 */
+ 	alternative_input(
+ 		GENERIC_NOP8 GENERIC_NOP2,
+ 		"emms\n\t"	  	/* clear stack tags */
+-- 
+Chuck
+"Penguins don't come from next door, they come from the Antarctic!"

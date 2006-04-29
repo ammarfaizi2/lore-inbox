@@ -1,65 +1,44 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965194AbWD1Fuf (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 28 Apr 2006 01:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965208AbWD1Fue
+	id S965014AbWD2AF6 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 28 Apr 2006 20:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWD2AF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 01:50:34 -0400
-Received: from [210.73.88.250] ([210.73.88.250]:61422 "HELO
-	gmail.cn\(210.73.88.250\)") by vger.kernel.org with SMTP
-	id S965199AbWD1Fuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 01:50:32 -0400
-X-Antivirus-gmail.cn-Mail-From: andong_liu1000@gmail.cn via 3w.gmail.cn
-X-Antivirus-gmail.cn: 1.24-st-qms (Clear:RC:1(127.0.0.1):. Processed in 0.090124 secs Process 46529)
-Message-ID: <56276.213.185.118.196.1146158189.squirrel@3w.gmail.cn>
-Date: Fri, 28 Apr 2006 01:16:29 +0800 (CST)
-Subject: AGENTS NEEDED
-From: "sinosteel corporation" <andong_liu1000@gmail.cn>
-Reply-To: andong_liu05@yahoo.com.cn
-User-Agent: SquirrelMail/1.4.5
+	Fri, 28 Apr 2006 20:05:58 -0400
+Received: from 24-179-96-204.dhcp.snfr.nc.charter.com ([24.179.96.204]:13063
+	"HELO shuaacapital.com") by vger.kernel.org with SMTP
+	id S965014AbWD2AF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 20:05:58 -0400
+Message-ID: <4D5B3297.3C3C6CD@shuaacapital.com>
+Date: Fri, 28 Apr 2006 16:41:05 -0800
+From: "Frances Adams" <RexSimon3@shuaacapital.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-To: unlisted-recipients:; (no To-header on input)
+To: <linux-kernel@vger.kernel.org>, <majordomo@vger.kernel.org>
+Subject: Please amend your negative TransUnion Credit Score
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965194AbWD1Fuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965014AbWD2AF6@vger.kernel.org>
 
-17B Xichang'an Street,West District,
-Beijing 100031 P.R.CHINA.
+Hi,
 
-Dear Sir/Madam,
+Your CREDlT doesn't matter to our company!
 
-I am  Mr.Shunpui Anderson, CEO of Sinosteel Corporation. We are searching
-for representatives who can help us establish a medium of getting to our
-costumers in the Canada,America,North America and Europe as well as making
-payments through you to us.
+If you want IMMEDIATE finances to spend ANY
+way you wish, or just wish to LESSEN your installments by 33% or more; 
 
- We deals on products like Baosteel, Wuhan Iron & Steel Corp, Anshan Iron
-& Steel Corp. and Taiyuan Iron & Steel Corp etc, we export these raw
-materials into Europe, America, Africa and Canada.
+Here are the presentations Our Office has RIGHT AWAY : 
 
-Baosteel
-Wuhan Iron & Steel Corp
-Anshan Iron & Steel Corp
-Taiyuan Iron & Steel Corp
+lNTEREST-ONLY : $ 524K at 4.26-% 
+FlXED : $ 630K at 3.53-% 
+VARlABLE : $ 450K at 4.72-% 
 
-Please if you are interested in transacting business with us we will be
-glad. Please contact us for more information; Subject to your satisfaction
-you will be given the opportunity to negotiate your mode for  which we
-will pay for your services as our representative in Canada,America,North
-America and Europe.
+Your past details : http://metmon.com/9r
 
-Please if you are interested forward to us your phone number/fax and your
-full contact addresses.
+Hustle, our deals will end TONIGHT
 
-Thanks in advance
-Please,for further enquiery/informations contact,(i.e reply to):
-CHIEF ACCOUNTANT,
-Mr.'Andong Liu'on this email(andong_liu05@yahoo.com.cn)
-
-Mr.Shunpui Anderson
-CEO.
-SINOSTEEL CORPORATION
+Thanks,
+Frances Adams
 

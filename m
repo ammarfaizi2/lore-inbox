@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWD2UfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWD2UgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWD2UfI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 16:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWD2UfI
+	id S1750751AbWD2UgP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 16:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWD2UgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 16:35:08 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:38104 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750728AbWD2UfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 16:35:07 -0400
-Subject: Re: IP1000 gigabit nic driver
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: "David =?ISO-8859-1?Q?G=F3mez?=" <david@pleyades.net>
-Cc: David Vrabel <dvrabel@cantab.net>, Francois Romieu <romieu@fr.zoreil.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-In-Reply-To: <20060429122119.GA22160@fargo>
-References: <20060427142939.GA31473@fargo>
-	 <20060427185627.GA30871@electric-eye.fr.zoreil.com>
-	 <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo>
-	 <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
-	 <20060428113755.GA7419@fargo>
-	 <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI>
-	 <1146306567.1642.3.camel@localhost>  <20060429122119.GA22160@fargo>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sat, 29 Apr 2006 23:35:04 +0300
-Message-Id: <1146342905.11271.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 8bit
+	Sat, 29 Apr 2006 16:36:14 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:24211 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750751AbWD2UgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 16:36:14 -0400
+Message-ID: <4453CE37.8010705@garzik.org>
+Date: Sat, 29 Apr 2006 16:36:07 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Mikael Pettersson <mikpe@it.uu.se>
+CC: discuss@x86-64.org, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] make PC Speaker driver work on x86-64
+References: <200604291830.k3TIUA23009336@harpo.it.uu.se>
+In-Reply-To: <200604291830.k3TIUA23009336@harpo.it.uu.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.0 (----)
+X-Spam-Report: SpamAssassin version 3.1.1 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.0 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Mikael Pettersson wrote:
+> I have a pair of Athlon64 machines that dual-boot 32-bit and
+> 64-bit kernels. One annoying difference between the kernels
+> is that the PC Speaker driver (CONFIG_INPUT_PCSPKR=y) only
+> works in the 32-bit kernels. In the 64-bit kernels it remains
+> inactive and doesn't even generate any boot-time initialisation
+> or error messages.
+> 
+> Today I debugged that issue, and found that the PC Speaker
+> driver's ->probe() routine doesn't even get called in the
+> 64-bit kernels. The reason for that is that the arch code
+> apparently has to explictly add a "pcspkr" platform device
+> in order for the driver core to call the ->probe() routine.
+> arch/i386/kernel/setup.c unconditionally adds a "pcspkr"
+> device, but the x86_64 kernel has no code at all related to
+> the PC Speaker.
 
-On Sat, 2006-04-29 at 14:21 +0200, David Gómez wrote:
-> I already had it modified, just needed to create the patch... Anyway,
-> have you submitted it to netdev?
+Wow, thanks.
 
-No, I haven't. I don't have the hardware, so I can't test the driver.
-Furthermore, there's plenty of stuff to fix before it's in any shape for
-submission. If someone wants to give this patch a spin, I would love to
-hear the results.
+I was wondering why my PC speaker didn't seem to work.  And here I was, 
+blaming Fedora...
+	
+	Jeff
 
-					Pekka
 

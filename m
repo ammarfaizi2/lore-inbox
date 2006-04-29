@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751850AbWD2HaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWD2Hsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751850AbWD2HaV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 03:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751851AbWD2HaV
+	id S1751018AbWD2Hsg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 03:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWD2Hsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 03:30:21 -0400
-Received: from ns2.hostinglmi.net ([213.194.149.12]:10926 "EHLO
-	ns2.hostinglmi.net") by vger.kernel.org with ESMTP id S1751850AbWD2HaU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 03:30:20 -0400
-Date: Sat, 29 Apr 2006 09:30:40 +0200
-From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IP1000 gigabit nic driver
-Message-ID: <20060429073040.GB7946@fargo>
-Mail-Followup-To: Stephen Hemminger <shemminger@osdl.org>,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20060427142939.GA31473@fargo> <20060427185627.GA30871@electric-eye.fr.zoreil.com> <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo> <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com> <20060428113755.GA7419@fargo> <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI> <20060428215824.GA2922@fargo> <20060428154251.23fcfc41@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060428154251.23fcfc41@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns2.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - pleyades.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sat, 29 Apr 2006 03:48:36 -0400
+Received: from ozlabs.org ([203.10.76.45]:22927 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751012AbWD2Hsg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 03:48:36 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17491.6735.199209.247913@cargo.ozlabs.ibm.com>
+Date: Sat, 29 Apr 2006 17:48:31 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: linas@austin.ibm.com (Linas Vepstas)
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: PCI init vs. memory init
+In-Reply-To: <20060428230401.GF22621@austin.ibm.com>
+References: <20060428230401.GF22621@austin.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephen,
+Linas Vepstas writes:
 
-On Apr 28 at 03:42:51, Stephen Hemminger wrote:
-> It is stored if you use SET_NETDEV_DEV() macro prior to registration.
-> Perhaps we need some netdev_{dbg,err,info,warn} macros?
+> You mentioned that the sequence of inits seemed wrong, that the 
+> PCI init should be done later, after the memory init. I think
+> I agree; but when I took a very very quick look at the code, there 
+> was no obvious hook in later init to move the PCI init over to. 
+> 
+> Are you pursuing this further? Should I dig into it?  Any bright
+> ideas? Am I missing something obvious?  
 
-Maybe. A grep reveals that no network driver is using still the
-dev_* loggin macros.
+I assume you're talking about find_and_init_phbs() and eeh_init(),
+which are currently called from pSeries_setup_arch().
 
-> static inline struct device * netdev_dev(struct net_device *netd)
-> {
-> 	return netd->class_dev.dev;
-> }
+Would a core_initcall be early enough for those?  It seems to me that
+it probably would be.  What are the actual dependencies?  Clearly it
+needs to be before pcibios_init(), which is a subsys_initcall.  Is
+there anything else that they need to come before?
 
-ok. thanks
+> There are several spots in in the powerpc PCI init code where 
+> a boot_mem alloc is used instead of kmalloc, and this boot_mem is 
+> then hacked around in the case of a PCI hotplug remove.  It would 
+> be nice to fix this...
 
--- 
-David Gómez                                      Jabber ID: davidge@jabber.org
+Indeed.
+
+Paul.

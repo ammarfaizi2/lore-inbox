@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWD2PZf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWD2Pa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWD2PZf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 11:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWD2PZf
+	id S1750743AbWD2Pa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 11:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWD2Pa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 11:25:35 -0400
-Received: from hermes.drzeus.cx ([193.12.253.7]:32667 "EHLO mail.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1750739AbWD2PZf (ORCPT
+	Sat, 29 Apr 2006 11:30:57 -0400
+Received: from mx2.rowland.org ([192.131.102.7]:57869 "HELO mx2.rowland.org")
+	by vger.kernel.org with SMTP id S1750743AbWD2Pa5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 11:25:35 -0400
-Message-ID: <44538581.50608@drzeus.cx>
-Date: Sat, 29 Apr 2006 17:25:53 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Sat, 29 Apr 2006 11:30:57 -0400
+Date: Sat, 29 Apr 2006 11:30:55 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Chandra Seetharaman <sekharan@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, <torvalds@osdl.org>, <ashok.raj@intel.com>,
+       <herbert@13thfloor.at>, <linux-kernel@vger.kernel.org>,
+       <linux-xfs@oss.sgi.com>, <xfs-masters@oss.sgi.com>
+Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
+In-Reply-To: <1146267809.7063.141.camel@linuxchandra>
+Message-ID: <Pine.LNX.4.44L0.0604291126001.31700-100000@netrider.rowland.org>
 MIME-Version: 1.0
-To: "=?ISO-8859-1?Q?Jani-Matti_H=E4tinen?=" <jani-matti.hatinen@iki.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Lock-up with modprobe sdhci after suspending to ram
-References: <515ed10f0604240033i71781bfdp421ed244477fd200@mail.gmail.com> <200604251108.52515.jani-matti.hatinen@iki.fi> <444DE0E6.8090801@drzeus.cx> <200604251645.58421.jani-matti.hatinen@iki.fi>
-In-Reply-To: <200604251645.58421.jani-matti.hatinen@iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jani-Matti Hätinen wrote:
->
-> Ok, this is what I get on Loglevel 9.
->   If I try to suspend with the module loaded and with a card in the reader I 
-> get:
-> Stopping tasks: ================================|
-> ipw2200: Failed to send CARD_DISABLE: Command timed out
-> ACPI: PCI interrupt for device 0000:01:05.0 disabled
-> sdhci [sdhci_suspend()]: Suspending...
-> MMC: starting cmd 07 arg 00000000 flags 00000000
-> sdhci [sdhci_send_command()]: Sending cmd (7)
->
-> And if I modprobe sdhci after suspend&resume I get the following:
->   First from the modprobe (not all of it is visible):
-> sdhci: Sys addr: 0xffffffff | Version:  0x0000ffff
-> sdhci: Blk size: 0x0000ffff | Blk cnt:  0x0000ffff
-> sdhci: Argument: 0xffffffff | Trn mode: 0x0000ffff
-> sdhci: Present:  0xffffffff | Host ctl: 0x000000ff
-> sdhci: Power:    0x000000ff | Blk gap:  0x000000ff
-> sdhci: Wake-up:  0x000000ff | Clock:    0x0000ffff
-> sdhci: Timeout:  0x000000ff | Int stat: 0xffffffff
-> sdhci: Int enab: 0xffffffff | Sig enab: 0xffffffff
-> sdhci: AC12 err: 0x0000ffff | Slot int: 0x0000ffff
-> sdhci: Caps:     0xffffffff | Max curr: 0xffffffff
-> sdhci: ===========================================
->   
+On Fri, 28 Apr 2006, Chandra Seetharaman wrote:
 
-Now this is horribly broken and would explain why things go south. I
-guess the chip needs a reset early in the detection sequence to function
-properly. Try putting:
+> - if we are ok with a loss of a kbyte or two, 2.6.17 is fine as is 
+>   (with my incorrect patches in).
+> - if we want to save that memory, we can revert the two patches and fix
+>   xfs to make the register calls only when hotplug cpu is defined. This
+>   change is also minimal. It is a step in the right direction.
+> 
+> Only downside i can see in reverting my patch is that if there is any
+> other modules that are doing the same as what xfs was doing, we might
+> trip in a similar oops.
 
-    sdhci_reset(host, SDHCI_RESET_ALL);
+Once register_cpu_notifier is placed in an init section, everything should
+be okay.  If some other module does _exactly_ what xfs did, it won't oops
+-- instead the module will get an unresolved symbol error whenever someone
+tries to insmod it, because the register_cpu_notifier symbol won't be
+defined.  I think this is an appropriate kind of failure mode.
 
-just before the driver does a readl() on the capabilities register (in
-sdhci_probe_slot()).
+However, it wouldn't hurt to add some comments to the definition and 
+declaration of register_cpu_notifier, explaining the circumstances in 
+which it should be used.
 
->   Also I just noticed that if the machine has been through at least one 
-> suspend&resume cycle, rebooting no longer works. All processes exit cleanly, 
-> but the system just hangs when it should shut down.
->   
-
-That's just probably a broken ACPI. Laptops tend to be buggy as hell.
-File a report with the ACPI guys.
-
-Rgds
-Pierre
+Alan Stern
 

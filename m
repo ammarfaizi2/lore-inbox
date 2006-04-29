@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWD2Oap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWD2Ol1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWD2Oap (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 10:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWD2Oap
+	id S1750735AbWD2Ol1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 10:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWD2Ol1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 10:30:45 -0400
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:38665 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1750706AbWD2Oap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 10:30:45 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Subject: Re: make O="<dir>" install; output not relocated; 2.6.16.11(kbuild)
-Date: Sat, 29 Apr 2006 15:30:54 +0100
-User-Agent: KMail/1.9.1
-Cc: Linda Walsh <lkml@tlinx.org>, Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <4451B77D.7070000@tlinx.org> <44524A3F.6060203@tlinx.org> <20060429070806.GK25520@lug-owl.de>
-In-Reply-To: <20060429070806.GK25520@lug-owl.de>
+	Sat, 29 Apr 2006 10:41:27 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:17585 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750735AbWD2Ol0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 10:41:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=cL0kUxzKFXr7W6fBW2NY8ZmGEU7Zj52ZaLi8lGvZVS/faQ1BPkYP0gTNjMtI2dRKPfMXhWRJmG28lksbWvDL/hSoAzj8jAn4LVVCkBLt6KwXhn2N7AfE8nC3cCPzTTYNXjKdlHhl5McNp0Wd4czUHwU6WltiSyTOeQBr9P+/QI0=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: [PATCH 0/6] UML - Small patches for 2.6.17
+Date: Sat, 29 Apr 2006 16:41:18 +0200
+User-Agent: KMail/1.8.3
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Dike <jdike@addtoit.com>,
+       linux-kernel@vger.kernel.org
+References: <200604281601.k3SG11MJ007510@ccure.user-mode-linux.org> <20060428165534.6067f5aa.akpm@osdl.org>
+In-Reply-To: <20060428165534.6067f5aa.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200604291530.54658.s0348365@sms.ed.ac.uk>
+Message-Id: <200604291641.19864.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 29 April 2006 08:08, Jan-Benedict Glaw wrote:
-[snip]
-> >    Fair enough, but I'm more interested in where to specify
-> > the target location of the installed kernel and System.map as
-> > I don't always have modules for a generated kernel, but usually
-> > (near 100% :-)) have an installable kernel image.  For development,
-> > I could see it being useful to mount the target system's root in
-> > a local directory (like /mnt), then have the kernel build install
-> > to a target root of "/mnt".
+On Saturday 29 April 2006 01:55, Andrew Morton wrote:
+> Jeff Dike <jdike@addtoit.com> wrote:
+> > These patches are 2.6.17 material.
 >
-> Installing the kernel image is quite architecture specific; most
-> architectures use $(INSTALL_PATH), so this could be something like
-> /path/to/target_system/boot .  Though they may also re-run lilo or
-> something like that, so it's possibly not what you actually want to
-> use.
+> "remove NULL checks and add some CodingStyle" isn't.
 
-I'm fairly sure modern 2.6 kernels do the following with "make install":
+Being restrictive is ok, but keeping patches in queues for longer than needed 
+creates more headaches than it solves, in my experience.
 
-1)	Try to run ~/bin/installkernel script.
-2)	Try to run /sbin/installkernel (distributions)
-3)	Guess an install path and run LILO.
+> Unless one considers 
+> UML coding style to be a bug, which is an attractive idea ;)
 
-If you hack together an "installkernel" I'm sure you could get it to do what 
-you want. It certainly works here (I have it generate a menu.lst update for 
-grub and copy my images to /boot/vmlinuz-version 
-and /boot/System.map-version, and run make modules_install).
+Well, we're slowly working on that... very slowly... I've thought multiple 
+times to at least run Lindent on arch/um but I've not spoken up because of 
+all the conflicts we (me and Jeff) would get with patches in our queues.
 
+However, there are occasions in which we get conflicts anyway for other 
+reorganization, and in that case Lindent would be useful. Ok Jeff? I'm 
+speaking for instance about moving to os-Linux and such.
 -- 
-Cheers,
-Alistair.
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

@@ -1,66 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWD2FhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWD2FnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWD2FhA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 01:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWD2FhA
+	id S1750724AbWD2FnV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 01:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWD2FnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 01:37:00 -0400
-Received: from h80ad24a4.async.vt.edu ([128.173.36.164]:25486 "EHLO
-	h80ad24a4.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1750723AbWD2Fg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 01:36:59 -0400
-Message-Id: <200604290536.k3T5arZs012263@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: khaled MOHAMMED atteya <khaled.m.atteya@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: I hope to be kernel developer ,in i386 arch 
-In-Reply-To: Your message of "Sat, 29 Apr 2006 00:54:28 +0300."
-             <7f9112a50604281454k27d60e4cm61d5bb659c3f8359@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <7f9112a50604281454k27d60e4cm61d5bb659c3f8359@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1146289012_2469P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 29 Apr 2006 01:36:52 -0400
+	Sat, 29 Apr 2006 01:43:20 -0400
+Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:34988 "HELO
+	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750724AbWD2FnU convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 01:43:20 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [git pull] Input update for 2.6.17-rc3
+Date: Sat, 29 Apr 2006 01:43:17 -0400
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+X-Length: 2730
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200604290143.18191.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1146289012_2469P
-Content-Type: text/plain; charset=us-ascii
+Linus,
 
-On Sat, 29 Apr 2006 00:54:28 +0300, khaled MOHAMMED atteya said:
-> HELLO
-> I hope to be kernel developer ,in i386 arch.
+Please pull from:
 
-Do you plan to be actively developing code in the arch/i386 tree, or are
-you just developing on systems that happen to be x86 boxes?  The difference
-is crucial.
+        git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
 
-> am i needing to read all i386 and pentium manual (the three volume)?
+or
+        master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
 
-There's large portions of the kernel ( fs/* and net/* in particular) that
-are largely CPU-agnostic.  Much more important overall is understanding the
-basic *concepts* of barriers (why you need them, when, and where), and trusting
-the provided macros to Do The Right Thing when you use the right macro (conversely,
-using the *wrong* macro is an error no matter what architecture you're on).
+to get various input layer updates.
 
-That, and locking.  Understanding locking is another things more important
-than the actual CPU registers.
+Diffstat:
 
-And you need to get a grip on both of those concepts before starting to deal
-with architecture-dependent code (of which there's an amazingly small amount).
+ drivers/char/keyboard.c             |   38 ++-
+ drivers/input/evdev.c               |   21 +
+ drivers/input/input.c               |   11
+ drivers/input/keyboard/spitzkbd.c   |    4
+ drivers/input/misc/wistron_btns.c   |   30 ++
+ drivers/input/mouse/psmouse-base.c  |    4
+ drivers/input/touchscreen/ads7846.c |  414 +++++++++++++++++++++++++++++-------
+ include/linux/input.h               |  109 ++++-----
+ include/linux/mod_devicetable.h     |   48 ++++
+ include/linux/spi/ads7846.h         |    7
+ scripts/mod/file2alias.c            |   36 +--
+ 11 files changed, 555 insertions(+), 167 deletions(-)
 
---==_Exmh_1146289012_2469P
-Content-Type: application/pgp-signature
+Changelog:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Dmitry Torokhov:
+      Input: allow passing NULL to input_free_device()
+      Input: move input_device_id to mod_devicetable.h
+      Input: psmouse - fix new device detection logic
+      Input: ressurect EVIOCGREP and EVIOCSREP
+      Input: make EVIOCGSND return meaningful data
 
-iD8DBQFEUvtzcC3lWbTT17ARAmeWAKCX9SG4eo/FU+QS+Z7G8RJYV0yN7ACg9zhk
-rjQK4U2q5CznbBKYyDsaL9Y=
-=69uM
------END PGP SIGNATURE-----
+Imre Deak:
+      Input: ads7846 - add pen_down sysfs attribute
+      Input: ads7846 - power down ADC a bit later
+      Input: ads7846 - debouncing and rudimentary sample filtering
+      Input: ads7846 - miscellaneous fixes
+      Input: ads7846 - handle IRQs that were latched during disabled IRQs
+      Input: ads7846 - report 0 pressure value along with pen up event
+      Input: ads7846 - improve filtering for thumb press accuracy
 
---==_Exmh_1146289012_2469P--
+John Reed Riley:
+      Input: wistron - add support for Fujitsu N3510
+
+Juha Yrjola:
+      Input: ads7846 - use msleep() instead of udelay() in suspend
+
+Richard Purdie:
+      Input: spitzkbd - fix the reversed Address and Calender keys
+
+Samuel Thibault:
+      Input: allow using several chords for braille
+
+Stefan Rompf:
+      Input: wistron - add signature for Amilo M7400
+
+-- 
+Dmitry

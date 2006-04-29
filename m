@@ -1,78 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWD2BVy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWD2CDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWD2BVy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 21:21:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWD2BVw
+	id S1751469AbWD2CDP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 22:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWD2CDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 21:21:52 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:3531 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751466AbWD2BVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 21:21:33 -0400
-Message-Id: <20060429011908.390998000@localhost.localdomain>
-References: <20060429011827.502138000@localhost.localdomain>
-Date: Sat, 29 Apr 2006 03:18:29 +0200
-From: Arnd Bergmann <arnd@arndb.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Mike Kravetz <kravetz@us.ibm.com>, Joel Schopp <jschopp@austin.ibm.com>,
-       Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: [PATCH 2/4] sparsemem interaction with memory add bug fixes
-Content-Disposition: inline; filename=sparsemem-interaction-with-memory-add-bug-fixes.patch
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+	Fri, 28 Apr 2006 22:03:15 -0400
+Received: from ozlabs.org ([203.10.76.45]:59605 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751469AbWD2CDP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Apr 2006 22:03:15 -0400
+Subject: Re: [PATCH 1/3] powerpc: Make rtas console _much_ faster
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Paul Mackerras <paulus@samba.org>, cbe-oss-dev@ozlabs.org,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Ryan Arnold <rsa@us.ibm.com>, Arnd Bergmann <arnd.bergmann@de.ibm.com>
+In-Reply-To: <200604290245.57507.arnd@arndb.de>
+References: <20060429004019.126937000@localhost.localdomain>
+	 <200604290245.57507.arnd@arndb.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Wjcki+kFBXd9yGX5NeKB"
+Date: Sat, 29 Apr 2006 11:56:57 +1000
+Message-Id: <1146275817.14733.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mike Kravetz <mjkravetz@verizon.net>
 
-This patch fixes two bugs with the way sparsemem interacts with memory add.
-They are:
+--=-Wjcki+kFBXd9yGX5NeKB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-- memory leak if memmap for section already exists
+I'll clean this one up a little before merging it as per Ryan's email of
+a week or two ago. New patch today or tomorrow.
 
-- calling alloc_bootmem_node() after boot
+Even though this is 1/3 the rest of the series should be fine to merge,
+right Arnd?
 
-These bugs were discovered and a first cut at the fixes were provided by
-Arnd Bergmann <arnd@arndb.de> and Joel Schopp <jschopp@us.ibm.com>.
+cheers
 
-Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
-Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
----
+On Sat, 2006-04-29 at 02:45 +0200, Arnd Bergmann wrote:
+> Currently the hvc_rtas driver is painfully slow to use. Our "benchmark" i=
+s
+> ls -R /etc, which spits out about 27866 characters. The theoretical maxim=
+um
+> speed would be about 2.2 seconds, the current code takes ~50 seconds.
+>=20
+> The core of the problem is that sometimes when the tty layer asks us to p=
+ush
+> characters the firmware isn't able to handle some or all of them, and so
+> returns an error. The current code sees this and just returns to the tty =
+code
+> with the buffer half sent.
+>=20
+> There's the khvcd thread which will eventually wake up and try to push mo=
+re
+> characters, that will usually work because the firmware's had time to pus=
+h
+> the characters out. But the thread only wakes up every 10 milliseconds, w=
+hich
+> isn't fast enough.
+>=20
+> There's already code in the hvc_console driver to make the khvcd thread d=
+o
+> a "quick" loop, where it just calls yield() instead of sleeping. The only=
+ code
+> that triggered that behaviour was recently removed though, which I don't
+> quite understand.
+>=20
+> Still, if we set HVC_POLL_QUICK whenever the push hvc_push() doesn't push=
+ all
+> characters (ie. RTAS blocks), we can get good performance out of the hvc_=
+rtas
+> backend. With this patch the "benchmark" takes ~2.8 seconds.
+>=20
+> Cc: Ryan Arnold <rsa@us.ibm.com>
+> Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
+> Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+>=20
+> ---
+>=20
+>  drivers/char/hvc_console.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> Index: linus-2.6/drivers/char/hvc_console.c
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- linus-2.6.orig/drivers/char/hvc_console.c
+> +++ linus-2.6/drivers/char/hvc_console.c
+> @@ -570,7 +570,7 @@ static int hvc_poll(struct hvc_struct *h
+>  		hvc_push(hp);
+>  	/* Reschedule us if still some write pending */
+>  	if (hp->n_outbuf > 0)
+> -		poll_mask |=3D HVC_POLL_WRITE;
+> +		poll_mask |=3D HVC_POLL_WRITE | HVC_POLL_QUICK;
+> =20
+>  	/* No tty attached, just skip */
+>  	tty =3D hp->tty;
+>=20
+> --
+--=20
+Michael Ellerman
+IBM OzLabs
 
- mm/sparse.c |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
 
-diff -puN mm/sparse.c~sparsemem-interaction-with-memory-add-bug-fixes mm/sparse.c
---- 25/mm/sparse.c~sparsemem-interaction-with-memory-add-bug-fixes	Wed Apr 12 14:38:04 2006
-+++ 25-akpm/mm/sparse.c	Wed Apr 12 14:38:04 2006
-@@ -32,7 +32,10 @@ static struct mem_section *sparse_index_
- 	unsigned long array_size = SECTIONS_PER_ROOT *
- 				   sizeof(struct mem_section);
- 
--	section = alloc_bootmem_node(NODE_DATA(nid), array_size);
-+	if (system_state == SYSTEM_RUNNING)
-+		section = kmalloc_node(array_size, GFP_KERNEL, nid);
-+	else
-+		section = alloc_bootmem_node(NODE_DATA(nid), array_size);
- 
- 	if (section)
- 		memset(section, 0, array_size);
-@@ -281,9 +284,9 @@ int sparse_add_one_section(struct zone *
- 
- 	ret = sparse_init_one_section(ms, section_nr, memmap);
- 
--	if (ret <= 0)
--		__kfree_section_memmap(memmap, nr_pages);
- out:
- 	pgdat_resize_unlock(pgdat, &flags);
-+	if (ret <= 0)
-+		__kfree_section_memmap(memmap, nr_pages);
- 	return ret;
- }
-_
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
 
---
+--=-Wjcki+kFBXd9yGX5NeKB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEUsfodSjSd0sB4dIRAu44AJ9IvqVQ7yr80ifObCySAID1TprrMwCgnZkp
+ln8rPHvHMiDp5rRxiKRne8c=
+=cmwQ
+-----END PGP SIGNATURE-----
+
+--=-Wjcki+kFBXd9yGX5NeKB--
 

@@ -1,89 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWD2FnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWD2GZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWD2FnV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 01:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWD2FnU
+	id S1750707AbWD2GZE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 02:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWD2GZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 01:43:20 -0400
-Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:34988 "HELO
-	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750724AbWD2FnU convert rfc822-to-8bit (ORCPT
+	Sat, 29 Apr 2006 02:25:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24032 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750707AbWD2GZC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 01:43:20 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [git pull] Input update for 2.6.17-rc3
-Date: Sat, 29 Apr 2006 01:43:17 -0400
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-X-Length: 2730
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200604290143.18191.dtor_core@ameritech.net>
+	Sat, 29 Apr 2006 02:25:02 -0400
+Date: Fri, 28 Apr 2006 23:23:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RTC: rtc-dev UIE emulation
+Message-Id: <20060428232306.5049c30d.akpm@osdl.org>
+In-Reply-To: <20060429.011648.25910123.anemo@mba.ocn.ne.jp>
+References: <20060429.011648.25910123.anemo@mba.ocn.ne.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
+>
+> Import genrtc's RTC UIE emulation (CONFIG_GEN_RTC_X) to rtc-dev driver
+> with slight adjustments.  This makes UIE-less chips/drivers work
+> better with programs doing read/poll on /dev/rtc, such as hwclock.
+> 
+> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+> 
+> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+> index 65d090d..29ca46c 100644
+> --- a/drivers/rtc/Kconfig
+> +++ b/drivers/rtc/Kconfig
+> @@ -73,6 +73,12 @@ config RTC_INTF_DEV
+>  	  This driver can also be built as a module. If so, the module
+>  	  will be called rtc-dev.
+>  
+> +config RTC_INTF_DEV_X
+> +	bool "Extended RTC operation"
+> +	depends on RTC_INTF_DEV
+> +	help
+> +	  Provides an emulation for RTC_UIE.
+> +
 
-Please pull from:
+That help is somewhat terse.  A user might have trouble working out what it
+does, and whether it's something they want to use.
 
-        git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+>  comment "RTC drivers"
+>  	depends on RTC_CLASS
+>  
+> diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+> index b1e3e61..0bbd181 100644
+> --- a/drivers/rtc/rtc-dev.c
+> +++ b/drivers/rtc/rtc-dev.c
+> @@ -48,6 +48,93 @@ static int rtc_dev_open(struct inode *in
+>  	return err;
+>  }
+>  
+> +#ifdef CONFIG_RTC_INTF_DEV_X
+> +/*
+> + * Routine to poll RTC seconds field for change as often as possible,
+> + * after first RTC_UIE use timer to reduce polling
+> + */
+> +static void rtc_uie_task(void *data)
+> +{
+> +	struct rtc_device *rtc = data;
+> +	struct rtc_time tm;
+> +	unsigned int tmp = rtc_read_time(&rtc->class_dev, &tm) ? 0 : tm.tm_sec;
 
-or
-        master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git
+If rtc_read_time() fails we proceed as if it returned 0.
 
-to get various input layer updates.
+Are you sure that's correct?
 
-Diffstat:
+(In practice, it cannot fail.  Or, if it does, it'll fail 100% of the time.
+ But still...)
 
- drivers/char/keyboard.c             |   38 ++-
- drivers/input/evdev.c               |   21 +
- drivers/input/input.c               |   11
- drivers/input/keyboard/spitzkbd.c   |    4
- drivers/input/misc/wistron_btns.c   |   30 ++
- drivers/input/mouse/psmouse-base.c  |    4
- drivers/input/touchscreen/ads7846.c |  414 +++++++++++++++++++++++++++++-------
- include/linux/input.h               |  109 ++++-----
- include/linux/mod_devicetable.h     |   48 ++++
- include/linux/spi/ads7846.h         |    7
- scripts/mod/file2alias.c            |   36 +--
- 11 files changed, 555 insertions(+), 167 deletions(-)
+> +	int num = 0;
+> +
+> +	spin_lock_irq(&rtc->irq_lock);
+> +	if (rtc->stop_rtc_timers) {
+> +		rtc->stask_active = 0;
+> +		spin_unlock_irq(&rtc->irq_lock);
+> +		return;
+> +	}
+> +
+> +	if (rtc->oldsecs != tmp) {
+> +		num = (tmp + 60 - rtc->oldsecs) % 60;
+> +		rtc->oldsecs = tmp;
+> +
+> +		rtc->timer_task.expires = jiffies + HZ - (HZ/10);
+> +		rtc->ttask_active = 1;
+> +		rtc->stask_active = 0;
+> +		add_timer(&rtc->timer_task);
+> +	} else if (schedule_work(&rtc->uie_task) == 0)
+> +		rtc->stask_active = 0;
+> +	spin_unlock_irq(&rtc->irq_lock);
+> +	if (num)
+> +		rtc_update_irq(&rtc->class_dev, num, RTC_UF | RTC_IRQF);
+> +}
+> +
+> +static void rtc_uie_timer(unsigned long data)
+> +{
+> +	struct rtc_device *rtc = (struct rtc_device *)data;
+> +	unsigned long flags;
+> +	spin_lock_irqsave(&rtc->irq_lock, flags);
+> +	rtc->ttask_active = 0;
+> +	rtc->stask_active = 1;
+> +	if ((schedule_work(&rtc->uie_task) == 0))
+> +		rtc->stask_active = 0;
+> +	spin_unlock_irqrestore(&rtc->irq_lock, flags);
+> +}
 
-Changelog:
+I see a schedule_work(), but I don't see a flush_scheduled_work().  Is
+there anything preventing the scheduled work from still being pending after a
+close() or an rmmod?
 
-Dmitry Torokhov:
-      Input: allow passing NULL to input_free_device()
-      Input: move input_device_id to mod_devicetable.h
-      Input: psmouse - fix new device detection logic
-      Input: ressurect EVIOCGREP and EVIOCSREP
-      Input: make EVIOCGSND return meaningful data
+> +static void clear_uie(struct rtc_device *rtc)
+> +{
+> +	spin_lock_irq(&rtc->irq_lock);
+> +	rtc->stop_rtc_timers = 1;
+> +	if (rtc->ttask_active) {
+> +		spin_unlock_irq(&rtc->irq_lock);
+> +		del_timer_sync(&rtc->timer_task);
+> +		spin_lock(&rtc->irq_lock);
 
-Imre Deak:
-      Input: ads7846 - add pen_down sysfs attribute
-      Input: ads7846 - power down ADC a bit later
-      Input: ads7846 - debouncing and rudimentary sample filtering
-      Input: ads7846 - miscellaneous fixes
-      Input: ads7846 - handle IRQs that were latched during disabled IRQs
-      Input: ads7846 - report 0 pressure value along with pen up event
-      Input: ads7846 - improve filtering for thumb press accuracy
+Presumably that should be spin_lock_irq().
 
-John Reed Riley:
-      Input: wistron - add support for Fujitsu N3510
+> +		rtc->ttask_active = 0;
+> +	}
+> +	while (rtc->stask_active) {
+> +		spin_unlock_irq(&rtc->irq_lock);
+> +		schedule();
+> +		spin_lock_irq(&rtc->irq_lock);
+> +	}
 
-Juha Yrjola:
-      Input: ads7846 - use msleep() instead of udelay() in suspend
+That's a busywait.  Please let's find a better way of doing this.
 
-Richard Purdie:
-      Input: spitzkbd - fix the reversed Address and Calender keys
+That way might be a flush_scheduled_work().  I don't know, because it's not
+immediately clear what the responsibilities of this function are.  Please
+add some comments to the code which explain things like this.
 
-Samuel Thibault:
-      Input: allow using several chords for braille
+> +	rtc->irq_active = 0;
+> +	spin_unlock_irq(&rtc->irq_lock);
+> +}
+> +
+> +static void set_uie(struct rtc_device *rtc)
+> +{
+> +	int start = 0;
+> +	spin_lock_irq(&rtc->irq_lock);
+> +	if (!rtc->irq_active)
+> +		start = rtc->irq_active = 1;
+> +	rtc->irq_data = 0;
+> +	spin_unlock_irq(&rtc->irq_lock);
+> +	if (start) {
+> +		struct rtc_time tm;
+> +		rtc->stop_rtc_timers = 0;
+> +		INIT_WORK(&rtc->uie_task, rtc_uie_task, rtc);
+> +		rtc->oldsecs = rtc_read_time(&rtc->class_dev, &tm) ?
+> +			0 : tm.tm_sec;
+> +		setup_timer(&rtc->timer_task, rtc_uie_timer,
+> +			    (unsigned long)rtc);
+> +		rtc->stask_active = 1;
+> +		if (schedule_work(&rtc->uie_task) == 0)
+> +			rtc->stask_active = 0;
+> +	}
+> +}
 
-Stefan Rompf:
-      Input: wistron - add signature for Amilo M7400
+Sometimes you have a blank line after the the declarations of the local
+variables, sometimes not.  I prefer it to be there, personally.
 
--- 
-Dmitry
+The above code is slightly racy,
+
+> +#ifdef CONFIG_RTC_INTF_DEV_X
+> +	struct work_struct uie_task;
+> +	struct timer_list timer_task;
+> +	unsigned int oldsecs;
+> +	unsigned int irq_active :1;
+> +	unsigned int stop_rtc_timers :1;	/* don't requeue tasks */
+> +	unsigned int stask_active :1;		/* schedule_work */
+> +	unsigned int ttask_active :1;		/* timer_task */
+> +#endif
+
+
+because all these bitfields will occupy the same machine word.  We must
+provide locking for that word, because the compiler won't do it.
+
+Generally, rtc->irq_lock does provide that locking.  But not in the above
+case - it's conceivable that the rtc_uie_task() callback will be executing
+while this CPU is modifying rtc->stask_active.
+
+A suitable fix would be to extend the rtc->irq_lock coverage here.  Plus,
+of course, adding a comment above those four fields explaining what their
+locking protocol is.
+
+Also,
+
+	unsigned int ttask_active:1;
+
+is more conventional whitespace usage.
+
+"timer_task" is a rather misleading name for a timer.  It implies that
+it's, umm, a task.  "uie_timer", perhaps?
+

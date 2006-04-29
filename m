@@ -1,47 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751858AbWD2Ixc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWD2I7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751858AbWD2Ixc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 04:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWD2Ixc
+	id S1750838AbWD2I7k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 04:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWD2I7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 04:53:32 -0400
-Received: from nz-out-0102.google.com ([64.233.162.205]:10762 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751858AbWD2Ixb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 04:53:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=kxNKmSItsI4F87+IENBDk4HOov+6zNL48EyH0I3p0BZx/TtNRf7o/pRsFR2Sl9YVDlc3SLqe6SfZH2Et3hYSyoD2XP9p62yAv7yVpSlmSUMxeEspPuOBDVcP5vM4ccDMY8po0AoV/DAKwTUCQ7kJKsR0tUnBCSK+XDaOF3wMMnI=
-Message-ID: <44539ABE.6050007@gmail.com>
-Date: Sat, 29 Apr 2006 16:56:30 +0000
-From: Alan Camus <albcamus@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: khaled MOHAMMED atteya <khaled.m.atteya@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: I hope to be kernel developer ,in i386 arch
-References: <7f9112a50604281454k27d60e4cm61d5bb659c3f8359@mail.gmail.com> <200604290536.k3T5arZs012263@turing-police.cc.vt.edu>
-In-Reply-To: <200604290536.k3T5arZs012263@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=GB2312
+	Sat, 29 Apr 2006 04:59:40 -0400
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:5866 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1750838AbWD2I7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 04:59:40 -0400
+Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow
+	userspace (Xorg) to enable devices without doing foul direct access
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, airlied@linux.ie, pjones@redhat.com
+In-Reply-To: <20060429015116.2c3d964b.akpm@osdl.org>
+References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
+	 <20060429015116.2c3d964b.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sat, 29 Apr 2006 10:59:08 +0200
+Message-Id: <1146301148.3125.7.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Sat, 29 Apr 2006 00:54:28 +0300, khaled MOHAMMED atteya said:
->   
->> HELLO
->> I hope to be kernel developer ,in i386 arch.
->>     
->
-> Do you plan to be actively developing code in the arch/i386 tree, or are
-> you just developing on systems that happen to be x86 boxes?  The difference
-> is crucial.
->   
-I want to be actively developing code in the arch/i386 or arch/x86_64
-tree ... and plan to optimize the kernel for theses CPUs ... any advice
-? thanks .
 
---alan
+> > +	if (!pdev)
+> > +		return 1;
+> 
+> Can this happen?
+
+eh I suppose not; the other code doesn't check it either; fixed
+
+> 
+> > +	/* this can crash the machine when done on the "wrong" device */
+> > +	if (!capable(CAP_SYS_ADMIN))
+> > +		return 1;
+> 
+> Don't the file's permissions suffice?
+
+that's a more philosophical question; you can ask that question about
+the entire capability system ;) Other code in the same file uses this
+same capability for a same level of access though.
+
+> 	return count;
+> 
+fixed
+
+
+ok new patch below
+
+This patch adds an "enable" sysfs attribute to each PCI device. When read it
+shows the "enabled-ness" of the device, but you can write a "0" into it to
+disable a device, and a "1" to enable it.
+
+This later is needed for X and other cases where userspace wants to enable
+the BARs on a device (typical example: to run the video bios on a secundary
+head). Right now X does all this "by hand" via bitbanging, that's just evil.
+This allows X to no longer do that but to just let the kernel do this.
+
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+CC: Peter Jones <pjones@redhat.com>
+CC: Dave Airlie <airlied@linux.ie>
+---
+ drivers/pci/pci-sysfs.c |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+Index: linux-2.6.17-rc2-enable/drivers/pci/pci-sysfs.c
+===================================================================
+--- linux-2.6.17-rc2-enable.orig/drivers/pci/pci-sysfs.c
++++ linux-2.6.17-rc2-enable/drivers/pci/pci-sysfs.c
+@@ -43,6 +43,7 @@ pci_config_attr(subsystem_vendor, "0x%04
+ pci_config_attr(subsystem_device, "0x%04x\n");
+ pci_config_attr(class, "0x%06x\n");
+ pci_config_attr(irq, "%u\n");
++pci_config_attr(is_enabled, "%u\n");
+ 
+ static ssize_t local_cpus_show(struct device *dev,
+ 			struct device_attribute *attr, char *buf)
+@@ -90,6 +91,25 @@ static ssize_t modalias_show(struct devi
+ 		       (u8)(pci_dev->class >> 16), (u8)(pci_dev->class >> 8),
+ 		       (u8)(pci_dev->class));
+ }
++static ssize_t
++is_enabled_store(struct device *dev, struct device_attribute *attr,
++		const char *buf, size_t count)
++{
++	struct pci_dev *pdev = to_pci_dev(dev);
++
++	/* this can crash the machine when done on the "wrong" device */
++	if (!capable(CAP_SYS_ADMIN))
++		return count;
++
++	if (*buf == '0')
++		pci_disable_device(pdev);
++
++	if (*buf == '1')
++		pci_enable_device(pdev);
++
++	return count;
++}
++
+ 
+ struct device_attribute pci_dev_attrs[] = {
+ 	__ATTR_RO(resource),
+@@ -101,6 +121,7 @@ struct device_attribute pci_dev_attrs[] 
+ 	__ATTR_RO(irq),
+ 	__ATTR_RO(local_cpus),
+ 	__ATTR_RO(modalias),
++	__ATTR(enable, 0600, is_enabled_show, is_enabled_store),
+ 	__ATTR_NULL,
+ };
+ 
+

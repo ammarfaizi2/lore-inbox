@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWD2Qni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWD2RMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWD2Qni (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 12:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWD2Qni
+	id S1750763AbWD2RMB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 13:12:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWD2RMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 12:43:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40896 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750755AbWD2Qnh (ORCPT
+	Sat, 29 Apr 2006 13:12:01 -0400
+Received: from fmmailgate04.web.de ([217.72.192.242]:18600 "EHLO
+	fmmailgate04.web.de") by vger.kernel.org with ESMTP
+	id S1750763AbWD2RMB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 12:43:37 -0400
-Date: Sat, 29 Apr 2006 12:43:31 -0400
-From: Dave Jones <davej@redhat.com>
-To: devzero@web.de
+	Sat, 29 Apr 2006 13:12:01 -0400
+Date: Sat, 29 Apr 2006 19:11:31 +0200
+Message-Id: <1094007413@web.de>
+MIME-Version: 1.0
+From: devzero@web.de
+To: Dave Jones <davej@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: another kconfig target for building monolithic kernel (for security) ?
-Message-ID: <20060429164331.GA26122@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, devzero@web.de,
-	linux-kernel@vger.kernel.org
-References: <1093777985@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093777985@web.de>
-User-Agent: Mutt/1.4.2.1i
+Subject: =?iso-8859-15?Q?Re:_another_kconfig_target_for_building_monolithic_ker?=
+ =?iso-8859-15?Q?nel_(for_security)_=3F?=
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 29, 2006 at 03:03:55PM +0200, devzero@web.de wrote:
+hello !
 
- > i want to harden a linux system (dedicated root server on the internet) by recompiling the kernel without support for lkm (to prevent installation of lkm based rootkits etc)
+do we need to have write access to /dev/kmem - especially on a server without X ?
+iirc, write access can be disabled, for example with addons like grsecurity.
+(don`t know what will be broken besides X, though)
 
-Loading modules via /dev/kmem is trivial thanks to a bunch of tutorials and
-examples on the web, so this alone doesn't make life that much more difficult for attackers.
+regards
+roland
 
-		Dave
+> -----Ursprüngliche Nachricht-----
+> Von: Dave Jones <davej@redhat.com>
+> Gesendet: 29.04.06 18:43:41
+> An: devzero@web.de
+> CC: linux-kernel@vger.kernel.org
+> Betreff: Re: another kconfig target for building monolithic kernel (for security) ?
 
--- 
-http://www.codemonkey.org.uk
+
+> On Sat, Apr 29, 2006 at 03:03:55PM +0200, devzero@web.de wrote:
+> 
+>  > i want to harden a linux system (dedicated root server on the internet) by recompiling the kernel without support for lkm (to prevent installation of lkm based rootkits etc)
+> 
+> Loading modules via /dev/kmem is trivial thanks to a bunch of tutorials and
+> examples on the web, so this alone doesn't make life that much more difficult for attackers.
+> 
+> 		Dave
+> 
+> -- 
+> http://www.codemonkey.org.uk
+
+
+_______________________________________________________________
+SMS schreiben mit WEB.DE FreeMail - einfach, schnell und
+kostenguenstig. Jetzt gleich testen! http://f.web.de/?mc=021192
+

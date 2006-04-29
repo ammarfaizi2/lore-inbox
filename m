@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWD2SGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWD2SNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWD2SGz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 14:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWD2SGz
+	id S1750774AbWD2SNg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 14:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWD2SNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 14:06:55 -0400
-Received: from silver.veritas.com ([143.127.12.111]:24163 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1750770AbWD2SGy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 14:06:54 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.04,166,1144047600"; 
-   d="scan'208"; a="37731155:sNHT24706724"
-Date: Sat, 29 Apr 2006 19:06:51 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Jeff Garzik <jeff@garzik.org>
-cc: Pavel Machek <pavel@suse.cz>, Arkadiusz Miskiewicz <arekm@maven.pl>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Matt Mackall <mpm@selenic.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: sata suspend resume ...
-In-Reply-To: <Pine.LNX.4.64.0604231343010.2515@blonde.wat.veritas.com>
-Message-ID: <Pine.LNX.4.64.0604291901500.4575@blonde.wat.veritas.com>
-References: <Pine.LNX.4.64.0604192324040.29606@indiana.corp.fedex.com>
- <Pine.LNX.4.64.0604191659230.7660@blonde.wat.veritas.com> <20060420134713.GA2360@ucw.cz>
- <Pine.LNX.4.64.0604211333050.4891@blonde.wat.veritas.com>
- <20060421163930.GA1648@elf.ucw.cz> <Pine.LNX.4.64.0604212108010.7531@blonde.wat.veritas.com>
- <4449504D.1040901@garzik.org> <Pine.LNX.4.64.0604231343010.2515@blonde.wat.veritas.com>
+	Sat, 29 Apr 2006 14:13:36 -0400
+Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:34237 "EHLO
+	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750774AbWD2SNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 14:13:35 -0400
+Date: Sat, 29 Apr 2006 14:07:49 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch 2.6.17-rc3] i386: fix broken FP exception handling
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-stable <stable@kernel.org>
+Message-ID: <200604291409_MC3-1-BE50-16AD@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 29 Apr 2006 18:06:54.0430 (UTC) FILETIME=[B27C0FE0:01C66BB7]
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Apr 2006, Hugh Dickins wrote:
-> On Fri, 21 Apr 2006, Jeff Garzik wrote:
-> 
-> > So you really want an ata_make_sure_bus_is_awake_and_working() called at that
-> > location.  ata_busy_sleep()'s purpose is to bring a PATA-like bus to the
-> > bus-idle state.  So, when working on suspend/resume, the software needs to
-> > have points at which the bus state is controlled/queried/asserted.
-> 
-> As you can see from my questions, I haven't a clue around here.  So for
-> now I'll just have to keep that ata_busy_sleep with the patches I apply
-> to my kernel, until someone with a clue makes it redundant.  And it is
-> now there in the LKML archives for those who find it useful.
+The FXSAVE information leak patch introduced a bug in FP exception
+handling: it clears FP exceptions only when there are already
+none outstanding.  Mikael Pettersson reported that causes problems
+with the Erlang runtime and has tested this fix.
 
-I'm glad to report that my ata_busy_sleep is already unnecessary in
-2.6.17-rc2-mm1 (and probably in at least -rc1-mm3 before it): unlike in
-2.6.17-rc3, T43p resumes reliably from RAM with unpatched libata-core.c.
-Something has gone seriously right!  Thanks...
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Acked-by: Mikael Pettersson <mikpe@it.uu.se>
 
-Hugh
+---
+
+The same bug is in 2.6.16.9+ and this patch applies there as well.
+
+
+--- 2.6.17-rc3-d4.orig/include/asm-i386/i387.h
++++ 2.6.17-rc3-d4/include/asm-i386/i387.h
+@@ -58,13 +58,13 @@ static inline void __save_init_fpu( stru
+ 	alternative_input(
+ 		"fnsave %[fx] ;fwait;" GENERIC_NOP8 GENERIC_NOP4,
+ 		"fxsave %[fx]\n"
+-		"bt $7,%[fsw] ; jc 1f ; fnclex\n1:",
++		"bt $7,%[fsw] ; jnc 1f ; fnclex\n1:",
+ 		X86_FEATURE_FXSR,
+ 		[fx] "m" (tsk->thread.i387.fxsave),
+ 		[fsw] "m" (tsk->thread.i387.fxsave.swd) : "memory");
+ 	/* AMD K7/K8 CPUs don't save/restore FDP/FIP/FOP unless an exception
+ 	   is pending.  Clear the x87 state here by setting it to fixed
+-   	   values. __per_cpu_offset[0] is a random variable that should be in L1 */
++   	   values. safe_address is a random variable that should be in L1 */
+ 	alternative_input(
+ 		GENERIC_NOP8 GENERIC_NOP2,
+ 		"emms\n\t"	  	/* clear stack tags */
+-- 
+Chuck
+"Penguins don't come from next door, they come from the Antarctic!"

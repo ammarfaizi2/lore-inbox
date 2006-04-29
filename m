@@ -1,44 +1,54 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965014AbWD2AF6 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 28 Apr 2006 20:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWD2AF6
+	id S1750810AbWD2VjA (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 29 Apr 2006 17:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWD2VjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 20:05:58 -0400
-Received: from 24-179-96-204.dhcp.snfr.nc.charter.com ([24.179.96.204]:13063
-	"HELO shuaacapital.com") by vger.kernel.org with SMTP
-	id S965014AbWD2AF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Apr 2006 20:05:58 -0400
-Message-ID: <4D5B3297.3C3C6CD@shuaacapital.com>
-Date: Fri, 28 Apr 2006 16:41:05 -0800
-From: "Frances Adams" <RexSimon3@shuaacapital.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+	Sat, 29 Apr 2006 17:39:00 -0400
+Received: from 64-51-144-18.client.dsl.net ([64.51.144.18]:64015 "EHLO
+	flash.net") by vger.kernel.org with ESMTP id S1750810AbWD2Vi7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 17:38:59 -0400
 MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>, <majordomo@vger.kernel.org>
-Subject: Please amend your negative TransUnion Credit Score
+Date: Sat, 29 Apr 2006 14:35:54 -0600
+In-Reply-To: <717301c668e2$71aefea4$220ca16e@2xshzc1>
+Message-ID: <PHKPNKPKCJBOIBOGOMBMCMKMMAAA.tswan_mv@videotron.ca>
+From: "Tameka Swan" <tswan_mv@videotron.ca>
+To: <sparclinux@vger.kernel.org>
+Reply-To: "Tameka Swan" <tswan_mv@videotron.ca>
+Subject: Get ahead in life! rumrf
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965014AbWD2AF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750810AbWD2VjA@vger.kernel.org>
 
-Hi,
+Genuine College Degree in 2 Weeks! 
 
-Your CREDlT doesn't matter to our company!
+(831) 603-4625  Call Now and leave us message
 
-If you want IMMEDIATE finances to spend ANY
-way you wish, or just wish to LESSEN your installments by 33% or more; 
+Have you ever thought that the only thing stopping you from a
+a great j0b and better pay was a few letters behind your name? 
 
-Here are the presentations Our Office has RIGHT AWAY : 
+Well now you can get them! 
 
-lNTEREST-ONLY : $ 524K at 4.26-% 
-FlXED : $ 630K at 3.53-% 
-VARlABLE : $ 450K at 4.72-% 
+BA BSc MA MSc MBA PHD 
 
-Your past details : http://metmon.com/9r
+Within 2 weeks!
+No Study Required!
+100% Verifiable 
 
-Hustle, our deals will end TONIGHT
+(831) 603-4625  Call Now and leave us message
 
-Thanks,
-Frances Adams
+These are real, genuine degrees that include Bachelors, Masters 
+and Doctorate degrees. They are verifiable and student records and
+transcripts are also available. This little known s.ecret has been
+kept quiet for years. The opp0rtunity exists due to a lega.l loophole
+allowing some established colleges to award degrees at their discretion.
 
+
+With all of the attention that this news has been generating, I wouldn't 
+be surprised to see this loophole closed very soon. 
+
+Call n0w for more information today, you'll thank me later... 
+(831) 603-4625  Call Now and leave us message

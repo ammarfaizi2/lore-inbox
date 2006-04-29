@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751851AbWD2IAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWD2IBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751851AbWD2IAT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 04:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751856AbWD2IAT
+	id S1751088AbWD2IBF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 04:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWD2IBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 04:00:19 -0400
-Received: from ozlabs.org ([203.10.76.45]:39825 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751851AbWD2IAS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 04:00:18 -0400
+	Sat, 29 Apr 2006 04:01:04 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:50662 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751088AbWD2IBD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 04:01:03 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: michael@ellerman.id.au
+Subject: Re: [PATCH 1/3] powerpc: Make rtas console _much_ faster
+Date: Sat, 29 Apr 2006 10:00:52 +0200
+User-Agent: KMail/1.9.1
+Cc: Paul Mackerras <paulus@samba.org>, cbe-oss-dev@ozlabs.org,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Ryan Arnold <rsa@us.ibm.com>
+References: <20060429004019.126937000@localhost.localdomain> <200604290245.57507.arnd@arndb.de> <1146275817.14733.2.camel@localhost.localdomain>
+In-Reply-To: <1146275817.14733.2.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200604291000.52541.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17491.7435.783197.658219@cargo.ozlabs.ibm.com>
-Date: Sat, 29 Apr 2006 18:00:11 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: linas@austin.ibm.com (Linas Vepstas)
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: powerpc/pseries: Print PCI slot location code on failure
-In-Reply-To: <20060428224218.GE22621@austin.ibm.com>
-References: <20060428224218.GE22621@austin.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas writes:
+On Saturday 29 April 2006 03:56, Michael Ellerman wrote:
+> I'll clean this one up a little before merging it as per Ryan's email of
+> a week or two ago. New patch today or tomorrow.
 
-> +		location = (char *) get_property(event->dn, "ibm,loc-code", NULL);
-> +		printk(KERN_ERR "EEH: Error: Cannot find partition endpoint "
-> +		                "for location=%s pci addr=%s\n",
-> +		        location, pci_name(event->dev));
+Ok, I misremembered the discussion on that patch and it didn't occur
+to me that a one-line patch needs cleanup ;-)
 
-If location is NULL, printk will fortunately save us from a null
-pointer dereference; still, it might be nice to have the message say
-"location=unknown" or something rather than "location=<NULL>".
+Thanks!
 
-Paul.
+> Even though this is 1/3 the rest of the series should be fine to merge,
+> right Arnd?
+
+Yes.
+
+	Arnd <><

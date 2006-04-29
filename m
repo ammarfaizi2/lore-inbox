@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWD2M7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWD2ND7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWD2M7A (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 08:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWD2M67
+	id S1750705AbWD2ND7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 09:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWD2ND7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 08:58:59 -0400
-Received: from heisenberg.zen.co.uk ([212.23.3.141]:9927 "EHLO
-	heisenberg.zen.co.uk") by vger.kernel.org with ESMTP
-	id S1750702AbWD2M67 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 08:58:59 -0400
-Message-ID: <44536308.2030409@cantab.net>
-Date: Sat, 29 Apr 2006 13:58:48 +0100
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Mail/News 1.5 (X11/20060228)
+	Sat, 29 Apr 2006 09:03:59 -0400
+Received: from fmmailgate04.web.de ([217.72.192.242]:57479 "EHLO
+	fmmailgate04.web.de") by vger.kernel.org with ESMTP
+	id S1750705AbWD2ND7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 09:03:59 -0400
+Date: Sat, 29 Apr 2006 15:03:55 +0200
+Message-Id: <1093777985@web.de>
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: =?ISO-8859-15?Q?David_G=F3mez?= <david@pleyades.net>,
-       Francois Romieu <romieu@fr.zoreil.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: IP1000 gigabit nic driver
-References: <20060427142939.GA31473@fargo>	 <20060427185627.GA30871@electric-eye.fr.zoreil.com>	 <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo>	 <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>	 <20060428113755.GA7419@fargo>	 <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI> <1146306567.1642.3.camel@localhost>
-In-Reply-To: <1146306567.1642.3.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+From: devzero@web.de
+To: linux-kernel@vger.kernel.org
+Subject: =?iso-8859-15?Q?another_kconfig_target_for_building_monolithic_kernel_?=
+ =?iso-8859-15?Q?(for_security)_=3F?=
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
-X-Originating-Heisenberg-IP: [82.70.146.41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> 
-> I ended up doing most of them myself [1]. Sorry :-) Are the datasheets
-> public by the way?
+Hello !
 
-http://www.icplus.com.tw/Data/Datasheet/IP1000A-DS-R08-07052005.pdf
+i want to harden a linux system (dedicated root server on the internet) by recompiling the kernel without support for lkm (to prevent installation of lkm based rootkits etc)
 
->   1. http://www.cs.helsinki.fi/u/penberg/linux/ip1000-driver.patch
+since the "minimalistic" approach (removing complexity) is always a good strategy for security , it seems that it generally isn`t a trivial task to "strip down" the running kernel with xconfig/menuconfig, i.e. to turn the running kernel into an minimalistic monolithic version which "just fits" to the current hardware and contains the absolutely necessary. 
+
+especially when you have no physical access to the machine, there is some danger that the system doesn`t boot and needs some operator resetting it and boot into working configuration again.
+
+what i assume what could be needed is something like a build-target "make hardened-config-based-on-running-kernel" which does the following
+
+- look at the running kernel which components/modules are loaded/used/active
+- make  a .config based on that information (i.e. remove all unneded and turn this into monolithic version)
+- probably tell the user what will be disabled in the monolitic kernel 
+
+if this doesn`t sound too dumb (comments?) - maybe there is some sort of "receipe" or project how to do this in a more comfortable way (i.e. without working through the whole .config and without in-depth knowledge of all .config params) ?
+
+regards
+roland k.
+systems engineer
+
+
+
+
+_______________________________________________________________
+SMS schreiben mit WEB.DE FreeMail - einfach, schnell und
+kostenguenstig. Jetzt gleich testen! http://f.web.de/?mc=021192
+

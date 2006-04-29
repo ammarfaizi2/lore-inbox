@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWD2Pa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWD2Pqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWD2Pa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 11:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWD2Pa5
+	id S1750748AbWD2Pqe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 11:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWD2Pqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 11:30:57 -0400
-Received: from mx2.rowland.org ([192.131.102.7]:57869 "HELO mx2.rowland.org")
-	by vger.kernel.org with SMTP id S1750743AbWD2Pa5 (ORCPT
+	Sat, 29 Apr 2006 11:46:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57297 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750748AbWD2Pqd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 11:30:57 -0400
-Date: Sat, 29 Apr 2006 11:30:55 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Chandra Seetharaman <sekharan@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, <torvalds@osdl.org>, <ashok.raj@intel.com>,
-       <herbert@13thfloor.at>, <linux-kernel@vger.kernel.org>,
-       <linux-xfs@oss.sgi.com>, <xfs-masters@oss.sgi.com>
-Subject: Re: Linux 2.6.17-rc2 - notifier chain problem?
-In-Reply-To: <1146267809.7063.141.camel@linuxchandra>
-Message-ID: <Pine.LNX.4.44L0.0604291126001.31700-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 29 Apr 2006 11:46:33 -0400
+Date: Sat, 29 Apr 2006 08:44:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net, jdike@addtoit.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: [PATCH 0/6] UML - Small patches for 2.6.17
+Message-Id: <20060429084430.27ea0d91.akpm@osdl.org>
+In-Reply-To: <200604291641.19864.blaisorblade@yahoo.it>
+References: <200604281601.k3SG11MJ007510@ccure.user-mode-linux.org>
+	<20060428165534.6067f5aa.akpm@osdl.org>
+	<200604291641.19864.blaisorblade@yahoo.it>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Apr 2006, Chandra Seetharaman wrote:
-
-> - if we are ok with a loss of a kbyte or two, 2.6.17 is fine as is 
->   (with my incorrect patches in).
-> - if we want to save that memory, we can revert the two patches and fix
->   xfs to make the register calls only when hotplug cpu is defined. This
->   change is also minimal. It is a step in the right direction.
+Blaisorblade <blaisorblade@yahoo.it> wrote:
+>
+> > Unless one considers 
+>  > UML coding style to be a bug, which is an attractive idea ;)
 > 
-> Only downside i can see in reverting my patch is that if there is any
-> other modules that are doing the same as what xfs was doing, we might
-> trip in a similar oops.
+>  Well, we're slowly working on that... very slowly... I've thought multiple 
+>  times to at least run Lindent on arch/um but I've not spoken up because of 
+>  all the conflicts we (me and Jeff) would get with patches in our queues.
 
-Once register_cpu_notifier is placed in an init section, everything should
-be okay.  If some other module does _exactly_ what xfs did, it won't oops
--- instead the module will get an unresolved symbol error whenever someone
-tries to insmod it, because the register_cpu_notifier symbol won't be
-defined.  I think this is an appropriate kind of failure mode.
-
-However, it wouldn't hurt to add some comments to the definition and 
-declaration of register_cpu_notifier, explaining the circumstances in 
-which it should be used.
-
-Alan Stern
+Lindent doesn't do a terribly good job, and one ends up having to perform a
+lot of manual fixups.  Perhaps as many as are presently needed.
 

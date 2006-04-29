@@ -1,172 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWD2BVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWD2BVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbWD2BVa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Apr 2006 21:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWD2BV3
+	id S1751473AbWD2BVw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Apr 2006 21:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWD2BVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Apr 2006 21:21:29 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:1264 "EHLO
+	Fri, 28 Apr 2006 21:21:30 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:48842 "EHLO
 	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751157AbWD2BV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750869AbWD2BV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 28 Apr 2006 21:21:28 -0400
-Message-Id: <20060429011909.077738000@localhost.localdomain>
+Message-Id: <20060429011908.790087000@localhost.localdomain>
 References: <20060429011827.502138000@localhost.localdomain>
-Date: Sat, 29 Apr 2006 03:18:31 +0200
+Date: Sat, 29 Apr 2006 03:18:30 +0200
 From: Arnd Bergmann <arnd@arndb.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
        cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org,
        Arnd Bergmann <arnd.bergmann@de.ibm.com>
-Subject: [PATCH 4/4] powerpc: cell: Add numa id to struct spu
-Content-Disposition: inline; filename=spufs-numa-id.diff
+Subject: [PATCH 3/4] powerpc: Allow devices to register with numa topology
+Content-Disposition: inline; filename=spufs-node-to-nid-2.diff
 X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Jeremy Kerr <jk@ozlabs.org>
 
-Add an nid member to the spu structure, and store the numa id of the spu
-there on creation.
+Change of_node_to_nid() to traverse the device tree, looking for a numa
+id. Cell uses this to assign ids to SPUs, which are children of the CPU
+node. Existing users of of_node_to_nid() are altered to use
+of_node_to_nid_single(), which doesn't do the traversal.
+
+Export an attach_sysdev_to_node() function, allowing system devices (eg.
+SPUs) to link themselves into the numa topology in sysfs.
 
 Signed-off-by: Arnd Bergmann <arnd.bergmann@de.ibm.com>
 ---
-Index: linus-2.6/arch/powerpc/platforms/cell/spu_base.c
+Index: linus-2.6/arch/powerpc/mm/numa.c
 ===================================================================
---- linus-2.6.orig/arch/powerpc/platforms/cell/spu_base.c	2006-04-29 02:51:33.000000000 +0200
-+++ linus-2.6/arch/powerpc/platforms/cell/spu_base.c	2006-04-29 02:56:58.000000000 +0200
-@@ -525,8 +525,8 @@
- 	return id ? *id : 0;
+--- linus-2.6.orig/arch/powerpc/mm/numa.c	2006-04-29 01:50:25.000000000 +0200
++++ linus-2.6/arch/powerpc/mm/numa.c	2006-04-29 02:02:28.000000000 +0200
+@@ -194,7 +194,7 @@
+ /* Returns nid in the range [0..MAX_NUMNODES-1], or -1 if no useful numa
+  * info is found.
+  */
+-static int of_node_to_nid(struct device_node *device)
++static int of_node_to_nid_single(struct device_node *device)
+ {
+ 	int nid = -1;
+ 	unsigned int *tmp;
+@@ -216,6 +216,28 @@
+ 	return nid;
  }
  
--static int __init cell_spuprop_present(struct device_node *spe,
--					const char *prop)
-+static int __init cell_spuprop_present(struct spu *spu, struct device_node *spe,
-+		const char *prop)
- {
- 	static DEFINE_MUTEX(add_spumem_mutex);
- 
-@@ -537,7 +537,6 @@
- 	int proplen;
- 
- 	unsigned long start_pfn, nr_pages;
--	int node_id;
- 	struct pglist_data *pgdata;
- 	struct zone *zone;
- 	int ret;
-@@ -548,14 +547,7 @@
- 	start_pfn = p->address >> PAGE_SHIFT;
- 	nr_pages = ((unsigned long)p->len + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 
--	/*
--	 * XXX need to get the correct NUMA node in here. This may
--	 * be different from the spe::node_id property, e.g. when
--	 * the host firmware is not NUMA aware.
--	 */
--	node_id = 0;
--
--	pgdata = NODE_DATA(node_id);
-+	pgdata = NODE_DATA(spu->nid);
- 	zone = pgdata->node_zones;
- 
- 	/* XXX rethink locking here */
-@@ -566,8 +558,8 @@
- 	return ret;
- }
- 
--static void __iomem * __init map_spe_prop(struct device_node *n,
--						 const char *name)
-+static void __iomem * __init map_spe_prop(struct spu *spu,
-+		struct device_node *n, const char *name)
- {
- 	struct address_prop {
- 		unsigned long address;
-@@ -585,7 +577,7 @@
- 
- 	prop = p;
- 
--	err = cell_spuprop_present(n, name);
-+	err = cell_spuprop_present(spu, n, name);
- 	if (err && (err != -EEXIST))
- 		goto out;
- 
-@@ -603,44 +595,45 @@
- 	iounmap((u8 __iomem *)spu->local_store);
- }
- 
--static int __init spu_map_device(struct spu *spu, struct device_node *spe)
-+static int __init spu_map_device(struct spu *spu, struct device_node *node)
- {
- 	char *prop;
- 	int ret;
- 
- 	ret = -ENODEV;
--	prop = get_property(spe, "isrc", NULL);
-+	prop = get_property(node, "isrc", NULL);
- 	if (!prop)
- 		goto out;
- 	spu->isrc = *(unsigned int *)prop;
- 
--	spu->name = get_property(spe, "name", NULL);
-+	spu->name = get_property(node, "name", NULL);
- 	if (!spu->name)
- 		goto out;
- 
--	prop = get_property(spe, "local-store", NULL);
-+	prop = get_property(node, "local-store", NULL);
- 	if (!prop)
- 		goto out;
- 	spu->local_store_phys = *(unsigned long *)prop;
- 
- 	/* we use local store as ram, not io memory */
--	spu->local_store = (void __force *)map_spe_prop(spe, "local-store");
-+	spu->local_store = (void __force *)
-+		map_spe_prop(spu, node, "local-store");
- 	if (!spu->local_store)
- 		goto out;
- 
--	prop = get_property(spe, "problem", NULL);
-+	prop = get_property(node, "problem", NULL);
- 	if (!prop)
- 		goto out_unmap;
- 	spu->problem_phys = *(unsigned long *)prop;
- 
--	spu->problem= map_spe_prop(spe, "problem");
-+	spu->problem= map_spe_prop(spu, node, "problem");
- 	if (!spu->problem)
- 		goto out_unmap;
- 
--	spu->priv1= map_spe_prop(spe, "priv1");
-+	spu->priv1= map_spe_prop(spu, node, "priv1");
- 	/* priv1 is not available on a hypervisor */
- 
--	spu->priv2= map_spe_prop(spe, "priv2");
-+	spu->priv2= map_spe_prop(spu, node, "priv2");
- 	if (!spu->priv2)
- 		goto out_unmap;
- 	ret = 0;
-@@ -668,6 +661,10 @@
- 		goto out_free;
- 
- 	spu->node = find_spu_node_id(spe);
-+	spu->nid = of_node_to_nid(spe);
-+	if (spu->nid == -1)
-+		spu->nid = 0;
++/* Walk the device tree upwards, looking for an associativity id */
++int of_node_to_nid(struct device_node *device)
++{
++	struct device_node *tmp;
++	int nid = -1;
 +
- 	spu->stop_code = 0;
- 	spu->slb_replace = 0;
- 	spu->mm = NULL;
-Index: linus-2.6/include/asm-powerpc/spu.h
++	of_node_get(device);
++	while (device) {
++		nid = of_node_to_nid_single(device);
++		if (nid != -1)
++			break;
++
++	        tmp = device;
++		device = of_get_parent(tmp);
++		of_node_put(tmp);
++	}
++	of_node_put(device);
++
++	return nid;
++}
++EXPORT_SYMBOL_GPL(of_node_to_nid);
++
+ /*
+  * In theory, the "ibm,associativity" property may contain multiple
+  * associativity lists because a resource may be multiply connected
+@@ -300,7 +322,7 @@
+ 		goto out;
+ 	}
+ 
+-	nid = of_node_to_nid(cpu);
++	nid = of_node_to_nid_single(cpu);
+ 
+ 	if (nid < 0 || !node_online(nid))
+ 		nid = any_online_node(NODE_MASK_ALL);
+@@ -393,7 +415,7 @@
+ 
+ 		cpu = find_cpu_node(i);
+ 		BUG_ON(!cpu);
+-		nid = of_node_to_nid(cpu);
++		nid = of_node_to_nid_single(cpu);
+ 		of_node_put(cpu);
+ 
+ 		/*
+@@ -437,7 +459,7 @@
+ 		 * have associativity properties.  If none, then
+ 		 * everything goes to default_nid.
+ 		 */
+-		nid = of_node_to_nid(memory);
++		nid = of_node_to_nid_single(memory);
+ 		if (nid < 0)
+ 			nid = default_nid;
+ 		node_set_online(nid);
+@@ -776,7 +798,7 @@
+ ha_new_range:
+ 		start = read_n_cells(n_mem_addr_cells, &memcell_buf);
+ 		size = read_n_cells(n_mem_size_cells, &memcell_buf);
+-		nid = of_node_to_nid(memory);
++		nid = of_node_to_nid_single(memory);
+ 
+ 		/* Domains not present at boot default to 0 */
+ 		if (nid < 0 || !node_online(nid))
+Index: linus-2.6/include/asm-powerpc/topology.h
 ===================================================================
---- linus-2.6.orig/include/asm-powerpc/spu.h	2006-04-29 02:51:29.000000000 +0200
-+++ linus-2.6/include/asm-powerpc/spu.h	2006-04-29 02:56:58.000000000 +0200
-@@ -117,6 +117,7 @@
- 	struct list_head list;
- 	struct list_head sched_list;
- 	int number;
-+	int nid;
- 	u32 isrc;
- 	u32 node;
- 	u64 flags;
+--- linus-2.6.orig/include/asm-powerpc/topology.h	2006-04-29 01:50:25.000000000 +0200
++++ linus-2.6/include/asm-powerpc/topology.h	2006-04-29 02:02:28.000000000 +0200
+@@ -4,6 +4,9 @@
+ 
+ #include <linux/config.h>
+ 
++struct sys_device;
++struct device_node;
++
+ #ifdef CONFIG_NUMA
+ 
+ #include <asm/mmzone.h>
+@@ -27,6 +30,8 @@
+ 	return first_cpu(tmp);
+ }
+ 
++int of_node_to_nid(struct device_node *device);
++
+ #define pcibus_to_node(node)    (-1)
+ #define pcibus_to_cpumask(bus)	(cpu_online_map)
+ 
+@@ -57,10 +62,29 @@
+ 
+ extern void __init dump_numa_cpu_topology(void);
+ 
++extern int sysfs_add_device_to_node(struct sys_device *dev, int nid);
++extern void sysfs_remove_device_from_node(struct sys_device *dev, int nid);
++
+ #else
+ 
++static inline int of_node_to_nid(struct device_node *device)
++{
++	return 0;
++}
++
+ static inline void dump_numa_cpu_topology(void) {}
+ 
++static inline int sysfs_add_device_to_node(struct sys_device *dev, int nid)
++{
++	return 0;
++}
++
++static inline void sysfs_remove_device_from_node(struct sys_device *dev,
++						int nid)
++{
++}
++
++
+ #include <asm-generic/topology.h>
+ 
+ #endif /* CONFIG_NUMA */
+Index: linus-2.6/arch/powerpc/kernel/sysfs.c
+===================================================================
+--- linus-2.6.orig/arch/powerpc/kernel/sysfs.c	2006-04-29 01:50:25.000000000 +0200
++++ linus-2.6/arch/powerpc/kernel/sysfs.c	2006-04-29 02:02:28.000000000 +0200
+@@ -322,13 +322,31 @@
+ 		}
+ 	}
+ }
++
++int sysfs_add_device_to_node(struct sys_device *dev, int nid)
++{
++	struct node *node = &node_devices[nid];
++	return sysfs_create_link(&node->sysdev.kobj, &dev->kobj,
++			kobject_name(&dev->kobj));
++}
++
++void sysfs_remove_device_from_node(struct sys_device *dev, int nid)
++{
++	struct node *node = &node_devices[nid];
++	sysfs_remove_link(&node->sysdev.kobj, kobject_name(&dev->kobj));
++}
++
+ #else
+ static void register_nodes(void)
+ {
+ 	return;
+ }
++
+ #endif
+ 
++EXPORT_SYMBOL_GPL(sysfs_add_device_to_node);
++EXPORT_SYMBOL_GPL(sysfs_remove_device_from_node);
++
+ /* Only valid if CPU is present. */
+ static ssize_t show_physical_id(struct sys_device *dev, char *buf)
+ {
 
 --
 

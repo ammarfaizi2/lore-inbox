@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWD3OSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWD3OTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbWD3OSe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 10:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWD3OS0
+	id S1751135AbWD3OTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 10:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWD3OSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 10:18:26 -0400
-Received: from host199-105.pool8255.interbusiness.it ([82.55.105.199]:23192
+	Sun, 30 Apr 2006 10:18:24 -0400
+Received: from host199-105.pool8255.interbusiness.it ([82.55.105.199]:23448
 	"EHLO zion.home.lan") by vger.kernel.org with ESMTP
-	id S1751134AbWD3OSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 10:18:01 -0400
+	id S1751133AbWD3OSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 10:18:00 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 0/7] Uml fixes for 2.6.17
-Date: Sun, 30 Apr 2006 16:15:12 +0200
+Subject: [PATCH 7/7] uml: export symbols added by GCC hardened
+Date: Sun, 30 Apr 2006 16:16:24 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20060430141512.9060.39338.stgit@zion.home.lan>
+Message-Id: <20060430141624.9060.12015.stgit@zion.home.lan>
+In-Reply-To: <20060430141512.9060.39338.stgit@zion.home.lan>
+References: <20060430141512.9060.39338.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This series fixes one "regression" in the 2.6.17 cycle (the mismerge of a
-patch broke some code), makes UML compile & run with GCC hardened and fixes
-some regressions of the compile infrastructure - special CFLAGS settings for
-some files, needed in some configurations (say with profiling enabled) weren't
-applied due to bad interactions with Kbuild. Finally, we make UML compatible
-with Debian settings for uml_utilities (which conform to the FHS).
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
->From stg series:
+GCC hardened introduces additional symbol refererences (for the canary and
+friends), also in modules - add weak export_symbols for them. We already tested
+that the weak declaration creates no problem on both GCC's providing the
+function definition and on GCC's which don't provide it.
 
-+ uml-diagnose-64-bit-broken-padding    | uml: fix patch mismerge
-+ uml-PATH-for-uml_net.patch            | uml: search from uml_net in a more
-	reasonable PATH
-+ uml-copy_user-inatomic-v2.patch       | uml: make copy_*_user atomic
-+ uml-makefile-nicer                    | uml: use Kbuild tracking for all
-	files and fix compilation output
-+ uml-compile-nopic-clone-stub          | uml: fix compilation and execution
-	with hardened GCC
-+ uml-fix-unprofile-kbuild-interaction  | uml: cleanup unprofile expression
-	and build infrastructure
-+ uml-export-stack-protector-symbols    | uml: export symbols added by GCC
-	hardened
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+ arch/um/os-Linux/user_syms.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/arch/um/os-Linux/user_syms.c b/arch/um/os-Linux/user_syms.c
+index 2598158..3f33165 100644
+--- a/arch/um/os-Linux/user_syms.c
++++ b/arch/um/os-Linux/user_syms.c
+@@ -96,6 +96,13 @@ EXPORT_SYMBOL_PROTO(getuid);
+ EXPORT_SYMBOL_PROTO(fsync);
+ EXPORT_SYMBOL_PROTO(fdatasync);
+ 
++/* Export symbols used by GCC for the stack protector. */
++extern void __stack_smash_handler(void *) __attribute__((weak));
++EXPORT_SYMBOL(__stack_smash_handler);
++
++extern long __guard __attribute__((weak));
++EXPORT_SYMBOL(__guard);
++
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+  * Emacs will notice this stuff at the end of the file and automatically

@@ -1,53 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWD3E7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWD3FTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWD3E7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 00:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWD3E7Y
+	id S1750962AbWD3FTr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 01:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWD3FTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 00:59:24 -0400
-Received: from pproxy.gmail.com ([64.233.166.176]:9072 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750946AbWD3E7X convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 00:59:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WmsCBILnhoO5JQ65e2YLv/OsrCREh23ifFNr33MNmjrTbwo8YPvYp6mTwv6S7fw+oboUJ1oPCr3Bzq7rW/PUowZu6xfuSfrnUjV8Nromgb6F91wNG20zyERTV6ycYrCcvTWlSqnz+rPt6yOfxJP8PTBTFfwuPucQO1PFAb6phLo=
-Message-ID: <bda6d13a0604292159r3187b76fg56b137816480bf2a@mail.gmail.com>
-Date: Sat, 29 Apr 2006 21:59:22 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: World writable tarballs
-In-Reply-To: <200604300148.12462.s0348365@sms.ed.ac.uk>
+	Sun, 30 Apr 2006 01:19:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60551 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750962AbWD3FTq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 01:19:46 -0400
+Date: Sat, 29 Apr 2006 22:19:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Neil Brown <neilb@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: better leve triggered IRQ management needed
+In-Reply-To: <17492.16811.469245.331326@cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.64.0604292204270.4616@g5.osdl.org>
+References: <20060424114105.113eecac@localhost.localdomain>
+ <1146345911.3302.36.camel@localhost.localdomain> <Pine.LNX.4.64.0604291453220.3701@g5.osdl.org>
+ <17492.16811.469245.331326@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1146356286.10953.7.camel@hammer>
-	 <200604300148.12462.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/29/06, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
-> On Sunday 30 April 2006 01:18, Mark Rosenstand wrote:
-> > Hi,
-> >
-> > It seems that at least the content of the 2.6.16 tarball is world
-> > writable if extracted with GNU tar as an privileged user.
-> >
-> > Is this on purpose in order to prove some point?
->
-> Read this thread:
->
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=113304241100330&w=2
 
-This REALLY needs fixing. If it weren't so late right now I might have written
-a filter that takes a tarball and sanitizes the permissions. I've got
-good reasons
-for compiling the kernel as root (when in the make, install, reboot, test loop
-it's quite a timesaver).
 
-Yes, I'm the guy who keeps trying to log in as root on ftp.kernel.org over ftp
-with no password. For some bone-headed reason I keep thinking the default
-username for ftp is anonymous, not the user's.
+On Sun, 30 Apr 2006, Neil Brown wrote:
+> 
+> So what do you propose should be done to better handle such poorly
+> built machines?
+
+Well, the thing is, there's not a lot we _can_ do.
+
+We can try to report it. We can also try to handle it as gracefully as we 
+can.
+
+> As a concrete example I have a notebook which definitely assigns
+> shared interrupts to IRQ-10 (See /proc/interrupts below) yet the ELCR
+> only flags IRQ-11 as being level triggered and the rest are edge
+> triggered.
+
+Also, do you have the option to enable the IO-APIC? Maybe it's already 
+enabled, and your BIOS has just disabled it, but your /proc/interrupts 
+implies that you may have compiled your kernel without UP_APIC support.
+
+With the APIC, we might be able to do better. Worth trying out.
+
+> And with this configuration I definitely lose interrupts to the
+> wireless ethernet (ra0).
+> 
+> How do I make this work reliably?
+> I could:
+> 
+> 1/ modify handle_IRQ_event so that it is more resilient to the
+>   possibility that shared interrupts are edge triggered.  This can be
+>   done be iterating over all action->handlers until they all return
+>   IRQ_NONE.
+
+Well, yes. It's worth trying, but as mentioned, we have some drivers that 
+return IRQ_HANDLED just because the driver conversion has been lazy. So 
+limit it to a few things.
+
+And we really should have some flag that says whether the interrupt 
+descriptor ends up beign edge, so that we could do this for edge-triggered 
+interrupts _only_.
+
+Anyway, I also do wonder if your irq lossage is due to something else.
+
+On the XT-PIC, disabling the irq will cause an edge when it's re-enabled, 
+so you can get the "level" behaviour by disabling the irq over the irq 
+handler.
+
+And that's exactly what we do, if I recall correctly. It's been years 
+since I worked with that code, but looking at it quickly, it seems to 
+match my recollection.
+
+> 2/ Arrange that the ELCR bit is set for any IRQ for which a shared
+>   interrupt is registered (on the basis that the code for handling
+>   shared interrupts is not resilient against them being edge triggered).
+
+NO.
+
+How many times do I have to say this?
+
+Yes, ELCR sets edge vs level.
+
+BUT IT ALSO SETS THE POLARITY.  If you switch the bit around, it will also 
+switch the polarity, and IT WILL NOT WORK. Because you'll end up with a 
+level-triggered interrupt that is level-triggered for the wrong polarity, 
+and will trigger whenever there is _not_ an interrupt pending.
+
+Now, I will almost guarantee you that there is an exception to this rule 
+(hey, it's PC hardware, there's _always_ an exception to any rule ;), and 
+on some situations, the ELCR thing will truly only affect edge vs level.
+
+But the point is, we can't just switch to level triggered. There simply is 
+no such hardware in general for the old PC interrupts.
+
+(Now, _if_ you use the APIC, you can actually switch polarity and trigger 
+mode independently. Which is one reason why I'd like to hear whether you 
+perhaps have just disabled the APIC by mistake, rather than have a nasty 
+BIOS that disables it for you).
+
+		Linus

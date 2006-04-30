@@ -12,27 +12,27 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbWD3Ks4 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 30 Apr 2006 06:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWD3Ks4
+	id S1750952AbWD3Ksv (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 30 Apr 2006 06:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWD3Ksv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 06:48:56 -0400
-Received: from fe-7c.inet.it ([213.92.5.114]:33203 "EHLO fe-7c.inet.it")
-	by vger.kernel.org with ESMTP id S1751042AbWD3Ksz (ORCPT
+	Sun, 30 Apr 2006 06:48:51 -0400
+Received: from fe-3c.inet.it ([213.92.5.106]:9360 "EHLO fe-3c.inet.it")
+	by vger.kernel.org with ESMTP id S1750952AbWD3Ksv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 06:48:55 -0400
+	Sun, 30 Apr 2006 06:48:51 -0400
 From: "Sherman Spints" <jobs@kwuakegold.esmartbuyer.com>
 X-wmSenderIP: 84.254.189.6
-Message-ID: <84.254.189.6.162770549.1146393989@webmail.katamail.com>
+Message-ID: <84.254.189.6.1014672496.1146393955@webmail.katamail.com>
 X-Complaints-To: abuse@katamail.com
 Reply-To: shermanspints@yahoo.com
 Subject: JOB OPENINGS
-Date: Sun, 30 Apr 2006 10:46:24 +0000
+Date: Sun, 30 Apr 2006 10:45:51 +0000
 X-Mailer: Katamail
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751043AbWD3Ks4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750952AbWD3Ksv@vger.kernel.org>
 
 SHERMAN SPINTS ARTIFICIAL AND NATURAL ARTS .
 158 rue Julian Grimau Bat C1,

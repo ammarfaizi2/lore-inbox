@@ -1,125 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWD3Ma2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWD3M1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWD3Ma2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 08:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWD3Ma2
+	id S1750930AbWD3M1r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 08:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWD3M1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 08:30:28 -0400
-Received: from taurus.voltaire.com ([193.47.165.240]:38995 "EHLO
-	taurus.voltaire.com") by vger.kernel.org with ESMTP
-	id S1750784AbWD3Ma1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 08:30:27 -0400
-Message-ID: <4454ADD9.20909@voltaire.com>
-Date: Sun, 30 Apr 2006 15:30:17 +0300
-From: Or Gerlitz <ogerlitz@voltaire.com>
-User-Agent: Thunderbird 1.4.1 (Windows/20051006)
+	Sun, 30 Apr 2006 08:27:47 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:20196 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750930AbWD3M1q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 08:27:46 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
+Date: Sun, 30 Apr 2006 14:27:21 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+References: <200604242355.08111.rjw@sisk.pl> <200604260043.03481.rjw@sisk.pl> <200604261049.39592.nigel@suspend2.net>
+In-Reply-To: <200604261049.39592.nigel@suspend2.net>
 MIME-Version: 1.0
-To: Sean Hefty <sean.hefty@intel.com>
-CC: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] [PATCH 5/6] iser RDMA CM (CMA) and IB verbsinteraction
-References: <ORSMSX401EXUIEAOeIi0000001c@orsmsx401.amr.corp.intel.com>
-In-Reply-To: <ORSMSX401EXUIEAOeIi0000001c@orsmsx401.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Apr 2006 12:30:25.0704 (UTC) FILETIME=[DB7AB280:01C66C51]
+Content-Disposition: inline
+Message-Id: <200604301427.22687.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sean Hefty wrote:
->> +static int iser_free_device_ib_res(struct iser_device *device)
->> +{
->> +	BUG_ON(device->mr == NULL);
->> +
->> +	tasklet_kill(&device->cq_tasklet);
->> +
->> +	(void)ib_dereg_mr(device->mr);
->> +	(void)ib_destroy_cq(device->cq);
->> +	(void)ib_dealloc_pd(device->pd);
->> +
->> +	device->mr = NULL;
->> +	device->cq = NULL;
->> +	device->pd = NULL;
->> +	return 0;
->> +}
+Hi,
+
+On Wednesday 26 April 2006 02:49, Nigel Cunningham wrote:
+> On Wednesday 26 April 2006 08:43, Rafael J. Wysocki wrote:
+> > On Wednesday 26 April 2006 00:25, Pavel Machek wrote:
+> > > > > It does apply to all of the LRU pages. This is what I've been doing
+> > > > > for years now. The only corner case I've come across is XFS. It still
+> > > > > wants to write data even when there's nothing to do and it's threads
+> > > > > are frozen (IIRC - haven't looked at it for a while). I got around
+> > > > > that by freezing bdevs when freezing processes.
+> > > >
+> > > > This means if we freeze bdevs, we'll be able to save all of the LRU
+> > > > pages, except for the pages mapped by the current task, without
+> > > > copying.  I think we can try to do this, but we'll need a patch to
+> > > > freeze bdevs for this purpose. ;-)
+> > >
+> > > ...adding more dependencies to how vm/blockdevs work. I'd say current
+> > > code is complex enough...
+> >
+> > Well, why don't we see the patch?  If it's too complex, we can just decide
+> > not to use it. :-)
 > 
-> Can you eliminate the return code?
+> In Suspend2, I'm still using a different version of process.c to what you guys 
+> have. In my version, I thaw kernelspace, then thaw bdevs, then thaw userspace. 
+> The version below just thaws bdevs after thawing all processes. I think that 
+> might need modification, but thought I'd post this now so you can see how 
+> complicated or otherwise it is.
 
-Yes
+IMHO it doesn't look so scary. :-)
 
->> +static int iser_free_ib_conn_res(struct iser_conn *ib_conn)
->> +{
->> +	BUG_ON(ib_conn == NULL);
->> +
->> +	iser_err("freeing conn %p cma_id %p fmr pool %p qp %p\n",
->> +		 ib_conn, ib_conn->cma_id,
->> +		 ib_conn->fmr_pool, ib_conn->qp);
->> +
->> +	/* qp is created only once both addr & route are resolved */
->> +	if (ib_conn->fmr_pool != NULL)
->> +		ib_destroy_fmr_pool(ib_conn->fmr_pool);
->> +
->> +	if (ib_conn->qp != NULL)
->> +		rdma_destroy_qp(ib_conn->cma_id);
->> +
->> +	if (ib_conn->cma_id != NULL)
->> +		rdma_destroy_id(ib_conn->cma_id);
+> diff -ruN linux-2.6.17-rc2/kernel/power/process.c bdev-freeze/kernel/power/process.c
+> --- linux-2.6.17-rc2/kernel/power/process.c	2006-04-19 14:27:36.000000000 +1000
+> +++ bdev-freeze/kernel/power/process.c	2006-04-26 10:44:56.000000000 +1000
+> @@ -19,6 +19,56 @@
+>   */
+>  #define TIMEOUT	(20 * HZ)
+>  
+> +struct frozen_fs
+> +{
+> +	struct list_head fsb_list;
+> +	struct super_block *sb;
+> +};
+> +
+> +LIST_HEAD(frozen_fs_list);
+> +
+> +void freezer_make_fses_rw(void)
+> +{
+> +	struct frozen_fs *fs, *next_fs;
+> +
+> +	list_for_each_entry_safe(fs, next_fs, &frozen_fs_list, fsb_list) {
+> +		thaw_bdev(fs->sb->s_bdev, fs->sb);
+> +
+> +		list_del(&fs->fsb_list);
+> +		kfree(fs);
+> +	}
+> +}
+> +
+> +/* 
+> + * Done after userspace is frozen, so there should be no danger of
+> + * fses being unmounted while we're in here.
+> + */
+> +int freezer_make_fses_ro(void)
+> +{
+> +	struct frozen_fs *fs;
+> +	struct super_block *sb;
+> +
+> +	/* Generate the list */
+> +	list_for_each_entry(sb, &super_blocks, s_list) {
+> +		if (!sb->s_root || !sb->s_bdev ||
+> +		    (sb->s_frozen == SB_FREEZE_TRANS) ||
+> +		    (sb->s_flags & MS_RDONLY))
+> +			continue;
+> +
+> +		fs = kmalloc(sizeof(struct frozen_fs), GFP_ATOMIC);
 
-> Are the NULL checks needed above?  Neither iser_create_device_ib_res() or
-> iser_create_ib_conn_res() set the values to NULL if an error occurred.
+Shouldn't we check for kmalloc() failures here?
 
-we are dealing here with connection resources so the (shared among ib 
-conns) device resources are irrelevant. The ib conn struct is kzallec-ed 
-on creation, where later iser_free_ib_conn_res() can be called when only 
-a ***subset*** of the resources was allocated. Examples are instant 
-error from rdma_addr_resolve() or getting ADDR/ROUTE ERROR vs. CONNECT 
-ERROR cma events, in the first three cases only the cma id should be 
-destroyed while on the latter there's a need to destroy the fmr pool and 
-the qp.
+> +		fs->sb = sb;
+> +		list_add_tail(&fs->fsb_list, &frozen_fs_list);
+> +	};
+> +
+> +	/* Do the freezing in reverse order so filesystems dependant
+> +	 * upon others are frozen in the right order. (Eg loopback
+> +	 * on ext3). */
+> +	list_for_each_entry_reverse(fs, &frozen_fs_list, fsb_list)
+> +		freeze_bdev(fs->sb->s_bdev);
+> +
+> +	return 0;
+> +}
+> +
+>  
+>  static inline int freezeable(struct task_struct * p)
+>  {
+> @@ -77,6 +127,7 @@
+>  	printk( "Stopping tasks: " );
+>  	start_time = jiffies;
+>  	user_frozen = 0;
+> +	bdevs_frozen = 0;
+>  	do {
+>  		nr_user = todo = 0;
+>  		read_lock(&tasklist_lock);
+> @@ -107,6 +158,10 @@
+>  			start_time = jiffies;
+>  		}
+>  		user_frozen = !nr_user;
+> +
+> +		if (user_frozen && !bdevs_frozen)
+> +			freezer_make_fses_ro();
+> +
+>  		yield();			/* Yield is okay here */
+>  		if (todo && time_after(jiffies, start_time + TIMEOUT))
+>  			break;
+> @@ -156,6 +211,8 @@
+>  			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
+>  	} while_each_thread(g, p);
+>  
+> +	freezer_make_fses_rw();
+> +
+>  	read_unlock(&tasklist_lock);
+>  	schedule();
+>  	printk( " done\n" );
 
->> +/**
->> + * based on the resolved device node GUID see if there already allocated
->> + * device for this device. If there's no such, create one.
->> + */
->> +static
->> +struct iser_device *iser_device_find_by_ib_device(struct rdma_cm_id *cma_id)
->> +{
->> +	struct list_head    *p_list;
->> +	struct iser_device  *device = NULL;
->> +
->> +	mutex_lock(&ig.device_list_mutex);
->> +
->> +	p_list = ig.device_list.next;
->> +	while (p_list != &ig.device_list) {
->> +		device = list_entry(p_list, struct iser_device, ig_list);
->> +		/* find if there's a match using the node GUID */
->> +		if (device->ib_device->node_guid == cma_id->device->node_guid)
->> +			break;
->> +	}
->> +
->> +	if (device == NULL) {
->> +		device = kzalloc(sizeof *device, GFP_KERNEL);
->> +		if (device == NULL)
->> +			goto end;
-
-> goto out;  // see below
-
->> +		/* assign this device to the device */
->> +		device->ib_device = cma_id->device;
->> +		/* init the device and link it into ig device list */
->> +		if (iser_create_device_ib_res(device)) {
->> +			kfree(device);
->> +			device = NULL;
->> +			goto end;
->> +		}
->> +		list_add(&device->ig_list, &ig.device_list);
->> +	}
->> +end:
->> +	BUG_ON(device == NULL);
->> +	device->refcount++;
-> 
-> out:
-
-OK
-
-Or.
-
+Greetings,
+Rafael

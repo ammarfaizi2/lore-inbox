@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWD3GsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWD3Gxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbWD3GsL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 02:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWD3GsL
+	id S1750995AbWD3Gxt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 02:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbWD3Gxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 02:48:11 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:30891 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750986AbWD3GsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 02:48:10 -0400
-Subject: Re: [PATCH] don't use flush_tlb_all in suspend time
-From: Shaohua Li <shaohua.li@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060430064505.GA5091@ucw.cz>
-References: <1146367462.21486.10.camel@sli10-desk.sh.intel.com>
-	 <20060430064505.GA5091@ucw.cz>
-Content-Type: text/plain
-Date: Sun, 30 Apr 2006 14:46:36 +0800
-Message-Id: <1146379596.8456.4.camel@sli10-desk.sh.intel.com>
+	Sun, 30 Apr 2006 02:53:49 -0400
+Received: from h80ad24d6.async.vt.edu ([128.173.36.214]:64978 "EHLO
+	h80ad24d6.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1750994AbWD3Gxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 02:53:48 -0400
+Message-Id: <200604300653.k3U6rg16009098@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Joshua Hudson <joshudson@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: World writable tarballs 
+In-Reply-To: Your message of "Sat, 29 Apr 2006 21:59:22 PDT."
+             <bda6d13a0604292159r3187b76fg56b137816480bf2a@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <1146356286.10953.7.camel@hammer> <200604300148.12462.s0348365@sms.ed.ac.uk>
+            <bda6d13a0604292159r3187b76fg56b137816480bf2a@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: multipart/signed; boundary="==_Exmh_1146380021_543P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sun, 30 Apr 2006 02:53:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-04-30 at 06:45 +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > flush_tlb_all uses on_each_cpu, which will disable/enable interrupt.
-> > In suspend/resume time, this will make interrupt wrongly enabled.
-> 
-> > diff -puN arch/i386/mm/init.c~flush_tlb_all_check arch/i386/mm/init.c
-> > --- linux-2.6.17-rc3/arch/i386/mm/init.c~flush_tlb_all_check	2006-04-29 08:47:05.000000000 +0800
-> > +++ linux-2.6.17-rc3-root/arch/i386/mm/init.c	2006-04-29 08:48:15.000000000 +0800
-> > @@ -420,7 +420,10 @@ void zap_low_mappings (void)
-> >  #else
-> >  		set_pgd(swapper_pg_dir+i, __pgd(0));
-> >  #endif
-> > -	flush_tlb_all();
-> > +	if (cpus_weight(cpu_online_map) == 1)
-> > +		local_flush_tlb();
-> > +	else
-> > +		flush_tlb_all();
-> >  }
-> >
-> 
-> Either it is okay to enable interrupts here -> unneccessary and ugly
-> test, or it is not, and then we are broken in SMP case.
-It's not broken in SMP case, APs are offlined here in suspend/resume.
+--==_Exmh_1146380021_543P
+Content-Type: text/plain; charset=us-ascii
 
-Thanks,
-Shaohua
+On Sat, 29 Apr 2006 21:59:22 PDT, Joshua Hudson said:
 
+(reversing the two parts of your comment..)
+
+> Yes, I'm the guy who keeps trying to log in as root on ftp.kernel.org over ftp
+> with no password. For some bone-headed reason I keep thinking the default
+> username for ftp is anonymous, not the user's.
+
+So we have *repeated* whoopsies already...
+
+>                                                  I've got good reasons
+> for compiling the kernel as root (when in the make, install, reboot, test loop
+> it's quite a timesaver).
+
+And that isn't a warning that maybe you're trying to save *too* much time????
+
+--==_Exmh_1146380021_543P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD4DBQFEVF71cC3lWbTT17ARAgsWAJiZtlPXgGGQfPunjhx2JR/grU5TAKDtcHkU
+sghe/GaZETJuXBF6qnIc+A==
+=VY2n
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1146380021_543P--

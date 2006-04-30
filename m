@@ -1,280 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWD3Rf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWD3Rf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWD3Rf7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751215AbWD3Rf7 (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 30 Apr 2006 13:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWD3RdN
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWD3RdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 13:33:13 -0400
-Received: from host157-96.pool873.interbusiness.it ([87.3.96.157]:45010 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S1751202AbWD3Rcn
+	Sun, 30 Apr 2006 13:33:11 -0400
+Received: from host157-96.pool873.interbusiness.it ([87.3.96.157]:45266 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S1751204AbWD3Rco
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 13:32:43 -0400
-Message-Id: <20060430173022.300895000@zion.home.lan>
+	Sun, 30 Apr 2006 13:32:44 -0400
+Message-Id: <20060430173025.365179000@zion.home.lan>
 References: <20060430172953.409399000@zion.home.lan>
 User-Agent: quilt/0.44-1
-Date: Sun, 30 Apr 2006 19:29:56 +0200
+Date: Sun, 30 Apr 2006 19:30:03 +0200
 From: blaisorblade@yahoo.it
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Val Henson <val.henson@intel.com>,
-       Paolo Blaisorblade Giarrusso <blaisorblade@yahoo.it>
-Subject: [patch 03/14] remap_file_pages protection support: handle MANYPROTS VMAs
-Content-Disposition: inline; filename=rfp/03-rfp-add-VM_NONUNIF.diff
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch 10/14] remap_file_pages protection support: fix get_user_pages() on VM_MANYPROTS vmas
+Content-Disposition: inline; filename=rfp/10_2-rfp-fix-get_user_pages-revamp.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-Cc: Val Henson <val.henson@intel.com>
 
-Handle the possible existance of VM_MANYPROTS vmas, without actually creating
-them.
+*Untested patch* - I've not written a test case to verify functionality of
+ptrace on VM_MANYPROTS area.
 
-* Replace old uses of pgoff_to_pte with pgoff_prot_to_pte.
-* Introduce the flag, use it to read permissions from the PTE rather than from
-  the VMA flags.
-* Replace the linear_page_index() check with save_nonlinear_pte(), which
-  encapsulates the check.
-2.6.14+ updates:
-* Add VM_MANYPROTS among cases needing copying of PTE at fork time rather than
-  faulting.
-* check for VM_MANYPROTS in do_file_pte before complaining for pte_file PTE
-* check for VM_MANYPROTS in *_populate, when we skip installing pte_file PTE's
-  for linear areas
+get_user_pages may well call __handle_mm_fault() wanting to override protections...
+so in this case __handle_mm_fault() should still avoid checking VM access rights.
 
-Below there is a long explaination of why I've added VM_MANYPROTS, rather
-than simply overload VM_NONLINEAR. You can freely skip that if you have real
-work to do :-).
+Also, get_user_pages() may give write faults on present readonly PTEs in
+VM_MANYPROTS areas (think of PTRACE_POKETEXT), so we must still do do_wp_page
+even on VM_MANYPROTS areas.
 
-However, this patch is only sufficient if VM_MANYPROTS vmas are also marked as
-nonlinear. Otherwise also other changes are needed.
+So, possibly use VM_MAYWRITE and/or VM_MAYREAD in the access_mask and check
+VM_MANYPROTS in maybe_mkwrite_file (new variant of maybe_mkwrite).
 
-I've implemented both solutions - I've sent only full support for the easy case,
-but possibly I'll afterwards reintroduce the other changes; in particular,
-they're needed to make this useful for general usage beyond UML.
+API Note: there are many flags parameter which can be constructed but which
+don't make any sense, but the code very freely interprets them too.
+For instance VM_MAYREAD|VM_WRITE is interpreted as VM_MAYWRITE|VM_WRITE.
 
-*) remap_file_pages protection support: add VM_MANYPROTS to fix existing usage of mprotect()
+XXX: Todo: add checking to reject all meaningless flag combination.
 
-Distinguish between "normal" VMA and VMA with variable protection, by
-adding the VM_MANYPROTS flag. This is needed for various reasons:
-
-* notify the arch fault handlers that they must not check VMA protection for
-  giving SIGSEGV 
-* fixing regression of mprotect() on !VM_MANYPROTS mappings (see below)
-* (in next patches) giving a sensible behaviour to mprotect on VM_MANYPROTS
-  mappings
-* (TODO?) avoid regression in max file offset with r_f_p() for older mappings;
-  we could use either the old offset encoding or the new offset-prot encoding
-  depending on this flag.
-  It's trivial to do, just I don't know whether existing apps will overflow
-  the new limits. They go down from 2Tb to 1Tb on i386 and 512G on PPC, and
-  from 256G to 128G on S390/31 bits. Give me a call in case.
-* (TODO?) on MAP_PRIVATE mappings, especially when they are readonly, we can
-  easily support VM_MANYPROTS. This has been explicitly requested by Ulrich
-  Drepper for DSO handling - creating a PROT_NONE VMA for guard pages is bad.
-  And that is worse when you have a binary with 100 DSO, or a program with
-  really many threads - Ulrich profiled a workload where the RB-tree lookup
-  function is a performance bottleneck.
-
-In fact, without this flag, we'd have indeed a regression with
-remap_file_pages VS mprotect, on uniform nonlinear VMAs.
-
-mprotect alters the VMA prots and walks each present PTE, ignoring installed
-ones, even when pte_file() is on; their saved prots will be restored on faults,
-ignoring VMA ones and losing the mprotect() on them. So, in do_file_page(), we
-must restore anyway VMA prots when the VMA is uniform, as we used to do before
-this trail of patches.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-Index: linux-2.6.git/include/linux/mm.h
-===================================================================
---- linux-2.6.git.orig/include/linux/mm.h
-+++ linux-2.6.git/include/linux/mm.h
-@@ -164,7 +164,14 @@ extern unsigned int kobjsize(const void 
- #define VM_ACCOUNT	0x00100000	/* Is a VM accounted object */
- #define VM_HUGETLB	0x00400000	/* Huge TLB Page VM */
- #define VM_NONLINEAR	0x00800000	/* Is non-linear (remap_file_pages) */
-+
-+#ifndef CONFIG_MMU
- #define VM_MAPPED_COPY	0x01000000	/* T if mapped copy of data (nommu mmap) */
-+#else
-+#define VM_MANYPROTS	0x01000000	/* The VM individual pages have
-+					   different protections
-+					   (remap_file_pages)*/
-+#endif
- #define VM_INSERTPAGE	0x02000000	/* The vma has had "vm_insert_page()" done on it */
- 
- #ifndef VM_STACK_DEFAULT_FLAGS		/* arch can override this */
-Index: linux-2.6.git/include/linux/pagemap.h
-===================================================================
---- linux-2.6.git.orig/include/linux/pagemap.h
-+++ linux-2.6.git/include/linux/pagemap.h
-@@ -165,6 +165,28 @@ static inline pgoff_t linear_page_index(
- 	return pgoff >> (PAGE_CACHE_SHIFT - PAGE_SHIFT);
- }
- 
-+/***
-+ * Checks if the PTE is nonlinear, and if yes sets it.
-+ * @vma: the VMA in which @addr is; we don't check if it's VM_NONLINEAR, just
-+ * if this PTE is nonlinear.
-+ * @addr: the addr which @pte refers to.
-+ * @pte: the old PTE value (to read its protections.
-+ * @ptep: the PTE pointer (for setting it).
-+ * @mm: passed to set_pte_at.
-+ * @page: the page which was installed (to read its ->index, i.e. the old
-+ * offset inside the file.
-+ */
-+static inline void save_nonlinear_pte(pte_t pte, pte_t * ptep, struct
-+		vm_area_struct *vma, struct mm_struct *mm, struct page* page,
-+		unsigned long addr)
-+{
-+	pgprot_t pgprot = pte_to_pgprot(pte);
-+	if (linear_page_index(vma, addr) != page->index ||
-+		pgprot_val(pgprot) != pgprot_val(vma->vm_page_prot))
-+		set_pte_at(mm, addr, ptep, pgoff_prot_to_pte(page->index,
-+					pgprot));
-+}
-+
- extern void FASTCALL(__lock_page(struct page *page));
- extern void FASTCALL(unlock_page(struct page *page));
- 
-Index: linux-2.6.git/mm/fremap.c
-===================================================================
---- linux-2.6.git.orig/mm/fremap.c
-+++ linux-2.6.git/mm/fremap.c
-@@ -49,7 +49,7 @@ static int zap_pte(struct mm_struct *mm,
-  * previously existing mapping.
-  */
- int install_page(struct mm_struct *mm, struct vm_area_struct *vma,
--		unsigned long addr, struct page *page, pgprot_t prot)
-+		unsigned long addr, struct page *page, pgprot_t pgprot)
- {
- 	struct inode *inode;
- 	pgoff_t size;
-@@ -79,7 +79,7 @@ int install_page(struct mm_struct *mm, s
- 		inc_mm_counter(mm, file_rss);
- 
- 	flush_icache_page(vma, page);
--	set_pte_at(mm, addr, pte, mk_pte(page, prot));
-+	set_pte_at(mm, addr, pte, mk_pte(page, pgprot));
- 	page_add_file_rmap(page);
- 	pte_val = *pte;
- 	update_mmu_cache(vma, addr, pte_val);
-@@ -96,7 +96,7 @@ EXPORT_SYMBOL(install_page);
-  * previously existing mapping.
-  */
- int install_file_pte(struct mm_struct *mm, struct vm_area_struct *vma,
--		unsigned long addr, unsigned long pgoff, pgprot_t prot)
-+		unsigned long addr, unsigned long pgoff, pgprot_t pgprot)
- {
- 	int err = -ENOMEM;
- 	pte_t *pte;
-@@ -112,7 +112,7 @@ int install_file_pte(struct mm_struct *m
- 		dec_mm_counter(mm, file_rss);
- 	}
- 
--	set_pte_at(mm, addr, pte, pgoff_to_pte(pgoff));
-+	set_pte_at(mm, addr, pte, pgoff_prot_to_pte(pgoff, pgprot));
- 	pte_val = *pte;
- 	update_mmu_cache(vma, addr, pte_val);
- 	pte_unmap_unlock(pte, ptl);
 Index: linux-2.6.git/mm/memory.c
 ===================================================================
 --- linux-2.6.git.orig/mm/memory.c
 +++ linux-2.6.git/mm/memory.c
-@@ -581,7 +581,8 @@ int copy_page_range(struct mm_struct *ds
- 	 * readonly mappings. The tradeoff is that copy_page_range is more
- 	 * efficient than faulting.
- 	 */
--	if (!(vma->vm_flags & (VM_HUGETLB|VM_NONLINEAR|VM_PFNMAP|VM_INSERTPAGE))) {
-+	if (!(vma->vm_flags & (VM_HUGETLB|VM_NONLINEAR|VM_MANYPROTS|
-+					VM_PFNMAP|VM_INSERTPAGE))) {
- 		if (!vma->anon_vma)
- 			return 0;
- 	}
-@@ -650,11 +651,11 @@ static unsigned long zap_pte_range(struc
- 			tlb_remove_tlb_entry(tlb, pte, addr);
- 			if (unlikely(!page))
- 				continue;
--			if (unlikely(details) && details->nonlinear_vma
--			    && linear_page_index(details->nonlinear_vma,
--						addr) != page->index)
--				set_pte_at(mm, addr, pte,
--					   pgoff_to_pte(page->index));
-+			if (unlikely(details) && details->nonlinear_vma) {
-+				save_nonlinear_pte(ptent, pte,
-+						details->nonlinear_vma,
-+						mm, page, addr);
-+			}
- 			if (PageAnon(page))
- 				anon_rss--;
- 			else {
-@@ -2159,12 +2160,13 @@ static int do_file_page(struct mm_struct
- 		int write_access, pte_t orig_pte)
- {
- 	pgoff_t pgoff;
-+	pgprot_t pgprot;
- 	int err;
- 
- 	if (!pte_unmap_same(mm, pmd, page_table, orig_pte))
- 		return VM_FAULT_MINOR;
- 
--	if (unlikely(!(vma->vm_flags & VM_NONLINEAR))) {
-+	if (unlikely(!(vma->vm_flags & (VM_NONLINEAR|VM_MANYPROTS)))) {
- 		/*
- 		 * Page table corrupted: show pte and kill process.
- 		 */
-@@ -2174,8 +2176,11 @@ static int do_file_page(struct mm_struct
- 	/* We can then assume vm->vm_ops && vma->vm_ops->populate */
- 
- 	pgoff = pte_to_pgoff(orig_pte);
-+	pgprot = (vma->vm_flags & VM_MANYPROTS) ? pte_to_pgprot(orig_pte) :
-+		vma->vm_page_prot;
+@@ -1045,16 +1045,17 @@ int get_user_pages(struct task_struct *t
+ 			cond_resched();
+ 			while (!(page = follow_page(vma, start, foll_flags))) {
+ 				int ret;
+-				ret = __handle_mm_fault(mm, vma, start,
+-						foll_flags & FOLL_WRITE);
++				ret = __handle_mm_fault(mm, vma, start, vm_flags);
+ 				/*
+ 				 * The VM_FAULT_WRITE bit tells us that do_wp_page has
+ 				 * broken COW when necessary, even if maybe_mkwrite
+ 				 * decided not to set pte_write. We can thus safely do
+ 				 * subsequent page lookups as if they were reads.
+ 				 */
+-				if (ret & VM_FAULT_WRITE)
++				if (ret & VM_FAULT_WRITE) {
+ 					foll_flags &= ~FOLL_WRITE;
++					vm_flags &= ~(VM_WRITE|VM_MAYWRITE);
++				}
+ 				
+ 				switch (ret & ~VM_FAULT_WRITE) {
+ 				case VM_FAULT_MINOR:
+@@ -1389,7 +1390,20 @@ static inline int pte_unmap_same(struct 
+  * servicing faults for write access.  In the normal case, do always want
+  * pte_mkwrite.  But get_user_pages can cause write faults for mappings
+  * that do not have writing enabled, when used by access_process_vm.
++ *
++ * Also, we must never change protections on VM_MANYPROTS pages; that's only
++ * allowed in do_no_page(), so test only VMA protections there. For other cases
++ * we *know* that VM_MANYPROTS is clear, such as anonymous/swap pages, and in
++ * that case using plain maybe_mkwrite() is an optimization.
++ * Instead, when we may be mapping a file, we must use maybe_mkwrite_file.
+  */
++static inline pte_t maybe_mkwrite_file(pte_t pte, struct vm_area_struct *vma)
++{
++	if (likely((vma->vm_flags & (VM_WRITE | VM_MANYPROTS)) == VM_WRITE))
++		pte = pte_mkwrite(pte);
++	return pte;
++}
 +
- 	err = vma->vm_ops->populate(vma, address & PAGE_MASK, PAGE_SIZE,
--					vma->vm_page_prot, pgoff, 0);
-+					pgprot, pgoff, 0);
- 	if (err == -ENOMEM)
- 		return VM_FAULT_OOM;
- 	if (err)
-Index: linux-2.6.git/mm/rmap.c
-===================================================================
---- linux-2.6.git.orig/mm/rmap.c
-+++ linux-2.6.git/mm/rmap.c
-@@ -721,8 +721,7 @@ static void try_to_unmap_cluster(unsigne
- 		pteval = ptep_clear_flush(vma, address, pte);
+ static inline pte_t maybe_mkwrite(pte_t pte, struct vm_area_struct *vma)
+ {
+ 	if (likely(vma->vm_flags & VM_WRITE))
+@@ -1441,6 +1455,9 @@ static inline void cow_user_page(struct 
+  * We enter with non-exclusive mmap_sem (to exclude vma changes,
+  * but allow concurrent faults), with pte both mapped and locked.
+  * We return with mmap_sem still held, but pte unmapped and unlocked.
++ *
++ * Note that a page here can be a shared readonly page where
++ * get_user_pages() (for instance for ptrace()) wants to write to it!
+  */
+ static int do_wp_page(struct mm_struct *mm, struct vm_area_struct *vma,
+ 		unsigned long address, pte_t *page_table, pmd_t *pmd,
+@@ -1460,7 +1477,8 @@ static int do_wp_page(struct mm_struct *
+ 		if (reuse) {
+ 			flush_cache_page(vma, address, pte_pfn(orig_pte));
+ 			entry = pte_mkyoung(orig_pte);
+-			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
++			/* Since it can be shared, it can be VM_MANYPROTS! */
++			entry = maybe_mkwrite_file(pte_mkdirty(entry), vma);
+ 			ptep_set_access_flags(vma, address, page_table, entry, 1);
+ 			update_mmu_cache(vma, address, entry);
+ 			lazy_mmu_prot_update(entry);
+@@ -1504,7 +1522,7 @@ gotten:
+ 			inc_mm_counter(mm, anon_rss);
+ 		flush_cache_page(vma, address, pte_pfn(orig_pte));
+ 		entry = mk_pte(new_page, vma->vm_page_prot);
+-		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
++		entry = maybe_mkwrite_file(pte_mkdirty(entry), vma);
+ 		ptep_establish(vma, address, page_table, entry);
+ 		update_mmu_cache(vma, address, entry);
+ 		lazy_mmu_prot_update(entry);
+@@ -1930,7 +1948,7 @@ again:
+ 	inc_mm_counter(mm, anon_rss);
+ 	pte = mk_pte(page, vma->vm_page_prot);
+ 	if (write_access && can_share_swap_page(page)) {
+-		pte = maybe_mkwrite(pte_mkdirty(pte), vma);
++		pte = maybe_mkwrite_file(pte_mkdirty(pte), vma);
+ 		write_access = 0;
+ 	}
  
- 		/* If nonlinear, store the file page offset in the pte. */
--		if (page->index != linear_page_index(vma, address))
--			set_pte_at(mm, address, pte, pgoff_to_pte(page->index));
-+		save_nonlinear_pte(pteval, pte, vma, mm, page, address);
+@@ -2231,15 +2249,15 @@ static inline int handle_pte_fault(struc
+ 	pte_t entry;
+ 	pte_t old_entry;
+ 	spinlock_t *ptl;
+-	int write_access = access_mask & VM_WRITE;
++	int write_access = access_mask & (VM_WRITE|VM_MAYWRITE);
  
- 		/* Move the dirty bit to the physical page now the pte is gone. */
- 		if (pte_dirty(pteval))
-Index: linux-2.6.git/mm/filemap.c
+ 	old_entry = entry = *pte;
+ 	if (!pte_present(entry)) {
+ 		/* when pte_file(), the VMA protections are useless.  Otherwise,
+ 		 * we need to check VM_MANYPROTS, because in that case the arch
+ 		 * fault handler skips the VMA protection check. */
+-		if (!pte_file(entry) && check_perms(vma, access_mask))
+-			goto out_segv;
++		if (!pte_file(entry) && unlikely(check_perms(vma, access_mask)))
++			goto segv;
+ 
+ 		if (pte_none(entry)) {
+ 			if (!vma->vm_ops || !vma->vm_ops->nopage)
+@@ -2269,12 +2287,14 @@ static inline int handle_pte_fault(struc
+ 		pgprot_t pgprot = pte_to_pgprot(*pte);
+ 		pte_t test_entry = pfn_pte(0, pgprot);
+ 
+-		if (unlikely((access_mask & VM_WRITE) && !pte_write(test_entry)))
+-			goto out_segv;
+-		if (unlikely((access_mask & VM_READ) && !pte_read(test_entry)))
+-			goto out_segv;
+-		if (unlikely((access_mask & VM_EXEC) && !pte_exec(test_entry)))
+-			goto out_segv;
++		if (likely(!(access_mask & (VM_MAYWRITE|VM_MAYREAD)))) {
++			if (unlikely((access_mask & VM_WRITE) && !pte_write(test_entry)))
++				goto segv_unlock;
++			if (unlikely((access_mask & VM_READ) && !pte_read(test_entry)))
++				goto segv_unlock;
++			if (unlikely((access_mask & VM_EXEC) && !pte_exec(test_entry)))
++				goto segv_unlock;
++		}
+ 	}
+ 
+ 	if (write_access) {
+@@ -2301,8 +2321,10 @@ static inline int handle_pte_fault(struc
+ unlock:
+ 	pte_unmap_unlock(pte, ptl);
+ 	return VM_FAULT_MINOR;
+-out_segv:
++
++segv_unlock:
+ 	pte_unmap_unlock(pte, ptl);
++segv:
+ 	return VM_FAULT_SIGSEGV;
+ }
+ 
+Index: linux-2.6.git/include/linux/mm.h
 ===================================================================
---- linux-2.6.git.orig/mm/filemap.c
-+++ linux-2.6.git/mm/filemap.c
-@@ -1587,7 +1587,7 @@ repeat:
- 			page_cache_release(page);
- 			return err;
- 		}
--	} else if (vma->vm_flags & VM_NONLINEAR) {
-+	} else if (vma->vm_flags & (VM_NONLINEAR|VM_MANYPROTS)) {
- 		/* No page was found just because we can't read it in now (being
- 		 * here implies nonblock != 0), but the page may exist, so set
- 		 * the PTE to fault it in later. */
-Index: linux-2.6.git/mm/shmem.c
-===================================================================
---- linux-2.6.git.orig/mm/shmem.c
-+++ linux-2.6.git/mm/shmem.c
-@@ -1275,7 +1275,7 @@ static int shmem_populate(struct vm_area
- 				page_cache_release(page);
- 				return err;
- 			}
--		} else if (vma->vm_flags & VM_NONLINEAR) {
-+		} else if (vma->vm_flags & (VM_NONLINEAR|VM_MANYPROTS)) {
- 			/* No page was found just because we can't read it in
- 			 * now (being here implies nonblock != 0), but the page
- 			 * may exist, so set the PTE to fault it in later. */
+--- linux-2.6.git.orig/include/linux/mm.h
++++ linux-2.6.git/include/linux/mm.h
+@@ -734,7 +734,22 @@ extern int install_file_pte(struct mm_st
+ 
+ #ifdef CONFIG_MMU
+ 
+-/* We reuse VM_READ, VM_WRITE and VM_EXEC for the @access_mask. */
++/* We reuse VM_READ, VM_WRITE and (optionally) VM_EXEC for the @access_mask, to
++ * report the kind of access we request for permission checking, in case the VMA
++ * is VM_MANYPROTS.
++ *
++ * get_user_pages( force == 1 ) is a special case. It's allowed to override
++ * protection checks, even on VM_MANYPROTS vma.
++ *
++ * To express that, it must replace VM_READ / VM_WRITE with the corresponding
++ * MAY flags.
++ * This allows to force copying COW pages to break sharing even on read-only
++ * page table entries.
++ * PITFALL: you're not allowed to override only part of the checks, and in
++ * general specifying strange combinations of flags may lead to unspecified
++ * results.
++ */
++
+ extern int __handle_mm_fault(struct mm_struct *mm,struct vm_area_struct *vma,
+ 			unsigned long address, int access_mask);
+ 
 
 --
 Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".

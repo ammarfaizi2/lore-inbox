@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbWD3PhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWD3PuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbWD3PhH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 11:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWD3PhH
+	id S1751155AbWD3PuT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 11:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWD3PuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 11:37:07 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:11373 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S1751152AbWD3PhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 11:37:06 -0400
-Subject: Re: [BUG] 2.6.15-rt16 __cache_alloc at mm/slab.c
-From: Daniel Walker <dwalker@mvista.com>
-To: Noah Watkins <noah.lkml@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <be2dacd50604292022i276adae4yfb5877b71a23c87@mail.gmail.com>
-References: <be2dacd50604292022i276adae4yfb5877b71a23c87@mail.gmail.com>
+	Sun, 30 Apr 2006 11:50:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:64930 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751155AbWD3PuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 11:50:17 -0400
+Subject: Re: How to replace bus_to_virt()?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <4454CF35.7010803@s5r6.in-berlin.de>
+References: <4454CF35.7010803@s5r6.in-berlin.de>
 Content-Type: text/plain
-Date: Sun, 30 Apr 2006 08:37:03 -0700
-Message-Id: <1146411424.2446.5.camel@localhost.localdomain>
+Date: Sun, 30 Apr 2006 17:50:14 +0200
+Message-Id: <1146412215.20760.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-29 at 22:22 -0500, Noah Watkins wrote:
-> 2.6.15-rt16 compiled w/o SMP support has been working fine. On the
-> same hardware (dual p3) with SMP compiled in I am getting BUGS.
+On Sun, 2006-04-30 at 16:52 +0200, Stefan Richter wrote:
+> Hi all,
 > 
-> The computer boots fine, and the following (trace at end of email)
-> occurs after I log into the computer over SSH. Specifically I am
-> prompted for my password and immediately after I submit my password to
-> SSH the box goes crazy.
+> is there a *direct* future-proof replacement for bus_to_virt()?
 > 
+> It appears there are already architectures which do not define a 
+> bus_to_virt() funtion or macro. If there isn't a direct replacement, is 
+> there at least a way to detect at compile time whether bus_to_virt() exists?
 
-It looks an error interrupt from the APIC . You could try booting with
-the "noapic" option, or try UP w/ Local APIC and IO-APIC support on ..
+I'd go one step further: given a world with iommu's, and multiple pci
+domains etc, how can you know there even IS such a translation possible
+(without first having set it up from the other direction)?
 
-Daniel
 

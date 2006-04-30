@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWD3Me3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWD3Mg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWD3Me3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 08:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWD3Me3
+	id S1751102AbWD3Mg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 08:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWD3Mg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 08:34:29 -0400
-Received: from mx27.mail.ru ([194.67.23.63]:46862 "EHLO mx27.mail.ru")
-	by vger.kernel.org with ESMTP id S1751101AbWD3Me3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 08:34:29 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Checking modalias supported by vmlinux
-Date: Sun, 30 Apr 2006 16:34:23 +0400
-User-Agent: KMail/1.9.1
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 30 Apr 2006 08:36:28 -0400
+Received: from 0x55511dab.adsl.cybercity.dk ([85.81.29.171]:53849 "EHLO
+	hunin.borkware.net") by vger.kernel.org with ESMTP id S1751102AbWD3Mg2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 08:36:28 -0400
+Subject: Re: World writable tarballs
+From: Mark Rosenstand <mark@borkware.net>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Heikki Orsila <shd@zakalwe.fi>, linux-kernel@vger.kernel.org
+In-Reply-To: <200604301249.16259.s0348365@sms.ed.ac.uk>
+References: <1146356286.10953.7.camel@hammer>
+	 <200604300148.12462.s0348365@sms.ed.ac.uk>
+	 <20060430091501.GA19566@zakalwe.fi>
+	 <200604301249.16259.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain
+Date: Sun, 30 Apr 2006 14:36:54 +0200
+Message-Id: <1146400614.15178.14.camel@hammer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604301634.26406.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 2006-04-30 at 12:49 +0100, Alistair John Strachan wrote:
+> Going over old ground again, any administrator a) compiling the kernel as root 
+> or b) relying on GNU tar to make _security policy decisions_ is completely 
+> insane.
 
-Is it currently (2.6.16.x) possible to get list of modaliases supported by 
-bultin drivers as opposed to modules? The feature is "nice to have" for 
-autodetecting mkinitrd. I.e. currently it is mostly possible to walk up 
-starting from root device, collect modaliases and resolve them to modules. 
-But if modalias is not resolved there is no obvious way to check, if driver 
-is builtin. Of course, it is always possible to take optimistic approach and 
-assume driver is just available ...
+Yes, GNU tar is acting insane. Given that GNU tar is the most widely
+used tar implementation (at least for extracting linux sources), why is
+the kernel packaged to exploit this insane behaviour?
 
-regards
+> Really, people that complain about security should have a modicum of a clue; 
+> allowing a tar file that _somebody else_ applied _their_ security policy, to 
+> define yours, is a deeply flawed concept. umask is there for a reason.
 
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+I merely asked if it was on purpose. In my point of view, it's wrong to
+deliberately expose people to such big security threads.
 
-iD8DBQFEVK7SR6LMutpd94wRAqM2AJ9qUO8f5omaCr3yYOz5/4631ePiRgCfT3/H
-3Ec8nVJT1U3ZaKI5LVzl6/k=
-=zlrx
------END PGP SIGNATURE-----
+That said, the kernel source is actually the only thing I extract as
+root, mostly because I think it's weird to have symlinks in /lib/modules
+point to my user's home directory.
+

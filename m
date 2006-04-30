@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWD3OTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWD3Oer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751135AbWD3OTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 10:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWD3OSY
+	id S1751138AbWD3Oer (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 10:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWD3Oer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 10:18:24 -0400
-Received: from host199-105.pool8255.interbusiness.it ([82.55.105.199]:23448
-	"EHLO zion.home.lan") by vger.kernel.org with ESMTP
-	id S1751133AbWD3OSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 10:18:00 -0400
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 7/7] uml: export symbols added by GCC hardened
-Date: Sun, 30 Apr 2006 16:16:24 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20060430141624.9060.12015.stgit@zion.home.lan>
-In-Reply-To: <20060430141512.9060.39338.stgit@zion.home.lan>
-References: <20060430141512.9060.39338.stgit@zion.home.lan>
+	Sun, 30 Apr 2006 10:34:47 -0400
+Received: from mx5.Informatik.Uni-Tuebingen.De ([134.2.12.32]:4040 "EHLO
+	mx5.informatik.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id S1751138AbWD3Oeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 10:34:46 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, Mikael Pettersson <mikpe@it.uu.se>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+Subject: Re: [discuss] [RFC] make PC Speaker driver work on x86-64
+References: <200604291830.k3TIUA23009336@harpo.it.uu.se>
+	<200604301046.22369.ak@suse.de>
+From: Goswin von Brederlow <brederlo@informatik.uni-tuebingen.de>
+Date: Sun, 30 Apr 2006 16:32:47 +0200
+In-Reply-To: <200604301046.22369.ak@suse.de> (Andi Kleen's message of "Sun,
+ 30 Apr 2006 10:46:22 +0200")
+Message-ID: <878xpnt9ps.fsf@informatik.uni-tuebingen.de>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Andi Kleen <ak@suse.de> writes:
 
-GCC hardened introduces additional symbol refererences (for the canary and
-friends), also in modules - add weak export_symbols for them. We already tested
-that the weak declaration creates no problem on both GCC's providing the
-function definition and on GCC's which don't provide it.
+> On Saturday 29 April 2006 20:30, Mikael Pettersson wrote:
+>> I have a pair of Athlon64 machines that dual-boot 32-bit and
+>> 64-bit kernels. One annoying difference between the kernels
+>> is that the PC Speaker driver (CONFIG_INPUT_PCSPKR=y) only
+>> works in the 32-bit kernels. 
+>
+> Ah, I would consider this more a feature than a bug but ok :)
+>
+>> In the 64-bit kernels it remains 
+>> inactive and doesn't even generate any boot-time initialisation
+>> or error messages.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+That means that the system wouldn't beep on the console or when you
+call "beep", right?
 
- arch/um/os-Linux/user_syms.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+With 2.6.8 x86_64 that worked without problems. Since I updated to
+2.6.15 the system is silent.
 
-diff --git a/arch/um/os-Linux/user_syms.c b/arch/um/os-Linux/user_syms.c
-index 2598158..3f33165 100644
---- a/arch/um/os-Linux/user_syms.c
-+++ b/arch/um/os-Linux/user_syms.c
-@@ -96,6 +96,13 @@ EXPORT_SYMBOL_PROTO(getuid);
- EXPORT_SYMBOL_PROTO(fsync);
- EXPORT_SYMBOL_PROTO(fdatasync);
- 
-+/* Export symbols used by GCC for the stack protector. */
-+extern void __stack_smash_handler(void *) __attribute__((weak));
-+EXPORT_SYMBOL(__stack_smash_handler);
-+
-+extern long __guard __attribute__((weak));
-+EXPORT_SYMBOL(__guard);
-+
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-  * Emacs will notice this stuff at the end of the file and automatically
+Could it be that this is a recent problem?
+
+MfG
+        Goswin

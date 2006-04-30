@@ -1,145 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWD3Rgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWD3Rjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbWD3Rgo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 13:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWD3RdJ
+	id S1751207AbWD3Rjl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 13:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWD3Rjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 13:33:09 -0400
-Received: from host157-96.pool873.interbusiness.it ([87.3.96.157]:45522 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S1751203AbWD3Rcn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 13:32:43 -0400
-Message-Id: <20060430173023.339578000@zion.home.lan>
-References: <20060430172953.409399000@zion.home.lan>
-User-Agent: quilt/0.44-1
-Date: Sun, 30 Apr 2006 19:29:58 +0200
-From: blaisorblade@yahoo.it
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       Paolo Blaisorblade Giarrusso <blaisorblade@yahoo.it>
-Subject: [patch 05/14] remap_file_pages protection support: cleanup syscall checks
-Content-Disposition: inline; filename=rfp/05-rfp-cleanup-sc-check.diff
+	Sun, 30 Apr 2006 13:39:41 -0400
+Received: from smtp007.mail.ukl.yahoo.com ([217.12.11.96]:9816 "HELO
+	smtp007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751207AbWD3Rjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 13:39:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:MIME-Version:Content-Disposition:Cc:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=l/Aq9NeAI13r6bmZWN1hV9rxgGezblsWTo1u3F3M8rvvyziSdnKV8SucrSfoGi7f5cH+nTfiVuqH7oGqFuevrsqagF+12aLMulvXh4Hp6ethD4tJEM9nek0OrlqZ3xgCdIG9qTmbWd4d+7YN0dZ5xHoH90eizNiK5xb7kdihBVg=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>, Ingo Molnar <mingo@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>, Val Henson <val.henson@intel.com>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Fwd: [patch 00/14] remap_file_pages protection support
+Date: Sun, 30 Apr 2006 19:39:36 +0200
+User-Agent: KMail/1.8.3
+MIME-Version: 1.0
+Content-Disposition: inline
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200604301939.37580.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+I'm forwarding to you all the introductory e-mail, while sending the patches 
+themselves only to linux-kernel (and Andrew Morton for inclusion in -mm).
 
-This patch reorganizes the code only, without differences in behaviour. It
-makes the code more readable on its own, and is needed for next patches. I've
-split this out to avoid cluttering real patches.
+Unlike last time (which was last summer), I've been able to work on the 
+patches only during spare time; however, I think the work should be good 
+anyway.
 
-*) remap_file_pages protection support: use EOVERFLOW ret code
+I've incorporated all suggestions from last review round, and left out (at 
+least for now) some patches that aren't needed for base functionality; I'll 
+reintroduce them after this chunk is in.
 
-Use -EOVERFLOW ("Value too large for defined data type") rather than -EINVAL
-when we cannot store the file offset in the PTE.
+I haven't, instead, yet coded what is useful for general userspace usage; that 
+will happen later.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-Index: linux-2.6.git/mm/fremap.c
-===================================================================
---- linux-2.6.git.orig/mm/fremap.c
-+++ linux-2.6.git/mm/fremap.c
-@@ -140,7 +140,7 @@ out:
-  * future.
-  */
- asmlinkage long sys_remap_file_pages(unsigned long start, unsigned long size,
--	unsigned long __prot, unsigned long pgoff, unsigned long flags)
-+	unsigned long prot, unsigned long pgoff, unsigned long flags)
- {
- 	struct mm_struct *mm = current->mm;
- 	struct address_space *mapping;
-@@ -148,9 +148,10 @@ asmlinkage long sys_remap_file_pages(uns
- 	struct vm_area_struct *vma;
- 	int err = -EINVAL;
- 	int has_write_lock = 0;
-+	pgprot_t pgprot;
- 
--	if (__prot)
--		return err;
-+	if (prot)
-+		goto out;
- 	/*
- 	 * Sanitize the syscall parameters:
- 	 */
-@@ -159,17 +160,19 @@ asmlinkage long sys_remap_file_pages(uns
- 
- 	/* Does the address range wrap, or is the span zero-sized? */
- 	if (start + size <= start)
--		return err;
-+		goto out;
- 
- 	/* Can we represent this offset inside this architecture's pte's? */
- #if PTE_FILE_MAX_BITS < BITS_PER_LONG
--	if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS))
--		return err;
-+	if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS)) {
-+		err = -EOVERFLOW;
-+		goto out;
-+	}
- #endif
- 
- 	/* We need down_write() to change vma->vm_flags. */
- 	down_read(&mm->mmap_sem);
-- retry:
-+retry:
- 	vma = find_vma(mm, start);
- 
- 	/*
-@@ -178,12 +181,21 @@ asmlinkage long sys_remap_file_pages(uns
- 	 * the single existing vma.  vm_private_data is used as a
- 	 * swapout cursor in a VM_NONLINEAR vma.
- 	 */
--	if (vma && (vma->vm_flags & VM_SHARED) &&
--		(!vma->vm_private_data || (vma->vm_flags & VM_NONLINEAR)) &&
--		vma->vm_ops && vma->vm_ops->populate &&
--			end > start && start >= vma->vm_start &&
--				end <= vma->vm_end) {
-+	if (!vma)
-+		goto out_unlock;
-+
-+	if (!(vma->vm_flags & VM_SHARED))
-+		goto out_unlock;
-+
-+	if (!vma->vm_ops || !vma->vm_ops->populate)
-+		goto out_unlock;
- 
-+	if (end <= start || start < vma->vm_start || end > vma->vm_end)
-+		goto out_unlock;
-+
-+	pgprot = vma->vm_page_prot;
-+
-+	if (!vma->vm_private_data || (vma->vm_flags & VM_NONLINEAR)) {
- 		/* Must set VM_NONLINEAR before any pages are populated. */
- 		if (pgoff != linear_page_index(vma, start) &&
- 		    !(vma->vm_flags & VM_NONLINEAR)) {
-@@ -203,9 +215,8 @@ asmlinkage long sys_remap_file_pages(uns
- 			spin_unlock(&mapping->i_mmap_lock);
- 		}
- 
--		err = vma->vm_ops->populate(vma, start, size,
--					    vma->vm_page_prot,
--					    pgoff, flags & MAP_NONBLOCK);
-+		err = vma->vm_ops->populate(vma, start, size, pgprot, pgoff,
-+				flags & MAP_NONBLOCK);
- 
- 		/*
- 		 * We would like to clear VM_NONLINEAR, in the case when
-@@ -214,11 +225,14 @@ asmlinkage long sys_remap_file_pages(uns
- 		 * successful populate, and have no way to upgrade sem.
- 		 */
- 	}
-+
-+out_unlock:
- 	if (likely(!has_write_lock))
- 		up_read(&mm->mmap_sem);
- 	else
- 		up_write(&mm->mmap_sem);
- 
-+out:
- 	return err;
- }
- 
+Thanks for the attention.
 
+----------  Forwarded Message  ----------
+
+Again (about 8 month since last time, I have much less time during my academic
+year), I'm sending for review (and for possible inclusion into -mm) protection
+support for remap_file_pages, i.e. setting per-pte protections (beyond file
+offset) through this syscall.
+
+== How it works ==
+
+Protections are set in the page tables when the
+page is loaded, are saved into the PTE when the page is swapped out and 
+restored
+when the page is faulted back in.
+
+Additionally, we modify the fault handler since the VMA protections aren't 
+valid
+for PTE with modified protections.
+
+Finally, we must also provide, for each arch, macros to store also the
+protections into the PTE; to make the kernel compile for any arch, I've added
+since last time dummy default macros to keep the same functionality.
+
+== What is this for ==
+
+The first idea is to use this for UML - it must create a lot of single page
+mappings, and managing them through separate VMAs is slow.
+
+Additional note: this idea, with some further refinements (which I'll code 
+after
+this chunk is accepted), will allow to reduce the number of used VMAs for most
+userspace programs - in particular, it will allow to avoid creating one VMA 
+for
+one guard pages (which has PROT_NONE) - forcing PROT_NONE on that page will be
+enough.
+
+This will be useful since the VMA lookup at fault time can be a bottleneck for
+some programs (I've received a report about this from Ulrich Drepper and I've
+been told that also Val Henson from Intel is interested about this). I guess
+that since we use RB-trees, the slowness is also due to the poor cache 
+locality
+of RB-trees (since RB nodes are within VMAs but aren't accessed together with
+their content), compared for instance with radix trees where the lookup has 
+high
+cache locality (but they have however space usage problems, possibly bigger, 
+on
+64-bit machines).
+
+== Notes ==
+
+Implementations are provided for i386, x86_64 and UML, and for some other 
+archs
+I have patches I will send, based on the ones which were in -mm when Ingo sent
+the first version of this work.
+
+You shouldn't worry for the number of patches, most of them are very little.
+I've last tested them in UML against 2.6.16-rc3, but I've seen no big changes 
+in
+the VM.
 --
 Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
 Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
 http://www.user-mode-linux.org/~blaisorblade
+
+		
+___________________________________ 
+Yahoo! Messenger with Voice: chiama da PC a telefono a tariffe esclusive 
+http://it.messenger.yahoo.com

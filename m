@@ -1,323 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWD3RdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWD3Rcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWD3RdB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 13:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWD3Rcj
+	id S1751187AbWD3Rcg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 13:32:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWD3Rcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 13:32:39 -0400
-Received: from host157-96.pool873.interbusiness.it ([87.3.96.157]:44498 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S1751185AbWD3Rch
+	Sun, 30 Apr 2006 13:32:36 -0400
+Received: from host157-96.pool873.interbusiness.it ([87.3.96.157]:44754 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S1751187AbWD3Rcg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 13:32:37 -0400
-Message-Id: <20060430173021.314956000@zion.home.lan>
+	Sun, 30 Apr 2006 13:32:36 -0400
+Message-Id: <20060430173025.752423000@zion.home.lan>
 References: <20060430172953.409399000@zion.home.lan>
 User-Agent: quilt/0.44-1
-Date: Sun, 30 Apr 2006 19:29:55 +0200
+Date: Sun, 30 Apr 2006 19:30:04 +0200
 From: blaisorblade@yahoo.it
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org,
        Paolo Blaisorblade Giarrusso <blaisorblade@yahoo.it>
-Subject: [patch 02/14] remap_file_pages protection support: add needed macros
-Content-Disposition: inline; filename=rfp/01-add-MAP_CHGPROT-wrapper-macros.diff
+Subject: [patch 11/14] remap_file_pages protection support: pte_present should not trigger on PTE_FILE PROTNONE ptes
+Content-Disposition: inline; filename=rfp/pte_present-for-PROT_NONE-pte.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Add pte_to_pgprot() and pgoff_prot_to_pte() macros, in generic versions; so we
-can safely use it and keep the kernel compiling. For some architectures real
-definitions of the macros are actually provided.
+pte_present(pte) implies that pte_pfn(pte) is valid. Normally even with a
+_PAGE_PROTNONE pte this holds, but not when such a PTE is installed by
+the new install_file_pte; previously it didn't store protections, only file
+offsets, with the patches it also stores protections, and can set
+_PAGE_PROTNONE|_PAGE_FILE.
 
-Also, add the MAP_CHGPROT flag to all arch headers (was MAP_NOINHERIT, changed on
-Hugh Dickins' suggestion).
+zap_pte_range, when acting on such a pte, calls vm_normal_page and gets
+&mem_map[0], does page_remove_rmap, and we're easily in trouble, because it
+happens to find a page with mapcount == 0. And it BUGs on this!
+
+I've seen this trigger easily and repeatably on UML on 2.6.16-rc3. This was
+likely avoided in the past by the PageReserved test - page 0 *had* to be
+reserved on i386 (dunno on UML).
+
+Implementation follows for UML and i386.
+
+To avoid additional overhead, I also considered adding likely() for
+_PAGE_PRESENT and unlikely() for the rest, but I'm uncertain about validity of
+possible [un]likely(pte_present()) occurrences.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-Index: linux-2.6.git/include/asm-generic/pgtable.h
+Index: linux-2.6.git/include/asm-um/pgtable.h
 ===================================================================
---- linux-2.6.git.orig/include/asm-generic/pgtable.h
-+++ linux-2.6.git/include/asm-generic/pgtable.h
-@@ -241,4 +241,16 @@ static inline int pmd_none_or_clear_bad(
- }
- #endif /* !__ASSEMBLY__ */
+--- linux-2.6.git.orig/include/asm-um/pgtable.h
++++ linux-2.6.git/include/asm-um/pgtable.h
+@@ -158,7 +158,7 @@ extern unsigned long pg0[1024];
+ #define mk_phys(a, r) ((a) + (((unsigned long) r) << REGION_SHIFT))
+ #define phys_addr(p) ((p) & ~REGION_MASK)
  
-+#ifndef __HAVE_ARCH_PTE_TO_PGPROT
-+/* Wrappers for architectures which don't support yet page protections for
-+ * remap_file_pages. */
-+
-+/* Dummy define - if the architecture has no special support, access is denied
-+ * in VM_MANYPROTS vma's. */
-+#define pte_to_pgprot(pte) __P000
-+
-+#define pgoff_prot_to_pte(off, prot) pgoff_to_pte(off)
-+
-+#endif
-+
- #endif /* _ASM_GENERIC_PGTABLE_H */
-Index: linux-2.6.git/include/asm-alpha/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-alpha/mman.h
-+++ linux-2.6.git/include/asm-alpha/mman.h
-@@ -28,6 +28,9 @@
- #define MAP_NORESERVE	0x10000		/* don't check for reservations */
- #define MAP_POPULATE	0x20000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x40000		/* do not block on IO */
-+#define MAP_CHGPROT	0x80000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_SYNC		2		/* synchronous memory sync */
-Index: linux-2.6.git/include/asm-arm26/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-arm26/mman.h
-+++ linux-2.6.git/include/asm-arm26/mman.h
-@@ -10,6 +10,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE    0x8000          /* populate (prefault) page tables */
- #define MAP_NONBLOCK    0x10000         /* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-arm/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-arm/mman.h
-+++ linux-2.6.git/include/asm-arm/mman.h
-@@ -10,6 +10,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) page tables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-cris/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-cris/mman.h
-+++ linux-2.6.git/include/asm-cris/mman.h
-@@ -12,6 +12,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-frv/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-frv/mman.h
-+++ linux-2.6.git/include/asm-frv/mman.h
-@@ -10,6 +10,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-h8300/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-h8300/mman.h
-+++ linux-2.6.git/include/asm-h8300/mman.h
-@@ -10,6 +10,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-i386/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-i386/mman.h
-+++ linux-2.6.git/include/asm-i386/mman.h
-@@ -10,6 +10,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-ia64/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-ia64/mman.h
-+++ linux-2.6.git/include/asm-ia64/mman.h
-@@ -18,6 +18,9 @@
- #define MAP_NORESERVE	0x04000		/* don't check for reservations */
- #define MAP_POPULATE	0x08000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-m32r/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-m32r/mman.h
-+++ linux-2.6.git/include/asm-m32r/mman.h
-@@ -12,6 +12,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-m68k/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-m68k/mman.h
-+++ linux-2.6.git/include/asm-m68k/mman.h
-@@ -10,6 +10,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-mips/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-mips/mman.h
-+++ linux-2.6.git/include/asm-mips/mman.h
-@@ -46,6 +46,9 @@
- #define MAP_LOCKED	0x8000		/* pages are locked */
- #define MAP_POPULATE	0x10000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x20000		/* do not block on IO */
-+#define MAP_CHGPROT	0x40000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
+-#define pte_present(x)	pte_get_bits(x, (_PAGE_PRESENT | _PAGE_PROTNONE))
++#define pte_present(x)	(pte_get_bits(x, (_PAGE_PRESENT)) || (pte_get_bits(x, (_PAGE_PROTNONE)) && !pte_file(x)))
  
  /*
-  * Flags for msync
-Index: linux-2.6.git/include/asm-parisc/mman.h
+  * =================================
+Index: linux-2.6.git/mm/memory.c
 ===================================================================
---- linux-2.6.git.orig/include/asm-parisc/mman.h
-+++ linux-2.6.git/include/asm-parisc/mman.h
-@@ -22,6 +22,9 @@
- #define MAP_GROWSDOWN	0x8000		/* stack-like segment */
- #define MAP_POPULATE	0x10000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x20000		/* do not block on IO */
-+#define MAP_CHGPROT	0x40000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
+--- linux-2.6.git.orig/mm/memory.c
++++ linux-2.6.git/mm/memory.c
+@@ -624,6 +624,8 @@ static unsigned long zap_pte_range(struc
  
- #define MS_SYNC		1		/* synchronous memory sync */
- #define MS_ASYNC	2		/* sync memory asynchronously */
-Index: linux-2.6.git/include/asm-powerpc/mman.h
+ 		(*zap_work) -= PAGE_SIZE;
+ 
++		/* XXX: This can trigger even if the PTE is only a PROTNONE
++		 * PTE_FILE pte - we'll then extract page 0 and unmap it! */
+ 		if (pte_present(ptent)) {
+ 			struct page *page;
+ 
+Index: linux-2.6.git/include/asm-i386/pgtable.h
 ===================================================================
---- linux-2.6.git.orig/include/asm-powerpc/mman.h
-+++ linux-2.6.git/include/asm-powerpc/mman.h
-@@ -23,5 +23,8 @@
+--- linux-2.6.git.orig/include/asm-i386/pgtable.h
++++ linux-2.6.git/include/asm-i386/pgtable.h
+@@ -204,6 +204,8 @@ extern unsigned long long __PAGE_KERNEL,
+ extern unsigned long pg0[];
  
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
+ #define pte_present(x)	((x).pte_low & (_PAGE_PRESENT | _PAGE_PROTNONE))
++#define pte_present(x)  (((x).pte_low & _PAGE_PRESENT) || \
++		(((x).pte_low & (_PAGE_PROTNONE|_PAGE_FILE)) == _PAGE_PROTNONE))
+ #define pte_clear(mm,addr,xp)	do { set_pte_at(mm, addr, xp, __pte(0)); } while (0)
  
- #endif	/* _ASM_POWERPC_MMAN_H */
-Index: linux-2.6.git/include/asm-s390/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-s390/mman.h
-+++ linux-2.6.git/include/asm-s390/mman.h
-@@ -18,6 +18,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-sh/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-sh/mman.h
-+++ linux-2.6.git/include/asm-sh/mman.h
-@@ -10,6 +10,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) page tables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-sparc64/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-sparc64/mman.h
-+++ linux-2.6.git/include/asm-sparc64/mman.h
-@@ -21,6 +21,9 @@
- 
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- /* XXX Need to add flags to SunOS's mctl, mlockall, and madvise system
-  * XXX calls.
-Index: linux-2.6.git/include/asm-sparc/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-sparc/mman.h
-+++ linux-2.6.git/include/asm-sparc/mman.h
-@@ -21,6 +21,9 @@
- 
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- /* XXX Need to add flags to SunOS's mctl, mlockall, and madvise system
-  * XXX calls.
-Index: linux-2.6.git/include/asm-x86_64/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-x86_64/mman.h
-+++ linux-2.6.git/include/asm-x86_64/mman.h
-@@ -12,6 +12,9 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_CHGPROT	0x20000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- #define MCL_CURRENT	1		/* lock all current mappings */
- #define MCL_FUTURE	2		/* lock all future mappings */
-Index: linux-2.6.git/include/asm-xtensa/mman.h
-===================================================================
---- linux-2.6.git.orig/include/asm-xtensa/mman.h
-+++ linux-2.6.git/include/asm-xtensa/mman.h
-@@ -53,6 +53,9 @@
- #define MAP_LOCKED	0x8000		/* pages are locked */
- #define MAP_POPULATE	0x10000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x20000		/* do not block on IO */
-+#define MAP_CHGPROT	0x40000		/* don't inherit the protection bits of
-+					   the underlying vma, to be passed to
-+					   remap_file_pages() only */
- 
- /*
-  * Flags for msync
+ /* To avoid harmful races, pmd_none(x) should check only the lower when PAE */
 
 --
 Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".

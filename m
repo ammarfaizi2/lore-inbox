@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWD3J0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWD3Jhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751075AbWD3J0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 05:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWD3J0Y
+	id S1751085AbWD3Jhy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 05:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWD3Jhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 05:26:24 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:26240 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751075AbWD3J0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 05:26:24 -0400
-Subject: Re: IP1000 gigabit nic driver
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: "David =?ISO-8859-1?Q?G=F3mez?=" <david@pleyades.net>
-Cc: David Vrabel <dvrabel@cantab.net>, Francois Romieu <romieu@fr.zoreil.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
-In-Reply-To: <1146342905.11271.3.camel@localhost>
-References: <20060427142939.GA31473@fargo>
-	 <20060427185627.GA30871@electric-eye.fr.zoreil.com>
-	 <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo>
-	 <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
-	 <20060428113755.GA7419@fargo>
-	 <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI>
-	 <1146306567.1642.3.camel@localhost>  <20060429122119.GA22160@fargo>
-	 <1146342905.11271.3.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Sun, 30 Apr 2006 12:26:11 +0300
-Message-Id: <1146389171.11524.1.camel@localhost>
+	Sun, 30 Apr 2006 05:37:54 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:41742 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751085AbWD3Jhy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 05:37:54 -0400
+Date: Sun, 30 Apr 2006 11:37:41 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Heikki Orsila <shd@zakalwe.fi>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Mark Rosenstand <mark@borkware.net>, linux-kernel@vger.kernel.org
+Subject: Re: World writable tarballs
+Message-ID: <20060430093740.GK13027@w.ods.org>
+References: <1146356286.10953.7.camel@hammer> <200604300148.12462.s0348365@sms.ed.ac.uk> <20060430091501.GA19566@zakalwe.fi>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060430091501.GA19566@zakalwe.fi>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-29 at 14:21 +0200, David Gómez wrote:
-> > I already had it modified, just needed to create the patch... Anyway,
-> > have you submitted it to netdev?
+On Sun, Apr 30, 2006 at 09:15:01AM +0000, Heikki Orsila wrote:
+> On Sun, Apr 30, 2006 at 01:48:12AM +0100, Alistair John Strachan wrote:
+> > There's no need to repeatedly discuss it.
+> 
+> I think there is. Sorry for wasting bandwidth.
+> 
+> It's a big security hole deliberately caused by the kernel people (files
+> in the tar ball have og+w, so it's not problem in roots umask or tar).
+> Real security needs _simplicity_ but current file modes require
+> unnecessary _tricks_ for admins. There should be nothing against
+> untarring files as root. In this case it makes sense too, because only
+> the tar balls are crypto signed, not the individual files inside the tar
+> ball, so root can conveniently just verify the crypto signature and
+> untar the file without any race conditions or trusting other users. The
+> only real alternative is to create an _unnecessary_ trusted user to do
+> tar ball handling.
+> 
+> PS. this file permission bug almost bit me. People make errors and this
+> one is potentially a big privilege escalation, because it potentially
+> turns normal application bugs into root privileges.
 
-On Sat, 2006-04-29 at 23:35 +0300, Pekka Enberg wrote:
-> No, I haven't. I don't have the hardware, so I can't test the driver.
-> Furthermore, there's plenty of stuff to fix before it's in any shape for
-> submission. If someone wants to give this patch a spin, I would love to
-> hear the results.
+Although I don't like finding world-writable files in tar archives, I
+think you're exagerating a bit. First, you're not turning normal bugs
+into root privileges, and second, you don't need to create a user just
+for this, you just have to extract it in a directory that other users
+cannot access (chmod o-x).
 
-I killed the I/O write/read macros and switched the driver to iomap.
+Also, you'll find several other software on the net with full rights,
+so if this really is a concern to you, you'd better get used to this
+with simple and reliable solutions (ntp comes to mind).
 
-			Pekka
+> Heikki Orsila                   Barbie's law:
+> heikki.orsila@iki.fi            "Math is hard, let's go shopping!"
+> http://www.iki.fi/shd
 
-Subject: [PATCH] IP1000 Gigabit Ethernet device driver
-
-This is a cleaned up fork of the IP1000A device driver:
-
-  <http://www.icplus.com.tw/driver-pp-IP1000A.html>
-
-Open issues include but are not limited to:
-
-  - ipg_probe() looks really fishy and doesn't handle all errors
-    (e.g. ioremap failing).
-  - ipg_nic_do_ioctl() is playing games with user-space pointer.
-    We should use ethtool ioctl instead as suggested by Arjan.
-  - For multiple devices, the driver uses a global root_dev and
-    ipg_remove() play some tricks which look fishy.
-
-I don't have the hardware, so I don't know if I broke anything.
-The patch is 138 KB in size, so I am not including it in this
-mail. You can find the patch here:
-
-  http://www.cs.helsinki.fi/u/penberg/linux/ip1000-driver.patch
-
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+Regards,
+Willy
 

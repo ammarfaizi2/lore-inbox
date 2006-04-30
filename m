@@ -1,55 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWD3Lia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWD3L6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWD3Lia (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 07:38:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWD3Lia
+	id S1750783AbWD3L6I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 07:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWD3L6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 07:38:30 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:56387 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751099AbWD3Lia (ORCPT
+	Sun, 30 Apr 2006 07:58:08 -0400
+Received: from tim.rpsys.net ([194.106.48.114]:48093 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750783AbWD3L6H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 07:38:30 -0400
-Date: Sun, 30 Apr 2006 13:39:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: David Chinner <dgc@sgi.com>, Christoph Lameter <clameter@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       npiggin@suse.de, linux-mm@kvack.org
-Subject: Re: Lockless page cache test results
-Message-ID: <20060430113905.GF23137@suse.de>
-References: <20060426135310.GB5083@suse.de> <20060426095511.0cc7a3f9.akpm@osdl.org> <20060426174235.GC5002@suse.de> <20060426111054.2b4f1736.akpm@osdl.org> <Pine.LNX.4.64.0604261130450.19587@schroedinger.engr.sgi.com> <20060426114737.239806a2.akpm@osdl.org> <20060426184945.GL5002@suse.de> <Pine.LNX.4.64.0604261330310.20897@schroedinger.engr.sgi.com> <20060428140146.GA4657648@melbourne.sgi.com> <44548834.5050204@yahoo.com.au>
+	Sun, 30 Apr 2006 07:58:07 -0400
+Subject: Re: led_class: storing a value can act but return -EINVAL
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       John Lenz <lenz@cs.wisc.edu>, Richard Purdie <rpurdie@openedhand.com>
+In-Reply-To: <1146394862.5019.53.camel@localhost>
+References: <1146310432.5019.45.camel@localhost>
+	 <20060430100243.GB4452@ucw.cz>  <1146394862.5019.53.camel@localhost>
+Content-Type: text/plain
+Date: Sun, 30 Apr 2006 12:57:49 +0100
+Message-Id: <1146398270.6254.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44548834.5050204@yahoo.com.au>
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 30 2006, Nick Piggin wrote:
-> @@ -407,19 +422,10 @@
->  	int error = radix_tree_preload(gfp_mask & ~__GFP_HIGHMEM);
->  
->  	if (error == 0) {
-> -		write_lock_irq(&mapping->tree_lock);
-> -		error = radix_tree_insert(&mapping->page_tree, offset, page);
-> -		if (!error) {
-> -			page_cache_get(page);
-> -			SetPageLocked(page);
-> -			page->mapping = mapping;
-> -			page->index = offset;
-> -			mapping->nrpages++;
-> -			pagecache_acct(1);
-> -		}
-> -		write_unlock_irq(&mapping->tree_lock);
-> +		error = __add_to_page_cache(page, mapping, offset);
->  		radix_tree_preload_end();
->  	}
-> +
->  	return error;
+On Sun, 2006-04-30 at 13:01 +0200, Johannes Berg wrote:
+> Hi,
+> 
+> > Well, I'd argue current behaviour is okay... can you strace it? It
+> > should accept the number (return 3) then return -EINVAL.
+> 
+> That's exactly what happens.
+> 
+> Which is totally bogus, because userspace will think that the setting
+> didn't succeed. Or application authors will ignore the return value
+> assuming that it always succeeded. Or read the value back to see if it
+> succeeded. All icky, when we can well have a good return value.
+> 
+> > > There are two possible ways to handle this:
+> > > a) accept anything that begins with a valid number.
+> > > b) reject anything that isn't *only* a number
+> > 
+> > c) accept anything that is number, ignore newlines.
 
-You killed a lock too many there. I'm sure it'd help scalability,
-though :-)
+echo 255> brightness works, returns success.
+echo 255 > brightness works but then returns -EINVAL.
 
--- 
-Jens Axboe
+So we currently do b, quite strictly. Its the trailing space thats the
+problem. It also shouldn't have altered the brightness value if it ends
+up returning -EINVAL.
+
+I've looked around other implementations and it would appear we should
+accept an optional space. Most sysfs attributes seem to handle this
+differently, each with its own "bugs".
+
+I've some fixes in mind both for the led and backlight classes which
+I'll post once I've done a little more testing. I'd be interested to
+know the official view on what the attributes should/shouldn't accept
+is.
+
+Cheers,
+
+Richard
 

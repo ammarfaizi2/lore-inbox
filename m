@@ -1,141 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWD3PFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWD3PK4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWD3PFW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 11:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWD3PFW
+	id S1751146AbWD3PK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 11:10:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWD3PK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 11:05:22 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:57860 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751143AbWD3PFV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 11:05:21 -0400
-Date: Sun, 30 Apr 2006 15:21:55 +0100
-From: Darren Salt <linux@youmustbejoking.demon.co.uk>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Log flood: "scheduling while atomic" (2.6.15.x, 2.6.16.x)
-Message-ID: <4E1FB78B33%linux@youmustbejoking.demon.co.uk>
-References: <4E1F56DC10%linux@youmustbejoking.demon.co.uk> <20060429182220.0a306fe2.akpm@osdl.org>
-In-Reply-To: <20060429182220.0a306fe2.akpm@osdl.org>
-User-Agent: Messenger-Pro/4.09b8 (MsgServe/3.24b1) (RISC-OS/4.02) POPstar/2.06+cvs
-X-Editor: Zap 1.47 (27 Apr 2006) [TEST], ZapEmail 0.28.3 (25 Mar 2005) (32)
-X-SDate: Sun, 4625 Sep 1993 15:21:55 +0100
-X-Message-Flag: Outlook Express is broken. Upgrade to mail(1).
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="622826571--31393191--260807643"
-X-SA-Exim-Connect-IP: 192.168.0.2
-X-SA-Exim-Mail-From: linux@youmustbejoking.demon.co.uk
-X-SA-Exim-Scanned: No (on pentagram.youmustbejoking.demon.co.uk); SAEximRunCond expanded to false
+	Sun, 30 Apr 2006 11:10:56 -0400
+Received: from 84-72-61-190.dclient.hispeed.ch ([84.72.61.190]:30365 "EHLO
+	kestrel.twibright.com") by vger.kernel.org with ESMTP
+	id S1751146AbWD3PKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 11:10:55 -0400
+Date: Sun, 30 Apr 2006 16:18:30 +0200
+From: Karel Kulhavy <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: i2c-related 1-minute hang during bootup
+Message-ID: <20060430141829.GA9546@kestrel>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Orientation: Gay
+X-Stance: Goofy
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format which your mailer apparently does not support.
-You either require a newer version of your software which supports MIME, or
-a separate MIME decoding utility.  Alternatively, ask the sender of this
-message to resend it in a different format.
+Hello
 
---622826571--31393191--260807643
-Content-Type: text/plain; charset=us-ascii
+I upgraded my kernel from 2.6.12 to 2.6.16.11 using make oldconfig.
+My machine is DELL Inspiron 510m laptop. Before everything was OK.
+Now the kernel hangs for a minute during bootup between the messages
+"input: AlpsPS/2 ALPS GlidePoint as /class/input/input2"
+and "Advanced Linux Sound Architecture Driver Version 1.0.11rc2 (Wed Jan
+04 08:57:20 2006 U
+TC)."
 
-I demand that Andrew Morton may or may not have written...
+During the bootup nothing is printed during the hang, but dmesg contains
+this at that point:
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x51
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x51, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x52
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x52, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x53
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x53, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x54
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x54, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x55
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x55, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x56
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x56, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x57
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x57, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c-core: driver [pcf8574] registered
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x20
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x20, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x21
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x21, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x22
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x22, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x23
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x23, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x24
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x24, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x25
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x25, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x26
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x26, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x27
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x27, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x38
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x38, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x39
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x39, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3a
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x3a, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3b
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x3b, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3c
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x3c, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3d
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x3d, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3e
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x3e, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3f
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x3f, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c-core: driver [pcf8591] registered
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x48
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x48, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x49
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x49, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4a
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x4a, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4b
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x4b, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4c
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x4c, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4d
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x4d, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4e
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x4e, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4f
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x4f, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
+i2c-core: driver [RTC8564] registered
+i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x51
+i2c_adapter i2c-0: master_xfer[0] W, addr=0x51, len=0
+i2c_adapter i2c-0: bus is not idle. status is 0xff
 
-> Darren Salt <linux@youmustbejoking.demon.co.uk> wrote:
+Is it normal that the kernel doesn't print all messages to the screen?
+What do these messages mean? What should I do
+to get rid of the delay?
 
->> I'm seeing bouts of log flooding caused by something presumably not
->> releasing a lock. I've looked at some of the messages, but at around
->> 100/s, I'm not too keen to look through the whole lot :-)
-
->>    scheduling while atomic: swapper/0xafbfffff/0
->>     [show_trace+19/32]
->>     [dump_stack+30/32]
->>     [schedule+1278/1472]
->>     [cpu_idle+88/96]
->>     [stext+44/64]
->>     [start_kernel+574/704]
->>     [L6+0/2] 0xc0100199
-
->> (Trailing parts of some lines have been omitted; it's all repeated data.
->> And some sort of rate-limiting of these messages would be nice, but some
->> other way to draw attention to the problem, e.g. an occasional beep, would
->> be good.)
-
->> The most recent instance occurred a few minutes into recording a TV
->> programme (via vdr) from a cx88-based Nova-T. (I'm currently using stock
->> drivers rather than ones built from the v4l-dvb repository.)
-
-> Thanks for the report.
-
-> The below patch (against 2.6.17-rc3) should, if it still works, tell us
-> which lock didn't get unlocked.
-
-> You'll need to enable CONFIG_PREEMPT and CONFIG_DEBUG_PREEMPT and
-> CONFIG_FRAME_POINTER.
-
-Done, compiled, rebooted. I have a recording scheduled for later; I'll wait
-and see what happens.
-
-> Please cc video4linux-list@redhat.com on any result if it looks like v4l is
-> indeed the culprit.
-
-Will do.
-
-BTW, patches applied:
-  * the advansys patch from -mm;
-  * BROKEN removed from the depends for advansys;
-  * quietening of dprintk(0,...) (replaced with dprintk(1,...) in
-    cx88-mpeg.c (these messages have some annoyance value);
-  * a patch of my own for usbhid for a slightly weird USB+PS/2 mouse,
-    connected via USB (I'll post this as directed in MAINTAINERS);
-  * another of my own (attached for reference) which *should* rate-limit the
-    "scheduling while atomic" messages somewhat.
-
-The last one is new; the rest don't have any bearing on the problem, which
-has occurred without them and, indeed, without the presence of advansys and
-usbhid.
-
-[snip]
--- 
-| Darren Salt    | linux or ds at              | nr. Ashington, | Toon
-| RISC OS, Linux | youmustbejoking,demon,co,uk | Northumberland | Army
-| + Lobby friends, family, business, government.    WE'RE KILLING THE PLANET.
-
-He is truly wise who gains wisdom from another's mishap.
-
---622826571--31393191--260807643
-Content-Type: text/plain; charset=iso-8859-1; name="sched_atomic_ratelimit_hack.patch"
-Content-Disposition: attachment; filename="sched_atomic_ratelimit_hack.patch"
-Content-Transfer-Encoding: quoted-printable
-
---- 2.6.17-rc3/kernel/sched.c.orig
-+++ 2.6.17-rc3/kernel/sched.c
-@@ -2904,10 +2904,28 @@
- 	 * Otherwise, whine if we are scheduling when we should not be.
- 	 */
- 	if (unlikely(in_atomic() && !current->exit_state)) {
-+	  /* Hack to avoid *serious* log-flooding. */
-+	  static int skipped =3D -50; /* want to report the first 50 */
-+	  static unsigned long last =3D 0;
-+	  int doprint =3D 1;
-+	  if (skipped < 0) {
-+	    if (!++skipped)
-+	      last =3D jiffies;
-+	  } else if (jiffies - last < 5 * HZ) /* should be 5s */ {
-+	    if (skipped < 0x7FFFFFFF)
-+	      ++skipped;
-+	    doprint =3D 0;
-+	  }
-+	  if (doprint) {
-+	    last =3D jiffies;
-+	    if (skipped)
-+	      printk(KERN_ERR "[%d s-w-a not reported]\n", skipped);
-+	    skipped =3D 0;
- 		printk(KERN_ERR "BUG: scheduling while atomic: "
- 			"%s/0x%08x/%d\n",
- 			current->comm, preempt_count(), current->pid);
- 		dump_stack();
-+	  }
- 	}
- 	profile_hit(SCHED_PROFILING, __builtin_return_address(0));
-=20
-
---622826571--31393191--260807643--
+CL<
+"

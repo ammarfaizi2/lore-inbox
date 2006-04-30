@@ -1,144 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWD3PK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWD3PUO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbWD3PK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 11:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWD3PK4
+	id S1751147AbWD3PUO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 11:20:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWD3PUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 11:10:56 -0400
-Received: from 84-72-61-190.dclient.hispeed.ch ([84.72.61.190]:30365 "EHLO
-	kestrel.twibright.com") by vger.kernel.org with ESMTP
-	id S1751146AbWD3PKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 11:10:55 -0400
-Date: Sun, 30 Apr 2006 16:18:30 +0200
-From: Karel Kulhavy <clock@twibright.com>
+	Sun, 30 Apr 2006 11:20:14 -0400
+Received: from linux.dunaweb.hu ([62.77.196.1]:17334 "EHLO linux.dunaweb.hu")
+	by vger.kernel.org with ESMTP id S1751147AbWD3PUN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 11:20:13 -0400
+Message-ID: <4454D59C.7000501@dunaweb.hu>
+Date: Sun, 30 Apr 2006 17:19:56 +0200
+From: Zoltan Boszormenyi <zboszor@dunaweb.hu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: i2c-related 1-minute hang during bootup
-Message-ID: <20060430141829.GA9546@kestrel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Orientation: Gay
-X-Stance: Goofy
-User-Agent: Mutt/1.5.11
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: Bad page state in process 'nfsd' with xfs
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Hi.
 
-I upgraded my kernel from 2.6.12 to 2.6.16.11 using make oldconfig.
-My machine is DELL Inspiron 510m laptop. Before everything was OK.
-Now the kernel hangs for a minute during bootup between the messages
-"input: AlpsPS/2 ALPS GlidePoint as /class/input/input2"
-and "Advanced Linux Sound Architecture Driver Version 1.0.11rc2 (Wed Jan
-04 08:57:20 2006 U
-TC)."
+> David Greaves wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > This was with 2.6.16.9
+> > 
+> > There's an nfs export from an xfs on an lvm on a raid5 on some
+> > libata/sata disks.
+> > (cc'ing xfs since I recall rumoured(?) badness in old nfs/xfs/md/lvm
+> > setups and xfs_sendfile is mentioned)
+> > 
+> > dmesg had:
+> > 
+> > Bad page state in process 'nfsd'
+> > page:b1602060 flags:0x80000008 mapping:00000000 mapcount:0 count:16777216
+> > Trying to fix it up, but a reboot is needed
+> > Backtrace:
+> >  [<b013bda2>] bad_page+0x62/0x90
+> >  [<b013c1c8>] prep_new_page+0x78/0x80
+>
+> Looks like you have a bit flipped in 'count', which was not flipped
+> when the page was last freed. Probably buggy RAM.
+>
+> Running memtest overnight might confirm that.
 
-During the bootup nothing is printed during the hang, but dmesg contains
-this at that point:
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x51
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x51, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x52
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x52, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x53
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x53, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x54
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x54, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x55
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x55, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x56
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x56, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x57
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x57, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c-core: driver [pcf8574] registered
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x20
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x20, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x21
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x21, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x22
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x22, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x23
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x23, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x24
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x24, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x25
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x25, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x26
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x26, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x27
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x27, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x38
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x38, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x39
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x39, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3a
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x3a, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3b
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x3b, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3c
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x3c, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3d
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x3d, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3e
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x3e, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x3f
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x3f, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c-core: driver [pcf8591] registered
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x48
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x48, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x49
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x49, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4a
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x4a, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4b
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x4b, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4c
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x4c, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4d
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x4d, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4e
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x4e, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x4f
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x4f, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
-i2c-core: driver [RTC8564] registered
-i2c_adapter i2c-0: found normal entry for adapter 0, addr 0x51
-i2c_adapter i2c-0: master_xfer[0] W, addr=0x51, len=0
-i2c_adapter i2c-0: bus is not idle. status is 0xff
+Or not. I had an FC3/x86-64 system until two days ago, now I have FC5/86-64.
 
-Is it normal that the kernel doesn't print all messages to the screen?
-What do these messages mean? What should I do
-to get rid of the delay?
+When FC3 was installed I chose to format the partitions to XFS and since 
+then
+I had Oopses regularly with or without VMWare modules.
+I have run memtest64+ for 12+ hours and it indicated two separate single bit
+errors in the topmost  64MB of my 1GB. Since then I was running with
+mem=960M but I still got Oopses on a bit heavier disk loads and every time
+XFS was involved.
 
-CL<
-"
+I backed up my /home with rsync to a new harddisk in single mode,
+the new disk was formatted to EXT3. During the backup I had Oopses
+about 5 or 6 times and I had to reboot. Rsync was able to continue,
+that's why I chose that for backup...
+
+I installed FC5 using only EXT3 partitions and copied my 80+ GB data
+back to /home. Guess what? No Oopses...
+
+Best regards,
+Zoltán Böszörményi
+

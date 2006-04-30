@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWD3OSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWD3OSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWD3OSV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 10:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWD3OR7
+	id S1751133AbWD3OSe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 10:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWD3OSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 10:17:59 -0400
-Received: from host199-105.pool8255.interbusiness.it ([82.55.105.199]:22168
+	Sun, 30 Apr 2006 10:18:25 -0400
+Received: from host199-105.pool8255.interbusiness.it ([82.55.105.199]:23960
 	"EHLO zion.home.lan") by vger.kernel.org with ESMTP
-	id S1751130AbWD3OR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 10:17:57 -0400
+	id S1751130AbWD3OSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 10:18:00 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 3/7] uml: make copy_*_user atomic
-Date: Sun, 30 Apr 2006 16:16:14 +0200
+Subject: [PATCH 5/7] uml: fix compilation and execution with hardened GCC
+Date: Sun, 30 Apr 2006 16:16:19 +0200
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20060430141614.9060.3376.stgit@zion.home.lan>
+Message-Id: <20060430141619.9060.68951.stgit@zion.home.lan>
 In-Reply-To: <20060430141512.9060.39338.stgit@zion.home.lan>
 References: <20060430141512.9060.39338.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,117 +23,86 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Make __copy_*_user_inatomic really atomic to avoid "Sleeping function called in
-atomic context" warnings, especially from futex code.
+To make some half-assembly stubs compile, disable various "hardened" GCC
+features:
 
-This is made by adding another kmap_atomic slot and making copy_*_user_skas use
-kmap_atomic; also copy_*_user() becomes atomic, but that's true and is not a
-problem for i386 (and we can always add might_sleep there as done elsewhere).
-For TT mode kmap is not used, so there's no need for this.
-
-I've had to use another slot since both KM_USER0 and KM_USER1 are used elsewhere
-and could cause conflicts. Till now we reused the kmap_atomic slot list from the
-subarch, but that's not needed as that list must contain the common ones (used
-by generic code) + the ones used in architecture specific code (and Uml till now
-used none); so I've taken the i386 one after comparing it with ones from other
-archs, and added KM_UML_USERCOPY.
+*) we can't make it build PIC code as we need %ebx to do syscalls and GCC wants it
+free for PIC
+*) we can't leave stack protection as the stub is moved (not relocated!) in memory
+so the RIP-relative access to the canary tries reading from an unmapped address
+and causes a segfault, since we move the stub of various megabytes (the exact
+amount will be decided at runtime) away from the link-time address.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/kernel/skas/uaccess.c |   15 +++++++++------
- include/asm-um/kmap_types.h   |   20 +++++++++++++++++++-
- 2 files changed, 28 insertions(+), 7 deletions(-)
+ arch/um/Makefile             |    6 +++++-
+ arch/um/kernel/skas/Makefile |    9 ++++++++-
+ arch/um/sys-i386/Makefile    |    2 ++
+ arch/um/sys-x86_64/Makefile  |    2 ++
+ 4 files changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/arch/um/kernel/skas/uaccess.c b/arch/um/kernel/skas/uaccess.c
-index 5992c32..8912cec 100644
---- a/arch/um/kernel/skas/uaccess.c
-+++ b/arch/um/kernel/skas/uaccess.c
-@@ -8,6 +8,7 @@
- #include "linux/kernel.h"
- #include "linux/string.h"
- #include "linux/fs.h"
-+#include "linux/hardirq.h"
- #include "linux/highmem.h"
- #include "asm/page.h"
- #include "asm/pgtable.h"
-@@ -38,7 +39,7 @@ static unsigned long maybe_map(unsigned 
- 	return((unsigned long) phys);
- }
+diff --git a/arch/um/Makefile b/arch/um/Makefile
+index 930e006..bed604a 100644
+--- a/arch/um/Makefile
++++ b/arch/um/Makefile
+@@ -118,6 +118,10 @@ prepare: $(ARCH_DIR)/include/kern_consta
+ LINK-$(CONFIG_LD_SCRIPT_STATIC) += -static
+ LINK-$(CONFIG_LD_SCRIPT_DYN) += -Wl,-rpath,/lib
  
--static int do_op(unsigned long addr, int len, int is_write,
-+static int do_op_one_page(unsigned long addr, int len, int is_write,
- 		 int (*op)(unsigned long addr, int len, void *arg), void *arg)
- {
- 	struct page *page;
-@@ -49,9 +50,11 @@ static int do_op(unsigned long addr, int
- 		return(-1);
- 
- 	page = phys_to_page(addr);
--	addr = (unsigned long) kmap(page) + (addr & ~PAGE_MASK);
-+	addr = (unsigned long) kmap_atomic(page, KM_UML_USERCOPY) + (addr & ~PAGE_MASK);
++CFLAGS_NO_HARDENING := $(call cc-option, -fno-PIC,) $(call cc-option, -fno-pic,) \
++	$(call cc-option, -fno-stack-protector,) \
++	$(call cc-option, -fno-stack-protector-all,)
 +
- 	n = (*op)(addr, len, arg);
--	kunmap(page);
+ CPP_MODE-$(CONFIG_MODE_TT) := -DMODE_TT
+ CONFIG_KERNEL_STACK_ORDER ?= 2
+ STACK_SIZE := $(shell echo $$[ 4096 * (1 << $(CONFIG_KERNEL_STACK_ORDER)) ] )
+@@ -227,4 +231,4 @@ $(ARCH_DIR)/include/kern_constants.h: $(
+ 	@echo '  SYMLINK $@'
+ 	$(Q)ln -sf ../../../include/asm-um/asm-offsets.h $@
+ 
+-export SUBARCH USER_CFLAGS OS
++export SUBARCH USER_CFLAGS CFLAGS_NO_HARDENING OS
+diff --git a/arch/um/kernel/skas/Makefile b/arch/um/kernel/skas/Makefile
+index 57181a9..ad84296 100644
+--- a/arch/um/kernel/skas/Makefile
++++ b/arch/um/kernel/skas/Makefile
+@@ -11,4 +11,11 @@ USER_OBJS := clone.o
+ include arch/um/scripts/Makefile.rules
+ 
+ # clone.o is in the stub, so it can't be built with profiling
+-$(obj)/clone.o : c_flags = -Wp,-MD,$(depfile) $(call unprofile,$(USER_CFLAGS))
++# GCC hardened also auto-enables -fpic, but we need %ebx so it can't work ->
++# disable it
 +
-+	kunmap_atomic(page, KM_UML_USERCOPY);
- 
- 	return(n);
- }
-@@ -77,7 +80,7 @@ static void do_buffer_op(void *jmpbuf, v
- 	remain = len;
- 
- 	current->thread.fault_catcher = jmpbuf;
--	n = do_op(addr, size, is_write, op, arg);
-+	n = do_op_one_page(addr, size, is_write, op, arg);
- 	if(n != 0){
- 		*res = (n < 0 ? remain : 0);
- 		goto out;
-@@ -91,7 +94,7 @@ static void do_buffer_op(void *jmpbuf, v
- 	}
- 
- 	while(addr < ((addr + remain) & PAGE_MASK)){
--		n = do_op(addr, PAGE_SIZE, is_write, op, arg);
-+		n = do_op_one_page(addr, PAGE_SIZE, is_write, op, arg);
- 		if(n != 0){
- 			*res = (n < 0 ? remain : 0);
- 			goto out;
-@@ -105,7 +108,7 @@ static void do_buffer_op(void *jmpbuf, v
- 		goto out;
- 	}
- 
--	n = do_op(addr, remain, is_write, op, arg);
-+	n = do_op_one_page(addr, remain, is_write, op, arg);
- 	if(n != 0)
- 		*res = (n < 0 ? remain : 0);
- 	else *res = 0;
-diff --git a/include/asm-um/kmap_types.h b/include/asm-um/kmap_types.h
-index 0b22ad7..6c03acd 100644
---- a/include/asm-um/kmap_types.h
-+++ b/include/asm-um/kmap_types.h
-@@ -6,6 +6,24 @@
- #ifndef __UM_KMAP_TYPES_H
- #define __UM_KMAP_TYPES_H
- 
--#include "asm/arch/kmap_types.h"
-+/* No more #include "asm/arch/kmap_types.h" ! */
++CFLAGS_clone.o := $(CFLAGS_NO_HARDENING)
 +
-+enum km_type {
-+	KM_BOUNCE_READ,
-+	KM_SKB_SUNRPC_DATA,
-+	KM_SKB_DATA_SOFTIRQ,
-+	KM_USER0,
-+	KM_USER1,
-+	KM_UML_USERCOPY,	/* UML specific, for copy_*_user - used in do_op_one_page */
-+	KM_BIO_SRC_IRQ,
-+	KM_BIO_DST_IRQ,
-+	KM_PTE0,
-+	KM_PTE1,
-+	KM_IRQ0,
-+	KM_IRQ1,
-+	KM_SOFTIRQ0,
-+	KM_SOFTIRQ1,
-+	KM_TYPE_NR
-+};
++# since we're setting c_flags we _must_ add $(CFLAGS_$(*F).o).
++
++$(obj)/clone.o : c_flags = -Wp,-MD,$(depfile) $(call unprofile,$(USER_CFLAGS)) $(CFLAGS_$(*F).o)
+diff --git a/arch/um/sys-i386/Makefile b/arch/um/sys-i386/Makefile
+index 82121ab..3734c3e 100644
+--- a/arch/um/sys-i386/Makefile
++++ b/arch/um/sys-i386/Makefile
+@@ -13,6 +13,8 @@ USER_OBJS := bugs.o ptrace_user.o sigcon
+ USER_OBJS += user-offsets.s
+ extra-y += user-offsets.s
  
- #endif
++CFLAGS_stub_segv.o := $(CFLAGS_NO_HARDENING)
++
+ extra-$(CONFIG_MODE_TT) += unmap.o
+ 
+ include arch/um/scripts/Makefile.rules
+diff --git a/arch/um/sys-x86_64/Makefile b/arch/um/sys-x86_64/Makefile
+index f739bea..6d3b29c 100644
+--- a/arch/um/sys-x86_64/Makefile
++++ b/arch/um/sys-x86_64/Makefile
+@@ -21,6 +21,8 @@ USER_OBJS := ptrace_user.o sigcontext.o 
+ USER_OBJS += user-offsets.s
+ extra-y += user-offsets.s
+ 
++CFLAGS_stub_segv.o := $(CFLAGS_NO_HARDENING)
++
+ extra-$(CONFIG_MODE_TT) += unmap.o
+ 
+ include arch/um/scripts/Makefile.rules

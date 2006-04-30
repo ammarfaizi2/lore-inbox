@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWD3Oer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWD3OzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWD3Oer (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 10:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWD3Oer
+	id S1751140AbWD3OzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 10:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWD3OzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 10:34:47 -0400
-Received: from mx5.Informatik.Uni-Tuebingen.De ([134.2.12.32]:4040 "EHLO
-	mx5.informatik.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id S1751138AbWD3Oeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 10:34:46 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: discuss@x86-64.org, Mikael Pettersson <mikpe@it.uu.se>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: [discuss] [RFC] make PC Speaker driver work on x86-64
-References: <200604291830.k3TIUA23009336@harpo.it.uu.se>
-	<200604301046.22369.ak@suse.de>
-From: Goswin von Brederlow <brederlo@informatik.uni-tuebingen.de>
-Date: Sun, 30 Apr 2006 16:32:47 +0200
-In-Reply-To: <200604301046.22369.ak@suse.de> (Andi Kleen's message of "Sun,
- 30 Apr 2006 10:46:22 +0200")
-Message-ID: <878xpnt9ps.fsf@informatik.uni-tuebingen.de>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Sun, 30 Apr 2006 10:55:20 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:28033 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751140AbWD3OzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 10:55:19 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <4454CF35.7010803@s5r6.in-berlin.de>
+Date: Sun, 30 Apr 2006 16:52:37 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: linux-scsi@vger.kernel.org
+Subject: How to replace bus_to_virt()?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.867) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+Hi all,
 
-> On Saturday 29 April 2006 20:30, Mikael Pettersson wrote:
->> I have a pair of Athlon64 machines that dual-boot 32-bit and
->> 64-bit kernels. One annoying difference between the kernels
->> is that the PC Speaker driver (CONFIG_INPUT_PCSPKR=y) only
->> works in the 32-bit kernels. 
->
-> Ah, I would consider this more a feature than a bug but ok :)
->
->> In the 64-bit kernels it remains 
->> inactive and doesn't even generate any boot-time initialisation
->> or error messages.
+is there a *direct* future-proof replacement for bus_to_virt()?
 
-That means that the system wouldn't beep on the console or when you
-call "beep", right?
+It appears there are already architectures which do not define a 
+bus_to_virt() funtion or macro. If there isn't a direct replacement, is 
+there at least a way to detect at compile time whether bus_to_virt() exists?
 
-With 2.6.8 x86_64 that worked without problems. Since I updated to
-2.6.15 the system is silent.
+I am asking because the sbp2 driver uses bus_to_virt() if 
+CONFIG_IEEE1394_SBP2_PHYS_DMA=y. I would like to replace this option by 
+an automatic detection when the respective code in sbp2 is actually 
+required.
 
-Could it be that this is a recent problem?
+The current implementation is this: Sbp2 uses bus_to_virt() to map from 
+1394 bus addresses (which are currently identical to local host bus 
+addresses) to virtual addresses. These addresses are supplied by SBP-2 
+target devices and point to *arbitrary* locations within buffers. These 
+buffers are supplied by the SCSI subsystem/ block IO subsystem. That is, 
+sbp2 has no influence on the location of the buffers, nor has it 
+influence on the location of the chunk of data which an SBP-2 target is 
+reading or writing at a particular moment. But thanks to bus_to_virt(), 
+sbp2 does not need to know which SCSI command buffer (and to which 
+scatter/gather element in the buffer) a particular data transfer belongs to.
 
-MfG
-        Goswin
+ From what I found out so far, I am afraid I have to implement a totally 
+different address mapping scheme for the cases where physical DMA is not 
+available; i.e. a scheme that enables sbp2 to look up the s/g element to 
+which a transfer is directed, based on the 1394 bus address of the transfer.
+-- 
+Stefan Richter
+-=====-=-==- -=-- ====-
+http://arcgraph.de/sr/

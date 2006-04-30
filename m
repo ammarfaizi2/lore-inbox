@@ -1,110 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWD3PER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWD3PFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWD3PER (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 11:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWD3PER
+	id S1751143AbWD3PFW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 11:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWD3PFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 11:04:17 -0400
-Received: from 84-72-61-190.dclient.hispeed.ch ([84.72.61.190]:5023 "EHLO
-	kestrel.twibright.com") by vger.kernel.org with ESMTP
-	id S1751142AbWD3PEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 11:04:16 -0400
-Date: Sun, 30 Apr 2006 16:11:49 +0200
-From: Karel Kulhavy <clock@twibright.com>
-To: Erik Mouw <erik@harddisk-recovery.com>
+	Sun, 30 Apr 2006 11:05:22 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:57860 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751143AbWD3PFV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 11:05:21 -0400
+Date: Sun, 30 Apr 2006 15:21:55 +0100
+From: Darren Salt <linux@youmustbejoking.demon.co.uk>
+To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel manual pages
-Message-ID: <20060430141149.GB9457@kestrel>
-References: <20060127092623.GA7882@kestrel> <20060127143052.GF3673@harddisk-recovery.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060127143052.GF3673@harddisk-recovery.com>
-X-Orientation: Gay
-X-Stance: Goofy
-User-Agent: Mutt/1.5.11
+Subject: Re: Log flood: "scheduling while atomic" (2.6.15.x, 2.6.16.x)
+Message-ID: <4E1FB78B33%linux@youmustbejoking.demon.co.uk>
+References: <4E1F56DC10%linux@youmustbejoking.demon.co.uk> <20060429182220.0a306fe2.akpm@osdl.org>
+In-Reply-To: <20060429182220.0a306fe2.akpm@osdl.org>
+User-Agent: Messenger-Pro/4.09b8 (MsgServe/3.24b1) (RISC-OS/4.02) POPstar/2.06+cvs
+X-Editor: Zap 1.47 (27 Apr 2006) [TEST], ZapEmail 0.28.3 (25 Mar 2005) (32)
+X-SDate: Sun, 4625 Sep 1993 15:21:55 +0100
+X-Message-Flag: Outlook Express is broken. Upgrade to mail(1).
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="622826571--31393191--260807643"
+X-SA-Exim-Connect-IP: 192.168.0.2
+X-SA-Exim-Mail-From: linux@youmustbejoking.demon.co.uk
+X-SA-Exim-Scanned: No (on pentagram.youmustbejoking.demon.co.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 03:30:52PM +0100, Erik Mouw wrote:
-> On Fri, Jan 27, 2006 at 10:26:23AM +0100, Karel Kulhavy wrote:
-> > Who is responsible for writing the linux kernel manual pages?  I went to
-> > vger.kernel.org and there is "There is much information about Linux on
-> > the web." which points to 7 different 3rd party websites.  I searched
-> > for "manual" and "manpage" in all 7 and didn't find any mention of
-> > manual pages.
-> 
-> The manpage editor, which is a completely different project than the
+This message is in MIME format which your mailer apparently does not support.
+You either require a newer version of your software which supports MIME, or
+a separate MIME decoding utility.  Alternatively, ask the sender of this
+message to resend it in a different format.
 
-Is it Michael Kerrisk? If yes, why not adding a link to his page 
-"these are the official Linux kernel manpages"?
+--622826571--31393191--260807643
+Content-Type: text/plain; charset=us-ascii
 
-> linux kernel itself. The manual pages are usually edited by the
-> distributions, so use the package manager for your distribution figure
-> out which manpage they belong to and file a patch/bug for the pages you
-> (dis)like:
-> 
->   dpkg -S /usr/share/man/man4/ttyS.4.gz (debian based distros)
->   rpm -qf /usr/share/man/man4/ttyS.4.gz (rpm based distros)
-> 
-> The distribution maintainer should take care of submitting the changes
-> upstream.
+I demand that Andrew Morton may or may not have written...
 
-They don't - for example Gentoo closes the bug report with "UPSTREAM"
-and doesn't take care at all.
+> Darren Salt <linux@youmustbejoking.demon.co.uk> wrote:
 
-> 
-> > I also suggest the http://kernel.org/links.html to be structured
-> > according to topic, and not according to name of the website. Because
-> > if the user comes, he mostly needs to know information about particular
-> > topic. This way he doesn't know which link to click to obtain the
+>> I'm seeing bouts of log flooding caused by something presumably not
+>> releasing a lock. I've looked at some of the messages, but at around
+>> 100/s, I'm not too keen to look through the whole lot :-)
 
-> information.
-> 
-> Kernel.org is for distribution of the linux kernel for use by
-> developers and advanced users. Joe Random User shouldn't be compiling
-> his kernel in the first place, so making kernel.org "user friendly"
-> doesn't serve any purpose. The amount of links on that particular page
+>>    scheduling while atomic: swapper/0xafbfffff/0
+>>     [show_trace+19/32]
+>>     [dump_stack+30/32]
+>>     [schedule+1278/1472]
+>>     [cpu_idle+88/96]
+>>     [stext+44/64]
+>>     [start_kernel+574/704]
+>>     [L6+0/2] 0xc0100199
 
-Why not? I am Joe Random User and I am compiling my kernel and the
-result is usually better than if I use the tampered-with kernel from
-my distribution (Gentoo).
+>> (Trailing parts of some lines have been omitted; it's all repeated data.
+>> And some sort of rate-limiting of these messages would be nice, but some
+>> other way to draw attention to the problem, e.g. an occasional beep, would
+>> be good.)
 
-I think there's nothing that could prevent ordinary user to use directly
-the kernel, if there are clear enough instructions how to use the
-kernel.
+>> The most recent instance occurred a few minutes into recording a TV
+>> programme (via vdr) from a cx88-based Nova-T. (I'm currently using stock
+>> drivers rather than ones built from the v4l-dvb repository.)
 
-It's not difficult to make a unknowing user use a complicated system
-properly. On my project http://ronja.twibright.com I managed to write a
-guide according to which a totally electrically unskilled person can
-build a optical wireless networking hardware and it works on the first
-try. Without oscilloscope, just with a cheap multimeter.
+> Thanks for the report.
 
-> also doesn't really need a structure, even Joe Random User would be
-> able to navigate it.
+> The below patch (against 2.6.17-rc3) should, if it still works, tell us
+> which lock didn't get unlocked.
 
-I am Joe Random User and I am getting lost in it. It's pointing to
-various sources and I don't know what's official and what and what
-I should read first and what last. Why not organize it better? I don't
-think it would require much work.
+> You'll need to enable CONFIG_PREEMPT and CONFIG_DEBUG_PREEMPT and
+> CONFIG_FRAME_POINTER.
 
-> 
-> > Furthermore I suggest "Manuals" section to be added to vger.kernel.org
-> > in the style OpenBSD has:
-> > http://openbsd.org/
-> > http://www.openbsd.org/cgi-bin/man.cgi
-> 
-> Manpages are userland stuff and therefore do not belong on kernel.org.
-> The kernel is documented in the Documentation/ directory in the source
-> tree, and ultimately in the source itself.
+Done, compiled, rebooted. I have a recording scheduled for later; I'll wait
+and see what happens.
 
-The source is not documentation. From the source the reader can
-incorrectly assume something about the interface that is not generally
-true, but is just the case of the implementation in one version. And
-then it will stop working with kernel upgrade.
+> Please cc video4linux-list@redhat.com on any result if it looks like v4l is
+> indeed the culprit.
 
-Where are all the interfaces (i. e. towards userland and towards
-hardware) of the kernel described? The Documentation/ directory contains
-only very superficial documentation.
+Will do.
 
-CL<
+BTW, patches applied:
+  * the advansys patch from -mm;
+  * BROKEN removed from the depends for advansys;
+  * quietening of dprintk(0,...) (replaced with dprintk(1,...) in
+    cx88-mpeg.c (these messages have some annoyance value);
+  * a patch of my own for usbhid for a slightly weird USB+PS/2 mouse,
+    connected via USB (I'll post this as directed in MAINTAINERS);
+  * another of my own (attached for reference) which *should* rate-limit the
+    "scheduling while atomic" messages somewhat.
+
+The last one is new; the rest don't have any bearing on the problem, which
+has occurred without them and, indeed, without the presence of advansys and
+usbhid.
+
+[snip]
+-- 
+| Darren Salt    | linux or ds at              | nr. Ashington, | Toon
+| RISC OS, Linux | youmustbejoking,demon,co,uk | Northumberland | Army
+| + Lobby friends, family, business, government.    WE'RE KILLING THE PLANET.
+
+He is truly wise who gains wisdom from another's mishap.
+
+--622826571--31393191--260807643
+Content-Type: text/plain; charset=iso-8859-1; name="sched_atomic_ratelimit_hack.patch"
+Content-Disposition: attachment; filename="sched_atomic_ratelimit_hack.patch"
+Content-Transfer-Encoding: quoted-printable
+
+--- 2.6.17-rc3/kernel/sched.c.orig
++++ 2.6.17-rc3/kernel/sched.c
+@@ -2904,10 +2904,28 @@
+ 	 * Otherwise, whine if we are scheduling when we should not be.
+ 	 */
+ 	if (unlikely(in_atomic() && !current->exit_state)) {
++	  /* Hack to avoid *serious* log-flooding. */
++	  static int skipped =3D -50; /* want to report the first 50 */
++	  static unsigned long last =3D 0;
++	  int doprint =3D 1;
++	  if (skipped < 0) {
++	    if (!++skipped)
++	      last =3D jiffies;
++	  } else if (jiffies - last < 5 * HZ) /* should be 5s */ {
++	    if (skipped < 0x7FFFFFFF)
++	      ++skipped;
++	    doprint =3D 0;
++	  }
++	  if (doprint) {
++	    last =3D jiffies;
++	    if (skipped)
++	      printk(KERN_ERR "[%d s-w-a not reported]\n", skipped);
++	    skipped =3D 0;
+ 		printk(KERN_ERR "BUG: scheduling while atomic: "
+ 			"%s/0x%08x/%d\n",
+ 			current->comm, preempt_count(), current->pid);
+ 		dump_stack();
++	  }
+ 	}
+ 	profile_hit(SCHED_PROFILING, __builtin_return_address(0));
+=20
+
+--622826571--31393191--260807643--

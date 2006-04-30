@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWD3Mg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWD3Mvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbWD3Mg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 08:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWD3Mg2
+	id S1751105AbWD3Mvp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 08:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWD3Mvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 08:36:28 -0400
-Received: from 0x55511dab.adsl.cybercity.dk ([85.81.29.171]:53849 "EHLO
-	hunin.borkware.net") by vger.kernel.org with ESMTP id S1751102AbWD3Mg2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 08:36:28 -0400
+	Sun, 30 Apr 2006 08:51:45 -0400
+Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:56078 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751105AbWD3Mvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 08:51:45 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Mark Rosenstand <mark@borkware.net>
 Subject: Re: World writable tarballs
-From: Mark Rosenstand <mark@borkware.net>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Date: Sun, 30 Apr 2006 13:51:55 +0100
+User-Agent: KMail/1.9.1
 Cc: Heikki Orsila <shd@zakalwe.fi>, linux-kernel@vger.kernel.org
-In-Reply-To: <200604301249.16259.s0348365@sms.ed.ac.uk>
-References: <1146356286.10953.7.camel@hammer>
-	 <200604300148.12462.s0348365@sms.ed.ac.uk>
-	 <20060430091501.GA19566@zakalwe.fi>
-	 <200604301249.16259.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain
-Date: Sun, 30 Apr 2006 14:36:54 +0200
-Message-Id: <1146400614.15178.14.camel@hammer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+References: <1146356286.10953.7.camel@hammer> <200604301249.16259.s0348365@sms.ed.ac.uk> <1146400614.15178.14.camel@hammer>
+In-Reply-To: <1146400614.15178.14.camel@hammer>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200604301351.55136.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-04-30 at 12:49 +0100, Alistair John Strachan wrote:
-> Going over old ground again, any administrator a) compiling the kernel as root 
-> or b) relying on GNU tar to make _security policy decisions_ is completely 
-> insane.
+On Sunday 30 April 2006 13:36, Mark Rosenstand wrote:
+> On Sun, 2006-04-30 at 12:49 +0100, Alistair John Strachan wrote:
+> > Going over old ground again, any administrator a) compiling the kernel as
+> > root or b) relying on GNU tar to make _security policy decisions_ is
+> > completely insane.
+>
+> Yes, GNU tar is acting insane. Given that GNU tar is the most widely
+> used tar implementation (at least for extracting linux sources), why is
+> the kernel packaged to exploit this insane behaviour?
 
-Yes, GNU tar is acting insane. Given that GNU tar is the most widely
-used tar implementation (at least for extracting linux sources), why is
-the kernel packaged to exploit this insane behaviour?
+I think you're missing the point. The tar archive can have whatever the hell 
+permissions it likes; you as the user of tar and risking extraction as root 
+should know what tar does and (if you care) take action to negate it.
 
-> Really, people that complain about security should have a modicum of a clue; 
-> allowing a tar file that _somebody else_ applied _their_ security policy, to 
-> define yours, is a deeply flawed concept. umask is there for a reason.
+Even back before the kernel tar files made every file writable by all, there 
+were always a few files that were marked executable (!!) by all. Bottom line: 
+you can't rely on the permissions in the tar files.
 
-I merely asked if it was on purpose. In my point of view, it's wrong to
-deliberately expose people to such big security threads.
+Even if the world writable thing is fixed (obviously I would not be opposed to 
+this), I _strongly_ recommend that you add the two flags to tar as a root 
+user so that ANY tar you extract will be extracted with 100% guaranteed safe 
+permissions..
 
-That said, the kernel source is actually the only thing I extract as
-root, mostly because I think it's weird to have symlinks in /lib/modules
-point to my user's home directory.
+(You probably aren't aware of the recent bug found in the kernel build system 
+where, if compilation was executed as root, it would overwrite the /dev/null 
+node with a regular file -- now THAT'S a security problem!)
 
+-- 
+Cheers,
+Alistair.
+
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

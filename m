@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWD3Hg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWD3InW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWD3Hg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 03:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWD3Hg4
+	id S1751058AbWD3InW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 04:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWD3InV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 03:36:56 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47589 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751038AbWD3Hg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 03:36:56 -0400
-Subject: Re: better leve triggered IRQ management needed
-From: Arjan van de Ven <arjan@infradead.org>
-To: Neil Brown <neilb@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <17492.16811.469245.331326@cse.unsw.edu.au>
-References: <20060424114105.113eecac@localhost.localdomain>
-	 <1146345911.3302.36.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0604291453220.3701@g5.osdl.org>
-	 <17492.16811.469245.331326@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Sun, 30 Apr 2006 09:36:49 +0200
-Message-Id: <1146382609.20760.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 30 Apr 2006 04:43:21 -0400
+Received: from mail.suse.de ([195.135.220.2]:33685 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751047AbWD3InV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 04:43:21 -0400
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.17-rc3] i386: fix broken FP exception handling
+Date: Sun, 30 Apr 2006 10:42:59 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-stable <stable@kernel.org>
+References: <200604291409_MC3-1-BE50-16AD@compuserve.com>
+In-Reply-To: <200604291409_MC3-1-BE50-16AD@compuserve.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200604301042.59884.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> .
-> 
-> 5/ Something I haven't thought of.
+On Saturday 29 April 2006 20:07, Chuck Ebbert wrote:
+> The FXSAVE information leak patch introduced a bug in FP exception
+> handling: it clears FP exceptions only when there are already
+> none outstanding.  Mikael Pettersson reported that causes problems
+> with the Erlang runtime and has tested this fix.
 
+Patch looks correct, thanks. All other cases (x86-64, 2.4) should
+be already ok.
 
-do a background poll and if that gets a lot of "hits" maybe increase the
-frequency of it
+-Andi
 

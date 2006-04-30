@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWD3Ruf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWD3TTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWD3Ruf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 13:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWD3Ruf
+	id S1751001AbWD3TTw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 15:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWD3TTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 13:50:35 -0400
-Received: from mail.gmx.de ([213.165.64.20]:697 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751213AbWD3Rue (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 13:50:34 -0400
-X-Authenticated: #2308221
-Date: Sun, 30 Apr 2006 19:50:31 +0200
-From: Christian Trefzer <ctrefzer@gmx.de>
-To: Dmitry Fedorov <dm.fedorov@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [FYI] whitespace removal
-Message-ID: <20060430175031.GF17917@zeus.uziel.local>
-References: <20060430172716.GC17917@zeus.uziel.local> <7115951b0604301036h3962ddbfs5a60c93a130c50a0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gneEPciiIl/aKvOT"
+	Sun, 30 Apr 2006 15:19:52 -0400
+Received: from pproxy.gmail.com ([64.233.166.181]:56964 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750983AbWD3TTv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 15:19:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=D1J8YUbuIpV1U3C/n1YhMuwqZuB4cdWcbRxMgvm5PwJ1zrmHaCrCRfbdWvBZ81Y/aFrSZ+hPbx03coW1ZAEcwG0sl5h7nM2Lie+DPLkpR5ln2p6JHBVqRH51p6U4+01pXig2CcChTzARNacKQbavzoJxVB8XWvJNp7R0g20WhkU=
+Message-ID: <2a56523e0604301219s67244272n7e8ee7c634a1933c@mail.gmail.com>
+Date: Sun, 30 Apr 2006 12:19:50 -0700
+From: "Professor Moriarty" <bofh.h4x@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: irq event 5: bogus return value 19
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <7115951b0604301036h3962ddbfs5a60c93a130c50a0@mail.gmail.com>
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On debugging a soundcard driver (the Riptide driver from linuxant,
+ported by me to 2.6), I seem to have 2 weird bugs that are giving me a
+headache:
+Both occur when I try to actually play a file
+The first: ppos != &file->f_pos
+If I comment that check out, I get a kernelpanic. If I comment out the
+schedule_work() to run the bottom half of the IRQ handler, I get the
+message:
+irq event 5: bogus return value 19
+Followed by:
+kernel: Disabling IRQ #5
+At this point, the first 4K of raw PCM plays, and then /dev/dsp
+blocks, while the speakers repeat the 4K of data repeatedly until I
+ctrl+C mplayer. Trying to cat data to /dev/dsp plays first 4K, then
+cat says /dev/dsp is out of space.
 
---gneEPciiIl/aKvOT
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Any ideas?
 
-Hi Dmitry,
-
-On Mon, May 01, 2006 at 12:36:02AM +0700, Dmitry Fedorov wrote:
->=20
-> Use "diff -b".
-
-diff -b would be useful to ignore whitespace in comparisons, thanks for
-opening my eyes. I doubt it would be useful while creating cleanup
-patches, though ; )
-
-Kind regards,
-Chris
-
---gneEPciiIl/aKvOT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iQIVAwUBRFT4512m8MprmeOlAQLL1hAAqLbduG7WVWzjXRiPCZpuL2B1Kij8/Nxs
-BZvxzRpH8he4lps6+69z04WhWSCeNJhwqFeHUYaRY3YveB6AxPexjuVbDcU1cTv4
-qOZ2BBYGT1r5ScRGcxW/um9rIevpvv9V0N+W0r1Il5GsQESLZO2Ma2ZPHDEsvWHm
-s1HbIZtjaHGXal4J/hpsB/ghbkakUqOVqraBizDYUgLPWmRM3mKfMDGlUG1yZ+BR
-7KxS4kSTpt6l3XdZ24nAbajBrAYqXBxHWwL1QndLaZCVqB02FQifA8rqCH1eVtzi
-V4Q+G9DWDkc1c6vux2Vyya3zo/FBarQS89hgdm/DwNmTgm/jp7Uii58+dCHAuPR2
-Sd5BYRu8a+CHUiXW/I++2U0Uh8Tx0rO+GmiDPcKAJ5kgSs6pFamVwzHBQQX0gFZh
-5OzO19C3CbMp0ImXvP93FNKC+OiY+e1dXFaQBqzuh9iP3zGE8bep/sfnCEKYod6x
-j7SOrz7Pq6xVxVAWL+bF4WkgM1d39yPYq1mOlFlRyMhsqRB3b9WBtoeg/Z9gaNNF
-5+YcXTX6TmOsgrmL9WlqcpFac8bdKFM7mejWzo9U3cohE4agJPz3ZhliH6Tr5AlR
-h6ODnwdhFsignntqlHaBzOxszdEOAk4GjM4yuM9zG+XKeMmTDelKuODBeAvCjBUO
-9MxQ981hWwc=
-=9L7u
------END PGP SIGNATURE-----
-
---gneEPciiIl/aKvOT--
-
+~ Vasily Ivanov

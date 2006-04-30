@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWD3FTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWD3GHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWD3FTL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 01:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWD3FTL
+	id S1750973AbWD3GHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 02:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWD3GHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 01:19:11 -0400
-Received: from smtpout.mac.com ([17.250.248.184]:40391 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1750959AbWD3FTK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 01:19:10 -0400
-In-Reply-To: <20060429215501.GA9870@kroah.com>
-References: <20060428112225.418cadd9.holzheu@de.ibm.com> <20060429075311.GB1886@kroah.com> <8A7D2F4D-5A05-4C93-B514-03268CAA9201@mac.com> <20060429215501.GA9870@kroah.com>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <4237705F-E1B2-46CF-BE66-EFB77F68EC42@mac.com>
-Cc: Michael Holzheu <holzheu@de.ibm.com>, akpm@osdl.org,
-       schwidefsky@de.ibm.com, penberg@cs.helsinki.fi, ioe-lkml@rameria.de,
-       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org
+	Sun, 30 Apr 2006 02:07:25 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:2554 "EHLO
+	ms-smtp-01.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1750971AbWD3GHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 02:07:25 -0400
+Date: Sun, 30 Apr 2006 01:07:15 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Andi Kleen <ak@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Magnus Damm <magnus.damm@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: i386 and PAE: pud_present()
+Message-ID: <2432524299CCD3CA89BB647D@[10.1.1.4]>
+In-Reply-To: <200604281027.22183.ak@suse.de>
+References: <aec7e5c30604280040p60cc7c7dqc6fb6fbdd9506a6b@mail.gmail.com>
+ <4451CA41.5070101@yahoo.com.au> <200604281027.22183.ak@suse.de>
+X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] s390: Hypervisor File System
-Date: Sun, 30 Apr 2006 01:18:46 -0400
-To: Greg KH <greg@kroah.com>
-X-Mailer: Apple Mail (2.746.3)
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 29, 2006, at 17:55:01, Greg KH wrote:
-> relayfs is for that.  You can now put relayfs files in any ram  
-> based file system (procfs, ramfs, sysfs, debugfs, etc.)
 
-But you can't twiddle relayfs with echo and cat; it's more suited to  
-high-bandwidth transfers than anything else, no?  The idea here would  
-be to be able to interact with the files in /sys the same way you  
-always do, but provide a sort of consistency system whereby a program  
-_or_ sysadmin can attach its view of the /sys/hypervisor directory  
-tree to a particular snapshot of the system.  As far as I can tell  
-(although I'd be happy to be proven wrong), there is no trivial way  
-to manually access or shellscript relayfs files, the way you can  
-"cat /sys/devices/<path-to-device>/dev".
+--On Friday, April 28, 2006 10:27:21 +0200 Andi Kleen <ak@suse.de> wrote:
 
-Cheers,
-Kyle Moffett
+>> Take a look a little further down the page for the comment.
+>> 
+>> In i386 + PAE, pud is always present.
+> 
+> I think his problem is that the PGD is always present too (in
+> pgtables-nopud.h) Indeed looks strange.
+
+The PGD is always fully populated on i386 if PAE is enabled.  All three of
+the pmd pages are allocated at page table creation time and persist till
+the page table is deleted.
+
+Dave McCracken
+

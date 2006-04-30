@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWD3Q3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWD3QcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWD3Q3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 12:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWD3Q3Z
+	id S1751161AbWD3QcY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 12:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWD3QcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 12:29:25 -0400
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:37131 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751160AbWD3Q3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 12:29:24 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Goswin von Brederlow <brederlo@informatik.uni-tuebingen.de>
-Subject: Re: [discuss] [RFC] make PC Speaker driver work on x86-64
-Date: Sun, 30 Apr 2006 17:29:32 +0100
-User-Agent: KMail/1.9.1
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org,
-       Mikael Pettersson <mikpe@it.uu.se>,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-References: <200604291830.k3TIUA23009336@harpo.it.uu.se> <200604301046.22369.ak@suse.de> <878xpnt9ps.fsf@informatik.uni-tuebingen.de>
-In-Reply-To: <878xpnt9ps.fsf@informatik.uni-tuebingen.de>
+	Sun, 30 Apr 2006 12:32:24 -0400
+Received: from pproxy.gmail.com ([64.233.166.178]:51876 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751161AbWD3QcY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 12:32:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=h0txUi6U/hREx4ryviyL0t3WD1kd2gsaMGKdyVCU6ELQgcEcKQsVXHxq6V/K6nMOeBylTN3KUOd7/h4RpR3vUg0nCbKHOweSXApLprsqHFFvQVTsukTqKZ5MOxwTxYZv/tWDC3KJOUXIrjB6mNB+s4h4pQ0g6KtuOeCWREWGncc=
+Message-ID: <bda6d13a0604300932u10d8a05cw84094ed50c669f8d@mail.gmail.com>
+Date: Sun, 30 Apr 2006 09:32:23 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: World writable tarballs
+In-Reply-To: <1146379675.8217.2.camel@minerva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200604301729.32008.s0348365@sms.ed.ac.uk>
+References: <1146356286.10953.7.camel@hammer>
+	 <200604300148.12462.s0348365@sms.ed.ac.uk>
+	 <bda6d13a0604292159r3187b76fg56b137816480bf2a@mail.gmail.com>
+	 <1146379675.8217.2.camel@minerva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 April 2006 15:32, Goswin von Brederlow wrote:
-> Andi Kleen <ak@suse.de> writes:
-> > On Saturday 29 April 2006 20:30, Mikael Pettersson wrote:
-> >> I have a pair of Athlon64 machines that dual-boot 32-bit and
-> >> 64-bit kernels. One annoying difference between the kernels
-> >> is that the PC Speaker driver (CONFIG_INPUT_PCSPKR=y) only
-> >> works in the 32-bit kernels.
-> >
-> > Ah, I would consider this more a feature than a bug but ok :)
-> >
-> >> In the 64-bit kernels it remains
-> >> inactive and doesn't even generate any boot-time initialisation
-> >> or error messages.
->
-> That means that the system wouldn't beep on the console or when you
-> call "beep", right?
->
-> With 2.6.8 x86_64 that worked without problems. Since I updated to
-> 2.6.15 the system is silent.
->
-> Could it be that this is a recent problem?
+> Isn't it just an extra ten seconds to type the 'sudo' in front of 'make
+> modules_install' and enter your password?  I guess I totally don't get
+> it.
+No sudo.
+Besides, the next command after make modules_install is mount.
 
-I think it's as described; the pcspkr driver changed in design around this 
-time and needs to be plugged, now. It's probably exactly the same issue.
+Besides, if it weren't the fact that the tarball has world-writable files, this
+would be more secure than compiling as a normal user. Instead of just
+hijacking some user account, they now have to do that followed by
+somehow getting my root password.
 
--- 
-Cheers,
-Alistair.
-
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+I disallowed password authentication for root over ssh some time ago.

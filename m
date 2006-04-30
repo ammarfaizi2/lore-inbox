@@ -1,65 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWD3U1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbWD3Ur2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbWD3U1s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 16:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWD3U1s
+	id S1751002AbWD3Ur2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 16:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWD3Ur1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 16:27:48 -0400
-Received: from orfeus.profiwh.com ([82.100.20.117]:22534 "EHLO
-	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S1751004AbWD3U1r
+	Sun, 30 Apr 2006 16:47:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:48578 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751002AbWD3Ur1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 16:27:47 -0400
-Message-ID: <44551DD2.3080708@gmail.com>
-Date: Sun, 30 Apr 2006 22:27:39 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Professor Moriarty <bofh.h4x@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: irq event 5: bogus return value 19
-References: <2a56523e0604301219s67244272n7e8ee7c634a1933c@mail.gmail.com>
-In-Reply-To: <2a56523e0604301219s67244272n7e8ee7c634a1933c@mail.gmail.com>
-X-Enigmail-Version: 0.94.0.0
+	Sun, 30 Apr 2006 16:47:27 -0400
+Date: Sun, 30 Apr 2006 13:45:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel =?ISO-8859-1?B?QXJhZ29u6XM=?= <danarag@gmail.com>
+Cc: penberg@cs.helsinki.fi, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] minix filesystem update to V3 for 2.6 kernels
+Message-Id: <20060430134527.5175661a.akpm@osdl.org>
+In-Reply-To: <4454C131.8070309@gmail.com>
+References: <4454C131.8070309@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Professor Moriarty napsal(a):
-> On debugging a soundcard driver (the Riptide driver from linuxant,
-> ported by me to 2.6), I seem to have 2 weird bugs that are giving me a
-> headache:
-> Both occur when I try to actually play a file
-> The first: ppos != &file->f_pos
-> If I comment that check out, I get a kernelpanic. If I comment out the
-> schedule_work() to run the bottom half of the IRQ handler, I get the
-> message:
-> irq event 5: bogus return value 19
-> Followed by:
-> kernel: Disabling IRQ #5
-> At this point, the first 4K of raw PCM plays, and then /dev/dsp
-> blocks, while the speakers repeat the 4K of data repeatedly until I
-> ctrl+C mplayer. Trying to cat data to /dev/dsp plays first 4K, then
-> cat says /dev/dsp is out of space.
+Daniel Aragonés <danarag@gmail.com> wrote:
+>
+> Hi Andrew,
 > 
-> Any ideas?
-Give us (at least parts of) the code and then we can tell you, now it may be
-like a shot in the dark.
+> As a continuation of my former communication of January 25, and after having posted the attached patch in my personal page http://www.terra.es/personal2/danarag for about 3 months, feedback has come 
+> to me, and some bugs have been detected and corrected.
 
-regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+People use minixfs?  I'm a bit surprised.
 
-iD8DBQFEVR3SMsxVwznUen4RAgDzAJ9pSjjRRzeiD5PYgF1eon1Q6dYmEwCeOVRN
-pmURuwCGXGVXwUN2Qbafvn0=
-=5Tj8
------END PGP SIGNATURE-----
+> I believe that now (not before) the patch is really ready for merging into the main line if you consider it appropriate.
+
+We'd need a detailed changelog please.
+
+> Signed-off-by: Daniel Aragones <danarag@gmail.com>
+
+The patch gets lots of rejects.  More than I'm prepared to fix up so I can
+take a look at it in tkdiff, unfortunately.
+
+I suspect the patch was against some prehistoric kernel like 2.6.16 ;)
+
+
+> @@ -79,24 +96,35 @@
+>  int minix_new_block(struct inode * inode)
+>  {
+>  	struct minix_sb_info *sbi = minix_sb(inode->i_sb);
+> -	int i;
+> +	char *offset = kmalloc(sizeof(char *), GFP_KERNEL);
+
+That's a peculiar thing to do.
+
+> +	int num_1K_blocks = (inode->i_sb->s_blocksize)/1024;
+> +	int bits_per_zone = 8 * (inode->i_sb->s_blocksize);
+> +	int i, k;
+>  
+>  	for (i = 0; i < sbi->s_zmap_blocks; i++) {
+>  		struct buffer_head *bh = sbi->s_zmap[i];
+> -		int j;
+> +		for (k = 0; k < num_1K_blocks; k++) {
+> +			int j;
+>  
+> -		lock_kernel();
+> -		if ((j = minix_find_first_zero_bit(bh->b_data, 8192)) < 8192) {
+> -			minix_set_bit(j,bh->b_data);
+> -			unlock_kernel();
+> -			mark_buffer_dirty(bh);
+> -			j += i*8192 + sbi->s_firstdatazone-1;
+> -			if (j < sbi->s_firstdatazone || j >= sbi->s_nzones)
+> -				break;
+> -			return j;
+> +			offset = (char *)bh->b_data;
+
+And here I think we've just leaked that memory.
+
+> +	bit = ino & 8191;
+> +	ino >>= 13;
+> +	mask >>= (4-k);
+> +	if ((ino >> k) >= sbi->s_imap_blocks) {
+>  		printk("minix_free_inode: nonexistent imap in superblock\n");
+>  		goto out;
+>  	}
+>  
+>  	minix_clear_inode(inode);	/* clear on-disk copy */
+>  
+> -	bh = sbi->s_imap[ino >> 13];
+> +	char *offset = kmalloc(sizeof(char *), GFP_KERNEL);
+> +	bh = sbi->s_imap[ino >> k];
+> +	offset = (char *)bh->b_data;
+
+And again.  Here we've definitely leaked it.
+
+> @@ -226,26 +268,36 @@
+>  	j = 8192;
+>  	bh = NULL;
+>  	*error = -ENOSPC;
+> +	char *offset = kmalloc(sizeof(char *), GFP_KERNEL);
+>  	lock_kernel();
+>  	for (i = 0; i < sbi->s_imap_blocks; i++) {
+>  		bh = sbi->s_imap[i];
+> -		if ((j = minix_find_first_zero_bit(bh->b_data, 8192)) < 8192)
+> -			break;
+> +		for (k = 0; k < num_1K_blocks; k++) {
+> +			offset = (char *)bh->b_data;
+
+again
+
+

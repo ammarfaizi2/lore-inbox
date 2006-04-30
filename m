@@ -1,108 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWD3Esy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWD3E7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWD3Esy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 00:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWD3Esy
+	id S1750946AbWD3E7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 00:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWD3E7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 00:48:54 -0400
-Received: from cantor.suse.de ([195.135.220.2]:25476 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750948AbWD3Esy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 00:48:54 -0400
-From: Neil Brown <neilb@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Date: Sun, 30 Apr 2006 14:48:43 +1000
+	Sun, 30 Apr 2006 00:59:24 -0400
+Received: from pproxy.gmail.com ([64.233.166.176]:9072 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750946AbWD3E7X convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 00:59:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WmsCBILnhoO5JQ65e2YLv/OsrCREh23ifFNr33MNmjrTbwo8YPvYp6mTwv6S7fw+oboUJ1oPCr3Bzq7rW/PUowZu6xfuSfrnUjV8Nromgb6F91wNG20zyERTV6ycYrCcvTWlSqnz+rPt6yOfxJP8PTBTFfwuPucQO1PFAb6phLo=
+Message-ID: <bda6d13a0604292159r3187b76fg56b137816480bf2a@mail.gmail.com>
+Date: Sat, 29 Apr 2006 21:59:22 -0700
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: World writable tarballs
+In-Reply-To: <200604300148.12462.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17492.16811.469245.331326@cse.unsw.edu.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: better leve triggered IRQ management needed
-In-Reply-To: message from Linus Torvalds on Saturday April 29
-References: <20060424114105.113eecac@localhost.localdomain>
-	<1146345911.3302.36.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0604291453220.3701@g5.osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1146356286.10953.7.camel@hammer>
+	 <200604300148.12462.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday April 29, torvalds@osdl.org wrote:
-> 
-> 
-> On Sat, 29 Apr 2006, Alan Cox wrote:
-> > 
-> > Trying to guess the current IRQ level v edge on a PC is very hard.
-> > Trying to set it correctly from the driver is rather easier.
-> 
-> I disagree. It's not any easier at all.
-> 
-> On PC's (x86 and x86-64) we actually already set the ELCR as well as we 
-> can (look for "eisa_set_level_irq()"). And a driver _literally_ cannot 
-> change it from the system value, because of the polarity confusion.
-> 
-> In the other cases (IO-APIC) we usually have it level, but when we have it 
-> marked as an edge, there is almost always a real reason for that too (ie 
-> legacy interrupt, it really _is_ edge-high, not level-low).
+On 4/29/06, Alistair John Strachan <s0348365@sms.ed.ac.uk> wrote:
+> On Sunday 30 April 2006 01:18, Mark Rosenstand wrote:
+> > Hi,
+> >
+> > It seems that at least the content of the 2.6.16 tarball is world
+> > writable if extracted with GNU tar as an privileged user.
+> >
+> > Is this on purpose in order to prove some point?
+>
+> Read this thread:
+>
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=113304241100330&w=2
 
-So what do you propose should be done to better handle such poorly
-built machines?
+This REALLY needs fixing. If it weren't so late right now I might have written
+a filter that takes a tarball and sanitizes the permissions. I've got
+good reasons
+for compiling the kernel as root (when in the make, install, reboot, test loop
+it's quite a timesaver).
 
-As a concrete example I have a notebook which definitely assigns
-shared interrupts to IRQ-10 (See /proc/interrupts below) yet the ELCR
-only flags IRQ-11 as being level triggered and the rest are edge
-triggered.
-And with this configuration I definitely lose interrupts to the
-wireless ethernet (ra0).
-
-How do I make this work reliably?
-I could:
-
-1/ modify handle_IRQ_event so that it is more resilient to the
-  possibility that shared interrupts are edge triggered.  This can be
-  done be iterating over all action->handlers until they all return
-  IRQ_NONE.
-
-2/ Arrange that the ELCR bit is set for any IRQ for which a shared
-  interrupt is registered (on the basis that the code for handling
-  shared interrupts is not resilient against them being edge triggered).
-
-3/ Have a kernel parameter, or sysfs variable, or magic
-  write-to-/proc/interrupts of something that allows the ELCR to be read
-  and set, and leave it up to user-space to perform the risky task of
-  fiddling with ELCR
-
-4/ As userspace can do inb/outb itself simply leave it all to
-  userspace to worry about.
-
-5/ Something I haven't thought of.
-
-I don't much care which (those 2 seems best based on my limited
-understanding) but I would be good to know how you think this should
-be handled so that progress can be made.
-
-Thanks,
-NeilBrown
-
- 
-
-
-           CPU0       
-  0:  180230371          XT-PIC  timer
-  1:         91          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  4:         10          XT-PIC  serial
-  8:          4          XT-PIC  rtc
- 10:    3812362          XT-PIC  yenta, yenta, ohci_hcd:usb2, ohci_hcd:usb3, ehci_hcd:usb4, ra0
- 11:          0          XT-PIC  uhci_hcd:usb1
- 12:       3290          XT-PIC  i8042
- 14:      63804          XT-PIC  ide0
- 15:         37          XT-PIC  ide1
-NMI:          0 
-LOC:          0 
-ERR:          0
-MIS:          0
+Yes, I'm the guy who keeps trying to log in as root on ftp.kernel.org over ftp
+with no password. For some bone-headed reason I keep thinking the default
+username for ftp is anonymous, not the user's.

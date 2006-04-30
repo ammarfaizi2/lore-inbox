@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWD3VuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWD3Xo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWD3VuH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 17:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWD3VuH
+	id S1751240AbWD3Xo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 19:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWD3Xo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 17:50:07 -0400
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:57516 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751226AbWD3VuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 17:50:02 -0400
-MIME-Version: 1.0
+	Sun, 30 Apr 2006 19:44:26 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52161 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751240AbWD3Xo0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 19:44:26 -0400
+Date: Mon, 1 May 2006 08:04:27 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: David Greaves <david@dgreaves.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       linux-xfs@oss.sgi.com
+Subject: Re: Bad page state in process 'nfsd' with xfs
+Message-ID: <20060501080427.H1771752@wobbly.melbourne.sgi.com>
+References: <4452797F.70700@dgreaves.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17493.12438.286201.810702@wombat.chubb.wattle.id.au>
-Date: Mon, 1 May 2006 07:48:06 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>,
-       Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Simple header cleanups
-In-Reply-To: <1146391189.10561.157.camel@shinybook.infradead.org>
-References: <1146104023.2885.15.camel@hades.cambridge.redhat.com>
-	<Pine.LNX.4.64.0604261917270.3701@g5.osdl.org>
-	<1146105458.2885.37.camel@hades.cambridge.redhat.com>
-	<Pine.LNX.4.64.0604261954480.3701@g5.osdl.org>
-	<1146107871.2885.60.camel@hades.cambridge.redhat.com>
-	<Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
-	<20060427213754.GU3570@stusta.de>
-	<Pine.LNX.4.64.0604271439100.3701@g5.osdl.org>
-	<17492.34204.844839.262357@wombat.chubb.wattle.id.au>
-	<1146391189.10561.157.camel@shinybook.infradead.org>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4452797F.70700@dgreaves.com>; from david@dgreaves.com on Fri, Apr 28, 2006 at 09:22:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Woodhouse <dwmw2@infradead.org> writes:
+Hi there,
 
-David> On Sun, 2006-04-30 at 19:38 +1000, Peter Chubb wrote:
->> So now we need something new.
+On Fri, Apr 28, 2006 at 09:22:23PM +0100, David Greaves wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> This was with 2.6.16.9
+> 
+> There's an nfs export from an xfs on an lvm on a raid5 on some
+> libata/sata disks.
+> (cc'ing xfs since I recall rumoured(?) badness in old nfs/xfs/md/lvm
+> setups and xfs_sendfile is mentioned)
 
-David> No we don't. 
+Really old (early 2.6) or previously with 4Kstacks this used to be
+a problem, but should not be with your kernel version.
 
-I meant, we can no longer use /usr/include/sys.  In the early days of
-linux, we used /usr/include/{linux,asm}, but that was stopped for good
-reasons.  FWIW, I think your cleanups are a step in the right direction.
+> Bad page state in process 'nfsd'
+> page:b1602060 flags:0x80000008 mapping:00000000 mapcount:0 count:16777216
+> Trying to fix it up, but a reboot is needed
+> Backtrace:
+>  [<b013bda2>] bad_page+0x62/0x90
+>  [<b013c1c8>] prep_new_page+0x78/0x80
+>  [<b013c6b6>] buffered_rmqueue+0xf6/0x1f0
+>  [<b013c8e2>] get_page_from_freelist+0x92/0xb0
+
+Hmm... so, your page flags field there (0x80000008) has the 33rd and
+4th bits set - 4 is pageuptodate, which is fine, but 33 seems odd
+(perhaps some arch-specific bit?  or a single bit error...).
+
+But, the warning is triggered by the page count (16777216 above), and
+that is 0x1000000 -- which is a huge, improbable count; that looks to
+me like it could very well be the result of a single bit error too.
+
+You may have a hardware problem - try running memtest I guess.
+
+cheers.
 
 -- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-http://www.ertos.nicta.com.au           ERTOS within National ICT Australia
+Nathan

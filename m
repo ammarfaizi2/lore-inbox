@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWD3RfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWD3RfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWD3RfD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 13:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWD3RdQ
+	id S1751185AbWD3RfE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 13:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWD3RdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 13:33:16 -0400
-Received: from host157-96.pool873.interbusiness.it ([87.3.96.157]:45522 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S1751199AbWD3Rcl
+	Sun, 30 Apr 2006 13:33:14 -0400
+Received: from host157-96.pool873.interbusiness.it ([87.3.96.157]:45266 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S1751185AbWD3Rcm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 13:32:41 -0400
-Message-Id: <20060430172953.409399000@zion.home.lan>
+	Sun, 30 Apr 2006 13:32:42 -0400
+Message-Id: <20060430173024.179054000@zion.home.lan>
+References: <20060430172953.409399000@zion.home.lan>
 User-Agent: quilt/0.44-1
-Date: Sun, 30 Apr 2006 19:29:53 +0200
+Date: Sun, 30 Apr 2006 19:30:00 +0200
 From: blaisorblade@yahoo.it
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 00/14] remap_file_pages protection support
+Cc: linux-kernel@vger.kernel.org,
+       Paolo Blaisorblade Giarrusso <blaisorblade@yahoo.it>
+Subject: [patch 07/14] remap_file_pages protection support: support private vma for MAP_POPULATE
+Content-Disposition: inline; filename=rfp/07-rfp-private-vma.diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Again (about 8 month since last time, I have much less time during my academic
-year), I'm sending for review (and for possible inclusion into -mm) protection
-support for remap_file_pages, i.e. setting per-pte protections (beyond file
-offset) through this syscall.
+From: Ingo Molnar <mingo@elte.hu>
 
-== How it works ==
+Fix mmap(MAP_POPULATE | MAP_PRIVATE). We don't need the VMA to be shared if we
+don't rearrange pages around. And it's trivial to do.
 
-Protections are set in the page tables when the
-page is loaded, are saved into the PTE when the page is swapped out and restored
-when the page is faulted back in.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+Index: linux-2.6.git/mm/fremap.c
+===================================================================
+--- linux-2.6.git.orig/mm/fremap.c
++++ linux-2.6.git/mm/fremap.c
+@@ -184,9 +184,6 @@ retry:
+ 	if (!vma)
+ 		goto out_unlock;
+ 
+-	if (!(vma->vm_flags & VM_SHARED))
+-		goto out_unlock;
+-
+ 	if (!vma->vm_ops || !vma->vm_ops->populate)
+ 		goto out_unlock;
+ 
+@@ -211,6 +208,8 @@ retry:
+ 		/* Must set VM_NONLINEAR before any pages are populated. */
+ 		if (pgoff != linear_page_index(vma, start) &&
+ 		    !(vma->vm_flags & VM_NONLINEAR)) {
++			if (!(vma->vm_flags & VM_SHARED))
++				goto out_unlock;
+ 			if (!has_write_lock) {
+ 				up_read(&mm->mmap_sem);
+ 				down_write(&mm->mmap_sem);
+@@ -229,6 +228,8 @@ retry:
+ 
+ 		if (pgprot_val(pgprot) != pgprot_val(vma->vm_page_prot) &&
+ 				!(vma->vm_flags & VM_MANYPROTS)) {
++			if (!(vma->vm_flags & VM_SHARED))
++				goto out_unlock;
+ 			if (!has_write_lock) {
+ 				up_read(&mm->mmap_sem);
+ 				down_write(&mm->mmap_sem);
 
-Additionally, we modify the fault handler since the VMA protections aren't valid
-for PTE with modified protections.
-
-Finally, we must also provide, for each arch, macros to store also the
-protections into the PTE; to make the kernel compile for any arch, I've added
-since last time dummy default macros to keep the same functionality.
-
-== What is this for ==
-
-The first idea is to use this for UML - it must create a lot of single page
-mappings, and managing them through separate VMAs is slow.
-
-Additional note: this idea, with some further refinements (which I'll code after
-this chunk is accepted), will allow to reduce the number of used VMAs for most
-userspace programs - in particular, it will allow to avoid creating one VMA for
-one guard pages (which has PROT_NONE) - forcing PROT_NONE on that page will be
-enough.
-
-This will be useful since the VMA lookup at fault time can be a bottleneck for
-some programs (I've received a report about this from Ulrich Drepper and I've
-been told that also Val Henson from Intel is interested about this). I guess
-that since we use RB-trees, the slowness is also due to the poor cache locality
-of RB-trees (since RB nodes are within VMAs but aren't accessed together with
-their content), compared for instance with radix trees where the lookup has high
-cache locality (but they have however space usage problems, possibly bigger, on
-64-bit machines).
-
-== Notes ==
-
-Implementations are provided for i386, x86_64 and UML, and for some other archs
-I have patches I will send, based on the ones which were in -mm when Ingo sent
-the first version of this work.
-
-You shouldn't worry for the number of patches, most of them are very little.
-I've last tested them in UML against 2.6.16-rc3, but I've seen no big changes in
-the VM.
 --
 Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
 Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)

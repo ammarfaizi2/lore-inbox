@@ -1,153 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWD3M1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWD3Mcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbWD3M1r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 08:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWD3M1r
+	id S1750796AbWD3Mcm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 08:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWD3Mcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 08:27:47 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:20196 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750930AbWD3M1q (ORCPT
+	Sun, 30 Apr 2006 08:32:42 -0400
+Received: from fmmailgate05.web.de ([217.72.192.243]:22929 "EHLO
+	fmmailgate05.web.de") by vger.kernel.org with ESMTP
+	id S1750796AbWD3Mcl convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 08:27:46 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
-Date: Sun, 30 Apr 2006 14:27:21 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200604242355.08111.rjw@sisk.pl> <200604260043.03481.rjw@sisk.pl> <200604261049.39592.nigel@suspend2.net>
-In-Reply-To: <200604261049.39592.nigel@suspend2.net>
+	Sun, 30 Apr 2006 08:32:41 -0400
+Date: Sun, 30 Apr 2006 14:31:11 +0200
+Message-Id: <1094806367@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604301427.22687.rjw@sisk.pl>
+From: devzero@web.de
+To: Arjan van de Ven <arjan@infradead.org>, Nix <nix@esperi.org.uk>
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: =?iso-8859-15?Q?Re:_another_kconfig_target_for_building_monolithic_ker?=
+ =?iso-8859-15?Q?nel_(for_security)_=3F?=
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hello !
 
-On Wednesday 26 April 2006 02:49, Nigel Cunningham wrote:
-> On Wednesday 26 April 2006 08:43, Rafael J. Wysocki wrote:
-> > On Wednesday 26 April 2006 00:25, Pavel Machek wrote:
-> > > > > It does apply to all of the LRU pages. This is what I've been doing
-> > > > > for years now. The only corner case I've come across is XFS. It still
-> > > > > wants to write data even when there's nothing to do and it's threads
-> > > > > are frozen (IIRC - haven't looked at it for a while). I got around
-> > > > > that by freezing bdevs when freezing processes.
-> > > >
-> > > > This means if we freeze bdevs, we'll be able to save all of the LRU
-> > > > pages, except for the pages mapped by the current task, without
-> > > > copying.  I think we can try to do this, but we'll need a patch to
-> > > > freeze bdevs for this purpose. ;-)
-> > >
-> > > ...adding more dependencies to how vm/blockdevs work. I'd say current
-> > > code is complex enough...
-> >
-> > Well, why don't we see the patch?  If it's too complex, we can just decide
-> > not to use it. :-)
+"Unfortunately, disabling /dev/mem will break many things, including X and potentially many other user-space programs"
+(-> http://lwn.net/2001/0419/security.php3 )
+
+"The /dev/mem and /dev/kmem character special files provide access to a pseudo device driver that allows read and write access to system memory or I/O address space. Typically, these special files are used by operating system utilities and commands (such as sar, iostat, and vmstat) to obtain status and statistical information about the system" (ok, this is for AIX, does this apply for linux, too? -> http://publib.boulder.ibm.com/infocenter/pseries/v5r3/index.jsp?topic=/com.ibm.aix.doc/files/aixfiles/mem.htm )
+
+
+mhhh - while studying this i`m getting unsure if disabling /dev/mem and /dev/kmem is a really good idea - i can live without X 
+on my server, but what else also gets broken? i think i cannot live without important monitoring utilities like vmstat or sar on my server(s).
+
+there is a nice article at LWN at http://lwn.net/Articles/147901/
+
+maybe there is a more comprehensive list of applications which need /dev/{k}mem for proper operation or there is a method  to determine this in a reliable way (e.g. by scanning all binaries on mystem somehow) ?
+
+regards
+roland
+
+
+
+> -----Ursprüngliche Nachricht-----
+> Von: Nix <nix@esperi.org.uk>
+> Gesendet: 30.04.06 12:57:49
+> An: Arjan van de Ven <arjan@infradead.org>
+> CC: davej@redhat.com, linux-kernel@vger.kernel.org
+> Betreff: Re: another kconfig target for building monolithic kernel (for security) ?
+
+
+> On 29 Apr 2006, Arjan van de Ven prattled cheerily:
+> > On Sat, 2006-04-29 at 12:43 -0400, Dave Jones wrote:
+> >> On Sat, Apr 29, 2006 at 03:03:55PM +0200, devzero@web.de wrote:
+> >> 
+> >>  > i want to harden a linux system (dedicated root server on the internet) by recompiling the kernel without support for lkm (to prevent installation of lkm based rootkits etc)
+> >> 
+> >> Loading modules via /dev/kmem is trivial thanks to a bunch of tutorials and
+> >> examples on the web, so this alone doesn't make life that much more difficult for attackers.
+> > 
+> > /dev/kmem should be a config option too though
 > 
-> In Suspend2, I'm still using a different version of process.c to what you guys 
-> have. In my version, I thaw kernelspace, then thaw bdevs, then thaw userspace. 
-> The version below just thaws bdevs after thawing all processes. I think that 
-> might need modification, but thought I'd post this now so you can see how 
-> complicated or otherwise it is.
-
-IMHO it doesn't look so scary. :-)
-
-> diff -ruN linux-2.6.17-rc2/kernel/power/process.c bdev-freeze/kernel/power/process.c
-> --- linux-2.6.17-rc2/kernel/power/process.c	2006-04-19 14:27:36.000000000 +1000
-> +++ bdev-freeze/kernel/power/process.c	2006-04-26 10:44:56.000000000 +1000
-> @@ -19,6 +19,56 @@
->   */
->  #define TIMEOUT	(20 * HZ)
+> Yeah, but in practice this should work (somewhat old patch, should still
+> apply):
+> 
+> diff -durN 2.6.14-seal-orig/include/linux/capability.h 2.6.14-seal/include/linux/capability.h
+> --- 2.6.14-seal-orig/include/linux/capability.h	2005-10-29 15:15:00.000000000 +0100
+> +++ 2.6.14-seal/include/linux/capability.h	2005-10-29 15:25:48.000000000 +0100
+> @@ -311,7 +311,7 @@
 >  
-> +struct frozen_fs
-> +{
-> +	struct list_head fsb_list;
-> +	struct super_block *sb;
-> +};
-> +
-> +LIST_HEAD(frozen_fs_list);
-> +
-> +void freezer_make_fses_rw(void)
-> +{
-> +	struct frozen_fs *fs, *next_fs;
-> +
-> +	list_for_each_entry_safe(fs, next_fs, &frozen_fs_list, fsb_list) {
-> +		thaw_bdev(fs->sb->s_bdev, fs->sb);
-> +
-> +		list_del(&fs->fsb_list);
-> +		kfree(fs);
-> +	}
-> +}
-> +
-> +/* 
-> + * Done after userspace is frozen, so there should be no danger of
-> + * fses being unmounted while we're in here.
-> + */
-> +int freezer_make_fses_ro(void)
-> +{
-> +	struct frozen_fs *fs;
-> +	struct super_block *sb;
-> +
-> +	/* Generate the list */
-> +	list_for_each_entry(sb, &super_blocks, s_list) {
-> +		if (!sb->s_root || !sb->s_bdev ||
-> +		    (sb->s_frozen == SB_FREEZE_TRANS) ||
-> +		    (sb->s_flags & MS_RDONLY))
-> +			continue;
-> +
-> +		fs = kmalloc(sizeof(struct frozen_fs), GFP_ATOMIC);
-
-Shouldn't we check for kmalloc() failures here?
-
-> +		fs->sb = sb;
-> +		list_add_tail(&fs->fsb_list, &frozen_fs_list);
-> +	};
-> +
-> +	/* Do the freezing in reverse order so filesystems dependant
-> +	 * upon others are frozen in the right order. (Eg loopback
-> +	 * on ext3). */
-> +	list_for_each_entry_reverse(fs, &frozen_fs_list, fsb_list)
-> +		freeze_bdev(fs->sb->s_bdev);
-> +
-> +	return 0;
-> +}
-> +
+>  #define CAP_EMPTY_SET       to_cap_t(0)
+>  #define CAP_FULL_SET        to_cap_t(~0)
+> -#define CAP_INIT_EFF_SET    to_cap_t(~0 & ~CAP_TO_MASK(CAP_SETPCAP))
+> +#define CAP_INIT_EFF_SET    to_cap_t(~0 & ~CAP_TO_MASK(CAP_SETPCAP) & ~CAP_TO_MASK(CAP_SYS_RAWIO))
+>  #define CAP_INIT_INH_SET    to_cap_t(0)
 >  
->  static inline int freezeable(struct task_struct * p)
->  {
-> @@ -77,6 +127,7 @@
->  	printk( "Stopping tasks: " );
->  	start_time = jiffies;
->  	user_frozen = 0;
-> +	bdevs_frozen = 0;
->  	do {
->  		nr_user = todo = 0;
->  		read_lock(&tasklist_lock);
-> @@ -107,6 +158,10 @@
->  			start_time = jiffies;
->  		}
->  		user_frozen = !nr_user;
-> +
-> +		if (user_frozen && !bdevs_frozen)
-> +			freezer_make_fses_ro();
-> +
->  		yield();			/* Yield is okay here */
->  		if (todo && time_after(jiffies, start_time + TIMEOUT))
->  			break;
-> @@ -156,6 +211,8 @@
->  			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
->  	} while_each_thread(g, p);
->  
-> +	freezer_make_fses_rw();
-> +
->  	read_unlock(&tasklist_lock);
->  	schedule();
->  	printk( " done\n" );
+>  #define CAP_TO_MASK(x) (1 << (x))
+> 
+> > (and /dev/mem should get the filter patch that fedora has ;-) 
+> 
+> Agreed.
+> 
+> -- 
+> `On a scale of 1-10, X's "brokenness rating" is 1.1, but that's only
+>  because bringing Windows into the picture rescaled "brokenness" by
+>  a factor of 10.' --- Peter da Silva
 
-Greetings,
-Rafael
+
+_______________________________________________________________
+SMS schreiben mit WEB.DE FreeMail - einfach, schnell und
+kostenguenstig. Jetzt gleich testen! http://f.web.de/?mc=021192
+

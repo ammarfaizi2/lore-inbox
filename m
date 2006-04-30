@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWD3Jhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWD3JkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWD3Jhy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 05:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWD3Jhy
+	id S1751086AbWD3JkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 05:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWD3JkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 05:37:54 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:41742 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751085AbWD3Jhy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 05:37:54 -0400
-Date: Sun, 30 Apr 2006 11:37:41 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Heikki Orsila <shd@zakalwe.fi>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Mark Rosenstand <mark@borkware.net>, linux-kernel@vger.kernel.org
-Subject: Re: World writable tarballs
-Message-ID: <20060430093740.GK13027@w.ods.org>
-References: <1146356286.10953.7.camel@hammer> <200604300148.12462.s0348365@sms.ed.ac.uk> <20060430091501.GA19566@zakalwe.fi>
-Mime-Version: 1.0
+	Sun, 30 Apr 2006 05:40:25 -0400
+Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:59068 "EHLO
+	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751086AbWD3JkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 05:40:25 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060430091501.GA19566@zakalwe.fi>
-User-Agent: Mutt/1.5.10i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17492.34204.844839.262357@wombat.chubb.wattle.id.au>
+Date: Sun, 30 Apr 2006 19:38:36 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, David Woodhouse <dwmw2@infradead.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Simple header cleanups
+In-Reply-To: <Pine.LNX.4.64.0604271439100.3701@g5.osdl.org>
+References: <1146104023.2885.15.camel@hades.cambridge.redhat.com>
+	<Pine.LNX.4.64.0604261917270.3701@g5.osdl.org>
+	<1146105458.2885.37.camel@hades.cambridge.redhat.com>
+	<Pine.LNX.4.64.0604261954480.3701@g5.osdl.org>
+	<1146107871.2885.60.camel@hades.cambridge.redhat.com>
+	<Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
+	<20060427213754.GU3570@stusta.de>
+	<Pine.LNX.4.64.0604271439100.3701@g5.osdl.org>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 30, 2006 at 09:15:01AM +0000, Heikki Orsila wrote:
-> On Sun, Apr 30, 2006 at 01:48:12AM +0100, Alistair John Strachan wrote:
-> > There's no need to repeatedly discuss it.
-> 
-> I think there is. Sorry for wasting bandwidth.
-> 
-> It's a big security hole deliberately caused by the kernel people (files
-> in the tar ball have og+w, so it's not problem in roots umask or tar).
-> Real security needs _simplicity_ but current file modes require
-> unnecessary _tricks_ for admins. There should be nothing against
-> untarring files as root. In this case it makes sense too, because only
-> the tar balls are crypto signed, not the individual files inside the tar
-> ball, so root can conveniently just verify the crypto signature and
-> untar the file without any race conditions or trusting other users. The
-> only real alternative is to create an _unnecessary_ trusted user to do
-> tar ball handling.
-> 
-> PS. this file permission bug almost bit me. People make errors and this
-> one is potentially a big privilege escalation, because it potentially
-> turns normal application bugs into root privileges.
+>>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
 
-Although I don't like finding world-writable files in tar archives, I
-think you're exagerating a bit. First, you're not turning normal bugs
-into root privileges, and second, you don't need to create a user just
-for this, you just have to extract it in a directory that other users
-cannot access (chmod o-x).
+Linus> On Thu, 27 Apr 2006, Adrian Bunk wrote:
+>>  A definition of the kernel <-> userspace ABI is required.
 
-Also, you'll find several other software on the net with full rights,
-so if this really is a concern to you, you'd better get used to this
-with simple and reliable solutions (ntp comes to mind).
 
-> Heikki Orsila                   Barbie's law:
-> heikki.orsila@iki.fi            "Math is hard, let's go shopping!"
-> http://www.iki.fi/shd
+Linus> This is one reason why we shouldn't even _plan_ on having
+Linus> header files that can just be _directly_ used by the C
+Linus> libraries etc, even if it's just a "small" kernel ABI header.
 
-Regards,
-Willy
+I think I disagree with you here.  It should be possible to have Linux
+kernel abi header files that are directly usable, and shared between
+kernel and user space, precisely because they are _Linux_ kernel ABI
+headers, not POSIX, not SUS, not XOPEN_SOURCE.  The consumers of the
+header files shouldn't expect to be able necessarily to do 
+       #include <stdio.h>
+       $include <linux/kabi/xxx.h>
+and have it work (although I think we should avoid breaking things if
+it's easy to do so), because that's mixing interface definitions --
+libc vs raw Linux.
 
+Originally (back in edition 6 days) /usr/include/sys was precisely the
+kind of thing that's being proposed, in that it contained system call
+numbers, and the shapes of structures shared between user and kernel
+space.  Over time, that directory became a compatibility layer for
+POSIX-like systems, and has been implemented in terms of whatever the
+OS provides.  So now we need something new.
+
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+http://www.ertos.nicta.com.au           ERTOS within National ICT Australia

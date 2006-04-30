@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWD3CGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWD3CWk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbWD3CGM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Apr 2006 22:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbWD3CGM
+	id S1750880AbWD3CWk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Apr 2006 22:22:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWD3CWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Apr 2006 22:06:12 -0400
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:664 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750862AbWD3CGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Apr 2006 22:06:11 -0400
+	Sat, 29 Apr 2006 22:22:40 -0400
+Received: from wproxy.gmail.com ([64.233.184.239]:6242 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750880AbWD3CWj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Apr 2006 22:22:39 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=nKFc+aD/7+R4dfQ9uocOwYUDTDHe3Dex9IbKjyi87SO0etkP7v+Sx62zuhwM3YquOfCZ3CQTfQx+ardLgOXlFDsx/VyjsVQLvc68r+Q+isXMy5qFShyrDD/cAfYMkDTVq+mXkomj7m5iSzovc7dlzq25hhBoVlDOMK2c2ErQ5kI=  ;
-Message-ID: <44541B91.3060104@yahoo.com.au>
-Date: Sun, 30 Apr 2006 12:06:09 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DAcCjrCB6FG3zFJRmxNUpNiPSoId8+OOXR2xZp9/ZkrK5ZUKFy+MmuXDMusozAJcw/EdUZrTUE9SzoIEJJQJZ5qJ3I4wbPIsNKTBmJk6uwEbh9mHUksj4/85su1Ws6NIbaTNViaRyLYLv2NWQ+e39usMo0qrDCxDhV8hZw7F9r8=
+Message-ID: <380087de0604291922u476f23bdsf9cd95081e1378a5@mail.gmail.com>
+Date: Sun, 30 Apr 2006 10:22:39 +0800
+From: jason <huzhijiang@gmail.com>
+To: "Jan Dittmer" <jdi@l4x.org>
+Subject: Re: sata_sil24 resetting controller...
+Cc: mogensv@vip.cybercity.dk, "Tejun Heo" <htejun@gmail.com>,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44533AA0.5060002@l4x.org>
 MIME-Version: 1.0
-To: David Greaves <david@dgreaves.com>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       linux-xfs@oss.sgi.com
-Subject: Re: Bad page state in process 'nfsd' with xfs
-References: <4452797F.70700@dgreaves.com>
-In-Reply-To: <4452797F.70700@dgreaves.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060427185813.GB6039@l4x.org> <4451594D.5060705@gmail.com>
+	 <4452AFAF.3000101@l4x.org> <4452B165.6090905@gmail.com>
+	 <445329A0.8020001@vip.cybercity.dk> <44533AA0.5060002@l4x.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Greaves wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> This was with 2.6.16.9
-> 
-> There's an nfs export from an xfs on an lvm on a raid5 on some
-> libata/sata disks.
-> (cc'ing xfs since I recall rumoured(?) badness in old nfs/xfs/md/lvm
-> setups and xfs_sendfile is mentioned)
-> 
-> dmesg had:
-> 
-> Bad page state in process 'nfsd'
-> page:b1602060 flags:0x80000008 mapping:00000000 mapcount:0 count:16777216
-> Trying to fix it up, but a reboot is needed
-> Backtrace:
->  [<b013bda2>] bad_page+0x62/0x90
->  [<b013c1c8>] prep_new_page+0x78/0x80
+Jan Dittmer wrote
 
-Looks like you have a bit flipped in 'count', which was not flipped
-when the page was last freed. Probably buggy RAM.
 
-Running memtest overnight might confirm that.
+> I shifted the sata card into a 66MHz, 32bit PCI slot now and the
+> problems went away. Just for the record, this is an Asus PU-DLS
+> mainboard with E7501 chipset. Now I can dd from all devices without
+> any error messages, giving me about 360mb/s continuous throughput for
+> 6 devices which isn't that bad I suppose.
+> The card gets assigned irq 22 in both configurations but in the
+> latter the irq is shared with the on-board usb-uhci controller
+> which somehow seems to work better...
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+push a 64bit+ 133Mhz+ non bridge PCI-X device into a 32bit slot? Is it right?
+I am confused...
+
+--
+Yours,
+jason

@@ -1,77 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWD3MDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWD3MFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbWD3MDB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 08:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWD3MDB
+	id S1750805AbWD3MFW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 08:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWD3MFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 08:03:01 -0400
-Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:30733 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1750787AbWD3MDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 08:03:00 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Heikki Orsila <shd@zakalwe.fi>
-Subject: Re: World writable tarballs
-Date: Sun, 30 Apr 2006 12:49:16 +0100
-User-Agent: KMail/1.9.1
-Cc: Mark Rosenstand <mark@borkware.net>, linux-kernel@vger.kernel.org
-References: <1146356286.10953.7.camel@hammer> <200604300148.12462.s0348365@sms.ed.ac.uk> <20060430091501.GA19566@zakalwe.fi>
-In-Reply-To: <20060430091501.GA19566@zakalwe.fi>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200604301249.16259.s0348365@sms.ed.ac.uk>
+	Sun, 30 Apr 2006 08:05:17 -0400
+Received: from crystal.sipsolutions.net ([195.210.38.204]:11483 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S1750798AbWD3MFP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 08:05:15 -0400
+Subject: Re: led_class: storing a value can act but return -EINVAL
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       John Lenz <lenz@cs.wisc.edu>, Richard Purdie <rpurdie@openedhand.com>
+In-Reply-To: <1146398270.6254.9.camel@localhost.localdomain>
+References: <1146310432.5019.45.camel@localhost>
+	 <20060430100243.GB4452@ucw.cz>  <1146394862.5019.53.camel@localhost>
+	 <1146398270.6254.9.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0yXEiJ/mlUWamJWQi9me"
+Date: Sun, 30 Apr 2006 14:05:11 +0200
+Message-Id: <1146398711.17814.15.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 April 2006 10:15, Heikki Orsila wrote:
-> On Sun, Apr 30, 2006 at 01:48:12AM +0100, Alistair John Strachan wrote:
-> > There's no need to repeatedly discuss it.
->
-> I think there is. Sorry for wasting bandwidth.
->
-> It's a big security hole deliberately caused by the kernel people (files
-> in the tar ball have og+w, so it's not problem in roots umask or tar).
-> Real security needs _simplicity_ but current file modes require
-> unnecessary _tricks_ for admins. There should be nothing against
-> untarring files as root. In this case it makes sense too, because only
-> the tar balls are crypto signed, not the individual files inside the tar
-> ball, so root can conveniently just verify the crypto signature and
-> untar the file without any race conditions or trusting other users. The
-> only real alternative is to create an _unnecessary_ trusted user to do
-> tar ball handling.
->
-> PS. this file permission bug almost bit me. People make errors and this
-> one is potentially a big privilege escalation, because it potentially
-> turns normal application bugs into root privileges.
 
-Going over old ground again, any administrator a) compiling the kernel as root 
-or b) relying on GNU tar to make _security policy decisions_ is completely 
-insane.
+--=-0yXEiJ/mlUWamJWQi9me
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The only "trick" here is tar's decision to not apply umask, or root uid/gid, 
-to files in a tar when extracted as root. This might make sense for tars that 
-you created and want to extract again (say restoring a backup), but it 
-certainly NEVER makes sense for files downloaded off the Internet.
+On Sun, 2006-04-30 at 12:57 +0100, Richard Purdie wrote:
 
-If people are insistent that they must extract and compile things as root, at 
-the very least you should have the following in root's ~/.bashrc:
+> echo 255> brightness works, returns success.
 
-alias tar='tar --no-same-permissions --no-same-owner '
+??
+For me (bash) that doesn't do anything useful.
+Were you looking for "echo -n 255 > brightness"?
 
-Then if you want the default (imo flawed) tar behaviour, you can just call tar 
-directly.
+> echo 255 > brightness works but then returns -EINVAL.
 
-Really, people that complain about security should have a modicum of a clue; 
-allowing a tar file that _somebody else_ applied _their_ security policy, to 
-define yours, is a deeply flawed concept. umask is there for a reason.
+> So we currently do b, quite strictly. Its the trailing space thats the
+> problem. It also shouldn't have altered the brightness value if it ends
+> up returning -EINVAL.
 
--- 
-Cheers,
-Alistair.
+Yes, but you do change the actual value, which IMHO you shouldn't when
+it will return -EINVAL. I should have said
 
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+b) reject anything that isn't *only* a number and take no action
+
+instead.
+
+> I've looked around other implementations and it would appear we should
+> accept an optional space. Most sysfs attributes seem to handle this
+> differently, each with its own "bugs".
+
+Yeah, unfortunately that is true. Maybe there should've been helper
+functions like when you have a sysfs-int attribute that is set directly
+without get/set calls. I'd suggest looking at that code.
+
+> I've some fixes in mind both for the led and backlight classes which
+> I'll post once I've done a little more testing. I'd be interested to
+> know the official view on what the attributes should/shouldn't accept
+> is.
+
+I have a question about the backlight class: I'm writing a patch
+currently to control the *keyboard* backlight on powerbooks, is that
+appropriate for the backlight class (setting the fbdev callback to
+reject everything)?
+
+johannes
+
+--=-0yXEiJ/mlUWamJWQi9me
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIVAwUARFSn9KVg1VMiehFYAQKVSg/9GxUR8fGcQI6dj+ZmNaxOxmmgZfUSBvz9
+RcxB71JwZ5R1TEU0pzwItA0QrvCi+g0qfRSUq301uYAKPKYwe9O/B+FVl6WVMmIT
+WN0iaFxi+3v9c0SIdsa1JaJDy3uVJnejmrpQH7wQYK7jOx/TZi7KL8XcCCpECXHE
+on3t4JiFWATp9y3qoHtinl2wAfCbqe3rbulfIiOjRnAjdvneXgkB9e78rsBk84wL
+C+AXxLs8ptKkD9uUYpwSQ33ETKmJBKl/C5340bTQKN5vH+qsTFWl3J9v6yxfuyhd
+pthTzTOK21b+XINUcNYj+laHOzvPosUQGk1a1J6gvVoIQD4wBHFnPnf2tXaaBPU8
+i6OYSgptPpP/f2nH2H4Q3vEPXHP5DVus6tfSJDTaROp4+UaKQ7UVY+eiwcCPlJmV
+wA9KpGwQY+RA2lomzrBHRTCkk8YonaPOUQUYz+YiY0uHuEp2WQuPDB+bPIN2cq9m
+a1id+xW+DhsVo6iDLyVDU3ndtxtol/34tvFWpX0grK3dl7IC//nvnB/PyKaoG46B
+Maq/tCuCSfexpU9FEQY1eSQcduJ8zwvH+3/4Rg3zbvYtRNMPcC3/MgUOBWtE+wEq
+t5PfcYpJpfzl4/0AHmcnORNeLwityV9WivfqdscRWlSHazP3GGAhNZqEZ3P7r9za
+OwyAP1aoe74=
+=2oJW
+-----END PGP SIGNATURE-----
+
+--=-0yXEiJ/mlUWamJWQi9me--
+

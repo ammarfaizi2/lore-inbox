@@ -1,104 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWD3VeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWD3VuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbWD3VeT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 17:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWD3VeT
+	id S1751226AbWD3VuH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 17:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWD3VuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 17:34:19 -0400
-Received: from watts.utsl.gen.nz ([202.78.240.73]:41094 "EHLO
-	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1750934AbWD3VeS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 17:34:18 -0400
-Message-ID: <44552D49.8020401@vilain.net>
-Date: Mon, 01 May 2006 09:34:01 +1200
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Sun, 30 Apr 2006 17:50:07 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:57516 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751226AbWD3VuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 17:50:02 -0400
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Kir Kolyshkin <kir@openvz.org>, akpm@osdl.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, herbert@13thfloor.at
-Subject: Re: [Devel] Re: [RFC] Virtualization steps
-References: <1143228339.19152.91.camel@localhost.localdomain> <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com> <443B873B.9040908@sw.ru> <4454BA24.4070204@tmr.com>
-In-Reply-To: <4454BA24.4070204@tmr.com>
-X-Enigmail-Version: 0.92.1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17493.12438.286201.810702@wombat.chubb.wattle.id.au>
+Date: Mon, 1 May 2006 07:48:06 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Peter Chubb <peterc@gelato.unsw.edu.au>,
+       Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Simple header cleanups
+In-Reply-To: <1146391189.10561.157.camel@shinybook.infradead.org>
+References: <1146104023.2885.15.camel@hades.cambridge.redhat.com>
+	<Pine.LNX.4.64.0604261917270.3701@g5.osdl.org>
+	<1146105458.2885.37.camel@hades.cambridge.redhat.com>
+	<Pine.LNX.4.64.0604261954480.3701@g5.osdl.org>
+	<1146107871.2885.60.camel@hades.cambridge.redhat.com>
+	<Pine.LNX.4.64.0604262028130.3701@g5.osdl.org>
+	<20060427213754.GU3570@stusta.de>
+	<Pine.LNX.4.64.0604271439100.3701@g5.osdl.org>
+	<17492.34204.844839.262357@wombat.chubb.wattle.id.au>
+	<1146391189.10561.157.camel@shinybook.infradead.org>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+>>>>> "David" == David Woodhouse <dwmw2@infradead.org> writes:
 
->Kirill Korotaev wrote:
->
->  
->
->>Bill,
->>
->>    
->>
->>>>OpenVZ will have live zero downtime migration and suspend/resume 
->>>>some time next month.
->>>>
->>>>        
->>>>
->>>Please clarify. Currently a migration involves:
->>>- stopping or suspending the instance
->>>- backing up the instance and all of its data
->>>- creating an environment for the instance on a new machine
->>>- transporting the data to a new machine
->>>- installing the instance and all data
->>>- starting the instance
->>>      
->>>
->>    
->>
->>>If you could just briefly cover how you do each of these steps with zero
->>>downtime...
->>>      
->>>
->>it does exactly what you wrote with some minor steps such as 
->>networking stop on source and start on destination etc.
->>
->>So I would detailed it like this:
->>- freeze VPS
->>    
->>
->
->when the VM stops providing services it's down as far as I'm concerned
->  
->
+David> On Sun, 2006-04-30 at 19:38 +1000, Peter Chubb wrote:
+>> So now we need something new.
 
-You're entirely nitpicking.
+David> No we don't. 
 
-Sam.
+I meant, we can no longer use /usr/include/sys.  In the early days of
+linux, we used /usr/include/{linux,asm}, but that was stopped for good
+reasons.  FWIW, I think your cleanups are a step in the right direction.
 
->>- freeze networking
->>- copy VPS data to destination
->>- dump VPS
->>- copy dump to the destination
->>- restore VPS
->>- unfreeze VPS
->>    
->>
->
->and here is where my service is available again. The server may not know 
->it's been down, but the clients will.
->
->  
->
->>- kill original VPS on source
->>
->>Moreover, in OpenVZ live migration allows to migrate 32bit VPSs 
->>between i686 and x86-64 Linux machines.
->>    
->>
->
->I guess you're using "zero downtime" as a marketing term rather than a 
->technical term.
->
->  
->
-
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+http://www.ertos.nicta.com.au           ERTOS within National ICT Australia

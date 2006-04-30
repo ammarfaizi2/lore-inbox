@@ -1,37 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWD3Rgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWD3VeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWD3Rgn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 13:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWD3Rgf
+	id S1750934AbWD3VeT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 17:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWD3VeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 13:36:35 -0400
-Received: from nproxy.gmail.com ([64.233.182.190]:6227 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751204AbWD3RgD convert rfc822-to-8bit
+	Sun, 30 Apr 2006 17:34:19 -0400
+Received: from watts.utsl.gen.nz ([202.78.240.73]:41094 "EHLO
+	watts.utsl.gen.nz") by vger.kernel.org with ESMTP id S1750934AbWD3VeS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 13:36:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c2P7puHPzEpHhsUNmymuLPbQRdKvcoIEYL0x+JfQkisFteMaG6RKwjN3bV5PWo0CiAt71Q0evkU5KRbOeExzx8sibvHDIyKA9pMQu6O0Yh4WCtpL7DpMNdVZsKrFPzYCkKgxYUdrUQTqD1LbtAoyZbAjyAb22wHlSS6102Z5ubM=
-Message-ID: <7115951b0604301036h3962ddbfs5a60c93a130c50a0@mail.gmail.com>
-Date: Mon, 1 May 2006 00:36:02 +0700
-From: "Dmitry Fedorov" <dm.fedorov@gmail.com>
-To: "Christian Trefzer" <ctrefzer@gmx.de>
-Subject: Re: [FYI] whitespace removal
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060430172716.GC17917@zeus.uziel.local>
+	Sun, 30 Apr 2006 17:34:18 -0400
+Message-ID: <44552D49.8020401@vilain.net>
+Date: Mon, 01 May 2006 09:34:01 +1200
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060430172716.GC17917@zeus.uziel.local>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Kir Kolyshkin <kir@openvz.org>, akpm@osdl.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, herbert@13thfloor.at
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <1143228339.19152.91.camel@localhost.localdomain> <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com> <443B873B.9040908@sw.ru> <4454BA24.4070204@tmr.com>
+In-Reply-To: <4454BA24.4070204@tmr.com>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/5/1, Christian Trefzer <ctrefzer@gmx.de>:
+Bill Davidsen wrote:
 
-> Granted, for one line that has its whitespace removed we get
-> roughly eight lines in the diff, so this is mostly bloat.
+>Kirill Korotaev wrote:
+>
+>  
+>
+>>Bill,
+>>
+>>    
+>>
+>>>>OpenVZ will have live zero downtime migration and suspend/resume 
+>>>>some time next month.
+>>>>
+>>>>        
+>>>>
+>>>Please clarify. Currently a migration involves:
+>>>- stopping or suspending the instance
+>>>- backing up the instance and all of its data
+>>>- creating an environment for the instance on a new machine
+>>>- transporting the data to a new machine
+>>>- installing the instance and all data
+>>>- starting the instance
+>>>      
+>>>
+>>    
+>>
+>>>If you could just briefly cover how you do each of these steps with zero
+>>>downtime...
+>>>      
+>>>
+>>it does exactly what you wrote with some minor steps such as 
+>>networking stop on source and start on destination etc.
+>>
+>>So I would detailed it like this:
+>>- freeze VPS
+>>    
+>>
+>
+>when the VM stops providing services it's down as far as I'm concerned
+>  
+>
 
-Use "diff -b".
+You're entirely nitpicking.
+
+Sam.
+
+>>- freeze networking
+>>- copy VPS data to destination
+>>- dump VPS
+>>- copy dump to the destination
+>>- restore VPS
+>>- unfreeze VPS
+>>    
+>>
+>
+>and here is where my service is available again. The server may not know 
+>it's been down, but the clients will.
+>
+>  
+>
+>>- kill original VPS on source
+>>
+>>Moreover, in OpenVZ live migration allows to migrate 32bit VPSs 
+>>between i686 and x86-64 Linux machines.
+>>    
+>>
+>
+>I guess you're using "zero downtime" as a marketing term rather than a 
+>technical term.
+>
+>  
+>
+

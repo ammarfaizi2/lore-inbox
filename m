@@ -1,56 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWD3MLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWD3Ma2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbWD3MLf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 08:11:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWD3MLf
+	id S1750784AbWD3Ma2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 08:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWD3Ma2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 08:11:35 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3972 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750778AbWD3MLe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 08:11:34 -0400
-Date: Sun, 30 Apr 2006 14:10:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       John Lenz <lenz@cs.wisc.edu>, Richard Purdie <rpurdie@openedhand.com>
-Subject: Re: led_class: storing a value can act but return -EINVAL
-Message-ID: <20060430121047.GB30024@elf.ucw.cz>
-References: <1146310432.5019.45.camel@localhost> <20060430100243.GB4452@ucw.cz> <1146394862.5019.53.camel@localhost>
+	Sun, 30 Apr 2006 08:30:28 -0400
+Received: from taurus.voltaire.com ([193.47.165.240]:38995 "EHLO
+	taurus.voltaire.com") by vger.kernel.org with ESMTP
+	id S1750784AbWD3Ma1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 08:30:27 -0400
+Message-ID: <4454ADD9.20909@voltaire.com>
+Date: Sun, 30 Apr 2006 15:30:17 +0300
+From: Or Gerlitz <ogerlitz@voltaire.com>
+User-Agent: Thunderbird 1.4.1 (Windows/20051006)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1146394862.5019.53.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Sean Hefty <sean.hefty@intel.com>
+CC: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] [PATCH 5/6] iser RDMA CM (CMA) and IB verbsinteraction
+References: <ORSMSX401EXUIEAOeIi0000001c@orsmsx401.amr.corp.intel.com>
+In-Reply-To: <ORSMSX401EXUIEAOeIi0000001c@orsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Apr 2006 12:30:25.0704 (UTC) FILETIME=[DB7AB280:01C66C51]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Well, I'd argue current behaviour is okay... can you strace it? It
-> > should accept the number (return 3) then return -EINVAL.
+Sean Hefty wrote:
+>> +static int iser_free_device_ib_res(struct iser_device *device)
+>> +{
+>> +	BUG_ON(device->mr == NULL);
+>> +
+>> +	tasklet_kill(&device->cq_tasklet);
+>> +
+>> +	(void)ib_dereg_mr(device->mr);
+>> +	(void)ib_destroy_cq(device->cq);
+>> +	(void)ib_dealloc_pd(device->pd);
+>> +
+>> +	device->mr = NULL;
+>> +	device->cq = NULL;
+>> +	device->pd = NULL;
+>> +	return 0;
+>> +}
 > 
-> That's exactly what happens.
+> Can you eliminate the return code?
 
-And that's pretty much exactly okay.
+Yes
 
-You got success return when you wrote "255" there, then you got
--EINVAL when you tried to put newline there. Expected behaviour, I'd
-say.
+>> +static int iser_free_ib_conn_res(struct iser_conn *ib_conn)
+>> +{
+>> +	BUG_ON(ib_conn == NULL);
+>> +
+>> +	iser_err("freeing conn %p cma_id %p fmr pool %p qp %p\n",
+>> +		 ib_conn, ib_conn->cma_id,
+>> +		 ib_conn->fmr_pool, ib_conn->qp);
+>> +
+>> +	/* qp is created only once both addr & route are resolved */
+>> +	if (ib_conn->fmr_pool != NULL)
+>> +		ib_destroy_fmr_pool(ib_conn->fmr_pool);
+>> +
+>> +	if (ib_conn->qp != NULL)
+>> +		rdma_destroy_qp(ib_conn->cma_id);
+>> +
+>> +	if (ib_conn->cma_id != NULL)
+>> +		rdma_destroy_id(ib_conn->cma_id);
 
-...I can see it looks ugly when you do echo manually, but you simply
-should not do that.
+> Are the NULL checks needed above?  Neither iser_create_device_ib_res() or
+> iser_create_ib_conn_res() set the values to NULL if an error occurred.
 
-> Which is totally bogus, because userspace will think that the setting
-> didn't succeed. Or application authors will ignore the return value
-> assuming that it always succeeded. Or read the value back to see if it
-> succeeded. All icky, when we can well have a good return value.
+we are dealing here with connection resources so the (shared among ib 
+conns) device resources are irrelevant. The ib conn struct is kzallec-ed 
+on creation, where later iser_free_ib_conn_res() can be called when only 
+a ***subset*** of the resources was allocated. Examples are instant 
+error from rdma_addr_resolve() or getting ADDR/ROUTE ERROR vs. CONNECT 
+ERROR cma events, in the first three cases only the cma id should be 
+destroyed while on the latter there's a need to destroy the fmr pool and 
+the qp.
 
-Well, they got what they deserve, that \n does not belong there. And
-they _did_ get success report -- "3" was returned. That's how unix
-works, I'd say. Educate userspace authors that adding \n is bad idea.
+>> +/**
+>> + * based on the resolved device node GUID see if there already allocated
+>> + * device for this device. If there's no such, create one.
+>> + */
+>> +static
+>> +struct iser_device *iser_device_find_by_ib_device(struct rdma_cm_id *cma_id)
+>> +{
+>> +	struct list_head    *p_list;
+>> +	struct iser_device  *device = NULL;
+>> +
+>> +	mutex_lock(&ig.device_list_mutex);
+>> +
+>> +	p_list = ig.device_list.next;
+>> +	while (p_list != &ig.device_list) {
+>> +		device = list_entry(p_list, struct iser_device, ig_list);
+>> +		/* find if there's a match using the node GUID */
+>> +		if (device->ib_device->node_guid == cma_id->device->node_guid)
+>> +			break;
+>> +	}
+>> +
+>> +	if (device == NULL) {
+>> +		device = kzalloc(sizeof *device, GFP_KERNEL);
+>> +		if (device == NULL)
+>> +			goto end;
 
-							Pavel
--- 
-Thanks for all the (sleeping) penguins.
+> goto out;  // see below
+
+>> +		/* assign this device to the device */
+>> +		device->ib_device = cma_id->device;
+>> +		/* init the device and link it into ig device list */
+>> +		if (iser_create_device_ib_res(device)) {
+>> +			kfree(device);
+>> +			device = NULL;
+>> +			goto end;
+>> +		}
+>> +		list_add(&device->ig_list, &ig.device_list);
+>> +	}
+>> +end:
+>> +	BUG_ON(device == NULL);
+>> +	device->refcount++;
+> 
+> out:
+
+OK
+
+Or.
+

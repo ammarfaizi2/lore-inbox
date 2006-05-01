@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWEAIA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWEAIHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWEAIA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 04:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWEAIA2
+	id S1751305AbWEAIHt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 04:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWEAIHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 04:00:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:4321 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751323AbWEAIA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 04:00:27 -0400
-Subject: Re: [RFC: 2.6 patch] kernel/sys.c: possible cleanups
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20060501004925.36e4dd21.akpm@osdl.org>
-References: <20060501071134.GH3570@stusta.de>
-	 <20060501001803.48ac34df.akpm@osdl.org> <20060501073514.GQ3570@stusta.de>
-	 <1146469146.20760.31.camel@laptopd505.fenrus.org>
-	 <20060501004925.36e4dd21.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 01 May 2006 10:00:21 +0200
-Message-Id: <1146470421.20760.36.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 1 May 2006 04:07:49 -0400
+Received: from linux.dunaweb.hu ([62.77.196.1]:32477 "EHLO linux.dunaweb.hu")
+	by vger.kernel.org with ESMTP id S1751305AbWEAIHs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 04:07:48 -0400
+Message-ID: <4455C1D0.5060104@dunaweb.hu>
+Date: Mon, 01 May 2006 10:07:44 +0200
+From: Zoltan Boszormenyi <zboszor@dunaweb.hu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: Bad page state in process 'nfsd' with xfs
+References: <4454D59C.7000501@dunaweb.hu> <20060501102440.A1864834@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060501102440.A1864834@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-01 at 00:49 -0700, Andrew Morton wrote:
-> Arjan van de Ven <arjan@infradead.org> wrote:
-> >
-> > > If removing exports requires a process, adding exports requires a 
-> >  > similar process.
-> > 
-> >  alternatively we should bite the bullet, and just stick those 900 on the
-> >  "we'll kill all these in 3 months" list, have a thing to disable them
-> >  now via a config option (so that people actually notice rather than just
-> >  having them in the depreciation file) and fix the 5 or 10 or so that
-> >  actually will be used soon in those 3 months.
-> > 
-> 
-> I'd instead suggest that we implement a new EXPORT_SYMBOL_UNEXPORT_SCHEDULED
+Hi,
 
-EXPORT_UNUSED_SYMBOL() ? (with comment of date)
+Nathan Scott írta:
+> On Sun, Apr 30, 2006 at 05:19:56PM +0200, Zoltan Boszormenyi wrote:
+>   
+>> ...
+>> Or not. I had an FC3/x86-64 system until two days ago, now I have FC5/86-64.
+>>
+>> When FC3 was installed I chose to format the partitions to XFS and since 
+>> then
+>> I had Oopses regularly with or without VMWare modules.
+>>     
+>
+> What was the stack trace for your oops...?
+>
+> cheers.
+>   
 
-(well you didn't apply the patch for that I sent you so I suppose you
-hate it ;)
+I reported some Oopses for earlier kernels, they are here:
 
+http://marc.theaimsgroup.com/?t=113649735300003&r=1&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113166035904096&w=2
+http://marc.theaimsgroup.com/?l=fedora-list&m=113611408900505&w=2
 
-> (?) and use that.  Suitable compile-time and modprobe-time warnings would
+With FC3, the last kernel I used was vanilla 2.6.15.
+It may be that those above were fixed since.
 
-compiletime warning is hard, because it would require changing
-prototype, which is a lot more churn, and I'll bet a lot of exports
-don't even have a prototype at all. modprobe time is easy. (middle
-ground would be depmod time; that's almost compile time I suppose but a
-lot easier, but might need modutils help)
-
-> be needed.  Put the unexport date in a comment at the
-> EXPORT_SYMBOL_UNEXPORT_SCHEDULED site or even in the modprobe-time warning
-> message, if that's convenient:
-> 
-> EXPORT_SYMBOL_UNEXPORT_SCHEDULED(foo, "Dec 2006");
-
-comment is easy, putting a date in is really sucky since it grows the size of exports even more..
-(which means people pay even more export tax than they do today)
-
+Best regards,
+Zoltán Böszörményi
 

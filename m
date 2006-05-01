@@ -1,43 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWEARjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWEARlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbWEARjM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 13:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWEARjM
+	id S932173AbWEARlO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 13:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWEARlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 13:39:12 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:64391 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932172AbWEARjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 13:39:10 -0400
-Message-Id: <200605011639.k41GdkGV004644@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH] UML - uml-makefile-nicer uses SYMLINK incorrectly
+	Mon, 1 May 2006 13:41:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:52549 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932173AbWEARlO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 13:41:14 -0400
+Date: Mon, 1 May 2006 19:41:54 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: splice(SPLICE_F_MOVE) problems
+Message-ID: <20060501174153.GH3814@suse.de>
+References: <20060501065953.GA289@oleg> <20060501065412.GP23137@suse.de> <20060501190625.GA174@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 01 May 2006 12:39:46 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+In-Reply-To: <20060501190625.GA174@oleg>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blaisorblade's uml-makefile-nicer makes a V=0 build say SYMLINK where what's
-happening is really a LINK.
+On Mon, May 01 2006, Oleg Nesterov wrote:
+> On 05/01, Jens Axboe wrote:
+> >
+> > On Mon, May 01 2006, Oleg Nesterov wrote:
+> > > 
+> > > I can't understand why do we need PIPE_BUF_FLAG_STOLEN at all.
+> > > It seems to me we need a local boolean in pipe_to_file.
+> > 
+> > PIPE_BUF_FLAG_STOLEN used to be used in the release function as well,
+> > hence the flag.
+> 
+> Ok, but in that case
+> 
+> >                                               I'll make sure to clear
+> > the flag as well on add_to_page_cache() failure.
+> 
+> ... it is not good to clear it in pipe_to_file(). The page remains
+> stolen from pipe_buf_operations pov, this flag imho should be private
+> to buf, and page_cache_pipe_buf_ops doesn't need it.
+> 
+> I think pipe_to_buf() can test 'buf->page == page' instead of
+> PIPE_BUF_FLAG_STOLEN.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+I ended up fixing it with a local variable, but you are right it can be
+killed with just a buf->page != page == stolen check. I got rid of the
+last check of that, so just one remaining. Will commit this change.
 
-Index: linux-2.6.16/arch/um/Makefile
-===================================================================
---- linux-2.6.16.orig/arch/um/Makefile	2006-05-01 13:23:13.000000000 -0400
-+++ linux-2.6.16/arch/um/Makefile	2006-05-01 13:28:47.000000000 -0400
-@@ -96,7 +96,7 @@ PHONY += linux
- all: linux
- 
- linux: vmlinux
--	@echo '  SYMLINK $@'
-+	@echo '  LINK $@'
- 	$(Q)ln -f $< $@
- 
- define archhelp
+> Another question,
+> 
+> 	__generic_file_splice_read:
+> 
+> 		/*
+> 		 * Initiate read-ahead on this page range. however, don't call into
+> 		 * read-ahead if this is a non-zero offset (we are likely doing small
+> 		 * chunk splice and the page is already there) for a single page.
+> 		 */
+> 		if (!loff || nr_pages > 1)
+> 			page_cache_readahead(mapping, &in->f_ra, in, index, nr_pages);
+> 
+> Why this check? page_cache_readahead() should detect sub-page
+> reads correctly.
+
+Leftover from do_page_cache_readahead I suppose. I probably shouldn't
+try to second guess read-ahead, however.
+
+> 		page = find_get_page(mapping, index);
+> 		if (!page) {
+> 			page = page_cache_alloc_cold();
+> 
+> 			add_to_page_cache_lru(page);
+> 
+> I think it makes sense to add handle_ra_miss() here. Otherwise,
+> for example, readahead could be disabled by RA_FLAG_INCACHE
+> forever.
+
+Good point, added.
+
+> If readahead doesn't work, SPLICE_F_MOVE is problematic too.
+> add_to_page_cache_lru()->lru_cache_add() first increments
+> page->count and adds this page to lru_add_pvecs. This means
+> page_cache_pipe_buf_steal()->remove_mapping() will probably
+> fail.
+
+Because of the temporarily elevated page count?
+
+-- 
+Jens Axboe
 

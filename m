@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWEAVGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWEAVGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWEAVGV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWEAVGU
+	id S1750801AbWEAVGv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 17:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWEAVGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:06:20 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:21461 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751249AbWEAVGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:06:20 -0400
-Message-Id: <200605012106.k41L6GNc007543@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.17-rc3 - fs/namespace.c issue
-From: Valdis.Kletnieks@vt.edu
+	Mon, 1 May 2006 17:06:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:20161 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750801AbWEAVGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 17:06:50 -0400
+Subject: Re: [PATCH] CodingStyle: add typedefs chapter
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Jiri Slaby <jirislaby@gmail.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0605012300080.782@yvahk01.tjqt.qr>
+References: <20060430174426.a21b4614.rdunlap@xenotime.net>
+	 <Pine.LNX.4.61.0605011559010.31804@yvahk01.tjqt.qr>
+	 <1146502730.2885.128.camel@hades.cambridge.redhat.com>
+	 <Pine.LNX.4.61.0605012219560.32033@yvahk01.tjqt.qr>
+	 <4456732B.2090009@gmail.com>
+	 <Pine.LNX.4.61.0605012300080.782@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Mon, 01 May 2006 22:07:29 +0100
+Message-Id: <1146517650.1921.55.camel@shinybook.infradead.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1146517576_2606P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-Date: Mon, 01 May 2006 17:06:16 -0400
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1146517576_2606P
-Content-Type: text/plain; charset=us-ascii
+On Mon, 2006-05-01 at 23:01 +0200, Jan Engelhardt wrote:
+>   find rc3 -type f -print0 | xargs -0 perl -i -pe
+>     's/\btask_t\b/struct task_struct'
+> 
+> + a compile test afterwards. Something I missed? (Besides that lines
+> may get longer and violate the 80-column CodingStyle rule.) 
 
-There seems to have been a bug introduced in this changeset:
+If we're going to do that, we might as well make it 'struct task'. The
+additional '_struct' is redundant.
 
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f6422f17d3a480f21917a3895e2a46b968f56a08
+-- 
+dwmw2
 
-Am running 2.6.17-rc3-mm1.  When this changeset is applied, 'mount --bind'
-misbehaves:
-
-> # mkdir /foo
-> # mount -t tmpfs -o rw,nosuid,nodev,noexec,noatime,nodiratime none /foo
-> # mkdir /foo/bar
-> # mount --bind /foo/bar /foo
-> # tail -2 /proc/mounts
-> none /foo tmpfs rw,nosuid,nodev,noexec,noatime,nodiratime 0 0
-> none /foo tmpfs rw 0 0
-
-Reverting this changeset causes both mounts to have the same options.
-
-(Thanks to Stephen Smalley for tracking down the changeset...)
-
---==_Exmh_1146517576_2606P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEVnhIcC3lWbTT17ARAvb8AKCql3XtNRR03ai0fZhMwwig9Bs9uACeKtl/
-Xz61i56PAMhZplxgUU9YlWA=
-=l/bm
------END PGP SIGNATURE-----
-
---==_Exmh_1146517576_2606P--

@@ -1,90 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWEAOZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWEAOcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWEAOZF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 10:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWEAOZE
+	id S932119AbWEAOcI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 10:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWEAOcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 10:25:04 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:11658 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932106AbWEAOZD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 10:25:03 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=xaKIscse4hvmUAth13x1QQVutSJMeVjCG++O6N6C6QH2bdZUzBFTdgfFvQx5Eu7Xe
-	B5QhDiFXQaljS8G0UmcPg==
-Message-ID: <44561A1E.7000103@google.com>
-Date: Mon, 01 May 2006 07:24:30 -0700
-From: "Martin J. Bligh" <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: apw@shadowen.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.17-rc2-mm1
-References: <4450F5AD.9030200@google.com> <20060428012022.7b73c77b.akpm@osdl.org>
-In-Reply-To: <20060428012022.7b73c77b.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 1 May 2006 10:32:08 -0400
+Received: from mba.ocn.ne.jp ([210.190.142.172]:41716 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932119AbWEAOcH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 10:32:07 -0400
+Date: Mon, 01 May 2006 23:32:42 +0900 (JST)
+Message-Id: <20060501.233242.59466338.anemo@mba.ocn.ne.jp>
+To: akpm@osdl.org
+Cc: a.zummo@towertech.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RTC: rtc-dev UIE emulation
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060430.001003.52129547.anemo@mba.ocn.ne.jp>
+References: <20060429.011648.25910123.anemo@mba.ocn.ne.jp>
+	<20060428232306.5049c30d.akpm@osdl.org>
+	<20060430.001003.52129547.anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> (I did s/linux-kernel@google.com/linux-kernel@vger.kernel.org/)
-> 
-> Martin Bligh <mbligh@google.com> wrote:
-> 
->>Still crashes in LTP on x86_64:
->>(introduced in previous release)
->>
->>http://test.kernel.org/abat/29674/debug/console.log
-> 
-> 
-> What a mess.  A doublefault inside an NMI watchdog timeout.  I think.  It's
-> hard to see.  Some CPUs are stuck on a CPU scheduler lock, others seem to
-> be stuck in flush_tlb_others.  One of these could be a consequence of the
-> other, or both could be a consequence of something else.
+On Sun, 30 Apr 2006 00:10:03 +0900 (JST), Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
+> Thanks for your detailed review, Andrew.  Basically I just merged
+> genrtc's stuff, but obviously it seems there are lots of things to
+> fix/refine/improve.  I'll try to do but it will take some times.
 
-OK, well the latest one seems cleaner, on -rc3-mm1.
-http://test.kernel.org/abat/30007/debug/console.log
+Here is an updated patch.  I think this one reflects all suggestions
+by Andrew.
 
-Just has the double fault, with no NMI watchdog timeouts. Not that
-it means any more to me, but still ;-) mtest01 seems to be able to
-reproduce this every time, but I don't have an appropriate box here
-to diagnose it with (this was a 4x Opteron inside IBM), and it's
-definitely something in -mm that's not in mainline.
 
-M.
+Import genrtc's RTC UIE emulation (CONFIG_GEN_RTC_X) to rtc-dev driver
+with slight adjustments/refinements.  This makes UIE-less rtc drivers
+work better with programs doing read/poll on /dev/rtc, such as
+hwclock.  This emulation should not harm rtc drivers with UIE support,
+since rtc_dev_ioctl() calls underlaying rtc driver's ioctl() first.
 
-double fault: 0000 [1] SMP
-last sysfs file: /devices/pci0000:00/0000:00:06.0/resource
-CPU 0
-Modules linked in:
-Pid: 20519, comm: mtest01 Not tainted 2.6.17-rc3-mm1-autokern1 #1
-RIP: 0010:[<ffffffff8047c8b8>] <ffffffff8047c8b8>{__sched_text_start+1856}
-RSP: 0000:0000000000000000  EFLAGS: 00010082
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: ffffffff805d9438
-RDX: ffff8100db12c0d0 RSI: ffffffff805d9438 RDI: ffff8100db12c0d0
-RBP: ffffffff805d9438 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff8100e39bd440 R14: ffff810008003620 R15: 000002b02751726c
-FS:  0000000000000000(0000) GS:ffffffff805fa000(0063) knlGS:00000000f7dd0460
-CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
-CR2: fffffffffffffff8 CR3: 00000000da399000 CR4: 00000000000006e0
-Process mtest01 (pid: 20519, threadinfo ffff8100b1bb4000, task 
-ffff8100db12c0d0)
-Stack: ffffffff80579e20 ffff8100db12c0d0 0000000000000001 ffffffff80579f58
-        0000000000000000 ffffffff80579e78 ffffffff8020b0b2 ffffffff80579f58
-        0000000000000000 ffffffff80485520
-Call Trace: <#DF> <ffffffff8020b0b2>{show_registers+140}
-        <ffffffff8020b357>{__die+159} <ffffffff8020b3cc>{die+50}
-        <ffffffff8020bba6>{do_double_fault+115} 
-<ffffffff8020aa91>{double_fault+125}
-        <ffffffff8047c8b8>{__sched_text_start+1856} <EOE>
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-Code: e8 4c ba d8 ff 65 48 8b 34 25 00 00 00 00 4c 8b 46 08 f0 41
-RIP <ffffffff8047c8b8>{__sched_text_start+1856} RSP <0000000000000000>
-  -- 0:conmux-control -- time-stamp -- May/01/06  3:54:37 --
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 65d090d..2664dd6 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -73,6 +73,14 @@ config RTC_INTF_DEV
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-dev.
+ 
++config RTC_INTF_DEV_UIE_EMUL
++	bool "RTC UIE emulation on dev interface"
++	depends on RTC_INTF_DEV
++	help
++	  Provides an emulation for RTC_UIE if the underlaying rtc chip
++	  driver did not provides RTC_UIE ioctls.  RTC_UIE is required
++	  by some programs, such as hwclock.
++
+ comment "RTC drivers"
+ 	depends on RTC_CLASS
+ 
+diff --git a/drivers/rtc/rtc-dev.c b/drivers/rtc/rtc-dev.c
+index b1e3e61..d87348c 100644
+--- a/drivers/rtc/rtc-dev.c
++++ b/drivers/rtc/rtc-dev.c
+@@ -48,6 +48,93 @@ static int rtc_dev_open(struct inode *in
+ 	return err;
+ }
+ 
++#ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
++/*
++ * Routine to poll RTC seconds field for change as often as possible,
++ * after first RTC_UIE use timer to reduce polling
++ */
++static void rtc_uie_task(void *data)
++{
++	struct rtc_device *rtc = data;
++	struct rtc_time tm;
++	int num = 0;
++	int err;
++
++	err = rtc_read_time(&rtc->class_dev, &tm);
++	spin_lock_irq(&rtc->irq_lock);
++	if (rtc->stop_uie_polling || err) {
++		rtc->uie_task_active = 0;
++	} else if (rtc->oldsecs != tm.tm_sec) {
++		num = (tm.tm_sec + 60 - rtc->oldsecs) % 60;
++		rtc->oldsecs = tm.tm_sec;
++		rtc->uie_timer.expires = jiffies + HZ - (HZ/10);
++		rtc->uie_timer_active = 1;
++		rtc->uie_task_active = 0;
++		add_timer(&rtc->uie_timer);
++	} else if (schedule_work(&rtc->uie_task) == 0) {
++		rtc->uie_task_active = 0;
++	}
++	spin_unlock_irq(&rtc->irq_lock);
++	if (num)
++		rtc_update_irq(&rtc->class_dev, num, RTC_UF | RTC_IRQF);
++}
++
++static void rtc_uie_timer(unsigned long data)
++{
++	struct rtc_device *rtc = (struct rtc_device *)data;
++	unsigned long flags;
++
++	spin_lock_irqsave(&rtc->irq_lock, flags);
++	rtc->uie_timer_active = 0;
++	rtc->uie_task_active = 1;
++	if ((schedule_work(&rtc->uie_task) == 0))
++		rtc->uie_task_active = 0;
++	spin_unlock_irqrestore(&rtc->irq_lock, flags);
++}
++
++static void clear_uie(struct rtc_device *rtc)
++{
++	spin_lock_irq(&rtc->irq_lock);
++	if (rtc->irq_active) {
++		rtc->stop_uie_polling = 1;
++		if (rtc->uie_timer_active) {
++			spin_unlock_irq(&rtc->irq_lock);
++			del_timer_sync(&rtc->uie_timer);
++			spin_lock_irq(&rtc->irq_lock);
++			rtc->uie_timer_active = 0;
++		}
++		if (rtc->uie_task_active) {
++			spin_unlock_irq(&rtc->irq_lock);
++			flush_scheduled_work();
++			spin_lock_irq(&rtc->irq_lock);
++		}
++		rtc->irq_active = 0;
++	}
++	spin_unlock_irq(&rtc->irq_lock);
++}
++
++static int set_uie(struct rtc_device *rtc)
++{
++	struct rtc_time tm;
++	int err;
++
++	err = rtc_read_time(&rtc->class_dev, &tm);
++	if (err)
++		return err;
++	spin_lock_irq(&rtc->irq_lock);
++	if (!rtc->irq_active) {
++		rtc->irq_active = 1;
++		rtc->stop_uie_polling = 0;
++		rtc->oldsecs = tm.tm_sec;
++		rtc->uie_task_active = 1;
++		if (schedule_work(&rtc->uie_task) == 0)
++			rtc->uie_task_active = 0;
++	}
++	rtc->irq_data = 0;
++	spin_unlock_irq(&rtc->irq_lock);
++	return 0;
++}
++#endif /* CONFIG_RTC_INTF_DEV_UIE_EMUL */
+ 
+ static ssize_t
+ rtc_dev_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+@@ -227,6 +314,14 @@ static int rtc_dev_ioctl(struct inode *i
+ 			return -EFAULT;
+ 		break;
+ 
++#ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
++	case RTC_UIE_OFF:
++		clear_uie(rtc);
++		return 0;
++
++	case RTC_UIE_ON:
++		return set_uie(rtc);
++#endif
+ 	default:
+ 		err = -EINVAL;
+ 		break;
+@@ -239,6 +334,9 @@ static int rtc_dev_release(struct inode 
+ {
+ 	struct rtc_device *rtc = to_rtc_device(file->private_data);
+ 
++#ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
++	clear_uie(rtc);
++#endif
+ 	if (rtc->ops->release)
+ 		rtc->ops->release(rtc->class_dev.dev);
+ 
+@@ -279,6 +377,14 @@ static int rtc_dev_add_device(struct cla
+ 	mutex_init(&rtc->char_lock);
+ 	spin_lock_init(&rtc->irq_lock);
+ 	init_waitqueue_head(&rtc->irq_queue);
++#ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
++	INIT_WORK(&rtc->uie_task, rtc_uie_task, rtc);
++	setup_timer(&rtc->uie_timer, rtc_uie_timer, (unsigned long)rtc);
++	rtc->irq_active = 0;
++	rtc->stop_uie_polling = 0;
++	rtc->uie_task_active = 0;
++	rtc->uie_timer_active = 0;
++#endif
+ 
+ 	cdev_init(&rtc->char_dev, &rtc_dev_fops);
+ 	rtc->char_dev.owner = rtc->owner;
+diff --git a/include/linux/rtc.h b/include/linux/rtc.h
+index ab61cd1..4331076 100644
+--- a/include/linux/rtc.h
++++ b/include/linux/rtc.h
+@@ -155,6 +155,16 @@ struct rtc_device
+ 	struct rtc_task *irq_task;
+ 	spinlock_t irq_task_lock;
+ 	int irq_freq;
++#ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
++	struct work_struct uie_task;
++	struct timer_list uie_timer;
++	/* Those fields are protected by rtc->irq_lock */
++	unsigned int oldsecs;
++	unsigned int irq_active:1;
++	unsigned int stop_uie_polling:1;
++	unsigned int uie_task_active:1;
++	unsigned int uie_timer_active:1;
++#endif
+ };
+ #define to_rtc_device(d) container_of(d, struct rtc_device, class_dev)
+ 

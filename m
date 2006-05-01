@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWEAHPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWEAHSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbWEAHPB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 03:15:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWEAHO2
+	id S1751292AbWEAHSb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 03:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWEAHSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 03:14:28 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46865 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751302AbWEAHLn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 03:11:43 -0400
-Date: Mon, 1 May 2006 09:11:43 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] fs/namei.c: unexport __user_walk
-Message-ID: <20060501071143.GM3570@stusta.de>
+	Mon, 1 May 2006 03:18:31 -0400
+Received: from mail.suse.de ([195.135.220.2]:16819 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751292AbWEAHSa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 03:18:30 -0400
+From: Neil Brown <neilb@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Date: Mon, 1 May 2006 17:18:19 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Transfer-Encoding: 7bit
+Message-ID: <17493.46651.168919.653727@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] fs/sync.c: make do_sync_file_range() static
+In-Reply-To: message from Adrian Bunk on Monday May 1
+References: <20060501071125.GD3570@stusta.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the unused EXPORT_SYMBOL(__user_walk).
+On Monday May 1, bunk@stusta.de wrote:
+> This patch makes the needlessly global do_sync_file_range() static.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I'm planning to use that in nfsd.  Just haven't got there yet.
 
----
-
-This patch was already sent on:
-- 23 Apr 2006
-
---- linux-2.6.17-rc1-mm3-full/fs/namei.c.old	2006-04-23 13:57:07.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/fs/namei.c	2006-04-23 13:57:16.000000000 +0200
-@@ -2689,7 +2689,6 @@
- 	.put_link	= page_put_link,
- };
- 
--EXPORT_SYMBOL(__user_walk);
- EXPORT_SYMBOL(__user_walk_fd);
- EXPORT_SYMBOL(follow_down);
- EXPORT_SYMBOL(follow_up);
-
+NeilBrown

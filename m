@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWEAHLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWEAHLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWEAHLU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 03:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWEAHLU
+	id S1751296AbWEAHLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 03:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWEAHLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 03:11:20 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:38929 "HELO
+	Mon, 1 May 2006 03:11:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40721 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751168AbWEAHLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 03:11:20 -0400
-Date: Mon, 1 May 2006 09:11:19 +0200
+	id S1751296AbWEAHLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 03:11:24 -0400
+Date: Mon, 1 May 2006 09:11:24 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: alex@shark-linux.de
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] arch/arm/kernel/dma-isa.c: named initializers
-Message-ID: <20060501071119.GA3570@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/hw_random.c: remove assert()'s
+Message-ID: <20060501071124.GC3570@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,42 +22,93 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts struct dma_resources to named initializers.
-
-Besides fixing a compile error in -mm, it didn't sound like a bad idea.
+This patch removes the assert()'s from drivers/char/hw_random.c since
+you both needed to enable a manual option in the driver source to make 
+them effective and they only covered some obviously impossible cases.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.17-rc2-mm1-shark/arch/arm/kernel/dma-isa.c.old	2006-04-27 22:44:38.000000000 +0200
-+++ linux-2.6.17-rc2-mm1-shark/arch/arm/kernel/dma-isa.c	2006-04-27 22:44:23.000000000 +0200
-@@ -143,12 +143,23 @@
- 	.residue	= isa_get_dma_residue,
- };
+---
+
+This patch was already sent on:
+- 13 Apr 2006
+
+ drivers/char/hw_random.c |   21 ---------------------
+ 1 file changed, 21 deletions(-)
+
+--- linux-2.6.17-rc1-mm2-full/drivers/char/hw_random.c.old	2006-04-13 10:37:15.000000000 +0200
++++ linux-2.6.17-rc1-mm2-full/drivers/char/hw_random.c	2006-04-13 10:37:39.000000000 +0200
+@@ -66,17 +66,6 @@
+ #define DPRINTK(fmt, args...) pr_debug(PFX "%s: " fmt, __FUNCTION__ , ## args)
  
--static struct resource dma_resources[] = {
--	{ "dma1",		0x0000, 0x000f },
--	{ "dma low page", 	0x0080, 0x008f },
--	{ "dma2",		0x00c0, 0x00df },
--	{ "dma high page",	0x0480, 0x048f }
--};
-+static struct resource dma_resources[] = { {
-+	.name	= "dma1",
-+	.start	= 0x0000,
-+	.end	= 0x000f
-+}, {
-+	.name	= "dma low page",
-+	.start	= 0x0080,
-+	.end 	= 0x008f
-+}, {
-+	.name	= "dma2",
-+	.start	= 0x00c0,
-+	.end	= 0x00df
-+}, {
-+	.name	= "dma high page",
-+	.start	= 0x0480,
-+	.end	= 0x048f
-+} };
  
- void __init isa_init_dma(dma_t *dma)
+-#undef RNG_NDEBUG        /* define to enable lightweight runtime checks */
+-#ifdef RNG_NDEBUG
+-#define assert(expr)							\
+-		if(!(expr)) {						\
+-		printk(KERN_DEBUG PFX "Assertion failed! %s,%s,%s,"	\
+-		"line=%d\n", #expr, __FILE__, __FUNCTION__, __LINE__);	\
+-		}
+-#else
+-#define assert(expr)
+-#endif
+-
+ #define RNG_MISCDEV_MINOR		183 /* official */
+ 
+ static int rng_dev_open (struct inode *inode, struct file *filp);
+@@ -211,29 +200,23 @@
+ 
+ static inline u8 intel_hwstatus (void)
  {
+-	assert (rng_mem != NULL);
+ 	return readb (rng_mem + INTEL_RNG_HW_STATUS);
+ }
+ 
+ static inline u8 intel_hwstatus_set (u8 hw_status)
+ {
+-	assert (rng_mem != NULL);
+ 	writeb (hw_status, rng_mem + INTEL_RNG_HW_STATUS);
+ 	return intel_hwstatus ();
+ }
+ 
+ static unsigned int intel_data_present(void)
+ {
+-	assert (rng_mem != NULL);
+-
+ 	return (readb (rng_mem + INTEL_RNG_STATUS) & INTEL_RNG_DATA_PRESENT) ?
+ 		1 : 0;
+ }
+ 
+ static u32 intel_data_read(void)
+ {
+-	assert (rng_mem != NULL);
+-
+ 	return readb (rng_mem + INTEL_RNG_DATA);
+ }
+ 
+@@ -495,7 +478,6 @@
+ {
+ 	u32 val;
+ 
+-	assert(geode_rng_base != NULL);
+ 	val = readl(geode_rng_base + GEODE_RNG_DATA_REG);
+ 	return val;
+ }
+@@ -504,7 +486,6 @@
+ {
+ 	u32 val;
+ 
+-	assert(geode_rng_base != NULL);
+ 	val = readl(geode_rng_base + GEODE_RNG_STATUS_REG);
+ 	return val;
+ }
+@@ -605,8 +586,6 @@
+ 
+ 	DPRINTK ("ENTER\n");
+ 
+-	assert(rng_ops != NULL);
+-
+ 	rc = rng_ops->init(dev);
+ 	if (rc)
+ 		goto err_out;
 

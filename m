@@ -1,86 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWEAVFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWEAVGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbWEAVFH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWEAVFH
+	id S1751249AbWEAVGV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 17:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWEAVGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:05:07 -0400
-Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:8303 "HELO
-	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932264AbWEAVFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:05:06 -0400
-From: David Brownell <david-b@pacbell.net>
-To: jt@hpl.hp.com
-Subject: [patch 2.6.17-rc3] smsc-ircc2, minimal PNP hotplug support
-Date: Mon, 1 May 2006 13:13:43 -0700
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_3vmVExnxc/CjIFz"
-Message-Id: <200605011313.43625.david-b@pacbell.net>
+	Mon, 1 May 2006 17:06:20 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:21461 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751249AbWEAVGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 17:06:20 -0400
+Message-Id: <200605012106.k41L6GNc007543@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.17-rc3 - fs/namespace.c issue
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1146517576_2606P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 01 May 2006 17:06:16 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_3vmVExnxc/CjIFz
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+--==_Exmh_1146517576_2606P
+Content-Type: text/plain; charset=us-ascii
 
-An old laptop now behaves more sanely.
+There seems to have been a bug introduced in this changeset:
 
---Boundary-00=_3vmVExnxc/CjIFz
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="ir-smsc.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ir-smsc.patch"
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f6422f17d3a480f21917a3895e2a46b968f56a08
 
-Minimal PNP hotplug support for the smsc-ircc2 driver.  A modular driver
-will be modprobed via hotplug, but still bypasses driver model probing.
+Am running 2.6.17-rc3-mm1.  When this changeset is applied, 'mount --bind'
+misbehaves:
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> # mkdir /foo
+> # mount -t tmpfs -o rw,nosuid,nodev,noexec,noatime,nodiratime none /foo
+> # mkdir /foo/bar
+> # mount --bind /foo/bar /foo
+> # tail -2 /proc/mounts
+> none /foo tmpfs rw,nosuid,nodev,noexec,noatime,nodiratime 0 0
+> none /foo tmpfs rw 0 0
 
-Index: linux/drivers/net/irda/smsc-ircc2.c
-===================================================================
---- linux.orig/drivers/net/irda/smsc-ircc2.c	2006-04-23 23:23:38.000000000 -0700
-+++ linux/drivers/net/irda/smsc-ircc2.c	2006-04-28 21:42:14.000000000 -0700
-@@ -54,6 +54,7 @@
- #include <linux/rtnetlink.h>
- #include <linux/serial_reg.h>
- #include <linux/dma-mapping.h>
-+#include <linux/pnp.h>
- #include <linux/platform_device.h>
- 
- #include <asm/io.h>
-@@ -358,6 +360,16 @@
-                iobase + IRCC_MASTER);
- }
- 
-+#ifdef	CONFIG_PNP
-+/* PNP hotplug support */
-+static const struct pnp_device_id smsc_ircc_pnp_table[] = {
-+	{ .id = "SMCf010", .driver_data = 0 },
-+	/* and presumably others */
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(pnp, smsc_ircc_pnp_table);
-+#endif
-+
- 
- /*******************************************************************************
-  *
-@@ -2072,7 +2084,8 @@
- 
- /* PROBING
-  *
-- *
-+ * REVISIT we can be told about the device by PNP, and should use that info
-+ * instead of probing hardware and creating a platform_device ...
-  */
- 
- static int __init smsc_ircc_look_for_chips(void)
+Reverting this changeset causes both mounts to have the same options.
 
---Boundary-00=_3vmVExnxc/CjIFz--
+(Thanks to Stephen Smalley for tracking down the changeset...)
+
+--==_Exmh_1146517576_2606P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEVnhIcC3lWbTT17ARAvb8AKCql3XtNRR03ai0fZhMwwig9Bs9uACeKtl/
+Xz61i56PAMhZplxgUU9YlWA=
+=l/bm
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1146517576_2606P--

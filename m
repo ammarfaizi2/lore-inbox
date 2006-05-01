@@ -1,54 +1,232 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWEAUqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWEAUqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWEAUqO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 16:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWEAUqO
+	id S932246AbWEAUqB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 16:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWEAUqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 16:46:14 -0400
-Received: from mail.fuug.fi ([83.145.198.117]:65488 "EHLO mail.fuug.fi")
-	by vger.kernel.org with ESMTP id S932249AbWEAUqM (ORCPT
+	Mon, 1 May 2006 16:46:00 -0400
+Received: from xenotime.net ([66.160.160.81]:3295 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932246AbWEAUqA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 16:46:12 -0400
-Date: Mon, 1 May 2006 23:46:05 +0300 (EEST)
-From: "Petri T. Koistinen" <petri.koistinen@iki.fi>
-To: Andrew Morton <akpm@osdl.org>
-cc: trivial@kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] arch/i386/kernel/cpu/transmeta.c: initialize variable
-Message-ID: <Pine.LNX.4.64.0605012344330.3790@joo>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 May 2006 16:46:00 -0400
+Date: Mon, 1 May 2006 13:48:23 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] CodingStyle: add typedefs chapter
+Message-Id: <20060501134823.373df0db.rdunlap@xenotime.net>
+In-Reply-To: <1146503166.2885.137.camel@hades.cambridge.redhat.com>
+References: <20060430174426.a21b4614.rdunlap@xenotime.net>
+	<1146503166.2885.137.camel@hades.cambridge.redhat.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Petri T. Koistinen <petri.koistinen@iki.fi>
+On Mon, 01 May 2006 18:06:06 +0100 David Woodhouse wrote:
 
-Remove warnings by initializing uninitialized variables.
+> On Sun, 2006-04-30 at 17:44 -0700, Randy.Dunlap wrote:
+> > + (b) Clear integer types, where the abstraction _helps_ avoid confusion
+> > +     whether it is "int" or "long".
+> > +
+> > +     u8/u16/u32 are perfectly fine typedefs. 
+> 
+> No, u8/u16/u32 are fall into category (d):
 
-Signed-off-by: Petri T. Koistinen <petri.koistinen@iki.fi>
+Thanks.  Here's an updated version.
+
 ---
- arch/i386/kernel/cpu/transmeta.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+From: Randy Dunlap <rdunlap@xenotime.net>
+
+Add a chapter on typedefs, copied from an email from Linus
+to lkml on Feb. 3, 2006:
+(Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup)
+with added lkml feedback, esp. David Woodhouse.
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
-diff --git a/arch/i386/kernel/cpu/transmeta.c b/arch/i386/kernel/cpu/transmeta.c
-index 7214c9b..cfc4783 100644
---- a/arch/i386/kernel/cpu/transmeta.c
-+++ b/arch/i386/kernel/cpu/transmeta.c
-@@ -9,7 +9,7 @@ static void __init init_transmeta(struct
- {
- 	unsigned int cap_mask, uk, max, dummy;
- 	unsigned int cms_rev1, cms_rev2;
--	unsigned int cpu_rev, cpu_freq, cpu_flags, new_cpu_rev;
-+	unsigned int cpu_rev = 0, cpu_freq = 0, cpu_flags, new_cpu_rev;
- 	char cpu_info[65];
+ Documentation/CodingStyle |   96 ++++++++++++++++++++++++++++++++++++++++------
+ 1 files changed, 84 insertions(+), 12 deletions(-)
 
- 	get_model_name(c);	/* Same as AMD/Cyrix */
-@@ -17,7 +17,6 @@ static void __init init_transmeta(struct
-
- 	/* Print CMS and CPU revision */
- 	max = cpuid_eax(0x80860000);
--	cpu_rev = 0;
- 	if ( max >= 0x80860001 ) {
- 		cpuid(0x80860001, &dummy, &cpu_rev, &cpu_freq, &cpu_flags);
- 		if (cpu_rev != 0x02000000) {
-
-
+--- linux-2617-rc3.orig/Documentation/CodingStyle
++++ linux-2617-rc3/Documentation/CodingStyle
+@@ -155,7 +155,79 @@ problem, which is called the function-gr
+ See next chapter.
+ 
+ 
+-		Chapter 5: Functions
++		Chapter 5: Typedefs
++
++Please don't use things like "vps_t".
++
++It's a _mistake_ to use typedef for structures and pointers. When you see a
++
++	vps_t a;
++
++in the source, what does it mean?
++
++In contrast, if it says
++
++	struct virtual_container *a;
++
++you can actually tell what "a" is.
++
++Lots of people think that typedefs "help readability". Not so. They are
++useful only for:
++
++ (a) totally opaque objects (where the typedef is actively used to _hide_
++     what the object is).
++
++     Example: "pte_t" etc. opaque objects that you can only access using
++     the proper accessor functions.
++
++     NOTE! Opaqueness and "accessor functions" are not good in themselves.
++     The reason we have them for things like pte_t etc. is that there
++     really is absolutely _zero_ portably accessible information there.
++
++ (b) Clear integer types, where the abstraction _helps_ avoid confusion
++     whether it is "int" or "long".
++
++     u8/u16/u32 are perfectly fine typedefs, although they fit into
++     category (d) better than here.
++
++     NOTE! Again - there needs to be a _reason_ for this. If something is
++     "unsigned long", then there's no reason to do
++
++	typedef unsigned long myflags_t;
++
++     but if there is a clear reason for why it under certain circumstances
++     might be an "unsigned int" and under other configurations might be
++     "unsigned long", then by all means go ahead and use a typedef.
++
++ (c) when you use sparse to literally create a _new_ type for
++     type-checking.
++
++ (d) New types which are identical to standard C99 types, in certain
++     exceptional circumstances.
++
++     Although it would only take a short amount of time for the eyes and
++     brain to become accustomed to the standard types like 'uint32_t',
++     some people object to their use anyway.
++
++     Therefore, the gratuitous 'u8/u16/u32/u64' types and their signed
++     equivalents which are identical to standard types are permitted --
++     although they are not mandatory.
++
++ (e) Types safe for use in userspace.
++
++     In certain structures which are visible to userspace, we cannot
++     require C99 types and cannot use the 'u32' form above. Thus, we
++     use __u32 and similar types in all structures which are shared
++     with userspace.
++
++Maybe there are other cases too, but the rule should basically be to NEVER
++EVER use a typedef unless you can clearly match one of those rules.
++
++In general, a pointer, or a struct that has elements that can reasonably
++be directly accessed should _never_ be a typedef.
++
++
++		Chapter 6: Functions
+ 
+ Functions should be short and sweet, and do just one thing.  They should
+ fit on one or two screenfuls of text (the ISO/ANSI screen size is 80x24,
+@@ -183,7 +255,7 @@ and it gets confused.  You know you're b
+ to understand what you did 2 weeks from now.
+ 
+ 
+-		Chapter 6: Centralized exiting of functions
++		Chapter 7: Centralized exiting of functions
+ 
+ Albeit deprecated by some people, the equivalent of the goto statement is
+ used frequently by compilers in form of the unconditional jump instruction.
+@@ -220,7 +292,7 @@ out:
+ 	return result;
+ }
+ 
+-		Chapter 7: Commenting
++		Chapter 8: Commenting
+ 
+ Comments are good, but there is also a danger of over-commenting.  NEVER
+ try to explain HOW your code works in a comment: it's much better to
+@@ -240,7 +312,7 @@ When commenting the kernel API functions
+ See the files Documentation/kernel-doc-nano-HOWTO.txt and scripts/kernel-doc
+ for details.
+ 
+-		Chapter 8: You've made a mess of it
++		Chapter 9: You've made a mess of it
+ 
+ That's OK, we all do.  You've probably been told by your long-time Unix
+ user helper that "GNU emacs" automatically formats the C sources for
+@@ -288,7 +360,7 @@ re-formatting you may want to take a loo
+ remember: "indent" is not a fix for bad programming.
+ 
+ 
+-		Chapter 9: Configuration-files
++		Chapter 10: Configuration-files
+ 
+ For configuration options (arch/xxx/Kconfig, and all the Kconfig files),
+ somewhat different indentation is used.
+@@ -313,7 +385,7 @@ support for file-systems, for instance) 
+ experimental options should be denoted (EXPERIMENTAL).
+ 
+ 
+-		Chapter 10: Data structures
++		Chapter 11: Data structures
+ 
+ Data structures that have visibility outside the single-threaded
+ environment they are created and destroyed in should always have
+@@ -344,7 +416,7 @@ Remember: if another thread can find you
+ have a reference count on it, you almost certainly have a bug.
+ 
+ 
+-		Chapter 11: Macros, Enums and RTL
++		Chapter 12: Macros, Enums and RTL
+ 
+ Names of macros defining constants and labels in enums are capitalized.
+ 
+@@ -399,7 +471,7 @@ The cpp manual deals with macros exhaust
+ covers RTL which is used frequently with assembly language in the kernel.
+ 
+ 
+-		Chapter 12: Printing kernel messages
++		Chapter 13: Printing kernel messages
+ 
+ Kernel developers like to be seen as literate. Do mind the spelling
+ of kernel messages to make a good impression. Do not use crippled
+@@ -410,7 +482,7 @@ Kernel messages do not have to be termin
+ Printing numbers in parentheses (%d) adds no value and should be avoided.
+ 
+ 
+-		Chapter 13: Allocating memory
++		Chapter 14: Allocating memory
+ 
+ The kernel provides the following general purpose memory allocators:
+ kmalloc(), kzalloc(), kcalloc(), and vmalloc().  Please refer to the API
+@@ -429,7 +501,7 @@ from void pointer to any other pointer t
+ language.
+ 
+ 
+-		Chapter 14: The inline disease
++		Chapter 15: The inline disease
+ 
+ There appears to be a common misperception that gcc has a magic "make me
+ faster" speedup option called "inline". While the use of inlines can be
+@@ -457,7 +529,7 @@ something it would have done anyway.
+ 
+ 
+ 
+-		Chapter 15: References
++		Appendix I: References
+ 
+ The C Programming Language, Second Edition
+ by Brian W. Kernighan and Dennis M. Ritchie.
+@@ -481,4 +553,4 @@ Kernel CodingStyle, by greg@kroah.com at
+ http://www.kroah.com/linux/talks/ols_2002_kernel_codingstyle_talk/html/
+ 
+ --
+-Last updated on 30 December 2005 by a community effort on LKML.
++Last updated on 30 April 2006.

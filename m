@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWEAW7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWEAXJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWEAW7u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 18:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWEAW7u
+	id S932308AbWEAXJY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 19:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWEAXJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 18:59:50 -0400
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:18175 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S932307AbWEAW7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 18:59:50 -0400
-Date: Tue, 2 May 2006 00:59:48 +0200
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: kernel concepts <nils@kernelconcepts.de>
-Subject: i8xx TCO timer: does not reset my machine
-Message-ID: <20060501225948.GM1487@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	LKML <linux-kernel@vger.kernel.org>,
-	kernel concepts <nils@kernelconcepts.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Mon, 1 May 2006 19:09:24 -0400
+Received: from xenotime.net ([66.160.160.81]:916 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932308AbWEAXJY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 19:09:24 -0400
+Date: Mon, 1 May 2006 16:11:48 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, mhw@wittsend.com
+Subject: [PATCH] ip2: fix sections
+Message-Id: <20060501161148.0143d99b.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
-I have an Intel board (D915GEV/D915GRF) with an onboard i8xx TCO timer
-watchdog on it. I compiled a kernel and tried to make it reset my
-machine, but it simply doesn't. I use Linus Linux tree (GIT HEAD), the
-following watchdog related configuration:
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-        CONFIG_WATCHDOG=y
-        CONFIG_WATCHDOG_NOWAYOUT=y
-        CONFIG_I6300ESB_WDT=y
-        CONFIG_I8XX_TCO=y
+Fix sections mismatch:
+WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to .init.text: from .text.cleanup_module after 'cleanup_module' (at offset 0xb0)
+WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to .init.text: from .text.ip2_loadmain after 'ip2_loadmain' (at offset 0x11b3)
 
-I tried to test the watchdog using the following:
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/char/ip2/ip2main.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-        cat > /dev/watchdog
+--- linux-2617-rc3.orig/drivers/char/ip2/ip2main.c
++++ linux-2617-rc3/drivers/char/ip2/ip2main.c
+@@ -337,7 +337,7 @@ clear_requested_irq( char irq )
+ }
+ #endif
+ 
+-static int __init
++static int
+ have_requested_irq( char irq )
+ {
+ 	// array init to zeros so 0 irq will not be requested as a side effect
 
-and wait a few minutes, but that doesn't reset my machine.  dmesg shows the
-following:
 
-        (webfarm) [~] dmesg | grep TCO
-        i8xx TCO timer: heartbeat value must be 2<heartbeat<39, using 30
-        i8xx TCO timer: initialized (0x0460). heartbeat=30 sec (nowayout=1)
-
-lspci is this:
-
-        0000:00:00.0 Host bridge: Intel Corp. 915G/P/GV Processor to I/O Controller (rev 04)
-        0000:00:01.0 PCI bridge: Intel Corp. 915G/P/GV PCI Express Root Port (rev 04)
-        0000:00:02.0 VGA compatible controller: Intel Corp. 82915G Express Chipset Family Graphics Controller (rev 04)
-        0000:00:1c.0 PCI bridge: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 1 (rev 03)
-        0000:00:1c.1 PCI bridge: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 2 (rev 03)
-        0000:00:1c.2 PCI bridge: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 3 (rev 03)
-        0000:00:1c.3 PCI bridge: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 4 (rev 03)
-        0000:00:1d.0 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #1 (rev 03)
-        0000:00:1d.1 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #2 (rev 03)
-        0000:00:1d.2 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #3 (rev 03)
-        0000:00:1d.3 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB UHCI #4 (rev 03)
-        0000:00:1d.7 USB Controller: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) USB2 EHCI Controller (rev 03)
-        0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev d3)
-        0000:00:1f.0 ISA bridge: Intel Corp. 82801FB/FR (ICH6/ICH6R) LPC Interface Bridge (rev 03)
-        0000:00:1f.1 IDE interface: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) IDE Controller (rev 03)
-        0000:00:1f.2 IDE interface: Intel Corp. 82801FB/FW (ICH6/ICH6W) SATA Controller (rev 03)
-        0000:00:1f.3 SMBus: Intel Corp. 82801FB/FBM/FR/FW/FRW (ICH6 Family) SMBus Controller (rev 03)
-        0000:04:00.0 Ethernet controller: Marvell Technology Group Ltd.: Unknown device 4361 (rev 17)
-
-Has somone any ideas, did I do something wrong? From looking at the
-source code it looks like the watchdog is enabled as soon as I open the
-device. And if I don't feed anything in, it shouldn't reload the timer.
-
-        Thomas
+---

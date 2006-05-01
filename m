@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWEAHCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWEAHHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWEAHCe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 03:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWEAHCe
+	id S1751293AbWEAHHj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 03:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWEAHHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 03:02:34 -0400
-Received: from h80ad25b9.async.vt.edu ([128.173.37.185]:64466 "EHLO
-	h80ad25b9.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1751290AbWEAHCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 03:02:34 -0400
-Message-Id: <200605010702.k4172Q5H006348@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Circuitsoft Development <circuitsoft.devel@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Extended Volume Manager API 
-In-Reply-To: Your message of "Mon, 01 May 2006 00:26:05 CDT."
-             <64b292120604302226i377f1c37qd33db36693ea1871@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <64b292120604302226i377f1c37qd33db36693ea1871@mail.gmail.com>
+	Mon, 1 May 2006 03:07:39 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:29921 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751293AbWEAHHi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 03:07:38 -0400
+Date: Mon, 1 May 2006 04:07:40 -0300
+From: Marcelo Tosatti <marcelo@kvack.org>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.33-pre3
+Message-ID: <20060501070740.GA28087@dmt>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1146466945_20203P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 01 May 2006 03:02:25 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1146466945_20203P
-Content-Type: text/plain; charset=us-ascii
+Hi,
 
-On Mon, 01 May 2006 00:26:05 CDT, Circuitsoft Development said:
+After a long time, here comes the third -pre of v2.4.33.
 
-> Having done my own tests, I've determined that a 5msec timeout to
-> determine if a host has crashed would be appropriate. (My test was
-> basically looking at ping time over a saturated network - averaged
-> about 600 microseconds, topped at 3msec over 10 minutes) I figure that
-> 5msec timeout won't add any noticeable lag to the volume manager, as
-> most disk seek times are in that range.W
+Mostly security related fixes, as usual.
 
-Note that if you're setting 5ms as your timeout for detecting a *crash*,
-and your *ping* takes 3ms, that leaves you a whole whopping 2ms.  If you
-have 1ms scheduler latency at *each* end (remember - you're in userspace
-at both ends, right?) you have approximately 0ms left for the remote end to
-actually *do* anything, and for the local end to process the reply.
+Note: The mprotect issue, ID CVE-2006-1524, has changed to
+CVE-2006-2071.
 
-And if the remote end has to issue a syscall during processing the request,
-you're basically screwed.
+Summary of changes from v2.4.33-pre2 to v2.4.33-pre3
+============================================
 
-You need to be adding at least 1 zero to that timeout value.
+Andi Kleen:
+      x86_64: Check for bad elf entry address.
+      Always check that RIPs are canonical during signal handling
+      x86-64: Always check that RIPs are canonical during signal handling (update)
+      i386/x86-64: Fix x87 information leak between processes
 
---==_Exmh_1146466945_20203P
-Content-Type: application/pgp-signature
+Craig Brind:
+      via-rhine: zero pad short packets on Rhine I ethernet cards
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+David S. Miller:
+      ip_queue: Fix wrong skb->len == nlmsg_len assumption
 
-iD8DBQFEVbKBcC3lWbTT17ARAtZ0AJ9/aYLH0OFTb+xNx/CWtEh3ZNiZeACaAtPO
-v6NGgj4LCtq67vTBLd5NIUo=
-=LHIe
------END PGP SIGNATURE-----
+Hugh Dickins:
+      fix shm mprotect (CVE-2006-1524)
 
---==_Exmh_1146466945_20203P--
+Jeff Layton:
+      2.4 nfs cache consistency problem with mmap'ed files
+
+Jesse Brandeburg:
+      build fix: auto_fs4 changes broke ppc64 build
+
+Marcelo Tosatti:
+      Merge http://w.ods.org/kernel/2.4/linux-2.4-upstream
+      Change VERSION to v2.4.33-pre3
+      Fix printk length modifier of NFS mmap consistency patch
+
+Marek Szuba:
+      quota_v2 module taints the kernel (missing licence)
+
+Marin Mitov:
+      DRM: drm_stub_open() range checking
+
+Mika Kukkonen:
+      VLAN: Add two missing checks to vlan_ioctl_handler()
+
+Pavel Kankovsky:
+      Fix small information leak in SO_ORIGINAL_DST and getname()
+
+Stefan-W. Hahn:
+      Corrected faulty syntax in drivers/input/Config.in
+
+Stephen Rothwell:
+      PPC64: fix sys_rt_sigreturn() return type
+
+Willy TARREAU:
+      e1000: Fix mii-tool access to setting speed and duplex
+

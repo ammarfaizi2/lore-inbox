@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWEAVk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWEAVlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932274AbWEAVk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWEAVk6
+	id S932275AbWEAVlp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 17:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWEAVlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:40:58 -0400
-Received: from nproxy.gmail.com ([64.233.182.185]:46254 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932274AbWEAVk5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:40:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=QvtKVYejlB+Af+407+OA/JR3ICTQ5cWil25bBCEQZbzCZgra5IRQHiPs+SjLH0e0Fwg45Bj7ACAsZwRc/BEueJrLDju1A6TKBfKCEqJ74p+ZXJgm6y35sxeClyqo/MgtMSgo36zxZBffdJ6bKNbwxw1zrqSE5tnRpAfeXn0HY20=
-Date: Tue, 2 May 2006 01:38:59 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Jiri Slaby <jirislaby@gmail.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] CodingStyle: add typedefs chapter
-Message-ID: <20060501213859.GC7170@mipter.zuzino.mipt.ru>
-References: <20060430174426.a21b4614.rdunlap@xenotime.net> <Pine.LNX.4.61.0605011559010.31804@yvahk01.tjqt.qr> <1146502730.2885.128.camel@hades.cambridge.redhat.com> <Pine.LNX.4.61.0605012219560.32033@yvahk01.tjqt.qr> <4456732B.2090009@gmail.com> <Pine.LNX.4.61.0605012300080.782@yvahk01.tjqt.qr> <1146517650.1921.55.camel@shinybook.infradead.org>
-Mime-Version: 1.0
+	Mon, 1 May 2006 17:41:44 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:51018 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S932275AbWEAVln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 17:41:43 -0400
+X-IronPort-AV: i="4.05,77,1146466800"; 
+   d="scan'208"; a="1800327999:sNHT30900044"
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2 of 13] ipath - set up 32-bit DMA mask if 64-bit setup fails
+X-Message-Flag: Warning: May contain useful information
+References: <1906950392f7ef8c7d07.1145913778@eng-12.pathscale.com>
+	<ada7j55vayj.fsf@cisco.com>
+	<4B05D10C-407E-46A5-848F-0897D1E6D1CD@kernel.crashing.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 01 May 2006 14:41:39 -0700
+In-Reply-To: <4B05D10C-407E-46A5-848F-0897D1E6D1CD@kernel.crashing.org> (Segher Boessenkool's message of "Mon, 1 May 2006 21:56:09 +0200")
+Message-ID: <adapsixs9rg.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1146517650.1921.55.camel@shinybook.infradead.org>
-User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 01 May 2006 21:41:41.0385 (UTC) FILETIME=[0888D790:01C66D68]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01, 2006 at 10:07:29PM +0100, David Woodhouse wrote:
-> On Mon, 2006-05-01 at 23:01 +0200, Jan Engelhardt wrote:
-> >   find rc3 -type f -print0 | xargs -0 perl -i -pe
-> >     's/\btask_t\b/struct task_struct'
-> >
-> > + a compile test afterwards. Something I missed? (Besides that lines
-> > may get longer and violate the 80-column CodingStyle rule.)
->
-> If we're going to do that, we might as well make it 'struct task'. The
-> additional '_struct' is redundant.
+    Segher> PowerPC with U3 or U4 northbridge, i.e. Maple or PowerMac
+    Segher> G5 systems.  If the IOMMU (DART) is disabled, we have a
+    Segher> 32-bit only DMA mask.  The DART will be disabled by
+    Segher> default if there is 2GB or less of memory (as it isn't
+    Segher> needed then).
 
-struct sighand_struct
-	signal_struct
-	files_struct
-	fs_struct
-	sel_arg_struct
-	mmap_arg_struct
-	vm_area_struct
-	tty_struct
-	fasync_struct
-	rose_facilities_struct
-	poll_table_struct
-		...
+OK, thanks.  I was not aware of that situation.
 
-What is the best day for Grand Renaming?
+However, I suspect that PathScale has a different situation in mind,
+considering that their driver isn't even buildable for that platform ;)
 
+ - R.

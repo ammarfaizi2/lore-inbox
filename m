@@ -1,352 +1,343 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWEAKas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWEAKb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbWEAKas (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 06:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWEAKaB
+	id S1751329AbWEAKb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 06:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWEAKau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 06:30:01 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:7048 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751336AbWEAK3y
+	Mon, 1 May 2006 06:30:50 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:7816 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751335AbWEAKaY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 06:29:54 -0400
+	Mon, 1 May 2006 06:30:24 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 10/14] change lspp ipc auditing
-Message-Id: <E1FaVf7-00052V-L5@ZenIV.linux.org.uk>
+Subject: [PATCH 13/14] Rework of IPC auditing
+Message-Id: <E1FaVfb-00053n-ME@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Mon, 01 May 2006 11:29:53 +0100
+Date: Mon, 01 May 2006 11:30:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Steve Grubb <sgrubb@redhat.com>
-Date: Fri Mar 31 15:22:49 2006 -0500
+Date: Sun Apr 2 17:07:33 2006 -0400
 
-Hi,
+1) The audit_ipc_perms() function has been split into two different
+functions:
+        - audit_ipc_obj()
+        - audit_ipc_set_perm()
 
-The patch below converts IPC auditing to collect sid's and convert to context
-string only if it needs to output an audit record. This patch depends on the
-inode audit change patch already being applied.
+There's a key shift here...  The audit_ipc_obj() collects the uid, gid,
+mode, and SElinux context label of the current ipc object.  This
+audit_ipc_obj() hook is now found in several places.  Most notably, it
+is hooked in ipcperms(), which is called in various places around the
+ipc code permforming a MAC check.  Additionally there are several places
+where *checkid() is used to validate that an operation is being
+performed on a valid object while not necessarily having a nearby
+ipcperms() call.  In these locations, audit_ipc_obj() is called to
+ensure that the information is captured by the audit system.
 
-Signed-off-by: Steve Grubb <sgrubb@redhat.com>
+The audit_set_new_perm() function is called any time the permissions on
+the ipc object changes.  In this case, the NEW permissions are recorded
+(and note that an audit_ipc_obj() call exists just a few lines before
+each instance).
+
+2) Support for an AUDIT_IPC_SET_PERM audit message type.  This allows
+for separate auxiliary audit records for normal operations on an IPC
+object and permissions changes.  Note that the same struct
+audit_aux_data_ipcctl is used and populated, however there are separate
+audit_log_format statements based on the type of the message.  Finally,
+the AUDIT_IPC block of code in audit_free_aux() was extended to handle
+aux messages of this new type.  No more mem leaks I hope ;-)
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- include/linux/security.h   |   16 ----------
- include/linux/selinux.h    |   15 ++++++++++
- kernel/auditsc.c           |   68 ++++++++++++++------------------------------
- security/dummy.c           |    6 ----
- security/selinux/exports.c |   11 +++++++
- security/selinux/hooks.c   |    8 -----
- 6 files changed, 47 insertions(+), 77 deletions(-)
+ include/linux/audit.h |    7 +++++-
+ ipc/msg.c             |   11 +++++++++-
+ ipc/sem.c             |   11 +++++++++-
+ ipc/shm.c             |   19 +++++++++++++++--
+ ipc/util.c            |    7 +++++-
+ kernel/auditsc.c      |   54 ++++++++++++++++++++++++++++++++++++++++++++++---
+ 6 files changed, 98 insertions(+), 11 deletions(-)
 
-9c7aa6aa74fa8a5cda36e54cbbe4fffe0214497d
-diff --git a/include/linux/security.h b/include/linux/security.h
-index aaa0a5c..1bab48f 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -869,11 +869,6 @@ #ifdef CONFIG_SECURITY
-  *	@ipcp contains the kernel IPC permission structure
-  *	@flag contains the desired (requested) permission set
-  *	Return 0 if permission is granted.
-- * @ipc_getsecurity:
-- *      Copy the security label associated with the ipc object into
-- *      @buffer.  @buffer may be NULL to request the size of the buffer 
-- *      required.  @size indicates the size of @buffer in bytes. Return 
-- *      number of bytes used/required on success.
-  *
-  * Security hooks for individual messages held in System V IPC message queues
-  * @msg_msg_alloc_security:
-@@ -1223,7 +1218,6 @@ struct security_operations {
- 	void (*task_to_inode)(struct task_struct *p, struct inode *inode);
+073115d6b29c7910feaa08241c6484637f5ca958
+diff --git a/include/linux/audit.h b/include/linux/audit.h
+index d5c4082..b74c148 100644
+--- a/include/linux/audit.h
++++ b/include/linux/audit.h
+@@ -83,6 +83,7 @@ #define AUDIT_SOCKETCALL	1304	/* sys_soc
+ #define AUDIT_CONFIG_CHANGE	1305	/* Audit system configuration change */
+ #define AUDIT_SOCKADDR		1306	/* sockaddr copied as syscall arg */
+ #define AUDIT_CWD		1307	/* Current working directory */
++#define AUDIT_IPC_SET_PERM	1311	/* IPC new permissions record type */
  
- 	int (*ipc_permission) (struct kern_ipc_perm * ipcp, short flag);
--	int (*ipc_getsecurity)(struct kern_ipc_perm *ipcp, void *buffer, size_t size);
- 
- 	int (*msg_msg_alloc_security) (struct msg_msg * msg);
- 	void (*msg_msg_free_security) (struct msg_msg * msg);
-@@ -1887,11 +1881,6 @@ static inline int security_ipc_permissio
- 	return security_ops->ipc_permission (ipcp, flag);
- }
- 
--static inline int security_ipc_getsecurity(struct kern_ipc_perm *ipcp, void *buffer, size_t size)
--{
--	return security_ops->ipc_getsecurity(ipcp, buffer, size);
--}
--
- static inline int security_msg_msg_alloc (struct msg_msg * msg)
- {
- 	return security_ops->msg_msg_alloc_security (msg);
-@@ -2532,11 +2521,6 @@ static inline int security_ipc_permissio
- 	return 0;
- }
- 
--static inline int security_ipc_getsecurity(struct kern_ipc_perm *ipcp, void *buffer, size_t size)
--{
--	return -EOPNOTSUPP;
--}
--
- static inline int security_msg_msg_alloc (struct msg_msg * msg)
- {
- 	return 0;
-diff --git a/include/linux/selinux.h b/include/linux/selinux.h
-index 84a6c74..413d667 100644
---- a/include/linux/selinux.h
-+++ b/include/linux/selinux.h
-@@ -16,6 +16,7 @@ #define _LINUX_SELINUX_H
- struct selinux_audit_rule;
- struct audit_context;
- struct inode;
-+struct kern_ipc_perm;
- 
- #ifdef CONFIG_SECURITY_SELINUX
- 
-@@ -98,6 +99,15 @@ int selinux_ctxid_to_string(u32 ctxid, c
-  */
- void selinux_get_inode_sid(const struct inode *inode, u32 *sid);
- 
-+/**
-+ *     selinux_get_ipc_sid - get the ipc security context ID
-+ *     @ipcp: ipc structure to get the sid from.
-+ *     @sid: pointer to security context ID to be filled in.
+ #define AUDIT_AVC		1400	/* SE Linux avc denial or grant */
+ #define AUDIT_SELINUX_ERR	1401	/* Internal SE Linux Errors */
+@@ -319,7 +320,8 @@ extern void auditsc_get_stamp(struct aud
+ 			      struct timespec *t, unsigned int *serial);
+ extern int  audit_set_loginuid(struct task_struct *task, uid_t loginuid);
+ extern uid_t audit_get_loginuid(struct audit_context *ctx);
+-extern int audit_ipc_perms(unsigned long qbytes, uid_t uid, gid_t gid, mode_t mode, struct kern_ipc_perm *ipcp);
++extern int audit_ipc_obj(struct kern_ipc_perm *ipcp);
++extern int audit_ipc_set_perm(unsigned long qbytes, uid_t uid, gid_t gid, mode_t mode, struct kern_ipc_perm *ipcp);
+ extern int audit_socketcall(int nargs, unsigned long *args);
+ extern int audit_sockaddr(int len, void *addr);
+ extern int audit_avc_path(struct dentry *dentry, struct vfsmount *mnt);
+@@ -338,7 +340,8 @@ #define audit_inode(n,i,f) do { ; } whil
+ #define audit_inode_child(d,i,p) do { ; } while (0)
+ #define auditsc_get_stamp(c,t,s) do { BUG(); } while (0)
+ #define audit_get_loginuid(c) ({ -1; })
+-#define audit_ipc_perms(q,u,g,m,i) ({ 0; })
++#define audit_ipc_obj(i) ({ 0; })
++#define audit_ipc_set_perm(q,u,g,m,i) ({ 0; })
+ #define audit_socketcall(n,a) ({ 0; })
+ #define audit_sockaddr(len, addr) ({ 0; })
+ #define audit_avc_path(dentry, mnt) ({ 0; })
+diff --git a/ipc/msg.c b/ipc/msg.c
+index 48a7f17..7d1340c 100644
+--- a/ipc/msg.c
++++ b/ipc/msg.c
+@@ -13,6 +13,9 @@
+  * mostly rewritten, threaded and wake-one semantics added
+  * MSGMAX limit removed, sysctl's added
+  * (c) 1999 Manfred Spraul <manfred@colorfullife.com>
 + *
-+ *     Returns nothing
-+ */
-+void selinux_get_ipc_sid(const struct kern_ipc_perm *ipcp, u32 *sid);
++ * support for audit of ipc object properties and permission changes
++ * Dustin Kirkland <dustin.kirkland@us.ibm.com>
+  */
+ 
+ #include <linux/capability.h>
+@@ -447,6 +450,11 @@ asmlinkage long sys_msgctl (int msqid, i
+ 	if (msg_checkid(msq,msqid))
+ 		goto out_unlock_up;
+ 	ipcp = &msq->q_perm;
 +
- #else
- 
- static inline int selinux_audit_rule_init(u32 field, u32 op,
-@@ -141,6 +151,11 @@ static inline void selinux_get_inode_sid
- 	*sid = 0;
- }
- 
-+static inline void selinux_get_ipc_sid(const struct kern_ipc_perm *ipcp, u32 *sid)
-+{
-+	*sid = 0;
-+}
++	err = audit_ipc_obj(ipcp);
++	if (err)
++		goto out_unlock_up;
 +
- #endif	/* CONFIG_SECURITY_SELINUX */
+ 	err = -EPERM;
+ 	if (current->euid != ipcp->cuid && 
+ 	    current->euid != ipcp->uid && !capable(CAP_SYS_ADMIN))
+@@ -460,7 +468,8 @@ asmlinkage long sys_msgctl (int msqid, i
+ 	switch (cmd) {
+ 	case IPC_SET:
+ 	{
+-		if ((err = audit_ipc_perms(setbuf.qbytes, setbuf.uid, setbuf.gid, setbuf.mode, ipcp)))
++		err = audit_ipc_set_perm(setbuf.qbytes, setbuf.uid, setbuf.gid, setbuf.mode, ipcp);
++		if (err)
+ 			goto out_unlock_up;
  
- #endif /* _LINUX_SELINUX_H */
+ 		err = -EPERM;
+diff --git a/ipc/sem.c b/ipc/sem.c
+index 642659c..7919f8e 100644
+--- a/ipc/sem.c
++++ b/ipc/sem.c
+@@ -61,6 +61,9 @@
+  * (c) 2001 Red Hat Inc <alan@redhat.com>
+  * Lockless wakeup
+  * (c) 2003 Manfred Spraul <manfred@colorfullife.com>
++ *
++ * support for audit of ipc object properties and permission changes
++ * Dustin Kirkland <dustin.kirkland@us.ibm.com>
+  */
+ 
+ #include <linux/config.h>
+@@ -820,6 +823,11 @@ static int semctl_down(int semid, int se
+ 		goto out_unlock;
+ 	}	
+ 	ipcp = &sma->sem_perm;
++
++	err = audit_ipc_obj(ipcp);
++	if (err)
++		goto out_unlock;
++
+ 	if (current->euid != ipcp->cuid && 
+ 	    current->euid != ipcp->uid && !capable(CAP_SYS_ADMIN)) {
+ 	    	err=-EPERM;
+@@ -836,7 +844,8 @@ static int semctl_down(int semid, int se
+ 		err = 0;
+ 		break;
+ 	case IPC_SET:
+-		if ((err = audit_ipc_perms(0, setbuf.uid, setbuf.gid, setbuf.mode, ipcp)))
++		err = audit_ipc_set_perm(0, setbuf.uid, setbuf.gid, setbuf.mode, ipcp);
++		if (err)
+ 			goto out_unlock;
+ 		ipcp->uid = setbuf.uid;
+ 		ipcp->gid = setbuf.gid;
+diff --git a/ipc/shm.c b/ipc/shm.c
+index 1c2faf6..8098968 100644
+--- a/ipc/shm.c
++++ b/ipc/shm.c
+@@ -13,6 +13,8 @@
+  * Shared /dev/zero support, Kanoj Sarcar <kanoj@sgi.com>
+  * Move the mm functionality over to mm/shmem.c, Christoph Rohland <cr@sap.com>
+  *
++ * support for audit of ipc object properties and permission changes
++ * Dustin Kirkland <dustin.kirkland@us.ibm.com>
+  */
+ 
+ #include <linux/config.h>
+@@ -542,6 +544,10 @@ asmlinkage long sys_shmctl (int shmid, i
+ 		if(err)
+ 			goto out_unlock;
+ 
++		err = audit_ipc_obj(&(shp->shm_perm));
++		if (err)
++			goto out_unlock;
++
+ 		if (!capable(CAP_IPC_LOCK)) {
+ 			err = -EPERM;
+ 			if (current->euid != shp->shm_perm.uid &&
+@@ -594,6 +600,10 @@ asmlinkage long sys_shmctl (int shmid, i
+ 		if(err)
+ 			goto out_unlock_up;
+ 
++		err = audit_ipc_obj(&(shp->shm_perm));
++		if (err)
++			goto out_unlock_up;
++
+ 		if (current->euid != shp->shm_perm.uid &&
+ 		    current->euid != shp->shm_perm.cuid && 
+ 		    !capable(CAP_SYS_ADMIN)) {
+@@ -627,12 +637,15 @@ asmlinkage long sys_shmctl (int shmid, i
+ 		err=-EINVAL;
+ 		if(shp==NULL)
+ 			goto out_up;
+-		if ((err = audit_ipc_perms(0, setbuf.uid, setbuf.gid,
+-					setbuf.mode, &(shp->shm_perm))))
+-			goto out_unlock_up;
+ 		err = shm_checkid(shp,shmid);
+ 		if(err)
+ 			goto out_unlock_up;
++		err = audit_ipc_obj(&(shp->shm_perm));
++		if (err)
++			goto out_unlock_up;
++		err = audit_ipc_set_perm(0, setbuf.uid, setbuf.gid, setbuf.mode, &(shp->shm_perm));
++		if (err)
++			goto out_unlock_up;
+ 		err=-EPERM;
+ 		if (current->euid != shp->shm_perm.uid &&
+ 		    current->euid != shp->shm_perm.cuid && 
+diff --git a/ipc/util.c b/ipc/util.c
+index b3dcfad..8193299 100644
+--- a/ipc/util.c
++++ b/ipc/util.c
+@@ -10,6 +10,8 @@
+  *	      Manfred Spraul <manfred@colorfullife.com>
+  * Oct 2002 - One lock per IPC id. RCU ipc_free for lock-free grow_ary().
+  *            Mingming Cao <cmm@us.ibm.com>
++ * Mar 2006 - support for audit of ipc object properties
++ *            Dustin Kirkland <dustin.kirkland@us.ibm.com>
+  */
+ 
+ #include <linux/config.h>
+@@ -27,6 +29,7 @@ #include <linux/rcupdate.h>
+ #include <linux/workqueue.h>
+ #include <linux/seq_file.h>
+ #include <linux/proc_fs.h>
++#include <linux/audit.h>
+ 
+ #include <asm/unistd.h>
+ 
+@@ -464,8 +467,10 @@ void ipc_rcu_putref(void *ptr)
+  
+ int ipcperms (struct kern_ipc_perm *ipcp, short flag)
+ {	/* flag will most probably be 0 or S_...UGO from <linux/stat.h> */
+-	int requested_mode, granted_mode;
++	int requested_mode, granted_mode, err;
+ 
++	if (unlikely((err = audit_ipc_obj(ipcp))))
++		return err;
+ 	requested_mode = (flag >> 6) | (flag >> 3) | flag;
+ 	granted_mode = ipcp->mode;
+ 	if (current->euid == ipcp->cuid || current->euid == ipcp->uid)
 diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 2e123a8..b4f7223 100644
+index d94e040..a300736 100644
 --- a/kernel/auditsc.c
 +++ b/kernel/auditsc.c
-@@ -107,7 +107,7 @@ struct audit_aux_data_ipcctl {
- 	uid_t			uid;
- 	gid_t			gid;
- 	mode_t			mode;
--	char 			*ctx;
-+	u32			osid;
- };
+@@ -646,6 +646,25 @@ static void audit_log_exit(struct audit_
+ 			}
+ 			break; }
  
- struct audit_aux_data_socketcall {
-@@ -432,11 +432,6 @@ static inline void audit_free_aux(struct
- 			dput(axi->dentry);
- 			mntput(axi->mnt);
- 		}
--		if ( aux->type == AUDIT_IPC ) {
--			struct audit_aux_data_ipcctl *axi = (void *)aux;
--			if (axi->ctx)
--				kfree(axi->ctx);
--		}
- 
- 		context->aux = aux->next;
- 		kfree(aux);
-@@ -584,7 +579,7 @@ static void audit_log_task_info(struct a
- 
- static void audit_log_exit(struct audit_context *context, struct task_struct *tsk)
- {
--	int i;
-+	int i, call_panic = 0;
- 	struct audit_buffer *ab;
- 	struct audit_aux_data *aux;
- 	const char *tty;
-@@ -635,8 +630,20 @@ static void audit_log_exit(struct audit_
- 		case AUDIT_IPC: {
- 			struct audit_aux_data_ipcctl *axi = (void *)aux;
- 			audit_log_format(ab, 
--					 " qbytes=%lx iuid=%u igid=%u mode=%x obj=%s",
--					 axi->qbytes, axi->uid, axi->gid, axi->mode, axi->ctx);
-+				 " qbytes=%lx iuid=%u igid=%u mode=%x",
-+				 axi->qbytes, axi->uid, axi->gid, axi->mode);
++		case AUDIT_IPC_SET_PERM: {
++			struct audit_aux_data_ipcctl *axi = (void *)aux;
++			audit_log_format(ab,
++				" new qbytes=%lx new iuid=%u new igid=%u new mode=%x",
++				axi->qbytes, axi->uid, axi->gid, axi->mode);
 +			if (axi->osid != 0) {
 +				char *ctx = NULL;
 +				u32 len;
 +				if (selinux_ctxid_to_string(
 +						axi->osid, &ctx, &len)) {
-+					audit_log_format(ab, " obj=%u",
++					audit_log_format(ab, " osid=%u",
 +							axi->osid);
 +					call_panic = 1;
 +				} else
 +					audit_log_format(ab, " obj=%s", ctx);
 +				kfree(ctx);
 +			}
- 			break; }
- 
++			break; }
++
  		case AUDIT_SOCKETCALL: {
-@@ -671,7 +678,6 @@ static void audit_log_exit(struct audit_
- 		}
- 	}
- 	for (i = 0; i < context->name_count; i++) {
--		int call_panic = 0;
- 		unsigned long ino  = context->names[i].ino;
- 		unsigned long pino = context->names[i].pino;
- 
-@@ -708,16 +714,16 @@ static void audit_log_exit(struct audit_
- 				context->names[i].osid, &ctx, &len)) {
- 				audit_log_format(ab, " obj=%u",
- 						context->names[i].osid);
--				call_panic = 1;
-+				call_panic = 2;
- 			} else
- 				audit_log_format(ab, " obj=%s", ctx);
- 			kfree(ctx);
- 		}
- 
- 		audit_log_end(ab);
--		if (call_panic)
--			audit_panic("error converting sid to string");
- 	}
-+	if (call_panic)
-+		audit_panic("error converting sid to string");
+ 			int i;
+ 			struct audit_aux_data_socketcall *axs = (void *)aux;
+@@ -1148,7 +1167,36 @@ uid_t audit_get_loginuid(struct audit_co
  }
  
  /**
-@@ -951,7 +957,7 @@ #if AUDIT_DEBUG
- #endif
- }
- 
--void audit_inode_context(int idx, const struct inode *inode)
-+static void audit_inode_context(int idx, const struct inode *inode)
- {
- 	struct audit_context *context = current->audit_context;
- 
-@@ -1141,38 +1147,6 @@ uid_t audit_get_loginuid(struct audit_co
- 	return ctx ? ctx->loginuid : -1;
- }
- 
--static char *audit_ipc_context(struct kern_ipc_perm *ipcp)
--{
--	struct audit_context *context = current->audit_context;
--	char *ctx = NULL;
--	int len = 0;
--
--	if (likely(!context))
--		return NULL;
--
--	len = security_ipc_getsecurity(ipcp, NULL, 0);
--	if (len == -EOPNOTSUPP)
--		goto ret;
--	if (len < 0)
--		goto error_path;
--
--	ctx = kmalloc(len, GFP_ATOMIC);
--	if (!ctx)
--		goto error_path;
--
--	len = security_ipc_getsecurity(ipcp, ctx, len);
--	if (len < 0)
--		goto error_path;
--
--	return ctx;
--
--error_path:
--	kfree(ctx);
--	audit_panic("error in audit_ipc_context");
--ret:
--	return NULL;
--}
--
- /**
-  * audit_ipc_perms - record audit data for ipc
-  * @qbytes: msgq bytes
-@@ -1198,7 +1172,7 @@ int audit_ipc_perms(unsigned long qbytes
- 	ax->uid = uid;
- 	ax->gid = gid;
- 	ax->mode = mode;
--	ax->ctx = audit_ipc_context(ipcp);
-+	selinux_get_ipc_sid(ipcp, &ax->osid);
- 
- 	ax->d.type = AUDIT_IPC;
- 	ax->d.next = context->aux;
-diff --git a/security/dummy.c b/security/dummy.c
-index fd99429..8cccccc 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -563,11 +563,6 @@ static int dummy_ipc_permission (struct 
- 	return 0;
- }
- 
--static int dummy_ipc_getsecurity(struct kern_ipc_perm *ipcp, void *buffer, size_t size)
--{
--	return -EOPNOTSUPP;
--}
--
- static int dummy_msg_msg_alloc_security (struct msg_msg *msg)
- {
- 	return 0;
-@@ -976,7 +971,6 @@ void security_fixup_ops (struct security
- 	set_to_dummy_if_null(ops, task_reparent_to_init);
-  	set_to_dummy_if_null(ops, task_to_inode);
- 	set_to_dummy_if_null(ops, ipc_permission);
--	set_to_dummy_if_null(ops, ipc_getsecurity);
- 	set_to_dummy_if_null(ops, msg_msg_alloc_security);
- 	set_to_dummy_if_null(ops, msg_msg_free_security);
- 	set_to_dummy_if_null(ops, msg_queue_alloc_security);
-diff --git a/security/selinux/exports.c b/security/selinux/exports.c
-index 07ddce7..7357cf2 100644
---- a/security/selinux/exports.c
-+++ b/security/selinux/exports.c
-@@ -15,6 +15,7 @@ #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/selinux.h>
- #include <linux/fs.h>
-+#include <linux/ipc.h>
- 
- #include "security.h"
- #include "objsec.h"
-@@ -50,3 +51,13 @@ void selinux_get_inode_sid(const struct 
- 	*sid = 0;
- }
- 
-+void selinux_get_ipc_sid(const struct kern_ipc_perm *ipcp, u32 *sid)
+- * audit_ipc_perms - record audit data for ipc
++ * audit_ipc_obj - record audit data for ipc object
++ * @ipcp: ipc permissions
++ *
++ * Returns 0 for success or NULL context or < 0 on error.
++ */
++int audit_ipc_obj(struct kern_ipc_perm *ipcp)
 +{
-+	if (selinux_enabled) {
-+		struct ipc_security_struct *isec = ipcp->security;
-+		*sid = isec->sid;
-+		return;
-+	}
-+	*sid = 0;
++	struct audit_aux_data_ipcctl *ax;
++	struct audit_context *context = current->audit_context;
++
++	if (likely(!context))
++		return 0;
++
++	ax = kmalloc(sizeof(*ax), GFP_ATOMIC);
++	if (!ax)
++		return -ENOMEM;
++
++	ax->uid = ipcp->uid;
++	ax->gid = ipcp->gid;
++	ax->mode = ipcp->mode;
++	selinux_get_ipc_sid(ipcp, &ax->osid);
++
++	ax->d.type = AUDIT_IPC;
++	ax->d.next = context->aux;
++	context->aux = (void *)ax;
++	return 0;
 +}
 +
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b61b955..3cf368a 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4052,13 +4052,6 @@ static int selinux_ipc_permission(struct
- 	return ipc_has_perm(ipcp, av);
- }
- 
--static int selinux_ipc_getsecurity(struct kern_ipc_perm *ipcp, void *buffer, size_t size)
--{
--	struct ipc_security_struct *isec = ipcp->security;
--
--	return selinux_getsecurity(isec->sid, buffer, size);
--}
--
- /* module stacking operations */
- static int selinux_register_security (const char *name, struct security_operations *ops)
++/**
++ * audit_ipc_set_perm - record audit data for new ipc permissions
+  * @qbytes: msgq bytes
+  * @uid: msgq user id
+  * @gid: msgq group id
+@@ -1156,7 +1204,7 @@ uid_t audit_get_loginuid(struct audit_co
+  *
+  * Returns 0 for success or NULL context or < 0 on error.
+  */
+-int audit_ipc_perms(unsigned long qbytes, uid_t uid, gid_t gid, mode_t mode, struct kern_ipc_perm *ipcp)
++int audit_ipc_set_perm(unsigned long qbytes, uid_t uid, gid_t gid, mode_t mode, struct kern_ipc_perm *ipcp)
  {
-@@ -4321,7 +4314,6 @@ static struct security_operations selinu
- 	.task_to_inode =                selinux_task_to_inode,
+ 	struct audit_aux_data_ipcctl *ax;
+ 	struct audit_context *context = current->audit_context;
+@@ -1174,7 +1222,7 @@ int audit_ipc_perms(unsigned long qbytes
+ 	ax->mode = mode;
+ 	selinux_get_ipc_sid(ipcp, &ax->osid);
  
- 	.ipc_permission =		selinux_ipc_permission,
--	.ipc_getsecurity =		selinux_ipc_getsecurity,
- 
- 	.msg_msg_alloc_security =	selinux_msg_msg_alloc_security,
- 	.msg_msg_free_security =	selinux_msg_msg_free_security,
+-	ax->d.type = AUDIT_IPC;
++	ax->d.type = AUDIT_IPC_SET_PERM;
+ 	ax->d.next = context->aux;
+ 	context->aux = (void *)ax;
+ 	return 0;
 -- 
 1.3.0.g0080f
 

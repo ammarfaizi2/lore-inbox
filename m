@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWEAV2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWEAV3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWEAV2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWEAV2X
+	id S932270AbWEAV3V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 17:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWEAV3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:28:23 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13246 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932269AbWEAV2X (ORCPT
+	Mon, 1 May 2006 17:29:20 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:30984 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932270AbWEAV3U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:28:23 -0400
-Date: Tue, 2 May 2006 07:28:08 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Marcelo Tosatti <marcelo@kvack.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT, ext3fs, kernel 2.4.32... again
-Message-ID: <20060502072808.A1873249@wobbly.melbourne.sgi.com>
-References: <20060427063249.GH761@DervishD> <20060501062058.GA16589@dmt> <20060501112303.GA1951@DervishD>
+	Mon, 1 May 2006 17:29:20 -0400
+Date: Mon, 1 May 2006 23:29:19 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc3-mm1
+Message-ID: <20060501212919.GA21191@mars.ravnborg.org>
+References: <20060501014737.54ee0dd5.akpm@osdl.org> <625fc13d0605010554l4cadac0fxe7fbc6cd5d57c679@mail.gmail.com> <20060501095913.13a74b2b.akpm@osdl.org> <e35lmt$1iv$1@terminus.zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060501112303.GA1951@DervishD>; from lkml@dervishd.net on Mon, May 01, 2006 at 01:23:03PM +0200
+In-Reply-To: <e35lmt$1iv$1@terminus.zytor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01, 2006 at 01:23:03PM +0200, DervishD wrote:
->     Hi Marcelo :)
-> 
->  * Marcelo Tosatti <marcelo@kvack.org> dixit:
-> > >     Shouldn't ext3fs return an error when the O_DIRECT flag is
-> > > used in the open call? Is the open call userspace only and thus
-> > > only libc can return such error? Am I misunderstanding the entire
-> > > issue and this is a perfectly legal behaviour (allowing the open,
-> > > failing in the read operation)?
-> > 
-> > Your interpretation is correct. It would be nicer for open() to
-> > fail on fs'es which don't support O_DIRECT, but v2.4 makes such
-> > check later at read/write unfortunately ;(
-> 
->     Oops :(
+On Mon, May 01, 2006 at 11:57:33AM -0700, H. Peter Anvin wrote:
+ 
+> If it makes your life easier I'd be happy to produce a klibc tree on
+> top of the header cleanup tree.
+klibc is independent today and I really suggest to leave it so until
+header cleanup tree has been merged.
+Otherwise we would end up in a situation where klibc are ready but due
+to dependency on header cleanup we had to wait until 2.6.19.
 
-Nothing else really make sense due to fcntl...
-	fcntl(fd, F_SETFL, O_DIRECT);
-...can happen at any time, to enable/disable direct I/O.
+> klibc really should be built against
+> the exported headers, which should both make klibc easier to maintain
+> and provide a degree automatic testing of the exported headers.
+So this is a natural next step on top of the header cleanup tree.
 
-cheers.
-
--- 
-Nathan
+	Sam

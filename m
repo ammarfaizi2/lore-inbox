@@ -1,45 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWEAULU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWEAUOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWEAULU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 16:11:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWEAULU
+	id S932218AbWEAUOp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 16:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWEAUOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 16:11:20 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:5257 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932217AbWEAULT (ORCPT
+	Mon, 1 May 2006 16:14:44 -0400
+Received: from waste.org ([64.81.244.121]:46990 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932218AbWEAUOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 16:11:19 -0400
-Date: Tue, 2 May 2006 04:11:18 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: splice(SPLICE_F_MOVE) problems
-Message-ID: <20060502001118.GA88@oleg>
-References: <20060501065953.GA289@oleg> <20060501065412.GP23137@suse.de> <20060501190625.GA174@oleg> <20060501174153.GH3814@suse.de>
+	Mon, 1 May 2006 16:14:44 -0400
+Date: Mon, 1 May 2006 15:10:42 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Ketchup 0.9.8 released
+Message-ID: <20060501201042.GW15445@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060501174153.GH3814@suse.de>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/01, Jens Axboe wrote:
->
-> > If readahead doesn't work, SPLICE_F_MOVE is problematic too.
-> > add_to_page_cache_lru()->lru_cache_add() first increments
-> > page->count and adds this page to lru_add_pvecs. This means
-> > page_cache_pipe_buf_steal()->remove_mapping() will probably
-> > fail.
-> 
-> Because of the temporarily elevated page count?
+The latest release of ketchup is available at:
 
-Yes.
+ http://selenic.com/ketchup/
 
-On the other hand, if readahead doesn't work we already have a
-bigger problem, and SPLICE_F_MOVE is not garanteed, so I think
-this is very minor.
+This release fixes a bug with updating to -stable kernels > .9 and
+cleaning up pax_global_header droppings from git.
 
-Oleg.
-
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWEAR0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWEARd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWEAR0r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 13:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWEAR0r
+	id S932170AbWEARd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 13:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWEARd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 13:26:47 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:58821 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932150AbWEAR0q
+	Mon, 1 May 2006 13:33:28 -0400
+Received: from uproxy.gmail.com ([66.249.92.174]:25057 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932170AbWEARd1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 13:26:46 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=YGxtm37LlRQN8wYf84IUW7aGJkzvM/XgVLdHQlNzLnI4yWMRSU+8gzkiIvnyDiKEg
-	KdqoVExgN2KgGQrYowtlQ==
-Message-ID: <445644B7.7060807@google.com>
-Date: Mon, 01 May 2006 10:26:15 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Mon, 1 May 2006 13:33:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=egxqqQB94713Ek2okF2xCaSdugXIaRqd0rKFwJWnWhLd6HSh2Tp+HpA+z2OZr2zrQ4DwE/SmNqdL7UqP1drslwokqccIl1UyqG2+mlOHRLZM2wpVqqUbOlmSenrMuya7DBXbKI9hmqBJev0sAnPL7buK0okwyWZyARa369C81Kk=
+Message-ID: <625fc13d0605011033h41492f46qb0d31a8d9b26adc@mail.gmail.com>
+Date: Mon, 1 May 2006 12:33:26 -0500
+From: "Josh Boyer" <jwboyer@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.17-rc3-mm1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060501095913.13a74b2b.akpm@osdl.org>
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, apw@shadowen.org, linuxppc64-dev@ozlabs.org,
-       lkml <linux-kernel@vger.kernel.org>, ak@suse.de
-Subject: Re: 2.6.17-rc2-mm1
-References: <4450F5AD.9030200@google.com>	 <20060428012022.7b73c77b.akpm@osdl.org> <44561A1E.7000103@google.com>	 <20060501100731.051f4eff.akpm@osdl.org> <1146503960.317.1.camel@dyn9047017100.beaverton.ibm.com>
-In-Reply-To: <1146503960.317.1.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060501014737.54ee0dd5.akpm@osdl.org>
+	 <625fc13d0605010554l4cadac0fxe7fbc6cd5d57c679@mail.gmail.com>
+	 <20060501095913.13a74b2b.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I ran mtest01 multiple times with various options on my 4-way AMD64 box.
-> So far couldn't reproduce the problem (2.6.17-rc3-mm1).
-> 
-> Are there any special config or test options you are testing with ?
+On 5/1/06, Andrew Morton <akpm@osdl.org> wrote:
+> "Josh Boyer" <jwboyer@gmail.com> wrote:
+> >  Hi Andrew,
+> >
+> >  Any specific reasons the header cleanup trees weren't added?
+>
+> I'll get onto that later in the month.  I also need to bring in the klibc
+> tree.  The two might apparently interact - we'll see..
 
-Config is here:
+Ok.  Sounds like it could be fun.. :)
 
-http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/amd64
-
-It's just doing "runalltests", I think.
-
-M.
+josh

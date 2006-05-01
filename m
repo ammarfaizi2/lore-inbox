@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWEAJmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWEAJnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWEAJmk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 05:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWEAJmj
+	id S1751007AbWEAJnh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 05:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWEAJnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 05:42:39 -0400
-Received: from s2.ukfsn.org ([217.158.120.143]:15760 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1750984AbWEAJmj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 05:42:39 -0400
-Message-ID: <4455D7E7.1040203@dgreaves.com>
-Date: Mon, 01 May 2006 10:41:59 +0100
-From: David Greaves <david@dgreaves.com>
-User-Agent: Mail/News 1.5 (X11/20060228)
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       linux-xfs@oss.sgi.com, nickpiggin@yahoo.com.au
-Subject: Re: Bad page state in process 'nfsd' with xfs
-References: <4452797F.70700@dgreaves.com> <20060501080427.H1771752@wobbly.melbourne.sgi.com>
-In-Reply-To: <20060501080427.H1771752@wobbly.melbourne.sgi.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 1 May 2006 05:43:37 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:59310 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750985AbWEAJng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 05:43:36 -0400
+Subject: Re: IP1000 gigabit nic driver
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: David Vrabel <dvrabel@cantab.net>
+Cc: romieu@fr.zoreil.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       david@pleyades.net
+In-Reply-To: <44554ADE.8030200@cantab.net>
+References: <20060427142939.GA31473@fargo>
+	 <20060427185627.GA30871@electric-eye.fr.zoreil.com>
+	 <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo>
+	 <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
+	 <20060428113755.GA7419@fargo>
+	 <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI>
+	 <1146306567.1642.3.camel@localhost>  <20060429122119.GA22160@fargo>
+	 <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost>
+	 <44554ADE.8030200@cantab.net>
+Date: Mon, 01 May 2006 12:43:34 +0300
+Message-Id: <1146476614.11271.8.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 2006-05-01 at 00:40 +0100, David Vrabel wrote:
+> Still pending.  Also:
+> 
+>      - something (PHY reset/auto negotiation?) takes 2-3 seconds and
+>        appears to be done with interrupts disabled.
 
-Nathan Scott wrote:
-> Hi there,
->
-> On Fri, Apr 28, 2006 at 09:22:23PM +0100, David Greaves wrote:
->
-> But, the warning is triggered by the page count (16777216 above), and
-> that is 0x1000000 -- which is a huge, improbable count; that looks to
-> me like it could very well be the result of a single bit error too.
->
-> You may have a hardware problem - try running memtest I guess.
-Thanks guys
+Are you seeing this at module initialization? Does Sysrq-t show anything
+useful?
 
-It's in use a lot so I'll  schedule some downtime, blow out the dust
-and run memtest (though I've done that before and it has been clean).
-
-I'll let you know how it goes...
-
-David
-
-- --
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEVdfn8LvjTle4P1gRAiHTAKCBakrWQCpHgo8qyfN6ZNryAxi3bQCdFkDn
-vQe781l5bQvq1a5BG2nF5sk=
-=jdAy
------END PGP SIGNATURE-----
+					Pekka
 

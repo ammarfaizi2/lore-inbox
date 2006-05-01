@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWEAUlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWEAUmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWEAUlx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 16:41:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWEAUlx
+	id S932245AbWEAUmW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 16:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWEAUmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 16:41:53 -0400
-Received: from alephnull.demon.nl ([83.160.184.112]:49289 "EHLO
-	xi.wantstofly.org") by vger.kernel.org with ESMTP id S932241AbWEAUlw
+	Mon, 1 May 2006 16:42:22 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:30952 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP id S932245AbWEAUmU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 16:41:52 -0400
-Date: Mon, 1 May 2006 22:41:50 +0200
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: David Vrabel <dvrabel@cantab.net>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       david@pleyades.net
-Subject: Re: IP1000 gigabit nic driver
-Message-ID: <20060501204150.GC1450@xi.wantstofly.org>
-References: <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com> <20060428113755.GA7419@fargo> <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI> <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo> <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <20060501203847.GA7419@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060501203847.GA7419@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 1 May 2006 16:42:20 -0400
+Message-ID: <445673F0.4020607@nachtwindheim.de>
+Date: Mon, 01 May 2006 22:47:44 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060411)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: arjan@infradead.org
+Cc: linux-kernel@vger.kernel.org, tiwai@suse.de, greg@kroah.org
+Subject: Re: [ALSA] add __devinitdata to all pci_device_id
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01, 2006 at 10:38:47PM +0200, Francois Romieu wrote:
+On Mon, May 01, 2006 at 06:49:24PM +0200, Arjan van de Ven wrote:
 
-> > -/* Minimum number of miliseconds used to toggle MDC clock during
-> > +/* Minimum number of nanoseconds used to toggle MDC clock during
-> >   * MII/GMII register access.
-> >   */
-> > -#define         IPG_PC_PHYCTRLWAIT           0x01
-> > +#define		IPG_PC_PHYCTRLWAIT_NS		200
-> 
-> I would have expected a cycle of 400 ns (p.72/77 of the datasheet)
-> for a 2.5 MHz clock. Why is it cut by a two factor ?
+ > are you really really sure you want to do this?
+ > These structures are exported via sysfs for example, I would think this
+ > is quite the wrong thing to make go away silently...
 
-200 ns high + 200 ns low = 400 ns clock period?
+Hi there!
+
+Sorry if I didn't mention everything I was .
+A couple of devices had __devinitdata on their tables like written in Documentation/pci.txt,
+so I thought this is something that was forgotten.
+How can we get clearness in that topic?
+
+Greets,
+Henrik

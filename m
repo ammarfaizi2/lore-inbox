@@ -1,36 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWEAWFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWEAWI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWEAWFn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 18:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWEAWFn
+	id S932297AbWEAWI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 18:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWEAWI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 18:05:43 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:10393 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S932259AbWEAWFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 18:05:42 -0400
-X-IronPort-AV: i="4.05,77,1146466800"; 
-   d="scan'208"; a="1800335442:sNHT1689632184"
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hzhong@gmail.com
-Subject: Re: [PATCH] Profile likely/unlikely macros
-X-Message-Flag: Warning: May contain useful information
-References: <200604250257.k3P2vlEb012502@dwalker1.mvista.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 01 May 2006 15:05:15 -0700
-In-Reply-To: <200604250257.k3P2vlEb012502@dwalker1.mvista.com> (Daniel Walker's message of "Mon, 24 Apr 2006 19:57:47 -0700")
-Message-ID: <adalktls8o4.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Mon, 1 May 2006 18:08:56 -0400
+Received: from linux.dunaweb.hu ([62.77.196.1]:53959 "EHLO linux.dunaweb.hu")
+	by vger.kernel.org with ESMTP id S932297AbWEAWIz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 18:08:55 -0400
+Message-ID: <445686F0.3080402@dunaweb.hu>
+Date: Tue, 02 May 2006 00:08:48 +0200
+From: Zoltan Boszormenyi <zboszor@dunaweb.hu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 May 2006 22:05:18.0713 (UTC) FILETIME=[5553EE90:01C66D6B]
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: Bad page state in process 'nfsd' with xfs
+References: <4454D59C.7000501@dunaweb.hu> <20060501102440.A1864834@wobbly.melbourne.sgi.com> <4455C1D0.5060104@dunaweb.hu> <20060502073325.B1873249@wobbly.melbourne.sgi.com>
+In-Reply-To: <20060502073325.B1873249@wobbly.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Daniel> It has a /proc/likely_prof interface which outputs
-    Daniel> something like the following,
+Hi,
 
-If we're thinking of applying this to mainline then probably this file
-should be in debugfs...
+Nathan Scott írta:
+> On Mon, May 01, 2006 at 10:07:44AM +0200, Zoltan Boszormenyi wrote:
+>   
+>> Hi,
+>>
+>> Nathan Scott írta:
+>>     
+>>> On Sun, Apr 30, 2006 at 05:19:56PM +0200, Zoltan Boszormenyi wrote:
+>>>   
+>>>       
+>>>> ...
+>>>> Or not. I had an FC3/x86-64 system until two days ago, now I have FC5/86-64.
+>>>>
+>>>> When FC3 was installed I chose to format the partitions to XFS and since 
+>>>> then
+>>>> I had Oopses regularly with or without VMWare modules.
+>>>>     
+>>>>         
+>>> What was the stack trace for your oops...?
+>>>
+>>> cheers.
+>>>   
+>>>       
+>> I reported some Oopses for earlier kernels, they are here:
+>>     
+>
+> These aren't oopses.  They do look similar, but slightly
+> different to the other report - your page count there is
+> off with the pixies, but its not as clear that its a single
+> bit error - yours are more like 0xfffe0000.  Quite strange.
+> You also have the odd high-32-bits-mirrors-low-32-bits in
+> page flags, both with one bit set.
+>
+> Not sure XFS can be causing this (we don't touch page count
+> for regular file pages, and only touch PageUptodate in flags
+> IIRC, like most/all filesystems).
+>
+> Were you also using NFS, as in the other report?
+>
+> cheers.
+>
+>   
 
- - R.
+No, it's just a standalone machine.
+
+Best regards,
+Zoltán Böszörményi
+

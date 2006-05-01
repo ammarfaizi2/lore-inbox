@@ -1,45 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWEAVHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWEAVK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWEAVHo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWEAVHo
+	id S1751258AbWEAVK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 17:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWEAVK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:07:44 -0400
-Received: from nproxy.gmail.com ([64.233.182.191]:5745 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751255AbWEAVHn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:07:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=a1XDpY2+rLc2VY4WX1KY8VBvDH8inDfyS97vc9DlsjHNfuA7A54iXW/HCDhDbpkdBdVX3sXKoW44r+IrwtbacL4lcFAlnAwfyRfpm5ldc6UlvXu9XCkv3SE4dv6wsRVMF6wWmJ2I/ie/ivwiMdYigU0hy0g90OekQeH43pKuCDs=
-Date: Tue, 2 May 2006 01:05:46 +0400
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: "Petri T. Koistinen" <petri.koistinen@iki.fi>
-Cc: Andrew Morton <akpm@osdl.org>, trivial@kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs/bio.c: initialize variable, remove warning
-Message-ID: <20060501210546.GB7170@mipter.zuzino.mipt.ru>
-References: <Pine.LNX.4.64.0605012353100.5245@joo>
+	Mon, 1 May 2006 17:10:57 -0400
+Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:63171 "EHLO
+	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
+	id S1751258AbWEAVK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 17:10:56 -0400
+Date: Mon, 1 May 2006 14:10:54 -0700
+To: David Brownell <david-b@pacbell.net>,
+       Samuel Ortiz <samuel.ortiz@nokia.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.17-rc3] smsc-ircc2, minimal PNP hotplug support
+Message-ID: <20060501211054.GA506@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <200605011313.43625.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605012353100.5245@joo>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200605011313.43625.david-b@pacbell.net>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01, 2006 at 11:55:27PM +0300, Petri T. Koistinen wrote:
-> Remove compiler warning by initializing uninitialized variable.
+On Mon, May 01, 2006 at 01:13:43PM -0700, David Brownell wrote:
+> An old laptop now behaves more sanely.
 
-> --- a/fs/bio.c
-> +++ b/fs/bio.c
-> @@ -166,7 +166,7 @@ struct bio *bio_alloc_bioset(gfp_t gfp_m
+> Minimal PNP hotplug support for the smsc-ircc2 driver.  A modular driver
+> will be modprobed via hotplug, but still bypasses driver model probing.
 > 
->  		bio_init(bio);
->  		if (likely(nr_iovecs)) {
-> -			unsigned long idx;
-> +			unsigned long idx = 0;
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-oh no not again!
+	Hi,
+
+	Samuel Ortiz <samuel.ortiz@nokia.com> is now in charge of IrDA.
+	Thanks...
+
+	Jean
+
+> Index: linux/drivers/net/irda/smsc-ircc2.c
+> ===================================================================
+> --- linux.orig/drivers/net/irda/smsc-ircc2.c	2006-04-23 23:23:38.000000000 -0700
+> +++ linux/drivers/net/irda/smsc-ircc2.c	2006-04-28 21:42:14.000000000 -0700
+> @@ -54,6 +54,7 @@
+>  #include <linux/rtnetlink.h>
+>  #include <linux/serial_reg.h>
+>  #include <linux/dma-mapping.h>
+> +#include <linux/pnp.h>
+>  #include <linux/platform_device.h>
+>  
+>  #include <asm/io.h>
+> @@ -358,6 +360,16 @@
+>                 iobase + IRCC_MASTER);
+>  }
+>  
+> +#ifdef	CONFIG_PNP
+> +/* PNP hotplug support */
+> +static const struct pnp_device_id smsc_ircc_pnp_table[] = {
+> +	{ .id = "SMCf010", .driver_data = 0 },
+> +	/* and presumably others */
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(pnp, smsc_ircc_pnp_table);
+> +#endif
+> +
+>  
+>  /*******************************************************************************
+>   *
+> @@ -2072,7 +2084,8 @@
+>  
+>  /* PROBING
+>   *
+> - *
+> + * REVISIT we can be told about the device by PNP, and should use that info
+> + * instead of probing hardware and creating a platform_device ...
+>   */
+>  
+>  static int __init smsc_ircc_look_for_chips(void)
 

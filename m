@@ -1,57 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWEAO4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWEAO5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWEAO4g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 10:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWEAO4g
+	id S932128AbWEAO5M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 10:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWEAO5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 10:56:36 -0400
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:7133 "EHLO
-	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932126AbWEAO4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 10:56:35 -0400
-Date: Mon, 1 May 2006 10:56:32 -0400 (EDT)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@d.namei
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Greg KH <greg@kroah.com>, Arjan van de Ven <arjan@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 4/4] MultiAdmin module
-In-Reply-To: <Pine.LNX.4.61.0605011549460.31804@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0605011054020.31205@d.namei>
-References: <20060417162345.GA9609@infradead.org>
- <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
- <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei>
- <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
- <1145462454.3085.62.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
- <20060419201154.GB20545@kroah.com> <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr>
- <20060421150529.GA15811@kroah.com> <Pine.LNX.4.61.0605011543180.31804@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0605011549460.31804@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 May 2006 10:57:12 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:19677 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932128AbWEAO5L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 10:57:11 -0400
+Subject: Re: [Lhms-devel] [RFC][PATCH] hot add memory which is not aligned
+	to section
+From: Dave Hansen <haveblue@us.ibm.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LHMS <lhms-devel@lists.sourceforge.net>
+In-Reply-To: <20060427223705.e99bb194.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060427223705.e99bb194.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain
+Date: Mon, 01 May 2006 07:56:32 -0700
+Message-Id: <1146495392.32079.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 May 2006, Jan Engelhardt wrote:
+On Thu, 2006-04-27 at 22:37 +0900, KAMEZAWA Hiroyuki wrote:
+> @@ -145,10 +148,26 @@
+>  	if (!populated_zone(zone))
+>  		need_zonelists_rebuild = 1;
+>  
+> -	for (i = 0; i < nr_pages; i++) {
+> -		struct page *page = pfn_to_page(pfn + i);
+> -		online_page(page);
+> -		onlined_pages++;
+> +	res.start = (u64)pfn << PAGE_SHIFT;
+> +	res.end = res.start + ((u64)nr_pages << PAGE_SHIFT) - 1;
+> +	section_end = res.end;
+> +
+> +	while (find_next_system_ram(&res)) {
+> +		start_pfn = (unsigned long)(res.start >> PAGE_SHIFT);
+> +		nr_pages = (unsigned long)
+> +                           ((res.end + 1 - res.start) >> PAGE_SHIFT);
+> +
+> +		if (PageReserved(pfn_to_page(start_pfn))) {
+> +			/* this region's page is not populated now */
+> +			for (i = 0; i < nr_pages; i++) {
+> +				struct page *page = pfn_to_page(start_pfn + i);
+> +				online_page(page);
+> +				onlined_pages++;
+> +			}
+> +		}
+> +
+> +		res.start = res.end + 1;
+> +		res.end = section_end;
+>  	}
+>  	zone->present_pages += onlined_pages;
+>  	zone->zone_pgdat->node_present_pages += onlined_pages;
 
-> +#if !defined(CONFIG_SECURITY_CAPABILITIES) && \
-> +    !defined(CONFIG_SECURITY_CAPABILITIES_MODULE)
-> +#        error You need to have CONFIG_SECURITY_CAPABILITIES=y or =m \
-> +               for MultiAdmin to compile successfully.
-> +#endif
+First of all, bravo for doing this in an architecture-independent way.
+Very nice.
 
-This is what Kconfig language is for.
+I'd really prefer to keep the 'struct resource' handling out of the
+memory hotplug code.  This took a nice, little, comprehensible for loop,
+and made it quite a bit more complex.  There is also a lot of casting
+going on, which I don't really grasp in a first glance.
 
-> +typedef int bool;
+The 'struct resource' which gets passed into find_next_system_ram()
+isn't a real resource.  Why not just pass a normal start and end address
+in there, and let _it_ do the work?
 
-You won't get much worthwile review of this code until you clean it up and 
-make it conform to kernel coding style.
+It looks like that whole loop is optimized for being able to online a
+really sparse area without diving into the iomem tables very often.
+This seems like a premature complicating optimization to me.  
 
+Why not do something like this:
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
+	for (i = 0; i < nr_pages; i++) {
+		struct page *page = pfn_to_page(pfn + i);
+
+		if (page_is_in_io_resource(page))
+			continue;
+
+		online_page(page);
+		onlined_pages++;
+	}
+
+That way, you keep the memory_hotplug.c file nice and neat.
+
+Also, remind me again why you can't just make the SECTION_SIZE match
+your 64MB I/O hole sizes.  I forget a lot/ :)
+
+-- Dave
+

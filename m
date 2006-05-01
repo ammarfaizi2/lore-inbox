@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWEAVCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWEAVBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWEAVCK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:02:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWEAVCK
+	id S932258AbWEAVBy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 17:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWEAVBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:02:10 -0400
-Received: from mail.fuug.fi ([83.145.198.117]:9425 "EHLO mail.fuug.fi")
-	by vger.kernel.org with ESMTP id S932259AbWEAVCI (ORCPT
+	Mon, 1 May 2006 17:01:54 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:19174 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932258AbWEAVBx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:02:08 -0400
-Date: Tue, 2 May 2006 00:01:51 +0300 (EEST)
-From: "Petri T. Koistinen" <petri.koistinen@iki.fi>
-To: Davide Libenzi <davidel@xmailserver.org>, Andrew Morton <akpm@osdl.org>
-cc: trivial@kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fs/eventpoll.c: initialize variable, remove warning
-Message-ID: <Pine.LNX.4.64.0605020000050.5245@joo>
+	Mon, 1 May 2006 17:01:53 -0400
+Date: Mon, 1 May 2006 23:01:45 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jiri Slaby <jirislaby@gmail.com>
+cc: David Woodhouse <dwmw2@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH] CodingStyle: add typedefs chapter
+In-Reply-To: <4456732B.2090009@gmail.com>
+Message-ID: <Pine.LNX.4.61.0605012300080.782@yvahk01.tjqt.qr>
+References: <20060430174426.a21b4614.rdunlap@xenotime.net> 
+ <Pine.LNX.4.61.0605011559010.31804@yvahk01.tjqt.qr>
+ <1146502730.2885.128.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.61.0605012219560.32033@yvahk01.tjqt.qr> <4456732B.2090009@gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Petri T. Koistinen <petri.koistinen@iki.fi>
+>>>> What about task_t vs struct task_struct? Both are used in the kernel. 
+>>> task_t should probably die.
+>> 
+>> Acked.
+>Wouldn't this be a janitors' task?
 
-Remove compiler warning by initializing uninitialized variable.
+Too simple :)
 
-Signed-off-by: Petri T. Koistinen <petri.koistinen@iki.fi>
----
- fs/eventpoll.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
----
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index 1b4491c..243c254 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -497,7 +497,7 @@ void eventpoll_release_file(struct file
-  */
- asmlinkage long sys_epoll_create(int size)
- {
--	int error, fd;
-+	int error, fd = 0;
- 	struct eventpoll *ep;
- 	struct inode *inode;
- 	struct file *file;
+  find rc3 -type f -print0 | xargs -0 perl -i -pe
+    's/\btask_t\b/struct task_struct'
+
++ a compile test afterwards. Something I missed? (Besides that lines may 
+get longer and violate the 80-column CodingStyle rule.)
 
 
+Jan Engelhardt
+-- 

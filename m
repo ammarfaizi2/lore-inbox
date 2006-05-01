@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWEATxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWEATyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWEATxz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 15:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWEATxz
+	id S932213AbWEATyX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 15:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWEATyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 15:53:55 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:28864 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932209AbWEATxz
+	Mon, 1 May 2006 15:54:01 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:38877 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932213AbWEATx4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 15:53:55 -0400
+	Mon, 1 May 2006 15:53:56 -0400
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: ebiederm@xmission.com, herbert@13thfloor.at, dev@sw.ru,
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: ebiederm@xmission.com, herbert@13thfloor.at, dev@sw.ru,
        linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
        haveblue@us.ibm.com, clg@us.ibm.com, frankeh@us.ibm.com
-Subject: [PATCH 1/7] uts namespaces: introduce temporary helpers
-Message-ID: <20060501203901.XF1836@sergelap.austin.ibm.com>
-References: <20060501203900.XF1836@sergelap.austin.ibm.com>
+Subject: [PATCH 6/7] uts namespaces: remove system_utsname
+References: <20060501203905.XF1836@sergelap.austin.ibm.com>
+Message-ID: <20060501203906.XF1836@sergelap.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060501203903.XF1836@sergelap.austin.ibm.com>
-X-Mutt-References: <20060501203903.XF1836@sergelap.austin.ibm.com>
 X-Mutt-Fcc: ~/Mail/SENT
 Date: Mon,  1 May 2006 14:53:52 -0500 (CDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Define utsname() and init_utsname() which return &system_utsname.
-Users of system_utsname will be changed to use these helpers, after
-which system_utsname will disappear.
+The system_utsname isn't needed now that kernel/sysctl.c is fixed.
+Nuke it.
 
 Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
 
 ---
 
- include/linux/utsname.h |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
+ include/linux/utsname.h |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-751c1567989ac921a1f861c05234a58c9181cfd3
+a3dec7d619ca222d5260022c1f1f72fb61d26efc
 diff --git a/include/linux/utsname.h b/include/linux/utsname.h
-index 13e1da0..8f0decf 100644
+index a28e956..d58a406 100644
 --- a/include/linux/utsname.h
 +++ b/include/linux/utsname.h
-@@ -32,5 +32,13 @@ struct new_utsname {
+@@ -81,7 +81,5 @@ static inline struct new_utsname *init_u
+ 	return &init_uts_ns.name;
+ }
  
- extern struct new_utsname system_utsname;
- 
-+static inline struct new_utsname *utsname(void) {
-+	return &system_utsname;
-+}
-+
-+static inline struct new_utsname *init_utsname(void) {
-+	return &system_utsname;
-+}
-+
+-#define system_utsname init_uts_ns.name
+-
  extern struct rw_semaphore uts_sem;
  #endif
 -- 

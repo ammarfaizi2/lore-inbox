@@ -1,94 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWEARlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWEARnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbWEARlO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 13:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWEARlO
+	id S932180AbWEARnD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 13:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWEARnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 13:41:14 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:52549 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932173AbWEARlO (ORCPT
+	Mon, 1 May 2006 13:43:03 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:51640 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932174AbWEARnA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 13:41:14 -0400
-Date: Mon, 1 May 2006 19:41:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: splice(SPLICE_F_MOVE) problems
-Message-ID: <20060501174153.GH3814@suse.de>
-References: <20060501065953.GA289@oleg> <20060501065412.GP23137@suse.de> <20060501190625.GA174@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060501190625.GA174@oleg>
+	Mon, 1 May 2006 13:43:00 -0400
+Date: Mon, 1 May 2006 19:42:33 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Greg KH <greg@kroah.com>
+cc: Arjan van de Ven <arjan@infradead.org>, James Morris <jmorris@namei.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 4a/4] MultiAdmin LSM (LKCS'ed)
+In-Reply-To: <20060501164740.GA8995@kroah.com>
+Message-ID: <Pine.LNX.4.61.0605011941220.3919@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com>
+ <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+ <1145462454.3085.62.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
+ <20060419201154.GB20545@kroah.com> <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr>
+ <20060421150529.GA15811@kroah.com> <Pine.LNX.4.61.0605011543180.31804@yvahk01.tjqt.qr>
+ <Pine.LNX.4.61.0605011801400.32172@yvahk01.tjqt.qr> <20060501164740.GA8995@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01 2006, Oleg Nesterov wrote:
-> On 05/01, Jens Axboe wrote:
-> >
-> > On Mon, May 01 2006, Oleg Nesterov wrote:
-> > > 
-> > > I can't understand why do we need PIPE_BUF_FLAG_STOLEN at all.
-> > > It seems to me we need a local boolean in pipe_to_file.
-> > 
-> > PIPE_BUF_FLAG_STOLEN used to be used in the release function as well,
-> > hence the flag.
-> 
-> Ok, but in that case
-> 
-> >                                               I'll make sure to clear
-> > the flag as well on add_to_page_cache() failure.
-> 
-> ... it is not good to clear it in pipe_to_file(). The page remains
-> stolen from pipe_buf_operations pov, this flag imho should be private
-> to buf, and page_cache_pipe_buf_ops doesn't need it.
-> 
-> I think pipe_to_buf() can test 'buf->page == page' instead of
-> PIPE_BUF_FLAG_STOLEN.
 
-I ended up fixing it with a local variable, but you are right it can be
-killed with just a buf->page != page == stolen check. I got rid of the
-last check of that, so just one remaining. Will commit this change.
+>asm #include goes last.
 
-> Another question,
-> 
-> 	__generic_file_splice_read:
-> 
-> 		/*
-> 		 * Initiate read-ahead on this page range. however, don't call into
-> 		 * read-ahead if this is a non-zero offset (we are likely doing small
-> 		 * chunk splice and the page is already there) for a single page.
-> 		 */
-> 		if (!loff || nr_pages > 1)
-> 			page_cache_readahead(mapping, &in->f_ra, in, index, nr_pages);
-> 
-> Why this check? page_cache_readahead() should detect sub-page
-> reads correctly.
+How come?
 
-Leftover from do_page_cache_readahead I suppose. I probably shouldn't
-try to second guess read-ahead, however.
+>> +static inline int range_intersect_wrt(uid_t, uid_t, uid_t, uid_t);
+>
+>inline functions don't need definitions like this.
 
-> 		page = find_get_page(mapping, index);
-> 		if (!page) {
-> 			page = page_cache_alloc_cold();
-> 
-> 			add_to_page_cache_lru(page);
-> 
-> I think it makes sense to add handle_ra_miss() here. Otherwise,
-> for example, readahead could be disabled by RA_FLAG_INCACHE
-> forever.
+If memory serves right, callees mentioned below their callers need a 
+prototype.
 
-Good point, added.
+>> +static gid_t Supergid = -1, Subgid = -1;
+>> +static uid_t Superuid_start = 0, Superuid_end = 0,
+>> +    Subuid_start = -1, Subuid_end = -1,
+>> +    Netuid = -1, Wrtuid_start = -1, Wrtuid_end = -1;
+>> +static int Secondary = 0;
+>
+>Variables do not have capital letters.
 
-> If readahead doesn't work, SPLICE_F_MOVE is problematic too.
-> add_to_page_cache_lru()->lru_cache_add() first increments
-> page->count and adds this page to lru_add_pvecs. This means
-> page_cache_pipe_buf_steal()->remove_mapping() will probably
-> fail.
+Who has, besides macros, if anything?
 
-Because of the temporarily elevated page count?
 
+
+Jan Engelhardt
 -- 
-Jens Axboe
-

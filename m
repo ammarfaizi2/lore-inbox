@@ -1,54 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWEAFaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWEAFaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWEAFaI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 01:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWEAFaI
+	id S1750884AbWEAFaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 01:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbWEAFaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 01:30:08 -0400
-Received: from mx1.suse.de ([195.135.220.2]:13738 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750864AbWEAFaH (ORCPT
+	Mon, 1 May 2006 01:30:11 -0400
+Received: from ns2.suse.de ([195.135.220.15]:34224 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750870AbWEAFaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 01:30:07 -0400
+	Mon, 1 May 2006 01:30:08 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 1 May 2006 15:29:56 +1000
+Date: Mon, 1 May 2006 15:30:03 +1000
+Message-Id: <1060501053003.22913@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Subject: [PATCH 000 of 11] md: Introduction - assort md enhancements for 2.6.18
-Message-ID: <20060501152229.18367.patches@notabene>
+Subject: [PATCH 001 of 11] md: Reformat code in raid1_end_write_request to avoid goto
+References: <20060501152229.18367.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The follow 11 patch are assorted tidy-ups and functionality
-enhancements suitable for 2.6.18 when that opens up.
 
-More interesting patches are:
- 5 - merge raid5 and raid6 code into a single module.  There is a lot
-      of common code here, and there are advantages in uniting it all.
- 8 - allow a linear array to be expanded while online by adding an
-     extra drive.
- 10- A new flavour of 'raid10' which matches one of the layouts
-     supported by 'DDF' - an industry standard raid metadata format
-     which might be supported one day.  This will need an updated
-     mdadm to experiment with.
+A recent change made this goto unnecessary, so reformat the
+code to make it clearer what is happening.
 
-Thanks,
-NeilBrown
+Signed-off-by: Neil Brown <neilb@suse.de>
 
+### Diffstat output
+ ./drivers/md/raid1.c |   34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-
-
- [PATCH 001 of 11] md: Reformat code in raid1_end_write_request to avoid goto
- [PATCH 002 of 11] md: Remove arbitrary limit on chunk size.
- [PATCH 003 of 11] md: Remove useless ioctl warning.
- [PATCH 004 of 11] md: Increase the delay before marking metadata clean, and make it configurable.
- [PATCH 005 of 11] md: Merge raid5 and raid6 code
- [PATCH 006 of 11] md: Remove nuisance message at shutdown
- [PATCH 007 of 11] md: Allow checkpoint of recovery with version-1 superblock.
- [PATCH 008 of 11] md: Allow a linear array to have drives added while active.
- [PATCH 009 of 11] md: Support stripe/offset mode in raid10
- [PATCH 010 of 11] md: make md_print_devices() static
- [PATCH 011 of 11] md: Split reshape portion of raid5 sync_request into a separate function.
+diff ./drivers/md/raid1.c~current~ ./drivers/md/raid1.c
+--- ./drivers/md/raid1.c~current~	2006-05-01 15:09:20.000000000 +1000
++++ ./drivers/md/raid1.c	2006-05-01 15:10:00.000000000 +1000
+@@ -374,26 +374,26 @@ static int raid1_end_write_request(struc
+ 	 * already.
+ 	 */
+ 	if (atomic_dec_and_test(&r1_bio->remaining)) {
+-		if (test_bit(R1BIO_BarrierRetry, &r1_bio->state)) {
++		if (test_bit(R1BIO_BarrierRetry, &r1_bio->state))
+ 			reschedule_retry(r1_bio);
+-			goto out;
++		else {
++			/* it really is the end of this request */
++			if (test_bit(R1BIO_BehindIO, &r1_bio->state)) {
++				/* free extra copy of the data pages */
++				int i = bio->bi_vcnt;
++				while (i--)
++					safe_put_page(bio->bi_io_vec[i].bv_page);
++			}
++			/* clear the bitmap if all writes complete successfully */
++			bitmap_endwrite(r1_bio->mddev->bitmap, r1_bio->sector,
++					r1_bio->sectors,
++					!test_bit(R1BIO_Degraded, &r1_bio->state),
++					behind);
++			md_write_end(r1_bio->mddev);
++			raid_end_bio_io(r1_bio);
+ 		}
+-		/* it really is the end of this request */
+-		if (test_bit(R1BIO_BehindIO, &r1_bio->state)) {
+-			/* free extra copy of the data pages */
+-			int i = bio->bi_vcnt;
+-			while (i--)
+-				safe_put_page(bio->bi_io_vec[i].bv_page);
+-		}
+-		/* clear the bitmap if all writes complete successfully */
+-		bitmap_endwrite(r1_bio->mddev->bitmap, r1_bio->sector,
+-				r1_bio->sectors,
+-				!test_bit(R1BIO_Degraded, &r1_bio->state),
+-				behind);
+-		md_write_end(r1_bio->mddev);
+-		raid_end_bio_io(r1_bio);
+ 	}
+- out:
++
+ 	if (to_put)
+ 		bio_put(to_put);
+ 

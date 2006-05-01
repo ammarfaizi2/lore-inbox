@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWEAVdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWEAVfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750944AbWEAVdu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:33:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWEAVdu
+	id S932280AbWEAVfj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 17:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWEAVfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:33:50 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:46783 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750944AbWEAVds convert rfc822-to-8bit
+	Mon, 1 May 2006 17:35:39 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:2852 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932273AbWEAVfi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:33:48 -0400
-Date: Tue, 2 May 2006 07:33:26 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Zoltan Boszormenyi <zboszor@dunaweb.hu>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: Bad page state in process 'nfsd' with xfs
-Message-ID: <20060502073325.B1873249@wobbly.melbourne.sgi.com>
-References: <4454D59C.7000501@dunaweb.hu> <20060501102440.A1864834@wobbly.melbourne.sgi.com> <4455C1D0.5060104@dunaweb.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4455C1D0.5060104@dunaweb.hu>; from zboszor@dunaweb.hu on Mon, May 01, 2006 at 10:07:44AM +0200
+	Mon, 1 May 2006 17:35:38 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=vCruGuQqnKdUlZMmhUuu/QeXiM51s11ufd24MyXL7r6yxaw9mqRqtrrxyZ5BQa4/O
+	wfR3JiClkPBbYv2z/motA==
+Message-ID: <44567F09.9080902@google.com>
+Date: Mon, 01 May 2006 14:35:05 -0700
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valerie Henson <val_henson@linux.intel.com>
+CC: Paulo Marques <pmarques@grupopie.com>, Andrew Morton <akpm@osdl.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: checklist (Re: 2.6.17-rc2-mm1)
+References: <20060427014141.06b88072.akpm@osdl.org> <p73vesv727b.fsf@bragg.suse.de> <20060427121930.2c3591e0.akpm@osdl.org> <200604272126.30683.ak@suse.de> <20060427124452.432ad80d.rdunlap@xenotime.net> <20060427131100.05970d65.akpm@osdl.org> <44512B61.4040000@google.com> <445220AB.9000606@grupopie.com> <20060501212051.GG32385@goober>
+In-Reply-To: <20060501212051.GG32385@goober>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01, 2006 at 10:07:44AM +0200, Zoltan Boszormenyi wrote:
-> Hi,
+Valerie Henson wrote:
+> On Fri, Apr 28, 2006 at 03:03:23PM +0100, Paulo Marques wrote:
 > 
-> Nathan Scott írta:
-> > On Sun, Apr 30, 2006 at 05:19:56PM +0200, Zoltan Boszormenyi wrote:
-> >   
-> >> ...
-> >> Or not. I had an FC3/x86-64 system until two days ago, now I have FC5/86-64.
-> >>
-> >> When FC3 was installed I chose to format the partitions to XFS and since 
-> >> then
-> >> I had Oopses regularly with or without VMWare modules.
-> >>     
-> >
-> > What was the stack trace for your oops...?
-> >
-> > cheers.
-> >   
+>>Martin Bligh wrote:
+>>
+>>>>[...]
+>>>
+>>>I don't want to boot it, as that gets into security nightmares, but I 
+>>>should be able to provide something that does static testing.
+>>
+>>Actually, booting might not be that bad using a virtual machine with qemu.
 > 
-> I reported some Oopses for earlier kernels, they are here:
+> 
+> Honestly, the security nightmare begins with the compile.  A patch to
+> the build system can result in arbitrarily insecure commands being run
+> during the compile - way easier than doing something that affects the
+> compiled kernel.  A machine doing automatic compiles of untrusted
+> patches should be viewed as completely sacrificial from the beginning.
 
-These aren't oopses.  They do look similar, but slightly
-different to the other report - your page count there is
-off with the pixies, but its not as clear that its a single
-bit error - yours are more like 0xfffe0000.  Quite strange.
-You also have the odd high-32-bits-mirrors-low-32-bits in
-page flags, both with one bit set.
+True - good point ... but it's easier to chroot jail. And I'm lazy ;-)
+If anyone wants to make autotest (http://test.kernel.org/autotest)
+support some sort of virtual boot via creating a UML instance or
+something, that'd be great. But I won't hold my breath ;-)
 
-Not sure XFS can be causing this (we don't touch page count
-for regular file pages, and only touch PageUptodate in flags
-IIRC, like most/all filesystems).
-
-Were you also using NFS, as in the other report?
-
-cheers.
-
--- 
-Nathan
+M.

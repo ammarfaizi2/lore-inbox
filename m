@@ -1,219 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWEAK55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWEALEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWEAK55 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 06:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWEAK54
+	id S1751339AbWEALEG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 07:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWEALEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 06:57:56 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:21513 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S1751338AbWEAK5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 06:57:55 -0400
-Date: Mon, 1 May 2006 18:56:50 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-cc: autofs mailing list <autofs@linux.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: [PATCH] autofs4 - NFY_NONE wait race fix
-Message-ID: <Pine.LNX.4.64.0605011822250.5588@raven.themaw.net>
+	Mon, 1 May 2006 07:04:06 -0400
+Received: from mail.gmx.de ([213.165.64.20]:38359 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751339AbWEALEF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 07:04:05 -0400
+Date: Mon, 1 May 2006 13:04:03 +0200 (MEST)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: linux-kernel@vger.kernel.org
+Cc: michael.kerrisk@gmx.net
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-themaw-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-5.196,
-	required 5, autolearn=not spam, ALL_TRUSTED -3.30, BAYES_00 -2.60,
-	DATE_IN_PAST_12_24 0.70)
-X-themaw-MailScanner-From: raven@themaw.net
+References: <877.1144530456@www042.gmx.net>
+Subject: man-pages-2.30 is released
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <29907.1146481443@www049.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gidday,
 
-Hi Andrew,
+I recently released man-pages-2.30, which can be found at the 
+location in the .sig.  
 
-This patch fixes two problems.
+Changes in this release that may be of interest to readers
+of this list include the following:
 
-First, the comparison of entries in the waitq.c was incorrect.
+New pages
+---------
 
-Second, the NFY_NONE check was incorrect. The test of whether the dentry 
-is mounted if ineffective, for example, if an expire fails then we could 
-wait forever on a non existant expire. The bug was identified by Jeff 
-Moyer.
+linkat.2
+    mtk
+        New page describing linkat(), new in kernel 2.6.16
 
-The patch changes autofs4 to wait on expires only as this is all that's 
-needed. If there is no existing wait when autofs4_wait is call with 
-a type of NFY_NONE it delays until either a wait appears or the the expire 
-flag is cleared.
+renameat.2
+    mtk
+        New page describing renameat(), new in kernel 2.6.16
 
-Signed-off-by: Ian Kent <raven@themaw.net>
+symlinkat.2
+    mtk
+        New page describing symlinkat(), new in kernel 2.6.16
 
---
+unlinkat.2
+    mtk
+        New page describing unlinkat(), new in kernel 2.6.16
 
---- linux-2.6.17-rc1-mm3/fs/autofs4/autofs_i.h.nfy_none-wait-race-fix	2006-04-26 15:19:41.000000000 +0800
-+++ linux-2.6.17-rc1-mm3/fs/autofs4/autofs_i.h	2006-04-26 15:20:25.000000000 +0800
-@@ -74,8 +74,8 @@
- 	struct autofs_wait_queue *next;
- 	autofs_wqt_t wait_queue_token;
- 	/* We use the following to see what we are waiting for */
--	int hash;
--	int len;
-+	unsigned int hash;
-+	unsigned int len;
- 	char *name;
- 	u32 dev;
- 	u64 ino;
-@@ -85,7 +85,6 @@
- 	pid_t tgid;
- 	/* This is for status reporting upon return */
- 	int status;
--	atomic_t notify;
- 	atomic_t wait_ctr;
- };
- 
---- linux-2.6.17-rc1-mm3/fs/autofs4/waitq.c.nfy_none-wait-race-fix	2006-04-26 15:19:41.000000000 +0800
-+++ linux-2.6.17-rc1-mm3/fs/autofs4/waitq.c	2006-04-26 15:32:00.000000000 +0800
-@@ -189,14 +189,30 @@
- 	return len;
- }
- 
-+static struct autofs_wait_queue *
-+autofs4_find_wait(struct autofs_sb_info *sbi,
-+		  char *name, unsigned int hash, unsigned int len)
-+{
-+	struct autofs_wait_queue *wq = NULL;
-+
-+	for (wq = sbi->queues ; wq ; wq = wq->next) {
-+		if (wq->hash == hash &&
-+		    wq->len == len &&
-+		    wq->name && !memcmp(wq->name, name, len))
-+			break;
-+	}
-+	return wq;
-+}
-+
- int autofs4_wait(struct autofs_sb_info *sbi, struct dentry *dentry,
- 		enum autofs_notify notify)
- {
-+	struct autofs_info *ino;
- 	struct autofs_wait_queue *wq;
- 	char *name;
- 	unsigned int len = 0;
- 	unsigned int hash = 0;
--	int status;
-+	int status, type;
- 
- 	/* In catatonic mode, we don't wait for nobody */
- 	if (sbi->catatonic)
-@@ -223,21 +239,42 @@
- 		return -EINTR;
- 	}
- 
--	for (wq = sbi->queues ; wq ; wq = wq->next) {
--		if (wq->hash == dentry->d_name.hash &&
--		    wq->len == len &&
--		    wq->name && !memcmp(wq->name, name, len))
--			break;
--	}
-+	wq = autofs4_find_wait(sbi, name, hash, len);
-+	ino = autofs4_dentry_ino(dentry);
-+	if (!wq && ino && notify == NFY_NONE) {
-+		/*
-+		 * Either we've betean the pending expire to post it's
-+		 * wait or it finished while we waited on the mutex.
-+		 * So we need to wait till either, the wait appears
-+		 * or the expire finishes.
-+		 */
- 
--	if (!wq) {
--		/* Can't wait for an expire if there's no mount */
--		if (notify == NFY_NONE && !d_mountpoint(dentry)) {
-+		while (ino->flags & AUTOFS_INF_EXPIRING) {
-+			mutex_unlock(&sbi->wq_mutex);
-+			set_current_state(TASK_INTERRUPTIBLE);
-+			schedule_timeout(HZ/10);
-+			if (mutex_lock_interruptible(&sbi->wq_mutex)) {
-+				kfree(name);
-+				return -EINTR;
-+			}
-+			wq = autofs4_find_wait(sbi, name, hash, len);
-+			if (wq)
-+				break;
-+		}
-+
-+		/*
-+		 * Not ideal but the status has already gone. Of the two
-+		 * cases where we wait on NFY_NONE neither depend on the
-+		 * return status of the wait.
-+		 */
-+		if (!wq) {
- 			kfree(name);
- 			mutex_unlock(&sbi->wq_mutex);
--			return -ENOENT;
-+			return 0;
- 		}
-+	}
- 
-+	if (!wq) {
- 		/* Create a new wait queue */
- 		wq = kmalloc(sizeof(struct autofs_wait_queue),GFP_KERNEL);
- 		if (!wq) {
-@@ -263,20 +300,7 @@
- 		wq->tgid = current->tgid;
- 		wq->status = -EINTR; /* Status return if interrupted */
- 		atomic_set(&wq->wait_ctr, 2);
--		atomic_set(&wq->notify, 1);
- 		mutex_unlock(&sbi->wq_mutex);
--	} else {
--		atomic_inc(&wq->wait_ctr);
--		mutex_unlock(&sbi->wq_mutex);
--		kfree(name);
--		DPRINTK("existing wait id = 0x%08lx, name = %.*s, nfy=%d",
--			(unsigned long) wq->wait_queue_token, wq->len, wq->name, notify);
--	}
--
--	if (notify != NFY_NONE && atomic_read(&wq->notify)) {
--		int type;
--
--		atomic_dec(&wq->notify);
- 
- 		if (sbi->version < 5) {
- 			if (notify == NFY_MOUNT)
-@@ -299,6 +323,12 @@
- 
- 		/* autofs4_notify_daemon() may block */
- 		autofs4_notify_daemon(sbi, wq, type);
-+	} else {
-+		atomic_inc(&wq->wait_ctr);
-+		mutex_unlock(&sbi->wq_mutex);
-+		kfree(name);
-+		DPRINTK("existing wait id = 0x%08lx, name = %.*s, nfy=%d",
-+			(unsigned long) wq->wait_queue_token, wq->len, wq->name, notify);
- 	}
- 
- 	/* wq->name is NULL if and only if the lock is already released */
---- linux-2.6.17-rc1-mm3/fs/autofs4/root.c.nfy_none-wait-race-fix	2006-04-26 15:19:41.000000000 +0800
-+++ linux-2.6.17-rc1-mm3/fs/autofs4/root.c	2006-04-26 15:22:07.000000000 +0800
-@@ -327,6 +327,7 @@
- static void *autofs4_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	struct autofs_sb_info *sbi = autofs4_sbi(dentry->d_sb);
-+	struct autofs_info *ino = autofs4_dentry_ino(dentry);
- 	int oz_mode = autofs4_oz_mode(sbi);
- 	unsigned int lookup_type;
- 	int status;
-@@ -340,13 +341,8 @@
- 	if (oz_mode || !lookup_type)
- 		goto done;
- 
--	/*
--	 * If a request is pending wait for it.
--	 * If it's a mount then it won't be expired till at least
--	 * a liitle later and if it's an expire then we might need
--	 * to mount it again.
--	 */
--	if (autofs4_ispending(dentry)) {
-+	/* If an expire request is pending wait for it. */
-+	if (ino && (ino->flags & AUTOFS_INF_EXPIRING)) {
- 		DPRINTK("waiting for active request %p name=%.*s",
- 			dentry, dentry->d_name.len, dentry->d_name.name);
- 
+==========
+
+The man-pages set contains sections 2, 3, 4, 5, and 7 of
+the manual pages.  These sections describe the following:
+
+2: (Linux) system calls
+3: (libc) library functions
+4: Devices
+5: File formats and protocols
+7: Overview pages, conventions, etc.
+
+As far as this list is concerned the most relevant parts are:
+all of sections 2 and 4, which describe kernel-userland interfaces;
+in section 5, the proc(5) manual page, which attempts (it's always
+catching up) to be a comprehensive description of /proc; and
+various pages in section 7, some of which are overview pages of
+kernel features (e.g., networking protocols).
+
+If you make a change to a kernel-userland interface, or observe 
+a discrepancy between the manual pages and reality, would you 
+please send me (at mtk-manpages@gmx.net ) one of the following
+(in decreasing order of preference):
+
+1. An in-line "diff -u" patch with text changes for the
+   corresponding manual page.  (The most up-to-date version
+   of the manual pages can always be found at
+   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
+   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
+
+2. Some raw text describing the changes, which I can then
+   integrate into the appropriate manual page.
+
+3. A message alerting me that some part of the manual pages
+   does not correspond to reality.  Eventually, I will try to
+   remedy the situation.
+
+Obviously, as we get further down this list, more of my time
+is required, and things may go slower, especially when the
+changes concern some part of the kernel that I am ignorant
+about and I can't find someone to assist.
+
+Cheers,
+
+Michael
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

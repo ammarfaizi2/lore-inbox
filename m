@@ -1,35 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWEAHSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWEAHXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbWEAHSb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 03:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWEAHSb
+	id S1751302AbWEAHXI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 03:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWEAHXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 03:18:31 -0400
-Received: from mail.suse.de ([195.135.220.2]:16819 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751292AbWEAHSa (ORCPT
+	Mon, 1 May 2006 03:23:08 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:3531 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751302AbWEAHXH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 03:18:30 -0400
-From: Neil Brown <neilb@suse.de>
+	Mon, 1 May 2006 03:23:07 -0400
+Date: Mon, 1 May 2006 00:18:03 -0700
+From: Andrew Morton <akpm@osdl.org>
 To: Adrian Bunk <bunk@stusta.de>
-Date: Mon, 1 May 2006 17:18:19 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] kernel/sys.c: possible cleanups
+Message-Id: <20060501001803.48ac34df.akpm@osdl.org>
+In-Reply-To: <20060501071134.GH3570@stusta.de>
+References: <20060501071134.GH3570@stusta.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17493.46651.168919.653727@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] fs/sync.c: make do_sync_file_range() static
-In-Reply-To: message from Adrian Bunk on Monday May 1
-References: <20060501071125.GD3570@stusta.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday May 1, bunk@stusta.de wrote:
-> This patch makes the needlessly global do_sync_file_range() static.
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> This patch contains the following possible cleanups:
 
-I'm planning to use that in nfsd.  Just haven't got there yet.
+Please avoid mixing together cleanups
 
-NeilBrown
+>  - proper prototypes for the following functions:
+>    - ctrl_alt_del()  (in include/linux/reboot.h)
+>    - getrusage()     (in include/linux/resource.h)
+>  - make the following needlessly global functions static:
+>    - kernel_restart_prepare()
+>    - kernel_kexec()
+
+which I will apply, together with API changes
+
+>  - remove the following unused EXPORT_SYMBOL:
+>    - in_egroup_p
+>  - remove the following unused EXPORT_SYMBOL_GPL's:
+>    - kernel_restart
+>    - kernel_halt
+
+which I will not.
+
+We have a process for the latter.  And even if we ignore that process, the
+patch ends up sitting in -mm for ages because of the API change, along with
+the cleanups, which could be merged up promptly.
+

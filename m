@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWEAVGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWEAVHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWEAVGv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:06:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWEAVGv
+	id S1751257AbWEAVHo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 17:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWEAVHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:06:51 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:20161 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750801AbWEAVGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:06:50 -0400
-Subject: Re: [PATCH] CodingStyle: add typedefs chapter
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Jiri Slaby <jirislaby@gmail.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0605012300080.782@yvahk01.tjqt.qr>
-References: <20060430174426.a21b4614.rdunlap@xenotime.net>
-	 <Pine.LNX.4.61.0605011559010.31804@yvahk01.tjqt.qr>
-	 <1146502730.2885.128.camel@hades.cambridge.redhat.com>
-	 <Pine.LNX.4.61.0605012219560.32033@yvahk01.tjqt.qr>
-	 <4456732B.2090009@gmail.com>
-	 <Pine.LNX.4.61.0605012300080.782@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Mon, 01 May 2006 22:07:29 +0100
-Message-Id: <1146517650.1921.55.camel@shinybook.infradead.org>
+	Mon, 1 May 2006 17:07:44 -0400
+Received: from nproxy.gmail.com ([64.233.182.191]:5745 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751255AbWEAVHn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 17:07:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=a1XDpY2+rLc2VY4WX1KY8VBvDH8inDfyS97vc9DlsjHNfuA7A54iXW/HCDhDbpkdBdVX3sXKoW44r+IrwtbacL4lcFAlnAwfyRfpm5ldc6UlvXu9XCkv3SE4dv6wsRVMF6wWmJ2I/ie/ivwiMdYigU0hy0g90OekQeH43pKuCDs=
+Date: Tue, 2 May 2006 01:05:46 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: "Petri T. Koistinen" <petri.koistinen@iki.fi>
+Cc: Andrew Morton <akpm@osdl.org>, trivial@kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/bio.c: initialize variable, remove warning
+Message-ID: <20060501210546.GB7170@mipter.zuzino.mipt.ru>
+References: <Pine.LNX.4.64.0605012353100.5245@joo>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0605012353100.5245@joo>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-01 at 23:01 +0200, Jan Engelhardt wrote:
->   find rc3 -type f -print0 | xargs -0 perl -i -pe
->     's/\btask_t\b/struct task_struct'
+On Mon, May 01, 2006 at 11:55:27PM +0300, Petri T. Koistinen wrote:
+> Remove compiler warning by initializing uninitialized variable.
+
+> --- a/fs/bio.c
+> +++ b/fs/bio.c
+> @@ -166,7 +166,7 @@ struct bio *bio_alloc_bioset(gfp_t gfp_m
 > 
-> + a compile test afterwards. Something I missed? (Besides that lines
-> may get longer and violate the 80-column CodingStyle rule.) 
+>  		bio_init(bio);
+>  		if (likely(nr_iovecs)) {
+> -			unsigned long idx;
+> +			unsigned long idx = 0;
 
-If we're going to do that, we might as well make it 'struct task'. The
-additional '_struct' is redundant.
-
--- 
-dwmw2
+oh no not again!
 

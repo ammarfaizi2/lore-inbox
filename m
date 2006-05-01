@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWEAXJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWEAXKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbWEAXJY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 19:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWEAXJY
+	id S932311AbWEAXKF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 19:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWEAXKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 19:09:24 -0400
-Received: from xenotime.net ([66.160.160.81]:916 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932308AbWEAXJY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 19:09:24 -0400
-Date: Mon, 1 May 2006 16:11:48 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, mhw@wittsend.com
-Subject: [PATCH] ip2: fix sections
-Message-Id: <20060501161148.0143d99b.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 1 May 2006 19:10:05 -0400
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:2244 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932311AbWEAXKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 19:10:01 -0400
+In-Reply-To: <445690F7.5050605@am.sony.com>
+References: <20060429232812.825714000@localhost.localdomain>	<20060429233922.167124000@localhost.localdomain> <F989FA67-91B5-493B-9A12-D02C3C14A984@kernel.crashing.org> <445690F7.5050605@am.sony.com>
+Mime-Version: 1.0 (Apple Message framework v749.3)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <FE7E70B5-F0CD-4254-8555-27EC2A70C316@kernel.crashing.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@ozlabs.org, paulus@samba.org,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>, linux-kernel@vger.kernel.org,
+       cbe-oss-dev@ozlabs.org
 Content-Transfer-Encoding: 7bit
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH 11/13] cell: split out board specific files
+Date: Tue, 2 May 2006 01:09:53 +0200
+To: Geoff Levand <geoffrey.levand@am.sony.com>
+X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+> Segher, a problem with your suggestion is that our
+> makefiles don't have as rich a set of logical ops as the
+> config files.  Its easy to express 'build A if B', but not
+> so easy to do 'build A if not C'.  To make this work
+> cleanly I made PPC_CELL denote !SOME_HYPERVISOR_THING,
+> so I can have constructions like this in the makefile:
 
-Fix sections mismatch:
-WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to .init.text: from .text.cleanup_module after 'cleanup_module' (at offset 0xb0)
-WARNING: drivers/char/ip2/ip2main.o - Section mismatch: reference to .init.text: from .text.ip2_loadmain after 'ip2_loadmain' (at offset 0x11b3)
+Not just that, but we can have a kernel image supporting both
+the "raw" hardware _and_ stuff with a hypervisor underneath.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- drivers/char/ip2/ip2main.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+All CONFIG_<whatever> should always be used as a positive,
+never a negative.  My bad :-)
 
---- linux-2617-rc3.orig/drivers/char/ip2/ip2main.c
-+++ linux-2617-rc3/drivers/char/ip2/ip2main.c
-@@ -337,7 +337,7 @@ clear_requested_irq( char irq )
- }
- #endif
- 
--static int __init
-+static int
- have_requested_irq( char irq )
- {
- 	// array init to zeros so 0 irq will not be requested as a side effect
+So it really should be
+
+	depends on PPC_CELL_NATIVE
+
+or similar.  Having PPC_CELL mean "native" / "raw" is not the
+way to go, there will be many many hypervisors in the future,
+it would be nice to have PPC_CELL mean just that, "support for
+the Cell architecture" in general, kernels running on various
+hypervisors will see the hardware virtualised to varying degrees.
 
 
----
+Segher
+

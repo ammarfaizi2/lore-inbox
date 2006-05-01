@@ -1,206 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWEABuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWEADHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbWEABuq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Apr 2006 21:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbWEABuq
+	id S1750780AbWEADHj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Apr 2006 23:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWEADHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Apr 2006 21:50:46 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:13499 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1750792AbWEABup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Apr 2006 21:50:45 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC][PATCH] swsusp: support creating bigger images
-Date: Mon, 1 May 2006 11:49:58 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux PM <linux-pm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200604242355.08111.rjw@sisk.pl> <200604261049.39592.nigel@suspend2.net> <200604301427.22687.rjw@sisk.pl>
-In-Reply-To: <200604301427.22687.rjw@sisk.pl>
+	Sun, 30 Apr 2006 23:07:39 -0400
+Received: from pproxy.gmail.com ([64.233.166.183]:43484 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750780AbWEADHi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Apr 2006 23:07:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nnwJwFEMBwYbTRF0OiX85OEqjhFvdlX0ZMeTbHD5LWzthSttfRiROrT3J/CA3R9Enac37Am1vcAhZ99lm6GOPwxsLWGLyUNM4CdsIjcRtyXJpym7W76yrIMBsJdAGe/fYoU3XUbdsX7BysvrhKmHdfpy+DAFrBQzLJKcZRjP7b0=
+Message-ID: <aec7e5c30604302007q78c5aec8n6e6da5f34b95b29b@mail.gmail.com>
+Date: Mon, 1 May 2006 12:07:37 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Dave McCracken" <dmccr@us.ibm.com>
+Subject: Re: i386 and PAE: pud_present()
+Cc: "Andi Kleen" <ak@suse.de>, "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Linux Memory Management" <linux-mm@kvack.org>
+In-Reply-To: <2432524299CCD3CA89BB647D@10.1.1.4>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1871835.EFzUlhTMSJ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200605011150.04429.nigel@suspend2.net>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <aec7e5c30604280040p60cc7c7dqc6fb6fbdd9506a6b@mail.gmail.com>
+	 <4451CA41.5070101@yahoo.com.au> <200604281027.22183.ak@suse.de>
+	 <2432524299CCD3CA89BB647D@10.1.1.4>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1871835.EFzUlhTMSJ
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi.
-
-Sorry for the slow response - I only have internet access at work now. This=
- is=20
-going to be a pattern for the next few weeks - I'm off work next week and.t=
-he=20
-week after I'll also be off apart from Monday and Tuesday (those are my las=
-t=20
-two days working for Cyclades - I then get my sweetheart and little one bac=
-k,=20
-and we drive down to Victoria over the rest of the week).
-
-On Sunday 30 April 2006 22:27, Rafael J. Wysocki wrote:
-> Hi,
+On 4/30/06, Dave McCracken <dmccr@us.ibm.com> wrote:
 >
-> On Wednesday 26 April 2006 02:49, Nigel Cunningham wrote:
-> > On Wednesday 26 April 2006 08:43, Rafael J. Wysocki wrote:
-> > > On Wednesday 26 April 2006 00:25, Pavel Machek wrote:
-> > > > > > It does apply to all of the LRU pages. This is what I've been
-> > > > > > doing for years now. The only corner case I've come across is
-> > > > > > XFS. It still wants to write data even when there's nothing to =
-do
-> > > > > > and it's threads are frozen (IIRC - haven't looked at it for a
-> > > > > > while). I got around that by freezing bdevs when freezing
-> > > > > > processes.
-> > > > >
-> > > > > This means if we freeze bdevs, we'll be able to save all of the L=
-RU
-> > > > > pages, except for the pages mapped by the current task, without
-> > > > > copying.  I think we can try to do this, but we'll need a patch to
-> > > > > freeze bdevs for this purpose. ;-)
-> > > >
-> > > > ...adding more dependencies to how vm/blockdevs work. I'd say curre=
-nt
-> > > > code is complex enough...
-> > >
-> > > Well, why don't we see the patch?  If it's too complex, we can just
-> > > decide not to use it. :-)
-> >
-> > In Suspend2, I'm still using a different version of process.c to what y=
-ou
-> > guys have. In my version, I thaw kernelspace, then thaw bdevs, then thaw
-> > userspace. The version below just thaws bdevs after thawing all
-> > processes. I think that might need modification, but thought I'd post
-> > this now so you can see how complicated or otherwise it is.
+> --On Friday, April 28, 2006 10:27:21 +0200 Andi Kleen <ak@suse.de> wrote:
 >
-> IMHO it doesn't look so scary. :-)
-
-:)
-
-> > diff -ruN linux-2.6.17-rc2/kernel/power/process.c
-> > bdev-freeze/kernel/power/process.c ---
-> > linux-2.6.17-rc2/kernel/power/process.c	2006-04-19 14:27:36.000000000
-> > +1000 +++ bdev-freeze/kernel/power/process.c	2006-04-26
-> > 10:44:56.000000000 +1000 @@ -19,6 +19,56 @@
-> >   */
-> >  #define TIMEOUT	(20 * HZ)
+> >> Take a look a little further down the page for the comment.
+> >>
+> >> In i386 + PAE, pud is always present.
 > >
-> > +struct frozen_fs
-> > +{
-> > +	struct list_head fsb_list;
-> > +	struct super_block *sb;
-> > +};
-> > +
-> > +LIST_HEAD(frozen_fs_list);
-> > +
-> > +void freezer_make_fses_rw(void)
-> > +{
-> > +	struct frozen_fs *fs, *next_fs;
-> > +
-> > +	list_for_each_entry_safe(fs, next_fs, &frozen_fs_list, fsb_list) {
-> > +		thaw_bdev(fs->sb->s_bdev, fs->sb);
-> > +
-> > +		list_del(&fs->fsb_list);
-> > +		kfree(fs);
-> > +	}
-> > +}
-> > +
-> > +/*
-> > + * Done after userspace is frozen, so there should be no danger of
-> > + * fses being unmounted while we're in here.
-> > + */
-> > +int freezer_make_fses_ro(void)
-> > +{
-> > +	struct frozen_fs *fs;
-> > +	struct super_block *sb;
-> > +
-> > +	/* Generate the list */
-> > +	list_for_each_entry(sb, &super_blocks, s_list) {
-> > +		if (!sb->s_root || !sb->s_bdev ||
-> > +		    (sb->s_frozen =3D=3D SB_FREEZE_TRANS) ||
-> > +		    (sb->s_flags & MS_RDONLY))
-> > +			continue;
-> > +
-> > +		fs =3D kmalloc(sizeof(struct frozen_fs), GFP_ATOMIC);
+> > I think his problem is that the PGD is always present too (in
+> > pgtables-nopud.h) Indeed looks strange.
 >
-> Shouldn't we check for kmalloc() failures here?
+> The PGD is always fully populated on i386 if PAE is enabled.  All three of
+> the pmd pages are allocated at page table creation time and persist till
+> the page table is deleted.
 
-Good point. Just because I've never seen it fail, doesn't mean it can't :)
+The following code snippet is from some kexec patch of mine. The
+function is used to build a new set of page tables which are used when
+jumping to the new kernel.
 
-Before I roll a new version, what did you think splitting the thawing and=20
-thawing bdevs in the middle? I think it's the right thing (TM) to do :>
+The code should be pretty archtecture independent - the same code
+works on x86 and x86_64. And x86/PAE with a workaround.
 
-Nigel
+#ifdef CONFIG_X86_PAE
+#undef pud_present
+#define pud_present(pud) (pud_val(pud) & _PAGE_PRESENT)
+#endif
 
-> > +		fs->sb =3D sb;
-> > +		list_add_tail(&fs->fsb_list, &frozen_fs_list);
-> > +	};
-> > +
-> > +	/* Do the freezing in reverse order so filesystems dependant
-> > +	 * upon others are frozen in the right order. (Eg loopback
-> > +	 * on ext3). */
-> > +	list_for_each_entry_reverse(fs, &frozen_fs_list, fsb_list)
-> > +		freeze_bdev(fs->sb->s_bdev);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >
-> >  static inline int freezeable(struct task_struct * p)
-> >  {
-> > @@ -77,6 +127,7 @@
-> >  	printk( "Stopping tasks: " );
-> >  	start_time =3D jiffies;
-> >  	user_frozen =3D 0;
-> > +	bdevs_frozen =3D 0;
-> >  	do {
-> >  		nr_user =3D todo =3D 0;
-> >  		read_lock(&tasklist_lock);
-> > @@ -107,6 +158,10 @@
-> >  			start_time =3D jiffies;
-> >  		}
-> >  		user_frozen =3D !nr_user;
-> > +
-> > +		if (user_frozen && !bdevs_frozen)
-> > +			freezer_make_fses_ro();
-> > +
-> >  		yield();			/* Yield is okay here */
-> >  		if (todo && time_after(jiffies, start_time + TIMEOUT))
-> >  			break;
-> > @@ -156,6 +211,8 @@
-> >  			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
-> >  	} while_each_thread(g, p);
-> >
-> > +	freezer_make_fses_rw();
-> > +
-> >  	read_unlock(&tasklist_lock);
-> >  	schedule();
-> >  	printk( " done\n" );
->
-> Greetings,
-> Rafael
+#define pa_page(page) __pa(page_address(page))
 
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
+static int create_mapping(struct page *root, struct page **pages,
+			  unsigned long va, unsigned long pa)
+{
+	pgd_t *pgd;
+	pud_t *pud;
+	pmd_t *pmd;
+	pte_t *pte;
+	int k = 0;
 
---nextPart1871835.EFzUlhTMSJ
-Content-Type: application/pgp-signature
+	pgd = (pgd_t *)page_address(root) + pgd_index(va);
+	if (!pgd_present(*pgd))
+		set_pgd(pgd, __pgd(pa_page(pages[k++]) | _KERNPG_TABLE));
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+	pud = pud_offset(pgd, va);
+	if (!pud_present(*pud))
+		set_pud(pud, __pud(pa_page(pages[k++]) | _KERNPG_TABLE));
 
-iD8DBQBEVWlMN0y+n1M3mo0RAuqOAJ458CoTYI5r+bDnuFnZTywMGNUvxwCdEWeG
-NRi0B9Mhb/M1aLnAxtvjjYc=
-=4Kko
------END PGP SIGNATURE-----
+	pmd = pmd_offset(pud, va);
+	if (!pmd_present(*pmd))
+		set_pmd(pmd, __pmd(pa_page(pages[k++]) | _KERNPG_TABLE));
 
---nextPart1871835.EFzUlhTMSJ--
+	pte = (pte_t *)page_address(pmd_page(*pmd)) + pte_index(va);
+	set_pte(pte, __pte(pa | _PAGE_KERNEL_EXEC));
+
+	return k;
+}
+
+Any comments?
+
+/ magnus

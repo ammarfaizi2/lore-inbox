@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWEBAgo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWEBAeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWEBAgo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 20:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWEBAgo
+	id S932332AbWEBAeg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 20:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWEBAeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 20:36:44 -0400
-Received: from pythagoras.zen.co.uk ([212.23.3.140]:13512 "EHLO
-	pythagoras.zen.co.uk") by vger.kernel.org with ESMTP
-	id S932335AbWEBAgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 20:36:43 -0400
-Message-ID: <4456A98E.9020108@cantab.net>
-Date: Tue, 02 May 2006 01:36:30 +0100
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-CC: Francois Romieu <romieu@fr.zoreil.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net
-Subject: Re: IP1000 gigabit nic driver
-References: <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com> <20060428113755.GA7419@fargo> <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI> <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo> <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <20060501203847.GA7419@electric-eye.fr.zoreil.com> <20060501204150.GC1450@xi.wantstofly.org>
-In-Reply-To: <20060501204150.GC1450@xi.wantstofly.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-Pythagoras-IP: [82.70.146.41]
+	Mon, 1 May 2006 20:34:36 -0400
+Received: from over.co.us.ibm.com ([32.97.110.157]:43950 "EHLO
+	over.co.us.ibm.com") by vger.kernel.org with ESMTP id S932332AbWEBAef
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 20:34:35 -0400
+Date: Mon, 1 May 2006 16:11:09 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, ebiederm@xmission.com,
+       herbert@13thfloor.at, dev@sw.ru, linux-kernel@vger.kernel.org,
+       sam@vilain.net, xemul@sw.ru, clg@us.ibm.com, frankeh@us.ibm.com
+Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
+Message-ID: <20060501211109.GA21799@sergelap.austin.ibm.com>
+References: <20060501203906.XF1836@sergelap.austin.ibm.com> <20060501203907.XF1836@sergelap.austin.ibm.com> <1146515316.32079.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1146515316.32079.27.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennert Buytenhek wrote:
-> On Mon, May 01, 2006 at 10:38:47PM +0200, Francois Romieu wrote:
+Quoting Dave Hansen (haveblue@us.ibm.com):
+> On Mon, 2006-05-01 at 14:53 -0500, Serge E. Hallyn wrote:
+> > +struct uts_namespace *clone_uts_ns(struct uts_namespace *old_ns)
+> > +{
+> > +	struct uts_namespace *ns;
+> > +
+> > +	ns = kmalloc(sizeof(struct uts_namespace), GFP_KERNEL);
+> > +	if (ns) {
+> > +		memcpy(&ns->name, &old_ns->name, sizeof(ns->name));
+> > +		kref_init(&ns->kref);
+> > +	}
+> > +	return ns;
+> > +}
 > 
+> Very small nit...
 > 
->>>-/* Minimum number of miliseconds used to toggle MDC clock during
->>>+/* Minimum number of nanoseconds used to toggle MDC clock during
->>>  * MII/GMII register access.
->>>  */
->>>-#define         IPG_PC_PHYCTRLWAIT           0x01
->>>+#define		IPG_PC_PHYCTRLWAIT_NS		200
->>
->>I would have expected a cycle of 400 ns (p.72/77 of the datasheet)
->>for a 2.5 MHz clock. Why is it cut by a two factor ?
+> Would this memcpy be more appropriate as a strncpy()?
 > 
+> > +int unshare_utsname(unsigned long unshare_flags, struct uts_namespace **new_uts)
+> > +{
+> > +	if (unshare_flags & CLONE_NEWUTS) {
+> > +		if (!capable(CAP_SYS_ADMIN))
+> > +			return -EPERM;
+> > +
+> > +		*new_uts = clone_uts_ns(current->uts_ns);
+> > +		if (!*new_uts)
+> > +			return -ENOMEM;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
 > 
-> 200 ns high + 200 ns low = 400 ns clock period?
+> Would it be a bit nicer to use the ERR_PTR() mechanism here instead of
+> the double-pointer bit?
+> 
+> I've always liked those a bit better because there's no hiding the fact
+> of what is actually a return value from a function.
 
-Yes.
+I agree.  I was (grudgingly) copying the style from the other helpers
+in fs/fork.c.  Then I had to pull it out so it could cleanly return
+-ENOMEM if !CONFIG_UTS, but I expect CONFIG_UTS to be yanked, and
+this fn to be returned to fs/fork.c...
 
-David
+Might be worth a separate patch to change over all those helpers in
+fork.c?  (I think they were all brought in along with the sys_unshare
+syscall)
+
+Agreed on all your other points, thanks.
+
+-serge

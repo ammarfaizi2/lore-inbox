@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWEAUW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWEAU31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWEAUW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 16:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWEAUWZ
+	id S932227AbWEAU31 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 16:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWEAU31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 16:22:25 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:64695 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932223AbWEAUWZ (ORCPT
+	Mon, 1 May 2006 16:29:27 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:2521 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932227AbWEAU30 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 16:22:25 -0400
-Date: Mon, 1 May 2006 22:21:24 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Dave Neuer <mr.fred.smoothie@pobox.com>
-cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Avi Kivity <avi@argo.co.il>, Martin Mares <mj@ucw.cz>,
-       Davi Arnaut <davi.lkml@gmail.com>, Willy Tarreau <willy@w.ods.org>,
-       Denis Vlasenko <vda@ilport.com.ua>, dtor_core@ameritech.net,
-       Kyle Moffett <mrmacman_g4@mac.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling C++ modules
-In-Reply-To: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0605012221050.32033@yvahk01.tjqt.qr>
-References: <B9FF2DE8-2FE8-4FE1-8720-22FE7B923CF8@iomega.com> 
- <200604271810.07575.vda@ilport.com.ua>  <20060427201531.GH13027@w.ods.org>
-  <750c918d0604271408y2afef6fflf380e4d0a6c1cec6@mail.gmail.com> 
- <4451E185.9030107@argo.co.il>  <mj+md-20060428.105455.7620.atrey@ucw.cz> 
- <4451FCCC.4010006@argo.co.il>  <Pine.LNX.4.61.0604281755360.9011@yvahk01.tjqt.qr>
-  <44524A8A.3060308@argo.co.il>  <Pine.LNX.4.61.0604281309250.7998@chaos.analogic.com>
- <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 May 2006 16:29:26 -0400
+Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: ebiederm@xmission.com, herbert@13thfloor.at, dev@sw.ru,
+       linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
+       clg@us.ibm.com, frankeh@us.ibm.com
+In-Reply-To: <20060501203907.XF1836@sergelap.austin.ibm.com>
+References: <20060501203906.XF1836@sergelap.austin.ibm.com>
+	 <20060501203907.XF1836@sergelap.austin.ibm.com>
+Content-Type: text/plain
+Date: Mon, 01 May 2006 13:28:36 -0700
+Message-Id: <1146515316.32079.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 
->> The cost in developer time is borne once. The cost of performance
->> is borne every time you run the application.
->
-> The cost in developer time is borne every time someone needs to modify the
-> code.
->
-The clever developer can cope with both situations.
+On Mon, 2006-05-01 at 14:53 -0500, Serge E. Hallyn wrote:
+> +struct uts_namespace *clone_uts_ns(struct uts_namespace *old_ns)
+> +{
+> +	struct uts_namespace *ns;
+> +
+> +	ns = kmalloc(sizeof(struct uts_namespace), GFP_KERNEL);
+> +	if (ns) {
+> +		memcpy(&ns->name, &old_ns->name, sizeof(ns->name));
+> +		kref_init(&ns->kref);
+> +	}
+> +	return ns;
+> +}
 
+Very small nit...
 
-Jan Engelhardt
--- 
+Would this memcpy be more appropriate as a strncpy()?
+
+> +int unshare_utsname(unsigned long unshare_flags, struct uts_namespace **new_uts)
+> +{
+> +	if (unshare_flags & CLONE_NEWUTS) {
+> +		if (!capable(CAP_SYS_ADMIN))
+> +			return -EPERM;
+> +
+> +		*new_uts = clone_uts_ns(current->uts_ns);
+> +		if (!*new_uts)
+> +			return -ENOMEM;
+> +	}
+> +
+> +	return 0;
+> +}
+
+Would it be a bit nicer to use the ERR_PTR() mechanism here instead of
+the double-pointer bit?
+
+I've always liked those a bit better because there's no hiding the fact
+of what is actually a return value from a function.
+
+-- Dave
+

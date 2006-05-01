@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWEAGVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWEAGiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWEAGVK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 02:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWEAGVJ
+	id S1751285AbWEAGiO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 02:38:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWEAGiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 02:21:09 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:48352 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1750806AbWEAGVI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 02:21:08 -0400
-Date: Mon, 1 May 2006 03:20:58 -0300
-From: Marcelo Tosatti <marcelo@kvack.org>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Cc: DervishD <lkml@dervishd.net>
-Subject: Re: O_DIRECT, ext3fs, kernel 2.4.32... again
-Message-ID: <20060501062058.GA16589@dmt>
-References: <20060427063249.GH761@DervishD>
+	Mon, 1 May 2006 02:38:14 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:8079 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751285AbWEAGiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 02:38:13 -0400
+Subject: Re: [PATCH/RFC] minix filesystem update to V3 for 2.6 kernels
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Daniel =?ISO-8859-1?Q?Aragon=E9s?= <danarag@gmail.com>,
+       penberg@cs.helsinki.fi, linux-kernel@vger.kernel.org
+In-Reply-To: <20060430134527.5175661a.akpm@osdl.org>
+References: <4454C131.8070309@gmail.com>
+	 <20060430134527.5175661a.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 01 May 2006 08:38:04 +0200
+Message-Id: <1146465484.20760.27.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060427063249.GH761@DervishD>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Raul,
 
-On Thu, Apr 27, 2006 at 08:32:49AM +0200, DervishD wrote:
->     Hi all :)
+> > @@ -79,24 +96,35 @@
+> >  int minix_new_block(struct inode * inode)
+> >  {
+> >  	struct minix_sb_info *sbi = minix_sb(inode->i_sb);
+> > -	int i;
+> > +	char *offset = kmalloc(sizeof(char *), GFP_KERNEL);
 > 
->     I don't know if the patch to backport O_DIRECT support for ext3
-> under kernel 2.4.3x was finally accepted or not, but I'm having what
-> I consider inconsistent behaviour due to O_DIRECT under ext3fs and
-> kernel 2.4.32.
-> 
->     I can understand that ext3 doesn't support O_DIRECT, and that's
-> not a problem for me. In fact, if an app really needs O_DIRECT and
-> the underlying filesystem doesn't support it, the app should fail, no
-> more and no less.
+> That's a peculiar thing to do.
 
-On v2.4, nope it doesnt.
 
->     The problem I'm having is with dvd+rw-tools. Apart from all the
-> problems regarding DVD writing, I have another problem: the open64
-> call with the O_DIRECT flag succeeds, but any subsequent read
-> operation fails. IMHO, if the filesystem is going to return EINVAL
-> for any read/write operation over an O_DIRECT'ed filehandle, it
-> should return an error when opening, too.
-> 
->     The growisofs program tries to open a file using O_DIRECT and the
-> call succeeds, so it tries to read from that filehandle and the
-> result is always EINVAL.
->
-> I've tried a test program, just in case the problem was memory
-> alignment of the buffer, but nothing is solved (I used posix_memalign
-> and some recipe I found in this list, using the st_blksize and the
-> st_size of the file). The problem seems to be in the O_DIRECT flag,
-> because removing it from the open call makes all work.
-> 
->     Shouldn't ext3fs return an error when the O_DIRECT flag is used
-> in the open call? Is the open call userspace only and thus only libc
-> can return such error? Am I misunderstanding the entire issue and
-> this is a perfectly legal behaviour (allowing the open, failing in
-> the read operation)?
-
-Your interpretation is correct. It would be nicer for open() to fail on
-fs'es which don't support O_DIRECT, but v2.4 makes such check later at
-read/write unfortunately ;(
-
-And its too late for changing that IMO...
+yeah it should it least be GFP_NOFS probably ;)
 

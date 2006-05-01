@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWEAOMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWEAOVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWEAOMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 10:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWEAOMQ
+	id S932105AbWEAOVA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 10:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWEAOVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 10:12:16 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:44471 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S932101AbWEAOMP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 10:12:15 -0400
-Subject: Re: [2.6 patch] fs/inotify.c: cleanups
-From: Robert Love <rml@novell.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, John McCutchan <john@johnmccutchan.com>,
-       linux-kernel@vger.kernel.org, rml@ximian.com
-In-Reply-To: <20060501071138.GJ3570@stusta.de>
-References: <20060501071138.GJ3570@stusta.de>
-Content-Type: text/plain
-Date: Mon, 01 May 2006 10:12:20 -0400
-Message-Id: <1146492740.7602.0.camel@betsy.boston.ximian.com>
+	Mon, 1 May 2006 10:21:00 -0400
+Received: from nproxy.gmail.com ([64.233.182.185]:6680 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932105AbWEAOU7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 10:20:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=JCcWDGzvwECyjigltLtTMmCos2ryAwpUF1naGb3++SOraq3f8/CrnyRUkrUmItmgAosVro+kMJUyt9eT8gwiMSVA2VxnGKkLTQ1xfkTftYtWBO8rmnlLwlJKLPUOZY9ccTowAu98bplZmjYHE3kGUT3e185J66LdqUUWfRAi758=
+Date: Mon, 1 May 2006 18:19:01 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] CodingStyle: add typedefs chapter
+Message-ID: <20060501141901.GA7267@mipter.zuzino.mipt.ru>
+References: <20060430174426.a21b4614.rdunlap@xenotime.net> <Pine.LNX.4.61.0605011559010.31804@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0605011559010.31804@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-01 at 09:11 +0200, Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - make the following needlessly global variables static:
->   - inotify_max_user_instances
->   - inotify_max_user_watches
->   - inotify_max_queued_events
-> - remove the following unused EXPORT_SYMBOL_GPL's:
->   - inotify_get_cookie
->   - inotify_unmount_inodes
->   - inotify_inode_is_dead
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> Acked-by: John McCutchan <john@johnmccutchan.com>
+On Mon, May 01, 2006 at 04:00:09PM +0200, Jan Engelhardt wrote:
+> >+Please don't use things like "vps_t".
+> >+It's a _mistake_ to use typedef for structures and pointers. When you see a
+> >+	vps_t a;
+> >+in the source, what does it mean?
+> >+In contrast, if it says
+> >+	struct virtual_container *a;
+> >+you can actually tell what "a" is.
+> >+
+> >+Lots of people think that typedefs "help readability". Not so. They are
+> >+useful only for:
+> [...]
+>
+> What about task_t vs struct task_struct? Both are used in the kernel.
 
-Acked-by: Robert Love <rml@novell.com>
+task_t			=> struct task
+struct task_struct	=> struct task
 
-	Robert Love
-
+Roughly 2765 hits :-\
 

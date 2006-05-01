@@ -1,333 +1,444 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWEAJwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWEAKFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbWEAJwp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 05:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWEAJwp
+	id S1751106AbWEAKFy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 06:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWEAKFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 05:52:45 -0400
-Received: from sv1.valinux.co.jp ([210.128.90.2]:45197 "EHLO sv1.valinux.co.jp")
-	by vger.kernel.org with ESMTP id S1751098AbWEAJwo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 05:52:44 -0400
-From: Magnus Damm <magnus@valinux.co.jp>
-To: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Cc: Magnus Damm <magnus@valinux.co.jp>, ebiederm@xmission.com
-Message-Id: <20060501095407.16902.78809.sendpatchset@cherry.local>
-Subject: [PATCH] kexec: Avoid overwriting the current pgd (x86_64)
-Date: Mon,  1 May 2006 18:52:43 +0900 (JST)
+	Mon, 1 May 2006 06:05:54 -0400
+Received: from pproxy.gmail.com ([64.233.166.181]:14084 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751078AbWEAKFw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 06:05:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=XiP11S2k6hLIS4QH7uZ5pEsSUQDMZGGRb54lNEpP4zytNt04kIZB5gZUIotxHaOuK6QjGAMX9lOT96jldrUtftoE/TDqwl8PquSCXvkU5NOsieKGsHE/R8PtcRN/Ievq5L2j9yXEZufyE2Hooh3UPZ+3BU5GaW84iFJy0ZIwy6Q=
+Message-ID: <3feffd230605010305o6e3b1511of1f75b17f2797e66@mail.gmail.com>
+Date: Mon, 1 May 2006 18:05:52 +0800
+From: "Wong Edison" <hswong3i@gmail.com>
+To: netdev@vger.kernel.org
+Subject: [PATCH 001/100] TCP congestion module: add TCP-LP supporting for 2.6.16
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kexec: Avoid overwriting the current pgd (x86_64)
+TCP Low Priority is a distributed algorithm whose goal is to utilize only
+the excess network bandwidth as compared to the ``fair share`` of
+bandwidth as targeted by TCP. Available from:
+  http://www.ece.rice.edu/~akuzma/Doc/akuzma/TCP-LP.pdf
 
-This patch upgrades the x86_64-specific kexec code to avoid overwriting the
-current pgd. Overwriting the current pgd is bad when CONFIG_CRASH_DUMP is used
-to start a secondary kernel that dumps the memory of the previous kernel.
+See http://www-ece.rice.edu/networks/TCP-LP/ for their implementation.
+Our group take the following changes from
+the original TCP-LP implementation:
+  o We use newReno in most core CA handling. Only add some checking
+    within cong_avoid.
+  o Error correcting in remote HZ, therefore remote HZ will be keeped
+    on checking and updating.
+  o Handling calculation of One-Way-Delay (OWD) within rtt_sample, sicne
+    OWD have a similar meaning as RTT. Also correct the buggy formular.
+  o Handle reaction for Early Congestion Indication (ECI) within
+    pkts_acked, as mentioned within pseudo code.
+  o OWD is handled in relative format, where local time stamp will in
+    tcp_time_stamp format.
 
-The code introduces a new set of page tables called "page_table_a". These
-tables are used to provide an executable identity mapping without overwriting
-the current pgd. The already existing page table is renamed to "page_table_b".
+Port from 2.4.19 to 2.6.16 as module by:
+  Wong Hoi Sing Edison <hswong3i@gmail.com>
+  Hung Hing Lun <hlhung3i@gmail.com>
 
-KEXEC_CONTROL_CODE_SIZE is changed into a single page too.
+Signed-off-by: Wong Hoi Sing Edison <hswong3i@gmail.com>
 
-Signed-off-by: Magnus Damm <magnus@valinux.co.jp>
----
 
- The patch has been tested with regular kexec and CONFIG_CRASH_DUMP.
- Apply on top of 2.6.17-rc3.
+diff -urN linux-2.6.16.1/net/ipv4/Kconfig linux/net/ipv4/Kconfig
+--- linux-2.6.16.1/net/ipv4/Kconfig	2006-03-28 14:49:02.000000000 +0800
++++ linux/net/ipv4/Kconfig	2006-04-19 02:40:27.000000000 +0800
+@@ -531,6 +531,27 @@
+ 	properties, though is known to have fairness issues.
+ 	See http://www-lce.eng.cam.ac.uk/~ctk21/scalable/
 
- arch/x86_64/kernel/machine_kexec.c   |  138 ++++++++++++++++++++++++----------
- arch/x86_64/kernel/relocate_kernel.S |   23 ++++-
- include/asm-x86_64/kexec.h           |    3
- include/linux/kexec.h                |    7 +
- 4 files changed, 126 insertions(+), 45 deletions(-)
++config TCP_CONG_LP
++	tristate "TCP Low Priority"
++	depends on EXPERIMENTAL
++	default n
++	---help---
++	TCP Low Priority (TCP-LP), a distributed algorithm whose goal is
++	to utiliza only the excess network bandwidth as compared to the
++	``fair share`` of bandwidth as targeted by TCP.
++	See http://www-ece.rice.edu/networks/TCP-LP/
++
++config TCP_CONG_LP_DEBUG
++	bool "TCP-LP Debug"
++	depends on TCP_CONG_LP
++	default n
++	---help---
++	Turn on/off the debug message for TCP-LP. The debug message will
++	print to default kernel debug log file, e.g. /var/log/debug as
++	default. You can use dmesg to obtain the log too.
++	
++	If unsure, say N.
++
+ endmenu
 
---- 0001/arch/x86_64/kernel/machine_kexec.c
-+++ work/arch/x86_64/kernel/machine_kexec.c	2006-05-01 13:14:46.000000000 +0900
-@@ -2,6 +2,9 @@
-  * machine_kexec.c - handle transition of Linux booting another kernel
-  * Copyright (C) 2002-2005 Eric Biederman  <ebiederm@xmission.com>
-  *
-+ * 2006-04-27 Magnus Damm <damm@opensource.se>:
-+ * - rewrote identity map code to avoid overwriting current pgd
+ config TCP_CONG_BIC
+diff -urN linux-2.6.16.1/net/ipv4/Makefile linux/net/ipv4/Makefile
+--- linux-2.6.16.1/net/ipv4/Makefile	2006-03-28 14:49:02.000000000 +0800
++++ linux/net/ipv4/Makefile	2006-04-19 02:40:27.000000000 +0800
+@@ -41,6 +41,7 @@
+ obj-$(CONFIG_TCP_CONG_HTCP) += tcp_htcp.o
+ obj-$(CONFIG_TCP_CONG_VEGAS) += tcp_vegas.o
+ obj-$(CONFIG_TCP_CONG_SCALABLE) += tcp_scalable.o
++obj-$(CONFIG_TCP_CONG_LP) += tcp_lp.o
+
+ obj-$(CONFIG_XFRM) += xfrm4_policy.o xfrm4_state.o xfrm4_input.o \
+ 		      xfrm4_output.o
+diff -urN linux-2.6.16.1/net/ipv4/tcp_lp.c linux/net/ipv4/tcp_lp.c
+--- linux-2.6.16.1/net/ipv4/tcp_lp.c	1970-01-01 08:00:00.000000000 +0800
++++ linux/net/ipv4/tcp_lp.c	2006-04-25 15:54:54.000000000 +0800
+@@ -0,0 +1,343 @@
++/*
++ * TCP Low Priority (TCP-LP)
 + *
-  * This source code is licensed under the GNU General Public License,
-  * Version 2.  See the file COPYING for more details.
-  */
-@@ -96,11 +99,15 @@ out:
- }
- 
- 
--static int init_pgtable(struct kimage *image, unsigned long start_pgtable)
-+static int create_page_table_b(struct kimage *image)
- {
--	pgd_t *level4p;
--	level4p = (pgd_t *)__va(start_pgtable);
-- 	return init_level4_page(image, level4p, 0, end_pfn << PAGE_SHIFT);
-+	image->page_table_b = kimage_alloc_control_pages(image, 0);
++ * TCP Low Priority is a distributed algorithm whose goal is to utilize only
++ *   the excess network bandwidth as compared to the ``fair share`` of
++ *   bandwidth as targeted by TCP. Available from:
++ *     http://www.ece.rice.edu/~akuzma/Doc/akuzma/TCP-LP.pdf
++ *
++ * Original Author:
++ *   Aleksandar Kuzmanovic <akuzma@northwestern.edu>
++ *
++ * See http://www-ece.rice.edu/networks/TCP-LP/ for their implementation.
++ * As of 2.6.13, Linux supports pluggable congestion control algorithms.
++ * Due to the limitation of the API, we take the following changes from
++ * the original TCP-LP implementation:
++ *   o We use newReno in most core CA handling. Only add some checking
++ *     within cong_avoid.
++ *   o Error correcting in remote HZ, therefore remote HZ will be keeped
++ *     on checking and updating.
++ *   o Handling calculation of One-Way-Delay (OWD) within rtt_sample, sicne
++ *     OWD have a similar meaning as RTT. Also correct the buggy formular.
++ *   o Handle reaction for Early Congestion Indication (ECI) within
++ *     pkts_acked, as mentioned within pseudo code.
++ *   o OWD is handled in relative format, where local time stamp will in
++ *     tcp_time_stamp format.
++ *
++ * Port from 2.4.19 to 2.6.16 as module by:
++ *   Wong Hoi Sing Edison <hswong3i@gmail.com>
++ *   Hung Hing Lun <hlhung3i@gmail.com>
++ *
++ * Version: $Id: tcp_lp.c,v 1.20 2006-04-22 06:34:20 hswong3i Exp $
++ */
 +
-+	if (!image->page_table_b)
-+		return -ENOMEM;
++#include <linux/config.h>
++#include <linux/module.h>
++#include <net/tcp.h>
 +
-+ 	return init_level4_page(image, page_address(image->page_table_b),
-+				0, end_pfn << PAGE_SHIFT);
- }
- 
- static void set_idt(void *newidt, u16 limit)
-@@ -147,32 +154,93 @@ static void load_segments(void)
- typedef NORET_TYPE void (*relocate_new_kernel_t)(unsigned long indirection_page,
- 					unsigned long control_code_buffer,
- 					unsigned long start_address,
--					unsigned long pgtable) ATTRIB_NORET;
-+					unsigned long page_table_a,
-+					unsigned long page_table_b) ATTRIB_NORET;
- 
- const extern unsigned char relocate_new_kernel[];
- const extern unsigned long relocate_new_kernel_size;
- 
--int machine_kexec_prepare(struct kimage *image)
-+static int allocate_page_table_a(struct kimage *image)
- {
--	unsigned long start_pgtable, control_code_buffer;
--	int result;
-+	struct page *page;
-+	int k = sizeof(image->page_table_a) / sizeof(image->page_table_a[0]);
-+
-+	for (; k > 0; k--) {
-+		page = kimage_alloc_control_pages(image, 0);
-+		if (!page)
-+			return -ENOMEM;
- 
--	/* Calculate the offsets */
--	start_pgtable = page_to_pfn(image->control_code_page) << PAGE_SHIFT;
--	control_code_buffer = start_pgtable + PAGE_SIZE;
--
--	/* Setup the identity mapped 64bit page table */
--	result = init_pgtable(image, start_pgtable);
--	if (result)
--		return result;
--
--	/* Place the code in the reboot code buffer */
--	memcpy(__va(control_code_buffer), relocate_new_kernel,
--						relocate_new_kernel_size);
-+		clear_page(page_address(page));
-+		image->page_table_a[k - 1] = page;
-+	}
- 
- 	return 0;
- }
- 
-+#define _PAGE_KERNEL_EXEC __PAGE_KERNEL_EXEC
-+#define pa_page(page) __pa_symbol(page_address(page)) /* __pa() miscompiles */
-+
-+static int create_mapping(struct page *root, struct page **pages, 
-+			  unsigned long va, unsigned long pa)
-+{
-+	pgd_t *pgd;
-+	pud_t *pud;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+	int k = 0;
-+
-+	pgd = (pgd_t *)page_address(root) + pgd_index(va);
-+	if (!pgd_present(*pgd))
-+		set_pgd(pgd, __pgd(pa_page(pages[k++]) | _KERNPG_TABLE));
-+
-+	pud = pud_offset(pgd, va);
-+	if (!pud_present(*pud))
-+		set_pud(pud, __pud(pa_page(pages[k++]) | _KERNPG_TABLE));
-+
-+	pmd = pmd_offset(pud, va);
-+	if (!pmd_present(*pmd))
-+		set_pmd(pmd, __pmd(pa_page(pages[k++]) | _KERNPG_TABLE));
-+
-+	pte = (pte_t *)page_address(pmd_page(*pmd)) + pte_index(va);
-+	set_pte(pte, __pte(pa | _PAGE_KERNEL_EXEC));
-+
-+	return k;
-+}
-+
-+int machine_kexec_prepare(struct kimage *image)
-+{
-+	void *control_page;
-+	unsigned long pa;
-+	int k;
-+
-+	k = allocate_page_table_a(image);
-+	if (k)
-+		return k;
-+
-+	/* fill in control_page with assembly code */
-+
-+	control_page = page_address(image->control_code_page);
-+	memcpy(control_page, relocate_new_kernel, relocate_new_kernel_size);
-+
-+	/* map the control_page at the virtual address of relocate_kernel.S */
-+
-+	pa = __pa(control_page);
-+
-+	k = create_mapping(image->page_table_a[0], 
-+			   &image->page_table_a[1],
-+			   (unsigned long)relocate_new_kernel, pa);
-+
-+	/* identity map the control_page */
-+
-+	create_mapping(image->page_table_a[0], 
-+		       &image->page_table_a[k + 1],
-+		       pa, pa);
-+
-+	/* create identity mapped page table aka page_table_b */
-+
-+	return create_page_table_b(image);
-+}
-+
- void machine_kexec_cleanup(struct kimage *image)
- {
- 	return;
-@@ -185,34 +253,25 @@ void machine_kexec_cleanup(struct kimage
- NORET_TYPE void machine_kexec(struct kimage *image)
- {
- 	unsigned long page_list;
--	unsigned long control_code_buffer;
--	unsigned long start_pgtable;
-+	unsigned long control_code;
-+	unsigned long page_table_a;
-+	unsigned long page_table_b;
- 	relocate_new_kernel_t rnk;
- 
- 	/* Interrupts aren't acceptable while we reboot */
- 	local_irq_disable();
- 
--	/* Calculate the offsets */
- 	page_list = image->head;
--	start_pgtable = page_to_pfn(image->control_code_page) << PAGE_SHIFT;
--	control_code_buffer = start_pgtable + PAGE_SIZE;
--
--	/* Set the low half of the page table to my identity mapped
--	 * page table for kexec.  Leave the high half pointing at the
--	 * kernel pages.   Don't bother to flush the global pages
--	 * as that will happen when I fully switch to my identity mapped
--	 * page table anyway.
--	 */
--	memcpy(__va(read_cr3()), __va(start_pgtable), PAGE_SIZE/2);
--	__flush_tlb();
--
-+	control_code = __pa(page_address(image->control_code_page));
-+	page_table_a = __pa(page_address(image->page_table_a[0]));
-+	page_table_b = __pa(page_address(image->page_table_b));
- 
- 	/* The segment registers are funny things, they are
- 	 * automatically loaded from a table, in memory wherever you
- 	 * set them to a specific selector, but this table is never
--	 * accessed again unless you set the segment to a different selector.
-+	 * accessed again you set the segment to a different selector.
- 	 *
--	 * The more common model are caches where the behide
-+	 * The more common model is are caches where the behide
- 	 * the scenes work is done, but is also dropped at arbitrary
- 	 * times.
- 	 *
-@@ -225,7 +284,8 @@ NORET_TYPE void machine_kexec(struct kim
- 	 */
- 	set_gdt(phys_to_virt(0),0);
- 	set_idt(phys_to_virt(0),0);
-+
- 	/* now call it */
--	rnk = (relocate_new_kernel_t) control_code_buffer;
--	(*rnk)(page_list, control_code_buffer, image->start, start_pgtable);
-+	rnk = (relocate_new_kernel_t) relocate_new_kernel;
-+	(*rnk)(page_list, control_code, image->start, page_table_a, page_table_b);
- }
---- 0001/arch/x86_64/kernel/relocate_kernel.S
-+++ work/arch/x86_64/kernel/relocate_kernel.S	2006-05-01 12:32:50.000000000 +0900
-@@ -7,6 +7,10 @@
-  */
- 
- #include <linux/linkage.h>
-+#include <asm/page.h>
-+
-+.text
-+.align (1 << PAGE_SHIFT)
- 
- 	/*
- 	 * Must be relocatable PIC code callable as a C function, that once
-@@ -18,21 +22,32 @@ relocate_new_kernel:
- 	/* %rdi page_list
- 	 * %rsi reboot_code_buffer
- 	 * %rdx start address
--	 * %rcx page_table
--	 * %r8  arg5
-+	 * %rcx page_table_a
-+	 * %r8  page_table_b
- 	 * %r9  arg6
- 	 */
--
-+	
- 	/* zero out flags, and disable interrupts */
- 	pushq $0
- 	popfq
- 
-+	/* switch to page_table_a */
-+	movq    %rcx, %cr3
-+
- 	/* set a new stack at the bottom of our page... */
- 	lea   4096(%rsi), %rsp
- 
- 	/* store the parameters back on the stack */
- 	pushq	%rdx /* store the start address */
- 
-+	/* jump to identity mapped page */
-+	movq    %rsi, %rax
-+	addq    $(identity_mapped - relocate_new_kernel), %rax
-+	pushq   %rax
-+	ret
-+
-+identity_mapped:
-+	
- 	/* Set cr0 to a known state:
- 	 * 31 1 == Paging enabled
- 	 * 18 0 == Alignment check disabled
-@@ -69,7 +84,7 @@ relocate_new_kernel:
- 	/* Switch to the identity mapped page tables,
- 	 * and flush the TLB.
- 	*/
--	movq	%rcx, %cr3
-+	movq	%r8, %cr3
- 
- 	/* Do the copies */
- 	movq	%rdi, %rcx 	/* Put the page_list in %rcx */
---- 0001/include/asm-x86_64/kexec.h
-+++ work/include/asm-x86_64/kexec.h	2006-05-01 12:32:50.000000000 +0900
-@@ -21,8 +21,7 @@
- /* Maximum address we can use for the control pages */
- #define KEXEC_CONTROL_MEMORY_LIMIT     (0xFFFFFFFFFFUL)
- 
--/* Allocate one page for the pdp and the second for the code */
--#define KEXEC_CONTROL_CODE_SIZE  (4096UL + 4096UL)
-+#define KEXEC_CONTROL_CODE_SIZE  4096
- 
- /* The native architecture */
- #define KEXEC_ARCH KEXEC_ARCH_X86_64
---- 0003/include/linux/kexec.h
-+++ work/include/linux/kexec.h	2006-05-01 12:32:50.000000000 +0900
-@@ -71,6 +71,9 @@ struct kimage {
- 
- 	/* page_table_a[] holds enough pages to create a new page table
- 	 * that maps the control page twice..
-+	 *
-+	 * page_table_b points to the root page of a page table which is used
-+	 * to provide identity mapping of all ram.
- 	 */
- 
- #if defined(CONFIG_X86_32) && !defined(CONFIG_X86_PAE)
-@@ -79,6 +82,10 @@ struct kimage {
- #if defined(CONFIG_X86_32) && defined(CONFIG_X86_PAE)
- 	struct page *page_table_a[5]; /* (2 * pte) + (2 * pmd) + pgd */
- #endif
-+#if defined(CONFIG_X86_64)
-+	struct page *page_table_a[7]; /* 2 * (pte + pud + pmd) + pgd */
-+	struct page *page_table_b;
++#ifndef CONFIG_TCP_CONG_LP_DEBUG
++#define CONFIG_TCP_CONG_LP_DEBUG 0
 +#endif
- 
- 	unsigned long nr_segments;
- 	struct kexec_segment segment[KEXEC_SEGMENT_MAX];
++
++/* resolution of owd */
++#define LP_RESOL	1000
++
++/**
++ * enum tcp_lp_state
++ * @LP_VALID_RHZ: is remote HZ valid?
++ * @LP_VALID_OWD: is OWD valid?
++ * @LP_WITHIN_THR: are we within threshold?
++ * @LP_WITHIN_INF: are we within inference?
++ *
++ * TCP-LP's state flags.
++ * We create this set of state flag mainly for debugging.
++ */
++enum tcp_lp_state {
++	LP_VALID_RHZ = (1 << 0),
++	LP_VALID_OWD = (1 << 1),
++	LP_WITHIN_THR = (1 << 3),
++	LP_WITHIN_INF = (1 << 4),
++};
++
++/**
++ * struct lp
++ * @flag: TCP-LP state flag
++ * @sowd: smoothed OWD << 3
++ * @owd_min: min OWD
++ * @owd_max: max OWD
++ * @owd_max_rsv: resrved max owd
++ * @RHZ: estimated remote HZ
++ * @remote_ref_time: remote reference time
++ * @local_ref_time: local reference time
++ * @last_drop: time for last active drop
++ * @inference: current inference
++ *
++ * TCP-LP's private struct.
++ * We get the idea from original TCP-LP implementation where only left those we
++ * found are really useful.
++ */
++struct lp {
++	u32 flag;
++	u32 sowd;
++	u32 owd_min;
++	u32 owd_max;
++	u32 owd_max_rsv;
++	u32 RHZ;
++	u32 remote_ref_time;
++	u32 local_ref_time;
++	u32 last_drop;
++	u32 inference;
++};
++
++/**
++ * tcp_lp_init
++ *
++ * Init all required variables.
++ * Clone the handling from Vegas module implementation.
++ */
++static void tcp_lp_init(struct sock *sk)
++{
++	struct lp *lp = inet_csk_ca(sk);
++
++	lp->flag = 0;
++	lp->sowd = 0;
++	lp->owd_min = 0xffffffff;
++	lp->owd_max = 0;
++	lp->owd_max_rsv = 0;
++	lp->RHZ = 0;
++	lp->remote_ref_time = 0;
++	lp->local_ref_time = 0;
++	lp->last_drop = 0;
++	lp->inference = 0;
++}
++
++/**
++ * tcp_lp_cong_avoid
++ *
++ * Implementation of cong_avoid.
++ * Will only call newReno CA when away from inference.
++ * From TCP-LP's paper, this will be handled in additive increasement.
++ */
++static void tcp_lp_cong_avoid(struct sock *sk, u32 ack, u32 rtt, u32 in_flight,
++			      int flag)
++{
++	struct lp *lp = inet_csk_ca(sk);
++
++	if (!(lp->flag & LP_WITHIN_INF))
++		tcp_reno_cong_avoid(sk, ack, rtt, in_flight, flag);
++}
++
++/**
++ * tcp_lp_remote_hz_estimator
++ *
++ * Estimate remote HZ.
++ * We keep on updating the estimated value, where original TCP-LP
++ * implementation only guest it for once and use forever.
++ */
++static inline u32 tcp_lp_remote_hz_estimator(struct sock *sk)
++{
++	struct tcp_sock *tp = tcp_sk(sk);
++	struct lp *lp = inet_csk_ca(sk);
++	s64 rhz = lp->RHZ << 6;	/* remote HZ << 6 */
++	s64 m = 0;
++
++	/* not yet record reference time
++	 * go away!! record it before come back!! */
++	if (lp->remote_ref_time == 0 || lp->local_ref_time == 0)
++		goto out;
++
++	/* we can't calc remote HZ with no different!! */
++	if (tp->rx_opt.rcv_tsval == lp->remote_ref_time
++	    || tp->rx_opt.rcv_tsecr == lp->local_ref_time)
++		goto out;
++
++	m = HZ * (tp->rx_opt.rcv_tsval -
++		  lp->remote_ref_time) / (tp->rx_opt.rcv_tsecr -
++					  lp->local_ref_time);
++	if (m < 0)
++		m = -m;
++
++	if (rhz != 0) {
++		m -= (rhz >> 6);	/* m is now error in remote HZ est */
++		rhz += m;	/* 63/64 old + 1/64 new */
++	} else
++		rhz = m << 6;
++
++	/* record time for successful remote HZ calc */
++	lp->flag |= LP_VALID_RHZ;
++
++      out:
++	/* record reference time stamp */
++	lp->remote_ref_time = tp->rx_opt.rcv_tsval;
++	lp->local_ref_time = tp->rx_opt.rcv_tsecr;
++
++	return rhz >> 6;
++}
++
++/**
++ * tcp_lp_owd_calculator
++ *
++ * Calculate one way delay (in relative format).
++ * Original implement OWD as minus of remote time difference to local time
++ * difference directly. As this time difference just simply equal to RTT, when
++ * the network status is stable, remote RTT will equal to local RTT, and result
++ * OWD into zero.
++ * It seems to be a bug and so we fixed it.
++ */
++static inline u32 tcp_lp_owd_calculator(struct sock *sk)
++{
++	struct tcp_sock *tp = tcp_sk(sk);
++	struct lp *lp = inet_csk_ca(sk);
++	s64 owd = 0;
++
++	lp->RHZ = tcp_lp_remote_hz_estimator(sk);
++
++	if (lp->flag & LP_VALID_RHZ) {
++		owd =
++		    tp->rx_opt.rcv_tsval * (LP_RESOL / lp->RHZ) -
++		    tp->rx_opt.rcv_tsecr * (LP_RESOL / HZ);
++		if (owd < 0)
++			owd = -owd;
++	}
++
++	if (owd > 0)
++		lp->flag |= LP_VALID_OWD;
++	else
++		lp->flag &= ~LP_VALID_OWD;
++
++	return owd;
++}
++
++/**
++ * tcp_lp_rtt_sample
++ *
++ * Implementation or rtt_sample.
++ * Will take the following action,
++ *   1. calc OWD,
++ *   2. record the min/max OWD,
++ *   3. calc smoothed OWD (SOWD).
++ * Most ideas come from the original TCP-LP implementation.
++ */
++static void tcp_lp_rtt_sample(struct sock *sk, u32 usrtt)
++{
++	struct lp *lp = inet_csk_ca(sk);
++	s64 mowd = tcp_lp_owd_calculator(sk);
++
++	/* sorry that we don't have valid data */
++	if (!(lp->flag & LP_VALID_RHZ) || !(lp->flag & LP_VALID_OWD))
++		return;
++
++	/* record the next min owd */
++	if (mowd < lp->owd_min)
++		lp->owd_min = mowd;
++
++	/* always forget the max of the max
++	 * we just set owd_max as one below it */
++	if (mowd > lp->owd_max) {
++		if (mowd > lp->owd_max_rsv) {
++			if (lp->owd_max_rsv == 0)
++				lp->owd_max = mowd;
++			else
++				lp->owd_max = lp->owd_max_rsv;
++			lp->owd_max_rsv = mowd;
++		} else
++			lp->owd_max = mowd;
++	}
++
++	/* calc for smoothed owd */
++	if (lp->sowd != 0) {
++		mowd -= (lp->sowd >> 3);	/* m is now error in owd est */
++		lp->sowd += mowd;	/* owd = 7/8 owd + 1/8 new */
++	} else
++		lp->sowd = mowd << 3;	/* take the measured time be owd */
++}
++
++/**
++ * tcp_lp_pkts_acked
++ *
++ * Implementation of pkts_acked.
++ * Deal with active drop under Early Congestion Indication.
++ * Only drop to half and 1 will be handle, because we hope to use back
++ * newReno in increase case.
++ * We work it out by following the idea from TCP-LP's paper directly
++ */
++static void tcp_lp_pkts_acked(struct sock *sk, u32 num_acked)
++{
++	struct tcp_sock *tp = tcp_sk(sk);
++	struct lp *lp = inet_csk_ca(sk);
++
++	/* calc inference */
++	if (tcp_time_stamp > tp->rx_opt.rcv_tsecr)
++		lp->inference = 3 * (tcp_time_stamp - tp->rx_opt.rcv_tsecr);
++
++	/* test if within inference */
++	if (lp->last_drop && (tcp_time_stamp - lp->last_drop < lp->inference))
++		lp->flag |= LP_WITHIN_INF;
++	else
++		lp->flag &= ~LP_WITHIN_INF;
++
++	/* test if within threshold */
++	if (lp->sowd >> 3 <
++	    lp->owd_min + 15 * (lp->owd_max - lp->owd_min) / 100)
++		lp->flag |= LP_WITHIN_THR;
++	else
++		lp->flag &= ~LP_WITHIN_THR;
++
++#if CONFIG_TCP_CONG_LP_DEBUG == 1
++	printk(KERN_DEBUG "TCP-LP: %05o|%5u|%5u|%15u|%15u|%15u\n", lp->flag,
++	       tp->snd_cwnd, lp->RHZ, lp->owd_min, lp->owd_max, lp->sowd >> 3);
++#endif
++
++	if (lp->flag & LP_WITHIN_THR)
++		return;
++
++	/* FIXME: try to reset owd_min and owd_max here
++	 * so decrease the chance the min/max is no longer suitable
++	 * and will usually within threshold when whithin inference */
++	lp->owd_min = (lp->sowd >> 3);
++	lp->owd_max = (lp->sowd >> 2);
++	lp->owd_max_rsv = (lp->sowd >> 2);
++
++	/* happened within inference
++	 * drop snd_cwnd into 1 */
++	if (lp->flag & LP_WITHIN_INF)
++		tp->snd_cwnd = 1U;
++
++	/* happened after inference
++	 * cut snd_cwnd into half */
++	else
++		tp->snd_cwnd = max(tp->snd_cwnd >> 1U, 1U);
++
++	/* record this drop time */
++	lp->last_drop = tcp_time_stamp;
++}
++
++static struct tcp_congestion_ops tcp_lp = {
++	.init = tcp_lp_init,
++	.ssthresh = tcp_reno_ssthresh,
++	.cong_avoid = tcp_lp_cong_avoid,
++	.min_cwnd = tcp_reno_min_cwnd,
++	.rtt_sample = tcp_lp_rtt_sample,
++	.pkts_acked = tcp_lp_pkts_acked,
++
++	.owner = THIS_MODULE,
++	.name = "lp"
++};
++
++static int __init lp_register(void)
++{
++	BUG_ON(sizeof(struct lp) > ICSK_CA_PRIV_SIZE);
++	return tcp_register_congestion_control(&tcp_lp);
++}
++
++static void __exit lp_unregister(void)
++{
++	tcp_unregister_congestion_control(&tcp_lp);
++}
++
++module_init(lp_register);
++module_exit(lp_unregister);
++
++MODULE_AUTHOR("Wong Hoi Sing Edison, Hung Hing Lun");
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("TCP Low Priority");

@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWEAHHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWEAHJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbWEAHHj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 03:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWEAHHj
+	id S1751297AbWEAHJj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 03:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWEAHJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 03:07:39 -0400
-Received: from kanga.kvack.org ([66.96.29.28]:29921 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751293AbWEAHHi (ORCPT
+	Mon, 1 May 2006 03:09:38 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:22412 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751294AbWEAHJi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 03:07:38 -0400
-Date: Mon, 1 May 2006 04:07:40 -0300
-From: Marcelo Tosatti <marcelo@kvack.org>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.33-pre3
-Message-ID: <20060501070740.GA28087@dmt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Mon, 1 May 2006 03:09:38 -0400
+Date: Mon, 1 May 2006 09:09:28 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andi Kleen <ak@suse.de>
+cc: discuss@x86-64.org, Mikael Pettersson <mikpe@it.uu.se>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+Subject: Re: [discuss] [RFC] make PC Speaker driver work on x86-64
+In-Reply-To: <200604301046.22369.ak@suse.de>
+Message-ID: <Pine.LNX.4.61.0605010906010.5353@yvahk01.tjqt.qr>
+References: <200604291830.k3TIUA23009336@harpo.it.uu.se> <200604301046.22369.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>> Is there a better way to do this? ACPI?
+>
+>Maybe. ACPI folks, any opinion? 
+>
+>-Andi (known to rip out the speaker cables in new machines) 
+>
 
-After a long time, here comes the third -pre of v2.4.33.
+Leave the cables, try this for ttyX:
 
-Mostly security related fixes, as usual.
+diff --fast -Ndpru linux-2.6.16-rc1-git3-SUSE20060124/drivers/char/vt.c linux-2.6-AS24/drivers/char/vt.c
+--- linux-2.6.16-rc1-git3-SUSE20060124/drivers/char/vt.c	2006-01-28 19:01:17.000000000 +0100
++++ linux-2.6-AS24/drivers/char/vt.c	2006-01-28 19:01:18.860985000 +0100
+@@ -115,7 +115,7 @@ const struct consw *conswitchp;
+  * Here is the default bell parameters: 750HZ, 1/8th of a second
+  */
+ #define DEFAULT_BELL_PITCH	750
+-#define DEFAULT_BELL_DURATION	(HZ/8)
++#define DEFAULT_BELL_DURATION	0
+ 
+ extern void vcs_make_devfs(struct tty_struct *tty);
+ extern void vcs_remove_devfs(struct tty_struct *tty);
+#<<eof>>
 
-Note: The mprotect issue, ID CVE-2006-1524, has changed to
-CVE-2006-2071.
+X seems silent by default for me, if not, you can configure it too.
+But ttyX always get reset to HZ/8 when you make a tty reset, which is why I 
+put 0 as a default.
 
-Summary of changes from v2.4.33-pre2 to v2.4.33-pre3
-============================================
 
-Andi Kleen:
-      x86_64: Check for bad elf entry address.
-      Always check that RIPs are canonical during signal handling
-      x86-64: Always check that RIPs are canonical during signal handling (update)
-      i386/x86-64: Fix x87 information leak between processes
 
-Craig Brind:
-      via-rhine: zero pad short packets on Rhine I ethernet cards
-
-David S. Miller:
-      ip_queue: Fix wrong skb->len == nlmsg_len assumption
-
-Hugh Dickins:
-      fix shm mprotect (CVE-2006-1524)
-
-Jeff Layton:
-      2.4 nfs cache consistency problem with mmap'ed files
-
-Jesse Brandeburg:
-      build fix: auto_fs4 changes broke ppc64 build
-
-Marcelo Tosatti:
-      Merge http://w.ods.org/kernel/2.4/linux-2.4-upstream
-      Change VERSION to v2.4.33-pre3
-      Fix printk length modifier of NFS mmap consistency patch
-
-Marek Szuba:
-      quota_v2 module taints the kernel (missing licence)
-
-Marin Mitov:
-      DRM: drm_stub_open() range checking
-
-Mika Kukkonen:
-      VLAN: Add two missing checks to vlan_ioctl_handler()
-
-Pavel Kankovsky:
-      Fix small information leak in SO_ORIGINAL_DST and getname()
-
-Stefan-W. Hahn:
-      Corrected faulty syntax in drivers/input/Config.in
-
-Stephen Rothwell:
-      PPC64: fix sys_rt_sigreturn() return type
-
-Willy TARREAU:
-      e1000: Fix mii-tool access to setting speed and duplex
-
+Jan
+-- 

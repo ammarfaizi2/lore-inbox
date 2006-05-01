@@ -1,71 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWEANu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWEANvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWEANu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 09:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWEANu6
+	id S932116AbWEANvf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 09:51:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWEANvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 09:50:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7099 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932108AbWEANu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 09:50:56 -0400
-Subject: Re: [PATCH 0/4] MultiAdmin LSM
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Greg KH <greg@kroah.com>, James Morris <jmorris@namei.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0605011543180.31804@yvahk01.tjqt.qr>
-References: <20060417162345.GA9609@infradead.org>
-	 <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
-	 <20060417173319.GA11506@infradead.org>
-	 <Pine.LNX.4.64.0604171454070.17563@d.namei>
-	 <20060417195146.GA8875@kroah.com>
-	 <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
-	 <1145462454.3085.62.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
-	 <20060419201154.GB20545@kroah.com>
-	 <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr>
-	 <20060421150529.GA15811@kroah.com>
-	 <Pine.LNX.4.61.0605011543180.31804@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Mon, 01 May 2006 15:50:44 +0200
-Message-Id: <1146491444.20760.51.camel@laptopd505.fenrus.org>
+	Mon, 1 May 2006 09:51:35 -0400
+Received: from nevyn.them.org ([66.93.172.17]:41922 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S932112AbWEANve (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 09:51:34 -0400
+Date: Mon, 1 May 2006 09:51:27 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Blaisorblade <blaisorblade@yahoo.it>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org,
+       Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: Re: [uml-devel] [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
+Message-ID: <20060501135127.GA1276@nevyn.them.org>
+Mail-Followup-To: Jeff Dike <jdike@addtoit.com>,
+	Blaisorblade <blaisorblade@yahoo.it>,
+	user-mode-linux-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org,
+	Heiko Carstens <heiko.carstens@de.ibm.com>,
+	Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <200604261747.54660.blaisorblade@yahoo.it> <20060426154607.GA8628@ccure.user-mode-linux.org> <200604282228.46681.blaisorblade@yahoo.it> <20060429014956.GB9734@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060429014956.GB9734@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> 2. A small problem
-> ==================
-> As cool as it may sound, I think the implementation is not as clean as
-> possible.
+On Fri, Apr 28, 2006 at 09:49:56PM -0400, Jeff Dike wrote:
+> On Fri, Apr 28, 2006 at 10:28:46PM +0200, Blaisorblade wrote:
+> > Ok, this gives us a definite proposal, which I finally like:
+> > 
+> > * to exclude sys_tee:
+> > 
+> > bitmask = 0;
+> > set_bit(__NR_tee, bitmask);
+> > ptrace(PTRACE_SET_NOTRACE, bitmask);
+> > 
+> > * to trace only sys_tee:
+> > 
+> > bitmask = 0;
+> > set_bit(__NR_tee, bitmask);
+> > ptrace(PTRACE_SET_TRACEONLY, bitmask);
 > 
-> Let's pick a random starting point: The subadmin is allowed to call
-> drivers/char/lp.c:lp_ioctl():LPGETSTATS. Or
-> fs/quota.c:generic_quotactl_valid():Q_GET*/Q_XGET*. For that to work
-> without too much code changes, CAP_SYS_ADMIN must be given to the
-> subadmin.
-> 
-> However, CAP_SYS_ADMIN (others are affected too, but this is the main one)
-> is used for other things too (mostly write or ioctl operations), which is
-> actually something that should not be granted to the subadmin.
-> 
-> This poses a problem. Currently, it is solved by adding an extra LSM hook,
-> security_cap_extra(), called from capable(). The hooked function then
-> looks at current->*uid/*gid and returns 1 or 0, depending on whether an
-> action is allowed or not. For more details see patch #1.
-> 
-> 
+> Yup, I like this.
+
+I really recommend you not do this.  One (better) suggestion earlier
+was:
+
+struct {
+  int bitmask_length;
+  int flags;
+  char bitmask[0];
+};
+
+The difference between this case and the sigprocmask example is that
+the size of a sigset_t is very hard to change - it's a userspace ABI
+break.  If you want to model it after sigprocmask, don't look at the
+man page, which describes the POSIX function.  Look at the more recent
+RT version of the syscall instead:
+
+sys_rt_sigprocmask(int how, sigset_t __user *set, sigset_t __user *oset, size_t sigsetsize)
+
+Suppose the kernel knows about 32 more syscalls than userspace.  It's
+going to read extra bits out of the bitmask that userspace didn't
+initialize!
+
+Also, if you store the mask with the child process, it risks surprising
+existing tracers: attach, set mask, detach, then the next time someone
+attaches an old version of strace some syscalls will be "hidden".
 
 
-I wonder if we should just split up CAP_SYS_ADMIN then...
-that might end up being the most simple solution...
-
-
+-- 
+Daniel Jacobowitz
+CodeSourcery

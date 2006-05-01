@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWEAR6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWEASCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWEAR6A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 13:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWEAR6A
+	id S932188AbWEASCM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 14:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWEASCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 13:58:00 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:16849 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932181AbWEAR57
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 13:57:59 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=vz4cpSH70+pSGChrUwVZUMk0H3O3ZuK3Uxltpg8MlYvZE87mjji2RfGoPgl3yX8LJ
-	Wpp12sAwsKVX0nVA6kmzQ==
-Message-ID: <44564BEC.1040803@google.com>
-Date: Mon, 01 May 2006 10:57:00 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, apw@shadowen.org, linuxppc64-dev@ozlabs.org,
-       lkml <linux-kernel@vger.kernel.org>, ak@suse.de
-Subject: Re: 2.6.17-rc2-mm1
-References: <4450F5AD.9030200@google.com>	 <20060428012022.7b73c77b.akpm@osdl.org> <44561A1E.7000103@google.com>	 <20060501100731.051f4eff.akpm@osdl.org>	 <1146503960.317.1.camel@dyn9047017100.beaverton.ibm.com>	 <445644B7.7060807@google.com> <1146506105.317.4.camel@dyn9047017100.beaverton.ibm.com>
-In-Reply-To: <1146506105.317.4.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 1 May 2006 14:02:12 -0400
+Received: from saraswathi.solana.com ([198.99.130.12]:16008 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932188AbWEASCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 14:02:11 -0400
+Date: Mon, 1 May 2006 13:02:33 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Blaisorblade <blaisorblade@yahoo.it>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: Re: [uml-devel] [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
+Message-ID: <20060501170233.GC4592@ccure.user-mode-linux.org>
+References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <200604261747.54660.blaisorblade@yahoo.it> <20060426154607.GA8628@ccure.user-mode-linux.org> <200604282228.46681.blaisorblade@yahoo.it> <20060429084907.GD9463@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060429084907.GD9463@osiris.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
-> On Mon, 2006-05-01 at 10:26 -0700, Martin Bligh wrote:
-> 
->>>I ran mtest01 multiple times with various options on my 4-way AMD64 box.
->>>So far couldn't reproduce the problem (2.6.17-rc3-mm1).
->>>
->>>Are there any special config or test options you are testing with ?
->>
->>Config is here:
->>
->>http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/amd64
->>
->>It's just doing "runalltests", I think.
-> 
-> 
-> FWIW, I tried your config file on my 4-way AMD64 (melody) box 
-> and ran latest "mtest01" fine.
-> 
-> I am now trying runalltests. I guess, its time to bi-sect :(
+On Sat, Apr 29, 2006 at 10:49:07AM +0200, Heiko Carstens wrote:
+> IMHO this is way too complicated. Introducing a ptrace call that returns
+> the number of syscalls and forcing user space to pass a complete bitmask
+> is much easier. Also the semantics are much easier to understand.
 
-There was a panic on PPC64 during LTP too, but it seems to have gone
-away with rc3-mm1. Not sure if it was really fixed, or just intermittent.
+This sounds more complicated than what we are proposing.  
 
-http://test.kernel.org/abat/29675/debug/console.log
+This would make the process care about the number of system calls
+implemented by the kernel, which is something that doesn't even come
+up in the normal case with the current interface.  You only care about
+it if you get a -EINVAL and want to figure out exactly why.
 
-M.
+>From a practical point of view, you would want code that looks like
+this:
+	n = nsyscalls();
+	mask = malloc((n + 7)/8);
+	if(mask == NULL)
+		return;
+
+	/* Zero mask, set bits, call ptrace */
+
+	free(mask);
+
+rather than code like this:
+
+	int mask[(BIGGEST_SYSCALL_I_CARE_ABOUT + 7) / 8];
+
+	/* Zero mask, set bits, call ptrace */
+
+That doesn't seem like an improvement to me.
+
+The second case would be more complicated if it wanted to figure out
+what the problem was if ptrace returned -EINVAL.  However, some users
+won't care, so that complexity is optional.  For example, UML will
+already know by other means what system calls are implemented on the
+host, so it won't bother looking at the mask in the case of a
+failure.  I'm not sure what the right thing for strace is.
+
+> In addition your proposal would already introduce a rather complicated
+> interface to figure out how many syscalls the kernel has. I'm sure this
+> will be (mis)used sooner or later.
+
+How?  And, if so, why is that a problem?
+
+There are already complicated ways to figure out what system calls the
+kernel has, and I don't recall them causing problems.
+
+				Jeff

@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWEAUoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWEAUqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWEAUoP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 16:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWEAUoP
+	id S932249AbWEAUqO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 16:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWEAUqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 16:44:15 -0400
-Received: from orfeus.profiwh.com ([82.100.20.117]:41739 "EHLO
-	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S932243AbWEAUoO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 16:44:14 -0400
-Message-ID: <4456732B.2090009@gmail.com>
-Date: Mon, 01 May 2006 22:44:04 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Mon, 1 May 2006 16:46:14 -0400
+Received: from mail.fuug.fi ([83.145.198.117]:65488 "EHLO mail.fuug.fi")
+	by vger.kernel.org with ESMTP id S932249AbWEAUqM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 16:46:12 -0400
+Date: Mon, 1 May 2006 23:46:05 +0300 (EEST)
+From: "Petri T. Koistinen" <petri.koistinen@iki.fi>
+To: Andrew Morton <akpm@osdl.org>
+cc: trivial@kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] arch/i386/kernel/cpu/transmeta.c: initialize variable
+Message-ID: <Pine.LNX.4.64.0605012344330.3790@joo>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: David Woodhouse <dwmw2@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] CodingStyle: add typedefs chapter
-References: <20060430174426.a21b4614.rdunlap@xenotime.net>  <Pine.LNX.4.61.0605011559010.31804@yvahk01.tjqt.qr> <1146502730.2885.128.camel@hades.cambridge.redhat.com> <Pine.LNX.4.61.0605012219560.32033@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0605012219560.32033@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt napsal(a):
->>> What about task_t vs struct task_struct? Both are used in the kernel. 
->> task_t should probably die.
-> 
-> Acked.
-Wouldn't this be a janitors' task?
+From: Petri T. Koistinen <petri.koistinen@iki.fi>
 
-regards,
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+Remove warnings by initializing uninitialized variables.
+
+Signed-off-by: Petri T. Koistinen <petri.koistinen@iki.fi>
+---
+ arch/i386/kernel/cpu/transmeta.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+---
+diff --git a/arch/i386/kernel/cpu/transmeta.c b/arch/i386/kernel/cpu/transmeta.c
+index 7214c9b..cfc4783 100644
+--- a/arch/i386/kernel/cpu/transmeta.c
++++ b/arch/i386/kernel/cpu/transmeta.c
+@@ -9,7 +9,7 @@ static void __init init_transmeta(struct
+ {
+ 	unsigned int cap_mask, uk, max, dummy;
+ 	unsigned int cms_rev1, cms_rev2;
+-	unsigned int cpu_rev, cpu_freq, cpu_flags, new_cpu_rev;
++	unsigned int cpu_rev = 0, cpu_freq = 0, cpu_flags, new_cpu_rev;
+ 	char cpu_info[65];
+
+ 	get_model_name(c);	/* Same as AMD/Cyrix */
+@@ -17,7 +17,6 @@ static void __init init_transmeta(struct
+
+ 	/* Print CMS and CPU revision */
+ 	max = cpuid_eax(0x80860000);
+-	cpu_rev = 0;
+ 	if ( max >= 0x80860001 ) {
+ 		cpuid(0x80860001, &dummy, &cpu_rev, &cpu_freq, &cpu_flags);
+ 		if (cpu_rev != 0x02000000) {
+
+

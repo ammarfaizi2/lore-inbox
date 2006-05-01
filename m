@@ -1,178 +1,431 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWEANfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWEANgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWEANfg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 09:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWEANff
+	id S932091AbWEANgO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 09:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWEANgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 09:35:35 -0400
-Received: from holly.csn.ul.ie ([193.1.99.76]:54186 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932088AbWEANff (ORCPT
+	Mon, 1 May 2006 09:36:14 -0400
+Received: from holly.csn.ul.ie ([193.1.99.76]:61354 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932091AbWEANgM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 09:35:35 -0400
+	Mon, 1 May 2006 09:36:12 -0400
 From: Mel Gorman <mel@csn.ul.ie>
 To: akpm@osdl.org, davej@codemonkey.org.uk, tony.luck@intel.com,
        linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, bob.picco@hp.com,
        ak@suse.de, linux-mm@kvack.org
 Cc: Mel Gorman <mel@csn.ul.ie>
-Message-Id: <20060501133530.6379.66000.sendpatchset@skynet>
-Subject: [PATCH 0/7] Sizing zones and holes in an architecture independent manner V5
-Date: Mon,  1 May 2006 14:35:30 +0100 (IST)
+Message-Id: <20060501133610.6379.12002.sendpatchset@skynet>
+In-Reply-To: <20060501133530.6379.66000.sendpatchset@skynet>
+References: <20060501133530.6379.66000.sendpatchset@skynet>
+Subject: [PATCH 2/7] Have Power use add_active_range() and free_area_init_nodes()
+Date: Mon,  1 May 2006 14:36:10 +0100 (IST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is V5 of the patchset to size zones and memory holes in
-an architecture-independent manner. This has been rebased against
-2.6.17-rc3-mm1 and as there were no objections against release V4, I would
-like to have it considered for merging. If there are merge conflicts with
-later trees, let me know what to rebase against.
 
-The reasons why I'd like to this merged include;
+Size zones and holes in an architecture independent manner for Power.
 
- o Less architecture-specific code - particularly for x86 and ppc64
- o More maintainable. Changes to zone layout need only be made in one place
- o Zone-sizing and memory hole calculation is one less job that needs to be
-   done for new architecture ports
- o With the architecture-independent representation, zone-based
-   anti-fragmentation needs a lot less architecture-specific code making it
-   more portable between architectures. This will be important for future
-   hugepage-availability work
- o Nigel Cunningham has stated that that software suspend could potentially
-   use the architecture-independent representation to discover what pages
-   need to be saved during suspend
+This has been boot tested on PPC64 with NUMA both enabled and disabled. It
+has been compile tested for an older CHRP-based machine.
 
-Changelog since V4
-o Rebase to 2.6.17-rc3-mm1
-o Calculate holes on x86 with SRAT correctly
 
-Changelog since V3
-o Rebase to 2.6.17-rc2
-o Allow the active regions to be cleared. Needed by x86_64 when it decides
-  the SRAT table is bad half way through the registering of active regions
-o Fix for flatmem x86_64 machines booting
+ powerpc/Kconfig   |   13 ++--
+ powerpc/mm/mem.c  |   53 ++++++----------
+ powerpc/mm/numa.c |  157 ++++---------------------------------------------
+ ppc/Kconfig       |    3 
+ ppc/mm/init.c     |   26 ++++----
+ 5 files changed, 62 insertions(+), 190 deletions(-)
 
-Changelog since V2
-o Fix a bug where holes in lower zones get double counted
-o Catch the case where a new range is registered that is within an range
-o Catch the case where a zone boundary is within a hole
-o Use the EFI map for registering ranges on x86_64+numa
-o On IA64+NUMA, add the active ranges before rounding for granules
-o On x86_64, remove e820_hole_size and e820_bootmem_free and use
-  arch-independent equivalents
-o On x86_64, remove the map walk in e820_end_of_ram()
-o Rename memory_present_with_active_regions, name ambiguous
-o Add absent_pages_in_range() for arches to call
-
-Changelog since V1
-o Correctly convert virtual and physical addresses to PFNs on ia64
-o Correctly convert physical addresses to PFN on older ppc 
-o When add_active_range() is called with overlapping pfn ranges, merge them
-o When a zone boundary occurs within a memory hole, account correctly
-o Minor whitespace damage cleanup
-o Debugging patch temporarily included
-
-At a basic level, architectures define structures to record where active
-ranges of page frames are located. Once located, the code to calculate
-zone sizes and holes in each architecture is very similar.  Some of this
-zone and hole sizing code is difficult to read for no good reason. This
-set of patches eliminates the similar-looking architecture-specific code.
-
-The patches introduce a mechanism where architectures register where the
-active ranges of page frames are with add_active_range(). When all areas
-have been discovered, free_area_init_nodes() is called to initialise
-the pgdat and zones. The zone sizes and holes are then calculated in an
-architecture independent manner.
-
-Patch 1 introduces the mechanism for registering and initialising PFN ranges
-Patch 2 changes ppc to use the mechanism - 128 arch-specific LOC removed
-Patch 3 changes x86 to use the mechanism - 142 arch-specific LOC removed
-Patch 4 changes x86_64 to use the mechanism - 94 arch-specific LOC removed
-Patch 5 changes ia64 to use the mechanism - 57 arch-specific LOC removed
-
-At this point, there is a reduction of 421 architecture-specific lines of code
-and a net reduction of 25 lines. The arch-independent code is a lot easier
-to read in comparison to some of the arch-specific stuff, particularly in
-arch/i386/ .
-
-For Patch 6, it was also noted that page_alloc.c has a *lot* of
-initialisation code which makes the file harder to read than it needs to
-be. Patch 6 creates a new file mem_init.c and moves a lot of initialisation
-code from page_alloc.c to it. After the patch is applied, there is still a net
-loss of 8 lines.
-
-The patches have been successfully boot tested by me and verified that the
-zones are the correct size on
-
-o x86, flatmem with 1.5GiB of RAM
-o x86, NUMAQ
-o x86, NUMA, with SRAT
-o x86 with SRAT CONFIG_NUMA=n
-o PPC64, NUMA
-o PPC64, CONFIG_NUMA=n
-o Power, RS6000 (Had difficulty here with missing __udivdi3 symbol in pci_32.o)
-o x86_64, NUMA with SRAT
-o x86_64, NUMA with broken SRAT that falls back to k8topology discovery
-o x86_64, ACPI_NUMA, ACPI_MEMORY_HOTPLUG && !SPARSEMEM to trigger the
-  hotadd path without sparsemem fun in srat.c (SRAT broken on test machine and
-  I'm pretty sure the machine does not support physical memory hotadd anyway
-  so test may not have been effective other than being a compile test.)
-o x86_64, CONFIG_NUMA=n
-o x86_64, AMD64 desktop machine with flatmem
-
-Tony Luck has successfully tested for ia64 on Itanium with tiger_defconfig,
-gensparse_defconfig and defconfig. Bob Picco has also tested and debugged
-on IA64. Jack Steiner successfully boot tested on a mammoth SGI IA64-based
-machine. These were on patches against 2.6.17-rc1 but there have been no
-ia64-changes made between release 3 and 5 of these patches.
-
-There are differences in the zone sizes for x86_64 as the arch-specific code
-for x86_64 accounts the kernel image and the starting mem_maps as memory
-holes but the architecture-independent code accounts the memory as present.
-
-The net reduction seems small but the big benefit of this set of patches
-is the reduction of 421 lines of architecture-specific code, some of
-which is very hairy. There should be a greater net reduction when other
-architectures use the same mechanisms for zone and hole sizing but I lack
-the hardware to test on.
-
-Comments?
-
-Additional credit;
-	Dave Hansen for the initial suggestion and comments on early patches
-	Andy Whitcroft for reviewing early versions and catching numerous errors
-	Tony Luck for testing and debugging on IA64
-	Bob Picco for testing and fixing bugs related to pfn registration
-	Jack Steiner and Yasunori for testing on IA64
-
- arch/i386/Kconfig           |    8 
- arch/i386/kernel/setup.c    |   19 
- arch/i386/kernel/srat.c     |  101 ---
- arch/i386/mm/discontig.c    |   65 --
- arch/ia64/Kconfig           |    3 
- arch/ia64/mm/contig.c       |   60 --
- arch/ia64/mm/discontig.c    |   41 -
- arch/ia64/mm/init.c         |   12 
- arch/powerpc/Kconfig        |   13 
- arch/powerpc/mm/mem.c       |   53 --
- arch/powerpc/mm/numa.c      |  157 ------
- arch/ppc/Kconfig            |    3 
- arch/ppc/mm/init.c          |   26 -
- arch/x86_64/Kconfig         |    3 
- arch/x86_64/kernel/e820.c   |  109 +---
- arch/x86_64/kernel/setup.c  |    7 
- arch/x86_64/mm/init.c       |   62 --
- arch/x86_64/mm/k8topology.c |    3 
- arch/x86_64/mm/numa.c       |   18 
- arch/x86_64/mm/srat.c       |   11 
- include/asm-ia64/meminit.h  |    1 
- include/asm-x86_64/e820.h   |    5 
- include/asm-x86_64/proto.h  |    2 
- include/linux/mm.h          |   34 +
- include/linux/mmzone.h      |   10 
- mm/Makefile                 |    2 
- mm/mem_init.c               | 1121 ++++++++++++++++++++++++++++++++++++++++++
- mm/page_alloc.c             |  750 -----------------------------
--- 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/powerpc/Kconfig linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/powerpc/Kconfig
+--- linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/powerpc/Kconfig	2006-05-01 11:36:58.000000000 +0100
++++ linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/powerpc/Kconfig	2006-05-01 11:40:07.000000000 +0100
+@@ -676,11 +676,16 @@ config ARCH_SPARSEMEM_DEFAULT
+ 	def_bool y
+ 	depends on SMP && PPC_PSERIES
+ 
+-source "mm/Kconfig"
+-
+-config HAVE_ARCH_EARLY_PFN_TO_NID
++config ARCH_POPULATES_NODE_MAP
+ 	def_bool y
+-	depends on NEED_MULTIPLE_NODES
++
++# Value of 256 is MAX_LMB_REGIONS * 2
++config MAX_ACTIVE_REGIONS
++	int
++	default 256
++	depends on ARCH_POPULATES_NODE_MAP
++
++source "mm/Kconfig"
+ 
+ config ARCH_MEMORY_PROBE
+ 	def_bool y
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/powerpc/mm/mem.c linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/powerpc/mm/mem.c
+--- linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/powerpc/mm/mem.c	2006-05-01 11:36:58.000000000 +0100
++++ linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/powerpc/mm/mem.c	2006-05-01 11:40:07.000000000 +0100
+@@ -257,20 +257,22 @@ void __init do_init_bootmem(void)
+ 
+ 	boot_mapsize = init_bootmem(start >> PAGE_SHIFT, total_pages);
+ 
++	/* Add active regions with valid PFNs */
++	for (i = 0; i < lmb.memory.cnt; i++) {
++		unsigned long start_pfn, end_pfn;
++		start_pfn = lmb.memory.region[i].base >> PAGE_SHIFT;
++		end_pfn = start_pfn + lmb_size_pages(&lmb.memory, i);
++		add_active_range(0, start_pfn, end_pfn);
++	}
++
+ 	/* Add all physical memory to the bootmem map, mark each area
+ 	 * present.
+ 	 */
+-	for (i = 0; i < lmb.memory.cnt; i++) {
+-		unsigned long base = lmb.memory.region[i].base;
+-		unsigned long size = lmb_size_bytes(&lmb.memory, i);
+ #ifdef CONFIG_HIGHMEM
+-		if (base >= total_lowmem)
+-			continue;
+-		if (base + size > total_lowmem)
+-			size = total_lowmem - base;
++	free_bootmem_with_active_regions(0, total_lowmem >> PAGE_SHIFT);
++#else
++	free_bootmem_with_active_regions(0, max_pfn);
+ #endif
+-		free_bootmem(base, size);
+-	}
+ 
+ 	/* reserve the sections we're already using */
+ 	for (i = 0; i < lmb.reserved.cnt; i++)
+@@ -278,9 +280,8 @@ void __init do_init_bootmem(void)
+ 				lmb_size_bytes(&lmb.reserved, i));
+ 
+ 	/* XXX need to clip this if using highmem? */
+-	for (i = 0; i < lmb.memory.cnt; i++)
+-		memory_present(0, lmb_start_pfn(&lmb.memory, i),
+-			       lmb_end_pfn(&lmb.memory, i));
++	sparse_memory_present_with_active_regions(0);
++
+ 	init_bootmem_done = 1;
+ }
+ 
+@@ -289,8 +290,6 @@ void __init do_init_bootmem(void)
+  */
+ void __init paging_init(void)
+ {
+-	unsigned long zones_size[MAX_NR_ZONES];
+-	unsigned long zholes_size[MAX_NR_ZONES];
+ 	unsigned long total_ram = lmb_phys_mem_size();
+ 	unsigned long top_of_ram = lmb_end_of_DRAM();
+ 
+@@ -308,26 +307,18 @@ void __init paging_init(void)
+ 	       top_of_ram, total_ram);
+ 	printk(KERN_DEBUG "Memory hole size: %ldMB\n",
+ 	       (top_of_ram - total_ram) >> 20);
+-	/*
+-	 * All pages are DMA-able so we put them all in the DMA zone.
+-	 */
+-	memset(zones_size, 0, sizeof(zones_size));
+-	memset(zholes_size, 0, sizeof(zholes_size));
+-
+-	zones_size[ZONE_DMA] = top_of_ram >> PAGE_SHIFT;
+-	zholes_size[ZONE_DMA] = (top_of_ram - total_ram) >> PAGE_SHIFT;
+-
+ #ifdef CONFIG_HIGHMEM
+-	zones_size[ZONE_DMA] = total_lowmem >> PAGE_SHIFT;
+-	zones_size[ZONE_HIGHMEM] = (total_memory - total_lowmem) >> PAGE_SHIFT;
+-	zholes_size[ZONE_HIGHMEM] = (top_of_ram - total_ram) >> PAGE_SHIFT;
++	free_area_init_nodes(total_lowmem >> PAGE_SHIFT,
++				total_lowmem >> PAGE_SHIFT,
++				total_lowmem >> PAGE_SHIFT,
++				top_of_ram >> PAGE_SHIFT);
+ #else
+-	zones_size[ZONE_DMA] = top_of_ram >> PAGE_SHIFT;
+-	zholes_size[ZONE_DMA] = (top_of_ram - total_ram) >> PAGE_SHIFT;
+-#endif /* CONFIG_HIGHMEM */
++	free_area_init_nodes(top_of_ram >> PAGE_SHIFT,
++				top_of_ram >> PAGE_SHIFT,
++				top_of_ram >> PAGE_SHIFT,
++				top_of_ram >> PAGE_SHIFT);
++#endif
+ 
+-	free_area_init_node(0, NODE_DATA(0), zones_size,
+-			    __pa(PAGE_OFFSET) >> PAGE_SHIFT, zholes_size);
+ }
+ #endif /* ! CONFIG_NEED_MULTIPLE_NODES */
+ 
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/powerpc/mm/numa.c linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/powerpc/mm/numa.c
+--- linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/powerpc/mm/numa.c	2006-05-01 11:36:58.000000000 +0100
++++ linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/powerpc/mm/numa.c	2006-05-01 11:40:07.000000000 +0100
+@@ -39,96 +39,6 @@ static bootmem_data_t __initdata plat_no
+ static int min_common_depth;
+ static int n_mem_addr_cells, n_mem_size_cells;
+ 
+-/*
+- * We need somewhere to store start/end/node for each region until we have
+- * allocated the real node_data structures.
+- */
+-#define MAX_REGIONS	(MAX_LMB_REGIONS*2)
+-static struct {
+-	unsigned long start_pfn;
+-	unsigned long end_pfn;
+-	int nid;
+-} init_node_data[MAX_REGIONS] __initdata;
+-
+-int __init early_pfn_to_nid(unsigned long pfn)
+-{
+-	unsigned int i;
+-
+-	for (i = 0; init_node_data[i].end_pfn; i++) {
+-		unsigned long start_pfn = init_node_data[i].start_pfn;
+-		unsigned long end_pfn = init_node_data[i].end_pfn;
+-
+-		if ((start_pfn <= pfn) && (pfn < end_pfn))
+-			return init_node_data[i].nid;
+-	}
+-
+-	return -1;
+-}
+-
+-void __init add_region(unsigned int nid, unsigned long start_pfn,
+-		       unsigned long pages)
+-{
+-	unsigned int i;
+-
+-	dbg("add_region nid %d start_pfn 0x%lx pages 0x%lx\n",
+-		nid, start_pfn, pages);
+-
+-	for (i = 0; init_node_data[i].end_pfn; i++) {
+-		if (init_node_data[i].nid != nid)
+-			continue;
+-		if (init_node_data[i].end_pfn == start_pfn) {
+-			init_node_data[i].end_pfn += pages;
+-			return;
+-		}
+-		if (init_node_data[i].start_pfn == (start_pfn + pages)) {
+-			init_node_data[i].start_pfn -= pages;
+-			return;
+-		}
+-	}
+-
+-	/*
+-	 * Leave last entry NULL so we dont iterate off the end (we use
+-	 * entry.end_pfn to terminate the walk).
+-	 */
+-	if (i >= (MAX_REGIONS - 1)) {
+-		printk(KERN_ERR "WARNING: too many memory regions in "
+-				"numa code, truncating\n");
+-		return;
+-	}
+-
+-	init_node_data[i].start_pfn = start_pfn;
+-	init_node_data[i].end_pfn = start_pfn + pages;
+-	init_node_data[i].nid = nid;
+-}
+-
+-/* We assume init_node_data has no overlapping regions */
+-void __init get_region(unsigned int nid, unsigned long *start_pfn,
+-		       unsigned long *end_pfn, unsigned long *pages_present)
+-{
+-	unsigned int i;
+-
+-	*start_pfn = -1UL;
+-	*end_pfn = *pages_present = 0;
+-
+-	for (i = 0; init_node_data[i].end_pfn; i++) {
+-		if (init_node_data[i].nid != nid)
+-			continue;
+-
+-		*pages_present += init_node_data[i].end_pfn -
+-			init_node_data[i].start_pfn;
+-
+-		if (init_node_data[i].start_pfn < *start_pfn)
+-			*start_pfn = init_node_data[i].start_pfn;
+-
+-		if (init_node_data[i].end_pfn > *end_pfn)
+-			*end_pfn = init_node_data[i].end_pfn;
+-	}
+-
+-	/* We didnt find a matching region, return start/end as 0 */
+-	if (*start_pfn == -1UL)
+-		*start_pfn = 0;
+-}
+-
+ static void __cpuinit map_cpu_to_node(int cpu, int node)
+ {
+ 	numa_cpu_lookup_table[cpu] = node;
+@@ -471,8 +381,8 @@ new_range:
+ 				continue;
+ 		}
+ 
+-		add_region(nid, start >> PAGE_SHIFT,
+-			   size >> PAGE_SHIFT);
++		add_active_range(nid, start >> PAGE_SHIFT,
++				(start >> PAGE_SHIFT) + (size >> PAGE_SHIFT));
+ 
+ 		if (--ranges)
+ 			goto new_range;
+@@ -485,6 +395,7 @@ static void __init setup_nonnuma(void)
+ {
+ 	unsigned long top_of_ram = lmb_end_of_DRAM();
+ 	unsigned long total_ram = lmb_phys_mem_size();
++	unsigned long start_pfn, end_pfn;
+ 	unsigned int i;
+ 
+ 	printk(KERN_DEBUG "Top of RAM: 0x%lx, Total RAM: 0x%lx\n",
+@@ -492,9 +403,11 @@ static void __init setup_nonnuma(void)
+ 	printk(KERN_DEBUG "Memory hole size: %ldMB\n",
+ 	       (top_of_ram - total_ram) >> 20);
+ 
+-	for (i = 0; i < lmb.memory.cnt; ++i)
+-		add_region(0, lmb.memory.region[i].base >> PAGE_SHIFT,
+-			   lmb_size_pages(&lmb.memory, i));
++	for (i = 0; i < lmb.memory.cnt; ++i) {
++		start_pfn = lmb.memory.region[i].base >> PAGE_SHIFT;
++		end_pfn = start_pfn + lmb_size_pages(&lmb.memory, i);
++		add_active_range(0, start_pfn, end_pfn);
++	}
+ 	node_set_online(0);
+ }
+ 
+@@ -632,11 +545,11 @@ void __init do_init_bootmem(void)
+ 			  (void *)(unsigned long)boot_cpuid);
+ 
+ 	for_each_online_node(nid) {
+-		unsigned long start_pfn, end_pfn, pages_present;
++		unsigned long start_pfn, end_pfn;
+ 		unsigned long bootmem_paddr;
+ 		unsigned long bootmap_pages;
+ 
+-		get_region(nid, &start_pfn, &end_pfn, &pages_present);
++		get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
+ 
+ 		/* Allocate the node structure node local if possible */
+ 		NODE_DATA(nid) = careful_allocation(nid,
+@@ -669,19 +582,7 @@ void __init do_init_bootmem(void)
+ 		init_bootmem_node(NODE_DATA(nid), bootmem_paddr >> PAGE_SHIFT,
+ 				  start_pfn, end_pfn);
+ 
+-		/* Add free regions on this node */
+-		for (i = 0; init_node_data[i].end_pfn; i++) {
+-			unsigned long start, end;
+-
+-			if (init_node_data[i].nid != nid)
+-				continue;
+-
+-			start = init_node_data[i].start_pfn << PAGE_SHIFT;
+-			end = init_node_data[i].end_pfn << PAGE_SHIFT;
+-
+-			dbg("free_bootmem %lx %lx\n", start, end - start);
+-  			free_bootmem_node(NODE_DATA(nid), start, end - start);
+-		}
++		free_bootmem_with_active_regions(nid, end_pfn);
+ 
+ 		/* Mark reserved regions on this node */
+ 		for (i = 0; i < lmb.reserved.cnt; i++) {
+@@ -712,44 +613,14 @@ void __init do_init_bootmem(void)
+ 			}
+ 		}
+ 
+-		/* Add regions into sparsemem */
+-		for (i = 0; init_node_data[i].end_pfn; i++) {
+-			unsigned long start, end;
+-
+-			if (init_node_data[i].nid != nid)
+-				continue;
+-
+-			start = init_node_data[i].start_pfn;
+-			end = init_node_data[i].end_pfn;
+-
+-			memory_present(nid, start, end);
+-		}
++		sparse_memory_present_with_active_regions(nid);
+ 	}
+ }
+ 
+ void __init paging_init(void)
+ {
+-	unsigned long zones_size[MAX_NR_ZONES];
+-	unsigned long zholes_size[MAX_NR_ZONES];
+-	int nid;
+-
+-	memset(zones_size, 0, sizeof(zones_size));
+-	memset(zholes_size, 0, sizeof(zholes_size));
+-
+-	for_each_online_node(nid) {
+-		unsigned long start_pfn, end_pfn, pages_present;
+-
+-		get_region(nid, &start_pfn, &end_pfn, &pages_present);
+-
+-		zones_size[ZONE_DMA] = end_pfn - start_pfn;
+-		zholes_size[ZONE_DMA] = zones_size[ZONE_DMA] - pages_present;
+-
+-		dbg("free_area_init node %d %lx %lx (hole: %lx)\n", nid,
+-		    zones_size[ZONE_DMA], start_pfn, zholes_size[ZONE_DMA]);
+-
+-		free_area_init_node(nid, NODE_DATA(nid), zones_size, start_pfn,
+-				    zholes_size);
+-	}
++	unsigned long end_pfn = lmb_end_of_DRAM() >> PAGE_SHIFT;
++	free_area_init_nodes(end_pfn, end_pfn, end_pfn, end_pfn);
+ }
+ 
+ static int __init early_numa(char *p)
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/ppc/Kconfig linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/ppc/Kconfig
+--- linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/ppc/Kconfig	2006-04-27 03:19:25.000000000 +0100
++++ linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/ppc/Kconfig	2006-05-01 11:40:07.000000000 +0100
+@@ -949,6 +949,9 @@ config NR_CPUS
+ config HIGHMEM
+ 	bool "High memory support"
+ 
++config ARCH_POPULATES_NODE_MAP
++	def_bool y
++
+ source kernel/Kconfig.hz
+ source kernel/Kconfig.preempt
+ source "mm/Kconfig"
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/ppc/mm/init.c linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/ppc/mm/init.c
+--- linux-2.6.17-rc3-mm1-101-add_free_area_init_nodes/arch/ppc/mm/init.c	2006-04-27 03:19:25.000000000 +0100
++++ linux-2.6.17-rc3-mm1-102-powerpc_use_init_nodes/arch/ppc/mm/init.c	2006-05-01 11:40:07.000000000 +0100
+@@ -359,8 +359,7 @@ void __init do_init_bootmem(void)
+  */
+ void __init paging_init(void)
+ {
+-	unsigned long zones_size[MAX_NR_ZONES], i;
+-
++	unsigned long start_pfn, end_pfn;
+ #ifdef CONFIG_HIGHMEM
+ 	map_page(PKMAP_BASE, 0, 0);	/* XXX gross */
+ 	pkmap_page_table = pte_offset_kernel(pmd_offset(pgd_offset_k
+@@ -370,19 +369,22 @@ void __init paging_init(void)
+ 			(KMAP_FIX_BEGIN), KMAP_FIX_BEGIN), KMAP_FIX_BEGIN);
+ 	kmap_prot = PAGE_KERNEL;
+ #endif /* CONFIG_HIGHMEM */
+-
+-	/*
+-	 * All pages are DMA-able so we put them all in the DMA zone.
+-	 */
+-	zones_size[ZONE_DMA] = total_lowmem >> PAGE_SHIFT;
+-	for (i = 1; i < MAX_NR_ZONES; i++)
+-		zones_size[i] = 0;
++	/* All pages are DMA-able so we put them all in the DMA zone. */
++	start_pfn = __pa(PAGE_OFFSET) >> PAGE_SHIFT;
++	end_pfn = start_pfn + (total_memory >> PAGE_SHIFT);
++	add_active_range(0, start_pfn, end_pfn);
+ 
+ #ifdef CONFIG_HIGHMEM
+-	zones_size[ZONE_HIGHMEM] = (total_memory - total_lowmem) >> PAGE_SHIFT;
++	free_area_init_nodes(total_lowmem >> PAGE_SHIFT,
++				total_lowmem >> PAGE_SHIFT,
++				total_lowmem >> PAGE_SHIFT,
++				total_memory >> PAGE_SHIFT);
++#else
++	free_area_init_nodes(total_memory >> PAGE_SHIFT,
++				total_memory >> PAGE_SHIFT,
++				total_memory >> PAGE_SHIFT,
++				total_memory >> PAGE_SHIFT);
+ #endif /* CONFIG_HIGHMEM */
+-
+-	free_area_init(zones_size);
+ }
+ 
+ void __init mem_init(void)

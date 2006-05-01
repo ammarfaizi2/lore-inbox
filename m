@@ -1,91 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWEASJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWEASJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWEASJE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 14:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWEASJD
+	id S1750718AbWEASJU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 14:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWEASJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 14:09:03 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:46782 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750701AbWEASJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 14:09:01 -0400
-Subject: Re: IP1000 gigabit nic driver
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: David Vrabel <dvrabel@cantab.net>
-Cc: romieu@fr.zoreil.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       david@pleyades.net
-In-Reply-To: <4455F1D8.5030102@cantab.net>
-References: <20060427142939.GA31473@fargo>
-	 <20060427185627.GA30871@electric-eye.fr.zoreil.com>
-	 <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo>
-	 <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
-	 <20060428113755.GA7419@fargo>
-	 <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI>
-	 <1146306567.1642.3.camel@localhost>  <20060429122119.GA22160@fargo>
-	 <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost>
-	 <44554ADE.8030200@cantab.net>  <4455F1D8.5030102@cantab.net>
-Date: Mon, 01 May 2006 21:08:59 +0300
-Message-Id: <1146506939.23931.2.camel@localhost>
+	Mon, 1 May 2006 14:09:20 -0400
+Received: from mail.suse.de ([195.135.220.2]:52361 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750718AbWEASJS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 14:09:18 -0400
+Date: Mon, 1 May 2006 11:07:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, James Morris <jmorris@namei.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 4a/4] MultiAdmin LSM (LKCS'ed)
+Message-ID: <20060501180737.GA15184@kroah.com>
+References: <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr> <1145462454.3085.62.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr> <20060419201154.GB20545@kroah.com> <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr> <20060421150529.GA15811@kroah.com> <Pine.LNX.4.61.0605011543180.31804@yvahk01.tjqt.qr> <Pine.LNX.4.61.0605011801400.32172@yvahk01.tjqt.qr> <20060501164740.GA8995@kroah.com> <Pine.LNX.4.61.0605011941220.3919@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0605011941220.3919@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+On Mon, May 01, 2006 at 07:42:33PM +0200, Jan Engelhardt wrote:
+> 
+> >asm #include goes last.
+> 
+> How come?
 
-On Mon, 2006-05-01 at 12:32 +0100, David Vrabel wrote:
-> It was clocking the MII management interface (MDC) at 500 Hz so each PHY
-> register access took some 130 ms, and many registers accesses were being
-> done on initialization. According to the datasheet, the maximum
-> frequency for MDC is 2.5 MHz.  Delays have been adjusted accordingly.
+Just the standard style.
 
-Thanks. Merged your patch.
+> >> +static inline int range_intersect_wrt(uid_t, uid_t, uid_t, uid_t);
+> >
+> >inline functions don't need definitions like this.
+> 
+> If memory serves right, callees mentioned below their callers need a 
+> prototype.
 
-				Pekka
+You can't have a inline function with a prototype :)
 
-[PATCH] IP1000 Gigabit Ethernet device driver
+> >> +static gid_t Supergid = -1, Subgid = -1;
+> >> +static uid_t Superuid_start = 0, Superuid_end = 0,
+> >> +    Subuid_start = -1, Subuid_end = -1,
+> >> +    Netuid = -1, Wrtuid_start = -1, Wrtuid_end = -1;
+> >> +static int Secondary = 0;
+> >
+> >Variables do not have capital letters.
+> 
+> Who has, besides macros, if anything?
 
-This is a cleaned up fork of the IP1000A device driver:
+nothing.
 
-  http://www.icplus.com.tw/driver-pp-IP1000A.html
+thanks,
 
-Open issues:
-
-  - ipg_probe() looks really fishy and doesn't handle all errors
-    (e.g. ioremap failing).
-  - ipg_nic_do_ioctl() is playing games with user-space pointer
-    and lets userspace do PCI access. I think we should nuke the
-    ioctl. Arjan suggested ethtool ioctl instead, but we don't
-    seem to have that kind of functionality now anyway.
-
-Changelog:
-
-  - Kill 2.2 and 2.4 compatability macros (Pekka)
-  - Use proper module API (Pekka)
-  - Use proper PCI API (Pekka)
-  - Use netdev_priv (Pekka)
-  - Consolidate headers to one file (Pekka)
-  - Use __iomem annotations (Pekka)
-  - Use iomap instead of read/out for I/O (Pekka)
-  - Remove obfuscating register access macros (Pekka)
-  - Remove changelogs (David)
-  - Remove ether_crc_le() and use crc32_le() instead (David)
-  - No more nonsense with root_dev. ipg_remove() now works (David)
-  - Move PHY and MAC address initialization into the ipg_probe().  It was
-    previously filling in the MAC address on open which breaks some user
-    space. (David)
-  - Folded ipg_nic_init into ipg_probe since it was broke otherwise (David)
-  - Reduce delays when reading/writing the PHY registers so we clock the
-    MII management interface at 2.5 MHz (the maximum according to the
-    datasheet) instead of 500 Hz. (David)
-
-The patch is 128 KB in size, so I am not including it in this
-mail. You can find the patch here:
-
-  http://www.cs.helsinki.fi/u/penberg/linux/ip1000-driver.patch
-
-Signed-off-by: David Vrabel <dvrabel@cantab.net>
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
-
+greg k-h

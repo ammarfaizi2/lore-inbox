@@ -1,84 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWEAK2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWEAK2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWEAK2P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 06:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWEAK2O
+	id S1751125AbWEAK2f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 06:28:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWEAK2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 06:28:14 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:2696 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751104AbWEAK2O
+	Mon, 1 May 2006 06:28:35 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:3720 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751125AbWEAK2e
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 06:28:14 -0400
-To: torvalds@osdl.org
-Subject: [PATCHSET] audit fixes
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1FaVdV-00050X-EH@ZenIV.linux.org.uk>
+	Mon, 1 May 2006 06:28:34 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 02/14] sockaddr patch
+Message-Id: <E1FaVdp-000518-Hn@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Mon, 01 May 2006 11:28:13 +0100
+Date: Mon, 01 May 2006 11:28:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull audit fixes from
-git://git.kernel.org/pub/scm/linux/kernel/git/viro/audit-current.git/ audit.b10
+From: Steve Grubb <sgrubb@redhat.com>
+Date: Thu Mar 30 12:20:22 2006 -0500
 
-This stuff had been sitting in -mm for weeks now and fixes a bunch of bugs -
-both performance (killing serious unnecessary overhead) and outright leaks
-and deadlocks.
+On Thursday 23 March 2006 09:08, John D. Ramsdell wrote:
+>  I noticed that a socketcall(bind) and socketcall(connect) event contain a
+>  record of type=SOCKADDR, but I cannot see one for a system call event
+>  associated with socketcall(accept).  Recording the sockaddr of an accepted
+>  socket is important for cross platform information flow analys
 
-Shortlog:
+Thanks for pointing this out. The following patch should address this.
 
-Al Viro:
-      deal with deadlocks in audit_free()
-      move call of audit_free() into do_exit()
-      drop gfp_mask in audit_log_exit()
-      drop task argument of audit_syscall_{entry,exit}
-      no need to wank with task_lock() and pinning task down in audit_syscall_exit()
+Signed-off-by: Steve Grubb <sgrubb@redhat.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-Darrel Goeddel:
-      support for context based audit filtering
-      support for context based audit filtering, part 2
+---
 
-Steve Grubb:
-      sockaddr patch
-      audit inode patch
-      change lspp ipc auditing
-      Reworked patch for labels on user space messages
-      More user space subject labels
-      Rework of IPC auditing
-      Audit Filter Performance
+ net/socket.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-Diffstat:
- arch/i386/kernel/ptrace.c      |    7 
- arch/i386/kernel/vm86.c        |    2 
- arch/ia64/kernel/ptrace.c      |    4 
- arch/mips/kernel/ptrace.c      |    4 
- arch/powerpc/kernel/ptrace.c   |    5 
- arch/s390/kernel/ptrace.c      |    5 
- arch/sparc64/kernel/ptrace.c   |    5 
- arch/um/kernel/ptrace.c        |    6 
- arch/x86_64/kernel/ptrace.c    |    6 
- include/linux/audit.h          |   22 ++-
- include/linux/netlink.h        |    1 
- include/linux/security.h       |   16 --
- include/linux/selinux.h        |  177 +++++++++++++++++++++++++
- ipc/msg.c                      |   11 +
- ipc/sem.c                      |   11 +
- ipc/shm.c                      |   19 ++
- ipc/util.c                     |    7 
- kernel/audit.c                 |  160 ++++++++++++++++++----
- kernel/audit.h                 |   10 -
- kernel/auditfilter.c           |  289 ++++++++++++++++++++++++++++++++++++-----
- kernel/auditsc.c               |  269 +++++++++++++++++++-------------------
- kernel/exit.c                  |    3 
- kernel/fork.c                  |    2 
- net/netlink/af_netlink.c       |    2 
- net/socket.c                   |    2 
- security/dummy.c               |    6 
- security/selinux/Makefile      |    2 
- security/selinux/avc.c         |   13 -
- security/selinux/exports.c     |   74 ++++++++++
- security/selinux/hooks.c       |    8 -
- security/selinux/ss/mls.c      |   30 ++++
- security/selinux/ss/mls.h      |    4 
- security/selinux/ss/services.c |  235 +++++++++++++++++++++++++++++++++
- 33 files changed, 1142 insertions(+), 275 deletions(-)
+d6fe3945b42d09a1eca7ad180a1646e585b8594f
+diff --git a/net/socket.c b/net/socket.c
+index 0ce12df..02948b6 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -267,6 +267,8 @@ int move_addr_to_user(void *kaddr, int k
+ 		return -EINVAL;
+ 	if(len)
+ 	{
++		if (audit_sockaddr(klen, kaddr))
++			return -ENOMEM;
+ 		if(copy_to_user(uaddr,kaddr,len))
+ 			return -EFAULT;
+ 	}
+-- 
+1.3.0.g0080f
+

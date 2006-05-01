@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWEAUCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWEAUKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWEAUCx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 16:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWEAUCw
+	id S932216AbWEAUKa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 16:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWEAUKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 16:02:52 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:57233 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932214AbWEAUCw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 16:02:52 -0400
-Date: Mon, 1 May 2006 22:02:39 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Jiri Slaby <jirislaby@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-rc2-mm1 compiling problems
-In-Reply-To: <44515CCF.7040100@gmail.com>
-Message-ID: <Pine.LNX.4.64.0605012131240.32445@scrub.home>
-References: <44515A27.1060703@gmail.com> <44515CCF.7040100@gmail.com>
+	Mon, 1 May 2006 16:10:30 -0400
+Received: from xproxy.gmail.com ([66.249.82.207]:62749 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932216AbWEAUK3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 16:10:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=annGBOZ9hJ12/TcFmWZFgZKnCZZ7MEL+XbZnH9eOCpeJB/ze5baeNxqt5UjOFk4HicULJG6QaTHKufxVpH9kQc5cB4Bc1bzK+BLpAm3AFaKrFKwiEqMW/3pqSRgle7P6noh0GEXSgo4qdFDZ6791wfc8GHkIzft1m+oqwdnNuxc=
+Message-ID: <64b292120605011310n59ac3bdew2508bfa8b923adb3@mail.gmail.com>
+Date: Mon, 1 May 2006 15:10:27 -0500
+From: "Circuitsoft Development" <circuitsoft.devel@gmail.com>
+Subject: Fwd: Extended Volume Manager API
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <64b292120605010759h4d9c74d7s717d125018ab95d3@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <64b292120604302226i377f1c37qd33db36693ea1871@mail.gmail.com>
+	 <200605010702.k4172Q5H006348@turing-police.cc.vt.edu>
+	 <64b292120605010759h4d9c74d7s717d125018ab95d3@mail.gmail.com>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 5/1/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> On Mon, 01 May 2006 00:26:05 CDT, Circuitsoft Development said:
+> > about 600 microseconds, topped at 3msec over 10 minutes) I figure that
+> > 5msec timeout won't add any noticeable lag to the volume manager, as
+> > most disk seek times are in that range.
+>
+> Note that if you're setting 5ms as your timeout for detecting a *crash*,
+> and your *ping* takes 3ms, that leaves you a whole whopping 2ms.  If you
+> have 1ms scheduler latency at *each* end (remember - you're in userspace
 
-On Fri, 28 Apr 2006, Jiri Slaby wrote:
+Volume/Lock manager in Kernelspace - Don't feel like dealing with
+user-mode block devices
 
-> Jiri Slaby napsal(a):
-> > Hello,
-> > 
-> > I have problems with compiling 2.6.17-rc2-mm1 and 2.6.17-rc1-mm3:
-> > $ make O=../my V=1
-> > make -C /l/latest/my \
-> > KBUILD_SRC=/l/latest/xxx \
-> > KBUILD_EXTMOD="" -f /l/latest/xxx/Makefile _all
-> > make -f /l/latest/xxx/Makefile silentoldconfig
-> > make -f /l/latest/xxx/scripts/Makefile.build obj=scripts/basic
-> > if test ! /l/latest/xxx -ef /l/latest/my; then \
-> > /bin/sh /l/latest/xxx/scripts/mkmakefile              \
-> >     /l/latest/xxx /l/latest/my 2 6         \
-> >     > /l/latest/my/Makefile;                                 \
-> >     echo '  GEN    /l/latest/my/Makefile';                   \
-> > fi
-> >   GEN    /l/latest/my/Makefile
-> > mkdir -p include/linux include/config
-> > make -f /l/latest/xxx/scripts/Makefile.build obj=scripts/kconfig silentoldconfig
-> > scripts/kconfig/conf -s arch/i386/Kconfig
-> > init/Kconfig:3: unknown option "option"
-> > make[3]: *** [silentoldconfig] Error 1
-> > make[2]: *** [silentoldconfig] Error 2
-> > make[1]: *** [include/config/auto.conf] Error 2
-> > make: *** [_all] Error 2
-> > 
-> > Then, when I delete the line, there is another problem:
+I was actually planning on a 5msec timeout to ignore that computer,
+for now, then if I don't get a response within 100msec,  ping them,
+and permenantly remove them from the list of peers and broadcast a
+"this peer is dead" message to the network if the ping times out at
+500msec.
 
-It's unlikely the problem, did anything special happen before (e.g. disk 
-full or other errors)?
-I cannot reproduce this, can you reproduce this with a clean 
-source/object dir?
+> at both ends, right?) you have approximately 0ms left for the remote end to
+> actually *do* anything, and for the local end to process the reply.
+>
+> And if the remote end has to issue a syscall during processing the request,
+> you're basically screwed.
 
-bye, Roman
+The code on the remote end is checking a list of locks to see if a
+block is in it.

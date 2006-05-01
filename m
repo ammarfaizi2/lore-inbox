@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWEAHXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWEAHXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbWEAHXI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 03:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWEAHXI
+	id S1751308AbWEAHXi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 03:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWEAHXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 03:23:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3531 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751302AbWEAHXH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 03:23:07 -0400
-Date: Mon, 1 May 2006 00:18:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] kernel/sys.c: possible cleanups
-Message-Id: <20060501001803.48ac34df.akpm@osdl.org>
-In-Reply-To: <20060501071134.GH3570@stusta.de>
-References: <20060501071134.GH3570@stusta.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 1 May 2006 03:23:38 -0400
+Received: from static-ip-62-75-166-246.inaddr.intergenia.de ([62.75.166.246]:1992
+	"EHLO bu3sch.de") by vger.kernel.org with ESMTP id S1751308AbWEAHXh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 03:23:37 -0400
+From: Michael Buesch <mb@bu3sch.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH] CodingStyle: add typedefs chapter
+Date: Mon, 1 May 2006 09:28:33 +0200
+User-Agent: KMail/1.9.1
+References: <20060430174426.a21b4614.rdunlap@xenotime.net>
+In-Reply-To: <20060430174426.a21b4614.rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1673370.Ls1rhiPp9A";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200605010928.33773.mb@bu3sch.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
-> This patch contains the following possible cleanups:
+--nextPart1673370.Ls1rhiPp9A
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Please avoid mixing together cleanups
+On Monday 01 May 2006 02:44, you wrote:
+> +     NOTE! Again - there needs to be a _reason_ for this. If something is
+> +     "unsigned long", then there's no reason to do
+> +
+> +	typedef long myflags_t;
 
->  - proper prototypes for the following functions:
->    - ctrl_alt_del()  (in include/linux/reboot.h)
->    - getrusage()     (in include/linux/resource.h)
->  - make the following needlessly global functions static:
->    - kernel_restart_prepare()
->    - kernel_kexec()
+typedef unsigned long myflags_t;
 
-which I will apply, together with API changes
+=2D-=20
+Greetings Michael.
 
->  - remove the following unused EXPORT_SYMBOL:
->    - in_egroup_p
->  - remove the following unused EXPORT_SYMBOL_GPL's:
->    - kernel_restart
->    - kernel_halt
+--nextPart1673370.Ls1rhiPp9A
+Content-Type: application/pgp-signature
 
-which I will not.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-We have a process for the latter.  And even if we ignore that process, the
-patch ends up sitting in -mm for ages because of the API change, along with
-the cleanups, which could be merged up promptly.
+iD8DBQBEVbihlb09HEdWDKgRAifQAKCGDurJpJWsV9hTEHfUS/ROC3LczwCeJwFZ
+8w4y86jcLK130LQU+i2Md40=
+=q1qZ
+-----END PGP SIGNATURE-----
 
+--nextPart1673370.Ls1rhiPp9A--

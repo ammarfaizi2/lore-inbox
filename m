@@ -1,82 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWEAPG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWEAPHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbWEAPG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 11:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWEAPGZ
+	id S932132AbWEAPHp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 11:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWEAPHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 11:06:25 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:29922 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932135AbWEAPGZ (ORCPT
+	Mon, 1 May 2006 11:07:44 -0400
+Received: from ns2.suse.de ([195.135.220.15]:64222 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932132AbWEAPHn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 11:06:25 -0400
-Date: Mon, 1 May 2006 23:06:25 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: splice(SPLICE_F_MOVE) problems
-Message-ID: <20060501190625.GA174@oleg>
-References: <20060501065953.GA289@oleg> <20060501065412.GP23137@suse.de>
+	Mon, 1 May 2006 11:07:43 -0400
+Date: Mon, 1 May 2006 08:05:50 -0700
+From: Greg KH <greg@kroah.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, James Morris <jmorris@namei.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 4/4] MultiAdmin module
+Message-ID: <20060501150550.GA8328@kroah.com>
+References: <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr> <1145462454.3085.62.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr> <20060419201154.GB20545@kroah.com> <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr> <20060421150529.GA15811@kroah.com> <Pine.LNX.4.61.0605011543180.31804@yvahk01.tjqt.qr> <Pine.LNX.4.61.0605011549460.31804@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060501065412.GP23137@suse.de>
+In-Reply-To: <Pine.LNX.4.61.0605011549460.31804@yvahk01.tjqt.qr>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/01, Jens Axboe wrote:
->
-> On Mon, May 01 2006, Oleg Nesterov wrote:
-> > 
-> > I can't understand why do we need PIPE_BUF_FLAG_STOLEN at all.
-> > It seems to me we need a local boolean in pipe_to_file.
+On Mon, May 01, 2006 at 03:50:21PM +0200, Jan Engelhardt wrote:
 > 
-> PIPE_BUF_FLAG_STOLEN used to be used in the release function as well,
-> hence the flag.
+> [PATCH 4/4] MultiAdmin module
+> 
+>     -   Add the MultiAdmin to the mainline tree.
+>         I hope the rest is self-explanatory.
+> 
+> Please do not mention CodingStyle for multiadm.c. I already know it. :)
+> And I will get to it should it really be merged.
 
-Ok, but in that case
+No one will review it if it isn't in the proper CodingStyle.
 
->                                               I'll make sure to clear
-> the flag as well on add_to_page_cache() failure.
+We have a coding style for a reason, it makes it a very simple thing for
+anyone to review the code as the patterns are all the same.  It turns
+out that people's brains get trained to ignore the patterns and see the
+details instead.  Lots of research backs this up.
 
-... it is not good to clear it in pipe_to_file(). The page remains
-stolen from pipe_buf_operations pov, this flag imho should be private
-to buf, and page_cache_pipe_buf_ops doesn't need it.
+So switch to the common coding style, otherwise no one will look at your
+code (or if they do, odds are they will miss a lot...)
 
-I think pipe_to_buf() can test 'buf->page == page' instead of
-PIPE_BUF_FLAG_STOLEN.
+thanks,
 
-Another question,
-
-	__generic_file_splice_read:
-
-		/*
-		 * Initiate read-ahead on this page range. however, don't call into
-		 * read-ahead if this is a non-zero offset (we are likely doing small
-		 * chunk splice and the page is already there) for a single page.
-		 */
-		if (!loff || nr_pages > 1)
-			page_cache_readahead(mapping, &in->f_ra, in, index, nr_pages);
-
-Why this check? page_cache_readahead() should detect sub-page
-reads correctly.
-
-		page = find_get_page(mapping, index);
-		if (!page) {
-			page = page_cache_alloc_cold();
-
-			add_to_page_cache_lru(page);
-
-I think it makes sense to add handle_ra_miss() here. Otherwise,
-for example, readahead could be disabled by RA_FLAG_INCACHE
-forever.
-
-If readahead doesn't work, SPLICE_F_MOVE is problematic too.
-add_to_page_cache_lru()->lru_cache_add() first increments
-page->count and adds this page to lru_add_pvecs. This means
-page_cache_pipe_buf_steal()->remove_mapping() will probably
-fail.
-
-Oleg.
-
+greg k-h

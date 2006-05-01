@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWEAHLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWEAHLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWEAHLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 03:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWEAHLZ
+	id S1751299AbWEAHLy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 03:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWEAHLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 03:11:25 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40721 "HELO
+	Mon, 1 May 2006 03:11:50 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41489 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751296AbWEAHLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 03:11:24 -0400
-Date: Mon, 1 May 2006 09:11:24 +0200
+	id S1751299AbWEAHL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 03:11:26 -0400
+Date: Mon, 1 May 2006 09:11:25 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/hw_random.c: remove assert()'s
-Message-ID: <20060501071124.GC3570@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] fs/sync.c: make do_sync_file_range() static
+Message-ID: <20060501071125.GD3570@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,93 +22,56 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the assert()'s from drivers/char/hw_random.c since
-you both needed to enable a manual option in the driver source to make 
-them effective and they only covered some obviously impossible cases.
+This patch makes the needlessly global do_sync_file_range() static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 13 Apr 2006
+- 23 Apr 2006
 
- drivers/char/hw_random.c |   21 ---------------------
- 1 file changed, 21 deletions(-)
+ fs/sync.c          |    8 +++++---
+ include/linux/fs.h |    2 --
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
---- linux-2.6.17-rc1-mm2-full/drivers/char/hw_random.c.old	2006-04-13 10:37:15.000000000 +0200
-+++ linux-2.6.17-rc1-mm2-full/drivers/char/hw_random.c	2006-04-13 10:37:39.000000000 +0200
-@@ -66,17 +66,6 @@
- #define DPRINTK(fmt, args...) pr_debug(PFX "%s: " fmt, __FUNCTION__ , ## args)
+--- linux-2.6.17-rc1-mm3-full/include/linux/fs.h.old	2006-04-23 15:54:22.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/include/linux/fs.h	2006-04-23 15:54:38.000000000 +0200
+@@ -762,8 +762,6 @@
+ #define SYNC_FILE_RANGE_WAIT_BEFORE	1
+ #define SYNC_FILE_RANGE_WRITE		2
+ #define SYNC_FILE_RANGE_WAIT_AFTER	4
+-extern int do_sync_file_range(struct file *file, loff_t offset, loff_t endbyte,
+-			unsigned int flags);
  
+ /* fs/locks.c */
+ extern void locks_init_lock(struct file_lock *);
+--- linux-2.6.17-rc1-mm3-full/fs/sync.c.old	2006-04-23 15:53:30.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/fs/sync.c	2006-04-23 15:54:15.000000000 +0200
+@@ -14,6 +14,9 @@
+ #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
+ 			SYNC_FILE_RANGE_WAIT_AFTER)
  
--#undef RNG_NDEBUG        /* define to enable lightweight runtime checks */
--#ifdef RNG_NDEBUG
--#define assert(expr)							\
--		if(!(expr)) {						\
--		printk(KERN_DEBUG PFX "Assertion failed! %s,%s,%s,"	\
--		"line=%d\n", #expr, __FILE__, __FUNCTION__, __LINE__);	\
--		}
--#else
--#define assert(expr)
--#endif
--
- #define RNG_MISCDEV_MINOR		183 /* official */
- 
- static int rng_dev_open (struct inode *inode, struct file *filp);
-@@ -211,29 +200,23 @@
- 
- static inline u8 intel_hwstatus (void)
++static int do_sync_file_range(struct file *file, loff_t offset, loff_t endbyte,
++			      unsigned int flags);
++
+ /*
+  * sys_sync_file_range() permits finely controlled syncing over a segment of
+  * a file in the range offset .. (offset+nbytes-1) inclusive.  If nbytes is
+@@ -125,8 +128,8 @@
+ /*
+  * `endbyte' is inclusive
+  */
+-int do_sync_file_range(struct file *file, loff_t offset, loff_t endbyte,
+-			unsigned int flags)
++static int do_sync_file_range(struct file *file, loff_t offset, loff_t endbyte,
++			      unsigned int flags)
  {
--	assert (rng_mem != NULL);
- 	return readb (rng_mem + INTEL_RNG_HW_STATUS);
+ 	int ret;
+ 	struct address_space *mapping;
+@@ -161,4 +164,3 @@
+ out:
+ 	return ret;
  }
- 
- static inline u8 intel_hwstatus_set (u8 hw_status)
- {
--	assert (rng_mem != NULL);
- 	writeb (hw_status, rng_mem + INTEL_RNG_HW_STATUS);
- 	return intel_hwstatus ();
- }
- 
- static unsigned int intel_data_present(void)
- {
--	assert (rng_mem != NULL);
--
- 	return (readb (rng_mem + INTEL_RNG_STATUS) & INTEL_RNG_DATA_PRESENT) ?
- 		1 : 0;
- }
- 
- static u32 intel_data_read(void)
- {
--	assert (rng_mem != NULL);
--
- 	return readb (rng_mem + INTEL_RNG_DATA);
- }
- 
-@@ -495,7 +478,6 @@
- {
- 	u32 val;
- 
--	assert(geode_rng_base != NULL);
- 	val = readl(geode_rng_base + GEODE_RNG_DATA_REG);
- 	return val;
- }
-@@ -504,7 +486,6 @@
- {
- 	u32 val;
- 
--	assert(geode_rng_base != NULL);
- 	val = readl(geode_rng_base + GEODE_RNG_STATUS_REG);
- 	return val;
- }
-@@ -605,8 +586,6 @@
- 
- 	DPRINTK ("ENTER\n");
- 
--	assert(rng_ops != NULL);
--
- 	rc = rng_ops->init(dev);
- 	if (rc)
- 		goto err_out;
+-EXPORT_SYMBOL_GPL(do_sync_file_range);
 

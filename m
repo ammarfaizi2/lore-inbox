@@ -1,444 +1,311 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWEAKFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWEAK3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751106AbWEAKFy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 06:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWEAKFy
+	id S1751200AbWEAK3O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 06:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWEAK3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 06:05:54 -0400
-Received: from pproxy.gmail.com ([64.233.166.181]:14084 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751078AbWEAKFw convert rfc822-to-8bit
+	Mon, 1 May 2006 06:29:13 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:5000 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751173AbWEAK3E
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 06:05:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=XiP11S2k6hLIS4QH7uZ5pEsSUQDMZGGRb54lNEpP4zytNt04kIZB5gZUIotxHaOuK6QjGAMX9lOT96jldrUtftoE/TDqwl8PquSCXvkU5NOsieKGsHE/R8PtcRN/Ievq5L2j9yXEZufyE2Hooh3UPZ+3BU5GaW84iFJy0ZIwy6Q=
-Message-ID: <3feffd230605010305o6e3b1511of1f75b17f2797e66@mail.gmail.com>
-Date: Mon, 1 May 2006 18:05:52 +0800
-From: "Wong Edison" <hswong3i@gmail.com>
-To: netdev@vger.kernel.org
-Subject: [PATCH 001/100] TCP congestion module: add TCP-LP supporting for 2.6.16
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 1 May 2006 06:29:04 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 05/14] drop task argument of audit_syscall_{entry,exit}
+Message-Id: <E1FaVeJ-00051g-Iz@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Mon, 01 May 2006 11:29:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-TCP Low Priority is a distributed algorithm whose goal is to utilize only
-the excess network bandwidth as compared to the ``fair share`` of
-bandwidth as targeted by TCP. Available from:
-  http://www.ece.rice.edu/~akuzma/Doc/akuzma/TCP-LP.pdf
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Wed Mar 29 20:23:36 2006 -0500
 
-See http://www-ece.rice.edu/networks/TCP-LP/ for their implementation.
-Our group take the following changes from
-the original TCP-LP implementation:
-  o We use newReno in most core CA handling. Only add some checking
-    within cong_avoid.
-  o Error correcting in remote HZ, therefore remote HZ will be keeped
-    on checking and updating.
-  o Handling calculation of One-Way-Delay (OWD) within rtt_sample, sicne
-    OWD have a similar meaning as RTT. Also correct the buggy formular.
-  o Handle reaction for Early Congestion Indication (ECI) within
-    pkts_acked, as mentioned within pseudo code.
-  o OWD is handled in relative format, where local time stamp will in
-    tcp_time_stamp format.
+... it's always current, and that's a good thing - allows simpler locking.
 
-Port from 2.4.19 to 2.6.16 as module by:
-  Wong Hoi Sing Edison <hswong3i@gmail.com>
-  Hung Hing Lun <hlhung3i@gmail.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-Signed-off-by: Wong Hoi Sing Edison <hswong3i@gmail.com>
+---
 
+ arch/i386/kernel/ptrace.c    |    7 +++----
+ arch/i386/kernel/vm86.c      |    2 +-
+ arch/ia64/kernel/ptrace.c    |    4 ++--
+ arch/mips/kernel/ptrace.c    |    4 ++--
+ arch/powerpc/kernel/ptrace.c |    5 ++---
+ arch/s390/kernel/ptrace.c    |    5 ++---
+ arch/sparc64/kernel/ptrace.c |    5 ++---
+ arch/um/kernel/ptrace.c      |    6 ++----
+ arch/x86_64/kernel/ptrace.c  |    6 +++---
+ include/linux/audit.h        |    8 ++++----
+ kernel/auditsc.c             |    8 ++++----
+ 11 files changed, 27 insertions(+), 33 deletions(-)
 
-diff -urN linux-2.6.16.1/net/ipv4/Kconfig linux/net/ipv4/Kconfig
---- linux-2.6.16.1/net/ipv4/Kconfig	2006-03-28 14:49:02.000000000 +0800
-+++ linux/net/ipv4/Kconfig	2006-04-19 02:40:27.000000000 +0800
-@@ -531,6 +531,27 @@
- 	properties, though is known to have fairness issues.
- 	See http://www-lce.eng.cam.ac.uk/~ctk21/scalable/
+5411be59db80333039386f3b1ccfe5eb9023a916
+diff --git a/arch/i386/kernel/ptrace.c b/arch/i386/kernel/ptrace.c
+index 506462e..fd7eaf7 100644
+--- a/arch/i386/kernel/ptrace.c
++++ b/arch/i386/kernel/ptrace.c
+@@ -671,7 +671,7 @@ int do_syscall_trace(struct pt_regs *reg
+ 
+ 	if (unlikely(current->audit_context)) {
+ 		if (entryexit)
+-			audit_syscall_exit(current, AUDITSC_RESULT(regs->eax),
++			audit_syscall_exit(AUDITSC_RESULT(regs->eax),
+ 						regs->eax);
+ 		/* Debug traps, when using PTRACE_SINGLESTEP, must be sent only
+ 		 * on the syscall exit path. Normally, when TIF_SYSCALL_AUDIT is
+@@ -720,14 +720,13 @@ int do_syscall_trace(struct pt_regs *reg
+ 	ret = is_sysemu;
+ out:
+ 	if (unlikely(current->audit_context) && !entryexit)
+-		audit_syscall_entry(current, AUDIT_ARCH_I386, regs->orig_eax,
++		audit_syscall_entry(AUDIT_ARCH_I386, regs->orig_eax,
+ 				    regs->ebx, regs->ecx, regs->edx, regs->esi);
+ 	if (ret == 0)
+ 		return 0;
+ 
+ 	regs->orig_eax = -1; /* force skip of syscall restarting */
+ 	if (unlikely(current->audit_context))
+-		audit_syscall_exit(current, AUDITSC_RESULT(regs->eax),
+-				regs->eax);
++		audit_syscall_exit(AUDITSC_RESULT(regs->eax), regs->eax);
+ 	return 1;
+ }
+diff --git a/arch/i386/kernel/vm86.c b/arch/i386/kernel/vm86.c
+index aee14fa..00e0118 100644
+--- a/arch/i386/kernel/vm86.c
++++ b/arch/i386/kernel/vm86.c
+@@ -312,7 +312,7 @@ static void do_sys_vm86(struct kernel_vm
+ 
+ 	/*call audit_syscall_exit since we do not exit via the normal paths */
+ 	if (unlikely(current->audit_context))
+-		audit_syscall_exit(current, AUDITSC_RESULT(eax), eax);
++		audit_syscall_exit(AUDITSC_RESULT(eax), eax);
+ 
+ 	__asm__ __volatile__(
+ 		"movl %0,%%esp\n\t"
+diff --git a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
+index 9887c87..e61e15e 100644
+--- a/arch/ia64/kernel/ptrace.c
++++ b/arch/ia64/kernel/ptrace.c
+@@ -1644,7 +1644,7 @@ syscall_trace_enter (long arg0, long arg
+ 			arch = AUDIT_ARCH_IA64;
+ 		}
+ 
+-		audit_syscall_entry(current, arch, syscall, arg0, arg1, arg2, arg3);
++		audit_syscall_entry(arch, syscall, arg0, arg1, arg2, arg3);
+ 	}
+ 
+ }
+@@ -1662,7 +1662,7 @@ syscall_trace_leave (long arg0, long arg
+ 
+ 		if (success != AUDITSC_SUCCESS)
+ 			result = -result;
+-		audit_syscall_exit(current, success, result);
++		audit_syscall_exit(success, result);
+ 	}
+ 
+ 	if (test_thread_flag(TIF_SYSCALL_TRACE)
+diff --git a/arch/mips/kernel/ptrace.c b/arch/mips/kernel/ptrace.c
+index f3106d0..9b4733c 100644
+--- a/arch/mips/kernel/ptrace.c
++++ b/arch/mips/kernel/ptrace.c
+@@ -483,7 +483,7 @@ #endif
+ asmlinkage void do_syscall_trace(struct pt_regs *regs, int entryexit)
+ {
+ 	if (unlikely(current->audit_context) && entryexit)
+-		audit_syscall_exit(current, AUDITSC_RESULT(regs->regs[2]),
++		audit_syscall_exit(AUDITSC_RESULT(regs->regs[2]),
+ 		                   regs->regs[2]);
+ 
+ 	if (!(current->ptrace & PT_PTRACED))
+@@ -507,7 +507,7 @@ asmlinkage void do_syscall_trace(struct 
+ 	}
+  out:
+ 	if (unlikely(current->audit_context) && !entryexit)
+-		audit_syscall_entry(current, audit_arch(), regs->regs[2],
++		audit_syscall_entry(audit_arch(), regs->regs[2],
+ 				    regs->regs[4], regs->regs[5],
+ 				    regs->regs[6], regs->regs[7]);
+ }
+diff --git a/arch/powerpc/kernel/ptrace.c b/arch/powerpc/kernel/ptrace.c
+index bcb8357..4a677d1 100644
+--- a/arch/powerpc/kernel/ptrace.c
++++ b/arch/powerpc/kernel/ptrace.c
+@@ -538,7 +538,7 @@ #endif
+ 		do_syscall_trace();
+ 
+ 	if (unlikely(current->audit_context))
+-		audit_syscall_entry(current,
++		audit_syscall_entry(
+ #ifdef CONFIG_PPC32
+ 				    AUDIT_ARCH_PPC,
+ #else
+@@ -556,8 +556,7 @@ #ifdef CONFIG_PPC32
+ #endif
+ 
+ 	if (unlikely(current->audit_context))
+-		audit_syscall_exit(current,
+-				   (regs->ccr&0x1000)?AUDITSC_FAILURE:AUDITSC_SUCCESS,
++		audit_syscall_exit((regs->ccr&0x1000)?AUDITSC_FAILURE:AUDITSC_SUCCESS,
+ 				   regs->result);
+ 
+ 	if ((test_thread_flag(TIF_SYSCALL_TRACE)
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index 37dfe33..8f36504 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -734,7 +734,7 @@ asmlinkage void
+ syscall_trace(struct pt_regs *regs, int entryexit)
+ {
+ 	if (unlikely(current->audit_context) && entryexit)
+-		audit_syscall_exit(current, AUDITSC_RESULT(regs->gprs[2]), regs->gprs[2]);
++		audit_syscall_exit(AUDITSC_RESULT(regs->gprs[2]), regs->gprs[2]);
+ 
+ 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
+ 		goto out;
+@@ -761,8 +761,7 @@ syscall_trace(struct pt_regs *regs, int 
+ 	}
+  out:
+ 	if (unlikely(current->audit_context) && !entryexit)
+-		audit_syscall_entry(current, 
+-				    test_thread_flag(TIF_31BIT)?AUDIT_ARCH_S390:AUDIT_ARCH_S390X,
++		audit_syscall_entry(test_thread_flag(TIF_31BIT)?AUDIT_ARCH_S390:AUDIT_ARCH_S390X,
+ 				    regs->gprs[2], regs->orig_gpr2, regs->gprs[3],
+ 				    regs->gprs[4], regs->gprs[5]);
+ }
+diff --git a/arch/sparc64/kernel/ptrace.c b/arch/sparc64/kernel/ptrace.c
+index 49e6ded..d31975e 100644
+--- a/arch/sparc64/kernel/ptrace.c
++++ b/arch/sparc64/kernel/ptrace.c
+@@ -653,7 +653,7 @@ asmlinkage void syscall_trace(struct pt_
+ 		if (unlikely(tstate & (TSTATE_XCARRY | TSTATE_ICARRY)))
+ 			result = AUDITSC_FAILURE;
+ 
+-		audit_syscall_exit(current, result, regs->u_regs[UREG_I0]);
++		audit_syscall_exit(result, regs->u_regs[UREG_I0]);
+ 	}
+ 
+ 	if (!(current->ptrace & PT_PTRACED))
+@@ -677,8 +677,7 @@ asmlinkage void syscall_trace(struct pt_
+ 
+ out:
+ 	if (unlikely(current->audit_context) && !syscall_exit_p)
+-		audit_syscall_entry(current,
+-				    (test_thread_flag(TIF_32BIT) ?
++		audit_syscall_entry((test_thread_flag(TIF_32BIT) ?
+ 				     AUDIT_ARCH_SPARC :
+ 				     AUDIT_ARCH_SPARC64),
+ 				    regs->u_regs[UREG_G1],
+diff --git a/arch/um/kernel/ptrace.c b/arch/um/kernel/ptrace.c
+index 60d2eda..9a77fb3 100644
+--- a/arch/um/kernel/ptrace.c
++++ b/arch/um/kernel/ptrace.c
+@@ -275,15 +275,13 @@ void syscall_trace(union uml_pt_regs *re
+ 
+ 	if (unlikely(current->audit_context)) {
+ 		if (!entryexit)
+-			audit_syscall_entry(current,
+-                                            HOST_AUDIT_ARCH,
++			audit_syscall_entry(HOST_AUDIT_ARCH,
+ 					    UPT_SYSCALL_NR(regs),
+ 					    UPT_SYSCALL_ARG1(regs),
+ 					    UPT_SYSCALL_ARG2(regs),
+ 					    UPT_SYSCALL_ARG3(regs),
+ 					    UPT_SYSCALL_ARG4(regs));
+-		else audit_syscall_exit(current,
+-                                        AUDITSC_RESULT(UPT_SYSCALL_RET(regs)),
++		else audit_syscall_exit(AUDITSC_RESULT(UPT_SYSCALL_RET(regs)),
+                                         UPT_SYSCALL_RET(regs));
+ 	}
+ 
+diff --git a/arch/x86_64/kernel/ptrace.c b/arch/x86_64/kernel/ptrace.c
+index da8e790..2d50024 100644
+--- a/arch/x86_64/kernel/ptrace.c
++++ b/arch/x86_64/kernel/ptrace.c
+@@ -600,12 +600,12 @@ asmlinkage void syscall_trace_enter(stru
+ 
+ 	if (unlikely(current->audit_context)) {
+ 		if (test_thread_flag(TIF_IA32)) {
+-			audit_syscall_entry(current, AUDIT_ARCH_I386,
++			audit_syscall_entry(AUDIT_ARCH_I386,
+ 					    regs->orig_rax,
+ 					    regs->rbx, regs->rcx,
+ 					    regs->rdx, regs->rsi);
+ 		} else {
+-			audit_syscall_entry(current, AUDIT_ARCH_X86_64,
++			audit_syscall_entry(AUDIT_ARCH_X86_64,
+ 					    regs->orig_rax,
+ 					    regs->rdi, regs->rsi,
+ 					    regs->rdx, regs->r10);
+@@ -616,7 +616,7 @@ asmlinkage void syscall_trace_enter(stru
+ asmlinkage void syscall_trace_leave(struct pt_regs *regs)
+ {
+ 	if (unlikely(current->audit_context))
+-		audit_syscall_exit(current, AUDITSC_RESULT(regs->rax), regs->rax);
++		audit_syscall_exit(AUDITSC_RESULT(regs->rax), regs->rax);
+ 
+ 	if ((test_thread_flag(TIF_SYSCALL_TRACE)
+ 	     || test_thread_flag(TIF_SINGLESTEP))
+diff --git a/include/linux/audit.h b/include/linux/audit.h
+index 1c47c59..39fef6e 100644
+--- a/include/linux/audit.h
++++ b/include/linux/audit.h
+@@ -287,10 +287,10 @@ #ifdef CONFIG_AUDITSYSCALL
+ 				/* Public API */
+ extern int  audit_alloc(struct task_struct *task);
+ extern void audit_free(struct task_struct *task);
+-extern void audit_syscall_entry(struct task_struct *task, int arch,
++extern void audit_syscall_entry(int arch,
+ 				int major, unsigned long a0, unsigned long a1,
+ 				unsigned long a2, unsigned long a3);
+-extern void audit_syscall_exit(struct task_struct *task, int failed, long return_code);
++extern void audit_syscall_exit(int failed, long return_code);
+ extern void audit_getname(const char *name);
+ extern void audit_putname(const char *name);
+ extern void __audit_inode(const char *name, const struct inode *inode, unsigned flags);
+@@ -323,8 +323,8 @@ extern int audit_set_macxattr(const char
+ #else
+ #define audit_alloc(t) ({ 0; })
+ #define audit_free(t) do { ; } while (0)
+-#define audit_syscall_entry(t,ta,a,b,c,d,e) do { ; } while (0)
+-#define audit_syscall_exit(t,f,r) do { ; } while (0)
++#define audit_syscall_entry(ta,a,b,c,d,e) do { ; } while (0)
++#define audit_syscall_exit(f,r) do { ; } while (0)
+ #define audit_getname(n) do { ; } while (0)
+ #define audit_putname(n) do { ; } while (0)
+ #define __audit_inode(n,i,f) do { ; } while (0)
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index ba0ec1b..7ed82b0 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -736,10 +736,11 @@ void audit_free(struct task_struct *tsk)
+  * will only be written if another part of the kernel requests that it
+  * be written).
+  */
+-void audit_syscall_entry(struct task_struct *tsk, int arch, int major,
++void audit_syscall_entry(int arch, int major,
+ 			 unsigned long a1, unsigned long a2,
+ 			 unsigned long a3, unsigned long a4)
+ {
++	struct task_struct *tsk = current;
+ 	struct audit_context *context = tsk->audit_context;
+ 	enum audit_state     state;
+ 
+@@ -817,12 +818,11 @@ #endif
+  * message), then write out the syscall information.  In call cases,
+  * free the names stored from getname().
+  */
+-void audit_syscall_exit(struct task_struct *tsk, int valid, long return_code)
++void audit_syscall_exit(int valid, long return_code)
+ {
++	struct task_struct *tsk = current;
+ 	struct audit_context *context;
+ 
+-	/* tsk == current */
+-
+ 	get_task_struct(tsk);
+ 	task_lock(tsk);
+ 	context = audit_get_context(tsk, valid, return_code);
+-- 
+1.3.0.g0080f
 
-+config TCP_CONG_LP
-+	tristate "TCP Low Priority"
-+	depends on EXPERIMENTAL
-+	default n
-+	---help---
-+	TCP Low Priority (TCP-LP), a distributed algorithm whose goal is
-+	to utiliza only the excess network bandwidth as compared to the
-+	``fair share`` of bandwidth as targeted by TCP.
-+	See http://www-ece.rice.edu/networks/TCP-LP/
-+
-+config TCP_CONG_LP_DEBUG
-+	bool "TCP-LP Debug"
-+	depends on TCP_CONG_LP
-+	default n
-+	---help---
-+	Turn on/off the debug message for TCP-LP. The debug message will
-+	print to default kernel debug log file, e.g. /var/log/debug as
-+	default. You can use dmesg to obtain the log too.
-+	
-+	If unsure, say N.
-+
- endmenu
-
- config TCP_CONG_BIC
-diff -urN linux-2.6.16.1/net/ipv4/Makefile linux/net/ipv4/Makefile
---- linux-2.6.16.1/net/ipv4/Makefile	2006-03-28 14:49:02.000000000 +0800
-+++ linux/net/ipv4/Makefile	2006-04-19 02:40:27.000000000 +0800
-@@ -41,6 +41,7 @@
- obj-$(CONFIG_TCP_CONG_HTCP) += tcp_htcp.o
- obj-$(CONFIG_TCP_CONG_VEGAS) += tcp_vegas.o
- obj-$(CONFIG_TCP_CONG_SCALABLE) += tcp_scalable.o
-+obj-$(CONFIG_TCP_CONG_LP) += tcp_lp.o
-
- obj-$(CONFIG_XFRM) += xfrm4_policy.o xfrm4_state.o xfrm4_input.o \
- 		      xfrm4_output.o
-diff -urN linux-2.6.16.1/net/ipv4/tcp_lp.c linux/net/ipv4/tcp_lp.c
---- linux-2.6.16.1/net/ipv4/tcp_lp.c	1970-01-01 08:00:00.000000000 +0800
-+++ linux/net/ipv4/tcp_lp.c	2006-04-25 15:54:54.000000000 +0800
-@@ -0,0 +1,343 @@
-+/*
-+ * TCP Low Priority (TCP-LP)
-+ *
-+ * TCP Low Priority is a distributed algorithm whose goal is to utilize only
-+ *   the excess network bandwidth as compared to the ``fair share`` of
-+ *   bandwidth as targeted by TCP. Available from:
-+ *     http://www.ece.rice.edu/~akuzma/Doc/akuzma/TCP-LP.pdf
-+ *
-+ * Original Author:
-+ *   Aleksandar Kuzmanovic <akuzma@northwestern.edu>
-+ *
-+ * See http://www-ece.rice.edu/networks/TCP-LP/ for their implementation.
-+ * As of 2.6.13, Linux supports pluggable congestion control algorithms.
-+ * Due to the limitation of the API, we take the following changes from
-+ * the original TCP-LP implementation:
-+ *   o We use newReno in most core CA handling. Only add some checking
-+ *     within cong_avoid.
-+ *   o Error correcting in remote HZ, therefore remote HZ will be keeped
-+ *     on checking and updating.
-+ *   o Handling calculation of One-Way-Delay (OWD) within rtt_sample, sicne
-+ *     OWD have a similar meaning as RTT. Also correct the buggy formular.
-+ *   o Handle reaction for Early Congestion Indication (ECI) within
-+ *     pkts_acked, as mentioned within pseudo code.
-+ *   o OWD is handled in relative format, where local time stamp will in
-+ *     tcp_time_stamp format.
-+ *
-+ * Port from 2.4.19 to 2.6.16 as module by:
-+ *   Wong Hoi Sing Edison <hswong3i@gmail.com>
-+ *   Hung Hing Lun <hlhung3i@gmail.com>
-+ *
-+ * Version: $Id: tcp_lp.c,v 1.20 2006-04-22 06:34:20 hswong3i Exp $
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <net/tcp.h>
-+
-+#ifndef CONFIG_TCP_CONG_LP_DEBUG
-+#define CONFIG_TCP_CONG_LP_DEBUG 0
-+#endif
-+
-+/* resolution of owd */
-+#define LP_RESOL	1000
-+
-+/**
-+ * enum tcp_lp_state
-+ * @LP_VALID_RHZ: is remote HZ valid?
-+ * @LP_VALID_OWD: is OWD valid?
-+ * @LP_WITHIN_THR: are we within threshold?
-+ * @LP_WITHIN_INF: are we within inference?
-+ *
-+ * TCP-LP's state flags.
-+ * We create this set of state flag mainly for debugging.
-+ */
-+enum tcp_lp_state {
-+	LP_VALID_RHZ = (1 << 0),
-+	LP_VALID_OWD = (1 << 1),
-+	LP_WITHIN_THR = (1 << 3),
-+	LP_WITHIN_INF = (1 << 4),
-+};
-+
-+/**
-+ * struct lp
-+ * @flag: TCP-LP state flag
-+ * @sowd: smoothed OWD << 3
-+ * @owd_min: min OWD
-+ * @owd_max: max OWD
-+ * @owd_max_rsv: resrved max owd
-+ * @RHZ: estimated remote HZ
-+ * @remote_ref_time: remote reference time
-+ * @local_ref_time: local reference time
-+ * @last_drop: time for last active drop
-+ * @inference: current inference
-+ *
-+ * TCP-LP's private struct.
-+ * We get the idea from original TCP-LP implementation where only left those we
-+ * found are really useful.
-+ */
-+struct lp {
-+	u32 flag;
-+	u32 sowd;
-+	u32 owd_min;
-+	u32 owd_max;
-+	u32 owd_max_rsv;
-+	u32 RHZ;
-+	u32 remote_ref_time;
-+	u32 local_ref_time;
-+	u32 last_drop;
-+	u32 inference;
-+};
-+
-+/**
-+ * tcp_lp_init
-+ *
-+ * Init all required variables.
-+ * Clone the handling from Vegas module implementation.
-+ */
-+static void tcp_lp_init(struct sock *sk)
-+{
-+	struct lp *lp = inet_csk_ca(sk);
-+
-+	lp->flag = 0;
-+	lp->sowd = 0;
-+	lp->owd_min = 0xffffffff;
-+	lp->owd_max = 0;
-+	lp->owd_max_rsv = 0;
-+	lp->RHZ = 0;
-+	lp->remote_ref_time = 0;
-+	lp->local_ref_time = 0;
-+	lp->last_drop = 0;
-+	lp->inference = 0;
-+}
-+
-+/**
-+ * tcp_lp_cong_avoid
-+ *
-+ * Implementation of cong_avoid.
-+ * Will only call newReno CA when away from inference.
-+ * From TCP-LP's paper, this will be handled in additive increasement.
-+ */
-+static void tcp_lp_cong_avoid(struct sock *sk, u32 ack, u32 rtt, u32 in_flight,
-+			      int flag)
-+{
-+	struct lp *lp = inet_csk_ca(sk);
-+
-+	if (!(lp->flag & LP_WITHIN_INF))
-+		tcp_reno_cong_avoid(sk, ack, rtt, in_flight, flag);
-+}
-+
-+/**
-+ * tcp_lp_remote_hz_estimator
-+ *
-+ * Estimate remote HZ.
-+ * We keep on updating the estimated value, where original TCP-LP
-+ * implementation only guest it for once and use forever.
-+ */
-+static inline u32 tcp_lp_remote_hz_estimator(struct sock *sk)
-+{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+	struct lp *lp = inet_csk_ca(sk);
-+	s64 rhz = lp->RHZ << 6;	/* remote HZ << 6 */
-+	s64 m = 0;
-+
-+	/* not yet record reference time
-+	 * go away!! record it before come back!! */
-+	if (lp->remote_ref_time == 0 || lp->local_ref_time == 0)
-+		goto out;
-+
-+	/* we can't calc remote HZ with no different!! */
-+	if (tp->rx_opt.rcv_tsval == lp->remote_ref_time
-+	    || tp->rx_opt.rcv_tsecr == lp->local_ref_time)
-+		goto out;
-+
-+	m = HZ * (tp->rx_opt.rcv_tsval -
-+		  lp->remote_ref_time) / (tp->rx_opt.rcv_tsecr -
-+					  lp->local_ref_time);
-+	if (m < 0)
-+		m = -m;
-+
-+	if (rhz != 0) {
-+		m -= (rhz >> 6);	/* m is now error in remote HZ est */
-+		rhz += m;	/* 63/64 old + 1/64 new */
-+	} else
-+		rhz = m << 6;
-+
-+	/* record time for successful remote HZ calc */
-+	lp->flag |= LP_VALID_RHZ;
-+
-+      out:
-+	/* record reference time stamp */
-+	lp->remote_ref_time = tp->rx_opt.rcv_tsval;
-+	lp->local_ref_time = tp->rx_opt.rcv_tsecr;
-+
-+	return rhz >> 6;
-+}
-+
-+/**
-+ * tcp_lp_owd_calculator
-+ *
-+ * Calculate one way delay (in relative format).
-+ * Original implement OWD as minus of remote time difference to local time
-+ * difference directly. As this time difference just simply equal to RTT, when
-+ * the network status is stable, remote RTT will equal to local RTT, and result
-+ * OWD into zero.
-+ * It seems to be a bug and so we fixed it.
-+ */
-+static inline u32 tcp_lp_owd_calculator(struct sock *sk)
-+{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+	struct lp *lp = inet_csk_ca(sk);
-+	s64 owd = 0;
-+
-+	lp->RHZ = tcp_lp_remote_hz_estimator(sk);
-+
-+	if (lp->flag & LP_VALID_RHZ) {
-+		owd =
-+		    tp->rx_opt.rcv_tsval * (LP_RESOL / lp->RHZ) -
-+		    tp->rx_opt.rcv_tsecr * (LP_RESOL / HZ);
-+		if (owd < 0)
-+			owd = -owd;
-+	}
-+
-+	if (owd > 0)
-+		lp->flag |= LP_VALID_OWD;
-+	else
-+		lp->flag &= ~LP_VALID_OWD;
-+
-+	return owd;
-+}
-+
-+/**
-+ * tcp_lp_rtt_sample
-+ *
-+ * Implementation or rtt_sample.
-+ * Will take the following action,
-+ *   1. calc OWD,
-+ *   2. record the min/max OWD,
-+ *   3. calc smoothed OWD (SOWD).
-+ * Most ideas come from the original TCP-LP implementation.
-+ */
-+static void tcp_lp_rtt_sample(struct sock *sk, u32 usrtt)
-+{
-+	struct lp *lp = inet_csk_ca(sk);
-+	s64 mowd = tcp_lp_owd_calculator(sk);
-+
-+	/* sorry that we don't have valid data */
-+	if (!(lp->flag & LP_VALID_RHZ) || !(lp->flag & LP_VALID_OWD))
-+		return;
-+
-+	/* record the next min owd */
-+	if (mowd < lp->owd_min)
-+		lp->owd_min = mowd;
-+
-+	/* always forget the max of the max
-+	 * we just set owd_max as one below it */
-+	if (mowd > lp->owd_max) {
-+		if (mowd > lp->owd_max_rsv) {
-+			if (lp->owd_max_rsv == 0)
-+				lp->owd_max = mowd;
-+			else
-+				lp->owd_max = lp->owd_max_rsv;
-+			lp->owd_max_rsv = mowd;
-+		} else
-+			lp->owd_max = mowd;
-+	}
-+
-+	/* calc for smoothed owd */
-+	if (lp->sowd != 0) {
-+		mowd -= (lp->sowd >> 3);	/* m is now error in owd est */
-+		lp->sowd += mowd;	/* owd = 7/8 owd + 1/8 new */
-+	} else
-+		lp->sowd = mowd << 3;	/* take the measured time be owd */
-+}
-+
-+/**
-+ * tcp_lp_pkts_acked
-+ *
-+ * Implementation of pkts_acked.
-+ * Deal with active drop under Early Congestion Indication.
-+ * Only drop to half and 1 will be handle, because we hope to use back
-+ * newReno in increase case.
-+ * We work it out by following the idea from TCP-LP's paper directly
-+ */
-+static void tcp_lp_pkts_acked(struct sock *sk, u32 num_acked)
-+{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+	struct lp *lp = inet_csk_ca(sk);
-+
-+	/* calc inference */
-+	if (tcp_time_stamp > tp->rx_opt.rcv_tsecr)
-+		lp->inference = 3 * (tcp_time_stamp - tp->rx_opt.rcv_tsecr);
-+
-+	/* test if within inference */
-+	if (lp->last_drop && (tcp_time_stamp - lp->last_drop < lp->inference))
-+		lp->flag |= LP_WITHIN_INF;
-+	else
-+		lp->flag &= ~LP_WITHIN_INF;
-+
-+	/* test if within threshold */
-+	if (lp->sowd >> 3 <
-+	    lp->owd_min + 15 * (lp->owd_max - lp->owd_min) / 100)
-+		lp->flag |= LP_WITHIN_THR;
-+	else
-+		lp->flag &= ~LP_WITHIN_THR;
-+
-+#if CONFIG_TCP_CONG_LP_DEBUG == 1
-+	printk(KERN_DEBUG "TCP-LP: %05o|%5u|%5u|%15u|%15u|%15u\n", lp->flag,
-+	       tp->snd_cwnd, lp->RHZ, lp->owd_min, lp->owd_max, lp->sowd >> 3);
-+#endif
-+
-+	if (lp->flag & LP_WITHIN_THR)
-+		return;
-+
-+	/* FIXME: try to reset owd_min and owd_max here
-+	 * so decrease the chance the min/max is no longer suitable
-+	 * and will usually within threshold when whithin inference */
-+	lp->owd_min = (lp->sowd >> 3);
-+	lp->owd_max = (lp->sowd >> 2);
-+	lp->owd_max_rsv = (lp->sowd >> 2);
-+
-+	/* happened within inference
-+	 * drop snd_cwnd into 1 */
-+	if (lp->flag & LP_WITHIN_INF)
-+		tp->snd_cwnd = 1U;
-+
-+	/* happened after inference
-+	 * cut snd_cwnd into half */
-+	else
-+		tp->snd_cwnd = max(tp->snd_cwnd >> 1U, 1U);
-+
-+	/* record this drop time */
-+	lp->last_drop = tcp_time_stamp;
-+}
-+
-+static struct tcp_congestion_ops tcp_lp = {
-+	.init = tcp_lp_init,
-+	.ssthresh = tcp_reno_ssthresh,
-+	.cong_avoid = tcp_lp_cong_avoid,
-+	.min_cwnd = tcp_reno_min_cwnd,
-+	.rtt_sample = tcp_lp_rtt_sample,
-+	.pkts_acked = tcp_lp_pkts_acked,
-+
-+	.owner = THIS_MODULE,
-+	.name = "lp"
-+};
-+
-+static int __init lp_register(void)
-+{
-+	BUG_ON(sizeof(struct lp) > ICSK_CA_PRIV_SIZE);
-+	return tcp_register_congestion_control(&tcp_lp);
-+}
-+
-+static void __exit lp_unregister(void)
-+{
-+	tcp_unregister_congestion_control(&tcp_lp);
-+}
-+
-+module_init(lp_register);
-+module_exit(lp_unregister);
-+
-+MODULE_AUTHOR("Wong Hoi Sing Edison, Hung Hing Lun");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("TCP Low Priority");

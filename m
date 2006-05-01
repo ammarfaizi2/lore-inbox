@@ -1,87 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWEAQt0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWEAQ4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbWEAQt0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 12:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWEAQtZ
+	id S932151AbWEAQ4V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 12:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWEAQ4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 12:49:25 -0400
-Received: from mx2.suse.de ([195.135.220.15]:45543 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932150AbWEAQtY (ORCPT
+	Mon, 1 May 2006 12:56:21 -0400
+Received: from mx1.suse.de ([195.135.220.2]:54253 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932151AbWEAQ4V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 12:49:24 -0400
-Date: Mon, 1 May 2006 09:47:40 -0700
+	Mon, 1 May 2006 12:56:21 -0400
+Date: Mon, 1 May 2006 09:54:43 -0700
 From: Greg KH <greg@kroah.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, James Morris <jmorris@namei.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
-       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 4a/4] MultiAdmin LSM (LKCS'ed)
-Message-ID: <20060501164740.GA8995@kroah.com>
-References: <Pine.LNX.4.64.0604171454070.17563@d.namei> <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr> <1145462454.3085.62.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr> <20060419201154.GB20545@kroah.com> <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr> <20060421150529.GA15811@kroah.com> <Pine.LNX.4.61.0605011543180.31804@yvahk01.tjqt.qr> <Pine.LNX.4.61.0605011801400.32172@yvahk01.tjqt.qr>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, tiwai@suse.de,
+       henne@nachtwindheim.de
+Subject: Re: [ALSA] add __devinitdata to all pci_device_id
+Message-ID: <20060501165443.GA9441@kroah.com>
+References: <200605011511.k41FBUcu025025@hera.kernel.org> <1146502164.20760.53.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0605011801400.32172@yvahk01.tjqt.qr>
+In-Reply-To: <1146502164.20760.53.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01, 2006 at 06:03:09PM +0200, Jan Engelhardt wrote:
+On Mon, May 01, 2006 at 06:49:24PM +0200, Arjan van de Ven wrote:
+> On Mon, 2006-05-01 at 15:11 +0000, Linux Kernel Mailing List wrote:
+> > commit 396c9b928d5c24775846a161a8191dcc1ea4971f
+> > tree 447f4b28c2dd8e0026b96025fb94dbc654d6cade
+> > parent 71b2ccc3a2fd6c27e3cd9b4239670005978e94ce
+> > author Henrik Kretzschmar <henne@nachtwindheim.de> Mon, 24 Apr 2006 15:59:04 +0200
+> > committer Jaroslav Kysela <perex@suse.cz> Thu, 27 Apr 2006 21:10:34 +0200
+> > 
+> > [ALSA] add __devinitdata to all pci_device_id
 > 
 > 
-> Does Lindented suffice?
+> are you really really sure you want to do this?
+> These structures are exported via sysfs for example, I would think this
+> is quite the wrong thing to make go away silently...
 
-It's a good start, but you still need to fix things like:
+I asked Henrik to not do this, but oh well...
 
-> +#include <asm/siginfo.h>
-> +#include <linux/binfmts.h>
-> +#include <linux/capability.h>
-> +#include <linux/config.h>
-> +#include <linux/dcache.h>
-> +#include <linux/file.h>
-> +#include <linux/fs.h>
-> +#include <linux/init.h>
-> +#include <linux/ipc.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/namei.h>
-> +#include <linux/sched.h>
-> +#include <linux/securebits.h>
-> +#include <linux/security.h>
-> +#include <linux/sem.h>
-> +#include <linux/types.h>
-
-asm #include goes last.
-
-> +static inline void chg2_superadm(kernel_cap_t *);
-> +static inline void chg2_subadm(kernel_cap_t *);
-> +static inline void chg2_netadm(kernel_cap_t *);
-> +static inline int is_any_superadm(uid_t, gid_t);
-> +static inline int is_uid_superadm(uid_t);
-> +static inline int is_gid_superadm(gid_t);
-> +static inline int is_any_subadm(uid_t, gid_t);
-> +static inline int is_uid_subadm(uid_t);
-> +static inline int is_gid_subadm(gid_t);
-> +static inline int is_uid_netadm(uid_t);
-> +static inline int is_uid_user(uid_t);
-> +static inline int is_task1_user(const task_t *);
-> +static inline int is_task_user(const task_t *);
-> +static inline int range_intersect(uid_t, uid_t, uid_t, uid_t);
-> +static inline int range_intersect_wrt(uid_t, uid_t, uid_t, uid_t);
-
-inline functions don't need definitions like this.
-
-> +static gid_t Supergid = -1, Subgid = -1;
-> +static uid_t Superuid_start = 0, Superuid_end = 0,
-> +    Subuid_start = -1, Subuid_end = -1,
-> +    Netuid = -1, Wrtuid_start = -1, Wrtuid_end = -1;
-> +static int Secondary = 0;
-
-Variables do not have capital letters.
-
-thanks,
+No, if they are marked __devinit, and CONFIG_HOTPLUG is enabled, then
+the sysfs stuff is enabled.  And since CONFIG_HOTPLUG is pretty much
+always enabled these days, the savings of this kind of patch is
+non-existant...
 
 greg k-h

@@ -1,297 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWEAXPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWEAXVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWEAXPu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 19:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWEAXPu
+	id S932322AbWEAXVn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 19:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWEAXVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 19:15:50 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:22926 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S932314AbWEAXPt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 19:15:49 -0400
-Date: Tue, 2 May 2006 01:12:06 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net
-Subject: [PATCH 3/3] ipg: plug leaks in the error path of ipg_nic_open
-Message-ID: <20060501231206.GD7419@electric-eye.fr.zoreil.com>
-References: <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com> <20060428113755.GA7419@fargo> <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI> <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo> <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1146506939.23931.2.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+	Mon, 1 May 2006 19:21:43 -0400
+Received: from mga01.intel.com ([192.55.52.88]:30647 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932314AbWEAXVl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 19:21:41 -0400
+X-IronPort-AV: i="4.04,170,1144047600"; 
+   d="scan'208"; a="30987290:sNHT54685435"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Date: Mon, 1 May 2006 19:21:26 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB652DDDD@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Thread-Index: AcZsrFkWYuWmjSrjTZ2dfTZKRybUegAqtmzA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Cc: "Andi Kleen" <ak@suse.de>, <sergio@sergiomb.no-ip.org>,
+       "Kimball Murray" <kimball.murray@gmail.com>,
+       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
+       <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 01 May 2006 23:21:28.0799 (UTC) FILETIME=[F94FB6F0:01C66D75]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Added ipg_{rx/tx}_clear() to factor out some code.
+>The original IRQ (on x86) was simply the enumeration of the input
+>pins on the pair of i8259 interrupt controllers.
 
-Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+The IOAPIC was originally supported by MPS before ACPI.
+MPS used IRQ to describe the ISA inputs to IOAPICs too,
+and PIRQ to describe the PCI inputs.
+Linux (wisely, IMHO) simply used IRQ to refer to an interrupt pin,
+no matter where it is.
 
----
+>The ACPI global system interrrupts is the enumeration of the input
+>pins on the ioapics in the system.
+>
+>Therefore the GSI number is the IRQ number, by definition.
 
- drivers/net/ipg.c |  161 +++++++++++++++++++++++++++++++----------------------
- 1 files changed, 93 insertions(+), 68 deletions(-)
+IRQ, as the term is now used in Linux, means "something to do
+with a specific interrupt".  So yes, a GSI is an IRQ,
+so is an interrupt vector, so is an interrupt handler,
+so is an MSI, an interrupt controller pin,
+and any number of various structures and handlers
+where these items have "something to do with a specific interrupt".
 
-96f29e9d57f503f1275757f4bbec76c0f7f421fc
-diff --git a/drivers/net/ipg.c b/drivers/net/ipg.c
-index da0fa22..393b617 100644
---- a/drivers/net/ipg.c
-+++ b/drivers/net/ipg.c
-@@ -16,6 +16,9 @@
-  */
- #include <linux/crc32.h>
- 
-+#define IPG_RX_RING_BYTES	(sizeof(struct RFD) * IPG_RFDLIST_LENGTH)
-+#define IPG_TX_RING_BYTES	(sizeof(struct TFD) * IPG_TFDLIST_LENGTH)
-+
- #define JUMBO_FRAME_4k_ONLY
- enum {
- 	netdev_io_size = 128
-@@ -1485,15 +1488,46 @@ static void ipg_nic_txfree(struct net_de
- 	} while (maxtfdcount != 0);
- }
- 
--static int ipg_nic_open(struct net_device *dev)
-+static void ipg_rx_clear(struct ipg_nic_private *sp)
- {
--	/* The IPG NIC Ethernet interface is opened when activated
--	 * by ifconfig.
--	 */
-+	struct pci_dev *pdev = sp->pdev;
-+	unsigned int i;
- 
--	int error = 0;
--	void __iomem *ioaddr = ipg_ioaddr(dev);
-+	for (i = 0; i < IPG_RFDLIST_LENGTH; i++) {
-+		if (sp->RxBuff[i]) {
-+			struct ipg_dmabuff *desc = sp->RxBuffDMAhandle + i;
-+
-+			IPG_DEV_KFREE_SKB(sp->RxBuff[i]);
-+			sp->RxBuff[i] = NULL;
-+			pci_unmap_single(pdev, desc->dmahandle, desc->len,
-+					 PCI_DMA_FROMDEVICE);
-+		}
-+	}
-+}
-+
-+static void ipg_tx_clear(struct ipg_nic_private *sp)
-+{
-+	struct pci_dev *pdev = sp->pdev;
-+	unsigned int i;
-+
-+	for (i = 0; i < IPG_TFDLIST_LENGTH; i++) {
-+		if (sp->TxBuff[i]) {
-+			struct ipg_dmabuff *desc = sp->TxBuffDMAhandle + i;
-+
-+			IPG_DEV_KFREE_SKB(sp->TxBuff[i]);
-+			sp->TxBuff[i] = NULL;
-+			pci_unmap_single(pdev, desc->dmahandle, desc->len,
-+					 PCI_DMA_TODEVICE);
-+		}
-+	}
-+}
-+
-+static int ipg_nic_open(struct net_device *dev)
-+{
- 	struct ipg_nic_private *sp = netdev_priv(dev);
-+	void __iomem *ioaddr = ipg_ioaddr(dev);
-+	struct pci_dev *pdev = sp->pdev;
-+	int rc;
- 
- 	IPG_DEBUG_MSG("_nic_open\n");
- 
-@@ -1508,59 +1542,53 @@ static int ipg_nic_open(struct net_devic
- 	/* Register the interrupt line to be used by the IPG within
- 	 * the Linux system.
- 	 */
--	if ((error = request_irq(sp->pdev->irq,
--				 &ipg_interrupt_handler,
--				 SA_SHIRQ, dev->name, dev)) < 0) {
-+	rc = request_irq(pdev->irq, &ipg_interrupt_handler, SA_SHIRQ,
-+			 dev->name, dev);
-+	if (rc < 0) {
- 		printk(KERN_INFO "%s: Error when requesting interrupt.\n",
- 		       dev->name);
--		return error;
-+		goto out;
- 	}
- 
--	dev->irq = sp->pdev->irq;
-+	dev->irq = pdev->irq;
- 
--	sp->RFDList = pci_alloc_consistent(sp->pdev,
--					   (sizeof(struct RFD) *
--					    IPG_RFDLIST_LENGTH),
-+	rc = -ENOMEM;
-+
-+	sp->RFDList = pci_alloc_consistent(pdev, IPG_RX_RING_BYTES,
- 					   &sp->RFDListDMAhandle);
-+	if (!sp->RFDList)
-+		goto err_free_irq_0;
- 
--	sp->TFDList = pci_alloc_consistent(sp->pdev,
--					   (sizeof(struct TFD) *
--					    IPG_TFDLIST_LENGTH),
-+	sp->TFDList = pci_alloc_consistent(pdev, IPG_TX_RING_BYTES,
- 					   &sp->TFDListDMAhandle);
-+	if (!sp->TFDList)
-+		goto err_free_rx_1;
- 
--	if ((sp->RFDList == NULL) || (sp->TFDList == NULL)) {
--		printk(KERN_INFO
--		       "%s: No memory available for IP1000 RFD and/or TFD lists.\n",
--		       dev->name);
--		return -ENOMEM;
--	}
--
--	error = init_rfdlist(dev);
--	if (error < 0) {
-+	rc = init_rfdlist(dev);
-+	if (rc < 0) {
- 		printk(KERN_INFO "%s: Error during configuration.\n",
- 		       dev->name);
--		return error;
-+		goto err_free_tx_2;
- 	}
- 
--	error = init_tfdlist(dev);
--	if (error < 0) {
-+	rc = init_tfdlist(dev);
-+	if (rc < 0) {
- 		printk(KERN_INFO "%s: Error during configuration.\n",
- 		       dev->name);
--		return error;
-+		goto err_release_rfdlist_3;
- 	}
- 
--	/* Configure IPG I/O registers. */
--	error = ipg_io_config(dev);
--	if (error < 0) {
-+	rc = ipg_io_config(dev);
-+	if (rc < 0) {
- 		printk(KERN_INFO "%s: Error during configuration.\n",
- 		       dev->name);
--		return error;
-+		goto err_release_tfdlist_4;
- 	}
- 
- 	/* Resolve autonegotiation. */
--	if (ipg_config_autoneg(dev) < 0) {
-+	if (ipg_config_autoneg(dev) < 0)
- 		printk(KERN_INFO "%s: Auto-negotiation error.\n", dev->name);
--	}
-+
- #ifdef JUMBO_FRAME
- 	/* initialize JUMBO Frame control variable */
- 	sp->Jumbo.FoundStart = 0;
-@@ -1575,8 +1603,22 @@ #endif
- 		   IPG_MC_TX_ENABLE), ioaddr + IPG_MACCTRL);
- 
- 	netif_start_queue(dev);
-+out:
-+	return rc;
- 
--	return 0;
-+err_release_tfdlist_4:
-+	ipg_tx_clear(sp);
-+err_release_rfdlist_3:
-+	ipg_rx_clear(sp);
-+err_free_tx_2:
-+	pci_free_consistent(pdev, IPG_TX_RING_BYTES, sp->TFDList,
-+			    sp->TFDListDMAhandle);
-+err_free_rx_1:
-+	pci_free_consistent(pdev, IPG_RX_RING_BYTES, sp->RFDList,
-+			    sp->RFDListDMAhandle);
-+err_free_irq_0:
-+	free_irq(pdev->irq, dev);
-+	goto out;
- }
- 
- static int init_rfdlist(struct net_device *dev)
-@@ -1593,13 +1635,16 @@ static int init_rfdlist(struct net_devic
- 	sp->RxBuffNotReady = 0;
- 
- 	for (i = 0; i < IPG_RFDLIST_LENGTH; i++) {
-+		if (!sp->RxBuff[i])
-+			continue;
-+
- 		/* Free any allocated receive buffers. */
- 		pci_unmap_single(sp->pdev,
- 				 sp->RxBuffDMAhandle[i].dmahandle,
- 				 sp->RxBuffDMAhandle[i].len,
- 				 PCI_DMA_FROMDEVICE);
--		if (sp->RxBuff[i] != NULL)
--			IPG_DEV_KFREE_SKB(sp->RxBuff[i]);
-+
-+		IPG_DEV_KFREE_SKB(sp->RxBuff[i]);
- 		sp->RxBuff[i] = NULL;
- 
- 		/* Clear out the RFS field. */
-@@ -1727,11 +1772,11 @@ static int ipg_get_rxbuff(struct net_dev
- 
- static int ipg_nic_stop(struct net_device *dev)
- {
--	/* Release resources requested by driver open function. */
-+	struct ipg_nic_private *sp = netdev_priv(dev);
-+	struct pci_dev *pdev = sp->pdev;
- 
- 	int i;
- 	int error;
--	struct ipg_nic_private *sp = netdev_priv(dev);
- 
- 	IPG_DEBUG_MSG("_nic_stop\n");
- 
-@@ -1752,40 +1797,20 @@ static int ipg_nic_stop(struct net_devic
- 
- 	error = ipg_reset(dev, i);
- 	if (error < 0) {
-+		// FIXME FIXME FIXME: giant leak alert
- 		return error;
- 	}
- 
--	/* Free all receive buffers. */
--	for (i = 0; i < IPG_RFDLIST_LENGTH; i++) {
--		pci_unmap_single(sp->pdev,
--				 sp->RxBuffDMAhandle[i].dmahandle,
--				 sp->RxBuffDMAhandle[i].len,
--				 PCI_DMA_FROMDEVICE);
--		if (sp->RxBuff[i] != NULL)
--			IPG_DEV_KFREE_SKB(sp->RxBuff[i]);
--		sp->RxBuff[i] = NULL;
--	}
-+	ipg_rx_clear(sp);
- 
--	/* Free all transmit buffers. */
--	for (i = 0; i < IPG_TFDLIST_LENGTH; i++) {
--		if (sp->TxBuff[i] != NULL)
--			IPG_DEV_KFREE_SKB(sp->TxBuff[i]);
--		sp->TxBuff[i] = NULL;
--	}
-+	ipg_tx_clear(sp);
- 
- 	netif_stop_queue(dev);
- 
--	/* Free memory associated with the RFDList. */
--	pci_free_consistent(sp->pdev,
--			    (sizeof(struct RFD) *
--			     IPG_RFDLIST_LENGTH),
--			    sp->RFDList, sp->RFDListDMAhandle);
--
--	/* Free memory associated with the TFDList. */
--	pci_free_consistent(sp->pdev,
--			    (sizeof(struct TFD) *
--			     IPG_TFDLIST_LENGTH),
--			    sp->TFDList, sp->TFDListDMAhandle);
-+	pci_free_consistent(pdev, IPG_RX_RING_BYTES, sp->RFDList,
-+			    sp->RFDListDMAhandle);
-+	pci_free_consistent(pdev, IPG_TX_RING_BYTES, sp->TFDList,
-+			    sp->TFDListDMAhandle);
- 
- 	/* Release interrupt line. */
- 	free_irq(dev->irq, dev);
--- 
-1.3.1
+If you have a more precise definition of IRQ in Linux,
+by all means lets hear it; and lets compare the code to the definition
+and see if we can make them match.
 
+>However GSI is not a complete enumeration because it does not list
+>MSI interrupt sources, and in general can not list MSI interrupt
+>sources.
+
+I agree, the term GSI doesn't comprehend MSIs, nor should it.
+
+The ACPI spec allows the platform to tell the OS that it should
+not enable MSI on a particular box.
+
+The ACPI spec allows the OS to tell the platform that it supports MSI.
+
+But, the specification and operation of MSI is completely outside of
+ACPI,
+as it should be with a standard native hardware interface.
+
+> Further the term GSI is ACPI specific so it really
+> doesn't make sense outside of that context while irq does.
+
+I agree that GSI is a specific term with a single definition,
+and it should have a single use, based on that definition,
+in a context where that definition applies.
+
+Re: irq making sense
+Depends on the defintion, I suppose.  I'm still looking for one
+that matches how Linux uses the term.
+
+>So the question is how do we solve the big system problem.
+
+Big systems are working today.  The question is how to keep
+them working without overly complicating small systems.
+
+>Problem 1.
+>  We have more GSIs than interrupt vectors on a cpu, so a simple
+>  1-1 mapping will not work.
+>  However as Natalie's patch showed many of the GSIs are not even
+>  connected so if we only allocate vectors to GSIs that are 
+>  use we should not have a problem.
+
+Which patch does this refer to?
+We should never have had a problem with un-connected interrupt lines
+consuming vectors, as the vectors are handed out at run-time
+only when interrupts are requested by drivers.
+
+>Problem 2.
+>  Some systems have more than 224 GSIs that are actually 
+>  connected to devices.
+>  There are three possible ways to handle this case. 
+>  - Fail after we run out of vectors.
+>  - Share a vector.
+>
+>  - Allow vectors of different cpus to handle different irqs.
+>    The is the most elegant and scalable, and Natalie's suggestion.
+
+So here we allow the same vector to be used by different IOAPICS,
+or IOAPIC pins, but have them it directed to different CPUs
+who have per-cpu tables to vector to different devices?
+
+A practical workaround?  Certainly.
+An elegant solution?  No, that would require better hardware;-)
+
+The problem with this workaround is going to be choose a policy
+of where to direct what, and how to move things if interrupts
+become un-balanced.
+
+Further, the implementation should cost nothing on systems
+that do not need it.
+
+>So what would be a path to get there from here?
+>- Fix the irq set_affinity code so that it makes the changes to
+>  irqs when the interrupt is actually disabled.
+>  Calling desc->handler->disable, desc->handler->enable
+>  does not work immediately so the current code is racy.
+>  Which shows up very badly if you attempt to change the irq vector,
+>  and may cause rare problems today
+>
+>- Modify the MSI code to allocate irqs and not vectors.
+>  So we don't have two paths through the code, for no good reason.
+
+Modify the MSI code to allocate "something to do
+with a specific interrupt".  Hmmm, but it does this already:-)
+
+Seriously, aren't the interrupt vectors, or perhaps the
+vector/cpu pair, the fundamental resource being allocated here?
+
+>- Modify do_IRQ to get passed an interrupt vector# from the
+>  interrupt vector instead of an irq number, and then lookup
+>  the irq number in vector_irq.  This means we don't need
+>  a code stub per irq, and allows us to handle more irqs
+>  by simply increasing NR_IRQS.
+
+isn't the vector number already on the stack from
+ENTRY(interrupt)
+	pushl $vector-256
+
+what about per/irq kstats?
+would you keep stats on a per-vector basis
+and translate back to irqs for /proc/interrupts?
+what about when the same vector is independently
+used by multiple CPUS?
+
+>- Remove the current irq compression.
+
+maybe this can be moved up in the to-do list?
+
+>- Move irq vector allocation/deallocation into request_irq, 
+>and free_irq.
+>
+>- Make vector_irq per_cpu.
+>
+>- Modify assign_irq to allocate different vectors on different cpus,
+>  to fail if we cannot find a free irq vector somewhere in the
+>  irqs cpu set, and call assign_irq from set_affinity so when we change
+>  cpus we can allocate a different irq.
+>
+>I have proof of concept level patches for everything thing 
+>except making MSI actually allocate irqs, but that should be straight
+forward.
+
+except that irqs should be allocating vectors,
+the fundamental currency here, and MSI should
+be allocating the same, no?
+
+>Does anyone know if we record the maximum GSI number? That looks like
+>my sticking point for being able to write a simple irq allocator.
+
+mpparse.c: mp_ioapic_routing[last].gsi_end
+
+cheers,
+-Len

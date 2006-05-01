@@ -1,205 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWEAFbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWEAFb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbWEAFbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 01:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWEAFbI
+	id S1751247AbWEAFb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 01:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWEAFbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 01:31:08 -0400
-Received: from mx2.suse.de ([195.135.220.15]:39344 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750953AbWEAFa7 (ORCPT
+	Mon, 1 May 2006 01:31:17 -0400
+Received: from ns.suse.de ([195.135.220.2]:21674 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750897AbWEAFbP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 01:30:59 -0400
+	Mon, 1 May 2006 01:31:15 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 1 May 2006 15:30:54 +1000
-Message-Id: <1060501053054.23009@suse.de>
+Date: Mon, 1 May 2006 15:31:00 +1000
+Message-Id: <1060501053100.23021@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 009 of 11] md: Support stripe/offset mode in raid10
+Cc: Adrian Bunk <bunk@stusta.de>
+Subject: [PATCH 010 of 11] md: make md_print_devices() static
 References: <20060501152229.18367.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The "industry standard" DDF format allows for a stripe/offset layout
-where data is duplicated on different stripes. e.g.
+From: Adrian Bunk <bunk@stusta.de>
 
-  A  B  C  D
-  D  A  B  C
-  E  F  G  H
-  H  E  F  G
+This patch makes the needlessly global md_print_devices() static.
 
-(columns are drives, rows are stripes, LETTERS are chunks of data).
-
-This is similar to raid10's 'far' mode, but not quite the same.  So
-enhance 'far' mode with a 'far/offset' option which follows the layout
-of DDFs stripe/offset.
-
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./drivers/md/raid10.c         |   64 ++++++++++++++++++++++++++++--------------
- ./include/linux/raid/raid10.h |    7 +++-
- 2 files changed, 49 insertions(+), 22 deletions(-)
+ ./drivers/md/md.c         |    7 +++++--
+ ./include/linux/raid/md.h |    4 ----
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-diff ./drivers/md/raid10.c~current~ ./drivers/md/raid10.c
---- ./drivers/md/raid10.c~current~	2006-05-01 15:12:34.000000000 +1000
-+++ ./drivers/md/raid10.c	2006-05-01 15:13:22.000000000 +1000
-@@ -29,6 +29,7 @@
-  *    raid_disks
-  *    near_copies (stored in low byte of layout)
-  *    far_copies (stored in second byte of layout)
-+ *    far_offset (stored in bit 16 of layout )
-  *
-  * The data to be stored is divided into chunks using chunksize.
-  * Each device is divided into far_copies sections.
-@@ -36,10 +37,14 @@
-  * near_copies copies of each chunk is stored (each on a different drive).
-  * The starting device for each section is offset near_copies from the starting
-  * device of the previous section.
-- * Thus there are (near_copies*far_copies) of each chunk, and each is on a different
-+ * Thus they are (near_copies*far_copies) of each chunk, and each is on a different
-  * drive.
-  * near_copies and far_copies must be at least one, and their product is at most
-  * raid_disks.
-+ *
-+ * If far_offset is true, then the far_copies are handled a bit differently.
-+ * The copies are still in different stripes, but instead of be very far apart
-+ * on disk, there are adjacent stripes.
-  */
+diff ./drivers/md/md.c~current~ ./drivers/md/md.c
+--- ./drivers/md/md.c~current~	2006-05-01 15:13:14.000000000 +1000
++++ ./drivers/md/md.c	2006-05-01 15:13:29.000000000 +1000
+@@ -72,6 +72,10 @@ static void autostart_arrays (int part);
+ static LIST_HEAD(pers_list);
+ static DEFINE_SPINLOCK(pers_lock);
  
++static void md_print_devices(void);
++
++#define MD_BUG(x...) { printk("md: bug in file %s, line %d\n", __FILE__, __LINE__); md_print_devices(); }
++
  /*
-@@ -357,8 +362,7 @@ static int raid10_end_write_request(stru
-  * With this layout, and block is never stored twice on the one device.
-  *
-  * raid10_find_phys finds the sector offset of a given virtual sector
-- * on each device that it is on. If a block isn't on a device,
-- * that entry in the array is set to MaxSector.
-+ * on each device that it is on.
-  *
-  * raid10_find_virt does the reverse mapping, from a device and a
-  * sector offset to a virtual address
-@@ -381,6 +385,8 @@ static void raid10_find_phys(conf_t *con
- 	chunk *= conf->near_copies;
- 	stripe = chunk;
- 	dev = sector_div(stripe, conf->raid_disks);
-+	if (conf->far_offset)
-+		stripe *= conf->far_copies;
+  * Current RAID-1,4,5 parallel reconstruction 'guaranteed speed limit'
+  * is 1000 KB/sec, so the extra system load does not show up that much.
+@@ -1512,7 +1516,7 @@ static void print_rdev(mdk_rdev_t *rdev)
+ 		printk(KERN_INFO "md: no rdev superblock!\n");
+ }
  
- 	sector += stripe << conf->chunk_shift;
- 
-@@ -414,16 +420,24 @@ static sector_t raid10_find_virt(conf_t 
+-void md_print_devices(void)
++static void md_print_devices(void)
  {
- 	sector_t offset, chunk, vchunk;
- 
--	while (sector > conf->stride) {
--		sector -= conf->stride;
--		if (dev < conf->near_copies)
--			dev += conf->raid_disks - conf->near_copies;
--		else
--			dev -= conf->near_copies;
--	}
--
- 	offset = sector & conf->chunk_mask;
--	chunk = sector >> conf->chunk_shift;
-+	if (conf->far_offset) {
-+		int fc;
-+		chunk = sector >> conf->chunk_shift;
-+		fc = sector_div(chunk, conf->far_copies);
-+		dev -= fc * conf->near_copies;
-+		if (dev < 0)
-+			dev += conf->raid_disks;
-+	} else {
-+		while (sector > conf->stride) {
-+			sector -= conf->stride;
-+			if (dev < conf->near_copies)
-+				dev += conf->raid_disks - conf->near_copies;
-+			else
-+				dev -= conf->near_copies;
-+		}
-+		chunk = sector >> conf->chunk_shift;
-+	}
- 	vchunk = chunk * conf->raid_disks + dev;
- 	sector_div(vchunk, conf->near_copies);
- 	return (vchunk << conf->chunk_shift) + offset;
-@@ -900,9 +914,12 @@ static void status(struct seq_file *seq,
- 		seq_printf(seq, " %dK chunks", mddev->chunk_size/1024);
- 	if (conf->near_copies > 1)
- 		seq_printf(seq, " %d near-copies", conf->near_copies);
--	if (conf->far_copies > 1)
--		seq_printf(seq, " %d far-copies", conf->far_copies);
--
-+	if (conf->far_copies > 1) {
-+		if (conf->far_offset)
-+			seq_printf(seq, " %d offset-copies", conf->far_copies);
-+		else
-+			seq_printf(seq, " %d far-copies", conf->far_copies);
-+	}
- 	seq_printf(seq, " [%d/%d] [", conf->raid_disks,
- 						conf->working_disks);
- 	for (i = 0; i < conf->raid_disks; i++)
-@@ -1915,7 +1932,7 @@ static int run(mddev_t *mddev)
- 	mirror_info_t *disk;
+ 	struct list_head *tmp, *tmp2;
  	mdk_rdev_t *rdev;
- 	struct list_head *tmp;
--	int nc, fc;
-+	int nc, fc, fo;
- 	sector_t stride, size;
- 
- 	if (mddev->chunk_size == 0) {
-@@ -1925,8 +1942,9 @@ static int run(mddev_t *mddev)
- 
- 	nc = mddev->layout & 255;
- 	fc = (mddev->layout >> 8) & 255;
-+	fo = mddev->layout & (1<<16);
- 	if ((nc*fc) <2 || (nc*fc) > mddev->raid_disks ||
--	    (mddev->layout >> 16)) {
-+	    (mddev->layout >> 17)) {
- 		printk(KERN_ERR "raid10: %s: unsupported raid10 layout: 0x%8x\n",
- 		       mdname(mddev), mddev->layout);
- 		goto out;
-@@ -1958,12 +1976,16 @@ static int run(mddev_t *mddev)
- 	conf->near_copies = nc;
- 	conf->far_copies = fc;
- 	conf->copies = nc*fc;
-+	conf->far_offset = fo;
- 	conf->chunk_mask = (sector_t)(mddev->chunk_size>>9)-1;
- 	conf->chunk_shift = ffz(~mddev->chunk_size) - 9;
--	stride = mddev->size >> (conf->chunk_shift-1);
--	sector_div(stride, fc);
--	conf->stride = stride << conf->chunk_shift;
--
-+	if (fo)
-+		conf->stride = 1 << conf->chunk_shift;
-+	else {
-+		stride = mddev->size >> (conf->chunk_shift-1);
-+		sector_div(stride, fc);
-+		conf->stride = stride << conf->chunk_shift;
-+	}
- 	conf->r10bio_pool = mempool_create(NR_RAID10_BIOS, r10bio_pool_alloc,
- 						r10bio_pool_free, conf);
- 	if (!conf->r10bio_pool) {
+@@ -5310,7 +5314,6 @@ EXPORT_SYMBOL(md_write_end);
+ EXPORT_SYMBOL(md_register_thread);
+ EXPORT_SYMBOL(md_unregister_thread);
+ EXPORT_SYMBOL(md_wakeup_thread);
+-EXPORT_SYMBOL(md_print_devices);
+ EXPORT_SYMBOL(md_check_recovery);
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("md");
 
-diff ./include/linux/raid/raid10.h~current~ ./include/linux/raid/raid10.h
---- ./include/linux/raid/raid10.h~current~	2006-05-01 15:09:20.000000000 +1000
-+++ ./include/linux/raid/raid10.h	2006-05-01 15:13:22.000000000 +1000
-@@ -24,11 +24,16 @@ struct r10_private_data_s {
- 	int 			far_copies;   /* number of copies layed out
- 					       * at large strides across drives
- 					       */
-+	int			far_offset;   /* far_copies are offset by 1 stripe
-+					       * instead of many
-+					       */
- 	int			copies;	      /* near_copies * far_copies.
- 					       * must be <= raid_disks
- 					       */
- 	sector_t		stride;	      /* distance between far copies.
--					       * This is size / far_copies
-+					       * This is size / far_copies unless
-+					       * far_offset, in which case it is
-+					       * 1 stripe.
- 					       */
+diff ./include/linux/raid/md.h~current~ ./include/linux/raid/md.h
+--- ./include/linux/raid/md.h~current~	2006-05-01 15:09:20.000000000 +1000
++++ ./include/linux/raid/md.h	2006-05-01 15:13:29.000000000 +1000
+@@ -85,8 +85,6 @@ extern void md_done_sync(mddev_t *mddev,
+ extern void md_error (mddev_t *mddev, mdk_rdev_t *rdev);
+ extern void md_unplug_mddev(mddev_t *mddev);
  
- 	int chunk_shift; /* shift from chunks to sectors */
+-extern void md_print_devices (void);
+-
+ extern void md_super_write(mddev_t *mddev, mdk_rdev_t *rdev,
+ 			   sector_t sector, int size, struct page *page);
+ extern void md_super_wait(mddev_t *mddev);
+@@ -97,7 +95,5 @@ extern void md_new_event(mddev_t *mddev)
+ 
+ extern void md_update_sb(mddev_t * mddev);
+ 
+-#define MD_BUG(x...) { printk("md: bug in file %s, line %d\n", __FILE__, __LINE__); md_print_devices(); }
+-
+ #endif 
+ 

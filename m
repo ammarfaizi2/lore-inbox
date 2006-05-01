@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWEAPRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWEAPVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWEAPRk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 11:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWEAPRk
+	id S932122AbWEAPVk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 11:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWEAPVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 11:17:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23269 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932134AbWEAPRj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 11:17:39 -0400
-Date: Mon, 1 May 2006 08:17:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Neil Brown <neilb@suse.de>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 004 of 11] md: Increase the delay before marking metadata
- clean, and make it configurable.
-In-Reply-To: <20060430231303.6b2bce82.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0605010814410.2557@g5.osdl.org>
-References: <20060501152229.18367.patches@notabene> <1060501053019.22949@suse.de>
- <20060430224404.1060d29a.akpm@osdl.org> <17493.42109.153523.381980@cse.unsw.edu.au>
- <20060430231303.6b2bce82.akpm@osdl.org>
+	Mon, 1 May 2006 11:21:40 -0400
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:45466 "HELO
+	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932122AbWEAPVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 11:21:40 -0400
+Date: Mon, 1 May 2006 08:21:37 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: David Greaves <david@dgreaves.com>
+Cc: Nathan Scott <nathans@sgi.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       linux-xfs@oss.sgi.com, nickpiggin@yahoo.com.au
+Subject: Re: Bad page state in process 'nfsd' with xfs
+Message-ID: <20060501152137.GB24771@taniwha.stupidest.org>
+References: <4452797F.70700@dgreaves.com> <20060501080427.H1771752@wobbly.melbourne.sgi.com> <4455D7E7.1040203@dgreaves.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4455D7E7.1040203@dgreaves.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 01, 2006 at 10:41:59AM +0100, David Greaves wrote:
 
+> It's in use a lot so I'll schedule some downtime, blow out the dust
+> and run memtest (though I've done that before and it has been
+> clean).
 
-On Sun, 30 Apr 2006, Andrew Morton wrote:
-> 
-> Generally I don't think we should be teaching the kernel to accept
-> pretend-floating-point numbers like this, especially when a) "delay in
-> milliseconds" is such a simple concept and b) it's so easy to go from float
-> to milliseconds in userspace.
-> 
-> Do you really expect that humans (really dumb ones ;)) will be echoing
-> numbers into this file?  Or will it mainly be a thing for mdadm to fiddle
-> with?
+memtest doesn't always find bad memory sadly
 
-I generally hate interfaces that have some "random base".
+finding bad memory is hard, and sometimes it's exacerbated by
+complicated factors (heat from drives for example)
 
-So "delay in seconds" is not a random base, because "seconds" is a good SI 
-base unit, and there's not a lot of question about it. But once you start 
-talking milliseconds on microseconds, I'd actually much rather have a 
-"fake floating point number" over having different files have different 
-(magic) base constants. How do you remember which are milliseconds, which 
-are microseconds, and which are just seconds?
+i wish ecc memory was standard
 
-It should be easy to have a helper function or two that takes a "struct 
-timeval" and reads/writes a "float".
-
-		Linus

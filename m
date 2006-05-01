@@ -1,77 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWEAROq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWEARRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWEAROq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 13:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWEAROq
+	id S932164AbWEARRK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 13:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWEARRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 13:14:46 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:58305 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932163AbWEAROq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 13:14:46 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=hNVla/c/XnjLFhRv14+RDxf7fbZwXWSYh7U1mPR72qonjIokw5LjOb17IRdLw6cjU
-	gMGHg6HohLUFSEZBQEKWw==
-Message-ID: <445641EF.70601@google.com>
-Date: Mon, 01 May 2006 10:14:23 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Mon, 1 May 2006 13:17:10 -0400
+Received: from tag.witbe.net ([81.88.96.48]:19100 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S932164AbWEARRJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 13:17:09 -0400
+From: "Paul Rolland" <rol@witbe.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: <rol@as2917.net>
+Subject: X not starting... AGPGART error with 2.6.17-rc3, not with 2.6.16-1.2096_FC5
+Date: Mon, 1 May 2006 19:17:06 +0200
+Organization: Witbe.net
+Message-ID: <00c401c66d43$13b67980$2001a8c0@cortex>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: apw@shadowen.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       ak@suse.de
-Subject: Re: 2.6.17-rc2-mm1
-References: <4450F5AD.9030200@google.com>	<20060428012022.7b73c77b.akpm@osdl.org>	<44561A1E.7000103@google.com> <20060501100731.051f4eff.akpm@osdl.org>
-In-Reply-To: <20060501100731.051f4eff.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+Thread-Index: AcZtQxIrr+7Q5M5YTJyxK+09jngX5g==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
->>double fault: 0000 [1] SMP
->>last sysfs file: /devices/pci0000:00/0000:00:06.0/resource
->>CPU 0
->>Modules linked in:
->>Pid: 20519, comm: mtest01 Not tainted 2.6.17-rc3-mm1-autokern1 #1
->>RIP: 0010:[<ffffffff8047c8b8>] <ffffffff8047c8b8>{__sched_text_start+1856}
->>RSP: 0000:0000000000000000  EFLAGS: 00010082
->>RAX: 0000000000000000 RBX: 0000000000000000 RCX: ffffffff805d9438
->>RDX: ffff8100db12c0d0 RSI: ffffffff805d9438 RDI: ffff8100db12c0d0
->>RBP: ffffffff805d9438 R08: 0000000000000000 R09: 0000000000000000
->>R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
->>R13: ffff8100e39bd440 R14: ffff810008003620 R15: 000002b02751726c
->>FS:  0000000000000000(0000) GS:ffffffff805fa000(0063) knlGS:00000000f7dd0460
->>CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
->>CR2: fffffffffffffff8 CR3: 00000000da399000 CR4: 00000000000006e0
->>Process mtest01 (pid: 20519, threadinfo ffff8100b1bb4000, task 
->>ffff8100db12c0d0)
->>Stack: ffffffff80579e20 ffff8100db12c0d0 0000000000000001 ffffffff80579f58
->>        0000000000000000 ffffffff80579e78 ffffffff8020b0b2 ffffffff80579f58
->>        0000000000000000 ffffffff80485520
->>Call Trace: <#DF> <ffffffff8020b0b2>{show_registers+140}
->>        <ffffffff8020b357>{__die+159} <ffffffff8020b3cc>{die+50}
->>        <ffffffff8020bba6>{do_double_fault+115} 
->><ffffffff8020aa91>{double_fault+125}
->>        <ffffffff8047c8b8>{__sched_text_start+1856} <EOE>
->>
->>Code: e8 4c ba d8 ff 65 48 8b 34 25 00 00 00 00 4c 8b 46 08 f0 41
->>RIP <ffffffff8047c8b8>{__sched_text_start+1856} RSP <0000000000000000>
->>  -- 0:conmux-control -- time-stamp -- May/01/06  3:54:37 --
-> 
-> 
-> I was not able to reproduce this on the 4-way EMT64 machine.  Am a bit stuck.
+I've installed an FC5 x86_64 on my machine, and everything is fine when
+running fedora-supplied kernels : machine boots, X starts, and so on.
 
-OK, is there anything we could run this with that'd dump more info?
-(eg debug patches or something). There's bugger all of use that I
-can see in that stack (and why does __sched_text_start come up anyway,
-is that an x86_64-ism ?). I suppose if we're really desperate, we can
-play chop search, but that's very boring to try to do remotely ...
+But, when switching to 2.6.17-rc3 (or any other official 2.6.16.x kernel),
+I've got the following issue :
+ - machine boots fine,
+ - starting X results in the screen switching video mode (CRT, so I can 'hear'
+   it), and then X starts sucking all the CPUs, and nothing comes to screen.
+ - I've got the following in /var/log/messages :
 
-It's a couple-of-year-old 4x newisys box.
+May  1 19:09:38 riri kernel: agpgart: Found an AGP 3.0 compliant device at
+0000:00:00.0.
+May  1 19:09:38 riri kernel: agpgart: Badness. Don't know which AGP mode to
+set. [bridge_agpstat:1f000a0a vga_agpstat:ff00021b fell back to:-
+bridge_agpstat:1f000208 vga_agpstat:ff00021b]
+May  1 19:09:38 riri kernel: agpgart: Bridge couldn't do AGP x4.
+May  1 19:09:38 riri kernel: agpgart: Putting AGP V3 device at 0000:00:00.0
+into 0x mode
+May  1 19:09:38 riri kernel: agpgart: Putting AGP V3 device at 0000:01:00.0
+into 0x mode
+May  1 19:09:38 riri kernel: [drm] Setting GART location based on old memory
+map
+May  1 19:09:38 riri kernel: [drm] Loading R300 Microcode
+May  1 19:09:38 riri kernel: [drm] writeback test failed
 
-M.
+and then X is stone dead, can't be killed even using kill -9, and it can't
+be straced...
+
+lspci says :
+00:00.0 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+00:00.1 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+00:00.2 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+00:00.3 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+00:00.4 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+00:00.7 Host bridge: VIA Technologies, Inc. K8T800Pro Host Bridge
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800/K8T890
+South]
+00:07.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller
+(rev 80)
+00:08.0 RAID bus controller: Promise Technology, Inc. PDC20378 (FastTrak
+378/SATA 378) (rev 02)
+00:09.0 Communication controller: Conexant HSF 56k HSFi Modem (rev 01)
+00:0a.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001 Gigabit
+Ethernet Controller (rev 13)
+00:0c.0 Network controller: RaLink Ralink RT2500 802.11G Cardbus/mini-PCI (rev
+01)
+00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID
+Controller (rev 80)
+00:0f.1 IDE interface: VIA Technologies, Inc.
+VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+Controller (rev 81)
+00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+Controller (rev 81)
+00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+Controller (rev 81)
+00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+Controller (rev 81)
+00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge
+[KT600/K8T800/K8T890 South]
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237
+AC97 Audio Controller (rev 60)
+00:11.6 Communication controller: VIA Technologies, Inc. AC'97 Modem
+Controller (rev 80)
+00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
+HyperTransport Technology Configuration
+00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
+Address Map
+00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM
+Controller
+00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
+Miscellaneous Control
+01:00.0 VGA compatible controller: ATI Technologies Inc RV350 AS [Radeon 9550]
+01:00.1 Display controller: ATI Technologies Inc RV350 ?? [Radeon 9550]
+(Secondary)
+
+
+I can't find why this happens... This machine was previously running FC4, 
+with vanilla kernel, and it was fine... 
+But as here the problem comes from changing the kernel stuff, and nothing
+else, I'm encline to think it may be kernel related...
+
+Any idea ?
+
+Regards,
+Paul
+

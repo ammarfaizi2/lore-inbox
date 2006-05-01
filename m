@@ -1,37 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWEAV4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWEAVz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWEAV4M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWEAV4M
+	id S932284AbWEAVz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 17:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWEAVz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:56:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11663 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932286AbWEAV4K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:56:10 -0400
-Date: Mon, 1 May 2006 14:58:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH] UML - Change timer initialization
-Message-Id: <20060501145837.1069e19e.akpm@osdl.org>
-In-Reply-To: <200605012046.k41KkURr005868@ccure.user-mode-linux.org>
-References: <200605012046.k41KkURr005868@ccure.user-mode-linux.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 1 May 2006 17:55:59 -0400
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:43259 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S932284AbWEAVz6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 17:55:58 -0400
+Date: Mon, 1 May 2006 23:55:56 +0200
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Stephen Hemminger <shemminger@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: sky2 tx hangups
+Message-ID: <20060501215556.GH1487@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike <jdike@addtoit.com> wrote:
->
-> This is definite 2.6.17 material...
-> 
-> As of rc3-mm1, inet_init, which schedules, is called before the UML timer_init,
-> which sets up the timer.  The result is the interval timers being manipulated
-> before the appropriate signal handlers are established, causing unhandled
-> timers.
-> 
+Hello Stephen and others,
+I have a Intel board with a SKY2 network card[1]. The board stopped to receive
+packages under havy network load with Linus linux tree (GIT HEAD at this timestamp:
+2.6.17-rc2 (root@faui02) #1 SMP Mon Apr 24 22:30:57 CEST 2006) version. The
+following was in the syslog:
 
-Which means nobody's tested uml against the last couple of -mm's.  Bad.
+        Apr 30 00:11:31 localhost kernel: sky2 eth0: tx timeout
+        Apr 30 00:11:31 localhost kernel: sky2 eth0: transmit ring 271 .. 248 report=273 done=273
+        Apr 30 00:11:31 localhost kernel: sky2 status report lost?
+        Apr 30 00:11:41 localhost kernel: sky2 eth0: tx timeout
+        Apr 30 00:11:41 localhost kernel: sky2 eth0: transmit ring 273 .. 250 report=273 done=273
+        Apr 30 00:11:41 localhost kernel: sky2 hardware hung? flushing
+        Apr 30 00:43:41 localhost kernel: sky2 eth0: tx timeout
+        Apr 30 00:43:41 localhost kernel: sky2 eth0: transmit ring 250 .. 227 report=273 done=273
+        Apr 30 00:43:41 localhost kernel: sky2 status report lost?
+        Apr 30 00:45:16 localhost kernel: sky2 eth0: tx timeout
+        Apr 30 00:45:16 localhost kernel: sky2 eth0: transmit ring 273 .. 250 report=273 done=273
+        Apr 30 00:45:16 localhost kernel: sky2 hardware hung? flushing
+
+Note: There went a few changes from 25th April into the kernel which I missed.
+A few look relevant: (git-whatchanged -p drivers/net/sky2.c | less)
+
+        [PATCH] sky2: add fake idle irq timer
+        [PATCH] sky2: reschedule if irq still pending
+
+I rebuild a new kernel with the changes in and have that at the moment running
+(Linus linux kernel tree GIT HEAD) and stress testing the network card. If the
+problem pops up again, I raise my voice.
+
+Thanks for putting that much work in the driver,
+                                                Thomas
+
+[1] sky2 networkcard
+
+0000:04:00.0 0200: 11ab:4361 (rev 17)
+0000:04:00.0 Ethernet controller: Marvell Technology Group Ltd.: Unknown device 4361 (rev 17)
+        Subsystem: Intel Corp.: Unknown device 3065
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0, Cache Line Size: 0x10 (64 bytes)
+        Interrupt: pin A routed to IRQ 58
+        Region 0: Memory at ff720000 (64-bit, non-prefetchable) [size=16K]
+        Region 2: I/O ports at 9800 [size=256]
+        Expansion ROM at ff700000 [disabled] [size=128K]
+        Capabilities: [48] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+        Capabilities: [50] Vital Product Data
+        Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable+
+                Address: 00000000fee00000  Data: 403a
+        Capabilities: [e0] #10 [0011]

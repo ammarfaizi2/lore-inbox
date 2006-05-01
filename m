@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWEAV7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWEAWFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbWEAV7y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 17:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWEAV7x
+	id S932259AbWEAWFn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 18:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWEAWFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 17:59:53 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:2481 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932292AbWEAV7w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 17:59:52 -0400
-Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: ebiederm@xmission.com, herbert@13thfloor.at, dev@sw.ru,
-       linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
-       clg@us.ibm.com, frankeh@us.ibm.com
-In-Reply-To: <20060501211109.GA21799@sergelap.austin.ibm.com>
-References: <20060501203906.XF1836@sergelap.austin.ibm.com>
-	 <20060501203907.XF1836@sergelap.austin.ibm.com>
-	 <1146515316.32079.27.camel@localhost.localdomain>
-	 <20060501211109.GA21799@sergelap.austin.ibm.com>
-Content-Type: text/plain
-Date: Mon, 01 May 2006 14:58:52 -0700
-Message-Id: <1146520732.32079.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 1 May 2006 18:05:43 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:10393 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S932259AbWEAWFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 18:05:42 -0400
+X-IronPort-AV: i="4.05,77,1146466800"; 
+   d="scan'208"; a="1800335442:sNHT1689632184"
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hzhong@gmail.com
+Subject: Re: [PATCH] Profile likely/unlikely macros
+X-Message-Flag: Warning: May contain useful information
+References: <200604250257.k3P2vlEb012502@dwalker1.mvista.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 01 May 2006 15:05:15 -0700
+In-Reply-To: <200604250257.k3P2vlEb012502@dwalker1.mvista.com> (Daniel Walker's message of "Mon, 24 Apr 2006 19:57:47 -0700")
+Message-ID: <adalktls8o4.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 01 May 2006 22:05:18.0713 (UTC) FILETIME=[5553EE90:01C66D6B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-05-01 at 16:11 -0500, Serge E. Hallyn wrote:
-> Might be worth a separate patch to change over all those helpers in
-> fork.c?  (I think they were all brought in along with the sys_unshare
-> syscall)
+    Daniel> It has a /proc/likely_prof interface which outputs
+    Daniel> something like the following,
 
-I'd be a little scared to touch good, working code, but it couldn't hurt
-to see the patch.
+If we're thinking of applying this to mainline then probably this file
+should be in debugfs...
 
--- Dave
-
+ - R.

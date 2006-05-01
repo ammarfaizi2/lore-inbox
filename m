@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWEARTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWEARWs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWEARTy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 13:19:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWEARTy
+	id S932168AbWEARWs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 13:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWEARWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 13:19:54 -0400
-Received: from nproxy.gmail.com ([64.233.182.184]:40081 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932166AbWEARTy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 13:19:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=k7AG0ynUxkO8I9k321RtYw2ed+RTa/pU9+CYcSV5jFnA14zP8JSwFu6/fQCY4DiTOsBJIwL2DcTrxGeCNjFeR30wncwvXdDhRb7hDeG5foQPNn9BbhJsj7pXS9ap2SHSEoPlEljdBopJ33ueZZA/SncUkOhiF6DpAkgJEjMfAeg=
-Message-ID: <4456430C.2040806@gmail.com>
-Date: Mon, 01 May 2006 19:19:08 +0200
-From: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: es-ar, es, en-us, en
-MIME-Version: 1.0
+	Mon, 1 May 2006 13:22:48 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:13688 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S932168AbWEARWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 13:22:47 -0400
 To: Andrew Morton <akpm@osdl.org>
-CC: penberg@cs.helsinki.fi, arjan@infradead.org, linux-kernel@vger.kernel.org,
-       jirislaby@gmail.com
-Subject: Re: [PATCH/RFC] minix filesystem update to V3 diffed to 2.6.17-rc3
-References: <44560796.8010700@gmail.com> <20060501100328.37527eb2.akpm@osdl.org>
-In-Reply-To: <20060501100328.37527eb2.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 8 of 13] ipath - fix a number of RC protocol bugs
+X-Message-Flag: Warning: May contain useful information
+References: <patchbomb.1145913776@eng-12.pathscale.com>
+	<fafcc38877ad194f3a7a.1145913784@eng-12.pathscale.com>
+	<20060425005654.4c08481f.akpm@osdl.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 01 May 2006 10:22:45 -0700
+In-Reply-To: <20060425005654.4c08481f.akpm@osdl.org> (Andrew Morton's message of "Tue, 25 Apr 2006 00:56:54 -0700")
+Message-ID: <adar73dwtga.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 01 May 2006 17:22:46.0712 (UTC) FILETIME=[DD25DB80:01C66D43]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+    Andrew> Please don't play around with list_head internals like
+    Andrew> this - some speedfreak might legitimately choose to remove
+    Andrew> the list_head poisoning debug code, or make it
+    Andrew> Kconfigurable.
 
-Well, I don't know how to solve it. If I don't allocate with kmalloc, the compiler stops with error. If I free memory with kfree instead of setting offset = NULL, an exception is produced.
+Bryan, can you fix this up and resend this patch?
 
-Sorry.
+Are the other patches independent of this?  Should I apply all the
+others, or do I need to wait for the fixed version of this one?
 
-Daniel
+ - R.

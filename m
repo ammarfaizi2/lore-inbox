@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWEAN52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWEAN6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWEAN52 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 09:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWEAN52
+	id S932115AbWEAN6x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 09:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbWEAN6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 09:57:28 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:12707 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932112AbWEAN51 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 09:57:27 -0400
-Date: Mon, 1 May 2006 15:57:14 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: Daniel =?ISO-8859-1?B?QXJhZ29u6XM=?= <danarag@gmail.com>,
-       penberg@cs.helsinki.fi, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] minix filesystem update to V3 for 2.6 kernels
-In-Reply-To: <20060430134527.5175661a.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0605011556070.31804@yvahk01.tjqt.qr>
-References: <4454C131.8070309@gmail.com> <20060430134527.5175661a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 May 2006 09:58:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:3750 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932115AbWEAN6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 09:58:52 -0400
+Subject: Re: [RFC: 2.6 patch] drivers/char/applicom.c: proper
+	module_{init,exit}
+From: David Woodhouse <dwmw2@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060501071132.GG3570@stusta.de>
+References: <20060501071132.GG3570@stusta.de>
+Content-Type: text/plain
+Date: Mon, 01 May 2006 14:58:50 +0100
+Message-Id: <1146491930.2885.101.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Hi Andrew,
->> 
->> As a continuation of my former communication of January 25, and after having posted the attached patch in my personal page http://www.terra.es/personal2/danarag for about 3 months, feedback has come 
->> to me, and some bugs have been detected and corrected.
->
->People use minixfs?  I'm a bit surprised.
->
-The potential is there, esp. since minix3 was released not too long ago. 
+On Mon, 2006-05-01 at 09:11 +0200, Adrian Bunk wrote:
+> - converts the driver to use module_{init,exit}
 
+Ack.
 
-Jan Engelhardt
+> - let the driver print a warning if the old __setup is used
+> +       printk(KERN_WARNING "applicom= is deprecated\n  please use applicom.irq= and applicom.mem=\n");
+
+I wouldn't bother with this -- just change it.
+
 -- 
+dwmw2
+

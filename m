@@ -1,49 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWEATAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWEATBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWEATAN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 15:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWEATAN
+	id S932165AbWEATBL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 15:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWEATBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 15:00:13 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:47015 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S932072AbWEATAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 15:00:11 -0400
-X-IronPort-AV: i="4.04,169,1144047600"; 
-   d="scan'208"; a="1800283159:sNHT31743354"
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5 of 13] ipath - use proper address translation routine
-X-Message-Flag: Warning: May contain useful information
-References: <1ab168913f0fea5d18b4.1145913781@eng-12.pathscale.com>
-	<ada3bftvatf.fsf@cisco.com>
-	<1146509646.20760.63.camel@laptopd505.fenrus.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 01 May 2006 12:00:00 -0700
-In-Reply-To: <1146509646.20760.63.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Mon, 01 May 2006 20:54:06 +0200")
-Message-ID: <aday7xltvtb.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Mon, 1 May 2006 15:01:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40871 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932165AbWEATBJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 15:01:09 -0400
+Message-ID: <44565ABC.6080301@redhat.com>
+Date: Mon, 01 May 2006 15:00:12 -0400
+From: Wendy Cheng <wcheng@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050427 Red Hat/1.7.7-1.1.3.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 May 2006 19:00:10.0637 (UTC) FILETIME=[78660BD0:01C66D51]
+To: Steven Whitehouse <swhiteho@redhat.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/16] GFS2: Daemons and address space operations
+References: <1145635949.3856.100.camel@quoit.chygwyn.com>
+In-Reply-To: <1145635949.3856.100.camel@quoit.chygwyn.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Arjan> do you really NEED the vaddr?  (most of the time linux
-    Arjan> drivers don't need it, while other OSes do) If you really
-    Arjan> need it you should grab it at dma_map time ...  (and
-    Arjan> realize that it's not kernel addressable per se ;)
+Steven Whitehouse wrote
 
-Yes, they need some kind of vaddr.
+>+static int gfs2_writepage(struct page *page, struct writeback_control *wbc)
+>+{
+>+	struct inode *inode = page->mapping->host;
+>+	struct gfs2_inode *ip = page->mapping->host->u.generic_ip;
+>+	struct gfs2_sbd *sdp = ip->i_sbd;
+>+	loff_t i_size = i_size_read(inode);
+>+	pgoff_t end_index = i_size >> PAGE_CACHE_SHIFT;
+>+	unsigned offset;
+>+	int error;
+>+	int done_trans = 0;
+>+
+>+	if (gfs2_assert_withdraw(sdp, gfs2_glock_is_held_excl(ip->i_gl))) {
+>+		unlock_page(page);
+>+		return -EIO;
+>+	}
+>+	if (current->journal_info)
+>+		goto out_ignore;
+>+
+>+	/* Is the page fully outside i_size? (truncate in progress) */
+>+        offset = i_size & (PAGE_CACHE_SIZE-1);
+>+	if (page->index >= end_index+1 || !offset) {
+>+		page->mapping->a_ops->invalidatepage(page, 0);
+>+		unlock_page(page);
+>+		return 0; /* don't care */
+>+	}
+>
+>  
+>
+Will above "|| !offset" unconditionally drop the page if the file size 
+happens to be multiples of PAGE_CACHE_SIZE ?  Maybe this truncate 
+handling should be removed to let block_write_full_page() handle all the 
+cases ?
 
-It's kind of a layering problem.  The IB stack assumes that IB devices
-have a DMA engine that deals with bus addresses.  But the ipath driver
-has to simulate this by using a memcpy on the CPU to move data to the
-PCI device.
-
-I really don't know what the right solution is.  Maybe having some way
-to override the dma mapping operations so that the ipath driver can
-keep the info it needs?
-
- - R.
+>+	error = block_write_full_page(page, get_block_noalloc, wbc);
+>+	if (done_trans)
+>+		gfs2_trans_end(sdp);
+>+	gfs2_meta_cache_flush(ip);
+>+	return error;
+>+
+>+out_ignore:
+>+	redirty_page_for_writepage(wbc, page);
+>+	unlock_page(page);
+>+	return 0;
+>+}
+>+
+>  
+>
+-- Wendy

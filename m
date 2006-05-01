@@ -1,96 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWEAGxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWEAHCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbWEAGxe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 02:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWEAGxe
+	id S1751290AbWEAHCe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 03:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbWEAHCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 02:53:34 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:17503 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751288AbWEAGxe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 02:53:34 -0400
-Date: Mon, 1 May 2006 08:54:12 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: splice(SPLICE_F_MOVE) problems
-Message-ID: <20060501065412.GP23137@suse.de>
-References: <20060501065953.GA289@oleg>
+	Mon, 1 May 2006 03:02:34 -0400
+Received: from h80ad25b9.async.vt.edu ([128.173.37.185]:64466 "EHLO
+	h80ad25b9.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1751290AbWEAHCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 03:02:34 -0400
+Message-Id: <200605010702.k4172Q5H006348@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Circuitsoft Development <circuitsoft.devel@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Extended Volume Manager API 
+In-Reply-To: Your message of "Mon, 01 May 2006 00:26:05 CDT."
+             <64b292120604302226i377f1c37qd33db36693ea1871@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <64b292120604302226i377f1c37qd33db36693ea1871@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060501065953.GA289@oleg>
+Content-Type: multipart/signed; boundary="==_Exmh_1146466945_20203P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 01 May 2006 03:02:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01 2006, Oleg Nesterov wrote:
-> I noticed sys_splice() and friends were added. Cool!
-> But I can't understand how SPLICE_F_MOVE is supposed to
-> work.
-> 
-> 	pipe_to_file:
-> 
-> 		if (sd->flags & SPLICE_F_MOVE) {
-> 
-> 			if (buf->ops->steal(info, buf))
-> 				goto find_page;
-> 
-> Let's suppose that buf->ops == page_cache_pipe_buf_ops.
-> page_cache_pipe_buf_steal() returns PG_locked page, why?
+--==_Exmh_1146466945_20203P
+Content-Type: text/plain; charset=us-ascii
 
-Seems silly to unlock the page, when add_to_page_cache() will set it
-locked the instant after again.
+On Mon, 01 May 2006 00:26:05 CDT, Circuitsoft Development said:
 
-> 
-> 			page = buf->page;
-> 			if (add_to_page_cache(page, mapping, index, gfp_mask))
-> 
-> This adds entire page to page cache. What about partial pages?
-> This can corrupt sd->file if offset != 0 || this_len != PAGE_SIZE.
+> Having done my own tests, I've determined that a 5msec timeout to
+> determine if a host has crashed would be appropriate. (My test was
+> basically looking at ping time over a saturated network - averaged
+> about 600 microseconds, topped at 3msec over 10 minutes) I figure that
+> 5msec timeout won't add any noticeable lag to the volume manager, as
+> most disk seek times are in that range.W
 
-Yeah that's silly, I'll add a check for sd->len == PAGE_CACHE_SIZE!
+Note that if you're setting 5ms as your timeout for detecting a *crash*,
+and your *ping* takes 3ms, that leaves you a whole whopping 2ms.  If you
+have 1ms scheduler latency at *each* end (remember - you're in userspace
+at both ends, right?) you have approximately 0ms left for the remote end to
+actually *do* anything, and for the local end to process the reply.
 
-> 				goto find_page;
-> 
-> Ok, add_to_page_cache() failed. 'page' is still locked.
-> It will be released later, this should trigger bad_page().
+And if the remote end has to issue a syscall during processing the request,
+you're basically screwed.
 
-Indeed, that was fixed and pushed to the splice repo yesterday actually
-along with a fix for a missing lock in the pipe variant.
+You need to be adding at least 1 zero to that timeout value.
 
-> Also, we don't clear PIPE_BUF_FLAG_STOLEN, so we will miss
-> the data copying and page_cache_release(page) below:
-> 
-> 		if (!(buf->flags & PIPE_BUF_FLAG_STOLEN)) {
-> 			char *dst = kmap_atomic(page, KM_USER0);
-> 
-> 			memcpy(dst + offset, src + buf->offset, this_len);
-> 			flush_dcache_page(page);
-> 			kunmap_atomic(dst, KM_USER0);
-> 		}
-> 
-> I can't understand why do we need PIPE_BUF_FLAG_STOLEN at all.
-> It seems to me we need a local boolean in pipe_to_file.
+--==_Exmh_1146466945_20203P
+Content-Type: application/pgp-signature
 
-PIPE_BUF_FLAG_STOLEN used to be used in the release function as well,
-hence the flag. It could be removed now, yes. I'll make sure to clear
-the flag as well on add_to_page_cache() failure.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> I downloaded splice-git-20060430152503.tar.gz, but was unable
-> to demonstrate these problems until I found that this definition
-> 
-> 	static inline int splice(int fdin, loff_t *off_in, int fdout, loff_t *off_out,
-> 				 size_t len, unsigned long flags)
-> 	{
-> 		return syscall(__NR_splice, fdin, off_in, fdout, off_out, len, flags);
-> 	}
-> 
-> is not correct. At least on i386 you need _syscall6() here.
+iD8DBQFEVbKBcC3lWbTT17ARAtZ0AJ9/aYLH0OFTb+xNx/CWtEh3ZNiZeACaAtPO
+v6NGgj4LCtq67vTBLd5NIUo=
+=LHIe
+-----END PGP SIGNATURE-----
 
-I guess I might as well use the right syscallX, but so far things have
-worked fine for me on ia64/x86/x86_64. I'll update it.
-
--- 
-Jens Axboe
-
+--==_Exmh_1146466945_20203P--

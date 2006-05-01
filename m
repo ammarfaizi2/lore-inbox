@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWEANkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWEANoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWEANkw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 09:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWEANkw
+	id S932099AbWEANoI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 09:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWEANoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 09:40:52 -0400
-Received: from taurus.voltaire.com ([193.47.165.240]:65226 "EHLO
-	taurus.voltaire.com") by vger.kernel.org with ESMTP id S932098AbWEANkv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 09:40:51 -0400
-Message-ID: <44560FE0.2000004@voltaire.com>
-Date: Mon, 01 May 2006 16:40:48 +0300
-From: Or Gerlitz <ogerlitz@voltaire.com>
-User-Agent: Thunderbird 1.4.1 (Windows/20051006)
-MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: Or Gerlitz <or.gerlitz@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       open-iscsi@googlegroups.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, Christoph Lameter <clameter@sgi.com>
-Subject: Re: [openib-general] Re: possible bug in kmem_cache related code
-References: <Pine.LNX.4.44.0604271138370.16357-101000@zuben>	<84144f020604270419s10696877he2ec27ae6d52e486@mail.gmail.com>	<Pine.LNX.4.64.0604271510240.27370@schroedinger.engr.sgi.com>	<Pine.LNX.4.58.0604281108110.12202@sbz-30.cs.Helsinki.FI>	<15ddcffd0604281224i4308b08fs93f9ebaf7e9a16b3@mail.gmail.com> <1146293055.11279.2.camel@localhost>
-In-Reply-To: <1146293055.11279.2.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 May 2006 13:40:49.0695 (UTC) FILETIME=[DB9652F0:01C66D24]
+	Mon, 1 May 2006 09:44:08 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:47889 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932099AbWEANoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 09:44:07 -0400
+Date: Mon, 1 May 2006 15:43:38 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Daniel =?iso-8859-1?Q?Aragon=E9s?= <danarag@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Requested changelog for minix filesystem update to V3
+Message-ID: <20060501134338.GA11191@w.ods.org>
+References: <4455D3F1.7000102@gmail.com> <9a8748490605010606j70a25cdcqe23b1c0684a1f710@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9a8748490605010606j70a25cdcqe23b1c0684a1f710@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> On Fri, 2006-04-28 at 21:24 +0200, Or Gerlitz wrote:
->> Yes, i can reproduce this at will, no local modifications, my system
->> is amd dual x86_64, i have attached my .config to the first email of
->> this thread, and also mentioned that some CONFIG_DEBUG_ options are
->> set, including one related to slab debugging.
->>
+Hi Jesper,
 
-> Yeah, arch/um/. Unfortunately I don't have a SMP box, so I probably
-> can't reproduce this. You could try git bisect to isolate the offending
-> changeset.
+just a comment below :
 
-mmm, I might be able to do git bisection later this week or next week.
+On Mon, May 01, 2006 at 03:06:49PM +0200, Jesper Juhl wrote:
+> On 5/1/06, Daniel Aragonés <danarag@gmail.com> wrote:
+[snip]
 
-However, for the mean time can more people of the openib and open iscsi 
-communities set 2.6.17-rcX to see that the issue reproduces with my 
-synthetic module and with ib/iscsi code (you know this kernel will be 
-out in few weeks from now...)
+> >-       i = ((numbits-(numblocks-1)*BLOCK_SIZE*8)/16)*2;
+> >+       i = ((numbits-(numblocks-1)*bh->b_size*8)/16)*2;
+> 
+> A few more spaces please :
+> 
+>  i = ((numbits-(numblocks-1) * bh->b_size * 8) / 16) * 2;
 
-Or.
+This spacing is still wrong, because I first read it like this :
+
+  i = (((numbits-(numblocks-1)) * bh->b_size * 8) / 16) * 2;
+
+While in fact it's :
+
+  i = ((numbits-((numblocks-1) * bh->b_size * 8)) / 16) * 2;
+
+Strictly speaking, this should be written this way :
+
+  i = ((numbits - (numblocks - 1) * bh->b_size * 8) / 16) * 2;
+
+Or at least :
+
+  i = ((numbits - (numblocks-1) * bh->b_size * 8) / 16) * 2;
+
+Anyway, it's a good sign when only spaces are being discussed on a piece
+of code ;-)
+
+Cheers,
+Willy
 

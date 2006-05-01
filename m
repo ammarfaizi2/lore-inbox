@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbWEAQqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWEAQt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932149AbWEAQqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 12:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWEAQqQ
+	id S932144AbWEAQt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 12:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWEAQt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 12:46:16 -0400
-Received: from xenotime.net ([66.160.160.81]:9658 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932149AbWEAQqQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 12:46:16 -0400
-Date: Mon, 1 May 2006 09:48:41 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, dwmw2@infradead.org
-Subject: [PATCH] Doc: add audit & acct to DocBook
-Message-Id: <20060501094841.8054f115.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 1 May 2006 12:49:27 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:23184 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932144AbWEAQt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 12:49:27 -0400
+Subject: Re: [ALSA] add __devinitdata to all pci_device_id
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: greg@kroah.com, tiwai@suse.de, henne@nachtwindheim.de
+In-Reply-To: <200605011511.k41FBUcu025025@hera.kernel.org>
+References: <200605011511.k41FBUcu025025@hera.kernel.org>
+Content-Type: text/plain
+Date: Mon, 01 May 2006 18:49:24 +0200
+Message-Id: <1146502164.20760.53.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
-
-Fix one audit kernel-doc description (one parameter was missing).
-Add audit*.c interfaces to DocBook.
-Add BSD accounting interfaces to DocBook.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- Documentation/DocBook/kernel-api.tmpl |   12 ++++++++++++
- kernel/auditsc.c                      |    1 +
- 2 files changed, 13 insertions(+)
-
---- linux-2617-rc3.orig/Documentation/DocBook/kernel-api.tmpl
-+++ linux-2617-rc3/Documentation/DocBook/kernel-api.tmpl
-@@ -331,6 +331,18 @@ X!Earch/i386/kernel/mca.c
- !Esecurity/security.c
-   </chapter>
- 
-+  <chapter id="audit">
-+     <title>Audit Interfaces</title>
-+!Ekernel/audit.c
-+!Ikernel/auditsc.c
-+!Ikernel/auditfilter.c
-+  </chapter>
-+
-+  <chapter id="accounting">
-+     <title>Accounting Framework</title>
-+!Ikernel/acct.c
-+  </chapter>
-+
-   <chapter id="pmfuncs">
-      <title>Power Management</title>
- !Ekernel/power/pm.c
---- linux-2617-rc3.orig/kernel/auditsc.c
-+++ linux-2617-rc3/kernel/auditsc.c
-@@ -1193,6 +1193,7 @@ ret:
-  * @uid: msgq user id
-  * @gid: msgq group id
-  * @mode: msgq mode (permissions)
-+ * @ipcp: in-kernel IPC permissions
-  *
-  * Returns 0 for success or NULL context or < 0 on error.
-  */
+On Mon, 2006-05-01 at 15:11 +0000, Linux Kernel Mailing List wrote:
+> commit 396c9b928d5c24775846a161a8191dcc1ea4971f
+> tree 447f4b28c2dd8e0026b96025fb94dbc654d6cade
+> parent 71b2ccc3a2fd6c27e3cd9b4239670005978e94ce
+> author Henrik Kretzschmar <henne@nachtwindheim.de> Mon, 24 Apr 2006 15:59:04 +0200
+> committer Jaroslav Kysela <perex@suse.cz> Thu, 27 Apr 2006 21:10:34 +0200
+> 
+> [ALSA] add __devinitdata to all pci_device_id
 
 
----
+are you really really sure you want to do this?
+These structures are exported via sysfs for example, I would think this
+is quite the wrong thing to make go away silently...
+
+
+

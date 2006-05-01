@@ -1,59 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWEAL42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWEAL7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWEAL42 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 07:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWEAL42
+	id S932071AbWEAL7S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 07:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWEAL7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 07:56:28 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:44140 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932068AbWEAL41 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 07:56:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j4aZrCHPniuP5EXXlqIjDzqoPepzjbbY78QIv81+urlgo/Lobua/bb2Py3fuHgXyzDZVQCaGCT1uxc2/BkgyqAgC2b7E39yiH0yu6wVpgZDzQXoJgva7Y0mhaVfI+0S8kaXRRjK6ypU1YZHOw2TYS7scl6x9+DdXPWPu3sYBNbs=
-Message-ID: <6bffcb0e0605010456l7e60037cr8b05ef5bf27e5c27@mail.gmail.com>
-Date: Mon, 1 May 2006 13:56:26 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Matt Mackall" <mpm@selenic.com>
-Subject: Re: Ketchup 0.9.7 released
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060424171428.GF15445@waste.org>
+	Mon, 1 May 2006 07:59:18 -0400
+Received: from orfeus.profiwh.com ([82.100.20.117]:54278 "EHLO
+	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S932071AbWEAL7R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 07:59:17 -0400
+Message-ID: <4455F825.2060802@gmail.com>
+Date: Mon, 01 May 2006 13:59:10 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060424171428.GF15445@waste.org>
+To: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Requested changelog for minix filesystem update to
+ V3
+References: <4455D3F1.7000102@gmail.com>
+In-Reply-To: <4455D3F1.7000102@gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On 24/04/06, Matt Mackall <mpm@selenic.com> wrote:
-> Ketchup 0.9.7 is available at:
->
->  http://selenic.com/ketchup/
+Daniel Aragonés napsal(a):
+> Hi Andrew,
+> 
+> Thank you for your interest. The file attached now has been diffed
+> against last week's 2.6.16.11.
+> 
+> Changelog:
+> 
+> In bitmap.c, the access to architecture dependent functions has been
+> kept within the range of 1K blocksize. A loop inside a loop has been
+> introduced to do so.
+> In inode.c, 'sbi->s_ninodes = m3s->s_ninodes' was missing, and variable
+> 'block' is now unsigned.
+> In itree_common.c, function 'nblocks(loff_t size)' has been modified to
+> fix the shift in 'blocks = (size + BLOCK_SIZE - 1) >> BLOCK_SIZE_BITS'.
+> In minix.h, minor and cosmetic corrections.
+> 
+> Regards.
+> 
+> Signed-off-by: Daniel Aragones <danarag@gmail.com>
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+[snip]
+> diff -ur orig.Linux-2.6.16.11/fs/minix/dir.c updated.Linux-2.6.16.11/fs/minix/dir.c
+> --- orig.Linux-2.6.16.11/fs/minix/dir.c	2006-04-24 22:20:24.000000000 +0200
+> +++ updated.Linux-2.6.16.11/fs/minix/dir.c	2006-03-28 18:04:28.000000000 +0200
+> @@ -4,12 +4,15 @@
+>   *  Copyright (C) 1991, 1992 Linus Torvalds
+>   *
+>   *  minix directory handling functions
+> + *
+> + *  Updated to filesystem version 3 by Daniel Aragones
+>   */
+>  
+>  #include "minix.h"
+>  #include <linux/highmem.h>
+>  #include <linux/smp_lock.h>
+>  
+> +typedef struct minix3_dir_entry minix3_dirent;
+>  typedef struct minix_dir_entry minix_dirent;
+are typedefs _really_ needed? I think we want to kill them all.
 
-Something is wrong (actual stable kernel is 2.6.16.11)
-[michal@ltg01-fedora linux-stable]$ ketchup 2.6-tip
-None -> 2.6.16.9
-Unpacking linux-2.6.16.tar.bz2
-Applying patch-2.6.16.9.bz2
+regards,
+- --
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-[michal@ltg01-fedora linux-stable]$ ketchup 2.6.16.11
-None -> 2.6.16.11
-Unpacking linux-2.6.16.tar.bz2
-Applying patch-2.6.16.11.bz2
-
-Now everything looks ok.
-
-Regards,
-Michal
-
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+iD8DBQFEVfglMsxVwznUen4RAmKwAJ91Zj8O2Wz+EFp1GPcVe1ytwbgVCACfRIEQ
+PRBY5/PEQKXbjQVJnSPmRnU=
+=jBAY
+-----END PGP SIGNATURE-----

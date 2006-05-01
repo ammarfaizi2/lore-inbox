@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWEARxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWEARyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbWEARxm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 13:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbWEARxm
+	id S932186AbWEARyH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 13:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWEARyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 13:53:42 -0400
-Received: from orfeus.profiwh.com ([82.100.20.117]:53774 "EHLO
-	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S932184AbWEARxl
+	Mon, 1 May 2006 13:54:07 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:48541 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932186AbWEARyF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 13:53:41 -0400
-Message-ID: <44564B34.6020109@gmail.com>
-Date: Mon, 01 May 2006 19:53:33 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, penberg@cs.helsinki.fi, arjan@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] minix filesystem update to V3 diffed to 2.6.17-rc3
-References: <44560796.8010700@gmail.com> <20060501100328.37527eb2.akpm@osdl.org> <4456430C.2040806@gmail.com>
-In-Reply-To: <4456430C.2040806@gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
+	Mon, 1 May 2006 13:54:05 -0400
+Subject: Re: 2.6.17-rc2-mm1
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Martin Bligh <mbligh@google.com>
+Cc: Andrew Morton <akpm@osdl.org>, apw@shadowen.org, linuxppc64-dev@ozlabs.org,
+       lkml <linux-kernel@vger.kernel.org>, ak@suse.de
+In-Reply-To: <445644B7.7060807@google.com>
+References: <4450F5AD.9030200@google.com>
+	 <20060428012022.7b73c77b.akpm@osdl.org> <44561A1E.7000103@google.com>
+	 <20060501100731.051f4eff.akpm@osdl.org>
+	 <1146503960.317.1.camel@dyn9047017100.beaverton.ibm.com>
+	 <445644B7.7060807@google.com>
+Content-Type: text/plain
+Date: Mon, 01 May 2006 10:55:05 -0700
+Message-Id: <1146506105.317.4.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Daniel Aragonés napsal(a):
-> Hi Andrew,
+On Mon, 2006-05-01 at 10:26 -0700, Martin Bligh wrote:
+> > I ran mtest01 multiple times with various options on my 4-way AMD64 box.
+> > So far couldn't reproduce the problem (2.6.17-rc3-mm1).
+> > 
+> > Are there any special config or test options you are testing with ?
 > 
-> Well, I don't know how to solve it. If I don't allocate with kmalloc,
-> the compiler stops with error. If I free memory with kfree instead of
-> setting offset = NULL, an exception is produced.
-Ok, which error?
+> Config is here:
+> 
+> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/amd64
+> 
+> It's just doing "runalltests", I think.
 
-regards,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+FWIW, I tried your config file on my 4-way AMD64 (melody) box 
+and ran latest "mtest01" fine.
 
-iD8DBQFEVks0MsxVwznUen4RAtfpAJ4i+UT6oK2juNxRy1cUH+hJK1JpFACfftk9
-6e1qvdAzp9sXduHNKo/5/lI=
-=LfQg
------END PGP SIGNATURE-----
+I am now trying runalltests. I guess, its time to bi-sect :(
+
+Thanks,
+Badari
+

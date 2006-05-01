@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWEAX3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWEAX34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWEAX3N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 19:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWEAX3N
+	id S932324AbWEAX34 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 19:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWEAX34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 19:29:13 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:30370 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932323AbWEAX3M (ORCPT
+	Mon, 1 May 2006 19:29:56 -0400
+Received: from smtpout.mac.com ([17.250.248.173]:3308 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932324AbWEAX3z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 19:29:12 -0400
-Message-ID: <445699BE.40709@us.ibm.com>
-Date: Mon, 01 May 2006 16:29:02 -0700
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andy Whitcroft <apw@shadowen.org>
-CC: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
-       linuxppc64-dev@ozlabs.org, lkml <linux-kernel@vger.kernel.org>,
-       ak@suse.de
-Subject: Re: 2.6.17-rc2-mm1
-References: <4450F5AD.9030200@google.com>	 <20060428012022.7b73c77b.akpm@osdl.org> <44561A1E.7000103@google.com>	 <20060501100731.051f4eff.akpm@osdl.org>	 <1146503960.317.1.camel@dyn9047017100.beaverton.ibm.com>	 <445644B7.7060807@google.com> <1146506105.317.4.camel@dyn9047017100.beaverton.ibm.com> <44564BEC.1040803@google.com> <44565443.3020000@shadowen.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 1 May 2006 19:29:55 -0400
+In-Reply-To: <20060501203815.GE19423@kroah.com>
+References: <20060428112225.418cadd9.holzheu@de.ibm.com> <20060429075311.GB1886@kroah.com> <8A7D2F4D-5A05-4C93-B514-03268CAA9201@mac.com> <20060429215501.GA9870@kroah.com> <4237705F-E1B2-46CF-BE66-EFB77F68EC42@mac.com> <20060501203815.GE19423@kroah.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <2DBA690E-B11A-478E-B2E0-0529F4CE45A9@mac.com>
+Cc: Michael Holzheu <holzheu@de.ibm.com>, akpm@osdl.org,
+       schwidefsky@de.ibm.com, penberg@cs.helsinki.fi, ioe-lkml@rameria.de,
+       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] s390: Hypervisor File System
+Date: Mon, 1 May 2006 19:29:23 -0400
+To: Greg KH <greg@kroah.com>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Andy Whitcroft wrote:
-
->Martin Bligh wrote:
+On May 1, 2006, at 16:38:15, Greg KH wrote:
+> On Sun, Apr 30, 2006 at 01:18:46AM -0400, Kyle Moffett wrote:
+>> On Apr 29, 2006, at 17:55:01, Greg KH wrote:
+>>> relayfs is for that.  You can now put relayfs files in any ram  
+>>> based file system (procfs, ramfs, sysfs, debugfs, etc.)
+>>
+>> But you can't twiddle relayfs with echo and cat; it's more suited  
+>> to high-bandwidth transfers than anything else, no?
 >
->>Badari Pulavarty wrote:
->>
->>>On Mon, 2006-05-01 at 10:26 -0700, Martin Bligh wrote:
->>>
->>>>>I ran mtest01 multiple times with various options on my 4-way AMD64
->>>>>box.
->>>>>So far couldn't reproduce the problem (2.6.17-rc3-mm1).
->>>>>
->>>>>Are there any special config or test options you are testing with ?
->>>>>
->>>>
->>>>Config is here:
->>>>
->>>>http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/amd64
->>>>
->>>>It's just doing "runalltests", I think.
->>>>
->>>
->>>
->>>FWIW, I tried your config file on my 4-way AMD64 (melody) box and ran
->>>latest "mtest01" fine.
->>>
->>>I am now trying runalltests. I guess, its time to bi-sect :(
->>>
->>
->>There was a panic on PPC64 during LTP too, but it seems to have gone
->>away with rc3-mm1. Not sure if it was really fixed, or just intermittent.
->>
->>http://test.kernel.org/abat/29675/debug/console.log
->>
->
->I think its more intermittant than gone.  I've got another machine which
->runs the same tests, and she threw a very similar failure on 2.6.18-rc3-mm1.
->
-I ran whole LTP with 2.6.17-rc3-mm1 on my (2-way P710) Power box and
-didn't see any crashes. I also ran LTP on AMD64 box without any crashes.
+> Yes.
 
-Thanks,
-Badari
+So my question stands:  What is the _recommended_ way to handle  
+simple data types in low-bandwidth/frequency multiple-valued  
+transactions to hardware?  Examples include reading/modifying  
+framebuffer settings (currently done through IOCTLS), s390 current  
+state (up for discussion), etc.  In these cases there needs to be an  
+atomic snapshot or write of multiple values at the same time.  Given  
+the situation it would be _nice_ to use sysfs so the admin can do it  
+by hand; makes things shell scriptable and reduces the number of  
+binary compatibility issues.
 
-
-
+Cheers,
+Kyle Moffett

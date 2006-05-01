@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWEARB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWEARD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWEARB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 13:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWEARB1
+	id S932154AbWEARD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 13:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWEARD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 13:01:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60055 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932156AbWEARB0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 13:01:26 -0400
-Date: Mon, 1 May 2006 09:59:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Josh Boyer" <jwboyer@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc3-mm1
-Message-Id: <20060501095913.13a74b2b.akpm@osdl.org>
-In-Reply-To: <625fc13d0605010554l4cadac0fxe7fbc6cd5d57c679@mail.gmail.com>
-References: <20060501014737.54ee0dd5.akpm@osdl.org>
-	<625fc13d0605010554l4cadac0fxe7fbc6cd5d57c679@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 1 May 2006 13:03:27 -0400
+Received: from test-iport-1.cisco.com ([171.71.176.117]:5674 "EHLO
+	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S932154AbWEARD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 13:03:26 -0400
+To: Heiko Joerg Schick <info@schihei.de>
+Cc: openib-general@openib.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] Re: [PATCH 00/16] ehca: IBM eHCA InfiniBand Device Driver
+X-Message-Flag: Warning: May contain useful information
+References: <4450B378.9000705@de.ibm.com>
+	<20060427125726.GK32127@wohnheim.fh-wedel.de>
+	<e2r7a0$fo2$1@sea.gmane.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 01 May 2006 10:03:24 -0700
+In-Reply-To: <e2r7a0$fo2$1@sea.gmane.org> (Heiko Joerg Schick's message of "Thu, 27 Apr 2006 21:50:28 +0200")
+Message-ID: <ada8xply8wz.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 01 May 2006 17:03:25.0432 (UTC) FILETIME=[28F89780:01C66D41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Josh Boyer" <jwboyer@gmail.com> wrote:
->
->  On 5/1/06, Andrew Morton <akpm@osdl.org> wrote:
->  >
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.17-rc3/2.6.17-rc3-mm1/
->  >
->  >
->  > - Added git-rbtree.patch to the -mm lineup (David Woodhouse).  It shrinks
->  >   the rb-tree nodes.
->  >
->  > - Added git-sas.patch to the -mm lineup (James Bottomley).  aic94xx serial
->  >   attached storage driver.
->  >
->  > - Added git-supertrak.patch to the -mm lineup (Jeff Garzik).  A driver for
->  >   Promise SuperTrak controllers, from Promise.
-> 
->  Hi Andrew,
-> 
->  Any specific reasons the header cleanup trees weren't added?
+    Heiko> I don't like the idea to put the whole driver in one patch
+    Heiko> file. I would propose to put the patch "ehca: integration
+    Heiko> in Linux kernel" last instead of first, as Arnd
+    Heiko> mentioned. With that change we leave the kernel in a
+    Heiko> working state when applying the patches.
 
-I'll get onto that later in the month.  I also need to bring in the klibc
-tree.  The two might apparently interact - we'll see..
+Yes, that makes sense.
+
+And I can fold the patches into a single git changeset when we finally
+merge it, since I don't see any advantage to having the driver split
+into pieces.  (No one is going to git biset a half-applied driver or
+anything like that)
+
+ - R.

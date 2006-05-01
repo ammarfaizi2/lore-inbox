@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWEAX1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWEAX3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbWEAX1j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 19:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWEAX1j
+	id S932323AbWEAX3N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 19:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWEAX3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 19:27:39 -0400
-Received: from test-iport-3.cisco.com ([171.71.176.78]:1309 "EHLO
-	test-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1751057AbWEAX1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 19:27:38 -0400
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 2 of 13] ipath - set up 32-bit DMA mask if 64-bit setup fails
-X-Message-Flag: Warning: May contain useful information
-References: <1906950392f7ef8c7d07.1145913778@eng-12.pathscale.com>
-	<ada7j55vayj.fsf@cisco.com>
-	<4B05D10C-407E-46A5-848F-0897D1E6D1CD@kernel.crashing.org>
-	<adapsixs9rg.fsf@cisco.com>
-	<114102B4-FBCB-4A5A-B986-80D4A730DD91@kernel.crashing.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 01 May 2006 16:27:36 -0700
-In-Reply-To: <114102B4-FBCB-4A5A-B986-80D4A730DD91@kernel.crashing.org> (Segher Boessenkool's message of "Tue, 2 May 2006 01:13:12 +0200")
-Message-ID: <aday7xlqqaf.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Mon, 1 May 2006 19:29:13 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:30370 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932323AbWEAX3M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 19:29:12 -0400
+Message-ID: <445699BE.40709@us.ibm.com>
+Date: Mon, 01 May 2006 16:29:02 -0700
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 May 2006 23:27:37.0757 (UTC) FILETIME=[D53A3CD0:01C66D76]
+To: Andy Whitcroft <apw@shadowen.org>
+CC: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev@ozlabs.org, lkml <linux-kernel@vger.kernel.org>,
+       ak@suse.de
+Subject: Re: 2.6.17-rc2-mm1
+References: <4450F5AD.9030200@google.com>	 <20060428012022.7b73c77b.akpm@osdl.org> <44561A1E.7000103@google.com>	 <20060501100731.051f4eff.akpm@osdl.org>	 <1146503960.317.1.camel@dyn9047017100.beaverton.ibm.com>	 <445644B7.7060807@google.com> <1146506105.317.4.camel@dyn9047017100.beaverton.ibm.com> <44564BEC.1040803@google.com> <44565443.3020000@shadowen.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Segher> And it builds just fine -- what is the problem you're
-    Segher> thinking of?
 
-Well, the ipath driver depends on PCI_MSI, and PCI_MSI depends on
-(X86_LOCAL_APIC && X86_IO_APIC) || IA64
 
-So how do you enable the driver?
+Andy Whitcroft wrote:
 
-And what powerpc platform can you use the device on?
+>Martin Bligh wrote:
+>
+>>Badari Pulavarty wrote:
+>>
+>>>On Mon, 2006-05-01 at 10:26 -0700, Martin Bligh wrote:
+>>>
+>>>>>I ran mtest01 multiple times with various options on my 4-way AMD64
+>>>>>box.
+>>>>>So far couldn't reproduce the problem (2.6.17-rc3-mm1).
+>>>>>
+>>>>>Are there any special config or test options you are testing with ?
+>>>>>
+>>>>
+>>>>Config is here:
+>>>>
+>>>>http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/amd64
+>>>>
+>>>>It's just doing "runalltests", I think.
+>>>>
+>>>
+>>>
+>>>FWIW, I tried your config file on my 4-way AMD64 (melody) box and ran
+>>>latest "mtest01" fine.
+>>>
+>>>I am now trying runalltests. I guess, its time to bi-sect :(
+>>>
+>>
+>>There was a panic on PPC64 during LTP too, but it seems to have gone
+>>away with rc3-mm1. Not sure if it was really fixed, or just intermittent.
+>>
+>>http://test.kernel.org/abat/29675/debug/console.log
+>>
+>
+>I think its more intermittant than gone.  I've got another machine which
+>runs the same tests, and she threw a very similar failure on 2.6.18-rc3-mm1.
+>
+I ran whole LTP with 2.6.17-rc3-mm1 on my (2-way P710) Power box and
+didn't see any crashes. I also ran LTP on AMD64 box without any crashes.
 
- - R.
+Thanks,
+Badari
+
+
+

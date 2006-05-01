@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWEAIaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWEAIae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWEAIaa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 04:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWEAIaa
+	id S1751326AbWEAIae (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 04:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWEAIae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 04:30:30 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7954 "HELO
+	Mon, 1 May 2006 04:30:34 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8722 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751325AbWEAIa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 04:30:29 -0400
-Date: Mon, 1 May 2006 10:30:29 +0200
+	id S1751326AbWEAIad (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 04:30:33 -0400
+Date: Mon, 1 May 2006 10:30:33 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/base/firmware_class.c: cleanups
-Message-ID: <20060501083029.GT3570@stusta.de>
+Subject: [RFC: 2.6 patch] kernel/kthread.c: possible cleanups
+Message-ID: <20060501083033.GU3570@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,156 +22,80 @@ User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- remove the following global function that is both unused and 
-  unimplemented:
-  - register_firmware()
-- make the following needlessly global function static:
-  - firmware_class_uevent()
+This patch contains the following possible cleanups:
+- fold the otherwise unused kthread_stop_sem() into kthread_stop()
+- remove the unused EXPORT_SYMBOL(kthread_bind)
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 23 Apr 2006
+- 26 Apr 2006
 
- Documentation/firmware_class/README                   |   17 ----
- Documentation/firmware_class/firmware_sample_driver.c |   11 --
- drivers/base/firmware_class.c                         |   39 ++--------
- include/linux/firmware.h                              |    1 
- 4 files changed, 8 insertions(+), 60 deletions(-)
+ include/linux/kthread.h |   12 ------------
+ kernel/kthread.c        |   14 ++------------
+ 2 files changed, 2 insertions(+), 24 deletions(-)
 
---- linux-2.6.17-rc1-mm3-full/Documentation/firmware_class/README.old	2006-04-23 01:25:58.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/Documentation/firmware_class/README	2006-04-23 01:26:16.000000000 +0200
-@@ -105,20 +105,3 @@
-    on the setup, so I think that the choice on what firmware to make
-    persistent should be left to userspace.
+--- linux-2.6.17-rc1-mm3-full/include/linux/kthread.h.old	2006-04-26 12:46:06.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/include/linux/kthread.h	2006-04-26 12:46:33.000000000 +0200
+@@ -70,18 +70,6 @@
+ int kthread_stop(struct task_struct *k);
  
-- - Why register_firmware()+__init can be useful:
-- 	- For boot devices needing firmware.
--	- To make the transition easier:
--		The firmware can be declared __init and register_firmware()
--		called on module_init. Then the firmware is warranted to be
--		there even if "firmware hotplug userspace" is not there yet or
--		it doesn't yet provide the needed firmware.
--		Once the firmware is widely available in userspace, it can be
--		removed from the kernel. Or made optional (CONFIG_.*_FIRMWARE).
--
--	In either case, if firmware hotplug support is there, it can move the
--	firmware out of kernel memory into the real filesystem for later
--	usage.
--
--	Note: If persistence is implemented on top of initramfs,
--	register_firmware() may not be appropriate.
--
---- linux-2.6.17-rc1-mm3-full/Documentation/firmware_class/firmware_sample_driver.c.old	2006-04-23 01:26:28.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/Documentation/firmware_class/firmware_sample_driver.c	2006-04-23 01:26:57.000000000 +0200
-@@ -5,8 +5,6 @@
-  *
-  * Sample code on how to use request_firmware() from drivers.
-  *
-- * Note that register_firmware() is currently useless.
+ /**
+- * kthread_stop_sem: stop a thread created by kthread_create().
+- * @k: thread created by kthread_create().
+- * @s: semaphore that @k waits on while idle.
 - *
-  */
- 
- #include <linux/module.h>
-@@ -17,11 +15,6 @@
- 
- #include "linux/firmware.h"
- 
--#define WE_CAN_NEED_FIRMWARE_BEFORE_USERSPACE_IS_AVAILABLE
--#ifdef WE_CAN_NEED_FIRMWARE_BEFORE_USERSPACE_IS_AVAILABLE
--char __init inkernel_firmware[] = "let's say that this is firmware\n";
--#endif
+- * Does essentially the same thing as kthread_stop() above, but wakes
+- * @k by calling up(@s).
+- *
+- * Returns the result of threadfn(), or -EINTR if wake_up_process()
+- * was never called. */
+-int kthread_stop_sem(struct task_struct *k, struct semaphore *s);
 -
- static struct device ghost_device = {
- 	.bus_id    = "ghost0",
- };
-@@ -104,10 +97,6 @@
- 
- static int sample_init(void)
- {
--#ifdef WE_CAN_NEED_FIRMWARE_BEFORE_USERSPACE_IS_AVAILABLE
--	register_firmware("sample_driver_fw", inkernel_firmware,
--			  sizeof(inkernel_firmware));
--#endif
- 	device_initialize(&ghost_device);
- 	/* since there is no real hardware insertion I just call the
- 	 * sample probe functions here */
---- linux-2.6.17-rc1-mm3-full/include/linux/firmware.h.old	2006-04-23 01:27:07.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/include/linux/firmware.h	2006-04-23 01:27:13.000000000 +0200
-@@ -19,5 +19,4 @@
- 	void (*cont)(const struct firmware *fw, void *context));
- 
- void release_firmware(const struct firmware *fw);
--void register_firmware(const char *name, const u8 *data, size_t size);
- #endif
---- linux-2.6.17-rc1-mm3-full/drivers/base/firmware_class.c.old	2006-04-23 01:27:22.000000000 +0200
-+++ linux-2.6.17-rc1-mm3-full/drivers/base/firmware_class.c	2006-04-23 01:29:13.000000000 +0200
-@@ -86,18 +86,9 @@
- static CLASS_ATTR(timeout, 0644, firmware_timeout_show, firmware_timeout_store);
- 
- static void  fw_class_dev_release(struct class_device *class_dev);
--int firmware_class_uevent(struct class_device *dev, char **envp,
--			   int num_envp, char *buffer, int buffer_size);
- 
--static struct class firmware_class = {
--	.name		= "firmware",
--	.uevent	= firmware_class_uevent,
--	.release	= fw_class_dev_release,
--};
--
--int
--firmware_class_uevent(struct class_device *class_dev, char **envp,
--		       int num_envp, char *buffer, int buffer_size)
-+static int firmware_class_uevent(struct class_device *class_dev, char **envp,
-+				 int num_envp, char *buffer, int buffer_size)
- {
- 	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
- 	int i = 0, len = 0;
-@@ -116,6 +107,12 @@
- 	return 0;
- }
- 
-+static struct class firmware_class = {
-+	.name		= "firmware",
-+	.uevent		= firmware_class_uevent,
-+	.release	= fw_class_dev_release,
-+};
-+
- static ssize_t
- firmware_loading_show(struct class_device *class_dev, char *buf)
- {
-@@ -493,25 +490,6 @@
- 	}
- }
- 
 -/**
-- * register_firmware: - provide a firmware image for later usage
-- * @name: name of firmware image file
-- * @data: buffer pointer for the firmware image
-- * @size: size of the data buffer area
-- *
-- *	Make sure that @data will be available by requesting firmware @name.
-- *
-- *	Note: This will not be possible until some kind of persistence
-- *	is available.
-- **/
--void
--register_firmware(const char *name, const u8 *data, size_t size)
--{
--	/* This is meaningless without firmware caching, so until we
--	 * decide if firmware caching is reasonable just leave it as a
--	 * noop */
+  * kthread_should_stop: should this kthread return now?
+  *
+  * When someone calls kthread_stop on your kthread, it will be woken
+--- linux-2.6.17-rc1-mm3-full/kernel/kthread.c.old	2006-04-26 12:46:16.000000000 +0200
++++ linux-2.6.17-rc1-mm3-full/kernel/kthread.c	2006-04-26 12:47:34.000000000 +0200
+@@ -164,16 +164,9 @@
+ 	set_task_cpu(k, cpu);
+ 	k->cpus_allowed = cpumask_of_cpu(cpu);
+ }
+-EXPORT_SYMBOL(kthread_bind);
+ 
+ int kthread_stop(struct task_struct *k)
+ {
+-	return kthread_stop_sem(k, NULL);
 -}
+-EXPORT_SYMBOL(kthread_stop);
 -
- /* Async support */
- struct firmware_work {
- 	struct work_struct work;
-@@ -630,4 +608,3 @@
- EXPORT_SYMBOL(release_firmware);
- EXPORT_SYMBOL(request_firmware);
- EXPORT_SYMBOL(request_firmware_nowait);
--EXPORT_SYMBOL(register_firmware);
+-int kthread_stop_sem(struct task_struct *k, struct semaphore *s)
+-{
+ 	int ret;
+ 
+ 	mutex_lock(&kthread_stop_lock);
+@@ -187,10 +180,7 @@
+ 
+ 	/* Now set kthread_should_stop() to true, and wake it up. */
+ 	kthread_stop_info.k = k;
+-	if (s)
+-		up(s);
+-	else
+-		wake_up_process(k);
++	wake_up_process(k);
+ 	put_task_struct(k);
+ 
+ 	/* Once it dies, reset stop ptr, gather result and we're done. */
+@@ -201,7 +191,7 @@
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL(kthread_stop_sem);
++EXPORT_SYMBOL(kthread_stop);
+ 
+ static __init int helper_init(void)
+ {
 

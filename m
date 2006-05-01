@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWEAMaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWEAM2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWEAMaM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 08:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWEAMaM
+	id S932075AbWEAM2d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 08:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWEAM2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 08:30:12 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:6569 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932076AbWEAMaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 08:30:10 -0400
-In-Reply-To: <4454CF35.7010803@s5r6.in-berlin.de>
-References: <4454CF35.7010803@s5r6.in-berlin.de>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <EFD1A7C4-9A9E-48EA-985E-9154428AFFE6@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+	Mon, 1 May 2006 08:28:33 -0400
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:64236 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id S932075AbWEAM2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 08:28:32 -0400
+Message-ID: <4455FEBE.9080304@sw.ru>
+Date: Mon, 01 May 2006 16:27:42 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Kir Kolyshkin <kir@openvz.org>, akpm@osdl.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, sam@vilain.net,
+       linux-kernel@vger.kernel.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>, serue@us.ibm.com,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, herbert@13thfloor.at
+Subject: Re: [Devel] Re: [RFC] Virtualization steps
+References: <1143228339.19152.91.camel@localhost.localdomain> <200603282029.AA00927@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <4429A17D.2050506@openvz.org> <443151B4.7010401@tmr.com> <443B873B.9040908@sw.ru> <4454BA24.4070204@tmr.com>
+In-Reply-To: <4454BA24.4070204@tmr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: How to replace bus_to_virt()?
-Date: Mon, 1 May 2006 14:30:02 +0200
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> is there a *direct* future-proof replacement for bus_to_virt()?
->
-> It appears there are already architectures which do not define a  
-> bus_to_virt() funtion or macro. If there isn't a direct  
-> replacement, is there at least a way to detect at compile time  
-> whether bus_to_virt() exists?
->
-> I am asking because the sbp2 driver uses bus_to_virt() if  
-> CONFIG_IEEE1394_SBP2_PHYS_DMA=y. I would like to replace this  
-> option by an automatic detection when the respective code in sbp2  
-> is actually required.
->
-> The current implementation is this: Sbp2 uses bus_to_virt() to map  
-> from 1394 bus addresses (which are currently identical to local  
-> host bus addresses) to virtual addresses.
+Bill,
 
-Sounds like you should be using phys_to_virt() anyway?
+>> So I would detailed it like this:
+>> - freeze VPS
+> 
+> when the VM stops providing services it's down as far as I'm concerned
+please, note, that connections are not dropped, new connections are not 
+responded with RESET and when VM is migrated all the clients are 
+serviced as if nothing has happened. From client point of view there is 
+only a small delay in servicing, but not a real downtime (when clients 
+are rejected). Maybe due to these some of people call it zero down-time. 
+Though from technical POV this is not the best term for sure. It is 
+better to call it checkpointing/restore or live migration.
 
+>> - freeze networking
+>> - copy VPS data to destination
+>> - dump VPS
+>> - copy dump to the destination
+>> - restore VPS
+>> - unfreeze VPS
+> 
+> and here is where my service is available again. The server may not know 
+> it's been down, but the clients will.
+> 
+>> - kill original VPS on source
+>>
+>> Moreover, in OpenVZ live migration allows to migrate 32bit VPSs 
+>> between i686 and x86-64 Linux machines.
+> 
+> I guess you're using "zero downtime" as a marketing term rather than a 
+> technical term.
 
-Segher
-
+Thanks,
+Kirill

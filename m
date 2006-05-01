@@ -1,225 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWEAFb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWEAFbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWEAFb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 01:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWEAFbL
+	id S1751100AbWEAFbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 01:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWEAFbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 01:31:11 -0400
-Received: from ns1.suse.de ([195.135.220.2]:19882 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751054AbWEAFax (ORCPT
+	Mon, 1 May 2006 01:31:08 -0400
+Received: from mx2.suse.de ([195.135.220.15]:39344 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750953AbWEAFa7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 01:30:53 -0400
+	Mon, 1 May 2006 01:30:59 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 1 May 2006 15:30:48 +1000
-Message-Id: <1060501053048.22997@suse.de>
+Date: Mon, 1 May 2006 15:30:54 +1000
+Message-Id: <1060501053054.23009@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 008 of 11] md: Allow a linear array to have drives added while active.
+Subject: [PATCH 009 of 11] md: Support stripe/offset mode in raid10
 References: <20060501152229.18367.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The "industry standard" DDF format allows for a stripe/offset layout
+where data is duplicated on different stripes. e.g.
+
+  A  B  C  D
+  D  A  B  C
+  E  F  G  H
+  H  E  F  G
+
+(columns are drives, rows are stripes, LETTERS are chunks of data).
+
+This is similar to raid10's 'far' mode, but not quite the same.  So
+enhance 'far' mode with a 'far/offset' option which follows the layout
+of DDFs stripe/offset.
+
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./drivers/md/linear.c         |   74 ++++++++++++++++++++++++++++++++++--------
- ./drivers/md/md.c             |   15 +++++++-
- ./include/linux/raid/linear.h |    2 +
- 3 files changed, 76 insertions(+), 15 deletions(-)
+ ./drivers/md/raid10.c         |   64 ++++++++++++++++++++++++++++--------------
+ ./include/linux/raid/raid10.h |    7 +++-
+ 2 files changed, 49 insertions(+), 22 deletions(-)
 
-diff ./drivers/md/linear.c~current~ ./drivers/md/linear.c
---- ./drivers/md/linear.c~current~	2006-05-01 15:09:20.000000000 +1000
-+++ ./drivers/md/linear.c	2006-05-01 15:13:14.000000000 +1000
-@@ -111,7 +111,7 @@ static int linear_issue_flush(request_qu
- 	return ret;
- }
+diff ./drivers/md/raid10.c~current~ ./drivers/md/raid10.c
+--- ./drivers/md/raid10.c~current~	2006-05-01 15:12:34.000000000 +1000
++++ ./drivers/md/raid10.c	2006-05-01 15:13:22.000000000 +1000
+@@ -29,6 +29,7 @@
+  *    raid_disks
+  *    near_copies (stored in low byte of layout)
+  *    far_copies (stored in second byte of layout)
++ *    far_offset (stored in bit 16 of layout )
+  *
+  * The data to be stored is divided into chunks using chunksize.
+  * Each device is divided into far_copies sections.
+@@ -36,10 +37,14 @@
+  * near_copies copies of each chunk is stored (each on a different drive).
+  * The starting device for each section is offset near_copies from the starting
+  * device of the previous section.
+- * Thus there are (near_copies*far_copies) of each chunk, and each is on a different
++ * Thus they are (near_copies*far_copies) of each chunk, and each is on a different
+  * drive.
+  * near_copies and far_copies must be at least one, and their product is at most
+  * raid_disks.
++ *
++ * If far_offset is true, then the far_copies are handled a bit differently.
++ * The copies are still in different stripes, but instead of be very far apart
++ * on disk, there are adjacent stripes.
+  */
  
--static int linear_run (mddev_t *mddev)
-+static linear_conf_t *linear_conf(mddev_t *mddev, int raid_disks)
+ /*
+@@ -357,8 +362,7 @@ static int raid10_end_write_request(stru
+  * With this layout, and block is never stored twice on the one device.
+  *
+  * raid10_find_phys finds the sector offset of a given virtual sector
+- * on each device that it is on. If a block isn't on a device,
+- * that entry in the array is set to MaxSector.
++ * on each device that it is on.
+  *
+  * raid10_find_virt does the reverse mapping, from a device and a
+  * sector offset to a virtual address
+@@ -381,6 +385,8 @@ static void raid10_find_phys(conf_t *con
+ 	chunk *= conf->near_copies;
+ 	stripe = chunk;
+ 	dev = sector_div(stripe, conf->raid_disks);
++	if (conf->far_offset)
++		stripe *= conf->far_copies;
+ 
+ 	sector += stripe << conf->chunk_shift;
+ 
+@@ -414,16 +420,24 @@ static sector_t raid10_find_virt(conf_t 
  {
- 	linear_conf_t *conf;
- 	dev_info_t **table;
-@@ -121,20 +121,21 @@ static int linear_run (mddev_t *mddev)
- 	sector_t curr_offset;
- 	struct list_head *tmp;
+ 	sector_t offset, chunk, vchunk;
  
--	conf = kzalloc (sizeof (*conf) + mddev->raid_disks*sizeof(dev_info_t),
-+	conf = kzalloc (sizeof (*conf) + raid_disks*sizeof(dev_info_t),
- 			GFP_KERNEL);
- 	if (!conf)
--		goto out;
-+		return NULL;
-+
- 	mddev->private = conf;
- 
- 	cnt = 0;
--	mddev->array_size = 0;
-+	conf->array_size = 0;
- 
- 	ITERATE_RDEV(mddev,rdev,tmp) {
- 		int j = rdev->raid_disk;
- 		dev_info_t *disk = conf->disks + j;
- 
--		if (j < 0 || j > mddev->raid_disks || disk->rdev) {
-+		if (j < 0 || j > raid_disks || disk->rdev) {
- 			printk("linear: disk numbering problem. Aborting!\n");
- 			goto out;
- 		}
-@@ -152,11 +153,11 @@ static int linear_run (mddev_t *mddev)
- 			blk_queue_max_sectors(mddev->queue, PAGE_SIZE>>9);
- 
- 		disk->size = rdev->size;
--		mddev->array_size += rdev->size;
-+		conf->array_size += rdev->size;
- 
- 		cnt++;
- 	}
--	if (cnt != mddev->raid_disks) {
-+	if (cnt != raid_disks) {
- 		printk("linear: not enough drives present. Aborting!\n");
- 		goto out;
- 	}
-@@ -200,7 +201,7 @@ static int linear_run (mddev_t *mddev)
- 		unsigned round;
- 		unsigned long base;
- 
--		sz = mddev->array_size >> conf->preshift;
-+		sz = conf->array_size >> conf->preshift;
- 		sz += 1; /* force round-up */
- 		base = conf->hash_spacing >> conf->preshift;
- 		round = sector_div(sz, base);
-@@ -247,14 +248,56 @@ static int linear_run (mddev_t *mddev)
- 
- 	BUG_ON(table - conf->hash_table > nb_zone);
- 
-+	return conf;
-+
-+out:
-+	kfree(conf);
-+	return NULL;
-+}
-+
-+static int linear_run (mddev_t *mddev)
-+{
-+	linear_conf_t *conf;
-+
-+	conf = linear_conf(mddev, mddev->raid_disks);
-+
-+	if (!conf)
-+		return 1;
-+	mddev->private = conf;
-+	mddev->array_size = conf->array_size;
-+
- 	blk_queue_merge_bvec(mddev->queue, linear_mergeable_bvec);
- 	mddev->queue->unplug_fn = linear_unplug;
- 	mddev->queue->issue_flush_fn = linear_issue_flush;
- 	return 0;
-+}
- 
--out:
--	kfree(conf);
--	return 1;
-+static int linear_add(mddev_t *mddev, mdk_rdev_t *rdev)
-+{
-+	/* Adding a drive to a linear array allows the array to grow.
-+	 * It is permitted if the new drive has a matching superblock
-+	 * already on it, with raid_disk equal to raid_disks.
-+	 * It is achieved by creating a new linear_private_data structure
-+	 * and swapping it in in-place of the current one.
-+	 * The current one is never freed until the array is stopped.
-+	 * This avoids races.
-+	 */
-+	linear_conf_t *newconf;
-+
-+	if (rdev->raid_disk != mddev->raid_disks)
-+		return -EINVAL;
-+
-+	newconf = linear_conf(mddev,mddev->raid_disks+1);
-+
-+	if (!newconf)
-+		return -ENOMEM;
-+
-+	newconf->prev = mddev_to_conf(mddev);
-+	mddev->private = newconf;
-+	mddev->raid_disks++;
-+	mddev->array_size = newconf->array_size;
-+	set_capacity(mddev->gendisk, mddev->array_size << 1);
-+	return 0;
- }
- 
- static int linear_stop (mddev_t *mddev)
-@@ -262,8 +305,12 @@ static int linear_stop (mddev_t *mddev)
- 	linear_conf_t *conf = mddev_to_conf(mddev);
-   
- 	blk_sync_queue(mddev->queue); /* the unplug fn references 'conf'*/
--	kfree(conf->hash_table);
--	kfree(conf);
-+	do {
-+		linear_conf_t *t = conf->prev;
-+		kfree(conf->hash_table);
-+		kfree(conf);
-+		conf = t;
-+	} while (conf);
- 
- 	return 0;
- }
-@@ -360,6 +407,7 @@ static struct mdk_personality linear_per
- 	.run		= linear_run,
- 	.stop		= linear_stop,
- 	.status		= linear_status,
-+	.hot_add_disk	= linear_add,
- };
- 
- static int __init linear_init (void)
-
-diff ./drivers/md/md.c~current~ ./drivers/md/md.c
---- ./drivers/md/md.c~current~	2006-05-01 15:12:34.000000000 +1000
-+++ ./drivers/md/md.c	2006-05-01 15:13:14.000000000 +1000
-@@ -807,8 +807,8 @@ static int super_90_validate(mddev_t *md
- 
- 		if (desc->state & (1<<MD_DISK_FAULTY))
- 			set_bit(Faulty, &rdev->flags);
--		else if (desc->state & (1<<MD_DISK_SYNC) &&
--			 desc->raid_disk < mddev->raid_disks) {
-+		else if (desc->state & (1<<MD_DISK_SYNC) /* &&
-+			    desc->raid_disk < mddev->raid_disks */) {
- 			set_bit(In_sync, &rdev->flags);
- 			rdev->raid_disk = desc->raid_disk;
- 		}
-@@ -3346,6 +3346,17 @@ static int add_new_disk(mddev_t * mddev,
- 
- 		rdev->raid_disk = -1;
- 		err = bind_rdev_to_array(rdev, mddev);
-+		if (!err && !mddev->pers->hot_remove_disk) {
-+			/* If there is hot_add_disk but no hot_remove_disk
-+			 * then added disks for geometry changes,
-+			 * and should be added immediately.
-+			 */
-+			super_types[mddev->major_version].
-+				validate_super(mddev, rdev);
-+			err = mddev->pers->hot_add_disk(mddev, rdev);
-+			if (err)
-+				unbind_rdev_from_array(rdev);
+-	while (sector > conf->stride) {
+-		sector -= conf->stride;
+-		if (dev < conf->near_copies)
+-			dev += conf->raid_disks - conf->near_copies;
+-		else
+-			dev -= conf->near_copies;
+-	}
+-
+ 	offset = sector & conf->chunk_mask;
+-	chunk = sector >> conf->chunk_shift;
++	if (conf->far_offset) {
++		int fc;
++		chunk = sector >> conf->chunk_shift;
++		fc = sector_div(chunk, conf->far_copies);
++		dev -= fc * conf->near_copies;
++		if (dev < 0)
++			dev += conf->raid_disks;
++	} else {
++		while (sector > conf->stride) {
++			sector -= conf->stride;
++			if (dev < conf->near_copies)
++				dev += conf->raid_disks - conf->near_copies;
++			else
++				dev -= conf->near_copies;
 +		}
- 		if (err)
- 			export_rdev(rdev);
++		chunk = sector >> conf->chunk_shift;
++	}
+ 	vchunk = chunk * conf->raid_disks + dev;
+ 	sector_div(vchunk, conf->near_copies);
+ 	return (vchunk << conf->chunk_shift) + offset;
+@@ -900,9 +914,12 @@ static void status(struct seq_file *seq,
+ 		seq_printf(seq, " %dK chunks", mddev->chunk_size/1024);
+ 	if (conf->near_copies > 1)
+ 		seq_printf(seq, " %d near-copies", conf->near_copies);
+-	if (conf->far_copies > 1)
+-		seq_printf(seq, " %d far-copies", conf->far_copies);
+-
++	if (conf->far_copies > 1) {
++		if (conf->far_offset)
++			seq_printf(seq, " %d offset-copies", conf->far_copies);
++		else
++			seq_printf(seq, " %d far-copies", conf->far_copies);
++	}
+ 	seq_printf(seq, " [%d/%d] [", conf->raid_disks,
+ 						conf->working_disks);
+ 	for (i = 0; i < conf->raid_disks; i++)
+@@ -1915,7 +1932,7 @@ static int run(mddev_t *mddev)
+ 	mirror_info_t *disk;
+ 	mdk_rdev_t *rdev;
+ 	struct list_head *tmp;
+-	int nc, fc;
++	int nc, fc, fo;
+ 	sector_t stride, size;
  
+ 	if (mddev->chunk_size == 0) {
+@@ -1925,8 +1942,9 @@ static int run(mddev_t *mddev)
+ 
+ 	nc = mddev->layout & 255;
+ 	fc = (mddev->layout >> 8) & 255;
++	fo = mddev->layout & (1<<16);
+ 	if ((nc*fc) <2 || (nc*fc) > mddev->raid_disks ||
+-	    (mddev->layout >> 16)) {
++	    (mddev->layout >> 17)) {
+ 		printk(KERN_ERR "raid10: %s: unsupported raid10 layout: 0x%8x\n",
+ 		       mdname(mddev), mddev->layout);
+ 		goto out;
+@@ -1958,12 +1976,16 @@ static int run(mddev_t *mddev)
+ 	conf->near_copies = nc;
+ 	conf->far_copies = fc;
+ 	conf->copies = nc*fc;
++	conf->far_offset = fo;
+ 	conf->chunk_mask = (sector_t)(mddev->chunk_size>>9)-1;
+ 	conf->chunk_shift = ffz(~mddev->chunk_size) - 9;
+-	stride = mddev->size >> (conf->chunk_shift-1);
+-	sector_div(stride, fc);
+-	conf->stride = stride << conf->chunk_shift;
+-
++	if (fo)
++		conf->stride = 1 << conf->chunk_shift;
++	else {
++		stride = mddev->size >> (conf->chunk_shift-1);
++		sector_div(stride, fc);
++		conf->stride = stride << conf->chunk_shift;
++	}
+ 	conf->r10bio_pool = mempool_create(NR_RAID10_BIOS, r10bio_pool_alloc,
+ 						r10bio_pool_free, conf);
+ 	if (!conf->r10bio_pool) {
 
-diff ./include/linux/raid/linear.h~current~ ./include/linux/raid/linear.h
---- ./include/linux/raid/linear.h~current~	2006-05-01 15:09:20.000000000 +1000
-+++ ./include/linux/raid/linear.h	2006-05-01 15:13:14.000000000 +1000
-@@ -13,8 +13,10 @@ typedef struct dev_info dev_info_t;
+diff ./include/linux/raid/raid10.h~current~ ./include/linux/raid/raid10.h
+--- ./include/linux/raid/raid10.h~current~	2006-05-01 15:09:20.000000000 +1000
++++ ./include/linux/raid/raid10.h	2006-05-01 15:13:22.000000000 +1000
+@@ -24,11 +24,16 @@ struct r10_private_data_s {
+ 	int 			far_copies;   /* number of copies layed out
+ 					       * at large strides across drives
+ 					       */
++	int			far_offset;   /* far_copies are offset by 1 stripe
++					       * instead of many
++					       */
+ 	int			copies;	      /* near_copies * far_copies.
+ 					       * must be <= raid_disks
+ 					       */
+ 	sector_t		stride;	      /* distance between far copies.
+-					       * This is size / far_copies
++					       * This is size / far_copies unless
++					       * far_offset, in which case it is
++					       * 1 stripe.
+ 					       */
  
- struct linear_private_data
- {
-+	struct linear_private_data *prev;	/* earlier version */
- 	dev_info_t		**hash_table;
- 	sector_t		hash_spacing;
-+	sector_t		array_size;
- 	int			preshift; /* shift before dividing by hash_spacing */
- 	dev_info_t		disks[0];
- };
+ 	int chunk_shift; /* shift from chunks to sectors */

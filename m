@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWEAUeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWEAUhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbWEAUeI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 16:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWEAUeH
+	id S932236AbWEAUhb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 16:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWEAUhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 16:34:07 -0400
-Received: from mail.shorthander.org ([85.10.227.118]:29403 "EHLO
-	herakles.nuerscht.net") by vger.kernel.org with ESMTP
-	id S932231AbWEAUeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 16:34:06 -0400
-Date: Mon, 1 May 2006 22:34:01 +0200
-From: Tobias Klauser <tklauser@nuerscht.ch>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-scsi@vger.kernel.org
-Subject: Re: + drivers-scsi-use-array_size-macro.patch added to -mm tree
-Message-ID: <20060501203401.GA3557@neon.tklauser.home>
-References: <200605011717.k41HHagU001787@shell0.pdx.osdl.net> <1146505519.20760.60.camel@laptopd505.fenrus.org>
+	Mon, 1 May 2006 16:37:31 -0400
+Received: from cantor.suse.de ([195.135.220.2]:14749 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932236AbWEAUha (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 16:37:30 -0400
+Date: Mon, 1 May 2006 13:35:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-stable <stable@kernel.org>
+Subject: Re: [stable] [patch 2.6.17-rc3] i386: fix broken FP exception handling
+Message-ID: <20060501203552.GC19423@kroah.com>
+References: <200604291409_MC3-1-BE50-16AD@compuserve.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1146505519.20760.60.camel@laptopd505.fenrus.org>
-X-GPG-Key: 0x3A445520
-X-OS: GNU/Linux
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200604291409_MC3-1-BE50-16AD@compuserve.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-05-01 at 19:45:19 +0200, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Mon, 2006-05-01 at 10:15 -0700, akpm@osdl.org wrote:
-> > diff -puN drivers/scsi/53c700.c~drivers-scsi-use-array_size-macro drivers/scsi/53c700.c
-> > --- devel/drivers/scsi/53c700.c~drivers-scsi-use-array_size-macro	2006-05-01 10:15:39.000000000 -0700
-> > +++ devel-akpm/drivers/scsi/53c700.c	2006-05-01 10:15:39.000000000 -0700
-> > @@ -316,7 +316,7 @@ NCR_700_detect(struct scsi_host_template
-> >  	BUG_ON(!dma_is_consistent(pScript) && L1_CACHE_BYTES < dma_get_cache_alignment());
-> >  	hostdata->slots = (struct NCR_700_command_slot *)(memory + SLOTS_OFFSET);
-> >  	hostdata->dev = dev;
-> > -		
-> > +
-> >  	pSlots = pScript + SLOTS_OFFSET;
-> >  
-> >  	/* Fill in the missing routines from the host template */
+On Sat, Apr 29, 2006 at 02:07:49PM -0400, Chuck Ebbert wrote:
+> The FXSAVE information leak patch introduced a bug in FP exception
+> handling: it clears FP exceptions only when there are already
+> none outstanding.  Mikael Pettersson reported that causes problems
+> with the Erlang runtime and has tested this fix.
 > 
-> noise?
-
-I usually remove trailing whitespaces which are around the section I'm
-patching (I highlight them in my vim). Is that a problem?
-
-> > @@ -332,19 +332,18 @@ NCR_700_detect(struct scsi_host_template
-> >  	tpnt->slave_destroy = NCR_700_slave_destroy;
-> >  	tpnt->change_queue_depth = NCR_700_change_queue_depth;
-> >  	tpnt->change_queue_type = NCR_700_change_queue_type;
-> > -	
-> > +
+> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> Acked-by: Mikael Pettersson <mikpe@it.uu.se>
 > 
-> more noise?
-
-Same here
-
-> > @@ -385,17 +382,17 @@ NCR_700_detect(struct scsi_host_template
-> >  	host->hostdata[0] = (unsigned long)hostdata;
-> >  	/* kick the chip */
-> >  	NCR_700_writeb(0xff, host, CTEST9_REG);
-> > -	if(hostdata->chip710) 
-> > +	if (hostdata->chip710)
+> ---
 > 
-> while a nice cleanup.. does it fit in this patch?
-> 
-> 
-> (many more such things snipped)
+> The same bug is in 2.6.16.9+ and this patch applies there as well.
 
-I probably should have mentioned the whitespace/coding style cleanups in
-the description of the patch. Or should I just leave out these kind of
-cleanups?
+Thanks, this got included in 2.6.16.12
+
+greg k-h

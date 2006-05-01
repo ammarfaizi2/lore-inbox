@@ -1,77 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWEASCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWEASJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWEASCM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 14:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWEASCM
+	id S1750701AbWEASJE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 14:09:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWEASJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 14:02:12 -0400
-Received: from saraswathi.solana.com ([198.99.130.12]:16008 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932188AbWEASCL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 14:02:11 -0400
-Date: Mon, 1 May 2006 13:02:33 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Blaisorblade <blaisorblade@yahoo.it>,
-       user-mode-linux-devel@lists.sourceforge.net,
-       Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Subject: Re: [uml-devel] [RFC] PATCH 3/4 - Time virtualization : PTRACE_SYSCALL_MASK
-Message-ID: <20060501170233.GC4592@ccure.user-mode-linux.org>
-References: <200604131720.k3DHKqdr004720@ccure.user-mode-linux.org> <200604261747.54660.blaisorblade@yahoo.it> <20060426154607.GA8628@ccure.user-mode-linux.org> <200604282228.46681.blaisorblade@yahoo.it> <20060429084907.GD9463@osiris.boeblingen.de.ibm.com>
+	Mon, 1 May 2006 14:09:03 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:46782 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750701AbWEASJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 14:09:01 -0400
+Subject: Re: IP1000 gigabit nic driver
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: David Vrabel <dvrabel@cantab.net>
+Cc: romieu@fr.zoreil.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       david@pleyades.net
+In-Reply-To: <4455F1D8.5030102@cantab.net>
+References: <20060427142939.GA31473@fargo>
+	 <20060427185627.GA30871@electric-eye.fr.zoreil.com>
+	 <445144FF.4070703@cantab.net> <20060428075725.GA18957@fargo>
+	 <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
+	 <20060428113755.GA7419@fargo>
+	 <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI>
+	 <1146306567.1642.3.camel@localhost>  <20060429122119.GA22160@fargo>
+	 <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost>
+	 <44554ADE.8030200@cantab.net>  <4455F1D8.5030102@cantab.net>
+Date: Mon, 01 May 2006 21:08:59 +0300
+Message-Id: <1146506939.23931.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060429084907.GD9463@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 29, 2006 at 10:49:07AM +0200, Heiko Carstens wrote:
-> IMHO this is way too complicated. Introducing a ptrace call that returns
-> the number of syscalls and forcing user space to pass a complete bitmask
-> is much easier. Also the semantics are much easier to understand.
+Hi David,
 
-This sounds more complicated than what we are proposing.  
+On Mon, 2006-05-01 at 12:32 +0100, David Vrabel wrote:
+> It was clocking the MII management interface (MDC) at 500 Hz so each PHY
+> register access took some 130 ms, and many registers accesses were being
+> done on initialization. According to the datasheet, the maximum
+> frequency for MDC is 2.5 MHz.  Delays have been adjusted accordingly.
 
-This would make the process care about the number of system calls
-implemented by the kernel, which is something that doesn't even come
-up in the normal case with the current interface.  You only care about
-it if you get a -EINVAL and want to figure out exactly why.
+Thanks. Merged your patch.
 
->From a practical point of view, you would want code that looks like
-this:
-	n = nsyscalls();
-	mask = malloc((n + 7)/8);
-	if(mask == NULL)
-		return;
+				Pekka
 
-	/* Zero mask, set bits, call ptrace */
+[PATCH] IP1000 Gigabit Ethernet device driver
 
-	free(mask);
+This is a cleaned up fork of the IP1000A device driver:
 
-rather than code like this:
+  http://www.icplus.com.tw/driver-pp-IP1000A.html
 
-	int mask[(BIGGEST_SYSCALL_I_CARE_ABOUT + 7) / 8];
+Open issues:
 
-	/* Zero mask, set bits, call ptrace */
+  - ipg_probe() looks really fishy and doesn't handle all errors
+    (e.g. ioremap failing).
+  - ipg_nic_do_ioctl() is playing games with user-space pointer
+    and lets userspace do PCI access. I think we should nuke the
+    ioctl. Arjan suggested ethtool ioctl instead, but we don't
+    seem to have that kind of functionality now anyway.
 
-That doesn't seem like an improvement to me.
+Changelog:
 
-The second case would be more complicated if it wanted to figure out
-what the problem was if ptrace returned -EINVAL.  However, some users
-won't care, so that complexity is optional.  For example, UML will
-already know by other means what system calls are implemented on the
-host, so it won't bother looking at the mask in the case of a
-failure.  I'm not sure what the right thing for strace is.
+  - Kill 2.2 and 2.4 compatability macros (Pekka)
+  - Use proper module API (Pekka)
+  - Use proper PCI API (Pekka)
+  - Use netdev_priv (Pekka)
+  - Consolidate headers to one file (Pekka)
+  - Use __iomem annotations (Pekka)
+  - Use iomap instead of read/out for I/O (Pekka)
+  - Remove obfuscating register access macros (Pekka)
+  - Remove changelogs (David)
+  - Remove ether_crc_le() and use crc32_le() instead (David)
+  - No more nonsense with root_dev. ipg_remove() now works (David)
+  - Move PHY and MAC address initialization into the ipg_probe().  It was
+    previously filling in the MAC address on open which breaks some user
+    space. (David)
+  - Folded ipg_nic_init into ipg_probe since it was broke otherwise (David)
+  - Reduce delays when reading/writing the PHY registers so we clock the
+    MII management interface at 2.5 MHz (the maximum according to the
+    datasheet) instead of 500 Hz. (David)
 
-> In addition your proposal would already introduce a rather complicated
-> interface to figure out how many syscalls the kernel has. I'm sure this
-> will be (mis)used sooner or later.
+The patch is 128 KB in size, so I am not including it in this
+mail. You can find the patch here:
 
-How?  And, if so, why is that a problem?
+  http://www.cs.helsinki.fi/u/penberg/linux/ip1000-driver.patch
 
-There are already complicated ways to figure out what system calls the
-kernel has, and I don't recall them causing problems.
+Signed-off-by: David Vrabel <dvrabel@cantab.net>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 
-				Jeff

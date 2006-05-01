@@ -1,109 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWEALEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWEALXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWEALEG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 07:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWEALEG
+	id S932066AbWEALXG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 07:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932067AbWEALXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 07:04:06 -0400
-Received: from mail.gmx.de ([213.165.64.20]:38359 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751339AbWEALEF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 07:04:05 -0400
-Date: Mon, 1 May 2006 13:04:03 +0200 (MEST)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: linux-kernel@vger.kernel.org
-Cc: michael.kerrisk@gmx.net
-MIME-Version: 1.0
-References: <877.1144530456@www042.gmx.net>
-Subject: man-pages-2.30 is released
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <29907.1146481443@www049.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 1 May 2006 07:23:06 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:25809 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S932066AbWEALXE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 07:23:04 -0400
+Date: Mon, 1 May 2006 13:23:03 +0200
+From: DervishD <lkml@dervishd.net>
+To: Marcelo Tosatti <marcelo@kvack.org>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT, ext3fs, kernel 2.4.32... again
+Message-ID: <20060501112303.GA1951@DervishD>
+Mail-Followup-To: Marcelo Tosatti <marcelo@kvack.org>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20060427063249.GH761@DervishD> <20060501062058.GA16589@dmt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060501062058.GA16589@dmt>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gidday,
+    Hi Marcelo :)
 
-I recently released man-pages-2.30, which can be found at the 
-location in the .sig.  
+ * Marcelo Tosatti <marcelo@kvack.org> dixit:
+> >     Shouldn't ext3fs return an error when the O_DIRECT flag is
+> > used in the open call? Is the open call userspace only and thus
+> > only libc can return such error? Am I misunderstanding the entire
+> > issue and this is a perfectly legal behaviour (allowing the open,
+> > failing in the read operation)?
+> 
+> Your interpretation is correct. It would be nicer for open() to
+> fail on fs'es which don't support O_DIRECT, but v2.4 makes such
+> check later at read/write unfortunately ;(
 
-Changes in this release that may be of interest to readers
-of this list include the following:
+    Oops :(
+ 
+> And its too late for changing that IMO...
 
-New pages
----------
+    Probably. Anyway, since an userspace app shouldn't bother about
+which underlying filesystem a file is under, ext3 should:
 
-linkat.2
-    mtk
-        New page describing linkat(), new in kernel 2.6.16
+    - fail in the open() call: OK, it's too late for that.
+    - don't check while in read()/write(): I'm not sure about this.
 
-renameat.2
-    mtk
-        New page describing renameat(), new in kernel 2.6.16
+    The problem I see is that I can't tell if (given that probably
+the bug cannot be fixed right now) it's better to let the userspace
+app believe that O_DIRECT is honored but silently ignore it, or let
+the userspace believe that O_DIRECT was honored in the open() call
+and make all subsequent calls to read()/write() fail.
 
-symlinkat.2
-    mtk
-        New page describing symlinkat(), new in kernel 2.6.16
+    Myself, I would prefer to be deceived and have successful calls
+even if the O_DIRECT flag was ignored instead of having successful
+calls to open(O_DIRECT) but failures on subsequent read()'s, but I
+must confess that I don't know what kind of scenarios need the use of
+O_DIRECT and I don't know if having O_DIRECT accepted but ignored is a
+good thing :(
 
-unlinkat.2
-    mtk
-        New page describing unlinkat(), new in kernel 2.6.16
+    I'm not familiar with the ext3 code, so I don't know if it's easy
+to modify it so it will reject an open if O_DIRECT is specified :(((
 
-==========
+    Thanks for your answer, Marcelo :)
 
-The man-pages set contains sections 2, 3, 4, 5, and 7 of
-the manual pages.  These sections describe the following:
-
-2: (Linux) system calls
-3: (libc) library functions
-4: Devices
-5: File formats and protocols
-7: Overview pages, conventions, etc.
-
-As far as this list is concerned the most relevant parts are:
-all of sections 2 and 4, which describe kernel-userland interfaces;
-in section 5, the proc(5) manual page, which attempts (it's always
-catching up) to be a comprehensive description of /proc; and
-various pages in section 7, some of which are overview pages of
-kernel features (e.g., networking protocols).
-
-If you make a change to a kernel-userland interface, or observe 
-a discrepancy between the manual pages and reality, would you 
-please send me (at mtk-manpages@gmx.net ) one of the following
-(in decreasing order of preference):
-
-1. An in-line "diff -u" patch with text changes for the
-   corresponding manual page.  (The most up-to-date version
-   of the manual pages can always be found at
-   ftp://ftp.win.tue.nl/pub/linux-local/manpages or
-   ftp://ftp.kernel.org/pub/linux/docs/manpages .)
-
-2. Some raw text describing the changes, which I can then
-   integrate into the appropriate manual page.
-
-3. A message alerting me that some part of the manual pages
-   does not correspond to reality.  Eventually, I will try to
-   remedy the situation.
-
-Obviously, as we get further down this list, more of my time
-is required, and things may go slower, especially when the
-changes concern some part of the kernel that I am ignorant
-about and I can't find someone to assist.
-
-Cheers,
-
-Michael
+    Raúl Núñez de Arenas Coronado
 
 -- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to... RAmen!

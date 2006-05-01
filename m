@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWEARWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWEAR0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWEARWs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 13:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWEARWs
+	id S932150AbWEAR0r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 13:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWEAR0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 13:22:48 -0400
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:13688 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S932168AbWEARWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 13:22:47 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8 of 13] ipath - fix a number of RC protocol bugs
-X-Message-Flag: Warning: May contain useful information
-References: <patchbomb.1145913776@eng-12.pathscale.com>
-	<fafcc38877ad194f3a7a.1145913784@eng-12.pathscale.com>
-	<20060425005654.4c08481f.akpm@osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 01 May 2006 10:22:45 -0700
-In-Reply-To: <20060425005654.4c08481f.akpm@osdl.org> (Andrew Morton's message of "Tue, 25 Apr 2006 00:56:54 -0700")
-Message-ID: <adar73dwtga.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Mon, 1 May 2006 13:26:47 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:58821 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932150AbWEAR0q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 13:26:46 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=YGxtm37LlRQN8wYf84IUW7aGJkzvM/XgVLdHQlNzLnI4yWMRSU+8gzkiIvnyDiKEg
+	KdqoVExgN2KgGQrYowtlQ==
+Message-ID: <445644B7.7060807@google.com>
+Date: Mon, 01 May 2006 10:26:15 -0700
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 May 2006 17:22:46.0712 (UTC) FILETIME=[DD25DB80:01C66D43]
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, apw@shadowen.org, linuxppc64-dev@ozlabs.org,
+       lkml <linux-kernel@vger.kernel.org>, ak@suse.de
+Subject: Re: 2.6.17-rc2-mm1
+References: <4450F5AD.9030200@google.com>	 <20060428012022.7b73c77b.akpm@osdl.org> <44561A1E.7000103@google.com>	 <20060501100731.051f4eff.akpm@osdl.org> <1146503960.317.1.camel@dyn9047017100.beaverton.ibm.com>
+In-Reply-To: <1146503960.317.1.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Andrew> Please don't play around with list_head internals like
-    Andrew> this - some speedfreak might legitimately choose to remove
-    Andrew> the list_head poisoning debug code, or make it
-    Andrew> Kconfigurable.
+> I ran mtest01 multiple times with various options on my 4-way AMD64 box.
+> So far couldn't reproduce the problem (2.6.17-rc3-mm1).
+> 
+> Are there any special config or test options you are testing with ?
 
-Bryan, can you fix this up and resend this patch?
+Config is here:
 
-Are the other patches independent of this?  Should I apply all the
-others, or do I need to wait for the fixed version of this one?
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/amd64
 
- - R.
+It's just doing "runalltests", I think.
+
+M.

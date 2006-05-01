@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWEAUxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWEAUzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWEAUxk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 16:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWEAUxk
+	id S932253AbWEAUzm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 16:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWEAUzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 16:53:40 -0400
-Received: from xenotime.net ([66.160.160.81]:45288 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932252AbWEAUxk (ORCPT
+	Mon, 1 May 2006 16:55:41 -0400
+Received: from mail.fuug.fi ([83.145.198.117]:5073 "EHLO mail.fuug.fi")
+	by vger.kernel.org with ESMTP id S932253AbWEAUzl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 16:53:40 -0400
-Date: Mon, 1 May 2006 13:56:04 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] audit fixes
-Message-Id: <20060501135604.6ba712f1.rdunlap@xenotime.net>
-In-Reply-To: <E1FaVdV-00050X-EH@ZenIV.linux.org.uk>
-References: <E1FaVdV-00050X-EH@ZenIV.linux.org.uk>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 1 May 2006 16:55:41 -0400
+Date: Mon, 1 May 2006 23:55:27 +0300 (EEST)
+From: "Petri T. Koistinen" <petri.koistinen@iki.fi>
+To: Andrew Morton <akpm@osdl.org>
+cc: trivial@kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] fs/bio.c: initialize variable, remove warning
+Message-ID: <Pine.LNX.4.64.0605012353100.5245@joo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 May 2006 11:28:13 +0100 Al Viro wrote:
+From: Petri T. Koistinen <petri.koistinen@iki.fi>
 
-> Linus, please pull audit fixes from
-> git://git.kernel.org/pub/scm/linux/kernel/git/viro/audit-current.git/ audit.b10
+Remove compiler warning by initializing uninitialized variable.
 
-Hi Al,
-Would you also update MAINTAINTERS (AUDIT), please?
-
+Signed-off-by: Petri T. Koistinen <petri.koistinen@iki.fi>
 ---
-~Randy
+ fs/bio.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+---
+diff --git a/fs/bio.c b/fs/bio.c
+index eb8fbc5..c4deed9 100644
+--- a/fs/bio.c
++++ b/fs/bio.c
+@@ -166,7 +166,7 @@ struct bio *bio_alloc_bioset(gfp_t gfp_m
+
+ 		bio_init(bio);
+ 		if (likely(nr_iovecs)) {
+-			unsigned long idx;
++			unsigned long idx = 0;
+
+ 			bvl = bvec_alloc_bs(gfp_mask, nr_iovecs, &idx, bs);
+ 			if (unlikely(!bvl)) {
+
+

@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbWEBWsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbWEBWt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965026AbWEBWsX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 18:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbWEBWsX
+	id S965030AbWEBWt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 18:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWEBWt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 18:48:23 -0400
-Received: from waste.org ([64.81.244.121]:6295 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S965026AbWEBWsX (ORCPT
+	Tue, 2 May 2006 18:49:56 -0400
+Received: from ns2.suse.de ([195.135.220.15]:40646 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965030AbWEBWtz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 18:48:23 -0400
-Date: Tue, 2 May 2006 17:44:11 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] clean-up initcall warning for netconsole
-Message-ID: <20060502224411.GG15445@waste.org>
-References: <200604281406.34217.ak@suse.de> <20060428105403.250eb2d6.akpm@osdl.org>
+	Tue, 2 May 2006 18:49:55 -0400
+Date: Tue, 2 May 2006 15:48:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       henne@nachtwindheim.de
+Subject: Re: [ALSA] add __devinitdata to all pci_device_id
+Message-ID: <20060502224809.GA30023@kroah.com>
+References: <200605011511.k41FBUcu025025@hera.kernel.org> <1146502164.20760.53.camel@laptopd505.fenrus.org> <20060501165443.GA9441@kroah.com> <s5hmze0zrio.wl%tiwai@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060428105403.250eb2d6.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <s5hmze0zrio.wl%tiwai@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 28, 2006 at 10:54:03AM -0700, Andrew Morton wrote:
-> Yeah.  I think netconsole is just being wrong here.  If it wasn't enabled
-> there's no error.
+On Tue, May 02, 2006 at 11:48:31AM +0200, Takashi Iwai wrote:
+> At Mon, 1 May 2006 09:54:43 -0700,
+> Greg KH wrote:
+> > 
+> > On Mon, May 01, 2006 at 06:49:24PM +0200, Arjan van de Ven wrote:
+> > > On Mon, 2006-05-01 at 15:11 +0000, Linux Kernel Mailing List wrote:
+> > > > commit 396c9b928d5c24775846a161a8191dcc1ea4971f
+> > > > tree 447f4b28c2dd8e0026b96025fb94dbc654d6cade
+> > > > parent 71b2ccc3a2fd6c27e3cd9b4239670005978e94ce
+> > > > author Henrik Kretzschmar <henne@nachtwindheim.de> Mon, 24 Apr 2006 15:59:04 +0200
+> > > > committer Jaroslav Kysela <perex@suse.cz> Thu, 27 Apr 2006 21:10:34 +0200
+> > > > 
+> > > > [ALSA] add __devinitdata to all pci_device_id
+> > > 
+> > > 
+> > > are you really really sure you want to do this?
+> > > These structures are exported via sysfs for example, I would think this
+> > > is quite the wrong thing to make go away silently...
+> > 
+> > I asked Henrik to not do this, but oh well...
+> > 
+> > No, if they are marked __devinit, and CONFIG_HOTPLUG is enabled, then
+> > the sysfs stuff is enabled.  And since CONFIG_HOTPLUG is pretty much
+> > always enabled these days, the savings of this kind of patch is
+> > non-existant...
+> 
+> Then actually what could be a pitfall by adding __devinitdata to
+> pci_device_id table?  If there is a potential danger, we should remove
+> these modifiers from all places, especially from
+> Documentation/pci.txt.
 
-Here's a fix:
+There's no real pitfall, only the chance for people to get it wrong
+(using __initdata instead, or using __devinitdata for hotplug-only
+drivers.)
 
-Index: 2.6/drivers/net/netconsole.c
-===================================================================
---- 2.6.orig/drivers/net/netconsole.c	2006-05-02 17:28:43.000000000 -0500
-+++ 2.6/drivers/net/netconsole.c	2006-05-02 17:43:37.000000000 -0500
-@@ -107,7 +107,7 @@ static int init_netconsole(void)
- 
- 	if(!configured) {
- 		printk("netconsole: not configured, aborting\n");
--		return -EINVAL;
-+		return 0;
- 	}
- 
- 	if(netpoll_setup(&np))
+thanks,
 
-
--- 
-Mathematics is the supreme nostalgia of our time.
+greg k-h

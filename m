@@ -1,105 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbWEBOLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWEBONK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964821AbWEBOLh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 10:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWEBOLh
+	id S964829AbWEBONK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 10:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWEBONK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 10:11:37 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:15764 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964821AbWEBOLg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 10:11:36 -0400
-Date: Tue, 2 May 2006 16:16:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       coreteam@netfilter.org, "David S. Miller" <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [netfilter-core] Re: [lockup] 2.6.17-rc3: netfilter/sctp: lockup in	sctp_new(), do_basic_checks()
-Message-ID: <20060502141621.GA32284@elte.hu>
-References: <20060502113454.GA28601@elte.hu> <20060502134053.GA30917@elte.hu> <4457648C.6020100@trash.net> <20060502140102.GA31743@elte.hu> <4457654A.9040200@trash.net>
+	Tue, 2 May 2006 10:13:10 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:17372 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964829AbWEBONJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 10:13:09 -0400
+Date: Tue, 2 May 2006 15:13:05 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Martin Mares <mj@ucw.cz>, Willy Tarreau <willy@w.ods.org>,
+       David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+Message-ID: <20060502141305.GV27946@ftp.linux.org.uk>
+References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il> <mj+md-20060502.111446.9373.atrey@ucw.cz> <445741F5.6060204@argo.co.il> <mj+md-20060502.124648.6316.atrey@ucw.cz> <44576435.80603@argo.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4457654A.9040200@trash.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <44576435.80603@argo.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 02, 2006 at 04:52:53PM +0300, Avi Kivity wrote:
+> static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
+> 			   size_t count, loff_t max)
+> {
+> 	loff_t pos;
+> 	ssize_t retval;
+> 
+> 	/*
+> 	 * Get input file, and verify that it is ok..
+> 	 */
+> 	light_file_ptr in_file(in_fd);
 
-* Patrick McHardy <kaber@trash.net> wrote:
+*snerk*
+Good luck defining copying and conversion to file * for that puppy.  
 
-> I did a couple of minutes ago. Here it is again in case my last mail 
-> won't show up.
+> 	if (!in_file.valid())
+> 		return -EBADF;
+> 	if (!in_file->readable())
+> 		return -EBADF;
+> 	retval = -EINVAL;
+> 	struct inode *in_inode = in_file->dentry()->inode();
 
-> -	(sch = skb_header_pointer(skb, offset, sizeof(_sch), &_sch));	\
-> -	offset += (htons(sch->length) + 3) & ~3, count++)
-> +	(sch = skb_header_pointer(skb, offset, sizeof(_sch), &_sch)) &&  \
-> +	sch->length; offset += (htons(sch->length) + 3) & ~3, count++)
+Lovely.  Let's expose all fields as methods?
 
-but this makes do_basic_checks() not fail, and the clearly bogus packet 
-is passed further down. The reason i have put it inside the loop is to 
-be able to return 1 for the early checks. How about the fix below? It 
-should be cleaner and it will also return 1 if the initial offset is 
-oversized.
+> 	if (!in_inode)
+> 		return -EINVAL;
 
-	Ingo
+BTW, that can't happen.  Applies to the original as well.
 
-----
-From: Ingo Molnar <mingo@elte.hu>
+> 	// I'm assuming here that the default sendfile() returns -EINVAL
+> 	if (!ppos)
+> 		ppos = &in_file->f_pos;
+> 	else
+> 		if (!(in_file->mode() & FMODE_PREAD))
+> 			return -ESPIPE;
 
-fix infinite loop in the SCTP-netfilter code: check SCTP chunk size to 
-guarantee progress of for_each_sctp_chunk(). (all other uses of 
-for_each_sctp_chunk() are preceded by do_basic_checks(), so this fix 
-should be complete.)
+As opposed to ->readable() for checking FMODE_READ?
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 	light_file_ptr out_file(out_fd);
+> 	if (!out_file)
+> 		return -EBADF;
 
----
- net/ipv4/netfilter/ip_conntrack_proto_sctp.c |   16 +++++++++++++---
- 1 files changed, 13 insertions(+), 3 deletions(-)
+?
 
-Index: linux/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-===================================================================
---- linux.orig/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-+++ linux/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-@@ -224,6 +224,13 @@ static int do_basic_checks(struct ip_con
- 	DEBUGP(__FUNCTION__);
- 	DEBUGP("\n");
- 
-+	/*
-+	 * Dont trust the initial offset:
-+	 */
-+	offset = skb->nh.iph->ihl * 4 + sizeof(sctp_sctphdr_t);
-+	if (offset >= skb->len)
-+		return 1;
-+
- 	flag = 0;
- 
- 	for_each_sctp_chunk (skb, sch, _sch, offset, count) {
-@@ -235,12 +242,15 @@ static int do_basic_checks(struct ip_con
- 			flag = 1;
- 		}
- 
--		/* Cookie Ack/Echo chunks not the first OR 
--		   Init / Init Ack / Shutdown compl chunks not the only chunks */
-+		/*
-+		 * Cookie Ack/Echo chunks not the first OR 
-+		 * Init / Init Ack / Shutdown compl chunks not the only chunks
-+		 * OR zero-length.
-+		 */
- 		if ((sch->type == SCTP_CID_COOKIE_ACK 
- 			|| sch->type == SCTP_CID_COOKIE_ECHO
- 			|| flag)
--		     && count !=0 ) {
-+		     && count !=0 || !sched->length) {
- 			DEBUGP("Basic checks failed\n");
- 			return 1;
- 		}
+> 	if (!max)
+> 		max = min(in_inode->i_sb->s_maxbytes, 
+> 		out_inode->i_sb->s_maxbytes);
+
+While we are at it, that's the only place where in_inode and out_inode
+are used.  Also... how does one remember which of ->dentry, ->inode
+and ->i_sb are methods and which are public fields?
+
+> // now, with exceptions
+> static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
+> 			   size_t count, loff_t max)
+> {
+> 	loff_t pos;
+> 
+> 	/*
+> 	 * Get input file, and verify that it is ok..
+> 	 */
+> 	light_file_ptr in_file(in_fd);
+> 	in_file->verify_readable();
+
+That assumes that error value returned in that case is the same everywhere.
+It isn't.

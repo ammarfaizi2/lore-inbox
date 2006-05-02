@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWEBHFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWEBHL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWEBHFf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 03:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWEBHFf
+	id S932430AbWEBHL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 03:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWEBHL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 03:05:35 -0400
-Received: from ns1.suse.de ([195.135.220.2]:64985 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932425AbWEBHFe (ORCPT
+	Tue, 2 May 2006 03:11:56 -0400
+Received: from ns2.suse.de ([195.135.220.15]:49605 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932426AbWEBHLz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 03:05:34 -0400
+	Tue, 2 May 2006 03:11:55 -0400
 From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Date: Tue, 2 May 2006 09:05:28 +0200
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Date: Tue, 2 May 2006 09:11:41 +0200
 User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de> <20060502070618.GA10749@elte.hu>
-In-Reply-To: <20060502070618.GA10749@elte.hu>
+Cc: "Brown, Len" <len.brown@intel.com>,
+       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
+       sergio@sergiomb.no-ip.org, "Kimball Murray" <kimball.murray@gmail.com>,
+       linux-kernel@vger.kernel.org, akpm@digeo.com, kmurray@redhat.com,
+       linux-acpi@vger.kernel.org
+References: <CFF307C98FEABE47A452B27C06B85BB652DDDD@hdsmsx411.amr.corp.intel.com> <200605020814.49144.ak@suse.de> <m1d5ewap6w.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1d5ewap6w.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200605020911.41592.ak@suse.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605020905.29400.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 May 2006 09:06, Ingo Molnar wrote:
+On Tuesday 02 May 2006 08:57, Eric W. Biederman wrote:
+> Andi Kleen <ak@suse.de> writes:
 > 
-> * Andi Kleen <ak@suse.de> wrote:
+> >> >- Modify do_IRQ to get passed an interrupt vector# from the
+> >> >  interrupt vector instead of an irq number, and then lookup
+> >> >  the irq number in vector_irq.  This means we don't need
+> >> >  a code stub per irq, and allows us to handle more irqs
+> >> >  by simply increasing NR_IRQS.
+> >> 
+> >> isn't the vector number already on the stack from
+> >> ENTRY(interrupt)
+> >> 	pushl $vector-256
+> >
+> > Yes - and interrupts/vectors are currently always identical. 
 > 
-> > Ingo Molnar <mingo@elte.hu> writes:
-> > 
-> > > FYI, even on 2.6.17-rc3 i get the one below. v2.6.17 showstopper i 
-> > > guess?
-> > 
-> > Did you send a full boot log?
+> No.  At best there is a fixed offset.  They can't be
+> identical because the first 32 vectors are reserved,
+> for processor exceptions.  
 > 
-> yes, in the previous mail, in the same thread. (maybe lkml ate it - it's 
-> an allyesconfig bootup so a large bootlog and a large config) I've also 
-> uploaded them to:
-> 
-> 	http://redhat.com/~mingo/misc/
-> 
-> debug-pagealloc.patch is the debug patch i made based on Nick's earlier 
-> suggestions.
-> 
-> > If it's using ACPI NUMA try numa=noacpi - it might be some problem 
-> > with the node discovery on your machine.
-> 
-> this is a non-NUMA box (Athlon64 X2 desktop machine).
+> Beyond that the kernel would not need the vector_irq and irq_vector
+> arrays if they were always identical, or even if they were one to one.
 
-Oh that's a 32bit kernel. I don't think the 32bit NUMA has ever worked
-anywhere but some Summit systems (at least every time I tried it it blew up 
-on me and nobody seems to use it regularly). Maybe it would be finally time to mark it 
-CONFIG_BROKEN though or just remove it (even by design it doesn't work very well) 
 
-If you want NUMA use 64bit.
+Yes I should have said it's a fixed offset. Sorry for the confusion.
+Just no mapping table needed.
+
+> 
+> If you look at assign_irq_vector you will see that by default we
+> allocate every 8th vector.  Looking at the comment in
+> init_IO_APIC_traps() this seems to be because we want to avoid
+> apic bugs with multiple interrupts of the same priority.
+> Although why we skip 8 instead of 16 is beyond me.
+
+Hmm - i guess that's old APIC bugs. Might be worth revisiting
+on 64bit.
+
+
+> 
+> Although now that I think about it, using some assembler macros
+> instead of cpp macros could probably solve the problem more easily
+> than generating the stubs at runtime.  I think the worst case is
+> 256 cpus * 32 irqs per cpu 
+
+32 irqs? It's (255-32) 
+
+> * 10 bytes per stub = 80K. 
+
+My calculations gave >200k which is definitely too much.
 
 -Andi
+

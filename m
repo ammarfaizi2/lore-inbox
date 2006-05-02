@@ -1,78 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWEBQuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWEBQvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbWEBQuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 12:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWEBQuT
+	id S964930AbWEBQvl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 12:51:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWEBQvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 12:50:19 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3343 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964901AbWEBQuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 12:50:18 -0400
-Date: Tue, 2 May 2006 17:50:09 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sched_clock() uses are broken
-Message-ID: <20060502165009.GA4223@flint.arm.linux.org.uk>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <20060502132953.GA30146@flint.arm.linux.org.uk> <p73slns5qda.fsf@bragg.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 May 2006 12:51:40 -0400
+Received: from detroit.securenet-server.net ([209.51.153.26]:24016 "EHLO
+	detroit.securenet-server.net") by vger.kernel.org with ESMTP
+	id S964930AbWEBQvk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 12:51:40 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
+Date: Tue, 2 May 2006 09:51:27 -0700
+User-Agent: KMail/1.9.1
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Dave Airlie <airlied@linux.ie>,
+       Arjan van de Ven <arjan@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, pjones@redhat.com
+References: <1146300385.3125.3.camel@laptopd505.fenrus.org> <200605021014.45684.bjorn.helgaas@hp.com> <20060502162136.GA4668@kroah.com>
+In-Reply-To: <20060502162136.GA4668@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <p73slns5qda.fsf@bragg.suse.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200605020951.28160.jbarnes@virtuousgeek.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - virtuousgeek.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 06:43:45PM +0200, Andi Kleen wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> writes:
-> > 
-> > However, this is not the case.  On x86 with TSC, it returns a 54 bit
-> > number.  This means that when t1 < t0, time_passed_ns becomes a very
-> > large number which no longer represents the amount of time.
-> 
-> Good point. For a 1Ghz system this would happen every ~0.57 years.
-> 
-> The problem is there is AFAIK no non destructive[1] way to find out how
-> many bits the TSC has
-> 
-> Destructive would be to overwrite it with -1 and see how many stick.
-> 
-> > All uses in kernel/sched.c seem to be aflicted by this problem.
-> > 
-> > There are several solutions to this - the most obvious being that we
-> > need a function which returns the nanosecond difference between two
-> > sched_clock() return values, and this function needs to know how to
-> > handle the case where sched_clock() has wrapped.
-> 
-> Ok it can be done with a simple test.
-> 
-> > 
-> > IOW:
-> > 
-> > 	t0 = sched_clock();
-> > 	/* do something */
-> > 	t1 = sched_clock();
-> > 
-> > 	time_passed = sched_clock_diff(t1, t0);
-> > 
-> > Comments?
-> 
-> Agreed it's a problem, but probably a small one. At worst you'll get
-> a small scheduling hickup every half year, which should be hardly 
-> that big an issue.
-> 
-> Might chose to just ignore it with a big fat comment?
+> > But I hope that when X uses this, it only enables & disables VGA
+> > devices it's actually using.  In the past, it seems like X has
+> > blindly disabled *all* VGA devices in the system, even though
+> > they might be in use by another X server.  I'm sure that's all
+> > well-understood and cleaned up now; just wanted to make sure
+> > this nightmare didn't recur.
+>
+> Hopefully with the recent PCI changes to X, this will not happen.  If
+> it does, that's a big bug in X :)
 
-You're right assuming you have a 64-bit TSC, but ARM has at best a
-32-bit cycle counter which rolls over about every 179 seconds - with
-gives a range of values from sched_clock from 0 to 178956970625 or
-0x29AAAAAA81.
+On some machines it still has no alternative, since the kernel doesn't 
+have a VGA arbiter of any kind.  Yes this sucks.
 
-That's rather more of a problem than having it happen every 208 days.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Jesse

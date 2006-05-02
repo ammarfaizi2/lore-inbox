@@ -1,133 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWEBKcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWEBKcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbWEBKcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 06:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWEBKcJ
+	id S932139AbWEBKcd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 06:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWEBKcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 06:32:09 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:2056 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932142AbWEBKcI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 06:32:08 -0400
-Message-ID: <44573525.7040507@argo.co.il>
-Date: Tue, 02 May 2006 13:32:05 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling C++ modules
-References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org>
-In-Reply-To: <20060502051238.GB11191@w.ods.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 2 May 2006 06:32:33 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:48433
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932139AbWEBKcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 06:32:32 -0400
+Message-Id: <44575190.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Tue, 02 May 2006 12:33:20 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] adjust outputmakefile rule
+References: <444F9814.76E4.0078.0@novell.com> <20060430214951.GA22935@mars.ravnborg.org>
+In-Reply-To: <20060430214951.GA22935@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 May 2006 10:32:06.0101 (UTC) FILETIME=[A89CC050:01C66DD3]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> Sorry , but all the examples that have been given in C++ are clearly
-> unreadable and impossible to understand.
-
-If you don't know C++, sure.
-
-Maybe this piece of code
-
-  f [] = []
-  f (x:xs) = f [y | y <- xs, y < x] ++ [x] ++ f [y | y <- xs, y > x]
-
-Isn't very readable to a C or C++ coder, but it's meaning is instantly 
-clear to one who knows the language it's written in. The equivalent C or 
-C++ code is ~30 lines long and you might need a pen and paper to work 
-out what it does.
-
->  I'd also like to note that
-> people were arguing about what the code was really doing, this means
-> that this language is absolutely not suited to such usages where you
-> want to know the exact behaviour. 
-
-Were they C coders or C++ coders?
-
-> At least in C, this sort of thing
-> has never happened. 
-
-Like the recent prevent_tail_call() thing? Granted, C++ is a lot tricker 
-than C. Much self-restraint is needed, and even then you can wind up 
-where you didn't want to go.
-
-> People argue about what must be locked and important
-> things like this you'd never want the compiler to decide for you.
+>>> Sam Ravnborg <sam@ravnborg.org> 30.04.06 23:49 >>>
+>On Wed, Apr 26, 2006 at 03:56:04PM +0200, Jan Beulich wrote:
+>> Change the conditional of the outputmakefile rule to be evaluated entirely
+>> in make, and to not touch the generated makefile when e.g. running
+>> 'make install' as root while the build was done as non-root. Also adjust
+>> the comment describing this.
 >
->   
+>Can I request you to redo this patch.
+>Move all logic (including print-out) to mkmakefile
+>And only let it print out "GEN   ...." when it actttttttually generate
+>the Makefile.
 
-No one suggests that C++ can decide what needs to be locked or not. To 
-be sure, if there was a language where you could specify the locking 
-rules in a central place (the class/struct declaration, for example) and 
-let the compiler apply them, races and deadlocks would be much scarcer, 
-and people could argue about what needs to be locked when the data 
-structure is written, not every time it is used.
+Here we go:
 
-> To be secure, you first have to understand what the code precisely does,
-> not what it should do depending on how the compiler might optimise it.
->   
+Change the conditional of the outputmakefile rule to be evaluated entirely
+in make, and add a conditional to not touch the generated makefile when e.g.
+running 'make install' as root while the build was done as non-root. Also
+adjust the comment describing this, and move the message printing and
+redirection to mkmakefile.
 
-If optimization changes your code's behaivor, your code is broken. 
-People rely on the C++ optimizer for much the same things as C: to 
-inline zero- or one- line functions and remove unused code. (There is 
-just one exception in C++ where the optimizer _is_ allowed to modify 
-behavior, but it is for an obviously correct scenario).
+Signed-off-by: Jan Beulich <jbeulich@novell.com>
 
-> I'm still thinking that people who have problems understanding what the
-> code does want a level of abstraction between them and the CPU so that
-> the compiler thinks for them.
+--- /home/jbeulich/tmp/linux-2.6.17-rc3/Makefile	2006-04-27 17:49:26.000000000 +0200
++++ 2.6.17-rc3-mkmakefile/Makefile	2006-04-24 12:28:36.000000000 +0200
+@@ -344,16 +344,14 @@ scripts_basic:
+ scripts/basic/%: scripts_basic ;
+ 
+ PHONY += outputmakefile
+-# outputmakefile generate a Makefile to be placed in output directory, if
+-# using a seperate output directory. This allows convinient use
+-# of make in output directory
++# outputmakefile generates a Makefile in the output directory, if using a
++# separate output directory. This allows convenient use of make in the
++# output directory.
+ outputmakefile:
+-	$(Q)if test ! $(srctree) -ef $(objtree); then \
+-	$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile              \
+-	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)         \
+-	    > $(objtree)/Makefile;                                 \
+-	    echo '  GEN    $(objtree)/Makefile';                   \
+-	fi
++ifneq ($(KBUILD_SRC),)
++	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile \
++	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)
++endif
+ 
+ # To make sure we do not include .config for any of the *config targets
+ # catch them early, and hand them over to scripts/kconfig/Makefile
+--- /home/jbeulich/tmp/linux-2.6.17-rc3/scripts/mkmakefile	2006-04-27 17:49:57.000000000 +0200
++++ 2.6.17-rc3-mkmakefile/scripts/mkmakefile	2006-05-02 11:27:13.000000000 +0200
+@@ -10,7 +10,10 @@
+ # $4 - patchlevel
+ 
+ 
+-cat << EOF
++test ! -r $2/Makefile -o -O $2/Makefile || exit 0
++echo "  GEN     $2/Makefile"
++
++cat << EOF > $2/Makefile
+ # Automatically generated by $0: don't edit
+ 
+ VERSION = $3
 
-No, they want not to repeat code and code patterns. It's the same 
-motivation that lead to the invention of functions:
-
-- functions allow you to reuse code instead of open-coding common sequences
-- constructors/destructors allow you to reuse the do/undo (lock/unlock, 
-etc.) pattern without writing it in full every time
-- templates allow you to reuse code even when the data types change 
-(like the preprocessor but not limited to linked lists)
-- virtual functions allow you to dispatch a function based on the 
-object's type, without writing the boilerplate casting
-- exceptions allow you to do the detect error/undo partial 
-modifications/propagate error thing without blowing up the code by a 
-factor of five
-
-It's just shorthand: but shorthand allows you to see what the code is 
-doing instead of how it handles all the standard problems that occur 
-again and again in programming.
-
-The C people are content to stop at functions, but resist _all_ of the 
-rest (it's okay to do some template-like magic with typeof, because it's 
-still C, right?).
-
->  I still don't see the *current* problem
-> you are trying to fix. Linux is written in C, as many other kernels and
-> it works. Nobody knows what it would become if rewritten in C++. Maybe
-> it will be better, maybe it would not run anymore on embedded systems,
-> maybe it would become fully buggy because nobody except a little bunch
-> of C++ coders would understand it... At least, I'm sure it will not be
-> the smart people who currently work on it.
->   
-
-Maybe it would be smaller, faster, more robust, and have even more 
-flexible and fast-paced development.
-
-Perhaps people who developed kernel-level code in _both_ C and C++ would 
-be qualified to speculate on that (I have, but apparently I don't have a 
-clue).
-
-> Best of all, I'm even sure that people who are trying to push C++ in
-> the kernel would never ever write a line of code once it would be
-> accepted, because they don't seem to know what they're talking about
-> when it applies to kernel code.
->   
-
-Thanks.
-
--- 
-error compiling committee.c: too many arguments to function
 

@@ -1,66 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbWEBWt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbWEBW5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965030AbWEBWt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 18:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWEBWt4
+	id S965029AbWEBW5e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 18:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbWEBW5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 18:49:56 -0400
-Received: from ns2.suse.de ([195.135.220.15]:40646 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965030AbWEBWtz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 18:49:55 -0400
-Date: Tue, 2 May 2006 15:48:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       henne@nachtwindheim.de
-Subject: Re: [ALSA] add __devinitdata to all pci_device_id
-Message-ID: <20060502224809.GA30023@kroah.com>
-References: <200605011511.k41FBUcu025025@hera.kernel.org> <1146502164.20760.53.camel@laptopd505.fenrus.org> <20060501165443.GA9441@kroah.com> <s5hmze0zrio.wl%tiwai@suse.de>
+	Tue, 2 May 2006 18:57:34 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:62986 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S965029AbWEBW5d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 18:57:33 -0400
+Date: Wed, 3 May 2006 08:57:22 +1000
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [NFSD] kconfig: Select things at the closest tristate instead of bool
+Message-ID: <20060502225722.GA21123@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="2oS5YaxWCcQjTEyO"
 Content-Disposition: inline
-In-Reply-To: <s5hmze0zrio.wl%tiwai@suse.de>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 11:48:31AM +0200, Takashi Iwai wrote:
-> At Mon, 1 May 2006 09:54:43 -0700,
-> Greg KH wrote:
-> > 
-> > On Mon, May 01, 2006 at 06:49:24PM +0200, Arjan van de Ven wrote:
-> > > On Mon, 2006-05-01 at 15:11 +0000, Linux Kernel Mailing List wrote:
-> > > > commit 396c9b928d5c24775846a161a8191dcc1ea4971f
-> > > > tree 447f4b28c2dd8e0026b96025fb94dbc654d6cade
-> > > > parent 71b2ccc3a2fd6c27e3cd9b4239670005978e94ce
-> > > > author Henrik Kretzschmar <henne@nachtwindheim.de> Mon, 24 Apr 2006 15:59:04 +0200
-> > > > committer Jaroslav Kysela <perex@suse.cz> Thu, 27 Apr 2006 21:10:34 +0200
-> > > > 
-> > > > [ALSA] add __devinitdata to all pci_device_id
-> > > 
-> > > 
-> > > are you really really sure you want to do this?
-> > > These structures are exported via sysfs for example, I would think this
-> > > is quite the wrong thing to make go away silently...
-> > 
-> > I asked Henrik to not do this, but oh well...
-> > 
-> > No, if they are marked __devinit, and CONFIG_HOTPLUG is enabled, then
-> > the sysfs stuff is enabled.  And since CONFIG_HOTPLUG is pretty much
-> > always enabled these days, the savings of this kind of patch is
-> > non-existant...
-> 
-> Then actually what could be a pitfall by adding __devinitdata to
-> pci_device_id table?  If there is a potential danger, we should remove
-> these modifiers from all places, especially from
-> Documentation/pci.txt.
 
-There's no real pitfall, only the chance for people to get it wrong
-(using __initdata instead, or using __devinitdata for hotplug-only
-drivers.)
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-thanks,
+Hi:
 
-greg k-h
+I noticed recently that my CONFIG_CRYPTO_MD5 turned into a y again
+instead of m.  It turns out that CONFIG_NFSD_V4 is selecting it to
+be y even though I've chosen to compile nfsd as a module.
+
+In general when we have a bool sitting under a tristate it is
+better to select things you need from the tristate rather than the
+bool since that allows the things you select to be modules.
+
+The following patch does it for nfsd.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nfsd-md5-kconfig.patch"
+
+diff --git a/fs/Kconfig b/fs/Kconfig
+index f9b5842..7cb0210 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -1431,8 +1431,13 @@
+ 	select LOCKD
+ 	select SUNRPC
+ 	select EXPORTFS
+-	select NFS_ACL_SUPPORT if NFSD_V3_ACL || NFSD_V2_ACL
+-	help
++	select NFSD_V2_ACL if NFSD_V3_ACL
++	select NFS_ACL_SUPPORT if NFSD_V2_ACL
++	select NFSD_TCP if NFSD_V4
++	select CRYPTO_MD5 if NFSD_V4
++	select CRYPTO if NFSD_V4
++	select FS_POSIX_ACL if NFSD_V4
++	help
+ 	  If you want your Linux box to act as an NFS *server*, so that other
+ 	  computers on your local network which support NFS can access certain
+ 	  directories on your box transparently, you have two options: you can
+@@ -1469,7 +1474,6 @@
+ config NFSD_V3_ACL
+ 	bool "Provide server support for the NFSv3 ACL protocol extension"
+ 	depends on NFSD_V3
+-	select NFSD_V2_ACL
+ 	help
+ 	  Implement the NFSv3 ACL protocol extension for manipulating POSIX
+ 	  Access Control Lists on exported file systems. NFS clients should
+@@ -1479,10 +1483,6 @@
+ config NFSD_V4
+ 	bool "Provide NFSv4 server support (EXPERIMENTAL)"
+ 	depends on NFSD_V3 && EXPERIMENTAL
+-	select NFSD_TCP
+-	select CRYPTO_MD5
+-	select CRYPTO
+-	select FS_POSIX_ACL
+ 	help
+ 	  If you would like to include the NFSv4 server as well as the NFSv2
+ 	  and NFSv3 servers, say Y here.  This feature is experimental, and
+
+--2oS5YaxWCcQjTEyO--

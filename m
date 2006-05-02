@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWE3USS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWE3UTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbWE3USS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 May 2006 16:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWE3USR
+	id S932461AbWE3UTz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 May 2006 16:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWE3UTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 May 2006 16:18:17 -0400
-Received: from mail.gmx.net ([213.165.64.20]:49858 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932460AbWE3USR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 May 2006 16:18:17 -0400
-X-Authenticated: #704063
-Subject: [Patch] NULL pointer dereference in sound/synth/emux/soundfont.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: tiwai@suse.de
-Content-Type: text/plain
-Date: Tue, 30 May 2006 22:18:16 +0200
-Message-Id: <1149020296.29430.4.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 30 May 2006 16:19:54 -0400
+Received: from 182.Red-83-53-32.dynamicIP.rima-tde.net ([83.53.32.182]:48143
+	"HELO hossackgallery.demon.co.uk") by vger.kernel.org with SMTP
+	id S932461AbWE3UTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 May 2006 16:19:54 -0400
+Message-ID: <DCA4D9CB.273D172@hossackgallery.demon.co.uk>
+Date: Tue, 02 May 2006 17:57:46 -0300
+Reply-To: "Domingo Baez" <NeilMilton@hossackgallery.demon.co.uk>
+From: "Domingo Baez" <NeilMilton@hossackgallery.demon.co.uk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+MIME-Version: 1.0
+To: <linux-kernel@vger.kernel.org>, <majordomo@vger.kernel.org>
+Subject: Destitution hearing arranged
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Hello,
 
-this is about coverity id #100.
-It seems the if statement is negated, since the else branch calls
-remove_info() with sflist->currsf as a parameter where it gets
-dereferenced.
+Do you want to SHAVE your payments by 
+61% or greater?
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+Perhaps you HOLD a house and want IMMEDIATE 
+finances to use ANY way you like?  
 
---- linux-2.6.17-rc4-git2/sound/synth/emux/soundfont.c.orig	2006-05-30 22:08:40.000000000 +0200
-+++ linux-2.6.17-rc4-git2/sound/synth/emux/soundfont.c	2006-05-30 22:08:51.000000000 +0200
-@@ -195,7 +195,7 @@ snd_soundfont_load(struct snd_sf_list *s
- 		break;
- 	case SNDRV_SFNT_REMOVE_INFO:
- 		/* patch must be opened */
--		if (sflist->currsf) {
-+		if (!sflist->currsf) {
- 			snd_printk("soundfont: remove_info: patch not opened\n");
- 			rc = -EINVAL;
- 		} else {
+We Will NOT pull your Cr-edit records.
 
+http://thingasdf.net
+
+variabIe : $652K @ 3.4 % 
+lNTEREST ONLY : $621K @ 3.0 % 
+FlXED : $518K @ 2.2 % 
+
+Answer within 48 minutes, 99.9 % approval.
+
+Goodbye,
+PCK Lending
+Domingo Baez
 

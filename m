@@ -1,151 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbWEBV7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbWEBWBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965022AbWEBV7z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 17:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWEBV7z
+	id S965015AbWEBWBO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 18:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWEBWBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 17:59:55 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:13704 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S965016AbWEBV7y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 17:59:54 -0400
-Date: Tue, 2 May 2006 23:55:59 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-Message-ID: <20060502215559.GA1119@electric-eye.fr.zoreil.com>
-References: <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo> <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI> <20060502214520.GC26357@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 May 2006 18:01:14 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:60551 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S965015AbWEBWBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 18:01:13 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Juho Saarikko <juhos@mbnet.fi>
+Subject: Re: [ck] 2.6.16-ck9
+Date: Wed, 3 May 2006 08:01:05 +1000
+User-Agent: KMail/1.9.1
+Cc: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
+References: <200605022338.20534.kernel@kolivas.org> <1146603461.5213.32.camel@a88-112-69-25.elisa-laajakaista.fi>
+In-Reply-To: <1146603461.5213.32.camel@a88-112-69-25.elisa-laajakaista.fi>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060502214520.GC26357@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+Message-Id: <200605030801.05523.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Btw the whole serie is available in branch 'netdev-ipg' at:
-git://electric-eye.fr.zoreil.com/home/romieu/linux-2.6.git
+On Wednesday 03 May 2006 06:57, Juho Saarikko wrote:
+> On Tue, 2006-05-02 at 16:38, Con Kolivas wrote:
+> > These are patches designed to improve system responsiveness and
+> > interactivity. It is configurable to any workload but the default ck
+> > patch is aimed at the desktop and cks is available with more emphasis on
+> > serverspace.
+> >
+> > THESE INCLUDE THE PATCHES FROM 2.6.16.12 SO START WITH 2.6.16 AS YOUR
+> > BASE
+> >
+> > Apply to 2.6.16
+> > http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.16/2.6.1
+> >6-ck9/patch-2.6.16-ck9.bz2
+> >
+> > or server version
+> > http://www.kernel.org/pub/linux/kernel/people/ck/patches/cks/patch-2.6.16
+> >-cks9.bz2
+> >
+> > web:
+> > http://kernel.kolivas.org
+> >
+> > all patches:
+> > http://www.kernel.org/pub/linux/kernel/people/ck/patches/
+> >
+> > Split patches available.
+> >
+> >
+> > Changes since 2.6.16-ck8:
+> >
+> > Added:
+> >  +sched-fix_idleprio.patch
+> > A small bug crept in that prevented SCHED_IDLEPRIO tasks from being
+> > scheduled normally when they held a semaphore making it possible to
+> > livelock. This fixes it.
+>
+> Hmm...
+>
+> I tried to run SetiAtHome at IDLEPRIO, but it competes equally with a
+> while(1); loop run at nice 19. I'm starting to wonder if there isn't
+> some kind of bug in the kernel which results in a program returning from
+> a system call with an in-kernel semaphore held. After all, according to
+> top, SetiAtHome consumes over 90% CPU, and the system consumes only
+> about 1%, so it can't be making system calls all the time either. Or
+> maybe there's some case where the calculations can become confused and
+> think that a semaphore is still being held when it's not.
+>
+> Is there any way to test this ?
+>
+> Anyway, I ran strace on FahCore (a program, launched by SetiAtHome main
+> program, that actually consumes the CPU), and got this:
+>
+>
+> rt_sigprocmask(SIG_BLOCK, [CHLD], [RTMIN], 8) = 0
+> rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
+> rt_sigprocmask(SIG_SETMASK, [RTMIN], NULL, 8) = 0
+> nanosleep({5, 0}, {5, 0})               = 0
+> nanosleep({0, 0}, NULL)                 = 0
+>
+>
+> This pattern just keeps on repeating, endlessly. Occasionally it also
+> has
+>
+> kill(5432, SIG_0)                       = 0
+>
+> attached to it. 5432 is the parent process, the FAH502-Linux.exe.
+>
+> There is something very strange going on here...
 
-The interim steps may be useful if testing reveals something wrong
-(especially if it happens in a few weeks/months).
+Find all the threads running with this command:
+ps -wweALo spid,user,priority,ni,pcpu,vsize,time,args
 
-$ git rev-list --pretty ebf34c9b6fcd22338ef764b039b3ac55ed0e297b..HEAD 
+The spid will show you any threads with different pids to the main task. Then 
+check the actual scheduling policy they run at. Perhaps FahCore actually 
+manually sets them to SCHED_NORMAL
 
-commit 8a98963033425729158d48066a3380f811c711b3
-Author: Romieu Francois <romieu@fr.zoreil.com>
-Date:   Tue May 2 23:25:44 2006 +0200
+do:
+schedtool $spid
+of each thread to see what policy it is.
 
-    ipg: redundancy with mii.h
-    
-    Replace a bunch of #define with their counterpart from mii.h
-    
-    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
-
-commit 291360d4000e0b93baf0fb97aa15af48677e46af
-Author: Romieu Francois <romieu@fr.zoreil.com>
-Date:   Tue May 2 22:15:34 2006 +0200
-
-    ipg: sanitize the pci device table
-    
-    - vendor id belong to include/linux/pci_id.h ;
-    - the pci table does not include all the devices in nics_supported ;
-    - qualify the pci table as __devinitdata ;
-    - kill 50 LOC.
-    
-    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
-
-commit 8b534f66d6be247b9f0d341b0ae7acbf46f128fb
-Author: Romieu Francois <romieu@fr.zoreil.com>
-Date:   Tue May 2 01:07:48 2006 +0200
-
-    ipg: plug leaks in the error path of ipg_nic_open
-    
-    Added ipg_{rx/tx}_clear() to factor out some code.
-    
-    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
-
-commit 87c8b13dceccc42439e7262f1b60c9cbb14d5440
-Author: Romieu Francois <romieu@fr.zoreil.com>
-Date:   Tue May 2 00:15:54 2006 +0200
-
-    ipg: leaks in ipg_probe
-    
-    The error paths are badly broken.
-    
-    Bonus:
-    - remove duplicate initialization of sp;
-    - remove useless NULL initialization of dev;
-    - USE_IO_OPS is not used (and the driver does not seem to care about
-      posted writes, rejoice).
-    
-    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
-
-commit befd7e543fcdfb2d2c75de1748ae751fefdff58a
-Author: Romieu Francois <romieu@fr.zoreil.com>
-Date:   Mon May 1 23:52:37 2006 +0200
-
-    ipg: removal of unreachable code
-    
-    map/unmap is done in ipg_{probe/remove}
-    
-    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
-
-commit 17a9ce93ba6b6744489aa9168d757e9457158952
-Author: Romieu Francois <romieu@fr.zoreil.com>
-Date:   Mon May 1 22:40:29 2006 +0200
-
-    ipg: speed-up access to the PHY registers
-    
-    Reduce delays when reading/writing the PHY registers so we clock the
-    MII management interface at 2.5 MHz (the maximum according to the
-    datasheet) instead of 500 Hz.
-    
-    Signed-off-by: David Vrabel <dvrabel@cantab.net>
-
-commit e18c33d6fa62b735426b8fe5a0f1aa61c0b5d7f7
-Author: David Vrabel <dvrabel@cantab.net>
-Date:   Mon May 1 21:34:19 2006 +0200
-
-    ipg: root_dev removal and PHY initialization
-    
-    - Remove ether_crc_le() -- use crc32_le() instead.
-    - No more nonsense with root_dev -- ipg_remove() now works.
-    - Move PHY and MAC address initialization into the ipg_probe().
-      It was previously filling in the MAC address on open which breaks
-      some user space.
-    - Folded ipg_nic_init into ipg_probe since it was broke otherwise.
-    
-    Signed-off-by: David Vrabel <dvrabel@cantab.net>
-
-commit e99fcd4253f231b2c7a96e3be5067341de45ac2e
-Author: David Vrabel <dvrabel@cantab.net>
-Date:   Mon May 1 13:20:49 2006 +0200
-
-    ipg: remove changelogs
-    
-    Signed-off-by: David Vrabel <dvrabel@cantab.net>
-
-commit 8fd59026a272d3132f096965985e907d655ee087
-Author: Pekka Enberg <penberg@cs.helsinki.fi>
-Date:   Mon May 1 12:53:43 2006 +0200
-
-    ipg: initial inclusion of IC Plus IP1000 driver
-    
-    This is a cleaned up fork of the IP1000A device driver:
-    
-      <http://www.icplus.com.tw/driver-pp-IP1000A.html>
-    
-    Open issues include but are not limited to:
-    
-      - ipg_probe() looks really fishy and doesn't handle all errors
-        (e.g. ioremap failing).
-      - ipg_nic_do_ioctl() is playing games with user-space pointer.
-        We should use ethtool ioctl instead as suggested by Arjan.
-      - For multiple devices, the driver uses a global root_dev and
-        ipg_remove() play some tricks which look fishy.
-    
-    Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
-
+-- 
+-ck

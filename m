@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWEBGse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWEBGzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932409AbWEBGse (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 02:48:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWEBGse
+	id S932413AbWEBGzk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 02:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWEBGzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 02:48:34 -0400
-Received: from cantor.suse.de ([195.135.220.2]:61911 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932409AbWEBGsd (ORCPT
+	Tue, 2 May 2006 02:55:40 -0400
+Received: from ns.suse.de ([195.135.220.2]:27608 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932413AbWEBGzj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 02:48:33 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-References: <20060419112130.GA22648@elte.hu>
-	<20060420091856.GB21660@wotan.suse.de> <20060421112049.GA5609@elte.hu>
-	<20060421114501.GA22570@elte.hu> <20060501124942.GA21918@elte.hu>
+	Tue, 2 May 2006 02:55:39 -0400
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: ebiederm@xmission.com, herbert@13thfloor.at, dev@sw.ru,
+       linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
+       haveblue@us.ibm.com, clg@us.ibm.com, frankeh@us.ibm.com
+Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
+References: <20060501203906.XF1836@sergelap.austin.ibm.com>
+	<20060501203907.XF1836@sergelap.austin.ibm.com>
 From: Andi Kleen <ak@suse.de>
-Date: 02 May 2006 08:48:31 +0200
-In-Reply-To: <20060501124942.GA21918@elte.hu>
-Message-ID: <p73aca07whs.fsf@bragg.suse.de>
+Date: 02 May 2006 08:55:29 +0200
+In-Reply-To: <20060501203907.XF1836@sergelap.austin.ibm.com>
+Message-ID: <p7364ko7w66.fsf@bragg.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
 
-> FYI, even on 2.6.17-rc3 i get the one below. v2.6.17 showstopper i 
-> guess?
+> Implement a CLONE_NEWUTS flag, and use it at clone and sys_unshare.
 
-Did you send a full boot log?
-
-If it's using ACPI NUMA try numa=noacpi - it might be some problem
-with the node discovery on your machine.
+I still think it's a design mistake to add zillions of pointers to task_struct
+for every possible kernel object. Going through a proxy datastructure to 
+merge common cases would be much better.
 
 -Andi

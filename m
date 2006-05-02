@@ -1,105 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWEBNgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWEBNiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWEBNgN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 09:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWEBNgN
+	id S964814AbWEBNiY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 09:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWEBNiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 09:36:13 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:1183 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964815AbWEBNgM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 09:36:12 -0400
-Date: Tue, 2 May 2006 15:40:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>, coreteam@netfilter.org
-Subject: Re: [lockup] 2.6.17-rc3: netfilter/sctp: lockup in sctp_new(), do_basic_checks()
-Message-ID: <20060502134053.GA30917@elte.hu>
-References: <20060502113454.GA28601@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060502113454.GA28601@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 2 May 2006 09:38:24 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:22199 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S964814AbWEBNiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 09:38:23 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
+Subject: 2.6.16-ck9
+Date: Tue, 2 May 2006 23:38:16 +1000
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Message-Id: <200605022338.20534.kernel@kolivas.org>
+X-Length: 1983
+Content-Type: multipart/signed;
+  boundary="nextPart16636820.yGrfFDxt1E";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart16636820.yGrfFDxt1E
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck patch is aimed at the=
+=20
+desktop and cks is available with more emphasis on serverspace.
 
-> running an "isic" stresstest on and against a testbox [which, amongst 
-> other things, generates random incoming and outgoing packets] on 
-> 2.6.17-rc3 (and 2.6.17-rc3-mm1) over gigabit results in a reproducible 
-> lockup, after 5-10 minutes of runtime:
-> 
-> BUG: soft lockup detected on CPU#0!
->  [<c0104e7f>] show_trace+0xd/0xf
->  [<c0104e96>] dump_stack+0x15/0x17
->  [<c015ad02>] softlockup_tick+0xc5/0xd9
->  [<c0134c02>] run_local_timers+0x22/0x24
->  [<c0134fb7>] update_process_times+0x40/0x65
->  [<c011aa56>] smp_apic_timer_interrupt+0x58/0x60
->  [<c010492b>] apic_timer_interrupt+0x27/0x2c
->  [<c0f00df9>] sctp_new+0x8b/0x235
->  [<c0ef9666>] ip_conntrack_in+0x175/0x4ca
->  [<c0eb6dd7>] nf_iterate+0x31/0x94
->  [<c0eb6e83>] nf_hook_slow+0x49/0xda
->  [<c0ec2f55>] ip_rcv+0x24c/0x567
->  [<c0e7dec4>] netif_receive_skb+0x34b/0x397
->  [<c07870cb>] rtl8139_poll+0x3d8/0x5db
->  [<c0e7c7ad>] net_rx_action+0x9b/0x1ba
->  [<c0131955>] __do_softirq+0x6e/0xec
->  [<c0106187>] do_softirq+0x59/0xcd
+THESE INCLUDE THE PATCHES FROM 2.6.16.12 SO START WITH 2.6.16 AS YOUR BASE
 
-thinking about it, what prevents the SCTP chunk's len field from being 
-zero, and thus causing an infinite loop in for_each_sctp_chunk()? The 
-patch below should fix that.
+Apply to 2.6.16
+http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.16/2.6.16-=
+ck9/patch-2.6.16-ck9.bz2
 
-	Ingo
+or server version
+http://www.kernel.org/pub/linux/kernel/people/ck/patches/cks/patch-2.6.16-c=
+ks9.bz2
 
-----
-From: Ingo Molnar <mingo@elte.hu>
+web:
+http://kernel.kolivas.org
 
-fix infinite loop in the SCTP-netfilter code: check SCTP chunk size to 
-guarantee progress of for_each_sctp_chunk(). (all other uses of 
-for_each_sctp_chunk() are preceded by do_basic_checks(), so this fix 
-should be complete.)
+all patches:
+http://www.kernel.org/pub/linux/kernel/people/ck/patches/
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Split patches available.
 
-Index: linux/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-===================================================================
---- linux.orig/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-+++ linux/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-@@ -227,6 +227,15 @@ static int do_basic_checks(struct ip_con
- 	flag = 0;
- 
- 	for_each_sctp_chunk (skb, sch, _sch, offset, count) {
-+		unsigned int len = (htons(sch->length) + 3) & ~3;
-+
-+		/*
-+		 * Dont get into a loop with zero-sized or negative
-+		 * length values:
-+		 */
-+		if (!len || len >= skb->len)
-+			goto fail;
-+
- 		DEBUGP("Chunk Num: %d  Type: %d\n", count, sch->type);
- 
- 		if (sch->type == SCTP_CID_INIT 
-@@ -241,6 +250,7 @@ static int do_basic_checks(struct ip_con
- 			|| sch->type == SCTP_CID_COOKIE_ECHO
- 			|| flag)
- 		     && count !=0 ) {
-+fail:
- 			DEBUGP("Basic checks failed\n");
- 			return 1;
- 		}
+
+Changes since 2.6.16-ck8:
+
+Added:
+ +sched-fix_idleprio.patch
+A small bug crept in that prevented SCHED_IDLEPRIO tasks from being schedul=
+ed=20
+normally when they held a semaphore making it possible to livelock. This=20
+fixes it.
+
+
+Modified:
+ -patch-2.6.16.11
+ +patch-2.6.16.12
+Resync with mainline
+
+ -2.6.16-ck8-version.patch
+ +2.6.16-ck9-version.patch
+Version update
+
+=2D-=20
+=2Dck
+
+--nextPart16636820.yGrfFDxt1E
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEV2DMZUg7+tp6mRURApRcAJ4z34UZLgvWUdvDdUHGEVEulF467QCglOPh
+PPSclFZ53hH/FRzZmkhas2E=
+=agUU
+-----END PGP SIGNATURE-----
+
+--nextPart16636820.yGrfFDxt1E--

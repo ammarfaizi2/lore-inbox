@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWEBRVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWEBRYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964938AbWEBRVB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 13:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWEBRVA
+	id S964942AbWEBRYS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 13:24:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbWEBRYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 13:21:00 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:31468 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964938AbWEBRVA
+	Tue, 2 May 2006 13:24:17 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:26320 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S964942AbWEBRYP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 13:21:00 -0400
-Date: Tue, 2 May 2006 12:20:31 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, herbert@13thfloor.at, dev@sw.ru,
-       linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
-       haveblue@us.ibm.com, clg@fr.ibm.com, frankeh@us.ibm.com
-Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
-Message-ID: <20060502172031.GA22923@sergelap.austin.ibm.com>
-References: <20060501203906.XF1836@sergelap.austin.ibm.com> <p7364ko7w66.fsf@bragg.suse.de> <m1lktk97ks.fsf@ebiederm.dsl.xmission.com> <200605021017.19897.ak@suse.de>
+	Tue, 2 May 2006 13:24:15 -0400
+Date: Tue, 2 May 2006 19:24:11 +0200
+From: DervishD <lkml@dervishd.net>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Marcelo Tosatti <marcelo@kvack.org>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT, ext3fs, kernel 2.4.32... again
+Message-ID: <20060502172411.GA6112@DervishD>
+Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
+	Marcelo Tosatti <marcelo@kvack.org>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20060427063249.GH761@DervishD> <20060501062058.GA16589@dmt> <20060501112303.GA1951@DervishD> <20060502072808.A1873249@wobbly.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200605021017.19897.ak@suse.de>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060502072808.A1873249@wobbly.melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andi Kleen (ak@suse.de):
-> On Tuesday 02 May 2006 10:03, Eric W. Biederman wrote:
-> 7 additional bits will probably not be enough. I still don't
-> quite understand why you want individual bits for everything.
-> Why not group them into logical pieces? 
+    Hi Nathan :)
 
-I wouldn't be surprised if it makes sense to combine some of them.  For
-instance, perhaps utsname and networking?
+ * Nathan Scott <nathans@sgi.com> dixit:
+> On Mon, May 01, 2006 at 01:23:03PM +0200, DervishD wrote:
+> >  * Marcelo Tosatti <marcelo@kvack.org> dixit:
+> > > >     Shouldn't ext3fs return an error when the O_DIRECT flag is
+> > > > used in the open call? Is the open call userspace only and thus
+> > > > only libc can return such error? Am I misunderstanding the entire
+> > > > issue and this is a perfectly legal behaviour (allowing the open,
+> > > > failing in the read operation)?
+> > > 
+> > > Your interpretation is correct. It would be nicer for open() to
+> > > fail on fs'es which don't support O_DIRECT, but v2.4 makes such
+> > > check later at read/write unfortunately ;(
+> > 
+> >     Oops :(
+> 
+> Nothing else really make sense due to fcntl...
+> 	fcntl(fd, F_SETFL, O_DIRECT);
+> ...can happen at any time, to enable/disable direct I/O.
 
-> Have a proxy structure which has pointers to the many name spaces and a bit
-> mask for "namespace X is different".
+    I know, but that fcntl call should fail just like the open() one.
+I mean, I don't find this very different, it's just another point
+where the flag can be activated and so it should fail if the
+underlying filesystem doesn't support it (and doesn't ignore it in
+read()/write()).
 
-different from what?
+    Raúl Núñez de Arenas Coronado
 
-Oh, you mean in case we want to allow cloning a namespace outside of
-fork *without* cloning the nsproxy struct?
-
-> This structure would be reference
-> counted. task_struct has a single pointer to it.
-
-If it is reference counted, that implies it is shared between some
-processes.  But namespace pointers themselves are shared between some of
-these nsproxy's.  The lifetime mgmt here is one reason I haven't tried a
-patch to do this.
-
-Still, like Eric, I'm fine with trying that approach.  It just doesn't
-seem like we can draw any meaningful conclusions with just one namespace
-pointer, and adding a separate reference counted object around the
-utsname pointer would seem to just make the code harder to review.
-
-> With many name spaces you would have smaller task_struct, less cache 
-> foot print, better cache use of task_struct because slab cache colouring
-> will still work etc.
-
-I suppose we could run some performance tests with some dummy namespace
-pointers?  9 void *'s directly in the task struct, and the same inside a
-refcounted container struct.  The results might add some urgency to
-implementing the struct nsproxy.
-
--serge
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to... RAmen!

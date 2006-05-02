@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWEBQvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWEBQyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWEBQvl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 12:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWEBQvk
+	id S964926AbWEBQyi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 12:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWEBQyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 12:51:40 -0400
-Received: from detroit.securenet-server.net ([209.51.153.26]:24016 "EHLO
-	detroit.securenet-server.net") by vger.kernel.org with ESMTP
-	id S964930AbWEBQvk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 12:51:40 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-Date: Tue, 2 May 2006 09:51:27 -0700
-User-Agent: KMail/1.9.1
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Dave Airlie <airlied@linux.ie>,
-       Arjan van de Ven <arjan@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, pjones@redhat.com
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org> <200605021014.45684.bjorn.helgaas@hp.com> <20060502162136.GA4668@kroah.com>
-In-Reply-To: <20060502162136.GA4668@kroah.com>
+	Tue, 2 May 2006 12:54:38 -0400
+Received: from zcars04f.nortel.com ([47.129.242.57]:17286 "EHLO
+	zcars04f.nortel.com") by vger.kernel.org with ESMTP id S964926AbWEBQyi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 12:54:38 -0400
+Message-ID: <44578EB9.8050402@nortel.com>
+Date: Tue, 02 May 2006 10:54:17 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: sched_clock() uses are broken
+References: <20060502132953.GA30146@flint.arm.linux.org.uk> <p73slns5qda.fsf@bragg.suse.de>
+In-Reply-To: <p73slns5qda.fsf@bragg.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605020951.28160.jbarnes@virtuousgeek.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - virtuousgeek.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-OriginalArrivalTime: 02 May 2006 16:54:19.0266 (UTC) FILETIME=[0DD80620:01C66E09]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > But I hope that when X uses this, it only enables & disables VGA
-> > devices it's actually using.  In the past, it seems like X has
-> > blindly disabled *all* VGA devices in the system, even though
-> > they might be in use by another X server.  I'm sure that's all
-> > well-understood and cleaned up now; just wanted to make sure
-> > this nightmare didn't recur.
->
-> Hopefully with the recent PCI changes to X, this will not happen.  If
-> it does, that's a big bug in X :)
+Andi Kleen wrote:
 
-On some machines it still has no alternative, since the kernel doesn't 
-have a VGA arbiter of any kind.  Yes this sucks.
+> Agreed it's a problem, but probably a small one. At worst you'll get
+> a small scheduling hickup every half year, which should be hardly 
+> that big an issue.
 
-Jesse
+Presumably this would be bad for soft-realtime embedded things.  Set-top 
+boxes, etc.
+
+Chris

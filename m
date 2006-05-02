@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWEBGhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWEBGl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932404AbWEBGhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 02:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWEBGhF
+	id S932407AbWEBGl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 02:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWEBGl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 02:37:05 -0400
-Received: from ns1.suse.de ([195.135.220.2]:28630 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932404AbWEBGhC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 02:37:02 -0400
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] timer TSC check suspend notifier change
-References: <1146367406.21486.9.camel@sli10-desk.sh.intel.com>
-From: Andi Kleen <ak@suse.de>
-Date: 02 May 2006 08:36:59 +0200
-In-Reply-To: <1146367406.21486.9.camel@sli10-desk.sh.intel.com>
-Message-ID: <p73irop6igk.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 2 May 2006 02:41:27 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:980 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932392AbWEBGl0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 02:41:26 -0400
+Date: Tue, 2 May 2006 09:41:24 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Francois Romieu <romieu@fr.zoreil.com>
+cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, david@pleyades.net
+Subject: Re: [PATCH 2/3] ipg: leaks in ipg_probe
+In-Reply-To: <20060501231050.GC7419@electric-eye.fr.zoreil.com>
+Message-ID: <Pine.LNX.4.58.0605020936420.4066@sbz-30.cs.Helsinki.FI>
+References: <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
+ <20060428113755.GA7419@fargo> <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI>
+ <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo>
+ <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost>
+ <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net>
+ <1146506939.23931.2.camel@localhost> <20060501231050.GC7419@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaohua Li <shaohua.li@intel.com> writes:
-
-> in suspend time, the TSC CPUFREQ_SUSPENDCHANGE notifier change might wrongly
-> enable interrupt. cpufreq driver suspend/resume is in interrupt disabled environment.
+On Tue, 2 May 2006, Francois Romieu wrote:
+> The error paths are badly broken.
 > 
-> Signed-off-by: Shaohua Li <shaohua.li@intel.com>
-> ---
+> Bonus:
+> - remove duplicate initialization of sp;
+> - remove useless NULL initialization of dev;
+> - USE_IO_OPS is not used (and the driver does not seem to care about
+>   posted writes, rejoice).
 > 
->  linux-2.6.17-rc3-root/arch/i386/kernel/timers/timer_tsc.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff -puN arch/i386/kernel/timers/timer_tsc.c~timer_tsc_check_suspend_change arch/i386/kernel/timers/timer_tsc.c
-> --- linux-2.6.17-rc3/arch/i386/kernel/timers/timer_tsc.c~timer_tsc_check_suspend_change	2006-04-29 08:25:38.000000000 +0800
-> +++ linux-2.6.17-rc3-root/arch/i386/kernel/timers/timer_tsc.c	2006-04-29 08:29:33.000000000 +0800
-> @@ -279,7 +279,7 @@ time_cpufreq_notifier(struct notifier_bl
->  {
->  	struct cpufreq_freqs *freq = data;
->  
-> -	if (val != CPUFREQ_RESUMECHANGE)
-> +	if (val != CPUFREQ_RESUMECHANGE && val != CPUFREQ_SUSPENDCHANGE)
->  		write_seqlock_irq(&xtime_lock);
+> Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
-Better would be to change it to write_seqlock_irqsave() (if that 
-exists, if not add it) 
+Applied. Thanks! One comment below.
 
+On Tue, 2 May 2006, Francois Romieu wrote:
+> -	err = pci_request_regions(pdev, DRV_NAME);
+> -	if (err)
+> -		goto out;
+> -
+> -	pio_start = pci_resource_start(pdev, 0) & 0xffffff80;
+> -	pio_len = pci_resource_len(pdev, 0);
+> -	mmio_start = pci_resource_start(pdev, 1) & 0xffffff80;
+> +	rc = pci_request_regions(pdev, DRV_NAME);
+> +	if (rc)
+> +		goto err_free_dev_1;
 
->  	if (!ref_freq) {
->  		if (!freq->old){
-> @@ -312,7 +312,7 @@ time_cpufreq_notifier(struct notifier_bl
->  	}
->  
->  end:
-> -	if (val != CPUFREQ_RESUMECHANGE)
-> +	if (val != CPUFREQ_RESUMECHANGE && val != CPUFREQ_SUSPENDCHANGE)
->  		write_sequnlock_irq(&xtime_lock);
+Is this tested with hardware? Alignment of the start address looks bogus 
+for sure, but any idea why they had it in the first place?
 
-and _restore
-
--Andi
+				Pekka

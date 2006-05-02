@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965036AbWEBXW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWEBXg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965036AbWEBXW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 19:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbWEBXW0
+	id S932271AbWEBXg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 19:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWEBXg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 19:22:26 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:39398 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S965036AbWEBXW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 19:22:26 -0400
-Subject: Re: [PATCH] CodingStyle: add typedefs chapter
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, js@linuxtv.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.64.0605021204240.4086@g5.osdl.org>
-References: <20060430174426.a21b4614.rdunlap@xenotime.net>
-	 <1146503166.2885.137.camel@hades.cambridge.redhat.com>
-	 <20060502003755.GA26327@linuxtv.org>
-	 <1146576495.14059.45.camel@pmac.infradead.org>
-	 <20060502142050.GC27798@linuxtv.org>
-	 <1146580308.17934.19.camel@pmac.infradead.org>
-	 <20060502101113.17c75a05.rdunlap@xenotime.net>
-	 <Pine.LNX.4.64.0605021137500.4086@g5.osdl.org>
-	 <1146595853.19101.38.camel@pmac.infradead.org>
-	 <Pine.LNX.4.64.0605021204240.4086@g5.osdl.org>
-Content-Type: text/plain
-Date: Wed, 03 May 2006 00:22:16 +0100
-Message-Id: <1146612136.19101.47.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+	Tue, 2 May 2006 19:36:29 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:59307 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751183AbWEBXg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 19:36:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ANOziwcjzFzcuCwT3885EbzHvOKXJxwN5cc0he8FNiJUC/ROcpzhqHLidfGvzo9gGuCj+SeJYXt7vAJiY62u6t7AECUe4Dvnsazt1lh3aVPuQH2xrxa+mKgDPQjWje4ZrYuv1WCuvECUbif7QHuCS1gPMQ0doUlRzFcNj3wT/Mo=  ;
+Message-ID: <44576BF5.8070903@yahoo.com.au>
+Date: Wed, 03 May 2006 00:25:57 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
+References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de> <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org>
+In-Reply-To: <44576688.6050607@mbligh.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-02 at 12:07 -0700, Linus Torvalds wrote:
-> And that wasn't what I objected to. 
+Martin J. Bligh wrote:
+>> Oh that's a 32bit kernel. I don't think the 32bit NUMA has ever worked
+>> anywhere but some Summit systems (at least every time I tried it it 
+>> blew up on me and nobody seems to use it regularly). Maybe it would be 
+>> finally time to mark it CONFIG_BROKEN though or just remove it (even 
+>> by design it doesn't work very well) 
 > 
-> What I objected to was that other part, which said that "uint32_t" was 
-> somehow more standard.
+> 
+> Bollocks. It works fine, and is tested every single day, on every git
+> release, and every -mm tree.
 
-It didn't say "more standard". It referred to "the standard C99 types".
+Whatever the case, there definitely does not appear to be sufficient
+zone alignment enforced for the buddy allocator. I cannot see how it
+could work if zones are not aligned on 4MB boundaries.
 
-It's heading off the question "why object to ifdefs but permit _these_
-gratuitous ones?" which would otherwise be asked.
+Maybe some architectures / subarch code naturally does this for us,
+but Ingo is definitely hitting this bug because his config does not
+(align, that is).
 
-It's a document which is _describing_ the Linux coding style. To refer
-to u32 et al as 'standard' would be self-referential. Describe them as
-'the Linux standard types' in other documents by all means, but it
-doesn't make much sense to do so in Documentation/CodingStyle.
+I've randomly added a couple more cc's.
 
 -- 
-dwmw2
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWEBQoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWEBQp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964924AbWEBQoE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 12:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbWEBQoE
+	id S964854AbWEBQp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 12:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWEBQp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 12:44:04 -0400
-Received: from mx2.suse.de ([195.135.220.15]:54172 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964924AbWEBQoB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 12:44:01 -0400
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sched_clock() uses are broken
-References: <20060502132953.GA30146@flint.arm.linux.org.uk>
-From: Andi Kleen <ak@suse.de>
-Date: 02 May 2006 18:43:45 +0200
-In-Reply-To: <20060502132953.GA30146@flint.arm.linux.org.uk>
-Message-ID: <p73slns5qda.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 2 May 2006 12:45:58 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:54750 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964854AbWEBQp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 12:45:57 -0400
+Message-ID: <44578C92.1070403@linux.intel.com>
+Date: Tue, 02 May 2006 18:45:06 +0200
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, airlied@linux.ie, pjones@redhat.com,
+       akpm@osdl.org
+Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace
+ (Xorg) to enable devices without doing foul direct access
+References: <1146300385.3125.3.camel@laptopd505.fenrus.org> <9e4733910605020938h6a9829c0vc70dac326c0cdf46@mail.gmail.com>
+In-Reply-To: <9e4733910605020938h6a9829c0vc70dac326c0cdf46@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> writes:
+Jon Smirl wrote:
+> On 4/29/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
+>> This patch adds an "enable" sysfs attribute to each PCI device. When 
+>> read it
+>> shows the "enabled-ness" of the device, but you can write a "0" into 
+>> it to
+>> disable a device, and a "1" to enable it.
 > 
-> However, this is not the case.  On x86 with TSC, it returns a 54 bit
-> number.  This means that when t1 < t0, time_passed_ns becomes a very
-> large number which no longer represents the amount of time.
+> What is the rationale for this?
 
-Good point. For a 1Ghz system this would happen every ~0.57 years.
+you snipped that out of the email ;)
 
-The problem is there is AFAIK no non destructive[1] way to find out how
-many bits the TSC has
+> Doing this encourages people to write
+> device drivers in user space that probably should be a kernel driver.
 
-Destructive would be to overwrite it with -1 and see how many stick.
+not really, there's not a lot you can do. What you CAN do is read roms and stuff like that;
+the vbetool and X need that for example
 
-> All uses in kernel/sched.c seem to be aflicted by this problem.
-> 
-> There are several solutions to this - the most obvious being that we
-> need a function which returns the nanosecond difference between two
-> sched_clock() return values, and this function needs to know how to
-> handle the case where sched_clock() has wrapped.
+> What are you going to do if two competing apps want to set it to two
+> different states?
 
-Ok it can be done with a simple test.
+then you're root and you just shot yourself in the proverbial foot.
 
-> 
-> IOW:
-> 
-> 	t0 = sched_clock();
-> 	/* do something */
-> 	t1 = sched_clock();
-> 
-> 	time_passed = sched_clock_diff(t1, t0);
-> 
-> Comments?
 
-Agreed it's a problem, but probably a small one. At worst you'll get
-a small scheduling hickup every half year, which should be hardly 
-that big an issue.
+> An alternate way to fix this problem is to write a device driver that
+> attaches to hardware with PCI class VGA.
 
-Might chose to just ignore it with a big fat comment?
-
--Andi
-
+and then that sucks too because in linux only 1 driver can bind to a device,
+AND you're limited to only vga devices.

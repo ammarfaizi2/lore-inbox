@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWEBS4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbWEBTAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964932AbWEBS4E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 14:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWEBS4D
+	id S964968AbWEBTAd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 15:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbWEBTAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 14:56:03 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19474 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964932AbWEBS4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 14:56:01 -0400
-Date: Tue, 2 May 2006 19:55:56 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: sched_clock() uses are broken
-Message-ID: <20060502185555.GB4223@flint.arm.linux.org.uk>
-Mail-Followup-To: Nicolas Pitre <nico@cam.org>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <20060502132953.GA30146@flint.arm.linux.org.uk> <p73slns5qda.fsf@bragg.suse.de> <20060502165009.GA4223@flint.arm.linux.org.uk> <200605021901.13882.ak@suse.de> <Pine.LNX.4.64.0605021316380.28543@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 May 2006 15:00:33 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:22579 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964968AbWEBTAc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 15:00:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uDycBk3THbmUPfio63CKcnIwoaTsjVaIvy/iYe8YSBkZXI2GBgf7I+GvqKpebEuaKVhL+Xlm/ihqJHp2zDcITsqkwefCHsAeYyUxP4sk1pyoz8nvGYIC1+1CHZgkNDppuqBysgNpBo2R5YldulpApHZ0tDfH1eRL+XzIregpWbU=
+Message-ID: <9e4733910605021200y6333a67sd2ff685f666cc6f9@mail.gmail.com>
+Date: Tue, 2 May 2006 15:00:29 -0400
+From: "Jon Smirl" <jonsmirl@gmail.com>
+To: "Arjan van de Ven" <arjan@linux.intel.com>
+Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
+Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, airlied@linux.ie, pjones@redhat.com,
+       akpm@osdl.org
+In-Reply-To: <1146594457.32045.91.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605021316380.28543@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
+	 <9e4733910605020938h6a9829c0vc70dac326c0cdf46@mail.gmail.com>
+	 <44578C92.1070403@linux.intel.com>
+	 <9e4733910605020959k7aad853dn87d73348cbcf42cd@mail.gmail.com>
+	 <44579028.1020201@linux.intel.com>
+	 <9e4733910605021013h17b72453v3716f68a2cebdee1@mail.gmail.com>
+	 <1146594457.32045.91.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 01:18:25PM -0400, Nicolas Pitre wrote:
-> On Tue, 2 May 2006, Andi Kleen wrote:
-> 
-> > On Tuesday 02 May 2006 18:50, Russell King wrote:
-> > 
-> > > You're right assuming you have a 64-bit TSC, but ARM has at best a
-> > > 32-bit cycle counter which rolls over about every 179 seconds - with
-> > > gives a range of values from sched_clock from 0 to 178956970625 or
-> > > 0x29AAAAAA81.
-> > > 
-> > > That's rather more of a problem than having it happen every 208 days.
-> > 
-> > Ok but you know it's always 32bit right? You can fix it up then
-> > with your proposal of a sched_diff()
-> > 
-> > The problem would be fixing it up with a unknown number of bits.
-> 
-> Just shift it left so you know you always have the most significant bits 
-> valid.  The sched_diff() would take care of scaling it back to nanosecs.
+On 5/2/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
+> you're very selective in what you read and only think about X.
+> There's many other reasons to enable/disable devices post boot.
+> Having a driver just to call pci_enable_device() is silly; and
+> there are various scenarios you may want. Userland suspend/resume is
+> only one of those, posting video cards is one, chip health monitoring is
+> one, etc etc etc. Don't let your lack of imagination ruin things.
 
-sched_clock is currently defined to return nanoseconds so this isn't
-a possibility.
+Allowing user space control of a device without a mechanism to assign
+ownership of the device is a very bad idea. There is no way for one
+user space program to tell if another is messing with the device.
+There has to be a mechanism like opening the device to indicate which
+process owns the device and is allowed to set their state into it (for
+states that can conflict, enabling the device is definitely a state
+that can conflict).
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+This attribute will also cause problem with existing drivers. Almost
+every driver in the kernel will GPF if you disable the hardware on it
+while the driver is loaded and active.  This problem has been the
+result of numerous OOPses when X decides to disable hardware that
+fbdev is using. I also can not see how user space suspend/resume can
+disable PCI hardware without coordinating with an active device
+driver.
+
+The rule needs to be that if you want to use a device it has to have a
+driver. Anything else results in chaos. It doesn't matter if these
+drivers have a tiny API, their purpose is to control ownership of the
+hardware.
+
+You may call this silly but it is a real pain to spend hours debugging
+code only to discover that it failed because some other app unknown to
+you altered the state of the hardware while you were using it.
+
+--
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,58 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWEBRNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWEBRPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWEBRNE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 13:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWEBRNE
+	id S964917AbWEBRPu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 13:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWEBRPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 13:13:04 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:19101 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964899AbWEBRND convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 13:13:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JveTCLosvl21PaYUq5qhq0xBTQT4G5A7QrfcSwniPImGgtm6U3JdIqwql0CFAz9xMphBfZQCofeLVsXpTHZGgMLUZWMt3+90mgAtdTTR9sXPHy1CQ8Zhk0MCNjCpLX4hpd4l3lxQ7cc43aNF2gRLKhHv2RbE4g70/uXHaR1xaH8=
-Message-ID: <9e4733910605021013h17b72453v3716f68a2cebdee1@mail.gmail.com>
-Date: Tue, 2 May 2006 13:13:02 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Arjan van de Ven" <arjan@linux.intel.com>
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-Cc: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, airlied@linux.ie, pjones@redhat.com,
-       akpm@osdl.org
-In-Reply-To: <44579028.1020201@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
-	 <9e4733910605020938h6a9829c0vc70dac326c0cdf46@mail.gmail.com>
-	 <44578C92.1070403@linux.intel.com>
-	 <9e4733910605020959k7aad853dn87d73348cbcf42cd@mail.gmail.com>
-	 <44579028.1020201@linux.intel.com>
+	Tue, 2 May 2006 13:15:50 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:46451 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S964917AbWEBRPt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 13:15:49 -0400
+Date: Tue, 02 May 2006 13:15:48 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: sched_clock() uses are broken
+In-reply-to: <20060502165009.GA4223@flint.arm.linux.org.uk>
+X-X-Sender: nico@localhost.localdomain
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.64.0605021300140.28543@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20060502132953.GA30146@flint.arm.linux.org.uk>
+ <p73slns5qda.fsf@bragg.suse.de> <20060502165009.GA4223@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/2/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
-> Jon Smirl wrote:
-> > All of these have been proposed before.
->
-> I think you forgot to attach the patch
->
-> > In my opinion an 'enable'
-> > attribute is the worst solution in the bunch.
->
-> you again limit yourself to VGA. I don't.
+On Tue, 2 May 2006, Russell King wrote:
 
-Haven't we learned that mucking with hardware from user space without
-having a device driver loaded is a very bad idea.  What is the
-motivation for providing an API whose only purpose is to enable this
-bad behavior?
+> On Tue, May 02, 2006 at 06:43:45PM +0200, Andi Kleen wrote:
+> > Russell King <rmk+lkml@arm.linux.org.uk> writes:
+> > > 
+> > > However, this is not the case.  On x86 with TSC, it returns a 54 bit
+> > > number.  This means that when t1 < t0, time_passed_ns becomes a very
+> > > large number which no longer represents the amount of time.
+> > 
+> > Good point. For a 1Ghz system this would happen every ~0.57 years.
+> > 
+> > The problem is there is AFAIK no non destructive[1] way to find out how
+> > many bits the TSC has
+> > 
+> > Destructive would be to overwrite it with -1 and see how many stick.
+> > 
+> > > All uses in kernel/sched.c seem to be aflicted by this problem.
+> > > 
+> > > There are several solutions to this - the most obvious being that we
+> > > need a function which returns the nanosecond difference between two
+> > > sched_clock() return values, and this function needs to know how to
+> > > handle the case where sched_clock() has wrapped.
+> > 
+> > Ok it can be done with a simple test.
+
+Better yet the sched_clock() implementation just needs to return a value 
+shifted left so the wrap around always happens on 64 bits and the 
+difference between two consecutive samples is always right.
+
+> > > 
+> > > IOW:
+> > > 
+> > > 	t0 = sched_clock();
+> > > 	/* do something */
+> > > 	t1 = sched_clock();
+> > > 
+> > > 	time_passed = sched_clock_diff(t1, t0);
+> > > 
+> > > Comments?
+> > 
+> > Agreed it's a problem, but probably a small one. At worst you'll get
+> > a small scheduling hickup every half year, which should be hardly 
+> > that big an issue.
+
+... on x86 that is.
+
+> > Might chose to just ignore it with a big fat comment?
+> 
+> You're right assuming you have a 64-bit TSC, but ARM has at best a
+> 32-bit cycle counter which rolls over about every 179 seconds - with
+> gives a range of values from sched_clock from 0 to 178956970625 or
+> 0x29AAAAAA81.
+> 
+> That's rather more of a problem than having it happen every 208 days.
+
+Yet that counter isn't necessarily nanosecond based.  So rescaling the 
+returned value to nanosecs requires expensive divisions which could be 
+done only once within sched_clock_diff() instead of twice as often in 
+each sched_clock() calls.
 
 
---
-Jon Smirl
-jonsmirl@gmail.com
+Nicolas

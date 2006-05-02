@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWEBHZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWEBHZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWEBHZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 03:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWEBHZM
+	id S932370AbWEBHZo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 03:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWEBHZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 03:25:12 -0400
-Received: from nproxy.gmail.com ([64.233.182.191]:46767 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932369AbWEBHZL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 03:25:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-        b=fv3G3xO/T2waXJ3uJPC/OmUl4pl+F569BM5mCnGSyNZ/73BYxy2QPvB/2sMIwTrbHS99uBvZY21J1v3ry2hg9lRfSHa9F91gaDBLLDjh7VPXzlAfDc2+TIDAqY1wGQVf1suFXVTCfi3u+aF5cN3iD0I0n9IhqMM7ztsghjNqI3E=
-Message-ID: <44570929.2080603@gmail.com>
-Date: Tue, 02 May 2006 09:24:25 +0200
-From: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: es-ar, es, en-us, en
+	Tue, 2 May 2006 03:25:44 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:51941 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932370AbWEBHZn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 03:25:43 -0400
+In-Reply-To: <20060428174754.GF30532@wohnheim.fh-wedel.de>
+Subject: Re: [PATCH] s390: Hypervisor File System
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: akpm@osdl.org, ioe-lkml@rameria.de, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com, penberg@cs.helsinki.fi
+X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
+Message-ID: <OF664A393A.3DDB2CB8-ON42257162.0028A565-42257162.0028D14B@de.ibm.com>
+From: Michael Holzheu <HOLZHEU@de.ibm.com>
+Date: Tue, 2 May 2006 09:25:50 +0200
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 02/05/2006 09:26:51
 MIME-Version: 1.0
-To: Joshua Hudson <joshudson@gmail.com>
-CC: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH/RFC] minix filesystem update to V3. Error comment.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua wrote:
+Jörn Engel <joern@wohnheim.fh-wedel.de> wrote on 04/28/2006 07:47:54 PM:
 
- > Is this the error about variable might not be initalized?
- > What happends in the code if you just initalize to NULL?
+> On Fri, 28 April 2006 19:37:08 +0200, Michael Holzheu wrote:
+> >
+> > +static void *diag204_get_buffer(enum diag204_format fmt, int *pages)
+> > +{
+> > +   void *buf;
+> > +
+> > +   if (fmt == INFO_SIMPLE)
+> > +      *pages = 1;
+> > +   else
+> > +      *pages = diag204(SUBC_RSI | fmt, 0, 0);
+> > +
+> > +   if (*pages <= 0)
+> > +      return ERR_PTR(-ENOSYS);
+>
+> Is -ENOSYS the right thing here?  I thought it was for stuff not
+> implemented by Linux.  If the hardware or some hypervisor would return
+> -ENOSYS, it would be -EIO from Linux' perspective.  But I may be
+> wrong.
 
-Hi all,
+The only case "diag204(SUBC_RSI | fmt, 0, 0)" can fail is,
+if it is not implemented by the hardware. The means
+ENOSYS (Function not implemented), doen't it?
 
-No, is not this kind of error. The error message complaints about not beeing able to reference the contents of a pointer if you previously not allocate with kmalloc a location for it. Nothig has to 
-bee initialized because the target and contents already exists.
+Michael
 
-Nothing happens if I initialize to NULL. An exception happens if I later free it with kfree instead of setting it to NULL.
-
-Be aware that all this happens within functions included by bitops.h.
-
-Regards,
-
-Daniel

@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWEBNAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWEBNHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbWEBNAB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 09:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWEBNAB
+	id S964800AbWEBNHU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 09:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWEBNHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 09:00:01 -0400
-Received: from pat.uio.no ([129.240.10.6]:25243 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S964799AbWEBNAA (ORCPT
+	Tue, 2 May 2006 09:07:20 -0400
+Received: from mail.charite.de ([160.45.207.131]:56281 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S964800AbWEBNHT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 09:00:00 -0400
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Transfer-Encoding: 7bit
-Message-Id: <53616A3D-8CC7-4898-A7CA-16212D51FEDA@usit.uio.no>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+	Tue, 2 May 2006 09:07:19 -0400
+Date: Tue, 2 May 2006 15:07:11 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
 To: linux-kernel@vger.kernel.org
-From: Hans A Eide <haeide@usit.uio.no>
-Subject: [PATCH] block/ub.c: Increase number of partitions for usb storage
-Date: Tue, 2 May 2006 14:59:52 +0200
-X-Mailer: Apple Mail (2.749.3)
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.932, required 12,
-	autolearn=disabled, AWL 0.07, UIO_MAIL_IS_INTERNAL -5.00)
+Subject: hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
+Message-ID: <20060502130711.GW11742@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+# uname -a
+Linux tabuleh 2.6.16.9 #1 PREEMPT Wed Apr 19 21:19:01 CEST 2006 i686 GNU/Linux
 
-Hi,
+For quite some time I'm getting this in my log:
 
-I do backups to external USB storage and hit the 8 partitions limit  
-of ub.c
-This could also be a problem for others (HFS+ formatted iPods?)
+May  2 14:09:08 tabuleh kernel: hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
+May  2 14:26:43 tabuleh kernel: hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
+May  2 14:46:20 tabuleh kernel: hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
 
-Any reason for not increasing the partitions limit to 16?
+# dmesg|grep hdc
 
-Thanks,
+ide1: BM-DMA at 0xcfa8-0xcfaf, BIOS settings: hdc:DMA, hdd:pio
+hdc: TOSHIBA DVD-ROM SD-R2102, ATAPI CD/DVD-ROM drive
+hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
+...
 
-Hans
+# smartctl -a /dev/hdc
+smartctl version 5.36 [i686-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
 
-diff -u drivers/block/ub.c.orig drivers/block/ub.c
---- drivers/block/ub.c.orig     2006-05-02 09:16:22.000000000 +0200
-+++ drivers/block/ub.c  2006-04-30 13:37:34.000000000 +0200
-@@ -113,7 +113,7 @@
-/*
-   */
--#define UB_PARTS_PER_LUN      8
-+#define UB_PARTS_PER_LUN      16
-#define UB_MAX_CDB_SIZE      16                /* Corresponds to Bulk */
+=== START OF INFORMATION SECTION ===
+Device Model:     TOSHIBA DVD-ROM SD-R2102
+Serial Number:    623E128663
+Firmware Version: 1317
+Device is:        Not in smartctl database [for details use: -P showall]
+ATA Version is:   5
+ATA Standard is:  ATA/ATAPI-5 T13 1321D revision 3
+Local Time is:    Tue May  2 15:06:01 2006 CEST
+SMART support is: Unavailable - Packet Interface Devices [this device: CD/DVD] don't support ATA SMART
+A mandatory SMART command failed: exiting. To continue, add one or more '-T permissive' options.
 
-
-
---
-Hans A. Eide
-University of Oslo, Norway
-
-
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

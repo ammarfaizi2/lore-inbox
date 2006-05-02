@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWEBGXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWEBGYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWEBGXS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 02:23:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWEBGXS
+	id S932397AbWEBGYM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 02:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWEBGYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 02:23:18 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:4807 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932401AbWEBGXR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 02:23:17 -0400
-Date: Tue, 2 May 2006 11:50:23 +0530
+	Tue, 2 May 2006 02:24:12 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:63442 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932397AbWEBGYK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 02:24:10 -0400
+Date: Tue, 2 May 2006 11:51:17 +0530
 From: Balbir Singh <balbir@in.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: lse-tech@lists.sourceforge.net, jlan@engr.sgi.com
-Subject: [Patch 7/8] documentation
-Message-ID: <20060502062023.GD22607@in.ibm.com>
+Subject: [Patch 8/8] /proc export of aggregated block I/O delays
+Message-ID: <20060502062117.GE22607@in.ibm.com>
 Reply-To: balbir@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,528 +24,110 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-delayacct-doc.patch
+Changelog
+Fixed comments by akpm
+- use __u64 for delayacct_blkio_ticks() return type
+- redundant check for tsk->delays in __delayacct_blkio_ticks()
 
-Some documentation for delay accounting.
+delayacct-procfs.patch
+
+Export I/O delays seen by a task through /proc/<tgid>/stats
+for use in top etc.
+
+Note that delays for I/O done for swapping in pages (swapin I/O) is
+clubbed together with all other I/O here (this is not the
+case in the netlink interface where the swapin I/O is kept distinct)
 
 Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
 Signed-off-by: Balbir Singh <balbir@in.ibm.com>
 ---
 
- Documentation/accounting/delay-accounting.txt |  115 +++++++
- Documentation/accounting/getdelays.c          |  376 ++++++++++++++++++++++++++
- Documentation/accounting/taskstats.txt        |    2 
- 3 files changed, 493 insertions(+)
+ fs/proc/array.c           |    6 ++++--
+ include/linux/delayacct.h |   10 ++++++++++
+ kernel/delayacct.c        |   12 ++++++++++++
+ 3 files changed, 26 insertions(+), 2 deletions(-)
 
-diff -puN /dev/null Documentation/accounting/delay-accounting.txt
---- /dev/null	2004-06-24 23:34:38.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/Documentation/accounting/delay-accounting.txt	2006-05-02 10:36:37.000000000 +0530
-@@ -0,0 +1,115 @@
-+Delay accounting
-+----------------
-+
-+Tasks encounter delays in execution when they wait
-+for some kernel resource to become available e.g. a
-+runnable task may wait for a free CPU to run on.
-+
-+The per-task delay accounting functionality measures
-+the delays experienced by a task while
-+
-+a) waiting for a CPU (while being runnable)
-+b) completion of synchronous block I/O initiated by the task
-+c) swapping in pages
-+
-+and makes these statistics available to userspace through
-+the taskstats interface.
-+
-+Such delays provide feedback for setting a task's cpu priority,
-+io priority and rss limit values appropriately. Long delays for
-+important tasks could be a trigger for raising its corresponding priority.
-+
-+The functionality, through its use of the taskstats interface, also provides
-+delay statistics aggregated for all tasks (or threads) belonging to a
-+thread group (corresponding to a traditional Unix process). This is a commonly
-+needed aggregation that is more efficiently done by the kernel.
-+
-+Userspace utilities, particularly resource management applications, can also
-+aggregate delay statistics into arbitrary groups. To enable this, delay
-+statistics of a task are available both during its lifetime as well as on its
-+exit, ensuring continuous and complete monitoring can be done.
-+
-+
-+Interface
-+---------
-+
-+Delay accounting uses the taskstats interface which is described
-+in detail in a separate document in this directory. Taskstats returns a
-+generic data structure to userspace corresponding to per-pid and per-tgid
-+statistics. The delay accounting functionality populates specific fields of
-+this structure. See
-+     include/linux/taskstats.h
-+for a description of the fields pertaining to delay accounting.
-+It will generally be in the form of counters returning the cumulative
-+delay seen for cpu, sync block I/O, swapin etc.
-+
-+Taking the difference of two successive readings of a given
-+counter (say cpu_delay_total) for a task will give the delay
-+experienced by the task waiting for the corresponding resource
-+in that interval.
-+
-+When a task exits, records containing the per-task and per-process statistics
-+are sent to userspace without requiring a command. More details are given in
-+the taskstats interface description.
-+
-+The getdelays.c userspace utility in this directory allows simple commands to
-+be run and the corresponding delay statistics to be displayed. It also serves
-+as an example of using the taskstats interface.
-+
-+Usage
-+-----
-+
-+Compile the kernel with
-+	CONFIG_TASK_DELAY_ACCT=y
-+	CONFIG_TASKSTATS=y
-+
-+Enable the accounting at boot time by adding
-+the following to the kernel boot options
-+	delayacct
-+
-+and after the system has booted up, use a utility
-+similar to  getdelays.c to access the delays
-+seen by a given task or a task group (tgid).
-+The utility also allows a given command to be
-+executed and the corresponding delays to be
-+seen.
-+
-+General format of the getdelays command
-+
-+getdelays [-t tgid] [-p pid] [-c cmd...]
-+
-+
-+Get delays, since system boot, for pid 10
-+# ./getdelays -p 10
-+(output similar to next case)
-+
-+Get sum of delays, since system boot, for all pids with tgid 5
-+# ./getdelays -t 5
-+
-+
-+CPU	count	real total	virtual total	delay total
-+	7876	92005750	100000000	24001500
-+IO	count	delay total
-+	0	0
-+MEM	count	delay total
-+	0	0
-+
-+Get delays seen in executing a given simple command
-+# ./getdelays -c ls /
-+
-+bin   data1  data3  data5  dev  home  media  opt   root  srv        sys  usr
-+boot  data2  data4  data6  etc  lib   mnt    proc  sbin  subdomain  tmp  var
-+
-+
-+CPU	count	real total	virtual total	delay total
-+	6	4000250		4000000		0
-+IO	count	delay total
-+	0	0
-+MEM	count	delay total
-+	0	0
-+
-+
-+
-+
-+
-+
-diff -puN /dev/null Documentation/accounting/getdelays.c
---- /dev/null	2004-06-24 23:34:38.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/Documentation/accounting/getdelays.c	2006-05-02 10:36:37.000000000 +0530
-@@ -0,0 +1,376 @@
-+/* getdelays.c
-+ *
-+ * Utility to get per-pid and per-tgid delay accounting statistics
-+ * Also illustrates usage of the taskstats interface
-+ *
-+ * Copyright (C) Shailabh Nagar, IBM Corp. 2005
-+ * Copyright (C) Balbir Singh, IBM Corp. 2006
-+ *
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+#include <unistd.h>
-+#include <poll.h>
-+#include <string.h>
-+#include <fcntl.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <sys/socket.h>
-+#include <sys/types.h>
-+#include <signal.h>
-+
-+#include <linux/genetlink.h>
-+#include <linux/taskstats.h>
-+
-+/*
-+ * Generic macros for dealing with netlink sockets. Might be duplicated
-+ * elsewhere. It is recommended that commercial grade applications use
-+ * libnl or libnetlink and use the interfaces provided by the library
-+ */
-+#define GENLMSG_DATA(glh)	((void *)(NLMSG_DATA(glh) + GENL_HDRLEN))
-+#define GENLMSG_PAYLOAD(glh)	(NLMSG_PAYLOAD(glh, 0) - GENL_HDRLEN)
-+#define NLA_DATA(na)		((void *)((char*)(na) + NLA_HDRLEN))
-+#define NLA_PAYLOAD(len)	(len - NLA_HDRLEN)
-+
-+#define err(code, fmt, arg...) do { printf(fmt, ##arg); exit(code); } while (0)
-+int done = 0;
-+
-+/*
-+ * Create a raw netlink socket and bind
-+ */
-+static int create_nl_socket(int protocol, int groups)
-+{
-+    socklen_t addr_len;
-+    int fd;
-+    struct sockaddr_nl local;
-+
-+    fd = socket(AF_NETLINK, SOCK_RAW, protocol);
-+    if (fd < 0)
-+	return -1;
-+
-+    memset(&local, 0, sizeof(local));
-+    local.nl_family = AF_NETLINK;
-+    local.nl_groups = groups;
-+
-+    if (bind(fd, (struct sockaddr *) &local, sizeof(local)) < 0)
-+	goto error;
-+
-+    return fd;
-+  error:
-+    close(fd);
-+    return -1;
-+}
-+
-+int sendto_fd(int s, const char *buf, int bufLen)
-+{
-+    struct sockaddr_nl nladdr;
-+    int r;
-+
-+    memset(&nladdr, 0, sizeof(nladdr));
-+    nladdr.nl_family = AF_NETLINK;
-+
-+    while ((r = sendto(s, buf, bufLen, 0, (struct sockaddr *) &nladdr,
-+		       sizeof(nladdr))) < bufLen) {
-+	if (r > 0) {
-+	    buf += r;
-+	    bufLen -= r;
-+	} else if (errno != EAGAIN)
-+	    return -1;
-+    }
-+    return 0;
-+}
-+
-+/*
-+ * Probe the controller in genetlink to find the family id
-+ * for the TASKSTATS family
-+ */
-+int get_family_id(int sd)
-+{
-+    struct {
-+	struct nlmsghdr n;
-+	struct genlmsghdr g;
-+	char buf[256];
-+    } family_req;
-+    struct {
-+	struct nlmsghdr n;
-+	struct genlmsghdr g;
-+	char buf[256];
-+    } ans;
-+
-+    int id;
-+    struct nlattr *na;
-+    int rep_len;
-+
-+    /* Get family name */
-+    family_req.n.nlmsg_type = GENL_ID_CTRL;
-+    family_req.n.nlmsg_flags = NLM_F_REQUEST;
-+    family_req.n.nlmsg_seq = 0;
-+    family_req.n.nlmsg_pid = getpid();
-+    family_req.n.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
-+    family_req.g.cmd = CTRL_CMD_GETFAMILY;
-+    family_req.g.version = 0x1;
-+    na = (struct nlattr *) GENLMSG_DATA(&family_req);
-+    na->nla_type = CTRL_ATTR_FAMILY_NAME;
-+    na->nla_len = strlen(TASKSTATS_GENL_NAME) + 1 + NLA_HDRLEN;
-+    strcpy(NLA_DATA(na), TASKSTATS_GENL_NAME);
-+    family_req.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
-+
-+    if (sendto_fd(sd, (char *) &family_req, family_req.n.nlmsg_len) < 0)
-+	err(1, "error sending message via Netlink\n");
-+
-+    rep_len = recv(sd, &ans, sizeof(ans), 0);
-+
-+    if (rep_len < 0)
-+	err(1, "error receiving reply message via Netlink\n");
-+
-+
-+    /* Validate response message */
-+    if (!NLMSG_OK((&ans.n), rep_len))
-+	err(1, "invalid reply message received via Netlink\n");
-+
-+    if (ans.n.nlmsg_type == NLMSG_ERROR) {	/* error */
-+	printf("error received NACK - leaving\n");
-+	exit(1);
-+    }
-+
-+
-+    na = (struct nlattr *) GENLMSG_DATA(&ans);
-+    na = (struct nlattr *) ((char *) na + NLA_ALIGN(na->nla_len));
-+    if (na->nla_type == CTRL_ATTR_FAMILY_ID) {
-+	id = *(__u16 *) NLA_DATA(na);
-+    }
-+    return id;
-+}
-+
-+void print_taskstats(struct taskstats *t)
-+{
-+    printf("\n\nCPU   %15s%15s%15s%15s\n"
-+	   "      %15llu%15llu%15llu%15llu\n"
-+	   "IO    %15s%15s\n"
-+	   "      %15llu%15llu\n"
-+	   "MEM   %15s%15s\n"
-+	   "      %15llu%15llu\n\n",
-+	   "count", "real total", "virtual total", "delay total",
-+	   t->cpu_count, t->cpu_run_real_total, t->cpu_run_virtual_total,
-+	   t->cpu_delay_total,
-+	   "count", "delay total",
-+	   t->blkio_count, t->blkio_delay_total,
-+	   "count", "delay total", t->swapin_count, t->swapin_delay_total);
-+}
-+
-+void sigchld(int sig)
-+{
-+    done = 1;
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+    int rc;
-+    int sk_nl;
-+    struct nlmsghdr *nlh;
-+    struct genlmsghdr *genlhdr;
-+    char *buf;
-+    struct taskstats_cmd_param *param;
-+    __u16 id;
-+    struct nlattr *na;
-+
-+    /* For receiving */
-+    struct sockaddr_nl kern_nla, from_nla;
-+    socklen_t from_nla_len;
-+    int recv_len;
-+    struct taskstats_reply *reply;
-+
-+    struct {
-+	struct nlmsghdr n;
-+	struct genlmsghdr g;
-+	char buf[256];
-+    } req;
-+
-+    struct {
-+	struct nlmsghdr n;
-+	struct genlmsghdr g;
-+	char buf[256];
-+    } ans;
-+
-+    int nl_sd = -1;
-+    int rep_len;
-+    int len = 0;
-+    int aggr_len, len2;
-+    struct sockaddr_nl nladdr;
-+    pid_t tid = 0;
-+    pid_t rtid = 0;
-+    int cmd_type = TASKSTATS_TYPE_TGID;
-+    int c, status;
-+    int forking = 0;
-+    struct sigaction act = {
-+	.sa_handler = SIG_IGN,
-+	.sa_mask = SA_NOMASK,
-+    };
-+    struct sigaction tact ;
-+
-+    if (argc < 3) {
-+	printf("usage %s [-t tgid][-p pid][-c cmd]\n", argv[0]);
-+	exit(-1);
-+    }
-+
-+    tact.sa_handler = sigchld;
-+    sigemptyset(&tact.sa_mask);
-+    if (sigaction(SIGCHLD, &tact, NULL) < 0)
-+	err(1, "sigaction failed for SIGCHLD\n");
-+
-+    while (1) {
-+
-+	c = getopt(argc, argv, "t:p:c:");
-+	if (c < 0)
-+	    break;
-+
-+	switch (c) {
-+	case 't':
-+	    tid = atoi(optarg);
-+	    if (!tid)
-+		err(1, "Invalid tgid\n");
-+	    cmd_type = TASKSTATS_CMD_ATTR_TGID;
-+	    break;
-+	case 'p':
-+	    tid = atoi(optarg);
-+	    if (!tid)
-+		err(1, "Invalid pid\n");
-+	    cmd_type = TASKSTATS_CMD_ATTR_TGID;
-+	    break;
-+	case 'c':
-+	    opterr = 0;
-+	    tid = fork();
-+	    if (tid < 0)
-+		err(1, "fork failed\n");
-+
-+	    if (tid == 0) {	/* child process */
-+		if (execvp(argv[optind - 1], &argv[optind - 1]) < 0) {
-+		    exit(-1);
-+		}
-+	    }
-+	    forking = 1;
-+	    break;
-+	default:
-+	    printf("usage %s [-t tgid][-p pid][-c cmd]\n", argv[0]);
-+	    exit(-1);
-+	    break;
-+	}
-+	if (c == 'c')
-+	    break;
-+    }
-+
-+    /* Construct Netlink request message */
-+
-+    /* Send Netlink request message & get reply */
-+
-+    if ((nl_sd =
-+	 create_nl_socket(NETLINK_GENERIC, TASKSTATS_LISTEN_GROUP)) < 0)
-+	err(1, "error creating Netlink socket\n");
-+
-+
-+    id = get_family_id(nl_sd);
-+
-+    /* Send command needed */
-+    req.n.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
-+    req.n.nlmsg_type = id;
-+    req.n.nlmsg_flags = NLM_F_REQUEST;
-+    req.n.nlmsg_seq = 0;
-+    req.n.nlmsg_pid = tid;
-+    req.g.cmd = TASKSTATS_CMD_GET;
-+    na = (struct nlattr *) GENLMSG_DATA(&req);
-+    na->nla_type = cmd_type;
-+    na->nla_len = sizeof(unsigned int) + NLA_HDRLEN;
-+    *(__u32 *) NLA_DATA(na) = tid;
-+    req.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
-+
-+
-+    if (!forking && sendto_fd(nl_sd, (char *) &req, req.n.nlmsg_len) < 0)
-+	err(1, "error sending message via Netlink\n");
-+
-+    act.sa_handler = SIG_IGN;
-+    sigemptyset(&act.sa_mask);
-+    if (sigaction(SIGINT, &act, NULL) < 0)
-+	err(1, "sigaction failed for SIGINT\n");
-+
-+    do {
-+	int i;
-+	struct pollfd pfd;
-+	int pollres;
-+
-+	pfd.events = 0xffff & ~POLLOUT;
-+	pfd.fd = nl_sd;
-+	pollres = poll(&pfd, 1, 5000);
-+	if (pollres < 0 || done) {
-+	    break;
-+	}
-+
-+	rep_len = recv(nl_sd, &ans, sizeof(ans), 0);
-+	nladdr.nl_family = AF_NETLINK;
-+	nladdr.nl_groups = TASKSTATS_LISTEN_GROUP;
-+
-+	if (ans.n.nlmsg_type == NLMSG_ERROR) {	/* error */
-+	    printf("error received NACK - leaving\n");
-+	    exit(1);
-+	}
-+
-+	if (rep_len < 0) {
-+	    err(1, "error receiving reply message via Netlink\n");
-+	    break;
-+	}
-+
-+	/* Validate response message */
-+	if (!NLMSG_OK((&ans.n), rep_len))
-+	    err(1, "invalid reply message received via Netlink\n");
-+
-+	rep_len = GENLMSG_PAYLOAD(&ans.n);
-+
-+	na = (struct nlattr *) GENLMSG_DATA(&ans);
-+	len = 0;
-+	i = 0;
-+	while (len < rep_len) {
-+	    len += NLA_ALIGN(na->nla_len);
-+	    switch (na->nla_type) {
-+	    case TASKSTATS_TYPE_AGGR_PID:
-+		/* Fall through */
-+	    case TASKSTATS_TYPE_AGGR_TGID:
-+		aggr_len = NLA_PAYLOAD(na->nla_len);
-+		len2 = 0;
-+		/* For nested attributes, na follows */
-+		na = (struct nlattr *) NLA_DATA(na);
-+		done = 0;
-+		while (len2 < aggr_len) {
-+		    switch (na->nla_type) {
-+		    case TASKSTATS_TYPE_PID:
-+			rtid = *(int *) NLA_DATA(na);
-+			break;
-+		    case TASKSTATS_TYPE_TGID:
-+			rtid = *(int *) NLA_DATA(na);
-+			break;
-+		    case TASKSTATS_TYPE_STATS:
-+			if (rtid == tid) {
-+			    print_taskstats((struct taskstats *)
-+					    NLA_DATA(na));
-+			    done = 1;
-+			}
-+			break;
-+		    }
-+		    len2 += NLA_ALIGN(na->nla_len);
-+		    na = (struct nlattr *) ((char *) na + len2);
-+		    if (done)
-+			break;
-+		}
-+	    }
-+	    na = (struct nlattr *) (GENLMSG_DATA(&ans) + len);
-+	    if (done)
-+		break;
-+	}
-+	if (done)
-+	    break;
-+    }
-+    while (1);
-+
-+    close(nl_sd);
-+    return 0;
-+}
-diff -puN Documentation/accounting/taskstats.txt~delayacct-doc Documentation/accounting/taskstats.txt
---- linux-2.6.17-rc3/Documentation/accounting/taskstats.txt~delayacct-doc	2006-05-02 10:36:37.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/Documentation/accounting/taskstats.txt	2006-05-02 10:36:37.000000000 +0530
-@@ -39,6 +39,8 @@ belongs (the task does not need to be th
- per-tgid stats to be sent for each exiting task is explained in the per-tgid
- stats section below.
+diff -puN fs/proc/array.c~delayacct-procfs fs/proc/array.c
+--- linux-2.6.17-rc3/fs/proc/array.c~delayacct-procfs	2006-05-02 10:40:06.000000000 +0530
++++ linux-2.6.17-rc3-balbir/fs/proc/array.c	2006-05-02 10:40:06.000000000 +0530
+@@ -75,6 +75,7 @@
+ #include <linux/times.h>
+ #include <linux/cpuset.h>
+ #include <linux/rcupdate.h>
++#include <linux/delayacct.h>
  
-+getdelays.c is a simple utility demonstrating usage of the taskstats interface
-+for reporting delay accounting statistics.
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -412,7 +413,7 @@ static int do_task_stat(struct task_stru
  
- Interface
- ---------
+ 	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
+ %lu %lu %lu %lu %lu %ld %ld %ld %ld %d 0 %llu %lu %ld %lu %lu %lu %lu %lu \
+-%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
++%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu %llu\n",
+ 		task->pid,
+ 		tcomm,
+ 		state,
+@@ -456,7 +457,8 @@ static int do_task_stat(struct task_stru
+ 		task->exit_signal,
+ 		task_cpu(task),
+ 		task->rt_priority,
+-		task->policy);
++		task->policy,
++		delayacct_blkio_ticks(task));
+ 	if(mm)
+ 		mmput(mm);
+ 	return res;
+diff -puN include/linux/delayacct.h~delayacct-procfs include/linux/delayacct.h
+--- linux-2.6.17-rc3/include/linux/delayacct.h~delayacct-procfs	2006-05-02 10:40:06.000000000 +0530
++++ linux-2.6.17-rc3-balbir/include/linux/delayacct.h	2006-05-02 10:40:06.000000000 +0530
+@@ -37,6 +37,7 @@ extern void __delayacct_tsk_exit(struct 
+ extern void __delayacct_blkio_start(void);
+ extern void __delayacct_blkio_end(void);
+ extern int __delayacct_add_tsk(struct taskstats *, struct task_struct *);
++extern __u64 __delayacct_blkio_ticks(struct task_struct *);
+ 
+ static inline void delayacct_set_flag(int flag)
+ {
+@@ -84,6 +85,13 @@ static inline int delayacct_add_tsk(stru
+ 	return __delayacct_add_tsk(d, tsk);
+ }
+ 
++static inline __u64 delayacct_blkio_ticks(struct task_struct *tsk)
++{
++	if (tsk->delays)
++		return __delayacct_blkio_ticks(tsk);
++	return 0;
++}
++
+ #else
+ static inline void delayacct_set_flag(int flag)
+ {}
+@@ -102,6 +110,8 @@ static inline void delayacct_blkio_end(v
+ static inline int delayacct_add_tsk(struct taskstats *d,
+ 					struct task_struct *tsk)
+ { return 0; }
++static inline __u64 delayacct_blkio_ticks(struct task_struct *tsk)
++{ return 0; }
+ #endif /* CONFIG_TASK_DELAY_ACCT */
+ 
+ #endif
+diff -puN kernel/delayacct.c~delayacct-procfs kernel/delayacct.c
+--- linux-2.6.17-rc3/kernel/delayacct.c~delayacct-procfs	2006-05-02 10:40:06.000000000 +0530
++++ linux-2.6.17-rc3-balbir/kernel/delayacct.c	2006-05-02 10:40:06.000000000 +0530
+@@ -146,3 +146,15 @@ int __delayacct_add_tsk(struct taskstats
+ 
+ 	return 0;
+ }
++
++__u64 __delayacct_blkio_ticks(struct task_struct *tsk)
++{
++	__u64 ret;
++
++	spin_lock(&tsk->delays->lock);
++	ret = nsec_to_clock_t(tsk->delays->blkio_delay +
++				tsk->delays->swapin_delay);
++	spin_unlock(&tsk->delays->lock);
++	return ret;
++}
++
 _

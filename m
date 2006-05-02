@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWEBLTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWEBLTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWEBLTV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 07:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWEBLTV
+	id S932226AbWEBLTf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 07:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWEBLTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 07:19:21 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:38860 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932200AbWEBLTU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 07:19:20 -0400
-Date: Tue, 2 May 2006 13:24:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: blaisorblade@yahoo.it, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch 00/14] remap_file_pages protection support
-Message-ID: <20060502112409.GA28159@elte.hu>
-References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au> <4456D85E.6020403@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 May 2006 07:19:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.239]:63304 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932226AbWEBLTd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 07:19:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=Mnsv1qEGpk+1vP7u4ucLMgEIeDfqdMwTXlY2E3Ymnb6QYERNZSKcFSQVuGu2w1VkfagzB3JEybreaZgoed7Pm487IOLJreASoAyIiFF0etFWBNTelbTBrrYe4+XjKMaKI7im0CGuqKMS7MqW5buMtImt799VdHuL3BBzWbSyJOQ=
+Message-ID: <84144f020605020419o539c377do7a01314980a44d67@mail.gmail.com>
+Date: Tue, 2 May 2006 14:19:32 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Petri T. Koistinen" <petri.koistinen@iki.fi>
+Subject: Re: [PATCH] fs/isofs/namei.c: fix warnings of uninitialized variables
+Cc: "Andrew Morton" <akpm@osdl.org>, trivial@kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0605012255290.15813@joo>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4456D85E.6020403@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <Pine.LNX.4.64.0605012255290.15813@joo>
+X-Google-Sender-Auth: 9856cc17872318fe
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/1/06, Petri T. Koistinen <petri.koistinen@iki.fi> wrote:
+> From: Petri T. Koistinen <petri.koistinen@iki.fi>
+>
+> Remove warnings by initializing uninitialized variables.
+>
+> Signed-off-by: Petri T. Koistinen <petri.koistinen@iki.fi>
+> ---
+>  fs/isofs/namei.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+>
+> ---
+> diff --git a/fs/isofs/namei.c b/fs/isofs/namei.c
+> index e7ba0c3..e0d6531 100644
+> --- a/fs/isofs/namei.c
+> +++ b/fs/isofs/namei.c
+> @@ -159,7 +159,7 @@ isofs_find_entry(struct inode *dir, stru
+>  struct dentry *isofs_lookup(struct inode * dir, struct dentry * dentry, struct nameidata *nd)
+>  {
+>         int found;
+> -       unsigned long block, offset;
+> +       unsigned long block = 0, offset = 0;
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+NAK. Both are initialized by isofs_find_entry() before being used.
 
-> >Let's try get back to the good old days when people actually reported
-> >their bugs (togther will *real* numbers) to the mailing lists. That way,
-> >everybody gets to think about and discuss the problem.
-> 
-> Speaking of which, let's see some numbers for UML -- performance and 
-> memory. I don't doubt your claims, but I (and others) would be 
-> interested to see.
-
-firstly, thanks for the review feedback!
-
-originally i tested this feature with some minimal amount of RAM 
-simulated by UML 128MB or so. That's just 32 thousand pages, but still 
-the improvement was massive: context-switch times in UML were cut in 
-half or more. Process-creation times improved 10-fold. With this feature 
-included I accidentally (for the first time ever!) confused an UML shell 
-prompt with a real shell prompt. (before that UML was so slow [even in 
-"skas mode"] that you'd immediately notice it by the shell's behavior)
-
-the 'have 1 vma instead of 32,000 vmas' thing is a really, really big 
-plus. It makes UML comparable to Xen, in rough terms of basic VM design.
-
-Now imagine a somewhat larger setup - 16 GB RAM UML instance with 4 
-million vmas per UML process ... Frankly, without 
-sys_remap_file_pages_prot() the UML design is still somewhat of a toy.
-
-	Ingo
+                                                Pekka

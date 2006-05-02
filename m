@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWEBLQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWEBLPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWEBLQs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 07:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWEBLQs
+	id S932203AbWEBLPv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 07:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWEBLPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 07:16:48 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:34436 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932190AbWEBLQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 07:16:47 -0400
-Date: Tue, 02 May 2006 20:16:11 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH](trivial) cleanup redundant EXPORT_SYMBOL in arch/ia64/mm/init.c
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060502201353.CF12.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+	Tue, 2 May 2006 07:15:51 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17282 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932203AbWEBLPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 07:15:51 -0400
+Date: Tue, 2 May 2006 13:15:50 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+Message-ID: <mj+md-20060502.111446.9373.atrey@ucw.cz>
+References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44573525.7040507@argo.co.il>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-This is tiny cleanup patch.
+> Perhaps people who developed kernel-level code in _both_ C and C++ would 
+> be qualified to speculate on that (I have, but apparently I don't have a 
+> clue).
 
-EXPORT_SYMBOL(add_memory) in arch/ia64/mm/init.c is redundant.
-The old add_memory() has been already arch_add_memory(),
-but it is not called by acpi memhotplug modules.
+Well, what about just showing an example of kernel code in C++, which
+you consider nice?
 
-This is for 2.6.17-rc3-mm1.
-
-Please apply.
-
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-
- arch/ia64/mm/init.c |    1 -
- 1 files changed, 1 deletion(-)
-
-Index: pgdat13/arch/ia64/mm/init.c
-===================================================================
---- pgdat13.orig/arch/ia64/mm/init.c	2006-05-02 13:00:47.000000000 +0900
-+++ pgdat13/arch/ia64/mm/init.c	2006-05-02 18:27:27.000000000 +0900
-@@ -671,7 +671,6 @@ int arch_add_memory(int nid, u64 start, 
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(add_memory);
- 
- int remove_memory(u64 start, u64 size)
- {
-
+				Have a nice fortnight
 -- 
-Yasunori Goto 
-
-
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+f u cn rd ths, u cn gt a gd jb n cmptr prgrmmng.

@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWEBOb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWEBOde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWEBOb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 10:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWEBOb4
+	id S964843AbWEBOde (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 10:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWEBOde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 10:31:56 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:54912 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S964841AbWEBOb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 10:31:56 -0400
-Subject: Re: [PATCH] CodingStyle: add typedefs chapter
-From: David Woodhouse <dwmw2@infradead.org>
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20060502142050.GC27798@linuxtv.org>
-References: <20060430174426.a21b4614.rdunlap@xenotime.net>
-	 <1146503166.2885.137.camel@hades.cambridge.redhat.com>
-	 <20060502003755.GA26327@linuxtv.org>
-	 <1146576495.14059.45.camel@pmac.infradead.org>
-	 <20060502142050.GC27798@linuxtv.org>
-Content-Type: text/plain
-Date: Tue, 02 May 2006 15:31:48 +0100
-Message-Id: <1146580308.17934.19.camel@pmac.infradead.org>
+	Tue, 2 May 2006 10:33:34 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:26049 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964843AbWEBOdd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 10:33:33 -0400
+Date: Tue, 2 May 2006 16:38:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Patrick McHardy <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       coreteam@netfilter.org, "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [netfilter-core] Re: [lockup] 2.6.17-rc3: netfilter/sctp: lockup in	sctp_new(), do_basic_checks()
+Message-ID: <20060502143814.GA3789@elte.hu>
+References: <20060502113454.GA28601@elte.hu> <20060502134053.GA30917@elte.hu> <4457648C.6020100@trash.net> <20060502140102.GA31743@elte.hu> <4457654A.9040200@trash.net> <20060502141621.GA32284@elte.hu> <44576CD5.60603@trash.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44576CD5.60603@trash.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-02 at 16:20 +0200, Johannes Stezenbach wrote:
-> Maybe I got it wrong, but my impression so far was that
-> u8 etc. are preferred for kernel code, and C99 types
-> are merely tolerated. (Mostly for consistency reasons,
-> I guess, since most old code uses u8 etc.)
 
-It depends. In existing code, you should follow the precedent which is
-set already. In new code of your own, you do as you see fit. Perhaps
-that should be made clearer...
+* Patrick McHardy <kaber@trash.net> wrote:
 
- (d) New types which are identical to standard C99 types, in certain
-     exceptional circumstances.
- 
-     Although it would only take a short amount of time for the eyes and
-     brain to become accustomed to the standard types like 'uint32_t',
-     some people object to their use anyway.
- 
-     Therefore, the Linux-specific 'u8/u16/u32/u64' types and their
-     signed equivalents which are identical to standard types are
-     permitted -- although they are not mandatory in new code of your
-     own.
+> > +	/*
+> > +	 * Dont trust the initial offset:
+> > +	 */
+> > +	offset = skb->nh.iph->ihl * 4 + sizeof(sctp_sctphdr_t);
+> > +	if (offset >= skb->len)
+> > +		return 1;
+> > +
+> 
+> That part is unnecessary, the presence of one sctp_sctphdr_t
+> has already been verified by skb_header_pointer() in sctp_new().
 
-     When editing existing code which already uses one or the other set
-     of types, you should conform to the existing choices in that code.
+ok.
 
--- 
-dwmw2
+> How about this patch (based on your patch, but typos fixed and also 
+> covers nf_conntrack)?
 
+sure, fine with me!
+
+	Ingo

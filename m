@@ -1,63 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWEBFe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWEBFgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWEBFe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 01:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWEBFe2
+	id S932375AbWEBFgE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 01:36:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWEBFgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 01:34:28 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:12514 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932376AbWEBFe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 01:34:28 -0400
-Date: Tue, 02 May 2006 14:33:40 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Fix compile error "undefined reference" for sparc64.
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060502142722.CF0C.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+	Tue, 2 May 2006 01:36:04 -0400
+Received: from ns2.suse.de ([195.135.220.15]:15805 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932375AbWEBFgC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 01:36:02 -0400
+Subject: patch platform_bus-learns-about-modalias.patch added to gregkh-2.6 tree
+To: david-b@pacbell.net, dbrownell@users.sourceforge.net, greg@kroah.com,
+       gregkh@suse.de, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+From: <gregkh@suse.de>
+Date: Mon, 01 May 2006 22:34:08 -0700
+In-Reply-To: <200605011116.02250.david-b@pacbell.net>
+Message-Id: <20060502053542.BA1666044B3@imap.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. Andrew-san.
 
-This is to fix compile error against "undefined reference to 
-`arch_add_memory'". This error occurred on sparc64.
-This means that memory hotplug can be enable even if 
-architecture doesn't have memory hotplug feature.
+This is a note to let you know that I've just added the patch titled
 
-Sparsemem is useful even if it doesn't have memory hotplug.
-So, this patch allows hotplug for only the architecture which have
-memory hotplug feature (ia64, x86-32/64, ppc64 now).
-Sparc64 can use sparsemem option by it.
+     Subject: platform_bus learns about modalias
 
-This patch is for 2.6.17-rc3-mm1.
+to my gregkh-2.6 tree.  Its filename is
 
-Please apply.
+     platform_bus-learns-about-modalias.patch
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+This tree can be found at 
+    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
 
- mm/Kconfig |    1 +
- 1 files changed, 1 insertion(+)
 
-Index: pgdat13/mm/Kconfig
-===================================================================
---- pgdat13.orig/mm/Kconfig	2006-05-02 13:21:53.000000000 -0400
-+++ pgdat13/mm/Kconfig	2006-05-02 13:50:07.000000000 -0400
-@@ -116,6 +116,7 @@
- config MEMORY_HOTPLUG
- 	bool "Allow for memory hot-add"
- 	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND
-+	depends on (IA64 || X86 || PPC64)
+>From david-b@pacbell.net Mon May  1 14:05:05 2006
+From: David Brownell <david-b@pacbell.net>
+To: Greg KH <greg@kroah.com>
+Subject: platform_bus learns about modalias
+Date: Mon, 1 May 2006 11:16:01 -0700
+Cc: Russell King <rmk@arm.linux.org.uk>,
+ Linux Kernel list <linux-kernel@vger.kernel.org>
+Message-Id: <200605011116.02250.david-b@pacbell.net>
+
+This patch adds modalias support to platform devices, for simpler
+hotplug/coldplug driven driver setup.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ drivers/base/platform.c |   36 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+
+--- gregkh-2.6.orig/drivers/base/platform.c
++++ gregkh-2.6/drivers/base/platform.c
+@@ -452,6 +452,40 @@ void platform_driver_unregister(struct p
+ EXPORT_SYMBOL_GPL(platform_driver_unregister);
  
- comment "Memory hotplug is currently incompatible with Software Suspend"
- 	depends on SPARSEMEM && HOTPLUG && SOFTWARE_SUSPEND
+ 
++/* modalias support enables more hands-off userspace setup:
++ * (a) environment variable lets new-style hotplug events work once system is
++ *     fully running:  "modprobe $MODALIAS"
++ * (b) sysfs attribute lets new-style coldplug recover from hotplug events
++ *     mishandled before system is fully running:  "modprobe $(cat modalias)"
++ */
++static ssize_t
++modalias_show(struct device *dev, struct device_attribute *a, char *buf)
++{
++	struct platform_device	*pdev = to_platform_device(dev);
++	unsigned		len = strlen(pdev->name);
++
++	len = min(len, (size_t)(PAGE_SIZE - 1));
++	memcpy(buf, pdev->name, len);
++	buf[PAGE_SIZE - 1] = 0;
++	return len;
++}
++
++static struct device_attribute platform_dev_attrs[] = {
++	__ATTR_RO(modalias),
++	__ATTR_NULL,
++};
++
++static int platform_uevent(struct device *dev, char **envp, int num_envp,
++		char *buffer, int buffer_size)
++{
++	struct platform_device	*pdev = to_platform_device(dev);
++
++	envp[0] = buffer;
++	snprintf(buffer, buffer_size, "MODALIAS=%s", pdev->name);
++	return 0;
++}
++
++
+ /**
+  *	platform_match - bind platform device to platform driver.
+  *	@dev:	device.
+@@ -496,7 +530,9 @@ static int platform_resume(struct device
+ 
+ struct bus_type platform_bus_type = {
+ 	.name		= "platform",
++	.dev_attrs	= platform_dev_attrs,
+ 	.match		= platform_match,
++	.uevent		= platform_uevent,
+ 	.suspend	= platform_suspend,
+ 	.resume		= platform_resume,
+ };
 
--- 
-Yasunori Goto 
 
+Patches currently in gregkh-2.6 which might be from david-b@pacbell.net are
 
+driver/spi-add-david-as-the-spi-subsystem-maintainer.patch
+driver/platform_bus-learns-about-modalias.patch
+driver/spi-spi_bitbang-clocking-fixes.patch
+driver/driver-core-config_debug_pm-covers-drivers-base-power-too.patch
+driver/spi-busnum-0-needs-to-work.patch
+driver/spi-devices-can-require-lsb-first-encodings.patch
+driver/spi-renamed-bitbang_transfer_setup-to-spi_bitbang_setup_transfer-and-export-it.patch
+driver/spi-spi-bounce-buffer-has-a-minimum-length.patch
+driver/spi-spi-whitespace-fixes.patch
+driver/spi-add-pxa2xx-ssp-spi-driver.patch
+driver/spi-per-transfer-overrides-for-wordsize-and-clocking.patch
+usb/usb-pegasus-fixes.patch
+usb/usb-allow-multiple-types-of-ehci-controllers-to-be-built-as-modules.patch
+usb/usb-fix-bug-in-ohci-hcd.c-ohci_restart.patch
+usb/usb-usbcore-always-turn-on-hub-port-power.patch

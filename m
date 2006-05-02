@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWEBGRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWEBGR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbWEBGRE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 02:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWEBGRE
+	id S932393AbWEBGR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 02:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWEBGR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 02:17:04 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:49539 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932391AbWEBGRB
+	Tue, 2 May 2006 02:17:58 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:18818 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932393AbWEBGR5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 02:17:01 -0400
-Date: Tue, 2 May 2006 11:44:08 +0530
+	Tue, 2 May 2006 02:17:57 -0400
+Date: Tue, 2 May 2006 11:45:05 +0530
 From: Balbir Singh <balbir@in.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: lse-tech@lists.sourceforge.net, jlan@engr.sgi.com
-Subject: [Patch 2/8] Sync block I/O and swapin delay collection
-Message-ID: <20060502061408.GM13962@in.ibm.com>
+Subject: [Patch 3/8] cpu delay collection via schedstats
+Message-ID: <20060502061505.GN13962@in.ibm.com>
 Reply-To: balbir@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,203 +27,218 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Changelog
 
 Fixes comments by akpm
-- avoid creating new per-process flag PF_SWAPIN
+- comments about locking used in rq_sched_info_arrive/depart
 
-Other changes
-- do not mix spaces and tabs
+No fix needed/possible
+- redundant extern declaration of delayacct_on in sched.h
+suggested location (delayacct.h) cannot be used as it includes sched.h
+extern declaration moved to where its needed
+- move unlikely declaration inside sched_info_on
+Function only returns constants. Cannot be done.
+- removal of #if defined in sched_fork (Dave Hansen)
+Refactoring suggested does not work if only SCHEDSTATS is configured
 
-delayacct-blkio-swapin.patch
+delayacct-shedstats.patch
 
-Collect per-task block I/O delay statistics.
+Make the task-related schedstats functions
+callable by delay accounting even if schedstats
+collection isn't turned on. This removes the
+dependency of delay accounting on schedstats.
 
-Unlike earlier iterations of the delay accounting
-patches, now delays are only collected for the actual
-I/O waits rather than try and cover the delays seen in
-I/O submission paths.
-
-Account separately for block I/O delays
-incurred as a result of swapin page faults whose
-frequency can be affected by the task/process' rss limit.
-Hence swapin delays can act as feedback for rss limit changes
-independent of I/O priority changes.
-
+Signed-off-by: Chandra Seetharaman <sekharan@us.ibm.com>
 Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
 Signed-off-by: Balbir Singh <balbir@in.ibm.com>
 ---
 
- include/linux/delayacct.h |   25 +++++++++++++++++++++++++
- include/linux/sched.h     |    6 ++++++
- kernel/delayacct.c        |   19 +++++++++++++++++++
- kernel/sched.c            |    5 +++++
- mm/memory.c               |    4 ++++
- 5 files changed, 59 insertions(+)
+ include/linux/sched.h |   20 ++++++++++++++---
+ kernel/sched.c        |   58 +++++++++++++++++++++++++++++++++++---------------
+ 2 files changed, 58 insertions(+), 20 deletions(-)
 
-diff -puN include/linux/delayacct.h~delayacct-blkio-swapin include/linux/delayacct.h
---- linux-2.6.17-rc3/include/linux/delayacct.h~delayacct-blkio-swapin	2006-04-28 23:48:43.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/include/linux/delayacct.h	2006-05-02 07:05:21.000000000 +0530
-@@ -19,6 +19,13 @@
+diff -puN include/linux/sched.h~delayacct-schedstats include/linux/sched.h
+--- linux-2.6.17-rc3/include/linux/sched.h~delayacct-schedstats	2006-05-02 07:31:18.000000000 +0530
++++ linux-2.6.17-rc3-balbir/include/linux/sched.h	2006-05-02 07:34:27.000000000 +0530
+@@ -521,7 +521,7 @@ typedef struct prio_array prio_array_t;
+ struct backing_dev_info;
+ struct reclaim_state;
  
- #include <linux/sched.h>
+-#ifdef CONFIG_SCHEDSTATS
++#if defined(CONFIG_SCHEDSTATS) || defined(CONFIG_TASK_DELAY_ACCT)
+ struct sched_info {
+ 	/* cumulative counters */
+ 	unsigned long	cpu_time,	/* time spent on the cpu */
+@@ -532,9 +532,11 @@ struct sched_info {
+ 	unsigned long	last_arrival,	/* when we last ran on a cpu */
+ 			last_queued;	/* when we were last queued to run */
+ };
++#endif /* defined(CONFIG_SCHEDSTATS) || defined(CONFIG_TASK_DELAY_ACCT) */
+ 
++#ifdef CONFIG_SCHEDSTATS
+ extern struct file_operations proc_schedstat_operations;
+-#endif
++#endif /* CONFIG_SCHEDSTATS */
+ 
+ #ifdef CONFIG_TASK_DELAY_ACCT
+ struct task_delay_info {
+@@ -557,7 +559,19 @@ struct task_delay_info {
+ 	u32 blkio_count;
+ 	u32 swapin_count;
+ };
++#endif	/* CONFIG_TASK_DELAY_ACCT */
++
++static inline int sched_info_on(void)
++{
++#ifdef CONFIG_SCHEDSTATS
++	return 1;
++#elif defined(CONFIG_TASK_DELAY_ACCT)
++	extern int delayacct_on;
++	return delayacct_on;
++#else
++	return 0;
+ #endif
++}
+ 
+ enum idle_type
+ {
+@@ -744,7 +758,7 @@ struct task_struct {
+ 	cpumask_t cpus_allowed;
+ 	unsigned int time_slice, first_time_slice;
+ 
+-#ifdef CONFIG_SCHEDSTATS
++#if defined(CONFIG_SCHEDSTATS) || defined(CONFIG_TASK_DELAY_ACCT)
+ 	struct sched_info sched_info;
+ #endif
+ 
+diff -puN kernel/sched.c~delayacct-schedstats kernel/sched.c
+--- linux-2.6.17-rc3/kernel/sched.c~delayacct-schedstats	2006-05-02 07:31:18.000000000 +0530
++++ linux-2.6.17-rc3-balbir/kernel/sched.c	2006-05-02 07:31:18.000000000 +0530
+@@ -469,9 +469,34 @@ struct file_operations proc_schedstat_op
+ 	.release = single_release,
+ };
  
 +/*
-+ * Per-task flags relevant to delay accounting
-+ * maintained privately to avoid exhausting similar flags in sched.h:PF_*
-+ * Used to set current->delays->flags
++ * Expects runqueue lock to be held for atomicity of update
 + */
-+#define DELAYACCT_PF_SWAPIN	0x00000001	/* I am doing a swapin */
++static inline void rq_sched_info_arrive(struct runqueue *rq,
++						unsigned long diff)
++{
++	if (rq) {
++		rq->rq_sched_info.run_delay += diff;
++		rq->rq_sched_info.pcnt++;
++	}
++}
 +
- #ifdef CONFIG_TASK_DELAY_ACCT
- 
- extern int delayacct_on;	/* Delay accounting turned on/off */
-@@ -26,6 +33,8 @@ extern kmem_cache_t *delayacct_cache;
- extern void delayacct_init(void);
- extern void __delayacct_tsk_init(struct task_struct *);
- extern void __delayacct_tsk_exit(struct task_struct *);
-+extern void __delayacct_blkio_start(void);
-+extern void __delayacct_blkio_end(void);
- 
- static inline void delayacct_set_flag(int flag)
- {
-@@ -53,6 +62,18 @@ static inline void delayacct_tsk_exit(st
- 		__delayacct_tsk_exit(tsk);
++/*
++ * Expects runqueue lock to be held for atomicity of update
++ */
++static inline void rq_sched_info_depart(struct runqueue *rq,
++						unsigned long diff)
++{
++	if (rq)
++		rq->rq_sched_info.cpu_time += diff;
++}
+ # define schedstat_inc(rq, field)	do { (rq)->field++; } while (0)
+ # define schedstat_add(rq, field, amt)	do { (rq)->field += (amt); } while (0)
+ #else /* !CONFIG_SCHEDSTATS */
++static inline void rq_sched_info_arrive(struct runqueue *rq, unsigned long diff)
++{}
++static inline void rq_sched_info_depart(struct runqueue *rq, unsigned long diff)
++{}
+ # define schedstat_inc(rq, field)	do { } while (0)
+ # define schedstat_add(rq, field, amt)	do { } while (0)
+ #endif
+@@ -491,7 +516,7 @@ static inline runqueue_t *this_rq_lock(v
+ 	return rq;
  }
  
-+static inline void delayacct_blkio_start(void)
+-#ifdef CONFIG_SCHEDSTATS
++#if defined(CONFIG_SCHEDSTATS) || defined(CONFIG_TASK_DELAY_ACCT)
+ /*
+  * Called when a process is dequeued from the active array and given
+  * the cpu.  We should note that with the exception of interactive
+@@ -520,7 +545,6 @@ static inline void sched_info_dequeued(t
+ static void sched_info_arrive(task_t *t)
+ {
+ 	unsigned long now = jiffies, diff = 0;
+-	struct runqueue *rq = task_rq(t);
+ 
+ 	if (t->sched_info.last_queued)
+ 		diff = now - t->sched_info.last_queued;
+@@ -529,11 +553,7 @@ static void sched_info_arrive(task_t *t)
+ 	t->sched_info.last_arrival = now;
+ 	t->sched_info.pcnt++;
+ 
+-	if (!rq)
+-		return;
+-
+-	rq->rq_sched_info.run_delay += diff;
+-	rq->rq_sched_info.pcnt++;
++	rq_sched_info_arrive(task_rq(t), diff);
+ }
+ 
+ /*
+@@ -553,8 +573,9 @@ static void sched_info_arrive(task_t *t)
+  */
+ static inline void sched_info_queued(task_t *t)
+ {
+-	if (!t->sched_info.last_queued)
+-		t->sched_info.last_queued = jiffies;
++	if (unlikely(sched_info_on()))
++		if (!t->sched_info.last_queued)
++			t->sched_info.last_queued = jiffies;
+ }
+ 
+ /*
+@@ -563,13 +584,10 @@ static inline void sched_info_queued(tas
+  */
+ static inline void sched_info_depart(task_t *t)
+ {
+-	struct runqueue *rq = task_rq(t);
+ 	unsigned long diff = jiffies - t->sched_info.last_arrival;
+ 
+ 	t->sched_info.cpu_time += diff;
+-
+-	if (rq)
+-		rq->rq_sched_info.cpu_time += diff;
++	rq_sched_info_depart(task_rq(t), diff);
+ }
+ 
+ /*
+@@ -577,7 +595,7 @@ static inline void sched_info_depart(tas
+  * their time slice.  (This may also be called when switching to or from
+  * the idle task.)  We are only called when prev != next.
+  */
+-static inline void sched_info_switch(task_t *prev, task_t *next)
++static inline void __sched_info_switch(task_t *prev, task_t *next)
+ {
+ 	struct runqueue *rq = task_rq(prev);
+ 
+@@ -592,10 +610,15 @@ static inline void sched_info_switch(tas
+ 	if (next != rq->idle)
+ 		sched_info_arrive(next);
+ }
++static inline void sched_info_switch(task_t *prev, task_t *next)
 +{
-+	if (current->delays)
-+		__delayacct_blkio_start();
++	if (unlikely(sched_info_on()))
++		__sched_info_switch(prev, next);
 +}
-+
-+static inline void delayacct_blkio_end(void)
-+{
-+	if (current->delays)
-+		__delayacct_blkio_end();
-+}
-+
  #else
- static inline void delayacct_set_flag(int flag)
- {}
-@@ -64,6 +85,10 @@ static inline void delayacct_tsk_init(st
- {}
- static inline void delayacct_tsk_exit(struct task_struct *tsk)
- {}
-+static inline void delayacct_blkio_start(void)
-+{}
-+static inline void delayacct_blkio_end(void)
-+{}
- #endif /* CONFIG_TASK_DELAY_ACCT */
+ #define sched_info_queued(t)		do { } while (0)
+ #define sched_info_switch(t, next)	do { } while (0)
+-#endif /* CONFIG_SCHEDSTATS */
++#endif /* CONFIG_SCHEDSTATS || CONFIG_TASK_DELAY_ACCT */
  
+ /*
+  * Adding/removing a task to/from a priority array:
+@@ -1393,8 +1416,9 @@ void fastcall sched_fork(task_t *p, int 
+ 	p->state = TASK_RUNNING;
+ 	INIT_LIST_HEAD(&p->run_list);
+ 	p->array = NULL;
+-#ifdef CONFIG_SCHEDSTATS
+-	memset(&p->sched_info, 0, sizeof(p->sched_info));
++#if defined(CONFIG_SCHEDSTATS) || defined(CONFIG_TASK_DELAY_ACCT)
++	if (unlikely(sched_info_on()))
++		memset(&p->sched_info, 0, sizeof(p->sched_info));
  #endif
-diff -puN include/linux/sched.h~delayacct-blkio-swapin include/linux/sched.h
---- linux-2.6.17-rc3/include/linux/sched.h~delayacct-blkio-swapin	2006-04-28 23:48:43.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/include/linux/sched.h	2006-05-02 07:05:25.000000000 +0530
-@@ -550,6 +550,12 @@ struct task_delay_info {
- 	 * Atomicity of updates to XXX_delay, XXX_count protected by
- 	 * single lock above (split into XXX_lock if contention is an issue).
- 	 */
-+
-+	struct timespec blkio_start, blkio_end;	/* Shared by blkio, swapin */
-+	u64 blkio_delay;	/* wait for sync block io completion */
-+	u64 swapin_delay;	/* wait for swapin block io completion */
-+	u32 blkio_count;
-+	u32 swapin_count;
- };
- #endif
- 
-diff -puN kernel/delayacct.c~delayacct-blkio-swapin kernel/delayacct.c
---- linux-2.6.17-rc3/kernel/delayacct.c~delayacct-blkio-swapin	2006-04-28 23:48:43.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/kernel/delayacct.c	2006-05-02 07:27:03.000000000 +0530
-@@ -85,3 +85,22 @@ static inline void delayacct_end(struct 
- 	spin_unlock(&current->delays->lock);
- }
- 
-+void __delayacct_blkio_start(void)
-+{
-+	delayacct_start(&current->delays->blkio_start);
-+}
-+
-+void __delayacct_blkio_end(void)
-+{
-+	if (current->delays->flags & DELAYACCT_PF_SWAPIN)
-+		/* Swapin block I/O */
-+		delayacct_end(&current->delays->blkio_start,
-+			&current->delays->blkio_end,
-+			&current->delays->swapin_delay,
-+			&current->delays->swapin_count);
-+	else	/* Other block I/O */
-+		delayacct_end(&current->delays->blkio_start,
-+			&current->delays->blkio_end,
-+			&current->delays->blkio_delay,
-+			&current->delays->blkio_count);
-+}
-diff -puN kernel/sched.c~delayacct-blkio-swapin kernel/sched.c
---- linux-2.6.17-rc3/kernel/sched.c~delayacct-blkio-swapin	2006-04-28 23:48:43.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/kernel/sched.c	2006-05-02 07:05:25.000000000 +0530
-@@ -50,6 +50,7 @@
- #include <linux/times.h>
- #include <linux/acct.h>
- #include <linux/kprobes.h>
-+#include <linux/delayacct.h>
- #include <asm/tlb.h>
- 
- #include <asm/unistd.h>
-@@ -4170,9 +4171,11 @@ void __sched io_schedule(void)
- {
- 	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
- 
-+	delayacct_blkio_start();
- 	atomic_inc(&rq->nr_iowait);
- 	schedule();
- 	atomic_dec(&rq->nr_iowait);
-+	delayacct_blkio_end();
- }
- 
- EXPORT_SYMBOL(io_schedule);
-@@ -4182,9 +4185,11 @@ long __sched io_schedule_timeout(long ti
- 	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
- 	long ret;
- 
-+	delayacct_blkio_start();
- 	atomic_inc(&rq->nr_iowait);
- 	ret = schedule_timeout(timeout);
- 	atomic_dec(&rq->nr_iowait);
-+	delayacct_blkio_end();
- 	return ret;
- }
- 
-diff -puN mm/memory.c~delayacct-blkio-swapin mm/memory.c
---- linux-2.6.17-rc3/mm/memory.c~delayacct-blkio-swapin	2006-04-28 23:48:43.000000000 +0530
-+++ linux-2.6.17-rc3-balbir/mm/memory.c	2006-04-28 23:48:43.000000000 +0530
-@@ -48,6 +48,7 @@
- #include <linux/rmap.h>
- #include <linux/module.h>
- #include <linux/init.h>
-+#include <linux/delayacct.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/uaccess.h>
-@@ -1880,6 +1881,7 @@ static int do_swap_page(struct mm_struct
- 
- 	entry = pte_to_swp_entry(orig_pte);
- again:
-+	delayacct_set_flag(DELAYACCT_PF_SWAPIN);
- 	page = lookup_swap_cache(entry);
- 	if (!page) {
-  		swapin_readahead(entry, address, vma);
-@@ -1892,6 +1894,7 @@ again:
- 			page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
- 			if (likely(pte_same(*page_table, orig_pte)))
- 				ret = VM_FAULT_OOM;
-+			delayacct_clear_flag(DELAYACCT_PF_SWAPIN);
- 			goto unlock;
- 		}
- 
-@@ -1903,6 +1906,7 @@ again:
- 
- 	mark_page_accessed(page);
- 	lock_page(page);
-+	delayacct_clear_flag(DELAYACCT_PF_SWAPIN);
- 	if (!PageSwapCache(page)) {
- 		/* Page migration has occured */
- 		unlock_page(page);
+ #if defined(CONFIG_SMP) && defined(__ARCH_WANT_UNLOCKED_CTXSW)
+ 	p->oncpu = 0;
 _

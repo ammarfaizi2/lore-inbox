@@ -1,103 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWEBQsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWEBQuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWEBQsx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 12:48:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWEBQsx
+	id S964901AbWEBQuT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 12:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWEBQuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 12:48:53 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:14784 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S964923AbWEBQsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 12:48:53 -0400
-Date: Tue, 2 May 2006 18:48:51 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
-Subject: Re: 2.6.17-rc3 - fs/namespace.c issue
-Message-ID: <20060502164851.GJ22195@MAIL.13thfloor.at>
-Mail-Followup-To: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@lst.de>
-References: <200605012106.k41L6GNc007543@turing-police.cc.vt.edu> <20060501143344.3952ff53.akpm@osdl.org> <20060501235637.GB12543@MAIL.13thfloor.at> <200605020656.k426uO7H002518@turing-police.cc.vt.edu>
+	Tue, 2 May 2006 12:50:19 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3343 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964901AbWEBQuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 12:50:18 -0400
+Date: Tue, 2 May 2006 17:50:09 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sched_clock() uses are broken
+Message-ID: <20060502165009.GA4223@flint.arm.linux.org.uk>
+Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+References: <20060502132953.GA30146@flint.arm.linux.org.uk> <p73slns5qda.fsf@bragg.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605020656.k426uO7H002518@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <p73slns5qda.fsf@bragg.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 02:56:23AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 02 May 2006 01:56:37 +0200, Herbert Poetzl said:
-> > > > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=f6422f17d3a480f21917a3895e2a46b968f56a08
-> 
-> > first, what do we expect from --bind mounts regarding
-> > vfs (mount) level flags like noatime, noexec, nodev?
+On Tue, May 02, 2006 at 06:43:45PM +0200, Andi Kleen wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> writes:
 > > 
-> >  - should they be propagated from the original mfs/mount?
+> > However, this is not the case.  On x86 with TSC, it returns a 54 bit
+> > number.  This means that when t1 < t0, time_passed_ns becomes a very
+> > large number which no longer represents the amount of time.
 > 
-> I tripped over this apparent regression when I hit a problem with some
-> code that expected this behavior. Given the documented behavior of the
-> mount syscall (see below), apparently propagating all flags intact
-> and clearing all flags are the only 2 options that don't break the
-> documented API.
+> Good point. For a 1Ghz system this would happen every ~0.57 years.
 > 
-> >  - should they only restrict the original set?
-> >  - should they allow to modify the existing flags?
+> The problem is there is AFAIK no non destructive[1] way to find out how
+> many bits the TSC has
 > 
-> Well, absent a '-o newflags' to modify it, propagating the originals
-> probably follows the Principle of Least Surprise.   And whether mountflags
-> are permissible is an API change issue...
+> Destructive would be to overwrite it with -1 and see how many stick.
 > 
-> > IMHO, it makes perfect sense to mount something noatime
-> > and change that rule later for a subtree like this:
+> > All uses in kernel/sched.c seem to be aflicted by this problem.
 > > 
-> >  mkdir /foo
-> >  mount -t tmpfs -o rw,noatime none /foo
-> >  mkdir /foo/bar
-> >  mount --bind -o atime /foo/bar /foo/bar
+> > There are several solutions to this - the most obvious being that we
+> > need a function which returns the nanosecond difference between two
+> > sched_clock() return values, and this function needs to know how to
+> > handle the case where sched_clock() has wrapped.
 > 
-> Here, there's a -o parameter being passed.
-
-yes, but this information unfortunately cannot be passed 
-to the kernel, assuming that we 'preserve' the original
-mount flags, as there simply is no 'atime' flag, just an
-MS_NOATIME flag, which in this case is not set :)
-
-> > second, has the kernel to decide what flags userspace
-> > can request and/or change, depending on the original?
+> Ok it can be done with a simple test.
 > 
-> Can of worms, too complicated for 3AM. :)
+> > 
+> > IOW:
+> > 
+> > 	t0 = sched_clock();
+> > 	/* do something */
+> > 	t1 = sched_clock();
+> > 
+> > 	time_passed = sched_clock_diff(t1, t0);
+> > 
+> > Comments?
 > 
-> > and finally, how to handle --rbind mounts at a level
-> > deeper than the top?
+> Agreed it's a problem, but probably a small one. At worst you'll get
+> a small scheduling hickup every half year, which should be hardly 
+> that big an issue.
 > 
-> More worms. ;)
+> Might chose to just ignore it with a big fat comment?
 
-it's full of worms, maybe we should add a new option or
-even a new mount type for this?
+You're right assuming you have a 64-bit TSC, but ARM has at best a
+32-bit cycle counter which rolls over about every 179 seconds - with
+gives a range of values from sched_clock from 0 to 178956970625 or
+0x29AAAAAA81.
 
-maybe we should allow remount on bind mounts, and keep
-the original (copy all) behaviour intact for --bind and
---rbind mounts? (that would look most natural to me)
+That's rather more of a problem than having it happen every 208 days.
 
-suggestions welcome!
-
-best,
-Herbert
-
-> Note that any provision for changing the mountflags *IS* a break of
-> the documented API.  'man 2 mount' says specifically:
-> 
->        MS_BIND
->               (Linux 2.4 onwards) Perform a bind mount, making a
->               file or a directory subtree visible at another point
->               within a file system. Bind mounts may cross file system
->               boundaries and span chroot(2) jails. The filesystemtype,
->               mountflags, and data arguments are ignored.
-> 
-> I admit not knowing that whether POSIX or other standards specify that
-> mountflags be ignored.
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

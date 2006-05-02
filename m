@@ -1,74 +1,55 @@
-Return-Path: <owner-linux-pci@atrey.karlin.mff.cuni.cz>
-X-OfflineIMAP-x422171562-6772656752656d6f7465-6c696e75782d706369: 1148566864-0688365502996-v4.0.11
-thread-index: AcZ/5lUvtwIDR8l/R126lVGxNoJK1A==
-Delivery-Date: Thu, 25 May 2006 12:19:20 +0200
-Message-ID: <000201c67fe6$552f32c0$0b64a8c0@mehnertedv.local>
-Date: Thu, 25 May 2006 12:31:07 +0200
-From: "Jiri Slaby" <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id S1750939AbWEBTfK (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 2 May 2006 15:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWEBTfJ
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 2 May 2006 15:35:09 -0400
+Received: from unknown.net.reach.com ([202.84.180.199]:62726 "EHLO erols.com")
+	by vger.kernel.org with ESMTP id S1750939AbWEBTfI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 15:35:08 -0400
 MIME-Version: 1.0
-Cc: "Jeff Garzik" <jeff@garzik.org>, "Greg KH" <gregkh@suse.de>,
-	"Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-	<linux-pci@atrey.karlin.mff.cuni.cz>,
-	"Ralf Baechle" <ralf@linux-mips.org>
-X-Mailer: Microsoft CDO for Exchange 2000
-Subject: Re: [PATCH 3/3] pci: gt96100eth use pci probing
-References: <20060525003151.598EAC7C19@atrey.karlin.mff.cuni.cz> <4474FFE1.4030202@garzik.org> <44758308.2040408@gmail.com>
-In-Reply-To: <44758308.2040408@gmail.com>
-X-Enigmail-Version: 0.94.0.0
+Reply-To: "Ora Thompson" <thompson_bt@netscape.net>
+X-Mailer: Windows Eudora Pro Version 2.2 (32)
+Subject: Invest in yourself! m1d
+Message-ID: <2.2.32.2006040218324200fc816c@netscape.net>
+To: <autoanswer@vger.kernel.org>
+In-Reply-To: <f17701c66a7e$ff829fbc$6e5dd7aa@4swynp3>
+From: "Ora Thompson" <thompson_bt@netscape.net>
+Date: Tue, 02 May 2006 12:32:42 -0600
 Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-To: <"unlisted-recipients:"@atrey.karlin.mff.cuni.cz>,
-	<"no To-headeroninput"@atrey.karlin.mff.cuni.cz>,
-	"IMB Recipient 1" <mspop3connector.stefan@mehnert-edv.de>
-Content-Class: urn:content-classes:message
-Importance: normal
+	charset="us-ascii"
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 25 May 2006 10:31:07.0687 (UTC) FILETIME=[554BBB70:01C67FE6]
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:5df3490ebbf8888d64f9643250eb1e65
-Sender: owner-linux-pci@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-pci@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-pci@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-pci-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750939AbWEBTfK@vger.kernel.org>
 
-Jiri Slaby napsal(a):
-> Jeff Garzik napsal(a):
->> Jiri Slaby wrote:
->>> +static int __init gt96100_probe1(struct pci_dev *pdev, int port_num)
->>>  {
->>>      struct gt96100_private *gp = NULL;
->>> -    struct gt96100_if_t *gtif = &gt96100_iflist[port_num];
->>> +    struct gt96100_if_t *gtifs = pci_get_drvdata(pdev);
->>> +    struct gt96100_if_t *gtif = &gtifs[port_num];
->>>      int phy_addr, phy_id1, phy_id2;
->>>      u32 phyAD;
->>> -    int retval;
->>> +    int retval = -ENOMEM;
->>>      unsigned char chip_rev;
->>>      struct net_device *dev = NULL;
->>>           if (gtif->irq < 0) {
->>> -        printk(KERN_ERR "%s: irq unknown - probing not supported\n",
->>> -              __FUNCTION__);
->>> +        dev_err(&pdev->dev, "irq unknown - probing not supported\n");
->>>          return -ENODEV;
->>>      }
->>> +
->>> +    retval = pci_enable_device(pdev);
->>> +    if (retval) {
->>> +        dev_err(&pdev->dev, "cannot enable pci device\n");
->>> +        return retval;
->>> +    }
->> bug #1:  please confirm pci_enable_device() is OK on this embedded hardware
-> I do not understand too much, did you mean something like this:
-> } else
-> 	dev_info(..., "pci device is enabled now\n");
-> or?
-Or..., aha, I got it now. How can I confirm?
+Genuine College Degree in 2 Weeks! 
 
-thnaks,
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+(831) 603-4625  Call Now and leave us message
+
+Have you ever thought that the only thing stopping you from a
+a great j0b and better pay was a few letters behind your name? 
+
+Well now you can get them! 
+
+BA BSc MA MSc MBA PHD 
+
+Within 2 weeks!
+No Study Required!
+100% Verifiable 
+
+(831) 603-4625  Call Now and leave us message
+
+These are real, genuine degrees that include Bachelors, Masters 
+and Doctorate degrees. They are verifiable and student records and
+transcripts are also available. This little known s.ecret has been
+kept quiet for years. The opp0rtunity exists due to a lega.l loophole
+allowing some established colleges to award degrees at their discretion.
+
+
+With all of the attention that this news has been generating, I wouldn't 
+be surprised to see this loophole closed very soon. 
+
+Call n0w for more information today, you'll thank me later... 
+(831) 603-4625  Call Now and leave us message

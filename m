@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWEBNxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWEBNyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWEBNxO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 09:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWEBNxO
+	id S964826AbWEBNyW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 09:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbWEBNyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 09:53:14 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8655 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964822AbWEBNxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 09:53:12 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: "Brown, Len" <len.brown@intel.com>,
-       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
-       sergio@sergiomb.no-ip.org, "Kimball Murray" <kimball.murray@gmail.com>,
-       linux-kernel@vger.kernel.org, akpm@digeo.com, kmurray@redhat.com,
-       linux-acpi@vger.kernel.org
-Subject: [RFC][PATCH] Document what in IRQ is.
-References: <CFF307C98FEABE47A452B27C06B85BB652DF16@hdsmsx411.amr.corp.intel.com>
-	<200605020946.46050.ak@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 02 May 2006 07:52:22 -0600
-In-Reply-To: <200605020946.46050.ak@suse.de> (Andi Kleen's message of "Tue,
- 2 May 2006 09:46:45 +0200")
-Message-ID: <m1aca07cvd.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 2 May 2006 09:54:22 -0400
+Received: from stinky.trash.net ([213.144.137.162]:40087 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S964826AbWEBNyV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 09:54:21 -0400
+Message-ID: <4457648C.6020100@trash.net>
+Date: Tue, 02 May 2006 15:54:20 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       coreteam@netfilter.org, "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [netfilter-core] Re: [lockup] 2.6.17-rc3: netfilter/sctp: lockup
+ in	sctp_new(), do_basic_checks()
+References: <20060502113454.GA28601@elte.hu> <20060502134053.GA30917@elte.hu>
+In-Reply-To: <20060502134053.GA30917@elte.hu>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+Ingo Molnar wrote:
+> thinking about it, what prevents the SCTP chunk's len field from being 
+> zero, and thus causing an infinite loop in for_each_sctp_chunk()? The 
+> patch below should fix that.
+> 
+> 	Ingo
+> 
+> ----
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> fix infinite loop in the SCTP-netfilter code: check SCTP chunk size to 
+> guarantee progress of for_each_sctp_chunk(). (all other uses of 
+> for_each_sctp_chunk() are preceded by do_basic_checks(), so this fix 
+> should be complete.)
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 
+> Index: linux/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
+> ===================================================================
+> --- linux.orig/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
+> +++ linux/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
+> @@ -227,6 +227,15 @@ static int do_basic_checks(struct ip_con
+>  	flag = 0;
+>  
+>  	for_each_sctp_chunk (skb, sch, _sch, offset, count) {
+> +		unsigned int len = (htons(sch->length) + 3) & ~3;
+> +
+> +		/*
+> +		 * Dont get into a loop with zero-sized or negative
+> +		 * length values:
+> +		 */
+> +		if (!len || len >= skb->len)
+> +			goto fail;
+> +
 
-> P.S.: There seems to be a lot of confusion about all this.
-> Maybe it would make sense to do a write up defining all the terms
-> and stick it into Documentation/* ? 
+I just came up with a similar fix :) I think I'm going to take
+my own patch though because its IMO slightly nicer. Thanks anyway.
 
-How does this look?
-
-I am pretty horrible when it comes to Documentation,
-but this seems to be the essence of what I was saying earlier.
-
-Eric
-
-
-diff --git a/Documentation/IRQ.txt b/Documentation/IRQ.txt
-new file mode 100644
-index 0000000..5340369
---- /dev/null
-+++ b/Documentation/IRQ.txt
-@@ -0,0 +1,22 @@
-+What is an IRQ?
-+
-+An IRQ is an interrupt request from a device.
-+Currently they can come in over a pin, or over a packet.
-+IRQs at the source can be shared.
-+
-+An IRQ number is a kernel identifier used to talk about a hardware
-+interrupt source.  Typically this is an index into the global irq_desc
-+array, but except for what linux/interrupt.h implements the details
-+are architecture specific.
-+
-+An IRQ number is an enumeration of the possible interrupt sources on a
-+machine.  Typically what is enumerated is the number of input pins on
-+all of the interrupt controller in the system.  In the case of ISA
-+what is enumerated are the 16 input pins to the pair of i8259
-+interrupt controllers.
-+
-+Architectures can assign additional meaning to the IRQ numbers, and
-+are encouraged to in the case  where there is any manual configuration
-+of the hardware involved.  The ISA IRQ case on x86 where anyone who
-+has been around a while can tell you how the first 16 IRQs map to the
-+input pins on a pair of i8259s is the classic example.

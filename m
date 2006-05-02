@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWEBN37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWEBNeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWEBN37 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 09:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964812AbWEBN37
+	id S964812AbWEBNeW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 09:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWEBNeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 09:29:59 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14348 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964810AbWEBN36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 09:29:58 -0400
-Date: Tue, 2 May 2006 14:29:53 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: sched_clock() uses are broken
-Message-ID: <20060502132953.GA30146@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+	Tue, 2 May 2006 09:34:22 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:9696 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964812AbWEBNeV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 09:34:21 -0400
+Date: Tue, 2 May 2006 14:34:16 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+Message-ID: <20060502133416.GT27946@ftp.linux.org.uk>
+References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <44573525.7040507@argo.co.il>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, May 02, 2006 at 01:32:05PM +0300, Avi Kivity wrote:
+> Like the recent prevent_tail_call() thing? Granted, C++ is a lot tricker 
+> than C. Much self-restraint is needed, and even then you can wind up 
+> where you didn't want to go.
 
-Someone just asked a question about sched_clock() on the ARM list, asking
-whether there was any way to find the range of values returned by this
-function.
+	Sigh...  You know, once upon a time there was a language called
+Algol 68.  It had a _lot_ of expressive power and was fairly flexible -
+both in type system and in syntax.  And it had been a fscking nightmare
+for large projects.  Not because of lack of modularity - that part had
+been all right.  The thing that kept killing large projects was different;
+in effect, each group ended up with a language subset and developed a
+discipline for it.  And as soon as they mixed, _especially_ if they were
+close, but not quite the same, you had an ever-growing disaster.
 
-My initial thought was "why would you want that", but on considering the
-problem a bit further, I could see why the question arises.  In looking
-deeper, I discovered a rather sad state of affairs with sched_clock().
+	It's not easy to quantify; each language has dark corners and
+there are more or less odd constructs specific to individual programmers
+and to groups.  And yes, you certainly can write unreadable crap in any
+language.  The question is, how many variants of "needed self-restraint"
+are widespread, how well do they mix and how easy it is to recognize the
+mismatches?  It's not a function of language per se, so it doesn't make
+sense to compare C and C++ as languages in that respect.  However, C++
+and C _styles_ can be compared and that's where C++ requires more force
+to keep a large project away from becoming a clusterfsck.
 
-The kernel assumes that the following will work:
-
-	unsigned long long t0, t1, time_passed_ns;
-
-	t0 = sched_clock();
-	/* do something */
-	t1 = sched_clock();
-
-	time_passed_ns = t1 - t0;
-
-This is all very well if sched_clock() returns values filling the
-entire range of an unsigned long long - two complement maths will
-naturally return the time difference in the case where t1 < t0.
-
-However, this is not the case.  On x86 with TSC, it returns a 54 bit
-number.  This means that when t1 < t0, time_passed_ns becomes a very
-large number which no longer represents the amount of time.
-
-All uses in kernel/sched.c seem to be aflicted by this problem.
-
-There are several solutions to this - the most obvious being that we
-need a function which returns the nanosecond difference between two
-sched_clock() return values, and this function needs to know how to
-handle the case where sched_clock() has wrapped.
-
-IOW:
-
-	t0 = sched_clock();
-	/* do something */
-	t1 = sched_clock();
-
-	time_passed = sched_clock_diff(t1, t0);
-
-Comments?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+	Sure, you need make sure that different groups of people use
+more or less compatible styles anyway; it's just that with C++ you need
+tighter control to get the same result.  And for kernel it's a killer.

@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWEBPTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbWEBPZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWEBPTl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 11:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWEBPTl
+	id S964881AbWEBPZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 11:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbWEBPZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 11:19:41 -0400
-Received: from fw5.argo.co.il ([194.90.79.130]:60687 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S964878AbWEBPTl (ORCPT
+	Tue, 2 May 2006 11:25:58 -0400
+Received: from smtpout.mac.com ([17.250.248.173]:13274 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S964881AbWEBPZ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 11:19:41 -0400
-Message-ID: <44577887.7040506@argo.co.il>
-Date: Tue, 02 May 2006 18:19:35 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling C++ modules
-References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il> <20060502133416.GT27946@ftp.linux.org.uk> <4457668F.8080605@argo.co.il> <20060502143430.GW27946@ftp.linux.org.uk> <445774F7.5030106@argo.co.il> <20060502151525.GX27946@ftp.linux.org.uk>
+	Tue, 2 May 2006 11:25:57 -0400
 In-Reply-To: <20060502151525.GX27946@ftp.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il> <20060502133416.GT27946@ftp.linux.org.uk> <4457668F.8080605@argo.co.il> <20060502143430.GW27946@ftp.linux.org.uk> <445774F7.5030106@argo.co.il> <20060502151525.GX27946@ftp.linux.org.uk>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <E1DB2E39-1AAC-4DEB-A595-EDE6B138ED3C@mac.com>
+Cc: Avi Kivity <avi@argo.co.il>, Willy Tarreau <willy@w.ods.org>,
+       David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 May 2006 15:19:39.0226 (UTC) FILETIME=[D446B3A0:01C66DFB]
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Compiling C++ modules
+Date: Tue, 2 May 2006 11:24:52 -0400
+To: Al Viro <viro@ftp.linux.org.uk>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
+On May 2, 2006, at 11:15:25, Al Viro wrote:
 > On Tue, May 02, 2006 at 06:04:23PM +0300, Avi Kivity wrote:
->   
 >> BTW, C++ could take over some of sparse's function:
->>     
 >
-> And the point of that would be?  sparse is _fast_ and easy to modify;
-> g++ is neither.
->   
+> And the point of that would be?  sparse is _fast_ and easy to  
+> modify; g++ is neither.
 
-I wasn't talking about modifying gcc to do the checking, rather using 
-language features so that the checks would happen during a regular 
-compile. That would mean we weren't dependent on somebody running sparse 
-with a configuration that triggers the bug, but those few who compile 
-the code before submitting the patch would get it automatically checked.
+For example; you can run _both_ a full sparse with all checks _and_  
+"gcc -Wall -Wextra -Werror -g -O2" in less time than it takes to  
+_just_ run "g++ -O0" on a nearly identical file.  If you have some  
+new typechecking to do, figure out how to add it to sparse without  
+cluttering up the syntax, don't convert the thing to C++, slow down  
+the compile, etc.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+Cheers,
+Kyle Moffett
+
 

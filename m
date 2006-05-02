@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWEBRPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWEBRS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbWEBRPV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 13:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWEBRPV
+	id S964931AbWEBRS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 13:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWEBRS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 13:15:21 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:37028 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S964899AbWEBRPU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 13:15:20 -0400
-Subject: Re: [patch 00/14] remap_file_pages protection support
-From: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: blaisorblade@yahoo.it, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-In-Reply-To: <4456D5ED.2040202@yahoo.com.au>
-References: <20060430172953.409399000@zion.home.lan>
-	 <4456D5ED.2040202@yahoo.com.au>
-Content-Type: text/plain
-Organization: HP/OSLO
-Date: Tue, 02 May 2006 13:16:46 -0400
-Message-Id: <1146590207.5202.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Tue, 2 May 2006 13:18:26 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:25725 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S964931AbWEBRSZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 13:18:25 -0400
+Date: Tue, 02 May 2006 13:18:25 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: sched_clock() uses are broken
+In-reply-to: <200605021901.13882.ak@suse.de>
+X-X-Sender: nico@localhost.localdomain
+To: Andi Kleen <ak@suse.de>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.64.0605021316380.28543@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20060502132953.GA30146@flint.arm.linux.org.uk>
+ <p73slns5qda.fsf@bragg.suse.de> <20060502165009.GA4223@flint.arm.linux.org.uk>
+ <200605021901.13882.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-05-02 at 13:45 +1000, Nick Piggin wrote:
-> blaisorblade@yahoo.it wrote:
-> 
-> > The first idea is to use this for UML - it must create a lot of single page
-> > mappings, and managing them through separate VMAs is slow.
-> 
-> I don't know about this. The patches add some complexity, I guess because
-> we now have vmas which cannot communicate the protectedness of the pages.
-> Still, nobody was too concerned about nonlinear mappings doing the same
-> for addressing. But this does seem to add more overhead to the common cases
-> in the VM :(
-> 
-> Now I didn't follow the earlier discussions on this much, but let me try
-> making a few silly comments to get things going again (cc'ed linux-mm).
-> 
-> I think I would rather this all just folded under VM_NONLINEAR rather than
-> having this extra MANYPROTS thing, no? (you're already doing that in one
-> direction).
-<snip>
+On Tue, 2 May 2006, Andi Kleen wrote:
 
-One way I've seen this done on other systems is to use something like a
-prio tree [e.g., see the shared policy support for shmem] for sub-vma
-protection ranges.  Most vmas [I'm guessing here] will have only the
-original protections or will be reprotected in toto.  So, one need only
-allocate/populate the protection tree when sub-vma protections are
-requested.   Then, one can test protections via the vma, perhaps with
-access/check macros to hide the existence of the protection tree.  Of
-course, adding a tree-like structure could introduce locking
-complications/overhead in some paths where we'd rather not [just
-guessing again].  Might be more overhead than just mucking with the ptes
-[for UML], but would keep the ptes in sync with the vma's view of
-"protectedness".
+> On Tuesday 02 May 2006 18:50, Russell King wrote:
+> 
+> > You're right assuming you have a 64-bit TSC, but ARM has at best a
+> > 32-bit cycle counter which rolls over about every 179 seconds - with
+> > gives a range of values from sched_clock from 0 to 178956970625 or
+> > 0x29AAAAAA81.
+> > 
+> > That's rather more of a problem than having it happen every 208 days.
+> 
+> Ok but you know it's always 32bit right? You can fix it up then
+> with your proposal of a sched_diff()
+> 
+> The problem would be fixing it up with a unknown number of bits.
 
-Lee
+Just shift it left so you know you always have the most significant bits 
+valid.  The sched_diff() would take care of scaling it back to nanosecs.
 
+
+Nicolas

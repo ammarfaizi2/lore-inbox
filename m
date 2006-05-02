@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWEBUA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWEBUDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbWEBUA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 16:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWEBUA4
+	id S1750967AbWEBUDr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 16:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWEBUDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 16:00:56 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:62776 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751277AbWEBUAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 16:00:55 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=OJcpTVDCcUKr1ZLqUbMnrOrvIHfWBuFG0oMF3hRvl5jdWnt/rGvfQ3pwbAXskBAvI
-	0oIITavd997M2aKb8bWlw==
-Message-ID: <4457BA59.8030901@google.com>
-Date: Tue, 02 May 2006 13:00:25 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>, apw@shadowen.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc2-mm1
-References: <4450F5AD.9030200@google.com> <20060428012022.7b73c77b.akpm@osdl.org> <44561A1E.7000103@google.com> <200605012034.26763.ak@suse.de>
-In-Reply-To: <200605012034.26763.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 May 2006 16:03:47 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11951 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750965AbWEBUDq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 16:03:46 -0400
+Date: Wed, 3 May 2006 06:03:36 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT, ext3fs, kernel 2.4.32... again
+Message-ID: <20060503060336.A1918058@wobbly.melbourne.sgi.com>
+References: <20060427063249.GH761@DervishD> <20060501062058.GA16589@dmt> <20060501112303.GA1951@DervishD> <20060502072808.A1873249@wobbly.melbourne.sgi.com> <20060502172411.GA6112@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060502172411.GA6112@DervishD>; from lkml@dervishd.net on Tue, May 02, 2006 at 07:24:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's really strange - i wonder why the backtracer can't find the original
-> stack. Should probably add some printk diagnosis here.
-> 
-> Can you send the output with this patch?
-> 
-> Index: linux/arch/x86_64/kernel/traps.c
-> ===================================================================
-> --- linux.orig/arch/x86_64/kernel/traps.c
-> +++ linux/arch/x86_64/kernel/traps.c
-> @@ -238,6 +238,7 @@ void show_trace(unsigned long *stack)
->  			HANDLE_STACK (stack < estack_end);
->  			i += printk(" <EOE>");
->  			stack = (unsigned long *) estack_end[-2];
-> +			printk("new stack %lx (%lx %lx %lx %lx %lx)\n", stack, estack_end[0], estack_end[-1], estack_end[-2], estack_end[-3], estack_end[-4]);
->  			continue;
->  		}
->  		if (irqstack_end) {
+On Tue, May 02, 2006 at 07:24:11PM +0200, DervishD wrote:
+>     Hi Nathan :)
 
-Thanks for running this Andy:
+Hi there,
 
-http://test.kernel.org/abat/30183/debug/console.log
+>  * Nathan Scott <nathans@sgi.com> dixit:
+> > On Mon, May 01, 2006 at 01:23:03PM +0200, DervishD wrote:
+> > >  * Marcelo Tosatti <marcelo@kvack.org> dixit:
+> > > > Your interpretation is correct. It would be nicer for open() to
+> > > > fail on fs'es which don't support O_DIRECT, but v2.4 makes such
+> > > > check later at read/write unfortunately ;(
+> > > 
+> > >     Oops :(
+> > 
+> > Nothing else really make sense due to fcntl...
+> > 	fcntl(fd, F_SETFL, O_DIRECT);
+> > ...can happen at any time, to enable/disable direct I/O.
+> 
+>     I know, but that fcntl call should fail just like the open() one.
+> I mean, I don't find this very different, it's just another point
+> where the flag can be activated and so it should fail if the
+> underlying filesystem doesn't support it (and doesn't ignore it in
+> read()/write()).
+
+Problem is there is no way to know whether the underlying fs
+supports direct IO or not here (fcntl is implemented outside
+the filesystem, entirely).  Which is not unfixable in itself
+(could use a superblock flag or something similar) but it's
+way out of scope for the sort of change going into 2.4 these
+days.
+
+cheers.
+
+-- 
+Nathan

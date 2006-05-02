@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWEBQ0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWEBQ1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbWEBQ0U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 12:26:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWEBQ0U
+	id S964915AbWEBQ1P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 12:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWEBQ1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 12:26:20 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:58321 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S964861AbWEBQ0T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 12:26:19 -0400
-Date: Tue, 2 May 2006 18:26:18 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Sanal V <get2sanal@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LINUX device driver help
-Message-ID: <20060502162618.GA1986@harddisk-recovery.com>
-References: <cb7a25200605010832h4091574o4fa870c3d850a31f@mail.gmail.com> <cb7a25200605020922j165de607q6264b761010cc140@mail.gmail.com>
-Mime-Version: 1.0
+	Tue, 2 May 2006 12:27:15 -0400
+Received: from 2-1-3-15a.ens.sth.bostream.se ([82.182.31.214]:29909 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S964915AbWEBQ1O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 12:27:14 -0400
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Avi Kivity <avi@argo.co.il>, Martin Mares <mj@ucw.cz>,
+       Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com>
+	<MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com>
+	<20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il>
+	<mj+md-20060502.111446.9373.atrey@ucw.cz>
+	<445741F5.6060204@argo.co.il>
+	<1146573767.14059.23.camel@pmac.infradead.org>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 02 May 2006 18:27:13 +0200
+In-Reply-To: <1146573767.14059.23.camel@pmac.infradead.org>
+Message-ID: <m3wtd4tmse.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cb7a25200605020922j165de607q6264b761010cc140@mail.gmail.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 09:52:11PM +0530, Sanal V wrote:
-> I am a young linux application programmer. I dont have any experience
-> in writing linux device drivers. I want to learn how to write drivers.
-> Please can anyone tell me where to start and how ???
+David Woodhouse <dwmw2@infradead.org> writes:
 
-Linux Device Drivers, 3rd edition:
+> On Tue, 2006-05-02 at 14:26 +0300, Avi Kivity wrote:
+> > There are C++ embedded kernels in http://www.zipworld.com.au/~akpm/
+> > and http://ecos.sourceware.org/, but I haven't looked at them, so I
+> > can't say whether I consider them nice or not. 
+> 
+> eCos is nice enough -- because it's mostly C :)
 
-  http://lwn.net/Kernel/LDD3/
+And those parts that are C++ (from a 2 year old eCos dist) won't
+compile with a modern g++.  I tried to compile RedBoot on a Fedora
+Core 5 system and it was a very painful experience, old deprecated C++
+code was breaking all over the place.  It may just have been the the
+eCos configuration tool (which I belive is written in C++) that failed
+to compile, but anyway, I had to use an older version of g++ and some
+flag to make the old broken C++ code generate warnings, not errors.
 
-And the kernelnewbies website (and IRC channel, and mailing list):
-
-  http://www.kernelnewbies.org/
-
-
-Erik
+  /Christer
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

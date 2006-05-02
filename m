@@ -1,178 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWEBIdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWEBItF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWEBIdp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 04:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWEBIdp
+	id S932511AbWEBItF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 04:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWEBItF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 04:33:45 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53195 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932508AbWEBIdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 04:33:44 -0400
-To: "Brown, Len" <len.brown@intel.com>
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Andi Kleen" <ak@suse.de>, <sergio@sergiomb.no-ip.org>,
-       "Kimball Murray" <kimball.murray@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
-       <linux-acpi@vger.kernel.org>
-Subject: Re: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-References: <CFF307C98FEABE47A452B27C06B85BB652DF16@hdsmsx411.amr.corp.intel.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 02 May 2006 02:33:00 -0600
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB652DF16@hdsmsx411.amr.corp.intel.com> (Len
- Brown's message of "Tue, 2 May 2006 03:41:50 -0400")
-Message-ID: <m1d5ew9683.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 May 2006 04:49:05 -0400
+Received: from smtpout.mac.com ([17.250.248.183]:65485 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932511AbWEBItE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 04:49:04 -0400
+In-Reply-To: <20060502040053.GA14413@kroah.com>
+References: <20060428112225.418cadd9.holzheu@de.ibm.com> <20060429075311.GB1886@kroah.com> <8A7D2F4D-5A05-4C93-B514-03268CAA9201@mac.com> <20060429215501.GA9870@kroah.com> <4237705F-E1B2-46CF-BE66-EFB77F68EC42@mac.com> <20060501203815.GE19423@kroah.com> <2DBA690E-B11A-478E-B2E0-0529F4CE45A9@mac.com> <20060502040053.GA14413@kroah.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <13D6E299-061B-46A5-A3CD-12E1075B9451@mac.com>
+Cc: Michael Holzheu <holzheu@de.ibm.com>, akpm@osdl.org,
+       schwidefsky@de.ibm.com, penberg@cs.helsinki.fi, ioe-lkml@rameria.de,
+       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] s390: Hypervisor File System
+Date: Tue, 2 May 2006 04:48:42 -0400
+To: Greg KH <greg@kroah.com>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brown, Len" <len.brown@intel.com> writes:
-
->>IRQ is an interrupt request, from a device.
->>Currently they can come in over a pin, or over a packet.
->>IRQs at the source can be shared.
+On May 2, 2006, at 00:00:53, Greg KH wrote:
+> On Mon, May 01, 2006 at 07:29:23PM -0400, Kyle Moffett wrote:
+>> So my question stands:  What is the _recommended_ way to handle  
+>> simple data types in low-bandwidth/frequency multiple-valued  
+>> transactions to hardware?  Examples include reading/modifying  
+>> framebuffer settings (currently done through IOCTLS), s390 current  
+>> state (up for discussion), etc.  In these cases there needs to be  
+>> an atomic snapshot or write of multiple values at the same time.   
+>> Given the situation it would be _nice_ to use sysfs so the admin  
+>> can do it by hand; makes things shell scriptable and reduces the  
+>> number of binary compatibility issues.
 >
-> Well stated.
+> I really don't know of a way to use sysfs for this currently, and  
+> hence, am not complaining too much about the different /proc files  
+> that have this kind of information in it at the moment.
 >
->>For an IRQ number it is just an enumeration of interrupt sources.
->>Ideally in a stable manner so that the assigned number does not
->>depend on compile options, or which version of the kernel you
->>are running.
+> If you or someone else wants to come up with some kind of solution  
+> for it, I'm sure that many people would be very happy to see it.
+
+Hmm, ok; I'll see what I can come up with.  Would anybody object to  
+this kind of API (as in my previous email) that uses an open fd as a  
+transaction "handle"?
+
+Example script:
+> ## Associate this process with an atomic snapshot
+> ## of the /sys/hypervisor/s390 filesystem tree.
+> exec 3>/sys/hypervisor/s390/transaction
 >
-> While desirable, the "stable" part is not guaranteed.
-> On an ACPI system with PCI Interrupt Link devices,
-> request_irq() goes into the pci-enable-device path,
-> which ends up asking ACPI what interrupt pin this device uses.
-> But the pin is programmable, so we pick one from the list
-> of possible, program the router accordingly, and this is what
-> gets returned to request_irq().  ACPI PCI Interrupt Link Devices,
-> of course, are just a wrapper for what x86 legacy calls PIRQ routers.
+> ## Read data from /sys/hypervisor/s390 without
+> ## worrying about atomicity; as that's guaranteed
+> ## by the open FD 3.
+> ls /sys/hypervisor/s390/cpus
+> cat /sys/hypervisor/s390/some_data_file
 >
-> In practice, if you boot the same or similar kernel on the
-> same configuration, you get 'stable', but if something changes
-> such as enabling/disabling a device or loading an additional device
-> driver
-> or otherwise tinkering with probe order, then all bets are off,
-> since the sequence of selecting and
-> balancing possible device interrupt lines between available IRQs has
-> changed.
-
-Agreed in the general case there is nothing we can do.  But
-with a reasonable degree of stability things will stay put
-long enough for people to reason about them.
-
-Although I would actually expect us to use the normal twiddle of
-irq lines on a bus.  But if we can have less contention that is certainly
-better.
-
->>The global irq_desc array is the core of any definition.
->>That is how linux knows about irqs.  Beyond that we ideally
->>have stable numbers across reboots, and recompiles, and hardware
->>addition and removal.  Stable numbers are not really possible
->>but we can come quite close.
+> ## Create another reference in this process to the
+> ## _same_ atomic snapshot
+> exec 4>&3
 >
-> Okay, I'm good with irq_desc, Linux's generic IRQ definition,
-> being the center of the universe.  I'm also good with the index
-> into irq_desc[] being the "IRQ number" show in /proc/interrupts.
-> I guess I was thinking from a HW-specific point of view this
-> afternoon...
-
-I had to stare at the code for a while to see this as well.
-
-> I don't like vector numbers being exposed in /proc/interrupts
-> on x86.  On an ACPI-enabled system, I think that they should be
-> the GSI.  This is consistent with the 0-15 legacy definitions
-> being pin numbers (which I think we must keep), and consistent
-> with the 16-n numbers being IOAPIC pin numbers (+offset),
-> (which I think we should have kept).
-
-Agreed.
-
-> Of course, to do this simply, we'd have to select the irq_desc[i]
-> with i = gsi, and not i = vector.
-
-Exactly.
-
->>> We should never have had a problem with un-connected interrupt lines
->>> consuming vectors, as the vectors are handed out at run-time
->>> only when interrupts are requested by drivers.
->>
->>Incorrect.  By being requested by drivers I assume you mean by
->>request_irq.  assign_irq_vector is called long before request_irq
->>and in fact there is currently not a call from request_irq to
->>assign_irq_vector.  Look where assign_irq_vector is called in io_apic.c
+> ## Does *not* close out the atomic snapshot
+> exec 3>&-
 >
-> You are right.  This code is wrong.
-> It makes absolutely no sense to reserve vectors in advance
-> for every RTE in the IOAPIC when we don't even know if they
-> are going to be used.
+> ## Yet another ref; still the _same_ snapshot
+> exec 6>/sys/hypervisor/s390/transaction
+> exec 4>&-
 >
-> This is clearly a holdover from the early IOAPIC/MPS days
-> when we were talking about 4 to 8 non-legacy RTEs.
+> ## Regardless of what has changed in the meantime,
+> ## our filesystem tree still looks the same
+> ls /sys/hypervisor/s390/cpus
 >
-> This is where the big system vector shortage problem
-> should be addressed.
-
-Yes.  Natalie mentioned that there are some IBM systems
-that still run out of processor vectors with our current
-irq collapsing.
-
->>I think there is a legitimate case for legacy edge triggered
->>interrupts to request a vector sooner, as there are so many races in
->>the enable/disable paths. 
+> ## Write out values
+> echo some_state >/sys/hypervisor/s390/statefile
 >
-> I don't follow you on this part.
-
-For edge triggered legacy irqs coming off the i8259 it probably makes
-sense to assign them vectors early like we do currently.
-
-I believe although I am not certain that with edge triggered irqs
-actually disabling them makes it easy to miss edges.
-
->>
->>> The problem with this workaround is going to be choose a policy
->>> of where to direct what, and how to move things if interrupts
->>> become un-balanced.
->>
->>The directing problem already exists.  In general an I/O apic can
->>only direct an irq at a specific cpu, and linux already supports
->>cpusets on which an irq may be delivered.
->>
->>But yes on systems with 8 or fewer cpus the I/O apics can do the
->>directing themselves and it is likely we still want to handle that
->>case.
+> ## Decide we don't like the changes and abort
+> echo reset >&6
 >
-> I don't think it is important to optimize for <= 8 CPUs
-> having hundreds of unique interrupts.  Systems with huge
-> numbers of interrutps will have more than 8 CPUs.  If they
-> don't, then the should function, but being optimal isn't
-> what the administrator had in mind.  With multiple cores
-> being added to systems, this becomes even more true
-> over time.
+> ## Release the last copy of the snapshot and
+> ## commit modified values
+> exec 6>&-
 
-Sorry. To be clear for systems with <= 8 CPUs we need to allocate
-a common vector for all 8 cpus at once if we want to use
-flat mode and this makes a version of assign_irq_vector that can work
-assign per cpu vectors more complicated, since it has to handle both
-cases.  Hmm, should assign_irq_vector become a ioapic method?
 
-I don't think we want to loose the optimization of letting the
-hardware select select the cpu on small systems.
+This would allow usages like the following:
+> exec 3>/sys/hypervisor/s390/transaction
+> /bin/s390_change_hypervisor_state
+> ## Look at new state; decide if we like it or not
+> if [ -z "$I_LIKE_THE_STATE" ]; then
+> 	echo reset >&3
+> fi
+> exec 3>&-
 
->>It is reassuring to see that the way I want to make the code work tends
->>to be they way you already think the code works.  I can't be too far
->>off in reducing the complexity.
->
-> Yeah, thanks for pointing out that the vectors are assigned at
-> IOAPIC init-time.  I hadn't noticed that, and it needs to be addressed.
 
-Exactly.  Once that is fixed setting gsi == irq should be trivial.
-Then we only have to worry about big systems that actually use
-more than 244 IRQs.  Which is where the per cpu vector assignment
-comes in.
+For actually implementing this; I'm considering a design which hangs  
+a transaction off of a "struct file" such that fork() and clone()  
+preserve the same transaction.  When a new process obtains an FD with  
+the given transaction it would add that process' current pointer to a  
+hash-table referencing the transaction data structure so that the open 
+() call could look up the transaction for a given task in the hash  
+table and use the data specified in the transaction.  When a  
+transaction is opened it would read the data atomically from the  
+hardware or in-kernel data structures and store an "initial" copy as  
+well as a "current" copy in per-transaction memory.  As a user could  
+theoretically pin NPROC * size_of_transaction_data * 2 of kernel  
+memory, transaction files should have fairly strict file modes or  
+some sort of resource-accounting semantic.  On a "reset" operation  
+the "initial" copy would be used to overwrite the "current" copy  
+again, and a changed bit would be unset.  Changes would result in the  
+changed bit being set.  When the transaction is closed, if the  
+changed bit is set then the data would be committed atomically, then  
+all the memory would be freed and the transaction removed from the  
+hash table.
 
-Eric
+Anything that sounds broken/fishy/"No that's impossible because..."  
+in there?  I appreciate your input; if this sounds feasable I'll try  
+to hack up a patch.
 
+Cheers,
+Kyle Moffett
 

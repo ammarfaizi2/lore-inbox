@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWEBUH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWEBUHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWEBUH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 16:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWEBUH0
+	id S1750965AbWEBUHK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 16:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWEBUHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 16:07:26 -0400
-Received: from xenotime.net ([66.160.160.81]:47284 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751279AbWEBUHZ (ORCPT
+	Tue, 2 May 2006 16:07:10 -0400
+Received: from mail.suse.de ([195.135.220.2]:9178 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750965AbWEBUHI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 16:07:25 -0400
-Date: Tue, 2 May 2006 13:09:50 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: linux-sparse@vger.kernel.org
-Cc: xavier.bestel@free.fr, davids@webmaster.com, linux-kernel@vger.kernel.org
-Subject: Re: C++ pushback + sparse
-Message-Id: <20060502130950.61792c71.rdunlap@xenotime.net>
-In-Reply-To: <20060426134419.a0515561.rdunlap@xenotime.net>
-References: <MDEHLPKNGKAHNMBLJOLKOENKLIAB.davids@webmaster.com>
-	<1146082192.11123.4.camel@bip.parateam.prv>
-	<20060426134419.a0515561.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 2 May 2006 16:07:08 -0400
+Date: Tue, 2 May 2006 13:05:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Razvan Gavril <razvan.g@plutohome.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ftdi_sio: ACT Solutions HomePro ZWave interface
+Message-ID: <20060502200532.GA8172@kroah.com>
+References: <44572749.6090103@plutohome.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44572749.6090103@plutohome.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Apr 2006 13:44:19 -0700 Randy.Dunlap wrote:
+On Tue, May 02, 2006 at 12:32:57PM +0300, Razvan Gavril wrote:
 
-> > > 	C++ has how many additional reserved words? I believe the list is delete,
-> > > friend, private, protected, public, template, throw, try, and catch.
-> > 
-> > You forgot namespace, mutable, new, class, const_cast, dynamic_cast,
-> > static_cast, reinterpret_cast, explicit, true, false, operator, typeid,
-> > typename and virtual. Maybe I forgot some (interface ?). Probably some
-> > new ones will appear.
-> 
-> I did a sparse patch to check for all(?) of those once (with Linus's
-> help).  I don't know if it still applies or not...
-> 
-> It's at http://www.xenotime.net/linux/sparse/check_keywords_v7.patch
-> (You'll also need the other patch there; they got a bit comingled:
-> http://www.xenotime.net/linux/sparse/check_sizeof_v7.patch)
+Care to diff this against 2.6.17-rc3?  Lots of ftdi new device ids have
+been added there.
 
-I updated this patch so that it works with sparse (snapshot of
-2006-may-01).  The patch is here:
-http://www.xenotime.net/linux/sparse/sparse-keywords-sizes.patch
+You also forgot to add a "Signed-off-by:" line :(
 
+> diff -Nur linux-2.6.16.12/drivers/usb/serial/ftdi_sio.c linux-2.6.16.12-pluto-1/drivers/usb/serial/ftdi_sio.c
+> --- linux-2.6.16.12/drivers/usb/serial/ftdi_sio.c	2006-05-01 15:14:26.000000000 -0400
+> +++ linux-2.6.16.12-pluto-1/drivers/usb/serial/ftdi_sio.c	2006-05-02 05:12:10.000000000 -0400
+> @@ -307,6 +307,7 @@
+>  
+>  
+>  static struct usb_device_id id_table_combined [] = {
+> +	{ USB_DEVICE(FTDI_VID, FTDI_ACTZWAVE_PID) },
+>  	{ USB_DEVICE(FTDI_VID, FTDI_IRTRANS_PID) },
+>  	{ USB_DEVICE(FTDI_VID, FTDI_SIO_PID) },
+>  	{ USB_DEVICE(FTDI_VID, FTDI_8U232AM_PID) },
+> diff -Nur linux-2.6.16.12/drivers/usb/serial/ftdi_sio.h linux-2.6.16.12-pluto-1/drivers/usb/serial/ftdi_sio.h
+> --- linux-2.6.16.12/drivers/usb/serial/ftdi_sio.h	2006-05-01 15:14:26.000000000 -0400
+> +++ linux-2.6.16.12-pluto-1/drivers/usb/serial/ftdi_sio.h	2006-05-02 05:13:00.000000000 -0400
+> @@ -380,6 +380,9 @@
+>  /* Pyramid Computer GmbH */
+>  #define FTDI_PYRAMID_PID	0xE6C8	/* Pyramid Appliance Display */
+>  
+> +/* ACT Solutions HomePro ZWave interface (http://www.act-solutions.com/HomePro.htm) */
+> +#define FTDI_ACTZWAVE_PID      0xF2D0
 
-sparse additions to:
-- check for C/C++ keywords: usage: -keywords
-- print all global data symbols and their sizes: usage: -list-symbols
-  Example of -list-symbols:
-  make C=2 CF="-list-symbols" arch/x86_64/kernel/smpboot.o
-  arch/x86_64/kernel/smpboot.c:90:20: struct cpuinfo_x86 [addressable] [toplevel
-] [assigned] cpu_data[8]: compound size 1344, alignment 64
+Please use a tab here.
 
----
-~Randy
+thanks,
+
+greg k-h

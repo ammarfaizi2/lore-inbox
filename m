@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWEBK7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWEBLQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWEBK7g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 06:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWEBK7g
+	id S932190AbWEBLQs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 07:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWEBLQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 06:59:36 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:16627 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932189AbWEBK7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 06:59:35 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: cbe-oss-dev@ozlabs.org
-Subject: Re: [Cbe-oss-dev] [PATCH 11/13] cell: split out board specific files
-Date: Tue, 2 May 2006 12:59:23 +0200
-User-Agent: KMail/1.9.1
-Cc: Segher Boessenkool <segher@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-References: <20060429232812.825714000@localhost.localdomain> <200605020150.14152.arnd@arndb.de> <1900A234-BE31-4292-87E1-5C02F12A440D@kernel.crashing.org>
-In-Reply-To: <1900A234-BE31-4292-87E1-5C02F12A440D@kernel.crashing.org>
+	Tue, 2 May 2006 07:16:48 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:34436 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932190AbWEBLQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 07:16:47 -0400
+Date: Tue, 02 May 2006 20:16:11 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH](trivial) cleanup redundant EXPORT_SYMBOL in arch/ia64/mm/init.c
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060502201353.CF12.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200605021259.24157.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 May 2006 02:06, Segher Boessenkool wrote:
-> Is there any reason the driver wouldn't build and/or run on other
-> platforms?  If so, fix it.  If not, just make it
-> 
->         depends on PCI
 
-Well, it could run on other platforms, except:
+This is tiny cleanup patch.
 
-- it requires a few properties in the device tree (local-mac-address,
-  firmware), so it should also depend on PPC
-- It's not actually PCI at all, but on an internal bus that has
-  something close enough to a PCI config space.
+EXPORT_SYMBOL(add_memory) in arch/ia64/mm/init.c is redundant.
+The old add_memory() has been already arch_add_memory(),
+but it is not called by acpi memhotplug modules.
 
-	Arnd <><
+This is for 2.6.17-rc3-mm1.
+
+Please apply.
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+ arch/ia64/mm/init.c |    1 -
+ 1 files changed, 1 deletion(-)
+
+Index: pgdat13/arch/ia64/mm/init.c
+===================================================================
+--- pgdat13.orig/arch/ia64/mm/init.c	2006-05-02 13:00:47.000000000 +0900
++++ pgdat13/arch/ia64/mm/init.c	2006-05-02 18:27:27.000000000 +0900
+@@ -671,7 +671,6 @@ int arch_add_memory(int nid, u64 start, 
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(add_memory);
+ 
+ int remove_memory(u64 start, u64 size)
+ {
+
+-- 
+Yasunori Goto 
+
+

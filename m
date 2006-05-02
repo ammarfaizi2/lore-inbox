@@ -1,89 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWEBRPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbWEBRPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbWEBRPu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 13:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWEBRPu
+	id S964899AbWEBRPV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 13:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWEBRPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 13:15:50 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:46451 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S964917AbWEBRPt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 13:15:49 -0400
-Date: Tue, 02 May 2006 13:15:48 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: sched_clock() uses are broken
-In-reply-to: <20060502165009.GA4223@flint.arm.linux.org.uk>
-X-X-Sender: nico@localhost.localdomain
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0605021300140.28543@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20060502132953.GA30146@flint.arm.linux.org.uk>
- <p73slns5qda.fsf@bragg.suse.de> <20060502165009.GA4223@flint.arm.linux.org.uk>
+	Tue, 2 May 2006 13:15:21 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:37028 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S964899AbWEBRPU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 13:15:20 -0400
+Subject: Re: [patch 00/14] remap_file_pages protection support
+From: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: blaisorblade@yahoo.it, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+In-Reply-To: <4456D5ED.2040202@yahoo.com.au>
+References: <20060430172953.409399000@zion.home.lan>
+	 <4456D5ED.2040202@yahoo.com.au>
+Content-Type: text/plain
+Organization: HP/OSLO
+Date: Tue, 02 May 2006 13:16:46 -0400
+Message-Id: <1146590207.5202.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 May 2006, Russell King wrote:
-
-> On Tue, May 02, 2006 at 06:43:45PM +0200, Andi Kleen wrote:
-> > Russell King <rmk+lkml@arm.linux.org.uk> writes:
-> > > 
-> > > However, this is not the case.  On x86 with TSC, it returns a 54 bit
-> > > number.  This means that when t1 < t0, time_passed_ns becomes a very
-> > > large number which no longer represents the amount of time.
-> > 
-> > Good point. For a 1Ghz system this would happen every ~0.57 years.
-> > 
-> > The problem is there is AFAIK no non destructive[1] way to find out how
-> > many bits the TSC has
-> > 
-> > Destructive would be to overwrite it with -1 and see how many stick.
-> > 
-> > > All uses in kernel/sched.c seem to be aflicted by this problem.
-> > > 
-> > > There are several solutions to this - the most obvious being that we
-> > > need a function which returns the nanosecond difference between two
-> > > sched_clock() return values, and this function needs to know how to
-> > > handle the case where sched_clock() has wrapped.
-> > 
-> > Ok it can be done with a simple test.
-
-Better yet the sched_clock() implementation just needs to return a value 
-shifted left so the wrap around always happens on 64 bits and the 
-difference between two consecutive samples is always right.
-
-> > > 
-> > > IOW:
-> > > 
-> > > 	t0 = sched_clock();
-> > > 	/* do something */
-> > > 	t1 = sched_clock();
-> > > 
-> > > 	time_passed = sched_clock_diff(t1, t0);
-> > > 
-> > > Comments?
-> > 
-> > Agreed it's a problem, but probably a small one. At worst you'll get
-> > a small scheduling hickup every half year, which should be hardly 
-> > that big an issue.
-
-... on x86 that is.
-
-> > Might chose to just ignore it with a big fat comment?
+On Tue, 2006-05-02 at 13:45 +1000, Nick Piggin wrote:
+> blaisorblade@yahoo.it wrote:
 > 
-> You're right assuming you have a 64-bit TSC, but ARM has at best a
-> 32-bit cycle counter which rolls over about every 179 seconds - with
-> gives a range of values from sched_clock from 0 to 178956970625 or
-> 0x29AAAAAA81.
+> > The first idea is to use this for UML - it must create a lot of single page
+> > mappings, and managing them through separate VMAs is slow.
 > 
-> That's rather more of a problem than having it happen every 208 days.
+> I don't know about this. The patches add some complexity, I guess because
+> we now have vmas which cannot communicate the protectedness of the pages.
+> Still, nobody was too concerned about nonlinear mappings doing the same
+> for addressing. But this does seem to add more overhead to the common cases
+> in the VM :(
+> 
+> Now I didn't follow the earlier discussions on this much, but let me try
+> making a few silly comments to get things going again (cc'ed linux-mm).
+> 
+> I think I would rather this all just folded under VM_NONLINEAR rather than
+> having this extra MANYPROTS thing, no? (you're already doing that in one
+> direction).
+<snip>
 
-Yet that counter isn't necessarily nanosecond based.  So rescaling the 
-returned value to nanosecs requires expensive divisions which could be 
-done only once within sched_clock_diff() instead of twice as often in 
-each sched_clock() calls.
+One way I've seen this done on other systems is to use something like a
+prio tree [e.g., see the shared policy support for shmem] for sub-vma
+protection ranges.  Most vmas [I'm guessing here] will have only the
+original protections or will be reprotected in toto.  So, one need only
+allocate/populate the protection tree when sub-vma protections are
+requested.   Then, one can test protections via the vma, perhaps with
+access/check macros to hide the existence of the protection tree.  Of
+course, adding a tree-like structure could introduce locking
+complications/overhead in some paths where we'd rather not [just
+guessing again].  Might be more overhead than just mucking with the ptes
+[for UML], but would keep the ptes in sync with the vma's view of
+"protectedness".
 
+Lee
 
-Nicolas

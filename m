@@ -1,82 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWEBKPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWEBKMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932104AbWEBKPU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 06:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWEBKPU
+	id S1751245AbWEBKMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 06:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWEBKMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 06:15:20 -0400
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:50289 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751256AbWEBKPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 06:15:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=VgT9VnpteZAclfCzrXUBJea1VJxw9Xff8h6ZfU1JUTd0JknQwThj3VUyXR6FJEb7bkLs2b+NytL/vOsQbcJ52g7Cuxphbm0wWCN0Cqf7BzVko7HvaJg5lX8DLsAzQ9AVmUeuq4X6svjaVTWGiCkmLME/Z0+WUKkJAzz2XtPIcOQ=  ;
-Message-ID: <4456D5ED.2040202@yahoo.com.au>
-Date: Tue, 02 May 2006 13:45:49 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 2 May 2006 06:12:08 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:16923 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751245AbWEBKMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 06:12:06 -0400
+In-Reply-To: <20060429075311.GB1886@kroah.com>
+Subject: Re: [PATCH] s390: Hypervisor File System
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, ioe-lkml@rameria.de, joern@wohnheim.fh-wedel.de,
+       linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
+       penberg@cs.helsinki.fi
+X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
+Message-ID: <OF492B218B.C77F3772-ON42257162.0037783E-42257162.00380CA7@de.ibm.com>
+From: Michael Holzheu <HOLZHEU@de.ibm.com>
+Date: Tue, 2 May 2006 12:12:12 +0200
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 02/05/2006 12:13:14
 MIME-Version: 1.0
-To: blaisorblade@yahoo.it
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch 00/14] remap_file_pages protection support
-References: <20060430172953.409399000@zion.home.lan>
-In-Reply-To: <20060430172953.409399000@zion.home.lan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-blaisorblade@yahoo.it wrote:
+Greg KH <greg@kroah.com> wrote on 04/29/2006 09:53:11 AM:
+> On Fri, Apr 28, 2006 at 11:22:25AM +0200, Michael Holzheu wrote:
+> > On zSeries machines there exists an interface which allows the
+operating
+> > system  to retrieve LPAR hypervisor accounting data. For example, it is
+> > possible to get usage data for physical and virtual cpus. In order to
+> > provide this information to user space programs, I implemented a new
+> > virtual Linux file system named 'hypfs' using the Linux 2.6 libfs
+> > framework. The name 'hypfs' stands for 'Hypervisor Filesystem'. All the
+> > accounting information is put into different virtual files which can be
+> > accessed from user space. All data is represented as ASCII strings.
+> >
+> > When the file system is mounted the accounting information is retrieved
+> > and a file system tree is created with the attribute files containing
+> > the cpu information. The content of the files remains unchanged until a
+> > new update is made. An update can be triggered from user space through
+> > writing 'something' into a special purpose update file.
+> >
+> > We create the following directory structure:
+> >
+> > <mount-point>/
+> >         update
+> >         cpus/
+> >                 <cpu-id>
+> >                         type
+> >                         mgmtime
+> >                 <cpu-id>
+> >                         ...
+> >         hyp/
+> >                 type
+> >         systems/
+> >                 <lpar-name>
+> >                         cpus/
+> >                                 <cpu-id>
+> >                                         type
+> >                                         mgmtime
+> >                                         cputime
+> >                                         onlinetime
+> >                                 <cpu-id>
+> >                                         ...
+> >                 <lpar-name>
+> >                         cpus/
+> >                                 ...
+> >
+> > - update: File to trigger update
+> > - cpus/: Directory for all physical cpus
+> > - cpus/<cpu-id>/: Directory for one physical cpu.
+> > - cpus/<cpu-id>/type: Type name of physical zSeries cpu.
+> > - cpus/<cpu-id>/mgmtime: Physical-LPAR-management time in microseconds.
+> > - hyp/: Directory for hypervisor information
+> > - hyp/type: Typ of hypervisor (currently only 'LPAR Hypervisor')
+> > - systems/: Directory for all LPARs
+> > - systems/<lpar-name>/: Directory for one LPAR.
+> > - systems/<lpar-name>/cpus/<cpu-id>/: Directory for the virtual cpus
+> > - systems/<lpar-name>/cpus/<cpu-id>/type: Typ of cpu.
+> > - systems/<lpar-name>/cpus/<cpu-id>/mgmtime:
+> > Accumulated number of microseconds during which a physical
+> > CPU was assigned to the logical cpu and the cpu time was
+> > consumed by the hypervisor and was not provided to
+> > the LPAR (LPAR overhead).
+> >
+> > - systems/<lpar-name>/cpus/<cpu-id>/cputime:
+> > Accumulated number of microseconds during which a physical CPU
+> > was assigned to the logical cpu and the cpu time was consumed
+> > by the LPAR.
+> >
+> > - systems/<lpar-name>/cpus/<cpu-id>/onlinetime:
+> > Accumulated number of microseconds during which the logical CPU
+> > has been online.
+> >
+> > As mount point for the filesystem /sys/hypervisor is created.
+> >
+> > The update process is triggered when writing 'something' into the
+> > 'update' file at the top level hypfs directory. You can do this e.g.
+> > with 'echo 1 > update'. During the update the whole directory structure
+> > is deleted and built up again.
+>
+> This sounds a lot like configfs.  Why not use that instead?
 
-> The first idea is to use this for UML - it must create a lot of single page
-> mappings, and managing them through separate VMAs is slow.
+Right! I read the documentation of configfs and looks like
+configfs is exactly what I need.
 
-I don't know about this. The patches add some complexity, I guess because
-we now have vmas which cannot communicate the protectedness of the pages.
-Still, nobody was too concerned about nonlinear mappings doing the same
-for addressing. But this does seem to add more overhead to the common cases
-in the VM :(
+To get consistend data the user can do the following:
 
-Now I didn't follow the earlier discussions on this much, but let me try
-making a few silly comments to get things going again (cc'ed linux-mm).
+1. mkdir /config/s390-hypervisor/tmpdir
 
-I think I would rather this all just folded under VM_NONLINEAR rather than
-having this extra MANYPROTS thing, no? (you're already doing that in one
-direction).
+This creates our directory tree with a snapshot of
+the hypervisor data.
 
-> 
-> Additional note: this idea, with some further refinements (which I'll code after
-> this chunk is accepted), will allow to reduce the number of used VMAs for most
-> userspace programs - in particular, it will allow to avoid creating one VMA for
-> one guard pages (which has PROT_NONE) - forcing PROT_NONE on that page will be
-> enough.
+2. cd tmpdir and read all data
 
-I think that's silly. Your VM_MANYPROTS|VM_NONLINEAR vmas will cause more
-overhead in faulting and reclaim.
+3. rmdir /config/s390-hypervisor/tmpdir
 
-It loooks like it would take an hour or two just to code up a patch which
-puts a VM_GUARDPAGES flag into the vma, and tells the free area allocator
-to skip vm_start-1 .. vm_end+1. What kind of troubles has prevented
-something simple and easy like that from going in?
+It looks a bit odd to get hypervisor accounting data
+from /config, but who cares ...
 
-> 
-> This will be useful since the VMA lookup at fault time can be a bottleneck for
-> some programs (I've received a report about this from Ulrich Drepper and I've
-> been told that also Val Henson from Intel is interested about this). I guess
-> that since we use RB-trees, the slowness is also due to the poor cache locality
-> of RB-trees (since RB nodes are within VMAs but aren't accessed together with
-> their content), compared for instance with radix trees where the lookup has high
-> cache locality (but they have however space usage problems, possibly bigger, on
-> 64-bit machines).
+Michael
 
-Let's try get back to the good old days when people actually reported
-their bugs (togther will *real* numbers) to the mailing lists. That way,
-everybody gets to think about and discuss the problem.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

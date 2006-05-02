@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWEBUMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWEBURA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWEBUMU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 16:12:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWEBUMU
+	id S932134AbWEBURA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 16:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWEBURA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 16:12:20 -0400
-Received: from ns.suse.de ([195.135.220.2]:17627 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932161AbWEBUMT (ORCPT
+	Tue, 2 May 2006 16:17:00 -0400
+Received: from mx0.towertech.it ([213.215.222.73]:9878 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S932134AbWEBUQ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 16:12:19 -0400
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Date: Tue, 2 May 2006 22:12:13 +0200
-User-Agent: KMail/1.9.1
-Cc: Martin Bligh <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <20060419112130.GA22648@elte.hu> <200605022200.12980.ak@suse.de> <20060502201358.GA10831@elte.hu>
-In-Reply-To: <20060502201358.GA10831@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 2 May 2006 16:16:59 -0400
+Date: Tue, 2 May 2006 22:15:35 +0200
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: akpm@osdl.org, a.zummo@towertech.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RTC: rtc-dev UIE emulation
+Message-ID: <20060502221535.01692c24@inspiron>
+In-Reply-To: <20060501.233242.59466338.anemo@mba.ocn.ne.jp>
+References: <20060429.011648.25910123.anemo@mba.ocn.ne.jp>
+	<20060428232306.5049c30d.akpm@osdl.org>
+	<20060430.001003.52129547.anemo@mba.ocn.ne.jp>
+	<20060501.233242.59466338.anemo@mba.ocn.ne.jp>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605022212.13842.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 May 2006 22:13, Ingo Molnar wrote:
+On Mon, 01 May 2006 23:32:42 +0900 (JST)
+Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
 
-> nah. And the fact that i could boot this on a non-NUMA box already 
-> unearthed a weakness in the buddy allocator. (it should have much 
-> clearer asserts about mis-sized zones - it's not the first time we had 
-> them and they are hard to debug) 
+> Here is an updated patch.  I think this one reflects all suggestions
+> by Andrew.
 
-GIGO.
+ seems ok to me, just a few comments:
 
-> So consider this a debugging feature.  
-> It also found other bugs, so even if nobody but me uses it, it's useful.
 
-It's an awful lot of ugly code for a debugging feature.
+> +	  driver did not provides RTC_UIE ioctls.  RTC_UIE is required
+> +	  by some programs, such as hwclock.
 
-Also I never considered i386 NUMA to be particularly interesting 
-because it doesn't work for the kernel lowmem which is always on node 0.
-So no matter what you try you have a nasty hotspot on node 0's memory.
+ please fix the double spacing and s/provides/provide/ 
 
--Andi
+ hwclock will be fixed to not rely on uie anymore anyway.
+
+
+> +#ifdef CONFIG_RTC_INTF_DEV_UIE_EMUL
+> +	INIT_WORK(&rtc->uie_task, rtc_uie_task, rtc);
+> +	setup_timer(&rtc->uie_timer, rtc_uie_timer, (unsigned long)rtc);
+> +	rtc->irq_active = 0;
+> +	rtc->stop_uie_polling = 0;
+> +	rtc->uie_task_active = 0;
+> +	rtc->uie_timer_active = 0;
+> +#endif
+
+ the rtc struct is allocated via kzalloc, so 
+ you don't need to zero it.
+
+
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

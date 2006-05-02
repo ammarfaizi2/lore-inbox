@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWEBWEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWEBWJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932244AbWEBWEL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 18:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWEBWEL
+	id S932262AbWEBWJU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 18:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWEBWJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 18:04:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29352 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932244AbWEBWEJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 18:04:09 -0400
-Date: Tue, 2 May 2006 18:03:37 -0400
-From: Dave Jones <davej@redhat.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>
-Subject: Re: [RFC] kernel facilities for cache prefetching
-Message-ID: <20060502220337.GB15286@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-	Badari Pulavarty <pbadari@us.ibm.com>
-References: <20060502075049.GA5000@mail.ustc.edu.cn> <1146556724.32045.19.camel@laptopd505.fenrus.org> <20060502080619.GA5406@mail.ustc.edu.cn> <1146558617.32045.23.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 May 2006 18:09:20 -0400
+Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:45733 "HELO
+	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932267AbWEBWJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 18:09:19 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
+Date: Tue, 2 May 2006 15:09:16 -0700
+User-Agent: KMail/1.7.1
+Cc: Michael Helmling <supermihi@web.de>, linux-kernel@vger.kernel.org
+References: <200605022002.15845.supermihi@web.de>
+In-Reply-To: <200605022002.15845.supermihi@web.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1146558617.32045.23.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200605021509.17050.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 10:30:17AM +0200, Arjan van de Ven wrote:
+On Tuesday 02 May 2006 11:02 am, Michael Helmling wrote:
+> Hi all,
+> 
+> I bought an USB-Ethernet adaptor from delock (www.delock.de) and found it was 
+> not supported by linux from the vendor. So I played a little with lsusb and 
+> found it uses a MCS7830 chip from MosChip semiconductor (moschip.com). On 
+> their homepage I found a driver but it only was a precompiled Fedora4 module. 
+> So I wrote them an email and they sent me the whole source code for the 
+> module...
+>
+> Would be nice to see this supported in further kernel releases.
+> The sourcecode can be found at ftp://supermihi.myftp.org
 
- > one interesting thing that came out of the fedora readahead work is that
- > most of the bootup isn't actually IO bound. 
+Was it you who removed the copyrights from the "usbnet" driver and
+changed the author assertion to one "M Subrahmanya Srihdar" ??
+I'm guessing the latter; the www.moschip.com site implies that
+its engineering HW is in India.
 
-Here's another interesting datapoint.
-A huge proportion of I/O done during bootup is _completely_ unnecessary.
+Either way, blatant plagiarism and theft of copyright is unlikely
+to get into upstream kernels.
 
-Profiling just a few of the places that seemed to stall yielded some
-lovely things, like cupsd reading in and parsing descriptions for
-every printer ever known to man, even if there's no printer connected.
-Or my favorite.. hald reloading and reparsing the same XML hardware description
-files.. ~50 times, _each_.
+Likewise, that is NOT the way to integrate with the "usbnet" driver
+framework.  See how it's done by the "asix.c" driver module.
 
-Utterly insane.
 
-(And these aren't Fedora specific problems btw, every distro shipping those
- bits will have the same dumb behaviour [modulo versions])
+In fact, I'm very tempted to ask them to withdraw their distribution,
+since they have clearly violated pretty basic terms of the GPL.  How
+long have they been doing that?  How much money have they made by
+this theft?
 
-		Dave
+That stuff is correctible ... but until they correct their problems,
+I'm not inclined to let them continue distributing stolen software.
 
--- 
-http://www.codemonkey.org.uk
+- Dave
+

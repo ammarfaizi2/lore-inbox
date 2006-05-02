@@ -1,96 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbWEBW5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWEBW5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965029AbWEBW5e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 18:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbWEBW5e
+	id S965035AbWEBW5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 18:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbWEBW5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 18:57:34 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:62986 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S965029AbWEBW5d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 18:57:33 -0400
-Date: Wed, 3 May 2006 08:57:22 +1000
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [NFSD] kconfig: Select things at the closest tristate instead of bool
-Message-ID: <20060502225722.GA21123@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="2oS5YaxWCcQjTEyO"
+	Tue, 2 May 2006 18:57:54 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:13984 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S965035AbWEBW5x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 18:57:53 -0400
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+Date: Tue, 2 May 2006 17:12:39 -0600
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+cc: david.hollister@amd.com
+Subject: [PATCH] vt: Delay the update of the visible framebuffer console
+Message-ID: <20060502231239.GB23644@cosmic.amd.com>
+MIME-Version: 1.0
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 02 May 2006 22:57:34.0354 (UTC)
+ FILETIME=[CCBA8720:01C66E3B]
+X-WSS-ID: 68493C574KW5913700-01-01
+Content-Type: multipart/mixed;
+ boundary=CE+1k2dSO48ffgeK
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain;
+ charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Hi:
+This is a patch that delays updating the visible framebuffer console
+until the other consoles have been initialized in order to avoid losing
+output lines.  This problem was discovered when loading a framebuffer driver
+as a module.  Comments welcome.
 
-I noticed recently that my CONFIG_CRYPTO_MD5 turned into a y again
-instead of m.  It turns out that CONFIG_NFSD_V4 is selecting it to
-be y even though I've chosen to compile nfsd as a module.
+Jordan
 
-In general when we have a bool sitting under a tristate it is
-better to select things you need from the tristate rather than the
-bool since that allows the things you select to be modules.
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline;
+ filename=vt.patch
+Content-Transfer-Encoding: 7bit
 
-The following patch does it for nfsd.
+[PATCH] vt:  Delay the update of the visible framebuffer console
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+From: David Hollister <david.hollister@amd.com>
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+This patch delays the update of the visible framebuffer console until
+all other consoles have been initialized in order to avoid losing
+information.  This only seems to be a problem with modules, not with
+built-in drivers.
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nfsd-md5-kconfig.patch"
+Signed-off-by: David Hollister <david.hollister@amd.com>
+Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
+---
 
-diff --git a/fs/Kconfig b/fs/Kconfig
-index f9b5842..7cb0210 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -1431,8 +1431,13 @@
- 	select LOCKD
- 	select SUNRPC
- 	select EXPORTFS
--	select NFS_ACL_SUPPORT if NFSD_V3_ACL || NFSD_V2_ACL
--	help
-+	select NFSD_V2_ACL if NFSD_V3_ACL
-+	select NFS_ACL_SUPPORT if NFSD_V2_ACL
-+	select NFSD_TCP if NFSD_V4
-+	select CRYPTO_MD5 if NFSD_V4
-+	select CRYPTO if NFSD_V4
-+	select FS_POSIX_ACL if NFSD_V4
-+	help
- 	  If you want your Linux box to act as an NFS *server*, so that other
- 	  computers on your local network which support NFS can access certain
- 	  directories on your box transparently, you have two options: you can
-@@ -1469,7 +1474,6 @@
- config NFSD_V3_ACL
- 	bool "Provide server support for the NFSv3 ACL protocol extension"
- 	depends on NFSD_V3
--	select NFSD_V2_ACL
- 	help
- 	  Implement the NFSv3 ACL protocol extension for manipulating POSIX
- 	  Access Control Lists on exported file systems. NFS clients should
-@@ -1479,10 +1483,6 @@
- config NFSD_V4
- 	bool "Provide NFSv4 server support (EXPERIMENTAL)"
- 	depends on NFSD_V3 && EXPERIMENTAL
--	select NFSD_TCP
--	select CRYPTO_MD5
--	select CRYPTO
--	select FS_POSIX_ACL
- 	help
- 	  If you would like to include the NFSv4 server as well as the NFSv2
- 	  and NFSv3 servers, say Y here.  This feature is experimental, and
+ drivers/char/vt.c |   22 ++++++++++++++--------
+ 1 files changed, 14 insertions(+), 8 deletions(-)
 
---2oS5YaxWCcQjTEyO--
+diff --git a/drivers/char/vt.c b/drivers/char/vt.c
+index acc5d47..30f0f24 100644
+--- a/drivers/char/vt.c
++++ b/drivers/char/vt.c
+@@ -2700,9 +2700,11 @@ int take_over_console(const struct consw
+ 		if (!vc || !vc->vc_sw)
+ 			continue;
+ 
+-		j = i;
+-		if (CON_IS_VISIBLE(vc))
++		if (CON_IS_VISIBLE(vc)) {
++			j = i;
+ 			save_screen(vc);
++		}
++
+ 		old_was_color = vc->vc_can_do_color;
+ 		vc->vc_sw->con_deinit(vc);
+ 		vc->vc_origin = (unsigned long)vc->vc_screenbuf;
+@@ -2718,17 +2720,21 @@ int take_over_console(const struct consw
+ 		 */
+ 		if (old_was_color != vc->vc_can_do_color)
+ 			clear_buffer_attributes(vc);
+-
+-		if (CON_IS_VISIBLE(vc))
+-			update_screen(vc);
+ 	}
++
+ 	printk("Console: switching ");
+ 	if (!deflt)
+ 		printk("consoles %d-%d ", first+1, last+1);
+-	if (j >= 0)
++	if (j >= 0) {
++		struct vc_data *vc = vc_cons[j].d;
++
+ 		printk("to %s %s %dx%d\n",
+-		       vc_cons[j].d->vc_can_do_color ? "colour" : "mono",
+-		       desc, vc_cons[j].d->vc_cols, vc_cons[j].d->vc_rows);
++		       vc->vc_can_do_color ? "colour" : "mono",
++		       desc, vc->vc_cols, vc->vc_rows);
++
++		if (CON_IS_VISIBLE(vc))
++			update_screen(vc);
++	}
+ 	else
+ 		printk("to %s\n", desc);
+ 
+
+--CE+1k2dSO48ffgeK--
+

@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWEBEJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWEBEMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbWEBEJX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 00:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWEBEJX
+	id S932360AbWEBEMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 00:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWEBEMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 00:09:23 -0400
-Received: from h80ad2444.async.vt.edu ([128.173.36.68]:35980 "EHLO
-	h80ad2444.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932359AbWEBEJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 00:09:22 -0400
-Message-Id: <200605020409.k4249EiJ007414@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Irfan Habib <irfan.habib@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel and Webservices 
-In-Reply-To: Your message of "Tue, 02 May 2006 07:51:18 +0500."
-             <3420082f0605011951m43479a98ie56a0a5f62409dd2@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <3420082f0605011951m43479a98ie56a0a5f62409dd2@mail.gmail.com>
+	Tue, 2 May 2006 00:12:53 -0400
+Received: from wilma.widomaker.com ([204.17.220.5]:62471 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP id S932361AbWEBEMw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 00:12:52 -0400
+Date: Tue, 2 May 2006 00:12:18 -0400
+From: Charles Shannon Hendrix <shannon@widomaker.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: OOM kills if swappiness set to 0, swap storms otherwise
+Message-ID: <20060502041218.GA5691@widomaker.com>
+References: <1143510828.1792.353.camel@mindpipe> <20060327195905.7f666cb5.akpm@osdl.org> <20060405144716.GA10353@widomaker.com> <44342CE2.208@tmr.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1146542953_2571P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 02 May 2006 00:09:14 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44342CE2.208@tmr.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1146542953_2571P
-Content-Type: text/plain; charset=us-ascii
+Wed, 05 Apr 2006 @ 16:47 -0400, Bill Davidsen said:
 
-On Tue, 02 May 2006 07:51:18 +0500, Irfan Habib said:
-> I wanted to know if modulescan be developed in the linux kernel, which
-> can create TCP/UDP sockets and communicate with perhaps webservices,
-> residing in the user level in the same computer or in some other
-> computer.
+Sorry for the late reply, and if this is a duplicate.
 
-> Is a networking API available in the linux kernel which can be used by
-> linux kernel modules, if so is there any documentation for it?
+> >I shouldn't be suffering from swap storms.
+> 
+> Agreed, does meminfo show that you are? 
 
-It's generally considered a Bad Idea, as it's almost certainly easier to
-do in userspace.  If you're trying to to instrument a network-based monitoring
-system and need access to kernel data, you're *much* better off having the
-kernel export the data via netlink or even abuse of /proc or /sys, and then
-a small userspace program read the data and ship it over the net.  There's
-a *lot* of things that you just won't have access to in kernel space (for
-starters, you don't have a DNS resolver, so you can't use hostnames for
-configuration).
+meminfo?
 
-If you're determined to do this in kernelspace anyhow, see the
-linux-2.6-tux.patch in recent RedHat/Fedora kernels, and ask yourself why
-that patch has no hope of being accepted upstream (although I have a great
-amount of respect for a lot of things that come out of RedHat, *that* patch
-is best described  "a fully RFC1925-compliant networking pig, with afterburners")
+procinfo and other tools show a lot swapping, if that's what you mean, and you
+can see it in disk I/O to the swap drives as well.
 
+> The reason I ask is that I have noted that large memory machines and CD/DVD
+> image writing suffer from some interesting disk write patterns. The image
+> being built gets cached but not written, then the file is closed. At some
+> point the kernel notices several GB of old unwritten data and decides to
+> write it. This makes everything pretty slow for a while, even if you have
+> 100MB/s disk system.
 
---==_Exmh_1146542953_2571P
-Content-Type: application/pgp-signature
+I see that kind of behavior quite a lot. Not just for DVD/CD images either.
+Basically any large data processing fills memory with cached file data at the
+expense of other programs and data.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> In theory you should be able to tune this, but in practice I see what
+> you do. On small memory machines it's less noticable, oddly.
 
-iD8DBQFEVttpcC3lWbTT17ARAlwBAJ44B5hFF0kfD3W8mEhvUR405agubACgghCu
-cfv5cZjnvwq2i4ilhY1FKgU=
-=n2ke
------END PGP SIGNATURE-----
+I tried putting swapiness down to 30. It helped, most of the time, but still
+I saw way too much useless file data being cached.
 
---==_Exmh_1146542953_2571P--
+I would personally rather just limit how much file data can be cached. I don't
+mind agressive swapping, I just hate seeing a ton of file data being cached
+that isn't going to be used again.
+
+I'm also trying the ck kernels just to see how they run. So far they work
+better.
+
+-- 
+shannon "AT" widomaker.com -- ["All of us get lost in the darkness,
+dreamers turn to look at the stars" -- Rush ]

@@ -1,67 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965044AbWEBXwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWEBXzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965044AbWEBXwl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 19:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWEBXwk
+	id S965045AbWEBXzW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 19:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbWEBXzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 19:52:40 -0400
-Received: from usea-naimss3.unisys.com ([192.61.61.105]:784 "EHLO
-	usea-naimss3.unisys.com") by vger.kernel.org with ESMTP
-	id S965038AbWEBXwk convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 19:52:40 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 2 May 2006 19:55:22 -0400
+Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:61390 "EHLO
+	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S965045AbWEBXzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 19:55:21 -0400
+Message-ID: <4457F166.10408@bigpond.net.au>
+Date: Wed, 03 May 2006 09:55:18 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Date: Tue, 2 May 2006 18:52:35 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0BB8@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Thread-Index: AcZtvJ0LyRor6sT3Q++OPsZIYtoa7wAZPjPg
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>, "Andi Kleen" <ak@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <akpm@digeo.com>
-Cc: <sergio@sergiomb.no-ip.org>, "Kimball Murray" <kimball.murray@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <kmurray@redhat.com>,
-       <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 02 May 2006 23:52:35.0653 (UTC) FILETIME=[7C74C750:01C66E43]
+To: Al Boldi <a1426z@gawab.com>
+CC: Christer Weinigel <christer@weinigel.se>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling C++ modules
+References: <200605022121.44831.a1426z@gawab.com>
+In-Reply-To: <200605022121.44831.a1426z@gawab.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 2 May 2006 23:55:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tuesday 02 May 2006 09:41, Brown, Len wrote:
+Al Boldi wrote:
+> Christer Weinigel <christer@weinigel.se> wrote:
 > 
-> > You are right.  This code is wrong.
-> > It makes absolutely no sense to reserve vectors in advance 
-> for every 
-> > RTE in the IOAPIC when we don't even know if they are going to be 
-> > used.
-> > 
-> > This is clearly a holdover from the early IOAPIC/MPS days 
-> when we were 
-> > talking about 4 to 8 non-legacy RTEs.
+>>>eCos is nice enough -- because it's mostly C :)
+>>
+>>And those parts that are C++ (from a 2 year old eCos dist) won't
+>>compile with a modern g++.
 > 
-> Yes I agree. A lot of the IO-APIC code could probably need 
-> some renovation.
->  
-> > This is where the big system vector shortage problem should be 
-> > addressed.
 > 
-> If we go to per CPU IDTs it will be much less pressing, but 
-> still a good idea.
-> 
+> C++ is OO,
 
-I've been trying to put together something on per-CPU IDTs also, and got
-entangled in all those issues that you just discussed... Dynamically
-assigning vectors to IRQs sounds like great improvement of the mechanism
-(why would they need to be static really), and vectors are right
-entities to manipulate with - while keeping IRQs stable and representing
-the interrupts sources clearly to the user.
-Len, I suppose it would make sense to accept the Kimball's timer fix for
-now, before the whole re-implementation happens?
+But not a very good implementation of it :-(.
 
---Natalie
+> and OO is great!  OO is the natural way of doing things, and 
+> allows one to concentrate on the issues at hand, while leaving the 
+> nitty-gritty to the compiler to decide.
+> 
+> And this is the problem, as kernel development is highly sensitive to 
+> compiler output, and which is why there are parts written in asm and others 
+> in C.
+> 
+> So rewriting C with C++ would be as dumb as rewriting asm with C.
+> 
+> But there may be certain higher level parts in the kernel that could benefit 
+> from rewriting C with C++, much the same as lower level parts have benefited 
+> from rewriting them in asm.
+> 
+> So we have a situation like this:
+> 
+> 	low-level written in asm when needed
+> 
+> 	main-level written in C mostly
+> 
+> 	high-level written in C++ when needed
+> 
+> Note though, C++ is not currently viable for kernel development, due to its 
+> enormous overhead generated by immature compiler technology.  Once this has 
+> matured, there should be no problem.
+> 
+> 
+>>-- 
+>>"Just how much can I get away with and still go to heaven?"
+> 
+> 
+> Just know that HE is one and only one.
+> 
+> Thanks!
+> 
+> --
+> Al
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

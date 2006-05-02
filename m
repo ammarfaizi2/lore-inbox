@@ -1,99 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWEBOTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWEBOU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWEBOTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 10:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWEBOTc
+	id S964842AbWEBOU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 10:20:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWEBOU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 10:19:32 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:21978 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964835AbWEBOTb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 10:19:31 -0400
-Date: Tue, 2 May 2006 16:24:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       coreteam@netfilter.org, "David S. Miller" <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [netfilter-core] Re: [lockup] 2.6.17-rc3: netfilter/sctp: lockup in	sctp_new(), do_basic_checks()
-Message-ID: <20060502142414.GA452@elte.hu>
-References: <20060502113454.GA28601@elte.hu> <20060502134053.GA30917@elte.hu> <4457648C.6020100@trash.net> <20060502140102.GA31743@elte.hu> <4457654A.9040200@trash.net> <20060502141621.GA32284@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 May 2006 10:20:58 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:39842 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S964839AbWEBOU5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 10:20:57 -0400
+Date: Tue, 2 May 2006 16:20:50 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Message-ID: <20060502142050.GC27798@linuxtv.org>
+References: <20060430174426.a21b4614.rdunlap@xenotime.net> <1146503166.2885.137.camel@hades.cambridge.redhat.com> <20060502003755.GA26327@linuxtv.org> <1146576495.14059.45.camel@pmac.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060502141621.GA32284@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1146576495.14059.45.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.11+cvs20060403
+X-SA-Exim-Connect-IP: 84.190.188.16
+Subject: Re: [PATCH] CodingStyle: add typedefs chapter
+X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 02, 2006, David Woodhouse wrote:
+> On Tue, 2006-05-02 at 02:37 +0200, Johannes Stezenbach wrote:
+> > IMHO u32 etc. are the well established data types used
+> > everywhere in kernel source. Your wording suggests that
+> > the use of C99 types would be better, and while I respect
+> > your personal opinion, I think it is wrong to put that in the
+> > kernel CodingStyle document.
+> 
+> Perhaps the word 'gratuitous' should be removed, then, if you object to
+> being able to infer my opinion.
+> 
+> The point remains that the peculiarity should definitely be documented,
+> along with an explanation of the reasoning (or lack of such) behind it.
+> 
+> > c.f. http://lkml.org/lkml/2004/12/14/127 
+> 
+> That's about types used for _export_. It's accepted that __uXX types are
+> necessary in stuff which is visible by userspace. That was point (e).¹
+> 
+> The only bit in that mail which is relevant to my point (d) is the
+> penultimate (and final) paragraphs. And those are a complete non
+> sequitur and make just as much sense if you swap over 'u32' and
+> 'uint32_t' and also 'kernel' and 'C language'...
+> 
+> "In other words, uint8_t/uint16_t/uint32_t/uint64_t (and the signed
+> versions: int8_t and friends) _are_ the standard names in the C
+> language, and the __u8/__u16/etc versions have always existed alongside
+> them for things like header files that have namespace issues.
+> 
+> "So forget about that stupid abortion called "u32" already. It buys
+> you absolutely nothing."
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+;-)
 
-> but this makes do_basic_checks() not fail, and the clearly bogus 
-> packet is passed further down. The reason i have put it inside the 
-> loop is to be able to return 1 for the early checks. How about the fix 
-> below? It should be cleaner and it will also return 1 if the initial 
-> offset is oversized.
+Maybe I got it wrong, but my impression so far was that
+u8 etc. are preferred for kernel code, and C99 types
+are merely tolerated. (Mostly for consistency reasons,
+I guess, since most old code uses u8 etc.)
 
-that should be:
+However, personally I don't care either way, I just
+want to make sure that code written acording to
+Documentation/CodingStyle also meets Linus' expectations.
 
-----
-From: Ingo Molnar <mingo@elte.hu>
 
-fix infinite loop in the SCTP-netfilter code: check SCTP chunk size to 
-guarantee progress of for_each_sctp_chunk(). (all other uses of 
-for_each_sctp_chunk() are preceded by do_basic_checks(), so this fix 
-should be complete.)
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
----
- net/ipv4/netfilter/ip_conntrack_proto_sctp.c |   18 ++++++++++++++----
- 1 files changed, 14 insertions(+), 4 deletions(-)
-
-Index: linux/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-===================================================================
---- linux.orig/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-+++ linux/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-@@ -224,6 +224,13 @@ static int do_basic_checks(struct ip_con
- 	DEBUGP(__FUNCTION__);
- 	DEBUGP("\n");
- 
-+	/*
-+	 * Dont trust the initial offset:
-+	 */
-+	offset = skb->nh.iph->ihl * 4 + sizeof(sctp_sctphdr_t);
-+	if (offset >= skb->len)
-+		return 1;
-+
- 	flag = 0;
- 
- 	for_each_sctp_chunk (skb, sch, _sch, offset, count) {
-@@ -235,12 +242,15 @@ static int do_basic_checks(struct ip_con
- 			flag = 1;
- 		}
- 
--		/* Cookie Ack/Echo chunks not the first OR 
--		   Init / Init Ack / Shutdown compl chunks not the only chunks */
--		if ((sch->type == SCTP_CID_COOKIE_ACK 
-+		/*
-+		 * Cookie Ack/Echo chunks not the first OR
-+		 * Init / Init Ack / Shutdown compl chunks not the only chunks
-+		 * OR zero-length.
-+		 */
-+		if (((sch->type == SCTP_CID_COOKIE_ACK
- 			|| sch->type == SCTP_CID_COOKIE_ECHO
- 			|| flag)
--		     && count !=0 ) {
-+		     && count != 0) || !sch->length) {
- 			DEBUGP("Basic checks failed\n");
- 			return 1;
- 		}
-
+Johannes

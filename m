@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWEBD2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWEBECi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWEBD2N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 23:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWEBD2N
+	id S932358AbWEBECi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 00:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWEBECi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 23:28:13 -0400
-Received: from secure.htb.at ([195.69.104.11]:14859 "EHLO pop3.htb.at")
-	by vger.kernel.org with ESMTP id S932357AbWEBD2N (ORCPT
+	Tue, 2 May 2006 00:02:38 -0400
+Received: from ns.suse.de ([195.135.220.2]:62921 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932358AbWEBECh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 23:28:13 -0400
-Date: Tue, 2 May 2006 05:28:03 +0200
-From: Richard Mittendorfer <delist@gmx.net>
-To: linux-kernel@vger.kernel.org
-Cc: Pavel Machek <pavel@suse.cz>
-Subject: Re: [swsusp] not enough memory [solved with 2.6.17-rc3]
-Message-Id: <20060502052803.f1875269.delist@gmx.net>
-In-Reply-To: <20060218005814.6548092d.delist@gmx.net>
-References: <20060218005814.6548092d.delist@gmx.net>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.16; i486-pc-linux-gnu)
+	Tue, 2 May 2006 00:02:37 -0400
+Date: Mon, 1 May 2006 21:00:53 -0700
+From: Greg KH <greg@kroah.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Michael Holzheu <holzheu@de.ibm.com>, akpm@osdl.org,
+       schwidefsky@de.ibm.com, penberg@cs.helsinki.fi, ioe-lkml@rameria.de,
+       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: Hypervisor File System
+Message-ID: <20060502040053.GA14413@kroah.com>
+References: <20060428112225.418cadd9.holzheu@de.ibm.com> <20060429075311.GB1886@kroah.com> <8A7D2F4D-5A05-4C93-B514-03268CAA9201@mac.com> <20060429215501.GA9870@kroah.com> <4237705F-E1B2-46CF-BE66-EFB77F68EC42@mac.com> <20060501203815.GE19423@kroah.com> <2DBA690E-B11A-478E-B2E0-0529F4CE45A9@mac.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *1FalYS-00049j-00*p94Iwuj8Irs*
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2DBA690E-B11A-478E-B2E0-0529F4CE45A9@mac.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Richard Mittendorfer <delist@gmx.net> (Sat, 18 Feb 2006 00:58:14 +0100):
-> On my 64MB notebook I get the following message, when going swsusp:
+On Mon, May 01, 2006 at 07:29:23PM -0400, Kyle Moffett wrote:
+> On May 1, 2006, at 16:38:15, Greg KH wrote:
+> >On Sun, Apr 30, 2006 at 01:18:46AM -0400, Kyle Moffett wrote:
+> >>On Apr 29, 2006, at 17:55:01, Greg KH wrote:
+> >>>relayfs is for that.  You can now put relayfs files in any ram  
+> >>>based file system (procfs, ramfs, sysfs, debugfs, etc.)
+> >>
+> >>But you can't twiddle relayfs with echo and cat; it's more suited  
+> >>to high-bandwidth transfers than anything else, no?
+> >
+> >Yes.
 > 
-> ..
-> swsusp: Need to copy 15526 pages
-> swsusp: Not enough free memory
-> Error -12 suspending
-> ..
-> 
-> # free
->              total     used     free   shared    buffers   cached
-> Mem:         62760    59884     2876        0       3828    16052
-> -/+ buffers/cache:    40004    22756
-> Swap:       200804    30316   170488
-> 
-> If I end all apps but the XServer it works. I've allready added some
-> more swapspace, but that didn't help. So, how much memory will I need
-> for a successful suspend or better (since i can't stuff any more into 
-> it) is there a way to minimize the amount needed?
+> So my question stands:  What is the _recommended_ way to handle  
+> simple data types in low-bandwidth/frequency multiple-valued  
+> transactions to hardware?  Examples include reading/modifying  
+> framebuffer settings (currently done through IOCTLS), s390 current  
+> state (up for discussion), etc.  In these cases there needs to be an  
+> atomic snapshot or write of multiple values at the same time.  Given  
+> the situation it would be _nice_ to use sysfs so the admin can do it  
+> by hand; makes things shell scriptable and reduces the number of  
+> binary compatibility issues.
 
-Seems fixed with 2.6.17-rc3. Field-testet on the loaded box several times.
+I really don't know of a way to use sysfs for this currently, and hence,
+am not complaining too much about the different /proc files that have
+this kind of information in it at the moment.
 
-_._. .._ _  .... . ._. .  __..__  _._. .._ _  .... . ._. .
-libre powermanagement[2300]: suspend to disk.
-libre powermanagement[2309]: Found some modules loaded .. unloading
-libre kernel: ACPI: PCI interrupt for device 0000:05:00.0 disabled
-libre kernel: ath_pci: driver unloaded
-libre kernel: Stopping tasks: ====================================================|
-libre kernel: Shrinking memory...  ^H-^H\^Hdone (10007 pages freed)
-libre kernel: ACPI: PCI interrupt for device 0000:00:13.1 disabled
-libre kernel: ACPI: PCI interrupt for device 0000:00:13.0 disabled
-libre kernel: swsusp: Need to copy 6061 pages
-libre kernel: ACPI: PCI Interrupt 0000:00:13.0[A] -> Link [LNKA] -> GSI 11 (level, low) -> IRQ 11
-libre kernel: PCI: Setting latency timer of device 0000:00:13.0 to 64
-libre kernel: ACPI: PCI Interrupt 0000:00:13.1[B] -> Link [LNKB] -> GSI 11 (level, low) -> IRQ 11
-libre kernel: PCI: Setting latency timer of device 0000:00:13.1 to 64
-libre kernel: Restarting tasks... done
-libre powermanagement[2344]: Reloading modules ..
-_._. .._ _  .... . ._. .  __..__  _._. .._ _  .... . ._. .
+If you or someone else wants to come up with some kind of solution for
+it, I'm sure that many people would be very happy to see it.
 
-big THX, 
+thanks,
 
-ritch
+greg k-h

@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWEBF4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWEBGCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWEBF4c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 01:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWEBF4c
+	id S932384AbWEBGCU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 02:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWEBGCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 01:56:32 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:11232 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S932382AbWEBF4b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 01:56:31 -0400
-Date: Tue, 2 May 2006 07:56:21 +0200
-From: bert hubert <bert.hubert@netherlabs.nl>
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 004 of 11] md: Increase the delay before marking metadata clean, and make it configurable.
-Message-ID: <20060502055621.GA552@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <bert.hubert@netherlabs.nl>,
-	NeilBrown <neilb@suse.de>, Andrew Morton <akpm@osdl.org>,
-	linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060501152229.18367.patches@notabene> <1060501053019.22949@suse.de>
+	Tue, 2 May 2006 02:02:20 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:63112 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S932384AbWEBGCT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 02:02:19 -0400
+Subject: [BUG] ACPI bug in 2.6.17-rc3
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 02 May 2006 08:02:11 +0200
+Message-Id: <1146549731.16874.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060501053019.22949@suse.de>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01, 2006 at 03:30:19PM +1000, NeilBrown wrote:
-> When a md array has been idle (no writes) for 20msecs it is marked as
-> 'clean'.  This delay turns out to be too short for some real
-> workloads.  So increase it to 200msec (the time to update the metadata
-> should be a tiny fraction of that) and make it sysfs-configurable.
+hello.. just tried out 2.6.17-rc3 on my amd64 system, and i got this
+backtrace:
+khelper pid 4
+trace:
+activate_task+319 try_to_wake_up+93
+__wake_up_common+68 complete+38
+run_workqueue+136 worker_thread+353
+default_wake_function+0 worker_thread+0
+kthread+219 worke_thead+0
+child_rip+8 worker_thread+0
+kthread+0 child_rip+0
 
-What does this mean, 'too short'? What happens in that case, backing block
-devices are still busy writing? When making this configurable, the help text
-better explain what the trade offs are.
+this happened immediately after vesafb changed resolution, i tried
+without vesafb, still the same..
 
-Thanks.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+

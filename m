@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWEBQ1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWEBQ2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964915AbWEBQ1P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 12:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWEBQ1P
+	id S964862AbWEBQ2o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 12:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWEBQ2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 12:27:15 -0400
-Received: from 2-1-3-15a.ens.sth.bostream.se ([82.182.31.214]:29909 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id S964915AbWEBQ1O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 12:27:14 -0400
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Avi Kivity <avi@argo.co.il>, Martin Mares <mj@ucw.cz>,
-       Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling C++ modules
-References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com>
-	<MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com>
-	<20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il>
-	<mj+md-20060502.111446.9373.atrey@ucw.cz>
-	<445741F5.6060204@argo.co.il>
-	<1146573767.14059.23.camel@pmac.infradead.org>
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 02 May 2006 18:27:13 +0200
-In-Reply-To: <1146573767.14059.23.camel@pmac.infradead.org>
-Message-ID: <m3wtd4tmse.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 May 2006 12:28:44 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:23209 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964862AbWEBQ2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 12:28:43 -0400
+Subject: Re: LINUX device driver help
+From: Arjan van de Ven <arjan@infradead.org>
+To: Sanal V <get2sanal@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <cb7a25200605020922j165de607q6264b761010cc140@mail.gmail.com>
+References: <cb7a25200605010832h4091574o4fa870c3d850a31f@mail.gmail.com>
+	 <cb7a25200605020922j165de607q6264b761010cc140@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 02 May 2006 18:28:40 +0200
+Message-Id: <1146587321.32045.83.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> writes:
+On Tue, 2006-05-02 at 21:52 +0530, Sanal V wrote:
+> I am a young linux application programmer. I dont have any experience
+> in writing linux device drivers. I want to learn how to write drivers.
+> Please can anyone tell me where to start and how ???
 
-> On Tue, 2006-05-02 at 14:26 +0300, Avi Kivity wrote:
-> > There are C++ embedded kernels in http://www.zipworld.com.au/~akpm/
-> > and http://ecos.sourceware.org/, but I haven't looked at them, so I
-> > can't say whether I consider them nice or not. 
-> 
-> eCos is nice enough -- because it's mostly C :)
+a good resource is the LDD3 book; and the www.kernelnewbies.org website
+and respective IRC channel and mailing list...
 
-And those parts that are C++ (from a 2 year old eCos dist) won't
-compile with a modern g++.  I tried to compile RedBoot on a Fedora
-Core 5 system and it was a very painful experience, old deprecated C++
-code was breaking all over the place.  It may just have been the the
-eCos configuration tool (which I belive is written in C++) that failed
-to compile, but anyway, I had to use an older version of g++ and some
-flag to make the old broken C++ code generate warnings, not errors.
 
-  /Christer
-
--- 
-"Just how much can I get away with and still go to heaven?"
-
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

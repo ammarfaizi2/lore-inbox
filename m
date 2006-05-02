@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWEBEVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWEBEWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbWEBEVm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 00:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWEBEVm
+	id S932364AbWEBEWu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 00:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWEBEWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 00:21:42 -0400
-Received: from wilma.widomaker.com ([204.17.220.5]:11271 "EHLO
-	wilma.widomaker.com") by vger.kernel.org with ESMTP id S932363AbWEBEVl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 00:21:41 -0400
-Date: Tue, 2 May 2006 00:21:08 -0400
-From: Charles Shannon Hendrix <shannon@widomaker.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OOM kills if swappiness set to 0, swap storms otherwise
-Message-ID: <20060502042108.GD5691@widomaker.com>
-References: <1143510828.1792.353.camel@mindpipe> <20060327195905.7f666cb5.akpm@osdl.org> <20060405144716.GA10353@widomaker.com> <443B69BE.6060601@tlinx.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <443B69BE.6060601@tlinx.org>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 2 May 2006 00:22:50 -0400
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:53739 "EHLO
+	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S932366AbWEBEWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 00:22:49 -0400
+Date: Tue, 2 May 2006 00:22:45 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Greg KH <greg@kroah.com>, Arjan van de Ven <arjan@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@tycho.nsa.gov>, T?r?k Edwin <edwin@gurde.com>,
+       linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 0/4] MultiAdmin LSM
+In-Reply-To: <Pine.LNX.4.61.0605011543180.31804@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.64.0605012354160.3320@d.namei>
+References: <20060417162345.GA9609@infradead.org>
+ <1145293404.8542.190.camel@moss-spartans.epoch.ncsc.mil>
+ <20060417173319.GA11506@infradead.org> <Pine.LNX.4.64.0604171454070.17563@d.namei>
+ <20060417195146.GA8875@kroah.com> <Pine.LNX.4.61.0604191010300.12755@yvahk01.tjqt.qr>
+ <1145462454.3085.62.camel@laptopd505.fenrus.org> <Pine.LNX.4.61.0604192102001.7177@yvahk01.tjqt.qr>
+ <20060419201154.GB20545@kroah.com> <Pine.LNX.4.61.0604211528140.22097@yvahk01.tjqt.qr>
+ <20060421150529.GA15811@kroah.com> <Pine.LNX.4.61.0605011543180.31804@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tue, 11 Apr 2006 @ 01:33 -0700, Linda Walsh said:
+This module implements two distinct ideas:
 
->    Hmmm, not to be contrary, but I have a 1GB system that refuses to swap
-> during large file i/o operations.  For the first time in a *long* time,
-> I read someone's suggestion to increase swappiness -- I did, to 75 or 80,
-> (I've booted since then, so it's back to 60 and no swap usage) and some of
-> the programs that rarely run actually swapped.  It was great!  I finally had
-> more memory for file i/o operations.
+(1) Multiple superusers with distinct UIDs.
 
-It's great if you actually need the file data that gets stored.
-
->    Maybe you are telling the system to "feel free" to use swap by having a
-> large swap file?  
-
-I don't believe that matters, and certainly doesn't seem to affect my
-own system.
-
-If I use a smaller swap file, I just run out faster.
-
-Is your experience different?
-
-> I agree.  Try getting rid of your swap file entirely -- your system
-> will still run unless you are overloading memory, but you have a Gig.
-> How much do you need to keep in memory?  Sure, if/when I get a 4-way
-> CPU (I have a 2-cpu setup now), I might go up to 4G, but I might be
-> running multiple virtual machines too!
-
-Sure it will run, but I *want* swap to be used to remove unused
-programs.
-
-My current problem is that *useful* program code is being swapped out and
-being replaced by *useless* cached file data.
-
->    You might try the "cfq" block i/o algorithm.  Then you can
-> ionice down the disk priority of background processes (though you need
-> to be root to reduce ionice levels at this point, unlike cpu nice).
-
-I've not seen ionice.
+More than one root on a system I think is generally regarded as a bad 
+idea.  I'm not sure why you'd use a scheme like this instead of, say, sudo 
+or custom setuid helpers for specific tasks -- whatever the case, I think 
+such issues can be addressed entirely in userspace.
 
 
+(2) Partially decomposing the superuser and protecting some users from 
+    some decomposed superusers, and decomposing CAP_SYS_ADMIN.
+
+This is a special-case security policy hard-coded into the kernel.  It 
+lacks a clear design rationale, and does not seem amenable to analysis, as 
+its access control coverage is incomplete.
+
+As already suggested, it may be worth looking at just decomposing 
+CAP_SYS_ADMIN, although it's not clear how do to this correctly for the 
+general case.
+
+
+- James
 -- 
-shannon "AT" widomaker.com -- ["All of us get lost in the darkness,
-dreamers turn to look at the stars" -- Rush ]
+James Morris
+<jmorris@namei.org>

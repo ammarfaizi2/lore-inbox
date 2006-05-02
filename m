@@ -1,107 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWEBN5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWEBN6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWEBN5c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 09:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbWEBN5c
+	id S964832AbWEBN6q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 09:58:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWEBN6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 09:57:32 -0400
-Received: from stinky.trash.net ([213.144.137.162]:61335 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S964830AbWEBN5b
+	Tue, 2 May 2006 09:58:46 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43223 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964832AbWEBN6p
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 09:57:31 -0400
-Message-ID: <4457654A.9040200@trash.net>
-Date: Tue, 02 May 2006 15:57:30 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       coreteam@netfilter.org, "David S. Miller" <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [netfilter-core] Re: [lockup] 2.6.17-rc3: netfilter/sctp: lockup
- in	sctp_new(), do_basic_checks()
-References: <20060502113454.GA28601@elte.hu> <20060502134053.GA30917@elte.hu> <4457648C.6020100@trash.net> <20060502140102.GA31743@elte.hu>
-In-Reply-To: <20060502140102.GA31743@elte.hu>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------020707080907060905000402"
+	Tue, 2 May 2006 09:58:45 -0400
+Subject: PATCH (RFC): Rework the 8250 console fix
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 02 May 2006 15:09:43 +0100
+Message-Id: <1146578983.3519.49.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020707080907060905000402
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Russell got various bits of mail showing the 8250 console fix broke some
+setups with the assumptions it made. Based on this suggestion that we
+actually need to just do the locking I've prepared an alternative
+patch. 
 
-Ingo Molnar wrote:
->>
->>I just came up with a similar fix :) I think I'm going to take my own 
->>patch though because its IMO slightly nicer. Thanks anyway.
-> 
-> 
-> could you send your patch so that i can start using it instead of mine?
+The patch does one thing a little oddly. If an oops is in progress it
+only attempts to take the port lock and continues regardless. In that
+situation the oops will hit the console but things may be a bit odd
+thereafter. Getting the oops out seems to be the important thing to do
+in that situation.
 
-I did a couple of minutes ago. Here it is again in case my last mail
-won't show up.
+There are two questions that I think make this an RFC not a final patch
 
---------------020707080907060905000402
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
+1.	Should this be pushed up into serial/serial_core.c for all chips.
 
-[NETFILTER]: Fix endless loop in SCTP conntrack
+2.	Is the use of local_irq_save/spin_trylock spin_unlock_irqrestore
+going to break any platforms that do weird stuff or do we need a
+spin_trylock_irqsave ?
 
-When a chunk length is zero, for_each_sctp_chunk() doesn't make any forward
-progress and loops forever. A chunk length of 0 is invalid, so just abort
-in that case.
 
-Reported by Ingo Molnar <mingo@elte.hu>.
+Alan
 
-Signed-off-by: Patrick McHardy <kaber@trash.net>
+(no signed off by as it isn't yet appropriate to merge.. and if I don't
+sign it off nobody can jump the gun 8))
 
----
-commit 32491b3d62bc8c3ff2400deebd46972ebc7332af
-tree 7249133ec32c18f4e6f989560e8d86b5e2e2cf0c
-parent 462f3ddd384045c731b3268a1b9c91c834a5a68a
-author Patrick McHardy <kaber@trash.net> Tue, 02 May 2006 15:44:30 +0200
-committer Patrick McHardy <kaber@trash.net> Tue, 02 May 2006 15:44:30 +0200
-
- net/ipv4/netfilter/ip_conntrack_proto_sctp.c |    4 ++--
- net/netfilter/nf_conntrack_proto_sctp.c      |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/net/ipv4/netfilter/ip_conntrack_proto_sctp.c b/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-index 5259abd..ebd4ecf 100644
---- a/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-+++ b/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-@@ -209,8 +209,8 @@ static int sctp_print_conntrack(struct s
- #define for_each_sctp_chunk(skb, sch, _sch, offset, count)		\
- for (offset = skb->nh.iph->ihl * 4 + sizeof(sctp_sctphdr_t), count = 0;	\
- 	offset < skb->len &&						\
--	(sch = skb_header_pointer(skb, offset, sizeof(_sch), &_sch));	\
--	offset += (htons(sch->length) + 3) & ~3, count++)
-+	(sch = skb_header_pointer(skb, offset, sizeof(_sch), &_sch)) &&  \
-+	sch->length; offset += (htons(sch->length) + 3) & ~3, count++)
+--- drivers/serial/8250.c~	2006-05-02 14:28:05.430397240 +0100
++++ drivers/serial/8250.c	2006-05-02 14:28:05.430397240 +0100
+@@ -2201,7 +2201,18 @@
+ {
+ 	struct uart_8250_port *up = &serial8250_ports[co->index];
+ 	unsigned int ier;
++	unsigned long flags;
++	int locked = 1;
  
- /* Some validity checks to make sure the chunks are fine */
- static int do_basic_checks(struct ip_conntrack *conntrack,
-diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
-index 9cccc32..2e34436 100644
---- a/net/netfilter/nf_conntrack_proto_sctp.c
-+++ b/net/netfilter/nf_conntrack_proto_sctp.c
-@@ -213,8 +213,8 @@ static int sctp_print_conntrack(struct s
- #define for_each_sctp_chunk(skb, sch, _sch, offset, dataoff, count)	\
- for (offset = dataoff + sizeof(sctp_sctphdr_t), count = 0;		\
- 	offset < skb->len &&						\
--	(sch = skb_header_pointer(skb, offset, sizeof(_sch), &_sch));	\
--	offset += (htons(sch->length) + 3) & ~3, count++)
-+	(sch = skb_header_pointer(skb, offset, sizeof(_sch), &_sch)) &&	\
-+	sch->length; offset += (htons(sch->length) + 3) & ~3, count++)
++	if (unlikely(oops_in_progress)) {
++		/* We want our private lock to be ignored during an oops. This
++		   might cause a serial console stall afterwards but the oops data
++		   is the critical information to get out */
++		local_irq_save(flags);
++		locked = spin_trylock(&up->port.lock);
++	} else
++		spin_lock_irqsave(&up->port.lock, flags);
++		
+ 	touch_nmi_watchdog();
  
- /* Some validity checks to make sure the chunks are fine */
- static int do_basic_checks(struct nf_conn *conntrack,
+ 	/*
+@@ -2221,8 +2232,12 @@
+ 	 *	and restore the IER
+ 	 */
+ 	wait_for_xmitr(up, BOTH_EMPTY);
+-	up->ier |= UART_IER_THRI;
+-	serial_out(up, UART_IER, ier | UART_IER_THRI);
++	serial_out(up, UART_IER, ier);
++	
++	if (locked)
++		spin_unlock_irqrestore(&up->port.lock, flags);
++	else
++		local_irq_restore(flags);
+ }
+ 
+ static int serial8250_console_setup(struct console *co, char *options)
 
---------------020707080907060905000402--

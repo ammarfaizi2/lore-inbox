@@ -1,64 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWEBGly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWEBGpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWEBGly (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 02:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWEBGly
+	id S932410AbWEBGpX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 02:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWEBGpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 02:41:54 -0400
-Received: from h80ad2444.async.vt.edu ([128.173.36.68]:14242 "EHLO
-	h80ad2444.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932402AbWEBGlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 02:41:53 -0400
-Message-Id: <200605020641.k426fkOJ002057@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Irfan Habib <irfan.habib@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel and Webservices 
-In-Reply-To: Your message of "Tue, 02 May 2006 11:13:38 +0500."
-             <3420082f0605012313k767c20aage4de6bf8c5e736f@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <3420082f0605011951m43479a98ie56a0a5f62409dd2@mail.gmail.com> <200605020409.k4249EiJ007414@turing-police.cc.vt.edu>
-            <3420082f0605012313k767c20aage4de6bf8c5e736f@mail.gmail.com>
+	Tue, 2 May 2006 02:45:23 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:13268 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932405AbWEBGpW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 02:45:22 -0400
+Date: Tue, 2 May 2006 09:45:20 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Francois Romieu <romieu@fr.zoreil.com>
+cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, david@pleyades.net
+Subject: Re: [PATCH 3/3] ipg: plug leaks in the error path of ipg_nic_open
+In-Reply-To: <20060501231206.GD7419@electric-eye.fr.zoreil.com>
+Message-ID: <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI>
+References: <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
+ <20060428113755.GA7419@fargo> <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI>
+ <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo>
+ <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost>
+ <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net>
+ <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1146552105_2571P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Tue, 02 May 2006 02:41:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1146552105_2571P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 2 May 2006, Francois Romieu wrote:
+> Added ipg_{rx/tx}_clear() to factor out some code.
+> 
+> Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
-On Tue, 02 May 2006 11:13:38 +0500, Irfan Habib said:
-> If DNS is not available then, I can access system directly via the IP
-> address. Is it possible for a kernel level deamon to listen to some
-> ports, inorder for inserting things directly into the kernel, via some
-> remote machines?
+Applied. Thanks!
 
-As I said, the lack of DNS is just the *start* of your troubles. Things just
-get worse once you start trying to do error handling and other similar issues.
-For instance, how do you intend to secure this "insert things directly into
-the kernel"?
-
-You *really* want to do this in userspace - if nothing else, it's a lot easier
-to develop and debug userspace (when a userspace program you're debugging
-crashes, you get a gdb prompt rather than a kernel panic), and it shouldn't be
-put in the kernel unless there's no reasonable way to do it in userspace.
-
-This is certainly well into the category of "If you have to ask if it's possible,
-you're nowhere near qualified to make it work"...
-
---==_Exmh_1146552105_2571P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEVv8pcC3lWbTT17ARAiGRAJ9FotAhe/ptxR7CraMk5B7sd/ZYgACfTTJA
-Chiec/0cl3lZciicgk59lVo=
-=NsaM
------END PGP SIGNATURE-----
-
---==_Exmh_1146552105_2571P--
+			Pekka

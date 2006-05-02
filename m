@@ -1,86 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWEBWbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbWEBWsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbWEBWbt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 18:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965026AbWEBWbt
+	id S965026AbWEBWsX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 18:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbWEBWsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 18:31:49 -0400
-Received: from mx2.suse.de ([195.135.220.15]:31173 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965027AbWEBWbt (ORCPT
+	Tue, 2 May 2006 18:48:23 -0400
+Received: from waste.org ([64.81.244.121]:6295 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S965026AbWEBWsX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 18:31:49 -0400
-Date: Tue, 2 May 2006 15:30:12 -0700
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.16.13
-Message-ID: <20060502223012.GB29287@kroah.com>
-References: <20060502222827.GA29287@kroah.com>
+	Tue, 2 May 2006 18:48:23 -0400
+Date: Tue, 2 May 2006 17:44:11 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] clean-up initcall warning for netconsole
+Message-ID: <20060502224411.GG15445@waste.org>
+References: <200604281406.34217.ak@suse.de> <20060428105403.250eb2d6.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060502222827.GA29287@kroah.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060428105403.250eb2d6.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 2f8e9d8..d4cc824 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 16
--EXTRAVERSION = .12
-+EXTRAVERSION = .13
- NAME=Sliding Snow Leopard
+On Fri, Apr 28, 2006 at 10:54:03AM -0700, Andrew Morton wrote:
+> Yeah.  I think netconsole is just being wrong here.  If it wasn't enabled
+> there's no error.
+
+Here's a fix:
+
+Index: 2.6/drivers/net/netconsole.c
+===================================================================
+--- 2.6.orig/drivers/net/netconsole.c	2006-05-02 17:28:43.000000000 -0500
++++ 2.6/drivers/net/netconsole.c	2006-05-02 17:43:37.000000000 -0500
+@@ -107,7 +107,7 @@ static int init_netconsole(void)
  
- # *DOCUMENTATION*
-diff --git a/net/ipv4/netfilter/ip_conntrack_proto_sctp.c b/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-index be602e8..df67679 100644
---- a/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-+++ b/net/ipv4/netfilter/ip_conntrack_proto_sctp.c
-@@ -235,12 +235,15 @@ static int do_basic_checks(struct ip_con
- 			flag = 1;
- 		}
+ 	if(!configured) {
+ 		printk("netconsole: not configured, aborting\n");
+-		return -EINVAL;
++		return 0;
+ 	}
  
--		/* Cookie Ack/Echo chunks not the first OR 
--		   Init / Init Ack / Shutdown compl chunks not the only chunks */
--		if ((sch->type == SCTP_CID_COOKIE_ACK 
-+		/*
-+		 * Cookie Ack/Echo chunks not the first OR
-+		 * Init / Init Ack / Shutdown compl chunks not the only chunks
-+		 * OR zero-length.
-+		 */
-+		if (((sch->type == SCTP_CID_COOKIE_ACK
- 			|| sch->type == SCTP_CID_COOKIE_ECHO
- 			|| flag)
--		     && count !=0 ) {
-+		      && count !=0) || !sch->length) {
- 			DEBUGP("Basic checks failed\n");
- 			return 1;
- 		}
-diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
-index cf798e6..cd2326d 100644
---- a/net/netfilter/nf_conntrack_proto_sctp.c
-+++ b/net/netfilter/nf_conntrack_proto_sctp.c
-@@ -240,12 +240,15 @@ static int do_basic_checks(struct nf_con
- 			flag = 1;
- 		}
- 
--		/* Cookie Ack/Echo chunks not the first OR 
--		   Init / Init Ack / Shutdown compl chunks not the only chunks */
--		if ((sch->type == SCTP_CID_COOKIE_ACK 
-+		/*
-+		 * Cookie Ack/Echo chunks not the first OR
-+		 * Init / Init Ack / Shutdown compl chunks not the only chunks
-+		 * OR zero-length.
-+		 */
-+		if (((sch->type == SCTP_CID_COOKIE_ACK
- 			|| sch->type == SCTP_CID_COOKIE_ECHO
- 			|| flag)
--		     && count !=0 ) {
-+		      && count !=0) || !sch->length) {
- 			DEBUGP("Basic checks failed\n");
- 			return 1;
- 		}
+ 	if(netpoll_setup(&np))
+
+
+-- 
+Mathematics is the supreme nostalgia of our time.

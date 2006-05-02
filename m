@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWEBIEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932501AbWEBIGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWEBIEw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 04:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbWEBIEw
+	id S932501AbWEBIGK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 04:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbWEBIGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 04:04:52 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33483 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932499AbWEBIEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 04:04:51 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, herbert@13thfloor.at, dev@sw.ru,
-       linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
-       haveblue@us.ibm.com, clg@us.ibm.com, frankeh@us.ibm.com
-Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
-References: <20060501203906.XF1836@sergelap.austin.ibm.com>
-	<20060501203907.XF1836@sergelap.austin.ibm.com>
-	<p7364ko7w66.fsf@bragg.suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 02 May 2006 02:03:47 -0600
-In-Reply-To: <p7364ko7w66.fsf@bragg.suse.de> (Andi Kleen's message of "02
- May 2006 08:55:29 +0200")
-Message-ID: <m1lktk97ks.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 2 May 2006 04:06:10 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:1450 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S932501AbWEBIGI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 04:06:08 -0400
+Message-ID: <346557165.30752@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Tue, 2 May 2006 16:06:19 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [RFC] kernel facilities for cache prefetching
+Message-ID: <20060502080619.GA5406@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Badari Pulavarty <pbadari@us.ibm.com>
+References: <20060502075049.GA5000@mail.ustc.edu.cn> <1146556724.32045.19.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1146556724.32045.19.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Tue, May 02, 2006 at 09:58:44AM +0200, Arjan van de Ven wrote:
+> 
+> > 
+> > PREVIOUS WORKS
+> > 
+> > 	There has been some similar efforts, i.e.
+> > 		- Linux: Boot Time Speedups Through Precaching
+> > 		  http://kerneltrap.org/node/2157
+> > 		- Andrew Morton's kernel module solution
+> > 		  http://www.zip.com.au/~akpm/linux/fboot.tar.gz
+> > 		- preload - adaptive readahead daemon
+> > 		  http://sourceforge.net/projects/preload
+> 
+> you missed the solution Fedora deploys since over a year using readahead
 
-> "Serge E. Hallyn" <serue@us.ibm.com> writes:
->
->> Implement a CLONE_NEWUTS flag, and use it at clone and sys_unshare.
->
-> I still think it's a design mistake to add zillions of pointers to task_struct
-> for every possible kernel object. Going through a proxy datastructure to 
-> merge common cases would be much better.
+Thanks, and sorry for more previous works that I failed to mention here :)
 
-The design point is not every kernel object.  The target is one
-per namespace.  Or more usefully one per logical chunk of the kernel.
-
-The UTS namespace is by far the smallest of these pieces.
-
-The kernel networking stack is probably the largest.
-
-At last count there were about 7 of these, enough so that the few
-remaining clone bits would be sufficient.
-
-Do you disagree that to be able to implement this properly we
-need to take small steps?
-
-Are there any semantic differences between a clone bit and what you
-are proposing?
-
-If it is just an internal implementation detail do you have a clear
-suggestion on how to implement this?  Possibly illustrated by the
-thread flags that are already in this situation, and more likely
-to always share everything.
-
-Except for reducing reference counting I really don't see where
-we could have a marked improvement.  I also don't see us closing
-the door to that kind of implementation at this point, but instead
-taking the simple path.
-
-Eric
+Wu

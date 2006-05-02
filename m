@@ -1,125 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWEBFgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWEBFiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWEBFgE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 01:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWEBFgE
+	id S932377AbWEBFiq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 01:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWEBFiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 01:36:04 -0400
-Received: from ns2.suse.de ([195.135.220.15]:15805 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932375AbWEBFgC (ORCPT
+	Tue, 2 May 2006 01:38:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33725 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932377AbWEBFip (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 01:36:02 -0400
-Subject: patch platform_bus-learns-about-modalias.patch added to gregkh-2.6 tree
-To: david-b@pacbell.net, dbrownell@users.sourceforge.net, greg@kroah.com,
-       gregkh@suse.de, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
-From: <gregkh@suse.de>
-Date: Mon, 01 May 2006 22:34:08 -0700
-In-Reply-To: <200605011116.02250.david-b@pacbell.net>
-Message-Id: <20060502053542.BA1666044B3@imap.suse.de>
+	Tue, 2 May 2006 01:38:45 -0400
+Date: Mon, 1 May 2006 22:37:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Michael Holzheu <holzheu@de.ibm.com>,
+       akpm@osdl.org, schwidefsky@de.ibm.com, penberg@cs.helsinki.fi,
+       ioe-lkml@rameria.de, joern@wohnheim.fh-wedel.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: Hypervisor File System
+Message-ID: <20060502053703.GA12992@kroah.com>
+References: <20060428112225.418cadd9.holzheu@de.ibm.com> <20060429075311.GB1886@kroah.com> <8A7D2F4D-5A05-4C93-B514-03268CAA9201@mac.com> <20060429215501.GA9870@kroah.com> <4237705F-E1B2-46CF-BE66-EFB77F68EC42@mac.com> <20060501203815.GE19423@kroah.com> <2DBA690E-B11A-478E-B2E0-0529F4CE45A9@mac.com> <20060502040053.GA14413@kroah.com> <20060502052341.GD11150@vrfy.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060502052341.GD11150@vrfy.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 02, 2006 at 07:23:41AM +0200, Kay Sievers wrote:
+> If the count of values handled in a transaction is not to high and it
+> makes sense to group these values logically, why not just create an
+> attribute group for every transaction, which creates dummy attributes
+> to fill the values in, and use an "action" file in that group, that
+> commits all the values at once to whatever target? That should fit into
+> the ioctl use pattern, right?
 
-This is a note to let you know that I've just added the patch titled
+That's what configfs can handle easier.  I think the issue is getting
+stuff from the kernel in one atomic snapshot (all the different file
+values from the same point in time.)
 
-     Subject: platform_bus learns about modalias
+thanks,
 
-to my gregkh-2.6 tree.  Its filename is
-
-     platform_bus-learns-about-modalias.patch
-
-This tree can be found at 
-    http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/
-
-
->From david-b@pacbell.net Mon May  1 14:05:05 2006
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <greg@kroah.com>
-Subject: platform_bus learns about modalias
-Date: Mon, 1 May 2006 11:16:01 -0700
-Cc: Russell King <rmk@arm.linux.org.uk>,
- Linux Kernel list <linux-kernel@vger.kernel.org>
-Message-Id: <200605011116.02250.david-b@pacbell.net>
-
-This patch adds modalias support to platform devices, for simpler
-hotplug/coldplug driven driver setup.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
----
- drivers/base/platform.c |   36 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
-
---- gregkh-2.6.orig/drivers/base/platform.c
-+++ gregkh-2.6/drivers/base/platform.c
-@@ -452,6 +452,40 @@ void platform_driver_unregister(struct p
- EXPORT_SYMBOL_GPL(platform_driver_unregister);
- 
- 
-+/* modalias support enables more hands-off userspace setup:
-+ * (a) environment variable lets new-style hotplug events work once system is
-+ *     fully running:  "modprobe $MODALIAS"
-+ * (b) sysfs attribute lets new-style coldplug recover from hotplug events
-+ *     mishandled before system is fully running:  "modprobe $(cat modalias)"
-+ */
-+static ssize_t
-+modalias_show(struct device *dev, struct device_attribute *a, char *buf)
-+{
-+	struct platform_device	*pdev = to_platform_device(dev);
-+	unsigned		len = strlen(pdev->name);
-+
-+	len = min(len, (size_t)(PAGE_SIZE - 1));
-+	memcpy(buf, pdev->name, len);
-+	buf[PAGE_SIZE - 1] = 0;
-+	return len;
-+}
-+
-+static struct device_attribute platform_dev_attrs[] = {
-+	__ATTR_RO(modalias),
-+	__ATTR_NULL,
-+};
-+
-+static int platform_uevent(struct device *dev, char **envp, int num_envp,
-+		char *buffer, int buffer_size)
-+{
-+	struct platform_device	*pdev = to_platform_device(dev);
-+
-+	envp[0] = buffer;
-+	snprintf(buffer, buffer_size, "MODALIAS=%s", pdev->name);
-+	return 0;
-+}
-+
-+
- /**
-  *	platform_match - bind platform device to platform driver.
-  *	@dev:	device.
-@@ -496,7 +530,9 @@ static int platform_resume(struct device
- 
- struct bus_type platform_bus_type = {
- 	.name		= "platform",
-+	.dev_attrs	= platform_dev_attrs,
- 	.match		= platform_match,
-+	.uevent		= platform_uevent,
- 	.suspend	= platform_suspend,
- 	.resume		= platform_resume,
- };
-
-
-Patches currently in gregkh-2.6 which might be from david-b@pacbell.net are
-
-driver/spi-add-david-as-the-spi-subsystem-maintainer.patch
-driver/platform_bus-learns-about-modalias.patch
-driver/spi-spi_bitbang-clocking-fixes.patch
-driver/driver-core-config_debug_pm-covers-drivers-base-power-too.patch
-driver/spi-busnum-0-needs-to-work.patch
-driver/spi-devices-can-require-lsb-first-encodings.patch
-driver/spi-renamed-bitbang_transfer_setup-to-spi_bitbang_setup_transfer-and-export-it.patch
-driver/spi-spi-bounce-buffer-has-a-minimum-length.patch
-driver/spi-spi-whitespace-fixes.patch
-driver/spi-add-pxa2xx-ssp-spi-driver.patch
-driver/spi-per-transfer-overrides-for-wordsize-and-clocking.patch
-usb/usb-pegasus-fixes.patch
-usb/usb-allow-multiple-types-of-ehci-controllers-to-be-built-as-modules.patch
-usb/usb-fix-bug-in-ohci-hcd.c-ohci_restart.patch
-usb/usb-usbcore-always-turn-on-hub-port-power.patch
+greg k-h

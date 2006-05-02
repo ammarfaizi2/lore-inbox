@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWEBXg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWEBXjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbWEBXg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 19:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbWEBXg4
+	id S964988AbWEBXjW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 19:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWEBXjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 19:36:56 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:16064 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S964838AbWEBXgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 19:36:54 -0400
-From: Nigel Cunningham <nigel@suspend2.net>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [RFC] kernel facilities for cache prefetching
-Date: Wed, 3 May 2006 09:36:12 +1000
-User-Agent: KMail/1.9.1
-Cc: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-References: <20060502075049.GA5000@mail.ustc.edu.cn> <20060502191000.GA1776@elf.ucw.cz>
-In-Reply-To: <20060502191000.GA1776@elf.ucw.cz>
-Organization: Suspend2.net
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1353462.ClRh9Erbfq";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 2 May 2006 19:39:22 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:42631 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S964988AbWEBXjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 19:39:21 -0400
+In-Reply-To: <200605021259.24157.arnd@arndb.de>
+References: <20060429232812.825714000@localhost.localdomain> <200605020150.14152.arnd@arndb.de> <1900A234-BE31-4292-87E1-5C02F12A440D@kernel.crashing.org> <200605021259.24157.arnd@arndb.de>
+Mime-Version: 1.0 (Apple Message framework v749.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <801072F8-7701-4BD7-81FB-A8C1AA534C2E@kernel.crashing.org>
+Cc: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Message-Id: <200605030936.18606.nigel@suspend2.net>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [Cbe-oss-dev] [PATCH 11/13] cell: split out board specific files
+Date: Wed, 3 May 2006 01:38:56 +0200
+To: Arnd Bergmann <arnd@arndb.de>
+X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1353462.ClRh9Erbfq
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+>> Is there any reason the driver wouldn't build and/or run on other
+>> platforms?  If so, fix it.  If not, just make it
+>>
+>>         depends on PCI
+>
+> Well, it could run on other platforms, except:
+>
+> - it requires a few properties in the device tree (local-mac-address,
+>   firmware), so it should also depend on PPC
 
-Hi.
+The portions of code that require OF should have appropriate #ifdef  
+guards.
 
-On Wednesday 03 May 2006 05:10, Pavel Machek wrote:
-> Could we use this instead of blockdev freezing/big suspend image
-> support? It should permit us to resume quickly (with small image), and
-> then do readahead. ... that will give us usable machine quickly, still
-> very responsive desktop after resume?
+> - It's not actually PCI at all, but on an internal bus that has
+>   something close enough to a PCI config space.
 
-Unrelated to bdev freezing, and will involve far more seeking than reading =
-a=20
-contiguous image (as they normally are).
+Our emulation should be good enough; if not, holler (off-list).
 
-Regards,
 
-Nigel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
+Segher
 
---nextPart1353462.ClRh9Erbfq
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEV+zyN0y+n1M3mo0RAnPAAJ9Bl+a0HcDUX7Z4KEO3zfmmLHAMFgCdFLC7
-UFrF8dVkiCtdBbxD4Zm4Ce0=
-=DcZG
------END PGP SIGNATURE-----
-
---nextPart1353462.ClRh9Erbfq--

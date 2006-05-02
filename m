@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWEBVJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWEBVWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964972AbWEBVJd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 17:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964975AbWEBVJd
+	id S964975AbWEBVWK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 17:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbWEBVWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 17:09:33 -0400
-Received: from pproxy.gmail.com ([64.233.166.178]:9891 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964972AbWEBVJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 17:09:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ez0oI+PeIySjrXGJBXQsArxopdyGYNJJ6j7T9w2PAHWq6pVZ/7mnMbyBmB1J5GWffsrQDJX2XxHbc0uHyOLzhkAw/UjnJOeJlfoORHLnEn4MCOju1NQf6OHmkj/nmWiSogyUeS/8gKEKPTRQibPaoS3PmdMV4S9GgFIwGbMbg84=
-Message-ID: <4457CA80.8010006@gmail.com>
-Date: Wed, 03 May 2006 05:09:20 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Tue, 2 May 2006 17:22:10 -0400
+Received: from mf00.sitadelle.com ([212.94.174.67]:23943 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S964975AbWEBVWJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 17:22:09 -0400
+From: Eric Dumazet <dada1@cosmosbay.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.6.17-rc3 : slab error in kmem_cache_destroy(): cache `dcookie_cache': Can't free all objects
+Date: Tue, 2 May 2006 23:22:16 +0200
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-To: Olivier Fourdan <fourdan@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: framebuffer broken in 2.6.16.x and 2.6.17-rc3 ?
-References: <60f2b0dc0605021251i1c883617vf132e8bdeffd6c7f@mail.gmail.com>
-In-Reply-To: <60f2b0dc0605021251i1c883617vf132e8bdeffd6c7f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605022322.16968.dada1@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olivier Fourdan wrote:
-> hi all,
-> 
-> Sorry if this has been already covered recently, but it seems that the
-> framebuffer doesn't work anymore in 2.6.16.9 and 2.6.17-rc3, while it
-> worked in 2.6.16 at least.
-> 
-> I'm surprised noone has raised that issue yet, so I'm wondering if I'm
-> missing something obvious :) When using the fb in 2.6.16.x and
-> 2.6.17-rc3, the screen stays just black, nothing is displayed... I'm
-> using the regular unaccelerated vesa framebuffer.
-> 
-> I'm wondering if this could related to the fb changes that occured
-> after 2.6.16 initial release and if other people are experiencing
-> issues with frame buffer recently.
+It seems reproductible, on dual Opteron (x86_64), NUMA enabled.
 
-There should be no issues, especially with the vesa framebuffer. Can you 
-post your dmesg and config?
+When issuing : 
 
-Tony
+opcontrol --deinit
+
+slab error in kmem_cache_destroy(): cache `dcookie_cache': Can't free all 
+objects
+
+Call Trace: <ffffffff802715ef>{kmem_cache_destroy+175}
+       <ffffffff802b4c48>{dcookie_unregister+280} 
+<ffffffff803a4ff7>{event_buffer_release+23}
+       <ffffffff802767a8>{__fput+88} <ffffffff8027382d>{filp_close+93}
+       <ffffffff8022ee2e>{put_files_struct+110} 
+<ffffffff8023025a>{do_exit+650}
+       <ffffffff802ec581>{__up_write+33} <ffffffff80230998>{do_group_exit+200}
+       <ffffffff80209cbe>{system_call+126}
+
+# grep dcookie_cache /proc/slabinfo
+dcookie_cache          0      0     32  112    1 : tunables  120   60    8 : 
+slabdata      0      0      0
+
+
+After that, oprofile cannot work anymore, since the dcookie_cache cannot be 
+re-created...
+
+kmem_cache_create: duplicate cache dcookie_cache
+
+Call Trace: <ffffffff802726ff>{kmem_cache_create+1455}
+       <ffffffff80285f55>{do_path_lookup+629} 
+<ffffffff803a4e20>{event_buffer_open+0}
+       <ffffffff802b4dc0>{dcookie_register+96} 
+<ffffffff803a4e5a>{event_buffer_open+58}
+       <ffffffff80273aad>{__dentry_open+237} 
+<ffffffff80273cca>{do_filp_open+42}
+       <ffffffff80273935>{get_unused_fd+101} 
+<ffffffff80273d36>{do_sys_open+86}
+       <ffffffff80209cbe>{system_call+126}
+
+
+Eric Dumazet

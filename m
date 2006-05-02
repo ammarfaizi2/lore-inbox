@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbWEBVZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWEBVaf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964979AbWEBVZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 17:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWEBVZ3
+	id S964981AbWEBVaf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 17:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbWEBVaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 17:25:29 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:45776 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S964979AbWEBVZ2 (ORCPT
+	Tue, 2 May 2006 17:30:35 -0400
+Received: from mx2.suse.de ([195.135.220.15]:39358 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964981AbWEBVae (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 17:25:28 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: "Ioan Ionita" <opslynx@gmail.com>
-Subject: Re: New, yet unsupported USB-Ethernet adaptor
-Date: Tue, 2 May 2006 23:25:39 +0200
-User-Agent: KMail/1.8
-Cc: "Michael Helmling" <supermihi@web.de>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200605022002.15845.supermihi@web.de> <df47b87a0605021340v1c3901e9r17eb3c69034b7487@mail.gmail.com>
-In-Reply-To: <df47b87a0605021340v1c3901e9r17eb3c69034b7487@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 2 May 2006 17:30:34 -0400
+Date: Tue, 2 May 2006 14:28:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Michael Holzheu <holzheu@de.ibm.com>,
+       akpm@osdl.org, schwidefsky@de.ibm.com, penberg@cs.helsinki.fi,
+       ioe-lkml@rameria.de, joern@wohnheim.fh-wedel.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: Hypervisor File System
+Message-ID: <20060502212845.GA30957@kroah.com>
+References: <20060429075311.GB1886@kroah.com> <8A7D2F4D-5A05-4C93-B514-03268CAA9201@mac.com> <20060429215501.GA9870@kroah.com> <4237705F-E1B2-46CF-BE66-EFB77F68EC42@mac.com> <20060501203815.GE19423@kroah.com> <2DBA690E-B11A-478E-B2E0-0529F4CE45A9@mac.com> <20060502040053.GA14413@kroah.com> <20060502052341.GD11150@vrfy.org> <20060502053703.GA12992@kroah.com> <20060502114603.GA14568@vrfy.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605022325.39653.oliver@neukum.org>
+In-Reply-To: <20060502114603.GA14568@vrfy.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 2. Mai 2006 22:40 schrieb Ioan Ionita:
-> > usb 2-10: new high speed USB device using ehci_hcd and address 5
-> > usb 2-10: configuration #1 chosen from 1 choice
-> >
-> > But no eth1 shows up, and module loading and plugging the device seem to be
-> > independent. I manually loaded usbnet but it didn't help.
-> > Sorry, I really have no experience with kernel or usb development. ;);)
+On Tue, May 02, 2006 at 01:46:03PM +0200, Kay Sievers wrote:
+> On Mon, May 01, 2006 at 10:37:03PM -0700, Greg KH wrote:
+> > On Tue, May 02, 2006 at 07:23:41AM +0200, Kay Sievers wrote:
+> > > If the count of values handled in a transaction is not to high and it
+> > > makes sense to group these values logically, why not just create an
+> > > attribute group for every transaction, which creates dummy attributes
+> > > to fill the values in, and use an "action" file in that group, that
+> > > commits all the values at once to whatever target? That should fit into
+> > > the ioctl use pattern, right?
+> > 
+> > That's what configfs can handle easier.  I think the issue is getting
+> > stuff from the kernel in one atomic snapshot (all the different file
+> > values from the same point in time.)
 > 
-> Me neither. It was a quick & dirty patch, I must have missed
-> something. I'll toy around with it some more. Maybe someone more
-> experienced could take a look?
+> Sure, but just like an ioctl, the kernel could return the values after
+> writing to the "action" file in the dummy attributes. That would be
+> something like a snapshot, right?
 
-You did compile with CONFIG_USB_MOSCHIP, didn't you?
+Yes, but where would the buffer be to return the data to on a write?  In
+the data that the user passed to write?
 
-	Regards
-		Oliver
+thanks,
 
+greg k-h

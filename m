@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWEBNHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWEBNOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWEBNHU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 09:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWEBNHU
+	id S964803AbWEBNOf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 09:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWEBNOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 09:07:20 -0400
-Received: from mail.charite.de ([160.45.207.131]:56281 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S964800AbWEBNHT (ORCPT
+	Tue, 2 May 2006 09:14:35 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9357 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964803AbWEBNOe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 09:07:19 -0400
-Date: Tue, 2 May 2006 15:07:11 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-Message-ID: <20060502130711.GW11742@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Tue, 2 May 2006 09:14:34 -0400
+Date: Tue, 2 May 2006 15:13:43 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][UPDATE] PCI: Add pci_assign_resource_fixed -- allow fixed address assignments
+Message-ID: <20060502131343.GD1677@elf.ucw.cz>
+References: <20060428001758.GA18917@kroah.com> <Pine.LNX.4.44.0604272328380.5047-100000@gate.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.11+cvs20060403
+In-Reply-To: <Pine.LNX.4.44.0604272328380.5047-100000@gate.crashing.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# uname -a
-Linux tabuleh 2.6.16.9 #1 PREEMPT Wed Apr 19 21:19:01 CEST 2006 i686 GNU/Linux
+Hi!
 
-For quite some time I'm getting this in my log:
+> On some embedded systems the PCI address for hotplug devices are not only
+> known a priori but are required to be at a given PCI address for other
+> master in the system to be able to access.
 
-May  2 14:09:08 tabuleh kernel: hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-May  2 14:26:43 tabuleh kernel: hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-May  2 14:46:20 tabuleh kernel: hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-
-# dmesg|grep hdc
-
-ide1: BM-DMA at 0xcfa8-0xcfaf, BIOS settings: hdc:DMA, hdd:pio
-hdc: TOSHIBA DVD-ROM SD-R2102, ATAPI CD/DVD-ROM drive
-hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x01)
-...
-
-# smartctl -a /dev/hdc
-smartctl version 5.36 [i686-pc-linux-gnu] Copyright (C) 2002-6 Bruce Allen
-Home page is http://smartmontools.sourceforge.net/
-
-=== START OF INFORMATION SECTION ===
-Device Model:     TOSHIBA DVD-ROM SD-R2102
-Serial Number:    623E128663
-Firmware Version: 1317
-Device is:        Not in smartctl database [for details use: -P showall]
-ATA Version is:   5
-ATA Standard is:  ATA/ATAPI-5 T13 1321D revision 3
-Local Time is:    Tue May  2 15:06:01 2006 CEST
-SMART support is: Unavailable - Packet Interface Devices [this device: CD/DVD] don't support ATA SMART
-A mandatory SMART command failed: exiting. To continue, add one or more '-T permissive' options.
+I'm afraid that CONFIG_EMBEDDED is wrong option for this, I'm
+afraid. It was supposed to mean "enable memory-saving options".
 
 -- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Thanks for all the (sleeping) penguins.

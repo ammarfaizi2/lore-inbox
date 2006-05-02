@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWEBRBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWEBRBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbWEBRBW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 13:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbWEBRBW
+	id S964928AbWEBRBD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 13:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWEBRBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 13:01:22 -0400
-Received: from mx2.suse.de ([195.135.220.15]:55198 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964931AbWEBRBU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 13:01:20 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Christopher Friesen" <cfriesen@nortel.com>
-Subject: Re: sched_clock() uses are broken
-Date: Tue, 2 May 2006 18:59:18 +0200
-User-Agent: KMail/1.9.1
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20060502132953.GA30146@flint.arm.linux.org.uk> <p73slns5qda.fsf@bragg.suse.de> <44578EB9.8050402@nortel.com>
-In-Reply-To: <44578EB9.8050402@nortel.com>
+	Tue, 2 May 2006 13:01:01 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:48864 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964928AbWEBRBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 13:01:00 -0400
+Message-ID: <44579028.1020201@linux.intel.com>
+Date: Tue, 02 May 2006 19:00:24 +0200
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: greg@kroah.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, airlied@linux.ie, pjones@redhat.com,
+       akpm@osdl.org
+Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace
+ (Xorg) to enable devices without doing foul direct access
+References: <1146300385.3125.3.camel@laptopd505.fenrus.org>	 <9e4733910605020938h6a9829c0vc70dac326c0cdf46@mail.gmail.com>	 <44578C92.1070403@linux.intel.com> <9e4733910605020959k7aad853dn87d73348cbcf42cd@mail.gmail.com>
+In-Reply-To: <9e4733910605020959k7aad853dn87d73348cbcf42cd@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605021859.18948.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 May 2006 18:54, Christopher Friesen wrote:
-> Andi Kleen wrote:
-> 
-> > Agreed it's a problem, but probably a small one. At worst you'll get
-> > a small scheduling hickup every half year, which should be hardly 
-> > that big an issue.
-> 
-> Presumably this would be bad for soft-realtime embedded things.  Set-top 
-> boxes, etc.
+Jon Smirl wrote:
+> All of these have been proposed before.
 
-SCHED_RR/FIFO are not affected. AFAIK it's only used by the interactivity
-detector in the normal scheduler. Worst case that happens is that a 
-process is not detected to be interactive when it should once, which
-gives it only a small penalty. On the next time slice everything will be ok again.
+I think you forgot to attach the patch
 
--Andi
+> In my opinion an 'enable'
+> attribute is the worst solution in the bunch.
 
+you again limit yourself to VGA. I don't.

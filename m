@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWEBGpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWEBGqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWEBGpX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 02:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWEBGpX
+	id S932406AbWEBGqN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 02:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWEBGqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 02:45:23 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:13268 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932405AbWEBGpW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 02:45:22 -0400
-Date: Tue, 2 May 2006 09:45:20 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net
-Subject: Re: [PATCH 3/3] ipg: plug leaks in the error path of ipg_nic_open
-In-Reply-To: <20060501231206.GD7419@electric-eye.fr.zoreil.com>
-Message-ID: <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI>
-References: <84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
- <20060428113755.GA7419@fargo> <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI>
- <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo>
- <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost>
- <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net>
- <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
+	Tue, 2 May 2006 02:46:12 -0400
+Received: from cantor.suse.de ([195.135.220.2]:41175 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932406AbWEBGqL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 02:46:11 -0400
+To: Magnus Damm <magnus@valinux.co.jp>
+Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kexec: Avoid overwriting the current pgd (x86_64)
+References: <20060501095407.16902.78809.sendpatchset@cherry.local>
+From: Andi Kleen <ak@suse.de>
+Date: 02 May 2006 08:45:59 +0200
+In-Reply-To: <20060501095407.16902.78809.sendpatchset@cherry.local>
+Message-ID: <p73ejzc7wm0.fsf@bragg.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 May 2006, Francois Romieu wrote:
-> Added ipg_{rx/tx}_clear() to factor out some code.
+Magnus Damm <magnus@valinux.co.jp> writes:
+
+> --===============82697867595349228==
 > 
-> Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+> kexec: Avoid overwriting the current pgd (x86_64)
+> 
+> This patch upgrades the x86_64-specific kexec code to avoid overwriting the
+> current pgd. Overwriting the current pgd is bad when CONFIG_CRASH_DUMP is used
+> to start a secondary kernel that dumps the memory of the previous kernel.
 
-Applied. Thanks!
+Why is it bad?
 
-			Pekka
+-Andi

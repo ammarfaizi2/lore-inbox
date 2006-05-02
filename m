@@ -1,92 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWEBNiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWEBNke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWEBNiY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 09:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWEBNiY
+	id S964805AbWEBNke (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 09:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWEBNke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 09:38:24 -0400
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:22199 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964814AbWEBNiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 09:38:23 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
-Subject: 2.6.16-ck9
-Date: Tue, 2 May 2006 23:38:16 +1000
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Message-Id: <200605022338.20534.kernel@kolivas.org>
-X-Length: 1983
-Content-Type: multipart/signed;
-  boundary="nextPart16636820.yGrfFDxt1E";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+	Tue, 2 May 2006 09:40:34 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:6337 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964805AbWEBNke (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 09:40:34 -0400
+Date: Tue, 2 May 2006 15:45:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@davemloft.net>,
+       Herbert Xu <herbert@gondor.apana.org.au>, coreteam@netfilter.org
+Subject: Re: [lockup] 2.6.17-rc3: netfilter/sctp: lockup in sctp_new(), do_basic_checks()
+Message-ID: <20060502134516.GA31049@elte.hu>
+References: <20060502113454.GA28601@elte.hu> <20060502134053.GA30917@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060502134053.GA30917@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart16636820.yGrfFDxt1E
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck patch is aimed at the=
-=20
-desktop and cks is available with more emphasis on serverspace.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-THESE INCLUDE THE PATCHES FROM 2.6.16.12 SO START WITH 2.6.16 AS YOUR BASE
+> > running an "isic" stresstest on and against a testbox [which, amongst 
+> > other things, generates random incoming and outgoing packets] on 
+> > 2.6.17-rc3 (and 2.6.17-rc3-mm1) over gigabit results in a reproducible 
+> > lockup, after 5-10 minutes of runtime:
 
-Apply to 2.6.16
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.16/2.6.16-=
-ck9/patch-2.6.16-ck9.bz2
+btw., just in case someone would like to build ISIC on a modern distro, 
+the minimal fixes are below. The commandline i'm typically using for 
+testing is:
 
-or server version
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/cks/patch-2.6.16-c=
-ks9.bz2
+  isic -s firstbox.com -d secondbox.com -m 50000 >/dev/null 2>/dev/null
 
-web:
-http://kernel.kolivas.org
+seems useful.
 
-all patches:
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/
+	Ingo
 
-Split patches available.
-
-
-Changes since 2.6.16-ck8:
-
-Added:
- +sched-fix_idleprio.patch
-A small bug crept in that prevented SCHED_IDLEPRIO tasks from being schedul=
-ed=20
-normally when they held a semaphore making it possible to livelock. This=20
-fixes it.
-
-
-Modified:
- -patch-2.6.16.11
- +patch-2.6.16.12
-Resync with mainline
-
- -2.6.16-ck8-version.patch
- +2.6.16-ck9-version.patch
-Version update
-
-=2D-=20
-=2Dck
-
---nextPart16636820.yGrfFDxt1E
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEV2DMZUg7+tp6mRURApRcAJ4z34UZLgvWUdvDdUHGEVEulF467QCglOPh
-PPSclFZ53hH/FRzZmkhas2E=
-=agUU
------END PGP SIGNATURE-----
-
---nextPart16636820.yGrfFDxt1E--
+--- icmpsic.c	2006-04-26 16:14:32.000000000 +0200
++++ icmpsic.c.orig	2006-04-26 16:14:33.000000000 +0200
+@@ -265,7 +265,7 @@ main(int argc, char **argv)
+ 
+ 		payload = (short int *)((u_char *) icmp + 4);
+ 		for(cx = 0; cx <= (payload_s >> 1); cx+=1)
+-				payload[cx] = rand() & 0xffff;
++				(u_short) payload[cx] = rand() & 0xffff;
+ 
+ 
+ 		if ( rand() <= (RAND_MAX * ICMPCksm) )
+--- isic.c	2006-04-26 16:14:32.000000000 +0200
++++ isic.c.orig	2006-04-26 16:14:33.000000000 +0200
+@@ -229,8 +229,8 @@ main(int argc, char **argv)
+ 		
+ 		payload = (short int *)(buf + IP_H);
+ 		for(cx = 0; cx <= (payload_s >> 1); cx+=1)
+-				payload[cx] = rand() & 0xffff;
+-		payload[payload_s] = rand() & 0xffff;
++				(u_int16_t) payload[cx] = rand() & 0xffff;
++		(u_int16_t) payload[payload_s] = rand() & 0xffff;
+ 		
+ 		if ( printout ) {
+ 			printf("%s ->",
+--- tcpsic.c	2006-04-26 16:14:32.000000000 +0200
++++ tcpsic.c.orig	2006-04-26 16:14:32.000000000 +0200
+@@ -317,7 +317,7 @@ main(int argc, char **argv)
+ 
+ 		payload = (short int *)((u_char *) tcp + 20);
+ 		for(cx = 0; cx <= (payload_s >> 1); cx+=1)
+-				payload[cx] = rand() & 0xffff;
++				(u_int16_t) payload[cx] = rand() & 0xffff;
+ 
+ 		if ( rand() <= (RAND_MAX * TCPCksm) )
+ 			libnet_do_checksum(l, (u_int8_t *)buf, IPPROTO_TCP, (tcp->th_off << 2)
+--- udpsic.c	2006-04-26 16:14:32.000000000 +0200
++++ udpsic.c.orig	2006-04-26 16:14:32.000000000 +0200
+@@ -292,7 +292,7 @@ main(int argc, char **argv)
+ 
+ 		payload = (short int *)((u_char *) udp + UDP_H);
+ 		for(cx = 0; cx <= (payload_s >> 1); cx+=1)
+-				payload[cx] = rand() & 0xffff;
++				(u_int16_t) payload[cx] = rand() & 0xffff;
+ 
+ 		if ( printout ) {
+ 			printf("%s,%i ->",

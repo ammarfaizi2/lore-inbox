@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWEBSgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbWEBSla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbWEBSgG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 14:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbWEBSgF
+	id S964963AbWEBSla (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 14:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964964AbWEBSla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 14:36:05 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:20421 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S964960AbWEBSgE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 14:36:04 -0400
-Date: Tue, 2 May 2006 20:33:13 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net
-Subject: Re: [PATCH 2/3] ipg: leaks in ipg_probe
-Message-ID: <20060502183313.GA26357@electric-eye.fr.zoreil.com>
-References: <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI> <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo> <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost> <20060501231050.GC7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020936420.4066@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0605020936420.4066@sbz-30.cs.Helsinki.FI>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+	Tue, 2 May 2006 14:41:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17901 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964963AbWEBSla (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 14:41:30 -0400
+Date: Tue, 2 May 2006 11:41:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+cc: David Woodhouse <dwmw2@infradead.org>, js@linuxtv.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] CodingStyle: add typedefs chapter
+In-Reply-To: <20060502101113.17c75a05.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.64.0605021137500.4086@g5.osdl.org>
+References: <20060430174426.a21b4614.rdunlap@xenotime.net>
+ <1146503166.2885.137.camel@hades.cambridge.redhat.com> <20060502003755.GA26327@linuxtv.org>
+ <1146576495.14059.45.camel@pmac.infradead.org> <20060502142050.GC27798@linuxtv.org>
+ <1146580308.17934.19.camel@pmac.infradead.org> <20060502101113.17c75a05.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg <penberg@cs.Helsinki.FI> :
-[...]
-> Is this tested with hardware?
 
-No.
 
-> Alignment of the start address looks bogus for sure, but any idea
-> why they had it in the first place?
+On Tue, 2 May 2006, Randy.Dunlap wrote:
+> +
+> +     Although it would only take a short amount of time for the eyes and
+> +     brain to become accustomed to the standard types like 'uint32_t',
+> +     some people object to their use anyway.
 
-No clear idea but it matches the significant part of the BAR register
-for the 256 bytes of I/O space that the device uses.
+The problem with uint32_t is that it's ugly, it used to be unportable, and 
+you can't use it in header files _anyway_.
 
--- 
-Ueimor
+In other words, there's no _point_ to the "standard type". 
+
+I really object to this whole thing. The fact is, "u8" and friends _are_ 
+the standard types as far as the kernel is concerned.  Claiming that they 
+aren't is just silly.
+
+It's the "uint32_t" kind of thing that isn't standard within the kernel. 
+You can't use that thing in public header files anyway due to name scoping 
+rules, so they have basically no redeeming features.
+
+			Linus

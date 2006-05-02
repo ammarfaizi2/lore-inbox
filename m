@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWEBUgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWEBUk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWEBUgz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 16:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWEBUgz
+	id S964772AbWEBUk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 16:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWEBUk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 16:36:55 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:24844 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932162AbWEBUgy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 16:36:54 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: C++ pushback
-Date: Tue, 2 May 2006 13:36:45 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEELMLKAB.davids@webmaster.com>
+	Tue, 2 May 2006 16:40:57 -0400
+Received: from xproxy.gmail.com ([66.249.82.198]:33905 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S964772AbWEBUk4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 16:40:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AoQf6H6gbQ3dEwfOuoplKRBcIejvgSauPKUd3nGKDbDAyvb/b5u/+q66m9+xJCzemlsdzVws0M7NXiZzsrZm7QxIqvaddnw80z3Rv0uDPnESBXt6kJPYMhGhfmH4TsRdKfEc5hxK0bHbcTz3V8BveNhsyUnBYpv8/tgeVjJpAyQ=
+Message-ID: <df47b87a0605021340v1c3901e9r17eb3c69034b7487@mail.gmail.com>
+Date: Tue, 2 May 2006 16:40:56 -0400
+From: "Ioan Ionita" <opslynx@gmail.com>
+To: "Michael Helmling" <supermihi@web.de>
+Subject: Re: New, yet unsupported USB-Ethernet adaptor
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <200605022002.15845.supermihi@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <44514BC6.6020603@tmr.com>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 02 May 2006 13:32:39 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 02 May 2006 13:32:40 -0700
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200605022002.15845.supermihi@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/2/06, Michael Helmling <supermihi@web.de> wrote:
+> Thank you very much for the immediate answer.
+> I applied the patch  - well, I had to do this manually, for some reason, I
+> assume bad formatting in my mail program, patch -p0 < patch1 didn't work. Or
+> am I using the wrong command?
 
-> C++ allows more abstraction than C, unfortunately too many people go
-> right past past abstraction to obfuscation. With operator overloading
-> it's possible to generate write-only code, and programs where "A=B+C"
-> does file operations :-( That doesn't belong in an operating system, C
-> is the right choice.
+You shoud use patch -p1< patch
 
->     -bill davidsen (davidsen@tmr.com)
+> Anyway, I changed the lines manually, and now I can compile and load the
+> module.
+> If I load the module, dmesg gives:
+>
+> usbcore: registered new driver <NULL>
+>
+> Then plugging in the adaptor:
+>
+> usb 2-10: new high speed USB device using ehci_hcd and address 5
+> usb 2-10: configuration #1 chosen from 1 choice
+>
+> But no eth1 shows up, and module loading and plugging the device seem to be
+> independent. I manually loaded usbnet but it didn't help.
+> Sorry, I really have no experience with kernel or usb development. ;)
 
-	I reject any argument of the type "because a language *allows* you to do X,
-and X is not always good, the language is bad". Now, if the language
-*required* you to do bad things, that would be a different story.
-
-	If I could demonstrate ways to do bad things in C that don't belong in an
-operating system, would that convince you that C is not the right choice?
-For example, C allows easy use of floating point math, which doesn't belong
-in an operating system either.
-
-	DS
+Me neither. It was a quick & dirty patch, I must have missed
+something. I'll toy around with it some more. Maybe someone more
+experienced could take a look? :)
 
 
+P.S In the future, make sure you use reply-to-all. Thanks

@@ -1,108 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWEBKbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWEBKcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWEBKbf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 06:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWEBKbf
+	id S932142AbWEBKcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 06:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWEBKcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 06:31:35 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:34609
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1750790AbWEBKbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 06:31:34 -0400
-Message-Id: <44575154.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Tue, 02 May 2006 12:32:20 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Kristen Accardi" <kristen.c.accardi@intel.com>
-Cc: <pcihpd-discuss@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Pcihpd-discuss] [PATCH] correct pciehp init recovery
-References: <445249FE.76E4.0078.0@novell.com> <1146245903.25490.10.camel@whizzy>
-In-Reply-To: <1146245903.25490.10.camel@whizzy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 2 May 2006 06:32:09 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:2056 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932142AbWEBKcI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 06:32:08 -0400
+Message-ID: <44573525.7040507@argo.co.il>
+Date: Tue, 02 May 2006 13:32:05 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Willy Tarreau <willy@w.ods.org>
+CC: David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org>
+In-Reply-To: <20060502051238.GB11191@w.ods.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 02 May 2006 10:32:06.0101 (UTC) FILETIME=[A89CC050:01C66DD3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Kristen Accardi <kristen.c.accardi@intel.com> 28.04.06 19:38 >>>
->On Fri, 2006-04-28 at 16:59 +0200, Jan Beulich wrote:
->> Clean up the recovery path from errors during pcie_init().
->> 
->It's possible that this driver never actually requested an irq if was in
->poll mode.  Then you will call free_irq, when what you really want to do
->is kill the timer that may have been started. 
+Willy Tarreau wrote:
+> Sorry , but all the examples that have been given in C++ are clearly
+> unreadable and impossible to understand.
 
-Thanks for pointing this out, here's the updated patch:
+If you don't know C++, sure.
 
-Clean up the recovery path from errors during pcie_init().
+Maybe this piece of code
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+  f [] = []
+  f (x:xs) = f [y | y <- xs, y < x] ++ [x] ++ f [y | y <- xs, y > x]
 
---- /home/jbeulich/tmp/linux-2.6.17-rc3/drivers/pci/hotplug/pciehp_hpc.c	2006-04-27 17:49:41.000000000 +0200
-+++ 2.6.17-rc3-pciehp-init-recovery/drivers/pci/hotplug/pciehp_hpc.c	2006-04-28 09:20:55.000000000 +0200
-@@ -1474,7 +1474,7 @@ int pcie_init(struct controller * ctrl, 
- 	rc = hp_register_read_word(pdev, SLOT_CTRL(ctrl->cap_base), temp_word);
- 	if (rc) {
- 		err("%s : hp_register_read_word SLOT_CTRL failed\n", __FUNCTION__);
--		goto abort_free_ctlr;
-+		goto abort_free_irq;
- 	}
- 
- 	intr_enable = intr_enable | PRSN_DETECT_ENABLE;
-@@ -1500,19 +1500,19 @@ int pcie_init(struct controller * ctrl, 
- 	rc = hp_register_write_word(pdev, SLOT_CTRL(ctrl->cap_base), temp_word);
- 	if (rc) {
- 		err("%s : hp_register_write_word SLOT_CTRL failed\n", __FUNCTION__);
--		goto abort_free_ctlr;
-+		goto abort_free_irq;
- 	}
- 	rc = hp_register_read_word(php_ctlr->pci_dev, SLOT_STATUS(ctrl->cap_base), slot_status);
- 	if (rc) {
- 		err("%s : hp_register_read_word SLOT_STATUS failed\n", __FUNCTION__);
--		goto abort_free_ctlr;
-+		goto abort_disable_intr;
- 	}
- 	
- 	temp_word =  0x1F; /* Clear all events */
- 	rc = hp_register_write_word(php_ctlr->pci_dev, SLOT_STATUS(ctrl->cap_base), temp_word);
- 	if (rc) {
- 		err("%s : hp_register_write_word SLOT_STATUS failed\n", __FUNCTION__);
--		goto abort_free_ctlr;
-+		goto abort_disable_intr;
- 	}
- 	
- 	if (pciehp_force) {
-@@ -1521,7 +1521,7 @@ int pcie_init(struct controller * ctrl, 
- 	} else {
- 		rc = pciehp_get_hp_hw_control_from_firmware(ctrl->pci_dev);
- 		if (rc)
--			goto abort_free_ctlr;
-+			goto abort_disable_intr;
- 	}
- 
- 	/*  Add this HPC instance into the HPC list */
-@@ -1548,6 +1548,21 @@ int pcie_init(struct controller * ctrl, 
- 	return 0;
- 
- 	/* We end up here for the many possible ways to fail this API.  */
-+abort_disable_intr:
-+	rc = hp_register_read_word(pdev, SLOT_CTRL(ctrl->cap_base), temp_word);
-+	if (!rc) {
-+		temp_word &= ~(intr_enable | HP_INTR_ENABLE);
-+		rc = hp_register_write_word(pdev, SLOT_CTRL(ctrl->cap_base), temp_word);
-+	}
-+	if (rc)
-+		err("%s : disabling interrupts failed\n", __FUNCTION__);
-+
-+abort_free_irq:
-+	if (pciehp_poll_mode)
-+		del_timer_sync(&php_ctlr->int_poll_timer);
-+	else
-+		free_irq(php_ctlr->irq, ctrl);
-+
- abort_free_ctlr:
- 	pcie_cap_base = saved_cap_base;
- 	kfree(php_ctlr);
+Isn't very readable to a C or C++ coder, but it's meaning is instantly 
+clear to one who knows the language it's written in. The equivalent C or 
+C++ code is ~30 lines long and you might need a pen and paper to work 
+out what it does.
 
+>  I'd also like to note that
+> people were arguing about what the code was really doing, this means
+> that this language is absolutely not suited to such usages where you
+> want to know the exact behaviour. 
+
+Were they C coders or C++ coders?
+
+> At least in C, this sort of thing
+> has never happened. 
+
+Like the recent prevent_tail_call() thing? Granted, C++ is a lot tricker 
+than C. Much self-restraint is needed, and even then you can wind up 
+where you didn't want to go.
+
+> People argue about what must be locked and important
+> things like this you'd never want the compiler to decide for you.
+>
+>   
+
+No one suggests that C++ can decide what needs to be locked or not. To 
+be sure, if there was a language where you could specify the locking 
+rules in a central place (the class/struct declaration, for example) and 
+let the compiler apply them, races and deadlocks would be much scarcer, 
+and people could argue about what needs to be locked when the data 
+structure is written, not every time it is used.
+
+> To be secure, you first have to understand what the code precisely does,
+> not what it should do depending on how the compiler might optimise it.
+>   
+
+If optimization changes your code's behaivor, your code is broken. 
+People rely on the C++ optimizer for much the same things as C: to 
+inline zero- or one- line functions and remove unused code. (There is 
+just one exception in C++ where the optimizer _is_ allowed to modify 
+behavior, but it is for an obviously correct scenario).
+
+> I'm still thinking that people who have problems understanding what the
+> code does want a level of abstraction between them and the CPU so that
+> the compiler thinks for them.
+
+No, they want not to repeat code and code patterns. It's the same 
+motivation that lead to the invention of functions:
+
+- functions allow you to reuse code instead of open-coding common sequences
+- constructors/destructors allow you to reuse the do/undo (lock/unlock, 
+etc.) pattern without writing it in full every time
+- templates allow you to reuse code even when the data types change 
+(like the preprocessor but not limited to linked lists)
+- virtual functions allow you to dispatch a function based on the 
+object's type, without writing the boilerplate casting
+- exceptions allow you to do the detect error/undo partial 
+modifications/propagate error thing without blowing up the code by a 
+factor of five
+
+It's just shorthand: but shorthand allows you to see what the code is 
+doing instead of how it handles all the standard problems that occur 
+again and again in programming.
+
+The C people are content to stop at functions, but resist _all_ of the 
+rest (it's okay to do some template-like magic with typeof, because it's 
+still C, right?).
+
+>  I still don't see the *current* problem
+> you are trying to fix. Linux is written in C, as many other kernels and
+> it works. Nobody knows what it would become if rewritten in C++. Maybe
+> it will be better, maybe it would not run anymore on embedded systems,
+> maybe it would become fully buggy because nobody except a little bunch
+> of C++ coders would understand it... At least, I'm sure it will not be
+> the smart people who currently work on it.
+>   
+
+Maybe it would be smaller, faster, more robust, and have even more 
+flexible and fast-paced development.
+
+Perhaps people who developed kernel-level code in _both_ C and C++ would 
+be qualified to speculate on that (I have, but apparently I don't have a 
+clue).
+
+> Best of all, I'm even sure that people who are trying to push C++ in
+> the kernel would never ever write a line of code once it would be
+> accepted, because they don't seem to know what they're talking about
+> when it applies to kernel code.
+>   
+
+Thanks.
+
+-- 
+error compiling committee.c: too many arguments to function
 

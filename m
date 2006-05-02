@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWEBQXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWEBQYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbWEBQXU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 12:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWEBQXU
+	id S964791AbWEBQYw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 12:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWEBQYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 12:23:20 -0400
-Received: from mx1.suse.de ([195.135.220.2]:17850 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964919AbWEBQXT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 12:23:19 -0400
-Date: Tue, 2 May 2006 09:21:36 -0700
-From: Greg KH <greg@kroah.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, Dave Airlie <airlied@linux.ie>,
-       Arjan van de Ven <arjan@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, pjones@redhat.com
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-Message-ID: <20060502162136.GA4668@kroah.com>
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org> <1146301148.3125.7.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0604291001490.2080@skynet.skynet.ie> <200605021014.45684.bjorn.helgaas@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605021014.45684.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.5.11
+	Tue, 2 May 2006 12:24:52 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:42409 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964791AbWEBQYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 12:24:51 -0400
+Message-ID: <4457877F.5000406@linux.intel.com>
+Date: Tue, 02 May 2006 18:23:27 +0200
+From: Arjan van de Ven <arjan@linux.intel.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: akpm@osdl.org, bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/17] Infrastructure to mark exported symbols as unused-for-removal-soon
+References: <1146581587.32045.41.camel@laptopd505.fenrus.org> <20060502092440.91fe8797.rdunlap@xenotime.net>
+In-Reply-To: <20060502092440.91fe8797.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 10:14:45AM -0600, Bjorn Helgaas wrote:
-> On Saturday 29 April 2006 03:04, Dave Airlie wrote:
-> > 
-> > > This patch adds an "enable" sysfs attribute to each PCI device. When read it
-> > > shows the "enabled-ness" of the device, but you can write a "0" into it to
-> > > disable a device, and a "1" to enable it.
-> > >
-> > > This later is needed for X and other cases where userspace wants to enable
-> > > the BARs on a device (typical example: to run the video bios on a secundary
-> > > head). Right now X does all this "by hand" via bitbanging, that's just evil.
-> > > This allows X to no longer do that but to just let the kernel do this.
-> > >
-> > > Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-> > > CC: Peter Jones <pjones@redhat.com>
-> > > CC: Dave Airlie <airlied@linux.ie>
-> > 
-> > ACK
-> > 
-> > This would allow me to remove the issue in X where loading the DRM at X 
-> > startup acts differently than loading the DRM before X runs, due to Xs PCI 
-> > probe running in-between... with this I can just enable all VGA devices 
-> > and no worry whether they have a DRM or not..
+Randy.Dunlap wrote:
+> On Tue, 02 May 2006 16:53:07 +0200 Arjan van de Ven wrote:
 > 
-> This sysfs "enable" patch seems like goodness.
+>> Hi,
+>> As discussed on lkml before; the patch with the infrastructure to deprecate unused symbols
+>>
+>> This is patch one in a series of 17; to not overload lkml the other 16 will be mailed direct;
+>> people who want to see them all can see them at http://www.fenrus.org/unused
+>>
+>>
+>>
+>> This patch temporarily adds EXPORT_UNUSED_SYMBOL and EXPORT_UNUSED_SYMBOL_GPL.
+>> These will be used as transition measure for symbols that aren't used in the 
+>> kernel and are on the way out. When a module uses such a symbol, a warning
+>> is printk'd at modprobe time.
+>>
+>> The main reason for removing unused exports is size: eacho export takes roughly
+>> between 100 and 150 bytes of kernel space in the binary. This patch gives
+>> users the option to immediately get this size gain via a config option.
 > 
-> But I hope that when X uses this, it only enables & disables VGA
-> devices it's actually using.  In the past, it seems like X has
-> blindly disabled *all* VGA devices in the system, even though
-> they might be in use by another X server.  I'm sure that's all
-> well-understood and cleaned up now; just wanted to make sure
-> this nightmare didn't recur.
+> Do the exports take any space at runtime in RAM?
 
-Hopefully with the recent PCI changes to X, this will not happen.  If it
-does, that's a big bug in X :)
+yes; roughly 100 to 150 bytes or so
 
-thanks,
+> scsi patch comments (only one that I have seen) say:
+> +EXPORT_UNUSED_SYMBOL(scsi_print_status); /* removal in 2.6.19 */
+> 
+> and When: above says "before 2.6.19".  Those don't agree.
+> Please fix.  Thanks.
 
-greg k-h
+there's no conflict actually; they'll be gone in 2.6.19, by removing them just before that ;)

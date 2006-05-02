@@ -1,95 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWECApN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWECAxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWECApN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 20:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWECApM
+	id S965061AbWECAxs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 20:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWECAxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 20:45:12 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:23736 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S964983AbWECApK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 20:45:10 -0400
+	Tue, 2 May 2006 20:53:48 -0400
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:38822 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965061AbWECAxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 20:53:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=sup27AEJf3KgddDKVNZOsGTg0ejcZnCP8vrwykN8ObGbRCOP5MjugOQ5wDSHWpnoHPVp9yD8R+beXE9zMoAL5Vej42HF6yP1LLRRhxWEU3lBTyQGtLkvuf74MRLLcU5BwdQ9A2VYIlf/3Hht7vzNEINe/wBEq9j5/NPKI+y0zRA=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [patch 00/14] remap_file_pages protection support
-Date: Wed, 3 May 2006 02:44:58 +0200
-User-Agent: KMail/1.8.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Ulrich Drepper <drepper@redhat.com>, Val Henson <val.henson@intel.com>
-References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au>
-In-Reply-To: <4456D5ED.2040202@yahoo.com.au>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=N/MB58IHVXndKEBD+rOB/kWjqBBQR4LJ8VgGgiwAYlpIVnq7Mxl3+HeylDkSfg00aDZOTcLZ911i7dbnbQyC1tzw8tVV/Dyc7xIJy3B0h2OLoRp178vVP0lxCAohWiq/v3xQ+RYWlEyFh9nE7q6e70ypxn7KS7ohn0BTUj07fc8=  ;
+Message-ID: <445791D3.9060306@yahoo.com.au>
+Date: Wed, 03 May 2006 03:07:31 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: Christopher Friesen <cfriesen@nortel.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: sched_clock() uses are broken
+References: <20060502132953.GA30146@flint.arm.linux.org.uk> <p73slns5qda.fsf@bragg.suse.de> <44578EB9.8050402@nortel.com> <200605021859.18948.ak@suse.de>
+In-Reply-To: <200605021859.18948.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605030245.01457.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 May 2006 05:45, Nick Piggin wrote:
-> blaisorblade@yahoo.it wrote:
-> > The first idea is to use this for UML - it must create a lot of single
-> > page mappings, and managing them through separate VMAs is slow.
+Andi Kleen wrote:
+> On Tuesday 02 May 2006 18:54, Christopher Friesen wrote:
+> 
+>>Andi Kleen wrote:
+>>
+>>
+>>>Agreed it's a problem, but probably a small one. At worst you'll get
+>>>a small scheduling hickup every half year, which should be hardly 
+>>>that big an issue.
+>>
+>>Presumably this would be bad for soft-realtime embedded things.  Set-top 
+>>boxes, etc.
+> 
+> 
+> SCHED_RR/FIFO are not affected. AFAIK it's only used by the interactivity
+> detector in the normal scheduler. Worst case that happens is that a 
+> process is not detected to be interactive when it should once, which
+> gives it only a small penalty. On the next time slice everything will be ok again.
 
-> I think I would rather this all just folded under VM_NONLINEAR rather than
-> having this extra MANYPROTS thing, no? (you're already doing that in one
-> direction).
+Other problem is that some people didn't RTFM and have started trying to
+use it for precise accounting :(
 
-That step is _temporary_ if the extra usages are accepted.
-
-Also, I reported (changelog of patch 03/14) a definite API bug you get if you 
-don't distinguish VM_MANYPROTS from VM_NONLINEAR. I'm pasting it here because 
-that changelog is rather long:
-
-"In fact, without this flag, we'd have indeed a regression with
-remap_file_pages VS mprotect, on uniform nonlinear VMAs.
-
-mprotect alters the VMA prots and walks each present PTE, ignoring installed
-ones, even when pte_file() is on; their saved prots will be restored on 
-faults,
-ignoring VMA ones and losing the mprotect() on them. So, in do_file_page(), we
-must restore anyway VMA prots when the VMA is uniform, as we used to do before
-this trail of patches."
-
-> > Additional note: this idea, with some further refinements (which I'll
-> > code after this chunk is accepted), will allow to reduce the number of
-> > used VMAs for most userspace programs - in particular, it will allow to
-> > avoid creating one VMA for one guard pages (which has PROT_NONE) -
-> > forcing PROT_NONE on that page will be enough.
-
-> I think that's silly. Your VM_MANYPROTS|VM_NONLINEAR vmas will cause more
-> overhead in faulting and reclaim.
-
-I know that problem. In fact for that we want VM_MANYPROTS without 
-VM_NONLINEAR.
-
-> It loooks like it would take an hour or two just to code up a patch which
-> puts a VM_GUARDPAGES flag into the vma, and tells the free area allocator
-> to skip vm_start-1 .. vm_end+1
-we must refine which pages to skip (the example I saw has only one guard page, 
-if I'm not mistaken) but 
-> . What kind of troubles has prevented 
-> something simple and easy like that from going in?
-
-Fairly better idea... It's just the fact that the original proposal was wider, 
-and that we looked to the problem in the wrong way (+ we wanted anyway to 
-have the present work merged, so that wasn't a problem).
-
-Ulrich wanted to have code+data(+guard on 64-bit) into the same VMA, but I 
-left the code+data VMA joining away, to think more with it, since currently 
-it's too slow on swapout.
-
-The other part is avoiding guard VMAs for thread stacks, and that could be 
-accomplished too by your proposal. Iff this work is held out, however.
 -- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-Chiacchiera con i tuoi amici in tempo reale! 
- http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

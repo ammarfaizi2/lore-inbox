@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWEBJ6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWEBKFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbWEBJ6n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 05:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWEBJ6n
+	id S932137AbWEBKFh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 06:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWEBKFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 05:58:43 -0400
-Received: from orfeus.profiwh.com ([82.100.20.117]:5905 "EHLO
-	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S1751243AbWEBJ6m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 05:58:42 -0400
-Message-ID: <44572D5E.3020100@gmail.com>
-Date: Tue, 02 May 2006 11:58:31 +0159
+	Tue, 2 May 2006 06:05:36 -0400
+Received: from nproxy.gmail.com ([64.233.182.187]:49635 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751256AbWEBKFf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 06:05:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=YloSrUym0D24zqdz0GSj1DE0x9b+gG0KuRXHn6r1Xb7yT0VorQoJxrnp30sreWIRVHa1Fqdb2GOTcEzeb4wucjLdgW1CsGzPxuiGGFO8yp20c+PrBp0KnokEiX5UHpx8olYjW/pE3OyGLBvF1iqaNfJfn+uzondPL5qcQY36YpE=
+Message-ID: <44572EFD.9070703@gmail.com>
+Date: Tue, 02 May 2006 12:05:26 +0159
 From: Jiri Slaby <jirislaby@gmail.com>
 User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: "Robert F. Merrill" <rfm@CSUA.Berkeley.EDU>
-CC: linux-kernel@vger.kernel.org
-Subject: locking bug
-References: <200605020742.k427gj7W022835@soda.csua.berkeley.edu>
-In-Reply-To: <200605020742.k427gj7W022835@soda.csua.berkeley.edu>
+To: Kasper Sandberg <lkml@metanurb.dk>
+CC: LKML Mailinglist <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: [BUG] ACPI bug in 2.6.17-rc3
+References: <1146549731.16874.5.camel@localhost>
+In-Reply-To: <1146549731.16874.5.camel@localhost>
 X-Enigmail-Version: 0.94.0.0
 Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Robert F. Merrill napsal(a):
-> ------------[ cut here ]------------
-> kernel BUG at fs/locks.c:1932!
-> invalid operand: 0000 [#8]
-> SMP 
-> Modules linked in: thermal fan button processor ac battery nfs lockd nfs_acl sunrpc ipv6 quota_v1 ide_cd cdrom generic joydev evdev e1000 mousedev piix psmouse i2c_i801 serio_raw pcspkr i2c_core ide_core floppy rtc uhci_hcd ehci_hcd usbcore parport_pc parport shpchp pci_hotplug
-> CPU:    0
-> EIP:    0060:[<c015fe6a>]    Not tainted VLI
-> EFLAGS: 00010246   (2.6.15.7-soda0) 
-Is is possible to reproduce this in 2.6.16.latest kernel?
-> EIP is at locks_remove_flock+0xbb/0xd7
-> eax: d87f0cfc   ebx: ca0b0ebc   ecx: 00000000   edx: 00000000
-> esi: cf340900   edi: ca0b0e18   ebp: c5d75834   esp: cb585efc
-> ds: 007b   es: 007b   ss: 0068
-> Process mutt (pid: 2295, threadinfo=cb585000 task=e29f2030)
-> Stack: 00000000 00000000 00000000 00000000 00000000 cf340900 000008f7 00000000 
->        00000000 00000000 cf340900 00000202 00000000 00000000 ffffffff 7fffffff 
->        00000000 00000000 00000000 00000000 00000000 00000000 f6cb0b40 00000008 
-> Call Trace:
->  [<c014da9d>] __fput+0x6d/0x125
->  [<c014c5ca>] filp_close+0x4e/0x57
->  [<c014c63b>] sys_close+0x68/0x7c
->  [<c01027b1>] syscall_call+0x7/0xb
+Cc: linux-acpi@vger.kernel.org
 
-regards,
+Kasper Sandberg napsal(a):
+> hello.. just tried out 2.6.17-rc3 on my amd64 system, and i got this
+> backtrace:
+> khelper pid 4
+> trace:
+> activate_task+319 try_to_wake_up+93
+> __wake_up_common+68 complete+38
+> run_workqueue+136 worker_thread+353
+> default_wake_function+0 worker_thread+0
+> kthread+219 worke_thead+0
+> child_rip+8 worker_thread+0
+> kthread+0 child_rip+0
+> 
+> this happened immediately after vesafb changed resolution, i tried
+> without vesafb, still the same..
+We need whole bug log, no just the trace. Is it possible to grab it?
+
+thanks,
 - --
 Jiri Slaby         www.fi.muni.cz/~xslaby
 \_.-^-._   jirislaby@gmail.com   _.-^-._/
@@ -62,7 +61,7 @@ B67499670407CE62ACC8 22A032CC55C339D47A7E
 Version: GnuPG v1.4.3 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFEVy1eMsxVwznUen4RAmA9AKC4xe12APAaHOsFBMr5VqNt2s9YlACdHDbM
-jaczIRplTICXzfJ/CGCu6J4=
-=WrrO
+iD8DBQFEVy79MsxVwznUen4RAp6tAJ9RvSDGtglFtMUW912z3dJQY75mFwCgu5i5
+sKbi0EN6YYKmlUo6qcqvU5c=
+=CNZM
 -----END PGP SIGNATURE-----

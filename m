@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWEBOde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWEBOee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWEBOde (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 10:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWEBOde
+	id S964844AbWEBOee (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 10:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWEBOee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 10:33:34 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:26049 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964843AbWEBOdd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 10:33:33 -0400
-Date: Tue, 2 May 2006 16:38:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Patrick McHardy <kaber@trash.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       coreteam@netfilter.org, "David S. Miller" <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [netfilter-core] Re: [lockup] 2.6.17-rc3: netfilter/sctp: lockup in	sctp_new(), do_basic_checks()
-Message-ID: <20060502143814.GA3789@elte.hu>
-References: <20060502113454.GA28601@elte.hu> <20060502134053.GA30917@elte.hu> <4457648C.6020100@trash.net> <20060502140102.GA31743@elte.hu> <4457654A.9040200@trash.net> <20060502141621.GA32284@elte.hu> <44576CD5.60603@trash.net>
+	Tue, 2 May 2006 10:34:34 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:43213 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964844AbWEBOed
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 10:34:33 -0400
+Date: Tue, 2 May 2006 15:34:30 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+Message-ID: <20060502143430.GW27946@ftp.linux.org.uk>
+References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il> <20060502133416.GT27946@ftp.linux.org.uk> <4457668F.8080605@argo.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44576CD5.60603@trash.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <4457668F.8080605@argo.co.il>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Patrick McHardy <kaber@trash.net> wrote:
-
-> > +	/*
-> > +	 * Dont trust the initial offset:
-> > +	 */
-> > +	offset = skb->nh.iph->ihl * 4 + sizeof(sctp_sctphdr_t);
-> > +	if (offset >= skb->len)
-> > +		return 1;
-> > +
+On Tue, May 02, 2006 at 05:02:55PM +0300, Avi Kivity wrote:
+> Hey, I agree 100%, except for the last 6 words :) C++ is the very worst 
+> language I know in terms of badly thought out features, internal 
+> inconsistencies, ways to shoot one's feet off, and general ugliness. It 
+> will require _very_ tight control to avoid parts of the kernel going off 
+> in mutually incompatible directions.
 > 
-> That part is unnecessary, the presence of one sctp_sctphdr_t
-> has already been verified by skb_header_pointer() in sctp_new().
+> But I think that the control is there; and if C++ is introduced slowly, 
+> one feature at a time, it can be kept sane. And I think there is 
+> definitely a payoff to be won out of a switch.
 
-ok.
+You are far too optimistic.  In the best case it'll end up with higher
+artificial entry barrier for contributors.  In the worst (and much more
+realistic) the crap will leak all over the tree in addition to the
+already present classes of bugs.
 
-> How about this patch (based on your patch, but typos fixed and also 
-> covers nf_conntrack)?
-
-sure, fine with me!
-
-	Ingo
+"Everyone has his pet subset/extension" is a killer for anything that isn't
+done by 5-6 people, or, at least reviewed by 5-6 people who really can
+read through _all_ incoming code.  For something like Linux kernel...
+forget it.  It's far outside of the area where that would work.

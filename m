@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWEBLTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWEBL0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWEBLTf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 07:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWEBLTf
+	id S964774AbWEBL0t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 07:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWEBL0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 07:19:35 -0400
-Received: from wproxy.gmail.com ([64.233.184.239]:63304 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932226AbWEBLTd convert rfc822-to-8bit
+	Tue, 2 May 2006 07:26:49 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:34569 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S964774AbWEBL0s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 07:19:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=Mnsv1qEGpk+1vP7u4ucLMgEIeDfqdMwTXlY2E3Ymnb6QYERNZSKcFSQVuGu2w1VkfagzB3JEybreaZgoed7Pm487IOLJreASoAyIiFF0etFWBNTelbTBrrYe4+XjKMaKI7im0CGuqKMS7MqW5buMtImt799VdHuL3BBzWbSyJOQ=
-Message-ID: <84144f020605020419o539c377do7a01314980a44d67@mail.gmail.com>
-Date: Tue, 2 May 2006 14:19:32 +0300
-From: "Pekka Enberg" <penberg@cs.helsinki.fi>
-To: "Petri T. Koistinen" <petri.koistinen@iki.fi>
-Subject: Re: [PATCH] fs/isofs/namei.c: fix warnings of uninitialized variables
-Cc: "Andrew Morton" <akpm@osdl.org>, trivial@kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0605012255290.15813@joo>
+	Tue, 2 May 2006 07:26:48 -0400
+Message-ID: <445741F5.6060204@argo.co.il>
+Date: Tue, 02 May 2006 14:26:45 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0605012255290.15813@joo>
-X-Google-Sender-Auth: 9856cc17872318fe
+To: Martin Mares <mj@ucw.cz>
+CC: Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il> <mj+md-20060502.111446.9373.atrey@ucw.cz>
+In-Reply-To: <mj+md-20060502.111446.9373.atrey@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 May 2006 11:26:46.0617 (UTC) FILETIME=[4BF3C490:01C66DDB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/1/06, Petri T. Koistinen <petri.koistinen@iki.fi> wrote:
-> From: Petri T. Koistinen <petri.koistinen@iki.fi>
+Martin Mares wrote:
+> Hello!
 >
-> Remove warnings by initializing uninitialized variables.
+>   
+>> Perhaps people who developed kernel-level code in _both_ C and C++ would 
+>> be qualified to speculate on that (I have, but apparently I don't have a 
+>> clue).
+>>     
 >
-> Signed-off-by: Petri T. Koistinen <petri.koistinen@iki.fi>
-> ---
->  fs/isofs/namei.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
->
-> ---
-> diff --git a/fs/isofs/namei.c b/fs/isofs/namei.c
-> index e7ba0c3..e0d6531 100644
-> --- a/fs/isofs/namei.c
-> +++ b/fs/isofs/namei.c
-> @@ -159,7 +159,7 @@ isofs_find_entry(struct inode *dir, stru
->  struct dentry *isofs_lookup(struct inode * dir, struct dentry * dentry, struct nameidata *nd)
->  {
->         int found;
-> -       unsigned long block, offset;
-> +       unsigned long block = 0, offset = 0;
+> Well, what about just showing an example of kernel code in C++, which
+> you consider nice?
+>   
 
-NAK. Both are initialized by isofs_find_entry() before being used.
+I don't have access to that code (which was closed source anyway).
 
-                                                Pekka
+But it executed C++ code within a few cycles of entering the reset 
+vector (no standard BIOS), including but not limited to: programming the 
+memory controller (430MX chipset), servicing interrupts, hardware 
+accelerated 2D graphics (C&T 65550), IDE driver, simple filesystem, 
+simple windowing GUI, network driver (Tulip) etc.
+
+More recently I participated in writing a filesystem in C++. That's in 
+userspace, but many of the techniques used in writing kernel code are 
+necessary there (extreme robustness, can't assume infinite memory, 
+locking, etc.)
+
+There are C++ embedded kernels in http://www.zipworld.com.au/~akpm/ and 
+http://ecos.sourceware.org/, but I haven't looked at them, so I can't 
+say whether I consider them nice or not.
+
+-- 
+error compiling committee.c: too many arguments to function
+

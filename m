@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWEBECi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWEBEJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWEBECi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 00:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWEBECi
+	id S932359AbWEBEJX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 00:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWEBEJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 00:02:38 -0400
-Received: from ns.suse.de ([195.135.220.2]:62921 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932358AbWEBECh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 00:02:37 -0400
-Date: Mon, 1 May 2006 21:00:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Michael Holzheu <holzheu@de.ibm.com>, akpm@osdl.org,
-       schwidefsky@de.ibm.com, penberg@cs.helsinki.fi, ioe-lkml@rameria.de,
-       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390: Hypervisor File System
-Message-ID: <20060502040053.GA14413@kroah.com>
-References: <20060428112225.418cadd9.holzheu@de.ibm.com> <20060429075311.GB1886@kroah.com> <8A7D2F4D-5A05-4C93-B514-03268CAA9201@mac.com> <20060429215501.GA9870@kroah.com> <4237705F-E1B2-46CF-BE66-EFB77F68EC42@mac.com> <20060501203815.GE19423@kroah.com> <2DBA690E-B11A-478E-B2E0-0529F4CE45A9@mac.com>
+	Tue, 2 May 2006 00:09:23 -0400
+Received: from h80ad2444.async.vt.edu ([128.173.36.68]:35980 "EHLO
+	h80ad2444.async.vt.edu") by vger.kernel.org with ESMTP
+	id S932359AbWEBEJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 00:09:22 -0400
+Message-Id: <200605020409.k4249EiJ007414@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Irfan Habib <irfan.habib@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel and Webservices 
+In-Reply-To: Your message of "Tue, 02 May 2006 07:51:18 +0500."
+             <3420082f0605011951m43479a98ie56a0a5f62409dd2@mail.gmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <3420082f0605011951m43479a98ie56a0a5f62409dd2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2DBA690E-B11A-478E-B2E0-0529F4CE45A9@mac.com>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed; boundary="==_Exmh_1146542953_2571P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 02 May 2006 00:09:14 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01, 2006 at 07:29:23PM -0400, Kyle Moffett wrote:
-> On May 1, 2006, at 16:38:15, Greg KH wrote:
-> >On Sun, Apr 30, 2006 at 01:18:46AM -0400, Kyle Moffett wrote:
-> >>On Apr 29, 2006, at 17:55:01, Greg KH wrote:
-> >>>relayfs is for that.  You can now put relayfs files in any ram  
-> >>>based file system (procfs, ramfs, sysfs, debugfs, etc.)
-> >>
-> >>But you can't twiddle relayfs with echo and cat; it's more suited  
-> >>to high-bandwidth transfers than anything else, no?
-> >
-> >Yes.
-> 
-> So my question stands:  What is the _recommended_ way to handle  
-> simple data types in low-bandwidth/frequency multiple-valued  
-> transactions to hardware?  Examples include reading/modifying  
-> framebuffer settings (currently done through IOCTLS), s390 current  
-> state (up for discussion), etc.  In these cases there needs to be an  
-> atomic snapshot or write of multiple values at the same time.  Given  
-> the situation it would be _nice_ to use sysfs so the admin can do it  
-> by hand; makes things shell scriptable and reduces the number of  
-> binary compatibility issues.
+--==_Exmh_1146542953_2571P
+Content-Type: text/plain; charset=us-ascii
 
-I really don't know of a way to use sysfs for this currently, and hence,
-am not complaining too much about the different /proc files that have
-this kind of information in it at the moment.
+On Tue, 02 May 2006 07:51:18 +0500, Irfan Habib said:
+> I wanted to know if modulescan be developed in the linux kernel, which
+> can create TCP/UDP sockets and communicate with perhaps webservices,
+> residing in the user level in the same computer or in some other
+> computer.
 
-If you or someone else wants to come up with some kind of solution for
-it, I'm sure that many people would be very happy to see it.
+> Is a networking API available in the linux kernel which can be used by
+> linux kernel modules, if so is there any documentation for it?
 
-thanks,
+It's generally considered a Bad Idea, as it's almost certainly easier to
+do in userspace.  If you're trying to to instrument a network-based monitoring
+system and need access to kernel data, you're *much* better off having the
+kernel export the data via netlink or even abuse of /proc or /sys, and then
+a small userspace program read the data and ship it over the net.  There's
+a *lot* of things that you just won't have access to in kernel space (for
+starters, you don't have a DNS resolver, so you can't use hostnames for
+configuration).
 
-greg k-h
+If you're determined to do this in kernelspace anyhow, see the
+linux-2.6-tux.patch in recent RedHat/Fedora kernels, and ask yourself why
+that patch has no hope of being accepted upstream (although I have a great
+amount of respect for a lot of things that come out of RedHat, *that* patch
+is best described  "a fully RFC1925-compliant networking pig, with afterburners")
+
+
+--==_Exmh_1146542953_2571P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEVttpcC3lWbTT17ARAlwBAJ44B5hFF0kfD3W8mEhvUR405agubACgghCu
+cfv5cZjnvwq2i4ilhY1FKgU=
+=n2ke
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1146542953_2571P--

@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWEBG6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWEBHBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbWEBG6q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 02:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWEBG6p
+	id S932420AbWEBHBV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 03:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWEBHBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 02:58:45 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41930 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932416AbWEBG6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 02:58:44 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: "Brown, Len" <len.brown@intel.com>,
-       "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>,
-       sergio@sergiomb.no-ip.org, "Kimball Murray" <kimball.murray@gmail.com>,
-       linux-kernel@vger.kernel.org, akpm@digeo.com, kmurray@redhat.com,
-       linux-acpi@vger.kernel.org
-Subject: Re: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-References: <CFF307C98FEABE47A452B27C06B85BB652DDDD@hdsmsx411.amr.corp.intel.com>
-	<200605020814.49144.ak@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 02 May 2006 00:57:59 -0600
-In-Reply-To: <200605020814.49144.ak@suse.de> (Andi Kleen's message of "Tue,
- 2 May 2006 08:14:48 +0200")
-Message-ID: <m1d5ewap6w.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 May 2006 03:01:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:22214 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932420AbWEBHBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 03:01:20 -0400
+Subject: Re: Open Discussion, kernel in production environment
+From: Arjan van de Ven <arjan@infradead.org>
+To: Marcin Hlybin <marcin.hlybin@swmind.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605012357.48623.marcin.hlybin@swmind.com>
+References: <200605012357.48623.marcin.hlybin@swmind.com>
+Content-Type: text/plain
+Date: Tue, 02 May 2006 09:01:14 +0200
+Message-Id: <1146553275.32045.15.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Mon, 2006-05-01 at 23:57 +0200, Marcin Hlybin wrote:
+> Hello,
+> 
+> I always configure and compile a kernel throwing out all unusable options and 
+> I never use modules in production environment (especially for the router). 
+> But my superior has got the other opinion - he claims that distribution 
+> kernel is quite good and in these days optimization has no sense because of 
+> powerful hadrware. 
 
->> >- Modify do_IRQ to get passed an interrupt vector# from the
->> >  interrupt vector instead of an irq number, and then lookup
->> >  the irq number in vector_irq.  This means we don't need
->> >  a code stub per irq, and allows us to handle more irqs
->> >  by simply increasing NR_IRQS.
->> 
->> isn't the vector number already on the stack from
->> ENTRY(interrupt)
->> 	pushl $vector-256
->
-> Yes - and interrupts/vectors are currently always identical. 
 
-No.  At best there is a fixed offset.  They can't be
-identical because the first 32 vectors are reserved,
-for processor exceptions.  
+he's basically right; the gain you get by disabling the generic things a
+distribution enabled is way down in the noise. There are some
+compromises a distribution makes to keep the number of kernels they ship
+down, and I suspect the worst possible case would add up to say 5%.
 
-Beyond that the kernel would not need the vector_irq and irq_vector
-arrays if they were always identical, or even if they were one to one.
+(on a Fedora / RHEL that would probably be a SMP system with less than
+1Gb of ram)
 
-If you look at assign_irq_vector you will see that by default we
-allocate every 8th vector.  Looking at the comment in
-init_IO_APIC_traps() this seems to be because we want to avoid
-apic bugs with multiple interrupts of the same priority.
-Although why we skip 8 instead of 16 is beyond me.
+On the plus side you get the maintenance, building and integration done
+for you, including the security fixes. 
 
-> If we go
-> to per CPU IDTs I suspect the stubs will just need to be generated
-> at runtime and start passing interrupts.
+There is a third "advantage" in using a distro kernel; there is less
+chance of a mistake in the sense of picking a config option that turns
+out to be really bad in hindsight. 
 
-If we can generate the stubs at run time that will remove my
-biggest problem with them, that we can't easily make the number
-of stubs track NR_IRQS.  Not needing an extra table lookup is
-certainly desirable, and probably worth the extra 4-8 bytes that a stub
-is larger that a per cpu table entry.
+Now that doesn't mean that I want to discourage people from building
+their own kernel, far from that, but at the same time, the advantages
+you get shouldn't be overstated and in a business environment it is
+probably not a good use of time nowadays.
 
-Although now that I think about it, using some assembler macros
-instead of cpp macros could probably solve the problem more easily
-than generating the stubs at runtime.  I think the worst case is
-256 cpus * 32 irqs per cpu * 10 bytes per stub = 80K.
-
-At 8 cpus we are about where we are now.
-
-Eric

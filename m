@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWEBHVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWEBHZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWEBHVX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 03:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWEBHVX
+	id S932369AbWEBHZN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 03:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWEBHZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 03:21:23 -0400
-Received: from pproxy.gmail.com ([64.233.166.176]:29464 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932485AbWEBHVW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 03:21:22 -0400
+	Tue, 2 May 2006 03:25:12 -0400
+Received: from nproxy.gmail.com ([64.233.182.191]:46767 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932369AbWEBHZL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 03:25:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RCGvT8VWHl5JM5BPQbA31T4wqXr15r/BZPLkO/3PwFHv6aHj47qrmE3JEzZrWslGfGIm1V6siILkvwQc/6MiimEhD4GI1ltbu+LEU02ZVU/YUcH29XmZVWQOXTqkPqzcEqv6KxKoj6VttkFN0zjXGOnWlCLVus5BeRi9Z3pvk0w=
-Message-ID: <aec7e5c30605020021v3c3225eftfddfd2226b2cdf0c@mail.gmail.com>
-Date: Tue, 2 May 2006 16:21:22 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Andi Kleen" <ak@suse.de>
-Subject: Re: [PATCH] kexec: Avoid overwriting the current pgd (x86_64)
-Cc: "Magnus Damm" <magnus@valinux.co.jp>, ebiederm@xmission.com,
-       linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
-In-Reply-To: <p73ejzc7wm0.fsf@bragg.suse.de>
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=fv3G3xO/T2waXJ3uJPC/OmUl4pl+F569BM5mCnGSyNZ/73BYxy2QPvB/2sMIwTrbHS99uBvZY21J1v3ry2hg9lRfSHa9F91gaDBLLDjh7VPXzlAfDc2+TIDAqY1wGQVf1suFXVTCfi3u+aF5cN3iD0I0n9IhqMM7ztsghjNqI3E=
+Message-ID: <44570929.2080603@gmail.com>
+Date: Tue, 02 May 2006 09:24:25 +0200
+From: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: es-ar, es, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060501095407.16902.78809.sendpatchset@cherry.local>
-	 <p73ejzc7wm0.fsf@bragg.suse.de>
+To: Joshua Hudson <joshudson@gmail.com>
+CC: Jiri Slaby <jirislaby@gmail.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH/RFC] minix filesystem update to V3. Error comment.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[re-added fastboot list]
+Joshua wrote:
 
-On 02 May 2006 08:45:59 +0200, Andi Kleen <ak@suse.de> wrote:
-> Magnus Damm <magnus@valinux.co.jp> writes:
->
-> > --===============82697867595349228==
-> >
-> > kexec: Avoid overwriting the current pgd (x86_64)
-> >
-> > This patch upgrades the x86_64-specific kexec code to avoid overwriting the
-> > current pgd. Overwriting the current pgd is bad when CONFIG_CRASH_DUMP is used
-> > to start a secondary kernel that dumps the memory of the previous kernel.
->
-> Why is it bad?
+ > Is this the error about variable might not be initalized?
+ > What happends in the code if you just initalize to NULL?
 
-Because in the kdump case (CONFIG_CRASH_DUMP) we store the memory
-contents of the crashed kernel somewhere to later on be able to
-analyze it. And it makes sense to avoid overwriting things because we
-want to analyze the _original_ state when the kernel crashed, not some
-half-overwritten state.
+Hi all,
 
-Thanks,
+No, is not this kind of error. The error message complaints about not beeing able to reference the contents of a pointer if you previously not allocate with kmalloc a location for it. Nothig has to 
+bee initialized because the target and contents already exists.
 
-/ magnus
+Nothing happens if I initialize to NULL. An exception happens if I later free it with kfree instead of setting it to NULL.
+
+Be aware that all this happens within functions included by bitops.h.
+
+Regards,
+
+Daniel

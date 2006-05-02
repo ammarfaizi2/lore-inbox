@@ -1,257 +1,260 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbWEBVmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbWEBVr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964993AbWEBVmr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 17:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbWEBVmq
+	id S965005AbWEBVr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 17:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWEBVrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 17:42:46 -0400
-Received: from over.co.us.ibm.com ([32.97.110.157]:64652 "EHLO
-	over.co.us.ibm.com") by vger.kernel.org with ESMTP id S964992AbWEBVmq
+	Tue, 2 May 2006 17:47:55 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:39397 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S964995AbWEBVry
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 17:42:46 -0400
-Date: Tue, 2 May 2006 12:32:00 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, ebiederm@xmission.com,
-       herbert@13thfloor.at, dev@sw.ru, linux-kernel@vger.kernel.org,
-       sam@vilain.net, xemul@sw.ru, clg@fr.ibm.com, frankeh@us.ibm.com
-Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
-Message-ID: <20060502173200.GA23766@sergelap.austin.ibm.com>
-References: <20060501203906.XF1836@sergelap.austin.ibm.com> <20060501203907.XF1836@sergelap.austin.ibm.com> <1146515316.32079.27.camel@localhost.localdomain> <20060501211109.GA21799@sergelap.austin.ibm.com> <1146520732.32079.31.camel@localhost.localdomain>
+	Tue, 2 May 2006 17:47:54 -0400
+Date: Tue, 2 May 2006 23:45:20 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, david@pleyades.net
+Subject: [PATCH 2/2] ipg: redundancy with mii.h
+Message-ID: <20060502214520.GC26357@electric-eye.fr.zoreil.com>
+References: <Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI> <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo> <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1146520732.32079.31.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Dave Hansen (haveblue@us.ibm.com):
-> On Mon, 2006-05-01 at 16:11 -0500, Serge E. Hallyn wrote:
-> > Might be worth a separate patch to change over all those helpers in
-> > fork.c?  (I think they were all brought in along with the sys_unshare
-> > syscall)
-> 
-> I'd be a little scared to touch good, working code, but it couldn't hurt
-> to see the patch.
+Replace a bunch of #define with their counterpart from mii.h
 
-Hmm, well the following untested patch was just to see the end results.
-Summary: it ends up quite a bit uglier  :-(
-
-I think I like it better as is.
-
-thanks,
--serge
-
-Subject: [PATCH] fs/fork.c: unshare cleanup
-
-Switch some of the unshare patch to more kernel conformant style.
-
-Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
 ---
 
- kernel/fork.c |  102 ++++++++++++++++++++++++++++++++++++---------------------
- 1 files changed, 64 insertions(+), 38 deletions(-)
+ drivers/net/ipg.c |   82 ++++++++++++++++++++++-------------------------------
+ drivers/net/ipg.h |   29 -------------------
+ 2 files changed, 34 insertions(+), 77 deletions(-)
 
-c30251d8442cfee2ada7dfd6c46159cf44011213
-diff --git a/kernel/fork.c b/kernel/fork.c
-index d2fa57d..42753a4 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1450,86 +1450,92 @@ static int unshare_thread(unsigned long 
- /*
-  * Unshare the filesystem structure if it is being shared
+ea93e36c70b16ab91340e320ed96df1df14ea608
+diff --git a/drivers/net/ipg.c b/drivers/net/ipg.c
+index ea7c1f8..5be2af1 100644
+--- a/drivers/net/ipg.c
++++ b/drivers/net/ipg.c
+@@ -15,6 +15,7 @@
+  * craig_rich@sundanceti.com
   */
--static int unshare_fs(unsigned long unshare_flags, struct fs_struct **new_fsp)
-+static struct fs_struct * unshare_fs(unsigned long flags)
- {
- 	struct fs_struct *fs = current->fs;
-+	struct fs_struct *new_fs = NULL;
+ #include <linux/crc32.h>
++#include <linux/mii.h>
  
--	if ((unshare_flags & CLONE_FS) &&
-+	if ((flags & CLONE_FS) &&
- 	    (fs && atomic_read(&fs->count) > 1)) {
--		*new_fsp = __copy_fs_struct(current->fs);
--		if (!*new_fsp)
--			return -ENOMEM;
-+		new_fs = __copy_fs_struct(current->fs);
-+		if (!new_fs)
-+			new_fs = ERR_PTR(-ENOMEM);
+ #define IPG_RX_RING_BYTES	(sizeof(struct RFD) * IPG_RFDLIST_LENGTH)
+ #define IPG_TX_RING_BYTES	(sizeof(struct TFD) * IPG_TFDLIST_LENGTH)
+@@ -465,7 +466,7 @@ static int ipg_tmi_fiber_detect(struct n
+ 
+ 	IPG_DEBUG_MSG("_tmi_fiber_detect\n");
+ 
+-	phyid = read_phy_register(dev, phyaddr, GMII_PHY_ID_1);
++	phyid = read_phy_register(dev, phyaddr, MII_PHYSID1);
+ 
+ 	IPG_DEBUG_MSG("PHY ID = %x\n", phyid);
+ 
+@@ -492,7 +493,7 @@ static int ipg_find_phyaddr(struct net_d
+ 		   GMII_PHY_ID1
+ 		 */
+ 
+-		status = read_phy_register(dev, phyaddr, GMII_PHY_STATUS);
++		status = read_phy_register(dev, phyaddr, MII_BMSR);
+ 
+ 		if ((status != 0xFFFF) && (status != 0))
+ 			return phyaddr;
+@@ -600,20 +601,18 @@ #endif
+ 
+ 	IPG_DEBUG_MSG("GMII/MII PHY address = %x\n", phyaddr);
+ 
+-	status = read_phy_register(dev, phyaddr, GMII_PHY_STATUS);
++	status = read_phy_register(dev, phyaddr, MII_BMSR);
+ 
+ 	printk("PHYStatus = %x \n", status);
+-	if ((status & GMII_PHY_STATUS_AUTONEG_ABILITY) == 0) {
++	if ((status & BMSR_ANEGCAPABLE) == 0) {
+ 		printk(KERN_INFO
+ 		       "%s: Error PHY unable to perform auto-negotiation.\n",
+ 		       dev->name);
+ 		return -EILSEQ;
  	}
  
--	return 0;
-+	return new_fs;
- }
+-	advertisement = read_phy_register(dev, phyaddr,
+-					  GMII_PHY_AUTONEGADVERTISEMENT);
+-	linkpartner_ability = read_phy_register(dev, phyaddr,
+-						GMII_PHY_AUTONEGLINKPARTABILITY);
++	advertisement = read_phy_register(dev, phyaddr, MII_ADVERTISE);
++	linkpartner_ability = read_phy_register(dev, phyaddr, MII_LPA);
  
- /*
-  * Unshare the namespace structure if it is being shared
-  */
--static int unshare_namespace(unsigned long unshare_flags, struct namespace **new_nsp, struct fs_struct *new_fs)
-+static struct namespace *unshare_namespace(unsigned long flags,
-+		struct fs_struct *new_fs)
- {
- 	struct namespace *ns = current->namespace;
-+	struct namespace *new_ns = NULL;
+ 	printk("PHYadvertisement=%x LinkPartner=%x \n", advertisement,
+ 	       linkpartner_ability);
+@@ -634,20 +633,16 @@ #endif
+ 		 * bits are logic 1 in both registers, configure the
+ 		 * IPG for full duplex operation.
+ 		 */
+-		if ((advertisement & GMII_PHY_ADV_FULL_DUPLEX) ==
+-		    (linkpartner_ability & GMII_PHY_ADV_FULL_DUPLEX)) {
++		if ((advertisement & ADVERTISE_1000XFULL) ==
++		    (linkpartner_ability & ADVERTISE_1000XFULL)) {
+ 			fullduplex = 1;
  
--	if ((unshare_flags & CLONE_NEWNS) &&
-+	if ((flags & CLONE_NEWNS) &&
- 	    (ns && atomic_read(&ns->count) > 1)) {
--		if (!capable(CAP_SYS_ADMIN))
--			return -EPERM;
-+		if (!capable(CAP_SYS_ADMIN)) {
-+			return ERR_PTR(-EPERM);
+ 			/* In 1000BASE-X using IPG's internal PCS
+ 			 * layer, so write to the GMII duplex bit.
+ 			 */
+-			write_phy_register(dev,
+-					   phyaddr,
+-					   GMII_PHY_CONTROL,
+-					   read_phy_register
+-					   (dev, phyaddr,
+-					    GMII_PHY_CONTROL) |
+-					   GMII_PHY_CONTROL_FULL_DUPLEX);
++			write_phy_register(dev, phyaddr, MII_BMCR,
++				read_phy_register(dev, phyaddr, MII_BMCR) |
++					   ADVERTISE_1000HALF); // Typo ?
  
--		*new_nsp = dup_namespace(current, new_fs ? new_fs : current->fs);
-+		*new_ns = dup_namespace(current, new_fs ? new_fs : current->fs);
- 		if (!*new_nsp)
--			return -ENOMEM;
-+			return ERR_PTR(-ENOMEM);
+ 		} else {
+ 			fullduplex = 0;
+@@ -655,13 +650,9 @@ #endif
+ 			/* In 1000BASE-X using IPG's internal PCS
+ 			 * layer, so write to the GMII duplex bit.
+ 			 */
+-			write_phy_register(dev,
+-					   phyaddr,
+-					   GMII_PHY_CONTROL,
+-					   read_phy_register
+-					   (dev, phyaddr,
+-					    GMII_PHY_CONTROL) &
+-					   ~GMII_PHY_CONTROL_FULL_DUPLEX);
++			write_phy_register(dev, phyaddr, MII_BMCR,
++				read_phy_register(dev, phyaddr, MII_BMCR) &
++					   ~ADVERTISE_1000HALF); // Typo ?
+ 		}
  	}
  
--	return 0;
-+	return new_ns;
- }
+@@ -672,21 +663,18 @@ #endif
+ 		 * link partner abilities exchanged via next page
+ 		 * transfers.
+ 		 */
+-		gigadvertisement = read_phy_register(dev,
+-						     phyaddr,
+-						     GMII_PHY_1000BASETCONTROL);
+-		giglinkpartner_ability = read_phy_register(dev,
+-							   phyaddr,
+-							   GMII_PHY_1000BASETSTATUS);
++		gigadvertisement =
++			read_phy_register(dev, phyaddr, MII_CTRL1000);
++		giglinkpartner_ability =
++			read_phy_register(dev, phyaddr, MII_STAT1000);
  
- /*
-  * Unsharing of sighand for tasks created with CLONE_SIGHAND is not
-  * supported yet
-  */
--static int unshare_sighand(unsigned long unshare_flags, struct sighand_struct **new_sighp)
-+static struct sighand_struct *unshare_sighand(unsigned long flags);
- {
- 	struct sighand_struct *sigh = current->sighand;
-+	struct sighand_struct *new_sigh = NULL;
- 
--	if ((unshare_flags & CLONE_SIGHAND) &&
-+	if ((flags & CLONE_SIGHAND) &&
- 	    (sigh && atomic_read(&sigh->count) > 1))
--		return -EINVAL;
--	else
--		return 0;
-+		return ERR_PTR(-EINVAL);
+ 		/* Compare the full duplex bits in the 1000BASE-T GMII
+ 		 * registers for the local device, and the link partner.
+ 		 * If these bits are logic 1 in both registers, configure
+ 		 * the IPG for full duplex operation.
+ 		 */
+-		if ((gigadvertisement & GMII_PHY_1000BASETCONTROL_FULL_DUPLEX)
+-		    && (giglinkpartner_ability &
+-			GMII_PHY_1000BASETSTATUS_FULL_DUPLEX)) {
++		if ((gigadvertisement & ADVERTISE_1000FULL) &&
++		    (giglinkpartner_ability & ADVERTISE_1000FULL)) {
+ 			fullduplex = 1;
+ 		} else {
+ 			fullduplex = 0;
+@@ -751,8 +739,12 @@ #endif
+ 		/* In full duplex mode, resolve PAUSE
+ 		 * functionality.
+ 		 */
+-		switch (((advertisement & GMII_PHY_ADV_PAUSE) >> 5) |
+-			((linkpartner_ability & GMII_PHY_ADV_PAUSE) >> 7)) {
++		u8 flow_ctl;
++#define LPA_PAUSE_ANY	(LPA_1000XPAUSE_ASYM | LPA_1000XPAUSE)
 +
-+	return new_sigh;
- }
++		flow_ctl  = (advertisement & LPA_PAUSE_ANY) >> 5;
++		flow_ctl |= (linkpartner_ability & LPA_PAUSE_ANY) >> 7;
++		switch (flow_ctl) {
+ 		case 0x7:
+ 			txflowcontrol = 1;
+ 			rxflowcontrol = 0;
+@@ -2682,26 +2674,20 @@ static int ipg_hw_init(struct net_device
  
- /*
-  * Unshare vm if it is being shared
-  */
--static int unshare_vm(unsigned long unshare_flags, struct mm_struct **new_mmp)
-+static mm_struct *unshare_vm(unsigned long flags)
- {
- 	struct mm_struct *mm = current->mm;
-+	struct mm_struct *new_mm = NULL;
+ 	if (phyaddr != -1) {
+ 		u16 mii_phyctrl, mii_1000cr;
+-		mii_1000cr = read_phy_register(dev,
+-					       phyaddr,
+-					       GMII_PHY_1000BASETCONTROL);
+-		write_phy_register(dev, phyaddr,
+-				   GMII_PHY_1000BASETCONTROL,
+-				   mii_1000cr |
+-				   GMII_PHY_1000BASETCONTROL_FULL_DUPLEX |
+-				   GMII_PHY_1000BASETCONTROL_HALF_DUPLEX |
++		mii_1000cr =
++			read_phy_register(dev, phyaddr, MII_CTRL1000);
++		write_phy_register(dev, phyaddr, MII_CTRL1000,
++			mii_1000cr | ADVERTISE_1000FULL | ADVERTISE_1000HALF |
+ 				   GMII_PHY_1000BASETCONTROL_PreferMaster);
  
--	if ((unshare_flags & CLONE_VM) &&
-+	if ((flags & CLONE_VM) &&
- 	    (mm && atomic_read(&mm->mm_users) > 1)) {
--		return -EINVAL;
-+		return ERR_PTR(-EINVAL);
+-		mii_phyctrl = read_phy_register(dev, phyaddr, GMII_PHY_CONTROL);
++		mii_phyctrl = read_phy_register(dev, phyaddr, MII_BMCR);
+ 		/* Set default phyparam */
+ 		pci_read_config_byte(sp->pdev, PCI_REVISION_ID, &revisionid);
+ 		ipg_set_phy_default_param(revisionid, dev, phyaddr);
+ 
+ 		/* reset Phy */
+-		write_phy_register(dev,
+-				   phyaddr, GMII_PHY_CONTROL,
+-				   (mii_phyctrl | GMII_PHY_CONTROL_RESET |
+-				    MII_PHY_CONTROL_RESTARTAN));
++		write_phy_register(dev, phyaddr, MII_BMCR,
++			(mii_phyctrl | BMCR_RESET | BMCR_ANRESTART));
+ 
  	}
  
--	return 0;
-+	return new_mm;
- }
+diff --git a/drivers/net/ipg.h b/drivers/net/ipg.h
+index 03bc6f1..cb51b2b 100644
+--- a/drivers/net/ipg.h
++++ b/drivers/net/ipg.h
+@@ -86,38 +86,9 @@ #define         MII_PHY_TECHABILITY_ASM_
+ #define         MII_PHY_TECHABILITY_RSVD2       0x1000
+ #define         MII_PHY_STATUS_AUTONEG_ABILITY  0x0008
  
- /*
-  * Unshare file descriptor table if it is being shared
-  */
--static int unshare_fd(unsigned long unshare_flags, struct files_struct **new_fdp)
-+static struct files_struct *unshare_fd(unsigned long flags)
- {
- 	struct files_struct *fd = current->files;
-+	struct files_struct *new_fd = NULL;
- 	int error = 0;
+-/* NIC Physical Layer Device GMII register addresses. */
+-#define         GMII_PHY_CONTROL                 0x00
+-#define         GMII_PHY_STATUS                  0x01
+-#define			GMII_PHY_ID_1                    0x02
+-#define         GMII_PHY_AUTONEGADVERTISEMENT    0x04
+-#define         GMII_PHY_AUTONEGLINKPARTABILITY  0x05
+-#define         GMII_PHY_AUTONEGEXPANSION        0x06
+-#define         GMII_PHY_AUTONEGNEXTPAGE         0x07
+-#define         GMII_PHY_AUTONEGLINKPARTNEXTPAGE 0x08
+-#define         GMII_PHY_EXTENDEDSTATUS          0x0F
+-
+-#define         GMII_PHY_1000BASETCONTROL        0x09
+-#define         GMII_PHY_1000BASETSTATUS         0x0A
+-
+ /* GMII_PHY_1000 need to set to prefer master */
+ #define         GMII_PHY_1000BASETCONTROL_PreferMaster 0x0400
  
--	if ((unshare_flags & CLONE_FILES) &&
-+	if ((flags & CLONE_FILES) &&
- 	    (fd && atomic_read(&fd->count) > 1)) {
--		*new_fdp = dup_fd(fd, &error);
--		if (!*new_fdp)
--			return error;
-+		new_fd = dup_fd(fd, &error);
-+		if (!new_fd)
-+			return ERR_PTR(error);
- 	}
- 
--	return 0;
-+	return new_fd;
- }
- 
- /*
-@@ -1572,16 +1578,36 @@ asmlinkage long sys_unshare(unsigned lon
- 
- 	if ((err = unshare_thread(unshare_flags)))
- 		goto bad_unshare_out;
--	if ((err = unshare_fs(unshare_flags, &new_fs)))
-+
-+	new_fs = unshare_fs(unshare_flags);
-+	if (IS_ERR(new_fs)) {
-+		err = PTR_ERR(new_fs);
- 		goto bad_unshare_cleanup_thread;
--	if ((err = unshare_namespace(unshare_flags, &new_ns, new_fs)))
-+	}
-+
-+	new_ns = unshare_namespace(unshare_flags, &new_ns);
-+	if (IS_ERR(new_ns)) {
-+		err = PTR_ERR(new_ns);
- 		goto bad_unshare_cleanup_fs;
--	if ((err = unshare_sighand(unshare_flags, &new_sigh)))
-+	}
-+
-+	new_sigh = unshare_sighand(unshare_flags);
-+	if (IS_ERR(new_sigh)) {
-+		err = PTR_ERR(new_sigh);
- 		goto bad_unshare_cleanup_ns;
--	if ((err = unshare_vm(unshare_flags, &new_mm)))
-+	}
-+	new_mm = unshare_vm(unshare_flags);
-+	if (IS_ERR(new_mm)) {
-+		err = PTR_ERR(new_mm);
- 		goto bad_unshare_cleanup_sigh;
--	if ((err = unshare_fd(unshare_flags, &new_fd)))
-+	}
-+
-+	new_fd = unshare_fd(unshare_flags);
-+	if (IS_ERR(new_fd)) {
-+		err = PTR_ERR(new_fd);
- 		goto bad_unshare_cleanup_vm;
-+	}
-+
- 	if ((err = unshare_semundo(unshare_flags, &new_ulist)))
- 		goto bad_unshare_cleanup_fd;
- 
-@@ -1626,24 +1652,24 @@ asmlinkage long sys_unshare(unsigned lon
- 	}
- 
- bad_unshare_cleanup_fd:
--	if (new_fd)
-+	if (new_fd && !IS_ERR(new_fd))
- 		put_files_struct(new_fd);
- 
- bad_unshare_cleanup_vm:
--	if (new_mm)
-+	if (new_mm && !IS_ERR(new_mm))
- 		mmput(new_mm);
- 
- bad_unshare_cleanup_sigh:
--	if (new_sigh)
-+	if (new_sigh && !IS_ERR(new_sigh))
- 		if (atomic_dec_and_test(&new_sigh->count))
- 			kmem_cache_free(sighand_cachep, new_sigh);
- 
- bad_unshare_cleanup_ns:
--	if (new_ns)
-+	if (new_ns && !IS_ERR(new_ns))
- 		put_namespace(new_ns);
- 
- bad_unshare_cleanup_fs:
--	if (new_fs)
-+	if (new_fs && !IS_ERR(new_fs)))
- 		put_fs_struct(new_fs);
- 
- bad_unshare_cleanup_thread:
+-#define         GMII_PHY_1000BASETCONTROL_FULL_DUPLEX 0x0200
+-#define         GMII_PHY_1000BASETCONTROL_HALF_DUPLEX 0x0100
+-#define         GMII_PHY_1000BASETSTATUS_FULL_DUPLEX 0x0800
+-#define         GMII_PHY_1000BASETSTATUS_HALF_DUPLEX 0x0400
+-
+-/* NIC Physical Layer Device GMII register Fields. */
+-#define         GMII_PHY_CONTROL_RESET          0x8000
+-#define         GMII_PHY_CONTROL_FULL_DUPLEX    0x0100
+-#define         GMII_PHY_STATUS_AUTONEG_ABILITY 0x0008
+-#define         GMII_PHY_ADV_FULL_DUPLEX        0x0020
+-#define         GMII_PHY_ADV_HALF_DUPLEX        0x0040
+-#define         GMII_PHY_ADV_PAUSE              0x0180
+-#define         GMII_PHY_ADV_PAUSE_PS1          0x0080
+-#define         GMII_PHY_ADV_ASM_DIR_PS2        0x0100
+-
+ /* NIC Physical Layer Device GMII constants. */
+ #define         GMII_PREAMBLE                    0xFFFFFFFF
+ #define         GMII_ST                          0x1
 -- 
-1.3.0
+1.3.1
 

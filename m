@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWEBUAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWEBUA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWEBUAU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 16:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWEBUAU
+	id S1751277AbWEBUA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 16:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWEBUA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 16:00:20 -0400
-Received: from cantor.suse.de ([195.135.220.2]:23513 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751275AbWEBUAT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 16:00:19 -0400
-From: Andi Kleen <ak@suse.de>
-To: Martin Bligh <mbligh@mbligh.org>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Date: Tue, 2 May 2006 22:00:12 +0200
-User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <20060419112130.GA22648@elte.hu> <200605022144.56586.ak@suse.de> <4457B960.40701@mbligh.org>
-In-Reply-To: <4457B960.40701@mbligh.org>
+	Tue, 2 May 2006 16:00:56 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:62776 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751277AbWEBUAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 16:00:55 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=OJcpTVDCcUKr1ZLqUbMnrOrvIHfWBuFG0oMF3hRvl5jdWnt/rGvfQ3pwbAXskBAvI
+	0oIITavd997M2aKb8bWlw==
+Message-ID: <4457BA59.8030901@google.com>
+Date: Tue, 02 May 2006 13:00:25 -0700
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, apw@shadowen.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc2-mm1
+References: <4450F5AD.9030200@google.com> <20060428012022.7b73c77b.akpm@osdl.org> <44561A1E.7000103@google.com> <200605012034.26763.ak@suse.de>
+In-Reply-To: <200605012034.26763.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605022200.12980.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 May 2006 21:56, Martin Bligh wrote:
-> Andi Kleen wrote:
-> > On Tuesday 02 May 2006 21:48, Ingo Molnar wrote:
-> > 
-> >>* Andi Kleen <ak@suse.de> wrote:
-> >>
-> >>
-> >>>i386: Panic the system early when a NUMA kernel doesn't run on IBM 
-> >>>NUMA
-> >>
-> >>nah! Lets just fix the zone sizing bug ...
-> > 
-> > 
-> > The problem is that nobody regression tests it. So even if you fix it
-> > now it will be likely broken again in a few months.
+> That's really strange - i wonder why the backtracer can't find the original
+> stack. Should probably add some printk diagnosis here.
 > 
-> We can add a box to the test.kernel.org harness easily enough, and
-> it will show up with an eerie red glow.
+> Can you send the output with this patch?
+> 
+> Index: linux/arch/x86_64/kernel/traps.c
+> ===================================================================
+> --- linux.orig/arch/x86_64/kernel/traps.c
+> +++ linux/arch/x86_64/kernel/traps.c
+> @@ -238,6 +238,7 @@ void show_trace(unsigned long *stack)
+>  			HANDLE_STACK (stack < estack_end);
+>  			i += printk(" <EOE>");
+>  			stack = (unsigned long *) estack_end[-2];
+> +			printk("new stack %lx (%lx %lx %lx %lx %lx)\n", stack, estack_end[0], estack_end[-1], estack_end[-2], estack_end[-3], estack_end[-4]);
+>  			continue;
+>  		}
+>  		if (irqstack_end) {
 
-Single box is not enough - there are many possible combinations
-(e.g. Opteron NUMA, IBM NUMA, no NUMA small box, big box with weird
-mappings etc.). Basically you would need a real tester base.
+Thanks for running this Andy:
 
--Andi
+http://test.kernel.org/abat/30183/debug/console.log

@@ -1,87 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWEBU2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWEBU2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWEBU2N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 16:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWEBU2N
+	id S1751246AbWEBU2S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 16:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWEBU2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 16:28:13 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:31953 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1751246AbWEBU2M (ORCPT
+	Tue, 2 May 2006 16:28:18 -0400
+Received: from smtp04.auna.com ([62.81.186.14]:16029 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S1751246AbWEBU2R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 16:28:12 -0400
-Message-ID: <4457C0CD.3030304@myri.com>
-Date: Tue, 02 May 2006 22:27:57 +0200
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] add __iowrite64_copy
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 2 May 2006 16:28:17 -0400
+Date: Tue, 2 May 2006 22:28:12 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Al Boldi <a1426z@gawab.com>,
+       "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+Message-ID: <20060502222812.4fb7e34f@werewolf.auna.net>
+In-Reply-To: <200605022121.44831.a1426z@gawab.com>
+References: <200605022121.44831.a1426z@gawab.com>
+X-Mailer: Sylpheed-Claws 2.1.1cvs41 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="Sig_AmovTWW16J.zjvHOSC=dHu9";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.210.119] Login:jamagallon@able.es Fecha:Tue, 2 May 2006 22:28:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+--Sig_AmovTWW16J.zjvHOSC=dHu9
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-The following patch introduces __iowrite64_copy. It will be used by the
-Myri-10G Ethernet driver to post requests to the NIC. This driver will
-be submitted soon.
+On Tue, 2 May 2006 21:21:44 +0300, Al Boldi <a1426z@gawab.com> wrote:
 
-__iowrite64_copy copies to I/O memory in units of 64 bits when possible
-(on 64 bit architectures).
-It reverts to __iowrite32_copy on 32 bit architectures.
+> Christer Weinigel <christer@weinigel.se> wrote:
+> >> eCos is nice enough -- because it's mostly C :)
+> >
+> > And those parts that are C++ (from a 2 year old eCos dist) won't
+> > compile with a modern g++.
+>=20
+> C++ is OO, and OO is great!  OO is the natural way of doing things, and=20
+> allows one to concentrate on the issues at hand, while leaving the=20
+> nitty-gritty to the compiler to decide.
+>=20
+> And this is the problem, as kernel development is highly sensitive to=20
+> compiler output, and which is why there are parts written in asm and othe=
+rs=20
+> in C.
+>=20
+> So rewriting C with C++ would be as dumb as rewriting asm with C.
+>=20
+> But there may be certain higher level parts in the kernel that could bene=
+fit=20
+> from rewriting C with C++, much the same as lower level parts have benefi=
+ted=20
+> from rewriting them in asm.
+>=20
+> So we have a situation like this:
+>=20
+> 	low-level written in asm when needed
+>=20
+> 	main-level written in C mostly
+>=20
+> 	high-level written in C++ when needed
+>=20
 
-Signed-off-by: Brice Goglin <brice@myri.com>
+You can control low level features in C++ even much better than in asm.
+Just an example. You can be pretty sure that a function like this:
 
-include/linux/io.h |  1 +
-lib/iomap_copy.c   | 28 ++++++++++++++++++++++++++++
-2 files changed, 29 insertions(+)
+inline void f(const int& x)
+{
+}
 
+would use the parameter you pass to it without doing a copy on the stack.
+And that is not dependent on anything.
+For example, I wrote a vector library to do math with SSE, and there it
+is fundamental that you don't _ever_ write a xmm register to the stack or
+to memory in temporary variables. Look like this:
 
---- linux-mm/include/linux/io.h.old	2006-03-24 14:14:46.000000000 -0500
-+++ linux-mm/include/linux/io.h	2006-04-27 17:17:48.294803301 -0400
-@@ -21,5 +21,6 @@
- #include <asm/io.h>
- 
- void __iowrite32_copy(void __iomem *to, const void *from, size_t count);
-+void __iowrite64_copy(void __iomem *to, const void *from, size_t count);
- 
- #endif /* _LINUX_IO_H */
---- linux-mm/lib/iomap_copy.c.old	2006-03-24 14:14:49.000000000 -0500
-+++ linux-mm/lib/iomap_copy.c	2006-04-27 17:27:55.339971819 -0400
-@@ -40,3 +40,31 @@
- 		__raw_writel(*src++, dst++);
- }
- EXPORT_SYMBOL_GPL(__iowrite32_copy);
-+
-+/**
-+ * __iowrite64_copy - copy data to MMIO space, in 64-bit or 32-bit units
-+ * @to: destination, in MMIO space (must be 64-bit aligned)
-+ * @from: source (must be 64-bit aligned)
-+ * @count: number of 64-bit quantities to copy
-+ *
-+ * Copy data from kernel space to MMIO space, in units of 32 or 64 bits at a
-+ * time.  Order of access is not guaranteed, nor is a memory barrier
-+ * performed afterwards.
-+ */
-+void __attribute__((weak)) __iowrite64_copy(void __iomem *to,
-+					    const void *from,
-+					    size_t count)
-+{
-+#ifdef CONFIG_64BIT
-+	u64 __iomem *dst = to;
-+	const u64 *src = from;
-+	const u64 *end = src + count;
-+
-+	while (src < end)
-+		__raw_writeq(*src++, dst++);
-+#else
-+	__iowrite32_copy(to, from, count * 2);
-+#endif
-+}
-+
-+EXPORT_SYMBOL_GPL(__iowrite64_copy);
+class Vector {
+    float   f[4];
 
+    typedef float __vr __attribute__((__mode__(__V4SF__),__aligned__(16)));
+   =20
+    Vector operator+(const __vr that) const
+    {
+	return __builtin_ia32_addps(...);
+    };
+    Vector operator-(const __vr that) const
+    {
+	return __builtin_ia32_subps(...);
+    };
+    ...
+};
 
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.16-jam11 (gcc 4.1.1 20060330 (prerelease)) #1 SMP PREEMPT Mon
+
+--Sig_AmovTWW16J.zjvHOSC=dHu9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEV8DcRlIHNEGnKMMRAv9NAJ4qCZCX+AcvzMbI7NARV0h4OgVeowCeJihr
+mqbfopH5OUUHZ1MXSzOtMho=
+=OUO6
+-----END PGP SIGNATURE-----
+
+--Sig_AmovTWW16J.zjvHOSC=dHu9--

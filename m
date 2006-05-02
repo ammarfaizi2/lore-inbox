@@ -1,91 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWEBKcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWEBKfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWEBKcd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 06:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWEBKcd
+	id S932145AbWEBKfs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 06:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWEBKfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 06:32:33 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:48433
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932139AbWEBKcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 06:32:32 -0400
-Message-Id: <44575190.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Tue, 02 May 2006 12:33:20 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] adjust outputmakefile rule
-References: <444F9814.76E4.0078.0@novell.com> <20060430214951.GA22935@mars.ravnborg.org>
-In-Reply-To: <20060430214951.GA22935@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 2 May 2006 06:35:48 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:62109 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932145AbWEBKfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 06:35:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=qfVZFZh7+zZw8OVHhaTl8VqmN5ujkbQNbXx9CK+PjwVWb8PWyzLlVpAB5utujwKpTc8z68jdMN6teaMZV4UMOTJy4LhnCNpv0HxG9RmGWUoz0Xe2A/IMtTDRVEsRBaw1SXwRV5omiUxxhWhyrPfj5xpzG4qH7HelT3JJe/4rxwU=  ;
+Message-ID: <4456D85E.6020403@yahoo.com.au>
+Date: Tue, 02 May 2006 13:56:14 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: blaisorblade@yahoo.it
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [patch 00/14] remap_file_pages protection support
+References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au>
+In-Reply-To: <4456D5ED.2040202@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Sam Ravnborg <sam@ravnborg.org> 30.04.06 23:49 >>>
->On Wed, Apr 26, 2006 at 03:56:04PM +0200, Jan Beulich wrote:
->> Change the conditional of the outputmakefile rule to be evaluated entirely
->> in make, and to not touch the generated makefile when e.g. running
->> 'make install' as root while the build was done as non-root. Also adjust
->> the comment describing this.
->
->Can I request you to redo this patch.
->Move all logic (including print-out) to mkmakefile
->And only let it print out "GEN   ...." when it actttttttually generate
->the Makefile.
+Nick Piggin wrote:
+> blaisorblade@yahoo.it wrote:
+> 
+>> The first idea is to use this for UML - it must create a lot of single 
+>> page
+>> mappings, and managing them through separate VMAs is slow.
 
-Here we go:
+[...]
 
-Change the conditional of the outputmakefile rule to be evaluated entirely
-in make, and add a conditional to not touch the generated makefile when e.g.
-running 'make install' as root while the build was done as non-root. Also
-adjust the comment describing this, and move the message printing and
-redirection to mkmakefile.
+> Let's try get back to the good old days when people actually reported
+> their bugs (togther will *real* numbers) to the mailing lists. That way,
+> everybody gets to think about and discuss the problem.
 
-Signed-off-by: Jan Beulich <jbeulich@novell.com>
+Speaking of which, let's see some numbers for UML -- performance
+and memory. I don't doubt your claims, but I (and others) would be
+interested to see.
 
---- /home/jbeulich/tmp/linux-2.6.17-rc3/Makefile	2006-04-27 17:49:26.000000000 +0200
-+++ 2.6.17-rc3-mkmakefile/Makefile	2006-04-24 12:28:36.000000000 +0200
-@@ -344,16 +344,14 @@ scripts_basic:
- scripts/basic/%: scripts_basic ;
- 
- PHONY += outputmakefile
--# outputmakefile generate a Makefile to be placed in output directory, if
--# using a seperate output directory. This allows convinient use
--# of make in output directory
-+# outputmakefile generates a Makefile in the output directory, if using a
-+# separate output directory. This allows convenient use of make in the
-+# output directory.
- outputmakefile:
--	$(Q)if test ! $(srctree) -ef $(objtree); then \
--	$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile              \
--	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)         \
--	    > $(objtree)/Makefile;                                 \
--	    echo '  GEN    $(objtree)/Makefile';                   \
--	fi
-+ifneq ($(KBUILD_SRC),)
-+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile \
-+	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)
-+endif
- 
- # To make sure we do not include .config for any of the *config targets
- # catch them early, and hand them over to scripts/kconfig/Makefile
---- /home/jbeulich/tmp/linux-2.6.17-rc3/scripts/mkmakefile	2006-04-27 17:49:57.000000000 +0200
-+++ 2.6.17-rc3-mkmakefile/scripts/mkmakefile	2006-05-02 11:27:13.000000000 +0200
-@@ -10,7 +10,10 @@
- # $4 - patchlevel
- 
- 
--cat << EOF
-+test ! -r $2/Makefile -o -O $2/Makefile || exit 0
-+echo "  GEN     $2/Makefile"
-+
-+cat << EOF > $2/Makefile
- # Automatically generated by $0: don't edit
- 
- VERSION = $3
+Thanks
 
+PS. I'll be away for the next few days.
 
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

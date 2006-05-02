@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWEBEMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWEBEVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWEBEMx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 00:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWEBEMx
+	id S932363AbWEBEVm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 00:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWEBEVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 00:12:53 -0400
-Received: from wilma.widomaker.com ([204.17.220.5]:62471 "EHLO
-	wilma.widomaker.com") by vger.kernel.org with ESMTP id S932361AbWEBEMw
+	Tue, 2 May 2006 00:21:42 -0400
+Received: from wilma.widomaker.com ([204.17.220.5]:11271 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP id S932363AbWEBEVl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 00:12:52 -0400
-Date: Tue, 2 May 2006 00:12:18 -0400
+	Tue, 2 May 2006 00:21:41 -0400
+Date: Tue, 2 May 2006 00:21:08 -0400
 From: Charles Shannon Hendrix <shannon@widomaker.com>
 To: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: OOM kills if swappiness set to 0, swap storms otherwise
-Message-ID: <20060502041218.GA5691@widomaker.com>
-References: <1143510828.1792.353.camel@mindpipe> <20060327195905.7f666cb5.akpm@osdl.org> <20060405144716.GA10353@widomaker.com> <44342CE2.208@tmr.com>
+Message-ID: <20060502042108.GD5691@widomaker.com>
+References: <1143510828.1792.353.camel@mindpipe> <20060327195905.7f666cb5.akpm@osdl.org> <20060405144716.GA10353@widomaker.com> <443B69BE.6060601@tlinx.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44342CE2.208@tmr.com>
+In-Reply-To: <443B69BE.6060601@tlinx.org>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wed, 05 Apr 2006 @ 16:47 -0400, Bill Davidsen said:
+Tue, 11 Apr 2006 @ 01:33 -0700, Linda Walsh said:
 
-Sorry for the late reply, and if this is a duplicate.
+>    Hmmm, not to be contrary, but I have a 1GB system that refuses to swap
+> during large file i/o operations.  For the first time in a *long* time,
+> I read someone's suggestion to increase swappiness -- I did, to 75 or 80,
+> (I've booted since then, so it's back to 60 and no swap usage) and some of
+> the programs that rarely run actually swapped.  It was great!  I finally had
+> more memory for file i/o operations.
 
-> >I shouldn't be suffering from swap storms.
-> 
-> Agreed, does meminfo show that you are? 
+It's great if you actually need the file data that gets stored.
 
-meminfo?
+>    Maybe you are telling the system to "feel free" to use swap by having a
+> large swap file?  
 
-procinfo and other tools show a lot swapping, if that's what you mean, and you
-can see it in disk I/O to the swap drives as well.
+I don't believe that matters, and certainly doesn't seem to affect my
+own system.
 
-> The reason I ask is that I have noted that large memory machines and CD/DVD
-> image writing suffer from some interesting disk write patterns. The image
-> being built gets cached but not written, then the file is closed. At some
-> point the kernel notices several GB of old unwritten data and decides to
-> write it. This makes everything pretty slow for a while, even if you have
-> 100MB/s disk system.
+If I use a smaller swap file, I just run out faster.
 
-I see that kind of behavior quite a lot. Not just for DVD/CD images either.
-Basically any large data processing fills memory with cached file data at the
-expense of other programs and data.
+Is your experience different?
 
-> In theory you should be able to tune this, but in practice I see what
-> you do. On small memory machines it's less noticable, oddly.
+> I agree.  Try getting rid of your swap file entirely -- your system
+> will still run unless you are overloading memory, but you have a Gig.
+> How much do you need to keep in memory?  Sure, if/when I get a 4-way
+> CPU (I have a 2-cpu setup now), I might go up to 4G, but I might be
+> running multiple virtual machines too!
 
-I tried putting swapiness down to 30. It helped, most of the time, but still
-I saw way too much useless file data being cached.
+Sure it will run, but I *want* swap to be used to remove unused
+programs.
 
-I would personally rather just limit how much file data can be cached. I don't
-mind agressive swapping, I just hate seeing a ton of file data being cached
-that isn't going to be used again.
+My current problem is that *useful* program code is being swapped out and
+being replaced by *useless* cached file data.
 
-I'm also trying the ck kernels just to see how they run. So far they work
-better.
+>    You might try the "cfq" block i/o algorithm.  Then you can
+> ionice down the disk priority of background processes (though you need
+> to be root to reduce ionice levels at this point, unlike cpu nice).
+
+I've not seen ionice.
+
 
 -- 
 shannon "AT" widomaker.com -- ["All of us get lost in the darkness,

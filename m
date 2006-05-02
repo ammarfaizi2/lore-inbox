@@ -1,125 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWEBItF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWEBIt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWEBItF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 04:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWEBItF
+	id S932514AbWEBIt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 04:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWEBIt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 04:49:05 -0400
-Received: from smtpout.mac.com ([17.250.248.183]:65485 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932511AbWEBItE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 04:49:04 -0400
-In-Reply-To: <20060502040053.GA14413@kroah.com>
-References: <20060428112225.418cadd9.holzheu@de.ibm.com> <20060429075311.GB1886@kroah.com> <8A7D2F4D-5A05-4C93-B514-03268CAA9201@mac.com> <20060429215501.GA9870@kroah.com> <4237705F-E1B2-46CF-BE66-EFB77F68EC42@mac.com> <20060501203815.GE19423@kroah.com> <2DBA690E-B11A-478E-B2E0-0529F4CE45A9@mac.com> <20060502040053.GA14413@kroah.com>
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <13D6E299-061B-46A5-A3CD-12E1075B9451@mac.com>
-Cc: Michael Holzheu <holzheu@de.ibm.com>, akpm@osdl.org,
-       schwidefsky@de.ibm.com, penberg@cs.helsinki.fi, ioe-lkml@rameria.de,
-       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] s390: Hypervisor File System
-Date: Tue, 2 May 2006 04:48:42 -0400
-To: Greg KH <greg@kroah.com>
-X-Mailer: Apple Mail (2.746.3)
+	Tue, 2 May 2006 04:49:28 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64459 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932514AbWEBIt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 04:49:27 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, herbert@13thfloor.at, dev@sw.ru,
+       linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
+       haveblue@us.ibm.com, clg@us.ibm.com, frankeh@us.ibm.com
+Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
+References: <20060501203906.XF1836@sergelap.austin.ibm.com>
+	<p7364ko7w66.fsf@bragg.suse.de>
+	<m1lktk97ks.fsf@ebiederm.dsl.xmission.com>
+	<200605021017.19897.ak@suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 02 May 2006 02:48:23 -0600
+In-Reply-To: <200605021017.19897.ak@suse.de> (Andi Kleen's message of "Tue,
+ 2 May 2006 10:17:19 +0200")
+Message-ID: <m14q0895ig.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 2, 2006, at 00:00:53, Greg KH wrote:
-> On Mon, May 01, 2006 at 07:29:23PM -0400, Kyle Moffett wrote:
->> So my question stands:  What is the _recommended_ way to handle  
->> simple data types in low-bandwidth/frequency multiple-valued  
->> transactions to hardware?  Examples include reading/modifying  
->> framebuffer settings (currently done through IOCTLS), s390 current  
->> state (up for discussion), etc.  In these cases there needs to be  
->> an atomic snapshot or write of multiple values at the same time.   
->> Given the situation it would be _nice_ to use sysfs so the admin  
->> can do it by hand; makes things shell scriptable and reduces the  
->> number of binary compatibility issues.
->
-> I really don't know of a way to use sysfs for this currently, and  
-> hence, am not complaining too much about the different /proc files  
-> that have this kind of information in it at the moment.
->
-> If you or someone else wants to come up with some kind of solution  
-> for it, I'm sure that many people would be very happy to see it.
+Andi Kleen <ak@suse.de> writes:
 
-Hmm, ok; I'll see what I can come up with.  Would anybody object to  
-this kind of API (as in my previous email) that uses an open fd as a  
-transaction "handle"?
-
-Example script:
-> ## Associate this process with an atomic snapshot
-> ## of the /sys/hypervisor/s390 filesystem tree.
-> exec 3>/sys/hypervisor/s390/transaction
+> On Tuesday 02 May 2006 10:03, Eric W. Biederman wrote:
+>> Andi Kleen <ak@suse.de> writes:
+>> 
+>> > "Serge E. Hallyn" <serue@us.ibm.com> writes:
+>> >
+>> >> Implement a CLONE_NEWUTS flag, and use it at clone and sys_unshare.
+>> >
+>> > I still think it's a design mistake to add zillions of pointers to
+> task_struct
+>> > for every possible kernel object. Going through a proxy datastructure to 
+>> > merge common cases would be much better.
+>> 
+>> The design point is not every kernel object.  The target is one
+>> per namespace.  Or more usefully one per logical chunk of the kernel.
 >
-> ## Read data from /sys/hypervisor/s390 without
-> ## worrying about atomicity; as that's guaranteed
-> ## by the open FD 3.
-> ls /sys/hypervisor/s390/cpus
-> cat /sys/hypervisor/s390/some_data_file
->
-> ## Create another reference in this process to the
-> ## _same_ atomic snapshot
-> exec 4>&3
->
-> ## Does *not* close out the atomic snapshot
-> exec 3>&-
->
-> ## Yet another ref; still the _same_ snapshot
-> exec 6>/sys/hypervisor/s390/transaction
-> exec 4>&-
->
-> ## Regardless of what has changed in the meantime,
-> ## our filesystem tree still looks the same
-> ls /sys/hypervisor/s390/cpus
->
-> ## Write out values
-> echo some_state >/sys/hypervisor/s390/statefile
->
-> ## Decide we don't like the changes and abort
-> echo reset >&6
->
-> ## Release the last copy of the snapshot and
-> ## commit modified values
-> exec 6>&-
+> Which are likely tens or even hundreds if you go through all the source.
+> Even tens would bloat task_struct far too much.
 
+We don't have that many places where we put global names in
+the linux api.  Yes there are several and it is painful,
+but we are nowhere near as high as you expect.
 
-This would allow usages like the following:
-> exec 3>/sys/hypervisor/s390/transaction
-> /bin/s390_change_hypervisor_state
-> ## Look at new state; decide if we like it or not
-> if [ -z "$I_LIKE_THE_STATE" ]; then
-> 	echo reset >&3
-> fi
-> exec 3>&-
+>> The UTS namespace is by far the smallest of these pieces.
+>> 
+>> The kernel networking stack is probably the largest.
+>> 
+>> At last count there were about 7 of these, enough so that the few
+>> remaining clone bits would be sufficient.
+>
+> 7 additional bits will probably not be enough. I still don't
+> quite understand why you want individual bits for everything.
+> Why not group them into logical pieces? 
 
+Each bit currently maps to one logical piece, that is why I expect
+to have enough bits.
 
-For actually implementing this; I'm considering a design which hangs  
-a transaction off of a "struct file" such that fork() and clone()  
-preserve the same transaction.  When a new process obtains an FD with  
-the given transaction it would add that process' current pointer to a  
-hash-table referencing the transaction data structure so that the open 
-() call could look up the transaction for a given task in the hash  
-table and use the data specified in the transaction.  When a  
-transaction is opened it would read the data atomically from the  
-hardware or in-kernel data structures and store an "initial" copy as  
-well as a "current" copy in per-transaction memory.  As a user could  
-theoretically pin NPROC * size_of_transaction_data * 2 of kernel  
-memory, transaction files should have fairly strict file modes or  
-some sort of resource-accounting semantic.  On a "reset" operation  
-the "initial" copy would be used to overwrite the "current" copy  
-again, and a changed bit would be unset.  Changes would result in the  
-changed bit being set.  When the transaction is closed, if the  
-changed bit is set then the data would be committed atomically, then  
-all the memory would be freed and the transaction removed from the  
-hash table.
+> If you really want individual bits you'll likely need to think
+> about a clone2() call with more flags soon.
 
-Anything that sounds broken/fishy/"No that's impossible because..."  
-in there?  I appreciate your input; if this sounds feasable I'll try  
-to hack up a patch.
+Being short on bits should keep us thinking about keeping things
+in logical chunks.
 
-Cheers,
-Kyle Moffett
+>> Do you disagree that to be able to implement this properly we
+>> need to take small steps?
+>
+> No, but at least the basic infrastructure for expansion should 
+> be added first.
+>
+>> Are there any semantic differences between a clone bit and what you
+>> are proposing?
+>
+> No just internals.
 
+Good that means we can still optimize this.
+
+>  > If it is just an internal implementation detail do you have a clear
+>> suggestion on how to implement this?  Possibly illustrated by the
+>> thread flags that are already in this situation, and more likely
+>> to always share everything.
+>
+> Have a proxy structure which has pointers to the many name spaces and a bit
+> mask for "namespace X is different". This structure would be reference
+> counted. task_struct has a single pointer to it.
+>
+> On clone check the clone flags against the bit mask. If there is any
+> difference allocate a new structure and clone the name spaces into it.
+> If no difference just use the old data structure after increasing its 
+> reference count. 
+>
+> Possible name "nsproxy".
+
+Sounds reasonable, and I have nothing against it.
+I simply think at this point where we are still struggling to
+get the simplest namespace merged and working correctly that is a premature
+optimization.
+  
+>> Except for reducing reference counting I really don't see where
+>> we could have a marked improvement.  I also don't see us closing
+>> the door to that kind of implementation at this point, but instead
+>> taking the simple path.
+>
+> With many name spaces you would have smaller task_struct, less cache 
+> foot print, better cache use of task_struct because slab cache colouring
+> will still work etc.
+
+Makes sense.  I have no problem against that as an optimization,
+and it is firmly on the todo list as something to try.  Right now with
+only 2 non-thread clone flags I believe it will obfuscate the code more
+than help performance. 
+
+Eric

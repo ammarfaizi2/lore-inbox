@@ -1,63 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWEBPNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWEBPPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbWEBPNK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 11:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWEBPNK
+	id S964879AbWEBPPb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 11:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWEBPPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 11:13:10 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30995 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964873AbWEBPNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 11:13:09 -0400
-Date: Tue, 2 May 2006 16:13:03 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH (RFC): Rework the 8250 console fix
-Message-ID: <20060502151303.GB1736@flint.arm.linux.org.uk>
-Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-References: <1146578983.3519.49.camel@localhost.localdomain> <1146578702.17934.3.camel@pmac.infradead.org>
+	Tue, 2 May 2006 11:15:31 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:7374 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964879AbWEBPPa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 11:15:30 -0400
+Date: Tue, 2 May 2006 16:15:25 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+Message-ID: <20060502151525.GX27946@ftp.linux.org.uk>
+References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il> <20060502133416.GT27946@ftp.linux.org.uk> <4457668F.8080605@argo.co.il> <20060502143430.GW27946@ftp.linux.org.uk> <445774F7.5030106@argo.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1146578702.17934.3.camel@pmac.infradead.org>
+In-Reply-To: <445774F7.5030106@argo.co.il>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 03:05:02PM +0100, David Woodhouse wrote:
-> On Tue, 2006-05-02 at 15:09 +0100, Alan Cox wrote:
-> > There are two questions that I think make this an RFC not a final
-> > patch
-> > 
-> > 1.      Should this be pushed up into serial/serial_core.c for all chips. 
-> 
-> Yes, I think it probably should. It's icky enough that we want one copy
-> of it only.
+On Tue, May 02, 2006 at 06:04:23PM +0300, Avi Kivity wrote:
+> BTW, C++ could take over some of sparse's function:
 
-That'd mean we have to add extra methods:
-
-void uart_console_write(struct uart_port *port, const char *s,
-                        unsigned int count,
-                        void (*putchar)(struct uart_port *, int),
-			void *(*pre_write)(struct uart_port *),
-			void (*post_write)(struct uart_port *, void *));
-
-where the pre-write places data into some kind of driver specific
-structure which is allocated by some weird method, and post_write
-restores this information.
-
-Why are these driver specific?  Review all the users of uart_console_write
-and you'll find that there's many different requirements for what is
-done both before and after the uart_console_write method, most of
-which should arguably fall under such a lock.
-
-And I think that calling kmalloc() from within an oops (to allocate the
-memory to pass the current state between pre and post write methods)
-would be very bad news.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+And the point of that would be?  sparse is _fast_ and easy to modify;
+g++ is neither.

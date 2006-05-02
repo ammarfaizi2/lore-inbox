@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWEBQYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWEBQ0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWEBQYw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 12:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWEBQYw
+	id S964861AbWEBQ0U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 12:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWEBQ0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 12:24:52 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:42409 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964791AbWEBQYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 12:24:51 -0400
-Message-ID: <4457877F.5000406@linux.intel.com>
-Date: Tue, 02 May 2006 18:23:27 +0200
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: akpm@osdl.org, bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/17] Infrastructure to mark exported symbols as unused-for-removal-soon
-References: <1146581587.32045.41.camel@laptopd505.fenrus.org> <20060502092440.91fe8797.rdunlap@xenotime.net>
-In-Reply-To: <20060502092440.91fe8797.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 May 2006 12:26:20 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:58321 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S964861AbWEBQ0T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 12:26:19 -0400
+Date: Tue, 2 May 2006 18:26:18 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Sanal V <get2sanal@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LINUX device driver help
+Message-ID: <20060502162618.GA1986@harddisk-recovery.com>
+References: <cb7a25200605010832h4091574o4fa870c3d850a31f@mail.gmail.com> <cb7a25200605020922j165de607q6264b761010cc140@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cb7a25200605020922j165de607q6264b761010cc140@mail.gmail.com>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Tue, 02 May 2006 16:53:07 +0200 Arjan van de Ven wrote:
-> 
->> Hi,
->> As discussed on lkml before; the patch with the infrastructure to deprecate unused symbols
->>
->> This is patch one in a series of 17; to not overload lkml the other 16 will be mailed direct;
->> people who want to see them all can see them at http://www.fenrus.org/unused
->>
->>
->>
->> This patch temporarily adds EXPORT_UNUSED_SYMBOL and EXPORT_UNUSED_SYMBOL_GPL.
->> These will be used as transition measure for symbols that aren't used in the 
->> kernel and are on the way out. When a module uses such a symbol, a warning
->> is printk'd at modprobe time.
->>
->> The main reason for removing unused exports is size: eacho export takes roughly
->> between 100 and 150 bytes of kernel space in the binary. This patch gives
->> users the option to immediately get this size gain via a config option.
-> 
-> Do the exports take any space at runtime in RAM?
+On Tue, May 02, 2006 at 09:52:11PM +0530, Sanal V wrote:
+> I am a young linux application programmer. I dont have any experience
+> in writing linux device drivers. I want to learn how to write drivers.
+> Please can anyone tell me where to start and how ???
 
-yes; roughly 100 to 150 bytes or so
+Linux Device Drivers, 3rd edition:
 
-> scsi patch comments (only one that I have seen) say:
-> +EXPORT_UNUSED_SYMBOL(scsi_print_status); /* removal in 2.6.19 */
-> 
-> and When: above says "before 2.6.19".  Those don't agree.
-> Please fix.  Thanks.
+  http://lwn.net/Kernel/LDD3/
 
-there's no conflict actually; they'll be gone in 2.6.19, by removing them just before that ;)
+And the kernelnewbies website (and IRC channel, and mailing list):
+
+  http://www.kernelnewbies.org/
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

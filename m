@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWEBXjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWEBXrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964988AbWEBXjW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 19:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWEBXjW
+	id S964948AbWEBXrh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 19:47:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWEBXrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 19:39:22 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:42631 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S964988AbWEBXjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 19:39:21 -0400
-In-Reply-To: <200605021259.24157.arnd@arndb.de>
-References: <20060429232812.825714000@localhost.localdomain> <200605020150.14152.arnd@arndb.de> <1900A234-BE31-4292-87E1-5C02F12A440D@kernel.crashing.org> <200605021259.24157.arnd@arndb.de>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <801072F8-7701-4BD7-81FB-A8C1AA534C2E@kernel.crashing.org>
-Cc: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [Cbe-oss-dev] [PATCH 11/13] cell: split out board specific files
-Date: Wed, 3 May 2006 01:38:56 +0200
-To: Arnd Bergmann <arnd@arndb.de>
-X-Mailer: Apple Mail (2.749.3)
+	Tue, 2 May 2006 19:47:37 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:53597 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S964948AbWEBXrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 19:47:36 -0400
+Date: Tue, 2 May 2006 16:47:22 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Jan Kara <jack@suse.cz>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] JBD checkpoint cleanup strikes back
+Message-ID: <20060502234721.GA5768@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20060502184646.GK14703@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060502184646.GK14703@atrey.karlin.mff.cuni.cz>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Is there any reason the driver wouldn't build and/or run on other
->> platforms?  If so, fix it.  If not, just make it
->>
->>         depends on PCI
->
-> Well, it could run on other platforms, except:
->
-> - it requires a few properties in the device tree (local-mac-address,
->   firmware), so it should also depend on PPC
+On Tue, May 02, 2006 at 08:46:46PM +0200, Jan Kara wrote:
+>   The patch was already in 2.6.16-rc3 but was dropped because of
+> problems with OCFS2. I've now tracked down the problem - OCFS2 relies on
+> the fact that buffer does not have journal_head if it is not on any
+> transaction's list. It assumes that if the buffer has buffer_jbd set,
+> then it is journaled and hence the node has uptodate data in the
+> buffer. My patch broke that assumption as in one path I forgot to call
+> journal_remove_journal_head() and hence I was leaving behind some
+> buffers not attached to any transaction but with journal_head. Now that
+> leak is fixed and OCFS2 seems to work fine also with my patch.
+Ahh, ok that makes sense and it definitely sounds like the type of thing
+that would cause OCFS2 to pick up stale data.
 
-The portions of code that require OF should have appropriate #ifdef  
-guards.
+>   Andrew, could you please put the patch into -mm? Thanks.
+Without commenting any further on the patch, I can definitely offer up some
+more testing on my end should Andrew decide to pick this up.
+	--Mark
 
-> - It's not actually PCI at all, but on an internal bus that has
->   something close enough to a PCI config space.
-
-Our emulation should be good enough; if not, holler (off-list).
-
-
-Segher
-
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

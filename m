@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWEBPEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWEBPF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964864AbWEBPEx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 11:04:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWEBPEw
+	id S964867AbWEBPF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 11:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWEBPF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 11:04:52 -0400
-Received: from ns1.suse.de ([195.135.220.2]:49324 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964864AbWEBPEw (ORCPT
+	Tue, 2 May 2006 11:05:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54179 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964868AbWEBPFK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 11:04:52 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Date: Tue, 2 May 2006 17:03:36 +0200
-User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <20060419112130.GA22648@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org>
-In-Reply-To: <44576688.6050607@mbligh.org>
+	Tue, 2 May 2006 11:05:10 -0400
+Date: Tue, 2 May 2006 08:05:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Neil Brown <neilb@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: better leve triggered IRQ management needed
+In-Reply-To: <17494.59866.493671.504666@cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.64.0605020804450.4086@g5.osdl.org>
+References: <20060424114105.113eecac@localhost.localdomain>
+ <1146345911.3302.36.camel@localhost.localdomain> <Pine.LNX.4.64.0604291453220.3701@g5.osdl.org>
+ <17492.16811.469245.331326@cse.unsw.edu.au> <Pine.LNX.4.64.0604292204270.4616@g5.osdl.org>
+ <17492.21870.649828.686244@cse.unsw.edu.au> <Pine.LNX.4.64.0604292343020.3690@g5.osdl.org>
+ <17494.59866.493671.504666@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605021703.37195.ak@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 May 2006 16:02, Martin J. Bligh wrote:
-> > Oh that's a 32bit kernel. I don't think the 32bit NUMA has ever worked
-> > anywhere but some Summit systems (at least every time I tried it it blew up 
-> > on me and nobody seems to use it regularly). Maybe it would be finally time to mark it 
-> > CONFIG_BROKEN though or just remove it (even by design it doesn't work very well) 
+
+
+On Tue, 2 May 2006, Neil Brown wrote:
 > 
-> Bollocks. It works fine, 
+> Maybe the eisa_set_level_irq should be passed 'irq' rather than 'newirq' 
+> ??
 
-On what kind of box? Some summit system, right?
+Yeah, stupid cut-and-paste error (the eisa_set_level_irq() call _is_ 
+already there in the PCI irq setting, for the case where we actually have 
+to set up routing that didn't exist before).
 
-> and is tested every single day, on every git 
-> release, and every -mm tree.
+That's also why I'm a bit nervous even about my stupid one-liner patch: if 
+the irq routing is already set up, and we just use the irq we're told to 
+use, I'm not sure we should touch ELCR even if it "looks wrong". It 
+obviously works on your machine, but I wonder what could break on others..
 
-Well, it doesn't work for Ingo clearly. My own experiences every time
-I tried it were similar.
-
-I think I stand by my original statement.
-
--Andi
-
+		Linus

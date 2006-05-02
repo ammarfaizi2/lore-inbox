@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWEBF1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWEBF2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbWEBF1F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 01:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWEBF1F
+	id S932374AbWEBF2H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 01:28:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWEBF2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 01:27:05 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:52822 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932373AbWEBF1E (ORCPT
+	Tue, 2 May 2006 01:28:07 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:54359 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932374AbWEBF2G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 01:27:04 -0400
-Date: Tue, 2 May 2006 07:27:09 +0200
+	Tue, 2 May 2006 01:28:06 -0400
+Date: Tue, 2 May 2006 07:28:50 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Bob Copeland <me@bobcopeland.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>,
-       "Petri T. Koistinen" <petri.koistinen@iki.fi>,
-       Andrew Morton <akpm@osdl.org>, trivial@kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs/bio.c: initialize variable, remove warning
-Message-ID: <20060502052708.GO3814@suse.de>
-References: <Pine.LNX.4.64.0605012353100.5245@joo> <20060501210546.GB7170@mipter.zuzino.mipt.ru> <b6c5339f0605011419w7770a634t60bce8ce693a3749@mail.gmail.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: splice(SPLICE_F_MOVE) problems
+Message-ID: <20060502052850.GP3814@suse.de>
+References: <20060501065953.GA289@oleg> <20060501065412.GP23137@suse.de> <20060501190625.GA174@oleg> <20060501174153.GH3814@suse.de> <20060502001118.GA88@oleg>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b6c5339f0605011419w7770a634t60bce8ce693a3749@mail.gmail.com>
+In-Reply-To: <20060502001118.GA88@oleg>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01 2006, Bob Copeland wrote:
-> On 5/1/06, Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> >On Mon, May 01, 2006 at 11:55:27PM +0300, Petri T. Koistinen wrote:
-> >> Remove compiler warning by initializing uninitialized variable.
+On Tue, May 02 2006, Oleg Nesterov wrote:
+> On 05/01, Jens Axboe wrote:
 > >
-> >oh no not again!
+> > > If readahead doesn't work, SPLICE_F_MOVE is problematic too.
+> > > add_to_page_cache_lru()->lru_cache_add() first increments
+> > > page->count and adds this page to lru_add_pvecs. This means
+> > > page_cache_pipe_buf_steal()->remove_mapping() will probably
+> > > fail.
+> > 
+> > Because of the temporarily elevated page count?
 > 
-> What about:
+> Yes.
 > 
-> >> -                     unsigned long idx;
-> +                     unsigned long idx;   /* please don't patch bogus
-> warning */
+> On the other hand, if readahead doesn't work we already have a
+> bigger problem, and SPLICE_F_MOVE is not garanteed, so I think
+> this is very minor.
 
-I'll take that patch if you send it :-)
+Yes, clearly readahead has to work as expected. I haven't noticed any
+problems, even on half cached workloads. With your handle_ra_miss()
+addition and possibly killing the redundant !offset || nr_pages check,
+it should be fine.
 
 -- 
 Jens Axboe

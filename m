@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWEBUbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWEBUdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751274AbWEBUbP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 16:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWEBUbP
+	id S1751281AbWEBUdr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 16:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWEBUdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 16:31:15 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:54225 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1751274AbWEBUbP (ORCPT
+	Tue, 2 May 2006 16:33:47 -0400
+Received: from smtp5-g19.free.fr ([212.27.42.35]:19362 "EHLO smtp5-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751271AbWEBUdq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 16:31:15 -0400
-Message-ID: <4457C185.1070402@myri.com>
-Date: Tue, 02 May 2006 22:31:01 +0200
-From: Brice Goglin <brice@myri.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+	Tue, 2 May 2006 16:33:46 -0400
+Message-ID: <4457C228.9050209@free.fr>
+Date: Tue, 02 May 2006 22:33:44 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Add PCI_CAP_ID_VNDR
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Andi Kleen <ak@suse.de>
+CC: discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+Subject: Re: [discuss]  Re: [RFC] make PC Speaker driver work on x86-64
+References: <200604291830.k3TIUA23009336@harpo.it.uu.se> <200604301050.22984.ak@suse.de> <445798F6.3050102@free.fr> <200605021950.17737.ak@suse.de>
+In-Reply-To: <200605021950.17737.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Andi Kleen wrote:
 
-The following patch adds the vendor-specific extended capability PCI_CAP_ID_VNDR.
-It will be used by the Myri-10G Ethernet driver (will be submitted soon).
+> Does it work? 
+> 
+of course (at least on x86) !
 
-Signed-off-by: Brice Goglin <brice@myri.com>
+> Also I have no idea if all x86 systems report the PC speaker in ACPI - a small
+> survey of that would be probably a good idea. I guess just most of them reporting it would be 
+> reasonable.
+That's why I keep the platform driver :
+the logic is try with ACPI in order to discover if there is a speaker. 
+If we failed, let's try the platform driver.
 
- pci_regs.h |    1 +
- 1 file changed, 1 insertion(+)
+Matthieu
 
---- linux-mm/include/linux/pci_regs.h.old	2006-04-21 08:22:42.000000000 -0700
-+++ linux-mm/include/linux/pci_regs.h	2006-04-21 08:28:56.000000000 -0700
-@@ -197,6 +197,7 @@
- #define  PCI_CAP_ID_CHSWP	0x06	/* CompactPCI HotSwap */
- #define  PCI_CAP_ID_PCIX	0x07	/* PCI-X */
- #define  PCI_CAP_ID_HT_IRQCONF	0x08	/* HyperTransport IRQ Configuration */
-+#define  PCI_CAP_ID_VNDR	0x09	/* Vendor specific capability */
- #define  PCI_CAP_ID_SHPC 	0x0C	/* PCI Standard Hot-Plug Controller */
- #define  PCI_CAP_ID_EXP 	0x10	/* PCI Express */
- #define  PCI_CAP_ID_MSIX	0x11	/* MSI-X */
-
-
+PS : even system without ACPI should report the speaker with pnpbios.

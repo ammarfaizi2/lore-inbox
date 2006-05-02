@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWEBNeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWEBNfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbWEBNeW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 09:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWEBNeW
+	id S964813AbWEBNfO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 09:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbWEBNfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 09:34:22 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:9696 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964812AbWEBNeV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 09:34:21 -0400
-Date: Tue, 2 May 2006 14:34:16 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling C++ modules
-Message-ID: <20060502133416.GT27946@ftp.linux.org.uk>
-References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il>
+	Tue, 2 May 2006 09:35:14 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:22763 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964813AbWEBNfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 09:35:12 -0400
+Date: Tue, 2 May 2006 14:35:07 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Bryan O'Sullivan" <bos@pathscale.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5 of 13] ipath - use proper address translation routine
+Message-ID: <20060502133507.GA26704@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Roland Dreier <rdreier@cisco.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Bryan O'Sullivan <bos@pathscale.com>, openib-general@openib.org,
+	linux-kernel@vger.kernel.org
+References: <1ab168913f0fea5d18b4.1145913781@eng-12.pathscale.com> <ada3bftvatf.fsf@cisco.com> <1146509646.20760.63.camel@laptopd505.fenrus.org> <aday7xltvtb.fsf@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44573525.7040507@argo.co.il>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <aday7xltvtb.fsf@cisco.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 01:32:05PM +0300, Avi Kivity wrote:
-> Like the recent prevent_tail_call() thing? Granted, C++ is a lot tricker 
-> than C. Much self-restraint is needed, and even then you can wind up 
-> where you didn't want to go.
+On Mon, May 01, 2006 at 12:00:00PM -0700, Roland Dreier wrote:
+>     Arjan> do you really NEED the vaddr?  (most of the time linux
+>     Arjan> drivers don't need it, while other OSes do) If you really
+>     Arjan> need it you should grab it at dma_map time ...  (and
+>     Arjan> realize that it's not kernel addressable per se ;)
+> 
+> Yes, they need some kind of vaddr.
+> 
+> It's kind of a layering problem.  The IB stack assumes that IB devices
+> have a DMA engine that deals with bus addresses.  But the ipath driver
+> has to simulate this by using a memcpy on the CPU to move data to the
+> PCI device.
+> 
+> I really don't know what the right solution is.  Maybe having some way
+> to override the dma mapping operations so that the ipath driver can
+> keep the info it needs?
 
-	Sigh...  You know, once upon a time there was a language called
-Algol 68.  It had a _lot_ of expressive power and was fairly flexible -
-both in type system and in syntax.  And it had been a fscking nightmare
-for large projects.  Not because of lack of modularity - that part had
-been all right.  The thing that kept killing large projects was different;
-in effect, each group ended up with a language subset and developed a
-discipline for it.  And as soon as they mixed, _especially_ if they were
-close, but not quite the same, you had an ever-growing disaster.
+Or stop doing the dma mapping in the IB upper level drivers.  I told you
+that we'll get broken hardware that doesn't want dma mapping in the upper
+level driver, and pathscale created exactly that :)
 
-	It's not easy to quantify; each language has dark corners and
-there are more or less odd constructs specific to individual programmers
-and to groups.  And yes, you certainly can write unreadable crap in any
-language.  The question is, how many variants of "needed self-restraint"
-are widespread, how well do they mix and how easy it is to recognize the
-mismatches?  It's not a function of language per se, so it doesn't make
-sense to compare C and C++ as languages in that respect.  However, C++
-and C _styles_ can be compared and that's where C++ requires more force
-to keep a large project away from becoming a clusterfsck.
-
-	Sure, you need make sure that different groups of people use
-more or less compatible styles anyway; it's just that with C++ you need
-tighter control to get the same result.  And for kernel it's a killer.

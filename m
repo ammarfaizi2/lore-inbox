@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWEBF2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWEBFe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbWEBF2H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 01:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWEBF2H
+	id S932376AbWEBFe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 01:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWEBFe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 01:28:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:54359 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932374AbWEBF2G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 01:28:06 -0400
-Date: Tue, 2 May 2006 07:28:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: splice(SPLICE_F_MOVE) problems
-Message-ID: <20060502052850.GP3814@suse.de>
-References: <20060501065953.GA289@oleg> <20060501065412.GP23137@suse.de> <20060501190625.GA174@oleg> <20060501174153.GH3814@suse.de> <20060502001118.GA88@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060502001118.GA88@oleg>
+	Tue, 2 May 2006 01:34:28 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:12514 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932376AbWEBFe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 01:34:28 -0400
+Date: Tue, 02 May 2006 14:33:40 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Fix compile error "undefined reference" for sparc64.
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060502142722.CF0C.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02 2006, Oleg Nesterov wrote:
-> On 05/01, Jens Axboe wrote:
-> >
-> > > If readahead doesn't work, SPLICE_F_MOVE is problematic too.
-> > > add_to_page_cache_lru()->lru_cache_add() first increments
-> > > page->count and adds this page to lru_add_pvecs. This means
-> > > page_cache_pipe_buf_steal()->remove_mapping() will probably
-> > > fail.
-> > 
-> > Because of the temporarily elevated page count?
-> 
-> Yes.
-> 
-> On the other hand, if readahead doesn't work we already have a
-> bigger problem, and SPLICE_F_MOVE is not garanteed, so I think
-> this is very minor.
+Hi. Andrew-san.
 
-Yes, clearly readahead has to work as expected. I haven't noticed any
-problems, even on half cached workloads. With your handle_ra_miss()
-addition and possibly killing the redundant !offset || nr_pages check,
-it should be fine.
+This is to fix compile error against "undefined reference to 
+`arch_add_memory'". This error occurred on sparc64.
+This means that memory hotplug can be enable even if 
+architecture doesn't have memory hotplug feature.
+
+Sparsemem is useful even if it doesn't have memory hotplug.
+So, this patch allows hotplug for only the architecture which have
+memory hotplug feature (ia64, x86-32/64, ppc64 now).
+Sparc64 can use sparsemem option by it.
+
+This patch is for 2.6.17-rc3-mm1.
+
+Please apply.
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+ mm/Kconfig |    1 +
+ 1 files changed, 1 insertion(+)
+
+Index: pgdat13/mm/Kconfig
+===================================================================
+--- pgdat13.orig/mm/Kconfig	2006-05-02 13:21:53.000000000 -0400
++++ pgdat13/mm/Kconfig	2006-05-02 13:50:07.000000000 -0400
+@@ -116,6 +116,7 @@
+ config MEMORY_HOTPLUG
+ 	bool "Allow for memory hot-add"
+ 	depends on SPARSEMEM && HOTPLUG && !SOFTWARE_SUSPEND
++	depends on (IA64 || X86 || PPC64)
+ 
+ comment "Memory hotplug is currently incompatible with Software Suspend"
+ 	depends on SPARSEMEM && HOTPLUG && SOFTWARE_SUSPEND
 
 -- 
-Jens Axboe
+Yasunori Goto 
+
 

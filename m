@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWEBRYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWEBRYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbWEBRYS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 13:24:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbWEBRYR
+	id S964940AbWEBRYA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 13:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbWEBRYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 13:24:17 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:26320 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S964942AbWEBRYP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 13:24:15 -0400
-Date: Tue, 2 May 2006 19:24:11 +0200
-From: DervishD <lkml@dervishd.net>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Marcelo Tosatti <marcelo@kvack.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT, ext3fs, kernel 2.4.32... again
-Message-ID: <20060502172411.GA6112@DervishD>
-Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
-	Marcelo Tosatti <marcelo@kvack.org>,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20060427063249.GH761@DervishD> <20060501062058.GA16589@dmt> <20060501112303.GA1951@DervishD> <20060502072808.A1873249@wobbly.melbourne.sgi.com>
+	Tue, 2 May 2006 13:24:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9174 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964940AbWEBRX7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 13:23:59 -0400
+Date: Tue, 2 May 2006 10:23:52 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "Wong Edison" <hswong3i@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 001/100] TCP congestion module: add TCP-LP supporting
+ for 2.6.16
+Message-ID: <20060502102352.7bf304fd@localhost.localdomain>
+In-Reply-To: <3feffd230605010305o6e3b1511of1f75b17f2797e66@mail.gmail.com>
+References: <3feffd230605010305o6e3b1511of1f75b17f2797e66@mail.gmail.com>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060502072808.A1873249@wobbly.melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Nathan :)
 
- * Nathan Scott <nathans@sgi.com> dixit:
-> On Mon, May 01, 2006 at 01:23:03PM +0200, DervishD wrote:
-> >  * Marcelo Tosatti <marcelo@kvack.org> dixit:
-> > > >     Shouldn't ext3fs return an error when the O_DIRECT flag is
-> > > > used in the open call? Is the open call userspace only and thus
-> > > > only libc can return such error? Am I misunderstanding the entire
-> > > > issue and this is a perfectly legal behaviour (allowing the open,
-> > > > failing in the read operation)?
-> > > 
-> > > Your interpretation is correct. It would be nicer for open() to
-> > > fail on fs'es which don't support O_DIRECT, but v2.4 makes such
-> > > check later at read/write unfortunately ;(
-> > 
-> >     Oops :(
-> 
-> Nothing else really make sense due to fcntl...
-> 	fcntl(fd, F_SETFL, O_DIRECT);
-> ...can happen at any time, to enable/disable direct I/O.
+> +/**
+> + * struct lp
+> + * @flag: TCP-LP state flag
+> + * @sowd: smoothed OWD << 3
+> + * @owd_min: min OWD
+> + * @owd_max: max OWD
+> + * @owd_max_rsv: resrved max owd
+> + * @RHZ: estimated remote HZ
+> + * @remote_ref_time: remote reference time
+> + * @local_ref_time: local reference time
+> + * @last_drop: time for last active drop
+> + * @inference: current inference
+> + *
+> + * TCP-LP's private struct.
+> + * We get the idea from original TCP-LP implementation where only left those we
+> + * found are really useful.
+> + */
+> +struct lp {
+> +	u32 flag;
+> +	u32 sowd;
+> +	u32 owd_min;
+> +	u32 owd_max;
+> +	u32 owd_max_rsv;
+> +	u32 RHZ;
+> +	u32 remote_ref_time;
+> +	u32 local_ref_time;
+> +	u32 last_drop;
+> +	u32 inference;
+> +};
 
-    I know, but that fcntl call should fail just like the open() one.
-I mean, I don't find this very different, it's just another point
-where the flag can be activated and so it should fail if the
-underlying filesystem doesn't support it (and doesn't ignore it in
-read()/write()).
+It is best to keep structure element names lower case.
+s/RHZ/rhz/
 
-    Raúl Núñez de Arenas Coronado
+or use remote_hz
 
--- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to... RAmen!

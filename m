@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWEBL0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWEBL3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbWEBL0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 07:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWEBL0t
+	id S964776AbWEBL3j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 07:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWEBL3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 07:26:49 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:34569 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S964774AbWEBL0s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 07:26:48 -0400
-Message-ID: <445741F5.6060204@argo.co.il>
-Date: Tue, 02 May 2006 14:26:45 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Tue, 2 May 2006 07:29:39 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:31135 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964776AbWEBL3i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 07:29:38 -0400
+Date: Tue, 2 May 2006 13:29:25 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Marcin Hlybin <marcin.hlybin@swmind.com>, linux-kernel@vger.kernel.org
+Subject: Re: Open Discussion, kernel in production environment
+In-Reply-To: <1146553275.32045.15.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0605021328400.17510@yvahk01.tjqt.qr>
+References: <200605012357.48623.marcin.hlybin@swmind.com>
+ <1146553275.32045.15.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Martin Mares <mj@ucw.cz>
-CC: Willy Tarreau <willy@w.ods.org>, David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling C++ modules
-References: <161717d50605011046p4bd51bbp760a46da4f1e3379@mail.gmail.com> <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com> <20060502051238.GB11191@w.ods.org> <44573525.7040507@argo.co.il> <mj+md-20060502.111446.9373.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060502.111446.9373.atrey@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 May 2006 11:26:46.0617 (UTC) FILETIME=[4BF3C490:01C66DDB]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares wrote:
-> Hello!
+>> I always configure and compile a kernel throwing out all unusable options and 
+>> I never use modules in production environment (especially for the router). 
+>> But my superior has got the other opinion - he claims that distribution 
+>> kernel is quite good and in these days optimization has no sense because of 
+>> powerful hadrware. 
 >
->   
->> Perhaps people who developed kernel-level code in _both_ C and C++ would 
->> be qualified to speculate on that (I have, but apparently I don't have a 
->> clue).
->>     
+>On the plus side you get the maintenance, building and integration done
+>for you, including the security fixes. 
 >
-> Well, what about just showing an example of kernel code in C++, which
-> you consider nice?
->   
+>There is a third "advantage" in using a distro kernel; there is less
+>chance of a mistake in the sense of picking a config option that turns
+>out to be really bad in hindsight. 
+>
+At best pick the distro kernel .src.rpm (or equivalent). If required, you 
+can still roll your own _and_ have the security fixes etc.
 
-I don't have access to that code (which was closed source anyway).
 
-But it executed C++ code within a few cycles of entering the reset 
-vector (no standard BIOS), including but not limited to: programming the 
-memory controller (430MX chipset), servicing interrupts, hardware 
-accelerated 2D graphics (C&T 65550), IDE driver, simple filesystem, 
-simple windowing GUI, network driver (Tulip) etc.
-
-More recently I participated in writing a filesystem in C++. That's in 
-userspace, but many of the techniques used in writing kernel code are 
-necessary there (extreme robustness, can't assume infinite memory, 
-locking, etc.)
-
-There are C++ embedded kernels in http://www.zipworld.com.au/~akpm/ and 
-http://ecos.sourceware.org/, but I haven't looked at them, so I can't 
-say whether I consider them nice or not.
-
+Jan Engelhardt
 -- 
-error compiling committee.c: too many arguments to function
-

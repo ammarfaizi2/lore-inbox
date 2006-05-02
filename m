@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWEBAiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWEBB1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbWEBAiF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 May 2006 20:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWEBAiE
+	id S932337AbWEBB1n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 May 2006 21:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWEBB1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 May 2006 20:38:04 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:36250 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932334AbWEBAiD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 May 2006 20:38:03 -0400
-Date: Tue, 2 May 2006 02:37:55 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Message-ID: <20060502003755.GA26327@linuxtv.org>
-References: <20060430174426.a21b4614.rdunlap@xenotime.net> <1146503166.2885.137.camel@hades.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1146503166.2885.137.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.5.11+cvs20060403
-X-SA-Exim-Connect-IP: 84.189.212.223
-Subject: Re: [PATCH] CodingStyle: add typedefs chapter
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+	Mon, 1 May 2006 21:27:43 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:47824 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932337AbWEBB1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 May 2006 21:27:42 -0400
+Date: Tue, 2 May 2006 10:27:18 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] [RFC][PATCH] hot add memory which is not aligned
+ to section
+Message-Id: <20060502102718.9b73f7e3.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1146495392.32079.12.camel@localhost.localdomain>
+References: <20060427223705.e99bb194.kamezawa.hiroyu@jp.fujitsu.com>
+	<1146495392.32079.12.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 01, 2006, David Woodhouse wrote:
-> On Sun, 2006-04-30 at 17:44 -0700, Randy.Dunlap wrote:
-> > + (b) Clear integer types, where the abstraction _helps_ avoid confusion
-> > +     whether it is "int" or "long".
-> > +
-> > +     u8/u16/u32 are perfectly fine typedefs. 
-> 
-> No, u8/u16/u32 are fall into category (d):
-> 
->  (d) New types which are identical to standard C99 types, in certain
->      exceptional circumstances.
-> 
->      Although it would only take a short amount of time for the eyes and
->      brain to become accustomed to the standard types like 'uint32_t',
->      some people object to their use anyway.
-> 
->      Therefore, the gratuitous 'u8/u16/u32/u64' types and their signed
->      equivalents which are identical to standard types are permitted --
->      although they are not mandatory.
+On Mon, 01 May 2006 07:56:32 -0700
+Dave Hansen <haveblue@us.ibm.com> wrote:
 
-IMHO u32 etc. are the well established data types used
-everywhere in kernel source. Your wording suggests that
-the use of C99 types would be better, and while I respect
-your personal opinion, I think it is wrong to put that in the
-kernel CodingStyle document.
+> The 'struct resource' which gets passed into find_next_system_ram()
+> isn't a real resource.  Why not just pass a normal start and end address
+> in there, and let _it_ do the work?
+> 
+just I don't like return prural values by one function call, I needed start
+and end.
 
-c.f. http://lkml.org/lkml/2004/12/14/127
+> It looks like that whole loop is optimized for being able to online a
+> really sparse area without diving into the iomem tables very often.
+> This seems like a premature complicating optimization to me.  
+> 
+Hmm...complicating ?  
+
+> Why not do something like this:
+> 
+> 	for (i = 0; i < nr_pages; i++) {
+> 		struct page *page = pfn_to_page(pfn + i);
+> 
+> 		if (page_is_in_io_resource(page))
+> 			continue;
+> 
+> 		online_page(page);
+> 		onlined_pages++;
+> 	}
+> 
+> That way, you keep the memory_hotplug.c file nice and neat.
+> 
+I'll clean up this later (if I can). maybe adding function like this will work.
+-
+	ioresouce_walk(scan_start, scan_end, callback_func);
+-
+I don't want to modify structures of resource just for memory hotplug.
+Then, I want to avoid list-waliking as much as possible.
 
 
-Johannes
+> Also, remind me again why you can't just make the SECTION_SIZE match
+> your 64MB I/O hole sizes.  I forget a lot/ :)
+> 
+ia64 has 1GB SECTION_SIZE as default ;). I don't think our (fujitsu's)
+customers can configure and recompile the kernel.
+
+
+-Kame
+P.S. I'm away from network until this week end.
+

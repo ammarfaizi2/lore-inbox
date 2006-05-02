@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWEBUJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWEBUMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbWEBUJo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 16:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWEBUJn
+	id S932161AbWEBUMU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 16:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWEBUMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 16:09:43 -0400
-Received: from mx2.suse.de ([195.135.220.15]:32436 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751316AbWEBUJm (ORCPT
+	Tue, 2 May 2006 16:12:20 -0400
+Received: from ns.suse.de ([195.135.220.2]:17627 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932161AbWEBUMT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 16:09:42 -0400
+	Tue, 2 May 2006 16:12:19 -0400
 From: Andi Kleen <ak@suse.de>
-To: Martin Bligh <mbligh@google.com>
-Subject: Re: 2.6.17-rc2-mm1
-Date: Tue, 2 May 2006 22:09:36 +0200
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
+Date: Tue, 2 May 2006 22:12:13 +0200
 User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, apw@shadowen.org,
-       linux-kernel@vger.kernel.org, jbeulich@novell.com
-References: <4450F5AD.9030200@google.com> <200605012034.26763.ak@suse.de> <4457BA59.8030901@google.com>
-In-Reply-To: <4457BA59.8030901@google.com>
+Cc: Martin Bligh <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+References: <20060419112130.GA22648@elte.hu> <200605022200.12980.ak@suse.de> <20060502201358.GA10831@elte.hu>
+In-Reply-To: <20060502201358.GA10831@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605022209.37205.ak@suse.de>
+Message-Id: <200605022212.13842.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 May 2006 22:00, Martin Bligh wrote:
+On Tuesday 02 May 2006 22:13, Ingo Molnar wrote:
 
-> > Index: linux/arch/x86_64/kernel/traps.c
-> > ===================================================================
-> > --- linux.orig/arch/x86_64/kernel/traps.c
-> > +++ linux/arch/x86_64/kernel/traps.c
-> > @@ -238,6 +238,7 @@ void show_trace(unsigned long *stack)
-> >  			HANDLE_STACK (stack < estack_end);
-> >  			i += printk(" <EOE>");
-> >  			stack = (unsigned long *) estack_end[-2];
-> > +			printk("new stack %lx (%lx %lx %lx %lx %lx)\n", stack, estack_end[0], estack_end[-1], estack_end[-2], estack_end[-3], estack_end[-4]);
-> >  			continue;
-> >  		}
-> >  		if (irqstack_end) {
-> 
-> Thanks for running this Andy:
-> 
-> http://test.kernel.org/abat/30183/debug/console.log
+> nah. And the fact that i could boot this on a non-NUMA box already 
+> unearthed a weakness in the buddy allocator. (it should have much 
+> clearer asserts about mis-sized zones - it's not the first time we had 
+> them and they are hard to debug) 
 
+GIGO.
 
-<EOE>new stack 0 (0 0 0 10082 10)
+> So consider this a debugging feature.  
+> It also found other bugs, so even if nobody but me uses it, it's useful.
 
-Hmm weird. There isn't anything resembling an exception frame at the top of the
-stack.  No idea how this could happen.
+It's an awful lot of ugly code for a debugging feature.
+
+Also I never considered i386 NUMA to be particularly interesting 
+because it doesn't work for the kernel lowmem which is always on node 0.
+So no matter what you try you have a nasty hotspot on node 0's memory.
 
 -Andi
-
-
-

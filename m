@@ -1,285 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbWEBV5K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965022AbWEBV7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbWEBV5K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 17:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbWEBV5K
+	id S965022AbWEBV7z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 17:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbWEBV7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 17:57:10 -0400
-Received: from rtsoft2.corbina.net ([85.21.88.2]:3790 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S965012AbWEBV5H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 17:57:07 -0400
-Message-ID: <4457D568.6090001@ru.mvista.com>
-Date: Wed, 03 May 2006 01:55:52 +0400
-From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
-Organization: MontaVista Software Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
-X-Accept-Language: ru, en-us, en-gb
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH][RFT] Fix HPT37x timing tables
-References: <444B3BDE.1030106@ru.mvista.com>
-In-Reply-To: <444B3BDE.1030106@ru.mvista.com>
-Content-Type: multipart/mixed;
- boundary="------------060201070604090707050609"
+	Tue, 2 May 2006 17:59:55 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:13704 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S965016AbWEBV7y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 17:59:54 -0400
+Date: Tue, 2 May 2006 23:55:59 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, david@pleyades.net
+Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
+Message-ID: <20060502215559.GA1119@electric-eye.fr.zoreil.com>
+References: <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo> <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI> <20060502214520.GC26357@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060502214520.GC26357@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060201070604090707050609
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Btw the whole serie is available in branch 'netdev-ipg' at:
+git://electric-eye.fr.zoreil.com/home/romieu/linux-2.6.git
 
-Hello.
+The interim steps may be useful if testing reveals something wrong
+(especially if it happens in a few weeks/months).
 
-    Fix/remove bad/unused timing tables: HPT370/A 66 MHz tables weren't really
-needed (the chips are not UltraATA/133 capable and shouldn't support 66 MHz
-PCI) and had many modes over- and underclocked, HPT372 33 MHz table was in
-fact for 66 MHz and 50 MHz table missed UltraDMA mode 6, HPT374 33 MHz table
-was really for 50 MHz... (Actually, HPT370/A 33 MHz tables also have issues.
-e.g. HPT370 has PIO modes 0/1 overlocked.)
-    There's also no need in the separate HPT374 tables because HPT372 timings
-should be the same (and those tables has UltraDMA mode 6 which HPT374 supports
-depending on HPT374_ALLOW_ATA133_6 #define)...
-    Have been tested and works fine on HPT370 and 371N...
+$ git rev-list --pretty ebf34c9b6fcd22338ef764b039b3ac55ed0e297b..HEAD 
 
-MBR, Sergei
+commit 8a98963033425729158d48066a3380f811c711b3
+Author: Romieu Francois <romieu@fr.zoreil.com>
+Date:   Tue May 2 23:25:44 2006 +0200
 
-Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+    ipg: redundancy with mii.h
+    
+    Replace a bunch of #define with their counterpart from mii.h
+    
+    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
+commit 291360d4000e0b93baf0fb97aa15af48677e46af
+Author: Romieu Francois <romieu@fr.zoreil.com>
+Date:   Tue May 2 22:15:34 2006 +0200
 
+    ipg: sanitize the pci device table
+    
+    - vendor id belong to include/linux/pci_id.h ;
+    - the pci table does not include all the devices in nics_supported ;
+    - qualify the pci table as __devinitdata ;
+    - kill 50 LOC.
+    
+    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
+commit 8b534f66d6be247b9f0d341b0ae7acbf46f128fb
+Author: Romieu Francois <romieu@fr.zoreil.com>
+Date:   Tue May 2 01:07:48 2006 +0200
 
---------------060201070604090707050609
-Content-Type: text/plain;
- name="HPT37x-fix-timing-tables.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="HPT37x-fix-timing-tables.patch"
+    ipg: plug leaks in the error path of ipg_nic_open
+    
+    Added ipg_{rx/tx}_clear() to factor out some code.
+    
+    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
-Index: linus/drivers/ide/pci/hpt366.c
-===================================================================
---- linus.orig/drivers/ide/pci/hpt366.c
-+++ linus/drivers/ide/pci/hpt366.c
-@@ -67,6 +67,10 @@
-  * - add support for HPT302N and HPT371N clocking (the same as for HPT372N)
-  * - HPT371/N are single channel chips, so avoid touching the primary channel
-  *   which exists only virtually (there's no pins for it)
-+ * - fix/remove bad/unused timing tables: HPT370/A  66 MHz tables weren't really
-+ *   needed and had many modes over- and  underclocked,  HPT372 33 MHz table was
-+ *   for 66 MHz and 50 MHz table missed UltraDMA mode 6, HPT374 33 MHz table was
-+ *   really for 50 MHz; switch to using HPT372 tables for HPT374...
-  *		<source@mvista.com>
-  *
-  */
-@@ -265,26 +269,6 @@ static struct chipset_bus_clock_list_ent
- 	{	0,		0x06514e57	}
- };
- 
--static struct chipset_bus_clock_list_entry sixty_six_base_hpt370[] = {
--	{	XFER_UDMA_5,	0x14846231	},
--	{	XFER_UDMA_4,	0x14886231	},
--	{	XFER_UDMA_3,	0x148c6231	},
--	{	XFER_UDMA_2,	0x148c6231	},
--	{	XFER_UDMA_1,	0x14906231	},
--	{	XFER_UDMA_0,	0x14986231	},
--
--	{	XFER_MW_DMA_2,	0x26514e21	},
--	{	XFER_MW_DMA_1,	0x26514e33	},
--	{	XFER_MW_DMA_0,	0x26514e97	},
--
--	{	XFER_PIO_4,	0x06514e21	},
--	{	XFER_PIO_3,	0x06514e22	},
--	{	XFER_PIO_2,	0x06514e33	},
--	{	XFER_PIO_1,	0x06914e43	},
--	{	XFER_PIO_0,	0x06914e57	},
--	{	0,		0x06514e57	}
--};
--
- /* these are the current (4 sep 2001) timings from highpoint */
- static struct chipset_bus_clock_list_entry thirty_three_base_hpt370a[] = {
- 	{	XFER_UDMA_5,	0x12446231	},
-@@ -306,27 +290,6 @@ static struct chipset_bus_clock_list_ent
- 	{	0,		0x06814ea7	}
- };
- 
--/* 2x 33MHz timings */
--static struct chipset_bus_clock_list_entry sixty_six_base_hpt370a[] = {
--	{	XFER_UDMA_5,	0x1488e673	},
--	{	XFER_UDMA_4,	0x1488e673	},
--	{	XFER_UDMA_3,	0x1498e673	},
--	{	XFER_UDMA_2,	0x1490e673	},
--	{	XFER_UDMA_1,	0x1498e677	},
--	{	XFER_UDMA_0,	0x14a0e73f	},
--
--	{	XFER_MW_DMA_2,	0x2480fa73	},
--	{	XFER_MW_DMA_1,	0x2480fa77	}, 
--	{	XFER_MW_DMA_0,	0x2480fb3f	},
--
--	{	XFER_PIO_4,	0x0c82be73	},
--	{	XFER_PIO_3,	0x0c82be95	},
--	{	XFER_PIO_2,	0x0c82beb7	},
--	{	XFER_PIO_1,	0x0d02bf37	},
--	{	XFER_PIO_0,	0x0d02bf5f	},
--	{	0,		0x0d02bf5f	}
--};
--
- static struct chipset_bus_clock_list_entry fifty_base_hpt370a[] = {
- 	{	XFER_UDMA_5,	0x12848242	},
- 	{	XFER_UDMA_4,	0x12ac8242	},
-@@ -348,27 +311,28 @@ static struct chipset_bus_clock_list_ent
- };
- 
- static struct chipset_bus_clock_list_entry thirty_three_base_hpt372[] = {
--	{	XFER_UDMA_6,	0x1c81dc62	},
--	{	XFER_UDMA_5,	0x1c6ddc62	},
--	{	XFER_UDMA_4,	0x1c8ddc62	},
--	{	XFER_UDMA_3,	0x1c8edc62	},	/* checkme */
--	{	XFER_UDMA_2,	0x1c91dc62	},
--	{	XFER_UDMA_1,	0x1c9adc62	},	/* checkme */
--	{	XFER_UDMA_0,	0x1c82dc62	},	/* checkme */
--
--	{	XFER_MW_DMA_2,	0x2c829262	},
--	{	XFER_MW_DMA_1,	0x2c829266	},	/* checkme */
--	{	XFER_MW_DMA_0,	0x2c82922e	},	/* checkme */
-+	{	XFER_UDMA_6,	0x12446231	},	/* 0x12646231 ?? */
-+	{	XFER_UDMA_5,	0x12446231	},
-+	{	XFER_UDMA_4,	0x12446231	},
-+	{	XFER_UDMA_3,	0x126c6231	},
-+	{	XFER_UDMA_2,	0x12486231	},
-+	{	XFER_UDMA_1,	0x124c6233	},
-+	{	XFER_UDMA_0,	0x12506297	},
- 
--	{	XFER_PIO_4,	0x0c829c62	},
--	{	XFER_PIO_3,	0x0c829c84	},
--	{	XFER_PIO_2,	0x0c829ca6	},
--	{	XFER_PIO_1,	0x0d029d26	},
--	{	XFER_PIO_0,	0x0d029d5e	},
--	{	0,		0x0d029d5e	}
-+	{	XFER_MW_DMA_2,	0x22406c31	},
-+	{	XFER_MW_DMA_1,	0x22406c33	},
-+	{	XFER_MW_DMA_0,	0x22406c97	},
-+
-+	{	XFER_PIO_4,	0x06414e31	},
-+	{	XFER_PIO_3,	0x06414e42	},
-+	{	XFER_PIO_2,	0x06414e53	},
-+	{	XFER_PIO_1,	0x06814e93	},
-+	{	XFER_PIO_0,	0x06814ea7	},
-+	{	0,		0x06814ea7	}
- };
- 
- static struct chipset_bus_clock_list_entry fifty_base_hpt372[] = {
-+	{	XFER_UDMA_6,	0x12848242	},
- 	{	XFER_UDMA_5,	0x12848242	},
- 	{	XFER_UDMA_4,	0x12ac8242	},
- 	{	XFER_UDMA_3,	0x128c8242	},
-@@ -390,7 +354,7 @@ static struct chipset_bus_clock_list_ent
- 
- static struct chipset_bus_clock_list_entry sixty_six_base_hpt372[] = {
- 	{	XFER_UDMA_6,	0x1c869c62	},
--	{	XFER_UDMA_5,	0x1cae9c62	},
-+	{	XFER_UDMA_5,	0x1cae9c62	},	/* 0x1c8a9c62 */
- 	{	XFER_UDMA_4,	0x1c8a9c62	},
- 	{	XFER_UDMA_3,	0x1c8e9c62	},
- 	{	XFER_UDMA_2,	0x1c929c62	},
-@@ -409,50 +373,6 @@ static struct chipset_bus_clock_list_ent
- 	{	0,		0x0d029d26	}
- };
- 
--static struct chipset_bus_clock_list_entry thirty_three_base_hpt374[] = {
--	{	XFER_UDMA_6,	0x12808242	},
--	{	XFER_UDMA_5,	0x12848242	},
--	{	XFER_UDMA_4,	0x12ac8242	},
--	{	XFER_UDMA_3,	0x128c8242	},
--	{	XFER_UDMA_2,	0x120c8242	},
--	{	XFER_UDMA_1,	0x12148254	},
--	{	XFER_UDMA_0,	0x121882ea	},
--
--	{	XFER_MW_DMA_2,	0x22808242	},
--	{	XFER_MW_DMA_1,	0x22808254	},
--	{	XFER_MW_DMA_0,	0x228082ea	},
--
--	{	XFER_PIO_4,	0x0a81f442	},
--	{	XFER_PIO_3,	0x0a81f443	},
--	{	XFER_PIO_2,	0x0a81f454	},
--	{	XFER_PIO_1,	0x0ac1f465	},
--	{	XFER_PIO_0,	0x0ac1f48a	},
--	{	0,		0x06814e93	}
--};
--
--/* FIXME: 50MHz timings for HPT374 */
--
--#if 0
--static struct chipset_bus_clock_list_entry sixty_six_base_hpt374[] = {
--	{	XFER_UDMA_6,	0x12406231	},	/* checkme */
--	{	XFER_UDMA_5,	0x12446231	},	/* 0x14846231 */
--	{	XFER_UDMA_4,	0x16814ea7	},	/* 0x14886231 */
--	{	XFER_UDMA_3,	0x16814ea7	},	/* 0x148c6231 */
--	{	XFER_UDMA_2,	0x16814ea7	},	/* 0x148c6231 */
--	{	XFER_UDMA_1,	0x16814ea7	},	/* 0x14906231 */
--	{	XFER_UDMA_0,	0x16814ea7	},	/* 0x14986231 */
--	{	XFER_MW_DMA_2,	0x16814ea7	},	/* 0x26514e21 */
--	{	XFER_MW_DMA_1,	0x16814ea7	},	/* 0x26514e97 */
--	{	XFER_MW_DMA_0,	0x16814ea7	},	/* 0x26514e97 */
--	{	XFER_PIO_4,	0x06814ea7	},	/* 0x06514e21 */
--	{	XFER_PIO_3,	0x06814ea7	},	/* 0x06514e22 */
--	{	XFER_PIO_2,	0x06814ea7	},	/* 0x06514e33 */
--	{	XFER_PIO_1,	0x06814ea7	},	/* 0x06914e43 */
--	{	XFER_PIO_0,	0x06814ea7	},	/* 0x06914e57 */
--	{	0,		0x06814ea7	}
--};
--#endif
--
- #define HPT366_DEBUG_DRIVE_INFO		0
- #define HPT374_ALLOW_ATA133_6		0
- #define HPT371_ALLOW_ATA133_6		0
-@@ -1212,9 +1132,7 @@ static void __devinit hpt37x_clocking(id
- 			pll = F_LOW_PCI_66;
- 	
- 		if (pll == F_LOW_PCI_33) {
--			if (info->revision >= 8)
--				info->speed = thirty_three_base_hpt374;
--			else if (info->revision >= 5)
-+			if (info->revision >= 5)
- 				info->speed = thirty_three_base_hpt372;
- 			else if (info->revision >= 4)
- 				info->speed = thirty_three_base_hpt370a;
-@@ -1224,26 +1142,17 @@ static void __devinit hpt37x_clocking(id
- 		} else if (pll == F_LOW_PCI_40) {
- 			/* Unsupported */
- 		} else if (pll == F_LOW_PCI_50) {
--			if (info->revision >= 8)
--				info->speed = fifty_base_hpt370a;
--			else if (info->revision >= 5)
-+			if (info->revision >= 5)
- 				info->speed = fifty_base_hpt372;
--			else if (info->revision >= 4)
--				info->speed = fifty_base_hpt370a;
- 			else
- 				info->speed = fifty_base_hpt370a;
- 			printk(KERN_DEBUG "HPT37X: using 50MHz PCI clock\n");
- 		} else {
--			if (info->revision >= 8) {
--				printk(KERN_ERR "HPT37x: 66MHz timings are not supported.\n");
--			}
--			else if (info->revision >= 5)
-+			if (info->revision >= 5) {
- 				info->speed = sixty_six_base_hpt372;
--			else if (info->revision >= 4)
--				info->speed = sixty_six_base_hpt370a;
--			else
--				info->speed = sixty_six_base_hpt370;
--			printk(KERN_DEBUG "HPT37X: using 66MHz PCI clock\n");
-+				printk(KERN_DEBUG "HPT37X: using 66MHz PCI clock\n");
-+			} else
-+				printk(KERN_ERR "HPT37x: 66MHz timings not supported.\n");
- 		}
- 	}
- 
+commit 87c8b13dceccc42439e7262f1b60c9cbb14d5440
+Author: Romieu Francois <romieu@fr.zoreil.com>
+Date:   Tue May 2 00:15:54 2006 +0200
 
+    ipg: leaks in ipg_probe
+    
+    The error paths are badly broken.
+    
+    Bonus:
+    - remove duplicate initialization of sp;
+    - remove useless NULL initialization of dev;
+    - USE_IO_OPS is not used (and the driver does not seem to care about
+      posted writes, rejoice).
+    
+    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
+commit befd7e543fcdfb2d2c75de1748ae751fefdff58a
+Author: Romieu Francois <romieu@fr.zoreil.com>
+Date:   Mon May 1 23:52:37 2006 +0200
 
+    ipg: removal of unreachable code
+    
+    map/unmap is done in ipg_{probe/remove}
+    
+    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
---------------060201070604090707050609--
+commit 17a9ce93ba6b6744489aa9168d757e9457158952
+Author: Romieu Francois <romieu@fr.zoreil.com>
+Date:   Mon May 1 22:40:29 2006 +0200
+
+    ipg: speed-up access to the PHY registers
+    
+    Reduce delays when reading/writing the PHY registers so we clock the
+    MII management interface at 2.5 MHz (the maximum according to the
+    datasheet) instead of 500 Hz.
+    
+    Signed-off-by: David Vrabel <dvrabel@cantab.net>
+
+commit e18c33d6fa62b735426b8fe5a0f1aa61c0b5d7f7
+Author: David Vrabel <dvrabel@cantab.net>
+Date:   Mon May 1 21:34:19 2006 +0200
+
+    ipg: root_dev removal and PHY initialization
+    
+    - Remove ether_crc_le() -- use crc32_le() instead.
+    - No more nonsense with root_dev -- ipg_remove() now works.
+    - Move PHY and MAC address initialization into the ipg_probe().
+      It was previously filling in the MAC address on open which breaks
+      some user space.
+    - Folded ipg_nic_init into ipg_probe since it was broke otherwise.
+    
+    Signed-off-by: David Vrabel <dvrabel@cantab.net>
+
+commit e99fcd4253f231b2c7a96e3be5067341de45ac2e
+Author: David Vrabel <dvrabel@cantab.net>
+Date:   Mon May 1 13:20:49 2006 +0200
+
+    ipg: remove changelogs
+    
+    Signed-off-by: David Vrabel <dvrabel@cantab.net>
+
+commit 8fd59026a272d3132f096965985e907d655ee087
+Author: Pekka Enberg <penberg@cs.helsinki.fi>
+Date:   Mon May 1 12:53:43 2006 +0200
+
+    ipg: initial inclusion of IC Plus IP1000 driver
+    
+    This is a cleaned up fork of the IP1000A device driver:
+    
+      <http://www.icplus.com.tw/driver-pp-IP1000A.html>
+    
+    Open issues include but are not limited to:
+    
+      - ipg_probe() looks really fishy and doesn't handle all errors
+        (e.g. ioremap failing).
+      - ipg_nic_do_ioctl() is playing games with user-space pointer.
+        We should use ethtool ioctl instead as suggested by Arjan.
+      - For multiple devices, the driver uses a global root_dev and
+        ipg_remove() play some tricks which look fishy.
+    
+    Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+

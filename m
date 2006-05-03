@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbWECLYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbWECLfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965153AbWECLYG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 07:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWECLYF
+	id S965154AbWECLfh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 07:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWECLfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 07:24:05 -0400
-Received: from [212.33.162.131] ([212.33.162.131]:48904 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S965000AbWECLYE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 07:24:04 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: LinuxQuestions.org - Community Bulletin
-Date: Wed, 3 May 2006 14:21:48 +0300
-User-Agent: KMail/1.5
-Cc: linux-admin@vger.kernel.org, chuck gelm <chuck@gelm.net>, kloro@cox.net
-References: <200605020407.a7286e265899@www.linuxquestions.org> <200605022341.42037.kloro@cox.net> <44584121.5080904@gelm.net>
-In-Reply-To: <44584121.5080904@gelm.net>
+	Wed, 3 May 2006 07:35:37 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:61395 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP id S965154AbWECLfg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 07:35:36 -0400
+Message-ID: <445896E1.4000000@nachtwindheim.de>
+Date: Wed, 03 May 2006 13:41:21 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060411)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="windows-1256"
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Update an code example
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200605031421.48043.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chuck gelm wrote:
-> tom arnall wrote:
-> >i am experiencing memory problems trying to run an application that
-> > processes a file of about .5GB. So far my results are:
-> >
-> >(1) set ulimit as follows:
-> >
-> >	core file size        (blocks, -c) 0
-> >	data seg size         (kbytes, -d) unlimited
-> >	file size             (blocks, -f) unlimited
-> >	max locked memory     (kbytes, -l) 256000
-> >	max memory size       (kbytes, -m) 256000
-> >	open files                    (-n) 1024
-> >	pipe size          (512 bytes, -p) 8
-> >	stack size            (kbytes, -s) 8192
-> >	cpu time             (seconds, -t) unlimited
-> >	max user processes            (-u) unlimited
-> >	virtual memory        (kbytes, -v) 768000
-> >
-> >This gives me 'out of memory' errors.
-> >
-> >(2) set 'virtual memory' very high and the application hogs memory and
-> > brings the rest of the system to almost a halt.
-> >
-> >Thanks in advance for any help you can give me,
-> >
-> >Tom Arnall
-> >north spit, ca
->
-> Hi, Tom:
->
->  I don't know anything about 'ulimit', but how much real memory do you
-> have? I'd try adding another 2 Gigabytes of virtual memory.
-> Also, try
->
->  nice -n 19 <application>
->
-> so that it does not 'hog' the system so much.
->
-> Run 'top' to watch how much memory your application uses.
->
-> HTH, Chuck
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-admin" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+From: Henrik Kretzschmar <henne@nachtwindheim.de>
+
+Update an example function in the deviceiobook to be in sync with
+actual qla1280c .
+The change in the driver happend in Aug-2005 and is a bit clearer.
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+---
+
+--- linux-2.6.17-rc3/Documentation/DocBook/deviceiobook.tmpl	2006-04-27 08:39:13.000000000 +0200
++++ linux/Documentation/DocBook/deviceiobook.tmpl	2006-04-30 15:18:02.000000000 +0200
+@@ -176,18 +176,13 @@
+  static inline void
+  qla1280_disable_intrs(struct scsi_qla_host *ha)
+  {
+-	struct device_reg *reg;
+-
+-	reg = ha->iobase;
+-	/* disable risc and host interrupts */
+-	WRT_REG_WORD(&amp;reg->ictrl, 0);
++	WRT_REG_WORD(&amp;ha->iobase->ictrl, 0);
+  	/*
+  	 * The following read will ensure that the above write
+  	 * has been received by the device before we return from this
+  	 * function.
+  	 */
+-	RD_REG_WORD(&amp;reg->ictrl);
+-	ha->flags.ints_enabled = 0;
++	RD_REG_WORD(&amp;ha->iobase->ictrl);
+  }
+  </programlisting>
 

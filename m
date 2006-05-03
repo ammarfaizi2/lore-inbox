@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWECJQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbWECJRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWECJQf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 05:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbWECJQf
+	id S965134AbWECJRX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 05:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965133AbWECJRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 05:16:35 -0400
-Received: from cantor.suse.de ([195.135.220.2]:45504 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965033AbWECJQf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 05:16:35 -0400
-From: Andi Kleen <ak@suse.de>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: sched_clock() uses are broken
-Date: Wed, 3 May 2006 11:16:09 +0200
-User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christopher Friesen <cfriesen@nortel.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20060502132953.GA30146@flint.arm.linux.org.uk> <200605030940.20409.ak@suse.de> <1146647462.7440.12.camel@homer>
-In-Reply-To: <1146647462.7440.12.camel@homer>
+	Wed, 3 May 2006 05:17:23 -0400
+Received: from 213-140-2-75.ip.fastwebnet.it ([213.140.2.75]:6116 "EHLO
+	aa008msg.fastweb.it") by vger.kernel.org with ESMTP id S965131AbWECJRW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 05:17:22 -0400
+Date: Wed, 3 May 2006 11:16:53 +0200
+From: Andrea Gelmini <andrea.gelmini@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.16/MD/DM-crypt/fs corruption
+Message-ID: <20060503091653.GA5940@gelma.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605031116.09428.ak@suse.de>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 May 2006 11:11, Mike Galbraith wrote:
-> On Wed, 2006-05-03 at 09:40 +0200, Andi Kleen wrote:
-> > On Wednesday 03 May 2006 09:09, Mike Galbraith wrote:
-> > 
-> > > Given that most people are going to end up using the pm_timer anyway, I
-> > > don't see the point of even having a sched_clock().  If it's jiffy
-> > > resolution, it's useless.  If it's wildly inaccurate (as it is in the
-> > > SMP case, monotonicity issues aside) it's more than useless.
-> > 
-> > For sched_clock TSC is always used and it's fine - sched_clock
-> > doesn't require the guarantees that make TSC often useless otherwise
-> 
-> Regrettable, that's not true.
+Hi all,
+	to make short a long story:
+	a) five pata disks Maxtor 500GB each one;
+	b) one big software raid 5 (/dev/md1);[1]
+	c) dmcrypt-ing /dev/md1;[2]
+	d) after 500GB copied I've got fs corruption;[3]
 
-Hmm, maybe I'm thinking too much x86-64. At least on x86-64 it's true.
+	vanilla kernel, well tested hardware,[4] debian testing (to have
+	dm-crypt).
+	I'm using same configuration (md+dm-crypt+ext2/3) on other server,
+	without problem, from years.
+	It's first time I use it on big partitions (1.9TB), sure there are 
+	situations with much bigger storage, and it's first time I've got
+	problems. So:
+	a) is anybody outthere using this kind of configuration with
+	success?
+	b) what can I do to debug the problem? I've spent last weeks
+	working on hardware (dell servers mostly), to be sure to avoid
+	hardware problems;
+	c) has someone (OSDL?) regression tests on md+dm-crypt?
 
-I don't see a big reason to not do this on i386 either, except
-on systems that truly don't have a TSC (386/486) 
+Thanks a lot for your time,
+gelma
 
-Ok i suppose if you don't want cruft you can always go to 64bit @)
 
--Andi
-
+----
+[1] /root/mdadm -Cv /dev/md1 --bitmap-chunk=1024 --chunk=256 \
+    --assume-clean --bitmap=internal -l5 -n5 /dev/hd[aefgh]
+[2] mkfs.ext3 -L 'tritone' -m0 -N 5000000 /dev/mapper/raidone
+[3] usually metadata, files checksum is good, but I have a lot of files in
+    /lost+found, after fsck, and sometimes I have to use debugfs to
+    unlink some of them (chatt/lsatt doesn't work on them). I can see the
+    problem with ext2/ext3/reiserfs. 
+[4] memtest and so on. I also tried the same box of disks on totally
+    different hardware, with same results. changed from ATA cable to RAM.
+    I tried also different IDE controller (the one on motherbords, old HPT
+    370/372, new HPT 302).

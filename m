@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbWECP53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWECP6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030227AbWECP53 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 11:57:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWECP53
+	id S1030228AbWECP6e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 11:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWECP6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 11:57:29 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:48009 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1030228AbWECP52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 11:57:28 -0400
-Date: Wed, 03 May 2006 11:57:26 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [RFC] Advanced XIP File System
-In-reply-to: <6934efce0605030845o6d313681x6b89bef71c28b3a9@mail.gmail.com>
-X-X-Sender: nico@localhost.localdomain
-To: Jared Hulbert <jaredeh@gmail.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jwboyer@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0605031151120.28543@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
- <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
- <Pine.LNX.4.64.0605022316550.28543@localhost.localdomain>
- <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
- <1146658275.20773.8.camel@pmac.infradead.org>
- <6934efce0605030845o6d313681x6b89bef71c28b3a9@mail.gmail.com>
+	Wed, 3 May 2006 11:58:34 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:32964 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1030228AbWECP6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 11:58:33 -0400
+Message-Id: <200605031558.k43FwLU2008167@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Andi Kleen <ak@suse.de>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.17-rc1-mm3: time-i386-clocksource-drivers*.patch broke userspace apps 
+In-Reply-To: Your message of "Tue, 02 May 2006 20:29:04 +0200."
+             <200605022029.05333.ak@suse.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <4454B4A1.4060304@free.fr> <1146593819.21288.2.camel@cog.beaverton.ibm.com>
+            <200605022029.05333.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1146671901_2627P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 03 May 2006 11:58:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 May 2006, Jared Hulbert wrote:
+--==_Exmh_1146671901_2627P
+Content-Type: text/plain; charset=us-ascii
 
-> > We
-> > only need to mark those pages as absent in the page tables if we ever
-> > schedule to userspace while the flash is in a mode other than read mode.
-> > Then handle the page fault by switching the flash back or waiting for
-> > it.
+On Tue, 02 May 2006 20:29:04 +0200, Andi Kleen said:
+
+> Remove wrong cpu_has_apic checks that came from mismerging.
 > 
-> Where would we do this?  In each MTD driver?  A new generic aops function?
+> We only need to check cpu_has_apic in the IO-APIC/L-APIC parsing,
+> not for all of ACPI.
+> 
+> Signed-off-by: Andi Kleen <ak@suse.de>
+> 
+> Index: linux/arch/i386/kernel/acpi/boot.c
+> ===================================================================
 
-First, is it worth it?
+NTP is much happier now that it has an ACPI-PM clock source that has a
+drift of 8.5ppm rather than a PIT clocksource that has a drift of 500+ppm. ;)
 
-IOW, are there real setups out there wishing to have user space XIP 
-while the kernel itself isn't XIP?
+--==_Exmh_1146671901_2627P
+Content-Type: application/pgp-signature
 
-Because right now you only need to turn on CONFIG_MTD_XIP for XIP user 
-space to just work, regardless of whether the kernel itself is XIP or 
-not.  And of course CONFIG_MTD_XIP is mandatory if you want to write to 
-flash with a XIP kernel.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFEWNMdcC3lWbTT17ARAm13AJ971jIfmeftD0koXcZfDpMGabzsrACg9UQn
+awMiCuE4iXui8DQW4zCRYqE=
+=iKGC
+-----END PGP SIGNATURE-----
 
-Nicolas
+--==_Exmh_1146671901_2627P--

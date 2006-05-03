@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWECGfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWECGop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965100AbWECGfi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 02:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbWECGfi
+	id S965108AbWECGop (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 02:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965109AbWECGop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 02:35:38 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14307 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965100AbWECGfi (ORCPT
+	Wed, 3 May 2006 02:44:45 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:11730 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S965108AbWECGoo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 02:35:38 -0400
-Date: Wed, 3 May 2006 16:35:18 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT, ext3fs, kernel 2.4.32... again
-Message-ID: <20060503163518.A1929541@wobbly.melbourne.sgi.com>
-References: <20060427063249.GH761@DervishD> <20060501062058.GA16589@dmt> <20060501112303.GA1951@DervishD> <20060502072808.A1873249@wobbly.melbourne.sgi.com> <20060502172411.GA6112@DervishD> <20060503060336.A1918058@wobbly.melbourne.sgi.com> <20060503052752.GA20657@DervishD>
-Mime-Version: 1.0
+	Wed, 3 May 2006 02:44:44 -0400
+Message-ID: <346638681.24899@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Wed, 3 May 2006 14:45:03 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       axboe@suse.de, nickpiggin@yahoo.com.au, pbadari@us.ibm.com,
+       arjan@infradead.org
+Subject: Re: [RFC] kernel facilities for cache prefetching
+Message-ID: <20060503064503.GA4781@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org,
+	torvalds@osdl.org, akpm@osdl.org, axboe@suse.de,
+	nickpiggin@yahoo.com.au, pbadari@us.ibm.com, arjan@infradead.org
+References: <346556235.24875@ustc.edu.cn> <20060502144641.62df9c18.diegocg@gmail.com> <346580906.19175@ustc.edu.cn> <20060502180753.096f8777.diegocg@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060503052752.GA20657@DervishD>; from lkml@dervishd.net on Wed, May 03, 2006 at 07:27:52AM +0200
+In-Reply-To: <20060502180753.096f8777.diegocg@gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 03, 2006 at 07:27:52AM +0200, DervishD wrote:
-> ...
->  Are the differences too large?
+On Tue, May 02, 2006 at 06:07:53PM +0200, Diego Calleja wrote:
+> > Nope. mincore() only provides info about files that are currently
+> > opened, by the process itself. The majority in the file cache are
+> > closed files.
+> 
+> Yes; what I meant was:
+> - start listening the process event connector as firsk task on startup
+> - get a list of what files are being used (every second or something)
+>   by looking at /proc/$PID/* stuff
+> - mincore() all those files at the end of the bootup
+> 
+> > Yes, it can still be useful after booting :) One can get the cache
+> > footprint of any task started at any time by taking snapshots of the
+> > cache before and after the task, and do a set-subtract on them.
+> 
+> Although this certainly looks simpler for userspace (and complete, if
+> you want to get absolutely all the info about files that get opened and
+> closed faster than the profile interval of a prefetcher) 
 
-Yep.
+Thanks, so it's a question of simplicity/completeness :)
 
->     I know that this change would be intrusive and probably large,
-> but IMHO is a quite important bug, because it prevents apps to
-> selectively disable O_DIRECT (the flag is accepted by open(), so
-> there's no reason the app should bother about which caused the
-> read()/write() failures. In fact, is very difficult to know that
-> those failures are caused by partial/buggy support of O_DIRECT flag).
+> (another useful tool would be a dtrace-like thing)
 
-You could open for direct, do a direct read, and see if it fails.
-If it fails, clear O_DIRECT on the fd via fcntl(F_SETFL) then do
-regular buffered IO instead... a bit hacky, but should work fine
-I think.
+Lubos Lunak also reminds me of SUSE's preload
+(http://en.opensuse.org/index.php?title=SUPER_preloading_internals)
+which is a user-land solution using strace to collect the info.
 
-cheers.
+And there's Andrea Arcangeli's "bootcache userspace logging" kernel
+patch(http://lkml.org/lkml/2004/8/6/216).
 
--- 
-Nathan
+Wu

@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWECP6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWECP6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWECP6e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 11:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWECP6e
+	id S1030230AbWECP6j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 11:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWECP6j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 11:58:34 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:32964 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1030228AbWECP6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 11:58:33 -0400
-Message-Id: <200605031558.k43FwLU2008167@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andi Kleen <ak@suse.de>
-Cc: john stultz <johnstul@us.ibm.com>,
-       Laurent Riffard <laurent.riffard@free.fr>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.17-rc1-mm3: time-i386-clocksource-drivers*.patch broke userspace apps 
-In-Reply-To: Your message of "Tue, 02 May 2006 20:29:04 +0200."
-             <200605022029.05333.ak@suse.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <4454B4A1.4060304@free.fr> <1146593819.21288.2.camel@cog.beaverton.ibm.com>
-            <200605022029.05333.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1146671901_2627P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 03 May 2006 11:58:21 -0400
+	Wed, 3 May 2006 11:58:39 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:17234 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030230AbWECP6i convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 11:58:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VOmXt9hQId4GjElwSdx4Ufa+pPiT8z4AzNbcXlcoGU287dT2j0lvorKCnONBaavl6DdZEJsvuDWY+CwH/IoZxhC7CTje/ICzi7grJreVTa12Zcu7XfMnPcURPKMHnGz0AvJWSqCRqF/feqJvLOIFDwNsWKjlgaHaNLyS+PNAMQU=
+Message-ID: <6934efce0605030858k3967489p55ef98a26e71b761@mail.gmail.com>
+Date: Wed, 3 May 2006 08:58:36 -0700
+From: "Jared Hulbert" <jaredeh@gmail.com>
+To: "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>
+Subject: Re: [RFC] Advanced XIP File System
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060503154700.GD5250@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+	 <20060503130502.GD19537@wohnheim.fh-wedel.de>
+	 <6934efce0605030831h30d7e4e3hb057fd1b3f7791d3@mail.gmail.com>
+	 <20060503154700.GD5250@wohnheim.fh-wedel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1146671901_2627P
-Content-Type: text/plain; charset=us-ascii
+> Correct.  It is not a must-fix, but having seperate workspaces for all
+> the filesystems seems wasteful.
 
-On Tue, 02 May 2006 20:29:04 +0200, Andi Kleen said:
+Agreed.  So we copy the cramfs uncompress routines line for line. 
+That optimization seems like low hanging fruit.
 
-> Remove wrong cpu_has_apic checks that came from mismerging.
-> 
-> We only need to check cpu_has_apic in the IO-APIC/L-APIC parsing,
-> not for all of ACPI.
-> 
-> Signed-off-by: Andi Kleen <ak@suse.de>
-> 
-> Index: linux/arch/i386/kernel/acpi/boot.c
-> ===================================================================
-
-NTP is much happier now that it has an ACPI-PM clock source that has a
-drift of 8.5ppm rather than a PIT clocksource that has a drift of 500+ppm. ;)
-
---==_Exmh_1146671901_2627P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEWNMdcC3lWbTT17ARAm13AJ971jIfmeftD0koXcZfDpMGabzsrACg9UQn
-awMiCuE4iXui8DQW4zCRYqE=
-=iKGC
------END PGP SIGNATURE-----
-
---==_Exmh_1146671901_2627P--
+To consolidate them how should that be approached?  Create
+fs/uncompress.c?  Modify axfs and cramfs to use it?

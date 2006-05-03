@@ -1,70 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbWEBX7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWECAAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbWEBX7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 19:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWEBX7Y
+	id S965043AbWECAAh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 20:00:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWECAAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 19:59:24 -0400
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:41359 "HELO
-	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965042AbWEBX7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 19:59:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=GvvW6/COQqLoysnz05a47q3uQem+aCcPDvtrJxQdLt4brXUJNrxDaRsd3kvnjY0wZV4RdRV0A0Py+qEoegxyp1J7W8k4ySLALZNkn8x3lOloI1dnpivxHg2Qimjeh7sJK8eHZNUan36sj7uwlxO9rwPs+Cl6kwYywgl4kwyrZZ0=  ;
-Message-ID: <44576AD3.500@yahoo.com.au>
-Date: Wed, 03 May 2006 00:21:07 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 2 May 2006 20:00:36 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:48118 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S965043AbWECAAg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 20:00:36 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: "Jared Hulbert" <jaredeh@gmail.com>
+Subject: Re: [RFC] Advanced XIP File System
+Date: Wed, 3 May 2006 02:00:28 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+In-Reply-To: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: sched_clock() uses are broken
-References: <20060502132953.GA30146@flint.arm.linux.org.uk>
-In-Reply-To: <20060502132953.GA30146@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200605030200.29141.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+Am Tuesday 02 May 2006 23:53 schrieb Jared Hulbert:
+> I will be submitting a new filesystem for inclusion into the kernel as
+> soon as it is ready.  (It mounts but doesn't like doing much else
+> right now.)  I would like to get feedback now to mold the development
+> as we go along.  Please comment on the technical approaches and other
+> inherent qualities or lack thereof.  Let me know of any serious
+> obstacles to inclusion in the mainline.  We will Lindent it and clean
+> it up quite a bit before really submitting.
+>
+> You may find it at its very boring sourceforge site
+> https://sourceforge.net/projects/axfs/.  Browse the source at
+> http://svn.sourceforge.net/axfs
+> Or get the tarball at
+> http://prdownloads.sourceforge.net/axfs/axfs-0.1.tar.gz?download
+>
+>
+> What is it?:
+> - AXFS for Advanced XIP File System.
+> - Intended to be a root filesystem for embedded systems
+> - Readonly
+> - Uses addressable memory such as NOR flash instead of a block device
+> - Borrows much from CRAMFS with Linear XIP patches
+> - Allows XIP* of individual pages instead of just individual files
+> - Uses filemap_xip.c where possible
+>
+> * By XIP, eXecute In Place, we mean that when a file is mmap'd() the
+> pages are mapped directly to where they are stored in non volatile
+> storage, rather than copied to RAM in the page cache and mapped from
+> there
 
-> There are several solutions to this - the most obvious being that we
-> need a function which returns the nanosecond difference between two
-> sched_clock() return values, and this function needs to know how to
-> handle the case where sched_clock() has wrapped.
-> 
-> IOW:
-> 
-> 	t0 = sched_clock();
-> 	/* do something */
-> 	t1 = sched_clock();
-> 
-> 	time_passed = sched_clock_diff(t1, t0);
-> 
-> Comments?
-> 
+Nice, this is the first time I heard of anyone using filemap_xip on MTD.
 
-There is another problem John pointed out to me: sched_clock (at least
-on i386) can do tsc frequency scaling on the raw tsc value. I'm not
-sure if this is still a problem (I'm not aware that it has been fixed),
-however it would mean that between two sched_clock()s, the values
-returned can be basically completely arbitrary.
+> Why a new filesystem?
+> - XIP of kernel is mainline, but not XIP of applications.  This
+> enables application XIP
 
-What is needed is something like:
-     t0 = get_cycles_unsynchronized();
-     t1 = get_cycles_unsynchronized();
-     ns = cycles_to_ns(t1, t0);
+ext2fs does have XIP of applications, but of course only works on
+block devices, not MTD. Is there more missing than an implementation
+of block_device_operations::direct_access for mtd_blktrans_ops?
 
-Where unsynchronized means not synchronized between CPUs.
+Why can't you get the same result with a combination of cramfs for
+data files and ext2 with -o xip for your mmapped binaries?
 
-This would still cause the `ns' value to be skewed if a frequency change
-occured between t0 and t1, however at least it should be within some
-realistic range (something like ns +/- ns * max freq / min freq).
+> - Cramfs linear XIP patches not suitable for submission and lack some
+> features of AXFS
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Is that a fundamental problem of cramfs, or rather a problem of the
+implementation of the linear XIP patches for it? IOW, can't you just
+do a better patch to add filemap_xip support to cramfs?
+
+> - Design allows for tighter packing of data and higher performance
+> than XIP cramfs
+
+why? by how much?
+
+	Arnd <><

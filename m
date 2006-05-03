@@ -1,90 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWECWbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWECWfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbWECWbw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 18:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWECWbw
+	id S1751261AbWECWfl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 18:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWECWfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 18:31:52 -0400
-Received: from mga07.intel.com ([143.182.124.22]:38306 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1750932AbWECWbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 18:31:51 -0400
-X-IronPort-AV: i="4.05,85,1146466800"; 
-   d="scan'208"; a="31214079:sNHT181642314"
-Date: Wed, 3 May 2006 15:27:47 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: gregkh@suse.de, ak@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: i386/x86_84: disable PCI resource decode on device disable
-Message-ID: <20060503152747.A29327@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 May 2006 18:35:41 -0400
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:60906 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S1751261AbWECWfl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 18:35:41 -0400
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.17-rc3-mm1 breaks AGP on amd64 boxes in 32 bit mode
+Date: Thu, 4 May 2006 00:33:33 +0200
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Message-Id: <200605040033.33579.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.6.17-rc3-mm1 breaks AGP on amd64 boxes in 32 bit mode - a change in the 
+related Kconfig file forces the agp-amd64 module to be built only on x86_64, 
+simply reverting that bit introduces unresolved symbols k8_nb_ids and 
+k8_northbridges (defined but not exported).
 
-When a PCI device is disabled via pci_disable_device(), it's still
-left decoding its BAR resource ranges even though its driver
-will have likely released those regions (and may even have
-unloaded). pci_enable_device() already explicitly enables 
-BAR resource decode for the device being enabled. This patch
-disables resource decode for the PCI device being disabled,
-making it symmetric with the enable call.
-
-I saw this while doing something else, not because of a
-problem report. Still, seems to be the correct thing to do.
-
-Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
-
- arch/i386/pci/common.c |    1 +
- arch/i386/pci/i386.c   |    9 +++++++++
- arch/i386/pci/pci.h    |    1 +
- 3 files changed, 11 insertions(+)
-
-Index: linux-2.6.17-rc3-git7/arch/i386/pci/common.c
-===================================================================
---- linux-2.6.17-rc3-git7.orig/arch/i386/pci/common.c
-+++ linux-2.6.17-rc3-git7/arch/i386/pci/common.c
-@@ -288,6 +288,7 @@ int pcibios_enable_device(struct pci_dev
+Signed-off-by: Bernhard Rosenkraenzer <bero@arklinux.org>
+---
+diff -urNp linux-2.6.16/drivers/char/agp/Kconfig 
+linux-2.6.16-driworx/drivers/char/agp/Kconfig
+--- linux-2.6.16/drivers/char/agp/Kconfig	2006-05-02 23:30:35.000000000 +0200
++++ linux-2.6.16-driworx/drivers/char/agp/Kconfig	2006-05-02 
+22:57:48.000000000 +0200
+@@ -56,7 +56,7 @@ config AGP_AMD
  
- void pcibios_disable_device (struct pci_dev *dev)
+ config AGP_AMD64
+ 	tristate "AMD Opteron/Athlon64 on-CPU GART support" if !GART_IOMMU
+-	depends on AGP && X86_64
++	depends on AGP && X86
+ 	default y if GART_IOMMU
+ 	help
+ 	  This option gives you AGP support for the GLX component of
+--- linux-2.6.16/arch/x86_64/kernel/k8.c.ark	2006-05-03 21:37:35.000000000 
++0200
++++ linux-2.6.16-driworx/arch/x86_64/kernel/k8.c	2006-05-03 21:38:10.000000000 
++0200
+@@ -20,8 +20,10 @@ struct pci_device_id k8_nb_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, 0x1203) },
+ 	{}
+ };
++EXPORT_SYMBOL_GPL(k8_nb_ids); // for amd64-agp
+ 
+ struct pci_dev **k8_northbridges;
++EXPORT_SYMBOL_GPL(k8_northbridges); // for amd64-agp
+ 
+ static struct pci_dev *next_k8_northbridge(struct pci_dev *dev)
  {
-+	pcibios_disable_resources(dev);
- 	if (pcibios_disable_irq)
- 		pcibios_disable_irq(dev);
- }
-Index: linux-2.6.17-rc3-git7/arch/i386/pci/i386.c
-===================================================================
---- linux-2.6.17-rc3-git7.orig/arch/i386/pci/i386.c
-+++ linux-2.6.17-rc3-git7/arch/i386/pci/i386.c
-@@ -242,6 +242,15 @@ int pcibios_enable_resources(struct pci_
- 	return 0;
- }
- 
-+void pcibios_disable_resources(struct pci_dev *dev)
-+{
-+	u16 cmd;
-+
-+	pci_read_config_word(dev, PCI_COMMAND, &cmd);
-+	cmd &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
-+	pci_write_config_word(dev, PCI_COMMAND, cmd);
-+}
-+
- /*
-  *  If we set up a device for bus mastering, we need to check the latency
-  *  timer as certain crappy BIOSes forget to set it properly.
-Index: linux-2.6.17-rc3-git7/arch/i386/pci/pci.h
-===================================================================
---- linux-2.6.17-rc3-git7.orig/arch/i386/pci/pci.h
-+++ linux-2.6.17-rc3-git7/arch/i386/pci/pci.h
-@@ -35,6 +35,7 @@ extern unsigned int pcibios_max_latency;
- 
- void pcibios_resource_survey(void);
- int pcibios_enable_resources(struct pci_dev *, int);
-+void pcibios_disable_resources(struct pci_dev *);
- 
- /* pci-pc.c */
- 

@@ -1,77 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWECX3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWECXjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWECX3n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 19:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWECX3n
+	id S1751404AbWECXjR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 19:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWECXjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 19:29:43 -0400
-Received: from xenotime.net ([66.160.160.81]:20112 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751392AbWECX3m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 19:29:42 -0400
-Date: Wed, 3 May 2006 16:32:07 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-Cc: linux-kernel@vger.kernel.org, nils@kernelconcepts.de
-Subject: Re: i8xx TCO timer: does not reset my machine
-Message-Id: <20060503163207.aac77d39.rdunlap@xenotime.net>
-In-Reply-To: <20060501225948.GM1487@cip.informatik.uni-erlangen.de>
-References: <20060501225948.GM1487@cip.informatik.uni-erlangen.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Wed, 3 May 2006 19:39:16 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:11722 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751399AbWECXjQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 19:39:16 -0400
+Date: Thu, 4 May 2006 01:35:58 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, david@pleyades.net
+Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
+Message-ID: <20060503233558.GA27232@electric-eye.fr.zoreil.com>
+References: <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI> <20060502214520.GC26357@electric-eye.fr.zoreil.com> <20060502215559.GA1119@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 May 2006 00:59:48 +0200 Thomas Glanzmann wrote:
+Pekka J Enberg <penberg@cs.Helsinki.FI> :
+[...]
+> maintain the tree, I can send you my patches so you can recreate the full 
+> history. The first steps were produced by quilt on the original 
+> out-of-tree driver, though, so they're probably not helpful.
 
-> Hello everyone,
-> I have an Intel board (D915GEV/D915GRF) with an onboard i8xx TCO timer
-> watchdog on it. I compiled a kernel and tried to make it reset my
-> machine, but it simply doesn't. I use Linus Linux tree (GIT HEAD), the
-> following watchdog related configuration:
-> 
->         CONFIG_WATCHDOG=y
->         CONFIG_WATCHDOG_NOWAYOUT=y
->         CONFIG_I6300ESB_WDT=y
->         CONFIG_I8XX_TCO=y
-> 
-> I tried to test the watchdog using the following:
-> 
->         cat > /dev/watchdog
+It will be welcome.
 
-*** see below
+I have added a few little things (changelog below). Next step will
+probably be some mii/ethtool stuff.
 
-> and wait a few minutes, but that doesn't reset my machine.  dmesg shows the
-> following:
-> 
->         (webfarm) [~] dmesg | grep TCO
->         i8xx TCO timer: heartbeat value must be 2<heartbeat<39, using 30
->         i8xx TCO timer: initialized (0x0460). heartbeat=30 sec (nowayout=1)
-> 
-> lspci is this:
-> 
-[snip]
-> 
-> Has somone any ideas, did I do something wrong? From looking at the
-> source code it looks like the watchdog is enabled as soon as I open the
-> device. And if I don't feed anything in, it shouldn't reload the timer.
+The branch 'netdev-ipg' is available at:
+git://electric-eye.fr.zoreil.com/home/romieu/linux-2.6.git.
 
-TCO watchdog works on my old P-III machine.  After writing to
-/dev/watchdog, about 50 (not 30) seconds later, it reboots.
+Serie of patches (ala 'git format-patch'):
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.17-rc3/ip1000a/
 
-Oh, I see.  Two choices:
-use: echo -n 1 > /dev/watchdog
-or when you use: cat > /dev/watchdog
-and press CR, that doesn't close /dev/watchdog yet.
-You need to kill cat (^C) and then /dev/watchdog is closed
-and the watchdog timer starts counting.  You will (should) see
-a message like so:
-  i8xx TCO timer: Unexpected close, not stopping watchdog!
-then wait awhile, then it reboots.
+All-in-one patch:
+http://www.fr.zoreil.com/people/francois/misc/20060504-2.6.17-rc3-git-ip1000-test.patch
 
+ChangeLog from yesterday version:
 
----
-~Randy
+commit 8b0a8db32d1ac6e9bc23300a6a0533b4d7e251e3
+Author: Francois Romieu <romieu@fr.zoreil.com>
+Date:   Thu May 4 00:29:59 2006 +0200
+
+    ipg: remove forward declarations
+    
+    It makes no sense in a new driver.
+    
+    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+
+commit 65940e5e0ab88d92fbac0f96b5d46ddfbd5cfa93
+Author: Francois Romieu <romieu@fr.zoreil.com>
+Date:   Thu May 4 00:04:57 2006 +0200
+
+    ipg: replace #define with enum
+    
+    Added some underscores to improve readability.
+    
+    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+
+commit ab87a106690d6eaba4b7426fb074270e2e503e40
+Author: Francois Romieu <romieu@fr.zoreil.com>
+Date:   Wed May 3 22:51:16 2006 +0200
+
+    ipg: removal of useless #defines
+    
+    IPG_TX_NOTBUSY apart (one occurence in ipg.c), the #defines appear
+    nowhere in the sources.
+    
+    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+
+commit ef7bfd886bc436d14649e962edb6f5189cc4dcac
+Author: Francois Romieu <romieu@fr.zoreil.com>
+Date:   Wed May 3 22:44:47 2006 +0200
+
+    ipg: redundancy with mii.h - take II
+    
+    Replace a bunch of #define with their counterpart from mii.h
+    
+    It is applied to the usual MII registers this time.
+    
+    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+
+-- 
+Ueimor

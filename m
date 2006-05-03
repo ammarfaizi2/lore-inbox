@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbWECGQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWECG2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965104AbWECGQk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 02:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbWECGQk
+	id S965103AbWECG2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 02:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbWECG2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 02:16:40 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:3733 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S965099AbWECGQj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 02:16:39 -0400
-Date: Wed, 3 May 2006 09:16:35 +0300 (EEST)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-In-Reply-To: <20060502215559.GA1119@electric-eye.fr.zoreil.com>
-Message-ID: <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI>
-References: <1146306567.1642.3.camel@localhost> <20060429122119.GA22160@fargo>
- <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost>
- <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net>
- <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com>
- <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI>
- <20060502214520.GC26357@electric-eye.fr.zoreil.com>
- <20060502215559.GA1119@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 May 2006 02:28:24 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:20384 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S965103AbWECG2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 02:28:23 -0400
+In-Reply-To: <17496.6519.733076.663815@cargo.ozlabs.ibm.com>
+References: <20060429232812.825714000@localhost.localdomain> <200605020150.14152.arnd@arndb.de> <1900A234-BE31-4292-87E1-5C02F12A440D@kernel.crashing.org> <200605021259.24157.arnd@arndb.de> <801072F8-7701-4BD7-81FB-A8C1AA534C2E@kernel.crashing.org> <17496.6519.733076.663815@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v749.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <904F5BD9-1ACB-4936-B390-E4128886824C@kernel.crashing.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@ozlabs.org,
+       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [Cbe-oss-dev] [PATCH 11/13] cell: split out board specific files
+Date: Wed, 3 May 2006 08:28:15 +0200
+To: Paul Mackerras <paulus@samba.org>
+X-Mailer: Apple Mail (2.749.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Francois,
+>>> Well, it could run on other platforms, except:
+>>>
+>>> - it requires a few properties in the device tree (local-mac- 
+>>> address,
+>>>   firmware), so it should also depend on PPC
+>>
+>> The portions of code that require OF should have appropriate #ifdef
+>> guards.
+>
+> So you're suggesting that we change the Makefile so we can *add*
+> ifdefs?  Usually we do it the other way around. :)
 
-On Tue, 2 May 2006, Francois Romieu wrote:
-> Btw the whole serie is available in branch 'netdev-ipg' at:
-> git://electric-eye.fr.zoreil.com/home/romieu/linux-2.6.git
-> 
-> The interim steps may be useful if testing reveals something wrong
-> (especially if it happens in a few weeks/months).
+Yeah, what was I thinking.  So use some platform hook instead.
 
-I have all the interim steps in a private git tree also. I asked for a 
-kernel.org account so I could publish the tree. However, if you wish to 
-maintain the tree, I can send you my patches so you can recreate the full 
-history. The first steps were produced by quilt on the original 
-out-of-tree driver, though, so they're probably not helpful.
+But Arnd of course is right; if the driver (currently) only works
+on a certain platform, just mark it as such in the Makefile (erm,
+Kconfig file).
 
-					Pekka
+Hey, we should probably do that with 90% of all drivers.  But that
+is a discussion for some other day :-)
+
+
+Segher
+

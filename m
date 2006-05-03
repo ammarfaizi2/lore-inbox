@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWECQGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWECQKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWECQGS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 12:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWECQGR
+	id S1030234AbWECQKN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 12:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWECQKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 12:06:17 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:47774 "EHLO
-	ms-smtp-03.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1030181AbWECQGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 12:06:17 -0400
-Date: Wed, 03 May 2006 11:06:03 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/2][RFC] New version of shared page tables
-Message-ID: <57DF992082E5BD7D36C9D441@[10.1.1.4]>
-In-Reply-To: <Pine.LNX.4.64.0605031650190.3057@blonde.wat.veritas.com>
-References: <1146671004.24422.20.camel@wildcat.int.mccr.org>
- <Pine.LNX.4.64.0605031650190.3057@blonde.wat.veritas.com>
-X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 3 May 2006 12:10:12 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:29886 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1030234AbWECQKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 12:10:11 -0400
+Date: Wed, 03 May 2006 12:10:10 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [RFC] Advanced XIP File System
+In-reply-to: <1146672118.20773.32.camel@pmac.infradead.org>
+X-X-Sender: nico@localhost.localdomain
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Jared Hulbert <jaredeh@gmail.com>, Josh Boyer <jwboyer@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.64.0605031209170.28543@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+ <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
+ <Pine.LNX.4.64.0605022316550.28543@localhost.localdomain>
+ <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
+ <1146658275.20773.8.camel@pmac.infradead.org>
+ <6934efce0605030845o6d313681x6b89bef71c28b3a9@mail.gmail.com>
+ <Pine.LNX.4.64.0605031151120.28543@localhost.localdomain>
+ <1146672118.20773.32.camel@pmac.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 May 2006, David Woodhouse wrote:
 
---On Wednesday, May 03, 2006 16:56:12 +0100 Hugh Dickins <hugh@veritas.com>
-wrote:
-
->> I've done some cleanup and some bugfixing.  Hugh, please review
->> this version instead of the old one.
+> On Wed, 2006-05-03 at 11:57 -0400, Nicolas Pitre wrote:
+> > First, is it worth it?
 > 
-> Grrr, just as I'm writing up my notes on the last revision!
-> I need a new go-faster brain.  Okay, I'll switch over now.
+> Quite possibly not. Even if you don't actually have kernel XIP, you may
+> well decide just not to schedule userspace while the flash isn't in READ
+> mode.
 
-Sorry.
+And we already have code to do just that.
 
-The changes should be relatively minor.  Just a tweak to the unshare
-locking and some extra code to handle hugepage copy_page_range, mostly.
 
-Dave
-
+Nicolas

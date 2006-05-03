@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWECNVy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWECNXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbWECNVy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 09:21:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWECNVy
+	id S1030201AbWECNXa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 09:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWECNX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 09:21:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12710 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030196AbWECNVx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 09:21:53 -0400
-Date: Wed, 3 May 2006 06:21:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-Cc: Seokmann.Ju@engenio.com, andre@linux-ide.org, James.Bottomley@SteelEye.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH 1/1] megaraid_{mm,mbox}: updated
- fix-a-bug-in-reset-handler
-Message-Id: <20060503062136.694e4d08.akpm@osdl.org>
-In-Reply-To: <890BF3111FB9484E9526987D912B261901BD27@NAMAIL3.ad.lsil.com>
-References: <890BF3111FB9484E9526987D912B261901BD27@NAMAIL3.ad.lsil.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 3 May 2006 09:23:29 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:48514 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1030201AbWECNX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 09:23:27 -0400
+Date: Wed, 3 May 2006 15:22:39 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Cc: akpm@osdl.org, Greg KH <greg@kroah.com>, ioe-lkml@rameria.de,
+       linux-kernel@vger.kernel.org, Kyle Moffett <mrmacman_g4@mac.com>,
+       mschwid2@de.ibm.com, Pekka J Enberg <penberg@cs.Helsinki.FI>
+Subject: Re: [PATCH] s390: Hypervisor File System
+Message-ID: <20060503132239.GA5250@wohnheim.fh-wedel.de>
+References: <20060503130043.GC19537@wohnheim.fh-wedel.de> <OFF044ED40.56CCD284-ON42257163.0048A5F3-42257163.00491F2C@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <OFF044ED40.56CCD284-ON42257163.0048A5F3-42257163.00491F2C@de.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 May 2006 14:04:06 -0600
-"Ju, Seokmann" <Seokmann.Ju@lsil.com> wrote:
+On Wed, 3 May 2006 15:18:41 +0200, Michael Holzheu wrote:
+> 
+> Of course! But the convention must be, that If userspace wants to
+> access the data, it has to use our standard linux
+> parser. If it accesses the data directly, this is broken.
+> This ensures, that whitespaces do not matter at all! And as
+> I said before, if you use the parser, you don't have any
+> difference compared to the filesystem solution from a logical
+> perspective.
 
-> Is this patch accepted?
+o People are not forced to follow the convention.  If they don't and
+  you break an existing application, you get the blame.
+o Now you have a dependency on the standard parser, which is in
+  userspace.  Any bug in any version of the standard parser and...
 
-James is the scsi-patch-accepting guy.  I do pick up lots of patches which
-belong to subsystem maintainers (mainly because they're lossy...) but they
-still go through the subsytem maintainer.
+Jörn
 
-> If not, can you please provide comment.
-
-I don't appear to have a copy queued up, and I'm struggling a bit to
-identify the right patch (partly because your email client appears to
-support neither In-Reply-To: nor References:)
-
-So.   Sorry, please resend.
+-- 
+There's nothing better for promoting creativity in a medium than
+making an audience feel "Hmm ­ I could do better than that!"
+-- Douglas Adams in a slashdot interview

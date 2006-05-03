@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWECSbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWECSd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWECSbt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 14:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWECSbt
+	id S1750707AbWECSd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 14:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWECSd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 14:31:49 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27151 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750706AbWECSbt
+	Wed, 3 May 2006 14:33:58 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28943 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750707AbWECSd6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 14:31:49 -0400
-Date: Wed, 3 May 2006 18:31:37 +0000
+	Wed, 3 May 2006 14:33:58 -0400
+Date: Wed, 3 May 2006 18:33:40 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, Michael Helmling <supermihi@web.de>,
-       linux-kernel@vger.kernel.org
+To: Michael Helmling <supermihi@web.de>
+Cc: linux-usb-devel@lists.sourceforge.net, Andrey Panin <pazke@donpac.ru>,
+       David Hollis <dhollis@davehollis.com>,
+       David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
 Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
-Message-ID: <20060503183136.GA4404@ucw.cz>
-References: <200605022002.15845.supermihi@web.de> <200605021509.17050.david-b@pacbell.net>
+Message-ID: <20060503183340.GB4404@ucw.cz>
+References: <200605022002.15845.supermihi@web.de> <1146667488.2348.28.camel@dhollis-lnx.sunera.com> <20060503153128.GA31133@pazke.donpac.ru> <200605032014.28734.supermihi@web.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200605021509.17050.david-b@pacbell.net>
+In-Reply-To: <200605032014.28734.supermihi@web.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > I bought an USB-Ethernet adaptor from delock (www.delock.de) and found it was 
-> > not supported by linux from the vendor. So I played a little with lsusb and 
-> > found it uses a MCS7830 chip from MosChip semiconductor (moschip.com). On 
-> > their homepage I found a driver but it only was a precompiled Fedora4 module. 
-> > So I wrote them an email and they sent me the whole source code for the 
-> > module...
-> >
-> > Would be nice to see this supported in further kernel releases.
-> > The sourcecode can be found at ftp://supermihi.myftp.org
-> 
-> Was it you who removed the copyrights from the "usbnet" driver and
-> changed the author assertion to one "M Subrahmanya Srihdar" ??
-> I'm guessing the latter; the www.moschip.com site implies that
-> its engineering HW is in India.
-> 
-> Either way, blatant plagiarism and theft of copyright is unlikely
-> to get into upstream kernels.
 
-Well, I suspect that poor soul did not know what (s)he was doing. They
-are clearly trying to do the right thing... just paste back original
-copyrights and be done with it.
+
+On Wed 03-05-06 20:14:28, Michael Helmling wrote:
+> On Wednesday 03 May 2006 17:31, Andrey Panin wrote:
+> > > What he
+> > > should do would be to create a moschip.c that uses usbnet as a support
+> > > module - just like asix.c does.  In this file, he can have his sole
+> > > Copyright attribution and not have to worry about following
+> > > changes/updates to usbnet.  Of course, if he communicated his
+> > > development efforts with the community, he would have received all of
+> > > this information long ago and we'd likely help shake out bugs in the
+> > > code to make it a more robust driver.
+> > 
+> > IMHO we should do it now. If there is no volunteers, I can try to do it,
+> > but it will be my first USB driver, so don't expect results soon.
+> > 
+> 
+> That would be great, I could give you feedback if / how it works.
+> But I think someone versed in the GPL should contact moschip to clear things a 
+> bit.
+
+No need to pull them into the loop, I'd say. What they done is wrong,
+but we can correct it without their help.
 							Pavel
 -- 
 Thanks, Sharp!

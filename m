@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965230AbWECPpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965232AbWECPrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965230AbWECPpW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 11:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965229AbWECPpV
+	id S965232AbWECPrE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 11:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbWECPrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 11:45:21 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:39279 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965232AbWECPpU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 11:45:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WI/D+RTtFrDYo6kUtthor49t9EzZ+UZ6B5YkPOZxWUTFHeVBWZl0EVqT3x5dIuleRVUit5g9xawkSpUnCH6LR+yOrZ2bznoVzteUk6LNgPXYDDstwJSFf4NfIIBlClz3cMT+iSUIA8UCMP7zVjuJPMrOQlGRLlhL0qjBAwludN4=
-Message-ID: <6934efce0605030845o6d313681x6b89bef71c28b3a9@mail.gmail.com>
-Date: Wed, 3 May 2006 08:45:19 -0700
-From: "Jared Hulbert" <jaredeh@gmail.com>
-To: "David Woodhouse" <dwmw2@infradead.org>
+	Wed, 3 May 2006 11:47:03 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:61085 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S965232AbWECPrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 11:47:01 -0400
+Date: Wed, 3 May 2006 17:47:01 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Jared Hulbert <jaredeh@gmail.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Advanced XIP File System
-Cc: "Josh Boyer" <jwboyer@gmail.com>, "Nicolas Pitre" <nico@cam.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1146658275.20773.8.camel@pmac.infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Message-ID: <20060503154700.GD5250@wohnheim.fh-wedel.de>
+References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com> <20060503130502.GD19537@wohnheim.fh-wedel.de> <6934efce0605030831h30d7e4e3hb057fd1b3f7791d3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
-	 <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
-	 <Pine.LNX.4.64.0605022316550.28543@localhost.localdomain>
-	 <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
-	 <1146658275.20773.8.camel@pmac.infradead.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <6934efce0605030831h30d7e4e3hb057fd1b3f7791d3@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->We
-> only need to mark those pages as absent in the page tables if we ever
-> schedule to userspace while the flash is in a mode other than read mode.
-> Then handle the page fault by switching the flash back or waiting for
-> it.
+On Wed, 3 May 2006 08:31:50 -0700, Jared Hulbert wrote:
+> 
+> >o Consider saving a zlib workspace by moving it out of your code and
+> >  sharing the infrastructure with cramfs and jffs2
+> 
+> Hmmm.  Can you explain what you mean by this.  That would require
+> modifying each of the 3 filesystems.
 
-Where would we do this?  In each MTD driver?  A new generic aops function?
+Correct.  It is not a must-fix, but having seperate workspaces for all
+the filesystems seems wasteful.
+
+Jörn
+
+-- 
+Unless something dramatically changes, by 2015 we'll be largely
+wondering what all the fuss surrounding Linux was really about.
+-- Rob Enderle

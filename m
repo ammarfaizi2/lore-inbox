@@ -1,80 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbWECKsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965153AbWECLYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbWECKsK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 06:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbWECKsK
+	id S965153AbWECLYG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 07:24:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWECLYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 06:48:10 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:63058 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S965136AbWECKsI (ORCPT
+	Wed, 3 May 2006 07:24:05 -0400
+Received: from [212.33.162.131] ([212.33.162.131]:48904 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S965000AbWECLYE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 06:48:08 -0400
-Date: Wed, 3 May 2006 12:48:50 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: splice(SPLICE_F_MOVE) problems
-Message-ID: <20060503104850.GR9712@suse.de>
-References: <20060501065953.GA289@oleg> <20060501065412.GP23137@suse.de> <20060501190625.GA174@oleg> <20060501174153.GH3814@suse.de> <20060502001118.GA88@oleg> <20060502052850.GP3814@suse.de> <20060503041455.GA158@oleg> <20060503065644.GJ9712@suse.de> <20060503143515.GA94@oleg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 May 2006 07:24:04 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: LinuxQuestions.org - Community Bulletin
+Date: Wed, 3 May 2006 14:21:48 +0300
+User-Agent: KMail/1.5
+Cc: linux-admin@vger.kernel.org, chuck gelm <chuck@gelm.net>, kloro@cox.net
+References: <200605020407.a7286e265899@www.linuxquestions.org> <200605022341.42037.kloro@cox.net> <44584121.5080904@gelm.net>
+In-Reply-To: <44584121.5080904@gelm.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060503143515.GA94@oleg>
+Content-Type: text/plain;
+  charset="windows-1256"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200605031421.48043.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 03 2006, Oleg Nesterov wrote:
-> On 05/03, Jens Axboe wrote:
+chuck gelm wrote:
+> tom arnall wrote:
+> >i am experiencing memory problems trying to run an application that
+> > processes a file of about .5GB. So far my results are:
 > >
-> > On Wed, May 03 2006, Oleg Nesterov wrote:
-> > 
-> > > However, user_page_pipe_buf_steal() returns unlocked page in
-> > > PIPE_BUF_FLAG_GIFT case. So, if add_to_page_cache() fails,
-> > > unlock_page() will trigger BUG().
-> > 
-> > It does, it calls generic_pipe_buf_steal() which locks it.
-> 
-> What I have in splice.c:
-> 
-> 	static int user_page_pipe_buf_steal(struct pipe_inode_info *pipe,
-> 					    struct pipe_buffer *buf)
-> 	{
-> 		if (!(buf->flags & PIPE_BUF_FLAG_GIFT))
-> 			return 1;
-> 
-> 		return 0;
-> 	}
-> 
-> (I don't use git, reading Linus's tree via http).
-
-Ah ok, it got fixed yesterday:
-
-static int user_page_pipe_buf_steal(struct pipe_inode_info *pipe,
-                                    struct pipe_buffer *buf)
-{
-        if (!(buf->flags & PIPE_BUF_FLAG_GIFT))
-                return 1;
-
-        return generic_pipe_buf_steal(pipe, buf);
-}
-
-> > > 		ret = mapping->a_ops->prepare_write(file, page, offset, offset+this_len);
-> > > 		if (ret == AOP_TRUNCATED_PAGE) {
-> > > 			page_cache_release(page);
-> > > 			goto find_page;
-> > > 
-> > > We also need to unlock(page) if it was stealed.
-> > 
-> > Are you sure that's the right test? Don't you mean if ret !=
-> > AOP_TRUNCATED_PAGE && ret?
-> > 
-> > How about the attached?
-> 
-> Ah, yes, you are right. Sorry for confusion.
-
-Good, I already committed that variant of the fix :)
-
--- 
-Jens Axboe
+> >(1) set ulimit as follows:
+> >
+> >	core file size        (blocks, -c) 0
+> >	data seg size         (kbytes, -d) unlimited
+> >	file size             (blocks, -f) unlimited
+> >	max locked memory     (kbytes, -l) 256000
+> >	max memory size       (kbytes, -m) 256000
+> >	open files                    (-n) 1024
+> >	pipe size          (512 bytes, -p) 8
+> >	stack size            (kbytes, -s) 8192
+> >	cpu time             (seconds, -t) unlimited
+> >	max user processes            (-u) unlimited
+> >	virtual memory        (kbytes, -v) 768000
+> >
+> >This gives me 'out of memory' errors.
+> >
+> >(2) set 'virtual memory' very high and the application hogs memory and
+> > brings the rest of the system to almost a halt.
+> >
+> >Thanks in advance for any help you can give me,
+> >
+> >Tom Arnall
+> >north spit, ca
+>
+> Hi, Tom:
+>
+>  I don't know anything about 'ulimit', but how much real memory do you
+> have? I'd try adding another 2 Gigabytes of virtual memory.
+> Also, try
+>
+>  nice -n 19 <application>
+>
+> so that it does not 'hog' the system so much.
+>
+> Run 'top' to watch how much memory your application uses.
+>
+> HTH, Chuck
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-admin" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

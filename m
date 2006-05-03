@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWECSNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWECSPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWECSNR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 14:13:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWECSNR
+	id S1751348AbWECSPE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 14:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWECSPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 14:13:17 -0400
-Received: from fmmailgate03.web.de ([217.72.192.234]:6528 "EHLO
-	fmmailgate03.web.de") by vger.kernel.org with ESMTP
-	id S1751347AbWECSNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 14:13:17 -0400
-From: Michael Helmling <supermihi@web.de>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
-Date: Wed, 3 May 2006 20:14:28 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrey Panin <pazke@donpac.ru>, David Hollis <dhollis@davehollis.com>,
-       David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
-References: <200605022002.15845.supermihi@web.de> <1146667488.2348.28.camel@dhollis-lnx.sunera.com> <20060503153128.GA31133@pazke.donpac.ru>
-In-Reply-To: <20060503153128.GA31133@pazke.donpac.ru>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1287465.cnW79Gp0IK";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200605032014.28734.supermihi@web.de>
+	Wed, 3 May 2006 14:15:04 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:61468 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751348AbWECSPC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 14:15:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=G8xTRZDa9wxbWErWfmQZHXiARNRWhl4m0sIUHZmSGg59Bh0d982Mk8gWEGeKcxMV+D+5veWaXUqqR4bcK+w0Zc6y/CJihXDWZLzTqxEA2G/oxmfZzr65IFmPuupj77t1I4CRLQfgFXwDuLk+eB1dgjEX2BK73b2BbNRiIQgDyPU=
+Date: Wed, 3 May 2006 20:14:13 +0200
+From: Diego Calleja <diegocg@gmail.com>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       axboe@suse.de, nickpiggin@yahoo.com.au, pbadari@us.ibm.com,
+       arjan@infradead.org
+Subject: Re: [RFC] kernel facilities for cache prefetching
+Message-Id: <20060503201413.34955426.diegocg@gmail.com>
+In-Reply-To: <346638681.24899@ustc.edu.cn>
+References: <346556235.24875@ustc.edu.cn>
+	<20060502144641.62df9c18.diegocg@gmail.com>
+	<346580906.19175@ustc.edu.cn>
+	<20060502180753.096f8777.diegocg@gmail.com>
+	<346638681.24899@ustc.edu.cn>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.16; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1287465.cnW79Gp0IK
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+El Wed, 3 May 2006 14:45:03 +0800,
+Wu Fengguang <wfg@mail.ustc.edu.cn> escribió:
 
-On Wednesday 03 May 2006 17:31, Andrey Panin wrote:
-> > What he
-> > should do would be to create a moschip.c that uses usbnet as a support
-> > module - just like asix.c does.  In this file, he can have his sole
-> > Copyright attribution and not have to worry about following
-> > changes/updates to usbnet.  Of course, if he communicated his
-> > development efforts with the community, he would have received all of
-> > this information long ago and we'd likely help shake out bugs in the
-> > code to make it a more robust driver.
->=20
-> IMHO we should do it now. If there is no volunteers, I can try to do it,
-> but it will be my first USB driver, so don't expect results soon.
->=20
+> Lubos Lunak also reminds me of SUSE's preload
+> (http://en.opensuse.org/index.php?title=SUPER_preloading_internals)
+> which is a user-land solution using strace to collect the info.
+> 
+> And there's Andrea Arcangeli's "bootcache userspace logging" kernel
+> patch(http://lkml.org/lkml/2004/8/6/216).
 
-That would be great, I could give you feedback if / how it works.
-But I think someone versed in the GPL should contact moschip to clear thing=
-s a=20
-bit.
+Just for completeness, windows vista will include a enhanced prefetcher
+called (sic) SuperFetch. The idea behind it seems to be to analyze I/O
+patterns and then "mirror" the most frequently used disk blocks into
+the USB flash drive; so if when the usb flash drive is plugged in
+the system will read those blocks from it as it was the hard drive
+the next time you run the app
+(http://www.windowsitpro.com/Windows/Article/ArticleID/48085/48085.html)
 
---nextPart1287465.cnW79Gp0IK
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBEWPMEcLJiNWFgTBIRAgWyAJ0U/59RIB3Hw1mCWMtH6sx5RJBbUACbBZGc
-lBMExKVuRKXKNPJG5E6fT1s=
-=l0gl
------END PGP SIGNATURE-----
-
---nextPart1287465.cnW79Gp0IK--

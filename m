@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWECR5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWECSBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWECR5E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 13:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWECR5E
+	id S1751067AbWECSBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 14:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWECSBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 13:57:04 -0400
-Received: from master.altlinux.org ([62.118.250.235]:13317 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP
-	id S1751054AbWECR5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 13:57:01 -0400
-Date: Wed, 3 May 2006 21:56:35 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Markus M_ller <mm@priv.de>
+	Wed, 3 May 2006 14:01:16 -0400
+Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:54276 "EHLO
+	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1751054AbWECSBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 14:01:16 -0400
+Date: Wed, 3 May 2006 20:01:12 +0200
+From: bjdouma <bjdouma@xs4all.nl>
+To: Yogesh Pahilwan <pahilwan.yogesh@spsoftindia.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reiserfsck dies
-Message-Id: <20060503215635.4b3a28bf.vsu@altlinux.ru>
-In-Reply-To: <4458C48B.8040703@priv.de>
-References: <4458C48B.8040703@priv.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Subject: Re: Problem while applying patch to 2.6.9 kernel
+Message-ID: <20060503180112.GA23530@skyscraper.unix9.prv>
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAAwZsyZCSXbUSO0mznjdzGqgEAAAAA@spsoftindia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Wed__3_May_2006_21_56_35_+0400_/MTkC720Xd4a+mMS"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAAwZsyZCSXbUSO0mznjdzGqgEAAAAA@spsoftindia.com>
+X-Disclaimer: sorry
+X-Operating-System: human brain v1.04E11
+Organization: A training zoo
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__3_May_2006_21_56_35_+0400_/MTkC720Xd4a+mMS
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, May 03, 2006 at 05:32:02PM +0530, Yogesh Pahilwan wrote:
+> I am facing some problem while applying patch to the 2.6.9 kernel.
+> 
+> I have done following to apply the patch:
+> 
+> # patch -p1 < ../../Patches/patch-ext3
+> 
+> But getting following things:
+> 
+> missing header for unified diff at line 3 of patch
+> (Stripping trailing CRs from patch.)
+> can't find file to patch at input line 3
+> Perhaps you used the wrong -p or --strip option?
+> The text leading up to this was:
+> --------------------------
+> |#--- ../A_CLEAN_FILE_SYSTEM/jbd/commit.c       2006-02-25 11:43:19.000000000 -0600
+> |#+++ commit.c  2006-03-29 20:53:29.000000000 -0600
+> --------------------------
+> File to patch:
+> 
+> Can anyone suggest what I am doing wrong while applying this patch or if the
+> command is correct then why patch is giving the above errors.
 
-On Wed, 03 May 2006 16:56:11 +0200 Markus M_ller wrote:
+You gotta lose the hash-mark at beginning-of-line of lines 1 and 2
+(moise from some cut-n-paste operation?).  Then look at the second
+line to see how many slashes you gotta skip (with -p -- looks like
+it's -p0 here).
 
-> reiserfsck told me that I have to run --rebuild-tree to fix all errors.=20
-> But this don't work (see below), I tried two times (every time I am=20
-> waiting 28 hours).
-
-Apparently you have a huge filesystem (374936503 blocks - about 1.5 TB,
-if these are 4KB blocks).  reiserfsck --rebuild-tree works by reading
-every data block on the filesystem, finding blocks which look like
-reiserfs tree nodes and rebuilding the tree from that nodes - so it
-would take a long time, even if the volume was almost empty.
-
-> If I mount the filesystem, there are no files in it.=20
-> What can I do?
-
-[skip]
-> Pass 1 (will try to insert 423131 leaves):
-> ####### Pass 1 #######
-> Looking for allocable blocks .. Killed
-[skip]
-> Out of memory: Killed process 5622 (reiserfsck).
-
-reiserfsck may need lots of memory (especially with such a huge FS) ...
-
-> stacker:/# cat /proc/meminfo
-> MemTotal:       512716 kB
-> MemFree:        413660 kB
-> Buffers:         20268 kB
-> Cached:          47324 kB
-> SwapCached:          0 kB
-> Active:          19500 kB
-> Inactive:        56656 kB
-> HighTotal:           0 kB
-> HighFree:            0 kB
-> LowTotal:       512716 kB
-> LowFree:        413660 kB
-> SwapTotal:           0 kB
-> SwapFree:            0 kB
-
-... and you have only 512 MB with no swap.  Try to add some swap space -
-then reiserfsck might eventually complete.
-
-AFAIK, the only way to recover reiserfs after --rebuild-tree has been
-attempted is to run "reiserfsck --rebuild-tree" to completion.
-
---Signature=_Wed__3_May_2006_21_56_35_+0400_/MTkC720Xd4a+mMS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.17 (GNU/Linux)
-
-iD8DBQFEWO7VW82GfkQfsqIRArd4AJ9Wb3EogjsTYt+sMmX6IXkwvuJrygCfUEUK
-lpMWtBPLx4WECgeCvAQqlEI=
-=+RuA
------END PGP SIGNATURE-----
-
---Signature=_Wed__3_May_2006_21_56_35_+0400_/MTkC720Xd4a+mMS--
+bjd

@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbWECPbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbWECPcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbWECPbM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 11:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965220AbWECPbM
+	id S965223AbWECPcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 11:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965221AbWECPcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 11:31:12 -0400
-Received: from azov.donpac.ru ([80.254.111.34]:61350 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S965118AbWECPbK (ORCPT
+	Wed, 3 May 2006 11:32:09 -0400
+Received: from citi.umich.edu ([141.211.133.111]:5996 "EHLO citi.umich.edu")
+	by vger.kernel.org with ESMTP id S965223AbWECPcG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 11:31:10 -0400
-Date: Wed, 3 May 2006 19:31:28 +0400
-To: David Hollis <dhollis@davehollis.com>
-Cc: Michael Helmling <supermihi@web.de>, David Brownell <david-b@pacbell.net>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
-Message-ID: <20060503153128.GA31133@pazke.donpac.ru>
-Mail-Followup-To: David Hollis <dhollis@davehollis.com>,
-	Michael Helmling <supermihi@web.de>,
-	David Brownell <david-b@pacbell.net>,
-	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200605022002.15845.supermihi@web.de> <200605030706.56908.supermihi@web.de> <200605022229.47937.david-b@pacbell.net> <200605031528.18809.supermihi@web.de> <1146667488.2348.28.camel@dhollis-lnx.sunera.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
-Content-Disposition: inline
-In-Reply-To: <1146667488.2348.28.camel@dhollis-lnx.sunera.com>
-X-Uname: Linux 2.6.8-12-amd64-k8 x86_64
-User-Agent: Mutt/1.5.9i
-From: Andrey Panin <pazke@donpac.ru>
+	Wed, 3 May 2006 11:32:06 -0400
+Message-ID: <4458CD09.4010709@citi.umich.edu>
+Date: Wed, 03 May 2006 11:32:25 -0400
+From: Chuck Lever <cel@citi.umich.edu>
+Reply-To: cel@citi.umich.edu
+Organization: Center for Information Technology Integration
+User-Agent: Thunderbird 1.5.0.2 (Macintosh/20060308)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc3 PCI init hang
+References: <44565BB9.8020504@citi.umich.edu> <20060503054149.aae472dd.akpm@osdl.org>
+In-Reply-To: <20060503054149.aae472dd.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> On Mon, 01 May 2006 15:04:25 -0400
+> Chuck Lever <cel@citi.umich.edu> wrote:
+> 
+>> I have a dual Pentium III I use for testing.  Since late last week 
+>> (around about 2.6.17-rc3) it hangs during boot just after "Setting up 
+>> standard PCI resources".  2.6.17-rc2 works fine.
+> 
+> Bummer
 
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Strange (but different) behavior also seen on a PE2650.
 
-On 123, 05 03, 2006 at 10:44:48AM -0400, David Hollis wrote:
-> On Wed, 2006-05-03 at 15:28 +0200, Michael Helmling wrote:
->=20
-> > So, what this Mr. Srihdar di wrong is to set his own name in the "copyr=
-ight"=20
-> > field instead of using yours. The process of modifying a GPLed module i=
-tself=20
-> > is ok, am I right with this?
-> > So it should be possible to convince him of this nuisance, and then use=
- the=20
-> > changes he made to make moschips device working.=20
->=20
-> Correct.  He is violating the license in a number of ways, though it
-> probably isn't totally intentional.  The development on that driver
-> probably began before usbnet was modularized to allow for the
-> componentizing of driver specific code outside of usbnet. =20
+>> A push in the right direction would be appreciated.  Please reply off 
+>> list as I'm not subscribed.
+>>
+> 
+> Is there any chance you can do a git-bisect to find the bad patch?
 
-After looking at mcs7830.c source this seems highly unlikely.
+Done.  The bad patch was Badari's first vectored I/O patch.  Removing 
+the patch fixes the badness on both systems.  I reported this to Badari 
+late yesterday afternoon.
 
-> What he
-> should do would be to create a moschip.c that uses usbnet as a support
-> module - just like asix.c does.  In this file, he can have his sole
-> Copyright attribution and not have to worry about following
-> changes/updates to usbnet.  Of course, if he communicated his
-> development efforts with the community, he would have received all of
-> this information long ago and we'd likely help shake out bugs in the
-> code to make it a more robust driver.
+He hasn't seen this behavior in his test environment, which is only 
+ppc64 and amd64.
 
-IMHO we should do it now. If there is no volunteers, I can try to do it,
-but it will be my first USB driver, so don't expect results soon.
-
---45Z9DzgjV8m4Oswq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEWMzQPjHNUy6paxMRAuRAAKDMB+NQcZQZgvc0pB/JMkL42nanPgCeLGRf
-V8XGwKmSL6nOIxuMm0fy7QQ=
-=azIr
------END PGP SIGNATURE-----
-
---45Z9DzgjV8m4Oswq--
+-- 
+corporate:	<cel at netapp dot com>
+personal:	<chucklever at bigfoot dot com>

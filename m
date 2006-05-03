@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbWECCet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbWECCqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965072AbWECCet (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 22:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965073AbWECCet
+	id S965073AbWECCqY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 22:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbWECCqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 22:34:49 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:16272 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S965072AbWECCes (ORCPT
+	Tue, 2 May 2006 22:46:24 -0400
+Received: from ozlabs.org ([203.10.76.45]:19408 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S965073AbWECCqY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 22:34:48 -0400
-Message-ID: <346623686.13008@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Wed, 3 May 2006 10:35:05 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC] kernel facilities for cache prefetching
-Message-ID: <20060503023505.GB5915@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nigel Cunningham <nigel@suspend2.net>, Pavel Machek <pavel@suse.cz>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>
-References: <20060502075049.GA5000@mail.ustc.edu.cn> <20060502191000.GA1776@elf.ucw.cz> <200605030936.18606.nigel@suspend2.net>
+	Tue, 2 May 2006 22:46:24 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605030936.18606.nigel@suspend2.net>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
+Message-ID: <17496.6519.733076.663815@cargo.ozlabs.ibm.com>
+Date: Wed, 3 May 2006 12:46:15 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@ozlabs.org,
+       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [Cbe-oss-dev] [PATCH 11/13] cell: split out board specific files
+In-Reply-To: <801072F8-7701-4BD7-81FB-A8C1AA534C2E@kernel.crashing.org>
+References: <20060429232812.825714000@localhost.localdomain>
+	<200605020150.14152.arnd@arndb.de>
+	<1900A234-BE31-4292-87E1-5C02F12A440D@kernel.crashing.org>
+	<200605021259.24157.arnd@arndb.de>
+	<801072F8-7701-4BD7-81FB-A8C1AA534C2E@kernel.crashing.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 03, 2006 at 09:36:12AM +1000, Nigel Cunningham wrote:
-> > Could we use this instead of blockdev freezing/big suspend image
-> > support? It should permit us to resume quickly (with small image), and
-> > then do readahead. ... that will give us usable machine quickly, still
-> > very responsive desktop after resume?
-> 
-> Unrelated to bdev freezing, and will involve far more seeking than reading a 
-> contiguous image (as they normally are).
+Segher Boessenkool writes:
 
-Yes, needs more pondering on this issue...
+> > Well, it could run on other platforms, except:
+> >
+> > - it requires a few properties in the device tree (local-mac-address,
+> >   firmware), so it should also depend on PPC
+> 
+> The portions of code that require OF should have appropriate #ifdef  
+> guards.
+
+So you're suggesting that we change the Makefile so we can *add*
+ifdefs?  Usually we do it the other way around. :)
+
+Paul.

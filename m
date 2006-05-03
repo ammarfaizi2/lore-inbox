@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWECREJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWECRTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbWECREJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 13:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWECREJ
+	id S1030256AbWECRTT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 13:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWECRTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 13:04:09 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:40373 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1030239AbWECREI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 13:04:08 -0400
-Date: Wed, 3 May 2006 19:03:23 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jared Hulbert <jaredeh@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Advanced XIP File System
-Message-ID: <20060503170323.GA22702@wohnheim.fh-wedel.de>
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com> <20060503130502.GD19537@wohnheim.fh-wedel.de> <6934efce0605030831h30d7e4e3hb057fd1b3f7791d3@mail.gmail.com> <20060503154700.GD5250@wohnheim.fh-wedel.de> <6934efce0605030858k3967489p55ef98a26e71b761@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6934efce0605030858k3967489p55ef98a26e71b761@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 3 May 2006 13:19:19 -0400
+Received: from mail.priv.de ([80.237.225.190]:37806 "EHLO mail.priv.de")
+	by vger.kernel.org with ESMTP id S1030256AbWECRTS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 13:19:18 -0400
+Message-ID: <4458E619.8090501@priv.de>
+Date: Wed, 03 May 2006 19:19:21 +0200
+From: =?ISO-8859-1?Q?Markus_M=FCller?= <mm@priv.de>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reiserfsck dies
+References: <4458C48B.8040703@priv.de> <Pine.LNX.4.61.0605031842260.13546@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0605031842260.13546@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 May 2006 08:58:36 -0700, Jared Hulbert wrote:
-> 
-> Agreed.  So we copy the cramfs uncompress routines line for line. 
-> That optimization seems like low hanging fruit.
-> 
-> To consolidate them how should that be approached?  Create
-> fs/uncompress.c?  Modify axfs and cramfs to use it?
+Hi Jan Engelhardt,
+>> Hi Linux kernel users,
+>>
+>> reiserfsck told me that I have to run --rebuild-tree to fix all errors. But
+>> this don't work (see below), I tried two times (every time I am waiting 28
+>> hours). If I mount the filesystem, there are no files in it. What can I do?
+>>     
+>
+> Is the harddisk broken? (Check for spurious IDE warnings in /var/log/...)
+> It is possible that fsck zeroed out many entries because they were not 
+> readable.
+>   
+no, the hdd is a software raid 5, /dev/md0, which is piped through aes
+via cryptsetup, so it is accessed via /dev/mapper/hdb (it is not
+/dev/hdb, which you could think about the name, but /dev/md0). There
+were memory problems, so the reiserfs got inconsistent. But it STILL
+worked before I run reiserfsck --rebuild-tree! Just reiserfsck --check
+told me to run this command, this is the only cause I run it.
+>   
+>> stacker:/# dmesg
+>> oop0: warning: vs-5150: search_by_key: invalid format found in block 1770409.
+>> Fsck?
+>> ReiserFS: loop0: warning: vs-13070: reiserfs_read_locked_inode: i/o failure
+>>     
+> [...]
+>
+> reiserfs warnings, but no lowlevel warnings :-/
+> Did, by chance, you use dm-flakey?
+>   
+Please tell me, what is dm-flakey?
 
-And jffs2, yes.  And possibly lib/ is better than fs/.
+Regards
+Markus Mueller
 
-Jörn
 
--- 
-You ain't got no problem, Jules. I'm on the motherfucker. Go back in
-there, chill them niggers out and wait for the Wolf, who should be
-coming directly.
--- Marsellus Wallace

@@ -1,47 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWECWWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWECWbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWECWWm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 18:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWECWWm
+	id S1750932AbWECWbw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 18:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWECWbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 18:22:42 -0400
-Received: from 66.239.25.20.ptr.us.xo.net ([66.239.25.20]:55703 "EHLO
-	zoot.lnxi.com") by vger.kernel.org with ESMTP id S1751383AbWECWWl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 18:22:41 -0400
-Message-Id: <4458D8C60200003600006167@zoot.lnxi.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Wed, 03 May 2006 16:22:30 -0600
-From: "Doug Thompson" <dthompson@lnxi.com>
-To: <tim@buttersideup.com>, <alan@lxorguk.ukuu.org.uk>
-Cc: <mark.gross@intel.com>, <soo.keong.ong@intel.com>,
-       <steven.carbonari@intel.com>, <zhenyu.z.wang@intel.com>,
-       <bluesmoke-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with EDAC coexisting with BIOS
+	Wed, 3 May 2006 18:31:52 -0400
+Received: from mga07.intel.com ([143.182.124.22]:38306 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1750932AbWECWbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 18:31:51 -0400
+X-IronPort-AV: i="4.05,85,1146466800"; 
+   d="scan'208"; a="31214079:sNHT181642314"
+Date: Wed, 3 May 2006 15:27:47 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: gregkh@suse.de, ak@suse.de, linux-pci@atrey.karlin.mff.cuni.cz
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: i386/x86_84: disable PCI resource decode on device disable
+Message-ID: <20060503152747.A29327@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Alan Cox <alan@lxorguk.ukuu.org.uk> 05/03/06 3:44 PM >>>
-On Mer, 2006-05-03 at 21:25 +0100, Tim Small wrote:
->> something with NMI-signalled errors, I was wondering what the
-problems 
->> with using NMI-signalled ECC errors were?
 
->The big problem with NMI is that it can occur *during* a PCI
->configuration sequence (ie during pci_config_* functions). That means
-we
->can't safely do some I/O, especially configuration space I/O in an NMI
->handler. At best we could set a flag and catch it afterwards.
+When a PCI device is disabled via pci_disable_device(), it's still
+left decoding its BAR resource ranges even though its driver
+will have likely released those regions (and may even have
+unloaded). pci_enable_device() already explicitly enables 
+BAR resource decode for the device being enabled. This patch
+disables resource decode for the PCI device being disabled,
+making it symmetric with the enable call.
 
+I saw this while doing something else, not because of a
+problem report. Still, seems to be the correct thing to do.
 
-Dave Peterson did submit a set of patches to provide a deferred calling
-mechanism triggered by the NMI handler. I am in the process of reading
-up on that patch. It currently is in the bluesmoke project.
+Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
 
-doug t
+ arch/i386/pci/common.c |    1 +
+ arch/i386/pci/i386.c   |    9 +++++++++
+ arch/i386/pci/pci.h    |    1 +
+ 3 files changed, 11 insertions(+)
 
-
+Index: linux-2.6.17-rc3-git7/arch/i386/pci/common.c
+===================================================================
+--- linux-2.6.17-rc3-git7.orig/arch/i386/pci/common.c
++++ linux-2.6.17-rc3-git7/arch/i386/pci/common.c
+@@ -288,6 +288,7 @@ int pcibios_enable_device(struct pci_dev
+ 
+ void pcibios_disable_device (struct pci_dev *dev)
+ {
++	pcibios_disable_resources(dev);
+ 	if (pcibios_disable_irq)
+ 		pcibios_disable_irq(dev);
+ }
+Index: linux-2.6.17-rc3-git7/arch/i386/pci/i386.c
+===================================================================
+--- linux-2.6.17-rc3-git7.orig/arch/i386/pci/i386.c
++++ linux-2.6.17-rc3-git7/arch/i386/pci/i386.c
+@@ -242,6 +242,15 @@ int pcibios_enable_resources(struct pci_
+ 	return 0;
+ }
+ 
++void pcibios_disable_resources(struct pci_dev *dev)
++{
++	u16 cmd;
++
++	pci_read_config_word(dev, PCI_COMMAND, &cmd);
++	cmd &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
++	pci_write_config_word(dev, PCI_COMMAND, cmd);
++}
++
+ /*
+  *  If we set up a device for bus mastering, we need to check the latency
+  *  timer as certain crappy BIOSes forget to set it properly.
+Index: linux-2.6.17-rc3-git7/arch/i386/pci/pci.h
+===================================================================
+--- linux-2.6.17-rc3-git7.orig/arch/i386/pci/pci.h
++++ linux-2.6.17-rc3-git7/arch/i386/pci/pci.h
+@@ -35,6 +35,7 @@ extern unsigned int pcibios_max_latency;
+ 
+ void pcibios_resource_survey(void);
+ int pcibios_enable_resources(struct pci_dev *, int);
++void pcibios_disable_resources(struct pci_dev *);
+ 
+ /* pci-pc.c */
+ 

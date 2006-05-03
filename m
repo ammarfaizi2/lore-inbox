@@ -1,47 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWECQKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbWECQLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbWECQKN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 12:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWECQKM
+	id S964996AbWECQLs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 12:11:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWECQLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 12:10:12 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:29886 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1030234AbWECQKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 12:10:11 -0400
-Date: Wed, 03 May 2006 12:10:10 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [RFC] Advanced XIP File System
-In-reply-to: <1146672118.20773.32.camel@pmac.infradead.org>
-X-X-Sender: nico@localhost.localdomain
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Jared Hulbert <jaredeh@gmail.com>, Josh Boyer <jwboyer@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0605031209170.28543@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
- <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
- <Pine.LNX.4.64.0605022316550.28543@localhost.localdomain>
- <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
- <1146658275.20773.8.camel@pmac.infradead.org>
- <6934efce0605030845o6d313681x6b89bef71c28b3a9@mail.gmail.com>
- <Pine.LNX.4.64.0605031151120.28543@localhost.localdomain>
- <1146672118.20773.32.camel@pmac.infradead.org>
+	Wed, 3 May 2006 12:11:48 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:37306 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964996AbWECQLr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 12:11:47 -0400
+Date: Wed, 3 May 2006 11:11:43 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, herbert@13thfloor.at,
+       dev@sw.ru, linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
+       haveblue@us.ibm.com, clg@fr.ibm.com, frankeh@us.ibm.com
+Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
+Message-ID: <20060503161143.GA18576@sergelap.austin.ibm.com>
+References: <20060501203906.XF1836@sergelap.austin.ibm.com> <200605021017.19897.ak@suse.de> <20060502172031.GA22923@sergelap.austin.ibm.com> <200605021930.45068.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200605021930.45068.ak@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 May 2006, David Woodhouse wrote:
-
-> On Wed, 2006-05-03 at 11:57 -0400, Nicolas Pitre wrote:
-> > First, is it worth it?
+Quoting Andi Kleen (ak@suse.de):
+> On Tuesday 02 May 2006 19:20, Serge E. Hallyn wrote:
+> > Quoting Andi Kleen (ak@suse.de):
+> > > Have a proxy structure which has pointers to the many name spaces and a bit
+> > > mask for "namespace X is different".
+> > 
+> > different from what?
 > 
-> Quite possibly not. Even if you don't actually have kernel XIP, you may
-> well decide just not to schedule userspace while the flash isn't in READ
-> mode.
+> From the parent.
 
-And we already have code to do just that.
+...
 
+> > Oh, you mean in case we want to allow cloning a namespace outside of
+> > fork *without* cloning the nsproxy struct?
+> 
+> Basically every time any name space changes you need a new nsproxy.
 
-Nicolas
+But, either the nsproxy is shared between tasks and you need to copy
+youself a new one as soon as any ns changes, or it is not shared, and
+you don't need  that info at all (just make the change in the nsproxy
+immediately)
+
+What am I missing?
+
+Should we talk about this  on irc someplace?  Perhaps drag in Eric as
+well?
+
+> > > This structure would be reference
+> > > counted. task_struct has a single pointer to it.
+> > 
+> > If it is reference counted, that implies it is shared between some
+> > processes.  But namespace pointers themselves are shared between some of
+> > these nsproxy's.  The lifetime mgmt here is one reason I haven't tried a
+> > patch to do this.
+> 
+> The livetime management is no different from having individual pointers.
+
+That's true if we have one nsproxy per process or thread, which I didn't
+think was the case.  Are you saying not to share nsproxy's among
+processes which share all namespaces?
+
+> > > With many name spaces you would have smaller task_struct, less cache 
+> > > foot print, better cache use of task_struct because slab cache colouring
+> > > will still work etc.
+> > 
+> > I suppose we could run some performance tests with some dummy namespace
+> > pointers?  9 void *'s directly in the task struct, and the same inside a
+> > refcounted container struct.  The results might add some urgency to
+> > implementing the struct nsproxy.
+> 
+> Not sure you'll notice too much difference on the beginning. I am just
+
+9 void*'s is probably more than we'll need, though, so it's not "the
+beginning".   Eric previously mentioned uts, sysvipc, net, pid, and uid,
+to which we might add proc, sysctl, and signals, though those are
+probably just implied through the others.
+
+What others do you see us needing?
+
+If the number were more likely to be 50, then in the above experiment
+use 50 instead - the point was to see the performance implications
+without implementing the namespaces first.
+
+Anyway I guess I'll go ahead and queue up some tests.
+
+> the opinion memory/cache bloat needs to be attacked at the root, not
+> when it's too late.
+
+-serge

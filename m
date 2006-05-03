@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWECPsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965228AbWECPuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030221AbWECPsH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 11:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbWECPsH
+	id S965228AbWECPuw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 11:50:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWECPuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 11:48:07 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:60364 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965234AbWECPsF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 11:48:05 -0400
-Subject: Re: [patch 1/1 17-rc3-mm1] generic-time: add macro to
-	simplify/hide mask constants
-From: john stultz <johnstul@us.ibm.com>
-To: Jim Cromie <jim.cromie@gmail.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4458CA7A.1080203@gmail.com>
-References: <4458CA7A.1080203@gmail.com>
-Content-Type: text/plain
-Date: Wed, 03 May 2006 08:48:44 -0700
-Message-Id: <1146671325.3432.1.camel@leatherman>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
-Content-Transfer-Encoding: 7bit
+	Wed, 3 May 2006 11:50:52 -0400
+Received: from 213-140-2-76.ip.fastwebnet.it ([213.140.2.76]:46740 "EHLO
+	aa009msg.fastweb.it") by vger.kernel.org with ESMTP id S965228AbWECPuv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 11:50:51 -0400
+Date: Wed, 3 May 2006 17:50:17 +0200
+From: Andrea Gelmini <andrea.gelmini@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16/MD/DM-crypt/fs corruption
+Message-ID: <20060503155017.GB14534@gelma.net>
+References: <20060503091653.GA5940@gelma.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060503091653.GA5940@gelma.net>
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-03 at 11:21 -0400, Jim Cromie wrote:
-> This patch compiles clean, and is running and maintaining ntp lock
-> (across ethernet to a laptop).  I've verified (with objdump) that
-> macro reduces to constant at compile-time. Also compile-tested with 
-> allnoconfig.  Please consider for -mm.
-> 
-> ---
-> 
-> From: Jim Cromie <jim.cromie@gmail.com>
-> Date: Wed May  3 10:59:00 EDT 2006
-> 
-> 
-> Add a CLOCKSOURCE_MASK macro to simplify initializing the mask for 
-> a struct clocksource, and use it to replace literal mask constants
-> in the various clocksource drivers.
-> 
-> Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
+On mer, mag 03, 2006 at 11:16:53 +0200, Andrea Gelmini wrote:
+> Hi all,
+> 	to make short a long story:
+> 	a) five pata disks Maxtor 500GB each one;
+> 	b) one big software raid 5 (/dev/md1);[1]
+> 	c) dmcrypt-ing /dev/md1;[2]
+> 	d) after 500GB copied I've got fs corruption;[3]
 
+it seems it's not only my problem.[1]
+it would be good to put an advisory about it in menuconfig. I had spent an
+incredible amount of hours trying to find hardware failure, and weeks to
+re-test/reproduce the problem every time.
+here[2] you can find a much more details.
 
-Looks like a nice change to me. 
+thanks a lot for your time,
+gelma
 
-thanks
--john
-
-Acked-by: John Stultz <johnstul@us.ibm.com>
-
-
-
+------
+[1] http://episteme.arstechnica.com/groupee/forums/a/tpc/f/96509133/m/282007248731
+[2] http://marc.theaimsgroup.com/?l=linux-raid&m=114579714925936&w=2

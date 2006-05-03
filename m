@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWECUhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWECUkL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWECUhr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 16:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWECUhr
+	id S1750859AbWECUkL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 16:40:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWECUkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 16:37:47 -0400
-Received: from teetot.devrandom.net ([66.35.250.243]:14532 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1750841AbWECUhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 16:37:46 -0400
-Date: Wed, 3 May 2006 13:37:40 -0700
-From: thockin@hockin.org
-To: Tim Small <tim@buttersideup.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
-       "Gross, Mark" <mark.gross@intel.com>,
-       bluesmoke-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
-Subject: Re: Problems with EDAC coexisting with BIOS
-Message-ID: <20060503203740.GA17515@hockin.org>
-References: <C1989F6360C8E94B9645F0E4CF687C08C1E9FB@pgsmsx412.gar.corp.intel.com> <1145888979.29648.56.camel@localhost.localdomain> <4459119D.10905@buttersideup.com>
+	Wed, 3 May 2006 16:40:10 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10436 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750859AbWECUkJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 16:40:09 -0400
+Date: Wed, 3 May 2006 22:45:04 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -rt] scheduling while atomic in fs/file.c
+Message-ID: <20060503204504.GA15965@elte.hu>
+References: <200604221503.k3MF3Ws8021873@dwalker1.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4459119D.10905@buttersideup.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200604221503.k3MF3Ws8021873@dwalker1.mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 03, 2006 at 09:25:01PM +0100, Tim Small wrote:
-> existing BIOSs, but the EDAC module could reprogram the chipset 
-> error-signalling registers, so that an ECC error no longer triggers an 
 
-This is key, I think.
+* Daniel Walker <dwalker@mvista.com> wrote:
 
-> SMI.  The BIOS SMI handler could then read the signalling registers, and 
-> leave the ECC registers well alone if ECC errors are not set to generate 
-> an SMI.
+> -		fddef = &get_cpu_var(fdtable_defer_list);
+> +		fddef = &__get_cpu_var(fdtable_defer_list);
 
-The fundamental problem with SMI is that we CAN'T know what it is doing.
-I've seen systems which trigger SMI from a GPIO toggled by a clock.  I've
-seen systems trigger SMI from a chipset-internal periodic timer.  I've
-seen chipsets route NMI->SMI or even MCE->SMI.  If the BIOS is polling the
-error status registers from a periodic SMI, we're GOING to lose data.
+ok, the bug you found is real - but i dont like the fix: now we will be 
+using smp_processor_id() in preemptible code, which will trip up under 
+DEBUG_PREEMPT. Since in this particular case any CPU is fine, 
+per_cpu(...,raw_smp_processor_id()) ought to do the trick. Mind to 
+update the patch?
 
-The big hammer - turn off SMI - is probably OK on some systems, but is not
-a general solution.  More and more hardware workarounds and features are
-SMI based.  There are some rather interesting things that can be done in
-SMM, *iff* we could get the BIOS out of the way.
-
-Tim (watching EDAC from time to time, quietly)
+	Ingo

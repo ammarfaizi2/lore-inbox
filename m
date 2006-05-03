@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWECS65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWECTKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWECS65 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 14:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWECS65
+	id S1750719AbWECTKm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 15:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWECTKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 14:58:57 -0400
-Received: from nz-out-0102.google.com ([64.233.162.204]:429 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1750735AbWECS64 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 14:58:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=B4GUA2CLeevwdrOpq8qBCt38ITraq9gWwbNvDT8f2LrELzgseqEUILuAS5MJmSr6axle5bJZuhMqd5khVnFzk/Mtk2BCDq7l9ZdfSnYUkS2YY3q0I9GK7KEZFxkWuWmv2IIs11ZxJuxjwCOUoSoaVrsYFkhWhskWLB3SbnpzHQ8=
-Message-ID: <6934efce0605031158l17e87c4em7a234f3282b0d6@mail.gmail.com>
-Date: Wed, 3 May 2006 11:58:49 -0700
-From: "Jared Hulbert" <jaredeh@gmail.com>
-To: "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>
-Subject: Re: [RFC] Advanced XIP File System
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060503170323.GA22702@wohnheim.fh-wedel.de>
+	Wed, 3 May 2006 15:10:42 -0400
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:35231 "HELO
+	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750719AbWECTKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 15:10:42 -0400
+From: David Brownell <david-b@pacbell.net>
+To: David Hollis <dhollis@davehollis.com>
+Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
+Date: Wed, 3 May 2006 12:10:34 -0700
+User-Agent: KMail/1.7.1
+Cc: Michael Helmling <supermihi@web.de>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <200605022002.15845.supermihi@web.de> <200605031528.18809.supermihi@web.de> <1146667488.2348.28.camel@dhollis-lnx.sunera.com>
+In-Reply-To: <1146667488.2348.28.camel@dhollis-lnx.sunera.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
-	 <20060503130502.GD19537@wohnheim.fh-wedel.de>
-	 <6934efce0605030831h30d7e4e3hb057fd1b3f7791d3@mail.gmail.com>
-	 <20060503154700.GD5250@wohnheim.fh-wedel.de>
-	 <6934efce0605030858k3967489p55ef98a26e71b761@mail.gmail.com>
-	 <20060503170323.GA22702@wohnheim.fh-wedel.de>
+Message-Id: <200605031210.35865.david-b@pacbell.net>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And jffs2, yes.
+On Wednesday 03 May 2006 7:44 am, David Hollis wrote:
+> Correct.  He is violating the license in a number of ways, though it
+> probably isn't totally intentional.
 
-jffs2 with it's new pluggable compression seems like a lot of work.
+Removing copyright and licence statements can't have been anything BUT
+intentional.
 
-> And possibly lib/ is better than fs/.
+That's really a basic rule, pretty much a "programming 101" thing.  You
+know, like "test your code", "don't remove other folks' copyrights",
+"don't try to change the licence on code copyrighted by someone else".
 
-right.
+
+> The development on that driver 
+> probably began before usbnet was modularized to allow for the
+> componentizing of driver specific code outside of usbnet.
+
+Well, it's always allowed driver modularization ... the change was only
+to move the hardware-specific parts outside of the driver core.
+
+
+I certainly could see how work on this Moschip support might have
+started before September of last year, when the core was more fully
+split out.  But that's still no excuse for this kind of "piracy".
+
+- Dave

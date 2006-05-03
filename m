@@ -1,35 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965186AbWECMnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030180AbWECMnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965186AbWECMnV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 08:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbWECMnV
+	id S1030180AbWECMnl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 08:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030179AbWECMnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 08:43:21 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61852 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965186AbWECMnU (ORCPT
+	Wed, 3 May 2006 08:43:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9629 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030180AbWECMnj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 08:43:20 -0400
-Date: Wed, 3 May 2006 05:43:00 -0700
+	Wed, 3 May 2006 08:43:39 -0400
+Date: Wed, 3 May 2006 05:43:30 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: dvrabel@cantab.net, romieu@fr.zoreil.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net
-Subject: Re: IP1000 gigabit nic driver
-Message-Id: <20060503054300.b5e8b95f.akpm@osdl.org>
-In-Reply-To: <1146475901.11271.3.camel@localhost>
-References: <20060427142939.GA31473@fargo>
-	<20060427185627.GA30871@electric-eye.fr.zoreil.com>
-	<445144FF.4070703@cantab.net>
-	<20060428075725.GA18957@fargo>
-	<84144f020604280358ie9990c7h399f4a5588e575f8@mail.gmail.com>
-	<20060428113755.GA7419@fargo>
-	<Pine.LNX.4.58.0604281458110.19801@sbz-30.cs.Helsinki.FI>
-	<1146306567.1642.3.camel@localhost>
-	<20060429122119.GA22160@fargo>
-	<1146342905.11271.3.camel@localhost>
-	<1146389171.11524.1.camel@localhost>
-	<44554ADE.8030200@cantab.net>
-	<1146475901.11271.3.camel@localhost>
+To: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
+Subject: Re: snd_hda_intel on 2.6.16 (or higher)
+Message-Id: <20060503054330.9962cbf4.akpm@osdl.org>
+In-Reply-To: <20060426224924.M44901@linuxwireless.org>
+References: <20060426224924.M44901@linuxwireless.org>
 X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -37,16 +24,25 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 May 2006 12:31:40 +0300
-Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+On Wed, 26 Apr 2006 16:55:03 -0600
+"Alejandro Bonilla" <abonilla@linuxwireless.org> wrote:
 
-> [PATCH] IP1000 Gigabit Ethernet device driver
+> Hi,
 > 
-> This is a cleaned up fork of the IP1000A device driver:
+> I reported some snd_hda_intel problem a month ago. I have been using 2.6.15-21
+> perfectly, but with 2.6.16 or even git 2.6.17-rc2 it is still going like at
+> 1.2x the speed it should go (1x is ok). You can notice Music will actually go
+> faster and it may sometimes chipmonk.
 > 
->   http://www.icplus.com.tw/driver-pp-IP1000A.html
+> Please let me know what exact info is required if interested. This is on a
+> Compaq V2000 Ubuntu Dapper Drake up to date and with 2.6.15-X it has worked
+> perfectly and still is, until 2.6.16 or higher is loaded.
+> 
 
-Please remember that to merge this we'll need a signed-off-by from the
-original developers.  (That's not very gplish, but such is life).
+Added alsa-devel to cc.
 
+If this doesn't get resolved within a few days, please raise a report at
+bugzilla.kernel.org so we can keep track of it.  Or in the ALSA bug
+tracking system if that's requested.
 
+Thanks.

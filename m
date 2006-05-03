@@ -1,135 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWECT1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWECTii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWECT1a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 15:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWECT1a
+	id S1750761AbWECTii (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 15:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWECTii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 15:27:30 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:29963 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1750748AbWECT13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 15:27:29 -0400
-Message-ID: <445903DD.6090408@shadowen.org>
-Date: Wed, 03 May 2006 20:26:21 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Jan Beulich <jbeulich@novell.com>, Martin Bligh <mbligh@google.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc2-mm1
-References: <4450F5AD.9030200@google.com> <200605022209.37205.ak@suse.de> <44586E0E.76E4.0078.0@novell.com> <200605030849.44893.ak@suse.de>
-In-Reply-To: <200605030849.44893.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 3 May 2006 15:38:38 -0400
+Received: from xenotime.net ([66.160.160.81]:10689 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750761AbWECTih (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 15:38:37 -0400
+Date: Wed, 3 May 2006 12:41:00 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: torvalds@osdl.org, js@linuxtv.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] CodingStyle: add typedefs chapter
+Message-Id: <20060503124100.9b50aa12.rdunlap@xenotime.net>
+In-Reply-To: <1146612136.19101.47.camel@pmac.infradead.org>
+References: <20060430174426.a21b4614.rdunlap@xenotime.net>
+	<1146503166.2885.137.camel@hades.cambridge.redhat.com>
+	<20060502003755.GA26327@linuxtv.org>
+	<1146576495.14059.45.camel@pmac.infradead.org>
+	<20060502142050.GC27798@linuxtv.org>
+	<1146580308.17934.19.camel@pmac.infradead.org>
+	<20060502101113.17c75a05.rdunlap@xenotime.net>
+	<Pine.LNX.4.64.0605021137500.4086@g5.osdl.org>
+	<1146595853.19101.38.camel@pmac.infradead.org>
+	<Pine.LNX.4.64.0605021204240.4086@g5.osdl.org>
+	<1146612136.19101.47.camel@pmac.infradead.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Wednesday 03 May 2006 08:47, Jan Beulich wrote:
+On Wed, 03 May 2006 00:22:16 +0100 David Woodhouse wrote:
+
+> On Tue, 2006-05-02 at 12:07 -0700, Linus Torvalds wrote:
+> > And that wasn't what I objected to. 
+> > 
+> > What I objected to was that other part, which said that "uint32_t" was 
+> > somehow more standard.
 > 
->>>>>Andi Kleen <ak@suse.de> 02.05.06 22:09 >>>
->>>
->>>On Tuesday 02 May 2006 22:00, Martin Bligh wrote:
->>>
->>>
->>>>>Index: linux/arch/x86_64/kernel/traps.c
->>>>>===================================================================
->>>>>--- linux.orig/arch/x86_64/kernel/traps.c
->>>>>+++ linux/arch/x86_64/kernel/traps.c
->>>>>@@ -238,6 +238,7 @@ void show_trace(unsigned long *stack)
->>>>> 			HANDLE_STACK (stack < estack_end);
->>>>> 			i += printk(" <EOE>");
->>>>> 			stack = (unsigned long *) estack_end[-2];
->>>>>+			printk("new stack %lx (%lx %lx %lx %lx %lx)\n", stack, estack_end[0], estack_end[-1],
->>
->>estack_end[-2], estack_end[-3], estack_end[-4]);
->>
->>>>> 			continue;
->>>>> 		}
->>>>> 		if (irqstack_end) {
->>>>
->>>>Thanks for running this Andy:
->>>>
->>>>http://test.kernel.org/abat/30183/debug/console.log 
->>>
->>>
->>><EOE>new stack 0 (0 0 0 10082 10)
->>
->>Looks like <rubbish> <SS> <RSP> <RFLAGS> <CS> to me, ...
+> It didn't say "more standard". It referred to "the standard C99 types".
 > 
+> It's heading off the question "why object to ifdefs but permit _these_
+> gratuitous ones?" which would otherwise be asked.
 > 
-> Hmm, right.
->  
-> 
->>>Hmm weird. There isn't anything resembling an exception frame at the top of the
->>>stack.  No idea how this could happen.
->>
->>... which is a valid frame where the stack pointer was corrupted before the exception occurred. One more printed item
->>(or rather, starting items at estack_end[-1]) would allow at least seeing what RIP this came from.
-> 
-> 
-> Any can you add that please and check? 
+> It's a document which is _describing_ the Linux coding style. To refer
+> to u32 et al as 'standard' would be self-referential. Describe them as
+> 'the Linux standard types' in other documents by all means, but it
+> doesn't make much sense to do so in Documentation/CodingStyle.
 
-Ok.  Just got some results (in full at the end of the message).  Seems
-that this is indeed a stack frame:
+All references to "standard types" now say "standard C99 types".
+However, Linus still objects to the C99 integer typedefs AFAICT.
+Are we at an impasse?
+It would be a really Good Idea to have something about typedefs
+in Doc/CodingStyle.
 
-	new stack 0 (0 0 10046 10 ffffffff8047c8e8)
+---
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-And if my reading of the System.map is right, this is _just_ in schedule.
+Add a chapter on typedefs, based on an email from Linus
+to lkml on Feb. 3, 2006:
+(Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup)
+with added lkml feedback, esp. David Woodhouse.
 
-ffffffff8047c17e T sha_init
-ffffffff8047c1a8 T __sched_text_start
-ffffffff8047c1a8 T schedule
-ffffffff8047c8ed T thread_return
-ffffffff8047c9be T wait_for_completion
-ffffffff8047caa8 T wait_for_completion_timeout
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/CodingStyle |  100 ++++++++++++++++++++++++++++++++++++++++------
+ 1 files changed, 88 insertions(+), 12 deletions(-)
 
-By the looks of it that would make it here, at the call __switch_to?
-Which of course makes loads of sense _if_ the loaded stack pointer was
-crap say 0.
-
-#define switch_to(prev,next,last) \
-        asm volatile(SAVE_CONTEXT     \
-                     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP
-*/   \
-                     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore
-RSP */   \
-                     "call __switch_to\n\t"   \
-                     ".globl thread_return\n" \
-                     "thread_return:\n\t"
-
-I'll go shove some debug in there and see what pops out.
--apw
-
-double fault: 0000 [1] SMP
-last sysfs file: /devices/pci0000:00/0000:00:06.0/resource
-CPU 0
-Modules linked in:
-Pid: 228, comm: kswapd0 Tainted: G   M  2.6.17-rc3-mm1-autokern1 #1
-RIP: 0010:[<ffffffff8047c8e8>] <ffffffff8047c8e8>{__sched_text_start+1856}
-RSP: 0000:0000000000000000  EFLAGS: 00010046
-RAX: 0000000000000001 RBX: 0000000000000000 RCX: ffffffff805d9438
-RDX: ffff8100e3d4a090 RSI: ffffffff805d9438 RDI: ffff8100e3d4a090
-RBP: ffffffff805d9438 R08: 0000000000000001 R09: ffff8101001c9da8
-R10: 0000000000000002 R11: 000000000000004d R12: ffffffff805013c0
-R13: ffff8100013dc8c0 R14: ffff810008003620 R15: 000002a75ef255cc
-FS:  0000000000000000(0000) GS:ffffffff805fa000(0000) knlGS:00000000f7e0b460
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: fffffffffffffff8 CR3: 000000006b004000 CR4: 00000000000006e0
-Process kswapd0 (pid: 228, threadinfo ffff8101001c8000, task
-ffff8100e3d4a090)
-Stack: ffffffff80579e20 ffff8100e3d4a090 0000000000000001 ffffffff80579f58
-       0000000000000000 ffffffff80579e78 ffffffff8020b0e3 ffffffff80579f58
-       0000000000000000 ffffffff80485520
-Call Trace: <#DF> <ffffffff8020b0e3>{show_registers+140}
-       <ffffffff8020b388>{__die+159} <ffffffff8020b3fd>{die+50}
-       <ffffffff8020bbd9>{do_double_fault+115}
-<ffffffff8020aa91>{double_fault+125}
-       <ffffffff8047c8e8>{__sched_text_start+1856} <EOE>new stack 0 (0 0
-10046 10 ffffffff8047c8e8)
-
-
-Code: e8 1c ba d8 ff 65 48 8b 34 25 00 00 00 00 4c 8b 46 08 f0 41
-RIP <ffffffff8047c8e8>{__sched_text_start+1856} RSP <0000000000000000>
+--- linux-2617-rc3.orig/Documentation/CodingStyle
++++ linux-2617-rc3/Documentation/CodingStyle
+@@ -155,7 +155,83 @@ problem, which is called the function-gr
+ See next chapter.
+ 
+ 
+-		Chapter 5: Functions
++		Chapter 5: Typedefs
++
++Please don't use things like "vps_t".
++
++It's a _mistake_ to use typedef for structures and pointers. When you see a
++
++	vps_t a;
++
++in the source, what does it mean?
++
++In contrast, if it says
++
++	struct virtual_container *a;
++
++you can actually tell what "a" is.
++
++Lots of people think that typedefs "help readability". Not so. They are
++useful only for:
++
++ (a) totally opaque objects (where the typedef is actively used to _hide_
++     what the object is).
++
++     Example: "pte_t" etc. opaque objects that you can only access using
++     the proper accessor functions.
++
++     NOTE! Opaqueness and "accessor functions" are not good in themselves.
++     The reason we have them for things like pte_t etc. is that there
++     really is absolutely _zero_ portably accessible information there.
++
++ (b) Clear integer types, where the abstraction _helps_ avoid confusion
++     whether it is "int" or "long".
++
++     u8/u16/u32 are perfectly fine typedefs, although they fit into
++     category (d) better than here.
++
++     NOTE! Again - there needs to be a _reason_ for this. If something is
++     "unsigned long", then there's no reason to do
++
++	typedef unsigned long myflags_t;
++
++     but if there is a clear reason for why it under certain circumstances
++     might be an "unsigned int" and under other configurations might be
++     "unsigned long", then by all means go ahead and use a typedef.
++
++ (c) when you use sparse to literally create a _new_ type for
++     type-checking.
++
++ (d) New types which are identical to standard C99 types, in certain
++     exceptional circumstances.
++
++     Although it would only take a short amount of time for the eyes and
++     brain to become accustomed to the standard C99 types like 'uint32_t',
++     some people object to their use anyway.
++
++     Therefore, the Linux-specific 'u8/u16/u32/u64' types and their
++     signed equivalents which are identical to standard C99 types are
++     permitted -- although they are not mandatory in new code of your
++     own.
++
++     When editing existing code which already uses one or the other set
++     of types, you should conform to the existing choices in that code.
++
++ (e) Types safe for use in userspace.
++
++     In certain structures which are visible to userspace, we cannot
++     require C99 types and cannot use the 'u32' form above. Thus, we
++     use __u32 and similar types in all structures which are shared
++     with userspace.
++
++Maybe there are other cases too, but the rule should basically be to NEVER
++EVER use a typedef unless you can clearly match one of those rules.
++
++In general, a pointer, or a struct that has elements that can reasonably
++be directly accessed should _never_ be a typedef.
++
++
++		Chapter 6: Functions
+ 
+ Functions should be short and sweet, and do just one thing.  They should
+ fit on one or two screenfuls of text (the ISO/ANSI screen size is 80x24,
+@@ -183,7 +259,7 @@ and it gets confused.  You know you're b
+ to understand what you did 2 weeks from now.
+ 
+ 
+-		Chapter 6: Centralized exiting of functions
++		Chapter 7: Centralized exiting of functions
+ 
+ Albeit deprecated by some people, the equivalent of the goto statement is
+ used frequently by compilers in form of the unconditional jump instruction.
+@@ -220,7 +296,7 @@ out:
+ 	return result;
+ }
+ 
+-		Chapter 7: Commenting
++		Chapter 8: Commenting
+ 
+ Comments are good, but there is also a danger of over-commenting.  NEVER
+ try to explain HOW your code works in a comment: it's much better to
+@@ -240,7 +316,7 @@ When commenting the kernel API functions
+ See the files Documentation/kernel-doc-nano-HOWTO.txt and scripts/kernel-doc
+ for details.
+ 
+-		Chapter 8: You've made a mess of it
++		Chapter 9: You've made a mess of it
+ 
+ That's OK, we all do.  You've probably been told by your long-time Unix
+ user helper that "GNU emacs" automatically formats the C sources for
+@@ -288,7 +364,7 @@ re-formatting you may want to take a loo
+ remember: "indent" is not a fix for bad programming.
+ 
+ 
+-		Chapter 9: Configuration-files
++		Chapter 10: Configuration-files
+ 
+ For configuration options (arch/xxx/Kconfig, and all the Kconfig files),
+ somewhat different indentation is used.
+@@ -313,7 +389,7 @@ support for file-systems, for instance) 
+ experimental options should be denoted (EXPERIMENTAL).
+ 
+ 
+-		Chapter 10: Data structures
++		Chapter 11: Data structures
+ 
+ Data structures that have visibility outside the single-threaded
+ environment they are created and destroyed in should always have
+@@ -344,7 +420,7 @@ Remember: if another thread can find you
+ have a reference count on it, you almost certainly have a bug.
+ 
+ 
+-		Chapter 11: Macros, Enums and RTL
++		Chapter 12: Macros, Enums and RTL
+ 
+ Names of macros defining constants and labels in enums are capitalized.
+ 
+@@ -399,7 +475,7 @@ The cpp manual deals with macros exhaust
+ covers RTL which is used frequently with assembly language in the kernel.
+ 
+ 
+-		Chapter 12: Printing kernel messages
++		Chapter 13: Printing kernel messages
+ 
+ Kernel developers like to be seen as literate. Do mind the spelling
+ of kernel messages to make a good impression. Do not use crippled
+@@ -410,7 +486,7 @@ Kernel messages do not have to be termin
+ Printing numbers in parentheses (%d) adds no value and should be avoided.
+ 
+ 
+-		Chapter 13: Allocating memory
++		Chapter 14: Allocating memory
+ 
+ The kernel provides the following general purpose memory allocators:
+ kmalloc(), kzalloc(), kcalloc(), and vmalloc().  Please refer to the API
+@@ -429,7 +505,7 @@ from void pointer to any other pointer t
+ language.
+ 
+ 
+-		Chapter 14: The inline disease
++		Chapter 15: The inline disease
+ 
+ There appears to be a common misperception that gcc has a magic "make me
+ faster" speedup option called "inline". While the use of inlines can be
+@@ -457,7 +533,7 @@ something it would have done anyway.
+ 
+ 
+ 
+-		Chapter 15: References
++		Appendix I: References
+ 
+ The C Programming Language, Second Edition
+ by Brian W. Kernighan and Dennis M. Ritchie.
+@@ -481,4 +557,4 @@ Kernel CodingStyle, by greg@kroah.com at
+ http://www.kroah.com/linux/talks/ols_2002_kernel_codingstyle_talk/html/
+ 
+ --
+-Last updated on 30 December 2005 by a community effort on LKML.
++Last updated on 30 April 2006.

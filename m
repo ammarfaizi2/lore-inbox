@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965137AbWECKBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbWECKZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965137AbWECKBj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 06:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbWECKBj
+	id S965142AbWECKZy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 06:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbWECKZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 06:01:39 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:21434 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S965137AbWECKBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 06:01:38 -0400
-Date: Wed, 3 May 2006 12:01:08 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Michael Holzheu <HOLZHEU@de.ibm.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, akpm@osdl.org,
-       Greg KH <greg@kroah.com>, ioe-lkml@rameria.de,
-       linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
-       penberg@cs.helsinki.fi
-Subject: Re: [PATCH] s390: Hypervisor File System
-Message-ID: <20060503100108.GA19537@wohnheim.fh-wedel.de>
-References: <8A7D2F4D-5A05-4C93-B514-03268CAA9201@mac.com> <OF0EA76F71.9AA7937D-ON42257163.003067FA-42257163.00347656@de.ibm.com>
+	Wed, 3 May 2006 06:25:54 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22167 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S965142AbWECKZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 06:25:54 -0400
+Date: Wed, 3 May 2006 12:25:53 +0200
+From: Jan Kara <jack@suse.cz>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] JBD checkpoint cleanup strikes back
+Message-ID: <20060503102552.GG14806@atrey.karlin.mff.cuni.cz>
+References: <20060502184646.GK14703@atrey.karlin.mff.cuni.cz> <20060502234721.GA5768@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <OF0EA76F71.9AA7937D-ON42257163.003067FA-42257163.00347656@de.ibm.com>
+In-Reply-To: <20060502234721.GA5768@ca-server1.us.oracle.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 May 2006 11:33:01 +0200, Michael Holzheu wrote:
+> On Tue, May 02, 2006 at 08:46:46PM +0200, Jan Kara wrote:
+> >   The patch was already in 2.6.16-rc3 but was dropped because of
+> > problems with OCFS2. I've now tracked down the problem - OCFS2 relies on
+> > the fact that buffer does not have journal_head if it is not on any
+> > transaction's list. It assumes that if the buffer has buffer_jbd set,
+> > then it is journaled and hence the node has uptodate data in the
+> > buffer. My patch broke that assumption as in one path I forgot to call
+> > journal_remove_journal_head() and hence I was leaving behind some
+> > buffers not attached to any transaction but with journal_head. Now that
+> > leak is fixed and OCFS2 seems to work fine also with my patch.
+> Ahh, ok that makes sense and it definitely sounds like the type of thing
+> that would cause OCFS2 to pick up stale data.
 > 
-> All the complicated mechanisms with filesystem trees
-> to obtain consistent data and transaction functionality
-> could be avoided, if we would use single files, which
-> contain all the data. When opening the file, the snapshot
-> is created and attached to the struct file.
+> >   Andrew, could you please put the patch into -mm? Thanks.
+> Without commenting any further on the patch, I can definitely offer up some
+> more testing on my end should Andrew decide to pick this up.
+  Testing is always welcome :). Thanks. I did some basic one myself but
+the more tests the better.
 
-s/single file/single entity/ and this may be useful.  Your filesystem
-exports a directory tree, which is nice and easily parsable.  The
-problem is that it is a single resource for everyone.  If different
-users could have their own views of this filesystem, each with a
-private snapshot, many problems would be solved.
-
-Spufs might have something similar already.  Istr something about
-returning a directory fd and then using openat(2) and friends.
-
-Jörn
-
+									Honza
 -- 
-To my face you have the audacity to advise me to become a thief - the worst
-kind of thief that is conceivable, a thief of spiritual things, a thief of
-ideas! It is insufferable, intolerable!
--- M. Binet in Scarabouche
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

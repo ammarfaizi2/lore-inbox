@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWECAAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbWECAGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965043AbWECAAh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 20:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWECAAg
+	id S965050AbWECAGM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 20:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbWECAGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 20:00:36 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:48118 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S965043AbWECAAg convert rfc822-to-8bit (ORCPT
+	Tue, 2 May 2006 20:06:12 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:8909 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965047AbWECAGL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 20:00:36 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Jared Hulbert" <jaredeh@gmail.com>
-Subject: Re: [RFC] Advanced XIP File System
-Date: Wed, 3 May 2006 02:00:28 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
-In-Reply-To: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+	Tue, 2 May 2006 20:06:11 -0400
+From: Neil Brown <neilb@suse.de>
+To: Al Boldi <a1426z@gawab.com>
+Date: Wed, 3 May 2006 10:05:53 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200605030200.29141.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17495.62433.136481.543828@cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 009 of 11] md: Support stripe/offset mode in raid10
+In-Reply-To: message from Al Boldi on Tuesday May 2
+References: <20060501152229.18367.patches@notabene>
+	<1060501053054.23009@suse.de>
+	<200605021938.45254.a1426z@gawab.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Tuesday 02 May 2006 23:53 schrieb Jared Hulbert:
-> I will be submitting a new filesystem for inclusion into the kernel as
-> soon as it is ready.  (It mounts but doesn't like doing much else
-> right now.)  I would like to get feedback now to mold the development
-> as we go along.  Please comment on the technical approaches and other
-> inherent qualities or lack thereof.  Let me know of any serious
-> obstacles to inclusion in the mainline.  We will Lindent it and clean
-> it up quite a bit before really submitting.
->
-> You may find it at its very boring sourceforge site
-> https://sourceforge.net/projects/axfs/.  Browse the source at
-> http://svn.sourceforge.net/axfs
-> Or get the tarball at
-> http://prdownloads.sourceforge.net/axfs/axfs-0.1.tar.gz?download
->
->
-> What is it?:
-> - AXFS for Advanced XIP File System.
-> - Intended to be a root filesystem for embedded systems
-> - Readonly
-> - Uses addressable memory such as NOR flash instead of a block device
-> - Borrows much from CRAMFS with Linear XIP patches
-> - Allows XIP* of individual pages instead of just individual files
-> - Uses filemap_xip.c where possible
->
-> * By XIP, eXecute In Place, we mean that when a file is mmap'd() the
-> pages are mapped directly to where they are stored in non volatile
-> storage, rather than copied to RAM in the page cache and mapped from
-> there
+On Tuesday May 2, a1426z@gawab.com wrote:
+> NeilBrown wrote:
+> > The "industry standard" DDF format allows for a stripe/offset layout
+> > where data is duplicated on different stripes. e.g.
+> >
+> >   A  B  C  D	
+> >   D  A  B  C	
+> >   E  F  G  H	
+> >   H  E  F  G	
+> >
+> > (columns are drives, rows are stripes, LETTERS are chunks of data).
+> 
+> Presumably, this is the case for --layout=f2 ?
 
-Nice, this is the first time I heard of anyone using filemap_xip on MTD.
+Almost.  mdadm doesn't support this layout yet.  
+'f2' is a similar layout, but the offset stripes are a lot further
+down the drives.
+It will possibly be called 'o2' or 'offset2'.
 
-> Why a new filesystem?
-> - XIP of kernel is mainline, but not XIP of applications.  This
-> enables application XIP
+> If so, would --layout=f4 result in a 4-mirror/striped array?
 
-ext2fs does have XIP of applications, but of course only works on
-block devices, not MTD. Is there more missing than an implementation
-of block_device_operations::direct_access for mtd_blktrans_ops?
+o4 on a 4 drive array would be 
 
-Why can't you get the same result with a combination of cramfs for
-data files and ext2 with -o xip for your mmapped binaries?
+   A  B  C  D
+   D  A  B  C
+   C  D  A  B
+   B  C  D  A
+   E  F  G  H
+   ....
 
-> - Cramfs linear XIP patches not suitable for submission and lack some
-> features of AXFS
+> 
+> Also, would it be possible to have a staged write-back mechanism across 
+> multiple stripes?
 
-Is that a fundamental problem of cramfs, or rather a problem of the
-implementation of the linear XIP patches for it? IOW, can't you just
-do a better patch to add filemap_xip support to cramfs?
+What exactly would that mean?  And what would be the advantage?
 
-> - Design allows for tighter packing of data and higher performance
-> than XIP cramfs
-
-why? by how much?
-
-	Arnd <><
+NeilBrown

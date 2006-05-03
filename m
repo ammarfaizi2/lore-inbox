@@ -1,118 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbWECFIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbWECFLI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbWECFIs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 01:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965093AbWECFIs
+	id S965093AbWECFLI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 01:11:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbWECFLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 01:08:48 -0400
-Received: from fmmailgate01.web.de ([217.72.192.221]:62849 "EHLO
-	fmmailgate01.web.de") by vger.kernel.org with ESMTP id S965089AbWECFIr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 01:08:47 -0400
-From: Michael Helmling <supermihi@web.de>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
-Date: Wed, 3 May 2006 07:06:53 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200605022002.15845.supermihi@web.de> <200605021509.17050.david-b@pacbell.net>
-In-Reply-To: <200605021509.17050.david-b@pacbell.net>
+	Wed, 3 May 2006 01:11:08 -0400
+Received: from nz-out-0102.google.com ([64.233.162.197]:60214 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S965093AbWECFLH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 01:11:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RmBuGKRCmYnTVGVo7kvjXYtYss2S0ueBjLI+We38decPHBI2aLv7XtX/Lcmn3xUgpvgLT3MYtgXA0nIFVNXD9If65sDssxDsgnPiFrx9xgkIhvcjXbwatHUqpv4sPk0nY09Eb6dMDOfOqiDQSxsNJV7j44O9tdd7WUdKMp76IHU=
+Message-ID: <6934efce0605022211q7b265ef5o76faf27cd421dab5@mail.gmail.com>
+Date: Tue, 2 May 2006 22:11:06 -0700
+From: "Jared Hulbert" <jaredeh@gmail.com>
+To: "Josh Boyer" <jwboyer@gmail.com>
+Subject: Re: [RFC] Advanced XIP File System
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3103600.QLbJGWO7CL";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200605030706.56908.supermihi@web.de>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+	 <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3103600.QLbJGWO7CL
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Accidentally replied just to Josh, sorry.  Included what was offline.
 
-On Wednesday 03 May 2006 00:09, David Brownell wrote:
-> On Tuesday 02 May 2006 11:02 am, Michael Helmling wrote:
-> > Hi all,
-> >=20
-> > I bought an USB-Ethernet adaptor from delock (www.delock.de) and found =
-it=20
-was=20
-> > not supported by linux from the vendor. So I played a little with lsusb=
-=20
-and=20
-> > found it uses a MCS7830 chip from MosChip semiconductor (moschip.com). =
-On=20
-> > their homepage I found a driver but it only was a precompiled Fedora4=20
-module.=20
-> > So I wrote them an email and they sent me the whole source code for the=
-=20
-> > module...
-> >
-> > Would be nice to see this supported in further kernel releases.
-> > The sourcecode can be found at ftp://supermihi.myftp.org
->=20
-> Was it you who removed the copyrights from the "usbnet" driver and
-> changed the author assertion to one "M Subrahmanya Srihdar" ??
-> I'm guessing the latter; the www.moschip.com site implies that
-> its engineering HW is in India.
+>>> From what I recall, XIP of the kernel off of MTD is limited to ARM.  I
+>>> assume AXFS suffers the same restriction?
+>>
+>> I'm fairly certian it won't.  I don't see anything in the code (that
+>> we aren't going to remove) that would cause that.  All it needs is
+>> direct memory access to the volume.  I'll find out soon, I'm trying to
+>> test it on a X86 UML system.
+>>
+>> The XIP awareness in the MTD isn't a requirement for XIP, it's a
+>> requirement to XIP from flash you are going to write, erase or
+>> otherwise mess with.
+>
+>So you're relying on the fact that the underlying flash chip won't
+>change from the Read Array state?  What happens if someone tries to
+>use AXFS on an MTD partition, which can cover only a portion of a
+>chip.  That is a fairly common occurance for read-only root
+>filesystems.  Other partitions (say JFFS2) on that chip will cause the
+>chip state to change...
 
-No, I did not change the code in any way, it is exactly the version they=20
-mailed me. But I don't really understand what you are saying about the usbn=
-et=20
-module. They gave me the sourcecode for a yet not available kernel module=20
-"mcs7830", not usbnet. Or did they just modify usbnet? I don't know enough=
-=20
-about such things to distinguish from both.=20
->=20
-> Either way, blatant plagiarism and theft of copyright is unlikely
-> to get into upstream kernels.
-
-I personally have the feeling that they didn't do this by purpose. They wer=
-e=20
-very willing to help me with the driver and don't seem to understand much o=
-f=20
-kernel development. Anyway, if this IS a copyright violation, they should=20
-really change it quickly.
->=20
-> Likewise, that is NOT the way to integrate with the "usbnet" driver
-> framework.  See how it's done by the "asix.c" driver module.
->=20
-Sorry this isn't useful for me, I'm not a developer, more than ever no kern=
-el=20
-developer. ;)
->=20
-> In fact, I'm very tempted to ask them to withdraw their distribution,
-> since they have clearly violated pretty basic terms of the GPL.=20
-Maybe you should do this, since I don't know much about the details of GPL =
-and=20
-my english is really bad. *g*
-> How=20
-> long have they been doing that?  How much money have they made by
-> this theft?
-
-
->=20
-> That stuff is correctible ... but until they correct their problems,
-> I'm not inclined to let them continue distributing stolen software.
->=20
-This is comprehensible. But, nevertheless this is the possibility of=20
-supporting another hardware device in linux, and we shouldn't forsake it.
-
-
-=2D Michael
-
---nextPart3103600.QLbJGWO7CL
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBEWDpwcLJiNWFgTBIRAg/OAJ0W5osTqgKRpuZVaXRBwEVoLJmpLACg5tsu
-wMVe1Uj58acHo9evdPDZItQ=
-=oqOb
------END PGP SIGNATURE-----
-
---nextPart3103600.QLbJGWO7CL--
+Right.  So that is exactly the case XIP Awareness is in the MTD to
+fix, and it does so such that AXFS doesn't have to worry about it.

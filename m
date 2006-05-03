@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWECNXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWECNZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbWECNXP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 09:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWECNXP
+	id S1030198AbWECNZw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 09:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWECNZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 09:23:15 -0400
-Received: from nz-out-0102.google.com ([64.233.162.198]:65078 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030197AbWECNXP convert rfc822-to-8bit (ORCPT
+	Wed, 3 May 2006 09:25:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:13479 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030198AbWECNZv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 09:23:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aFj8OB3c8tZQvcl71UMc79IB94lXkAjap0TB/FyPInwRyWWKhCM/T0zcBOWQII6SLGBFSOvL6pklMwx7ObhDe00smnaSQ/e4HXbzIg+v0TIdj8JtaMWlPMIJg2qdc2Cx0NJTYYTrpk9IVU5od5OJvw866h0HmeM5HwS6gDDBP4g=
-Message-ID: <9e4733910605030623w7751ff43u6f1bb7835bf65e88@mail.gmail.com>
-Date: Wed, 3 May 2006 09:23:13 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Arjan van de Ven" <arjan@linux.intel.com>
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-Cc: "Dave Airlie" <airlied@gmail.com>, greg@kroah.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       airlied@linux.ie, pjones@redhat.com, akpm@osdl.org
-In-Reply-To: <4458475F.3010203@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
-	 <44578C92.1070403@linux.intel.com>
-	 <9e4733910605020959k7aad853dn87d73348cbcf42cd@mail.gmail.com>
-	 <44579028.1020201@linux.intel.com>
-	 <9e4733910605021013h17b72453v3716f68a2cebdee1@mail.gmail.com>
-	 <1146594457.32045.91.camel@laptopd505.fenrus.org>
-	 <9e4733910605021200y6333a67sd2ff685f666cc6f9@mail.gmail.com>
-	 <21d7e9970605021440s6cdc3895t57617e5fad6c5050@mail.gmail.com>
-	 <9e4733910605021452r3aec1035pa475b701b2c3563c@mail.gmail.com>
-	 <4458475F.3010203@linux.intel.com>
+	Wed, 3 May 2006 09:25:51 -0400
+Date: Wed, 3 May 2006 06:25:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: vgoyal@in.ibm.com
+Cc: greg@kroah.com, kamezawa.hiroyu@jp.fujitsu.com,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [PATCH] catch valid mem range at onlining memory
+Message-Id: <20060503062536.56cad6f5.akpm@osdl.org>
+In-Reply-To: <20060502204216.GB6566@in.ibm.com>
+References: <20060428114732.e889ad2d.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060428163409.389e895e.akpm@osdl.org>
+	<20060428234410.GA7598@kroah.com>
+	<20060428170519.1194b077.akpm@osdl.org>
+	<20060429071818.GA939@kroah.com>
+	<20060429232615.GA18723@in.ibm.com>
+	<20060429164043.4cf4a861.akpm@osdl.org>
+	<20060502204216.GB6566@in.ibm.com>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/3/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
-> Jon Smirl wrote:
-> > On 5/2/06, Dave Airlie <airlied@gmail.com> wrote:
-> >> Jon stop being so dramatic, this is just like letting userspace map
-> >> the BARs, without ownership through sysfs, which is a good thing, you
-> >> can still map /dev/mem, look we have lots of ways to shoot ourselves
-> >> in the foot, if we *want* to.
-> >
-> > So why don't we just build a VGA class driver or make null fbdev
->
-> I think your mail client is defective, you somehow managed to not attach the patch *again*.
->
+On Tue, 2 May 2006 16:42:16 -0400
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
 
-Lack of a patch for a correct solution is no reason to put a bad
-solution into the kernel.  GregKH has a lot to say about PCI class
-drivers and he has commented on this thread yet. DaveA and I have both
-attempt to do the correct fix both those attempts have fallen apart
-main for political reasons.
+> > Yes, it would need to to be a new type - resource_addr_t, perhaps.
+> > 
+> 
+> How about "res_sz_t".
 
+resource_size_t, please.
 
---
-Jon Smirl
-jonsmirl@gmail.com
+> "resource_addr_t" probably is not a very appropriate
+> keyword as at lots of places we also need to represent size and alignment
+> with this typedef.
+
+OK.

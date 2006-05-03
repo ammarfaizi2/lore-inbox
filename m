@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWECVz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWECV5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbWECVz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 17:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWECVz3
+	id S1751376AbWECV5G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 17:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWECV5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 17:55:29 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:3978 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751370AbWECVz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 17:55:28 -0400
-Date: Wed, 3 May 2006 16:55:23 -0500 (CDT)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Pat Gefre <pfg@sgi.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] 2.6 Altix : correct ioc3 port order
-In-Reply-To: <200604281931.k3SJVBjR063404@fsgi900.americas.sgi.com>
-Message-ID: <20060503165402.E59683@chenjesu.americas.sgi.com>
-References: <200604281931.k3SJVBjR063404@fsgi900.americas.sgi.com>
-Organization: "Silicon Graphics, Inc."
+	Wed, 3 May 2006 17:57:06 -0400
+Received: from [220.195.34.17] ([220.195.34.17]:37581 "EHLO mindspring.com")
+	by vger.kernel.org with ESMTP id S1751369AbWECV5E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 17:57:04 -0400
+X-Mailer: Windows Eudora Pro Version 2.2 (32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: <autoanswer@vger.kernel.org>
+Subject: We can approve Yours loan today frz
+Date: Wed, 03 May 2006 12:10:33 -0600
+Message-ID: <2.2.32.20060403181033007ddd5a@superonline.com>
+In-Reply-To: <f6dd01c66e0d$ba2f049b$9ad48940@ch2ffh1>
+Reply-To: "Julio Booker" <julio.bookernz@superonline.com>
+From: "Julio Booker" <julio.bookernz@superonline.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Apr 2006, Pat Gefre wrote:
+Dear Homeowner,  
+autoanswer@vger.kernel.org
 
-> Currently loading the ioc3 as a module will cause the ports to be
-> numbered in reverse order. This mod maintains the proper order of cards
-> for port numbering.
+http://valuloan.net
 
-Here's the corresponding patch for IOC4.
+You have been approved for a $ 946,594 house loan (2.9 fixed)
+This offer is being presented to you right now!. Your credit history is in no way a factor.
+To take advantage of this Limited Time Opportunity,
+please take a minute and confirm your curiosity or intention to accept this loan, at the following web-site:
 
-Signed-off-by: Brent Casavant <bcasavan@sgi.com>
+http://valuloan.netL
 
-diff --git a/drivers/sn/ioc4.c b/drivers/sn/ioc4.c
-index 67140a5..cdeff90 100644
---- a/drivers/sn/ioc4.c
-+++ b/drivers/sn/ioc4.c
-@@ -310,7 +310,7 @@ ioc4_probe(struct pci_dev *pdev, const s
-        pci_set_drvdata(idd->idd_pdev, idd);
+Best Regards
+Don Nut
+Loan Manager
 
-        mutex_lock(&ioc4_mutex);
--       list_add(&idd->idd_list, &ioc4_devices);
-+       list_add_tail(&idd->idd_list, &ioc4_devices);
+http://valuloan.net/redirect
 
-        /* Add this IOC4 to all submodules */
-        list_for_each_entry(is, &ioc4_submodules, is_list) {
+autoanswer@vger.kernel.org wrote:
+> Yours loan is approved
+r8b8k72rf0
 
--- 
-Brent Casavant                          All music is folk music.  I ain't
-bcasavan@sgi.com                        never heard a horse sing a song.
-Silicon Graphics, Inc.                    -- Louis Armstrong
+

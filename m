@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWECNaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWECNbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbWECNaV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 09:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWECNaU
+	id S1030204AbWECNbF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 09:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030205AbWECNbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 09:30:20 -0400
-Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:7098 "EHLO
-	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1030199AbWECNaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 09:30:20 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Juho Saarikko <juhos@mbnet.fi>
-Subject: Re: [ck] 2.6.16-ck9
-Date: Wed, 3 May 2006 23:30:12 +1000
+	Wed, 3 May 2006 09:31:04 -0400
+Received: from fmmailgate01.web.de ([217.72.192.221]:6806 "EHLO
+	fmmailgate01.web.de") by vger.kernel.org with ESMTP
+	id S1030204AbWECNbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 09:31:03 -0400
+From: Michael Helmling <supermihi@web.de>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
+Date: Wed, 3 May 2006 15:28:15 +0200
 User-Agent: KMail/1.9.1
-Cc: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
-References: <200605022338.20534.kernel@kolivas.org> <200605030801.05523.kernel@kolivas.org> <1146646484.4260.6.camel@a88-112-69-25.elisa-laajakaista.fi>
-In-Reply-To: <1146646484.4260.6.camel@a88-112-69-25.elisa-laajakaista.fi>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200605022002.15845.supermihi@web.de> <200605030706.56908.supermihi@web.de> <200605022229.47937.david-b@pacbell.net>
+In-Reply-To: <200605022229.47937.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart23902187.IZIZQcOlZZ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605032330.13131.kernel@kolivas.org>
+Message-Id: <200605031528.18809.supermihi@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 May 2006 18:54, Juho Saarikko wrote:
-> On Wed, 2006-05-03 at 01:01, Con Kolivas wrote:
-> > The spid will show you any threads with different pids to the main task.
-> > Then check the actual scheduling policy they run at. Perhaps FahCore
-> > actually manually sets them to SCHED_NORMAL.
->
-> And so it does. Annoying. Time to hack kernel to add a new scheduling
-> policy, SCHED_STAYIDLE, which is like SCHED_IDLE but cannot be unset
-> except by root.
->
-> Can't make it the default, since a program running at SCHED_IDLE in a
-> machine with 100% CPU usage by some other program will never process
-> SIGKILL, and thus can only be killed by setting its scheduling policy to
-> normal...
+--nextPart23902187.IZIZQcOlZZ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I toyed with the idea of making it one way to convert tasks to SCHED_IDLEPRIO 
-but not back to SCHED_NORMAL much like we do for niceing tasks up but not 
-back down again. However I personally found this very inconvenient as I often 
-might run something idleprio for a while and then change it back. It seems a 
-fair thing for a normal user to do.
+On Wednesday 03 May 2006 07:29, David Brownell wrote:
+> On Tuesday 02 May 2006 10:06 pm, Michael Helmling wrote:
+>=20
+> They just hacked "usbnet". =A0There are huge chunks of code, and comments,
+> that are clearly identical. =A0At least half of the "moschip" driver.
+>=20
+Then what they did really isn't right.
 
-> Darn obnoxious program, SetiAtHome...
+> "M Subrahmanya Srihdar" didn't "accidentally" copy the bulk of usbnet,=20
+> remove all
+> the attributions, and replace them ... not possible. =A0There were certai=
+nly a=20
+> few
+> chip-specific additions of course, right where "usbnet" expects them, but=
+=20
+> the
+> core driver is obviously all "usbnet" code.
+So, what this Mr. Srihdar di wrong is to set his own name in the "copyright=
+"=20
+field instead of using yours. The process of modifying a GPLed module itsel=
+f=20
+is ok, am I right with this?
+So it should be possible to convince him of this nuisance, and then use the=
+=20
+changes he made to make moschips device working.=20
+Regards,
+Michael
 
-Obviously when they wrote the linux client and added the ability to set the 
-priority from within the program to nice 19 they also explicitly set the 
-scheduling policy at the same time. This might make sense on some other OS... 
-but not linux.
+--nextPart23902187.IZIZQcOlZZ
+Content-Type: application/pgp-signature
 
--- 
--ck
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBEWK/ycLJiNWFgTBIRAk+1AKDIoPdiNkFC2Z5EktouGaKGFejOlwCfZPGP
+EvkSbDBnOA0Xk4YElNFxkWA=
+=PyvD
+-----END PGP SIGNATURE-----
+
+--nextPart23902187.IZIZQcOlZZ--

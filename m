@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWECFEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965090AbWECFES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965091AbWECFEm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 01:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965089AbWECFEm
+	id S965090AbWECFES (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 01:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965091AbWECFES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 01:04:42 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:17266 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965091AbWECFEl convert rfc822-to-8bit (ORCPT
+	Wed, 3 May 2006 01:04:18 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10205 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965090AbWECFER (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 01:04:41 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GF81rgGqHW0ajsTzDfkXMJEJKKRNK28TeVmAp8D3sccyKnZdZGwp/U0YgAdBZdal0q/x5XqKGqHFMpJwdruWazrz77gkzNbyDxU0Ofj4gnww4nI88IBluW7K3K49VoX/XaLQ/s9vYiBaUSvRRI4TKXUmiGNJ9eOklHClGoJoxPw=
-Message-ID: <6934efce0605022204n233a6b04u4fafee8e07c0b594@mail.gmail.com>
-Date: Tue, 2 May 2006 22:04:41 -0700
-From: "Jared Hulbert" <jaredeh@gmail.com>
-To: "Josh Boyer" <jwboyer@gmail.com>
-Subject: Re: [RFC] Advanced XIP File System
-Cc: "Arnd Bergmann" <arnd@arndb.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <625fc13d0605021927l30ed3f86v48ad8fec9ec36051@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
-	 <200605030200.29141.arnd@arndb.de>
-	 <6934efce0605021859u55131e63xd8dab3d4396d7f56@mail.gmail.com>
-	 <625fc13d0605021927l30ed3f86v48ad8fec9ec36051@mail.gmail.com>
+	Wed, 3 May 2006 01:04:17 -0400
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch, 2.6.17-rc3-mm1] i386: break out of recursion in stackframe walk 
+In-reply-to: Your message of "Tue, 02 May 2006 11:50:34 +0200."
+             <20060502095034.GA21063@elte.hu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 03 May 2006 15:03:56 +1000
+Message-ID: <16113.1146632636@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you explain a bit more?  If you aren't going to use the MTD, why
-> rely on it at all?
+Ingo Molnar (on Tue, 2 May 2006 11:50:34 +0200) wrote:
+>if CONFIG_FRAME_POINTERS is enabled, and one does a dump_stack() during 
+>early SMP init, an infinite stackdump and a bootup hang happens:
+>
+> [<c0104e7f>] show_trace+0xd/0xf
+> [<c0104e96>] dump_stack+0x15/0x17
+> [<c01440df>] save_trace+0xc3/0xce
+> [<c014527d>] mark_lock+0x8c/0x4fe
+> [<c0145df5>] __lockdep_acquire+0x44e/0xaa5
+> [<c0146798>] lockdep_acquire+0x68/0x84
+> [<c1048699>] _spin_lock+0x21/0x2f
+> [<c010d918>] prepare_set+0xd/0x5d
+> [<c010daa8>] generic_set_all+0x1d/0x201
+> [<c010ca9a>] mtrr_ap_init+0x23/0x3b
+> [<c010ada8>] identify_cpu+0x2a7/0x2af
+> [<c01192a7>] smp_store_cpu_info+0x2f/0xb4
+> [<c01197d0>] start_secondary+0xb5/0x3ec
+> [<c104ec11>] end_of_stack_stop_unwind_function+0x1/0x4
+> [<c104ec11>] end_of_stack_stop_unwind_function+0x1/0x4
+> [<c104ec11>] end_of_stack_stop_unwind_function+0x1/0x4
+> [<c104ec11>] end_of_stack_stop_unwind_function+0x1/0x4
+> [<c104ec11>] end_of_stack_stop_unwind_function+0x1/0x4
+> [<c104ec11>] end_of_stack_stop_unwind_function+0x1/0x4
+> [<c104ec11>] end_of_stack_stop_unwind_function+0x1/0x4
+> [<c104ec11>] end_of_stack_stop_unwind_function+0x1/0x4
+> [...]
+>
+>due to "end_of_stack_stop_unwind_function" recursing back to itself in 
+>the EBP stackframe-walker. So avoid this type of recursion when walking 
+>the stack .
+>
+>Signed-off-by: Ingo Molnar <mingo@elte.hu>
+>
+>Index: linux/arch/i386/kernel/traps.c
+>===================================================================
+>--- linux.orig/arch/i386/kernel/traps.c
+>+++ linux/arch/i386/kernel/traps.c
+>@@ -150,6 +150,12 @@ static inline unsigned long print_contex
+> 	while (valid_stack_ptr(tinfo, (void *)ebp)) {
+> 		addr = *(unsigned long *)(ebp + 4);
+> 		printed = print_addr_and_symbol(addr, log_lvl, printed);
+>+		/*
+>+		 * break out of recursive entries (such as
+>+		 * end_of_stack_stop_unwind_function):
+>+	 	 */
+>+		if (ebp == *(unsigned long *)ebp)
+>+			break;
+> 		ebp = *(unsigned long *)ebp;
+> 	}
+> #else
 
-I plan to could do 'mount -t axfs /dev/mtdblock2 /mnt/axfs' and use
-the mtd to get the address to flash from map->cached or maybe
-mtd->point.  Personally I think this is a clean approach to mounting
-this fs.  Right now we do it like linear cramfs 'mount -t cramfs -o
-physaddr=0xDEADBEEF /dev/null /mnt/axfs' and then map flash ourselves
-with ioremap().  I'd like to enable a mode like this to in case you
-don't have MTD.   But I prefer the former.
+KDB just limits kernel traces to a maximum of 200 entries, which
+catches direct as well as indirect recursion.  IA64 is notorious for
+getting loops in its unwind data, sometime looping over three or four
+functions.  Checking for a maximum number of entries is a simple and
+architecture independent check.
 
-> Have you done comparisons vs. squashfs at all?  It does better at both
-> performance and compression that cramfs, so I'm curious.
-
-Haven't done any performance testing on squashfs.  I did see some
-compression analysis that basically showed that squashfs did compress
-better but paid for that flash saving in extra RAM.

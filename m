@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965056AbWECM4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030179AbWECNAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965056AbWECM4t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 08:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWECM4t
+	id S1030179AbWECNAP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 09:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWECNAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 08:56:49 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31904 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965056AbWECM4s (ORCPT
+	Wed, 3 May 2006 09:00:14 -0400
+Received: from main.gmane.org ([80.91.229.2]:32979 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030179AbWECNAN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 08:56:48 -0400
-Date: Wed, 3 May 2006 05:47:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: eranian@hpl.hp.com
-Cc: perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-Subject: Re: beta of pfmon-3.2 available
-Message-Id: <20060503054711.b1734c26.akpm@osdl.org>
-In-Reply-To: <20060426145636.GA6819@frankl.hpl.hp.com>
-References: <20060426145636.GA6819@frankl.hpl.hp.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 3 May 2006 09:00:13 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Sergei Organov <osv@javad.com>
+Subject: High baud rates support for Quatech DSP-100.
+Followup-To: gmane.linux.serial
+Date: Wed, 03 May 2006 16:59:16 +0400
+Message-ID: <e3a9g8$idv$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 87.236.81.130
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
+Cc: linux-serial@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Apr 2006 07:56:36 -0700
-Stephane Eranian <eranian@hpl.hp.com> wrote:
 
-> I have finally released the first beta version of pfmon-3.2.
+I've got a Quatech DSP-100 PCMCIA dual RS232 adapter. After adding the
+adapter parameters into the 'multi_id' and 'serial_ids' tables of the
+serial_cs.c driver, it is now automatically loaded and supports the card
+almost fine. However, the card supports baud rates up to 460800, but
+using serial_cs I get rates only up to 115200.
 
-perfctr was almost-ready-for-merge.  Then it was decided that perfmon was
-the way ahead, and perfctr died.  And now perfmon isn't making progress in
-the kernelwards direction (worse, perfmon is getting bigger, thus making a
-merge harder and harder).  So we now have the worst of all worlds.
+On the other hand, Quatech has GPL Linux driver (serial_qt.c) for this
+card that has been made for some early 2.6.x kernel version and doesn't
+compile for recent 2.6.16. I've managed to hack it to compile for
+2.6.16.8, -- it does support 460800 indeed.
 
-This is a problem.  I'd suggest that at this time we should be
-concentrating on getting perfmon merged up rather than adding more stuff to
-the out-of-tree version.
+So the question is what to do next. I'd like to either modify serial_cs
+to support high baud rates or to somehow get serial_qt to the linux
+tree. For me it seems that the former is more appropriate as serial_qt
+in fact looks like some earlier serial_cs modified by Quatech. OTOH,
+supporting high baud rates seems to be very card-specific[1] and IMHO
+doesn't fit well into rather generic serial_cs.
 
-IOW: please send patches ;)
+Is it OK to put card-specific code into serial_cs (provided it's invoked
+only after manufacturer id is checked)? Should it be Kconfig option? Is
+there a better way to go?
 
-And keep sending them.  People want this.
+[1] It basically involves checking of some card-specific config
+register(s), then setting another card-specific register accordingly and
+setting of the 'uartclk' field of the 'struct uart_port' to
+corresponding value.
 
-Thanks.
+-- 
+Sergei.
+

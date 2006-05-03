@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965232AbWECPrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWECPsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965232AbWECPrE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 11:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbWECPrD
+	id S1030221AbWECPsH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 11:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbWECPsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 11:47:03 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:61085 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S965232AbWECPrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 11:47:01 -0400
-Date: Wed, 3 May 2006 17:47:01 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jared Hulbert <jaredeh@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Advanced XIP File System
-Message-ID: <20060503154700.GD5250@wohnheim.fh-wedel.de>
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com> <20060503130502.GD19537@wohnheim.fh-wedel.de> <6934efce0605030831h30d7e4e3hb057fd1b3f7791d3@mail.gmail.com>
+	Wed, 3 May 2006 11:48:07 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:60364 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965234AbWECPsF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 11:48:05 -0400
+Subject: Re: [patch 1/1 17-rc3-mm1] generic-time: add macro to
+	simplify/hide mask constants
+From: john stultz <johnstul@us.ibm.com>
+To: Jim Cromie <jim.cromie@gmail.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4458CA7A.1080203@gmail.com>
+References: <4458CA7A.1080203@gmail.com>
+Content-Type: text/plain
+Date: Wed, 03 May 2006 08:48:44 -0700
+Message-Id: <1146671325.3432.1.camel@leatherman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6934efce0605030831h30d7e4e3hb057fd1b3f7791d3@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 May 2006 08:31:50 -0700, Jared Hulbert wrote:
+On Wed, 2006-05-03 at 11:21 -0400, Jim Cromie wrote:
+> This patch compiles clean, and is running and maintaining ntp lock
+> (across ethernet to a laptop).  I've verified (with objdump) that
+> macro reduces to constant at compile-time. Also compile-tested with 
+> allnoconfig.  Please consider for -mm.
 > 
-> >o Consider saving a zlib workspace by moving it out of your code and
-> >  sharing the infrastructure with cramfs and jffs2
+> ---
 > 
-> Hmmm.  Can you explain what you mean by this.  That would require
-> modifying each of the 3 filesystems.
+> From: Jim Cromie <jim.cromie@gmail.com>
+> Date: Wed May  3 10:59:00 EDT 2006
+> 
+> 
+> Add a CLOCKSOURCE_MASK macro to simplify initializing the mask for 
+> a struct clocksource, and use it to replace literal mask constants
+> in the various clocksource drivers.
+> 
+> Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
 
-Correct.  It is not a must-fix, but having seperate workspaces for all
-the filesystems seems wasteful.
 
-Jörn
+Looks like a nice change to me. 
 
--- 
-Unless something dramatically changes, by 2015 we'll be largely
-wondering what all the fuss surrounding Linux was really about.
--- Rob Enderle
+thanks
+-john
+
+Acked-by: John Stultz <johnstul@us.ibm.com>
+
+
+

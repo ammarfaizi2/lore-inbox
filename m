@@ -1,218 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWECU5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWECU6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWECU5e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 16:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWECU5e
+	id S1751119AbWECU6r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 16:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWECU6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 16:57:34 -0400
-Received: from [82.153.65.35] ([82.153.65.35]:60819 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751110AbWECU5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 16:57:33 -0400
-Subject: [RFC] [PATCH 1/2] Multi-threaded execution of ACPI control methods
-From: Peter Wainwright <prw@ceiriog.eclipse.co.uk>
-To: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+rOAJ6lwu1hrEPHnqSJv"
-Date: Wed, 03 May 2006 21:54:18 +0100
-Message-Id: <1146689659.5202.19.camel@localhost.localdomain>
+	Wed, 3 May 2006 16:58:47 -0400
+Received: from ns2.hostinglmi.net ([213.194.149.12]:38123 "EHLO
+	ns2.hostinglmi.net") by vger.kernel.org with ESMTP id S1751157AbWECU6q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 16:58:46 -0400
+Date: Wed, 3 May 2006 23:00:35 +0200
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Francois Romieu <romieu@fr.zoreil.com>, David Vrabel <dvrabel@cantab.net>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 2/3] ipg: leaks in ipg_probe
+Message-ID: <20060503205945.GA18353@fargo>
+Mail-Followup-To: Pekka Enberg <penberg@cs.helsinki.fi>,
+	Francois Romieu <romieu@fr.zoreil.com>,
+	David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
+	netdev@vger.kernel.org
+References: <20060429122119.GA22160@fargo> <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost> <20060501231050.GC7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020936420.4066@sbz-30.cs.Helsinki.FI> <20060502183313.GA26357@electric-eye.fr.zoreil.com> <1146596687.13675.1.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1146596687.13675.1.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns2.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - pleyades.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Pekka,
 
---=-+rOAJ6lwu1hrEPHnqSJv
-Content-Type: multipart/mixed; boundary="=-36XTR7ZkmFXKb4gaa61I"
+On May 02 at 10:04:47, Pekka Enberg wrote:
+> > No clear idea but it matches the significant part of the BAR register
+> > for the 256 bytes of I/O space that the device uses.
+> 
+> OK. David & David, would appreciate if either you could give the patch a
+> spin with Francois' changes. Thanks.
 
+I applied latest Francois patch and the changes (and specially the dma
+changes) seems to be ok.
 
---=-36XTR7ZkmFXKb4gaa61I
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On the other hand i'm having some problems. Nothing related to the
+patches, because it happens with the original driver too: After some
+time using it, the driver becomes unresponsive and i need to restart
+the interface and/or unload-load the ipg module. I'd need to compile
+it with debug enabled when i have some time to see what it's going
+on...
 
-This patch enables multi-threaded execution of ACPI control methods.
+cheers,
 
-Certain machines (e.g. the HP nx6125) require the concurrent execution
-of several ACPI control methods.  Without multithreading, processing
-of ACPI events will be blocked, causing the machine to overheat and
-possible damage.
-
-This patch enables, optionally, the multithreaded execution of control
-methods and fixes http://bugzilla.kernel.org/show_bug.cgi?id=3D5534.
-
-The required code is compiled into the kernel unconditionally (whenever
-ACPI is enabled in the kernel config). However, it is only activated
-by the boot option acpi_pool_size=3D<positive integer> or echoing
-a positive integer to /proc/acpi/pool_size.
-
-I would appreciate a review of this code. I have provided a boot time
-option and a /proc entry to configure this behaviour as an option,
-because
-it surely needs testing before it becomes the default.
-I believe it should become default behaviour for the kernel on all
-platforms,
-however, since a careful reading of the ACPI
-spec suggests that the behaviour of the nx6125 DSDT is in compliance
-with
-this spec and that any BIOS may potentially require this feature.
-
-Peter
-
-Signed-off-by: Peter Wainwright <prw@ceiriog.eclipse.co.uk>
-
-
-
---=-36XTR7ZkmFXKb4gaa61I
-Content-Disposition: attachment; filename=acpi-osl4a.patch
-Content-Type: text/x-patch; name=acpi-osl4a.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtdSAtciBsaW51eC0yLjYuMTYuMTEtcHJ3Mi1vbGQvRG9jdW1lbnRhdGlvbi9rZXJuZWwt
-cGFyYW1ldGVycy50eHQgbGludXgtMi42LjE2LjExLXBydzIvRG9jdW1lbnRhdGlvbi9rZXJuZWwt
-cGFyYW1ldGVycy50eHQNCi0tLSBsaW51eC0yLjYuMTYuMTEtcHJ3Mi1vbGQvRG9jdW1lbnRhdGlv
-bi9rZXJuZWwtcGFyYW1ldGVycy50eHQJMjAwNi0wNC0yNyAxOTo1NzowMC4wMDAwMDAwMDAgKzAx
-MDANCisrKyBsaW51eC0yLjYuMTYuMTEtcHJ3Mi9Eb2N1bWVudGF0aW9uL2tlcm5lbC1wYXJhbWV0
-ZXJzLnR4dAkyMDA2LTA1LTAzIDIxOjIzOjAwLjAwMDAwMDAwMCArMDEwMA0KQEAgLTE2OCw2ICsx
-NjgsMTMgQEANCiAJCQlvdmVycmlkZSBwbGF0Zm9ybSBzcGVjaWZpYyBkcml2ZXIuDQogCQkJU2Vl
-IGFsc28gRG9jdW1lbnRhdGlvbi9hY3BpLWhvdGtleS50eHQuDQogDQorCWFjcGlfcG9vbF9zaXpl
-PQlbSFcsQUNQSV0NCisJCQlGb3JtYXQ6IDxpbnQ+DQorCQkJRGV0ZXJtaW5lcyB0aGUgbWF4aW11
-bSBzaXplIG9mIHRoZSBwb29sIG9mDQorCQkJa2VybmVsIHRocmVhZHMgd2hpY2ggZXhlY3V0ZSBB
-Q1BJIGNvbnRyb2wNCisJCQltZXRob2RzLiAgQWZ0ZXIgc3lzdGVtIGhhcyBib290ZWQgdXAsIGl0
-IGNhbg0KKwkJCWJlIHNldCB2aWEgL3Byb2MvYWNwaS9wb29sX3NpemUuDQorDQogCWVuYWJsZV90
-aW1lcl9waW5fMSBbaTM4Nix4ODYtNjRdDQogCQkJRW5hYmxlIFBJTiAxIG9mIEFQSUMgdGltZXIN
-CiAJCQlDYW4gYmUgdXNlZnVsIHRvIHdvcmsgYXJvdW5kIGNoaXBzZXQgYnVncw0KZGlmZiAtdSAt
-ciBsaW51eC0yLjYuMTYuMTEtcHJ3Mi1vbGQvZHJpdmVycy9hY3BpL2J1cy5jIGxpbnV4LTIuNi4x
-Ni4xMS1wcncyL2RyaXZlcnMvYWNwaS9idXMuYw0KLS0tIGxpbnV4LTIuNi4xNi4xMS1wcncyLW9s
-ZC9kcml2ZXJzL2FjcGkvYnVzLmMJMjAwNi0wNS0wMyAyMToxODozOC4wMDAwMDAwMDAgKzAxMDAN
-CisrKyBsaW51eC0yLjYuMTYuMTEtcHJ3Mi9kcml2ZXJzL2FjcGkvYnVzLmMJMjAwNi0wNS0wMyAy
-MToxOToyMy4wMDAwMDAwMDAgKzAxMDANCkBAIC02NjQsNiArNjY0LDcgQEANCiAJaW50IHJlc3Vs
-dCA9IDA7DQogCWFjcGlfc3RhdHVzIHN0YXR1cyA9IEFFX09LOw0KIAlleHRlcm4gYWNwaV9zdGF0
-dXMgYWNwaV9vc19pbml0aWFsaXplMSh2b2lkKTsNCisJZXh0ZXJuIGFjcGlfc3RhdHVzIGFjcGlf
-b3NfaW5pdGlhbGl6ZTIodm9pZCk7DQogDQogCUFDUElfRlVOQ1RJT05fVFJBQ0UoImFjcGlfYnVz
-X2luaXQiKTsNCiANCkBAIC03MjcsNiArNzI4LDggQEANCiAJICovDQogCWFjcGlfcm9vdF9kaXIg
-PSBwcm9jX21rZGlyKEFDUElfQlVTX0ZJTEVfUk9PVCwgTlVMTCk7DQogDQorCXN0YXR1cyA9IGFj
-cGlfb3NfaW5pdGlhbGl6ZTIoKTsNCisNCiAJcmV0dXJuX1ZBTFVFKDApOw0KIA0KIAkvKiBNaW1p
-YyBzdHJ1Y3R1cmVkIGV4Y2VwdGlvbiBoYW5kbGluZyAqLw0KZGlmZiAtdSAtciBsaW51eC0yLjYu
-MTYuMTEtcHJ3Mi1vbGQvZHJpdmVycy9hY3BpL29zbC5jIGxpbnV4LTIuNi4xNi4xMS1wcncyL2Ry
-aXZlcnMvYWNwaS9vc2wuYw0KLS0tIGxpbnV4LTIuNi4xNi4xMS1wcncyLW9sZC9kcml2ZXJzL2Fj
-cGkvb3NsLmMJMjAwNi0wNS0wMyAyMToxODozOC4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0y
-LjYuMTYuMTEtcHJ3Mi9kcml2ZXJzL2FjcGkvb3NsLmMJMjAwNi0wNS0wMyAyMToxOToyMy4wMDAw
-MDAwMDAgKzAxMDANCkBAIC00Niw2ICs0Niw4IEBADQogDQogI2luY2x1ZGUgPGxpbnV4L2VmaS5o
-Pg0KIA0KKyNpbmNsdWRlIDxsaW51eC9rdGhyZWFkLmg+DQorDQogI2RlZmluZSBfQ09NUE9ORU5U
-CQlBQ1BJX09TX1NFUlZJQ0VTDQogQUNQSV9NT0RVTEVfTkFNRSgib3NsIikNCiAjZGVmaW5lIFBS
-RUZJWAkJIkFDUEk6ICINCkBAIC03NSw2ICs3NywxNTEgQEANCiBzdGF0aWMgYWNwaV9vc2RfaGFu
-ZGxlciBhY3BpX2lycV9oYW5kbGVyOw0KIHN0YXRpYyB2b2lkICphY3BpX2lycV9jb250ZXh0Ow0K
-IHN0YXRpYyBzdHJ1Y3Qgd29ya3F1ZXVlX3N0cnVjdCAqa2FjcGlkX3dxOw0KK3N0cnVjdCB0aW1l
-cl9saXN0IGFjcGlfcmVhcF90aW1lcjsNCisNCisjZGVmaW5lIFJFQVBfSU5URVJWQUwgNQ0KKyNk
-ZWZpbmUgUkVBUF9USU1FT1VUIDEwDQorDQorLyoNCisgKiBUaGlzIHBhcmFtZXRlciBtYXkgYmUg
-Y29uZmlndXJlZCBhdCBib290LXRpbWUgYnkgdGhlIGNvbW1hbmQtbGluZQ0KKyAqIG9wdGlvbiBh
-Y3BpX3Bvb2xfc2l6ZT1YDQorICovDQorc3RhdGljIGludCBtYXhfcG9vbF9zaXplID0gMDsNCitz
-dGF0aWMgaW50IF9faW5pdCBhY3BpX3NldF9wb29sX3NpemUoY2hhciAqc3RyKQ0KK3sNCisJZ2V0
-X29wdGlvbigmc3RyLCAmbWF4X3Bvb2xfc2l6ZSk7DQorCXJldHVybiAwOw0KK30NCitfX3NldHVw
-KCJhY3BpX3Bvb2xfc2l6ZT0iLCBhY3BpX3NldF9wb29sX3NpemUpOw0KKw0KK3N0YXRpYyBpbnQg
-Y3VycmVudF9wb29sX3NpemUgPSAwOw0KK3N0YXRpYyBzdHJ1Y3QgbGlzdF9oZWFkIHRocmVhZF9w
-b29sID0gTElTVF9IRUFEX0lOSVQodGhyZWFkX3Bvb2wpOw0KKw0KK3N0cnVjdCB0aHJlYWRfcG9v
-bF9lbnRyeSB7DQorCXN0cnVjdCB0YXNrX3N0cnVjdCAqdGhyZWFkOw0KKwlpbnQgaWQ7DQorCWlu
-dCBhY3RpdmU7DQorCWFjcGlfb3NkX2V4ZWNfY2FsbGJhY2sgZnVuY3Rpb247DQorCXZvaWQgKmNv
-bnRleHQ7DQorCXVuc2lnbmVkIGxvbmcgamlmZmllczsNCisJd2FpdF9xdWV1ZV9oZWFkX3QgbW9y
-ZV93b3JrOw0KKwl3YWl0X3F1ZXVlX2hlYWRfdCB3b3JrX2RvbmU7DQorCXN0cnVjdCBsaXN0X2hl
-YWQgbGlzdDsNCit9Ow0KKw0KKy8qIFRoaXMgaXMgYmFzZWQgb24gdGhlIHdvcmtxdWV1ZSB3b3Jr
-ZXJfdGhyZWFkICovDQorc3RhdGljIGludCBhY3BpX29zX2V4ZWN1dGVfd29ya2VyKHZvaWQgKmNv
-bnRleHQpDQorew0KKwlzdHJ1Y3QgdGhyZWFkX3Bvb2xfZW50cnkgKmUgPSAoc3RydWN0IHRocmVh
-ZF9wb29sX2VudHJ5ICopY29udGV4dDsNCisJREVDTEFSRV9XQUlUUVVFVUUod2FpdCwgY3VycmVu
-dCk7DQorDQorCXNldF91c2VyX25pY2UoY3VycmVudCwgLTUpOw0KKw0KKwlzZXRfY3VycmVudF9z
-dGF0ZShUQVNLX0lOVEVSUlVQVElCTEUpOw0KKw0KKwlBQ1BJX0RFQlVHX1BSSU5UKChBQ1BJX0RC
-X0lORk8sICJbJWQ6JXBdIGJlZm9yZSBsb29wXG4iLCBlLT5pZCwgZSkpOw0KKwl3aGlsZSAoIWt0
-aHJlYWRfc2hvdWxkX3N0b3AoKSkgew0KKwkJLyogV2FpdCB1bnRpbCB0aGVyZSBpcyB3b3JrIHRv
-IGRvIGluIHRoaXMgdGhyZWFkICovDQorCQlhZGRfd2FpdF9xdWV1ZSgmZS0+bW9yZV93b3JrLCAm
-d2FpdCk7DQorCQlpZiAoIWUtPmZ1bmN0aW9uKSB7DQorCQkJQUNQSV9ERUJVR19QUklOVCgoQUNQ
-SV9EQl9JTkZPLCAiWyVkOiVwXSBzbGVlcGluZ1xuIiwgZS0+aWQsIGUpKTsNCisJCQlzY2hlZHVs
-ZSgpOw0KKwkJfQ0KKwkJZWxzZSB7DQorCQkJX19zZXRfY3VycmVudF9zdGF0ZShUQVNLX1JVTk5J
-TkcpOw0KKwkJfQ0KKwkJdHJ5X3RvX2ZyZWV6ZSgpOw0KKwkJcmVtb3ZlX3dhaXRfcXVldWUoJmUt
-Pm1vcmVfd29yaywgJndhaXQpOw0KKwkJaWYgKGUtPmZ1bmN0aW9uKSB7DQorCQkJQUNQSV9ERUJV
-R19QUklOVCgoQUNQSV9EQl9JTkZPLCAiWyVkOiVwXSBleGVjdXRpbmcgZnVuY3Rpb249JXAgY29u
-dGV4dD0lcFxuIiwNCisJCQkJCSAgZS0+aWQsIGUsIGUtPmZ1bmN0aW9uLCBlLT5jb250ZXh0KSk7
-DQorCQkJZS0+ZnVuY3Rpb24oZS0+Y29udGV4dCk7DQorCQkJZS0+amlmZmllcyA9IGppZmZpZXM7
-DQorCQkJQUNQSV9ERUJVR19QUklOVCgoQUNQSV9EQl9JTkZPLCAiWyVkOiVwXSBleGl0IGZ1bmN0
-aW9uPSVwIGNvbnRleHQ9JXAgYXQgJWx4XG4iLA0KKwkJCQkJICBlLT5pZCwgZSwgZS0+ZnVuY3Rp
-b24sIGUtPmNvbnRleHQsIGUtPmppZmZpZXMpKTsNCisJCQllLT5mdW5jdGlvbiA9IE5VTEw7DQor
-CQkJZS0+Y29udGV4dCA9IE5VTEw7DQorCQkJZS0+YWN0aXZlID0gMDsNCisJCX0NCisJCXNldF9j
-dXJyZW50X3N0YXRlKFRBU0tfSU5URVJSVVBUSUJMRSk7DQorCX0NCisJQUNQSV9ERUJVR19QUklO
-VCgoQUNQSV9EQl9JTkZPLCAiWyVkOiVwXSBzdG9wcGVkXG4iLCBlLT5pZCwgZSkpOw0KKw0KKwly
-ZXR1cm4gMDsNCit9DQorDQorc3RhdGljIHN0cnVjdCB3b3JrX3N0cnVjdCBhY3BpX3JlYXBfdGFz
-azsNCisNCitzdGF0aWMgdm9pZCBhY3BpX3F1ZXVlX3JlYXBfdGhyZWFkcyh1bnNpZ25lZCBsb25n
-IGRhdGEpOw0KKw0KK3N0YXRpYyB2b2lkIGFjcGlfcmVhcF90aHJlYWRzKHZvaWQgKmRhdGEpDQor
-ew0KKwlzdHJ1Y3QgbGlzdF9oZWFkICpsLCAqbjsNCisNCisJbGlzdF9mb3JfZWFjaF9zYWZlKGws
-IG4sICZ0aHJlYWRfcG9vbCkgew0KKwkJc3RydWN0IHRocmVhZF9wb29sX2VudHJ5ICplID0gbGlz
-dF9lbnRyeShsLCBzdHJ1Y3QgdGhyZWFkX3Bvb2xfZW50cnksIGxpc3QpOw0KKwkJaWYgKCFlLT5h
-Y3RpdmUgJiYgKGppZmZpZXMgLSBlLT5qaWZmaWVzKSA+IEhaKlJFQVBfVElNRU9VVCkgew0KKwkJ
-CWludCBzdGF0dXM7DQorCQkJQUNQSV9ERUJVR19QUklOVCgoQUNQSV9EQl9JTkZPLCAiYWNwaV9y
-ZWFwX3RocmVhZHMgUkVBUCBbJWQ6JXBdXG4iLCBlLT5pZCwgZSkpOw0KKwkJCWxpc3RfZGVsKGwp
-Ow0KKwkJCWN1cnJlbnRfcG9vbF9zaXplLS07DQorCQkJc3RhdHVzID0ga3RocmVhZF9zdG9wKGUt
-PnRocmVhZCk7DQorCQkJQUNQSV9ERUJVR19QUklOVCgoQUNQSV9EQl9JTkZPLCAiYWNwaV9yZWFw
-X3RocmVhZHMga3RocmVhZF9zdG9wIHJldHVybmVkICVkXG4iLCBzdGF0dXMpKTsNCisJCQlrZnJl
-ZShlKTsNCisJCX0NCisJfQ0KKwlpZiAoIXRpbWVyX3BlbmRpbmcoJmFjcGlfcmVhcF90aW1lcikp
-IHsNCisJCWFjcGlfcmVhcF90aW1lci5mdW5jdGlvbiA9IGFjcGlfcXVldWVfcmVhcF90aHJlYWRz
-Ow0KKwkJYWNwaV9yZWFwX3RpbWVyLmRhdGEgPSAwOw0KKwkJYWNwaV9yZWFwX3RpbWVyLmV4cGly
-ZXMgPSBqaWZmaWVzICsgSFoqUkVBUF9JTlRFUlZBTDsNCisJCWFkZF90aW1lcigmKGFjcGlfcmVh
-cF90aW1lcikpOw0KKwl9DQorfQ0KKw0KK3N0YXRpYyB2b2lkIGFjcGlfcXVldWVfcmVhcF90aHJl
-YWRzKHVuc2lnbmVkIGxvbmcgZGF0YSkNCit7DQorCXF1ZXVlX3dvcmsoa2FjcGlkX3dxLCAmYWNw
-aV9yZWFwX3Rhc2spOw0KK30NCisNCitzdGF0aWMgc3RydWN0IHRocmVhZF9wb29sX2VudHJ5ICpn
-ZXRfcG9vbF90aHJlYWQodm9pZCkNCit7DQorCXN0cnVjdCBsaXN0X2hlYWQgKmw7DQorCWxpc3Rf
-Zm9yX2VhY2gobCwgJnRocmVhZF9wb29sKSB7DQorCQlzdHJ1Y3QgdGhyZWFkX3Bvb2xfZW50cnkg
-KmUgPSBsaXN0X2VudHJ5KGwsIHN0cnVjdCB0aHJlYWRfcG9vbF9lbnRyeSwgbGlzdCk7DQorCQlp
-ZiAoIWUtPmFjdGl2ZSkgew0KKwkJCWUtPmFjdGl2ZSA9IDE7DQorCQkJcmV0dXJuIGU7DQorCQl9
-DQorCX0NCisJLyoNCisJICogRm9yIHRoZSB0aW1lIGJlaW5nIHdlIGhhdmUgYSB1c2VyLWNvbmZp
-Z3VyYWJsZSBsaW1pdCBvbiB0aGUNCisJICogY3VycmVudF9wb29sX3NpemUuICBXZSBkb24ndCB3
-YW50IGEgYmFkIEJJT1MgdG8gY3JlYXRlDQorCSAqIHVubGltaXRlZCBrdGhyZWFkcy4NCisJICov
-DQorCWlmIChjdXJyZW50X3Bvb2xfc2l6ZSA8IG1heF9wb29sX3NpemUpIHsNCisJCXN0cnVjdCB0
-aHJlYWRfcG9vbF9lbnRyeSAqZTsNCisJCWUgPSBrbWFsbG9jKHNpemVvZihzdHJ1Y3QgdGhyZWFk
-X3Bvb2xfZW50cnkpLCBHRlBfS0VSTkVMKTsNCisJCWxpc3RfYWRkX3RhaWwoJmUtPmxpc3QsICZ0
-aHJlYWRfcG9vbCk7DQorCQllLT5pZCA9IGN1cnJlbnRfcG9vbF9zaXplOw0KKwkJaW5pdF93YWl0
-cXVldWVfaGVhZCgmZS0+bW9yZV93b3JrKTsNCisJCWluaXRfd2FpdHF1ZXVlX2hlYWQoJmUtPndv
-cmtfZG9uZSk7DQorCQllLT5mdW5jdGlvbiA9IE5VTEw7DQorCQllLT5jb250ZXh0ID0gTlVMTDsN
-CisJCWUtPmFjdGl2ZSA9IDE7DQorCQkvKiBrdGhyZWFkX3J1biBkb2VzIGt0aHJlYWRfY3JlYXRl
-IGFuZCB3YWtlX3VwX3Byb2Nlc3MgKi8NCisJCWUtPnRocmVhZCA9IGt0aHJlYWRfcnVuKGFjcGlf
-b3NfZXhlY3V0ZV93b3JrZXIsIGUsICJrYWNwaWQtd29yay0lZCIsDQorCQkJCQljdXJyZW50X3Bv
-b2xfc2l6ZSk7DQorCQljdXJyZW50X3Bvb2xfc2l6ZSsrOw0KKwkJaWYgKCF0aW1lcl9wZW5kaW5n
-KCZhY3BpX3JlYXBfdGltZXIpKSB7DQorCQkJYWNwaV9yZWFwX3RpbWVyLmZ1bmN0aW9uID0gYWNw
-aV9xdWV1ZV9yZWFwX3RocmVhZHM7DQorCQkJYWNwaV9yZWFwX3RpbWVyLmRhdGEgPSAwOw0KKwkJ
-CWFjcGlfcmVhcF90aW1lci5leHBpcmVzID0gamlmZmllcyArIEhaKlJFQVBfSU5URVJWQUw7DQor
-CQkJYWRkX3RpbWVyKCYoYWNwaV9yZWFwX3RpbWVyKSk7DQorCQl9DQorCQlyZXR1cm4gZTsNCisJ
-fQ0KKwlyZXR1cm4gTlVMTDsNCit9DQogDQogYWNwaV9zdGF0dXMgYWNwaV9vc19pbml0aWFsaXpl
-KHZvaWQpDQogew0KQEAgLTk4LDYgKzI0NSwxNiBAQA0KIAlyZXR1cm4gQUVfT0s7DQogfQ0KIA0K
-Ky8qDQorICogRW5hYmxlIHJlYXBpbmcgb2YgdW51c2VkIHRocmVhZHMuDQorICovDQorYWNwaV9z
-dGF0dXMgYWNwaV9vc19pbml0aWFsaXplMih2b2lkKQ0KK3sNCisJSU5JVF9XT1JLKCZhY3BpX3Jl
-YXBfdGFzaywgYWNwaV9yZWFwX3RocmVhZHMsIE5VTEwpOw0KKwlpbml0X3RpbWVyKCZhY3BpX3Jl
-YXBfdGltZXIpOw0KKwlyZXR1cm4gQUVfT0s7DQorfQ0KKw0KIGFjcGlfc3RhdHVzIGFjcGlfb3Nf
-dGVybWluYXRlKHZvaWQpDQogew0KIAlpZiAoYWNwaV9pcnFfaGFuZGxlcikgew0KQEAgLTY2MSw2
-ICs4MTgsNyBAQA0KIHN0YXRpYyB2b2lkIGFjcGlfb3NfZXhlY3V0ZV9kZWZlcnJlZCh2b2lkICpj
-b250ZXh0KQ0KIHsNCiAJc3RydWN0IGFjcGlfb3NfZHBjICpkcGMgPSBOVUxMOw0KKwlzdHJ1Y3Qg
-dGhyZWFkX3Bvb2xfZW50cnkgKmUgPSBOVUxMOw0KIA0KIAlBQ1BJX0ZVTkNUSU9OX1RSQUNFKCJv
-c19leGVjdXRlX2RlZmVycmVkIik7DQogDQpAQCAtNjcwLDggKzgyOCwxNyBAQA0KIAkJcmV0dXJu
-X1ZPSUQ7DQogCX0NCiANCi0JZHBjLT5mdW5jdGlvbihkcGMtPmNvbnRleHQpOw0KLQ0KKwlpZiAo
-bWF4X3Bvb2xfc2l6ZSA+IDAgJiYgKGUgPSBnZXRfcG9vbF90aHJlYWQoKSkpIHsNCisJCUFDUElf
-REVCVUdfUFJJTlQoKEFDUElfREJfSU5GTywgIlslZDolcF0gZnVuY3Rpb249JXAgY29udGV4dD0l
-cFxuIiwNCisJCQkJICBlLT5pZCwgZSwgZHBjLT5mdW5jdGlvbiwgZHBjLT5jb250ZXh0KSk7DQor
-CQllLT5jb250ZXh0ID0gZHBjLT5jb250ZXh0Ow0KKwkJZS0+ZnVuY3Rpb24gPSBkcGMtPmZ1bmN0
-aW9uOw0KKwkJd2FrZV91cCgmZS0+bW9yZV93b3JrKTsNCisJfQ0KKwllbHNlIHsNCisJCUFDUElf
-REVCVUdfUFJJTlQoKEFDUElfREJfSU5GTywgIltpbmxpbmVdIGZ1bmN0aW9uPSVwIGNvbnRleHQ9
-JXBcbiIsIGRwYy0+ZnVuY3Rpb24sIGRwYy0+Y29udGV4dCkpOw0KKwkJZHBjLT5mdW5jdGlvbihk
-cGMtPmNvbnRleHQpOw0KKwl9DQogCWtmcmVlKGRwYyk7DQogDQogCXJldHVybl9WT0lEOw0K
-
-
---=-36XTR7ZkmFXKb4gaa61I--
-
---=-+rOAJ6lwu1hrEPHnqSJv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEWRh6ZlbFk+UVjRoRAoquAJ0SZ1y5fsqhk9ttejDYH2J1Np+XmwCffACT
-XrSAptO+JZKW9r5r/hfGuSk=
-=j5nf
------END PGP SIGNATURE-----
-
---=-+rOAJ6lwu1hrEPHnqSJv--
-
+-- 
+David Gómez                                      Jabber ID: davidge@jabber.org

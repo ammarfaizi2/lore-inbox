@@ -1,49 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbWECPxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWECPy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbWECPxK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 11:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWECPxJ
+	id S1030224AbWECPy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 11:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWECPy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 11:53:09 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:30089 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1030219AbWECPxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 11:53:08 -0400
-Subject: Re: [RFC] Advanced XIP File System
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jared Hulbert <jaredeh@gmail.com>
-Cc: Josh Boyer <jwboyer@gmail.com>, Nicolas Pitre <nico@cam.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <6934efce0605030845o6d313681x6b89bef71c28b3a9@mail.gmail.com>
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
-	 <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
-	 <Pine.LNX.4.64.0605022316550.28543@localhost.localdomain>
-	 <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
-	 <1146658275.20773.8.camel@pmac.infradead.org>
-	 <6934efce0605030845o6d313681x6b89bef71c28b3a9@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 03 May 2006 16:52:57 +0100
-Message-Id: <1146671577.20773.27.camel@pmac.infradead.org>
+	Wed, 3 May 2006 11:54:29 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:49628 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1030224AbWECPy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 11:54:28 -0400
+Message-Id: <200605031554.k43Fs3gg008022@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>, akpm@osdl.org,
+       Greg KH <greg@kroah.com>, ioe-lkml@rameria.de,
+       linux-kernel@vger.kernel.org, Kyle Moffett <mrmacman_g4@mac.com>,
+       mschwid2@de.ibm.com, Pekka J Enberg <penberg@cs.Helsinki.FI>
+Subject: Re: [PATCH] s390: Hypervisor File System 
+In-Reply-To: Your message of "Wed, 03 May 2006 15:18:41 +0200."
+             <OFF044ED40.56CCD284-ON42257163.0048A5F3-42257163.00491F2C@de.ibm.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <OFF044ED40.56CCD284-ON42257163.0048A5F3-42257163.00491F2C@de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+Content-Type: multipart/signed; boundary="==_Exmh_1146671642_2627P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Date: Wed, 03 May 2006 11:54:03 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-03 at 08:45 -0700, Jared Hulbert wrote:
-> > We only need to mark those pages as absent in the page tables if we ever
-> > schedule to userspace while the flash is in a mode other than read mode.
-> > Then handle the page fault by switching the flash back or waiting for
-> > it.
-> 
-> Where would we do this?  In each MTD driver?  A new generic aops function?
+--==_Exmh_1146671642_2627P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Probably a helper function with callbacks into the MTD driver. You ask
-the MTD device driver to map a certain range of itself to userspace, and
-it does so. Then it handles the page faults, etc. 
+On Wed, 03 May 2006 15:18:41 +0200, Michael Holzheu said:
+> Of course=21 But the convention must be, that If userspace wants to
+> access the data, it has to use our standard linux
+> parser. If it accesses the data directly, this is broken.
 
--- 
-dwmw2
+Yet another case of Eternal Optimism flying in the face of Reality... ;)
 
+a) you can't *force* the use of your parser.
+b) this creates a userspace dependency that can get messy if the parser i=
+s buggy
+or requires modification to deal with a kernel change.
+
+
+--==_Exmh_1146671642_2627P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEWNIacC3lWbTT17ARAtHQAKDy56ZK1dRyA+BKwCMpSreGuTNpxQCfQUq6
+l1OOFJSLZDKb0dFayr/O5KI=
+=G0rh
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1146671642_2627P--

@@ -1,116 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbWECMl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbWECMmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965181AbWECMl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 08:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbWECMl5
+	id S965187AbWECMmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 08:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbWECMmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 08:41:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:31644 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965181AbWECMl4 (ORCPT
+	Wed, 3 May 2006 08:42:25 -0400
+Received: from rtr.ca ([64.26.128.89]:18143 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S965182AbWECMmX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 08:41:56 -0400
-Date: Wed, 3 May 2006 05:41:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: cel@citi.umich.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.17-rc3 PCI init hang
-Message-Id: <20060503054149.aae472dd.akpm@osdl.org>
-In-Reply-To: <44565BB9.8020504@citi.umich.edu>
-References: <44565BB9.8020504@citi.umich.edu>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 3 May 2006 08:42:23 -0400
+Message-ID: <4458A52D.30100@rtr.ca>
+Date: Wed, 03 May 2006 08:42:21 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+MIME-Version: 1.0
+To: sander@humilis.net
+Cc: Jeff Garzik <jeff@garzik.org>, Mark Lord <liml@rtr.ca>,
+       Andrew Morton <akpm@osdl.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Mark Lord <mlord@pobox.com>
+Subject: Re: [PATCH] 2.6.xx: sata_mv: another critical fix
+References: <20060321121354.GB24977@favonius> <Pine.LNX.4.64.0603211316580.3622@g5.osdl.org> <20060322090006.GA8462@favonius> <200603220950.11922.lkml@rtr.ca> <20060322170959.GA3222@favonius> <4428BCBF.2050000@pobox.com> <20060503121643.GA21882@favonius>
+In-Reply-To: <20060503121643.GA21882@favonius>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 May 2006 15:04:25 -0400
-Chuck Lever <cel@citi.umich.edu> wrote:
+> I've added two Marvell MV88SX6081 controller (total of three now),
+> removed the bad disks from the system (all I hope), added new ones
+> (total of 12, 300GB Maxtor DiamondMax, connected to the controllers
+> now (each four disks)), and added two 2.5" disks for the OS (connected
+> to the onboard Nvidia).
+> 
+> I also upgraded to 2.6.17-rc3-mm1, which seemed oke using badblocks, but
+> dd and mdadm give trouble.
+> 
+> First of all, Linux does not always see all disks during boot. Sometimes
+> one or two disks are missing. I haven't checked yet if these are always
+...
+> [  416.910684] ata12: SATA max UDMA/133 cmd 0x0 ctl 0xFFFFC200000B8120 bmdma 0x0 irq 21
+> [  417.016463] BUG: warning at drivers/scsi/sata_mv.c:1904/__msleep()
+> [  417.053468] 
+> [  417.053469] Call Trace: <IRQ> <ffffffff803e8c33>{__mv_phy_reset+242}
+> [  417.099671]        <ffffffff803e811f>{mv_channel_reset+133} <ffffffff803e9297>{mv_interrupt+568}
+> [  417.152658]        <ffffffff8020ec91>{handle_IRQ_event+41} <ffffffff80282bbf>{__do_IRQ+155}
+> [  417.203033]        <ffffffff8025dd91>{do_IRQ+60} <ffffffff8025be52>{default_idle+0}
+> [  417.249254]        <ffffffff80256178>{ret_from_intr+0} <EOI> <ffffffff80258d00>{thread_return+86}
+> [  417.302853]        <ffffffff8025be7f>{default_idle+45} <ffffffff80243c0f>{cpu_idle+98}
+> [  417.350632]        <ffffffff806e8b74>{start_secondary+1127}
+> [  420.701529] ata5: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4673 85:7c69 86:3e21 87:4663 88:007f
+> [  420.701533] ata5: dev 0 ATA-7, max UDMA/133, 586114704 sectors: LBA48
+...
 
-> I have a dual Pentium III I use for testing.  Since late last week 
-> (around about 2.6.17-rc3) it hangs during boot just after "Setting up 
-> standard PCI resources".  2.6.17-rc2 works fine.
+> [55973.577770] ata24: translated ATA stat/err 0x50/01 to SCSI SK/ASC/ASCQ 0x3/13/00
+> [55973.622012] ata24: status=0x50 { DriveReady SeekComplete }
+> [55973.654966] ata24: error=0x01 { AddrMarkNotFound }
+> [55973.683740] sata_mv: PCI ERROR; PCI IRQ cause=0x40000100
+...
 
-Bummer
+Hi Sander,
 
-> A push in the right direction would be appreciated.  Please reply off 
-> list as I'm not subscribed.
-> 
+I'm still debugging the chip/driver on the 2.6.16.xx series,
+and my sata_mv.c code here is behaving well for most testers
+thus far here.  I'm avoiding 2.6.17-* until sata_mv stabilizes
+on the existing kernels.
 
-Is there any chance you can do a git-bisect to find the bad patch?
+Does the drive probing work for you on older kernels?
 
-> ...
-> 
-> PCI: PCI BIOS revision 2.10 entry at 0xfdbc1, last bus=1
-> Setting up standard PCI resources
-> 
->  >>> 2.6.17-rc3 stops here and hangs.
->  >>> 2.6.17-rc2 continues with:
-> 
-> PCI: Probing PCI hardware
-> PCI: Discovered peer bus 01
-> PCI: Using IRQ router ServerWorks [1166/0200] at 0000:00:0f.0
-> PCI->APIC IRQ transform: 0000:00:03.0[A] -> IRQ 31
-> PCI->APIC IRQ transform: 0000:01:03.0[A] -> IRQ 23
-> PCI: Cannot allocate resource region 0 of device 0000:00:0f.2
-> ...
-> 
-> lspci -v:
-> 
-> 00:00.0 Host bridge: Broadcom CNB20LE Host Bridge (rev 06)
->          Flags: bus master, medium devsel, latency 32
-> 
-> 00:00.1 Host bridge: Broadcom CNB20LE Host Bridge (rev 06)
->          Flags: bus master, medium devsel, latency 16
-> 
-> 00:01.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27) 
-> (prog-if 00 [VGA])
->          Subsystem: ATI Technologies Inc Rage XL
->          Flags: bus master, stepping, medium devsel, latency 64
->          Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
->          I/O ports at d800 [size=256]
->          Memory at feaff000 (32-bit, non-prefetchable) [size=4K]
->          Expansion ROM at feac0000 [disabled] [size=128K]
->          Capabilities: <available only to root>
-> 
-> 00:03.0 RAID bus controller: Promise Technology, Inc. PDC20267 
-> (FastTrak100/Ultra100) (rev 02)
->          Subsystem: Promise Technology, Inc.: Unknown device 4d32
->          Flags: bus master, medium devsel, latency 64, IRQ 31
->          I/O ports at dfe0 [size=8]
->          I/O ports at dfac [size=4]
->          I/O ports at dfa0 [size=8]
->          I/O ports at dfa8 [size=4]
->          I/O ports at df00 [size=64]
->          Memory at feaa0000 (32-bit, non-prefetchable) [size=128K]
->          Expansion ROM at feae0000 [size=64K]
->          Capabilities: <available only to root>
-> 
-> 00:0f.0 ISA bridge: Broadcom OSB4 South Bridge (rev 50)
->          Subsystem: Broadcom OSB4 South Bridge
->          Flags: bus master, medium devsel, latency 0
-> 
-> 00:0f.1 IDE interface: Broadcom OSB4 IDE Controller (prog-if 8a [Master 
-> SecP PriP])
->          Flags: bus master, medium devsel, latency 64
->          I/O ports at ffa0 [size=16]
-> 
-> 00:0f.2 USB Controller: Broadcom OSB4/CSB5 OHCI USB Controller (rev 04) 
-> (prog-if 10 [OHCI])
->          Subsystem: Broadcom OSB4/CSB5 OHCI USB Controller
->          Flags: medium devsel
->          Memory at 30000000 (32-bit, non-prefetchable) [size=4K]
-> 
-> 01:03.0 Ethernet controller: Netgear GA630 Gigabit Ethernet (rev 01)
->          Subsystem: Netgear GA630 Gigabit Ethernet
->          Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 23
->          Memory at febfc000 (32-bit, non-prefetchable) [size=16K]
-> 
-> -- 
-> corporate:	<cel at netapp dot com>
-> personal:	<chucklever at bigfoot dot com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I'll email you privately and set you up with a better copy of sata_mv.c
+
+Cheers

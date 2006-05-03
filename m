@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbWECKZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWECKaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965142AbWECKZy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 06:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbWECKZy
+	id S965143AbWECKaS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 06:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbWECKaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 06:25:54 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22167 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S965142AbWECKZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 06:25:54 -0400
-Date: Wed, 3 May 2006 12:25:53 +0200
-From: Jan Kara <jack@suse.cz>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] JBD checkpoint cleanup strikes back
-Message-ID: <20060503102552.GG14806@atrey.karlin.mff.cuni.cz>
-References: <20060502184646.GK14703@atrey.karlin.mff.cuni.cz> <20060502234721.GA5768@ca-server1.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 May 2006 06:30:17 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:16067 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S965143AbWECKaQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 06:30:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=HKGWKr5U04BF/eFE7ScmjhQR81+r7lo+kL5asaRaLyN5QVlB2lto2wJXKX3alk8p/Qgv8Q5CE/TtMwAVZ7jviAZulLfjV08dWjaVRKKA1cYOhLJ1lSrzPak51Xb4fBGhKPTE49DZ5yA7/Bc1x8pHURNXeCb4+179+C2OGePrgZk=
+Message-ID: <3634de740605030330t1e060362ibff0e247bfb805e5@mail.gmail.com>
+Date: Wed, 3 May 2006 03:30:14 -0700
+From: Maximus <john.maximus@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: sdio - ocr confusions
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060502234721.GA5768@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, May 02, 2006 at 08:46:46PM +0200, Jan Kara wrote:
-> >   The patch was already in 2.6.16-rc3 but was dropped because of
-> > problems with OCFS2. I've now tracked down the problem - OCFS2 relies on
-> > the fact that buffer does not have journal_head if it is not on any
-> > transaction's list. It assumes that if the buffer has buffer_jbd set,
-> > then it is journaled and hence the node has uptodate data in the
-> > buffer. My patch broke that assumption as in one path I forgot to call
-> > journal_remove_journal_head() and hence I was leaving behind some
-> > buffers not attached to any transaction but with journal_head. Now that
-> > leak is fixed and OCFS2 seems to work fine also with my patch.
-> Ahh, ok that makes sense and it definitely sounds like the type of thing
-> that would cause OCFS2 to pick up stale data.
-> 
-> >   Andrew, could you please put the patch into -mm? Thanks.
-> Without commenting any further on the patch, I can definitely offer up some
-> more testing on my end should Andrew decide to pick this up.
-  Testing is always welcome :). Thanks. I did some basic one myself but
-the more tests the better.
+Hi,
+  im trying to develop and sdio driver modifying the existing SD card driver.
+  Im using an OMAP processor and a Wifi SDIO Card.
 
-									Honza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+  I have send CMD 5 to get the OCR.
+
+  i do get the EOC Status bit set.
+
+  I do get the response resp[0] => 0x10fff000   (Contents of RSP6 & RSP7)
+
+
+  According to this -> ocr => 0xfff000 (right most 24 bits)
+                                mem present => 0
+                                No of IO functions => 1
+
+  I am using a Wifi SDIO Card - am not sure if these values are correct?.
+
+  Am i doing something wrong here?
+
+
+  I understand from the SDIO specs that only one of the bits (0-24) must be set.
+
+  How do u interpreset an ocr of 0xfff000 ?.
+
+
+
+  #define MMC_RSP_R4  (MMC_RSP_SHORT|MMC_RSP_CRC)
+  #define SDIO_IO_SEND_OP_COND   (5)
+
+    cmd.opcode = SDIO_IO_SEND_OP_COND ;
+    cmd.arg = 0;
+    cards.flags = MMC_RSP_R4
+
+  Is this wrong?
+
+
+Regards,
+Jo
+
+MMC1: set_ios: clock 0Hz busmode 1 powermode 0 Vdd 0.00
+MMC1: set_ios: clock 0Hz busmode 1 powermode 0 Vdd 0.00
+MMC1: set_ios: clock 400000Hz busmode 1 powermode 1 Vdd 0.21
+MMC1: set_ios: clock 400000Hz busmode 1 powermode 1 Vdd 0.21
+MMC1: set_ios: clock 400000Hz busmode 1 powermode 2 Vdd 0.21
+MMC1: set_ios: clock 400000Hz busmode 1 powermode 2 Vdd 0.21
+
+MMC: starting cmd 05 arg 00000000 flags 00000009
+MMC1: CMD5, argument 0x00000000, 32-bit response, CRC
+MMC IRQ 0001 (CMD 5): EOC
+MMC1: Response 10fff000
+MMC1: End request, err 0
+MMC: req done (05): 0: 10fff000 00000000 00000000 00000000
+  MC1: set_ios: clock 0Hz busmode 1 powermode 0 Vdd 0.00
+MMC1: set_ios: clock 0Hz busmode 1 powermode 0 Vdd 0.00

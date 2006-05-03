@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbWECMdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbWECMeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965176AbWECMdM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 08:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965180AbWECMdM
+	id S965183AbWECMeT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 08:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbWECMeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 08:33:12 -0400
-Received: from nz-out-0102.google.com ([64.233.162.199]:39741 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965176AbWECMdK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 08:33:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Dt4l4zT0ka4K1k1/ouH+NRsK3SLaoKRWGnlLF4HywDfqYP8IZlnyS2Ni3lv1CTXbr6nQLsmJi1iatKyWPhOOJKgpquI694uXeK0R35FNkj1qlAgIPqGPClGqHxDTnJnKK8x86ptC+19JcRVQtj89lVSzryz4lJF0qmFDPiP3mf0=
-Message-ID: <9a8748490605030533q16349329k6d7f0bdb242dc360@mail.gmail.com>
-Date: Wed, 3 May 2006 14:33:09 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Steven Rostedt" <rostedt@goodmis.org>,
-       "Yogesh Pahilwan" <pahilwan.yogesh@spsoftindia.com>
-Subject: Re: Problem while applying patch to 2.6.9 kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0605030809100.24221@gandalf.stny.rr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Wed, 3 May 2006 08:34:19 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:6376 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S965180AbWECMeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 08:34:19 -0400
+Date: Wed, 3 May 2006 14:33:39 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, akpm@osdl.org,
+       Greg KH <greg@kroah.com>, ioe-lkml@rameria.de,
+       linux-kernel@vger.kernel.org, Kyle Moffett <mrmacman_g4@mac.com>,
+       mschwid2@de.ibm.com
+Subject: Re: [PATCH] s390: Hypervisor File System
+Message-ID: <20060503123339.GB19537@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.58.0605031239001.10675@sbz-30.cs.Helsinki.FI> <OF11F4EFE7.A54CB101-ON42257163.0042DA19-42257163.0042FB13@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAAwZsyZCSXbUSO0mznjdzGqgEAAAAA@spsoftindia.com>
-	 <Pine.LNX.4.58.0605030809100.24221@gandalf.stny.rr.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <OF11F4EFE7.A54CB101-ON42257163.0042DA19-42257163.0042FB13@de.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/3/06, Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> On Wed, 3 May 2006, Yogesh Pahilwan wrote:
->
-> > Hi Kernel Folks,
-> >
-> > I am facing some problem while applying patch to the 2.6.9 kernel.
-> >
-> > I have done following to apply the patch:
-> >
-> > # patch -p1 < ../../Patches/patch-ext3
-> >
-> > But getting following things:
-> >
-> > missing header for unified diff at line 3 of patch
-> > (Stripping trailing CRs from patch.)
+On Wed, 3 May 2006 14:11:36 +0200, Michael Holzheu wrote:
+> 
+> Maybe we need that, too. But I think the advantage of the
+> one file solution moves the complexity from the kernel
+> to userspace.
 
-This sounds like a possibly corrupted patch file.
+Now might be a time to come back to Martin's prediction. ;)
 
+Having a weird format in some file does _not_ move complexity from the
+kernel.  It may make the userspace more complex, granted.  But once
+you try to change something, you need to keep the ABI stable.  And
+part of the ABI is you file format.
 
-> > can't find file to patch at input line 3
-> > Perhaps you used the wrong -p or --strip option?
->
-> Hmm, perhaps you have the wrong -p option.
->
-> > The text leading up to this was:
-> > --------------------------
-> > |#--- ../A_CLEAN_FILE_SYSTEM/jbd/commit.c       2006-02-25
->
-> Since you didn't show us any of this patch, the above looks like you need
-> -p2.
->
-Agreed, wrong -p level looks likely.
+Applications will depend on some arcane detail of your format.  They
+will depend on exactly five spaces in "foo     bar".  It does not even
+matter if you documented "any amount of whitespace".  The application
+knows that it was five spaces and doesn't care.  And once you change
+it, the blame will be on you, because you broke existing userspace.
 
+If that does not make the kernel complex, I don't know what does.
 
-> You might want to get yourself more familiar with "patch".
->
+Jörn
 
-There's also Documentation/applying-patches.txt which would be good to
-read. Online link here :
-http://sosdg.org/~coywolf/lxr/source/Documentation/applying-patches.txt?v=2.6
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+-- 
+It does not matter how slowly you go, so long as you do not stop.
+-- Confucius

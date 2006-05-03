@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965111AbWECGtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbWECGxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965111AbWECGtz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 02:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965114AbWECGtz
+	id S965113AbWECGxa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 02:53:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbWECGxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 02:49:55 -0400
-Received: from ns2.suse.de ([195.135.220.15]:48106 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965111AbWECGty (ORCPT
+	Wed, 3 May 2006 02:53:30 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:1996 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965113AbWECGx3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 02:49:54 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: 2.6.17-rc2-mm1
-Date: Wed, 3 May 2006 08:49:44 +0200
-User-Agent: KMail/1.9.1
-Cc: "Martin Bligh" <mbligh@google.com>, "Andrew Morton" <akpm@osdl.org>,
-       apw@shadowen.org, linux-kernel@vger.kernel.org
-References: <4450F5AD.9030200@google.com> <200605022209.37205.ak@suse.de> <44586E0E.76E4.0078.0@novell.com>
-In-Reply-To: <44586E0E.76E4.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 3 May 2006 02:53:29 -0400
+Date: Wed, 3 May 2006 08:58:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com
+Subject: Re: [PATCH -rt] Make RCU API inaccessible to non-GPL Linux kernel modules
+Message-ID: <20060503065803.GA23921@elte.hu>
+References: <20060502182442.GA2134@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605030849.44893.ak@suse.de>
+In-Reply-To: <20060502182442.GA2134@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 May 2006 08:47, Jan Beulich wrote:
-> >>> Andi Kleen <ak@suse.de> 02.05.06 22:09 >>>
-> >On Tuesday 02 May 2006 22:00, Martin Bligh wrote:
-> >
-> >> > Index: linux/arch/x86_64/kernel/traps.c
-> >> > ===================================================================
-> >> > --- linux.orig/arch/x86_64/kernel/traps.c
-> >> > +++ linux/arch/x86_64/kernel/traps.c
-> >> > @@ -238,6 +238,7 @@ void show_trace(unsigned long *stack)
-> >> >  			HANDLE_STACK (stack < estack_end);
-> >> >  			i += printk(" <EOE>");
-> >> >  			stack = (unsigned long *) estack_end[-2];
-> >> > +			printk("new stack %lx (%lx %lx %lx %lx %lx)\n", stack, estack_end[0], estack_end[-1],
-> estack_end[-2], estack_end[-3], estack_end[-4]);
-> >> >  			continue;
-> >> >  		}
-> >> >  		if (irqstack_end) {
-> >> 
-> >> Thanks for running this Andy:
-> >> 
-> >> http://test.kernel.org/abat/30183/debug/console.log 
-> >
-> >
-> ><EOE>new stack 0 (0 0 0 10082 10)
+
+* Paul E. McKenney <paulmck@us.ibm.com> wrote:
+
+> Hello!
 > 
-> Looks like <rubbish> <SS> <RSP> <RFLAGS> <CS> to me, ...
-
-Hmm, right.
- 
-> >Hmm weird. There isn't anything resembling an exception frame at the top of the
-> >stack.  No idea how this could happen.
+> This patch removes synchronize_kernel() (deprecated 2-APR-2005 in 
+> http://lkml.org/lkml/2005/4/3/11) and makes the RCU API inaccessible 
+> to non-GPL Linux kernel modules (as was announced more than one year 
+> ago in http://lkml.org/lkml/2005/4/3/8).  Tested on x86 and ppc64.
 > 
-> ... which is a valid frame where the stack pointer was corrupted before the exception occurred. One more printed item
-> (or rather, starting items at estack_end[-1]) would allow at least seeing what RIP this came from.
+> Same as the one sent yesterday, but for -rt rather than mainline.
+> 
+> Ingo, please apply.
 
-Any can you add that please and check? 
+thanks, applied.
 
-Also worst case one could dump last branch pointers. AMD unfortunately only has four,
-on Intel with 16 it's easier.
-
-I can provide a patch for that if needed.
-
-> This actually points out another weakness of that code: if you pick up a mis-aligned stack pointer then the conditions
-> in both the exception and interrupt stack invocations of HANDLE_STACK() won't prevent you from accessing an item
-> crossing a page boundary, and hence potentially faulting. 
-
-Yes it probably should check for that.
-
-> Similarly, obtaining an entirely bad stack pointer anywhere in 
-> that code will result in a fault. I guess the stack reads should really be done using get_user() or some other code
-> having recovery attached.
-
-That can cause recursive exceptions. I'm a bit paranoid with that.
-
--Andi
+	Ingo

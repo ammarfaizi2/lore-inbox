@@ -1,44 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965196AbWECNNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965192AbWECNNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965196AbWECNNU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 09:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965195AbWECNNU
+	id S965192AbWECNNP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 09:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965193AbWECNNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 09:13:20 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:44697 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965193AbWECNNT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 09:13:19 -0400
-Date: Wed, 3 May 2006 09:13:16 -0400 (EDT)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Yogesh Pahilwan <pahilwan.yogesh@spsoftindia.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: Problem while applying patch to 2.6.9 kernel
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAA/RwgNB/GzEaFbUDhx3/9tAEAAAAA@spsoftindia.com>
-Message-ID: <Pine.LNX.4.58.0605030911460.25288@gandalf.stny.rr.com>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAA/RwgNB/GzEaFbUDhx3/9tAEAAAAA@spsoftindia.com>
+	Wed, 3 May 2006 09:13:15 -0400
+Received: from rtr.ca ([64.26.128.89]:63894 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S965192AbWECNNO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 09:13:14 -0400
+Message-ID: <4458AC69.2050308@rtr.ca>
+Date: Wed, 03 May 2006 09:13:13 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: davids@webmaster.com
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling C++ modules
+References: <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEGCLKAB.davids@webmaster.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>In the bad old days, performance was the number one priority because
+> computers were slow and resources were scarce
 
-On Wed, 3 May 2006, Yogesh Pahilwan wrote:
+And that is still *very much* the case on huge numbers of systems
+running Linux --> Embedded systems <---
 
-> Hi Steven,
->
-> I tried specifying -p2 as follows:
->
-> # patch -p2 < ../../Patches/patch-ext3
->
-> But still getting the same error.
->
-> Please suggest.
->
-
-Is this patch proprietary or can you post it?  At least can you show the
-parts of the patch that have the diff headers (+++ and ---).
-
--- Steve
-
+Cheers

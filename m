@@ -1,57 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWECA1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWECApN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWECA1G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 20:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWECA1G
+	id S964983AbWECApN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 20:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWECApM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 20:27:06 -0400
-Received: from h80ad2526.async.vt.edu ([128.173.37.38]:54223 "EHLO
-	h80ad2526.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1751344AbWECA1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 20:27:04 -0400
-Message-Id: <200605030026.k430QEf1003100@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@gmail.com>,
-       Arjan van de Ven <arjan@linux.intel.com>, greg@kroah.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       airlied@linux.ie, pjones@redhat.com, akpm@osdl.org
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access 
-In-Reply-To: Your message of "Tue, 02 May 2006 18:19:14 MDT."
-             <20060503001914.GA9609@parisc-linux.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org> <9e4733910605020938h6a9829c0vc70dac326c0cdf46@mail.gmail.com> <44578C92.1070403@linux.intel.com> <9e4733910605020959k7aad853dn87d73348cbcf42cd@mail.gmail.com> <44579028.1020201@linux.intel.com> <9e4733910605021013h17b72453v3716f68a2cebdee1@mail.gmail.com> <1146594457.32045.91.camel@laptopd505.fenrus.org> <9e4733910605021200y6333a67sd2ff685f666cc6f9@mail.gmail.com> <21d7e9970605021440s6cdc3895t57617e5fad6c5050@mail.gmail.com> <9e4733910605021452r3aec1035pa475b701b2c3563c@mail.gmail.com>
-            <20060503001914.GA9609@parisc-linux.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1146615973_2530P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 2 May 2006 20:45:12 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:23736 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S964983AbWECApK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 20:45:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=sup27AEJf3KgddDKVNZOsGTg0ejcZnCP8vrwykN8ObGbRCOP5MjugOQ5wDSHWpnoHPVp9yD8R+beXE9zMoAL5Vej42HF6yP1LLRRhxWEU3lBTyQGtLkvuf74MRLLcU5BwdQ9A2VYIlf/3Hht7vzNEINe/wBEq9j5/NPKI+y0zRA=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch 00/14] remap_file_pages protection support
+Date: Wed, 3 May 2006 02:44:58 +0200
+User-Agent: KMail/1.8.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Ulrich Drepper <drepper@redhat.com>, Val Henson <val.henson@intel.com>
+References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au>
+In-Reply-To: <4456D5ED.2040202@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 02 May 2006 20:26:14 -0400
+Content-Disposition: inline
+Message-Id: <200605030245.01457.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1146615973_2530P
-Content-Type: text/plain; charset=us-ascii
+On Tuesday 02 May 2006 05:45, Nick Piggin wrote:
+> blaisorblade@yahoo.it wrote:
+> > The first idea is to use this for UML - it must create a lot of single
+> > page mappings, and managing them through separate VMAs is slow.
 
-On Tue, 02 May 2006 18:19:14 MDT, Matthew Wilcox said:
+> I think I would rather this all just folded under VM_NONLINEAR rather than
+> having this extra MANYPROTS thing, no? (you're already doing that in one
+> direction).
 
-> I suppose SELinux might be able to help, but I don't care to get into
-> that discussion here ;-)
+That step is _temporary_ if the extra usages are accepted.
 
-The RedHat patch splatting most of /dev/mem would help more than SELinux would.
-(Of course, that assumes that the offending address space is someplace that
-X doesn't actually need itself, and that the patch blocks access to....)
+Also, I reported (changelog of patch 03/14) a definite API bug you get if you 
+don't distinguish VM_MANYPROTS from VM_NONLINEAR. I'm pasting it here because 
+that changelog is rather long:
 
---==_Exmh_1146615973_2530P
-Content-Type: application/pgp-signature
+"In fact, without this flag, we'd have indeed a regression with
+remap_file_pages VS mprotect, on uniform nonlinear VMAs.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+mprotect alters the VMA prots and walks each present PTE, ignoring installed
+ones, even when pte_file() is on; their saved prots will be restored on 
+faults,
+ignoring VMA ones and losing the mprotect() on them. So, in do_file_page(), we
+must restore anyway VMA prots when the VMA is uniform, as we used to do before
+this trail of patches."
 
-iD8DBQFEV/ilcC3lWbTT17ARAl/aAKCsL1jFzfSHv8iAIdgnSOX87TNP3QCgxaeI
-ODfTmxBWrg4uvj7hqhIgqcI=
-=SkpF
------END PGP SIGNATURE-----
+> > Additional note: this idea, with some further refinements (which I'll
+> > code after this chunk is accepted), will allow to reduce the number of
+> > used VMAs for most userspace programs - in particular, it will allow to
+> > avoid creating one VMA for one guard pages (which has PROT_NONE) -
+> > forcing PROT_NONE on that page will be enough.
 
---==_Exmh_1146615973_2530P--
+> I think that's silly. Your VM_MANYPROTS|VM_NONLINEAR vmas will cause more
+> overhead in faulting and reclaim.
+
+I know that problem. In fact for that we want VM_MANYPROTS without 
+VM_NONLINEAR.
+
+> It loooks like it would take an hour or two just to code up a patch which
+> puts a VM_GUARDPAGES flag into the vma, and tells the free area allocator
+> to skip vm_start-1 .. vm_end+1
+we must refine which pages to skip (the example I saw has only one guard page, 
+if I'm not mistaken) but 
+> . What kind of troubles has prevented 
+> something simple and easy like that from going in?
+
+Fairly better idea... It's just the fact that the original proposal was wider, 
+and that we looked to the problem in the wrong way (+ we wanted anyway to 
+have the present work merged, so that wasn't a problem).
+
+Ulrich wanted to have code+data(+guard on 64-bit) into the same VMA, but I 
+left the code+data VMA joining away, to think more with it, since currently 
+it's too slow on swapout.
+
+The other part is avoiding guard VMAs for thread stacks, and that could be 
+accomplished too by your proposal. Iff this work is held out, however.
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+Chiacchiera con i tuoi amici in tempo reale! 
+ http://it.yahoo.com/mail_it/foot/*http://it.messenger.yahoo.com 

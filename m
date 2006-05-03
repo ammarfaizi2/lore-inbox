@@ -1,56 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965183AbWECMeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965181AbWECMl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965183AbWECMeT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 08:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbWECMeT
+	id S965181AbWECMl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 08:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbWECMl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 08:34:19 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:6376 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S965180AbWECMeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 08:34:19 -0400
-Date: Wed, 3 May 2006 14:33:39 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Michael Holzheu <HOLZHEU@de.ibm.com>
-Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, akpm@osdl.org,
-       Greg KH <greg@kroah.com>, ioe-lkml@rameria.de,
-       linux-kernel@vger.kernel.org, Kyle Moffett <mrmacman_g4@mac.com>,
-       mschwid2@de.ibm.com
-Subject: Re: [PATCH] s390: Hypervisor File System
-Message-ID: <20060503123339.GB19537@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.58.0605031239001.10675@sbz-30.cs.Helsinki.FI> <OF11F4EFE7.A54CB101-ON42257163.0042DA19-42257163.0042FB13@de.ibm.com>
+	Wed, 3 May 2006 08:41:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31644 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965181AbWECMl4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 08:41:56 -0400
+Date: Wed, 3 May 2006 05:41:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: cel@citi.umich.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc3 PCI init hang
+Message-Id: <20060503054149.aae472dd.akpm@osdl.org>
+In-Reply-To: <44565BB9.8020504@citi.umich.edu>
+References: <44565BB9.8020504@citi.umich.edu>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <OF11F4EFE7.A54CB101-ON42257163.0042DA19-42257163.0042FB13@de.ibm.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 May 2006 14:11:36 +0200, Michael Holzheu wrote:
+On Mon, 01 May 2006 15:04:25 -0400
+Chuck Lever <cel@citi.umich.edu> wrote:
+
+> I have a dual Pentium III I use for testing.  Since late last week 
+> (around about 2.6.17-rc3) it hangs during boot just after "Setting up 
+> standard PCI resources".  2.6.17-rc2 works fine.
+
+Bummer
+
+> A push in the right direction would be appreciated.  Please reply off 
+> list as I'm not subscribed.
 > 
-> Maybe we need that, too. But I think the advantage of the
-> one file solution moves the complexity from the kernel
-> to userspace.
 
-Now might be a time to come back to Martin's prediction. ;)
+Is there any chance you can do a git-bisect to find the bad patch?
 
-Having a weird format in some file does _not_ move complexity from the
-kernel.  It may make the userspace more complex, granted.  But once
-you try to change something, you need to keep the ABI stable.  And
-part of the ABI is you file format.
-
-Applications will depend on some arcane detail of your format.  They
-will depend on exactly five spaces in "foo     bar".  It does not even
-matter if you documented "any amount of whitespace".  The application
-knows that it was five spaces and doesn't care.  And once you change
-it, the blame will be on you, because you broke existing userspace.
-
-If that does not make the kernel complex, I don't know what does.
-
-Jörn
-
--- 
-It does not matter how slowly you go, so long as you do not stop.
--- Confucius
+> ...
+> 
+> PCI: PCI BIOS revision 2.10 entry at 0xfdbc1, last bus=1
+> Setting up standard PCI resources
+> 
+>  >>> 2.6.17-rc3 stops here and hangs.
+>  >>> 2.6.17-rc2 continues with:
+> 
+> PCI: Probing PCI hardware
+> PCI: Discovered peer bus 01
+> PCI: Using IRQ router ServerWorks [1166/0200] at 0000:00:0f.0
+> PCI->APIC IRQ transform: 0000:00:03.0[A] -> IRQ 31
+> PCI->APIC IRQ transform: 0000:01:03.0[A] -> IRQ 23
+> PCI: Cannot allocate resource region 0 of device 0000:00:0f.2
+> ...
+> 
+> lspci -v:
+> 
+> 00:00.0 Host bridge: Broadcom CNB20LE Host Bridge (rev 06)
+>          Flags: bus master, medium devsel, latency 32
+> 
+> 00:00.1 Host bridge: Broadcom CNB20LE Host Bridge (rev 06)
+>          Flags: bus master, medium devsel, latency 16
+> 
+> 00:01.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27) 
+> (prog-if 00 [VGA])
+>          Subsystem: ATI Technologies Inc Rage XL
+>          Flags: bus master, stepping, medium devsel, latency 64
+>          Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+>          I/O ports at d800 [size=256]
+>          Memory at feaff000 (32-bit, non-prefetchable) [size=4K]
+>          Expansion ROM at feac0000 [disabled] [size=128K]
+>          Capabilities: <available only to root>
+> 
+> 00:03.0 RAID bus controller: Promise Technology, Inc. PDC20267 
+> (FastTrak100/Ultra100) (rev 02)
+>          Subsystem: Promise Technology, Inc.: Unknown device 4d32
+>          Flags: bus master, medium devsel, latency 64, IRQ 31
+>          I/O ports at dfe0 [size=8]
+>          I/O ports at dfac [size=4]
+>          I/O ports at dfa0 [size=8]
+>          I/O ports at dfa8 [size=4]
+>          I/O ports at df00 [size=64]
+>          Memory at feaa0000 (32-bit, non-prefetchable) [size=128K]
+>          Expansion ROM at feae0000 [size=64K]
+>          Capabilities: <available only to root>
+> 
+> 00:0f.0 ISA bridge: Broadcom OSB4 South Bridge (rev 50)
+>          Subsystem: Broadcom OSB4 South Bridge
+>          Flags: bus master, medium devsel, latency 0
+> 
+> 00:0f.1 IDE interface: Broadcom OSB4 IDE Controller (prog-if 8a [Master 
+> SecP PriP])
+>          Flags: bus master, medium devsel, latency 64
+>          I/O ports at ffa0 [size=16]
+> 
+> 00:0f.2 USB Controller: Broadcom OSB4/CSB5 OHCI USB Controller (rev 04) 
+> (prog-if 10 [OHCI])
+>          Subsystem: Broadcom OSB4/CSB5 OHCI USB Controller
+>          Flags: medium devsel
+>          Memory at 30000000 (32-bit, non-prefetchable) [size=4K]
+> 
+> 01:03.0 Ethernet controller: Netgear GA630 Gigabit Ethernet (rev 01)
+>          Subsystem: Netgear GA630 Gigabit Ethernet
+>          Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 23
+>          Memory at febfc000 (32-bit, non-prefetchable) [size=16K]
+> 
+> -- 
+> corporate:	<cel at netapp dot com>
+> personal:	<chucklever at bigfoot dot com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

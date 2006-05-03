@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWECVS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWECVcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWECVS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 17:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWECVS5
+	id S1751360AbWECVcT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 17:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWECVcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 17:18:57 -0400
-Received: from wr-out-0506.google.com ([64.233.184.235]:35612 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751271AbWECVS5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 17:18:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=t+vmOfMC4LbzB1UBlvvT/lU67kUfVzOamW8QQi1pYKYRDysUn1diYauSHxhfuMV0CF5iD8iOtqXMVS1swnec5EySoB3d2DD829PiaFnHai0Y3YT9HnxskQORenWGQ02EdY9NwpNs/FlgMKjOAc3D4FeVxdb28T/DPa00cXmVGcI=
-Message-ID: <ae59f9ef0605031418o38b8c227le87e2906effb08c3@mail.gmail.com>
-Date: Wed, 3 May 2006 14:18:56 -0700
-From: "Ice Cold" <iscsiet@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: DMA remap_pfn_range VM_IO pci_map_sg
-In-Reply-To: <1146690339.515246.155630@u72g2000cwu.googlegroups.com>
+	Wed, 3 May 2006 17:32:19 -0400
+Received: from cpc1-cmbg4-0-0-cust914.cmbg.cable.ntl.com ([81.98.247.147]:5903
+	"EHLO thekelleys.org.uk") by vger.kernel.org with ESMTP
+	id S1751357AbWECVcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 17:32:19 -0400
+Message-ID: <44592177.5080801@thekelleys.org.uk>
+Date: Wed, 03 May 2006 22:32:39 +0100
+From: Simon Kelley <simon@thekelleys.org.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1146690339.515246.155630@u72g2000cwu.googlegroups.com>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: netlink+ARP+CLIP == broken,
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Group,
+Both net/ipv4/arp.c and net/arm/clip.c create neighbour tables with
+family == AF_INET. For most purposes this is fine, since the two modules
+ each hold a pointer to their table and pass it into the neigh_* functions.
+
+A problem arises in neigh_add, which is called by the rtnetlink code and
+which iterates through all the neighbour tables looking for the first
+one with the correct family. Since there are two different tables with
+family == AF_INET, sometimes it picks the wrong one.
+
+This leads to the situation where sending a RTM_NEWNEIGH message via
+netlink can generate an ignored and useless entry in the clip table,
+whilst the not affecting another entry in the ARP table, both entries
+for the same IP.
+
+Viz:
+sid:~# ip neigh
+192.168.3.40 dev eth0 lladdr 52:54:00:12:34:59 REACHABLE
+192.168.3.40 dev eth0  FAILED
 
 
-I have a few fundamental DMA questions which i need help with. These
-are all relating to kernel 2.6+.
+It's not immediately obvious how to fix this in a conceptually clean
+manner: neighbour tables are not associated with single netdevices, and
+they don't carry an address-type field. Given a {IP,lladdr,device}
+triple, its easy to determine if the device is ether-like or CLIP, but
+then the update call would have to go via the ARP and CLIP modules,
+instead of direct to the neighbour module in an address independent way.
+New address types would need further additions to the netlink/neighbour
+code.
+
+OTOH there are several obvious hacks that will fix the immediate
+problem. I'm happy to provide a patch implementing one if that's desired.
+
+Looking again, I think this is also a security hole, since the CLIP code
+keeps a whole struct including pointers in the neighbour table entry
+where ARP has the MAC address. So this might provide a way to poke
+arbitrary pointers into the kernel via RTM_NEWNEIGH. Only for root, though.
+
+Cheers,
+
+Simon.
 
 
-I have 40 megs of memory set aside for DMA. (This is an embedded device
-so i can afford to do this). This memory is set aaside using the mem= option
-on the boot line. I need to DMA data to parts of this memory. The DMA card
-is a PCI based card with no addressing limitations. I want to make use of
-the 2.6DMA API.
-
-
-The reserved memory is given to anyone who requests it via the MMAP
-call, internally it uses remap_pfn_range to fix up the page tables.
-
-
-Call sequence.
-1. Userspace mmaps a large chuck on this memory, and then breaks it up
-intoa chunk, and wants to DMA data from the imaging device to this chunck.
-
-2. It fires an IOCTL to my driver passing a start pointer to this chunk
-and the len.
-
-
-In the driver, i want to be able to
-1. Create a scatter gather list for this chunk.
-2. use pci_map_sg to map these pages.
-3. use sg_address and sg_len to get the bus addresses.
-4. using the bus address i want to populate the datastructures for this
-card and start the DMA.
-
-
-Questions.
-1. To generate the scatter gather list, i need to get a list of pages
-for the memory region passed to me? How do i do that? i know
-get_user_pages cannot be called since it does not work on VM_IO
-regions and remap_pfn_range marks the vma as VM_IO.
-2. Is there any sample driver you know of which does similar stuff?
-
-
-I'm open to suggestions and ideas.
-
-
-rcn

@@ -1,51 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWECU4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWECU5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWECU4b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 16:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWECU4a
+	id S1751145AbWECU5c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 16:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWECU5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 16:56:30 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:60388 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751103AbWECU4a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 16:56:30 -0400
-Date: Wed, 3 May 2006 23:01:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -rt] revert bh_lru_lock() to preempt_disable()
-Message-ID: <20060503210125.GB16696@elte.hu>
-References: <200604221505.k3MF5mql022083@dwalker1.mvista.com> <20060503204747.GC15965@elte.hu> <1146689257.3363.13.camel@localhost.localdomain>
+	Wed, 3 May 2006 16:57:32 -0400
+Received: from [82.153.65.35] ([82.153.65.35]:60819 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751094AbWECU5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 16:57:31 -0400
+Subject: [RFC] [PATCH 2/2] Multi-threaded execution of ACPI control methods
+	(continued)
+From: Peter Wainwright <prw@ceiriog.eclipse.co.uk>
+To: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PgRIINDRn48MkHDoeQ1A"
+Date: Wed, 03 May 2006 21:57:47 +0100
+Message-Id: <1146689867.5202.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1146689257.3363.13.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+--=-PgRIINDRn48MkHDoeQ1A
+Content-Type: multipart/mixed; boundary="=-V2FdF+8G+tRot6mJGKPd"
 
-> > i agree that this is a problem, but the fix is incorrect. What would be 
-> > the right approach is to convert the PER_CPU bh_lrus to PER_CPU_LOCKED, 
-> > and to use the appropriate primitives to use them. That automatically 
-> > makes this code rt-safe. (it isnt right now)
-> 
-> Hmm, in UP it should be safe to access per cpu data under either a 
-> preempt_disable or local_irq_disable . I'm not sure how RT changes 
-> that .. Is there some other part of the code that isn't rt-safe, which 
-> I've overlooked ?
 
-hm, you are right - that code can be in a preempt-off section. I've 
-applied your patch.
+--=-V2FdF+8G+tRot6mJGKPd
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	Ingo
+This patch enables the maximum size of the ACPI thread pool to be
+configured by a /proc filesystem entry.
+
+This limit is imposed in case a rogue BIOS DSDT tries to create too
+many threads.
+
+Peter
+
+Signed-off-by: Peter Wainwright <prw@ceiriog.eclipse.co.uk>
+
+
+
+
+--=-V2FdF+8G+tRot6mJGKPd
+Content-Disposition: attachment; filename=acpi-osl4b.patch
+Content-Type: text/x-patch; name=acpi-osl4b.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdSAtciBsaW51eC0yLjYuMTYuMTEtcHJ3Mi1vbGQvZHJpdmVycy9hY3BpL29zbC5jIGxp
+bnV4LTIuNi4xNi4xMS1wcncyL2RyaXZlcnMvYWNwaS9vc2wuYw0KLS0tIGxpbnV4LTIuNi4xNi4x
+MS1wcncyLW9sZC9kcml2ZXJzL2FjcGkvb3NsLmMJMjAwNi0wNS0wMyAyMToxNDowNS4wMDAwMDAw
+MDAgKzAxMDANCisrKyBsaW51eC0yLjYuMTYuMTEtcHJ3Mi9kcml2ZXJzL2FjcGkvb3NsLmMJMjAw
+Ni0wNS0wMyAyMToxNjozMC4wMDAwMDAwMDAgKzAxMDANCkBAIC00Nyw2ICs0Nyw4IEBADQogI2lu
+Y2x1ZGUgPGxpbnV4L2VmaS5oPg0KIA0KICNpbmNsdWRlIDxsaW51eC9rdGhyZWFkLmg+DQorI2lu
+Y2x1ZGUgPGxpbnV4L3Byb2NfZnMuaD4NCisjaW5jbHVkZSA8bGludXgvc2VxX2ZpbGUuaD4NCiAN
+CiAjZGVmaW5lIF9DT01QT05FTlQJCUFDUElfT1NfU0VSVklDRVMNCiBBQ1BJX01PRFVMRV9OQU1F
+KCJvc2wiKQ0KQEAgLTEwOSw2ICsxMTEsNjYgQEANCiAJc3RydWN0IGxpc3RfaGVhZCBsaXN0Ow0K
+IH07DQogDQorc3RhdGljIGludCBhY3BpX29zbF9wb29sX3NpemVfcmVhZChzdHJ1Y3Qgc2VxX2Zp
+bGUgKnNlcSwgdm9pZCAqb2Zmc2V0KQ0KK3sNCisJc3RydWN0IGxpc3RfaGVhZCAqbDsNCisNCisJ
+QUNQSV9GVU5DVElPTl9UUkFDRSgiYWNwaV9vc2xfcG9vbF9zaXplX3JlYWQiKTsNCisNCisJc2Vx
+X3ByaW50ZihzZXEsICJtYXhfcG9vbF9zaXplPSVkXG4iLCBtYXhfcG9vbF9zaXplKTsNCisJc2Vx
+X3ByaW50ZihzZXEsICJjdXJyZW50X3Bvb2xfc2l6ZT0lZFxuIiwgY3VycmVudF9wb29sX3NpemUp
+Ow0KKwkvKiBGSVhNRTogTmVlZCBsb2NrPyAqLw0KKwlsaXN0X2Zvcl9lYWNoKGwsICZ0aHJlYWRf
+cG9vbCkgew0KKwkJc3RydWN0IHRocmVhZF9wb29sX2VudHJ5ICplID0gbGlzdF9lbnRyeShsLCBz
+dHJ1Y3QgdGhyZWFkX3Bvb2xfZW50cnksIGxpc3QpOw0KKwkJc2VxX3ByaW50ZihzZXEsICJlbnRy
+eT0oJXAsJWQsJXAsJXAsJWx1KVxuIiwNCisJCQkgICBlLT50aHJlYWQsIGUtPmFjdGl2ZSwgZS0+
+ZnVuY3Rpb24sIGUtPmNvbnRleHQsIGUtPmppZmZpZXMpOw0KKwl9DQorCXJldHVybl9WQUxVRSgw
+KTsNCit9DQorDQorc3RhdGljIGludCBhY3BpX29zbF9wb29sX3NpemVfb3Blbl9mcyhzdHJ1Y3Qg
+aW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlsZSkNCit7DQorCXJldHVybiBzaW5nbGVfb3Bl
+bihmaWxlLCBhY3BpX29zbF9wb29sX3NpemVfcmVhZCwgUERFKGlub2RlKS0+ZGF0YSk7DQorfQ0K
+Kw0KK3N0YXRpYyBzc2l6ZV90DQorYWNwaV9vc2xfcG9vbF9zaXplX3dyaXRlKHN0cnVjdCBmaWxl
+ICpmaWxlLA0KKwkJCSAgIGNvbnN0IGNoYXIgX191c2VyICogYnVmZmVyLA0KKwkJCSAgIHNpemVf
+dCBjb3VudCwgbG9mZl90ICogcHBvcykNCit7DQorCWNoYXIgKnNpemVfc3RyaW5nOw0KKw0KKwlB
+Q1BJX0ZVTkNUSU9OX1RSQUNFKCJhY3BpX29zbF9wb29sX3NpemVfd3JpdGUiKTsNCisNCisJc2l6
+ZV9zdHJpbmcgPSBrbWFsbG9jKDQwOTYsIEdGUF9LRVJORUwpOw0KKwlpZiAoIXNpemVfc3RyaW5n
+KQ0KKwkJcmV0dXJuX1ZBTFVFKC1FTk9NRU0pOw0KKw0KKwltZW1zZXQoc2l6ZV9zdHJpbmcsIDAs
+IDQwOTYpOw0KKw0KKwlpZiAoY29weV9mcm9tX3VzZXIoc2l6ZV9zdHJpbmcsIGJ1ZmZlciwgY291
+bnQpKSB7DQorCQlBQ1BJX0RFQlVHX1BSSU5UKChBQ1BJX0RCX0VSUk9SLCAiSW52YWxpZCBkYXRh
+XG4iKSk7DQorCQljb3VudCA9IC1FRkFVTFQ7DQorCQlnb3RvIGVuZDsNCisJfQ0KKw0KKwlzaXpl
+X3N0cmluZ1tjb3VudF0gPSAnXDAnOw0KKwltYXhfcG9vbF9zaXplID0gc2ltcGxlX3N0cnRvbChz
+aXplX3N0cmluZywgTlVMTCwgMTApOw0KKwlBQ1BJX0RFQlVHX1BSSU5UKChBQ1BJX0RCX0lORk8s
+ICJQb29sX1NpemUgbm93ICVkXG4iLCBtYXhfcG9vbF9zaXplKSk7DQorDQorZW5kOg0KKwlrZnJl
+ZShzaXplX3N0cmluZyk7DQorCXJldHVybl9WQUxVRShjb3VudCk7DQorfQ0KKw0KK3N0YXRpYyBz
+dHJ1Y3QgZmlsZV9vcGVyYXRpb25zIGFjcGlfb3NsX3Bvb2xfc2l6ZV9vcHMgPSB7DQorCS5vcGVu
+ID0gYWNwaV9vc2xfcG9vbF9zaXplX29wZW5fZnMsDQorCS5yZWFkID0gc2VxX3JlYWQsDQorCS53
+cml0ZSA9IGFjcGlfb3NsX3Bvb2xfc2l6ZV93cml0ZSwNCisJLmxsc2VlayA9IHNlcV9sc2VlaywN
+CisJLnJlbGVhc2UgPSBzaW5nbGVfcmVsZWFzZSwNCit9Ow0KKw0KIC8qIFRoaXMgaXMgYmFzZWQg
+b24gdGhlIHdvcmtxdWV1ZSB3b3JrZXJfdGhyZWFkICovDQogc3RhdGljIGludCBhY3BpX29zX2V4
+ZWN1dGVfd29ya2VyKHZvaWQgKmNvbnRleHQpDQogew0KQEAgLTI0Nyw5ICszMDksMTQgQEANCiAN
+CiAvKg0KICAqIEVuYWJsZSByZWFwaW5nIG9mIHVudXNlZCB0aHJlYWRzLg0KKyAqIEVuYWJsZSBw
+b29sIHNpemUgbW9kaWZpY2F0aW9uIGJ5IHByb2MgZmlsZXN5c3RlbSBlbnRyeS4NCiAgKi8NCiBh
+Y3BpX3N0YXR1cyBhY3BpX29zX2luaXRpYWxpemUyKHZvaWQpDQogew0KKwlzdHJ1Y3QgcHJvY19k
+aXJfZW50cnkgKmVudHJ5Ow0KKwllbnRyeSA9IGNyZWF0ZV9wcm9jX2VudHJ5KCJwb29sX3NpemUi
+LCBTX0lSVVNSfFNfSVdVU1IsIGFjcGlfcm9vdF9kaXIpOw0KKwlpZiAoZW50cnkpDQorCQllbnRy
+eS0+cHJvY19mb3BzID0gJmFjcGlfb3NsX3Bvb2xfc2l6ZV9vcHM7DQogCUlOSVRfV09SSygmYWNw
+aV9yZWFwX3Rhc2ssIGFjcGlfcmVhcF90aHJlYWRzLCBOVUxMKTsNCiAJaW5pdF90aW1lcigmYWNw
+aV9yZWFwX3RpbWVyKTsNCiAJcmV0dXJuIEFFX09LOw0K
+
+
+--=-V2FdF+8G+tRot6mJGKPd--
+
+--=-PgRIINDRn48MkHDoeQ1A
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEWRlLZlbFk+UVjRoRAisJAJwJeVwO9prU5PwFNyO76O1+DxbsMQCfSUbj
+MBcuhd/JYQgVTJuHL19asgc=
+=xaYb
+-----END PGP SIGNATURE-----
+
+--=-PgRIINDRn48MkHDoeQ1A--
+

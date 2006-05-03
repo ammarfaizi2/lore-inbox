@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbWECHku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbWECHk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965132AbWECHku (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 03:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWECHku
+	id S964922AbWECHk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 03:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWECHk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 03:40:50 -0400
-Received: from ns2.suse.de ([195.135.220.15]:12161 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965132AbWECHkt (ORCPT
+	Wed, 3 May 2006 03:40:29 -0400
+Received: from cantor.suse.de ([195.135.220.2]:10933 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964922AbWECHk3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 03:40:49 -0400
+	Wed, 3 May 2006 03:40:29 -0400
 From: Andi Kleen <ak@suse.de>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: sched_clock() uses are broken
-Date: Wed, 3 May 2006 09:40:19 +0200
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: 2.6.17-rc2-mm1
+Date: Wed, 3 May 2006 09:38:37 +0200
 User-Agent: KMail/1.9.1
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christopher Friesen <cfriesen@nortel.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20060502132953.GA30146@flint.arm.linux.org.uk> <445791D3.9060306@yahoo.com.au> <1146640155.7526.27.camel@homer>
-In-Reply-To: <1146640155.7526.27.camel@homer>
+Cc: "Martin Bligh" <mbligh@google.com>, "Andrew Morton" <akpm@osdl.org>,
+       apw@shadowen.org, linux-kernel@vger.kernel.org
+References: <4450F5AD.9030200@google.com> <200605030849.44893.ak@suse.de> <4458730F.76E4.0078.0@novell.com>
+In-Reply-To: <4458730F.76E4.0078.0@novell.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605030940.20409.ak@suse.de>
+Message-Id: <200605030938.37967.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 May 2006 09:09, Mike Galbraith wrote:
+On Wednesday 03 May 2006 09:08, Jan Beulich wrote:
+> >> ><EOE>new stack 0 (0 0 0 10082 10)
+> >> 
+> >> Looks like <rubbish> <SS> <RSP> <RFLAGS> <CS> to me, ...
+> >
+> >Hmm, right.
+> > 
+> >> >Hmm weird. There isn't anything resembling an exception frame at the top of the
+> >> >stack.  No idea how this could happen.
+> >> 
+> >> ... which is a valid frame where the stack pointer was corrupted before the exception occurred. One more printed
+> item
+> >> (or rather, starting items at estack_end[-1]) would allow at least seeing what RIP this came from.
+> >
+> >Any can you add that please and check? 
+> ???
 
-> Given that most people are going to end up using the pm_timer anyway, I
-> don't see the point of even having a sched_clock().  If it's jiffy
-> resolution, it's useless.  If it's wildly inaccurate (as it is in the
-> SMP case, monotonicity issues aside) it's more than useless.
+Sorry I meant to write Andy but left out the d :-( - he did the testing
+on the machine that showed the problem.
 
-For sched_clock TSC is always used and it's fine - sched_clock
-doesn't require the guarantees that make TSC often useless otherwise
+> 
 
-e.g. the scheduler is designed to only use it on one CPU 
-and can also tolerate variations scaling with frequency.
+> 
+> >Also worst case one could dump last branch pointers. AMD unfortunately only has four,
+> >on Intel with 16 it's easier.
+> 
+> Provided you disable recording early enough. Otherwise only one (last exception from/to) is going to be useful on
+> both.
+
+i usually just saved them as first thing in the exception entry point.
+
+> >That can cause recursive exceptions. I'm a bit paranoid with that.
+> 
+> Without doing so it can also cause recursive exceptions, just that this is going to be deadly then.
+
+Hmm point.
 
 -Andi
+
+ 

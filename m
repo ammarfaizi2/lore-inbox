@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWECSBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWECSNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWECSBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 14:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWECSBQ
+	id S1751347AbWECSNR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 14:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWECSNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 14:01:16 -0400
-Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:54276 "EHLO
-	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1751054AbWECSBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 14:01:16 -0400
-Date: Wed, 3 May 2006 20:01:12 +0200
-From: bjdouma <bjdouma@xs4all.nl>
-To: Yogesh Pahilwan <pahilwan.yogesh@spsoftindia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem while applying patch to 2.6.9 kernel
-Message-ID: <20060503180112.GA23530@skyscraper.unix9.prv>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAAwZsyZCSXbUSO0mznjdzGqgEAAAAA@spsoftindia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAAwZsyZCSXbUSO0mznjdzGqgEAAAAA@spsoftindia.com>
-X-Disclaimer: sorry
-X-Operating-System: human brain v1.04E11
-Organization: A training zoo
-User-Agent: Mutt/1.5.11
+	Wed, 3 May 2006 14:13:17 -0400
+Received: from fmmailgate03.web.de ([217.72.192.234]:6528 "EHLO
+	fmmailgate03.web.de") by vger.kernel.org with ESMTP
+	id S1751347AbWECSNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 14:13:17 -0400
+From: Michael Helmling <supermihi@web.de>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] New, yet unsupported USB-Ethernet adaptor
+Date: Wed, 3 May 2006 20:14:28 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrey Panin <pazke@donpac.ru>, David Hollis <dhollis@davehollis.com>,
+       David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
+References: <200605022002.15845.supermihi@web.de> <1146667488.2348.28.camel@dhollis-lnx.sunera.com> <20060503153128.GA31133@pazke.donpac.ru>
+In-Reply-To: <20060503153128.GA31133@pazke.donpac.ru>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1287465.cnW79Gp0IK";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200605032014.28734.supermihi@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 03, 2006 at 05:32:02PM +0530, Yogesh Pahilwan wrote:
-> I am facing some problem while applying patch to the 2.6.9 kernel.
-> 
-> I have done following to apply the patch:
-> 
-> # patch -p1 < ../../Patches/patch-ext3
-> 
-> But getting following things:
-> 
-> missing header for unified diff at line 3 of patch
-> (Stripping trailing CRs from patch.)
-> can't find file to patch at input line 3
-> Perhaps you used the wrong -p or --strip option?
-> The text leading up to this was:
-> --------------------------
-> |#--- ../A_CLEAN_FILE_SYSTEM/jbd/commit.c       2006-02-25 11:43:19.000000000 -0600
-> |#+++ commit.c  2006-03-29 20:53:29.000000000 -0600
-> --------------------------
-> File to patch:
-> 
-> Can anyone suggest what I am doing wrong while applying this patch or if the
-> command is correct then why patch is giving the above errors.
+--nextPart1287465.cnW79Gp0IK
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-You gotta lose the hash-mark at beginning-of-line of lines 1 and 2
-(moise from some cut-n-paste operation?).  Then look at the second
-line to see how many slashes you gotta skip (with -p -- looks like
-it's -p0 here).
+On Wednesday 03 May 2006 17:31, Andrey Panin wrote:
+> > What he
+> > should do would be to create a moschip.c that uses usbnet as a support
+> > module - just like asix.c does.  In this file, he can have his sole
+> > Copyright attribution and not have to worry about following
+> > changes/updates to usbnet.  Of course, if he communicated his
+> > development efforts with the community, he would have received all of
+> > this information long ago and we'd likely help shake out bugs in the
+> > code to make it a more robust driver.
+>=20
+> IMHO we should do it now. If there is no volunteers, I can try to do it,
+> but it will be my first USB driver, so don't expect results soon.
+>=20
 
-bjd
+That would be great, I could give you feedback if / how it works.
+But I think someone versed in the GPL should contact moschip to clear thing=
+s a=20
+bit.
+
+--nextPart1287465.cnW79Gp0IK
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
+
+iD8DBQBEWPMEcLJiNWFgTBIRAgWyAJ0U/59RIB3Hw1mCWMtH6sx5RJBbUACbBZGc
+lBMExKVuRKXKNPJG5E6fT1s=
+=l0gl
+-----END PGP SIGNATURE-----
+
+--nextPart1287465.cnW79Gp0IK--

@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbWECHHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbWECHIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965121AbWECHHg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 03:07:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWECHHg
+	id S965122AbWECHIq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 03:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965124AbWECHIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 03:07:36 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:8967
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S965121AbWECHHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 03:07:35 -0400
-Message-Id: <4458730F.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Wed, 03 May 2006 09:08:31 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: "Martin Bligh" <mbligh@google.com>, "Andrew Morton" <akpm@osdl.org>,
-       <apw@shadowen.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.17-rc2-mm1
-References: <4450F5AD.9030200@google.com> <200605022209.37205.ak@suse.de> <44586E0E.76E4.0078.0@novell.com> <200605030849.44893.ak@suse.de>
-In-Reply-To: <200605030849.44893.ak@suse.de>
+	Wed, 3 May 2006 03:08:46 -0400
+Received: from mail.gmx.de ([213.165.64.20]:48596 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965123AbWECHIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 03:08:45 -0400
+X-Authenticated: #14349625
+Subject: Re: sched_clock() uses are broken
+From: Mike Galbraith <efault@gmx.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andi Kleen <ak@suse.de>, Christopher Friesen <cfriesen@nortel.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <445791D3.9060306@yahoo.com.au>
+References: <20060502132953.GA30146@flint.arm.linux.org.uk>
+	 <p73slns5qda.fsf@bragg.suse.de> <44578EB9.8050402@nortel.com>
+	 <200605021859.18948.ak@suse.de>  <445791D3.9060306@yahoo.com.au>
+Content-Type: text/plain
+Date: Wed, 03 May 2006 09:09:15 +0200
+Message-Id: <1146640155.7526.27.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> ><EOE>new stack 0 (0 0 0 10082 10)
->> 
->> Looks like <rubbish> <SS> <RSP> <RFLAGS> <CS> to me, ...
->
->Hmm, right.
-> 
->> >Hmm weird. There isn't anything resembling an exception frame at the top of the
->> >stack.  No idea how this could happen.
->> 
->> ... which is a valid frame where the stack pointer was corrupted before the exception occurred. One more printed
-item
->> (or rather, starting items at estack_end[-1]) would allow at least seeing what RIP this came from.
->
->Any can you add that please and check? 
+On Wed, 2006-05-03 at 03:07 +1000, Nick Piggin wrote:
+> Other problem is that some people didn't RTFM and have started trying to
+> use it for precise accounting :(
 
-???
+Are you talking about me perchance?  I don't really care about precision
+_that_ much, though I certainly do want to tighten timeslice accounting.
 
->Also worst case one could dump last branch pointers. AMD unfortunately only has four,
->on Intel with 16 it's easier.
+Given that most people are going to end up using the pm_timer anyway, I
+don't see the point of even having a sched_clock().  If it's jiffy
+resolution, it's useless.  If it's wildly inaccurate (as it is in the
+SMP case, monotonicity issues aside) it's more than useless.
 
-Provided you disable recording early enough. Otherwise only one (last exception from/to) is going to be useful on
-both.
+	-Mike
 
->I can provide a patch for that if needed.
->
->> This actually points out another weakness of that code: if you pick up a mis-aligned stack pointer then the
-conditions
->> in both the exception and interrupt stack invocations of HANDLE_STACK() won't prevent you from accessing an item
->> crossing a page boundary, and hence potentially faulting. 
->
->Yes it probably should check for that.
->
->> Similarly, obtaining an entirely bad stack pointer anywhere in 
->> that code will result in a fault. I guess the stack reads should really be done using get_user() or some other code
->> having recovery attached.
->
->That can cause recursive exceptions. I'm a bit paranoid with that.
-
-Without doing so it can also cause recursive exceptions, just that this is going to be deadly then.
-
-Jan

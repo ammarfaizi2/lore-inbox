@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbWECECa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965062AbWECEIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965082AbWECECa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 00:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbWECECa
+	id S965062AbWECEIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 00:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbWECEIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 00:02:30 -0400
-Received: from [213.184.169.90] ([213.184.169.90]:42759 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S965059AbWECEC3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 00:02:29 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: Neil Brown <neilb@suse.de>
-Subject: Re: [PATCH 009 of 11] md: Support stripe/offset mode in raid10
-Date: Wed, 3 May 2006 07:00:23 +0300
-User-Agent: KMail/1.5
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <20060501152229.18367.patches@notabene> <200605021938.45254.a1426z@gawab.com> <17495.62433.136481.543828@cse.unsw.edu.au>
-In-Reply-To: <17495.62433.136481.543828@cse.unsw.edu.au>
+	Wed, 3 May 2006 00:08:09 -0400
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:32018 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S965062AbWECEIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 00:08:07 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.17-rc3 "Bus #03 (-#06) is hidden behind transparent bridge"
+Date: Wed, 3 May 2006 05:08:07 +0100
+User-Agent: KMail/1.9.1
+Cc: Robert Hancock <hancockr@shaw.ca>
+References: <4458284F.9070604@shaw.ca>
+In-Reply-To: <4458284F.9070604@shaw.ca>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="windows-1256"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605030700.23515.a1426z@gawab.com>
+Message-Id: <200605030508.07526.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Tuesday May 2, a1426z@gawab.com wrote:
-> > NeilBrown wrote:
-> > > The "industry standard" DDF format allows for a stripe/offset layout
-> > > where data is duplicated on different stripes. e.g.
-> > >
-> > >   A  B  C  D
-> > >   D  A  B  C
-> > >   E  F  G  H
-> > >   H  E  F  G
-> > >
-> > > (columns are drives, rows are stripes, LETTERS are chunks of data).
-> >
-> > Presumably, this is the case for --layout=f2 ?
+On Wednesday 03 May 2006 04:49, Robert Hancock wrote:
+> I saw this on Fedora kernel 2.6.16-1.2182_FC6, which is based on
+> 2.6.17-rc3, on a Compaq Presario X1050 laptop:
 >
-> Almost.  mdadm doesn't support this layout yet.
-> 'f2' is a similar layout, but the offset stripes are a lot further
-> down the drives.
-> It will possibly be called 'o2' or 'offset2'.
+> PCI: PCI BIOS revision 2.10 entry at 0xf031f, last bus=3
+> Setting up standard PCI resources
+> ACPI: Subsystem revision 20060127
+> ACPI: Interpreter enabled
+> ACPI: Using PIC for interrupt routing
+> ACPI: PCI Root Bridge [C046] (0000:00)
+> PCI: Probing PCI hardware (bus 00)
+> ACPI: Assume root bridge [\_SB_.C046] bus is 0
+> PCI quirk: region 1000-107f claimed by ICH4 ACPI/GPIO/TCO
+> PCI quirk: region 1100-113f claimed by ICH4 GPIO
+> PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+> Boot video device is 0000:01:00.0
+> PCI: Transparent bridge - 0000:00:1e.0
+> PCI: Bus #03 (-#06) is hidden behind transparent bridge #02 (-#03) (try
+> 'pci=assign-busses')
+> Please report the result to linux-kernel to fix this permanently
 >
-> > If so, would --layout=f4 result in a 4-mirror/striped array?
->
-> o4 on a 4 drive array would be
->
->    A  B  C  D
->    D  A  B  C
->    C  D  A  B
->    B  C  D  A
->    E  F  G  H
->    ....
+> It said to report it, so I'm reporting it :-) Attached is the dmesg
+> without the option, dmesg with the option, and lspci output.
 
-Yes, so would this give us 4 physically duplicate mirrors?
-If not, would it be possible to add a far-offset mode to yield such a layout?
+A lot of people seem to be seeing this, but Linux magically sorts it out. I 
+get it on my nForce4/Athlon64 X2 system and my NC6000 855PM/P-M laptop..
 
-> > Also, would it be possible to have a staged write-back mechanism across
-> > multiple stripes?
->
-> What exactly would that mean?
+PCI: Transparent bridge - 0000:00:1e.0
+PCI: Bus #05 (-#08) is hidden behind transparent bridge #02 (-#05) (try 
+'pci=assign-busses')
+Please report the result to linux-kernel to fix this permanently
 
-Write the first stripe, then write subsequent duplicate stripes based on idle 
-with a max delay for each delayed stripe.
+Not too dissimilar.. maybe this warning should be removed?
 
-> And what would be the advantage?
+-- 
+Cheers,
+Alistair.
 
-Faster burst writes, probably.
-
-Thanks!
-
---
-Al
-
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

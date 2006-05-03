@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbWECA4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbWECBGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965060AbWECA4q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 20:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965062AbWECA4q
+	id S965063AbWECBGk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 21:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965064AbWECBGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 20:56:46 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:23813 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965060AbWECA4q convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 20:56:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=V9EYpwlql/5YaCMD9XPQze1j+igPNUwM8lUCWY6Boe1nH4V0OjgRB5Y6xaR7rpCNGgjnhpiXzYntwaYh5g5NHAffR1aLxo+cM7k6Gvgc6tsC6dfA+zvY/EbxpYNQxTJTpYZAStwPP6VYoJ+wgBWOMflzdVTE1sz0KrM389hzCYo=
-Message-ID: <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
-Date: Tue, 2 May 2006 19:56:44 -0500
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "Jared Hulbert" <jaredeh@gmail.com>
-Subject: Re: [RFC] Advanced XIP File System
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+	Tue, 2 May 2006 21:06:40 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:36338 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S965063AbWECBGj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 May 2006 21:06:39 -0400
+Date: Tue, 2 May 2006 18:06:27 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Marcin Hlybin <marcin.hlybin@swmind.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Open Discussion, kernel in production environment
+In-Reply-To: <200605012357.48623.marcin.hlybin@swmind.com>
+Message-ID: <Pine.LNX.4.62.0605021757520.11269@qynat.qvtvafvgr.pbz>
+References: <200605012357.48623.marcin.hlybin@swmind.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/2/06, Jared Hulbert <jaredeh@gmail.com> wrote
+On Mon, 1 May 2006, Marcin Hlybin wrote:
+
+> Hello,
 >
-> Why a new filesystem?
-> - XIP of kernel is mainline, but not XIP of applications.  This
-> enables application XIP
+> I always configure and compile a kernel throwing out all unusable options and
+> I never use modules in production environment (especially for the router).
+> But my superior has got the other opinion - he claims that distribution
+> kernel is quite good and in these days optimization has no sense because of
+> powerful hadrware.
+> What do you think? I have few arguments for this discussion but I wonder what
+> you say. Please, try to substantiate your opinions.
 
->From what I recall, XIP of the kernel off of MTD is limited to ARM.  I
-assume AXFS suffers the same restriction?
+At one point in the past I did some testing of stock 386 kernels (standard 
+at the time) vs K7 optimized kernels that were stripped down and saw a 
+substantial difference (30% IIRC). nowdays the distros are optimizing for 
+better chips so it makes less of a difference (and there's not a lot of 
+variation yet among the amd64 options)
 
-josh
+however, by rolling your own you can avoid including features that you 
+don't need, and by eliminating those features you also eliminate any 
+bugs/vunerabilities that those features include (the trade-off is that 
+sometimes there are dependancies that require non-obvious features and/or 
+features are buggy and break things when turned off).
+
+I got burned by distro kernels in the past, and the distro was not much 
+help (not everything in the system was on that distro's 'approved 
+hardware' list, and even the stuff that was hadn't been testing in that 
+particular combination). this makes me cynical about the testing that the 
+distro does (they can't possibly test every combination), so if I have to 
+test things myself why wait the extra time for the disto to do it's 
+release?
+
+things are getting better with the distros staying close to the vanilla 
+kernel, but my memory is long enough to not really trust them yet ;-)
+
+David Lang
+
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
+

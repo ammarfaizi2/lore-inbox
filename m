@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbWECG2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbWECGfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbWECG2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 02:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbWECG2Y
+	id S965100AbWECGfi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 02:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbWECGfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 02:28:24 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:20384 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S965103AbWECG2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 02:28:23 -0400
-In-Reply-To: <17496.6519.733076.663815@cargo.ozlabs.ibm.com>
-References: <20060429232812.825714000@localhost.localdomain> <200605020150.14152.arnd@arndb.de> <1900A234-BE31-4292-87E1-5C02F12A440D@kernel.crashing.org> <200605021259.24157.arnd@arndb.de> <801072F8-7701-4BD7-81FB-A8C1AA534C2E@kernel.crashing.org> <17496.6519.733076.663815@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0 (Apple Message framework v749.3)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <904F5BD9-1ACB-4936-B390-E4128886824C@kernel.crashing.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@ozlabs.org,
-       cbe-oss-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: [Cbe-oss-dev] [PATCH 11/13] cell: split out board specific files
-Date: Wed, 3 May 2006 08:28:15 +0200
-To: Paul Mackerras <paulus@samba.org>
-X-Mailer: Apple Mail (2.749.3)
+	Wed, 3 May 2006 02:35:38 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14307 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965100AbWECGfi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 02:35:38 -0400
+Date: Wed, 3 May 2006 16:35:18 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT, ext3fs, kernel 2.4.32... again
+Message-ID: <20060503163518.A1929541@wobbly.melbourne.sgi.com>
+References: <20060427063249.GH761@DervishD> <20060501062058.GA16589@dmt> <20060501112303.GA1951@DervishD> <20060502072808.A1873249@wobbly.melbourne.sgi.com> <20060502172411.GA6112@DervishD> <20060503060336.A1918058@wobbly.melbourne.sgi.com> <20060503052752.GA20657@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060503052752.GA20657@DervishD>; from lkml@dervishd.net on Wed, May 03, 2006 at 07:27:52AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> Well, it could run on other platforms, except:
->>>
->>> - it requires a few properties in the device tree (local-mac- 
->>> address,
->>>   firmware), so it should also depend on PPC
->>
->> The portions of code that require OF should have appropriate #ifdef
->> guards.
->
-> So you're suggesting that we change the Makefile so we can *add*
-> ifdefs?  Usually we do it the other way around. :)
+On Wed, May 03, 2006 at 07:27:52AM +0200, DervishD wrote:
+> ...
+>  Are the differences too large?
 
-Yeah, what was I thinking.  So use some platform hook instead.
+Yep.
 
-But Arnd of course is right; if the driver (currently) only works
-on a certain platform, just mark it as such in the Makefile (erm,
-Kconfig file).
+>     I know that this change would be intrusive and probably large,
+> but IMHO is a quite important bug, because it prevents apps to
+> selectively disable O_DIRECT (the flag is accepted by open(), so
+> there's no reason the app should bother about which caused the
+> read()/write() failures. In fact, is very difficult to know that
+> those failures are caused by partial/buggy support of O_DIRECT flag).
 
-Hey, we should probably do that with 90% of all drivers.  But that
-is a discussion for some other day :-)
+You could open for direct, do a direct read, and see if it fails.
+If it fails, clear O_DIRECT on the fd via fcntl(F_SETFL) then do
+regular buffered IO instead... a bit hacky, but should work fine
+I think.
 
+cheers.
 
-Segher
-
+-- 
+Nathan

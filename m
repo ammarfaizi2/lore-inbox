@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWECMLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbWECMLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965163AbWECMLX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 08:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWECMLX
+	id S965167AbWECMLa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 08:11:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWECMLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 08:11:23 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:24770 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S965163AbWECMLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 08:11:23 -0400
-Subject: Re: [RFC] Advanced XIP File System
-From: David Woodhouse <dwmw2@infradead.org>
-To: Josh Boyer <jwboyer@gmail.com>
-Cc: Nicolas Pitre <nico@cam.org>, Jared Hulbert <jaredeh@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
-	 <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
-	 <Pine.LNX.4.64.0605022316550.28543@localhost.localdomain>
-	 <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 03 May 2006 13:11:15 +0100
-Message-Id: <1146658275.20773.8.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 3 May 2006 08:11:30 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:23643 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S965167AbWECML3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 08:11:29 -0400
+In-Reply-To: <Pine.LNX.4.58.0605031239001.10675@sbz-30.cs.Helsinki.FI>
+Subject: Re: [PATCH] s390: Hypervisor File System
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: akpm@osdl.org, Greg KH <greg@kroah.com>, ioe-lkml@rameria.de,
+       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org,
+       Kyle Moffett <mrmacman_g4@mac.com>, mschwid2@de.ibm.com
+X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
+Message-ID: <OF11F4EFE7.A54CB101-ON42257163.0042DA19-42257163.0042FB13@de.ibm.com>
+From: Michael Holzheu <HOLZHEU@de.ibm.com>
+Date: Wed, 3 May 2006 14:11:36 +0200
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 03/05/2006 14:12:39
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-03 at 05:41 -0500, Josh Boyer wrote:
-> Yes, I realize that all that is needed is support from other archs.  A
-> more general form of the question would be does AXFS depend on
-> ARCH_MTD_XIP? 
 
-That's for kernel XIP, which needs special magic for putting certain
-functions into RAM instead of the flash, polling for interrupts, etc.
+Pekka J Enberg <penberg@cs.Helsinki.FI> wrote on 05/03/2006 11:42:01 AM:
+> On Wed, 3 May 2006, Michael Holzheu wrote:
+> > All the complicated mechanisms with filesystem trees
+> > to obtain consistent data and transaction functionality
+> > could be avoided, if we would use single files, which
+> > contain all the data. When opening the file, the snapshot
+> > is created and attached to the struct file.
+>
+> If we're going to add new infrastructure, I'd vote for adding
+snapshotting
+> capability to filesystems. We need it for stuff like LogFS anyway.
+>
 
-For general _userspace_ XIP we don't necessarily need to do that. We
-only need to mark those pages as absent in the page tables if we ever
-schedule to userspace while the flash is in a mode other than read mode.
-Then handle the page fault by switching the flash back or waiting for
-it.
+Maybe we need that, too. But I think the advantage of the
+one file solution moves the complexity from the kernel
+to userspace.
 
--- 
-dwmw2
+Michael
 

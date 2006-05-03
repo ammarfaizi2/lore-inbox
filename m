@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbWECLfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbWECMAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965154AbWECLfh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 07:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWECLfh
+	id S965160AbWECMAa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 08:00:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWECMAa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 07:35:37 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:61395 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP id S965154AbWECLfg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 07:35:36 -0400
-Message-ID: <445896E1.4000000@nachtwindheim.de>
-Date: Wed, 03 May 2006 13:41:21 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Mozilla Thunderbird 1.0.8 (X11/20060411)
-X-Accept-Language: en-us, en
+	Wed, 3 May 2006 08:00:30 -0400
+Received: from smtpauth00.csee.siteprotect.com ([64.41.126.131]:42380 "EHLO
+	smtpauth00.csee.siteprotect.com") by vger.kernel.org with ESMTP
+	id S965160AbWECMAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 08:00:30 -0400
+From: "Yogesh Pahilwan" <pahilwan.yogesh@spsoftindia.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem while applying patch to 2.6.9 kernel
+Date: Wed, 3 May 2006 17:32:02 +0530
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAAwZsyZCSXbUSO0mznjdzGqgEAAAAA@spsoftindia.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Update an code example
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcZuqWNQK9/RwEe/QNSj4YBys1SfiQ==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Henrik Kretzschmar <henne@nachtwindheim.de>
+Hi Kernel Folks,
 
-Update an example function in the deviceiobook to be in sync with
-actual qla1280c .
-The change in the driver happend in Aug-2005 and is a bit clearer.
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
----
+I am facing some problem while applying patch to the 2.6.9 kernel.
 
---- linux-2.6.17-rc3/Documentation/DocBook/deviceiobook.tmpl	2006-04-27 08:39:13.000000000 +0200
-+++ linux/Documentation/DocBook/deviceiobook.tmpl	2006-04-30 15:18:02.000000000 +0200
-@@ -176,18 +176,13 @@
-  static inline void
-  qla1280_disable_intrs(struct scsi_qla_host *ha)
-  {
--	struct device_reg *reg;
--
--	reg = ha->iobase;
--	/* disable risc and host interrupts */
--	WRT_REG_WORD(&amp;reg->ictrl, 0);
-+	WRT_REG_WORD(&amp;ha->iobase->ictrl, 0);
-  	/*
-  	 * The following read will ensure that the above write
-  	 * has been received by the device before we return from this
-  	 * function.
-  	 */
--	RD_REG_WORD(&amp;reg->ictrl);
--	ha->flags.ints_enabled = 0;
-+	RD_REG_WORD(&amp;ha->iobase->ictrl);
-  }
-  </programlisting>
+I have done following to apply the patch:
+
+# patch -p1 < ../../Patches/patch-ext3
+
+But getting following things:
+
+missing header for unified diff at line 3 of patch
+(Stripping trailing CRs from patch.)
+can't find file to patch at input line 3
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|#--- ../A_CLEAN_FILE_SYSTEM/jbd/commit.c       2006-02-25
+11:43:19.000000000 -0600
+|#+++ commit.c  2006-03-29 20:53:29.000000000 -0600
+--------------------------
+File to patch:
+
+Can anyone suggest what I am doing wrong while applying this patch or if the
+command is correct then why patch is giving the above errors.
+
+Any help can be greatly appreciated.
+
+Thanks,
+Yogesh
 

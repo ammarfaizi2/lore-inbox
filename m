@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWECNZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWECNaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWECNZw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 09:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWECNZw
+	id S1030199AbWECNaV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 09:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWECNaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 09:25:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13479 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030198AbWECNZv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 09:25:51 -0400
-Date: Wed, 3 May 2006 06:25:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vgoyal@in.ibm.com
-Cc: greg@kroah.com, kamezawa.hiroyu@jp.fujitsu.com,
-       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH] catch valid mem range at onlining memory
-Message-Id: <20060503062536.56cad6f5.akpm@osdl.org>
-In-Reply-To: <20060502204216.GB6566@in.ibm.com>
-References: <20060428114732.e889ad2d.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060428163409.389e895e.akpm@osdl.org>
-	<20060428234410.GA7598@kroah.com>
-	<20060428170519.1194b077.akpm@osdl.org>
-	<20060429071818.GA939@kroah.com>
-	<20060429232615.GA18723@in.ibm.com>
-	<20060429164043.4cf4a861.akpm@osdl.org>
-	<20060502204216.GB6566@in.ibm.com>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 3 May 2006 09:30:20 -0400
+Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:7098 "EHLO
+	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1030199AbWECNaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 09:30:20 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Juho Saarikko <juhos@mbnet.fi>
+Subject: Re: [ck] 2.6.16-ck9
+Date: Wed, 3 May 2006 23:30:12 +1000
+User-Agent: KMail/1.9.1
+Cc: ck list <ck@vds.kolivas.org>, linux list <linux-kernel@vger.kernel.org>
+References: <200605022338.20534.kernel@kolivas.org> <200605030801.05523.kernel@kolivas.org> <1146646484.4260.6.camel@a88-112-69-25.elisa-laajakaista.fi>
+In-Reply-To: <1146646484.4260.6.camel@a88-112-69-25.elisa-laajakaista.fi>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605032330.13131.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 May 2006 16:42:16 -0400
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
+On Wednesday 03 May 2006 18:54, Juho Saarikko wrote:
+> On Wed, 2006-05-03 at 01:01, Con Kolivas wrote:
+> > The spid will show you any threads with different pids to the main task.
+> > Then check the actual scheduling policy they run at. Perhaps FahCore
+> > actually manually sets them to SCHED_NORMAL.
+>
+> And so it does. Annoying. Time to hack kernel to add a new scheduling
+> policy, SCHED_STAYIDLE, which is like SCHED_IDLE but cannot be unset
+> except by root.
+>
+> Can't make it the default, since a program running at SCHED_IDLE in a
+> machine with 100% CPU usage by some other program will never process
+> SIGKILL, and thus can only be killed by setting its scheduling policy to
+> normal...
 
-> > Yes, it would need to to be a new type - resource_addr_t, perhaps.
-> > 
-> 
-> How about "res_sz_t".
+I toyed with the idea of making it one way to convert tasks to SCHED_IDLEPRIO 
+but not back to SCHED_NORMAL much like we do for niceing tasks up but not 
+back down again. However I personally found this very inconvenient as I often 
+might run something idleprio for a while and then change it back. It seems a 
+fair thing for a normal user to do.
 
-resource_size_t, please.
+> Darn obnoxious program, SetiAtHome...
 
-> "resource_addr_t" probably is not a very appropriate
-> keyword as at lots of places we also need to represent size and alignment
-> with this typedef.
+Obviously when they wrote the linux client and added the ability to set the 
+priority from within the program to nice 19 they also explicitly set the 
+scheduling policy at the same time. This might make sense on some other OS... 
+but not linux.
 
-OK.
+-- 
+-ck

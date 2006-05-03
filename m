@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965093AbWECFLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965095AbWECF1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965093AbWECFLI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 01:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbWECFLI
+	id S965095AbWECF1z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 01:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWECF1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 01:11:08 -0400
-Received: from nz-out-0102.google.com ([64.233.162.197]:60214 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S965093AbWECFLH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 01:11:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RmBuGKRCmYnTVGVo7kvjXYtYss2S0ueBjLI+We38decPHBI2aLv7XtX/Lcmn3xUgpvgLT3MYtgXA0nIFVNXD9If65sDssxDsgnPiFrx9xgkIhvcjXbwatHUqpv4sPk0nY09Eb6dMDOfOqiDQSxsNJV7j44O9tdd7WUdKMp76IHU=
-Message-ID: <6934efce0605022211q7b265ef5o76faf27cd421dab5@mail.gmail.com>
-Date: Tue, 2 May 2006 22:11:06 -0700
-From: "Jared Hulbert" <jaredeh@gmail.com>
-To: "Josh Boyer" <jwboyer@gmail.com>
-Subject: Re: [RFC] Advanced XIP File System
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+	Wed, 3 May 2006 01:27:55 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:54182 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S965095AbWECF1y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 01:27:54 -0400
+Date: Wed, 3 May 2006 07:27:52 +0200
+From: DervishD <lkml@dervishd.net>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT, ext3fs, kernel 2.4.32... again
+Message-ID: <20060503052752.GA20657@DervishD>
+Mail-Followup-To: Nathan Scott <nathans@sgi.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20060427063249.GH761@DervishD> <20060501062058.GA16589@dmt> <20060501112303.GA1951@DervishD> <20060502072808.A1873249@wobbly.melbourne.sgi.com> <20060502172411.GA6112@DervishD> <20060503060336.A1918058@wobbly.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
-	 <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060503060336.A1918058@wobbly.melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Accidentally replied just to Josh, sorry.  Included what was offline.
+    Hi Nathan :)
 
->>> From what I recall, XIP of the kernel off of MTD is limited to ARM.  I
->>> assume AXFS suffers the same restriction?
->>
->> I'm fairly certian it won't.  I don't see anything in the code (that
->> we aren't going to remove) that would cause that.  All it needs is
->> direct memory access to the volume.  I'll find out soon, I'm trying to
->> test it on a X86 UML system.
->>
->> The XIP awareness in the MTD isn't a requirement for XIP, it's a
->> requirement to XIP from flash you are going to write, erase or
->> otherwise mess with.
->
->So you're relying on the fact that the underlying flash chip won't
->change from the Read Array state?  What happens if someone tries to
->use AXFS on an MTD partition, which can cover only a portion of a
->chip.  That is a fairly common occurance for read-only root
->filesystems.  Other partitions (say JFFS2) on that chip will cause the
->chip state to change...
+ * Nathan Scott <nathans@sgi.com> dixit:
+> > > Nothing else really make sense due to fcntl...
+> > > 	fcntl(fd, F_SETFL, O_DIRECT);
+> > > ...can happen at any time, to enable/disable direct I/O.
+> > 
+> >     I know, but that fcntl call should fail just like the open() one.
+> > I mean, I don't find this very different, it's just another point
+> > where the flag can be activated and so it should fail if the
+> > underlying filesystem doesn't support it (and doesn't ignore it
+> > in read()/write()).
+> 
+> Problem is there is no way to know whether the underlying fs
+> supports direct IO or not here (fcntl is implemented outside the
+> filesystem, entirely).
 
-Right.  So that is exactly the case XIP Awareness is in the MTD to
-fix, and it does so such that AXFS doesn't have to worry about it.
+    I thought that it was implemented per filesystem.
+
+> Which is not unfixable in itself (could use a superblock flag or
+> something similar) but it's way out of scope for the sort of change
+> going into 2.4 these days.
+
+    Which approach does 2.6 kernel use? O_DIRECT is correctly handled
+for ext3 there, AFAIK :? Are the differences too large?
+
+    I know that this change would be intrusive and probably large,
+but IMHO is a quite important bug, because it prevents apps to
+selectively disable O_DIRECT (the flag is accepted by open(), so
+there's no reason the app should bother about which caused the
+read()/write() failures. In fact, is very difficult to know that
+those failures are caused by partial/buggy support of O_DIRECT flag).
+
+    Thanks for the information! :)
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to... RAmen!

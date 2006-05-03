@@ -1,39 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWECT7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWECUH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWECT7o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 15:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWECT7n
+	id S1750782AbWECUH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 16:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWECUH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 15:59:43 -0400
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:60495 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1750773AbWECT7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 15:59:43 -0400
-Message-ID: <44590B62.6000107@tmr.com>
-Date: Wed, 03 May 2006 15:58:26 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.2) Gecko/20060409 SeaMonkey/1.0.1
-MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org,
-       ja@ssi.bg
-Subject: Re: Linux 2.6.16.13 / Problem
-References: <20060502222827.GA29287@kroah.com> <20060503154532.a0963c65.skraw@ithnet.com>
-In-Reply-To: <20060503154532.a0963c65.skraw@ithnet.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 May 2006 16:07:56 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:6334 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1750782AbWECUH4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 16:07:56 -0400
+From: Zach Brown <zach.brown@oracle.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Message-Id: <20060503200755.1608.87580.sendpatchset@tetsuo.zabbo.net>
+Subject: [PATCH] AOP_TRUNCATED_PAGE victims in read_pages() belong in the LRU
+Date: Wed,  3 May 2006 13:07:55 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
-> Hi Greg,
-> 
-> unfortunately I see some problem regarding 2.6.16.13:
-> 
-Did you see this behavior in 2.6.16.11 or .12? In other words is this a 
-new problem, or one which just crawled out into view?
+AOP_TRUNCATED_PAGE victims in read_pages() belong in the LRU
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Nick Piggin rightly pointed out that the introduction of AOP_TRUNCATED_PAGE to
+read_pages() was wrong to leave A_T_P victim pages in the page cache but not
+put them in the LRU.  Failing to do so hid them from the VM.
+
+A_T_P just means that the aop method unlocked the page rather than performing
+IO.  It would be very rare that the page was truncated between the unlock and
+testing A_T_P.  So we leave the pages in the LRU for likely reuse soon rather
+than backing them back out of the page cache.  We do this by matching the
+behaviour before the A_T_P introduction which added pages to the LRU regardless
+of what ->readpage() did.
+
+This doesn't include the unrelated cleanup in Nick's initial fix which changed
+read_pages() to return void to match its only caller's behaviour of ignoring
+errors.
+
+Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
+---
+
+ mm/readahead.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+Index: 2.6.17-rc3-git7-read_pages-fix/mm/readahead.c
+===================================================================
+--- 2.6.17-rc3-git7-read_pages-fix.orig/mm/readahead.c
++++ 2.6.17-rc3-git7-read_pages-fix/mm/readahead.c
+@@ -182,14 +182,11 @@ static int read_pages(struct address_spa
+ 		list_del(&page->lru);
+ 		if (!add_to_page_cache(page, mapping,
+ 					page->index, GFP_KERNEL)) {
+-			ret = mapping->a_ops->readpage(filp, page);
+-			if (ret != AOP_TRUNCATED_PAGE) {
+-				if (!pagevec_add(&lru_pvec, page))
+-					__pagevec_lru_add(&lru_pvec);
+-				continue;
+-			} /* else fall through to release */
+-		}
+-		page_cache_release(page);
++			mapping->a_ops->readpage(filp, page);
++			if (!pagevec_add(&lru_pvec, page))
++				__pagevec_lru_add(&lru_pvec);
++		} else
++			page_cache_release(page);
+ 	}
+ 	pagevec_lru_add(&lru_pvec);
+ 	ret = 0;

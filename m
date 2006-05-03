@@ -1,95 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWECXjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWECXkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWECXjR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 19:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWECXjQ
+	id S1751402AbWECXkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 19:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWECXkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 19:39:16 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:11722 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751399AbWECXjQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 19:39:16 -0400
-Date: Thu, 4 May 2006 01:35:58 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: David Vrabel <dvrabel@cantab.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-Message-ID: <20060503233558.GA27232@electric-eye.fr.zoreil.com>
-References: <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI> <20060502214520.GC26357@electric-eye.fr.zoreil.com> <20060502215559.GA1119@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI>
+	Wed, 3 May 2006 19:40:16 -0400
+Received: from threatwall.zlynx.org ([199.45.143.218]:7629 "EHLO zlynx.org")
+	by vger.kernel.org with ESMTP id S1751402AbWECXkO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 19:40:14 -0400
+Subject: Re: [RFC] kernel facilities for cache prefetching
+From: Zan Lynx <zlynx@acm.org>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, akpm@osdl.org, axboe@suse.de,
+       nickpiggin@yahoo.com.au, pbadari@us.ibm.com, arjan@infradead.org
+In-Reply-To: <20060503201413.34955426.diegocg@gmail.com>
+References: <346556235.24875@ustc.edu.cn>
+	 <20060502144641.62df9c18.diegocg@gmail.com> <346580906.19175@ustc.edu.cn>
+	 <20060502180753.096f8777.diegocg@gmail.com> <346638681.24899@ustc.edu.cn>
+	 <20060503201413.34955426.diegocg@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-C67c2wK7+YbO7XLYkfck"
+Date: Wed, 03 May 2006 17:39:51 -0600
+Message-Id: <1146699591.18747.23.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.6.0 
+X-Envelope-From: zlynx@acm.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg <penberg@cs.Helsinki.FI> :
-[...]
-> maintain the tree, I can send you my patches so you can recreate the full 
-> history. The first steps were produced by quilt on the original 
-> out-of-tree driver, though, so they're probably not helpful.
 
-It will be welcome.
+--=-C67c2wK7+YbO7XLYkfck
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I have added a few little things (changelog below). Next step will
-probably be some mii/ethtool stuff.
+On Wed, 2006-05-03 at 20:14 +0200, Diego Calleja wrote:
+> Just for completeness, windows vista will include a enhanced prefetcher
+> called (sic) SuperFetch. The idea behind it seems to be to analyze I/O
+> patterns and then "mirror" the most frequently used disk blocks into
+> the USB flash drive; so if when the usb flash drive is plugged in
+> the system will read those blocks from it as it was the hard drive
+> the next time you run the app
+> (http://www.windowsitpro.com/Windows/Article/ArticleID/48085/48085.html)
 
-The branch 'netdev-ipg' is available at:
-git://electric-eye.fr.zoreil.com/home/romieu/linux-2.6.git.
+Linux should be able to do something like this using unionfs.  It could
+be worthwhile to try it with one of the very fastest flash cards or USB
+drives.
 
-Serie of patches (ala 'git format-patch'):
-http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.17-rc3/ip1000a/
+With slower cards and USB keys its more of a loss unless the faster seek
+speed can make up for it, because sequential hard drive access is
+faster.
 
-All-in-one patch:
-http://www.fr.zoreil.com/people/francois/misc/20060504-2.6.17-rc3-git-ip1000-test.patch
+For comparison, a OCZ USB 2.0 Flash Drive with dual channel works at
+about 30 MB/s.  One of my 7,200 RPM SATA desktop drives does 45 MB/s.  A
+15k SCSI drive can do over 60 MB/s.
 
-ChangeLog from yesterday version:
+It'd be great for laptops though.  My slug of a laptop drive does 20
+MB/s on a good day.
+--=20
+Zan Lynx <zlynx@acm.org>
 
-commit 8b0a8db32d1ac6e9bc23300a6a0533b4d7e251e3
-Author: Francois Romieu <romieu@fr.zoreil.com>
-Date:   Thu May 4 00:29:59 2006 +0200
+--=-C67c2wK7+YbO7XLYkfck
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-    ipg: remove forward declarations
-    
-    It makes no sense in a new driver.
-    
-    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3 (GNU/Linux)
 
-commit 65940e5e0ab88d92fbac0f96b5d46ddfbd5cfa93
-Author: Francois Romieu <romieu@fr.zoreil.com>
-Date:   Thu May 4 00:04:57 2006 +0200
+iD8DBQBEWT9HG8fHaOLTWwgRAjrGAKCXZWsyjy4wSmmC1S5x4sluRfeE5gCfSGR6
+Ced2+FELxsL+W14hhEyDJ04=
+=YTOL
+-----END PGP SIGNATURE-----
 
-    ipg: replace #define with enum
-    
-    Added some underscores to improve readability.
-    
-    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+--=-C67c2wK7+YbO7XLYkfck--
 
-commit ab87a106690d6eaba4b7426fb074270e2e503e40
-Author: Francois Romieu <romieu@fr.zoreil.com>
-Date:   Wed May 3 22:51:16 2006 +0200
-
-    ipg: removal of useless #defines
-    
-    IPG_TX_NOTBUSY apart (one occurence in ipg.c), the #defines appear
-    nowhere in the sources.
-    
-    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
-
-commit ef7bfd886bc436d14649e962edb6f5189cc4dcac
-Author: Francois Romieu <romieu@fr.zoreil.com>
-Date:   Wed May 3 22:44:47 2006 +0200
-
-    ipg: redundancy with mii.h - take II
-    
-    Replace a bunch of #define with their counterpart from mii.h
-    
-    It is applied to the usual MII registers this time.
-    
-    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
-
--- 
-Ueimor

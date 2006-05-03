@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWECTLH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWECTMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbWECTLH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 15:11:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWECTLG
+	id S1750729AbWECTMx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 15:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWECTMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 15:11:06 -0400
-Received: from mail.gmx.net ([213.165.64.20]:65180 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750708AbWECTLF (ORCPT
+	Wed, 3 May 2006 15:12:53 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:24971 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750729AbWECTMw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 15:11:05 -0400
-X-Authenticated: #20450766
-Date: Wed, 3 May 2006 21:11:03 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: How to replace bus_to_virt()?
-In-Reply-To: <44554AFE.30804@s5r6.in-berlin.de>
-Message-ID: <Pine.LNX.4.60.0605032109110.5865@poirot.grange>
-References: <4454CF35.7010803@s5r6.in-berlin.de> <1146412215.20760.10.camel@laptopd505.fenrus.org>
- <44554AFE.30804@s5r6.in-berlin.de>
+	Wed, 3 May 2006 15:12:52 -0400
+Date: Wed, 3 May 2006 21:12:35 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: =?ISO-8859-15?Q?Markus_M=FCller?= <mm@priv.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Reiserfsck dies
+In-Reply-To: <4458F407.9050101@priv.de>
+Message-ID: <Pine.LNX.4.61.0605032108470.9829@yvahk01.tjqt.qr>
+References: <4458C48B.8040703@priv.de> <20060503215635.4b3a28bf.vsu@altlinux.ru>
+ <4458F407.9050101@priv.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 May 2006, Stefan Richter wrote:
+>> ... and you have only 512 MB with no swap.  Try to add some swap space -
+>> then reiserfsck might eventually complete.
+>> 
+>> AFAIK, the only way to recover reiserfs after --rebuild-tree has been
+>> attempted is to run "reiserfsck --rebuild-tree" to completion.
+>> 
+> ok, you say that you think/know it is normal that reiserfsck needs more
+> than 512 MB ram... I just thought this is a bug. :-)
+>
+> So I try with 1 GB real ram and another 1 GB of swap. You're sure
+> everything is normal, and we don't have a problem at all?
 
-> Arjan van de Ven wrote:
-> > On Sun, 2006-04-30 at 16:52 +0200, Stefan Richter wrote:
-> > > is there a *direct* future-proof replacement for bus_to_virt()?
-> > > 
-> > > It appears there are already architectures which do not define a
-> > > bus_to_virt() funtion or macro. If there isn't a direct replacement, is
-> > > there at least a way to detect at compile time whether bus_to_virt()
-> > > exists?
-> > 
-> > 
-> > I'd go one step further: given a world with iommu's, and multiple pci
-> > domains etc, how can you know there even IS such a translation possible
-> > (without first having set it up from the other direction)?
-> 
-> Well, we actually do set it up from the other direction. But in a way that
-> does not work with IOMMUs...
-> 
-> AFAIU, the patch "dc395x: dynamically map scatter-gather for PIO" [1] by
-> Guennadi Liakhovetski is dealing with the same issue. I am not yet clear
-> whether I could adopt this method for sbp2.
-> [1] http://marc.theaimsgroup.com/?l=linux-scsi&t=114400790300004
+A 1.5TB reiserfs3 volume takes long to mount. That's because it build the 
+some bitmaps at mount time. Which means it (the kernel fs) requires more 
+ram as your partitions grow. I only have one blurry experience value which 
+is approximately 128MB per 1.9TB. Then you also need RAM for fsck...
+Note that fsck'ing ext* filesystems also take their time, even when the 
+filesystem is otherwise clean (e.g. mount count reached).
 
-I would be, obviously, interested to hear any results with that one.
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+Jan Engelhardt
+-- 

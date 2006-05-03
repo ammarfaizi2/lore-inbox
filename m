@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWECP6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbWECQCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030230AbWECP6j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 11:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWECP6j
+	id S1030231AbWECQCG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 12:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbWECQCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 11:58:39 -0400
-Received: from nz-out-0102.google.com ([64.233.162.192]:17234 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030230AbWECP6i convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 11:58:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VOmXt9hQId4GjElwSdx4Ufa+pPiT8z4AzNbcXlcoGU287dT2j0lvorKCnONBaavl6DdZEJsvuDWY+CwH/IoZxhC7CTje/ICzi7grJreVTa12Zcu7XfMnPcURPKMHnGz0AvJWSqCRqF/feqJvLOIFDwNsWKjlgaHaNLyS+PNAMQU=
-Message-ID: <6934efce0605030858k3967489p55ef98a26e71b761@mail.gmail.com>
-Date: Wed, 3 May 2006 08:58:36 -0700
-From: "Jared Hulbert" <jaredeh@gmail.com>
-To: "=?ISO-8859-1?Q?J=F6rn_Engel?=" <joern@wohnheim.fh-wedel.de>
+	Wed, 3 May 2006 12:02:06 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:62159 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1030231AbWECQCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 12:02:04 -0400
 Subject: Re: [RFC] Advanced XIP File System
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060503154700.GD5250@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+From: David Woodhouse <dwmw2@infradead.org>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Jared Hulbert <jaredeh@gmail.com>, Josh Boyer <jwboyer@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0605031151120.28543@localhost.localdomain>
 References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
-	 <20060503130502.GD19537@wohnheim.fh-wedel.de>
-	 <6934efce0605030831h30d7e4e3hb057fd1b3f7791d3@mail.gmail.com>
-	 <20060503154700.GD5250@wohnheim.fh-wedel.de>
+	 <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
+	 <Pine.LNX.4.64.0605022316550.28543@localhost.localdomain>
+	 <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
+	 <1146658275.20773.8.camel@pmac.infradead.org>
+	 <6934efce0605030845o6d313681x6b89bef71c28b3a9@mail.gmail.com>
+	 <Pine.LNX.4.64.0605031151120.28543@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 03 May 2006 17:01:58 +0100
+Message-Id: <1146672118.20773.32.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Correct.  It is not a must-fix, but having seperate workspaces for all
-> the filesystems seems wasteful.
+On Wed, 2006-05-03 at 11:57 -0400, Nicolas Pitre wrote:
+> First, is it worth it?
 
-Agreed.  So we copy the cramfs uncompress routines line for line. 
-That optimization seems like low hanging fruit.
+Quite possibly not. Even if you don't actually have kernel XIP, you may
+well decide just not to schedule userspace while the flash isn't in READ
+mode. Tearing down PTEs is painful.
 
-To consolidate them how should that be approached?  Create
-fs/uncompress.c?  Modify axfs and cramfs to use it?
+-- 
+dwmw2
+

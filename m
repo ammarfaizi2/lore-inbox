@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbWECHTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbWECHku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbWECHTc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 03:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWECHTc
+	id S965132AbWECHku (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 03:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWECHku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 03:19:32 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:43914 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S965013AbWECHTb (ORCPT
+	Wed, 3 May 2006 03:40:50 -0400
+Received: from ns2.suse.de ([195.135.220.15]:12161 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965132AbWECHkt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 03:19:31 -0400
-Message-ID: <346640766.02031@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Wed, 3 May 2006 15:19:48 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC] kernel facilities for cache prefetching
-Message-ID: <20060503071948.GD4781@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>
-References: <20060502075049.GA5000@mail.ustc.edu.cn> <20060502191000.GA1776@elf.ucw.cz>
+	Wed, 3 May 2006 03:40:49 -0400
+From: Andi Kleen <ak@suse.de>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: sched_clock() uses are broken
+Date: Wed, 3 May 2006 09:40:19 +0200
+User-Agent: KMail/1.9.1
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+References: <20060502132953.GA30146@flint.arm.linux.org.uk> <445791D3.9060306@yahoo.com.au> <1146640155.7526.27.camel@homer>
+In-Reply-To: <1146640155.7526.27.camel@homer>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060502191000.GA1776@elf.ucw.cz>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200605030940.20409.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 09:10:01PM +0200, Pavel Machek wrote:
-> Could we use this instead of blockdev freezing/big suspend image
-> support? It should permit us to resume quickly (with small image), and
-> then do readahead. ... that will give us usable machine quickly, still
-> very responsive desktop after resume?
+On Wednesday 03 May 2006 09:09, Mike Galbraith wrote:
 
-Seems that it can help in reducing the image size:
-write only small ranges of file pages to the suspend image(maybe 80MB
-= 10k ranges * 8k avgsize), and let the prefetcher restore other large
-chunks of code/data, depending on user specified policies.
+> Given that most people are going to end up using the pm_timer anyway, I
+> don't see the point of even having a sched_clock().  If it's jiffy
+> resolution, it's useless.  If it's wildly inaccurate (as it is in the
+> SMP case, monotonicity issues aside) it's more than useless.
 
-Wu
+For sched_clock TSC is always used and it's fine - sched_clock
+doesn't require the guarantees that make TSC often useless otherwise
+
+e.g. the scheduler is designed to only use it on one CPU 
+and can also tolerate variations scaling with frequency.
+
+-Andi

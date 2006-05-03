@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbWECMAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWECMLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965160AbWECMAa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 08:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWECMAa
+	id S965163AbWECMLX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 08:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965170AbWECMLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 08:00:30 -0400
-Received: from smtpauth00.csee.siteprotect.com ([64.41.126.131]:42380 "EHLO
-	smtpauth00.csee.siteprotect.com") by vger.kernel.org with ESMTP
-	id S965160AbWECMAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 08:00:30 -0400
-From: "Yogesh Pahilwan" <pahilwan.yogesh@spsoftindia.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Problem while applying patch to 2.6.9 kernel
-Date: Wed, 3 May 2006 17:32:02 +0530
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAAwZsyZCSXbUSO0mznjdzGqgEAAAAA@spsoftindia.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Wed, 3 May 2006 08:11:23 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:24770 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S965163AbWECMLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 08:11:23 -0400
+Subject: Re: [RFC] Advanced XIP File System
+From: David Woodhouse <dwmw2@infradead.org>
+To: Josh Boyer <jwboyer@gmail.com>
+Cc: Nicolas Pitre <nico@cam.org>, Jared Hulbert <jaredeh@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
+References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+	 <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
+	 <Pine.LNX.4.64.0605022316550.28543@localhost.localdomain>
+	 <625fc13d0605030341h2a105f49r2b1b610547e30022@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 03 May 2006 13:11:15 +0100
+Message-Id: <1146658275.20773.8.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcZuqWNQK9/RwEe/QNSj4YBys1SfiQ==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kernel Folks,
+On Wed, 2006-05-03 at 05:41 -0500, Josh Boyer wrote:
+> Yes, I realize that all that is needed is support from other archs.  A
+> more general form of the question would be does AXFS depend on
+> ARCH_MTD_XIP? 
 
-I am facing some problem while applying patch to the 2.6.9 kernel.
+That's for kernel XIP, which needs special magic for putting certain
+functions into RAM instead of the flash, polling for interrupts, etc.
 
-I have done following to apply the patch:
+For general _userspace_ XIP we don't necessarily need to do that. We
+only need to mark those pages as absent in the page tables if we ever
+schedule to userspace while the flash is in a mode other than read mode.
+Then handle the page fault by switching the flash back or waiting for
+it.
 
-# patch -p1 < ../../Patches/patch-ext3
-
-But getting following things:
-
-missing header for unified diff at line 3 of patch
-(Stripping trailing CRs from patch.)
-can't find file to patch at input line 3
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|#--- ../A_CLEAN_FILE_SYSTEM/jbd/commit.c       2006-02-25
-11:43:19.000000000 -0600
-|#+++ commit.c  2006-03-29 20:53:29.000000000 -0600
---------------------------
-File to patch:
-
-Can anyone suggest what I am doing wrong while applying this patch or if the
-command is correct then why patch is giving the above errors.
-
-Any help can be greatly appreciated.
-
-Thanks,
-Yogesh
+-- 
+dwmw2
 

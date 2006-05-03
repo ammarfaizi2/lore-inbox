@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWECHDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965102AbWECHEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964976AbWECHDV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 03:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbWECHDV
+	id S965102AbWECHEm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 03:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbWECHEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 03:03:21 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37511 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964976AbWECHDU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 03:03:20 -0400
-Date: Wed, 3 May 2006 09:08:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Keith Owens <kaos@sgi.com>
+	Wed, 3 May 2006 03:04:41 -0400
+Received: from web52613.mail.yahoo.com ([206.190.48.216]:53861 "HELO
+	web52613.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S965102AbWECHEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 03:04:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=b4hvWFxw5Ta4GGCdxPNrbFWsGhJ1ubbWNzhspPazb8tHf0S8U8L3xeT/93XjgkG8ynE/FJm/E0SPumYSRtKu5/YGRReuxmqaMNwb9mZEoXUEzNgjVBZJxArCKOV/fQnZmucVpVgUyHqHQQSF9gP3LLDw0Rb//Q5O9aZyf0ciWvQ=  ;
+Message-ID: <20060503070440.53101.qmail@web52613.mail.yahoo.com>
+Date: Wed, 3 May 2006 17:04:40 +1000 (EST)
+From: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+Subject: Re: 2.6.16.1 & D state processes
+To: Mike Galbraith <efault@gmx.de>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.6.17-rc3-mm1] i386: break out of recursion in stackframe walk
-Message-ID: <20060503070811.GC23921@elte.hu>
-References: <20060502095034.GA21063@elte.hu> <16113.1146632636@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16113.1146632636@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <1145515879.9712.11.camel@homer>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--- Mike Galbraith <efault@gmx.de> wrote:
+> On Thu, 2006-04-20 at 08:45 +0200, Mike Galbraith
+> wrote:
+> 
+> > Good idea.  What time source are you using?  I'd
+> try plain old pit.
+> 
+> (Looking back, I see you're using pm timer.)
 
-* Keith Owens <kaos@sgi.com> wrote:
+Actually, I narrowed it down to
+"CONFIG_X86_UP_IOAPIC". When it isn't compiled in, all
+is well.
 
-> KDB just limits kernel traces to a maximum of 200 entries, which 
-> catches direct as well as indirect recursion.  IA64 is notorious for 
-> getting loops in its unwind data, sometime looping over three or four 
-> functions.  Checking for a maximum number of entries is a simple and 
-> architecture independent check.
+(Yes it wasn't there in my minimal .config either. And
+yes, my BIOS is the latest available for this IBM P-IV
+NetVista desktop - BIOS as recent as Aug 2005, I'm
+sure.)
 
-you are right, but in this particular case this doesnt seem to be 
-'wrong' unwind data, it's more of a special marker of the end of the 
-frame (if i understood it correctly). If it's wrong unwind data then 
-that data should be fixed.
+Now I'll have to try myriad ioapic kernel boot
+parameters :-( to see if there is a setting in which
+it'll work nice.
 
-I also agree with adding a limit to catch buggy cases of recursion, as a 
-separate mechanism, independently of this particular bug.
+Any clues?
 
-	Ingo
+Thanks
+
+
+		
+____________________________________________________ 
+On Yahoo!7 
+Dating: It's free to join and check out our great singles! 
+http://www.yahoo7.com.au/personals

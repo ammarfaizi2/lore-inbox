@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965074AbWECDIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbWECDRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965074AbWECDIv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 May 2006 23:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWECDIv
+	id S965077AbWECDRi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 May 2006 23:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965079AbWECDRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 23:08:51 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:22218 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965074AbWECDIu
+	Tue, 2 May 2006 23:17:38 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:56362 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S965077AbWECDRi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 23:08:50 -0400
-Date: Wed, 3 May 2006 04:08:49 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] symlink nesting level change
-Message-ID: <20060503030849.GZ27946@ftp.linux.org.uk>
-References: <14CFC56C96D8554AA0B8969DB825FEA0012B309B@chicken.machinevisionproducts.com> <44580CF2.7070602@tlinx.org> <e3966u$dje$1@terminus.zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e3966u$dje$1@terminus.zytor.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 2 May 2006 23:17:38 -0400
+Date: Tue, 02 May 2006 23:17:37 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [RFC] Advanced XIP File System
+In-reply-to: <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
+X-X-Sender: nico@localhost.localdomain
+To: Josh Boyer <jwboyer@gmail.com>
+Cc: Jared Hulbert <jaredeh@gmail.com>, linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.64.0605022316550.28543@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+ <625fc13d0605021756v7a8e0d7p1e9d8e4c810bc092@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 07:57:34PM -0700, H. Peter Anvin wrote:
-> Followup to:  <44580CF2.7070602@tlinx.org>
-> By author:    Linda Walsh <lkml@tlinx.org>
-> In newsgroup: linux.dev.kernel
-> > Is this what you are looking for?
-> > include/linux/namei.h    MAX_NESTED_LINKS = 5
-> > (used in fs/namei.c, where comment claims MAX_NESTING is equal to 8)
+On Tue, 2 May 2006, Josh Boyer wrote:
+
+> On 5/2/06, Jared Hulbert <jaredeh@gmail.com> wrote
+> > 
+> > Why a new filesystem?
+> > - XIP of kernel is mainline, but not XIP of applications.  This
+> > enables application XIP
 > 
-> Wonder if it would make sense to make this a sysctl...
+> From what I recall, XIP of the kernel off of MTD is limited to ARM.
 
-No.  It's way past time to bump it to 8.  Everyone had been warned - for
-months now.
+It doesn't have to.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-----
---- a/include/linux/namei.h	2006-03-31 20:08:42.000000000 -0500
-+++ b/include/linux/namei.h	2006-05-02 23:06:46.000000000 -0400
-@@ -11,7 +11,7 @@
- 	struct file *file;
- };
- 
--enum { MAX_NESTED_LINKS = 5 };
-+enum { MAX_NESTED_LINKS = 8 };
- 
- struct nameidata {
- 	struct dentry	*dentry;
+
+Nicolas

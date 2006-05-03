@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030179AbWECNAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWECNBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030179AbWECNAP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 09:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWECNAO
+	id S1030186AbWECNBc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 09:01:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030185AbWECNBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 09:00:14 -0400
-Received: from main.gmane.org ([80.91.229.2]:32979 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030179AbWECNAN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 09:00:13 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Sergei Organov <osv@javad.com>
-Subject: High baud rates support for Quatech DSP-100.
-Followup-To: gmane.linux.serial
-Date: Wed, 03 May 2006 16:59:16 +0400
-Message-ID: <e3a9g8$idv$1@sea.gmane.org>
+	Wed, 3 May 2006 09:01:32 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:3308 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1030183AbWECNBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 09:01:31 -0400
+Date: Wed, 3 May 2006 15:00:43 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Cc: akpm@osdl.org, Greg KH <greg@kroah.com>, ioe-lkml@rameria.de,
+       linux-kernel@vger.kernel.org, Kyle Moffett <mrmacman_g4@mac.com>,
+       mschwid2@de.ibm.com, Pekka J Enberg <penberg@cs.Helsinki.FI>
+Subject: Re: [PATCH] s390: Hypervisor File System
+Message-ID: <20060503130043.GC19537@wohnheim.fh-wedel.de>
+References: <20060503123339.GB19537@wohnheim.fh-wedel.de> <OF4A608E41.FE0C2D7F-ON42257163.00461225-42257163.0046AB62@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 87.236.81.130
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
-Cc: linux-serial@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <OF4A608E41.FE0C2D7F-ON42257163.00461225-42257163.0046AB62@de.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 May 2006 14:51:53 +0200, Michael Holzheu wrote:
+> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote on 05/03/2006 02:33:39 PM:
+> 
+> > Applications will depend on some arcane detail of your format.  They
+> > will depend on exactly five spaces in "foo     bar".  It does not even
+> > matter if you documented "any amount of whitespace".  The application
+> > knows that it was five spaces and doesn't care.  And once you change
+> > it, the blame will be on you, because you broke existing userspace.
+> 
+> Again, logically there is no difference between the two solutions. It does
+> not matter, if you have one file with:
+> 
+> <cpu>
+>     <0>
+>        <onlinetime = 4711>
+>     <\0>
+> <\cpu>
 
-I've got a Quatech DSP-100 PCMCIA dual RS232 adapter. After adding the
-adapter parameters into the 'multi_id' and 'serial_ids' tables of the
-serial_cs.c driver, it is now automatically loaded and supports the card
-almost fine. However, the card supports baud rates up to 460800, but
-using serial_cs I get rates only up to 115200.
+Userspace can make your life hell by depending on indentation via 4
+spaces.  The problem is that you don't necessarily know that it does
+until you managed to change indentation.
 
-On the other hand, Quatech has GPL Linux driver (serial_qt.c) for this
-card that has been made for some early 2.6.x kernel version and doesn't
-compile for recent 2.6.16. I've managed to hack it to compile for
-2.6.16.8, -- it does support 460800 indeed.
+In a filesystem tree, it is fairly hard to make assumptions that are
+later broken.  It is by no means impossible, agreed.  But the
+"indentation" doesn't exist anymore.  A file is part of a subdirectory
+or it isn't.  Opening tags without matching closing tags don't exist
+either.  List goes on.
 
-So the question is what to do next. I'd like to either modify serial_cs
-to support high baud rates or to somehow get serial_qt to the linux
-tree. For me it seems that the former is more appropriate as serial_qt
-in fact looks like some earlier serial_cs modified by Quatech. OTOH,
-supporting high baud rates seems to be very card-specific[1] and IMHO
-doesn't fit well into rather generic serial_cs.
+In the end, both formats can get abused in ways you'd never foresee.
+But the directory tree considerably raises the barrier.
 
-Is it OK to put card-specific code into serial_cs (provided it's invoked
-only after manufacturer id is checked)? Should it be Kconfig option? Is
-there a better way to go?
-
-[1] It basically involves checking of some card-specific config
-register(s), then setting another card-specific register accordingly and
-setting of the 'uartclk' field of the 'struct uart_port' to
-corresponding value.
+Jörn
 
 -- 
-Sergei.
-
+He who knows that enough is enough will always have enough.
+-- Lao Tsu

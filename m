@@ -1,56 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751526AbWEDXHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWEDXJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751526AbWEDXHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 19:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWEDXHV
+	id S932382AbWEDXJv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 19:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWEDXJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 19:07:21 -0400
-Received: from wx-out-0102.google.com ([66.249.82.201]:46172 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751476AbWEDXHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 19:07:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=bU3/9a77tve4LYaBqBieTMQRxSXyv5hBsCWg4kBTkRvBrPRSrUDjm3B1n9Rxw2gUzmJYjoZRVB13r60hAswAoHf72Fx1Lo8Ms8qICz/4aPP6I/y2JNqob+rYU4PIU7NJUyLV9JvtWrVXxhS3ZD7L+rx0ngjpqyYO5sK0g7+5Nss=
-Message-ID: <445A8917.2030905@gmail.com>
-Date: Fri, 05 May 2006 07:07:03 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
+	Thu, 4 May 2006 19:09:51 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59568 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932382AbWEDXJu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 19:09:50 -0400
+Date: Thu, 4 May 2006 18:09:45 -0500 (CDT)
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: linux-kernel@vger.kernel.org
+cc: linux-ide@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jes Sorensen <jes@sgi.com>, Jeremy Higdon <jeremy@sgi.com>
+Subject: [PATCH] Move various PCI IDs to header file
+Message-ID: <20060504180614.X88573@chenjesu.americas.sgi.com>
+Organization: "Silicon Graphics, Inc."
 MIME-Version: 1.0
-To: grfgguvf.29601511@bloglines.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Weird framebuffer bug?
-References: <1146780118.931342476.15992.sendItem@bloglines.com>
-In-Reply-To: <1146780118.931342476.15992.sendItem@bloglines.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-grfgguvf.29601511@bloglines.com wrote:
-> --- Antonino A. Daplas <adaplas@gmail.com> wrote:
-> 
->> And if you can't specify
-> the actual resolution with vesafb, try nvidiafb.
-> 
-> 
-> 
-> I have specified the actual
-> resolution. Text mode with vesafb fills the whole screen (and the on-screen
-> menu says 1024x768 which is the native resolution of the monitor). The screenshot
-> I took when using X via fbdev (set to 1024x768 too) while the displaying was
-> erroneous is 1024x768 as well. It somehow just doesn't reach the monitor in
-> that form.
-> 
+Move various QLogic, Vitesse, and Intel storage
+controller PCI IDs to the main header file.
 
-Does the same thing happens with different color depths?
+Signed-off-by: Brent Casavant <bcasavan@sgi.com>
 
-Can you try using the "vesa" driver with X?  If the same thing happens, it might
-be a problem with the BIOS.
+---
 
-BTW, what does dmesg and fbset -i say?
+As suggested by Andrew Morton and Jes Sorenson.
 
-Tony
+ drivers/scsi/qla1280.c  |   24 ------------------------
+ drivers/scsi/sata_vsc.c |   11 ++++++-----
+ include/linux/pci_ids.h |    9 +++++++++
+ 3 files changed, 15 insertions(+), 29 deletions(-)
 
-PS: I'll be traveling in a few hours, so I may not be able to answer back.
+---
+diff --git a/drivers/scsi/qla1280.c b/drivers/scsi/qla1280.c
+index 5a48e55..00662a5 100644
+--- a/drivers/scsi/qla1280.c
++++ b/drivers/scsi/qla1280.c
+@@ -397,30 +397,6 @@
+ #include "ql1280_fw.h"
+ #include "ql1040_fw.h"
+ 
+-
+-/*
+- * Missing PCI ID's
+- */
+-#ifndef PCI_DEVICE_ID_QLOGIC_ISP1080
+-#define PCI_DEVICE_ID_QLOGIC_ISP1080	0x1080
+-#endif
+-#ifndef PCI_DEVICE_ID_QLOGIC_ISP1240
+-#define PCI_DEVICE_ID_QLOGIC_ISP1240	0x1240
+-#endif
+-#ifndef PCI_DEVICE_ID_QLOGIC_ISP1280
+-#define PCI_DEVICE_ID_QLOGIC_ISP1280	0x1280
+-#endif
+-#ifndef PCI_DEVICE_ID_QLOGIC_ISP10160
+-#define PCI_DEVICE_ID_QLOGIC_ISP10160	0x1016
+-#endif
+-#ifndef PCI_DEVICE_ID_QLOGIC_ISP12160
+-#define PCI_DEVICE_ID_QLOGIC_ISP12160	0x1216
+-#endif
+-
+-#ifndef PCI_VENDOR_ID_AMI
+-#define PCI_VENDOR_ID_AMI               0x101e
+-#endif
+-
+ #ifndef BITS_PER_LONG
+ #error "BITS_PER_LONG not defined!"
+ #endif
+diff --git a/drivers/scsi/sata_vsc.c b/drivers/scsi/sata_vsc.c
+index 8a29ce3..27d6587 100644
+--- a/drivers/scsi/sata_vsc.c
++++ b/drivers/scsi/sata_vsc.c
+@@ -433,13 +433,14 @@ err_out:
+ 
+ 
+ /*
+- * 0x1725/0x7174 is the Vitesse VSC-7174
+- * 0x8086/0x3200 is the Intel 31244, which is supposed to be identical
+- * compatibility is untested as of yet
++ * Intel 31244 is supposed to be identical.
++ * Compatibility is untested as of yet.
+  */
+ static const struct pci_device_id vsc_sata_pci_tbl[] = {
+-	{ 0x1725, 0x7174, PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+-	{ 0x8086, 0x3200, PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
++	{ PCI_VENDOR_ID_VITESSE, PCI_DEVICE_ID_VITESSE_VSC7174,
++	  PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_GD31244,
++	  PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
+ 	{ }
+ };
+ 
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index d6fe048..c380faf 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -848,7 +848,12 @@
+ 
+ 
+ #define PCI_VENDOR_ID_QLOGIC		0x1077
++#define PCI_DEVICE_ID_QLOGIC_ISP10160	0x1016
+ #define PCI_DEVICE_ID_QLOGIC_ISP1020	0x1020
++#define PCI_DEVICE_ID_QLOGIC_ISP1080	0x1080
++#define PCI_DEVICE_ID_QLOGIC_ISP12160	0x1216
++#define PCI_DEVICE_ID_QLOGIC_ISP1240	0x1240
++#define PCI_DEVICE_ID_QLOGIC_ISP1280	0x1280
+ #define PCI_DEVICE_ID_QLOGIC_ISP2100	0x2100
+ #define PCI_DEVICE_ID_QLOGIC_ISP2200	0x2200
+ #define PCI_DEVICE_ID_QLOGIC_ISP2300	0x2300
+@@ -1957,6 +1962,9 @@
+ #define PCI_VENDOR_ID_NETCELL		0x169c
+ #define PCI_DEVICE_ID_REVOLUTION	0x0044
+ 
++#define PCI_VENDOR_ID_VITESSE		0x1725
++#define PCI_DEVICE_ID_VITESSE_VSC7174	0x7174
++
+ #define PCI_VENDOR_ID_LINKSYS		0x1737
+ #define PCI_DEVICE_ID_LINKSYS_EG1064	0x1064
+ 
+@@ -2135,6 +2143,7 @@
+ #define PCI_DEVICE_ID_INTEL_ICH8_4	0x2815
+ #define PCI_DEVICE_ID_INTEL_ICH8_5	0x283e
+ #define PCI_DEVICE_ID_INTEL_ICH8_6	0x2850
++#define PCI_DEVICE_ID_INTEL_GD31244	0x3200
+ #define PCI_DEVICE_ID_INTEL_82855PM_HB	0x3340
+ #define PCI_DEVICE_ID_INTEL_82830_HB	0x3575
+ #define PCI_DEVICE_ID_INTEL_82830_CGC	0x3577

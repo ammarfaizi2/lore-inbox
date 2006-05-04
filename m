@@ -1,105 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWEDPee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWEDPfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWEDPee (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 11:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWEDPee
+	id S932317AbWEDPfv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 11:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWEDPfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 11:34:34 -0400
-Received: from mga02.intel.com ([134.134.136.20]:43098 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932309AbWEDPed convert rfc822-to-8bit (ORCPT
+	Thu, 4 May 2006 11:35:51 -0400
+Received: from mx2.suse.de ([195.135.220.15]:18127 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932317AbWEDPfu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 11:34:33 -0400
-X-IronPort-AV: i="4.05,89,1146466800"; 
-   d="scan'208"; a="31470679:sNHT4646410132"
-X-MIMEOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Date: Thu, 4 May 2006 11:33:27 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB65AC994@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Thread-index: AcZtsT6vgePsEi1vT3SuA0EDhIDZnQAAVFawAF4YQWAAGNNToA==
-From: "Brown, Len" <len.brown@intel.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Andi Kleen" <ak@suse.de>, <sergio@sergiomb.no-ip.org>,
-       "Kimball Murray" <kimball.murray@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
-       <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 04 May 2006 15:33:30.0170 (UTC) FILETIME=[186231A0:01C66F90]
+	Thu, 4 May 2006 11:35:50 -0400
+Date: Thu, 4 May 2006 08:34:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Holzheu <HOLZHEU@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, ioe-lkml@rameria.de,
+       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com, penberg@cs.helsinki.fi
+Subject: Re: [PATCH] s390: Hypervisor File System
+Message-ID: <20060504153411.GA27485@kroah.com>
+References: <20060504144259.GA26668@kroah.com> <OF99AF266B.81368F01-ON42257164.00523E52-42257164.0052802A@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF99AF266B.81368F01-ON42257164.00523E52-42257164.0052802A@de.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 04, 2006 at 05:01:07PM +0200, Michael Holzheu wrote:
+> Hi Greg,
+> 
+> Greg KH <greg@kroah.com> wrote on 05/04/2006 04:42:59 PM:
+> > > I would suggest do do it like /sys/kernel and put the code
+> > > into kernel/ksysfs.c and include/linux/kobject.h
+> >
+> > No, if you do that then every kernel gets that mount point, when almost
+> > no one really wants it :)
+> >
+> > If you leave it as a separate file, then the build system can just
+> > include the file as needed.
+> >
+> 
+> So you want a new config option CONFIG_HYPERVISOR?
 
->>>> We should never have had a problem with un-connected 
->interrupt lines
->>>> consuming vectors, as the vectors are handed out at run-time
->>>> only when interrupts are requested by drivers.
->>>
->>>Incorrect.  By being requested by drivers I assume you mean by
->>>request_irq.  assign_irq_vector is called long before request_irq
->>>and in fact there is currently not a call from request_irq to
->>>assign_irq_vector.  Look where assign_irq_vector is called in 
->>io_apic.c
->
->Hmmm, on Natalie's ping, I looked at this again.
->
->setup_IO_APIC_irqs() actually consumes only 16 vectors.
->This is because it only sets up the IRQs for pins
->found with find_irq_entry(), which searches mp_irqs[]
->which at this point contains only the legacy identify mappings.
+Sure.  But don't make it a user selectable config option, but rather,
+one your S390 option sets.
 
-I should clarify, since Natalie pointed out that some systems
-run in MPS mode...
+That way the Xen and other groups can also set it when they need it.
 
-If the system is booted with "acpi=off", then mp_irqs[] includes
-everything advertised by the MPS tables, and so setup_IO_APIC_irqs()
-does hand out vectors to un-occupied IOAPIC RTEs.  However, if the
-MPS tables are accurate enough to skip RTEs that are not used
-on that machine, then it hands out vectors for RTEs which
-_could_ have devices on them.
+> When no one except for us wants it, wouldn't it be best
+> then to create /sys/hypervisor first in the hypfs code?
+> 
+> If someone else needs it in the future, we still can move
+> it common code.
 
-On the ES7000 there are potentially lots of IOAPICS with pins
-that can't possibly be used.
-If only low-numbered RTEs were used on these IOAPICs,
-then it would be simple to put in a hook to pretend the
-upper entries do not exist, and compress the GSI name space.
-But apparently they use some high numbered RTEs, so
-we go ahead and allocate the full size of the IOAPIC
-in what becomes a very sparse and > NR_IRQS GSI name space.
+The Xen people need it too.  Now who knows when their code will ever hit
+mainline...
 
-Of course if one is going to compress this name space,
-it would be possible to put a platform dependent hook in
-where a GSI is translated into an apic:pin pair...
-This would be much cleaner than the current compression...
+thanks,
 
->The PNP code then takes a swing at things, and it registers
->a handful of gsi's, but they are all duplicates of the legacy
->mappings already set-up, so no additional vectors are consumed.
->
->So on a big system, the large quantity of vectors will not be 
->consumed at
->IOAPIC initialization time, but later at device probe time.
->Not via request_irq(), but via pci_enable_device():
->
->pci_enable_device()
-> pci_enable_device_bars()
->  pcibios_enable_device()
->   pcibios_enable_irq() -> acpi_pci_irq_enable()
->    acpi_register_gsi()
->     mp_register_gsi()
->      io_apic_set_pci_routing()
->       entry.vector = assign_irq_vector(irq)
-
-I should qualify this...
-If the system is booted with "acpi=off" and MPS is used,
-then mp_irqs[] includes everything that is in MPS, and thus
-setup_IO_APIC_irqs()
->So except for the legacy IRQs, we are already allocating the vectors
->on-demand, and that doesn't need to be fixed.
+greg k-h

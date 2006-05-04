@@ -1,53 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWEDTm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWEDTnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWEDTm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 15:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWEDTm3
+	id S1030303AbWEDTnh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 15:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWEDTnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 15:42:29 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:62359 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S1750732AbWEDTm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 15:42:28 -0400
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, Dave Airlie <airlied@linux.ie>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, pjones@redhat.com,
-       Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-In-Reply-To: <200605041326.36518.bjorn.helgaas@hp.com>
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org> <200605041309.53910.bjorn.helgaas@hp.com> <445A51F1.9040500@linux.intel.com> <445A51F1.9040500@linux.intel.com> <200605041326.36518.bjorn.helgaas@hp.com>
-Date: Thu, 4 May 2006 20:42:17 +0100
-Message-Id: <E1FbjiL-0001B9-00@chiark.greenend.org.uk>
-From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+	Thu, 4 May 2006 15:43:37 -0400
+Received: from mailhub.hp.com ([192.151.27.10]:52196 "EHLO mailhub.hp.com")
+	by vger.kernel.org with ESMTP id S1030303AbWEDTng (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 15:43:36 -0400
+From: "Bob Picco" <bob.picco@hp.com>
+Date: Thu, 4 May 2006 15:43:34 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bob Picco <bob.picco@hp.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
+Message-ID: <20060504194334.GH19859@localhost>
+References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de> <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au> <20060504013239.GG19859@localhost> <1146756066.22503.17.camel@localhost.localdomain> <20060504154652.GA4530@localhost> <20060504192528.GA26759@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060504192528.GA26759@elte.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+Ingo Molnar wrote:	[Thu May 04 2006, 03:25:28PM EDT]
+> 
+> * Bob Picco <bob.picco@hp.com> wrote:
+> 
+> > Dave Hansen wrote:	[Thu May 04 2006, 11:21:06AM EDT]
+> > > I haven't thought through it completely, but these two lines worry me:
+> > > 
+> > > > + start = pgdat->node_start_pfn & ~((1 << (MAX_ORDER - 1)) - 1);
+> > > > + end = start + pgdat->node_spanned_pages;
+> > > 
+> > > Should the "end" be based off of the original "start", or the aligned
+> > > "start"?
+> >
+> > Yes. I failed to quilt refresh before sending. You mean end should be 
+> > end = pgdat->node_start_pfn + pgdat->node_spanned_pages before 
+> > rounding up.
+> 
+> do you have an updated patch i should try?
+> 
+> 	Ingo
+You can try this but don't believe it will change your outcome. I've
+booted this on ia64 with slight modification to eliminate
+VIRTUAL_MEM_MAP and have only DISCONTIGMEM. Your case is failing at the
+front edge of of the zone and not the ending edge which had a flaw in my
+first post of the patch. I would have expected the first patch to handle
+the front edge correctly.
 
-> There's already a "rom" file in sysfs.  Could vbetool and friends
-> use that?
+I don't remember seeing your .config in the thread (or blind and unable
+to see it). Would you please send it my way.
 
-Not if you have multiple graphics cards.
+I'm also hoping Andy has time to look into this.
 
-> How do vbetool and X coordinate their usage of "enable"?
+bob
 
-vbetool won't run at anything other than a text console, and X won't 
-mess with the graphics card if it's not on the current VT. You can mess 
-this up if you try hard enough (multihead, for instance) but by and 
-large it's a situation that you can avoid.
 
-> What if we throw an in-kernel VGA driver into the mix?  But I guess
-> Jon has asked all these questions before; I just didn't get warm
-> fuzzies that there were safe, maintainable answers.
-
-This probably isn't the right long-term answer, but the right long-term 
-answer is going to be a very long time away. It's an improvement over 
-what we have now. I certainly don't intend to leave vbetool relying on 
-it - of course, the "right" answer is for graphics drivers to know how 
-to program cards from scratch so we can get rid of vbetool altogether, 
-but I'll probably be more concerned about getting my flying car to meet 
-new emission standards than I will be by graphics cards at that stage.
-
--- 
-Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org
+Index: linux-2.6.17-rc3/mm/page_alloc.c
+===================================================================
+--- linux-2.6.17-rc3.orig/mm/page_alloc.c	2006-04-27 09:44:02.000000000 -0400
++++ linux-2.6.17-rc3/mm/page_alloc.c	2006-05-04 13:01:25.000000000 -0400
+@@ -2123,14 +2123,22 @@ static void __init alloc_node_mem_map(st
+ #ifdef CONFIG_FLAT_NODE_MEM_MAP
+ 	/* ia64 gets its own node_mem_map, before this, without bootmem */
+ 	if (!pgdat->node_mem_map) {
+-		unsigned long size;
++		unsigned long size, start, end;
+ 		struct page *map;
+ 
+-		size = (pgdat->node_spanned_pages + 1) * sizeof(struct page);
++		/*
++		 * The zone's endpoints aren't required to be MAX_ORDER
++		 * aligned but the node_mem_map endpoints must be in order
++		 * for the buddy allocator to function correctly.
++		 */
++		start = pgdat->node_start_pfn & ~(MAX_ORDER_NR_PAGES - 1);
++		end = pgdat->node_start_pfn + pgdat->node_spanned_pages;
++		end = ALIGN(end, MAX_ORDER_NR_PAGES);
++		size =  (end - start) * sizeof(struct page);
+ 		map = alloc_remap(pgdat->node_id, size);
+ 		if (!map)
+ 			map = alloc_bootmem_node(pgdat, size);
+-		pgdat->node_mem_map = map;
++		pgdat->node_mem_map = map + (pgdat->node_start_pfn - start);
+ 	}
+ #ifdef CONFIG_FLATMEM
+ 	/*
+Index: linux-2.6.17-rc3/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.17-rc3.orig/include/linux/mmzone.h	2006-04-27 09:44:02.000000000 -0400
++++ linux-2.6.17-rc3/include/linux/mmzone.h	2006-05-04 13:01:39.000000000 -0400
+@@ -22,6 +22,7 @@
+ #else
+ #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
+ #endif
++#define MAX_ORDER_NR_PAGES (1 << (MAX_ORDER - 1))
+ 
+ struct free_area {
+ 	struct list_head	free_list;

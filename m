@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWEDMrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWEDM57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWEDMrv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 08:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWEDMrv
+	id S1750749AbWEDM57 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 08:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWEDM57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 08:47:51 -0400
-Received: from pm-mx5.mgn.net ([195.46.220.209]:24489 "EHLO pm-mx5.mx.noos.fr")
-	by vger.kernel.org with ESMTP id S932301AbWEDMrv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 08:47:51 -0400
-Date: Thu, 4 May 2006 14:47:39 +0200
-From: Damien Wyart <damien.wyart@gmail.com>
-To: Irfan Habib <irfan.habib@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Network Architecture Book Relevance to 2.6 Kernels
-Message-ID: <20060504124739.GA17951@localhost.localdomain>
-References: <3420082f0605040438y68f7734xc2fecbf0f2713e94@mail.gmail.com>
+	Thu, 4 May 2006 08:57:59 -0400
+Received: from smtpauth00.csee.siteprotect.com ([64.41.126.131]:64960 "EHLO
+	smtpauth00.csee.siteprotect.com") by vger.kernel.org with ESMTP
+	id S1750749AbWEDM56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 08:57:58 -0400
+From: "Yogesh Pahilwan" <pahilwan.yogesh@spsoftindia.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Generic SATA driver which works with Marvell SATA
+Date: Thu, 4 May 2006 18:29:04 +0530
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAA4EKnrx4E+kKrTaa+ZxzZDAEAAAAA@spsoftindia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3420082f0605040438y68f7734xc2fecbf0f2713e94@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcZveoUt1AQ7+R52ThmuAEMYap6Yxw==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Irfan Habib <irfan.habib@gmail.com> [2006-05-04 16:38]: I wanted some
-> detailed documentation about the linux kernels network architecture,
-> one of my friends referred me to the book "Linux Network Architecture"
-> published by Prentice Hall.
-> (http://www.amazon.com/gp/product/0131777203/103-4793311-5144610?v=glance&n=283155)
+Hi Folks,
 
-> Now the book looks abit outdated by saying things like "upcoming 2.4
-> kernel release" in various places. So how relevant is the book to the
-> 2.6 kernels? Where can I get latest info about the network
-> architecture in the 2.6 Kernels, incase there's a lot of difference.
+Is there any generic SATA driver available which should work with Marvell
+SATA disks? 
 
-Yes, this book is very outdated, and quite badly translated from German.
-It also has big technical mistakes if I remember well some reviews I've
-read (I do not have the book myself). I would recommend :
+Where can I download this driver?
 
-http://www.amazon.com/gp/product/1584502843/
-http://www.amazon.com/gp/product/0596002556/
+Thanks,
+Yogesh
 
-They are not perfect either, but much better and up-to-date that the one
-you quoted.
 
--- 
-Damien Wyart
+

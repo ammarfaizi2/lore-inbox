@@ -1,53 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWEDSjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWEDSmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWEDSjD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 14:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWEDSjD
+	id S1750779AbWEDSmR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 14:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751513AbWEDSmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 14:39:03 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53687 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750772AbWEDSjC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 14:39:02 -0400
-Date: Thu, 4 May 2006 14:38:40 -0400
-From: Dave Jones <davej@redhat.com>
-To: dtor_core@ameritech.net
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Remove silly messages from input layer.
-Message-ID: <20060504183840.GE18962@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, dtor_core@ameritech.net,
-	"Martin J. Bligh" <mbligh@mbligh.org>, Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060504024404.GA17818@redhat.com> <20060504071736.GB5359@ucw.cz> <445A18D8.1030502@mbligh.org> <d120d5000605041134k3d9f5934ne9e01f7108cb0271@mail.gmail.com>
+	Thu, 4 May 2006 14:42:17 -0400
+Received: from bay105-f16.bay105.hotmail.com ([65.54.224.26]:27035 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750779AbWEDSmR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 14:42:17 -0400
+Message-ID: <BAY105-F166097660AAB32A85D4DD6E9B40@phx.gbl>
+X-Originating-IP: [84.81.201.82]
+X-Originating-Email: [rwm_rietveld@hotmail.com]
+In-Reply-To: <Pine.LNX.4.61.0605041424380.7013@chaos.analogic.com>
+From: "Roy Rietveld" <rwm_rietveld@hotmail.com>
+To: linux-os@analogic.com
+Cc: linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de
+Subject: Re: TCP/IP send, sendfile, RAW
+Date: Thu, 04 May 2006 18:42:16 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000605041134k3d9f5934ne9e01f7108cb0271@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+X-OriginalArrivalTime: 04 May 2006 18:42:16.0735 (UTC) FILETIME=[778ADAF0:01C66FAA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 04, 2006 at 02:34:34PM -0400, Dmitry Torokhov wrote:
+i tried but it doesn't help, still 40MBits. Does send or sento cost a lot of 
+cpu load.
 
- > >Perhaps it should say that then ;-)
- > 
- > Do you have a beter wording in mind? "Keyboard reports too many keys
- > were pessed at once, some keystrokes might be dropped"?
+i tried to measure the cpu time sendto cost.
 
-It still doesn't make sense when the user only pressed a single key,
-or in some cases, never pressed *any* key (don't have that report to hand,
-but it was a laptop keyboard)
+gettimeofday(start)
+sendto
+gettimeofday(end)
 
- > Also I don't understand what people have against this message, it's at
- > KERN_DEBUG level after all.
+print end - start
 
-When you're on the recieving end of distro kernel bug reports, it becomes clearer :)
-Users read dmesg from time to time, and freak out when they see something
-like this that looks like an error that they can't do anything about.
-Until I silenced these in the Fedora kernel I was getting quite a few reports
-from concerned users.
+time measured is 250 us.
 
-		Dave
--- 
-http://www.codemonkey.org.uk
+
+>From: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+>Reply-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+>To: "Roy Rietveld" <rwm_rietveld@hotmail.com>
+>CC: <linux-kernel@vger.kernel.org>,<jengelh@linux01.gwdg.de>
+>Subject: Re: TCP/IP send, sendfile, RAW
+>Date: Thu, 4 May 2006 14:27:47 -0400
+>
+>
+>On Thu, 4 May 2006, Roy Rietveld wrote:
+>
+> > Yes it is 100 MBits and there is a listener. and there are no other pc's 
+>on
+> > the link because its cross cable link. And when sending large buffers
+> > 32Kbyte it will do 80 MBits. It think that there is a lot of overhead in 
+>the
+> > fucntion send or something.
+> >
+>
+>Use sendto() and recvfrom() for UDP. Stream protocols require an ACK and
+>are slower.
+>
+> >
+> >> From: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+> >> Reply-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+> >> To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+> >> CC: "Roy Rietveld"
+> >> <rwm_rietveld@hotmail.com>,<linux-kernel@vger.kernel.org>
+> >> Subject: Re: TCP/IP send, sendfile, RAW
+> >> Date: Thu, 4 May 2006 13:56:31 -0400
+> >>
+> >>
+> >> On Thu, 4 May 2006, Jan Engelhardt wrote:
+> >>
+> >>>> I would like to send ethernet packets with 1400 bytes payload.
+> >>>> I wrote a small program witch sends a buffer of 1400 bytes in a 
+>endless
+> >> loop.
+> >>>> The problem is that a would like 100Mbits throughtput but when i 
+>check
+> >> this
+> >>>> with ethereal.
+> >>>> I only get 40 MBits. I tried sending with an UDP socket and RAW 
+>socket.
+> >> I also
+> >>>> tried sendfile.
+> >>>> The RAW socket gives the best result till now 50 MBits throughtput.
+> >>>
+> >>> Limitation of Ethernet.
+> >>>
+> >>>
+> >>>
+> >>> Jan Engelhardt
+> >>
+> >> Maybe he can tell what he means by 100 MBits! If he is looking for
+> >> 100 megabits per second, that's easy, That's 100/8 = 12.5 megabytes
+> >> per second. Anything, including Windows on a wet string, will
+> >> do that. If he is looking for 100 megabytes per second, that's
+> >> hard. He would need 100 * 8 = 800 megabits/second. A "gigabit" link
+> >> runs that fast if nobody else is on it, but there is a header and CRC
+> >> tail, in addition to the payload. UDP is the protocol to use to realize
+> >> this kind of bandwidth, but its possible for some packets to get lost 
+>and,
+> >> if they are routed, they could even be duplicated. Also, when testing
+> >> UDP, there must be a listener in order to realize the high speed.
+> >> You can't just spew out a dead-end link.
+> >>
+> >> Cheers,
+> >> Dick Johnson
+> >> Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+> >> New book: http://www.lymanschool.com
+> >> _
+> >> 
+> >>
+> >> ****************************************************************
+> >> The information transmitted in this message is confidential and may be
+> >> privileged.  Any review, retransmission, dissemination, or other use of
+> >> this information by persons or entities other than the intended 
+>recipient
+> >> is prohibited.  If you are not the intended recipient, please notify
+> >> Analogic Corporation immediately - by replying to this message or by
+> >> sending an email to DeliveryErrors@analogic.com - and destroy all 
+>copies of
+> >> this information, including any attachments, without reading or 
+>disclosing
+> >> them.
+> >>
+> >> Thank you.
+> >> -
+> >> To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
+>in
+> >> the body of a message to majordomo@vger.kernel.org
+> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >> Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> >
+>
+>Cheers,
+>Dick Johnson
+>Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+>New book: http://www.lymanschool.com
+>_
+>
+>
+>****************************************************************
+>The information transmitted in this message is confidential and may be 
+>privileged.  Any review, retransmission, dissemination, or other use of 
+>this information by persons or entities other than the intended recipient 
+>is prohibited.  If you are not the intended recipient, please notify 
+>Analogic Corporation immediately - by replying to this message or by 
+>sending an email to DeliveryErrors@analogic.com - and destroy all copies of 
+>this information, including any attachments, without reading or disclosing 
+>them.
+>
+>Thank you.
+
+

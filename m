@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWEDM2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWEDMfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWEDM2a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 08:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWEDM2a
+	id S932282AbWEDMfN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 08:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWEDMfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 08:28:30 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:4546 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S932277AbWEDM23 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 08:28:29 -0400
-Message-ID: <346745706.15764@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Thu, 4 May 2006 20:28:30 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+	Thu, 4 May 2006 08:35:13 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:5548 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932282AbWEDMfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 08:35:11 -0400
+Subject: Re: [RFC] kernel facilities for cache prefetching
+From: Arjan van de Ven <arjan@infradead.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Cc: "Ph. Marek" <philipp.marek@bmlv.gv.at>, Linus Torvalds <torvalds@osdl.org>,
+       Linda Walsh <lkml@tlinx.org>, linux-kernel@vger.kernel.org,
        Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC] kernel facilities for cache prefetching
-Message-ID: <20060504122830.GA6205@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>
-References: <20060502075049.GA5000@mail.ustc.edu.cn> <20060502191000.GA1776@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060502191000.GA1776@elf.ucw.cz>
-User-Agent: Mutt/1.5.11+cvs20060126
+       Badari Pulavarty <pbadari@us.ibm.com>
+In-Reply-To: <20060504121454.GB6008@mail.ustc.edu.cn>
+References: <346556235.24875@ustc.edu.cn> <44594AA9.8020906@tlinx.org>
+	 <Pine.LNX.4.64.0605031829300.4086@g5.osdl.org>
+	 <200605040908.10727.philipp.marek@bmlv.gv.at>
+	 <1146728004.3101.17.camel@laptopd505.fenrus.org>
+	 <20060504121454.GB6008@mail.ustc.edu.cn>
+Content-Type: text/plain
+Date: Thu, 04 May 2006 14:34:55 +0200
+Message-Id: <1146746095.3101.35.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 02, 2006 at 09:10:01PM +0200, Pavel Machek wrote:
-> > 		$ echo "file /dev/hda1" > /proc/filecache
-> > 		$ cat /proc/filecache
-> > 		# file /dev/hda1
-> > 		# mask 0
-> > 		#
-> > 		# idx	len
-> > 		0	24
-> > 		48	2
-> > 		53	5
-> > 		......
+On Thu, 2006-05-04 at 20:14 +0800, Wu Fengguang wrote:
+> On Thu, May 04, 2006 at 09:33:24AM +0200, Arjan van de Ven wrote:
+> > 
+> > 
+> > > Ascending block numbers on disk can be read very fast, as the disk needs no or 
+> > > less seeking. That's even true for stripes and mirrors. (I grant you that 
+> > > there are complicated setups out there, but these could be handled similar.)
+> > > 
+> > 
+> > 
+> > btw this all really spells out that you may want to do this as a device
+> > mapper thing; eg have a device mapper module that can do "lookaside" to
+> > a different order/mirror block whatever. The filesystem just doesn't
+> > want to know; do it at the DM level ;) That also solves the entire
+> > caching layering problem etc ;)
 > 
-> Could we use this instead of blockdev freezing/big suspend image
-> support? It should permit us to resume quickly (with small image), and
-> then do readahead. ... that will give us usable machine quickly, still
-> very responsive desktop after resume?
+> I guess some big corps might want to install such a layer into their
+> storage products ;)
 
-Badari's usage case inspired me that on suspension we can
-- first invoke a user-land tool to do all the cache
-  status-logging/analyzing/selective-dropping jobs
-- then let the kernel write all the remaining caches(made up of many
-  small chunks) to the suspend image
+maybe, could be.
+Doing it at this level also has the advantage that fs metadata becomes
+seek free as well; since that is mostly fixed-location inside the fs,
+reordering that on an fs-level is really hard.. on a dm level.. easy.
 
-And do the reverse things on restoring.
-With that we moved all the strategies to userspace.
 
-Wu

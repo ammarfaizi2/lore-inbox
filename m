@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWEDU2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWEDUaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030316AbWEDU2H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 16:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWEDU2H
+	id S1030318AbWEDUaw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 16:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWEDUaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 16:28:07 -0400
-Received: from xenotime.net ([66.160.160.81]:41101 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030317AbWEDU2F (ORCPT
+	Thu, 4 May 2006 16:30:52 -0400
+Received: from main.gmane.org ([80.91.229.2]:701 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030318AbWEDUaw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 16:28:05 -0400
-Date: Thu, 4 May 2006 13:30:29 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Phillip Hellewell <phillip@hellewell.homeip.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
-       mcthomps@us.ibm.com, toml@us.ibm.com, yoder1@us.ibm.com,
-       jmorris@namei.org, sct@redhat.com, ezk@cs.sunysb.edu,
-       dhowells@redhat.com
-Subject: Re: [PATCH 13/13: eCryptfs] Debug functions
-Message-Id: <20060504133029.9db762d9.rdunlap@xenotime.net>
-In-Reply-To: <20060504034334.GL28613@hellewell.homeip.net>
-References: <20060504031755.GA28257@hellewell.homeip.net>
-	<20060504034334.GL28613@hellewell.homeip.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Thu, 4 May 2006 16:30:52 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: framebuffer broken in 2.6.16.x and 2.6.17-rc3 ?
+Date: Thu, 4 May 2006 22:29:20 +0200
+Message-ID: <gs7iuaocrzmp.s33e3qhm21bl.dlg@40tude.net>
+References: <60f2b0dc0605021251i1c883617vf132e8bdeffd6c7f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-84-221-17-56.cust-adsl.tiscali.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 May 2006 21:43:34 -0600 Phillip Hellewell wrote:
+On Tue, 2 May 2006 21:51:13 +0200, Olivier Fourdan wrote:
 
-> ---
->  debug.c |  122 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 122 insertions(+)
-> 
-> Index: linux-2.6.17-rc3-mm1-ecryptfs/fs/ecryptfs/debug.c
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.17-rc3-mm1-ecryptfs/fs/ecryptfs/debug.c	2006-05-02 19:35:59.000000000 -0600
-> @@ -0,0 +1,122 @@
-> +
-> +/**
-> + * Dump hexadecimal representation of char array
-> + *
-> + * @param data
-> + * @param bytes
-> + */
-> +void ecryptfs_dump_hex(char *data, int bytes)
-> +{
+> I'm surprised noone has raised that issue yet, so I'm wondering if I'm
+> missing something obvious :) When using the fb in 2.6.16.x and
+> 2.6.17-rc3, the screen stays just black, nothing is displayed... I'm
+> using the regular unaccelerated vesa framebuffer.
 
-Use proper kernel-doc notation/format, please.
+It may sound silly and it's probably not relevant to your case, but I
+had this kind of result during a kernel upgrade some versions ago when
+I forgot the fbcon module.
 
-(did someone already say this?)
+-- 
+Giuseppe "Oblomov" Bilotta
 
----
-~Randy
+"Da grande lotterò per la pace"
+"A me me la compra il mio babbo"
+(Altan)
+("When I grow up, I will fight for peace"
+ "I'll have my daddy buy it for me")
+

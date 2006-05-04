@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWEDIBa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWEDIO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751435AbWEDIBa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 04:01:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWEDIBa
+	id S1751439AbWEDIO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 04:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWEDIO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 04:01:30 -0400
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:13748 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S1751435AbWEDIB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 04:01:29 -0400
+	Thu, 4 May 2006 04:14:56 -0400
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:30628 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S1750757AbWEDIO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 04:14:56 -0400
 From: Junio C Hamano <junkio@cox.net>
 To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 1.3.2
+Subject: What's in git.git
 cc: linux-kernel@vger.kernel.org
-Date: Thu, 04 May 2006 01:01:28 -0700
-Message-ID: <7v4q066wx3.fsf@assigned-by-dhcp.cox.net>
+X-maint-at: 7abd7117ec57b8c3c2a469db62c7811fdac5c655
+X-master-at: 5892fc6504dd23d7cf9415afb13bae8a61d6c70e
+Date: Thu, 04 May 2006 01:14:54 -0700
+Message-ID: <7vbque5hq9.fsf@assigned-by-dhcp.cox.net>
 User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest maintenance release GIT 1.3.2 is available at the
-usual places:
+* Latest maintenance release 1.3.2 is out from the 'maint' branch.
 
-	http://www.kernel.org/pub/software/scm/git/
+* The 'master' branch has these since the last announcement, not
+  counting what is in v1.3.2.
 
-	git-1.3.2.tar.{gz,bz2}			(tarball)
-	RPMS/$arch/git-*-1.3.2-1.$arch.rpm	(RPM)
+ - blame path-pruning fix (Fredrik Kuivinen)
 
-Mostly documentation and usability fixes, with no exciting new
-features, as the maintenance series ought to be.
+ - built-in push (Linus, Johannes Schindelin)
 
-----------------------------------------------------------------
+ - beginning of "put remotes/ info in config file" (Johannes Schindelin)
 
-Changes since v1.3.1 are as follows:
+ - repo-config updates and fixes (Johannes Schindelin)
 
-Huw Davies:
-      git-format-patch: Use rfc2822 compliant date.
+ - built-in count-objects and diff
 
-Jon Loeliger:
-      Alphabetize the glossary.
-      Added definitions for a few words:
-      Add a few more words to the glossary.
+ - core.prefersymlinkrefs can be given to use symlink HEAD;
+   this may be needed to bisect kernel history before January
+   2006 whose setlocalversion script depended on HEAD being a
+   symlink.
 
-Junio C Hamano:
-      rebase: typofix.
-      commit-tree.c: check_valid() microoptimization.
-      verify-pack: check integrity in a saner order.
-      git-am --resolved: more usable error message.
+ - "git-log --parents" fix (Linus)
 
-Linus Torvalds:
-      Fix filename verification when in a subdirectory
+ - use rev-list instead of log in git-cvsserver (Martin Langhoff)
 
-Martin Langhoff:
-      git-send-email: fix version string to be valid perl
+ - sha1_to_hex() usage cleanup (Linus)
 
-Matthias Kestenholz:
-      annotate: fix warning about uninitialized scalar
-      annotate: display usage information if no filename was given
-      fix various typos in documentation
+ - Document update-index --unresolve (Matthias Kestenholz)
 
-Robert Shearman:
-      give "what now" hint to users upon git-am failure.
 
-Sean Estabrooks:
-      Update the git-branch man page to include the "-r" option,
-      Fix up remaining man pages that use asciidoc "callouts".
-      Properly render asciidoc "callouts" in git man pages.
-      Fix trivial typo in git-log man page.
+* The 'next' branch, in addition, has these.
+
+ - "put remotes/ info in config file" for fetch side (Johannes Schindelin)
+
+ - built-in grep
+
+   It now knows all the common grep options I personally use,
+   including -l, -w, -E, -i, -[ABC]<n>, -v; I am planning to
+   push this out perhaps mid next week.
+
+ - built-in format-patch WIP
+
+   I really should resume working on this again...
+
+ - cache-tree
+
+   Fixed a rather nasty bug; should be safe again to use it now.
+
+ - get_sha1(): :path and :[0-3]:path to extract from index.
+
+ - diff-delta enhancements (Nicolas Pitre)
+
+
+* The 'pu' branch, in addition, has these.
+
+ - partial tree reading/writing with --prefix option.
+
+ - Transitively read alternatives (Martin Waitz)
 
 

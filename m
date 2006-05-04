@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWEDHPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWEDHTP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbWEDHPo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 03:15:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWEDHPo
+	id S1751420AbWEDHTP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 03:19:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWEDHTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 03:15:44 -0400
-Received: from vulpecula.futurs.inria.fr ([195.83.212.5]:42454 "EHLO
-	vulpecula.futurs.inria.fr") by vger.kernel.org with ESMTP
-	id S1751418AbWEDHPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 03:15:43 -0400
-Message-ID: <4459AA1B.9020207@tremplin-utc.net>
-Date: Thu, 04 May 2006 09:15:39 +0200
-From: Eric Piel <Eric.Piel@tremplin-utc.net>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060422)
-MIME-Version: 1.0
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: limits / PIPE_BUF?
-References: <Pine.LNX.4.58.0605032244230.25908@shell2.speakeasy.net>
-In-Reply-To: <Pine.LNX.4.58.0605032244230.25908@shell2.speakeasy.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 4 May 2006 03:19:15 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:15562 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751420AbWEDHTP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 03:19:15 -0400
+Date: Thu, 4 May 2006 08:19:11 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] symlink nesting level change
+Message-ID: <20060504071910.GI27946@ftp.linux.org.uk>
+References: <14CFC56C96D8554AA0B8969DB825FEA0012B309B@chicken.machinevisionproducts.com> <44580CF2.7070602@tlinx.org> <e3966u$dje$1@terminus.zytor.com> <20060503030849.GZ27946@ftp.linux.org.uk> <20060503183554.87f0218d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060503183554.87f0218d.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-05/04/2006 07:55 AM, Vadim Lobanov wrote/a écrit:
-> Hi,
-Hi!
-
-:
+On Wed, May 03, 2006 at 06:35:54PM -0700, Andrew Morton wrote:
+> It's a non-back-compatible change which means that people will install
+> 2.6.18+, will set stuff up which uses more that five nested links and some
+> will discover that they can no longer run their software on older kernels.
 > 
-> A snippet from include/linux/limits.h:
-> #define PIPE_BUF        4096    /* # bytes in atomic write to a pipe */
-> 
-> PIPE_BUF is a bit of an oddity. It is defined there, then redefined in
-> the arm header files, even though those header files are never included
-> anywhere.
-Actually, here, on a 2.6.16 source code, PIPE_BUF is used in 
-arch/sparc/kernel/sys_sunos.c, arch/sparc64/kernel/sys_sunos32.c, and 
-arch/sparc64/solaris/fs.c . It seems it's some kind of compatibility 
-value with Sun's OS...
+> It'll only hurt a very small number of people, but for those people, it
+> will hurt a lot.  And I can't really think of anything we can do to help
+> them, apart from making the new behaviour runtime-controllable, defaulting
+> to "off", but add a once-off printk when we hit MAX_NESTED_LINKS, pointing
+> them at a document which tells them how to turn on the new behaviour and
+> which explains the problems.  Which sucks.
 
+Those people keep asking to lift that limit.  So no, I don't believe that
+making it runtime-controllable is the right thing to do.  Document that
+we'd lifted the limit to 8 and such setups become possible since <version>.
+ 
+> But I guess as major distros are 2.6.16-based, this is a good time to make
+> this change.
 
-> Also, PIPE_BUF is never referenced by name in any of the Linux
-> code. And yet, it is still being mentioned in some Big And Scary
-> Warnings (tm): fs/autofs4/waitq.c or include/linux/pipe_fs_i.h, for
-> example.
-Maybe they wanted to say PIPE_BUFFERS ? (just wild guess)
-
-c u,
-Eric
+FWIW, RH kernels had that for more than a year by now...

@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWEDFmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWEDFze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWEDFmf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 01:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWEDFmf
+	id S1751369AbWEDFze (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 01:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWEDFze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 01:42:35 -0400
-Received: from mga02.intel.com ([134.134.136.20]:22344 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750749AbWEDFme convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 01:42:34 -0400
-X-IronPort-AV: i="4.05,86,1146466800"; 
-   d="scan'208"; a="31269844:sNHT18678247"
-Content-class: urn:content-classes:message
+	Thu, 4 May 2006 01:55:34 -0400
+Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:33469 "EHLO
+	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751369AbWEDFze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 01:55:34 -0400
+Date: Wed, 3 May 2006 22:55:32 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+Subject: limits / PIPE_BUF?
+Message-ID: <Pine.LNX.4.58.0605032244230.25908@shell2.speakeasy.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MIMEOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [RFC][PATCH] Document what in IRQ is.
-Date: Thu, 4 May 2006 01:42:30 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB656C807@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC][PATCH] Document what in IRQ is.
-Thread-index: AcZvJUmO6FTZVetSRz2WGxrw/9CM1gAFHGNA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: <ak@suse.de>, <Natalie.Protasevich@unisys.com>,
-       <sergio@sergiomb.no-ip.org>, <kimball.murray@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
-       <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 04 May 2006 05:42:31.0183 (UTC) FILETIME=[892E29F0:01C66F3D]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->Linux does not have generic infrastructure to allow two interrupt
->sources to share the same token passed to the kernel. 
+Hi,
 
-On i386 and x86_64 io_apic.c, see irq_pin_list
-This advertises to support multiple pins per IRQ.
+I was reading through the include/linux/limits.h file in order to
+generate a cleanup patch for it -- a large number of #defines within
+that file are no longer being used, as I surmise that they are simply
+remnants of earlier implementations.
 
-I suspect this code never runs, and simply adds
-complexity to code that has no shortage of complexity.
+A snippet from include/linux/limits.h:
+#define PIPE_BUF        4096    /* # bytes in atomic write to a pipe */
 
-If somebody can explain to me what a "shared ISA-space IRQ"
-is supposed to be, I'm all ears.  I've had a BUG() in this
-code for a while waiting for it to be used, and never seen it fire.
+PIPE_BUF is a bit of an oddity. It is defined there, then redefined in
+the arm header files, even though those header files are never included
+anywhere. Also, PIPE_BUF is never referenced by name in any of the Linux
+code. And yet, it is still being mentioned in some Big And Scary
+Warnings (tm): fs/autofs4/waitq.c or include/linux/pipe_fs_i.h, for
+example.
 
-If we can get rid of that concept, then we have a 1:1 mapping
-between irqs and apic:pin.  Possibly this simplification would
-be helpful as we re-think how the mapping from cpu:vector -> irq works.
+What's the deal with PIPE_BUF? Is its value used in the code indirectly,
+so that more comments would help make this fact obvious? Or is it now
+deprecated, and therefore a viable target for include/linux/limits.h
+cleanups?
 
--Len
+- Vadim Lobanov

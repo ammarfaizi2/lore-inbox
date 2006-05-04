@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWEDPBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbWEDPCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751492AbWEDPBB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 11:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWEDPBA
+	id S1751494AbWEDPCa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 11:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWEDPCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 11:01:00 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:52378 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751492AbWEDPA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 11:00:59 -0400
-In-Reply-To: <20060504144259.GA26668@kroah.com>
-Subject: Re: [PATCH] s390: Hypervisor File System
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, ioe-lkml@rameria.de,
-       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org,
-       mschwid2@de.ibm.com, penberg@cs.helsinki.fi
-X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
-Message-ID: <OF99AF266B.81368F01-ON42257164.00523E52-42257164.0052802A@de.ibm.com>
-From: Michael Holzheu <HOLZHEU@de.ibm.com>
-Date: Thu, 4 May 2006 17:01:07 +0200
-X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.53HF654 | July 22, 2005) at
- 04/05/2006 17:02:09
+	Thu, 4 May 2006 11:02:30 -0400
+Received: from mailtir.platform.com ([192.219.104.248]:19348 "EHLO
+	mailtir.platform.com") by vger.kernel.org with ESMTP
+	id S1751494AbWEDPC3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 11:02:29 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [2.6.17-rc3][sky2] Network stalls/drops completely
+Date: Thu, 4 May 2006 11:02:02 -0400
+Message-ID: <E2AC825D4FC7764DA86D9C8ECA27A2DE3F84FB@catoexm05.noam.corp.platform.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6.17-rc3][sky2] Network stalls/drops completely
+Thread-Index: AcZvk9i3+S2V8lJZRHaoCN8QNcBJ0gAACoYw
+From: "Shawn Starr" <sstarr@platform.com>
+To: "Stephen Hemminger" <shemminger@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+(plain text this time)
 
-Greg KH <greg@kroah.com> wrote on 05/04/2006 04:42:59 PM:
-> > I would suggest do do it like /sys/kernel and put the code
-> > into kernel/ksysfs.c and include/linux/kobject.h
->
-> No, if you do that then every kernel gets that mount point, when almost
-> no one really wants it :)
->
-> If you leave it as a separate file, then the build system can just
-> include the file as needed.
->
-
-So you want a new config option CONFIG_HYPERVISOR?
-
-When no one except for us wants it, wouldn't it be best
-then to create /sys/hypervisor first in the hypfs code?
-
-If someone else needs it in the future, we still can move
-it common code.
-
-Michael
-
+Hi Stephen, 
+ 
+We just got some new boxes and they have a sky2 nic onboard. The card seems ok but over time I start to get network drops. Also, If I restart the network I deadlocked the kernel unfortunately I don't have a stack dump of the crash.
+ 
+I see you've made some changes in -git perhaps I should try a git snapshot to see if the sky2 issues have been fixed?
+ 
+Thanks, 
+ 
+Shawn.

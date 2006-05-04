@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWEDOBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWEDOBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750951AbWEDOBe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 10:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751089AbWEDOBe
+	id S1751038AbWEDOBi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 10:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWEDOBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 10:01:34 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:5595 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750951AbWEDOBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 10:01:34 -0400
-Date: Thu, 4 May 2006 16:01:37 +0200
+	Thu, 4 May 2006 10:01:38 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:41074 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751038AbWEDOBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 10:01:37 -0400
+Date: Thu, 4 May 2006 16:01:43 +0200
 From: Michael Holzheu <holzheu@de.ibm.com>
 To: akpm@osdl.org
 Cc: ioe-lkml@rameria.de, joern@wohnheim.fh-wedel.de,
        linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
        penberg@cs.helsinki.fi, greg@kroah.com
-Subject: [PATCH 1/3] s390: Rename hypfs to s390-hypfs
-Message-Id: <20060504160137.06b9b8eb.holzheu@de.ibm.com>
+Subject: [PATCH 2/3] Add /sys/hypervisor subsystem
+Message-Id: <20060504160143.2af57564.holzheu@de.ibm.com>
 Organization: IBM
 X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
@@ -25,53 +25,70 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since hpyfs is s390 specific we have to do the following:
-
-- rename hypfs filesystem to s390-hypfs
-- rename config option to S390_HYPFS_FS
+To have a home for all hypervisors, this patch
+creates /sys/hypervisor.
 
 Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Michael Holzheu <holzheu@de.ibm.com>
 
 ---
 
- arch/s390/Kconfig        |    2 +-
- arch/s390/hypfs/Makefile |    2 +-
- arch/s390/hypfs/inode.c  |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ include/linux/kobject.h |    2 ++
+ kernel/ksysfs.c         |   26 +++++++++++++++++++++-----
 
-diff -urpN linux-2.6.16-hypfs-2006-04-28-update1/arch/s390/Kconfig linux-2.6.16-hypfs-2006-04-28-update2/arch/s390/Kconfig
---- linux-2.6.16-hypfs-2006-04-28-update1/arch/s390/Kconfig	2006-05-04 10:22:24.000000000 +0200
-+++ linux-2.6.16-hypfs-2006-04-28-update2/arch/s390/Kconfig	2006-05-04 10:25:32.000000000 +0200
-@@ -442,7 +442,7 @@ config NO_IDLE_HZ_INIT
- 	  The HZ timer is switched off in idle by default. That means the
- 	  HZ timer is already disabled at boot time.
+diff -urpN linux-2.6.16-hypfs-2006-04-28-update2/include/linux/kobject.h linux-2.6.16-hypfs-2006-04-28-update3/include/linux/kobject.h
+--- linux-2.6.16-hypfs-2006-04-28-update2/include/linux/kobject.h	2006-05-04 10:22:37.000000000 +0200
++++ linux-2.6.16-hypfs-2006-04-28-update3/include/linux/kobject.h	2006-05-04 10:29:47.000000000 +0200
+@@ -186,6 +186,8 @@ struct subsystem _varname##_subsys = { \
  
--config HYPFS_FS
-+config S390_HYPFS_FS
- 	bool "s390 hypervisor file system support"
- 	default y
- 	help
-diff -urpN linux-2.6.16-hypfs-2006-04-28-update1/arch/s390/hypfs/Makefile linux-2.6.16-hypfs-2006-04-28-update2/arch/s390/hypfs/Makefile
---- linux-2.6.16-hypfs-2006-04-28-update1/arch/s390/hypfs/Makefile	2006-05-04 10:22:19.000000000 +0200
-+++ linux-2.6.16-hypfs-2006-04-28-update2/arch/s390/hypfs/Makefile	2006-05-04 10:23:23.000000000 +0200
-@@ -2,6 +2,6 @@
- # Makefile for the linux hypfs filesystem routines.
- #
+ /* The global /sys/kernel/ subsystem for people to chain off of */
+ extern struct subsystem kernel_subsys;
++/* The global /sys/hypervisor/ subsystem  */
++extern struct subsystem hypervisor_subsys;
  
--obj-$(CONFIG_HYPFS_FS) += hypfs.o
-+obj-$(CONFIG_S390_HYPFS_FS) += hypfs.o
+ /**
+  * Helpers for setting the kset of registered objects.
+diff -urpN linux-2.6.16-hypfs-2006-04-28-update2/kernel/ksysfs.c linux-2.6.16-hypfs-2006-04-28-update3/kernel/ksysfs.c
+--- linux-2.6.16-hypfs-2006-04-28-update2/kernel/ksysfs.c	2006-05-04 10:22:38.000000000 +0200
++++ linux-2.6.16-hypfs-2006-04-28-update3/kernel/ksysfs.c	2006-05-04 10:30:03.000000000 +0200
+@@ -53,6 +53,8 @@ KERNEL_ATTR_RW(uevent_helper);
  
- hypfs-objs := inode.o hypfs_diag.o
-diff -urpN linux-2.6.16-hypfs-2006-04-28-update1/arch/s390/hypfs/inode.c linux-2.6.16-hypfs-2006-04-28-update2/arch/s390/hypfs/inode.c
---- linux-2.6.16-hypfs-2006-04-28-update1/arch/s390/hypfs/inode.c	2006-05-04 10:22:24.000000000 +0200
-+++ linux-2.6.16-hypfs-2006-04-28-update2/arch/s390/hypfs/inode.c	2006-05-04 10:23:49.000000000 +0200
-@@ -422,7 +422,7 @@ static struct file_operations hypfs_file
+ decl_subsys(kernel, NULL, NULL);
+ EXPORT_SYMBOL_GPL(kernel_subsys);
++decl_subsys(hypervisor, NULL, NULL);
++EXPORT_SYMBOL_GPL(hypervisor_subsys);
  
- static struct file_system_type hypfs_type = {
- 	.owner		= THIS_MODULE,
--	.name		= "hypfs",
-+	.name		= "s390-hypfs",
- 	.get_sb		= hypfs_get_super,
- 	.kill_sb	= kill_litter_super
- };
+ static struct attribute * kernel_attrs[] = {
+ #ifdef CONFIG_HOTPLUG
+@@ -68,12 +70,26 @@ static struct attribute_group kernel_att
+ 
+ static int __init ksysfs_init(void)
+ {
+-	int error = subsystem_register(&kernel_subsys);
+-	if (!error)
+-		error = sysfs_create_group(&kernel_subsys.kset.kobj,
+-					   &kernel_attr_group);
++	int rc;
+ 
+-	return error;
++	rc = subsystem_register(&hypervisor_subsys);
++	if (rc)
++		goto fail_hyp;
++	rc = subsystem_register(&kernel_subsys);
++	if (rc)
++		goto fail_kernel;
++	rc = sysfs_create_group(&kernel_subsys.kset.kobj,
++				&kernel_attr_group);
++	if (rc)
++		goto fail_group;
++	return 0;
++
++fail_group:
++	subsystem_unregister(&kernel_subsys);
++fail_kernel:
++	subsystem_unregister(&hypervisor_subsys);
++fail_hyp:
++	return rc;
+ }
+ 
+ core_initcall(ksysfs_init);

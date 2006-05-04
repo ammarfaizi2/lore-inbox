@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWEDKQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWEDKWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751481AbWEDKQX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 06:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWEDKQW
+	id S1751479AbWEDKWf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 06:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWEDKWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 06:16:22 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:10988 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1751481AbWEDKQW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 06:16:22 -0400
-From: Ismail Donmez <ismail@pardus.org.tr>
-Organization: TUBITAK/UEKAE
-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-Subject: Re: Any reasons not to use gcc-4.1.0 ?
-Date: Thu, 4 May 2006 13:13:00 +0300
-User-Agent: KMail/1.9.1
-References: <355803204.20060504121040@dns.toxicfilms.tv>
-In-Reply-To: <355803204.20060504121040@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 4 May 2006 06:22:35 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:7457 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751479AbWEDKWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 06:22:35 -0400
+In-Reply-To: <20060503221037.GA17181@kroah.com>
+Subject: Re: [PATCH] s390: Hypervisor File System
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, ioe-lkml@rameria.de,
+       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com, penberg@cs.helsinki.fi
+X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
+Message-ID: <OF3B24B2D7.E24F3E4F-ON42257164.0038D454-42257164.0039028B@de.ibm.com>
+From: Michael Holzheu <HOLZHEU@de.ibm.com>
+Date: Thu, 4 May 2006 12:22:42 +0200
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 04/05/2006 12:23:44
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2883512.xJYqafYLxM";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200605041313.00694.ismail@pardus.org.tr>
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2883512.xJYqafYLxM
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Greg KH <greg@kroah.com> wrote on 05/04/2006 12:10:37 AM:
 
-Per=C5=9Fembe 4 May 2006 13:10 tarihinde, Maciej Soltysiak =C5=9Funlar=C4=
-=B1 yazm=C4=B1=C5=9Ft=C4=B1:=20
-> Hi,
+> > Fine with me! Then I will create /sys/hypervisor/s390. Should I
+> > create /sys/hypervisor in the hpyfs code or should it be
+> > created somewhere else?
 >
-> My debian testing has gcc-4.0.3 and gcc-4.1.0 available.
-> I am using gcc-4.0.3 to compile the kernel but I was wondering if
-> there is a reason not to use gcc-4.1.0 ?
+> Somewhere else is probably best.
 >
-> The computer is stable, no problems with compiling the kernel
-> with gcc-4.0.3.
+> drivers/base/hypervisor.c ?
 >
-> Does anyone has good or bad experience and thus advice on it?
 
-Well gcc bugzilla says : "155 regressions in 4.0 , 128 regressions in 4.1" =
-,=20
-that alone is a good reason to use 4.1 imho.
+We could do that, but then we have to create two new files
+hypervisor.c and hypervisor.h just for one new mountpoint
+in sysfs.
 
-Regards,
-ismail
-=2D-=20
+I would suggest do do it like /sys/kernel and put the code
+into kernel/ksysfs.c and include/linux/kobject.h
 
+Michael
 
---nextPart2883512.xJYqafYLxM
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEWdOsGp0leluI9UwRAi1sAJ0ShKbwnS5dFixHiXNqZja0i4sOFwCfQpXx
-UYCYgdfSrc6HSPyTk7/IYB8=
-=OMy4
------END PGP SIGNATURE-----
-
---nextPart2883512.xJYqafYLxM--

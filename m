@@ -1,44 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWEDNIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWEDNUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWEDNIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 09:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWEDNIZ
+	id S1750711AbWEDNUc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 09:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWEDNUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 09:08:25 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:34717 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751029AbWEDNIY (ORCPT
+	Thu, 4 May 2006 09:20:32 -0400
+Received: from ns2.suse.de ([195.135.220.15]:14528 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750711AbWEDNUc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 09:08:24 -0400
-Date: Thu, 4 May 2006 15:08:22 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Yogesh Pahilwan <pahilwan.yogesh@spsoftindia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Generic SATA driver which works with Marvell SATA
-Message-ID: <20060504130822.GB16570@harddisk-recovery.com>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAA4EKnrx4E+kKrTaa+ZxzZDAEAAAAA@spsoftindia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 May 2006 09:20:32 -0400
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] fix unlikely profiling & vsyscalls on x86_64
+Date: Thu, 4 May 2006 15:20:23 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, dwalker@mvista.com,
+       linux-kernel@vger.kernel.org
+References: <20060504131014.GA17036@elte.hu>
+In-Reply-To: <20060504131014.GA17036@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAA4EKnrx4E+kKrTaa+ZxzZDAEAAAAA@spsoftindia.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+Message-Id: <200605041520.23621.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 04, 2006 at 06:29:04PM +0530, Yogesh Pahilwan wrote:
-> Is there any generic SATA driver available which should work with Marvell
-> SATA disks? 
+On Thursday 04 May 2006 15:10, Ingo Molnar wrote:
+> fix unlikely profiling in vsyscalls ...
 
-If the disk behaves like a standard SATA disk the sd driver should work
-just fine (like with any other SATA disk).
+Applied thanks
 
-> Where can I download this driver?
-
-It comes free with your kernel source.
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+-Andi

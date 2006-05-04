@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWEDVWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWEDVYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbWEDVWG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 17:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWEDVWF
+	id S1750808AbWEDVYy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 17:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWEDVYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 17:22:05 -0400
-Received: from iriserv.iradimed.com ([69.44.168.233]:8575 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1750804AbWEDVWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 17:22:04 -0400
-Message-ID: <445A7059.7000202@cfl.rr.com>
-Date: Thu, 04 May 2006 17:21:29 -0400
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Thu, 4 May 2006 17:24:54 -0400
+Received: from web.bloglines.com ([65.214.39.152]:16512 "HELO
+	blw10.io.askjeeves.info") by vger.kernel.org with SMTP
+	id S1750808AbWEDVYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 17:24:54 -0400
+Message-ID: <1146777893.3982259993.25862.sendItem@bloglines.com>
+Date: 4 May 2006 21:24:53 -0000
+From: grfgguvf.29601511@bloglines.com
+To: linux-kernel@vger.kernel.org
+Subject: Weird framebuffer bug?
 MIME-Version: 1.0
-To: Roy Rietveld <rwm_rietveld@hotmail.com>
-CC: linux-os@analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: TCP/IP send, sendfile, RAW
-References: <BAY105-F38F372575F5B72AF1DACE6E9B40@phx.gbl>
-In-Reply-To: <BAY105-F38F372575F5B72AF1DACE6E9B40@phx.gbl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 May 2006 21:22:19.0725 (UTC) FILETIME=[D35ED7D0:01C66FC0]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14426.000
-X-TM-AS-Result: No--0.400000-5.000000-31
+Content-Type: text/plain;charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Rietveld wrote:
-> I read something about zero copy may i need somelike that.
+Hi,
 
-Yes, zero copy IO does make a huge difference.  Unfortunately, at this 
-time, it is not possible to do zero copy IO on sockets save for 
-sendfile() because they do not yet support aio, at least, not the last 
-time I checked.
+I am having a really strange bug where every fifth or so vertical line
+is not displayed when running X using the framebuffer (so the right fifth
+of the screen is also left black). And it's not the monitor settings. If the
+image is stretched to fill the screen the lines are still omitted (It's an
+LCD and it interpolates the lines so the whole image looks blurred).
 
-For comparison I wrote an ftp server for NT 4.0 several years ago on a 
-PII-233 system ( similar speed to yours ) and saw similar results to 
-yours until switching to zero copy IO, which pushed 11,820 KB/s ftp 
-transfers using less than 1% of the cpu.
+However,
+when taking a screenshot and later viewing with correct display, everything
+looks OK on it.
 
-I'm still waiting for Linux to be able to do this, and hopefully won't 
-have to wait much longer.
+Text mode on the framebuffer is OK, the whole screen is
+filled. X using the video card directly is also OK.
 
+Maybe this is an X
+bug if yes then sorry for reporting at the wrong place.
+
+Software used:
+
+* Linux kernel 2.6.16, the binary version from Debian for 686
+* vesafb framebuffer
+driver as shipped with the kernel, loaded from module
+* X11R7 Xorg server
+1.0, again the Debian binary
+* fbdev X driver as shipped with Xorg
+* [nv
+X driver (non-accelerated) when using X directly on the card]
+
+The framebuffer
+and X with both drivers is set to 24bit color mode.
+
+Hardware:
+* NVidia
+GeForce 2, on AGP
+* Samsung TFT LCD connected on a VGA cable
+* [x86 machine]
+
+
+Anyone else experienced a similar bug or know what can it be? I tried searching
+around but nothing relevant.

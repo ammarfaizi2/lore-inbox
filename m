@@ -1,92 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWEDBaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWEDBcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWEDBaB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 21:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWEDBaB
+	id S1750836AbWEDBcp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 21:32:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWEDBcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 21:30:01 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:45263 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750800AbWEDBaB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 21:30:01 -0400
-Subject: [PATCH][BUG]ext3 multile block allocate little endian fixes
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: akpm@osdl.org
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20060426104935sho@rifu.tnes.nec.co.jp>
-References: <20060426104935sho@rifu.tnes.nec.co.jp>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Wed, 03 May 2006 18:29:54 -0700
-Message-Id: <1146706194.4375.114.camel@localhost.localdomain>
+	Wed, 3 May 2006 21:32:45 -0400
+Received: from mailhub.hp.com ([192.151.27.10]:32716 "EHLO mailhub.hp.com")
+	by vger.kernel.org with ESMTP id S1750836AbWEDBcp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 21:32:45 -0400
+From: "Bob Picco" <bob.picco@hp.com>
+Date: Wed, 3 May 2006 21:32:39 -0400
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
+Message-ID: <20060504013239.GG19859@localhost>
+References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de> <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44576BF5.8070903@yahoo.com.au>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some places in ext3 multiple block allocation code (in 2.6.17-rc3) don't
-handle the little endian well. This was resulting in *wrong* block
-numbers being assigned to in-memory block variables and then stored on
-disk eventually. The following patch has been verified to fix an ext3
-filesystem failure when run ltp test on a 64 bit machine. 
+Nick Piggin wrote:	[Tue May 02 2006, 10:25:57AM EDT]
+> Martin J. Bligh wrote:
+> >>Oh that's a 32bit kernel. I don't think the 32bit NUMA has ever worked
+> >>anywhere but some Summit systems (at least every time I tried it it 
+> >>blew up on me and nobody seems to use it regularly). Maybe it would be 
+> >>finally time to mark it CONFIG_BROKEN though or just remove it (even 
+> >>by design it doesn't work very well) 
+> >
+> >
+> >Bollocks. It works fine, and is tested every single day, on every git
+> >release, and every -mm tree.
+> 
+> Whatever the case, there definitely does not appear to be sufficient
+> zone alignment enforced for the buddy allocator. I cannot see how it
+> could work if zones are not aligned on 4MB boundaries.
+> 
+> Maybe some architectures / subarch code naturally does this for us,
+> but Ingo is definitely hitting this bug because his config does not
+> (align, that is).
+> 
+> I've randomly added a couple more cc's.
+> 
+The patch below isn't compile tested or correct for those cases where
+alloc_remap is called or where arch code has allocated node_mem_map for
+CONFIG_FLAT_NODE_MEM_MAP. It's just conveying what I believe the issue is.
 
-Signed-Off_by: Mingming Cao <cmm@us.ibm.com>
----
+Andy added code to buddy allocator which doesn't require the zone's endpoints
+to be aligned to MAX_ORDER. I think the issue is that the buddy
+allocator requires the node_mem_map's endpoints to be MAX_ORDER aligned. 
+Otherwise __page_find_buddy could compute a buddy not in node_mem_map
+for partial MAX_ORDER regions at zone's endpoints. page_is_buddy will
+detect that these pages at endpoints aren't PG_buddy (they were zeroed
+out by bootmem allocator and not part of zone).  Of course the negative
+here is we could waste a little memory but the positive is eliminating
+all the old checks for zone boundary conditions.
 
- linux-2.6.16-cmm/fs/ext3/inode.c |   13 ++++++++-----
- 1 files changed, 8 insertions(+), 5 deletions(-)
+SPARSEMEM won't encounter this issue because of MAX_ORDER size
+constraint when SPARSEMEM is configured. ia64 VIRTUAL_MEM_MAP doesn't
+need the logic either because the holes and endpoints are handled
+differently.  This leaves checking alloc_remap and other arches which
+privately allocate for node_mem_map.
 
-diff -puN fs/ext3/inode.c~ext3_mballoc_little_endian_fix fs/ext3/inode.c
---- linux-2.6.16/fs/ext3/inode.c~ext3_mballoc_little_endian_fix	2006-05-03 17:20:44.000000000 -0700
-+++ linux-2.6.16-cmm/fs/ext3/inode.c	2006-05-03 18:09:30.000000000 -0700
-@@ -711,7 +711,7 @@ static int ext3_splice_branch(handle_t *
- 	 * direct blocks blocks
- 	 */
- 	if (num == 0 && blks > 1) {
--		current_block = le32_to_cpu(where->key + 1);
-+		current_block = le32_to_cpu(where->key) + 1;
- 		for (i = 1; i < blks; i++)
- 			*(where->p + i ) = cpu_to_le32(current_block++);
- 	}
-@@ -724,7 +724,7 @@ static int ext3_splice_branch(handle_t *
- 	if (block_i) {
- 		block_i->last_alloc_logical_block = block + blks - 1;
- 		block_i->last_alloc_physical_block =
--				le32_to_cpu(where[num].key + blks - 1);
-+				le32_to_cpu(where[num].key) + blks - 1;
- 	}
+Any how I could be totally wrong but like I said this requires more
+thought.
+
+bob
+
+
+Index: linux-2.6.17-rc3/mm/page_alloc.c
+===================================================================
+--- linux-2.6.17-rc3.orig/mm/page_alloc.c	2006-04-27 09:44:02.000000000 -0400
++++ linux-2.6.17-rc3/mm/page_alloc.c	2006-05-03 14:50:13.000000000 -0400
+@@ -2123,14 +2123,23 @@ static void __init alloc_node_mem_map(st
+ #ifdef CONFIG_FLAT_NODE_MEM_MAP
+ 	/* ia64 gets its own node_mem_map, before this, without bootmem */
+ 	if (!pgdat->node_mem_map) {
+-		unsigned long size;
++		unsigned long size, start, end;
+ 		struct page *map;
  
- 	/* We are done with atomic stuff, now do the rest of housekeeping */
-@@ -814,11 +814,13 @@ int ext3_get_blocks_handle(handle_t *han
- 
- 	/* Simplest case - block found, no allocation needed */
- 	if (!partial) {
--		first_block = chain[depth - 1].key;
-+		first_block = le32_to_cpu(chain[depth - 1].key);
- 		clear_buffer_new(bh_result);
- 		count++;
- 		/*map more blocks*/
- 		while (count < maxblocks && count <= blocks_to_boundary) {
-+			unsigned long blk;
-+
- 			if (!verify_chain(chain, partial)) {
- 				/*
- 				 * Indirect block might be removed by
-@@ -831,8 +833,9 @@ int ext3_get_blocks_handle(handle_t *han
- 				count = 0;
- 				break;
- 			}
--			if (le32_to_cpu(*(chain[depth-1].p+count) ==
--					(first_block + count)))
-+			blk = le32_to_cpu(*(chain[depth-1].p + count);
-+
-+			if (blk == first_block + count)
- 				count++;
- 			else
- 				break;
-
-_
-
-
+-		size = (pgdat->node_spanned_pages + 1) * sizeof(struct page);
++		/*
++		 * The zone's endpoints aren't required to be MAX_ORDER
++		 * aligned but the node_mem_map endpoints must be in order
++		 * for the buddy allocator to function correctly.
++		 */
++		start = pgdat->node_start_pfn & ~((1 << (MAX_ORDER - 1)) - 1);
++		end = start + pgdat->node_spanned_pages;
++		end = (end + ((1 << (MAX_ORDER - 1)) - 1) &
++			~((1 << (MAX_ORDER - 1)) - 1);
++		size =  (end - start) * sizeof(struct page);
+ 		map = alloc_remap(pgdat->node_id, size);
+ 		if (!map)
+ 			map = alloc_bootmem_node(pgdat, size);
+-		pgdat->node_mem_map = map;
++		pgdat->node_mem_map = map + ( pgdat->node_start_pfn - start);
+ 	}
+ #ifdef CONFIG_FLATMEM
+ 	/*

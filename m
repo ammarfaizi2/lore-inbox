@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWEDTOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWEDTU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbWEDTOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 15:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbWEDTOR
+	id S1030297AbWEDTU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 15:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbWEDTU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 15:14:17 -0400
-Received: from silver.veritas.com ([143.127.12.111]:33303 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1030296AbWEDTOR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 15:14:17 -0400
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.05,89,1146466800"; 
-   d="scan'208"; a="37878161:sNHT23927172"
-Date: Thu, 4 May 2006 20:14:08 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: dtor_core@ameritech.net
-cc: "Martin J. Bligh" <mbligh@mbligh.org>, Pavel Machek <pavel@ucw.cz>,
-       Dave Jones <davej@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Remove silly messages from input layer.
-In-Reply-To: <d120d5000605041134k3d9f5934ne9e01f7108cb0271@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0605041954490.20879@blonde.wat.veritas.com>
-References: <20060504024404.GA17818@redhat.com> <20060504071736.GB5359@ucw.cz>
-  <445A18D8.1030502@mbligh.org> <d120d5000605041134k3d9f5934ne9e01f7108cb0271@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 May 2006 19:14:16.0095 (UTC) FILETIME=[EF91F2F0:01C66FAE]
+	Thu, 4 May 2006 15:20:57 -0400
+Received: from mx3.mail.elte.hu ([157.181.1.138]:49027 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030297AbWEDTU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 15:20:56 -0400
+Date: Thu, 4 May 2006 21:25:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Bob Picco <bob.picco@hp.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
+Message-ID: <20060504192528.GA26759@elte.hu>
+References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de> <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au> <20060504013239.GG19859@localhost> <1146756066.22503.17.camel@localhost.localdomain> <20060504154652.GA4530@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060504154652.GA4530@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 May 2006, Dmitry Torokhov wrote:
-> > > On Wed 03-05-06 22:44:04, Dave Jones wrote:
-> > >
-> > > >There are two messages in the input layer that seem to be
-> > > >triggerable very easily, and they confuse end-users to no end.
-> > > >"too many keys pressed? Should I press less keys?"
-> 
-> Also I don't understand what people have against this message, it's at
-> KERN_DEBUG level after all.
 
-I often type at the text console; and I like to see KERN_DEBUG messages;
-but I do NOT like to see kernel messages telling me I've mistyped - they
-don't hurt my pride, but they do mess up my screen.
+* Bob Picco <bob.picco@hp.com> wrote:
 
-If I hit a wrong key, it's normal for that wrong key to be echoed, not a
-kernel message saying "Are you sure you didn't want to hit another key?".
-If I don't hit a key hard enough, it's normal for that key not to be
-echoed.  So why, if I happen to hit a combination of keys by mistake,
-do I get that wretched "too many keys pressed" message?  The appropriate
-response is for what is accepted to be echoed, and that is all.
+> Dave Hansen wrote:	[Thu May 04 2006, 11:21:06AM EDT]
+> > I haven't thought through it completely, but these two lines worry me:
+> > 
+> > > + start = pgdat->node_start_pfn & ~((1 << (MAX_ORDER - 1)) - 1);
+> > > + end = start + pgdat->node_spanned_pages;
+> > 
+> > Should the "end" be based off of the original "start", or the aligned
+> > "start"?
+>
+> Yes. I failed to quilt refresh before sending. You mean end should be 
+> end = pgdat->node_start_pfn + pgdat->node_spanned_pages before 
+> rounding up.
 
-I keep #ifdef ATKBD_DEBUG around both the messages Dave highlighted
-(but I forget when it was that I used to get the second one); the -mm
-tree has had the "too many keys" message commented out for many months.
+do you have an updated patch i should try?
 
-Hugh
+	Ingo

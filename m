@@ -1,101 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbWEDVsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbWEDVvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030262AbWEDVsY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 17:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWEDVsY
+	id S1030274AbWEDVvM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 17:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbWEDVvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 17:48:24 -0400
-Received: from nz-out-0102.google.com ([64.233.162.206]:37154 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1030262AbWEDVsX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 17:48:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=h8sD5Bn8rb4p+Pm8x/MvlQExNpjmsmPkIE+1mou/yB7fuFDt4oOP2Zzal2MExT4ZMdWBcV27jpKTVrEzqN5/PFnBEtdf3sAsOuk1FiCQ54aqSJ53pjRPaOfDtaWX0euvb0CfmfiqajI2KuzRUsZf215RwymkEibmxYTNYySs5MY=
-Message-ID: <9e4733910605041448j431266d5x8669f79bd1b36e18@mail.gmail.com>
-Date: Thu, 4 May 2006 17:48:22 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Peter Jones" <pjones@redhat.com>
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-Cc: "Matthew Garrett" <mgarrett@chiark.greenend.org.uk>,
-       "Bjorn Helgaas" <bjorn.helgaas@hp.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, "Dave Airlie" <airlied@linux.ie>,
-       "Andrew Morton" <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org,
-       "Arjan van de Ven" <arjan@linux.intel.com>
-In-Reply-To: <1146778720.27727.35.camel@localhost.localdomain>
+	Thu, 4 May 2006 17:51:12 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:63501 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1030274AbWEDVvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 17:51:12 -0400
+Message-ID: <445A7725.8030401@shadowen.org>
+Date: Thu, 04 May 2006 22:50:29 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
-	 <200605041309.53910.bjorn.helgaas@hp.com>
-	 <445A51F1.9040500@linux.intel.com>
-	 <200605041326.36518.bjorn.helgaas@hp.com>
-	 <E1FbjiL-0001B9-00@chiark.greenend.org.uk>
-	 <9e4733910605041340r65d47209h2da079d9cf8fceae@mail.gmail.com>
-	 <1146776736.27727.11.camel@localhost.localdomain>
-	 <9e4733910605041418n2105e50bs8803cd6ac8407c48@mail.gmail.com>
-	 <1146778720.27727.35.camel@localhost.localdomain>
+To: Bob Picco <bob.picco@hp.com>
+CC: Ingo Molnar <mingo@elte.hu>, Dave Hansen <haveblue@us.ibm.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
+References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de> <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au> <20060504013239.GG19859@localhost> <1146756066.22503.17.camel@localhost.localdomain> <20060504154652.GA4530@localhost> <20060504192528.GA26759@elte.hu> <20060504194334.GH19859@localhost>
+In-Reply-To: <20060504194334.GH19859@localhost>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/4/06, Peter Jones <pjones@redhat.com> wrote:
-> On Thu, 2006-05-04 at 17:18 -0400, Jon Smirl wrote:
-> > On 5/4/06, Peter Jones <pjones@redhat.com> wrote:
->
-> > > It doesn't matter -- you can accomplish the same thing with e.g.
-> > > libx86emu and simply mapping the option rom to 0xc0000.  But you want to
-> > > do that in userland, not in the kernel.
-> >
-> > It is much more complicated than than you describe.
->
-> I didn't really feel like explaining the parts we both already know.
-> I'll try to remember to do so in the future.
->
-> > Go look at the ROM code already checked in. Laptop video ROMs are not
-> > simple PCI devices that can be mapped around. They are stored in
-> > compressed form inside the system ROM and expanded at boot.
->
-> Yes, and this format is documented, too.  But right now there's no way
-> to get access to it with tools to actually do anything.
->
-> > If you lose the shadow copy in RAM there is no API for getting it back.
->
-> Except to enable the BAR and read it from the assigned address...
+Bob Picco wrote:
+> Ingo Molnar wrote:	[Thu May 04 2006, 03:25:28PM EDT]
+> 
+>>* Bob Picco <bob.picco@hp.com> wrote:
+>>
+>>
+>>>Dave Hansen wrote:	[Thu May 04 2006, 11:21:06AM EDT]
+>>>
+>>>>I haven't thought through it completely, but these two lines worry me:
+>>>>
+>>>>
+>>>>>+ start = pgdat->node_start_pfn & ~((1 << (MAX_ORDER - 1)) - 1);
+>>>>>+ end = start + pgdat->node_spanned_pages;
+>>>>
+>>>>Should the "end" be based off of the original "start", or the aligned
+>>>>"start"?
+>>>
+>>>Yes. I failed to quilt refresh before sending. You mean end should be 
+>>>end = pgdat->node_start_pfn + pgdat->node_spanned_pages before 
+>>>rounding up.
+>>
+>>do you have an updated patch i should try?
+>>
+>>	Ingo
+> 
+> You can try this but don't believe it will change your outcome. I've
+> booted this on ia64 with slight modification to eliminate
+> VIRTUAL_MEM_MAP and have only DISCONTIGMEM. Your case is failing at the
+> front edge of of the zone and not the ending edge which had a flaw in my
+> first post of the patch. I would have expected the first patch to handle
+> the front edge correctly.
+> 
+> I don't remember seeing your .config in the thread (or blind and unable
+> to see it). Would you please send it my way.
+> 
+> I'm also hoping Andy has time to look into this.
+> 
+> bob
 
-Let me be clear here. A lot of laptop video hardware does not have a
-video ROM. Therefore you can not enable the BAR and read it from an
-assigned address since there is no ROM to be read.  Instead the video
-ROM images are compressed and stored inside the system BIOS ROM. The
-location of the image is not a public thing.  At boot time the
-compressed video ROM is expanded out of the system ROM into shadow RAM
-at C000:0. There is no real ROM there, it is only a copy in RAM. If
-you lose that copy the only way to get it back is to reset the
-machine. The ROM code already in the kernel knows about these shadow
-copies and won't mess them up.
+Yeah will have a look tommorrow my time.  Could you drop me the .config
+too.  There is definatly some unstated requirements on alignment, which
+I was testing today.  I presume its one of those thats being violated.
 
-
-> > These compressed ROMs are the source of a lot of laptop user's
-> > problems with suspend/resume on Linux.
->
-> Absolutely.  That's why I want a method to access them, which this
-> "enable" file provides.
->
-> > VGA support for multiple cards is a very complicated problem.
->
-> Please quit jumping up and down in the bicycle path telling everybody
-> how hard it is to ride a bike.
->
-> --
->   Peter
->
->
-
-
---
-Jon Smirl
-jonsmirl@gmail.com
+-apw

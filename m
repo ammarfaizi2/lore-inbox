@@ -1,108 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWEDTnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030305AbWEDTru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbWEDTnh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 15:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWEDTnh
+	id S1030305AbWEDTru (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 15:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWEDTru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 15:43:37 -0400
-Received: from mailhub.hp.com ([192.151.27.10]:52196 "EHLO mailhub.hp.com")
-	by vger.kernel.org with ESMTP id S1030303AbWEDTng (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 15:43:36 -0400
-From: "Bob Picco" <bob.picco@hp.com>
-Date: Thu, 4 May 2006 15:43:34 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bob Picco <bob.picco@hp.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Message-ID: <20060504194334.GH19859@localhost>
-References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de> <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au> <20060504013239.GG19859@localhost> <1146756066.22503.17.camel@localhost.localdomain> <20060504154652.GA4530@localhost> <20060504192528.GA26759@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060504192528.GA26759@elte.hu>
-User-Agent: Mutt/1.5.11
+	Thu, 4 May 2006 15:47:50 -0400
+Received: from rtsoft2.corbina.net ([85.21.88.2]:22714 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1030305AbWEDTru
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 15:47:50 -0400
+Message-ID: <445A5A1B.60903@ru.mvista.com>
+Date: Thu, 04 May 2006 23:46:35 +0400
+From: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Organization: MontaVista Software Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.2) Gecko/20040803
+X-Accept-Language: ru, en-us, en-gb
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] HPT3xx: fix PCI clock detection
+References: <444B3BDE.1030106@ru.mvista.com> <4457DC97.3010807@ru.mvista.com>
+In-Reply-To: <4457DC97.3010807@ru.mvista.com>
+Content-Type: multipart/mixed;
+ boundary="------------050003000709010102060002"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:	[Thu May 04 2006, 03:25:28PM EDT]
-> 
-> * Bob Picco <bob.picco@hp.com> wrote:
-> 
-> > Dave Hansen wrote:	[Thu May 04 2006, 11:21:06AM EDT]
-> > > I haven't thought through it completely, but these two lines worry me:
-> > > 
-> > > > + start = pgdat->node_start_pfn & ~((1 << (MAX_ORDER - 1)) - 1);
-> > > > + end = start + pgdat->node_spanned_pages;
-> > > 
-> > > Should the "end" be based off of the original "start", or the aligned
-> > > "start"?
-> >
-> > Yes. I failed to quilt refresh before sending. You mean end should be 
-> > end = pgdat->node_start_pfn + pgdat->node_spanned_pages before 
-> > rounding up.
-> 
-> do you have an updated patch i should try?
-> 
-> 	Ingo
-You can try this but don't believe it will change your outcome. I've
-booted this on ia64 with slight modification to eliminate
-VIRTUAL_MEM_MAP and have only DISCONTIGMEM. Your case is failing at the
-front edge of of the zone and not the ending edge which had a flaw in my
-first post of the patch. I would have expected the first patch to handle
-the front edge correctly.
+This is a multi-part message in MIME format.
+--------------050003000709010102060002
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I don't remember seeing your .config in the thread (or blind and unable
-to see it). Would you please send it my way.
+    Use the f_CNT value saved by the HighPoint BIOS if available as reading it 
+directly would give us a wrong PCI frequency after DPLL has already been 
+calibrated by BIOS.
 
-I'm also hoping Andy has time to look into this.
+    Should apply on top of my recent patches.
 
-bob
+MBR, Sergei
+
+Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
 
 
-Index: linux-2.6.17-rc3/mm/page_alloc.c
+--------------050003000709010102060002
+Content-Type: text/plain;
+ name="HPT3xx-use-f_CNT-saved-by-BIOS.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="HPT3xx-use-f_CNT-saved-by-BIOS.patch"
+
+Index: linus/drivers/ide/pci/hpt366.c
 ===================================================================
---- linux-2.6.17-rc3.orig/mm/page_alloc.c	2006-04-27 09:44:02.000000000 -0400
-+++ linux-2.6.17-rc3/mm/page_alloc.c	2006-05-04 13:01:25.000000000 -0400
-@@ -2123,14 +2123,22 @@ static void __init alloc_node_mem_map(st
- #ifdef CONFIG_FLAT_NODE_MEM_MAP
- 	/* ia64 gets its own node_mem_map, before this, without bootmem */
- 	if (!pgdat->node_mem_map) {
--		unsigned long size;
-+		unsigned long size, start, end;
- 		struct page *map;
- 
--		size = (pgdat->node_spanned_pages + 1) * sizeof(struct page);
-+		/*
-+		 * The zone's endpoints aren't required to be MAX_ORDER
-+		 * aligned but the node_mem_map endpoints must be in order
-+		 * for the buddy allocator to function correctly.
-+		 */
-+		start = pgdat->node_start_pfn & ~(MAX_ORDER_NR_PAGES - 1);
-+		end = pgdat->node_start_pfn + pgdat->node_spanned_pages;
-+		end = ALIGN(end, MAX_ORDER_NR_PAGES);
-+		size =  (end - start) * sizeof(struct page);
- 		map = alloc_remap(pgdat->node_id, size);
- 		if (!map)
- 			map = alloc_bootmem_node(pgdat, size);
--		pgdat->node_mem_map = map;
-+		pgdat->node_mem_map = map + (pgdat->node_start_pfn - start);
- 	}
- #ifdef CONFIG_FLATMEM
+--- linus.orig/drivers/ide/pci/hpt366.c
++++ linus/drivers/ide/pci/hpt366.c
+@@ -71,6 +71,8 @@
+  *   needed and had many modes over- and  underclocked,  HPT372 33 MHz table was
+  *   for 66 MHz and 50 MHz table missed UltraDMA mode 6, HPT374 33 MHz table was
+  *   really for 50 MHz; switch to using HPT372 tables for HPT374...
++ * - use f_CNT value saved by  the HighPoint BIOS as reading it directly gives
++ *   the wrong PCI frequency since DPLL has already been calibrated by BIOS
+  * - fix the hotswap code:  it caused RESET- to glitch when tristating the bus,
+  *   and for HPT36x the obsolete HDIO_TRISTATE_HWIF handler was called instead
+  * - pass to init_chipset() handlers a copy of the IDE PCI device structure as
+@@ -1050,8 +1052,8 @@ static void __devinit hpt37x_clocking(id
+ 	struct hpt_info *info = ide_get_hwifdata(hwif);
+ 	struct pci_dev *dev = hwif->pci_dev;
+ 	int adjust, i;
+-	u16 freq;
+-	u32 pll;
++	u16 freq = 0;
++	u32 pll, temp = 0;
+ 	u8 reg5bh = 0, mcr1 = 0;
+ 	
  	/*
-Index: linux-2.6.17-rc3/include/linux/mmzone.h
-===================================================================
---- linux-2.6.17-rc3.orig/include/linux/mmzone.h	2006-04-27 09:44:02.000000000 -0400
-+++ linux-2.6.17-rc3/include/linux/mmzone.h	2006-05-04 13:01:39.000000000 -0400
-@@ -22,6 +22,7 @@
- #else
- #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
- #endif
-+#define MAX_ORDER_NR_PAGES (1 << (MAX_ORDER - 1))
+@@ -1065,15 +1067,34 @@ static void __devinit hpt37x_clocking(id
+ 	pci_write_config_byte(dev, 0x5b, 0x23);
  
- struct free_area {
- 	struct list_head	free_list;
+ 	/*
+-	 * set up the PLL. we need to adjust it so that it's stable. 
+-	 * freq = Tpll * 192 / Tpci
++	 * We'll have to read f_CNT value in order to determine
++	 * the PCI clock frequency according to the following ratio:
+ 	 *
+-	 * Todo. For non x86 should probably check the dword is
+-	 * set to 0xABCDExxx indicating the BIOS saved f_CNT
++	 * f_CNT = Fpci * 192 / Fdpll
++	 *
++	 * First try reading the register in which the HighPoint BIOS
++	 * saves f_CNT value before  reprogramming the DPLL from its
++	 * default setting (which differs for the various chips).
++	 * In case the signature check fails, we'll have to resort to
++	 * reading the f_CNT register itself in hopes that nobody has
++	 * touched the DPLL yet...
+ 	 */
+-	pci_read_config_word(dev, 0x78, &freq);
+-	freq &= 0x1FF;
+-	
++	pci_read_config_dword(dev, 0x70, &temp);
++	if ((temp & 0xFFFFF000) != 0xABCDE000) {
++		int i;
++
++		printk(KERN_WARNING "HPT37X: no clock data saved by BIOS\n");
++
++		/* Calculate the average value of f_CNT */
++		for (temp = i = 0; i < 128; i++) {
++			pci_read_config_word(dev, 0x78, &freq);
++			temp += freq & 0x1ff;
++			mdelay(1);
++		}
++		freq = temp / 128;
++	} else
++		freq = temp & 0x1ff;
++
+ 	/*
+ 	 * HPT3xxN chips use different PCI clock information.
+ 	 * Currently we always set up the PLL for them.
+@@ -1146,11 +1167,8 @@ static void __devinit hpt37x_clocking(id
+ 	info->flags |= PLL_MODE;
+ 	
+ 	/*
+-	 * FIXME: make this work correctly, esp with 372N as per
+-	 * reference driver code.
+-	 *
+-	 * adjust PLL based upon PCI clock, enable it, and wait for
+-	 * stabilization.
++	 * Adjust the PLL based upon the PCI clock, enable it, and
++	 * wait for stabilization...
+ 	 */
+ 	adjust = 0;
+ 	freq = (pll < F_LOW_PCI_50) ? 2 : 4;
+
+
+--------------050003000709010102060002--

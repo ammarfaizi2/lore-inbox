@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWEDGwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWEDGz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbWEDGwY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 02:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWEDGwY
+	id S1751410AbWEDGz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 02:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWEDGz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 02:52:24 -0400
-Received: from rutherford.zen.co.uk ([212.23.3.142]:21384 "EHLO
-	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
-	id S1751377AbWEDGwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 02:52:23 -0400
-Message-ID: <4459A4A6.1080207@cantab.net>
-Date: Thu, 04 May 2006 07:52:22 +0100
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Francois Romieu <romieu@fr.zoreil.com>
-CC: Pekka J Enberg <penberg@cs.Helsinki.FI>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, david@pleyades.net
-Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
-References: <1146342905.11271.3.camel@localhost> <1146389171.11524.1.camel@localhost> <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI> <20060502214520.GC26357@electric-eye.fr.zoreil.com> <20060502215559.GA1119@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI> <20060503233558.GA27232@electric-eye.fr.zoreil.com>
-In-Reply-To: <20060503233558.GA27232@electric-eye.fr.zoreil.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 4 May 2006 02:55:58 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:34026 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751410AbWEDGz5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 02:55:57 -0400
+Subject: Re: [PATCH] symlink nesting level change
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Al Viro <viro@ftp.linux.org.uk>, hpa@zytor.com,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <20060503183554.87f0218d.akpm@osdl.org>
+References: <14CFC56C96D8554AA0B8969DB825FEA0012B309B@chicken.machinevisionproducts.com>
+	 <44580CF2.7070602@tlinx.org> <e3966u$dje$1@terminus.zytor.com>
+	 <20060503030849.GZ27946@ftp.linux.org.uk>
+	 <20060503183554.87f0218d.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 04 May 2006 08:55:49 +0200
+Message-Id: <1146725750.3101.7.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Originating-Rutherford-IP: [82.70.146.41]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> 
->     ipg: remove forward declarations
->     
->     It makes no sense in a new driver.
->     
->     Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 
-Ack.
+> But I guess as major distros are 2.6.16-based, this is a good time to make
+> this change.
 
->     ipg: replace #define with enum
->     
->     Added some underscores to improve readability.
->     
->     Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+several major distros already had this set to 8 anyway :
 
-Nack.  Register names in code should match those used in the 
-documentation (even if they are a bit unreadable).  Though I will 
-conceed that the available datasheet doesn't actually describe the 
-majority of the registers.
+and your argument that this is a behavior break... holds for any
+improvement and new driver to the kernel as well.. at some point it's
+"if you use the new behavior, don't assume you can go back without
+losing it"
 
->     ipg: removal of useless #defines
->     
->     IPG_TX_NOTBUSY apart (one occurence in ipg.c), the #defines appear
->     nowhere in the sources.
-
-Ack.
-
->     ipg: redundancy with mii.h - take II
->     
->     Replace a bunch of #define with their counterpart from mii.h
->     
->     It is applied to the usual MII registers this time.
-
-Ack.
 

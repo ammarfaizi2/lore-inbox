@@ -1,77 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWEDSKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWEDS1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751506AbWEDSKU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 14:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWEDSKU
+	id S1750771AbWEDS1u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 14:27:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWEDS1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 14:10:20 -0400
-Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:9960 "EHLO
-	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751506AbWEDSKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 14:10:19 -0400
-Date: Thu, 4 May 2006 11:10:18 -0700 (PDT)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: limits / PIPE_BUF?
-In-Reply-To: <1146765273.3101.68.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.58.0605041104010.27916@shell2.speakeasy.net>
-References: <Pine.LNX.4.58.0605032244230.25908@shell2.speakeasy.net> 
- <1146725882.3101.11.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.58.0605040938310.19371@shell3.speakeasy.net> 
- <1146762968.3101.65.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.58.0605041044270.30003@shell2.speakeasy.net>
- <1146765273.3101.68.camel@laptopd505.fenrus.org>
+	Thu, 4 May 2006 14:27:50 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:26895 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1750771AbWEDS1t convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 14:27:49 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <BAY105-F393958BBFE20D29F8C6C82E9B40@phx.gbl>
+X-OriginalArrivalTime: 04 May 2006 18:27:47.0932 (UTC) FILETIME=[71B209C0:01C66FA8]
+Content-class: urn:content-classes:message
+Subject: Re: TCP/IP send, sendfile, RAW
+Date: Thu, 4 May 2006 14:27:47 -0400
+Message-ID: <Pine.LNX.4.61.0605041424380.7013@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: TCP/IP send, sendfile, RAW
+thread-index: AcZvqHG7yw24cr6PQcO6zGNHyv8afQ==
+References: <BAY105-F393958BBFE20D29F8C6C82E9B40@phx.gbl>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Roy Rietveld" <rwm_rietveld@hotmail.com>
+Cc: <linux-kernel@vger.kernel.org>, <jengelh@linux01.gwdg.de>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 May 2006, Arjan van de Ven wrote:
 
-> On Thu, 2006-05-04 at 10:50 -0700, Vadim Lobanov wrote:
-> > On Thu, 4 May 2006, Arjan van de Ven wrote:
-> >
-> > > On Thu, 2006-05-04 at 09:39 -0700, Vadim Lobanov wrote:
-> > > > How does the kernel
-> > > > code ensure that this value is honored, considering that PIPE_BUF is
-> > > > not
-> > > > referenced in any of the pipe code?
-> > >
-> > >
-> > > the kernel implementation guarantees one page basically, and on all
-> > > architectures that I know of that's at least 4096 bytes
-> > >
-> >
-> > Alright, so sounds like this constant should remain inside the
-> > include/linux/limits.h file. What about #defining it to be equal to
-> > PAGE_SIZE, like ARM (include/linux-arm/limits.h, for example) does?
->
-> there is a certain elegance in providing the same value on all
-> architectures; it means apps don't suddenly break if you port it to
-> a "lesser" one. Also there is a problem with PAGE_SIZE itself, that's a
-> config option on several architectures, so it'd have to be a define for
-> get_page_size() or something, at which point you change semantics since
-> apps can't do
->
-> char foo[PIPE_BUF];
->
-> anymore
+On Thu, 4 May 2006, Roy Rietveld wrote:
+
+> Yes it is 100 MBits and there is a listener. and there are no other pc's on
+> the link because its cross cable link. And when sending large buffers
+> 32Kbyte it will do 80 MBits. It think that there is a lot of overhead in the
+> fucntion send or something.
 >
 
-Good point.
+Use sendto() and recvfrom() for UDP. Stream protocols require an ACK and
+are slower.
 
-I suppose this means that the limits.h header file is used, either
-directly or indirectly, by both us (the kernel) and by user-space? If
-so, blech! What's the policy on keeping around config values that don't
-do anything inside the kernel anymore? The short list is:
- NR_OPEN
- ARG_MAX
- CHILD_MAX
- OPEN_MAX
- LINK_MAX
- MAX_CANON
- MAX_INPUT
- RTSIG_MAX
+>
+>> From: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+>> Reply-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+>> To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+>> CC: "Roy Rietveld"
+>> <rwm_rietveld@hotmail.com>,<linux-kernel@vger.kernel.org>
+>> Subject: Re: TCP/IP send, sendfile, RAW
+>> Date: Thu, 4 May 2006 13:56:31 -0400
+>>
+>>
+>> On Thu, 4 May 2006, Jan Engelhardt wrote:
+>>
+>>>> I would like to send ethernet packets with 1400 bytes payload.
+>>>> I wrote a small program witch sends a buffer of 1400 bytes in a endless
+>> loop.
+>>>> The problem is that a would like 100Mbits throughtput but when i check
+>> this
+>>>> with ethereal.
+>>>> I only get 40 MBits. I tried sending with an UDP socket and RAW socket.
+>> I also
+>>>> tried sendfile.
+>>>> The RAW socket gives the best result till now 50 MBits throughtput.
+>>>
+>>> Limitation of Ethernet.
+>>>
+>>>
+>>>
+>>> Jan Engelhardt
+>>
+>> Maybe he can tell what he means by 100 MBits! If he is looking for
+>> 100 megabits per second, that's easy, That's 100/8 = 12.5 megabytes
+>> per second. Anything, including Windows on a wet string, will
+>> do that. If he is looking for 100 megabytes per second, that's
+>> hard. He would need 100 * 8 = 800 megabits/second. A "gigabit" link
+>> runs that fast if nobody else is on it, but there is a header and CRC
+>> tail, in addition to the payload. UDP is the protocol to use to realize
+>> this kind of bandwidth, but its possible for some packets to get lost and,
+>> if they are routed, they could even be duplicated. Also, when testing
+>> UDP, there must be a listener in order to realize the high speed.
+>> You can't just spew out a dead-end link.
+>>
+>> Cheers,
+>> Dick Johnson
+>> Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+>> New book: http://www.lymanschool.com
+>> _
+>> 
+>>
+>> ****************************************************************
+>> The information transmitted in this message is confidential and may be
+>> privileged.  Any review, retransmission, dissemination, or other use of
+>> this information by persons or entities other than the intended recipient
+>> is prohibited.  If you are not the intended recipient, please notify
+>> Analogic Corporation immediately - by replying to this message or by
+>> sending an email to DeliveryErrors@analogic.com - and destroy all copies of
+>> this information, including any attachments, without reading or disclosing
+>> them.
+>>
+>> Thank you.
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
 
-- Vadim Lobanov
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.4 on an i686 machine (5592.89 BogoMips).
+New book: http://www.lymanschool.com
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

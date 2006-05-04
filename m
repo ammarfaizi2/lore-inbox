@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWEDG6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWEDHHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbWEDG6F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 02:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWEDG6F
+	id S1750724AbWEDHHa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 03:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWEDHHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 02:58:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:35050 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751417AbWEDG6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 02:58:03 -0400
-Subject: Re: limits / PIPE_BUF?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0605032244230.25908@shell2.speakeasy.net>
-References: <Pine.LNX.4.58.0605032244230.25908@shell2.speakeasy.net>
-Content-Type: text/plain
-Date: Thu, 04 May 2006 08:58:01 +0200
-Message-Id: <1146725882.3101.11.camel@laptopd505.fenrus.org>
+	Thu, 4 May 2006 03:07:30 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:8859 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750724AbWEDHHa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 03:07:30 -0400
+Date: Thu, 4 May 2006 00:05:42 -0700
+From: Greg KH <greg@kroah.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: stable@kernel.org, ja@ssi.bg, gregkh@suse.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [stable] Re: Linux 2.6.16.13 / Problem
+Message-ID: <20060504070542.GA25211@kroah.com>
+References: <20060502222827.GA29287@kroah.com> <20060503154532.a0963c65.skraw@ithnet.com> <20060503185409.GB10466@kroah.com> <20060503230906.82e0c9f2.skraw@ithnet.com> <20060503213408.GA14090@kroah.com> <20060504084054.fbb0167e.skraw@ithnet.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060504084054.fbb0167e.skraw@ithnet.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-05-03 at 22:55 -0700, Vadim Lobanov wrote:
-> Hi,
+On Thu, May 04, 2006 at 08:40:54AM +0200, Stephan von Krawczynski wrote:
+> On Wed, 3 May 2006 14:34:08 -0700
+> Greg KH <greg@kroah.com> wrote:
 > 
-> I was reading through the include/linux/limits.h file in order to
-> generate a cleanup patch for it -- a large number of #defines within
-> that file are no longer being used, as I surmise that they are simply
-> remnants of earlier implementations.
+> > On Wed, May 03, 2006 at 11:09:06PM +0200, Stephan von Krawczynski wrote:
+> > > On Wed, 3 May 2006 11:54:09 -0700
+> > > Greg KH <greg@kroah.com> wrote:
+> > > 
+> > > > On Wed, May 03, 2006 at 03:45:32PM +0200, Stephan von Krawczynski wrote:
+> > > > > Hi Greg,
+> > > > > 
+> > > > > unfortunately I see some problem regarding 2.6.16.13:
+> > > > 
+> > > > Makes sense, as nothing in .13 was for something like this :)
+> > > 
+> > > Sorry, didn't get that joke (no native englishman), you may explain in private
+> > > to me having spare time. Do you mean this is a _new_ story completely
+> > > unrelated to .13? 
+> > 
+> > No, meaning that .13 fixed a totally different problem from what you are
+> > reporting, so it is expected that the same problem you see with .12 is
+> > also in .13.
 > 
-> A snippet from include/linux/limits.h:
-> #define PIPE_BUF        4096    /* # bytes in atomic write to a pipe */
-> 
-> PIPE_BUF is a bit of an oddity. It is defined there, then redefined in
-> the arm header files, even though those header files are never included
-> anywhere. Also, PIPE_BUF is never referenced by name in any of the Linux
-> code. And yet, it is still being mentioned in some Big And Scary
-> Warnings (tm): fs/autofs4/waitq.c or include/linux/pipe_fs_i.h, for
-> example.
+> The problem is: I do not see it with .12 (or .11, or .10 (all tested)), but
+> only with .13. So maybe the .13-patch isn't as unrelated as it looks on first
+> sight...
 
-it's for userland to tell it what the size of the atomic pipe operations
-we can do is.
+Do you use the SCTP netfilter module?  If not, there is no difference
+between .12 and .13.
 
+thanks,
 
+greg k-h

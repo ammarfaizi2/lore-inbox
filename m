@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWEDQov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbWEDQpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWEDQov (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 12:44:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWEDQov
+	id S1030218AbWEDQpE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 12:45:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWEDQpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 12:44:51 -0400
-Received: from smtp-4.llnl.gov ([128.115.41.84]:23442 "EHLO smtp-4.llnl.gov")
-	by vger.kernel.org with ESMTP id S1030229AbWEDQou (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 12:44:50 -0400
-Date: Thu, 04 May 2006 09:44:27 -0700
-From: David Peterson <peterson66@llnl.gov>
-Subject: Re: Problems with EDAC coexisting with BIOS
-To: Tim Small <tim@buttersideup.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Ong, Soo Keong" <soo.keong.ong@intel.com>,
-       "Gross, Mark" <mark.gross@intel.com>,
-       bluesmoke-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Wang, Zhenyu Z" <zhenyu.z.wang@intel.com>
-Message-id: <649b9679b6.679b6649b9@llnl.gov>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.1 Patch 1 (built Jun  6 2002)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+	Thu, 4 May 2006 12:45:03 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:32747 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030243AbWEDQpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 12:45:01 -0400
+Date: Thu, 4 May 2006 11:44:46 -0500 (CDT)
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, pfg@sgi.com, jeremy@sgi.com, jes@sgi.com
+Subject: Re: [PATCH] SGI IOC4: Detect IO card variant
+In-Reply-To: <20060503192626.1bc3af56.akpm@osdl.org>
+Message-ID: <20060504114135.T84279@chenjesu.americas.sgi.com>
+References: <20060503171758.H59683@chenjesu.americas.sgi.com>
+ <20060503192626.1bc3af56.akpm@osdl.org>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My first thought was to schedule a tasklet as part of the ECC-
-specific 
-> NMI handling, or are there any gotchas with doing this from within 
-> an NMI handler?
+On Wed, 3 May 2006, Andrew Morton wrote:
 
-Unfortunately yes.  __tasklet_schedule() uses interrupt disabling
-as a synchronization mechanism.  This presents a problem since by
-definition, NMIs can occur even when interrupts are disabled. 
-However the NMI handling code in bluesmoke has a mechanism similar to
-tasklets that is intended specifically for use by NMI handlers.
+> On Wed, 3 May 2006 17:21:23 -0500 (CDT)
+> Brent Casavant <bcasavan@sgi.com> wrote:
+> 
+> > +#ifndef PCI_DEVICE_ID_QLOGIC_ISP12160
+> > +#define PCI_DEVICE_ID_QLOGIC_ISP12160 0x1216
+> > +#endif
+> > +#ifndef PCI_VENDOR_ID_VITESSE
+> > +#define PCI_VENDOR_ID_VITESSE 0x1725
+> > +#endif
+> > +#ifndef PCI_DEVICE_ID_VITESSE_7174
+> > +#define PCI_DEVICE_ID_VITESSE_7174 0x7174
+> > +#endif
+> 
+> We shouldn't need the ifdefs here.  Let's just get the right defines in the
+> right place and use them.
 
+I'll submit a patch for this today.
 
+> I'm unable to work out whether this problem which this patch fixes warrants
+> a 2.6.17 merge.
+
+Not really, as the new IO9-RT card which what the patch is primarily for
+isn't shipping yet.  If it's in -mm, then I think SGI will be able to get
+our distribution partner to pick it up, which is honestly 90% of my
+concern at this point.
+
+Brent
+
+-- 
+Brent Casavant                          All music is folk music.  I ain't
+bcasavan@sgi.com                        never heard a horse sing a song.
+Silicon Graphics, Inc.                    -- Louis Armstrong

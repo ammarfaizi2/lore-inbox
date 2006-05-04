@@ -1,115 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWEDCtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWEDDQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750889AbWEDCtU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 22:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWEDCtU
+	id S1750901AbWEDDQi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 23:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWEDDQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 22:49:20 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45540 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750880AbWEDCtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 22:49:19 -0400
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: ak@suse.de, len.brown@intel.com, Natalie.Protasevich@unisys.com,
-       sergio@sergiomb.no-ip.org, kimball.murray@gmail.com,
-       linux-kernel@vger.kernel.org, akpm@digeo.com, kmurray@redhat.com,
-       linux-acpi@vger.kernel.org
-Subject: Re: [RFC][PATCH] Document what in IRQ is.
-References: <CFF307C98FEABE47A452B27C06B85BB652DF16@hdsmsx411.amr.corp.intel.com>
-	<200605020946.46050.ak@suse.de>
-	<m1aca07cvd.fsf_-_@ebiederm.dsl.xmission.com>
-	<20060503170155.e8e9a92b.rdunlap@xenotime.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 03 May 2006 20:48:27 -0600
-In-Reply-To: <20060503170155.e8e9a92b.rdunlap@xenotime.net> (Randy Dunlap's
- message of "Wed, 3 May 2006 17:01:55 -0700")
-Message-ID: <m1mzdy7bes.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 3 May 2006 23:16:38 -0400
+Received: from wr-out-0506.google.com ([64.233.184.236]:41006 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750901AbWEDDQh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 23:16:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eKvbegX4nWKVoABEdsP9o62GSoLVDRjxIgUlbsZ/8YJOuGHDi0iWTPVOqMQ0cqP7WqxSiYK/xZV99OH8NyMRUNDPFNqlTKQe7/X5tt+IBP6MS1Ikd4XIHcFlDviXW5YtHICLImjioGaGwZXJpsAtIdyiSM9MXm6z84BkKyOYWIE=
+Message-ID: <21d7e9970605032016w2a092ce9qb2bff38e739bca5@mail.gmail.com>
+Date: Thu, 4 May 2006 13:16:37 +1000
+From: "Dave Airlie" <airlied@gmail.com>
+To: "Rajesh Shah" <rajesh.shah@intel.com>
+Subject: Re: i386/x86_84: disable PCI resource decode on device disable
+Cc: gregkh@suse.de, ak@suse.de, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       "Antonino A. Daplas" <adaplas@gmail.com>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20060503152747.A29327@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060503152747.A29327@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> writes:
-
-> On Tue, 02 May 2006 07:52:22 -0600 Eric W. Biederman wrote:
 >
->> Andi Kleen <ak@suse.de> writes:
->> 
->> > P.S.: There seems to be a lot of confusion about all this.
->> > Maybe it would make sense to do a write up defining all the terms
->> > and stick it into Documentation/* ? 
->> 
->> How does this look?
->> 
->> I am pretty horrible when it comes to Documentation,
->> but this seems to be the essence of what I was saying earlier.
->> 
->> Eric
->> 
->> 
->> diff --git a/Documentation/IRQ.txt b/Documentation/IRQ.txt
->> new file mode 100644
->> index 0000000..5340369
->> --- /dev/null
->> +++ b/Documentation/IRQ.txt
->> @@ -0,0 +1,22 @@
->> +What is an IRQ?
->> +
->> +An IRQ is an interrupt request from a device.
->> +Currently they can come in over a pin, or over a packet.
+> When a PCI device is disabled via pci_disable_device(), it's still
+> left decoding its BAR resource ranges even though its driver
+> will have likely released those regions (and may even have
+> unloaded). pci_enable_device() already explicitly enables
+> BAR resource decode for the device being enabled. This patch
+> disables resource decode for the PCI device being disabled,
+> making it symmetric with the enable call.
 >
-> No comma.  Change packet to message?
+> I saw this while doing something else, not because of a
+> problem report. Still, seems to be the correct thing to do.
 
-Sounds good.
+I'm just wondering how this will react with VGA devices being run by
+fbdev or the drm, I know the DRM never calls pci_disable_device, as
+the card might require the bars enabled so it can do VGA, and which if
+it is your primary VGA card, can cause you all kinds of troubles...
+(like losing text mode)..
 
->> +IRQs at the source can be shared.
->
-> Huh?  That simple sentence confuses me.  Should "source" really be
-> "sink" or "destination"?  Or maybe say "IRQs at an interrupt controller
-> can be shared."  Or is that too hardware-specific?
-> Anyway, what source is meant here?  It doesn't mean that IRQs
-> at the producer device can be shared, right?  It's more at the
-> consumer device where they can be shared.
+Alan Cox mentioned this somewhere before in relation to video cards..
 
-By source I was thinking at the irq controller pin. 
-
-Interrupts are usually thrown from interrupt controllers to
-something in the chipset that interrupts the cpu, giving the
-cpu a token (ie an interrupt vector) that uniquely identifies
-which interrupt source threw the interrupt.
-
-Linux does not have generic infrastructure to allow two interrupt
-sources to share the same token passed to the kernel. 
-
-In addition there are good reasons on some systems to change the 
-token dynamically, (say to point the IRQ at a different CPU).  So
-no generic code in the code should know about the token the cpu
-receives.  The fact that msi.c actually knows about that token
-today makes is inflexible and maintenance problem.
-
-I guess I need to figure out how to work this additional information
-into my documentation then.
-
->> +An IRQ number is a kernel identifier used to talk about a hardware
->> +interrupt source.  Typically this is an index into the global irq_desc
->> +array, but except for what linux/interrupt.h implements the details
->> +are architecture specific.
->> +
->> +An IRQ number is an enumeration of the possible interrupt sources on a
->> +machine.  Typically what is enumerated is the number of input pins on
->> +all of the interrupt controller in the system.  In the case of ISA
->                         controllers
->> +what is enumerated are the 16 input pins to the pair of i8259
->                       is
->> +interrupt controllers.
->> +
->> +Architectures can assign additional meaning to the IRQ numbers, and
->> +are encouraged to in the case  where there is any manual configuration
->> +of the hardware involved.  The ISA IRQ case on x86 where anyone who
->> +has been around a while can tell you how the first 16 IRQs map to the
->                    awhile
->> +input pins on a pair of i8259s is the classic example.
-
-Eric
-
+Dave.

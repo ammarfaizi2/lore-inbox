@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWEDNhj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWEDNhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWEDNhj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 09:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWEDNhj
+	id S1750961AbWEDNhd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 09:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751070AbWEDNhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 09:37:39 -0400
-Received: from cicero0.cybercity.dk ([212.242.40.52]:53742 "EHLO
-	cicero0.cybercity.dk") by vger.kernel.org with ESMTP
-	id S1750894AbWEDNhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 09:37:38 -0400
-Date: Thu, 4 May 2006 14:37:30 +0100 (BST)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-cc: linux-kernel@vger.kernel.org, "Kolli, Neela" <Neela.Kolli@engenio.co>,
-       <linux-scsi@vger.kernel.org>
-Subject: RE: [PATCH] MegaRAID driver management char device moved to misc
-In-Reply-To: <890BF3111FB9484E9526987D912B261901BD2B@NAMAIL3.ad.lsil.com>
-Message-ID: <Pine.LNX.4.40.0605041434430.15259-100000@jehova.dsm.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 May 2006 09:37:33 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15589 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750961AbWEDNhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 09:37:33 -0400
+Subject: Re: cdrom: a dirty CD can freeze your system
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200605041232.k44CWnFn004411@wildsau.enemy.org>
+References: <200605041232.k44CWnFn004411@wildsau.enemy.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 04 May 2006 14:48:52 +0100
+Message-Id: <1146750532.20677.38.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 May 2006, Ju, Seokmann wrote:
+On Iau, 2006-05-04 at 14:32 +0200, Herbert Rosmanith wrote:
+> I've been experimenting with damaged CDs this day. I observed that
+> a dirty or (partly) unreadable CD will (1) block the process which is
+> trying to read from the CD - it will be in state "D" - uninterruptible
+> sleep and (2) sometimes(?) probably freeze your system such that even
+> a manual reboot wont work (e.g., because it's not possible to log in, or
+> keystrokes are no longer accepted) and a power-cycle is required.
 
-> Hi,
->
-> For following reason, I cannot accept/approve this patch.
-> I'll update further as I get clear.
->
-> Thank you,
->
-> > So it now uses a misc device which I named "megadev0" (the
-> > name that megarc
-> > expects), and has a dynamic minor (previoulsy a dynamic major
-> > was used).
-> The driver can not change device node name for backward compatibility.
-> I'm checking with application team inside for further clarification and update here.
+This is a known problem with the old IDE layer. There are several
+problems involved
 
-That is an invalid reason: There was no hardcoded device node previously
-(it was using a dynamically assigned major).
+1. The old IDE layer reset confuses some drives fatally
+2. The DMA recovery tricks it does break the state machine of some
+controllers and hang them for good
+3. The error recovery and timer code races and can hang
+4. The speed change paths used on DMA fail change down race everything
 
-The only tool I know which uses this device is "megarc" from LSI Logic.
-This tool uses the char device /dev/megaraid0, which will be created
-correctly when using my patch and udev (the recommended setup for Linux
-2.6 systems). I have tested this and it works.
+> please tell me a way to savely
+> (1) reset the IDE interface, e.g via IDE-TASKFILE (or, for testing,
+>     a sequence of outb() to the chip)
+> (2) reset the CD-drive - sending a WIN_DEVICE_RESET (linux/hdreg.h line 196)
+>     doesnt seem to be enough.
 
-User-level applications should not rely on hardcoded device numbers in any
-case, but should use the correct device from /dev or search for the device
-they need in sysfs.
+Please try the libata PATA patches instead of the old IDE layer.
 
-Thomas
+Alan
 

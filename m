@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWEDViv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWEDVlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWEDViv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 17:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWEDViv
+	id S1751416AbWEDVlc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 17:41:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWEDVlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 17:38:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62396 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751415AbWEDViu (ORCPT
+	Thu, 4 May 2006 17:41:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50110 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751338AbWEDVla (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 17:38:50 -0400
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow
-	userspace (Xorg) to enable devices without doing foul direct access
-From: Peter Jones <pjones@redhat.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Dave Airlie <airlied@linux.ie>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>
-In-Reply-To: <9e4733910605041418n2105e50bs8803cd6ac8407c48@mail.gmail.com>
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
-	 <200605041309.53910.bjorn.helgaas@hp.com>
-	 <445A51F1.9040500@linux.intel.com>
-	 <200605041326.36518.bjorn.helgaas@hp.com>
-	 <E1FbjiL-0001B9-00@chiark.greenend.org.uk>
-	 <9e4733910605041340r65d47209h2da079d9cf8fceae@mail.gmail.com>
-	 <1146776736.27727.11.camel@localhost.localdomain>
-	 <9e4733910605041418n2105e50bs8803cd6ac8407c48@mail.gmail.com>
-Content-Type: text/plain
-Organization: Red Hat, Inc.
-Date: Thu, 04 May 2006 17:38:39 -0400
-Message-Id: <1146778720.27727.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-2) 
-Content-Transfer-Encoding: 7bit
+	Thu, 4 May 2006 17:41:30 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <84144f020605040737k316fd5abva4476da69a65c084@mail.gmail.com> 
+References: <84144f020605040737k316fd5abva4476da69a65c084@mail.gmail.com>  <20060504031755.GA28257@hellewell.homeip.net> <20060504033829.GE28613@hellewell.homeip.net> 
+To: "Pekka Enberg" <penberg@cs.helsinki.fi>
+Cc: "Phillip Hellewell" <phillip@hellewell.homeip.net>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
+       yoder1@us.ibm.com, "James Morris" <jmorris@namei.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, "Erez Zadok" <ezk@cs.sunysb.edu>,
+       "David Howells" <dhowells@redhat.com>
+Subject: Re: [PATCH 6/13: eCryptfs] Superblock operations 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Thu, 04 May 2006 22:40:49 +0100
+Message-ID: <23457.1146778849@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-04 at 17:18 -0400, Jon Smirl wrote: 
-> On 5/4/06, Peter Jones <pjones@redhat.com> wrote:
+Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 
-> > It doesn't matter -- you can accomplish the same thing with e.g.
-> > libx86emu and simply mapping the option rom to 0xc0000.  But you want to
-> > do that in userland, not in the kernel.
+> > +       ecryptfs_printk(KERN_DEBUG, "Enter; inode = [%p]\n", inode);
+> > +       crypt_stat = &(ECRYPTFS_INODE_TO_PRIVATE(inode))->crypt_stat;
+> > +       ecryptfs_destruct_crypt_stat(crypt_stat);
+> > +       kmem_cache_free(ecryptfs_inode_info_cache,
+> > +                       ECRYPTFS_INODE_TO_PRIVATE(inode));
 > 
-> It is much more complicated than than you describe.
+> Better to introduce a local variable for CRYPTFS_INODE_TO_PRIVATE.
+> More readable and smaller kernel text that way.
 
-I didn't really feel like explaining the parts we both already know.
-I'll try to remember to do so in the future.
+But it may use more stack, which is a much more limited resource, so what you
+suggest is not necessarily the best thing to do.
 
-> Go look at the ROM code already checked in. Laptop video ROMs are not
-> simple PCI devices that can be mapped around. They are stored in
-> compressed form inside the system ROM and expanded at boot.
-
-Yes, and this format is documented, too.  But right now there's no way
-to get access to it with tools to actually do anything.
-
-> If you lose the shadow copy in RAM there is no API for getting it back.
-
-Except to enable the BAR and read it from the assigned address...
-
-> These compressed ROMs are the source of a lot of laptop user's
-> problems with suspend/resume on Linux.
-
-Absolutely.  That's why I want a method to access them, which this
-"enable" file provides.
-
-> VGA support for multiple cards is a very complicated problem.
-
-Please quit jumping up and down in the bicycle path telling everybody
-how hard it is to ride a bike.
-
--- 
-  Peter
-
+David

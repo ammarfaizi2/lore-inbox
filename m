@@ -1,155 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbWEDU4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWEDU7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbWEDU4P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 16:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbWEDU4P
+	id S1030215AbWEDU7T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 16:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWEDU7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 16:56:15 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:38826 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1030326AbWEDU4O (ORCPT
+	Thu, 4 May 2006 16:59:19 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:52412 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932077AbWEDU7S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 16:56:14 -0400
-Message-ID: <445A6A6B.2090605@tlinx.org>
-Date: Thu, 04 May 2006 13:56:11 -0700
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Herbert Rosmanith <kernel@wildsau.enemy.org>, linux-kernel@vger.kernel.org
-Subject: kernel keeps empty CDROM(DVD)-drive "busy";  (was Re: cdrom: a dirty
- CD can freeze your system)
-References: <200605041232.k44CWnFn004411@wildsau.enemy.org> <1146750532.20677.38.camel@localhost.localdomain>
-In-Reply-To: <1146750532.20677.38.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 May 2006 16:59:18 -0400
+Date: Thu, 4 May 2006 15:58:23 -0500
+From: Jon Mason <jdmason@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: ak@suse.de, tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       mulix@mulix.org
+Subject: [PATCH 1/3] swiotlb: SWIOTLB Cleanup.
+Message-ID: <20060504205822.GC14361@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+SWIOTLB Cleanup.  Mostly a comment and white space clean-up.
+However, some compiler cache optimizations (via the static and
+__read_mostly keywords) were added, and
+swiotlb_init_with_default_size was renamed swiotlb_init (as that
+functional was redundant)
 
-Alan Cox wrote:
-> This is a known problem with the old IDE layer. There are several
-> problems involved
->   
----
-Maybe I'm running into this same problem.  Reading the archived
-thread about the linux kernel burning out drives toggled a slight
-"worry" bit in my head.  Perhaps this is "nothing to worry about"
-(ignore the blinking warning light behind the curtain...) and is
-another "artifact" of the "ancient" IDE driver code.
+This patch has been tested individually and cumulatively on x86_64 and
+cross-compile tested on IA64.  Since I have no IA64 hardware, any
+testing on that platform would be appreciated.
 
-I have a Plextor IDE, internal CD/DVD writer.  There is no media in
-the drive.  I _used_ to keep a blank CDROM (ready to burn) in the
-drive if I wasn't "around", to keep dust from settling on the tray and
-to have a CD ready-to-burn if I was logged in from the other room.  But
-I kept getting read errors, on boot, so I tried not loading media, which
-is where I'm at now.
+Thanks,
+Jon
 
-After boot, the "active" light on the drive turns on for about 3-5
-seconds, then blinks off for <1 second, then 3-5 seconds on
-again...and repeat, as though it is trying to read a media, failing
-then trying again. It repeats this for as long as the system is up.
+Signed-off-by: Jon Mason <jdmason@us.ibm.com>
 
-I've set drive read-ahead to 0, write-cache to off (not that those
-settings "should" make a difference with no media in the drive.  I
-also tried telling the drive to "sleep" (via hdparm), to no
-avail.
-
-It "ignores" (gives another error, actually) an attempt to "eject"
-from the command line.
-
-It "ignores" pushing the device's door open button (unless I do it
-after a power-cycle reset to the system).
-
-It seems to work (at least last time I tried it) for reading CD's
-and DVD's as well as burning CD's (haven't tried to burn any DVD's
-with it).  However, having the device constantly "selected" and
-_appearing_ to retry is a bit bothersome given the experience of
-another poster in the archived thread that was mentioned -- i.e. --
-their drive seemed to burn itself out.  I'm not having the exact
-same symptoms, as I'm not trying to directly access the drive (nor
-am I experiencing any kernel hangs; (sidenote: not running the
-preempt kernel, but am running the "voluntary preempt" kernel).
-
-Seeing the "access/select" light on most of the time, though, makes
-me wonder if something may be getting worn.  Unfortunately, I
-can't hear if the drive is actually running due to the whine of
-multiple hard disks
-
-In regards to error messages, after every boot, the kernel
-issues some errors (there is no CD in the drive) regarding
-drive errors on the cdrom:
-
-hdc: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 8192kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x44 { AbortedCommand 
-LastFailedSense=0x04 }
-ide: failed opcode was: unknown
-ATAPI device hdc:
-  Error: Hardware error -- (Sense key=0x04)
-  Tracking servo failure -- (asc=0x09, ascq=0x01)
-  The failed "Read Cd/Dvd Capacity" packet command was:
-  "25 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
-ACPI: PCI Interrupt 0000:03:0a.0[A] -> GSI 18 (level, low) -> IRQ 17
-
----
-    The above comes out when the IDE devices are probed during boot
-(followed by a SCSI sda disk probe).
-
-    At file-system mount time, I see another few errors (even though there
-the cdrom related mount lines in fstab are commented out, specifically to
-try to silence these error messages):
-...
-XFS mounting filesystem hdg1
-Ending clean XFS mount for filesystem: hdg1
-Adding 265064k swap on /dev/sda2.  Priority:-1 extents:1 across:265064k
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x44 { AbortedCommand 
-LastFailedSense=0x04 }
-ide: failed opcode was: unknown
-ATAPI device hdc:
-  Error: Hardware error -- (Sense key=0x04)
-  Tracking servo failure -- (asc=0x09, ascq=0x01)
-  The failed "Read Cd/Dvd Capacity" packet command was:
-  "25 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
-hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-hdc: drive_cmd: error=0x04 { AbortedCommand }
-ide: failed opcode was: 0xec
-end_request: I/O error, dev fd0, sector 0
-end_request: I/O error, dev fd0, sector 0
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x44 { AbortedCommand 
-LastFailedSense=0x04 }
-ide: failed opcode was: unknown
-ATAPI device hdc:
-  Error: Hardware error -- (Sense key=0x04)
-  Tracking servo failure -- (asc=0x09, ascq=0x01)
-  The failed "Read Cd/Dvd Capacity" packet command was:
-  "25 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
----
-Hdparm (FWIW) shows:
-hdparm -vi /dev/hdc
-
-/dev/hdc:
- IO_support   =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  1 (on)
- readahead    =  0 (off)
- HDIO_GETGEO failed: Inappropriate ioctl for device
-
- Model=PLEXTOR DVDR PX-716A, FwRev=1.04, SerialNo=496556
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2 udma3 udma4
- AdvancedPM=no
- Drive conforms to: device does not report version:
-
- * signifies the current active mode
-
+diff -r 457bff6b2b2f -r b5bb5fea7490 lib/swiotlb.c
+--- a/lib/swiotlb.c	Tue Apr 25 14:51:06 2006
++++ b/lib/swiotlb.c	Tue Apr 25 18:18:55 2006
+@@ -8,9 +8,9 @@
+  * Copyright (C) 2000, 2003 Hewlett-Packard Co
+  *	David Mosberger-Tang <davidm@hpl.hp.com>
+  *
+- * 03/05/07 davidm	Switch from PCI-DMA to generic device DMA API.
+  * 00/12/13 davidm	Rename to swiotlb.c and add mark_clean() to avoid
+  *			unnecessary i-cache flushing.
++ * 03/05/07 davidm	Switch from PCI-DMA to generic device DMA API.
+  * 04/07/.. ak		Better overflow handling. Assorted fixes.
+  * 05/09/10 linville	Add support for syncing ranges, support syncing for
+  *			DMA_BIDIRECTIONAL mappings, miscellaneous cleanup.
+@@ -24,13 +24,11 @@
+ #include <linux/string.h>
+ #include <linux/types.h>
+ #include <linux/ctype.h>
+-
++#include <linux/init.h>
++#include <linux/bootmem.h>
+ #include <asm/io.h>
+ #include <asm/dma.h>
+ #include <asm/scatterlist.h>
+-
+-#include <linux/init.h>
+-#include <linux/bootmem.h>
+ 
+ #define OFFSET(val,align) ((unsigned long)	\
+ 	                   ( (val) & ( (align) - 1)))
+@@ -68,27 +66,26 @@
+ 	SYNC_FOR_DEVICE = 1,
+ };
+ 
+-int swiotlb_force;
++int __read_mostly swiotlb_force;
+ 
+ /*
+  * Used to do a quick range check in swiotlb_unmap_single and
+  * swiotlb_sync_single_*, to see if the memory was in fact allocated by this
+  * API.
+  */
+-static char *io_tlb_start, *io_tlb_end;
++static __read_mostly char *io_tlb_start, *io_tlb_end;
+ 
+ /*
+  * The number of IO TLB blocks (in groups of 64) betweeen io_tlb_start and
+  * io_tlb_end.  This is command line adjustable via setup_io_tlb_npages.
+  */
+-static unsigned long io_tlb_nslabs;
++static __read_mostly unsigned long io_tlb_nslabs;
+ 
+ /*
+  * When the IOMMU overflows we return a fallback buffer. This sets the size.
+  */
+-static unsigned long io_tlb_overflow = 32*1024;
+-
+-void *io_tlb_overflow_buffer;
++static __read_mostly unsigned long io_tlb_overflow = 32*1024;
++static void *io_tlb_overflow_buffer;
+ 
+ /*
+  * This is a free list describing the number of free entries available from
+@@ -130,19 +127,21 @@
+  * structures for the software IO TLB used to implement the DMA API.
+  */
+ void
+-swiotlb_init_with_default_size (size_t default_size)
++swiotlb_init(void)
+ {
+ 	unsigned long i;
+ 
+ 	if (!io_tlb_nslabs) {
+-		io_tlb_nslabs = (default_size >> IO_TLB_SHIFT);
++		/* if not defined via boot arg, default to 64MB */
++		io_tlb_nslabs = ((64 * (1 << 20)) >> IO_TLB_SHIFT);
+ 		io_tlb_nslabs = ALIGN(io_tlb_nslabs, IO_TLB_SEGSIZE);
+ 	}
+ 
+ 	/*
+ 	 * Get IO TLB memory from the low pages
+ 	 */
+-	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs * (1 << IO_TLB_SHIFT));
++	io_tlb_start = alloc_bootmem_low_pages(io_tlb_nslabs *
++					       (1 << IO_TLB_SHIFT));
+ 	if (!io_tlb_start)
+ 		panic("Cannot allocate SWIOTLB buffer");
+ 	io_tlb_end = io_tlb_start + io_tlb_nslabs * (1 << IO_TLB_SHIFT);
+@@ -162,14 +161,9 @@
+ 	 * Get the overflow emergency buffer
+ 	 */
+ 	io_tlb_overflow_buffer = alloc_bootmem_low(io_tlb_overflow);
+-	printk(KERN_INFO "Placing software IO TLB between 0x%lx - 0x%lx\n",
++	printk(KERN_INFO "Placing %dMB software IO TLB between 0x%lx - 0x%lx\n",
++	       (int) (io_tlb_nslabs * (1 << IO_TLB_SHIFT)) >> 20,
+ 	       virt_to_phys(io_tlb_start), virt_to_phys(io_tlb_end));
+-}
+-
+-void
+-swiotlb_init (void)
+-{
+-	swiotlb_init_with_default_size(64 * (1<<20));	/* default to 64MB */
+ }
+ 
+ /*
+@@ -178,7 +172,7 @@
+  * This should be just like above, but with some error catching.
+  */
+ int
+-swiotlb_late_init_with_default_size (size_t default_size)
++swiotlb_late_init_with_default_size(size_t default_size)
+ {
+ 	unsigned long i, req_nslabs = io_tlb_nslabs;
+ 	unsigned int order;
+@@ -250,11 +244,11 @@
+ 
+ cleanup4:
+ 	free_pages((unsigned long)io_tlb_orig_addr, get_order(io_tlb_nslabs *
+-	                                                      sizeof(char *)));
++							      sizeof(char *)));
+ 	io_tlb_orig_addr = NULL;
+ cleanup3:
+ 	free_pages((unsigned long)io_tlb_list, get_order(io_tlb_nslabs *
+-	                                                 sizeof(int)));
++							 sizeof(int)));
+ 	io_tlb_list = NULL;
+ 	io_tlb_end = NULL;
+ cleanup2:
+@@ -268,7 +262,7 @@
+ static inline int
+ address_needs_mapping(struct device *hwdev, dma_addr_t addr)
+ {
+-	dma_addr_t mask = 0xffffffff;
++	dma_addr_t mask = DMA_32BIT_MASK;
+ 	/* If the device has a mask, use it, otherwise default to 32 bits */
+ 	if (hwdev && hwdev->dma_mask)
+ 		mask = *hwdev->dma_mask;
+@@ -491,7 +485,7 @@
+ 		free_pages((unsigned long) vaddr, get_order(size));
+ 	else
+ 		/* DMA_TO_DEVICE to avoid memcpy in unmap_single */
+-		swiotlb_unmap_single (hwdev, dma_handle, size, DMA_TO_DEVICE);
++		swiotlb_unmap_single(hwdev, dma_handle, size, DMA_TO_DEVICE);
+ }
+ 
+ static void

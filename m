@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWEDQIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWEDQOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbWEDQIG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 12:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWEDQIG
+	id S1030193AbWEDQOk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 12:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWEDQOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 12:08:06 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:39335 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932343AbWEDQIE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 12:08:04 -0400
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Bob Picco <bob.picco@hp.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Andy Whitcroft <apw@shadowen.org>
-In-Reply-To: <20060504154652.GA4530@localhost>
-References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de>
-	 <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de>
-	 <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au>
-	 <20060504013239.GG19859@localhost>
-	 <1146756066.22503.17.camel@localhost.localdomain>
-	 <20060504154652.GA4530@localhost>
-Content-Type: text/plain
-Date: Thu, 04 May 2006 09:07:09 -0700
-Message-Id: <1146758829.22503.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 4 May 2006 12:14:39 -0400
+Received: from mga01.intel.com ([192.55.52.88]:13708 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932346AbWEDQOj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 12:14:39 -0400
+X-IronPort-AV: i="4.05,89,1146466800"; 
+   d="scan'208"; a="32395270:sNHT5681018357"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] Fix CONFIG_PRINTK_TIME hangs on some systems
+Date: Thu, 4 May 2006 09:14:06 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0667FF31@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Fix CONFIG_PRINTK_TIME hangs on some systems
+Thread-Index: AcZvZO3TZzGKOZtKSKOZbtNxHNcrOgALzIfQ
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Tony Lindgren" <tony@atomide.com>, <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Nick Piggin" <nickpiggin@yahoo.com.au>
+X-OriginalArrivalTime: 04 May 2006 16:14:07.0156 (UTC) FILETIME=[C4F0BF40:01C66F95]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-04 at 11:46 -0400, Bob Picco wrote:
-> Dave Hansen wrote:	[Thu May 04 2006, 11:21:06AM EDT]
-> > I haven't thought through it completely, but these two lines worry me:
-> > 
-> > > + start = pgdat->node_start_pfn & ~((1 << (MAX_ORDER - 1)) - 1);
-> > > + end = start + pgdat->node_spanned_pages;
-> > 
-> > Should the "end" be based off of the original "start", or the aligned
-> > "start"?
-> Yes. I failed to quilt refresh before sending. You mean end should be
-> end = pgdat->node_start_pfn + pgdat->node_spanned_pages before rounding
-> up.
+> This issue has been discussed earlier on LKML, but AFAIK
+> there has not been any better solution available:
+> 
+> http://lkml.org/lkml/2005/8/18/173
 
-Yep.  Looks good.
+I thought that this had been fixed:
 
--- Dave
+ia64 now has a "printk_clock()" defined in arch/ia64/kernel/time.c
+which overrides the "weak" symbol defined in kernel/printk.c.  This
+calls ia64_printk_clock() ... which defaults to a jiffie based
+routine, but might be an ITC based routine if running on a system
+where the clocks do not drift on different cpus.  Platform code
+can also override this function pointer (which SGI does in their
+sn_setup() routine).
 
+The ITC based routine still uses sched_clock(), but tries to avoid
+the original problems by not calling sched_clock() until the MMU
+has been set up to map the per-cpu areas (checks whether one of the
+AR.K registers has been set).  Most of this in commit:
+
+  http://tinyurl.com/ltexa
+
+
+Do you still see a problem on some platform?
+
+-Tony

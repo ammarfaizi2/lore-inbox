@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWEDJ4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWEDKID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751478AbWEDJ4M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 05:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWEDJ4M
+	id S1751480AbWEDKID (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 06:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWEDKID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 05:56:12 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7696 "EHLO spitz.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751467AbWEDJ4L (ORCPT
+	Thu, 4 May 2006 06:08:03 -0400
+Received: from mail.gmx.net ([213.165.64.20]:1248 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751482AbWEDKIC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 05:56:11 -0400
-Date: Thu, 4 May 2006 09:55:53 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Phillip Hellewell <phillip@hellewell.homeip.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
-       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
-       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>,
-       David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 6/13: eCryptfs] Superblock operations
-Message-ID: <20060504095552.GC5844@ucw.cz>
-References: <20060504031755.GA28257@hellewell.homeip.net> <20060504033829.GE28613@hellewell.homeip.net>
+	Thu, 4 May 2006 06:08:02 -0400
+X-Authenticated: #4399952
+Date: Thu, 4 May 2006 12:07:34 +0200
+From: Florian Paul Schmidt <mista.tapas@gmx.net>
+To: "Yogesh Pahilwan" <pahilwan.yogesh@spsoftindia.com>
+Cc: "'Steven Rostedt'" <rostedt@goodmis.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Problem while applying patch to 2.6.9 kernel
+Message-ID: <20060504120734.096f6a64@mango.fruits>
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAA/RwgNB/GzEaFbUDhx3/9tAEAAAAA@spsoftindia.com>
+References: <Pine.LNX.4.58.0605030809100.24221@gandalf.stny.rr.com>
+	<!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAvCUMqSY6jkeq1rIyy7sZ1cKAAAAQAAAA/RwgNB/GzEaFbUDhx3/9tAEAAAAA@spsoftindia.com>
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060504033829.GE28613@hellewell.homeip.net>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI!
+On Wed, 3 May 2006 18:02:45 +0530
+"Yogesh Pahilwan" <pahilwan.yogesh@spsoftindia.com> wrote:
 
-> +/**
-> + * Get the filesystem statistics. Currently, we let this pass right through
-> + * to the lower filesystem and take no action ourselves.
-> + */
-> +static int ecryptfs_statfs(struct super_block *sb, struct kstatfs *buf)
-> +{
-> +	int rc = 0;
-> +
-> +	ecryptfs_printk(KERN_DEBUG, "Enter\n");
-> +	rc = vfs_statfs(ECRYPTFS_SUPERBLOCK_TO_LOWER(sb), buf);
-> +	ecryptfs_printk(KERN_DEBUG, "Exit; rc = [%d]\n", rc);
-> +	return rc;
-> +}
+> Hi Steven,
+> 
+> I tried specifying -p2 as follows:
+> 
+> # patch -p2 < ../../Patches/patch-ext3
+> 
+> But still getting the same error.
+> 
+> Please suggest.
 
-This is ugly. Could you remove the debugging, or at least use dprintk?
+I can only suggest using the --dry-run option for patch so you can try
+different patchlevels before applying the patch for real.
 
+Flo
 
 -- 
-Thanks, Sharp!
+Palimm Palimm!
+http://tapas.affenbande.org

@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWEDJVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWEDJZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751454AbWEDJVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 05:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWEDJVZ
+	id S1751455AbWEDJZK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 05:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWEDJZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 05:21:25 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:28584 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751454AbWEDJVZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 05:21:25 -0400
-Date: Thu, 4 May 2006 11:26:16 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bob Picco <bob.picco@hp.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Message-ID: <20060504092616.GA5831@elte.hu>
-References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de> <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au> <20060504013239.GG19859@localhost> <20060504083708.GA30853@elte.hu> <20060504091422.GA2346@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 May 2006 05:25:09 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:25030 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1751455AbWEDJZI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 05:25:08 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: linux-kernel@vger.kernel.org
+Subject: www.softpanorama.org: sparc_vs_x86 fun
+Date: Thu, 4 May 2006 12:24:41 +0300
+User-Agent: KMail/1.8.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060504091422.GA2346@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200605041224.41827.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://www.softpanorama.org/Articles/Linux_vs_Solaris/sparc_vs_x86.shtml
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+>...
+>Linux is essentially an OS that flourishes only on Intel. It never achieved
+>any significant success on RISC architecture although IBM now is trying to
+>change this situation pushing Linux on PowerPC and potentially cannibalizing
+>its own AIX sales (at least on low level servers).  Actually running several
+>competing with each other hardware and software offerings is nothing new for 
+>IBM.
 
-> the same easy crash still happens if i enable CONFIG_NUMA:
+>Solaris is heterogeneous OS that (unlike Linux) can perform well on two 
+>architectures: UltraSparc and Intel. Actually Linux used to be more
+>heterogeneous in the past when it supported Alpha. But those days are long
+>gone.
+>...
 
-btw., with CONFIG_NUMA off i get this warning during bootup:
+Marketspeak, I suppose
 
-BUG: pfn: 0003fff0, page: c404d840, order: 4
- [<c0104e7f>] show_trace+0xd/0xf
- [<c0104e96>] dump_stack+0x15/0x17
- [<c0163312>] free_pages_bulk+0x207/0x370
- [<c01642f9>] free_hot_cold_page+0x127/0x17c
- [<c016438d>] free_hot_page+0xa/0xc
- [<c01643e5>] __free_pages+0x56/0x6f
- [<c0172e14>] __vunmap+0xc1/0xed
- [<c0172f02>] vfree+0x3b/0x3e
- [<c0128865>] build_sched_domains+0xaf2/0xcde
- [<c0128a6a>] arch_init_sched_domains+0x19/0x1b
- [<c1bd3a67>] sched_init_smp+0x18/0x349
- [<c01003c6>] init+0xb9/0x2cb
- [<c0102005>] kernel_thread_helper+0x5/0xb
+>5.1.  UltraSparc is an expensive but pretty cool CPU :-)
+>...
+>* Energy efficiency: it consumes less energy then either Intel or Opteron
+>  and much less then PoewerPC CPUs.
 
-but this is nonfatal and the system is robust afterwards. (this warning 
-is not present if CONFIG_NUMA is on) [Btw., in the NUMA test i also had 
-CONFIG_MIGRATION enabled.]
+I never heard about "then PoewerPC CPUs", must be something new. :)
 
-	Ingo
+>* Fault tolerance. Sun servers can do amazing things with fauly components.
+>  almost any of them can be switched off. Even low level Sun server like V240
+>  can survive bam memory chips, onle falty CPU and one burned power supply.
+>  In some somce it is an cheap cluster.
+>* Cleaner architecture. Being big Endean CPU with RISC instruction set
+>  provides some complier level advantages in comparison with convoluted
+>  instruction set of X86 line.   
+
+"fauly" components? "bam" memory chips? "onle falty" CPU? "somce"?
+"complier" level advantages??
+
+That's serious advantage, we definitely don't have those.
+I don't even know what those things are... ;)
+--
+vda

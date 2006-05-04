@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWEDPAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWEDPBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWEDPAr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 11:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWEDPAr
+	id S1751492AbWEDPBB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 11:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWEDPBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 11:00:47 -0400
-Received: from wx-out-0102.google.com ([66.249.82.192]:13636 "EHLO
-	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751491AbWEDPAq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 11:00:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QtzMjLoahmxxW/bEbq8giToy0RBZ1WicFeUOjLte5d668Eyns4UuLoZLrSW81gK+XrZGp/d8U9Xqif4gF0E2D/7TTZ1k4cvKvtwDWehJ30ASdDobus+aX3Tdf5zQHutTeDJbgi2JnttnU3cWyJwjLjQ6677Yz+0u6elHrYMTTW8=
-Message-ID: <afcef88a0605040800t42a24f5h539a117b54a9740@mail.gmail.com>
-Date: Thu, 4 May 2006 10:00:45 -0500
-From: "Michael Thompson" <michael.craig.thompson@gmail.com>
-To: "Pekka Enberg" <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH 6/13: eCryptfs] Superblock operations
-Cc: "Phillip Hellewell" <phillip@hellewell.homeip.net>,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
-       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
-       yoder1@us.ibm.com, "James Morris" <jmorris@namei.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, "Erez Zadok" <ezk@cs.sunysb.edu>,
-       "David Howells" <dhowells@redhat.com>
-In-Reply-To: <84144f020605040737k316fd5abva4476da69a65c084@mail.gmail.com>
+	Thu, 4 May 2006 11:01:00 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:52378 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751492AbWEDPA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 11:00:59 -0400
+In-Reply-To: <20060504144259.GA26668@kroah.com>
+Subject: Re: [PATCH] s390: Hypervisor File System
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, ioe-lkml@rameria.de,
+       joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org,
+       mschwid2@de.ibm.com, penberg@cs.helsinki.fi
+X-Mailer: Lotus Notes Build V70_M4_01112005 Beta 3NP January 11, 2005
+Message-ID: <OF99AF266B.81368F01-ON42257164.00523E52-42257164.0052802A@de.ibm.com>
+From: Michael Holzheu <HOLZHEU@de.ibm.com>
+Date: Thu, 4 May 2006 17:01:07 +0200
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 04/05/2006 17:02:09
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060504031755.GA28257@hellewell.homeip.net>
-	 <20060504033829.GE28613@hellewell.homeip.net>
-	 <84144f020605040737k316fd5abva4476da69a65c084@mail.gmail.com>
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/4/06, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> Hi Phillip,
->
-> Some comments below.
->
-> On 5/4/06, Phillip Hellewell <phillip@hellewell.homeip.net> wrote:
-> > +kmem_cache_t *ecryptfs_inode_info_cache;
->
-> Please use struct kmem_cache instead of the typedef.
+Hi Greg,
 
-Please explain why. Looking at the source shows that kmem_cache_t is
-more widely used, and therefore seems to be the prefered way.
-
-> > +       ecryptfs_printk(KERN_DEBUG, "Exit\n");
-> > +}
-> > +
-> > +/**
-> > + * Set up the ecryptfs inode.
-> > + */
-> > +static void ecryptfs_read_inode(struct inode *inode)
-> > +{
-> > +       ecryptfs_printk(KERN_DEBUG, "Enter; inode = [%p]\n", inode);
-> > +       /* This is where we setup the self-reference in the vfs_inode's
-> > +        * u.generic_ip. That way we don't have to walk the list again. */
-> > +       ECRYPTFS_INODE_TO_PRIVATE_SM(inode) =
-> > +               list_entry(inode, struct ecryptfs_inode_info, vfs_inode);
-> > +       ECRYPTFS_INODE_TO_LOWER(inode) = NULL;
+Greg KH <greg@kroah.com> wrote on 05/04/2006 04:42:59 PM:
+> > I would suggest do do it like /sys/kernel and put the code
+> > into kernel/ksysfs.c and include/linux/kobject.h
 >
-> Hmm, ugly, please make the setters explicit instead.
+> No, if you do that then every kernel gets that mount point, when almost
+> no one really wants it :)
+>
+> If you leave it as a separate file, then the build system can just
+> include the file as needed.
+>
 
-Curious, what exactly do you mean by this? I'm not sure what you mean
-by "setters".
+So you want a new config option CONFIG_HYPERVISOR?
 
---
-Michael C. Thompson <mcthomps@us.ibm.com>
-Software-Engineer, IBM LTC Security
+When no one except for us wants it, wouldn't it be best
+then to create /sys/hypervisor first in the hypfs code?
+
+If someone else needs it in the future, we still can move
+it common code.
+
+Michael
+

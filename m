@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWEDIcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWEDIfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWEDIcc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 04:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWEDIcc
+	id S1751443AbWEDIfg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 04:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWEDIfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 04:32:32 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:25775 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751442AbWEDIcb (ORCPT
+	Thu, 4 May 2006 04:35:36 -0400
+Received: from k2smtpout01-02.prod.mesa1.secureserver.net ([64.202.189.89]:54159
+	"HELO k2smtpout01-01.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S1751443AbWEDIfg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 04:32:31 -0400
-Date: Thu, 4 May 2006 10:37:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bob Picco <bob.picco@hp.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Andy Whitcroft <apw@shadowen.org>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Message-ID: <20060504083708.GA30853@elte.hu>
-References: <20060419112130.GA22648@elte.hu> <p73aca07whs.fsf@bragg.suse.de> <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au> <20060504013239.GG19859@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060504013239.GG19859@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 4 May 2006 04:35:36 -0400
+X-Antivirus-MYDOMAIN-Mail-From: razvan.g@plutohome.com via plutohome.com.secureserver.net
+X-Antivirus-MYDOMAIN: 1.25-st-qms (Clear:RC:0(82.77.255.201):SA:0(-2.3/5.0):. Processed in 2.326988 secs Process 32648)
+Message-ID: <4459BCE5.7050502@plutohome.com>
+Date: Thu, 04 May 2006 11:35:49 +0300
+From: Razvan Gavril <razvan.g@plutohome.com>
+User-Agent: Mail/News 1.5 (X11/20060309)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ftdi_sio: ACT Solutions HomePro ZWave interface
+References: <44572749.6090103@plutohome.com> <20060502200532.GA8172@kroah.com> <44589FB0.6090909@plutohome.com> <20060503174349.GA3098@kroah.com>
+In-Reply-To: <20060503174349.GA3098@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------040502050004090703030204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040502050004090703030204
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Bob Picco <bob.picco@hp.com> wrote:
+Sorry, this is the first patch that i ever submitted, next time I'll be 
+more careful. The patch add the product id to support the zwave 
+ZCU000-USB computer interface.
 
-> The patch below isn't compile tested or correct for those cases where 
-> alloc_remap is called or where arch code has allocated node_mem_map 
-> for CONFIG_FLAT_NODE_MEM_MAP. It's just conveying what I believe the 
-> issue is.
+here is the patch:
 
-thx. One pair of parentheses were missing i think - see the delta fix 
-below. I'll try it.
+Signed-off-by: Razvan Gavril <razvan.g@plutohome.com>
 
-	Ingo
+--------------040502050004090703030204
+Content-Type: text/x-patch;
+ name="ftdi_sio.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ftdi_sio.patch"
 
-Index: linux/mm/page_alloc.c
-===================================================================
---- linux.orig/mm/page_alloc.c
-+++ linux/mm/page_alloc.c
-@@ -2296,7 +2296,7 @@ static void __init alloc_node_mem_map(st
- 		 */
- 		start = pgdat->node_start_pfn & ~((1 << (MAX_ORDER - 1)) - 1);
- 		end = start + pgdat->node_spanned_pages;
--		end = (end + ((1 << (MAX_ORDER - 1)) - 1) &
-+		end = (end + ((1 << (MAX_ORDER - 1)) - 1)) &
- 			~((1 << (MAX_ORDER - 1)) - 1);
- 		size =  (end - start) * sizeof(struct page);
- 		map = alloc_remap(pgdat->node_id, size);
+diff -Naur linux-2.6.17-rc3-orig/drivers/usb/serial/ftdi_sio.c linux-2.6.17-rc3/drivers/usb/serial/ftdi_sio.c
+--- linux-2.6.17-rc3-orig/drivers/usb/serial/ftdi_sio.c	2006-05-03 15:12:01.000000000 +0300
++++ linux-2.6.17-rc3/drivers/usb/serial/ftdi_sio.c	2006-05-03 15:04:39.000000000 +0300
+@@ -307,6 +307,7 @@
+ 
+ 
+ static struct usb_device_id id_table_combined [] = {
++	{ USB_DEVICE(FTDI_VID, FTDI_ACTZWAVE_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_IRTRANS_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SIO_PID) },
+ 	{ USB_DEVICE(FTDI_VID, FTDI_8U232AM_PID) },
+diff -Naur linux-2.6.17-rc3-orig/drivers/usb/serial/ftdi_sio.h linux-2.6.17-rc3/drivers/usb/serial/ftdi_sio.h
+--- linux-2.6.17-rc3-orig/drivers/usb/serial/ftdi_sio.h	2006-05-03 15:09:33.000000000 +0300
++++ linux-2.6.17-rc3/drivers/usb/serial/ftdi_sio.h	2006-05-03 15:13:26.000000000 +0300
+@@ -32,6 +32,10 @@
+ #define FTDI_NF_RIC_PID	0x0001	/* Product Id */
+ 
+ 
++/* ACT Solutions HomePro ZWave interface (http://www.act-solutions.com/HomePro.htm) */
++#define FTDI_ACTZWAVE_PID      0xF2D0
++
++
+ /* www.irtrans.de device */
+ #define FTDI_IRTRANS_PID 0xFC60 /* Product Id */
+ 
+
+--------------040502050004090703030204--

@@ -1,162 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWEDVaf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbWEDVc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWEDVaf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 17:30:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWEDVaf
+	id S1030328AbWEDVc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 17:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWEDVc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 17:30:35 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:49300 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751408AbWEDVa3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 17:30:29 -0400
-Date: Thu, 4 May 2006 23:30:55 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Trent Piepho <xyzzy@speakeasy.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>
-Message-ID: <20060504213055.GB8113@linuxtv.org>
+	Thu, 4 May 2006 17:32:29 -0400
+Received: from gate.crashing.org ([63.228.1.57]:3981 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751338AbWEDVc2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 17:32:28 -0400
+Date: Thu, 4 May 2006 16:28:50 -0500 (CDT)
+From: Kumar Gala <galak@kernel.crashing.org>
+X-X-Sender: galak@gate.crashing.org
+To: Paul Mackerras <paulus@samba.org>
+cc: linuxppc-dev@ozlabs.org, <linux-kernel@vger.kernel.org>
+Subject: Please pull from 'for_paulus' branch of powerpc
+Message-ID: <Pine.LNX.4.44.0605041622180.3700-100000@gate.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
-X-SA-Exim-Connect-IP: 84.189.251.233
-Subject: [xyzzy@speakeasy.org: [PATCH] symbol_put_addr() locks kernel]
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Please pull from 'for_paulus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/galak/powerpc.git
 
-could you please have a look at the original message
-and the attached patch?
+to receive the following updates:
 
-Background:
+ arch/powerpc/kernel/setup-common.c |   17 +++++++++++++++++
+ arch/powerpc/kernel/setup_32.c     |    4 ++++
+ arch/powerpc/kernel/setup_64.c     |   17 ++---------------
+ 3 files changed, 23 insertions(+), 15 deletions(-)
 
-Many people complain that one driver for a DVB PCI or
-USB card depends on many frontend (== tuner + demodulator)
-modules. Although one card usually has only one frontend,
-we have these many dependencies because of the many existing
-card variants.
+Kumar Gala:
+      powerpc: provide ppc_md.panic() for both ppc32 & ppc64
 
-As a way out, we try to replace a static dependency
-in the frontend probe function with a combination of
-symbol_request() and symbol_put_addr(). symbol_request()
-would only be called for the frontends known to exists
-for a given PCI or USB device id.
-
-Thanks,
-Johannes
-
------ Forwarded message from Trent Piepho <xyzzy@speakeasy.org> -----
-
-Subject: [PATCH] symbol_put_addr() locks kernel
-Date:	Fri, 28 Apr 2006 15:23:55 -0700 (PDT)
-From: Trent Piepho <xyzzy@speakeasy.org>
-To: linux-kernel@vger.kernel.org
-cc: xyzzy@speakeasy.org
-X-Mailing-List:	linux-kernel@vger.kernel.org
-
-Please CC me on any replies, I'm not subscribed.
-
-Even since a previous patch:
-
-Fix race between CONFIG_DEBUG_SLABALLOC and modules
-Sun, 27 Jun 2004 17:55:19 +0000 (17:55 +0000)
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commit;h=92b3db26d31cf21b70e3c1eadc56c179506d8fbe
-
-The function symbol_put_addr() will deadlock the kernel.
-symbol_put_addr() acquires the modlist_lock spinlock, then calls
-kernel_text_address() and module_text_address() while it still holds
-the lock.  That patch changed those two functions so they also try to
-acquire the spinlock, which of course locks the kernel.
-
-If you look at the original thread:  http://lkml.org/lkml/2004/6/23/20
-The first patch corrected symbol_put_addr() to use the new
-"double-underscore" functions that don't try to acquire the lock, but
-the final patch missed symbol_put_addr().
-
-Here is a patch which fixes this.  The locking inside
-symbol_put_addr() is removed.  I changed symbol_put_addr() to call
-core_kernel_text() instead of kernel_text_address(), the latter
-includes an additional check if the addr is inside a module.  Since we
-will call module_text_address() to get the module, this extra check
-isn't needed.
-# HG changeset patch
-# User Trent Piepho <xyzzy@speakeasy.org>
-# Node ID b66f3aa4bfe88f9ea2edb9c87419413ecc6caa8c
-# Parent  4c3f241d7bc53fc25ddab54140f96cacd71ae1e1
-From: Trent Piepho <xyzzy@speakeasy.org>
-
-symbol_put_addr() would acquire modlist_lock, then while holding the lock call
-two functions kernel_text_address() and module_text_address() which also try
-to acquire the same lock.  This deadlocks the kernel of course.
-
-This patch changes symbol_put_addr() to not acquire the modlist_lock, it
-doesn't need it since it never looks at the module list directly.  Also, it
-now uses core_kernel_text() instead of kernel_text_address().  The latter
-has an additional check for addr inside a module, but we don't need to do that
-since we call module_text_address() (the same function kernel_text_address
-uses) ourselves.
-
-
-Signed-off-by: Trent Piepho <xyzzy@speakeasy.org>
-
+diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
+index 684ab1d..7a6a883 100644
+--- a/arch/powerpc/kernel/setup-common.c
++++ b/arch/powerpc/kernel/setup-common.c
+@@ -524,3 +524,20 @@ int check_legacy_ioport(unsigned long ba
+ 	return ppc_md.check_legacy_ioport(base_port);
+ }
+ EXPORT_SYMBOL(check_legacy_ioport);
++
++static int ppc_panic_event(struct notifier_block *this,
++                             unsigned long event, void *ptr)
++{
++	ppc_md.panic((char *)ptr);  /* May not return */
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block ppc_panic_block = {
++	.notifier_call = ppc_panic_event,
++	.priority = INT_MIN /* may not return; must be done last */
++};
++
++void __init setup_panic(void)
++{
++	atomic_notifier_chain_register(&panic_notifier_list, &ppc_panic_block);
++}
+diff --git a/arch/powerpc/kernel/setup_32.c b/arch/powerpc/kernel/setup_32.c
+index 69ac257..9d55234 100644
+--- a/arch/powerpc/kernel/setup_32.c
++++ b/arch/powerpc/kernel/setup_32.c
+@@ -236,6 +236,7 @@ arch_initcall(ppc_init);
+ void __init setup_arch(char **cmdline_p)
+ {
+ 	extern void do_init_bootmem(void);
++	extern void setup_panic(void);
  
- include/linux/kernel.h |    1 +
- kernel/extable.c       |    2 +-
- kernel/module.c        |   14 +++++++-------
- 3 files changed, 9 insertions(+), 8 deletions(-)
-
-diff -r 4c3f241d7bc5 -r b66f3aa4bfe8 include/linux/kernel.h
---- a/include/linux/kernel.h	Fri Apr 28 23:00:35 2006 +0700
-+++ b/include/linux/kernel.h	Fri Apr 28 14:49:34 2006 -0700
-@@ -124,6 +124,7 @@ extern char *get_options(const char *str
- extern char *get_options(const char *str, int nints, int *ints);
- extern unsigned long long memparse(char *ptr, char **retptr);
+ 	/* so udelay does something sensible, assume <= 1000 bogomips */
+ 	loops_per_jiffy = 500000000 / HZ;
+@@ -285,6 +286,9 @@ #endif
+ 	/* reboot on panic */
+ 	panic_timeout = 180;
  
-+extern int core_kernel_text(unsigned long addr);
- extern int __kernel_text_address(unsigned long addr);
- extern int kernel_text_address(unsigned long addr);
- extern int session_of_pgrp(int pgrp);
-diff -r 4c3f241d7bc5 -r b66f3aa4bfe8 kernel/extable.c
---- a/kernel/extable.c	Fri Apr 28 23:00:35 2006 +0700
-+++ b/kernel/extable.c	Fri Apr 28 14:49:34 2006 -0700
-@@ -40,7 +40,7 @@ const struct exception_table_entry *sear
- 	return e;
++	if (ppc_md.panic)
++		setup_panic();
++
+ 	init_mm.start_code = PAGE_OFFSET;
+ 	init_mm.end_code = (unsigned long) _etext;
+ 	init_mm.end_data = (unsigned long) _edata;
+diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
+index 4467c49..ff6726f 100644
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -100,12 +100,6 @@ unsigned long SYSRQ_KEY;
+ #endif /* CONFIG_MAGIC_SYSRQ */
+ 
+ 
+-static int ppc64_panic_event(struct notifier_block *, unsigned long, void *);
+-static struct notifier_block ppc64_panic_block = {
+-	.notifier_call = ppc64_panic_event,
+-	.priority = INT_MIN /* may not return; must be done last */
+-};
+-
+ #ifdef CONFIG_SMP
+ 
+ static int smt_enabled_cmdline;
+@@ -456,13 +450,6 @@ #endif
+ 	DBG(" <- setup_system()\n");
  }
  
--static int core_kernel_text(unsigned long addr)
-+int core_kernel_text(unsigned long addr)
- {
- 	if (addr >= (unsigned long)_stext &&
- 	    addr <= (unsigned long)_etext)
-diff -r 4c3f241d7bc5 -r b66f3aa4bfe8 kernel/module.c
---- a/kernel/module.c	Fri Apr 28 23:00:35 2006 +0700
-+++ b/kernel/module.c	Fri Apr 28 14:49:34 2006 -0700
-@@ -705,14 +705,14 @@ EXPORT_SYMBOL(__symbol_put);
- 
- void symbol_put_addr(void *addr)
- {
--	unsigned long flags;
+-static int ppc64_panic_event(struct notifier_block *this,
+-                             unsigned long event, void *ptr)
+-{
+-	ppc_md.panic((char *)ptr);  /* May not return */
+-	return NOTIFY_DONE;
+-}
 -
--	spin_lock_irqsave(&modlist_lock, flags);
--	if (!kernel_text_address((unsigned long)addr))
-+	struct module *modaddr;
-+
-+	if (core_kernel_text((unsigned long)addr))
-+		return;
-+
-+	if (!(modaddr = module_text_address((unsigned long)addr)))
- 		BUG();
--
--	module_put(module_text_address((unsigned long)addr));
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	module_put(modaddr);
- }
- EXPORT_SYMBOL_GPL(symbol_put_addr);
+ #ifdef CONFIG_IRQSTACKS
+ static void __init irqstack_early_init(void)
+ {
+@@ -518,6 +505,7 @@ static void __init emergency_stack_init(
+ void __init setup_arch(char **cmdline_p)
+ {
+ 	extern void do_init_bootmem(void);
++	extern void setup_panic(void);
  
+ 	ppc64_boot_msg(0x12, "Setup Arch");
+ 
+@@ -535,8 +523,7 @@ void __init setup_arch(char **cmdline_p)
+ 	panic_timeout = 180;
+ 
+ 	if (ppc_md.panic)
+-		atomic_notifier_chain_register(&panic_notifier_list,
+-				&ppc64_panic_block);
++		setup_panic();
+ 
+ 	init_mm.start_code = PAGE_OFFSET;
+ 	init_mm.end_code = (unsigned long) _etext;
 
-
------ End forwarded message -----

@@ -1,134 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWEDXJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWEDXQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbWEDXJv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 19:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWEDXJv
+	id S932426AbWEDXQG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 19:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751531AbWEDXQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 19:09:51 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59568 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932382AbWEDXJu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 19:09:50 -0400
-Date: Thu, 4 May 2006 18:09:45 -0500 (CDT)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: linux-kernel@vger.kernel.org
-cc: linux-ide@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jes Sorensen <jes@sgi.com>, Jeremy Higdon <jeremy@sgi.com>
-Subject: [PATCH] Move various PCI IDs to header file
-Message-ID: <20060504180614.X88573@chenjesu.americas.sgi.com>
-Organization: "Silicon Graphics, Inc."
+	Thu, 4 May 2006 19:16:06 -0400
+Received: from barracuda.s2io.com ([72.1.205.138]:8628 "EHLO
+	barracuda.mail.s2io.com") by vger.kernel.org with ESMTP
+	id S1751469AbWEDXQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 19:16:04 -0400
+X-ASG-Debug-ID: 1146784563-10906-9-0
+X-Barracuda-URL: http://72.1.205.138:8000/cgi-bin/mark.cgi
+Reply-To: <ravinandan.arakali@neterion.com>
+From: "Ravinandan Arakali" <ravinandan.arakali@neterion.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Ananda. Raju" <ananda.raju@neterion.com>, <netdev@vger.kernel.org>,
+       "Leonid Grossman" <Leonid.Grossman@neterion.com>
+X-ASG-Orig-Subj: pci_enable_msix throws up error
+Subject: pci_enable_msix throws up error
+Date: Thu, 4 May 2006 16:16:13 -0700
+Message-ID: <MAEEKMLDLDFEGKHNIJHIOECKCEAA.ravinandan.arakali@neterion.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Importance: Normal
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=3.5 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=7.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.12049
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move various QLogic, Vitesse, and Intel storage
-controller PCI IDs to the main header file.
+Hi,
+I am seeing the following problem with MSI/MSI-X.
 
-Signed-off-by: Brent Casavant <bcasavan@sgi.com>
+Note: I am copying netdev since other network drivers use
+this feature and somebody on the list could throw light.
 
----
+Our 10G network card(Xframe II) supports MSI and MSI-X.
+When I load/unload the driver with MSI support followed
+by an attempt to load with MSI-X, I get the following
+message from pci_enable_msix:
 
-As suggested by Andrew Morton and Jes Sorenson.
+"Can't enable MSI-X.  Device already has an MSI vector assigned"
 
- drivers/scsi/qla1280.c  |   24 ------------------------
- drivers/scsi/sata_vsc.c |   11 ++++++-----
- include/linux/pci_ids.h |    9 +++++++++
- 3 files changed, 15 insertions(+), 29 deletions(-)
+I seem to be doing the correct things when unloading the
+MSI driver. Basically, I do free_irq() followed by pci_disable_msi().
+Any idea what I am missing ?
 
----
-diff --git a/drivers/scsi/qla1280.c b/drivers/scsi/qla1280.c
-index 5a48e55..00662a5 100644
---- a/drivers/scsi/qla1280.c
-+++ b/drivers/scsi/qla1280.c
-@@ -397,30 +397,6 @@
- #include "ql1280_fw.h"
- #include "ql1040_fw.h"
- 
--
--/*
-- * Missing PCI ID's
-- */
--#ifndef PCI_DEVICE_ID_QLOGIC_ISP1080
--#define PCI_DEVICE_ID_QLOGIC_ISP1080	0x1080
--#endif
--#ifndef PCI_DEVICE_ID_QLOGIC_ISP1240
--#define PCI_DEVICE_ID_QLOGIC_ISP1240	0x1240
--#endif
--#ifndef PCI_DEVICE_ID_QLOGIC_ISP1280
--#define PCI_DEVICE_ID_QLOGIC_ISP1280	0x1280
--#endif
--#ifndef PCI_DEVICE_ID_QLOGIC_ISP10160
--#define PCI_DEVICE_ID_QLOGIC_ISP10160	0x1016
--#endif
--#ifndef PCI_DEVICE_ID_QLOGIC_ISP12160
--#define PCI_DEVICE_ID_QLOGIC_ISP12160	0x1216
--#endif
--
--#ifndef PCI_VENDOR_ID_AMI
--#define PCI_VENDOR_ID_AMI               0x101e
--#endif
--
- #ifndef BITS_PER_LONG
- #error "BITS_PER_LONG not defined!"
- #endif
-diff --git a/drivers/scsi/sata_vsc.c b/drivers/scsi/sata_vsc.c
-index 8a29ce3..27d6587 100644
---- a/drivers/scsi/sata_vsc.c
-+++ b/drivers/scsi/sata_vsc.c
-@@ -433,13 +433,14 @@ err_out:
- 
- 
- /*
-- * 0x1725/0x7174 is the Vitesse VSC-7174
-- * 0x8086/0x3200 is the Intel 31244, which is supposed to be identical
-- * compatibility is untested as of yet
-+ * Intel 31244 is supposed to be identical.
-+ * Compatibility is untested as of yet.
-  */
- static const struct pci_device_id vsc_sata_pci_tbl[] = {
--	{ 0x1725, 0x7174, PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
--	{ 0x8086, 0x3200, PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
-+	{ PCI_VENDOR_ID_VITESSE, PCI_DEVICE_ID_VITESSE_VSC7174,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
-+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_GD31244,
-+	  PCI_ANY_ID, PCI_ANY_ID, 0x10600, 0xFFFFFF, 0 },
- 	{ }
- };
- 
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index d6fe048..c380faf 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -848,7 +848,12 @@
- 
- 
- #define PCI_VENDOR_ID_QLOGIC		0x1077
-+#define PCI_DEVICE_ID_QLOGIC_ISP10160	0x1016
- #define PCI_DEVICE_ID_QLOGIC_ISP1020	0x1020
-+#define PCI_DEVICE_ID_QLOGIC_ISP1080	0x1080
-+#define PCI_DEVICE_ID_QLOGIC_ISP12160	0x1216
-+#define PCI_DEVICE_ID_QLOGIC_ISP1240	0x1240
-+#define PCI_DEVICE_ID_QLOGIC_ISP1280	0x1280
- #define PCI_DEVICE_ID_QLOGIC_ISP2100	0x2100
- #define PCI_DEVICE_ID_QLOGIC_ISP2200	0x2200
- #define PCI_DEVICE_ID_QLOGIC_ISP2300	0x2300
-@@ -1957,6 +1962,9 @@
- #define PCI_VENDOR_ID_NETCELL		0x169c
- #define PCI_DEVICE_ID_REVOLUTION	0x0044
- 
-+#define PCI_VENDOR_ID_VITESSE		0x1725
-+#define PCI_DEVICE_ID_VITESSE_VSC7174	0x7174
-+
- #define PCI_VENDOR_ID_LINKSYS		0x1737
- #define PCI_DEVICE_ID_LINKSYS_EG1064	0x1064
- 
-@@ -2135,6 +2143,7 @@
- #define PCI_DEVICE_ID_INTEL_ICH8_4	0x2815
- #define PCI_DEVICE_ID_INTEL_ICH8_5	0x283e
- #define PCI_DEVICE_ID_INTEL_ICH8_6	0x2850
-+#define PCI_DEVICE_ID_INTEL_GD31244	0x3200
- #define PCI_DEVICE_ID_INTEL_82855PM_HB	0x3340
- #define PCI_DEVICE_ID_INTEL_82830_HB	0x3575
- #define PCI_DEVICE_ID_INTEL_82830_CGC	0x3577
+Further analysis:
+Looking at the code, the following check(when it finds a match) in
+msi_lookup_vector(called by pci_enable_msix) seems to throw up this
+message:
+if (!msi_desc[vector] || msi_desc[vector]->dev != dev ||
+    msi_desc[vector]->msi_attrib.type != type ||
+    msi_desc[vector]->msi_attrib.default_vector != dev->irq)
+
+pci_enable_msi, on successful completion will populate the
+fields in msi_desc. But neither pci_disable_msi nor free_irq
+seems to undo/unpopulate the msi_desc table.
+Could this be the cause for the problem ?
+
+Thanks,
+Ravi
+
+

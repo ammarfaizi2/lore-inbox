@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWEDTY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWEDT0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbWEDTY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 15:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWEDTY3
+	id S1030298AbWEDT0n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 15:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbWEDT0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 15:24:29 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:2980 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750732AbWEDTY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 15:24:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:thread-index:x-mimeole;
-        b=qDUPv8SRzlrTorO3H5tOL3iQipShgZKnWzKf5gXKBMXKkoSRwQnUEsQ9H36N1WY1dgnWdhv1jfsWx6KZZJHhZQprjJ8FL3dJrkVtdaH01h5aweC/JRltRt+D2AeM5sfWGR2YLuHPQJnv5MKDRg66YgtAQARbIkWuvCZvN+cyI2s=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Nuri Jawad'" <lkml@jawad.org>, "'Dave Jones'" <davej@redhat.com>
-Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: Remove silly messages from input layer.
-Date: Thu, 4 May 2006 12:24:26 -0700
-Message-ID: <004f01c66fb0$5c4c0150$0200a8c0@nuitysystems.com>
+	Thu, 4 May 2006 15:26:43 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:62132 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1030298AbWEDT0m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 15:26:42 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
+Date: Thu, 4 May 2006 13:26:36 -0600
+User-Agent: KMail/1.8.3
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, Dave Airlie <airlied@linux.ie>,
+       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, pjones@redhat.com
+References: <1146300385.3125.3.camel@laptopd505.fenrus.org> <200605041309.53910.bjorn.helgaas@hp.com> <445A51F1.9040500@linux.intel.com>
+In-Reply-To: <445A51F1.9040500@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <Pine.LNX.4.64.0605041644260.32501@pc>
-Thread-Index: AcZvi6oB6oT/+Q0sTwmuY/IPUUEhlAAJGIDw
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+Content-Disposition: inline
+Message-Id: <200605041326.36518.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If people are "confused" by valid error messages, they can 
-> use certain proprietary operating systems that hide the ugly 
-> truth from them. What's next, removing "access beyond end of 
-> device"? I want to stay informed if my mechanical switch 
-> produces glitches. There are electronic ones that don't.
+On Thursday 04 May 2006 13:11, Arjan van de Ven wrote:
+> Bjorn Helgaas wrote:
+> > On Saturday 29 April 2006 03:04, Dave Airlie wrote:
+> >>> This patch adds an "enable" sysfs attribute to each PCI device. When read it
+> >>> shows the "enabled-ness" of the device, but you can write a "0" into it to
+> >>> disable a device, and a "1" to enable it.
+> >>>
+> >>> This later is needed for X and other cases where userspace wants to enable
+> >>> the BARs on a device (typical example: to run the video bios on a secundary
+> >>> head). Right now X does all this "by hand" via bitbanging, that's just evil.
+> >>> This allows X to no longer do that but to just let the kernel do this.
+> > 
+> > I'm all in favor of cleaning up X.  But making the X code prettier without
+> > changing the underlying issues of claiming and sharing resources doesn't
+> > help much.  In fact, I suspect the ultimate plan for X does not involve
+> > an "enable" attribute in sysfs, so this may just introduce ABI cruft that
+> > will be difficult to remove later.
+> 
+> it goes well beyond X. Things like vbetool need this too to get to the content
+> of the rom for example. There are several other such cases...
 
-Why not maintain an error counter? You can then easily identify whether your keyboard is funky by querying the counter.
+There's already a "rom" file in sysfs.  Could vbetool and friends
+use that?
 
-For others who don't care, life goes on.
-
-Hua
-
+How do vbetool and X coordinate their usage of "enable"?  What if we
+throw an in-kernel VGA driver into the mix?  But I guess Jon has asked
+all these questions before; I just didn't get warm fuzzies that there
+were safe, maintainable answers.

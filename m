@@ -1,66 +1,50 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbWEDQL3 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 4 May 2006 12:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWEDQL3
+	id S1750776AbWEDSjy (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 4 May 2006 14:39:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWEDSjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 12:11:29 -0400
-Received: from smtp-31.ig.com.br ([200.226.132.31]:19861 "EHLO
-	smtp-31.ig.com.br") by vger.kernel.org with ESMTP id S932346AbWEDQL2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 12:11:28 -0400
-To: zorrohula@ig.com.br
-From: zorrohula <zorrohula@ig.com.br>
-Subject: YOUR COMPENSATION
-Date: Thu, 4 May 2006 13:11:22 -0300
-X-Priority: 3 (Normal)
-Message-ID: <20060504_161122_012202.zorrohula@ig.com.br>
-X-Originating-IP: [10.17.1.68]80.87.84.224
-X-Mailer: iGMail [www.ig.com.br]
-X-user: zorrohula@ig.com.br
-Teste: asaes
+	Thu, 4 May 2006 14:39:54 -0400
+Received: from 71-10-224-107.dhcp.oxfr.ma.charter.com ([71.10.224.107]:61969
+	"HELO 71-10-224-107.dhcp.oxfr.ma.charter.com") by vger.kernel.org
+	with SMTP id S1750776AbWEDSjy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 14:39:54 -0400
+Message-ID: <61BE0DD7.0676731@sbs.siemens.co.uk>
+Date: Thu, 4 May 2006 14:39:54 -0400
+From: Frank <Frank@sbs.siemens.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: multipart/mixed;
-	boundary="Message-Boundary-by-Mail-Sender-1146759082"
+To: linux-kernel@vger.kernel.org
+Subject: Job Vacancy in New Zealand
+Content-Type: text/plain; charset=windows-1251;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964852AbWEDQL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750776AbWEDSjy@vger.kernel.org>
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Vacancy description:
+Open position: Key Account Manager (part-time position: 10-12 hours per=
+ week)
+Location: New Zealand
+Job Duties and Responsibilities: Key Account Manager must conduct finan=
+cial operations in accordance with our company's rules, regulations and=
+ sales policy to provide best conditions to company=E2=80=99s clients. =
+These activities include, but are not limited to, simple financial oper=
+ations and actions which do not require any special education or experi=
+ence. But we require ability to: work with data, to use PC; interperson=
+al and people skills; multi-tasking ability, organizational skills.
+We provide salary plus benefits and travel packages discounts.
+Sent your messages of interest to job@bestworldcountries.com
+--
+Regards,
+W&C Team
+job@bestworldcountries.com
 
---Message-Boundary-by-Mail-Sender-1146759082
-Content-type: text/plain; charset=ISO-8859-1
-Content-description: Mail message body
-Content-transfer-encoding: 8bit
-Content-disposition: inline
-
->From Steve Ibeme 
-Attn; Good Friend 
-I'm happy to inform you about my success in getting those funds transffered 
-under the cooperation of a new partiner from paraguay.Presently i'm in 
-paraguay for investment projects with my own share of the total Contract 
-sum. mean while,i didn't forget your past efforts and attempts to assit me 
-in transffering those funds despite that it failed us some how.Now contact 
-my secretary in Accra Ghana. 
-His name is Emeka John 
-e-Mail;  mrsemekajohn@centrum.cz 
-Telephone; 233-276311360 
-Ask him to send you the Draft what of $950.000.00 which i kept for your 
-compersation for all your past efforts and attempts to assist me in this 
-matter.i appreciated your efforts at that time very much.so feel free and 
-get intouched with my secretary Emeka John and instruct him where to send 
-the Draft to you. 
-Please do let me know immediately you receive it so that we can share the 
-joy after all the sufferness at that time.in the moment, i'm very busy here 
-because of the investment projects which me and the new partiner are having 
-at hand, finally,remember that i had forwarded instruction to my secretary 
-on your behalf to receive the Draft, so feel free to get intouch with Emeka 
-John to send the Draft to you without any delay. 
-Thanks and God bless 
-With Best Regards, 
-Mr. Steve Ibeme 
-
-
-
---Message-Boundary-by-Mail-Sender-1146759082--
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

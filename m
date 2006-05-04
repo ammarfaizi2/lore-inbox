@@ -1,69 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWEDVaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWEDVaf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWEDVaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 17:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWEDVaP
+	id S1751408AbWEDVaf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 17:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWEDVaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 17:30:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43191 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751408AbWEDVaM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 17:30:12 -0400
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow
-	userspace (Xorg) to enable devices without doing foul direct access
-From: Peter Jones <pjones@redhat.com>
-To: Martin Mares <mj@ucw.cz>
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Dave Airlie <airlied@linux.ie>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>
-In-Reply-To: <mj+md-20060504.211425.25445.atrey@ucw.cz>
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
-	 <200605041309.53910.bjorn.helgaas@hp.com>
-	 <445A51F1.9040500@linux.intel.com>
-	 <200605041326.36518.bjorn.helgaas@hp.com>
-	 <E1FbjiL-0001B9-00@chiark.greenend.org.uk>
-	 <9e4733910605041340r65d47209h2da079d9cf8fceae@mail.gmail.com>
-	 <1146776736.27727.11.camel@localhost.localdomain>
-	 <mj+md-20060504.211425.25445.atrey@ucw.cz>
-Content-Type: text/plain
-Organization: Red Hat, Inc.
-Date: Thu, 04 May 2006 17:29:57 -0400
-Message-Id: <1146778197.27727.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-2) 
-Content-Transfer-Encoding: 7bit
+	Thu, 4 May 2006 17:30:35 -0400
+Received: from allen.werkleitz.de ([80.190.251.108]:49300 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751408AbWEDVa3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 17:30:29 -0400
+Date: Thu, 4 May 2006 23:30:55 +0200
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Trent Piepho <xyzzy@speakeasy.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>
+Message-ID: <20060504213055.GB8113@linuxtv.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060403
+X-SA-Exim-Connect-IP: 84.189.251.233
+Subject: [xyzzy@speakeasy.org: [PATCH] symbol_put_addr() locks kernel]
+X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-04 at 23:17 +0200, Martin Mares wrote:
-> Hello!
-> 
-> > > This is yet another way that user space can mess up the kernel. If VGA
-> > > routing is changes under fbdev (my attribute notifies fbdev, the fbdev
-> > > code for processing the notification did get checked in) then the
-> > > console will screw up.
-> > 
-> > And this change allows userland to avoid doing that.
-> 
-> Could you explain how?  I don't see how adding a "enable" attribute
-> to sysfs can solve these problems.
+Hi,
 
-By allowing tools to read the rom from the pci device itself, instead of
-whichever device's rom happens to be at 0xC0000.  libx86emul allows you
-to define routines that it uses for memory access, so you can copy the
-ROM out to normal memory, and map that memory to the appropriate address
-that way.  X and vbetool both already have to do this, but without
-copying the firmware image, to do DDC probing on x86_64.
+could you please have a look at the original message
+and the attached patch?
 
-> I agree with Arjan that the attribute could be useful for some special
-> tools, but using it in X is likely to be utterly wrong.
+Background:
 
-I'm actually talking about vbetool here, though X could use these
-methods.  Indeed, libx86emul comes from X itself.
+Many people complain that one driver for a DVB PCI or
+USB card depends on many frontend (== tuner + demodulator)
+modules. Although one card usually has only one frontend,
+we have these many dependencies because of the many existing
+card variants.
 
--- 
-  Peter
+As a way out, we try to replace a static dependency
+in the frontend probe function with a combination of
+symbol_request() and symbol_put_addr(). symbol_request()
+would only be called for the frontends known to exists
+for a given PCI or USB device id.
 
+Thanks,
+Johannes
+
+----- Forwarded message from Trent Piepho <xyzzy@speakeasy.org> -----
+
+Subject: [PATCH] symbol_put_addr() locks kernel
+Date:	Fri, 28 Apr 2006 15:23:55 -0700 (PDT)
+From: Trent Piepho <xyzzy@speakeasy.org>
+To: linux-kernel@vger.kernel.org
+cc: xyzzy@speakeasy.org
+X-Mailing-List:	linux-kernel@vger.kernel.org
+
+Please CC me on any replies, I'm not subscribed.
+
+Even since a previous patch:
+
+Fix race between CONFIG_DEBUG_SLABALLOC and modules
+Sun, 27 Jun 2004 17:55:19 +0000 (17:55 +0000)
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commit;h=92b3db26d31cf21b70e3c1eadc56c179506d8fbe
+
+The function symbol_put_addr() will deadlock the kernel.
+symbol_put_addr() acquires the modlist_lock spinlock, then calls
+kernel_text_address() and module_text_address() while it still holds
+the lock.  That patch changed those two functions so they also try to
+acquire the spinlock, which of course locks the kernel.
+
+If you look at the original thread:  http://lkml.org/lkml/2004/6/23/20
+The first patch corrected symbol_put_addr() to use the new
+"double-underscore" functions that don't try to acquire the lock, but
+the final patch missed symbol_put_addr().
+
+Here is a patch which fixes this.  The locking inside
+symbol_put_addr() is removed.  I changed symbol_put_addr() to call
+core_kernel_text() instead of kernel_text_address(), the latter
+includes an additional check if the addr is inside a module.  Since we
+will call module_text_address() to get the module, this extra check
+isn't needed.
+# HG changeset patch
+# User Trent Piepho <xyzzy@speakeasy.org>
+# Node ID b66f3aa4bfe88f9ea2edb9c87419413ecc6caa8c
+# Parent  4c3f241d7bc53fc25ddab54140f96cacd71ae1e1
+From: Trent Piepho <xyzzy@speakeasy.org>
+
+symbol_put_addr() would acquire modlist_lock, then while holding the lock call
+two functions kernel_text_address() and module_text_address() which also try
+to acquire the same lock.  This deadlocks the kernel of course.
+
+This patch changes symbol_put_addr() to not acquire the modlist_lock, it
+doesn't need it since it never looks at the module list directly.  Also, it
+now uses core_kernel_text() instead of kernel_text_address().  The latter
+has an additional check for addr inside a module, but we don't need to do that
+since we call module_text_address() (the same function kernel_text_address
+uses) ourselves.
+
+
+Signed-off-by: Trent Piepho <xyzzy@speakeasy.org>
+
+ 
+ include/linux/kernel.h |    1 +
+ kernel/extable.c       |    2 +-
+ kernel/module.c        |   14 +++++++-------
+ 3 files changed, 9 insertions(+), 8 deletions(-)
+
+diff -r 4c3f241d7bc5 -r b66f3aa4bfe8 include/linux/kernel.h
+--- a/include/linux/kernel.h	Fri Apr 28 23:00:35 2006 +0700
++++ b/include/linux/kernel.h	Fri Apr 28 14:49:34 2006 -0700
+@@ -124,6 +124,7 @@ extern char *get_options(const char *str
+ extern char *get_options(const char *str, int nints, int *ints);
+ extern unsigned long long memparse(char *ptr, char **retptr);
+ 
++extern int core_kernel_text(unsigned long addr);
+ extern int __kernel_text_address(unsigned long addr);
+ extern int kernel_text_address(unsigned long addr);
+ extern int session_of_pgrp(int pgrp);
+diff -r 4c3f241d7bc5 -r b66f3aa4bfe8 kernel/extable.c
+--- a/kernel/extable.c	Fri Apr 28 23:00:35 2006 +0700
++++ b/kernel/extable.c	Fri Apr 28 14:49:34 2006 -0700
+@@ -40,7 +40,7 @@ const struct exception_table_entry *sear
+ 	return e;
+ }
+ 
+-static int core_kernel_text(unsigned long addr)
++int core_kernel_text(unsigned long addr)
+ {
+ 	if (addr >= (unsigned long)_stext &&
+ 	    addr <= (unsigned long)_etext)
+diff -r 4c3f241d7bc5 -r b66f3aa4bfe8 kernel/module.c
+--- a/kernel/module.c	Fri Apr 28 23:00:35 2006 +0700
++++ b/kernel/module.c	Fri Apr 28 14:49:34 2006 -0700
+@@ -705,14 +705,14 @@ EXPORT_SYMBOL(__symbol_put);
+ 
+ void symbol_put_addr(void *addr)
+ {
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&modlist_lock, flags);
+-	if (!kernel_text_address((unsigned long)addr))
++	struct module *modaddr;
++
++	if (core_kernel_text((unsigned long)addr))
++		return;
++
++	if (!(modaddr = module_text_address((unsigned long)addr)))
+ 		BUG();
+-
+-	module_put(module_text_address((unsigned long)addr));
+-	spin_unlock_irqrestore(&modlist_lock, flags);
++	module_put(modaddr);
+ }
+ EXPORT_SYMBOL_GPL(symbol_put_addr);
+ 
+
+
+----- End forwarded message -----

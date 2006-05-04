@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWEDV36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWEDV3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWEDV36 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 17:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWEDV35
+	id S1751405AbWEDV3h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 17:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWEDV3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 17:29:57 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:42801 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1751407AbWEDV34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 17:29:56 -0400
-X-IronPort-AV: i="4.05,89,1146466800"; 
-   d="scan'208"; a="272848744:sNHT25150198"
-To: Heiko J Schick <schihei@de.ibm.com>
-Cc: openib-general@openib.org, Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: [openib-general] [PATCH 07/16] ehca: interrupt handling routines
-X-Message-Flag: Warning: May contain useful information
-References: <4450A196.2050901@de.ibm.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 04 May 2006 14:29:54 -0700
-In-Reply-To: <4450A196.2050901@de.ibm.com> (Heiko J. Schick's message of "Thu, 27 Apr 2006 12:48:54 +0200")
-Message-ID: <adaejz9o4vh.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 May 2006 21:29:54.0983 (UTC) FILETIME=[E2B9B370:01C66FC1]
+	Thu, 4 May 2006 17:29:36 -0400
+Received: from main.gmane.org ([80.91.229.2]:61921 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751405AbWEDV3g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 17:29:36 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: framebuffer broken in 2.6.16.x and 2.6.17-rc3 ?
+Date: Thu, 4 May 2006 23:28:04 +0200
+Message-ID: <1vsfcg3epbb29.t96cunohji42$.dlg@40tude.net>
+References: <60f2b0dc0605021251i1c883617vf132e8bdeffd6c7f@mail.gmail.com> <gs7iuaocrzmp.s33e3qhm21bl.dlg@40tude.net> <445A68AC.3090207@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-84-221-17-56.cust-adsl.tiscali.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +void ehca_queue_comp_task(struct ehca_comp_pool *pool, struct ehca_cq *__cq)
- > +{
- > +	int cpu;
- > +	int cpu_id;
- > +	struct ehca_cpu_comp_task *cct;
- > +	unsigned long flags_cct;
- > +	unsigned long flags_cq;
- > +
- > +	cpu = get_cpu();
- > +	cpu_id = find_next_online_cpu(pool);
- > +
- > +	EDEB_EN(7, "pool=%p cq=%p cq_nr=%x CPU=%x:%x:%x:%x",
- > +		pool, __cq, __cq->cq_number,
- > +		cpu, cpu_id, num_online_cpus(), num_possible_cpus());
- > +
- > +	BUG_ON(!cpu_online(cpu_id));
- > +
- > +	cct = per_cpu_ptr(pool->cpu_comp_tasks, cpu_id);
- > +
- > +	spin_lock_irqsave(&cct->task_lock, flags_cct);
- > +	spin_lock_irqsave(&__cq->task_lock, flags_cq);
- > +
- > +	if (__cq->nr_callbacks == 0) {
- > +		__cq->nr_callbacks++;
- > +		list_add_tail(&__cq->entry, &cct->cq_list);
- > +		wake_up(&cct->wait_queue);
- > +	}
- > +	else
- > +		__cq->nr_callbacks++;
- > +
- > +	spin_unlock_irqrestore(&__cq->task_lock, flags_cq);
- > +	spin_unlock_irqrestore(&cct->task_lock, flags_cct);
- > +
- > +	put_cpu();
- > +
- > +	EDEB_EX(7, "cct=%p", cct);
- > +
- > +	return;
- > +}
+On Fri, 05 May 2006 04:48:44 +0800, Antonino A. Daplas wrote:
 
-I never read the ehca completion event handling code very carefully
-until now.  But I was motivated by Shirley's work on IPoIB to take a
-closer look.
+> Giuseppe Bilotta wrote:
+>> On Tue, 2 May 2006 21:51:13 +0200, Olivier Fourdan wrote:
+>> 
+>>> I'm surprised noone has raised that issue yet, so I'm wondering if I'm
+>>> missing something obvious :) When using the fb in 2.6.16.x and
+>>> 2.6.17-rc3, the screen stays just black, nothing is displayed... I'm
+>>> using the regular unaccelerated vesa framebuffer.
+>> 
+>> It may sound silly and it's probably not relevant to your case, but I
+>> had this kind of result during a kernel upgrade some versions ago when
+>> I forgot the fbcon module.
+> 
+> Not silly because that is exactly what happened. He sent me his config in a
+> private mail.
 
-It seems that you are deferring completion event dispatch into threads
-spread across all the CPUs.  This seems like a very strange thing to
-me -- you are adding latency and possibly causing cacheline pingpong.
+Oh.
 
-It may help throughput in some cases to spread the work across
-multiple CPUs but it seems strange to me to do this in the low-level
-driver.  My intuition would be that it would be better to do this in
-the higher levels, and leave open the possibility for protocols that
-want the lowest possible latency to be called directly from the
-interrupt handler.
+> I don't know what method he used to upgrade his kernel, but the setting
+> changed from 'y' to 'm', and I've received quite a few reports from
+> different users on this lately...
 
-What was the thinking that led to this design?
+Well, when it happened to me it was because I switched from a distro
+kernel to a custom build and so the error was entirely on my part. I
+still think that some kind of warning in the dmesg or appropriate
+wording in the help for the framebuffer devices or for fbcon would
+help sort this FAQ out.
 
- - R.
+OTOH, if the OP made oldconfig it would be interesting to see what
+caused the change in configuration ...
+
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+"E la storia dell'umanità, babbo?"
+"Ma niente: prima si fanno delle cazzate,
+ poi si studia che cazzate si sono fatte"
+(Altan)
+("And what about the history of the human race, dad?"
+ "Oh, nothing special: first they make some foolish things,
+  then you study what foolish things have been made")
+

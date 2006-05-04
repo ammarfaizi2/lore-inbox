@@ -1,42 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWEDQ7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWEDRQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWEDQ7p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 12:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWEDQ7p
+	id S1750760AbWEDRQW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 13:16:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWEDRQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 12:59:45 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:21191 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030245AbWEDQ7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 12:59:44 -0400
-Subject: Re: cdrom: a dirty CD can freeze your system
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060504165055.GA22880@animx.eu.org>
-References: <200605041232.k44CWnFn004411@wildsau.enemy.org>
-	 <1146750532.20677.38.camel@localhost.localdomain>
-	 <20060504165055.GA22880@animx.eu.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 04 May 2006 18:10:58 +0100
-Message-Id: <1146762658.22308.11.camel@localhost.localdomain>
+	Thu, 4 May 2006 13:16:21 -0400
+Received: from mga06.intel.com ([134.134.136.21]:18855 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750760AbWEDRQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 13:16:21 -0400
+X-IronPort-AV: i="4.05,89,1146466800"; 
+   d="scan'208"; a="31521765:sNHT6219765573"
+Date: Thu, 4 May 2006 10:09:40 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Jan Beulich <jbeulich@novell.com>
+Cc: tigran@veritas.com, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] fix x86 microcode driver handling of multiple matching revisions
+Message-ID: <20060504100940.A2571@unix-os.sc.intel.com>
+References: <444F9D34.76E4.0078.0@novell.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <444F9D34.76E4.0078.0@novell.com>; from jbeulich@novell.com on Wed, Apr 26, 2006 at 04:17:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-05-04 at 12:50 -0400, Wakko Warner wrote:
-> another example would be that I insert a disc, say with 159000 sectors and
-> I'm able to read from it just fine.  I make the above mistake but I insert a
-> disc with 200,000 sectors.  The disc will be reported with 159000 instead of
-> the correct 200,000 sectors and some files will not be readable.  Again,
-> rmmod and modprobe sr_mod fixes the problem.
+On Wed, Apr 26, 2006 at 04:17:56PM +0200, Jan Beulich wrote:
+> @@ -197,21 +202,33 @@ static inline void mark_microcode_update
+>  	pr_debug("   Checksum 0x%x\n", cksum);
+>  
+>  	if (mc_header->rev < uci->rev) {
+> -		printk(KERN_ERR "microcode: CPU%d not 'upgrading' to earlier revision"
+> -		       " 0x%x (current=0x%x)\n", cpu_num, mc_header->rev, uci->rev);
+> -		goto out;
+> +		if (uci->err == MC_NOTFOUND) {
+> +			uci->err = MC_IGNORED;
+> +			uci->cksum = mc_header->rev;
+> +		} else if (uci->err == MC_IGNORED && uci->cksum < mc_header->rev)
+> +			uci->cksum = mc_header->rev;
+>  	} else if (mc_header->rev == uci->rev) {
+> -		/* notify the caller of success on this cpu */
+> -		uci->err = MC_SUCCESS;
+> -		goto out;
+> +		if (uci->err < MC_MARKED) {
+> +			/* notify the caller of success on this cpu */
+> +			uci->err = MC_SUCCESS;
+> +		}
+> +	} else if (uci->err != MC_ALLOCATED || mc_header->rev > uci->mc->hdr.rev) {
+> +		pr_debug("microcode: CPU%d found a matching microcode update with "
+> +			" revision 0x%x (current=0x%x)\n", cpu_num, mc_header->rev, uci->rev);
+> +		uci->cksum = cksum;
+> +		uci->pf = pf; /* keep the original mc pf for cksum calculation */
+> +		uci->err = MC_MARKED; /* found the match */
+> +		for_each_online_cpu(cpu_num) {
+> +			if (ucode_cpu_info[cpu_num].mc == uci->mc) {
+> +				uci->mc = NULL;
+> +				break;
+> +			}
 
+Isn't there a memory leak here? Shouldn't this be
+		for_each_online_cpu(cpu) {
+			if (cpu == cpu_num)
+				continue;
+			if (ucode_cpu_info[cpu].mc == uci->mc) {
+				uci->mc = NULL;
+				break;
+			}
+		}
 
-That one I have seen with some broken media monitoring software that
-never closes the file handle. What occurs then is that we don't for some
-reason alway see a media change.
+thanks,
+suresh
 
-Is this SATA or SCSI proper ?
-
+> +		}
+> +		if (uci->mc != NULL) {
+> +			vfree(uci->mc);
+> +			uci->mc = NULL;
+> +		}

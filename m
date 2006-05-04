@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWEDLkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWEDLmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWEDLkF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 07:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWEDLkE
+	id S932086AbWEDLmP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 07:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWEDLmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 07:40:04 -0400
-Received: from icarai.midiacom.uff.br ([200.20.10.66]:57235 "EHLO
-	MIDIACOM.UFF.BR") by vger.kernel.org with ESMTP id S932083AbWEDLkD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 07:40:03 -0400
-Message-ID: <039101c66f6f$9720f3d0$440a14c8@sossego>
-From: "Felipe Maya" <fmay@midiacom.uff.br>
-To: <linux-kernel@vger.kernel.org>
-Subject: ICMP TIMESTAMP
-Date: Thu, 4 May 2006 08:40:49 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2869
+	Thu, 4 May 2006 07:42:15 -0400
+Received: from main.gmane.org ([80.91.229.2]:45762 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932086AbWEDLmP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 07:42:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+Mail-Followup-To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+From: ilmari@ilmari.org (=?utf-8?q?Dagfinn_Ilmari_Manns=C3=A5ker?=)
+Subject: Re: www.softpanorama.org: sparc_vs_x86 fun
+Date: Thu, 04 May 2006 13:41:59 +0200
+Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
+Message-ID: <d8jejzavwxk.fsf@ritchie.ping.uio.no>
+References: <200605041224.41827.vda@ilport.com.ua> <4459DDCC.2020407@huawei.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ritchie.ping.uio.no
+Mail-Copies-To: nobody
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+Cancel-Lock: sha1:VG4gCn+wMAzLH+zrTBipT6DFlo0=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello people.
+jimmy <jimmyb@huawei.com> writes:
 
-I am trying to take data timestamp from an icmp sk_buff, the icmphdr don´t 
-have this information.  I feel that timestamp information could be in data 
-sk_buff. How take this information?? Is it wrong?
+>> http://www.softpanorama.org/Articles/Linux_vs_Solaris/sparc_vs_x86.shtml
+>>
+>>> ...
+>>> Actually Linux used to be more heterogeneous in the past when it
+>>> supported Alpha. But those days are long gone.
+>>> ...
+> someone should send these guys a directory listing of linux/arch/
 
-struct tstamp{
-      __u32 times[3];
-} ;
+I think he's confusing Red Hat with Linux. But these days even Red Hat
+supports more architectures than Solaris: i386, amd64, ia64, ppc64 and
+s390.
 
-
-{
-    struct tstamp *tstamp;
-
-    tstamp = (struct tstamp *)(skb->data + skb->hh.iph->ihl * 4 + 
-sizeof(struct icmphdr));
-
-}
-
-If it is ok, why can´t i take the data timestamp?
-
-THANKS  for any help.
+-- 
+ilmari
+"A disappointingly low fraction of the human race is,
+ at any given time, on fire." - Stig Sandbeck Mathisen
 

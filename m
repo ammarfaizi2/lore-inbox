@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWEDUaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWEDUdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030318AbWEDUaw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 16:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbWEDUaw
+	id S1030319AbWEDUdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 16:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbWEDUdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 16:30:52 -0400
-Received: from main.gmane.org ([80.91.229.2]:701 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030318AbWEDUaw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 16:30:52 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: framebuffer broken in 2.6.16.x and 2.6.17-rc3 ?
-Date: Thu, 4 May 2006 22:29:20 +0200
-Message-ID: <gs7iuaocrzmp.s33e3qhm21bl.dlg@40tude.net>
-References: <60f2b0dc0605021251i1c883617vf132e8bdeffd6c7f@mail.gmail.com>
+	Thu, 4 May 2006 16:33:12 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:52430 "EHLO
+	palinux.external.hp.com") by vger.kernel.org with ESMTP
+	id S1030319AbWEDUdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 16:33:11 -0400
+Date: Thu, 4 May 2006 14:33:10 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>, Dave Airlie <airlied@gmail.com>,
+       gregkh@suse.de, ak@suse.de, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: i386/x86_84: disable PCI resource decode on device disable
+Message-ID: <20060504203310.GE9609@parisc-linux.org>
+References: <20060503152747.A29327@unix-os.sc.intel.com> <21d7e9970605032016w2a092ce9qb2bff38e739bca5@mail.gmail.com> <4459CCF5.9080106@gmail.com> <20060504130156.A3494@unix-os.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-84-221-17-56.cust-adsl.tiscali.it
-User-Agent: 40tude_Dialog/2.0.15.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060504130156.A3494@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 May 2006 21:51:13 +0200, Olivier Fourdan wrote:
+On Thu, May 04, 2006 at 01:01:57PM -0700, Rajesh Shah wrote:
+> Yeah, that's also what some other drivers do. For example, PCI/PCIE
+> bridges may support capabilities (like hotplug) that are controlled
+> by separate drivers. These drivers don't do pci_disable_device()
+> when they unload, since the bridge must continue to decode even
+> when the other capability driver is gone.
+> 
+> The problem is that most PCI bridges don't have any "extra"
+> resources padded into the address ranges they pass down. It
+> would be nice to be able to reuse address space released when
+> a device is disabled (e.g.  for future hot-add), if it's really
+> no longer needed.
 
-> I'm surprised noone has raised that issue yet, so I'm wondering if I'm
-> missing something obvious :) When using the fb in 2.6.16.x and
-> 2.6.17-rc3, the screen stays just black, nothing is displayed... I'm
-> using the regular unaccelerated vesa framebuffer.
-
-It may sound silly and it's probably not relevant to your case, but I
-had this kind of result during a kernel upgrade some versions ago when
-I forgot the fbcon module.
-
--- 
-Giuseppe "Oblomov" Bilotta
-
-"Da grande lotterò per la pace"
-"A me me la compra il mio babbo"
-(Altan)
-("When I grow up, I will fight for peace"
- "I'll have my daddy buy it for me")
-
+You could always reprogram the BARs.  But I really wouldn't recommend
+this; you'll just fragment the address space.

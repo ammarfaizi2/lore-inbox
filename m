@@ -1,91 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWEDF3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWEDFmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbWEDF3a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 01:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWEDF3a
+	id S1751406AbWEDFmf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 01:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWEDFmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 01:29:30 -0400
-Received: from mx2.suse.de ([195.135.220.15]:51856 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751398AbWEDF33 (ORCPT
+	Thu, 4 May 2006 01:42:35 -0400
+Received: from mga02.intel.com ([134.134.136.20]:22344 "EHLO
+	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750749AbWEDFme convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 01:29:29 -0400
-Date: Wed, 3 May 2006 22:27:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Nathan Becker <nathanbecker@gmail.com>, ak@suse.de,
-       David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB 2.0 ehci failure with large amount of RAM (4GB) on x86_64
-Message-ID: <20060504052751.GA23054@kroah.com>
-References: <2151339d0605032148n5d6936ay31ab017fbabc65b3@mail.gmail.com> <2151339d0605032152g64ec77bfhe90dc08180463c31@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2151339d0605032152g64ec77bfhe90dc08180463c31@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Thu, 4 May 2006 01:42:34 -0400
+X-IronPort-AV: i="4.05,86,1146466800"; 
+   d="scan'208"; a="31269844:sNHT18678247"
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MIMEOLE: Produced By Microsoft Exchange V6.5
+Subject: RE: [RFC][PATCH] Document what in IRQ is.
+Date: Thu, 4 May 2006 01:42:30 -0400
+Message-ID: <CFF307C98FEABE47A452B27C06B85BB656C807@hdsmsx411.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC][PATCH] Document what in IRQ is.
+Thread-index: AcZvJUmO6FTZVetSRz2WGxrw/9CM1gAFHGNA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: <ak@suse.de>, <Natalie.Protasevich@unisys.com>,
+       <sergio@sergiomb.no-ip.org>, <kimball.murray@gmail.com>,
+       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
+       <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 04 May 2006 05:42:31.0183 (UTC) FILETIME=[892E29F0:01C66F3D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 03, 2006 at 09:52:11PM -0700, Nathan Becker wrote:
-> Hi,
-> 
-> I recently added two more memory modules to my Gigabyte K8NXP-SLI
-> motherboard, bringing the total up to 4GB.  I had 2GB previously and
-> things were running well with kernel 2.6.16.9 x86_64. The CPU is an
-> AMD 4800+ X2.
-> 
-> After the upgrade, USB 2.0 stopped working. After connecting a pen
-> drive the following dmesg comes up
-> 
-> ehci_hcd 0000:00:02.1: GetStatus port 3 status 001803 POWER sig=j CSC 
-> CONNECT
-> hub 1-0:1.0: port 3, status 0501, change 0001, 480 Mb/s
-> hub 1-0:1.0: debounce: port 3: total 100ms stable 100ms status 0x501
-> ehci_hcd 0000:00:02.1: port 3 high speed
-> ehci_hcd 0000:00:02.1: GetStatus port 3 status 001005 POWER sig=se0 PE 
-> CONNECT
-> usb 1-3: new high speed USB device using ehci_hcd and address 4
-> usb 1-3: khubd timed out on ep0in len=0/64
-> usb 1-3: khubd timed out on ep0in len=0/64
-> usb 1-3: khubd timed out on ep0in len=0/64
-> 
-> and then it repeats attempting different addresses.  If I rmmod
-> ehci_hcd, then I can get the device to work, of course it's just
-> running at USB  1.1.
-> 
-> There appear to be varying reports of this problem in bugzilla and on
-> message boards:
-> bugzilla #5835
-> bugzilla #6201
-> 
-> I am not sure which of these, if any, are the same as the problem I'm
-> having.  Any advice on where to go with this problem would be much
-> appreciated.  I suspect that a significant clue to this is that it
-> only occurs with large amounts of RAM. It also only seems to occur in
-> 64-bit mode.  I booted a 32-bit kernel from the Slax live CD  5.1.0
-> and USB 2.0 worked fine with all my RAM intact (well only 3.4 GB, but
-> that's a different story). I'm happy to post more details and or try
-> patches out.  I just retested with kernel  2.6.16.13 and the problem
-> persists.
-> 
-> I've already tried various combinations of  settings in the BIOS, but
-> they have no effect.  There is an option to remap for 4GB.  If that is
-> turned off then the kernel only sees  3.4 GB of RAM instead of 4GB,
-> but it seems to have no effect on this problem.  I also tried changing
-> the USB memory option between shadow and lowmem.  That also had no
-> effect on this problem.  I do use the NVIDIA binary graphics driver,
-> but I retested for this problem without it loaded and the problem
-> persists.
+ 
+>Linux does not have generic infrastructure to allow two interrupt
+>sources to share the same token passed to the kernel. 
 
-Can you try 2.6.17-rc3?
+On i386 and x86_64 io_apic.c, see irq_pin_list
+This advertises to support multiple pins per IRQ.
 
-Also, when booting, are there any messages about EHCI BIOS handoffs?
-I've seen some reports of this in the past, but it seems to be fixed
-with updated bioses.
+I suspect this code never runs, and simply adds
+complexity to code that has no shortage of complexity.
 
-Andi, you remember what fixed this the last time?
+If somebody can explain to me what a "shared ISA-space IRQ"
+is supposed to be, I'm all ears.  I've had a BUG() in this
+code for a while waiting for it to be used, and never seen it fire.
 
-David, any thoughts?
+If we can get rid of that concept, then we have a 1:1 mapping
+between irqs and apic:pin.  Possibly this simplification would
+be helpful as we re-think how the mapping from cpu:vector -> irq works.
 
-thanks,
-
-greg k-h
+-Len

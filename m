@@ -1,95 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbWEDXmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbWEDXoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030280AbWEDXmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 19:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWEDXmJ
+	id S1030283AbWEDXoM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 19:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbWEDXoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 19:42:09 -0400
-Received: from web.bloglines.com ([65.214.39.152]:44219 "HELO
-	blw06bos.io.askjeeves.info") by vger.kernel.org with SMTP
-	id S1030280AbWEDXmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 19:42:08 -0400
-Message-ID: <1146786127.1525598216.32201.sendItem@bloglines.com>
-Date: 4 May 2006 23:42:07 -0000
-From: grfgguvf.29601511@bloglines.com
-To: adaplas@gmail.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Weird framebuffer bug?
-MIME-Version: 1.0
-Content-Type: text/plain;charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	Thu, 4 May 2006 19:44:12 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:21356 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1030283AbWEDXoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 19:44:11 -0400
+Date: Thu, 04 May 2006 17:43:41 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: x86_64 invalid opcode
+In-reply-to: <68Sjn-7MD-19@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: cperkins@OCF.Berkeley.EDU
+Message-id: <445A91AD.3010908@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <68Sjn-7MD-19@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Antonino A. Daplas <adaplas@gmail.com> wrote:
-> Does the same thing happens
-with different color depths?
-> 
-> Can you try using the "vesa" driver with
-X?  If the same thing happens, it might
-> be a problem with the BIOS.
->
+chris perkins wrote:
+> hi - i'm running the 2.6.16.13 x86_64 kernel on an athlon 64 and 
+> periodically get invalid opcode and general protection faults.  the 
+> system continues to run for about 10 minutes following this and then 
+> crashes. i've had similar problems with previous 2.6 kernels but 
+> unfortunately don't have a capture of the output. below is the syslog 
+> output and my .config... has anyone else seen anything similar?
+> thanks,
+>   chris perkins
 
+This could be caused by problems with your RAM, have you tried running 
+memtest86?
 
-I will check these later.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-> 
-> BTW, what does dmesg and fbset -i say?
-
->
-
-% dmesg | egrep -i 'frame|fb|vesa|nv'
- BIOS-e820: 0000000007fff000
-- 0000000008000000 (ACPI NVS)
-Security Framework v1.0.0 initialized
-vesafb:
-framebuffer at 0xf0000000, mapped to 0xb8880000, using 6144k, total 32768k
-
-vesafb: mode is 1024x768x32, linelength=4096, pages=1
-vesafb: protected
-mode interface info at c000:c060
-vesafb: scrolling: redraw
-vesafb: Truecolor:
-size=8:8:8:8, shift=24:16:8:0
-Console: switching to colour frame buffer device
-128x48
-fb0: VESA VGA frame buffer device
-
-# fbset -i
-
-mode "1024x768-76"
-
-    # D: 78.653 MHz, H: 59.949 kHz, V: 75.694 Hz
-    geometry 1024 768 1024
-768 32
-    timings 12714 128 32 16 4 128 4
-    rgba 8/16,8/8,8/0,8/24
-endmode
-
-
-Frame buffer device information:
-    Name        : VESA VGA
-    Address
-    : 0xf0000000
-    Size        : 6291456
-    Type        : PACKED PIXELS
-
-    Visual      : TRUECOLOR
-    XPanStep    : 0
-    YPanStep    : 0
- 
-  YWrapStep   : 0
-    LineLength  : 4096
-    Accelerator : No
-
-
-> Tony
-
-> 
-> PS: I'll be traveling in a few hours, so I may not be able to answer
-back.
-> 
-
-Well thank you for answering so far then.
-This is not urgent
-you can answer tomorrow or at any later time.

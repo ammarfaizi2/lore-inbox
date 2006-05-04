@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWEDUdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030321AbWEDUke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbWEDUdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 16:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbWEDUdM
+	id S1030321AbWEDUke (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 16:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030322AbWEDUke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 16:33:12 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:52430 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S1030319AbWEDUdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 16:33:11 -0400
-Date: Thu, 4 May 2006 14:33:10 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>, Dave Airlie <airlied@gmail.com>,
-       gregkh@suse.de, ak@suse.de, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: i386/x86_84: disable PCI resource decode on device disable
-Message-ID: <20060504203310.GE9609@parisc-linux.org>
-References: <20060503152747.A29327@unix-os.sc.intel.com> <21d7e9970605032016w2a092ce9qb2bff38e739bca5@mail.gmail.com> <4459CCF5.9080106@gmail.com> <20060504130156.A3494@unix-os.sc.intel.com>
+	Thu, 4 May 2006 16:40:34 -0400
+Received: from animx.eu.org ([216.98.75.249]:58752 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S1030321AbWEDUkd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 16:40:33 -0400
+Date: Thu, 4 May 2006 16:47:08 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Joshua Hudson <joshudson@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cdrom: a dirty CD can freeze your system
+Message-ID: <20060504204708.GC22880@animx.eu.org>
+Mail-Followup-To: Joshua Hudson <joshudson@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <200605041232.k44CWnFn004411@wildsau.enemy.org> <1146750532.20677.38.camel@localhost.localdomain> <20060504165055.GA22880@animx.eu.org> <1146762658.22308.11.camel@localhost.localdomain> <bda6d13a0605041027kc0edb02icdd11bd103478b05@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060504130156.A3494@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <bda6d13a0605041027kc0edb02icdd11bd103478b05@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 04, 2006 at 01:01:57PM -0700, Rajesh Shah wrote:
-> Yeah, that's also what some other drivers do. For example, PCI/PCIE
-> bridges may support capabilities (like hotplug) that are controlled
-> by separate drivers. These drivers don't do pci_disable_device()
-> when they unload, since the bridge must continue to decode even
-> when the other capability driver is gone.
-> 
-> The problem is that most PCI bridges don't have any "extra"
-> resources padded into the address ranges they pass down. It
-> would be nice to be able to reuse address space released when
-> a device is disabled (e.g.  for future hot-add), if it's really
-> no longer needed.
+Joshua Hudson wrote:
+> I've seen this a few times. It never actually hung my system, only one
+> virtual console. I wonder if preemptable kernel had something to do
+> with that <g>
 
-You could always reprogram the BARs.  But I really wouldn't recommend
-this; you'll just fragment the address space.
+I don't believe pre-empt has anything to do eith it.  I have a specialized
+boot system (vairous types of boot media) w/o preempt turned on because I
+want this as small as possible.  It also has this problem.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
+ Got Gas???

@@ -1,66 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWEDNBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWEDNBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750976AbWEDNBF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 09:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWEDNBF
+	id S1750974AbWEDNBD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 09:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbWEDNBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 09:01:05 -0400
-Received: from wildsau.enemy.org ([193.170.194.34]:7322 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S1750997AbWEDNBE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 09:01:04 -0400
-From: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Message-Id: <200605041256.k44CuFLf004425@wildsau.enemy.org>
-Subject: Re: cdrom: a dirty CD can freeze your system
-In-Reply-To: <4459F757.8070408@tls.msk.ru>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Date: Thu, 4 May 2006 14:56:15 +0200 (MET DST)
-CC: linux-kernel@vger.kernel.org, Herbert Rosmanith <kernel@wildsau.enemy.org>
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+	Thu, 4 May 2006 09:01:03 -0400
+Received: from taurus.voltaire.com ([193.47.165.240]:34134 "EHLO
+	taurus.voltaire.com") by vger.kernel.org with ESMTP
+	id S1750974AbWEDNBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 09:01:01 -0400
+Message-ID: <4459FB04.3090302@voltaire.com>
+Date: Thu, 04 May 2006 16:00:52 +0300
+From: Or Gerlitz <ogerlitz@voltaire.com>
+User-Agent: Thunderbird 1.4.1 (Windows/20051006)
 MIME-Version: 1.0
+To: Or Gerlitz <ogerlitz@voltaire.com>
+CC: Sean Hefty <sean.hefty@intel.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] [PATCH 5/6] iser RDMA CM (CMA) and IB verbs
+ interaction
+References: <ORSMSX401EXUIEAOeIi0000001c@orsmsx401.amr.corp.intel.com> <445606D5.20907@voltaire.com>
+In-Reply-To: <445606D5.20907@voltaire.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+X-OriginalArrivalTime: 04 May 2006 13:00:59.0723 (UTC) FILETIME=[CA4AC9B0:01C66F7A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> It's worse than that.  See http://marc.theaimsgroup.com/?t=114003595500002&r=1&w=2
-> and other similar reports.  So far, noone cares it seems (for several years already).
+Or Gerlitz wrote:
+> Sean Hefty wrote:
+>>> +static void iser_disconnected_handler(struct rdma_cm_id *cma_id)
+>>> +{
+>>> +    struct iser_conn *ib_conn;
+>>> +
+>>> +    ib_conn = (struct iser_conn *)cma_id->context;
+>>> +    ib_conn->disc_evt_flag = 1;
+>>> +
+>>> +    /* If this event is unsolicited this means that the conn is 
+>>> being */
+>>> +    /* terminated asynchronously from the iSCSI layer's 
+>>> perspective.  */
+>>> +    if (atomic_read(&ib_conn->state) == ISER_CONN_PENDING) {
+>>> +        atomic_set(&ib_conn->state, ISER_CONN_DOWN);
+>>> +        wake_up_interruptible(&ib_conn->wait);
+>>> +    } else {
+>>> +        if (atomic_read(&ib_conn->state) == ISER_CONN_UP) {
+>>> +            atomic_set(&ib_conn->state, ISER_CONN_TERMINATING);
+>>> +            iscsi_conn_failure(ib_conn->iser_conn->iscsi_conn,
+>>> +                        ISCSI_ERR_CONN_FAILED);
+>>> +        }
+>>> +        /* Complete the termination process if no posts are pending */
+>>> +        if ((atomic_read(&ib_conn->post_recv_buf_count) == 0) &&
+>>> +            (atomic_read(&ib_conn->post_send_buf_count) == 0)) {
+>>> +            atomic_set(&ib_conn->state, ISER_CONN_DOWN);
+>>> +            wake_up_interruptible(&ib_conn->wait);
+>>> +        }
+>>> +    }
 
-woops ... fortunately, I dont have that kind of problem. my code just does:
+>> Are there races here between reading ib_conn->state and setting it?  
+>> Could it have changed in between the atomic_read() and atomic_set()?
 
- loop {
-   ioctl( SG_IO - timeout=3 seconds);
-   write block to disk.
- }
+> It seems that indeed a race is possible here, i am rethinking now on the 
+> implementation of the ib connection states moves, thanks for pointing this.
 
-SG_IO behaves a bit more friendly.... than, say, "CDROMREAD{MODE1,MODE2,AUDIO}" does.
-nevertheless, the IDE interface becomes unusable until you reboot the system.
+Following a review and the clarification i have got from you re cma 
+callbacks serialization, i have committed this change which removes 
+unneeded state checks from two flows (disconnect handler and connect error)
 
-e.g., just right now, I did:
+Or.
 
-  o insert bad CD
-  o read it until an error occurs.
-  o "hdparm -w /dev/hdb" - this will turn DMA off. kernel log shows:
-        hdb: DMA disabled
-        hdb: ATAPI reset complete
-  o "hdparm -d 1 /dev/hdb" to reenable DMA, "hdparm /dev/hdb" to look at the
-    drive settings. the kernel log then shows:
-        hdb: irq timeout: status=0xd0 { Busy }
-        ide: failed opcode was: unknown
-        hdb: ATAPI reset complete
-        hdb: status error: status=0x49 { DriveReady DataRequest Error }
-        hdb: status error: error=0x04 { AbortedCommand }
-        ide: failed opcode was: unknown
-        hdb: drive not ready for command
-        hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-        hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-        ide: failed opcode was: unknown
-        hdb: request sense failure: status=0x51 { DriveReady SeekComplete Error }
-        hdb: request sense failure: error=0x44 { AbortedCommand LastFailedSense=0x04 }
+r6900 | ogerlitz | 2006-05-04 11:06:24 +0300 (Thu, 04 May 2006) | 7 lines
 
-  hdparm is now in state "D" -> reboot required.
-  not so good, da?
+two fixes to iser ib conn state management:
 
-kind regards,
-herbert rosmanith
++1 when getting DISCONNECTED cma event, iser's state can't be PENDING
++2 when connect_error is called, iser's state is PENDING, no need to 
+check it
+
+Signed-off-by: Or Gerlitz <ogerlitz@voltaire.com
+
+Index: iser_verbs.c
+===================================================================
+--- iser_verbs.c	(revision 6802)
++++ iser_verbs.c	(revision 6900)
+@@ -309,12 +309,8 @@ static void iser_connect_error(struct rd
+  	struct iser_conn *ib_conn;
+  	ib_conn = (struct iser_conn *)cma_id->context;
+
+-	if (atomic_read(&ib_conn->state) == ISER_CONN_PENDING) {
+-		atomic_set(&ib_conn->state, ISER_CONN_DOWN);
+-		wake_up_interruptible(&ib_conn->wait);
+-	} else
+-		iser_err("Unexpected evt for conn.state: %d\n",
+-			 atomic_read(&ib_conn->state));
++	atomic_set(&ib_conn->state, ISER_CONN_DOWN);
++	wake_up_interruptible(&ib_conn->wait);
+  }
+
+  static void iser_addr_handler(struct rdma_cm_id *cma_id)
+@@ -386,21 +382,16 @@ static void iser_disconnected_handler(st
+
+  	/* If this event is unsolicited this means that the conn is being */
+  	/* terminated asynchronously from the iSCSI layer's perspective.  */
+-	if (atomic_read(&ib_conn->state) == ISER_CONN_PENDING) {
++	if (atomic_read(&ib_conn->state) == ISER_CONN_UP) {
++		atomic_set(&ib_conn->state, ISER_CONN_TERMINATING);
++		iscsi_conn_failure(ib_conn->iser_conn->iscsi_conn,
++				   ISCSI_ERR_CONN_FAILED);
++	}
++	/* Complete the termination process if no posts are pending */
++	if ((atomic_read(&ib_conn->post_recv_buf_count) == 0) &&
++	    (atomic_read(&ib_conn->post_send_buf_count) == 0)) {
+  		atomic_set(&ib_conn->state, ISER_CONN_DOWN);
+  		wake_up_interruptible(&ib_conn->wait);
+-	} else {
+-		if (atomic_read(&ib_conn->state) == ISER_CONN_UP) {
+-			atomic_set(&ib_conn->state, ISER_CONN_TERMINATING);
+-			iscsi_conn_failure(ib_conn->iser_conn->iscsi_conn,
+-						ISCSI_ERR_CONN_FAILED);
+-		}
+-		/* Complete the termination process if no posts are pending */
+-		if ((atomic_read(&ib_conn->post_recv_buf_count) == 0) &&
+-		    (atomic_read(&ib_conn->post_send_buf_count) == 0)) {
+-			atomic_set(&ib_conn->state, ISER_CONN_DOWN);
+-			wake_up_interruptible(&ib_conn->wait);
+-		}
+  	}
+  }
+
+

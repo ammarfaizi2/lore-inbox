@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWEDHdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWEDHfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbWEDHdn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 03:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWEDHdn
+	id S1751424AbWEDHfW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 03:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWEDHfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 03:33:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:51647 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751429AbWEDHdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 03:33:43 -0400
-Subject: Re: [RFC] kernel facilities for cache prefetching
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Ph. Marek" <philipp.marek@bmlv.gv.at>
-Cc: Linus Torvalds <torvalds@osdl.org>, Linda Walsh <lkml@tlinx.org>,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>
-In-Reply-To: <200605040908.10727.philipp.marek@bmlv.gv.at>
-References: <346556235.24875@ustc.edu.cn> <44594AA9.8020906@tlinx.org>
-	 <Pine.LNX.4.64.0605031829300.4086@g5.osdl.org>
-	 <200605040908.10727.philipp.marek@bmlv.gv.at>
+	Thu, 4 May 2006 03:35:22 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:62391 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751424AbWEDHfV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 03:35:21 -0400
+Subject: Re: sdio - ocr confusions
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Maximus <john.maximus@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3634de740605030330t1e060362ibff0e247bfb805e5@mail.gmail.com>
+References: <3634de740605030330t1e060362ibff0e247bfb805e5@mail.gmail.com>
 Content-Type: text/plain
-Date: Thu, 04 May 2006 09:33:24 +0200
-Message-Id: <1146728004.3101.17.camel@laptopd505.fenrus.org>
+Date: Thu, 04 May 2006 09:36:31 +0200
+Message-Id: <1146728191.10368.13.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi John,
 
+>   im trying to develop and sdio driver modifying the existing SD card driver.
+>   Im using an OMAP processor and a Wifi SDIO Card.
 
-> Ascending block numbers on disk can be read very fast, as the disk needs no or 
-> less seeking. That's even true for stripes and mirrors. (I grant you that 
-> there are complicated setups out there, but these could be handled similar.)
-> 
+I am trying to get SDIO working with the SDHCI driver, but so far with
+no success at all. Did you modify the OMAP driver or the mmc_core to add
+support for SDIO. From my understanding no changes to any of the drivers
+should be necessary.
 
+Regards
 
-btw this all really spells out that you may want to do this as a device
-mapper thing; eg have a device mapper module that can do "lookaside" to
-a different order/mirror block whatever. The filesystem just doesn't
-want to know; do it at the DM level ;) That also solves the entire
-caching layering problem etc ;)
+Marcel
+
 

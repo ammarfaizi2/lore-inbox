@@ -1,62 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWEDCoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWEDCtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbWEDCoG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 22:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWEDCoG
+	id S1750889AbWEDCtU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 22:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWEDCtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 22:44:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39862 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750890AbWEDCoF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 22:44:05 -0400
-Date: Wed, 3 May 2006 22:44:04 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Remove silly messages from input layer.
-Message-ID: <20060504024404.GA17818@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	Wed, 3 May 2006 22:49:20 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45540 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750880AbWEDCtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 May 2006 22:49:19 -0400
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: ak@suse.de, len.brown@intel.com, Natalie.Protasevich@unisys.com,
+       sergio@sergiomb.no-ip.org, kimball.murray@gmail.com,
+       linux-kernel@vger.kernel.org, akpm@digeo.com, kmurray@redhat.com,
+       linux-acpi@vger.kernel.org
+Subject: Re: [RFC][PATCH] Document what in IRQ is.
+References: <CFF307C98FEABE47A452B27C06B85BB652DF16@hdsmsx411.amr.corp.intel.com>
+	<200605020946.46050.ak@suse.de>
+	<m1aca07cvd.fsf_-_@ebiederm.dsl.xmission.com>
+	<20060503170155.e8e9a92b.rdunlap@xenotime.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 03 May 2006 20:48:27 -0600
+In-Reply-To: <20060503170155.e8e9a92b.rdunlap@xenotime.net> (Randy Dunlap's
+ message of "Wed, 3 May 2006 17:01:55 -0700")
+Message-ID: <m1mzdy7bes.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are two messages in the input layer that seem to be
-triggerable very easily, and they confuse end-users to no end.
-"too many keys pressed? Should I press less keys?"
-I actually got a complaint from one user that he had only
-hit one key before being told to type less.
+"Randy.Dunlap" <rdunlap@xenotime.net> writes:
 
-The latter message seems to trigger with certain keyboard switchers
-and again, does nothing but confuse people.
+> On Tue, 02 May 2006 07:52:22 -0600 Eric W. Biederman wrote:
+>
+>> Andi Kleen <ak@suse.de> writes:
+>> 
+>> > P.S.: There seems to be a lot of confusion about all this.
+>> > Maybe it would make sense to do a write up defining all the terms
+>> > and stick it into Documentation/* ? 
+>> 
+>> How does this look?
+>> 
+>> I am pretty horrible when it comes to Documentation,
+>> but this seems to be the essence of what I was saying earlier.
+>> 
+>> Eric
+>> 
+>> 
+>> diff --git a/Documentation/IRQ.txt b/Documentation/IRQ.txt
+>> new file mode 100644
+>> index 0000000..5340369
+>> --- /dev/null
+>> +++ b/Documentation/IRQ.txt
+>> @@ -0,0 +1,22 @@
+>> +What is an IRQ?
+>> +
+>> +An IRQ is an interrupt request from a device.
+>> +Currently they can come in over a pin, or over a packet.
+>
+> No comma.  Change packet to message?
 
-Best of all, asides from the silly messages, none of the people suffering
-them report any other misbehaviour, their keyboards work just fine.
+Sounds good.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+>> +IRQs at the source can be shared.
+>
+> Huh?  That simple sentence confuses me.  Should "source" really be
+> "sink" or "destination"?  Or maybe say "IRQs at an interrupt controller
+> can be shared."  Or is that too hardware-specific?
+> Anyway, what source is meant here?  It doesn't mean that IRQs
+> at the producer device can be shared, right?  It's more at the
+> consumer device where they can be shared.
 
---- linux-2.6.16.noarch/drivers/input/keyboard/atkbd.c~	2006-05-03 22:37:20.000000000 -0400
-+++ linux-2.6.16.noarch/drivers/input/keyboard/atkbd.c	2006-05-03 22:39:58.000000000 -0400
-@@ -340,7 +340,6 @@ static irqreturn_t atkbd_interrupt(struc
- 			atkbd_report_key(atkbd->dev, regs, KEY_HANJA, 3);
- 			goto out;
- 		case ATKBD_RET_ERR:
--			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
- 			goto out;
- 	}
- 
-@@ -359,11 +358,7 @@ static irqreturn_t atkbd_interrupt(struc
- 		case ATKBD_KEY_NULL:
- 			break;
- 		case ATKBD_KEY_UNKNOWN:
--			if (data == ATKBD_RET_ACK || data == ATKBD_RET_NAK) {
--				printk(KERN_WARNING "atkbd.c: Spurious %s on %s. Some program, "
--				       "like XFree86, might be trying access hardware directly.\n",
--				       data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
--			} else {
-+			if (data != ATKBD_RET_ACK && data != ATKBD_RET_NAK) {
- 				printk(KERN_WARNING "atkbd.c: Unknown key %s "
- 				       "(%s set %d, code %#x on %s).\n",
- 				       atkbd->release ? "released" : "pressed",
+By source I was thinking at the irq controller pin. 
+
+Interrupts are usually thrown from interrupt controllers to
+something in the chipset that interrupts the cpu, giving the
+cpu a token (ie an interrupt vector) that uniquely identifies
+which interrupt source threw the interrupt.
+
+Linux does not have generic infrastructure to allow two interrupt
+sources to share the same token passed to the kernel. 
+
+In addition there are good reasons on some systems to change the 
+token dynamically, (say to point the IRQ at a different CPU).  So
+no generic code in the code should know about the token the cpu
+receives.  The fact that msi.c actually knows about that token
+today makes is inflexible and maintenance problem.
+
+I guess I need to figure out how to work this additional information
+into my documentation then.
+
+>> +An IRQ number is a kernel identifier used to talk about a hardware
+>> +interrupt source.  Typically this is an index into the global irq_desc
+>> +array, but except for what linux/interrupt.h implements the details
+>> +are architecture specific.
+>> +
+>> +An IRQ number is an enumeration of the possible interrupt sources on a
+>> +machine.  Typically what is enumerated is the number of input pins on
+>> +all of the interrupt controller in the system.  In the case of ISA
+>                         controllers
+>> +what is enumerated are the 16 input pins to the pair of i8259
+>                       is
+>> +interrupt controllers.
+>> +
+>> +Architectures can assign additional meaning to the IRQ numbers, and
+>> +are encouraged to in the case  where there is any manual configuration
+>> +of the hardware involved.  The ISA IRQ case on x86 where anyone who
+>> +has been around a while can tell you how the first 16 IRQs map to the
+>                    awhile
+>> +input pins on a pair of i8259s is the classic example.
+
+Eric
+

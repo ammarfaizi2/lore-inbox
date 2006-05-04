@@ -1,55 +1,66 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbWEBTfK (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 2 May 2006 15:35:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWEBTfJ
+	id S964852AbWEDQL3 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 4 May 2006 12:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWEDQL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 May 2006 15:35:09 -0400
-Received: from unknown.net.reach.com ([202.84.180.199]:62726 "EHLO erols.com")
-	by vger.kernel.org with ESMTP id S1750939AbWEBTfI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 May 2006 15:35:08 -0400
+	Thu, 4 May 2006 12:11:29 -0400
+Received: from smtp-31.ig.com.br ([200.226.132.31]:19861 "EHLO
+	smtp-31.ig.com.br") by vger.kernel.org with ESMTP id S932346AbWEDQL2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 12:11:28 -0400
+To: zorrohula@ig.com.br
+From: zorrohula <zorrohula@ig.com.br>
+Subject: YOUR COMPENSATION
+Date: Thu, 4 May 2006 13:11:22 -0300
+X-Priority: 3 (Normal)
+Message-ID: <20060504_161122_012202.zorrohula@ig.com.br>
+X-Originating-IP: [10.17.1.68]80.87.84.224
+X-Mailer: iGMail [www.ig.com.br]
+X-user: zorrohula@ig.com.br
+Teste: asaes
 MIME-Version: 1.0
-Reply-To: "Ora Thompson" <thompson_bt@netscape.net>
-X-Mailer: Windows Eudora Pro Version 2.2 (32)
-Subject: Invest in yourself! m1d
-Message-ID: <2.2.32.2006040218324200fc816c@netscape.net>
-To: <autoanswer@vger.kernel.org>
-In-Reply-To: <f17701c66a7e$ff829fbc$6e5dd7aa@4swynp3>
-From: "Ora Thompson" <thompson_bt@netscape.net>
-Date: Tue, 02 May 2006 12:32:42 -0600
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+Content-type: multipart/mixed;
+	boundary="Message-Boundary-by-Mail-Sender-1146759082"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750939AbWEBTfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964852AbWEDQL3@vger.kernel.org>
 
-Genuine College Degree in 2 Weeks! 
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-(831) 603-4625  Call Now and leave us message
+--Message-Boundary-by-Mail-Sender-1146759082
+Content-type: text/plain; charset=ISO-8859-1
+Content-description: Mail message body
+Content-transfer-encoding: 8bit
+Content-disposition: inline
 
-Have you ever thought that the only thing stopping you from a
-a great j0b and better pay was a few letters behind your name? 
+>From Steve Ibeme 
+Attn; Good Friend 
+I'm happy to inform you about my success in getting those funds transffered 
+under the cooperation of a new partiner from paraguay.Presently i'm in 
+paraguay for investment projects with my own share of the total Contract 
+sum. mean while,i didn't forget your past efforts and attempts to assit me 
+in transffering those funds despite that it failed us some how.Now contact 
+my secretary in Accra Ghana. 
+His name is Emeka John 
+e-Mail;  mrsemekajohn@centrum.cz 
+Telephone; 233-276311360 
+Ask him to send you the Draft what of $950.000.00 which i kept for your 
+compersation for all your past efforts and attempts to assist me in this 
+matter.i appreciated your efforts at that time very much.so feel free and 
+get intouched with my secretary Emeka John and instruct him where to send 
+the Draft to you. 
+Please do let me know immediately you receive it so that we can share the 
+joy after all the sufferness at that time.in the moment, i'm very busy here 
+because of the investment projects which me and the new partiner are having 
+at hand, finally,remember that i had forwarded instruction to my secretary 
+on your behalf to receive the Draft, so feel free to get intouch with Emeka 
+John to send the Draft to you without any delay. 
+Thanks and God bless 
+With Best Regards, 
+Mr. Steve Ibeme 
 
-Well now you can get them! 
-
-BA BSc MA MSc MBA PHD 
-
-Within 2 weeks!
-No Study Required!
-100% Verifiable 
-
-(831) 603-4625  Call Now and leave us message
-
-These are real, genuine degrees that include Bachelors, Masters 
-and Doctorate degrees. They are verifiable and student records and
-transcripts are also available. This little known s.ecret has been
-kept quiet for years. The opp0rtunity exists due to a lega.l loophole
-allowing some established colleges to award degrees at their discretion.
 
 
-With all of the attention that this news has been generating, I wouldn't 
-be surprised to see this loophole closed very soon. 
+--Message-Boundary-by-Mail-Sender-1146759082--
 
-Call n0w for more information today, you'll thank me later... 
-(831) 603-4625  Call Now and leave us message

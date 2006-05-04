@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751422AbWEDVoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWEDVpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751422AbWEDVoc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 17:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWEDVob
+	id S1030267AbWEDVpP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 17:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030273AbWEDVpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 17:44:31 -0400
-Received: from wx-out-0102.google.com ([66.249.82.202]:10795 "EHLO
+	Thu, 4 May 2006 17:45:15 -0400
+Received: from wx-out-0102.google.com ([66.249.82.195]:5191 "EHLO
 	wx-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751505AbWEDVoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 17:44:30 -0400
+	id S1030267AbWEDVpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 17:45:13 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=pZ4/x1Ul5edoFTu1wnIJ1Cv7urGmnkD3OwDS/zSoCg3ex/JjWu9W2x89ea/WegBVC97EOXYfi32/fccFYZTgwGmfZ4BQvhZVvIL/mizMNLsP49OGr3BUsoGG+z9iCTT6iJp5Jh7yGZsv3TsdrHu396BCAEbcqh9F6je+tiVZgdg=
-Message-ID: <445A75AD.7090105@gmail.com>
-Date: Fri, 05 May 2006 05:44:13 +0800
+        b=d3t1OZGjMgtMg4cWAbMDsA7c/oLm060ZaHONWtyavD1AdZC5EY8ewPd9AvBm10/7Ev72TZRgBQYcNoS/5LuWVGa4si1Fb7B4UZGqmvvC9kEpp67xb8UxbZYWBSq0PQ+/PXJ2V+w26xP5eX5a4jZPpbr4wBlsZeFGVgEHP/AiSHM=
+Message-ID: <445A75D8.9040104@gmail.com>
+Date: Fri, 05 May 2006 05:44:56 +0800
 From: "Antonino A. Daplas" <adaplas@gmail.com>
 User-Agent: Thunderbird 1.5.0.2 (X11/20060420)
 MIME-Version: 1.0
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: framebuffer broken in 2.6.16.x and 2.6.17-rc3 ?
-References: <60f2b0dc0605021251i1c883617vf132e8bdeffd6c7f@mail.gmail.com> <gs7iuaocrzmp.s33e3qhm21bl.dlg@40tude.net> <445A68AC.3090207@gmail.com> <1vsfcg3epbb29.t96cunohji42$.dlg@40tude.net>
-In-Reply-To: <1vsfcg3epbb29.t96cunohji42$.dlg@40tude.net>
+To: Valdis.Kletnieks@vt.edu
+CC: grfgguvf.29601511@bloglines.com, linux-kernel@vger.kernel.org
+Subject: Re: Weird framebuffer bug?
+References: <1146777893.3982259993.25862.sendItem@bloglines.com> <200605042129.k44LTSXa022256@turing-police.cc.vt.edu>
+In-Reply-To: <200605042129.k44LTSXa022256@turing-police.cc.vt.edu>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuseppe Bilotta wrote:
-> On Fri, 05 May 2006 04:48:44 +0800, Antonino A. Daplas wrote:
+Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 04 May 2006 21:24:53 -0000, grfgguvf.29601511@bloglines.com said:
+>> I am having a really strange bug where every fifth or so vertical line
+>> is not displayed when running X using the framebuffer (so the right fifth
+>> of the screen is also left black). And it's not the monitor settings. If the
+>> image is stretched to fill the screen the lines are still omitted (It's an
+>> LCD and it interpolates the lines so the whole image looks blurred).
 > 
->> Giuseppe Bilotta wrote:
->>> On Tue, 2 May 2006 21:51:13 +0200, Olivier Fourdan wrote:
->>>
->>> I don't know what method he used to upgrade his kernel, but the setting
->> changed from 'y' to 'm', and I've received quite a few reports from
->> different users on this lately...
-> 
-> Well, when it happened to me it was because I switched from a distro
-> kernel to a custom build and so the error was entirely on my part. I
-> still think that some kind of warning in the dmesg or appropriate
-> wording in the help for the framebuffer devices or for fbcon would
-> help sort this FAQ out.
+> I'll bite.  Have you tried using a configuration that specifies the *actual*
+> LCD resolution so it doesn't have to interpolate?
 
-This is already documented in Documentation/fb/fbcon.txt. Although a
-warning in the help text of vesafb might help.
+And if you can't specify the actual resolution with vesafb, try nvidiafb.
 
 Tony

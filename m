@@ -1,65 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWEDXWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbWEDXmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbWEDXWW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 19:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbWEDXWW
+	id S1030280AbWEDXmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 19:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWEDXmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 19:22:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39403 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750818AbWEDXWV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 19:22:21 -0400
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow
-	userspace (Xorg) to enable devices without doing foul direct access
-From: Peter Jones <pjones@redhat.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Martin Mares <mj@ucw.cz>,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Dave Airlie <airlied@linux.ie>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@linux.intel.com>
-In-Reply-To: <9e4733910605041438q5bf3569bs129bf2e8851b7190@mail.gmail.com>
-References: <1146300385.3125.3.camel@laptopd505.fenrus.org>
-	 <200605041309.53910.bjorn.helgaas@hp.com>
-	 <445A51F1.9040500@linux.intel.com>
-	 <200605041326.36518.bjorn.helgaas@hp.com>
-	 <E1FbjiL-0001B9-00@chiark.greenend.org.uk>
-	 <9e4733910605041340r65d47209h2da079d9cf8fceae@mail.gmail.com>
-	 <1146776736.27727.11.camel@localhost.localdomain>
-	 <mj+md-20060504.211425.25445.atrey@ucw.cz>
-	 <1146778197.27727.26.camel@localhost.localdomain>
-	 <9e4733910605041438q5bf3569bs129bf2e8851b7190@mail.gmail.com>
-Content-Type: text/plain
-Organization: Red Hat, Inc.
-Date: Thu, 04 May 2006 19:22:03 -0400
-Message-Id: <1146784923.4581.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 (2.6.1-2) 
-Content-Transfer-Encoding: 7bit
+	Thu, 4 May 2006 19:42:09 -0400
+Received: from web.bloglines.com ([65.214.39.152]:44219 "HELO
+	blw06bos.io.askjeeves.info") by vger.kernel.org with SMTP
+	id S1030280AbWEDXmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 19:42:08 -0400
+Message-ID: <1146786127.1525598216.32201.sendItem@bloglines.com>
+Date: 4 May 2006 23:42:07 -0000
+From: grfgguvf.29601511@bloglines.com
+To: adaplas@gmail.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Weird framebuffer bug?
+MIME-Version: 1.0
+Content-Type: text/plain;charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-04 at 17:38 -0400, Jon Smirl wrote:
-
-> # cd /sys/bus/pci/devices/0000:01:00.0
-> # echo 1 >rom
-> # hexdump -C rom
+--- Antonino A. Daplas <adaplas@gmail.com> wrote:
+> Does the same thing happens
+with different color depths?
 > 
-> As far as I know this works on every platform, not just the PC one.
+> Can you try using the "vesa" driver with
+X?  If the same thing happens, it might
+> be a problem with the BIOS.
+>
 
-Yep, you're right, this works.  So we don't necessarily need it for the
-vbetool case.  X still could use it though, instead of their scary
-poke-at-memory way.
 
-> Don't mess around with the hardware trying to get to the ROM. Use the
-> API provided by the kernel. Messing with the hardware will get it into
-> a state that the kernel doesn't know about and can ultimately crash
-> your system.
+I will check these later.
 
-Exactly who do you see here messing with the hardware directly instead
-of using kernel APIs?
+> 
+> BTW, what does dmesg and fbset -i say?
 
--- 
-  Peter
+>
 
+% dmesg | egrep -i 'frame|fb|vesa|nv'
+ BIOS-e820: 0000000007fff000
+- 0000000008000000 (ACPI NVS)
+Security Framework v1.0.0 initialized
+vesafb:
+framebuffer at 0xf0000000, mapped to 0xb8880000, using 6144k, total 32768k
+
+vesafb: mode is 1024x768x32, linelength=4096, pages=1
+vesafb: protected
+mode interface info at c000:c060
+vesafb: scrolling: redraw
+vesafb: Truecolor:
+size=8:8:8:8, shift=24:16:8:0
+Console: switching to colour frame buffer device
+128x48
+fb0: VESA VGA frame buffer device
+
+# fbset -i
+
+mode "1024x768-76"
+
+    # D: 78.653 MHz, H: 59.949 kHz, V: 75.694 Hz
+    geometry 1024 768 1024
+768 32
+    timings 12714 128 32 16 4 128 4
+    rgba 8/16,8/8,8/0,8/24
+endmode
+
+
+Frame buffer device information:
+    Name        : VESA VGA
+    Address
+    : 0xf0000000
+    Size        : 6291456
+    Type        : PACKED PIXELS
+
+    Visual      : TRUECOLOR
+    XPanStep    : 0
+    YPanStep    : 0
+ 
+  YWrapStep   : 0
+    LineLength  : 4096
+    Accelerator : No
+
+
+> Tony
+
+> 
+> PS: I'll be traveling in a few hours, so I may not be able to answer
+back.
+> 
+
+Well thank you for answering so far then.
+This is not urgent
+you can answer tomorrow or at any later time.

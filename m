@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWEDCg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWEDCoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWEDCg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 22:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWEDCg7
+	id S1750890AbWEDCoG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 22:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWEDCoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 22:36:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2997 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750889AbWEDCg7 (ORCPT
+	Wed, 3 May 2006 22:44:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39862 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750890AbWEDCoF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 22:36:59 -0400
-Date: Wed, 3 May 2006 19:36:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] 2.6.17-rc3-mm1 breaks AGP on amd64 boxes in 32 bit mode
-Message-Id: <20060503193650.1a8edf16.akpm@osdl.org>
-In-Reply-To: <200605040033.33579.bero@arklinux.org>
-References: <200605040033.33579.bero@arklinux.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Wed, 3 May 2006 22:44:05 -0400
+Date: Wed, 3 May 2006 22:44:04 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Remove silly messages from input layer.
+Message-ID: <20060504024404.GA17818@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 May 2006 00:33:33 +0200
-Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
+There are two messages in the input layer that seem to be
+triggerable very easily, and they confuse end-users to no end.
+"too many keys pressed? Should I press less keys?"
+I actually got a complaint from one user that he had only
+hit one key before being told to type less.
 
-> 2.6.17-rc3-mm1 breaks AGP on amd64 boxes in 32 bit mode - a change in the 
-> related Kconfig file forces the agp-amd64 module to be built only on x86_64, 
-> simply reverting that bit introduces unresolved symbols k8_nb_ids and 
-> k8_northbridges (defined but not exported).
+The latter message seems to trigger with certain keyboard switchers
+and again, does nothing but confuse people.
 
-Yeah, it turns out that x86 is doing
+Best of all, asides from the silly messages, none of the people suffering
+them report any other misbehaviour, their keyboards work just fine.
 
-+k8-y                      += ../../x86_64/kernel/k8.o
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-which I failed to spot.  This, along with the "amd64" in the name fooled me
-into believing that x86 wasn't supposed to be using this code.
-
-x86_64 uses numerous x86 files in this manner, and now we we have x86 using
-a couple of x86_64 files in a siilar manner.  I think this is a bad thing,
-and that we should make all these cross-references operate in the same
-direction rather than in both directions.  x86_64 developers already have
-to deal with this problem, so why make start burdening x86 developers also?
-
-
-Anyway.  Andi, I'll drop x86_64-mm-new-northbridge-fix.patch.  Please add
-these exports to your copy of x86_64-mm-new-northbridge.patch
+--- linux-2.6.16.noarch/drivers/input/keyboard/atkbd.c~	2006-05-03 22:37:20.000000000 -0400
++++ linux-2.6.16.noarch/drivers/input/keyboard/atkbd.c	2006-05-03 22:39:58.000000000 -0400
+@@ -340,7 +340,6 @@ static irqreturn_t atkbd_interrupt(struc
+ 			atkbd_report_key(atkbd->dev, regs, KEY_HANJA, 3);
+ 			goto out;
+ 		case ATKBD_RET_ERR:
+-			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
+ 			goto out;
+ 	}
+ 
+@@ -359,11 +358,7 @@ static irqreturn_t atkbd_interrupt(struc
+ 		case ATKBD_KEY_NULL:
+ 			break;
+ 		case ATKBD_KEY_UNKNOWN:
+-			if (data == ATKBD_RET_ACK || data == ATKBD_RET_NAK) {
+-				printk(KERN_WARNING "atkbd.c: Spurious %s on %s. Some program, "
+-				       "like XFree86, might be trying access hardware directly.\n",
+-				       data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
+-			} else {
++			if (data != ATKBD_RET_ACK && data != ATKBD_RET_NAK) {
+ 				printk(KERN_WARNING "atkbd.c: Unknown key %s "
+ 				       "(%s set %d, code %#x on %s).\n",
+ 				       atkbd->release ? "released" : "pressed",

@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWEDQOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWEDQcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbWEDQOk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 12:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWEDQOj
+	id S1030206AbWEDQcz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 12:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWEDQcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 12:14:39 -0400
-Received: from mga01.intel.com ([192.55.52.88]:13708 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932346AbWEDQOj convert rfc822-to-8bit (ORCPT
+	Thu, 4 May 2006 12:32:55 -0400
+Received: from nz-out-0102.google.com ([64.233.162.192]:6627 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1030206AbWEDQcz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 12:14:39 -0400
-X-IronPort-AV: i="4.05,89,1146466800"; 
-   d="scan'208"; a="32395270:sNHT5681018357"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 4 May 2006 12:32:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=I7+ZB0H85VXki3VgeCInvP6iIYXdLQEBnRW4GfT83Pif0/pWPkier6xcEPiKimfFRaeszRD6PeRsT9R58wSGL/CfgRwBPnBFrdMX2qQx9z8t4nFMlW0nRVZRN2DNMWS/gJgOILNfJbtLdcRis1EowwEIgdmI1JcM7iLKtByTPOY=
+Message-ID: <6934efce0605040932m7139260dx2ae5e7e738048ab3@mail.gmail.com>
+Date: Thu, 4 May 2006 09:32:54 -0700
+From: "Jared Hulbert" <jaredeh@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [RFC] Advanced XIP File System
+Cc: "Arnd Bergmann" <arnd@arndb.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060503191422.GC4404@ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
 Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] Fix CONFIG_PRINTK_TIME hangs on some systems
-Date: Thu, 4 May 2006 09:14:06 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0667FF31@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Fix CONFIG_PRINTK_TIME hangs on some systems
-Thread-Index: AcZvZO3TZzGKOZtKSKOZbtNxHNcrOgALzIfQ
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Tony Lindgren" <tony@atomide.com>, <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Nick Piggin" <nickpiggin@yahoo.com.au>
-X-OriginalArrivalTime: 04 May 2006 16:14:07.0156 (UTC) FILETIME=[C4F0BF40:01C66F95]
+Content-Disposition: inline
+References: <6934efce0605021453l31a438c4j7c429e6973ab4546@mail.gmail.com>
+	 <200605030200.29141.arnd@arndb.de>
+	 <6934efce0605021859u55131e63xd8dab3d4396d7f56@mail.gmail.com>
+	 <20060503191422.GC4404@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This issue has been discussed earlier on LKML, but AFAIK
-> there has not been any better solution available:
-> 
-> http://lkml.org/lkml/2005/8/18/173
+> Patches for compressed ext2 exist; and it has many other nice uses,
+> too...
 
-I thought that this had been fixed:
+True.
 
-ia64 now has a "printk_clock()" defined in arch/ia64/kernel/time.c
-which overrides the "weak" symbol defined in kernel/printk.c.  This
-calls ia64_printk_clock() ... which defaults to a jiffie based
-routine, but might be an ITC based routine if running on a system
-where the clocks do not drift on different cpus.  Platform code
-can also override this function pointer (which SGI does in their
-sn_setup() routine).
+> Which one, btw? I guess I need a new phone :-)
 
-The ITC based routine still uses sched_clock(), but tries to avoid
-the original problems by not calling sched_clock() until the MMU
-has been set up to map the per-cpu areas (checks whether one of the
-AR.K registers has been set).  Most of this in commit:
-
-  http://tinyurl.com/ltexa
-
-
-Do you still see a problem on some platform?
-
--Tony
+I can't disclose that.  There are several Linux phones availiable,
+mostly in Asia though.  I have actually seen some of the GSM Linux
+phones in use in the US.  I suppose they ought to work in Europe. 
+Some are very nice.  I would suggest for a kernel hacker to make sure
+you get one that you can telnet into or get terminal app on.  There is
+something disappointing about a Linux machine of any kind without a
+proper shell. :)

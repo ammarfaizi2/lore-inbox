@@ -1,103 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWEDWmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWEDWoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbWEDWmb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 18:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWEDWmb
+	id S1751395AbWEDWoI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 18:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWEDWoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 18:42:31 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53121 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751384AbWEDWma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 18:42:30 -0400
-To: "Brown, Len" <len.brown@intel.com>
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Andi Kleen" <ak@suse.de>, <sergio@sergiomb.no-ip.org>,
-       "Kimball Murray" <kimball.murray@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
-       <linux-acpi@vger.kernel.org>
-Subject: Re: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-References: <CFF307C98FEABE47A452B27C06B85BB65ACA39@hdsmsx411.amr.corp.intel.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 04 May 2006 16:41:33 -0600
-In-Reply-To: <CFF307C98FEABE47A452B27C06B85BB65ACA39@hdsmsx411.amr.corp.intel.com> (Len
- Brown's message of "Thu, 4 May 2006 12:04:19 -0400")
-Message-ID: <m1ac9x76qq.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 May 2006 18:44:07 -0400
+Received: from mail.gmx.net ([213.165.64.20]:54501 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751395AbWEDWoG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 18:44:06 -0400
+X-Authenticated: #24128601
+Date: Fri, 5 May 2006 00:43:59 +0200
+From: Sebastian Kemper <sebastian_ml@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Mouse light (still) stays on after shutdown
+Message-ID: <20060504224359.GA12505@section_eight.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Content-Disposition: inline
+X-PGP-Key: http://www-users.rwth-aachen.de/sebastian.kemper/sebastian_ml_pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Brown, Len" <len.brown@intel.com> writes:
 
->>In the case of ACPI.  I think the mptable case has all of information
->>in mp_irqs at that point.
->
-> Agreed, I just sent a note on this, but apparently it "crossed
-> in the mail" with yours.  The key point about MPS is that MPS
-> should not describe pins that can never be connected -- so that isn't
-> quite as bad as handing out a vector for every RTE, which is what the
-> code appears to do on first read...
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Makes sense.
+Hello!
 
->>I agree with the fact, we do allocate the vectors on-demand.
->>Since the allocation is not allowed to fail, and because
->>it seems to be an accident of the implementation rather
->>than a deliberate implementation detail I still think it
->>needs to be fixed so the code is less brittle.
->
-> Yeah, it isn't clear that this has any advantage over assigning
-> the vector at request_irq() time where one would expect to see it.
-> Though some might consider "currently working" an advantage:-)
+I reported this issue at the kernel bugzilla some time in the past.
+I'd like to know if there's a solution yet.
 
-Right.  This will have to wait until I can start sending patches.
+http://bugzilla.kernel.org/show_bug.cgi?id=3D5410
 
->>But if we are not afraid of breaking machines with more
->>that 243 interrupt sources (which currently force ioapic/pin
->>combinations to share irqs today) it does mean we can move
->>the removal of the irq to gsi mapping up, in the patch series.  We
->>first need to raise the limit on the number of IRQs on x86.
->
-> No, I don't think we have the license to intentionally break big
-> machines
-> that are currently working.
+This is what I get: Shutting down my computer my mouse light stays on.
+It's a 7=E2=82=AC Logitech USB mouse. Alexey Starikovskiy suggested in my
+bugreport that it might be an USB issue.
 
-No but it may be ok. At an intermediate step in a series of patches.
-Although ideally even that would never happen.
+Up to 2.6.13-rc2 this didn't happen. Since 2.6.13-rc3 the light stays
+on.
 
-> In the long run, these two big-machine
-> hacks should go away:
->
-> mp_register_gsi()
-> 	/*
-> 	 * For PCI devices, assign IRQs in order, avoiding gaps
-> 	 * due to unused I/O APIC pins.
-> 	 */
-> 	...
->
-> io_apic_set_pci_routing() (x86_64 only upstream, i386 too on SuSE)
-> 	irq = gsi_irq_sharing(irq)
->
->
-> I think what we can do in the short term is to make these workarounds
-> not have any effect on the systems which don't need them.  This means
-> searching like gsi_irq_sharing() does, instead of always compressing
-> like mp_register_gsi() does.  It also means not printing dmesg
-> about vector sharing when no sharing is actually happening.
+I tried unloading the usb modules before shutdown, but I couldn't get
+rid of usbcore. rmmod said it's still in use, though it didn't mention
+by what.
 
-I'm a long run kind of guy :)
-As soon as I clean up my proof of concept code and send it
-out I will have both of those killed.
+Module                  Size  Used by=20
+usbcore               107136  1=20
 
-> Based on past history of the un-intended impact of interrupt changes,
-> (eg. what started this thread)
-> I would suggest that only the simplest things go into 2.6.18
-> and that the larger changes stay in -mm for all of 2.6.18
-> and targtet 2.6.19.
+Right now I'm using 2.6.16.13 and the light stays on. I'm on a NForce2
+Shuttle AN35N with a Sempron 2400+ and 512MB RAM. I'm using ehci and
+ohci.
 
-That makes sense.  I'm in no hurry :)  Mostly my intention was
-that this is not 2.6.17 material and whatever short term hacks
-are needed to make 2.6.17 work  need to go in now.
+Please CC me in your answers. I'd be glad to help though I'm not a
+kernel hacker.
 
-Eric
+sk@section_eight /usr/src/linux/scripts $ ./ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux section_eight 2.6.16.13 #3 Thu May 4 13:28:12 CEST 2006 i686 AMD
+Sempron(tm)   2400+ GNU/Linux
+
+Gnu C                  3.4.5
+Gnu make               3.80
+binutils               2.16.1
+util-linux             2.12r
+mount                  2.12r
+module-init-tools      3.2.1
+e2fsprogs              1.38
+reiserfsprogs          line
+reiser4progs           line
+Linux C Library        2.3.6
+Dynamic linker (ldd)   2.3.6
+Procps                 3.2.6
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.94
+udev                   087
+Modules Loaded         wlan_tkip wlan_scan_sta ath_pci ath_rate_sample
+wlan ath_hal dvb_ttpci l64781 saa7146_vv video_buf saa7146 ves1820
+stv0299 dvb_core tda8083 stv0297 sp8870 ves1x93 ttpci_eeprom lirc_serial
+lirc_dev
+
+(I usually have the USB drivers compiled statically, not as modules).
+
+Sincerely
+
+Sebastian
+
+--=20
+"When the going gets weird, the weird turn pro." (HST)
+
+--/9DWx/yDrRhgMJTb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEWoOvTWouIrjrWo4RAm5dAKCKGd6FF3+U0wcM97Xo4m/XK+NCZgCbBS+C
+XMYhTit405Vo9jUazgrG9c4=
+=dSGD
+-----END PGP SIGNATURE-----
+
+--/9DWx/yDrRhgMJTb--
+

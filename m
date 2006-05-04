@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWEDR1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbWEDRmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWEDR1i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 13:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWEDR1i
+	id S1030232AbWEDRmE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 13:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWEDRmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 13:27:38 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:29040 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030243AbWEDR1h convert rfc822-to-8bit (ORCPT
+	Thu, 4 May 2006 13:42:04 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:26578 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030232AbWEDRmD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 13:27:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Lrif0gS0o6tbpE10YhKU4lq0BxNnNOVIbUahm3ugyqTGokxzdnnHnJt3UqV7bgxVW9ct5/AWUhS7a0xshkPUEL3oJIkCgfewGcibPWlSP9yoZ1VP2XV4okw3DLNPps2x60uZQ1FczSbjdSbpM7kmJ+jVZZq1O7QupSqsbqZDxFQ=
-Message-ID: <bda6d13a0605041027kc0edb02icdd11bd103478b05@mail.gmail.com>
-Date: Thu, 4 May 2006 10:27:37 -0700
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cdrom: a dirty CD can freeze your system
-In-Reply-To: <1146762658.22308.11.camel@localhost.localdomain>
+	Thu, 4 May 2006 13:42:03 -0400
+Date: Thu, 4 May 2006 19:41:29 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Roy Rietveld <rwm_rietveld@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: TCP/IP send, sendfile, RAW
+In-Reply-To: <BAY105-F1952B97471150282623600E9B40@phx.gbl>
+Message-ID: <Pine.LNX.4.61.0605041940540.29706@yvahk01.tjqt.qr>
+References: <BAY105-F1952B97471150282623600E9B40@phx.gbl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200605041232.k44CWnFn004411@wildsau.enemy.org>
-	 <1146750532.20677.38.camel@localhost.localdomain>
-	 <20060504165055.GA22880@animx.eu.org>
-	 <1146762658.22308.11.camel@localhost.localdomain>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've seen this a few times. It never actually hung my system, only one
-virtual console. I wonder if preemptable kernel had something to do
-with that <g>
+> I would like to send ethernet packets with 1400 bytes payload.
+> I wrote a small program witch sends a buffer of 1400 bytes in a endless loop.
+> The problem is that a would like 100Mbits throughtput but when i check this
+> with ethereal.
+> I only get 40 MBits. I tried sending with an UDP socket and RAW socket. I also
+> tried sendfile.
+> The RAW socket gives the best result till now 50 MBits throughtput.
+
+Limitation of Ethernet.
+
+
+
+Jan Engelhardt
+-- 

@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWEDFze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWEDG16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbWEDFze (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 01:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWEDFze
+	id S1751414AbWEDG16 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 02:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWEDG16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 01:55:34 -0400
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:33469 "EHLO
-	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1751369AbWEDFze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 01:55:34 -0400
-Date: Wed, 3 May 2006 22:55:32 -0700 (PDT)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: linux-kernel@vger.kernel.org
-Subject: limits / PIPE_BUF?
-Message-ID: <Pine.LNX.4.58.0605032244230.25908@shell2.speakeasy.net>
+	Thu, 4 May 2006 02:27:58 -0400
+Received: from liaag1ae.mx.compuserve.com ([149.174.40.31]:5768 "EHLO
+	liaag1ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751414AbWEDG16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 02:27:58 -0400
+Date: Thu, 4 May 2006 02:22:48 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.17-rc2-mm1
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Jan Beulich <jbeulich@novell.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Martin Bligh <mbligh@google.com>
+Message-ID: <200605040224_MC3-1-BEC3-2856@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In-Reply-To: <445903DD.6090408@shadowen.org>
 
-I was reading through the include/linux/limits.h file in order to
-generate a cleanup patch for it -- a large number of #defines within
-that file are no longer being used, as I surmise that they are simply
-remnants of earlier implementations.
+On Wed, 03 May 2006 20:26:21 +0100, Andy Whitcroft wrote:
 
-A snippet from include/linux/limits.h:
-#define PIPE_BUF        4096    /* # bytes in atomic write to a pipe */
+>        <ffffffff8047c8e8>{__sched_text_start+1856} <EOE>new stack 0 (0 0
+> 10046 10 ffffffff8047c8e8)
 
-PIPE_BUF is a bit of an oddity. It is defined there, then redefined in
-the arm header files, even though those header files are never included
-anywhere. Also, PIPE_BUF is never referenced by name in any of the Linux
-code. And yet, it is still being mentioned in some Big And Scary
-Warnings (tm): fs/autofs4/waitq.c or include/linux/pipe_fs_i.h, for
-example.
+Wow.  The extra debug patch yields... exactly the same address that's
+already being printed.
 
-What's the deal with PIPE_BUF? Is its value used in the code indirectly,
-so that more comments would help make this fact obvious? Or is it now
-deprecated, and therefore a viable target for include/linux/limits.h
-cleanups?
+The real problem is that the stack-dump code prints the wrong symbol
+name here.  I don't see any easy way to fix it other than to put some
+filler at __sched_text_start so the first sched function has a unique
+address.
 
-- Vadim Lobanov
+
+-- 
+Chuck
+"Penguins don't come from next door, they come from the Antarctic!"
+

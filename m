@@ -1,50 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWEDCD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWEDCNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbWEDCD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 May 2006 22:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWEDCD3
+	id S1750842AbWEDCNy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 May 2006 22:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWEDCNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 May 2006 22:03:29 -0400
-Received: from gate.crashing.org ([63.228.1.57]:39149 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750852AbWEDCD3 (ORCPT
+	Wed, 3 May 2006 22:13:54 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:51929 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750842AbWEDCNx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 May 2006 22:03:29 -0400
-Subject: Re: [Cbe-oss-dev] [PATCH 11/13] cell: split out board specific
-	files
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>, Arnd Bergmann <arnd@arndb.de>,
-       linuxppc-dev@ozlabs.org, cbe-oss-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <904F5BD9-1ACB-4936-B390-E4128886824C@kernel.crashing.org>
-References: <20060429232812.825714000@localhost.localdomain>
-	 <200605020150.14152.arnd@arndb.de>
-	 <1900A234-BE31-4292-87E1-5C02F12A440D@kernel.crashing.org>
-	 <200605021259.24157.arnd@arndb.de>
-	 <801072F8-7701-4BD7-81FB-A8C1AA534C2E@kernel.crashing.org>
-	 <17496.6519.733076.663815@cargo.ozlabs.ibm.com>
-	 <904F5BD9-1ACB-4936-B390-E4128886824C@kernel.crashing.org>
-Content-Type: text/plain
-Date: Thu, 04 May 2006 12:03:05 +1000
-Message-Id: <1146708185.6652.108.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 3 May 2006 22:13:53 -0400
+Message-ID: <44596362.3080207@engr.sgi.com>
+Date: Wed, 03 May 2006 19:13:54 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050921
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: balbir@in.ibm.com
+CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [Patch 6/8] delay accounting usage of taskstats interface
+References: <20060502061930.GC22607@in.ibm.com>
+In-Reply-To: <20060502061930.GC22607@in.ibm.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Balbir Singh wrote:
+>Changelog
+>
+>Fixes suggested by Jay Lan
+>- check for tidstats before taking the mutex_lock in taskstats_exit_send()
+>- add back version information for struct taskstats
+>
+><clip>
+> 
+> struct taskstats {
+> 
+>-	/* Version 1 */
+>+	/* Delay accounting fields start
+>+	 *
+>+	 * All values, until comment "Delay accounting fields end" are
+>+	 * available only if delay accounting is enabled, even though the last
+>+	 * few fields are not delays
+>+	 *
+>+	 * xxx_count is the number of delay values recorded
+>+	 * xxx_delay_total is the corresponding cumulative delay in nanoseconds
+>+	 *
+>+	 * xxx_delay_total wraps around to zero on overflow
+>+	 * xxx_count incremented regardless of overflow
+>+	 */
+>+
+>+	/* Delay waiting for cpu, while runnable
+>+	 * count, delay_total NOT updated atomically
+>+	 */
+>+	__u64	cpu_count;
+>+	__u64	cpu_delay_total;
+>+
+>+	/* Following four fields atomically updated using task->delays->lock */
+>+
+>+	/* Delay waiting for synchronous block I/O to complete
+>+	 * does not account for delays in I/O submission
+>+	 */
+>+	__u64	blkio_count;
+>+	__u64	blkio_delay_total;
+>+
+>+	/* Delay waiting for page fault I/O (swap in only) */
+>+	__u64	swapin_count;
+>+	__u64	swapin_delay_total;
+>+
+>+	/* cpu "wall-clock" running time
+>+	 * On some architectures, value will adjust for cpu time stolen
+>+	 * from the kernel in involuntary waits due to virtualization.
+>+	 * Value is cumulative, in nanoseconds, without a corresponding count
+>+	 * and wraps around to zero silently on overflow
+>+	 */
+>+	__u64	cpu_run_real_total;
+>+
+>+	/* cpu "virtual" running time
+>+	 * Uses time intervals seen by the kernel i.e. no adjustment
+>+	 * for kernel's involuntary waits due to virtualization.
+>+	 * Value is cumulative, in nanoseconds, without a corresponding count
+>+	 * and wraps around to zero silently on overflow
+>+	 */
+>+	__u64	cpu_run_virtual_total;
+>+	/* Delay accounting fields end */
+>+	/* version 1 ends here */
+>+
+>+	/* version of taskstats */
+>+	__u64	version;
+>  
 
-> Yeah, what was I thinking.  So use some platform hook instead.
+Could you place the common field "version" before any acct subsystem
+specific fields?
 
-You must be smoking good stuff :)
+As a matter of fact, we do not need
+'filler_avoids_empty_struct_warnings' in [patch 5/8] taskstats
+interface. Replacing that field with "version" would be great!
 
-> But Arnd of course is right; if the driver (currently) only works
-> on a certain platform, just mark it as such in the Makefile (erm,
-> Kconfig file).
+Thanks,
+ - jay
 
-Exactly :) I don't see any point in adding hooks or ifdef's or anything
-fancy like that to guard from something that doesn't exist in real life:
-that is building that driver on non-cell :) Thus Kconfig is the way to
-go.
 
+> 
+>-	int filler_avoids_empty_struct_warnings;
+> };
+> 
+> 
+>  
 

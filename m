@@ -1,76 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWEDVZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWEDV36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWEDVZF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 17:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWEDVZF
+	id S1751407AbWEDV36 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 17:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWEDV35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 17:25:05 -0400
-Received: from kenga.kmv.ru ([217.13.212.5]:39375 "EHLO kenga.kmv.ru")
-	by vger.kernel.org with ESMTP id S1751366AbWEDVZD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 17:25:03 -0400
-From: Andrey Melnikoff <temnota+news@kmv.ru>
-To: cel@citi.umich.edu
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: 2.6.17-rc3 PCI init hang
-In-Reply-To: <44565BB9.8020504@citi.umich.edu>
-X-Newsgroups: gmane.linux.kernel
-User-Agent: tin/1.8.2-20060425 ("Shillay") (UNIX) (Linux/2.6.17-rc2 (i686))
-Message-Id: <E1FblP5-00057m-Uo@BlackLife.kmv.ru>
-Date: Fri, 05 May 2006 01:30:32 +0400
-X-AV-Scanned: Clamav!
-X-Data-Status: msg.XXs81GD0:23244@kenga.kmv.ru
+	Thu, 4 May 2006 17:29:57 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:42801 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1751407AbWEDV34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 17:29:56 -0400
+X-IronPort-AV: i="4.05,89,1146466800"; 
+   d="scan'208"; a="272848744:sNHT25150198"
+To: Heiko J Schick <schihei@de.ibm.com>
+Cc: openib-general@openib.org, Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: Re: [openib-general] [PATCH 07/16] ehca: interrupt handling routines
+X-Message-Flag: Warning: May contain useful information
+References: <4450A196.2050901@de.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 04 May 2006 14:29:54 -0700
+In-Reply-To: <4450A196.2050901@de.ibm.com> (Heiko J. Schick's message of "Thu, 27 Apr 2006 12:48:54 +0200")
+Message-ID: <adaejz9o4vh.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 04 May 2006 21:29:54.0983 (UTC) FILETIME=[E2B9B370:01C66FC1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <44565BB9.8020504@citi.umich.edu> you wrote:
-> Newsgroups: gmane.linux.kernel
+ > +void ehca_queue_comp_task(struct ehca_comp_pool *pool, struct ehca_cq *__cq)
+ > +{
+ > +	int cpu;
+ > +	int cpu_id;
+ > +	struct ehca_cpu_comp_task *cct;
+ > +	unsigned long flags_cct;
+ > +	unsigned long flags_cq;
+ > +
+ > +	cpu = get_cpu();
+ > +	cpu_id = find_next_online_cpu(pool);
+ > +
+ > +	EDEB_EN(7, "pool=%p cq=%p cq_nr=%x CPU=%x:%x:%x:%x",
+ > +		pool, __cq, __cq->cq_number,
+ > +		cpu, cpu_id, num_online_cpus(), num_possible_cpus());
+ > +
+ > +	BUG_ON(!cpu_online(cpu_id));
+ > +
+ > +	cct = per_cpu_ptr(pool->cpu_comp_tasks, cpu_id);
+ > +
+ > +	spin_lock_irqsave(&cct->task_lock, flags_cct);
+ > +	spin_lock_irqsave(&__cq->task_lock, flags_cq);
+ > +
+ > +	if (__cq->nr_callbacks == 0) {
+ > +		__cq->nr_callbacks++;
+ > +		list_add_tail(&__cq->entry, &cct->cq_list);
+ > +		wake_up(&cct->wait_queue);
+ > +	}
+ > +	else
+ > +		__cq->nr_callbacks++;
+ > +
+ > +	spin_unlock_irqrestore(&__cq->task_lock, flags_cq);
+ > +	spin_unlock_irqrestore(&cct->task_lock, flags_cct);
+ > +
+ > +	put_cpu();
+ > +
+ > +	EDEB_EX(7, "cct=%p", cct);
+ > +
+ > +	return;
+ > +}
 
-> I have a dual Pentium III I use for testing.  Since late last week 
-> (around about 2.6.17-rc3) it hangs during boot just after "Setting up 
-> standard PCI resources".  2.6.17-rc2 works fine.
+I never read the ehca completion event handling code very carefully
+until now.  But I was motivated by Shirley's work on IPoIB to take a
+closer look.
 
-Same situation, random hung when apply quirk_usb_early_handoff.
-Intel SCB2 board, dual PIII, 2Gb memory.
+It seems that you are deferring completion event dispatch into threads
+spread across all the CPUs.  This seems like a very strange thing to
+me -- you are adding latency and possibly causing cacheline pingpong.
 
-> A push in the right direction would be appreciated.  Please reply off 
-> list as I'm not subscribed.
+It may help throughput in some cases to spread the work across
+multiple CPUs but it seems strange to me to do this in the low-level
+driver.  My intuition would be that it would be better to do this in
+the higher levels, and leave open the possibility for protocols that
+want the lowest possible latency to be called directly from the
+interrupt handler.
 
-Try compile USB stuff as modules or without it. 
+What was the thinking that led to this design?
 
-For me 2.6.16.9 kernel with CONFIG_USB=m works.
-
-> ...
-
-> PCI: PCI BIOS revision 2.10 entry at 0xfdbc1, last bus=1
-> Setting up standard PCI resources
-
->  >>> 2.6.17-rc3 stops here and hangs.
->  >>> 2.6.17-rc2 continues with:
-
-> PCI: Probing PCI hardware
-> PCI: Discovered peer bus 01
-> PCI: Using IRQ router ServerWorks [1166/0200] at 0000:00:0f.0
-> PCI->APIC IRQ transform: 0000:00:03.0[A] -> IRQ 31
-> PCI->APIC IRQ transform: 0000:01:03.0[A] -> IRQ 23
-> PCI: Cannot allocate resource region 0 of device 0000:00:0f.2
-> ...
-
-> lspci -v:
-
-[skipp]
-
-> 00:0f.2 USB Controller: Broadcom OSB4/CSB5 OHCI USB Controller (rev 04) 
-> (prog-if 10 [OHCI])
->          Subsystem: Broadcom OSB4/CSB5 OHCI USB Controller
->          Flags: medium devsel
->          Memory at 30000000 (32-bit, non-prefetchable) [size=4K]
-
-0000:00:0f.2 USB Controller: Broadcom OSB4/CSB5 OHCI USB Controller (rev 05) (prog-if 10 [OHCI])
-        Subsystem: Intel Corporation: Unknown device 340f
-        Flags: bus master, medium devsel, latency 64, IRQ 10
-        Memory at fea40000 (32-bit, non-prefetchable) [size=4K]
-00: 66 11 20 02 17 00 80 02 05 10 03 0c 08 40 00 00
-10: 00 00 a4 fe 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 0f 34
-30: 00 00 00 00 00 00 00 00 00 00 00 00 0a 01 00 50
+ - R.

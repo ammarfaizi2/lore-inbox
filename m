@@ -1,81 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWEDLS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWEDLgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750924AbWEDLS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 07:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWEDLS1
+	id S1750929AbWEDLgv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 07:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWEDLgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 07:18:27 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:32970 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750924AbWEDLS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 07:18:26 -0400
-Date: Thu, 4 May 2006 13:18:35 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [patch] s390: add vmsplice system call.
-Message-ID: <20060504111835.GA8168@skybase>
+	Thu, 4 May 2006 07:36:51 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:52704 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750929AbWEDLgv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 07:36:51 -0400
+Date: Thu, 4 May 2006 13:31:37 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Denis Vlasenko <vda@ilport.com.ua>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: www.softpanorama.org: sparc_vs_x86 fun
+In-Reply-To: <200605041224.41827.vda@ilport.com.ua>
+Message-ID: <Pine.LNX.4.61.0605041322070.24957@yvahk01.tjqt.qr>
+References: <200605041224.41827.vda@ilport.com.ua>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-[patch] s390: add vmsplice system call.
+>>Solaris is heterogeneous OS that (unlike Linux) can perform well on two 
+>>architectures: UltraSparc and Intel.
 
-Add new vmsplice system call and add missing __NR_xxx defines for
-sys_set_robust_list, sys_get_robust_list, sys_splice, sys_sync_file_range
-and sys_tee.
+There are a lot of places where there seem to be artificial delays.
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+>>5.1.  UltraSparc is an expensive but pretty cool CPU :-)
+>>...
+>>* Energy efficiency: it consumes less energy then either Intel or Opteron
+>>  and much less then PoewerPC CPUs.
 
- arch/s390/kernel/compat_wrapper.S |    8 ++++++++
- arch/s390/kernel/syscalls.S       |    1 +
- include/asm-s390/unistd.h         |    8 +++++++-
- 3 files changed, 16 insertions(+), 1 deletion(-)
+Approx 82-85 W for an Opteron 244; according to Wikipedia, a T1 is 79 W.
+UltraSPARC IV at 109 W (competes with P4 :p)
 
-diff -urpN linux-2.6/arch/s390/kernel/compat_wrapper.S linux-2.6-patched/arch/s390/kernel/compat_wrapper.S
---- linux-2.6/arch/s390/kernel/compat_wrapper.S	2006-05-04 13:09:34.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/compat_wrapper.S	2006-05-04 13:09:50.000000000 +0200
-@@ -1650,3 +1650,11 @@ sys_tee_wrapper:
- 	llgfr	%r4,%r4			# size_t
- 	llgfr	%r5,%r5			# unsigned int
- 	jg	sys_tee
-+
-+	.globl compat_sys_vmsplice_wrapper
-+compat_sys_vmsplice_wrapper:
-+	lgfr	%r2,%r2			# int
-+	llgtr	%r3,%r3			# compat_iovec *
-+	llgfr	%r4,%r4			# unsigned int
-+	llgfr	%r5,%r5			# unsigned int
-+	jg	compat_sys_vmsplice
-diff -urpN linux-2.6/arch/s390/kernel/syscalls.S linux-2.6-patched/arch/s390/kernel/syscalls.S
---- linux-2.6/arch/s390/kernel/syscalls.S	2006-05-04 13:09:34.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/syscalls.S	2006-05-04 13:09:50.000000000 +0200
-@@ -317,3 +317,4 @@ SYSCALL(sys_get_robust_list,sys_get_robu
- SYSCALL(sys_splice,sys_splice,sys_splice_wrapper)
- SYSCALL(sys_sync_file_range,sys_sync_file_range,sys_sync_file_range_wrapper)
- SYSCALL(sys_tee,sys_tee,sys_tee_wrapper)
-+SYSCALL(sys_vmsplice,sys_vmsplice,compat_sys_vmsplice_wrapper)
-diff -urpN linux-2.6/include/asm-s390/unistd.h linux-2.6-patched/include/asm-s390/unistd.h
---- linux-2.6/include/asm-s390/unistd.h	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6-patched/include/asm-s390/unistd.h	2006-05-04 13:09:50.000000000 +0200
-@@ -296,8 +296,14 @@
- #define __NR_pselect6		301
- #define __NR_ppoll		302
- #define __NR_unshare		303
-+#define __NR_set_robust_list	304
-+#define __NR_get_robust_list	305
-+#define __NR_splice		306
-+#define __NR_sync_file_range	307
-+#define __NR_tee		308
-+#define __NR_vmsplice		309
- 
--#define NR_syscalls 304
-+#define NR_syscalls 310
- 
- /* 
-  * There are some system calls that are not present on 64 bit, some
+>>* Fault tolerance. Sun servers can do amazing things with fauly components.
+>>  almost any of them can be switched off. Even low level Sun server like V240
+>>  can survive bam memory chips, onle falty CPU and one burned power supply.
+>>  In some somce it is an cheap cluster.
+
+I once pulled one power cable from a 2-PSU E250 machine. It powered off. 
+That can't be fault tolerant.
+Plus you can't replace components (in an E250) without turning the power 
+off. That's because opening the case disconnects the power circle.
+
+>>* Cleaner architecture. Being big Endean CPU with RISC instruction set
+>>  provides some complier level advantages in comparison with convoluted
+>>  instruction set of X86 line.
+
+Except that the instruction length is a bit shortcoming for 64-bit integer 
+math. Under x64, you can do
+
+    movq $biglongconstant, %rax
+
+while on SPARC, it takes 6 instructions (of course, being RISC makes it 
+execute differently than x64)
+
+    sethi %g1, $some_upper_bits
+    or %g1, $next_bitgroup
+    (shift-left)
+    or %g1, $next_bitgroup
+    (shift-left)
+    or %g1, $last_bitgroup
+
+BTW, T1 is cool, but that the 1U version only has space for 1 disk is 
+pretty limiting :/
+
+
+Jan Engelhardt
+-- 

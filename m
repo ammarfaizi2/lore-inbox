@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWEDJE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWEDJFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751449AbWEDJE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 05:04:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWEDJE4
+	id S1751448AbWEDJFe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 05:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWEDJFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 05:04:56 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:33678 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751449AbWEDJE4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 05:04:56 -0400
-Message-ID: <4459C30C.4080309@aitel.hist.no>
-Date: Thu, 04 May 2006 11:02:04 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>
-Subject: Re: [RFC] kernel facilities for cache prefetching
-References: <346556235.24875@ustc.edu.cn>
-In-Reply-To: <346556235.24875@ustc.edu.cn>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 May 2006 05:05:33 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:31404 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S1751448AbWEDJFd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 05:05:33 -0400
+Date: Thu, 4 May 2006 11:06:31 +0200
+From: Petr Baudis <pasky@suse.cz>
+To: Junio C Hamano <junkio@cox.net>
+Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: What's in git.git
+Message-ID: <20060504090631.GV27689@pasky.or.cz>
+References: <7vbque5hq9.fsf@assigned-by-dhcp.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7vbque5hq9.fsf@assigned-by-dhcp.cox.net>
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang wrote:
+Dear diary, on Thu, May 04, 2006 at 10:14:54AM CEST, I got a letter
+where Junio C Hamano <junkio@cox.net> said that...
+>  - core.prefersymlinkrefs can be given to use symlink HEAD;
+>    this may be needed to bisect kernel history before January
+>    2006 whose setlocalversion script depended on HEAD being a
+>    symlink.
 
->	Rapid linux desktop startup through pre-caching
->
->
->MOTIVATION
->
->	KDE, Gnome, OpenOffice, and Firefox all take too long to start up.
->	Boot time pre-caching seems to be the single most straightforward and
->	effective way to improve it and make linux desktop experience more
->	comfortable. It is a great pleasure for me to take up the work.
->  
->
-Actually, the best way is to not run so much software.  An yes,
-that is an option.  I won't say no to an improved kernel too though. :-)
+Oh, I expected this to end up in 1.3.2, actually. :-)
 
-The apps mentioned are popular, but few needs *all* of them.
-One can do without KDE and gnome, run a nice lightweight
-window manager instead.  Take the kde/gnome performance hit
-only when you actually need some kde/gnome app. Not every day.
-A nice windowmanager like icewm of fluxbox brings the login
-delay down to 3s or so for me.
+Shouldn't this belong to the maint branch? It is "physically" a new
+feature but I would consider "cannot bisect kernel before January" a bug
+certainly worth fixing and the feature is pretty tiny. (It seems to be
+backwards-incompatible but that only means you should provide some
+transition path, I think. ;)
 
-Openoffice has lightweight alternatives for every task.
-(abiword,lyx,gnumeric, . . . )  Strange that this bloated sw is
-as popular as it is, given the many alternatives.  Not something
-I use every month, and I use linux exclusively for my office tasks.
-
-Another alternative is to profile the slow apps and improve them.
-Fix algorithms, optimize stuff. 
-
-The slow boot is fixable by:
-1) run boot scripts in parallell instead of sequentially - somewhat 
-experimental
-    but helps.  Especially if you can bring up X before slowest stuff 
-completes.
-2) Don't run what you don't use/need!  Don't install everything and the 
-kitchen
-    sink just because it is free software.  I am guilty of installing 
-too much myself,
-    so I suffer 40-second bootup time.  But I don't reboot my office pc 
-every
-    week, normally I only have that 3s login delay.
-
-Helge Hafting
-
-
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+Right now I am having amnesia and deja-vu at the same time.  I think
+I have forgotten this before.

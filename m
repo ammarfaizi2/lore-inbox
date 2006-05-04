@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWEDFHf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWEDFJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbWEDFHf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 01:07:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWEDFHf
+	id S1751091AbWEDFJv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 01:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWEDFJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 01:07:35 -0400
-Received: from mga02.intel.com ([134.134.136.20]:16508 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751399AbWEDFHe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 01:07:34 -0400
-X-IronPort-AV: i="4.05,86,1146466800"; 
-   d="scan'208"; a="31261620:sNHT19774076"
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MIMEOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Date: Thu, 4 May 2006 01:07:29 -0400
-Message-ID: <CFF307C98FEABE47A452B27C06B85BB656C800@hdsmsx411.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
-Thread-index: AcZtsT6vgePsEi1vT3SuA0EDhIDZnQAAVFawAF4YQWA=
-From: "Brown, Len" <len.brown@intel.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Andi Kleen" <ak@suse.de>, <sergio@sergiomb.no-ip.org>,
-       "Kimball Murray" <kimball.murray@gmail.com>,
-       <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
-       <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 04 May 2006 05:07:30.0461 (UTC) FILETIME=[A50D6CD0:01C66F38]
+	Thu, 4 May 2006 01:09:51 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:28603 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S1751091AbWEDFJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 01:09:51 -0400
+Date: Wed, 3 May 2006 22:09:50 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cpufreq oddness on 2.6.16-rc1-mm4
+Message-ID: <20060504050950.GR11943@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060501135927.261d4c53.akpm@osdl.org>
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> We should never have had a problem with un-connected interrupt lines
->>> consuming vectors, as the vectors are handed out at run-time
->>> only when interrupts are requested by drivers.
->>
->>Incorrect.  By being requested by drivers I assume you mean by
->>request_irq.  assign_irq_vector is called long before request_irq
->>and in fact there is currently not a call from request_irq to
->>assign_irq_vector.  Look where assign_irq_vector is called in 
->io_apic.c
+On Mon, May 01, 2006 at 01:59:27PM -0700, Andrew Morton wrote:
+> Andy Isaacson <adi@hexapodia.org> wrote:
+> > On Sun, Jan 29, 2006 at 02:45:33PM -0800, Andrew Morton wrote:
+> > >  git-cpufreq.patch
+> > 
+> > I haven't had time to debug it further, but cpufreq seems broken on my
+> > Thinkpad X40 with 2.6.16-rc1-mm4.  It was working fine with
+> > 2.6.15-rc5-mm3.  Automatic scaling doesn't function any more - my
+> > PentiumM 1.4 GHz is fixed at 598 MHz.  And the relevant knobs in
+> > /sys/devices/system/cpu/cpu0 seem to be missing.  Admittedly, I don't
+>
+> If this bug is still present in 2.6.17-rc3, could you please raise a report
+> at bugzilla.kernel.org so we can track it?
 
-Hmmm, on Natalie's ping, I looked at this again.
+It turned out to be a configuration issue (as expected).  My routine of
+"cp ../`uname -r`/.config .config; make oldconfig" did not do the right
+thing when doing that upgrade - I ended up with
 
-setup_IO_APIC_irqs() actually consumes only 16 vectors.
-This is because it only sets up the IRQs for pins
-found with find_irq_entry(), which searches mp_irqs[]
-which at this point contains only the legacy identify mappings.
+# CONFIG_CPU_FREQ_GOV_ONDEMAND is not set
+CONFIG_X86_SPEEDSTEP_CENTRINO=m
+CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
 
-The PNP code then takes a swing at things, and it registers
-a handful of gsi's, but they are all duplicates of the legacy
-mappings already set-up, so no additional vectors are consumed.
+which resulted in speedstep being disabled with no obvious clues what to
+do to turn it on.  After some poking, I'm now running 2.6.17-rc1-mm3
+with
 
-So on a big system, the large quantity of vectors will not be consumed
-at
-IOAPIC initialization time, but later at device probe time.
-Not via request_irq(), but via pci_enable_device():
+CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+CONFIG_X86_SPEEDSTEP_CENTRINO=y
+CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
 
-pci_enable_device()
- pci_enable_device_bars()
-  pcibios_enable_device()
-   pcibios_enable_irq() -> acpi_pci_irq_enable()
-    acpi_register_gsi()
-     mp_register_gsi()
-      io_apic_set_pci_routing()
-       entry.vector = assign_irq_vector(irq)
+and everything is working fine.
 
-So except for the legacy IRQs, we are already allocating the vectors
-on-demand, and that doesn't need to be fixed.
-
--Len
+-andy

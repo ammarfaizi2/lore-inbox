@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWEEXNU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWEEXTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbWEEXNU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 19:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWEEXNU
+	id S1751220AbWEEXTI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 19:19:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWEEXTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 19:13:20 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:2231 "EHLO
-	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750955AbWEEXNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 19:13:20 -0400
-Date: Fri, 05 May 2006 17:12:45 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: High load average on disk I/O on 2.6.17-rc3
-In-reply-to: <69c8K-3Bu-57@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: jasons@pioneer-pra.com
-Message-id: <445BDBED.7050101@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <69c8K-3Bu-57@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Fri, 5 May 2006 19:19:08 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48545
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751220AbWEEXTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 19:19:06 -0400
+Date: Fri, 05 May 2006 16:19:07 -0700 (PDT)
+Message-Id: <20060505.161907.110814511.davem@davemloft.net>
+To: mpm@selenic.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network
+ drivers
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060505230324.GX15445@waste.org>
+References: <8.420169009@selenic.com>
+	<20060505.141040.53473194.davem@davemloft.net>
+	<20060505230324.GX15445@waste.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Schoonover wrote:
-> Hi all,
-> 
-> I'm not sure if this is the right list to post to, so please direct me to the 
-> appropriate list if this is the wrong one.
-> 
-> I'm having some problems on the latest 2.6.17-rc3 kernel and SCSI disk I/O.  
-> Whenever I copy any large file (over 500GB) the load average starts to slowly 
-> rise and after about a minute it is up to 7.5 and keeps on rising (depending 
-> on how long the file takes to copy).  When I watch top, the processes at the 
-> top of the list are cp, pdflush, kjournald and kswapd.
-> 
+From: Matt Mackall <mpm@selenic.com>
+Date: Fri, 5 May 2006 18:03:24 -0500
 
-Are there some processes stuck in D state? These will contribute to the 
-load average even if they are not using CPU.
+> And my claim is they don't actually have any entropy. If they want
+> to continue fooling themselves, they can copy the device node for
+> /dev/urandom to /dev/random.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Prove it and convince us.
 
+The burdon of proof is on your shoulders, since you're the one
+who wants to just rip it out without any satisfactory replacement.

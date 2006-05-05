@@ -1,39 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWEEHyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWEEIle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030337AbWEEHyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 03:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWEEHyX
+	id S1750979AbWEEIle (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 04:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWEEIle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 03:54:23 -0400
-Received: from blaster.systems.pipex.net ([62.241.163.7]:5315 "EHLO
-	blaster.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S1030337AbWEEHyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 03:54:23 -0400
-Date: Fri, 5 May 2006 08:55:06 +0100 (BST)
-From: Tigran Aivazian <tigran_aivazian@symantec.com>
-X-X-Sender: tigran@ezer.homenet
-To: Jan Beulich <jbeulich@novell.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix x86 microcode driver handling of multiple matching
- revisions
-In-Reply-To: <4459D0C2.76E4.0078.0@novell.com>
-Message-ID: <Pine.LNX.4.61.0605050853370.2558@ezer.homenet>
-References: <444F9D34.76E4.0078.0@novell.com> <Pine.LNX.4.61.0605040828230.2440@ezer.homenet>
- <4459D0C2.76E4.0078.0@novell.com>
+	Fri, 5 May 2006 04:41:34 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:32184 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1750978AbWEEIld
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 04:41:33 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: as bug (was: Re: smp/up alternatives crash when CONFIG_HOTPLUG_CPU)
+Date: Fri, 5 May 2006 11:40:21 +0300
+User-Agent: KMail/1.8.2
+Cc: Linus Torvalds <torvalds@osdl.org>, Gerd Hoffmann <kraxel@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Chuck Ebbert <76306.1226@compuserve.com>, binutils@sources.redhat.com
+References: <20060419094630.GA14800@elte.hu> <20060420152609.GA21993@elte.hu> <20060421074858.GA28858@elte.hu>
+In-Reply-To: <20060421074858.GA28858@elte.hu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605051140.22005.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 May 2006, Jan Beulich wrote:
-> the update file is the one in microcode_ctl-1.13. CPUID 0x00000f48 can
-> be found twice in that file, once with product code bits 0x0000005f and
-> a second time with 0x00000002. Obviously these overlap for CPUs with
-> product code 1 (testing bit mask 0x00000002), which is what is the case
-> for the (Paxville) system I saw the ill behavior on.
+[binutils list CC'ed]
 
-Ok, in that case, yes, I agree that the driver should be corrected to deal 
-with multiple chunks.
+On Friday 21 April 2006 10:48, Ingo Molnar wrote:
+> you can also try the mutex.bad.s file i attached:
+> 
+>  $ as mutex.s.bad
+>  mutex.s.bad: Assembler messages:
+>  mutex.s.bad:267: Warning: .space or .fill with negative value, ignored
+>  mutex.s.bad:355: Warning: .space or .fill with negative value, ignored
+>  mutex.s.bad:412: Warning: .space or .fill with negative value, ignored
+>  mutex.s.bad:574: Warning: .space or .fill with negative value, ignored
+>  mutex.s.bad:627: Warning: .space or .fill with negative value, ignored
 
-Kind regards
-Tigran
+Reduced testcase, which still exhibits the bug.
+
+# as mutex.bad_minimal.s
+mutex.bad_minimal.s: Assembler messages:
+mutex.bad_minimal.s:21: Warning: .space or .fill with negative value, ignored
+# as --version | head -1
+GNU assembler 2.15.91.0.1 20040527
+# cat mutex.bad_minimal.s
+
+661:
+662:
+.section .smp_altinstructions,"a"
+  .align 4
+  .long 661b
+  .byte 0x68
+  .byte 662b-661b
+.section .smp_altinstr_replacement,"awx"
+        .fill 662b-661b,1,0x42
+        .section        .sched.text,"ax",@progbits
+        call    _spin_unlock    #
+661:
+2:      jle 2b  #
+662:
+.section .smp_altinstructions,"a"
+  .align 4
+  .long 661b
+  .byte 0x68
+  .byte 662b-661b
+.section .smp_altinstr_replacement,"awx"
+        .fill 662b-661b,1,0x42
+
+--
+vda

@@ -1,87 +1,139 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030286AbWEEHYJ (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 5 May 2006 03:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030339AbWEEHYJ
+	id S1030348AbWEEJqE (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 5 May 2006 05:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbWEEJqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 03:24:09 -0400
-Received: from [210.73.88.250] ([210.73.88.250]:22501 "HELO
-	gmail.cn\(210.73.88.250\)") by vger.kernel.org with SMTP
-	id S1030286AbWEEHYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 03:24:07 -0400
-X-Antivirus-gmail.cn-Mail-From: info_cca.takyushu@gawab.com via 3w.gmail.cn
-X-Antivirus-gmail.cn: 1.24-st-qms (Clear:RC:1(127.0.0.1):. Processed in 0.095732 secs Process 53343)
-Message-ID: <34278.213.185.118.195.1146718525.squirrel@3w.gmail.cn>
-Date: Thu, 4 May 2006 12:55:25 +0800 (CST)
-Subject: ACT AS THE COMPANY REPRESENTATIVE.
-From: "CENTRE FOR CONTEMPORARY ART" <info_cca.takyushu@gawab.com>
-Reply-To: info_cca.takyushu@yahoo.com.cn
-User-Agent: SquirrelMail/1.4.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 5 May 2006 05:46:04 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:47313 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1030348AbWEEJqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 05:46:03 -0400
+Message-Id: <200605050946.k459jnmD004094@zeus1.kernel.org>
+From: "Sanal Dedektiflik Hizmetleri" <sd0506t1f@yahoo.com.tr>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?=20Art=FDk?=  =?ISO-8859-1?Q?=20e=FEler,?= sevgililer, ortaklar, birbirini aldatamayacak!
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-9
+Date: Fri, 5 May 2006 12:45:59 +0300
+Reply-To: "Sanal Dedektiflik Hizmetleri" <sd0506t1r@yahoo.com.tr>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030286AbWEEHYJ@vger.kernel.org>
-
-Mr. Hung Chan{President/CEO}
-Centre for Contemporary Art
-2-6-1 3F Ogura Yahata-Higashi-ku,.
-Kitakyushu 805-0059 ,Japan.
-Phone:+(847) 241 092230
-Fax:+(847) 241 092230
-Emails:info_cca.takyushu@gawab.com
-Website:http://www.cca-kitakyushu.org/
-
-GoodDay.
-
-How are you today and business in your country? Hoping
-all is well. My name is Mr. Hung Chan,CEO personnel CCA
-Japn, and I am making this contact with you based on
-reliable  information available to me courtesy of
-internet index and confirmed by our local chambers of
-commerce and industry.
-
-We the Members Board of Directors,.CCA [Centre for
-Contemporary Art] are seeking respective  Agents in our
-America/Canada market region.We produce,exhibit and
-sell:-Art/Crafts,jewelry of all  kinds.We Officially
-seek your partnership to establish a medium of getting
-to our various Clients.
-
- Lastly' you have to be an honest and trust worthy
-person, as more payments will be made through you in
-the course of this transaction. If you know you can be
-of a great assistance in rendering such service to
-us.Kindly' send to us Via E-mail Below, by filling this
-form.
-
-1.FULL NAMES..........
-2.CONTACT ADDRESS.....
-3.ZIP CODE/STATE......
-4.PHONE/FAX NUMBER....
-5.NATIONALITY.........
-6.CURRENT OCCUPATION..
-7.COMPANY.............If Any.
-8.AGE.................
-
-Thank You.,
-Mr. Hung Chan{President/CEO}
-Centre for Contemporary Art,.Japan
-E-mail:info_cca.takyushu@gawab.com
-Note;Your area of specilization has no significance to
-this employment,and you shall be entitled  to 10% agent
-commission.
-
-Copyright (C) 2000-2006 Centre for Contemporary Art.
-All Rights reserved
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030348AbWEEJqE@vger.kernel.org>
 
 
+SANAL DEDEKT=DDFL=DDK H=DDZMETLER=DD
+"Art=FDk e=FEler, sevgililer, arkada=FElar, ortaklar, birbirini aldatam=
+ayacak!"
+=20
+T=DCRK=DDYE BU H=DDZMET VE TEKN=DD=D0=DD KONU=DEUYOR...=20
+YEN=DD TEKNOLOJ=DD H=DDZMET=DDN=DDZDE!  =20
+=20
+Sizi aldatan ki=FEinin telefonlar=FDn=FD denetleyebilirsiniz:
 
+* (g-01) GE=C7M=DD=DEE D=D6N=DCK "SESL=DD CEP TELEFON KAYITLARI"
+* (g-02) GELECE=D0E Y=D6NEL=DDK "SESL=DD CEP TELEFON KAYITLARI"
+* (g-03) G=D6R=DC=DEME =C2NINDAK=DD "SESL=DD CEP TELEFON KAYITLARI"
+* (g-04) GE=C7M=DD=DEE D=D6N=DCK "CEP TELEFON MESAJLARI" (SMS)
+* (g-05) GELECE=D0E Y=D6NEL=DDK "CEP TELEFON MESAJLARI" (SMS)
+* (g-06) GE=C7M=DD=DEE D=D6N=DCK "ARAMA KAYITLARI" (CSI Raporlar=FD)
+* (g-07) GELECE=D0E Y=D6NEL=DDK "ARAMA KAYITLARI" (CSI Raporlar=FD)
+* (g-08) Gizledi=F0i "=D6ZEL VEYA ANALOG NUMARASI"
+* (g-09) GELECE=D0E Y=D6NEL=DDK "TELEKOM TELEFONLARINA A=DDT SES KAYITL=
+ARI"
+* (g-10) GE=C7M=DD=DEE D=D6N=DCK "UYDU TELEFON KAYITLARI"
+* (g-11) GELECE=D0E Y=D6NEL=DDK "UYDU TELEFON KAYITLARI"
+* (g-12) Cep, Ara=E7 ve Uydu telefonlar=FD ile "DA=DDM=CE KONUM RAPORLA=
+RI"
 
+Sizi aldatan ki=FEinin bilgisayar ortam=FDn=FD denetleyebilirsiniz:
 
+* (b-01) Bilgisayar=FDndaki ve online ortamdaki "T=DCM =DE=DDFRE B=DDLG=
+=DDLER=DD"
+* (b-02) Hard Diskindeki "DOSYA" ve di=F0er "DATA, DOK=DCMAN, B=DDLG=DD=
+LER"
+* (b-03) T=FCm "YAZI=DEMA VE KONU=DEMALARIN LOG KAYITLARI"
 
-CENTRE FOR CONTEMPORARY ART
+Sizi aldatan ki=FEinin Internet ortam=FDn=FD denetleyebilirsiniz:
 
+* (=FD-01) T=FCm "E-MAIL YAZI=DEMALARI"=20
+* (=FD-02) MSN Messenger =FCzerinden yapt=FD=F0=FD "CHAT YAZI=DEMALARI"
+* (=FD-03) Yahoo Messenger =FCzerinden yapt=FD=F0=FD "CHAT YAZI=DEMALAR=
+I"
+* (=FD-04) ICQ =FCzerinden yapt=FD=F0=FD "CHAT YAZI=DEMALARI"
+* (=FD-05) IRC =FCzerinden yapt=FD=F0=FD "CHAT YAZI=DEMALARI"
+* (=FD-06) Skype ve Paltalk odalar=FDndaki g=F6r=FC=FEmelerin "SES KAYI=
+TLARI"
+* (=FD-07) Sizi aldatt=FD=F0=FD ki=FEinin "RES=DDM, SES ve SANAL K=DDML=
+=DDK B=DDLG=DDLER=DD"
+* (=FD-08) "IP PROTOKOL NUMARASI" ve eri=FEim sa=F0lad=FD=F0=FD "TELEFO=
+N NUMARASI"
+* (=FD-09) Aldatma i=E7erikli diyaloglar=FDn ya=FEand=FD=F0=FD "ZAMANLA=
+MA B=DDLG=DDLER=DD"
+
+Sizi aldatan ki=FEiyi daimi olarak denetleyebilir, takip edebilirsiniz:
+
+* (d-01) "E-MAIL TAK=DDP PROGRAMI" ile e-mail takibi yapabilirsiniz.
+* (d-02) "CHAT TAK=DDP PROGRAMI" ile chat ve ICQ takibi yapabilirsiniz.
+* (d-03) "SMS TAK=DDP PROGRAMI" ile cep mesaj takibi yapabilirsiniz.
+
+Sizi/yak=FDnlar=FDn=FDz=FD rahats=FDz eden bir ki=FEiyi de tespit edebi=
+lirsiniz:
+
+* (r-01) "G=DDZL=DD TELEFON NUMARASI TESP=DDT=DD" ve "ABONE B=DDLG=DDLE=
+R=DD"
+* (r-02) "G=DDZL=DD CEP TELEFON NUMARASI" ve "ABONE B=DDLG=DDLER=DD"
+* (r-03) (Ankes=F6r'den ar=FDyorsa) "TEL. NUMARASI" ve "YER TESP=DDT=DD=
+"
+
+Di=F0er takip, te=FEhis ve tespit =E7al=FD=FEmalar=FDm=FDzdan yararlana=
+bilirsiniz:
+
+* (t-01) "KAYIP K=DD=DE=DD BULMA" ve "YER TESP=DDT" =E7al=FD=FEmalar=FD=
+=20
+* (t-02) "=C7ALINTI ARABALARDA YER TESP=DDT=DD" ve "BULMA T=DCYOLARI"=20
+* (t-03) Ticari piyasa, rakip/muhaliflerle ilgili "TESP=DDT/ARA=DETIRMA=
+LAR"
+* (t-04) Kredi kart=FD/banka hesaplar=FD doland=FDr=FDc=FDl=FD=F0=FDnda=
+ "FA=DDL TESP=DDT=DD"
+* (t-05) Kanun ka=E7aklar=FD ve g=FDy=E2bi tutuklular i=E7in "ADL=CE =DD=
+=DE TAK=DDPLER=DD"
+=20
+Ayr=FDca ara=FEt=FDrma, takip, kay=FDt ve tedbir gerektiren i=FEleriniz=
+ i=E7in de
+a=FEa=F0=FDdaki =FCr=FCn ve hizmetlerimizden de yararlanabilirsiniz:
+
+* (a-01) "TELEFON G=D6R=DC=DEMELER=DDN=DD KAYDEDEB=DDL=DDRS=DDN=DDZ".
+* (a-02) "=DDSTED=DD=D0=DDN=DDZ TELEFONU KABLOSUZ D=DDNLEYEB=DDL=DDRS=DD=
+N=DDZ".
+* (a-03) "Casus-Kulakl=FDk" ile y=FCksek kalitede "ORTAM D=DDNLEYEB=DDL=
+=DDRS=DDN=DDZ".
+* (a-04) "Sound Converter" le "SES=DDN=DDZ=DD DE=D0=DD=DET=DDREREK KONU=
+=DEAB=DDL=DDRS=DDN=DDZ".
+* (a-05) "GSM-Casus" uygulamas=FD ile "SES KAYDI VE NAKL=DD YAPAB=DDL=DD=
+RS=DDN=DDZ".
+* (a-06) "Kap-ka=E7 Alarm=FD" eviniz, araban=FDz, i=FEyeriniz ve =E7ant=
+an=FDz i=E7indir.
+* (a-07) "TELEKOM, GSM, SMS ve INTERNET KAYITLARINIZIN G=DDZLENMES=DD"
+* (a-08) "KU=DEKULANDI=D0INIZ K=DD=DE=DD =DD=C7=DDN REEL TAK=DDP" ve "O=
+RTAM VE EYLEM KAYDI"
+* (a-09) Harcamalar=FDn=FD bilmek istedi=F0iniz ki=FEinin "KRED=DD KART=
+ EKSTRELER=DD"
+* (a-10) Ba=FEkalar=FDna ait "PARA ve MAL VARLIKLARI TESP=DDT=DD" (Belg=
+eleriyle)
+=20
+L=FCtfen  =F6=F0renmek iste=F0iniz di=F0er ayr=FDnt=FDlar=FD sorunuz.=20
+Web sitemizi ziyaret ediniz.
+
+N. Cem, Antalya, TR
+GSM/SMS: 0546-797 93 76
+E-MAIL/MSN: sd0506t1r@yahoo.com.tr
+ICQ: 310-115-006
+
+IRA Search
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

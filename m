@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751625AbWEEQWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWEEQ1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751625AbWEEQWN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 12:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751621AbWEEQWN
+	id S1751627AbWEEQ1M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 12:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWEEQ1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 12:22:13 -0400
-Received: from ccerelrim04.cce.hp.com ([161.114.21.25]:47419 "EHLO
-	ccerelrim04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S1751624AbWEEQWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 12:22:12 -0400
-From: "Bob Picco" <bob.picco@hp.com>
-Date: Fri, 5 May 2006 12:22:09 -0400
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Bob Picco <bob.picco@hp.com>,
-       Andy Whitcroft <apw@shadowen.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Message-ID: <20060505162209.GC5708@localhost>
-References: <1146756066.22503.17.camel@localhost.localdomain> <20060504154652.GA4530@localhost> <20060504192528.GA26759@elte.hu> <20060504194334.GH19859@localhost> <445A7725.8030401@shadowen.org> <20060505135503.GA5708@localhost> <1146839590.22503.48.camel@localhost.localdomain> <20060505145018.GI19859@localhost> <1146841064.22503.53.camel@localhost.localdomain> <445B6926.20109@mbligh.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <445B6926.20109@mbligh.org>
-User-Agent: Mutt/1.5.11
-X-PMX-Version: 5.1.2.240295, Antispam-Engine: 2.3.0.1, Antispam-Data: 2006.5.5.85507
+	Fri, 5 May 2006 12:27:11 -0400
+Received: from xenotime.net ([66.160.160.81]:8337 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751624AbWEEQ1K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 12:27:10 -0400
+Date: Fri, 5 May 2006 09:27:06 -0700 (PDT)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Jes Sorensen <jes@sgi.com>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Brent Casavant <bcasavan@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, akpm@osdl.org,
+       jeremy@sgi.com
+Subject: Re: [PATCH] Move various PCI IDs to header file
+In-Reply-To: <445AE690.5030700@sgi.com>
+Message-ID: <Pine.LNX.4.58.0605050926250.3161@shark.he.net>
+References: <20060504180614.X88573@chenjesu.americas.sgi.com>
+ <20060504173722.028c2b24.rdunlap@xenotime.net> <445AE690.5030700@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:	[Fri May 05 2006, 11:03:02AM EDT]
-> >Ahhh.  I hadn't made the ia64 connection.  I wonder if it is worth
-> >making CONFIG_HOLES_IN_ZONE say ia64 or something about vmem_map in it
-> >somewhere.  Might be worth at least a comment like this:
-> >
-> >+               if (page_in_zone_hole(buddy)) /* noop on all but ia64 */
-> >+                       break;
-> >+               else if (page_zonenum(buddy) != page_zonenum(page))
-> >+                       break;
-> >+               else if (!page_is_buddy(buddy, order))
-> >                        break;          /* Move the buddy up one level. */
-> >
-> >BTW, wasn't the whole idea of discontig to have holes in zones (before
-> >NUMA) without tricks like this? ;)
-> 
-> Sparsemem should fix this - that was one of the things Andy designed it
-> for. Then we can remove the virtual memmap stuff (and discontig).
-> Indeed, I'd hope we're ready to do that real soon now ... has anyone
-> got an ia64 box that needed virtual memmap that they could test this
-> on?
-> 
-> M.
-I totally agree about SPARSEMEM. I believe most ia64 boxes use
-VIRTUAL_MEM_MAP. I only know of Fujitsu and myself that use SPARSEMEM
-for ia64 (perhaps Andy too in his testing). Dave and I have advocated its use
-more than once.
+On Fri, 5 May 2006, Jes Sorensen wrote:
 
-bob
+> Randy.Dunlap wrote:
+> > On Thu, 4 May 2006 18:09:45 -0500 (CDT) Brent Casavant wrote:
+> >
+> >> Move various QLogic, Vitesse, and Intel storage
+> >> controller PCI IDs to the main header file.
+> >>
+> >> Signed-off-by: Brent Casavant <bcasavan@sgi.com>
+> >>
+> >> ---
+> >>
+> >> As suggested by Andrew Morton and Jes Sorenson.
+> >
+> > as compared to:
+> > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=9b860b8c4bde5949b272968597d1426d53080532
+>
+> I guess Andrew and I should be blamed for that. I Andrew suggested
+> putting the IDs in the 'right place' and I took the right place as being
+> the pci_ids.h file.
+>
+> Can't say I agree with the recommendation, having them in pci_ids.h is
+> nice and clean and it allows one to go look through the list, instead
+> they now really become random hex values :( Brent's patch is a perfect
+> example of IDs being used in multiple places, ie. the qla1280 driver
+> and in the IOC4 driver, so the claim in that Documentation/ file doesn't
+> hold water.
+>
+> Anyway, if this is the new rule, then I guess it's back to using the
+> ugly patch :(
+
+FWIW, I'm not saying that I agree with the new rule, just that
+it's there/merged.
+
+-- 
+~Randy

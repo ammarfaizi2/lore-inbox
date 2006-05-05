@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbWEEOeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751567AbWEEOfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751560AbWEEOeK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 10:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWEEOeK
+	id S1751567AbWEEOfB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 10:35:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWEEOfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 10:34:10 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:1971 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751560AbWEEOeJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 10:34:09 -0400
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Bob Picco <bob.picco@hp.com>
-Cc: Andy Whitcroft <apw@shadowen.org>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-In-Reply-To: <20060505135503.GA5708@localhost>
-References: <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de>
-	 <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au>
-	 <20060504013239.GG19859@localhost>
-	 <1146756066.22503.17.camel@localhost.localdomain>
-	 <20060504154652.GA4530@localhost> <20060504192528.GA26759@elte.hu>
-	 <20060504194334.GH19859@localhost> <445A7725.8030401@shadowen.org>
-	 <20060505135503.GA5708@localhost>
+	Fri, 5 May 2006 10:35:01 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:13250 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750821AbWEEOfA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 10:35:00 -0400
+Subject: Re: [PATCH 6/13: eCryptfs] Superblock operations
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
+       Phillip Hellewell <phillip@hellewell.homeip.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
+       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>
+In-Reply-To: <3439.1146837829@warthog.cambridge.redhat.com>
+References: <1146834740.10109.9.camel@kleikamp.austin.ibm.com>
+	 <84144f020605040737k316fd5abva4476da69a65c084@mail.gmail.com>
+	 <20060504031755.GA28257@hellewell.homeip.net>
+	 <20060504033829.GE28613@hellewell.homeip.net>
+	 <23457.1146778849@warthog.cambridge.redhat.com>
+	 <3439.1146837829@warthog.cambridge.redhat.com>
 Content-Type: text/plain
-Date: Fri, 05 May 2006 07:33:10 -0700
-Message-Id: <1146839590.22503.48.camel@localhost.localdomain>
+Date: Fri, 05 May 2006 09:34:50 -0500
+Message-Id: <1146839690.10108.21.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-05 at 09:55 -0400, Bob Picco wrote:
-> -               if (!page_is_buddy(buddy, order))
-> +               if (page_in_zone_hole(buddy))
-> +                       break;
-> +               else if (page_zonenum(buddy) != page_zonenum(page))
-> +                       break;
-> +               else if (!page_is_buddy(buddy, order))
->                         break;          /* Move the buddy up one level. */ 
+On Fri, 2006-05-05 at 15:03 +0100, David Howells wrote:
+> Dave Kleikamp <shaggy@austin.ibm.com> wrote:
+> 
+> > > But it may use more stack, which is a much more limited resource, so what
+> > > you suggest is not necessarily the best thing to do.
+> > 
+> > I think either way it's coded, the compiler will probably store the
+> > result in a register.
+> 
+> There's an apparent function call between the two usages of the value.  So
+> even if the value is placed in a register, that register must either be saved
+> on the stack around the function call (if it's callee-clobbered), or the
+> register must be saved on the stack before the value is placed in it (if it's
+> callee-saved).
 
-The page_zonenum() checks look good, but I'm not sure I understand the
-page_in_zone_hole() part.  If a page is in a hole in a zone, it will
-still have a valid mem_map entry, right?  It should also never have been
-put into the allocator, so it also won't ever be coalesced.  
+Probably true unless it can reuse a callee-saved register.
 
-I'm a bit confused. :(
+> Either way, it will use more stack; the mere fact that whilst it's using the
+> value, the compiler may stash it in a register is irrelevant.
 
-BTW, I like the idea of just aligning HIGHMEM's start because it has no
-runtime cost.  Buuuuut, it is still just a shift and compare of the two
-page->flags, which should already be (or will soon anyway be) in the
-cache.
+Is the stack usage very close to exceeding 4 KB?  Could saving one more
+pointer on the stack cause a problem?  Anyway, it's not that big of a
+deal.  The code may look a little cleaner with a local variable, but
+it's not that bad as it is.
 
--- Dave
+> > I would recommend the most readable approach (which I believe would be using
+> > a local variable) and leave the optimization to the compiler.
+> 
+> Whilst it may be more readable, it doesn't mean it's more optimal.  You're
+> just trading stack usage for code size.  The function call in the middle
+> limits the optimisation the compiler can do.
+> 
+> Of course, if the thing in the middle is not actually a function call, or if
+> it can be inlined, then this _might_ not apply.  It may even be possible that
+> the compiler will discard the variable and fetch it again from memory if it
+> considers the value in memory to be unchanging for the duration.
+
+It looks like a real function call.
+
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

@@ -1,138 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWEENWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWEEN3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751545AbWEENWj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 09:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWEENWj
+	id S1751102AbWEEN3M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 09:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWEEN3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 09:22:39 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:33682 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751542AbWEENWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 09:22:38 -0400
-Date: Fri, 5 May 2006 15:22:49 +0200
-From: Michael Holzheu <holzheu@de.ibm.com>
-To: greg@kroah.com
-Cc: akpm@osdl.org, ioe-lkml@rameria.de, joern@wohnheim.fh-wedel.de,
-       linux-kernel@vger.kernel.org, mschwid2@de.ibm.com,
-       penberg@cs.helsinki.fi
-Subject: Re: [PATCH] s390: Hypervisor File System
-Message-Id: <20060505152249.520144f9.holzheu@de.ibm.com>
-Organization: IBM
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 5 May 2006 09:29:12 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:58213 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751102AbWEEN3M convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 09:29:12 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KntYuVo/BhQxXd5VSsYMj5C5+9e/Zc1kBdivDNTVIRy1wQcvw0/LUZ/M+jfcqiRDUOgND/c2uyIx2Ol3VJabxXTiGPZXOyYHGsS3Jaayz6WnqCNApjhtBt3HkJMqda+8pj0+n6atBJxSF+2yxSS+FbZT3wZHfpZszYGtEAInaMo=
+Message-ID: <625fc13d0605050629h45d7b2f7td2102db8eb707c29@mail.gmail.com>
+Date: Fri, 5 May 2006 08:29:10 -0500
+From: "Josh Boyer" <jwboyer@gmail.com>
+To: "Chris Wright" <chrisw@sous-sol.org>
+Subject: Re: Linux 2.6.16.14
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+In-Reply-To: <20060505003526.GW24291@moss.sous-sol.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060505003526.GW24291@moss.sous-sol.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote on 05/04/2006 05:34:11 PM:
-> > So you want a new config option CONFIG_HYPERVISOR?
-> 
-> Sure.  But don't make it a user selectable config option, but rather,
-> one your S390 option sets.
-> 
-> That way the Xen and other groups can also set it when they need it.
-> 
+On 5/4/06, Chris Wright <chrisw@sous-sol.org> wrote:
+> We (the -stable team) are announcing the release of the 2.6.16.14
+> kernel.
+>
+> The diffstat and short summary of the fixes are below.
+>
+> I'll also be replying to this message with a copy of the patch between
+> 2.6.16.13 and 2.6.16.14, as it is small enough to do so.
+>
+> The updated 2.6.16.y git tree can be found at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
+> and can be browsed at the normal kernel.org git web browser:
+>         www.kernel.org/git/
 
-[snip]
-> 
-> The Xen people need it too.  Now who knows when their code will ever hit
-> mainline...
+That still shows the /stable/linux-2.6.16-y.git tree at 2.6.16.13.  FYI.
 
-I added a invisible config option CONFIG_SYS_HYPERVISOR. If this
-option is enabled, /sys/hypervisor is created. CONFIG_S390_HYPFS
-enables this option automatically using "select".
-
-This the following patch acceptable for you?
-
----
-
- drivers/base/Kconfig      |    4 ++++
- drivers/base/Makefile     |    2 +-
- drivers/base/hypervisor.c |   30 ++++++++++++++++++++++++++++++
- drivers/base/init.c       |    1 +
- include/linux/kobject.h   |    4 ++++
- 5 files changed, 40 insertions(+), 1 deletion(-)
-
-diff -urpN linux-2.6.16/drivers/base/Kconfig linux-2.6.16-hypervisor/drivers/base/Kconfig
---- linux-2.6.16/drivers/base/Kconfig	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.16-hypervisor/drivers/base/Kconfig	2006-05-05 15:13:10.000000000 +0200
-@@ -38,3 +38,7 @@ config DEBUG_DRIVER
- 	  If you are unsure about this, say N here.
- 
- endmenu
-+
-+config SYS_HYPERVISOR
-+	bool
-+	default n
-diff -urpN linux-2.6.16/drivers/base/Makefile linux-2.6.16-hypervisor/drivers/base/Makefile
---- linux-2.6.16/drivers/base/Makefile	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.16-hypervisor/drivers/base/Makefile	2006-05-05 15:12:48.000000000 +0200
-@@ -3,7 +3,7 @@
- obj-y			:= core.o sys.o bus.o dd.o \
- 			   driver.o class.o platform.o \
- 			   cpu.o firmware.o init.o map.o dmapool.o \
--			   attribute_container.o transport_class.o
-+			   attribute_container.o transport_class.o hypervisor.o
- obj-y			+= power/
- obj-$(CONFIG_FW_LOADER)	+= firmware_class.o
- obj-$(CONFIG_NUMA)	+= node.o
-diff -urpN linux-2.6.16/drivers/base/hypervisor.c linux-2.6.16-hypervisor/drivers/base/hypervisor.c
---- linux-2.6.16/drivers/base/hypervisor.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.16-hypervisor/drivers/base/hypervisor.c	2006-05-05 15:12:57.000000000 +0200
-@@ -0,0 +1,30 @@
-+/*
-+ * hypervisor.c - /sys/hypervisor subsystem.
-+ *
-+ * This file is released under the GPLv2
-+ *
-+ */
-+
-+#include <linux/kobject.h>
-+#include <linux/device.h>
-+
-+#include "base.h"
-+
-+#ifdef CONFIG_SYS_HYPERVISOR
-+
-+decl_subsys(hypervisor, NULL, NULL);
-+EXPORT_SYMBOL_GPL(hypervisor_subsys);
-+
-+int __init hypervisor_init(void)
-+{
-+	return subsystem_register(&hypervisor_subsys);
-+}
-+
-+#else
-+
-+int __init hypervisor_init(void)
-+{
-+	return -1;
-+}
-+
-+#endif /* CONFIG_SYS_HYPERVISOR */
-diff -urpN linux-2.6.16/drivers/base/init.c linux-2.6.16-hypervisor/drivers/base/init.c
---- linux-2.6.16/drivers/base/init.c	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.16-hypervisor/drivers/base/init.c	2006-05-05 15:12:40.000000000 +0200
-@@ -27,6 +27,7 @@ void __init driver_init(void)
- 	buses_init();
- 	classes_init();
- 	firmware_init();
-+	hypervisor_init();
- 
- 	/* These are also core pieces, but must come after the
- 	 * core core pieces.
-diff -urpN linux-2.6.16/include/linux/kobject.h linux-2.6.16-hypervisor/include/linux/kobject.h
---- linux-2.6.16/include/linux/kobject.h	2006-03-20 06:53:29.000000000 +0100
-+++ linux-2.6.16-hypervisor/include/linux/kobject.h	2006-05-05 15:13:35.000000000 +0200
-@@ -186,6 +186,10 @@ struct subsystem _varname##_subsys = { \
- 
- /* The global /sys/kernel/ subsystem for people to chain off of */
- extern struct subsystem kernel_subsys;
-+#ifdef CONFIG_SYS_HYPERVISOR
-+/* The global /sys/hypervisor/ subsystem  */
-+extern struct subsystem hypervisor_subsys;
-+#endif /* CONFIG_SYS_HYPERVISOR */
- 
- /**
-  * Helpers for setting the kset of registered objects.
+josh

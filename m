@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWEEPWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWEEP1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbWEEPWu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 11:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWEEPWu
+	id S1751142AbWEEP1z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 11:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWEEP1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 11:22:50 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:5338 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751588AbWEEPWt (ORCPT
+	Fri, 5 May 2006 11:27:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19654 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751142AbWEEP1y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 11:22:49 -0400
-Subject: Re: [PATCH 10/13: eCryptfs] Mmap operations
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: David Howells <dhowells@redhat.com>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
-       Phillip Hellewell <phillip@hellewell.homeip.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
-       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
-       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>
-In-Reply-To: <23514.1146779003@warthog.cambridge.redhat.com>
-References: <84144f020605040813q29fcddcr1c846d27cf156432@mail.gmail.com>
-	 <20060504031755.GA28257@hellewell.homeip.net>
-	 <20060504034127.GI28613@hellewell.homeip.net>
-	 <23514.1146779003@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Fri, 05 May 2006 10:22:28 -0500
-Message-Id: <1146842548.10109.27.camel@kleikamp.austin.ibm.com>
+	Fri, 5 May 2006 11:27:54 -0400
+Date: Fri, 5 May 2006 11:27:48 -0400
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: dtor_core@ameritech.net, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Remove silly messages from input layer.
+Message-ID: <20060505152748.GA22870@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, dtor_core@ameritech.net,
+	"Martin J. Bligh" <mbligh@mbligh.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060504024404.GA17818@redhat.com> <20060504071736.GB5359@ucw.cz> <445A18D8.1030502@mbligh.org> <d120d5000605041134k3d9f5934ne9e01f7108cb0271@mail.gmail.com> <20060504183840.GE18962@redhat.com> <20060505103123.GB4206@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060505103123.GB4206@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-05-04 at 22:43 +0100, David Howells wrote:
-> Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> 
-> > > +               rc = mapping->a_ops->readpage(file, page);
-> > 
-> > What's the purpose of this second read?
-> 
-> When writing CacheFiles, I noticed that ext3 would occasionally unlock a page
-> that had neither PG_uptodate nor PG_error set, and so I had to force another
-> readpage() on it.
+On Fri, May 05, 2006 at 12:31:23PM +0200, Pavel Machek wrote:
 
-I understand this comes from the FiST package.  In that code, there is a
-comment in one of these functions explaining the second read.  It would
-be nice to have that comment in here too:
+ > If you only pressed single key -- your keyboard is crap or there's
+ > some problem in the driver.
+ > 
+ > If you never pressed any key -- your keyboard is crap or there's
+ > some problem in the driver.
 
-   /*
-    * call readpage() again if we returned from wait_on_page with a
-    * page that's not up-to-date; that can happen when a partial
-    * page has a few buffers which are ok, but not the whole
-    * page.
-    */
+That's hardly a constructive answer when the keyboard is a part of
+a laptop.  Crap hardware exists, get used to it.
 
-I'm a bit surprised that this could happen.
+		Dave
 
-Shaggy
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+http://www.codemonkey.org.uk

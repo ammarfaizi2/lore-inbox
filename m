@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbWEEI7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWEEJCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbWEEI7N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 04:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWEEI7N
+	id S1751059AbWEEJCk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 05:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWEEJCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 04:59:13 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:56789 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1750937AbWEEI7M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 04:59:12 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "Roy Rietveld" <rwm_rietveld@hotmail.com>
-Subject: Re: TCP/IP send, sendfile, RAW
-Date: Fri, 5 May 2006 11:57:52 +0300
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <BAY105-F1952B97471150282623600E9B40@phx.gbl>
-In-Reply-To: <BAY105-F1952B97471150282623600E9B40@phx.gbl>
+	Fri, 5 May 2006 05:02:39 -0400
+Received: from mx2.suse.de ([195.135.220.15]:7358 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750955AbWEEJCi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 05:02:38 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Ayaz Abdulla" <AAbdulla@nvidia.com>
+Subject: Re: pci_enable_msix throws up error
+Date: Fri, 5 May 2006 10:44:25 +0200
+User-Agent: KMail/1.9.1
+Cc: ravinandan.arakali@neterion.com, linux-kernel@vger.kernel.org,
+       "Ananda. Raju" <ananda.raju@neterion.com>, netdev@vger.kernel.org,
+       "Leonid Grossman" <Leonid.Grossman@neterion.com>
+References: <DBFABB80F7FD3143A911F9E6CFD477B00BA5E264@hqemmail02.nvidia.com>
+In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B00BA5E264@hqemmail02.nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200605051157.52589.vda@ilport.com.ua>
+Message-Id: <200605051044.25646.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 May 2006 20:19, Roy Rietveld wrote:
-> Can somebody help me with this.
+On Friday 05 May 2006 07:14, Ayaz Abdulla wrote:
+> I noticed the same behaviour, i.e. can not use both MSI and MSIX without
+> rebooting.
 > 
-> I'am new to Linux normaly i do programming for RTOS.
-> 
-> I would like to send ethernet packets with 1400 bytes payload.
-> I wrote a small program witch sends a buffer of 1400 bytes in a endless 
-> loop.
-> The problem is that a would like 100Mbits throughtput but when i check this 
-> with ethereal.
-> I only get 40 MBits. I tried sending with an UDP socket and RAW socket. I 
-> also tried sendfile.
-> The RAW socket gives the best result till now 50 MBits throughtput.
-> 
-> Is there something faster then send or am i doing something wrong.
+> I had sent a message to the maintainer of the MSI/MSIX source a few
+> months ago and got a response that they were working on fixing it. Not
+> sure what the progress is on it.
 
-Get netcat source and read it. It's small.
+The best way to make progress faster would be for someone like you
+who needs it to submit a patch to fix it then.
 
-netcat is definitely able to saturate 100Mbit link with both TCP and UDP.
---
-vda
+-Andi

@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWEEOtP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWEEOuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751578AbWEEOtP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 10:49:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751581AbWEEOtP
+	id S1751132AbWEEOuW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 10:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWEEOuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 10:49:15 -0400
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:39089 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1751572AbWEEOtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 10:49:14 -0400
-X-IronPort-AV: i="4.05,93,1146466800"; 
-   d="scan'208"; a="426534853:sNHT25013272"
-To: Heiko J Schick <schihei@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       linuxppc-dev@ozlabs.org, Christoph Raisch <RAISCH@de.ibm.com>,
-       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>
-Subject: Re: [openib-general] [PATCH 07/16] ehca: interrupt handling routines
-X-Message-Flag: Warning: May contain useful information
-References: <4450A196.2050901@de.ibm.com> <adaejz9o4vh.fsf@cisco.com>
-	<445B4DA9.9040601@de.ibm.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 05 May 2006 07:49:10 -0700
-In-Reply-To: <445B4DA9.9040601@de.ibm.com> (Heiko J. Schick's message of "Fri, 05 May 2006 15:05:45 +0200")
-Message-ID: <adafyjomsrd.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Fri, 5 May 2006 10:50:22 -0400
+Received: from ccerelrim04.cce.hp.com ([161.114.21.25]:27283 "EHLO
+	ccerelrim04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1751132AbWEEOuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 10:50:21 -0400
+From: "Bob Picco" <bob.picco@hp.com>
+Date: Fri, 5 May 2006 10:50:18 -0400
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Bob Picco <bob.picco@hp.com>, Andy Whitcroft <apw@shadowen.org>,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
+Message-ID: <20060505145018.GI19859@localhost>
+References: <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au> <20060504013239.GG19859@localhost> <1146756066.22503.17.camel@localhost.localdomain> <20060504154652.GA4530@localhost> <20060504192528.GA26759@elte.hu> <20060504194334.GH19859@localhost> <445A7725.8030401@shadowen.org> <20060505135503.GA5708@localhost> <1146839590.22503.48.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 05 May 2006 14:49:11.0943 (UTC) FILETIME=[125EB170:01C67053]
+Content-Disposition: inline
+In-Reply-To: <1146839590.22503.48.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
+X-PMX-Version: 5.1.2.240295, Antispam-Engine: 2.3.0.1, Antispam-Data: 2006.5.5.72607
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Heiko> Originaly, we had the same idea as you mentioned, that it
-    Heiko> would be better to do this in the higher levels. The point
-    Heiko> is that we can't see so far any simple posibility how this
-    Heiko> can done in the OpenIB stack, the TCP/IP network layer or
-    Heiko> somewhere in the Linux kernel.
-
-    Heiko> For example: For IPoIB we get the best throughput when we
-    Heiko> do the CQ callbacks on different CPUs and not to stay on
-    Heiko> the same CPU.
-
-So why not do it in IPoIB then?  This approach is not optimal
-globally.  For example, uverbs event dispatch is just going to queue
-an event and wake up the process waiting for events, and doing this on
-some random CPU not related to the where the process will run is
-clearly the worst possible way to dispatch the event.
-
-    Heiko> In other papers and slides (see [1]) you can see similar
-    Heiko> approaches.
-
-    Heiko> [1]: Speeding up Networking, Van Jacobson and Bob
-    Heiko> Felderman,
-    Heiko> http://www.lemis.com/grog/Documentation/vj/lca06vj.pdf
-
-I think you've misunderstood this paper.  It's about maximizing CPU
-locality and pushing processing directly into the consumer.  In the
-context of slide 9, what you've done is sort of like adding another
-control loop inside the kernel, since you dispatch from interrupt
-handler to driver thread to final consumer.  So I would argue that
-your approach is exactly the opposite of what VJ is advocating.
-
- - R.
+Dave Hansen wrote:	[Fri May 05 2006, 10:33:10AM EDT]
+> On Fri, 2006-05-05 at 09:55 -0400, Bob Picco wrote:
+> > -               if (!page_is_buddy(buddy, order))
+> > +               if (page_in_zone_hole(buddy))
+> > +                       break;
+> > +               else if (page_zonenum(buddy) != page_zonenum(page))
+> > +                       break;
+> > +               else if (!page_is_buddy(buddy, order))
+> >                         break;          /* Move the buddy up one level. */ 
+> 
+> The page_zonenum() checks look good, but I'm not sure I understand the
+> page_in_zone_hole() part.  If a page is in a hole in a zone, it will
+> still have a valid mem_map entry, right?  It should also never have been
+> put into the allocator, so it also won't ever be coalesced.  
+This has always been subtle and not too revealing.  It probably should
+have a comment. The page_in_zone_hole check is for ia64 
+VIRTUAL_MEM_MAP. You might compute a page structure which is in a hole not 
+backed by memory; an unallocated page which covers pages structures. 
+VIRTUAL_MEM_MAP uses a contiguous virtual region with virtual space holes
+not backed by memory. Take a look at ia64_pfn_valid.
+> 
+> I'm a bit confused. :(
+> 
+> BTW, I like the idea of just aligning HIGHMEM's start because it has no
+> runtime cost.  Buuuuut, it is still just a shift and compare of the two
+> page->flags, which should already be (or will soon anyway be) in the
+> cache.
+Yes. I'll defer to Andy whether he wants the zonenum check or to align
+HIGHMEM corrrectly.
+> 
+> -- Dave
+> 
+bob

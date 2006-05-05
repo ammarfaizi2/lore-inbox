@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751565AbWEEPMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbWEEPPc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751565AbWEEPMS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 11:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751588AbWEEPMS
+	id S1751605AbWEEPPc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 11:15:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751604AbWEEPPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 11:12:18 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:56482 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751565AbWEEPMQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 11:12:16 -0400
-Message-ID: <445B62AC.90600@zytor.com>
-Date: Fri, 05 May 2006 07:35:24 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
-       Riley@Williams.Name, tony.luck@intel.com, johninsd@san.rr.com
-Subject: Re: [PATCH][TAKE 4] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
- limit
-References: <445B5524.2090001@gmail.com> <445B5C92.5070401@zytor.com> <445B610A.7020009@gmail.com>
-In-Reply-To: <445B610A.7020009@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 5 May 2006 11:15:32 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:21771 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751601AbWEEPPc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 11:15:32 -0400
+Date: Fri, 5 May 2006 17:15:31 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Dan Merillat <harik.attar@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kbuild + Cross compiling
+Message-ID: <20060505151531.GB6568@mars.ravnborg.org>
+References: <c0c067900605041852m50e04171x7fd1579e77c9d5a3@mail.gmail.com> <20060505045529.GA17896@mars.ravnborg.org> <c0c067900605042330s2ebfea1fk8d218a5a826f67f9@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c0c067900605042330s2ebfea1fk8d218a5a826f67f9@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alon Bar-Lev wrote:
+On Fri, May 05, 2006 at 02:30:05AM -0400, Dan Merillat wrote:
+> On 5/5/06, Sam Ravnborg <sam@ravnborg.org> wrote:
+> >kbuild checks for any differences in the commandline alos - so a rebuild
+> >happens if you change options to gcc (think -O2 => -Os).
+> >If you experience that for example mm/slab.c is rebuild then try to
+> >do the following:
+> >cp mm/.slab.o.cmd foo
+> >make mm/
+> >diff -u foo mm/.slab.o.cmd
+> >
+> >If diff detects any difference then you know why and need to find out
+> >why there is a difference.
 > 
-> This should be a simple modification and I don't see why we
-> should fight on the LILO problem (if exists) when we have
-> the compile time config options alternative.
+> Nothing, even md5sums match.
+> 2abfcbee132335ba8e1da120569abf67  .do_mounts.o.cmd
+> 2abfcbee132335ba8e1da120569abf67  .do_mounts.o.cmd.1
 > 
-> People who uses LILO may leave the default 256 value. Other
-> may migrate to a higher one.
-> 
+> but it gets rebuilt every time.
 
-This is cargo-cult programming, sorry.  Let's find out what the problem 
-is and fix it right.  If that involves fixing LILO and/or dealing with a 
-LILO bug, we have ways we can do that.
+So we need to dive a bit deeper to understand why everything gets
+rebuild.
+Try following patch:
 
-	-hpa
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index e48e60d..4c52131 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -189,6 +189,9 @@ endef
+ # Built-in and composite module parts
+ 
+ %.o: %.c FORCE
++	@echo $@
++	@echo chg=$?
++	@echo arg-check=$(call arg-check, $(cmd_cc_o_c), $(cmd_$@))
+ 	$(call cmd,force_checksrc)
+ 	$(call if_changed_rule,cc_o_c)
+ 
+This will not fix anything - but will give us a hint why things gets
+rebuild.
+After applying the patch try:
+make init/do_mounts.o
+
+And then post the output.
+Also include the .do_mounts.o.cmd file
+
+	Sam

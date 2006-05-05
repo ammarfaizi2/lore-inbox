@@ -1,61 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWEEKcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWEEKjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWEEKcD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 06:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbWEEKcD
+	id S1750928AbWEEKjm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 06:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWEEKjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 06:32:03 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53157 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750954AbWEEKcB (ORCPT
+	Fri, 5 May 2006 06:39:42 -0400
+Received: from javad.com ([216.122.176.236]:37390 "EHLO javad.com")
+	by vger.kernel.org with ESMTP id S1750921AbWEEKjm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 06:32:01 -0400
-Date: Fri, 5 May 2006 12:31:23 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, dtor_core@ameritech.net,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
+	Fri, 5 May 2006 06:39:42 -0400
+From: Sergei Organov <osv@javad.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Remove silly messages from input layer.
-Message-ID: <20060505103123.GB4206@elf.ucw.cz>
-References: <20060504024404.GA17818@redhat.com> <20060504071736.GB5359@ucw.cz> <445A18D8.1030502@mbligh.org> <d120d5000605041134k3d9f5934ne9e01f7108cb0271@mail.gmail.com> <20060504183840.GE18962@redhat.com>
+References: <20060504024404.GA17818@redhat.com>
+ <20060504071736.GB5359@ucw.cz>
+	<445A18D8.1030502@mbligh.org>
+	<d120d5000605041134k3d9f5934ne9e01f7108cb0271@mail.gmail.com>
+	<20060504183840.GE18962@redhat.com> <20060505103123.GB4206@elf.ucw.cz>
+Date: Fri, 05 May 2006 14:39:27 +0400
+In-Reply-To: <20060505103123.GB4206@elf.ucw.cz> (Pavel Machek's message of
+	"Fri, 5 May 2006 12:31:23 +0200")
+Message-ID: <87y7xg92n4.fsf@javad.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060504183840.GE18962@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 04-05-06 14:38:40, Dave Jones wrote:
-> On Thu, May 04, 2006 at 02:34:34PM -0400, Dmitry Torokhov wrote:
-> 
->  > >Perhaps it should say that then ;-)
->  > 
->  > Do you have a beter wording in mind? "Keyboard reports too many keys
->  > were pessed at once, some keystrokes might be dropped"?
-> 
-> It still doesn't make sense when the user only pressed a single key,
-> or in some cases, never pressed *any* key (don't have that report to hand,
-> but it was a laptop keyboard)
+Pavel Machek <pavel@ucw.cz> writes:
+[...]
+> OTOH for example I now know that capslock-x-c is combination X32 does
+> not like. Unfortunately, if you swap capslock and ctrl, and type too
+> fast... you'll press this combination while exiting emacs.
 
-If you only pressed single key -- your keyboard is crap or there's
-some problem in the driver.
+Fortunately nobody ever needs to exit emacs :)
 
-If you never pressed any key -- your keyboard is crap or there's
-some problem in the driver.
-
-...in both of these cases the message is actually useful. Where it is
-not useful is when cat walks over your keyboard, because you can
-actually expect this message when pressing 10 keys at once.
-
-...in both of these cases failure should be investigated to find out
-what is going on.
-
-OTOH for example I now know that capslock-x-c is combination X32 does
-not like. Unfortunately, if you swap capslock and ctrl, and type too
-fast... you'll press this combination while exiting emacs.
-
-								Pavel
 -- 
-Thanks for all the (sleeping) penguins.
+Sergei.

@@ -1,120 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWEECTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWEECWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWEECTz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 22:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWEECTz
+	id S932442AbWEECWz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 22:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbWEECWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 22:19:55 -0400
-Received: from nz-out-0102.google.com ([64.233.162.202]:25525 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932435AbWEECTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 22:19:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=E0bNFTKz8a+sM7AIZHOBqUPwthDbiNZNRQw+TSldTA8+xDE0DokqiyMvHZWQXSMFZcIFJRaimZKPMFvgPdcaYZfRCcxPATMzw0jh/EaB/WM/tC4I9FrUiKxWBaW/H+tQ4O8c10s35O0dE18D3nLqaNm1D6leQ8lW+C5AOvmLMGU=
-Message-ID: <ea59786f0605041919w337c7164id5f4e7b3efa818e0@mail.gmail.com>
-Date: Thu, 4 May 2006 19:19:21 -0700
-From: "Constantine Sapuntzakis" <csapuntz@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] loop.c: respect bio barrier and sync
+	Thu, 4 May 2006 22:22:55 -0400
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:51616 "HELO
+	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932442AbWEECWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 22:22:55 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Greg KH <greg@kroah.com>, Nathan Becker <nathanbecker@gmail.com>
+Subject: Re: USB 2.0 ehci failure with large amount of RAM (4GB) on x86_64
+Date: Thu, 4 May 2006 19:22:50 -0700
+User-Agent: KMail/1.7.1
+Cc: ak@suse.de, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <2151339d0605032148n5d6936ay31ab017fbabc65b3@mail.gmail.com> <2151339d0605032152g64ec77bfhe90dc08180463c31@mail.gmail.com> <20060504052751.GA23054@kroah.com>
+In-Reply-To: <20060504052751.GA23054@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_3695_13764168.1146795561038"
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605041922.52243.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_3695_13764168.1146795561038
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> On Wed, May 03, 2006 at 09:52:11PM -0700, Nathan Becker wrote:
+> > Hi,
+> > 
+> > I recently added two more memory modules to my Gigabyte K8NXP-SLI
+> > motherboard, bringing the total up to 4GB.  I had 2GB previously and
+> > things were running well with kernel 2.6.16.9 x86_64. The CPU is an
+> > AMD 4800+ X2.
+> > 
+> > After the upgrade, USB 2.0 stopped working...
 
-I believe that the loop block device does not currently respect
-barriers or syncs issued by its clients. As a result, I have seen
-corrupted log errors when a loopback mounted ext3 file system is
-remounted after a hard stop.
+There's an erratum in NF4 parts affecting certain EHCI accesses to
+memory addresses over the 2GB mark, and you might be seeing this.
 
-The attached patch attempts to fix this problem by respecting the
-barrier and sync flags on the I/O request. The sync_file function was
-cut-and-paste from the implementation of fsync (I think there's no fd
-so I can't call fsync) to allow the patch to be deployed as an updated
-module. Is there another function that could be used?
+Presumably you're running with the GART IOMMU?  If not, then turn
+that on.  Maybe even turn on IOMMU_DEBUG.
 
-Comments are welcome. I am not on the list so please cc: me on any response=
-.
+Another experiment might be taking the PCI_VENDOR_ID_NVIDIA case
+in drivers/usb/host/ehci-pci.c and adding a call to dma_set_mask()
+in addition to the existing call.
 
--Costa
+- Dave
 
-------=_Part_3695_13764168.1146795561038
-Content-Type: application/octet-stream; name=loop-barrier-patch.diff
-Content-Transfer-Encoding: 7bit
-X-Attachment-Id: f_emtw0yl2
-Content-Disposition: attachment; filename="loop-barrier-patch.diff"
-
---- loop.c	2006-05-04 18:48:34.000000000 -0700
-+++ loop.c	2006-05-04 18:52:42.000000000 -0700
-@@ -467,16 +467,53 @@
- 	return ret;
- }
- 
-+/*
-+ * This is best effort. We really wouldn't know what to do with a returned
-+ * error. This code is taken from the implementation of fsync.
-+ */
-+static void sync_file(struct file * file)  
-+{
-+        struct address_space *mapping;
-+
-+        if (!file->f_op || !file->f_op->fsync)
-+		return;
-+
-+        mapping = file->f_mapping;
-+
-+        current->flags |= PF_SYNCWRITE;
-+        filemap_fdatawrite(mapping);
-+
-+        /*
-+         * We need to protect against concurrent writers,
-+         * which could cause livelocks in fsync_buffers_list
-+         */
-+        mutex_lock(&mapping->host->i_mutex);
-+        file->f_op->fsync(file, file->f_dentry, 1);
-+        mutex_unlock(&mapping->host->i_mutex);
-+
-+        filemap_fdatawait(mapping);
-+        current->flags &= ~PF_SYNCWRITE;
-+}
-+
- static int do_bio_filebacked(struct loop_device *lo, struct bio *bio)
- {
- 	loff_t pos;
- 	int ret;
-+	int sync = bio_sync(bio);
-+	int barrier = bio_barrier(bio);
-+
-+	if (barrier)
-+		sync_file(lo->lo_backing_file);
- 
- 	pos = ((loff_t) bio->bi_sector << 9) + lo->lo_offset;
- 	if (bio_rw(bio) == WRITE)
- 		ret = lo_send(lo, bio, lo->lo_blocksize, pos);
- 	else
- 		ret = lo_receive(lo, bio, lo->lo_blocksize, pos);
-+
-+	if (barrier || sync)
-+		sync_file(lo->lo_backing_file);
-+
- 	return ret;
- }
- 
-
-
-
-
-
-
-
-
-
-
-------=_Part_3695_13764168.1146795561038--

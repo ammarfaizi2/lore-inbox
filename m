@@ -1,36 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWEEVSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWEEV22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWEEVSq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 17:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWEEVSq
+	id S1751789AbWEEV22 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 17:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWEEV22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 17:18:46 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:42763 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751217AbWEEVSp (ORCPT
+	Fri, 5 May 2006 17:28:28 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:42909 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751789AbWEEV21 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 17:18:45 -0400
-Date: Fri, 5 May 2006 23:18:45 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Dan Merillat <harik.attar@gmail.com>
-Cc: Martin Schwidefsky <schwidefsky@googlemail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kbuild + Cross compiling
-Message-ID: <20060505211845.GA24572@mars.ravnborg.org>
-References: <c0c067900605041852m50e04171x7fd1579e77c9d5a3@mail.gmail.com> <6e0cfd1d0605050736g624c2a6fm68ab8b659fa6e253@mail.gmail.com> <c0c067900605051353k53e74fdeo5caed2b9621091d5@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 May 2006 17:28:27 -0400
+From: Andi Kleen <ak@suse.de>
+To: Alexey Toptygin <alexeyt@freeshell.org>
+Subject: Re: [PATCH] sendfile compat functions on x86_64 and ia64
+Date: Fri, 5 May 2006 23:28:21 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, tony.luck@intel.com
+References: <Pine.NEB.4.62.0605050030200.18795@norge.freeshell.org> <200605052238.26834.ak@suse.de> <Pine.NEB.4.62.0605052040250.27826@ukato.freeshell.org>
+In-Reply-To: <Pine.NEB.4.62.0605052040250.27826@ukato.freeshell.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <c0c067900605051353k53e74fdeo5caed2b9621091d5@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200605052328.21370.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 05, 2006 at 04:53:36PM -0400, Dan Merillat wrote:
+On Friday 05 May 2006 22:44, Alexey Toptygin wrote:
+> On Fri, 5 May 2006, Andi Kleen wrote:
 > 
-> That was it.  debian make 3.80 was buggy.   Since make was a likely
-> culprit I upgraded it anyway, then I read this and it confirmed what I
-> found.
-If debian reports make 3.80-rc1 as 3.80 then either debian or make has a
-problem.
+> > With your change there wouldn't be any sign extension and rw_verify_area
+> > couldn't reject negative values them anymore.
+> >
+> > I think it would be a wrong change because it would differ from a native
+> > 32bit kernel.
+> 
+> No...
+> 
+> On a 32 bit kernel (and on a 64 bit kernel using the native interface), 
+> count is passed to sendfile as unsigned. rw_verify_area explicitly casts 
+> to signed
 
-	Sam
+To a 64bit signed.
+
+> before checking for negativeness. The only place anywhere in the  
+> kernel that count is signed (other than where rw_verify area explicitly 
+> casts it for one test) is in the declaration of sys32_sendfile in the 
+> x86_64 compat code. I'm pretty sure it's supposed to be unsigned there 
+> too, and the current code is a typo.
+
+It's a 32bit signed. 
+
+Somehow the 32bit signed has to become a 64bit signed to be caught
+by rw_verify_area(). The only place that can do that is the compat
+layer.
+
+-Andi

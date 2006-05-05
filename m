@@ -1,35 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWEETNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWEETMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbWEETNS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 15:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751715AbWEETNR
+	id S1751205AbWEETMu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 15:12:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWEETMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 15:13:17 -0400
-Received: from wr-out-0506.google.com ([64.233.184.235]:15419 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751207AbWEETNQ convert rfc822-to-8bit (ORCPT
+	Fri, 5 May 2006 15:12:50 -0400
+Received: from thunk.org ([69.25.196.29]:57028 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751205AbWEETMt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 15:13:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=O5LYfmRYpR/CcpxGrOsSfwFXplWPBKEXIQrlIS1bJxWnCgF1UZ1dV7rmatP9y7gj6NFcNFmQg6zRn59pCmT9iWNlYw02XGbLorhBOb1WNpot6TwcywMmJP+pNpQlQdFfUULOmzYZHlYRzl37Pfy68Y8FWEQRNsw5As5Q7+8wlU8=
-Message-ID: <4ae3c140605051213w5ec76d4aqbc0c8fb4a725b073@mail.gmail.com>
-Date: Fri, 5 May 2006 15:13:15 -0400
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: question regarding to NFS3 jukebox
+	Fri, 5 May 2006 15:12:49 -0400
+Date: Fri, 5 May 2006 15:11:27 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+Message-ID: <20060505191127.GA16076@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Matt Mackall <mpm@selenic.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	davem@davemloft.net
+References: <8.420169009@selenic.com> <65CF7F44-0452-4E94-8FC1-03B024BCCAE7@mac.com> <20060505172424.GV15445@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060505172424.GV15445@waste.org>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone please explain the use of the jukebox in NFS3? Or direct
-me to some link?
+On Fri, May 05, 2006 at 12:24:26PM -0500, Matt Mackall wrote:
+> I haven't seen such an analysis, scholarly or otherwise and my bias
+> here is to lean towards the paranoid.
+> 
+> Assuming a machine with no TSC and an otherwise quiescent ethernet
+> (hackers burning the midnight oil), I think most of the
+> hard-to-analyze bits above get pretty transparent.
 
-Many thanks!
+As always, whether or not the packet arrival times could be guessable
+and/or controlled by an attacker really depends on your threat model.
+For someone who has an ethernet monitor attached directly to the
+segment right next to your computer, it's very likely that they would
+be successful in guessing the inputs into the entropy pool.  However,
+an attacker with physical access to your machine could probably do all
+sorts of other things, such as install a keyboard sniffer, etc.  
 
-Xin
+For a remote attacker, life gets much more difficult.  Each switch,
+router, and bridge effectively has a queue into which packets must
+flow through, and that is _not_ known to a remote attacker.  This is
+especially true today, when most people don't even use repeaters, but
+rather switches/bridges, which effectly make each ethernet connection
+to each host its own separate collision domain (indeed that term
+doesn't even apply for modern high-speed ethernets).
+
+I've always thought the right answer is that whether or not network
+packet arrival times should be used as entropy input should be
+configurable, since depending on the environment, it might or might
+not be safe, and for some hosts (particularly diskless servers), the
+network might be the only source of entropy available to them.
+
+						- Ted
+

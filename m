@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWEEU1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751672AbWEEUax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbWEEU1q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 16:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWEEU1q
+	id S1751672AbWEEUax (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 16:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751682AbWEEUax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 16:27:46 -0400
-Received: from cantor.suse.de ([195.135.220.2]:29858 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751003AbWEEU1p (ORCPT
+	Fri, 5 May 2006 16:30:53 -0400
+Received: from hera.kernel.org ([140.211.167.34]:30941 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751628AbWEEUaw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 16:27:45 -0400
-Date: Fri, 5 May 2006 13:26:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Ian Romanick <idr@us.ibm.com>, Dave Airlie <airlied@linux.ie>,
-       Arjan van de Ven <arjan@linux.intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-Message-ID: <20060505202603.GB6413@kroah.com>
-References: <200605041326.36518.bjorn.helgaas@hp.com> <E1FbjiL-0001B9-00@chiark.greenend.org.uk> <9e4733910605041340r65d47209h2da079d9cf8fceae@mail.gmail.com> <1146776736.27727.11.camel@localhost.localdomain> <mj+md-20060504.211425.25445.atrey@ucw.cz> <1146778197.27727.26.camel@localhost.localdomain> <9e4733910605041438q5bf3569bs129bf2e8851b7190@mail.gmail.com> <1146784923.4581.3.camel@localhost.localdomain> <445BA584.40309@us.ibm.com> <9e4733910605051314jb681476y4b2863918dfae1f8@mail.gmail.com>
+	Fri, 5 May 2006 16:30:52 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network
+ drivers
+Date: Fri, 5 May 2006 13:30:22 -0700
+Organization: OSDL
+Message-ID: <20060505133022.1fea25c5@localhost.localdomain>
+References: <8.420169009@selenic.com>
+	<65CF7F44-0452-4E94-8FC1-03B024BCCAE7@mac.com>
+	<20060505172424.GV15445@waste.org>
+	<20060505191127.GA16076@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910605051314jb681476y4b2863918dfae1f8@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1146861022 28541 10.8.0.54 (5 May 2006 20:30:22 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Fri, 5 May 2006 20:30:22 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 05, 2006 at 04:14:00PM -0400, Jon Smirl wrote:
-> I would like to see other design alternatives considered on this
-> issue. The 'enable' attribute has a clear problem in that you can't
-> tell which user space program is trying to control the device.
-> Multiple programs accessing the video hardware with poor coordination
-> is already the source of many problems.
+On Fri, 5 May 2006 15:11:27 -0400
+Theodore Tso <tytso@mit.edu> wrote:
 
-Who cares who "enabled" the device.  Remember, the majority of PCI
-devices in the system are not video ones.  Lots of other types of
-devices want this ability to enable PCI devices from userspace.  I've
-been talking with some people about how to properly write PCI drivers in
-userspace, and this attribute is a needed part of it.
+> On Fri, May 05, 2006 at 12:24:26PM -0500, Matt Mackall wrote:
+> > I haven't seen such an analysis, scholarly or otherwise and my bias
+> > here is to lean towards the paranoid.
+> > 
+> > Assuming a machine with no TSC and an otherwise quiescent ethernet
+> > (hackers burning the midnight oil), I think most of the
+> > hard-to-analyze bits above get pretty transparent.
+> 
+> As always, whether or not the packet arrival times could be guessable
+> and/or controlled by an attacker really depends on your threat model.
+> For someone who has an ethernet monitor attached directly to the
+> segment right next to your computer, it's very likely that they would
+> be successful in guessing the inputs into the entropy pool.  However,
+> an attacker with physical access to your machine could probably do all
+> sorts of other things, such as install a keyboard sniffer, etc.  
+> 
+> For a remote attacker, life gets much more difficult.  Each switch,
+> router, and bridge effectively has a queue into which packets must
+> flow through, and that is _not_ known to a remote attacker.  This is
+> especially true today, when most people don't even use repeaters, but
+> rather switches/bridges, which effectly make each ethernet connection
+> to each host its own separate collision domain (indeed that term
+> doesn't even apply for modern high-speed ethernets).
+> 
+> I've always thought the right answer is that whether or not network
+> packet arrival times should be used as entropy input should be
+> configurable, since depending on the environment, it might or might
+> not be safe, and for some hosts (particularly diskless servers), the
+> network might be the only source of entropy available to them.
+> 
+> 						- Ted
 
-And if X gets enabling the device wrong, again, who cares, it's not a
-kernel issue. :)
-
-thanks,
-
-greg k-h
+An added problem is that many of the high speed interfaces have
+interrupt mitigation. The chip will hold off the interrupt for a short
+time to try and aggregate multiple packets. This has the effect
+of synchronizing the interrupt, and reduces the entropy, especially
+under load. NAPI also eliminates much of the entropy in network drivers.
+So the quality of the entropy also depends on the chipset. Most of
+the older, dumber hardware probably has better entropy but worse performance.

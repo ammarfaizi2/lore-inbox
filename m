@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWEEBw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWEEBxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932428AbWEEBw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 21:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWEEBw5
+	id S932434AbWEEBxO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 21:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWEEBxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 21:52:57 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:27096 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932428AbWEEBw5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 21:52:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=RRkzKhXe5ZPMy9HfCYgrsapdUKBAYLSGNtspfm2TkEwb5YX4hM7Oyk+Xv0j9/3y58DucZYpyDcUnqQTQBiLplkEgIZMPMLHPdT/7BN6xGVPIJ+FWvgJNQ1xYpjr4m3eyQe7fhTDMmKSkwOwDeRPT+oNjTCdbOqlFnthQr2aamvA=
-Message-ID: <c0c067900605041852m50e04171x7fd1579e77c9d5a3@mail.gmail.com>
-Date: Thu, 4 May 2006 21:52:56 -0400
-From: "Dan Merillat" <harik.attar@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kbuild + Cross compiling
+	Thu, 4 May 2006 21:53:13 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:3491 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932431AbWEEBxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 21:53:12 -0400
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Chris Wright <chrisw@sous-sol.org>
+Subject: Re: Linux 2.6.16.14
+Date: Fri, 5 May 2006 11:52:35 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+References: <20060505003526.GW24291@moss.sous-sol.org>
+In-Reply-To: <20060505003526.GW24291@moss.sous-sol.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: multipart/signed;
+  boundary="nextPart1668078.8FF6hoIpCa";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200605051152.39693.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I must be an idiot, but why does Kbuild rebuild every file when cross-compiling?
-I'm not editing .config or touching any headers, I'm making tweaks to
-a single .c driver,
-and it is taking forever due to continual full-rebuilds.
+--nextPart1668078.8FF6hoIpCa
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-building on i386 for ARCH=arm CROSS_COMPILE=arm-linux-uclibc-
+Hi.
 
-I tried following the logic, but everything is a forced build using
-if_changed and if_changed_dep, and I can't read GNU Make well enough
-to figure out what it thinks is new.  I know make -d says all the
-dependancies are up-to-date, so it's being forced some other way.
+On Friday 05 May 2006 10:35, Chris Wright wrote:
+> We (the -stable team) are announcing the release of the 2.6.16.14
+> kernel.
+
+Is this supposed to be some sort of subtle pressure on Linus to open 2.7? :>
+
+Regards,
+
+Nigel
+
+--nextPart1668078.8FF6hoIpCa
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEWq/nN0y+n1M3mo0RAnjbAJ9Uql/wg1KbGxtxd6VUyKPdGj3/RQCgmIgM
+Sc1J8RO///j/SWBLdV2Vwoc=
+=G0tU
+-----END PGP SIGNATURE-----
+
+--nextPart1668078.8FF6hoIpCa--

@@ -1,85 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWEEVdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWEEVtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWEEVdh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 17:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751786AbWEEVdh
+	id S1750863AbWEEVtB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 17:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWEEVtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 17:33:37 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:22411 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1750972AbWEEVdh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 17:33:37 -0400
-Date: Fri, 5 May 2006 23:34:49 +0200
-From: Petr Baudis <pasky@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RESEND][PATCH] Script for automated historical Git tree grafting
-Message-ID: <20060505213448.GA23221@pasky.or.cz>
+	Fri, 5 May 2006 17:49:01 -0400
+Received: from ms-smtp-02.socal.rr.com ([66.75.162.134]:10446 "EHLO
+	ms-smtp-02.socal.rr.com") by vger.kernel.org with ESMTP
+	id S1750791AbWEEVtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 17:49:00 -0400
+Message-Id: <6.2.3.4.0.20060505144445.03642988@pop-server.san.rr.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.3.4
+Date: Fri, 05 May 2006 14:48:04 -0700
+To: "H. Peter Anvin" <hpa@zytor.com>
+From: John Coffman <johninsd@san.rr.com>
+Subject: Re: [PATCH][TAKE 4] THE LINUX/I386 BOOT PROTOCOL - Breaking 
+  the 256 limit
+Cc: Alon Bar-Lev <alon.barlev@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
+       tony.luck@intel.com
+In-Reply-To: <445B96D2.9070301@zytor.com>
+References: <445B5524.2090001@gmail.com>
+ <445B5C92.5070401@zytor.com>
+ <445B610A.7020009@gmail.com>
+ <445B62AC.90600@zytor.com>
+ <6.2.3.4.0.20060505110517.036df928@pop-server.san.rr.com>
+ <445B96D2.9070301@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0618-3, 05/05/2006), Outbound message
+X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This script enables Git users to easily graft the historical Git tree
-(Bitkeeper history import) to the current history.
+At 11:17 AM  Friday 5/5/2006, you wrote:
+>John Coffman wrote:
+>The problem isn't that LILO can't handle more than some number of 
+>characters; that's a LILO issue and doesn't affect the kernel.
+>
+>The problem is that some people have reported that the kernel 
+>crashes if booted with LILO and the size limit is more than 
+>255.  They haven't so far commented on how they observed that, and 
+>that's a major problem.
 
-Signed-off-by: Petr Baudis <pasky@suse.cz>
-
----
- git-gethistory.sh |   40 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 39 insertions(+), 1 deletion(-)
-
-diff --git a/scripts/git-gethistory.sh b/scripts/git-gethistory.sh
-new file mode 100755
-index 0000000..97b3e78
---- /dev/null
-+++ b/scripts/git-gethistory.sh
-@@ -0,0 +1,39 @@
-+#!/bin/sh
-+#
-+# Graft the development history imported from BitKeeper to the current Git
-+# history tree.
-+#
-+# Note that this will download about 260M.
-+
-+httpget="curl -O -C -"
-+
-+if [ -z "`which curl 2>/dev/null`" ]; then
-+  httpget="wget -c"
-+  if [ -z "`which wget 2>/dev/null`" ]; then
-+    echo "Error: You need to have wget or curl installed so that I can fetch the history." >&2
-+    exit 1
-+  fi
-+fi
-+
-+[ "$GIT_DIR" ] || GIT_DIR=.git
-+if ! [ -d "$GIT_DIR" ]; then
-+  echo "Error: You must run this from the project root (or set GIT_DIR to your .git directory)." >&2
-+  exit 1
-+fi
-+cd "$GIT_DIR"
-+
-+echo "[git-gethistory] Downloading the history"
-+mkdir -p objects/pack
-+cd objects/pack
-+$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-cc3517351ecce3ef7ba010559992bdfc10b7acd4.idx
-+$httpget http://www.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/objects/pack/pack-cc3517351ecce3ef7ba010559992bdfc10b7acd4.pack
-+
-+echo "[git-gethistory] Setting up the grafts"
-+cd ../..
-+mkdir -p info
-+# master
-+echo 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 e7e173af42dbf37b1d946f9ee00219cb3b2bea6a >>info/grafts
-+
-+echo "[git-gethistory] Refreshing the dumb server info wrt. new packs"
-+cd ..
-+git-update-server-info
+Just re-compiling LILO with the  COMMAND_LINE_SIZE  parameter changed 
+from 256 to 512 will not work.  A .bss area must be moved to avoid 
+clobbering the kernel header.
 
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-Right now I am having amnesia and deja-vu at the same time.  I think
-I have forgotten this before.
+>If the issue is that LILO doesn't null-terminate overlong command 
+>lines, then that's pretty easy to deal with:
+>
+>- If the kernel sees protocol version <= 2.01, limit is 255+null.
+>- If the kernel sees protocol version >= 2.02, but ID is 0x1X, limit 
+>is 255+null.
+>- Otherwise limit is higher.
+>
+>When LILO is fixed, it has to bump the ID byte version number.
+>
+>What ID byte values has LILO used?
+
+For the last 8 years LILO has used 0x02 as the loader ID.
+
+If anyone wishes to test a version of LILO that is able to pass a 512 
+byte command line, then the "22.7.2-beta8" version in the "beta" 
+directory should be tried.  It moves the offending ".bss" area to 
+avoid the header clobber.  However, I have not yet changed the loader ID.
+
+--John
+
+
+
+         PGP KeyID: 6781C9C8  (good until 31-Dec-2008)
+         Keyserver at  ldap://keyserver.pgp.com  OR  http://pgp.mit.edu
+         LILO links at http://freshmeat.net/projects/lilo
+         and Help link at http://lilo.go.dyndns.org
+
+

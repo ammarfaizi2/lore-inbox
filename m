@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbWEEANf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWEEA1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030288AbWEEANf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 20:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbWEEANf
+	id S932379AbWEEA1I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 20:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWEEA1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 20:13:35 -0400
-Received: from animx.eu.org ([216.98.75.249]:27049 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S932405AbWEEANf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 20:13:35 -0400
-Date: Thu, 4 May 2006 20:20:09 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Joshua Hudson <joshudson@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cdrom: a dirty CD can freeze your system
-Message-ID: <20060505002009.GA24014@animx.eu.org>
-Mail-Followup-To: Joshua Hudson <joshudson@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <200605041232.k44CWnFn004411@wildsau.enemy.org> <1146750532.20677.38.camel@localhost.localdomain> <20060504165055.GA22880@animx.eu.org> <1146762658.22308.11.camel@localhost.localdomain> <bda6d13a0605041027kc0edb02icdd11bd103478b05@mail.gmail.com> <20060504204708.GC22880@animx.eu.org> <bda6d13a0605041710v480b4c0ci999fcf4b0cffa1b@mail.gmail.com>
+	Thu, 4 May 2006 20:27:08 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:29919 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750839AbWEEA1G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 20:27:06 -0400
+Date: Fri, 5 May 2006 02:24:25 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: David Vrabel <dvrabel@cantab.net>
+Cc: Pekka J Enberg <penberg@cs.Helsinki.FI>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, david@pleyades.net
+Subject: Re: [PATCH 2/2] ipg: redundancy with mii.h
+Message-ID: <20060505002425.GB9128@electric-eye.fr.zoreil.com>
+References: <44554ADE.8030200@cantab.net> <4455F1D8.5030102@cantab.net> <1146506939.23931.2.camel@localhost> <20060501231206.GD7419@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605020945010.4066@sbz-30.cs.Helsinki.FI> <20060502214520.GC26357@electric-eye.fr.zoreil.com> <20060502215559.GA1119@electric-eye.fr.zoreil.com> <Pine.LNX.4.58.0605030913210.6032@sbz-30.cs.Helsinki.FI> <20060503233558.GA27232@electric-eye.fr.zoreil.com> <4459A4A6.1080207@cantab.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bda6d13a0605041710v480b4c0ci999fcf4b0cffa1b@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <4459A4A6.1080207@cantab.net>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Hudson wrote:
-> On 5/4/06, Wakko Warner <wakko@animx.eu.org> wrote:
-> >Joshua Hudson wrote:
-> >> I've seen this a few times. It never actually hung my system, only one
-> >> virtual console. I wonder if preemptable kernel had something to do
-> >> with that <g>
-> >
-> >I don't believe pre-empt has anything to do eith it.  I have a specialized
-> >boot system (vairous types of boot media) w/o preempt turned on because I
-> >want this as small as possible.  It also has this problem.
+David Vrabel <dvrabel@cantab.net> :
+[...]
+> >    ipg: replace #define with enum
+> >    
+> >    Added some underscores to improve readability.
+> >    
+> >    Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
 > 
-> Uuhhh. I though preempt might be the reason the who system *wasn't* hanging.
+> Nack.  Register names in code should match those used in the 
+> documentation (even if they are a bit unreadable).  Though I will 
+> conceed that the available datasheet doesn't actually describe the 
+> majority of the registers.
 
-One of those "didn't read the whole message" errors.  Oops.  All of my
-systems (not the speciallized one) are preemptable.  I have not noticed any
-lockups on those.
+We will have to agree to disagree. Feel free to open a different
+branch.
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
- Got Gas???
+Ueimor

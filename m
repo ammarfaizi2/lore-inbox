@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWEEDEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWEEDSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbWEEDEL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 23:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWEEDEL
+	id S932456AbWEEDSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 23:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932459AbWEEDSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 23:04:11 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:33921 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932450AbWEEDEK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 23:04:10 -0400
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Chris Wright <chrisw@sous-sol.org>
+	Thu, 4 May 2006 23:18:09 -0400
+Received: from wx-out-0102.google.com ([66.249.82.196]:5175 "EHLO
+	wx-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932456AbWEEDSI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 23:18:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Gq7/wrza9azjPUF3dEa7IETYmL5QsDLyC8ahANr44dUrHOA5xJYW7gkCZoiB3CfTQfOlbVr/04vOYLfFcVv7Lr7ExnuoKSv9IsROWSrmF622MX6aVmdH4j7O+powSiUl+RmNQfgOUmmLHl5QLyFmzghh05xyeHY94R7U4c7P9aM=
+Message-ID: <df47b87a0605042018n2e5142adk7e720e80a03030bb@mail.gmail.com>
+Date: Thu, 4 May 2006 23:18:07 -0400
+From: "Ioan Ionita" <opslynx@gmail.com>
+To: "Nigel Cunningham" <ncunningham@cyclades.com>
 Subject: Re: Linux 2.6.16.14
-Date: Fri, 5 May 2006 13:03:31 +1000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
-References: <20060505003526.GW24291@moss.sous-sol.org> <200605051152.39693.ncunningham@cyclades.com> <20060505023353.GA24291@moss.sous-sol.org>
-In-Reply-To: <20060505023353.GA24291@moss.sous-sol.org>
+Cc: "Chris Wright" <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, torvalds@osdl.org
+In-Reply-To: <200605051303.37130.ncunningham@cyclades.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart57357925.pEB5pTFYOn";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200605051303.37130.ncunningham@cyclades.com>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060505003526.GW24291@moss.sous-sol.org>
+	 <200605051152.39693.ncunningham@cyclades.com>
+	 <20060505023353.GA24291@moss.sous-sol.org>
+	 <200605051303.37130.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart57357925.pEB5pTFYOn
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 5/4/06, Nigel Cunningham <ncunningham@cyclades.com> wrote:
 
-Hi.
-
-On Friday 05 May 2006 12:33, Chris Wright wrote:
-> * Nigel Cunningham (ncunningham@cyclades.com) wrote:
-> > Is this supposed to be some sort of subtle pressure on Linus to open 2.=
-7?
-> > :>
->
-> He does every couple months and leaves it open for a few weeks.
-> Then, just to keep us guessing, he releases it with a 2.6 name ;-)
->
-> Actually, I think the system is working quite well.  We've got a quick
-> route for getting bug fixes and security fixes to users, and a shorter
-> devel cycle helping distro folks get more regular drops from upstream.
-> This particular patch applies all the way back to the beginning of git
-> time (over a year ago), and I'm sure earlier.  So it's hard to conclude
-> it's a byproduct of the release cycles.
-
-:) Tongue was firmly in cheek. I guess I should have said more initially. I=
-t=20
-wasn't so much the patch, as the speed with which they're coming. It makes =
-me=20
-(at least) feel like the stable series is unstable. Couldn't you store them=
-=20
-up for a day or two at a time (unless of course they really are that=20
-important that they require a quicker cycle).
-
-Regards,
-
-Nigel
-
---nextPart57357925.pEB5pTFYOn
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBEWsCJN0y+n1M3mo0RApDuAJ9mzNAUyaSHKNElvtWWmANy9FjbKgCgudOE
-F8Y3gB2inhr7+RDSahTwVA8=
-=EiDk
------END PGP SIGNATURE-----
-
---nextPart57357925.pEB5pTFYOn--
+> :) Tongue was firmly in cheek. I guess I should have said more initially. It
+> wasn't so much the patch, as the speed with which they're coming. It makes me
+> (at least) feel like the stable series is unstable. Couldn't you store them
+> up for a day or two at a time (unless of course they really are that
+> important that they require a quicker cycle).
+I'm sure that they would be stored till Tuesdays if the linux kernel
+had a PR department...

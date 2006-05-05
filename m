@@ -1,44 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751564AbWEEOgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWEEOou@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751564AbWEEOgg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 10:36:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWEEOgg
+	id S1751570AbWEEOou (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 10:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751572AbWEEOou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 10:36:36 -0400
-Received: from nz-out-0102.google.com ([64.233.162.207]:65460 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751562AbWEEOgg convert rfc822-to-8bit (ORCPT
+	Fri, 5 May 2006 10:44:50 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:4070 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1751569AbWEEOou (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 10:36:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KoBGdJmnDWBfZbAgoSEVZfKQQfoZJtkpgtwdAD+iUG2ldRI8vBgqL2za5om0PVAo70nw2PabgMD4O0IIh/ZkNB4IkCPCPZSgWiSjYApvvm8epEjL8i8s/wX2f8OxX7poJgy3s5cg0z+VYt4tXVedXd6OgUr1lfFmNEl7M5NnClk=
-Message-ID: <6e0cfd1d0605050736g624c2a6fm68ab8b659fa6e253@mail.gmail.com>
-Date: Fri, 5 May 2006 16:36:30 +0200
-From: "Martin Schwidefsky" <schwidefsky@googlemail.com>
-To: "Dan Merillat" <harik.attar@gmail.com>
-Subject: Re: Kbuild + Cross compiling
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <c0c067900605041852m50e04171x7fd1579e77c9d5a3@mail.gmail.com>
+	Fri, 5 May 2006 10:44:50 -0400
+Message-ID: <346840286.22726@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Fri, 5 May 2006 22:44:51 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [RFC] kernel facilities for cache prefetching
+Message-ID: <20060505144451.GA6134@mail.ustc.edu.cn>
+Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+	Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>
+References: <346556235.24875@ustc.edu.cn> <Pine.LNX.4.64.0605020832570.4086@g5.osdl.org> <20060503041106.GC5915@mail.ustc.edu.cn> <1146677280.8373.59.camel@dyn9047017100.beaverton.ibm.com> <346733486.30800@ustc.edu.cn> <Pine.LNX.4.64.0605040800080.3908@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <c0c067900605041852m50e04171x7fd1579e77c9d5a3@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0605040800080.3908@g5.osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/5/06, Dan Merillat <harik.attar@gmail.com> wrote:
-> I must be an idiot, but why does Kbuild rebuild every file when cross-compiling?
-> I'm not editing .config or touching any headers, I'm making tweaks to
-> a single .c driver,
-> and it is taking forever due to continual full-rebuilds.
+On Thu, May 04, 2006 at 08:03:50AM -0700, Linus Torvalds wrote:
+> Actually, I did something even simpler for a totally one-off thing: you 
+> don't actually even need to drop caches or track pretty much anything, 
+> it's sufficient for most analysis to just have a timestamp on each page 
+> cache, and then have some way to read out the current cached contents.
+> 
+> You can then use the timestamps to get a pretty good idea of what order 
+> things happened in.
+ 
+> The really nice thing was that you don't even have to set the timestamp in 
+> any complex place: you do it at page _allocation_ time. That automatically 
+> gets the right answer for any page cache page, and you can do it in a 
+> single place.
 
-I had that problem a while ago. Turned out that the version of make I used on
-my debian had a bug.
+Looks nice.  A detailed scheme might be:
 
---
-blue skies,
-  Martin
+1) ctime/atime for each radixtree node(or, cluser of pages)
+It seems to be a good accuracy/overhead compromise.
+And is perfect for the most common case of sequential accesses.
+
+struct radix_tree_node {
++        unsigned long ctime, atime;
+} 
+
+radix_tree_node_alloc()
+{
++        node->ctime = some_virtual_time();
+}
+
+radix_tree_lookup_slot()
+{
++        node->atime = some_virtual_time();
+}
+
+2) eviction-time for each recently evicted page
+Store eviction-time _in place_ in the slot that used to store the
+page's address, with minimal space/time impact.
+
++#define SLOT_IS_EVICTION_TIME  1
+radix_tree_delete()
+{
+-                pathp->node->slots[pathp->offset] = NULL;
++                pathp->node->slots[pathp->offset] =
++                                 some_virtual_time() | SLOT_IS_EVICTION_TIME;
+}
+
+Regards,
+Wu

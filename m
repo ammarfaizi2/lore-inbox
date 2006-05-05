@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWEEUaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751682AbWEEUc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWEEUaT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 16:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbWEEUaT
+	id S1751682AbWEEUc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 16:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751715AbWEEUc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 16:30:19 -0400
-Received: from leitseite.net ([213.239.214.51]:53129 "EHLO mail.leitseite.net")
-	by vger.kernel.org with ESMTP id S1751206AbWEEUaS (ORCPT
+	Fri, 5 May 2006 16:32:56 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:9948 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S1751682AbWEEUc4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 16:30:18 -0400
-Date: Fri, 5 May 2006 22:30:00 +0200 (CEST)
-From: Nuri Jawad <lkml@jawad.org>
-X-X-Sender: lkml@pc
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Dave Jones <davej@redhat.com>, Martin Mares <mj@ucw.cz>,
-       Pavel Machek <pavel@ucw.cz>, dtor_core@ameritech.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Remove silly messages from input layer.
-In-Reply-To: <445BB050.4040309@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0605052218370.9702@pc>
-References: <20060504024404.GA17818@redhat.com> <20060504071736.GB5359@ucw.cz>
- <445A18D8.1030502@mbligh.org> <d120d5000605041134k3d9f5934ne9e01f7108cb0271@mail.gmail.com>
- <20060504183840.GE18962@redhat.com> <20060505103123.GB4206@elf.ucw.cz>
- <20060505152748.GA22870@redhat.com> <mj+md-20060505.153608.7268.albireo@ucw.cz>
- <20060505154638.GE22870@redhat.com> <mj+md-20060505.154834.7444.albireo@ucw.cz>
- <20060505160009.GB25883@redhat.com> <Pine.LNX.4.64.0605052131580.28721@pc>
- <445BB050.4040309@mbligh.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 5 May 2006 16:32:56 -0400
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH] device core: remove redundant call to device_initialize.
+Date: Fri, 05 May 2006 17:39:08 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Message-Id: <20060505153907.12756.23295.stgit@zion.home.lan>
+Content-Type: text/plain; charset=utf-8; format=fixed
+User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by alpha.home.local id k45KXwU5031109
 
-On Fri, 5 May 2006, Martin Bligh wrote:
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-> Sorry, but these comparisons to Windows are just childish.
+platform_device_add calls device_register which calls then again
+device_initialize, redundantly.
 
-No, in this case they're not. Clear text error messages, compared to 
-obscure numerical error codes or no reports at all, are a very useful 
-attribute of free operating systems that I do not want to miss because 
-somebody is trying to please clueless Joe User.
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-> Linux is not obliged to spit out meaningless, unhelpful error messages,
+ drivers/base/platform.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-I already explained in a previous reply why this message IS undisputably 
-useful for me, and others have done the same. Why are we discussing if you 
-don't read what we write but have obviously already made up your mind?
-
-> The current error message is wrong
-
-No it's not, the keyboard is in fact reporting too many pressed keys.
-
-> But throwing 'Windows' around is not useful
-
-It is useful to show you what kind of environment many users do not want 
-to have. Hiding information is not user-friendly for the experienced user, 
-only for the novice.
-
-Regards, Nuri
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index 83f5c59..b0d9bd4 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -317,7 +317,6 @@ EXPORT_SYMBOL_GPL(platform_device_del);
+  */
+ int platform_device_register(struct platform_device * pdev)
+ {
+-	device_initialize(&pdev->dev);
+ 	return platform_device_add(pdev);
+ }
+ EXPORT_SYMBOL_GPL(platform_device_register);

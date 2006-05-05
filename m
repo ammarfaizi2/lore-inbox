@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWEEOxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWEEOyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWEEOxN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 10:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWEEOxN
+	id S1751130AbWEEOyl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 10:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWEEOyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 10:53:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50851 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751128AbWEEOxL (ORCPT
+	Fri, 5 May 2006 10:54:41 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51029 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751130AbWEEOyl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 10:53:11 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1146839690.10108.21.camel@kleikamp.austin.ibm.com> 
-References: <1146839690.10108.21.camel@kleikamp.austin.ibm.com>  <1146834740.10109.9.camel@kleikamp.austin.ibm.com> <84144f020605040737k316fd5abva4476da69a65c084@mail.gmail.com> <20060504031755.GA28257@hellewell.homeip.net> <20060504033829.GE28613@hellewell.homeip.net> <23457.1146778849@warthog.cambridge.redhat.com> <3439.1146837829@warthog.cambridge.redhat.com> 
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: David Howells <dhowells@redhat.com>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       Phillip Hellewell <phillip@hellewell.homeip.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
-       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
-       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>
-Subject: Re: [PATCH 6/13: eCryptfs] Superblock operations 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Fri, 05 May 2006 15:52:37 +0100
-Message-ID: <9519.1146840757@warthog.cambridge.redhat.com>
+	Fri, 5 May 2006 10:54:41 -0400
+Date: Fri, 5 May 2006 16:54:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Constantine Sapuntzakis <csapuntz@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] loop.c: respect bio barrier and sync
+Message-ID: <20060505145437.GW4324@suse.de>
+References: <ea59786f0605041919w337c7164id5f4e7b3efa818e0@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ea59786f0605041919w337c7164id5f4e7b3efa818e0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Kleikamp <shaggy@austin.ibm.com> wrote:
-
-> > Either way, it will use more stack; the mere fact that whilst it's using the
-> > value, the compiler may stash it in a register is irrelevant.
+On Thu, May 04 2006, Constantine Sapuntzakis wrote:
+> I believe that the loop block device does not currently respect
+> barriers or syncs issued by its clients. As a result, I have seen
+> corrupted log errors when a loopback mounted ext3 file system is
+> remounted after a hard stop.
 > 
-> Is the stack usage very close to exceeding 4 KB?  Could saving one more
-> pointer on the stack cause a problem?
+> The attached patch attempts to fix this problem by respecting the
+> barrier and sync flags on the I/O request. The sync_file function was
+> cut-and-paste from the implementation of fsync (I think there's no fd
+> so I can't call fsync) to allow the patch to be deployed as an updated
+> module. Is there another function that could be used?
+> 
+> Comments are welcome. I am not on the list so please cc: me on any 
+> response..
 
-I suspect you don't know since it's a stacked filesystem.
+Please inline your patches, so one can actually comment on them...
 
-David
+- You should handle sync_file() failure. If we don't have !f_op (will
+  that ever hit, btw?) or ->fsync(), then fail the barrier with
+  -EOPNOTSUPP. For fsync failure, well... You probably want to just
+  error the bio with -EIO then.
+
+- bio_sync() doesn't have the semantics you define it to, it is a hint
+  to the block layer to start request processing instead of plugging. So
+  don't treat it as a barrier, ignore it.
+
+- Does this work for all loop_device types?
+
+-- 
+Jens Axboe
+

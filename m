@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751584AbWEEPh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbWEEPiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751584AbWEEPh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 11:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751593AbWEEPh2
+	id S1751602AbWEEPiv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 11:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751610AbWEEPiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 11:37:28 -0400
-Received: from albireo.ucw.cz ([84.242.87.5]:43907 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751566AbWEEPh1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 11:37:27 -0400
-Date: Fri, 5 May 2006 17:37:28 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       dtor_core@ameritech.net, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Remove silly messages from input layer.
-Message-ID: <mj+md-20060505.153608.7268.albireo@ucw.cz>
-References: <20060504024404.GA17818@redhat.com> <20060504071736.GB5359@ucw.cz> <445A18D8.1030502@mbligh.org> <d120d5000605041134k3d9f5934ne9e01f7108cb0271@mail.gmail.com> <20060504183840.GE18962@redhat.com> <20060505103123.GB4206@elf.ucw.cz> <20060505152748.GA22870@redhat.com>
+	Fri, 5 May 2006 11:38:51 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:2729 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751602AbWEEPiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 11:38:50 -0400
+Subject: Re: [PATCH 10/13: eCryptfs] Mmap operations
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: David Howells <dhowells@redhat.com>,
+       Phillip Hellewell <phillip@hellewell.homeip.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
+       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>
+In-Reply-To: <1146842548.10109.27.camel@kleikamp.austin.ibm.com>
+References: <84144f020605040813q29fcddcr1c846d27cf156432@mail.gmail.com>
+	 <20060504031755.GA28257@hellewell.homeip.net>
+	 <20060504034127.GI28613@hellewell.homeip.net>
+	 <23514.1146779003@warthog.cambridge.redhat.com>
+	 <1146842548.10109.27.camel@kleikamp.austin.ibm.com>
+Date: Fri, 05 May 2006 18:38:48 +0300
+Message-Id: <1146843528.11271.1.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060505152748.GA22870@redhat.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, May 05, 2006 at 12:31:23PM +0200, Pavel Machek wrote:
-> 
->  > If you only pressed single key -- your keyboard is crap or there's
->  > some problem in the driver.
->  > 
->  > If you never pressed any key -- your keyboard is crap or there's
->  > some problem in the driver.
-> 
-> That's hardly a constructive answer when the keyboard is a part of
-> a laptop.  Crap hardware exists, get used to it.
+On Thu, 2006-05-04 at 22:43 +0100, David Howells wrote:
+> > When writing CacheFiles, I noticed that ext3 would occasionally unlock a page
+> > that had neither PG_uptodate nor PG_error set, and so I had to force another
+> > readpage() on it.
 
-Yes, but removing a message which can be sometimes useful is hardly
-justified by crappy hardware sometimes triggering it. If it's triggered
-too often, it should be rate-limited, not removed.
+On Fri, 2006-05-05 at 10:22 -0500, Dave Kleikamp wrote:
+> I understand this comes from the FiST package.  In that code, there is a
+> comment in one of these functions explaining the second read.  It would
+> be nice to have that comment in here too:
+> 
+>    /*
+>     * call readpage() again if we returned from wait_on_page with a
+>     * page that's not up-to-date; that can happen when a partial
+>     * page has a few buffers which are ok, but not the whole
+>     * page.
+>     */
+> 
+> I'm a bit surprised that this could happen.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"It's a lemon tree, my dear Watson." -- Sherlock Holmes (?)
+Me too. How do we know we don't end up the same way for the second read?
+
+			Pekka
+

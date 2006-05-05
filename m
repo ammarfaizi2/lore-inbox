@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWEEO0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWEEOZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWEEO0N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 10:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWEEO0N
+	id S1751127AbWEEOZu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 10:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWEEOZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 10:26:13 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:35644 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751124AbWEEO0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 10:26:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=JTND3OIYpr8xaBJXjm1nY8belh+n5fPio5hQWaTpj6WhrNHH474APwBa/tKLJ19OSek48BPLbgMAIgz1UxKOfgR49h9iZYx5V065tPxrWOZr8oqKNG3fab2o/bOAgPb8pcUKMJeIaxwuSkd/cC5MhQhqcjzbfSP4WGzUKZfBmwc=
-Message-ID: <445B610A.7020009@gmail.com>
-Date: Fri, 05 May 2006 17:28:26 +0300
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
-       Riley@Williams.Name, tony.luck@intel.com, johninsd@san.rr.com
-Subject: Re: [PATCH][TAKE 4] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256
- limit
-References: <445B5524.2090001@gmail.com> <445B5C92.5070401@zytor.com>
-In-Reply-To: <445B5C92.5070401@zytor.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Fri, 5 May 2006 10:25:50 -0400
+Received: from bay105-f6.bay105.hotmail.com ([65.54.224.16]:49359 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1751127AbWEEOZu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 10:25:50 -0400
+Message-ID: <BAY105-F6D90B6DEFD812FADBCC25E9B50@phx.gbl>
+X-Originating-IP: [208.48.46.1]
+X-Originating-Email: [rwm_rietveld@hotmail.com]
+In-Reply-To: <445B479C.1060401@argo.co.il>
+From: "Roy Rietveld" <rwm_rietveld@hotmail.com>
+To: avi@argo.co.il
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TCP/IP send, sendfile, RAW
+Date: Fri, 05 May 2006 14:25:42 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+X-OriginalArrivalTime: 05 May 2006 14:25:47.0537 (UTC) FILETIME=[CD475810:01C6704F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Alon Bar-Lev wrote:
+Thanks now i know, the stack is slow 40MBit on loopback.
+
+
+>From: Avi Kivity <avi@argo.co.il>
+>To: Roy Rietveld <rwm_rietveld@hotmail.com>
+>CC: P@draigBrady.com, linux-kernel@vger.kernel.org
+>Subject: Re: TCP/IP send, sendfile, RAW
+>Date: Fri, 05 May 2006 15:39:56 +0300
+>
+>Roy Rietveld wrote:
+>>the platform is a netsilicon NS9360 witch include an 100MBit ethernet 
+>>device.
+>>The driver came with the software(LxNETES) for the development board.
+>>CPU load is 100% when running sender program.
 >>
->>> Revert "x86_64/i386: increase command line size" patch
->>> It's a bootup dependancy, you can't just increase it
->>> randomly, and it breaks booting with LILO.
->>> Pointed out by Janos Farkas and Adrian Bunk.
+>>cat /proc/interrupts; sleep 10; cat /proc/interrupts doen't work anymore 
+>>because cpu is to busy.
 >>
-> 
-> Can we get the details, please, instead of a repeat of the same patch,
-> so we can figure out a proper solution?
-> 
->     -hpa
-> 
+>>Does sendto give other processes time when the hardware is transmitting 
+>>data?
+>>Is this bad hardware or is the cost of sendto that high.
+>
+>Try sending UDP over loopback and see.
+>
+>--
+>Do not meddle in the internals of kernels, for they are subtle and quick to 
+>panic.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-Hello Peter,
-
-I don't know any other way to get the details. I am truly
-thank you for your responses. But the people that rejected
-this patch gave no detailed reason! I've extended the CC
-list this time in a hope that someone will reply.
-
-I also specify the exact history for this issue... In order
-to encourage relevant people to reply.
-
-This should be a simple modification and I don't see why we
-should fight on the LILO problem (if exists) when we have
-the compile time config options alternative.
-
-People who uses LILO may leave the default 256 value. Other
-may migrate to a higher one.
-
-I also don't understand why every architecture have a
-different command line size... The compile time config
-option may solve all this to a unified solution with
-different default for every architecture.
-
-I will be glad to learn of a better to push this matter
-forward, without adding a LILO specific code into the
-kernel, which I don't think is wise... I prefer to continue
-patching my and others kernel and not mess up kernel with
-LILO specific code.
-
-If you think I should stop this effort, please say so... I
-will drop it.
-
-Best Regards,
-Alon Bar-Lev.
 

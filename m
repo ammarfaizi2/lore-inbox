@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWEEFNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWEEFPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbWEEFNN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 01:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWEEFNN
+	id S1030336AbWEEFPF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 01:15:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030338AbWEEFPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 01:13:13 -0400
-Received: from mx3.mail.elte.hu ([157.181.1.138]:60338 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750923AbWEEFNM (ORCPT
+	Fri, 5 May 2006 01:15:04 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4271 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030336AbWEEFPC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 01:13:12 -0400
-Date: Fri, 5 May 2006 07:17:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Bob Picco <bob.picco@hp.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: assert/crash in __rmqueue() when enabling CONFIG_NUMA
-Message-ID: <20060505051735.GA5931@elte.hu>
-References: <20060502070618.GA10749@elte.hu> <200605020905.29400.ak@suse.de> <44576688.6050607@mbligh.org> <44576BF5.8070903@yahoo.com.au> <20060504013239.GG19859@localhost> <1146756066.22503.17.camel@localhost.localdomain> <20060504154652.GA4530@localhost> <20060504192528.GA26759@elte.hu> <20060504194334.GH19859@localhost> <445A7725.8030401@shadowen.org>
+	Fri, 5 May 2006 01:15:02 -0400
+Date: Thu, 4 May 2006 22:10:20 -0700
+From: Greg KH <greg@kroah.com>
+To: CaT <cat@zip.com.au>
+Cc: Chris Wright <chrisw@sous-sol.org>, torvalds@osdl.org,
+       Nigel Cunningham <ncunningham@cyclades.com>,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [stable] Re: Linux 2.6.16.14
+Message-ID: <20060505051020.GA3869@kroah.com>
+References: <20060505003526.GW24291@moss.sous-sol.org> <200605051152.39693.ncunningham@cyclades.com> <20060505023353.GA24291@moss.sous-sol.org> <200605051303.37130.ncunningham@cyclades.com> <20060505032554.GC24291@moss.sous-sol.org> <20060505033325.GM4776@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <445A7725.8030401@shadowen.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060505033325.GM4776@zip.com.au>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 05, 2006 at 01:33:25PM +1000, CaT wrote:
+> On Thu, May 04, 2006 at 08:25:54PM -0700, Chris Wright wrote:
+> > Typically we do.  The security patches tend to go out straight away,
+> > unless they are very low risk, at which point they are batched with the
+> > others.  But once we know of a user triggerable security hole, it's
+> > best to release rather than sit on it.
+> 
+> I was wondering, will there be another/more stable .15 releases?
 
-* Andy Whitcroft <apw@shadowen.org> wrote:
+I don't think that Chris or I will be doing any, as we don't have any
+pending patches against that tree that people have sent us.  If you, or
+someone else wants to take over the .15 tree, feel free :)
 
-> Yeah will have a look tommorrow my time.  Could you drop me the 
-> .config too.  There is definatly some unstated requirements on 
-> alignment, which I was testing today.  I presume its one of those 
-> thats being violated.
+good luck,
 
-the config is at:
-
- http://redhat.com/~mingo/misc/config
-
-the bootlog is at:
-
- http://redhat.com/~mingo/misc/crash.log
-
-	Ingo
+greg k-h

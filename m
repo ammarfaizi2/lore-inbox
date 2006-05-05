@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751682AbWEEUc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751703AbWEEUcw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751682AbWEEUc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 16:32:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751715AbWEEUc4
+	id S1751703AbWEEUcw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 16:32:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751713AbWEEUcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 16:32:56 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:9948 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S1751682AbWEEUc4 (ORCPT
+	Fri, 5 May 2006 16:32:52 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:8412 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S1751703AbWEEUcw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 16:32:56 -0400
+	Fri, 5 May 2006 16:32:52 -0400
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH] device core: remove redundant call to device_initialize.
-Date: Fri, 05 May 2006 17:39:08 +0200
+Subject: [PATCH] blk_start_queue must be called with irq disabled - add warning
+Date: Fri, 05 May 2006 17:39:59 +0200
 To: Andrew Morton <akpm@osdl.org>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Message-Id: <20060505153907.12756.23295.stgit@zion.home.lan>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Message-Id: <20060505153959.13099.60729.stgit@zion.home.lan>
 Content-Type: text/plain; charset=utf-8; format=fixed
 User-Agent: StGIT/0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from quoted-printable to 8bit by alpha.home.local id k45KXwU5031109
+X-MIME-Autoconverted: from quoted-printable to 8bit by alpha.home.local id k45KY1U5031112
 
 From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-platform_device_add calls device_register which calls then again
-device_initialize, redundantly.
+The queue lock can be taken from interrupts so it must always be taken with irq
+disabling primitives. Some primitives already verify this.
+blk_start_queue() is called under this lock, so interrupts must be disabled.
 
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Also document this requirement clearly in blk_init_queue(), where the queue
+spinlock is set.
+
+Cc: Jens Axboe <axboe@suse.de>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- drivers/base/platform.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
+ block/ll_rw_blk.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 83f5c59..b0d9bd4 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -317,7 +317,6 @@ EXPORT_SYMBOL_GPL(platform_device_del);
-  */
- int platform_device_register(struct platform_device * pdev)
+diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
+index e5041a0..11872d1 100644
+--- a/block/ll_rw_blk.c
++++ b/block/ll_rw_blk.c
+@@ -1663,6 +1663,8 @@ static void blk_unplug_timeout(unsigned 
+  **/
+ void blk_start_queue(request_queue_t *q)
  {
--	device_initialize(&pdev->dev);
- 	return platform_device_add(pdev);
- }
- EXPORT_SYMBOL_GPL(platform_device_register);
++	WARN_ON(!irqs_disabled());
++
+ 	clear_bit(QUEUE_FLAG_STOPPED, &q->queue_flags);
+ 
+ 	/*
+@@ -1865,7 +1867,8 @@ EXPORT_SYMBOL(blk_alloc_queue_node);
+  *    get dealt with eventually.
+  *
+  *    The queue spin lock must be held while manipulating the requests on the
+- *    request queue.
++ *    request queue; this lock will be taken also from interrupt context, so irq
++ *    disabling is needed for it.
+  *
+  *    Function returns a pointer to the initialized request queue, or NULL if
+  *    it didn't succeed.

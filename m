@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbWEELnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbWEEL5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030325AbWEELnl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 07:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbWEELnl
+	id S1751537AbWEEL5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 07:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWEEL5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 07:43:41 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:10372 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030325AbWEELnk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 07:43:40 -0400
-Date: Fri, 5 May 2006 06:43:38 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, herbert@13thfloor.at,
-       dev@sw.ru, linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
-       haveblue@us.ibm.com, clg@fr.ibm.com, frankeh@us.ibm.com
-Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
-Message-ID: <20060505114338.GA12850@sergelap.austin.ibm.com>
-References: <20060501203906.XF1836@sergelap.austin.ibm.com> <200605021930.45068.ak@suse.de> <20060503161143.GA18576@sergelap.austin.ibm.com> <200605051302.43019.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 May 2006 07:57:15 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:15838 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751537AbWEEL5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 07:57:14 -0400
+From: Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Organization: IBM Deutschland Entwicklung GmbH
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH 07/13] powerpc: export symbols for page size selection
+Date: Fri, 5 May 2006 11:12:33 +0200
+User-Agent: KMail/1.9.1
+Cc: cbe-oss-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+References: <20060429232812.825714000@localhost.localdomain> <20060429233921.099214000@localhost.localdomain> <17498.59681.133131.336680@cargo.ozlabs.ibm.com>
+In-Reply-To: <17498.59681.133131.336680@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <200605051302.43019.ak@suse.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200605051112.34413.arnd.bergmann@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andi Kleen (ak@suse.de):
-> 
-> > But, either the nsproxy is shared between tasks and you need to copy
-> > youself a new one as soon as any ns changes
-> 
-> That would be the case. But it is only shared between tasks where 
-> all the name spaces are the same.
+On Friday 05 May 2006 07:56, Paul Mackerras wrote:
+> I don't like exporting low-level implementation details like this, and
+> it seems a bit bogus to have an SLB miss handler in a module.  Could
+> you move the SLB miss handler to the non-modular part?
 
-Ok, that is how I was thinking.
+Yes. The series already has the patches to move the SLB miss handler
+into the built-in parts. At the moment, we also need the symbols for
+the context switch code that also touches the SLB entries. We already
+have a patch to move that as well, but are still discussing the details
+of that.
 
-> > , or it is not shared, and 
-> > you don't need  that info at all (just make the change in the nsproxy
-> > immediately)
-> 
-> Don't follow you here.
-> 
-> Basically the goal is to have a minimum number of nsproxies in the system without
-> having to maintain a global hash table. So instead you assume that name space
-> changes are infrequent. In the common case of clone without a name space change
-> you just share the nsproxy of the parent. If there is a name space change of
-> any kind you get a new one.
-> 
-> This won't get the absolute minimum number of nsproxies, but should be reasonably
-> good without too much effort.
+I'll follow up with a patch to replace this one.
 
-Ok.  Then I maintain that the bitmap of changed namespaces seems
-unnecessary.  Since you're likely sharing an nsproxy with your parent
-process, when you clone a new namespace you just want to immediately get
-a new nsproxy pointing to the new namespaces.
+	Arnd <><
 
-Anyway this seems simple enough to just code up.  Simpler than
-continuing to talk about it  :)
-
--serge

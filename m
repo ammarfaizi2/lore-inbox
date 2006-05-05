@@ -1,196 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751676AbWEEQr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWEERJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751676AbWEEQr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 12:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751663AbWEEQrj
+	id S1751174AbWEERJj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 13:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWEERJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 12:47:39 -0400
-Received: from CPE-70-92-180-7.mn.res.rr.com ([70.92.180.7]:32644 "EHLO
-	cinder.waste.org") by vger.kernel.org with ESMTP id S1751645AbWEEQow
+	Fri, 5 May 2006 13:09:38 -0400
+Received: from CPE-70-92-180-7.mn.res.rr.com ([70.92.180.7]:18638 "EHLO
+	cinder.waste.org") by vger.kernel.org with ESMTP id S1751174AbWEERJi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 12:44:52 -0400
+	Fri, 5 May 2006 13:09:38 -0400
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk
-Message-Id: <2.420169009@selenic.com>
-Subject: [PATCH 1/14] random: Remove SA_SAMPLE_RANDOM from floppy driver
-Date: Fri, 05 May 2006 11:42:33 -0500
+Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+In-Reply-To: <2.420169009@selenic.com>
+Message-Id: <13.420169009@selenic.com>
+Subject: [PATCH 12/14] random: Remove not very useful SA_SAMPLE_RANDOM from lubbock
+Date: Fri, 05 May 2006 11:42:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove SA_SAMPLE_RANDOM from floppy driver
-
-The floppy driver is already calling add_disk_randomness as it should,
-so this was redundant.
+Remove not very useful SA_SAMPLE_RANDOM from lubbock
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: 2.6/include/asm-alpha/floppy.h
+Index: 2.6/arch/arm/mach-pxa/lubbock.c
 ===================================================================
---- 2.6.orig/include/asm-alpha/floppy.h	2005-10-27 19:02:08.000000000 -0500
-+++ 2.6/include/asm-alpha/floppy.h	2006-05-03 11:18:46.000000000 -0500
-@@ -26,9 +26,8 @@
- #define fd_enable_irq()         enable_irq(FLOPPY_IRQ)
- #define fd_disable_irq()        disable_irq(FLOPPY_IRQ)
- #define fd_cacheflush(addr,size) /* nothing */
--#define fd_request_irq()        request_irq(FLOPPY_IRQ, floppy_interrupt, \
--					    SA_INTERRUPT|SA_SAMPLE_RANDOM, \
--				            "floppy", NULL)
-+#define fd_request_irq()        request_irq(FLOPPY_IRQ, floppy_interrupt,\
-+					    SA_INTERRUPT, "floppy", NULL)
- #define fd_free_irq()           free_irq(FLOPPY_IRQ, NULL);
- 
- #ifdef CONFIG_PCI
-Index: 2.6/include/asm-arm/floppy.h
-===================================================================
---- 2.6.orig/include/asm-arm/floppy.h	2005-10-27 19:02:08.000000000 -0500
-+++ 2.6/include/asm-arm/floppy.h	2006-05-03 11:19:14.000000000 -0500
-@@ -25,7 +25,7 @@
- 
- #define fd_inb(port)		inb((port))
- #define fd_request_irq()	request_irq(IRQ_FLOPPYDISK,floppy_interrupt,\
--					SA_INTERRUPT|SA_SAMPLE_RANDOM,"floppy",NULL)
-+					    SA_INTERRUPT,"floppy",NULL)
- #define fd_free_irq()		free_irq(IRQ_FLOPPYDISK,NULL)
- #define fd_disable_irq()	disable_irq(IRQ_FLOPPYDISK)
- #define fd_enable_irq()		enable_irq(IRQ_FLOPPYDISK)
-Index: 2.6/include/asm-arm26/floppy.h
-===================================================================
---- 2.6.orig/include/asm-arm26/floppy.h	2005-10-27 19:02:08.000000000 -0500
-+++ 2.6/include/asm-arm26/floppy.h	2006-05-03 11:13:31.000000000 -0500
-@@ -22,7 +22,7 @@
- 
- #define fd_inb(port)		inb((port))
- #define fd_request_irq()	request_irq(IRQ_FLOPPYDISK,floppy_interrupt,\
--					SA_INTERRUPT|SA_SAMPLE_RANDOM,"floppy",NULL)
-+					SA_INTERRUPT,"floppy",NULL)
- #define fd_free_irq()		free_irq(IRQ_FLOPPYDISK,NULL)
- #define fd_disable_irq()	disable_irq(IRQ_FLOPPYDISK)
- #define fd_enable_irq()		enable_irq(IRQ_FLOPPYDISK)
-Index: 2.6/include/asm-i386/floppy.h
-===================================================================
---- 2.6.orig/include/asm-i386/floppy.h	2006-05-02 17:28:46.000000000 -0500
-+++ 2.6/include/asm-i386/floppy.h	2006-05-03 11:03:21.000000000 -0500
-@@ -147,9 +147,8 @@ static int fd_request_irq(void)
- 		return request_irq(FLOPPY_IRQ, floppy_hardint,SA_INTERRUPT,
- 						   "floppy", NULL);
- 	else
--		return request_irq(FLOPPY_IRQ, floppy_interrupt,
--						   SA_INTERRUPT|SA_SAMPLE_RANDOM,
--						   "floppy", NULL);	
-+		return request_irq(FLOPPY_IRQ, floppy_interrupt, SA_INTERRUPT,
-+				   "floppy", NULL);
- 
+--- 2.6.orig/arch/arm/mach-pxa/lubbock.c	2006-04-20 17:01:03.000000000 -0500
++++ 2.6/arch/arm/mach-pxa/lubbock.c	2006-05-02 18:35:47.000000000 -0500
+@@ -342,7 +342,7 @@ static int lubbock_mci_init(struct devic
+ 	init_timer(&mmc_timer);
+ 	mmc_timer.data = (unsigned long) data;
+ 	return request_irq(LUBBOCK_SD_IRQ, lubbock_detect_int,
+-			SA_SAMPLE_RANDOM, "lubbock-sd-detect", data);
++			0, "lubbock-sd-detect", data);
  }
  
-Index: 2.6/include/asm-mips/mach-generic/floppy.h
-===================================================================
---- 2.6.orig/include/asm-mips/mach-generic/floppy.h	2005-10-27 19:02:08.000000000 -0500
-+++ 2.6/include/asm-mips/mach-generic/floppy.h	2006-05-03 11:11:14.000000000 -0500
-@@ -98,7 +98,7 @@ static inline void fd_disable_irq(void)
- static inline int fd_request_irq(void)
- {
- 	return request_irq(FLOPPY_IRQ, floppy_interrupt,
--	                   SA_INTERRUPT | SA_SAMPLE_RANDOM, "floppy", NULL);
-+	                   SA_INTERRUPT, "floppy", NULL);
- }
- 
- static inline void fd_free_irq(void)
-Index: 2.6/include/asm-mips/mach-jazz/floppy.h
-===================================================================
---- 2.6.orig/include/asm-mips/mach-jazz/floppy.h	2005-10-27 19:02:08.000000000 -0500
-+++ 2.6/include/asm-mips/mach-jazz/floppy.h	2006-05-03 11:11:44.000000000 -0500
-@@ -90,7 +90,7 @@ static inline void fd_disable_irq(void)
- static inline int fd_request_irq(void)
- {
- 	return request_irq(FLOPPY_IRQ, floppy_interrupt,
--	                   SA_INTERRUPT | SA_SAMPLE_RANDOM, "floppy", NULL);
-+	                   SA_INTERRUPT, "floppy", NULL);
- }
- 
- static inline void fd_free_irq(void)
-Index: 2.6/include/asm-parisc/floppy.h
-===================================================================
---- 2.6.orig/include/asm-parisc/floppy.h	2005-10-27 19:02:08.000000000 -0500
-+++ 2.6/include/asm-parisc/floppy.h	2006-05-03 11:12:56.000000000 -0500
-@@ -159,10 +159,8 @@ static int fd_request_irq(void)
- 		return request_irq(FLOPPY_IRQ, floppy_hardint,SA_INTERRUPT,
- 						   "floppy", NULL);
- 	else
--		return request_irq(FLOPPY_IRQ, floppy_interrupt,
--						   SA_INTERRUPT|SA_SAMPLE_RANDOM,
--						   "floppy", NULL);	
--
-+		return request_irq(FLOPPY_IRQ, floppy_interrupt, SA_INTERRUPT,
-+				   "floppy", NULL);
- }
- 
- static unsigned long dma_mem_alloc(unsigned long size)
-Index: 2.6/include/asm-powerpc/floppy.h
-===================================================================
---- 2.6.orig/include/asm-powerpc/floppy.h	2006-05-02 17:28:46.000000000 -0500
-+++ 2.6/include/asm-powerpc/floppy.h	2006-05-03 11:15:32.000000000 -0500
-@@ -28,8 +28,7 @@
- #define fd_disable_irq()        disable_irq(FLOPPY_IRQ)
- #define fd_cacheflush(addr,size) /* nothing */
- #define fd_request_irq()        request_irq(FLOPPY_IRQ, floppy_interrupt, \
--					    SA_INTERRUPT|SA_SAMPLE_RANDOM, \
--				            "floppy", NULL)
-+					    SA_INTERRUPT, "floppy", NULL)
- #define fd_free_irq()           free_irq(FLOPPY_IRQ, NULL);
- 
- #ifdef CONFIG_PCI
-Index: 2.6/include/asm-ppc/floppy.h
-===================================================================
---- 2.6.orig/include/asm-ppc/floppy.h	2005-10-27 19:02:08.000000000 -0500
-+++ 2.6/include/asm-ppc/floppy.h	2006-05-03 11:10:41.000000000 -0500
-@@ -99,10 +99,8 @@ static int fd_request_irq(void)
- 		return request_irq(FLOPPY_IRQ, floppy_hardint,SA_INTERRUPT,
- 						   "floppy", NULL);
- 	else
--		return request_irq(FLOPPY_IRQ, floppy_interrupt,
--						   SA_INTERRUPT|SA_SAMPLE_RANDOM,
--						   "floppy", NULL);
--
-+		return request_irq(FLOPPY_IRQ, floppy_interrupt, SA_INTERRUPT,
-+				   "floppy", NULL);
- }
- 
- static int vdma_dma_setup(char *addr, unsigned long size, int mode, int io)
-Index: 2.6/include/asm-sh/floppy.h
-===================================================================
---- 2.6.orig/include/asm-sh/floppy.h	2005-10-27 19:02:08.000000000 -0500
-+++ 2.6/include/asm-sh/floppy.h	2006-05-03 11:04:48.000000000 -0500
-@@ -147,11 +147,10 @@ static int fd_request_irq(void)
- {
- 	if(can_use_virtual_dma)
- 		return request_irq(FLOPPY_IRQ, floppy_hardint,SA_INTERRUPT,
--						   "floppy", NULL);
-+				   "floppy", NULL);
- 	else
--		return request_irq(FLOPPY_IRQ, floppy_interrupt,
--						   SA_INTERRUPT|SA_SAMPLE_RANDOM,
--						   "floppy", NULL);	
-+		return request_irq(FLOPPY_IRQ, floppy_interrupt, SA_INTERRUPT,
-+				   "floppy", NULL);
- 
- }
- 
-Index: 2.6/include/asm-x86_64/floppy.h
-===================================================================
---- 2.6.orig/include/asm-x86_64/floppy.h	2006-05-02 17:28:46.000000000 -0500
-+++ 2.6/include/asm-x86_64/floppy.h	2006-05-03 11:09:30.000000000 -0500
-@@ -147,10 +147,8 @@ static int fd_request_irq(void)
- 		return request_irq(FLOPPY_IRQ, floppy_hardint,SA_INTERRUPT,
- 						   "floppy", NULL);
- 	else
--		return request_irq(FLOPPY_IRQ, floppy_interrupt,
--						   SA_INTERRUPT|SA_SAMPLE_RANDOM,
--						   "floppy", NULL);	
--
-+		return request_irq(FLOPPY_IRQ, floppy_interrupt, SA_INTERRUPT,
-+				   "floppy", NULL);
- }
- 
- static unsigned long dma_mem_alloc(unsigned long size)
+ static int lubbock_mci_get_ro(struct device *dev)

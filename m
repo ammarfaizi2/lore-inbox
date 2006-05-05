@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWEEQ1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWEEQdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751627AbWEEQ1M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 12:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWEEQ1L
+	id S1751158AbWEEQdi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 12:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWEEQdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 12:27:11 -0400
-Received: from xenotime.net ([66.160.160.81]:8337 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751624AbWEEQ1K (ORCPT
+	Fri, 5 May 2006 12:33:38 -0400
+Received: from mx0.towertech.it ([213.215.222.73]:30631 "HELO mx0.towertech.it")
+	by vger.kernel.org with SMTP id S1751158AbWEEQdi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 12:27:10 -0400
-Date: Fri, 5 May 2006 09:27:06 -0700 (PDT)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Jes Sorensen <jes@sgi.com>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Brent Casavant <bcasavan@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, akpm@osdl.org,
-       jeremy@sgi.com
-Subject: Re: [PATCH] Move various PCI IDs to header file
-In-Reply-To: <445AE690.5030700@sgi.com>
-Message-ID: <Pine.LNX.4.58.0605050926250.3161@shark.he.net>
-References: <20060504180614.X88573@chenjesu.americas.sgi.com>
- <20060504173722.028c2b24.rdunlap@xenotime.net> <445AE690.5030700@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 May 2006 12:33:38 -0400
+Date: Fri, 5 May 2006 18:32:09 +0200
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Ladislav Michl <ladis@linux-mips.org>
+Cc: James Chapman <jchapman@katalix.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DS1337 RTC subsystem driver
+Message-ID: <20060505183209.67e22e77@inspiron>
+In-Reply-To: <20060505154322.GA7078@linux-mips.org>
+References: <20060505154322.GA7078@linux-mips.org>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 May 2006, Jes Sorensen wrote:
+On Fri, 5 May 2006 16:43:22 +0100
+Ladislav Michl <ladis@linux-mips.org> wrote:
 
-> Randy.Dunlap wrote:
-> > On Thu, 4 May 2006 18:09:45 -0500 (CDT) Brent Casavant wrote:
-> >
-> >> Move various QLogic, Vitesse, and Intel storage
-> >> controller PCI IDs to the main header file.
-> >>
-> >> Signed-off-by: Brent Casavant <bcasavan@sgi.com>
-> >>
-> >> ---
-> >>
-> >> As suggested by Andrew Morton and Jes Sorenson.
-> >
-> > as compared to:
-> > http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=9b860b8c4bde5949b272968597d1426d53080532
->
-> I guess Andrew and I should be blamed for that. I Andrew suggested
-> putting the IDs in the 'right place' and I took the right place as being
-> the pci_ids.h file.
->
-> Can't say I agree with the recommendation, having them in pci_ids.h is
-> nice and clean and it allows one to go look through the list, instead
-> they now really become random hex values :( Brent's patch is a perfect
-> example of IDs being used in multiple places, ie. the qla1280 driver
-> and in the IOC4 driver, so the claim in that Documentation/ file doesn't
-> hold water.
->
-> Anyway, if this is the new rule, then I guess it's back to using the
-> ugly patch :(
+> Hi,
+> 
+> this is DS1337 driver for RTC subsystem, tested on VoiceBlue board.
+> Patch doesn't remove old driver, let's wait for some feedback...
+> Please test it, so we do not miss next merge window :-)
 
-FWIW, I'm not saying that I agree with the new rule, just that
-it's there/merged.
+ Hi,
+
+  there's a similar patch that has been posted here (and probably
+ merged in -mm) by David Brownell on 20050416. It should work with
+ DS1307, 37 and 39. You might want to give it a look to see
+ if it satisfies your needs.
+ 
 
 -- 
-~Randy
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+

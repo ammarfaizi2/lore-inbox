@@ -1,127 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWEEPUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWEEPWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWEEPUI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 11:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWEEPUI
+	id S1751588AbWEEPWu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 11:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbWEEPWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 11:20:08 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:37025 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751129AbWEEPUG (ORCPT
+	Fri, 5 May 2006 11:22:50 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:5338 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751588AbWEEPWt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 11:20:06 -0400
-Message-ID: <346842402.09691@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Fri, 5 May 2006 23:20:07 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] kernel facilities for cache prefetching
-Message-ID: <20060505152007.GB6134@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Linda Walsh <lkml@tlinx.org>, linux-kernel@vger.kernel.org
-References: <346556235.24875@ustc.edu.cn> <44592491.4060503@tlinx.org> <346744728.01465@ustc.edu.cn> <445A4E91.1050802@tlinx.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <445A4E91.1050802@tlinx.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 5 May 2006 11:22:49 -0400
+Subject: Re: [PATCH 10/13: eCryptfs] Mmap operations
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
+       Phillip Hellewell <phillip@hellewell.homeip.net>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
+       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>
+In-Reply-To: <23514.1146779003@warthog.cambridge.redhat.com>
+References: <84144f020605040813q29fcddcr1c846d27cf156432@mail.gmail.com>
+	 <20060504031755.GA28257@hellewell.homeip.net>
+	 <20060504034127.GI28613@hellewell.homeip.net>
+	 <23514.1146779003@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Fri, 05 May 2006 10:22:28 -0500
+Message-Id: <1146842548.10109.27.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 04, 2006 at 11:57:21AM -0700, Linda Walsh wrote:
-> Wu Fengguang wrote:
-> >>   b) Be "dynamic"; "Trace" (record (dev&blockno/range) blocks
-> >>starting ASAP after system boot and continuing for some "configurable"
-> >>number of seconds past reaching the desired "run-level" (coinciding with
-> >>initial disk quiescence).  Save as "configurable" (~6-8?) number of
-> >>traces to allow finding the common initial subset of blocks needed.
-> >>    
-> >
-> >It is a alternative way of doing the same job: more precise, with more
-> >complexity and more overhead.  However the 'blockno' way is not so
-> >tasteful.
-> >  
-> ----
-> Maybe not so tasteful to you, but it is an alternate path that
-> circumvents unnecessary i/o redirections.  An additional optimization
-
-Yes, it's about the choice of the overhead/generalization that
-indirections bring about.
-
-> is to have a "cache" of frequently used "system applications" that have
-> their pathnames registered, so no run-time seaching of the user PATH
-> is necessary.
-
-The facility is already there: it is called dcache.
-
-> >I guess poor man's defrag would be good enough for the seeking storm.
-> >  
-> ---
->    I disagree. The "poor man's defrag, as you call it, puts entire files
-> into contiguous sections -- each of which will have to be referenced by 
-> following
-> a PATH and directory chain.  The optimization I'm talking about would 
-> only store
-> the referenced data-blocks actually used in the files.  This would allow a
-> directy read into memory of a *bunch* of needed sectors while not including
-> sectors from the same files that are not actually read from during the 
-> boot *or*
-> app. initialization process.
-
-The seek storm is mostly caused by small files(that are read in wholes),
-and the corresponding scattered dir/inode buffers. By moving these
-files to one single directory, both the file data/inode buffers are
-kept continuous enough.
-
-> ^** -- "somewhere", it _seems_, the physical, device relative sector
-> must be resolved.  If it is not, how is i/o-block buffer consistency
-> maintained when the user references "device "hda", sector "1000", then
-> the same sector as "hda1", sector 500, and also as file "/etc/passwd",
-> sector 0?  _If_ cache consistency is maintained (and I _assume_^**2
-> it is), they all need to be mapped to a physical sector at some point.
+On Thu, 2006-05-04 at 22:43 +0100, David Howells wrote:
+> Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 > 
-> ^**2 - Use of assumption noted; feel free to correct me and tell me
-> this isn't the case if linux doesn't maintain disk-block cache
-> consistency.
+> > > +               rc = mapping->a_ops->readpage(file, page);
+> > 
+> > What's the purpose of this second read?
+> 
+> When writing CacheFiles, I noticed that ext3 would occasionally unlock a page
+> that had neither PG_uptodate nor PG_error set, and so I had to force another
+> readpage() on it.
 
-The linux cache model is something like:
+I understand this comes from the FiST package.  In that code, there is a
+comment in one of these functions explaining the second read.  It would
+be nice to have that comment in here too:
 
-                     physical drive             file /dev/hda1
-                             | <-----------------> |         
-file /bin/ls                 |                     |         
-    |<---------------------> |                     |         
-    |<---------------------> |                     |         
-                             | <-----------------> |         
-                             |                     |         
-                             |                     |         
-file /boot/vmlinuz           |                     |         
-    |<---------------------> |                     |         
-    |                        |                     |         
-    |                        |                     |         
-    |<---------------------> |                     |         
-                             | <-----------------> |         
-                             |                     |         
-                             |                     |         
-                             |                     |         
+   /*
+    * call readpage() again if we returned from wait_on_page with a
+    * page that's not up-to-date; that can happen when a partial
+    * page has a few buffers which are ok, but not the whole
+    * page.
+    */
 
-As opposed to this one:
+I'm a bit surprised that this could happen.
 
-                      file /dev/hda1         physical drive
-                             | <-----------------> |         
-file /bin/ls                 |                     |         
-    |<---------------------> |                     |         
-    |<---------------------> |                     |         
-                             | <-----------------> |         
-                             |                     |         
-                             |                     |         
-file /boot/vmlinuz           |                     |         
-    |<---------------------> |                     |         
-    |                        |                     |         
-    |                        |                     |         
-    |<---------------------> |                     |         
-                             | <-----------------> |         
-                             |                     |         
-                             |                     |         
-                             |                     |         
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-Wu

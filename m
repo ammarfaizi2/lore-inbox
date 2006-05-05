@@ -1,120 +1,311 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWEERJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWEERJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWEERJU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 13:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWEERJU
+	id S1751179AbWEERJw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 13:09:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbWEERJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 13:09:20 -0400
-Received: from CPE-70-92-180-7.mn.res.rr.com ([70.92.180.7]:17870 "EHLO
-	cinder.waste.org") by vger.kernel.org with ESMTP id S1751167AbWEERJT
+	Fri, 5 May 2006 13:09:52 -0400
+Received: from CPE-70-92-180-7.mn.res.rr.com ([70.92.180.7]:19406 "EHLO
+	cinder.waste.org") by vger.kernel.org with ESMTP id S1751179AbWEERJq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 13:09:19 -0400
+	Fri, 5 May 2006 13:09:46 -0400
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
 In-Reply-To: <2.420169009@selenic.com>
-Message-Id: <15.420169009@selenic.com>
-Subject: [PATCH 14/14] random: Remove add_interrupt_randomness
+Message-Id: <14.420169009@selenic.com>
+Subject: [PATCH 13/14] random: Remove SA_SAMPLE_RANDOM from IRQ fastpath
 Date: Fri, 05 May 2006 11:42:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove add_interrupt_randomness
+Remove SA_SAMPLE_RANDOM
 
-This patch removes add_interrupt_randomness, which was only used by
-IRQ handlers that used to set SA_SAMPLE_RANDOM.
+This removes the SA_SAMPLE_RANDOM interface which was not used with
+sufficient paranoia and introduced an extra branch test into all IRQ
+handling.
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: 2.6/drivers/char/random.c
+Index: 2.6/arch/arm/kernel/irq.c
 ===================================================================
---- 2.6.orig/drivers/char/random.c	2006-05-02 17:28:43.000000000 -0500
-+++ 2.6/drivers/char/random.c	2006-05-03 16:47:01.000000000 -0500
-@@ -127,18 +127,12 @@
-  *
-  * 	void add_input_randomness(unsigned int type, unsigned int code,
-  *                                unsigned int value);
-- * 	void add_interrupt_randomness(int irq);
-+ *      void add_disk_randomness(struct gendisk *disk);
-  *
-  * add_input_randomness() uses the input layer interrupt timing, as well as
-  * the event type information from the hardware.
-  *
-- * add_interrupt_randomness() uses the inter-interrupt timing as random
-- * inputs to the entropy pool.  Note that not all interrupts are good
-- * sources of randomness!  For example, the timer interrupts is not a
-- * good choice, because the periodicity of the interrupts is too
-- * regular, and hence predictable to an attacker.  Disk interrupts are
-- * a better measure, since the timing of the disk interrupts are more
-- * unpredictable.
-+ * add_disk_randomness() does the same for disk devices.
-  *
-  * All of these routines try to estimate how many bits of randomness a
-  * particular randomness source.  They do this by keeping track of the
-@@ -557,7 +551,6 @@ struct timer_rand_state {
- };
+--- 2.6.orig/arch/arm/kernel/irq.c	2006-05-02 17:29:26.000000000 -0500
++++ 2.6/arch/arm/kernel/irq.c	2006-05-03 16:42:56.000000000 -0500
+@@ -361,9 +361,6 @@ __do_irq(unsigned int irq, struct irqact
+ 		action = action->next;
+ 	} while (action);
  
- static struct timer_rand_state input_timer_state;
--static struct timer_rand_state *irq_timer_state[NR_IRQS];
+-	if (status & SA_SAMPLE_RANDOM)
+-		add_interrupt_randomness(irq);
+-
+ 	spin_lock_irq(&irq_controller_lock);
  
- /*
-  * This function adds entropy to the entropy "pool" by using timing
-@@ -647,15 +640,6 @@ void add_input_randomness(unsigned int t
- 			     (type << 4) ^ code ^ (code >> 4) ^ value);
- }
- 
--void add_interrupt_randomness(int irq)
--{
--	if (irq >= NR_IRQS || irq_timer_state[irq] == 0)
--		return;
--
--	DEBUG_ENT("irq event %d\n", irq);
--	add_timer_randomness(irq_timer_state[irq], 0x100 + irq);
--}
--
- void add_disk_randomness(struct gendisk *disk)
- {
- 	if (!disk || !disk->random)
-@@ -901,24 +885,6 @@ static int __init rand_initialize(void)
- }
- module_init(rand_initialize);
- 
--void rand_initialize_irq(int irq)
--{
--	struct timer_rand_state *state;
--
--	if (irq >= NR_IRQS || irq_timer_state[irq])
--		return;
--
--	/*
--	 * If kmalloc returns null, we just won't use that entropy
--	 * source.
--	 */
--	state = kmalloc(sizeof(struct timer_rand_state), GFP_KERNEL);
--	if (state) {
--		memset(state, 0, sizeof(struct timer_rand_state));
--		irq_timer_state[irq] = state;
+ 	return retval;
+@@ -670,17 +667,6 @@ int setup_irq(unsigned int irq, struct i
+ 	 * so we have to be careful not to interfere with a
+ 	 * running system.
+ 	 */
+-	if (new->flags & SA_SAMPLE_RANDOM) {
+-		/*
+-		 * This function might sleep, we want to call it first,
+-		 * outside of the atomic block.
+-		 * Yes, this might clear the entropy pool if the wrong
+-		 * driver is attempted to be loaded, without actually
+-		 * installing a new handler, but is this really a problem,
+-		 * only the sysadmin is able to do this.
+-		 */
+-	        rand_initialize_irq(irq);
 -	}
--}
--
- void rand_initialize_disk(struct gendisk *disk)
- {
- 	struct timer_rand_state *state;
-Index: 2.6/include/linux/random.h
+ 
+ 	/*
+ 	 * The following block of code has to be executed atomically
+Index: 2.6/arch/arm26/kernel/irq.c
 ===================================================================
---- 2.6.orig/include/linux/random.h	2006-04-20 17:01:10.000000000 -0500
-+++ 2.6/include/linux/random.h	2006-05-03 16:44:01.000000000 -0500
-@@ -42,12 +42,8 @@ struct rand_pool_info {
+--- 2.6.orig/arch/arm26/kernel/irq.c	2006-04-20 17:01:04.000000000 -0500
++++ 2.6/arch/arm26/kernel/irq.c	2006-05-03 16:42:43.000000000 -0500
+@@ -202,9 +202,6 @@ __do_irq(unsigned int irq, struct irqact
+ 		action = action->next;
+ 	} while (action);
  
- #ifdef __KERNEL__
- 
--extern void rand_initialize_irq(int irq);
+-	if (status & SA_SAMPLE_RANDOM)
+-		add_interrupt_randomness(irq);
 -
- extern void add_input_randomness(unsigned int type, unsigned int code,
- 				 unsigned int value);
--extern void add_interrupt_randomness(int irq);
--
- extern void get_random_bytes(void *buf, int nbytes);
- void generate_random_uuid(unsigned char uuid_out[16]);
+ 	spin_lock_irq(&irq_controller_lock);
+ }
  
+@@ -452,17 +449,6 @@ int setup_irq(unsigned int irq, struct i
+ 	 * so we have to be careful not to interfere with a
+ 	 * running system.
+ 	 */
+-	if (new->flags & SA_SAMPLE_RANDOM) {
+-		/*
+-		 * This function might sleep, we want to call it first,
+-		 * outside of the atomic block.
+-		 * Yes, this might clear the entropy pool if the wrong
+-		 * driver is attempted to be loaded, without actually
+-		 * installing a new handler, but is this really a problem,
+-		 * only the sysadmin is able to do this.
+-		 */
+-	        rand_initialize_irq(irq);
+-	}
+ 
+ 	/*
+ 	 * The following block of code has to be executed atomically
+@@ -530,9 +516,6 @@ int setup_irq(unsigned int irq, struct i
+  *	SA_SHIRQ		Interrupt is shared
+  *
+  *	SA_INTERRUPT		Disable local interrupts while processing
+- *
+- *	SA_SAMPLE_RANDOM	The interrupt can be used for entropy
+- *
+  */
+ 
+ //FIXME - handler used to return void - whats the significance of the change?
+Index: 2.6/arch/frv/kernel/irq-routing.c
+===================================================================
+--- 2.6.orig/arch/frv/kernel/irq-routing.c	2006-05-02 17:29:26.000000000 -0500
++++ 2.6/arch/frv/kernel/irq-routing.c	2006-05-03 16:42:29.000000000 -0500
+@@ -90,8 +90,6 @@ void distribute_irqs(struct irq_group *g
+ 				action = action->next;
+ 			} while (action);
+ 
+-			if (status & SA_SAMPLE_RANDOM)
+-				add_interrupt_randomness(irq);
+ 			local_irq_disable();
+ 		}
+ 	}
+Index: 2.6/arch/frv/kernel/irq.c
+===================================================================
+--- 2.6.orig/arch/frv/kernel/irq.c	2006-05-02 17:29:26.000000000 -0500
++++ 2.6/arch/frv/kernel/irq.c	2006-05-03 16:42:23.000000000 -0500
+@@ -345,9 +345,6 @@ asmlinkage void do_NMI(void)
+  *	SA_SHIRQ		Interrupt is shared
+  *
+  *	SA_INTERRUPT		Disable local interrupts while processing
+- *
+- *	SA_SAMPLE_RANDOM	The interrupt can be used for entropy
+- *
+  */
+ 
+ int request_irq(unsigned int irq,
+@@ -577,17 +574,6 @@ int setup_irq(unsigned int irq, struct i
+ 	 * so we have to be careful not to interfere with a
+ 	 * running system.
+ 	 */
+-	if (new->flags & SA_SAMPLE_RANDOM) {
+-		/*
+-		 * This function might sleep, we want to call it first,
+-		 * outside of the atomic block.
+-		 * Yes, this might clear the entropy pool if the wrong
+-		 * driver is attempted to be loaded, without actually
+-		 * installing a new handler, but is this really a problem,
+-		 * only the sysadmin is able to do this.
+-		 */
+-		rand_initialize_irq(irq);
+-	}
+ 
+ 	/* must juggle the interrupt processing stuff with interrupts disabled */
+ 	spin_lock_irqsave(&level->lock, flags);
+Index: 2.6/arch/h8300/kernel/ints.c
+===================================================================
+--- 2.6.orig/arch/h8300/kernel/ints.c	2005-10-27 19:02:08.000000000 -0500
++++ 2.6/arch/h8300/kernel/ints.c	2006-05-03 16:42:06.000000000 -0500
+@@ -158,9 +158,6 @@ int request_irq(unsigned int irq, 
+ 	irq_handle->devname = devname;
+ 	irq_list[irq] = irq_handle;
+ 
+-	if (irq_handle->flags & SA_SAMPLE_RANDOM)
+-		rand_initialize_irq(irq);
+-
+ 	enable_irq(irq);
+ 	return 0;
+ }
+@@ -222,8 +219,6 @@ asmlinkage void process_int(int irq, str
+ 		if (irq_list[irq]) {
+ 			irq_list[irq]->handler(irq, irq_list[irq]->dev_id, fp);
+ 			irq_list[irq]->count++;
+-			if (irq_list[irq]->flags & SA_SAMPLE_RANDOM)
+-				add_interrupt_randomness(irq);
+ 		}
+ 	} else {
+ 		BUG();
+Index: 2.6/arch/h8300/platform/h8s/ints.c
+===================================================================
+--- 2.6.orig/arch/h8300/platform/h8s/ints.c	2006-04-20 17:01:04.000000000 -0500
++++ 2.6/arch/h8300/platform/h8s/ints.c	2006-05-03 16:41:55.000000000 -0500
+@@ -192,9 +192,7 @@ int request_irq(unsigned int irq,
+ 	irq_handle->dev_id  = dev_id;
+ 	irq_handle->devname = devname;
+ 	irq_list[irq] = irq_handle;
+-	if (irq_handle->flags & SA_SAMPLE_RANDOM)
+-		rand_initialize_irq(irq);
+-	
++
+ 	/* enable interrupt */
+ 	/* compatible i386  */
+ 	if (irq >= EXT_IRQ0 && irq <= EXT_IRQ15)
+@@ -270,8 +268,6 @@ asmlinkage void process_int(unsigned lon
+ 		if (irq_list[vec]) {
+ 			irq_list[vec]->handler(vec, irq_list[vec]->dev_id, fp);
+ 			irq_list[vec]->count++;
+-			if (irq_list[vec]->flags & SA_SAMPLE_RANDOM)
+-				add_interrupt_randomness(vec);
+ 		}
+ 	} else {
+ 		BUG();
+Index: 2.6/arch/sparc64/kernel/irq.c
+===================================================================
+--- 2.6.orig/arch/sparc64/kernel/irq.c	2006-05-02 17:28:42.000000000 -0500
++++ 2.6/arch/sparc64/kernel/irq.c	2006-05-03 16:41:41.000000000 -0500
+@@ -437,20 +437,6 @@ int request_irq(unsigned int irq, irqret
+ 	if (unlikely(!bucket->irq_info))
+ 		return -ENODEV;
+ 
+-	if ((bucket != &pil0_dummy_bucket) && (irqflags & SA_SAMPLE_RANDOM)) {
+-		/*
+-	 	 * This function might sleep, we want to call it first,
+-	 	 * outside of the atomic block. In SA_STATIC_ALLOC case,
+-		 * random driver's kmalloc will fail, but it is safe.
+-		 * If already initialized, random driver will not reinit.
+-	 	 * Yes, this might clear the entropy pool if the wrong
+-	 	 * driver is attempted to be loaded, without actually
+-	 	 * installing a new handler, but is this really a problem,
+-	 	 * only the sysadmin is able to do this.
+-	 	 */
+-		rand_initialize_irq(irq);
+-	}
+-
+ 	spin_lock_irqsave(&irq_action_lock, flags);
+ 
+ 	if (check_irq_sharing(bucket->pil, irqflags)) {
+@@ -673,10 +659,6 @@ static void process_bucket(int irq, stru
+ 		} else {
+ 			upa_writel(ICLR_IDLE, bp->iclr);
+ 		}
+-
+-		/* Test and add entropy */
+-		if (random & SA_SAMPLE_RANDOM)
+-			add_interrupt_randomness(irq);
+ 	}
+ out:
+ 	bp->flags &= ~IBF_INPROGRESS;
+Index: 2.6/include/asm-mips/signal.h
+===================================================================
+--- 2.6.orig/include/asm-mips/signal.h	2006-05-02 17:28:46.000000000 -0500
++++ 2.6/include/asm-mips/signal.h	2006-05-03 16:41:15.000000000 -0500
+@@ -107,7 +107,6 @@ typedef unsigned long old_sigset_t;		/* 
+  * SA_INTERRUPT is also used by the irq handling routines.
+  * SA_SHIRQ flag is for shared interrupt support on PCI and EISA.
+  */
+-#define SA_SAMPLE_RANDOM	SA_RESTART
+ 
+ #ifdef CONFIG_TRAD_SIGNALS
+ #define sig_uses_siginfo(ka)	((ka)->sa.sa_flags & SA_SIGINFO)
+Index: 2.6/include/asm-xtensa/signal.h
+===================================================================
+--- 2.6.orig/include/asm-xtensa/signal.h	2006-05-02 17:29:27.000000000 -0500
++++ 2.6/include/asm-xtensa/signal.h	2006-05-03 16:41:12.000000000 -0500
+@@ -118,7 +118,6 @@ typedef struct {
+  * SA_INTERRUPT is also used by the irq handling routines.
+  * SA_SHIRQ is for shared interrupt support on PCI and EISA.
+  */
+-#define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
+ #define SA_PROBEIRQ		0x08000000
+ #endif
+Index: 2.6/include/linux/signal.h
+===================================================================
+--- 2.6.orig/include/linux/signal.h	2006-05-02 17:29:27.000000000 -0500
++++ 2.6/include/linux/signal.h	2006-05-03 16:41:07.000000000 -0500
+@@ -16,7 +16,6 @@
+  * SA_SHIRQ is for shared interrupt support on PCI and EISA.
+  * SA_PROBEIRQ is set by callers when they expect sharing mismatches to occur
+  */
+-#define SA_SAMPLE_RANDOM	SA_RESTART
+ #define SA_SHIRQ		0x04000000
+ #define SA_PROBEIRQ		0x08000000
+ 
+Index: 2.6/kernel/irq/handle.c
+===================================================================
+--- 2.6.orig/kernel/irq/handle.c	2006-04-20 17:00:51.000000000 -0500
++++ 2.6/kernel/irq/handle.c	2006-05-03 16:41:01.000000000 -0500
+@@ -92,8 +92,6 @@ fastcall int handle_IRQ_event(unsigned i
+ 		action = action->next;
+ 	} while (action);
+ 
+-	if (status & SA_SAMPLE_RANDOM)
+-		add_interrupt_randomness(irq);
+ 	local_irq_disable();
+ 
+ 	return retval;
+Index: 2.6/kernel/irq/manage.c
+===================================================================
+--- 2.6.orig/kernel/irq/manage.c	2006-05-02 17:29:28.000000000 -0500
++++ 2.6/kernel/irq/manage.c	2006-05-03 16:40:55.000000000 -0500
+@@ -185,17 +185,6 @@ int setup_irq(unsigned int irq, struct i
+ 	 * so we have to be careful not to interfere with a
+ 	 * running system.
+ 	 */
+-	if (new->flags & SA_SAMPLE_RANDOM) {
+-		/*
+-		 * This function might sleep, we want to call it first,
+-		 * outside of the atomic block.
+-		 * Yes, this might clear the entropy pool if the wrong
+-		 * driver is attempted to be loaded, without actually
+-		 * installing a new handler, but is this really a problem,
+-		 * only the sysadmin is able to do this.
+-		 */
+-		rand_initialize_irq(irq);
+-	}
+ 
+ 	/*
+ 	 * The following block of code has to be executed atomically
+@@ -364,7 +353,6 @@ EXPORT_SYMBOL(free_irq);
+  *
+  *	SA_SHIRQ		Interrupt is shared
+  *	SA_INTERRUPT		Disable local interrupts while processing
+- *	SA_SAMPLE_RANDOM	The interrupt can be used for entropy
+  *
+  */
+ int request_irq(unsigned int irq,

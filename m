@@ -1,58 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWEEDlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWEEEwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbWEEDlH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 23:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWEEDlH
+	id S932287AbWEEEwi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 00:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWEEEwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 23:41:07 -0400
-Received: from wr-out-0506.google.com ([64.233.184.234]:15925 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932463AbWEEDlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 23:41:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=jUjQ5L4bezQTUiy9a44AXiEjoHplYkS755yrnql++hmgtJlLGxBWtFQTrovSBkYZwFhesjUiHEKTK25FOWHXGMdlMbn+fxjxJjYxt8YKeAseom9Zf7UAb3OxW0i3qn2udiql50mI9/U85k8JQUAyRC4nw0aF0jVgiWcGxWhf3zI=
-From: Patrick McFarland <diablod3@gmail.com>
-To: "Ioan Ionita" <opslynx@gmail.com>
-Subject: Re: Linux 2.6.16.14
-Date: Thu, 4 May 2006 23:42:05 -0400
-User-Agent: KMail/1.9.1
-Cc: "Nigel Cunningham" <ncunningham@cyclades.com>,
-       "Chris Wright" <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, torvalds@osdl.org
-References: <20060505003526.GW24291@moss.sous-sol.org> <200605051303.37130.ncunningham@cyclades.com> <df47b87a0605042018n2e5142adk7e720e80a03030bb@mail.gmail.com>
-In-Reply-To: <df47b87a0605042018n2e5142adk7e720e80a03030bb@mail.gmail.com>
+	Fri, 5 May 2006 00:52:38 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:28875 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932287AbWEEEwi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 00:52:38 -0400
+Message-ID: <445ADA05.5000801@in.ibm.com>
+Date: Fri, 05 May 2006 10:22:21 +0530
+From: Suzuki <suzuki@in.ibm.com>
+Organization: IBM Software Labs
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: reiserfs-dev@namesys.com, lkml <linux-kernel@vger.kernel.org>,
+       reiserfs-list@namesys.com
+CC: akpm@osdl.org, suparna <suparna@in.ibm.com>, amit <amitarora@in.ibm.com>
+Subject: [BUG] Reiserfs: reiserfs_panic while running fs stress tests
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605042342.06671.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 May 2006 23:18, Ioan Ionita wrote:
-> On 5/4/06, Nigel Cunningham <ncunningham@cyclades.com> wrote:
-> > :) Tongue was firmly in cheek. I guess I should have said more initially.
-> > : It
-> >
-> > wasn't so much the patch, as the speed with which they're coming. It
-> > makes me (at least) feel like the stable series is unstable. Couldn't you
-> > store them up for a day or two at a time (unless of course they really
-> > are that important that they require a quicker cycle).
->
-> I'm sure that they would be stored till Tuesdays if the linux kernel
-> had a PR department...
+Hi,
 
-Thank $DIETY that Linux isn't an end-user product, then. (Then again, even 
-FOSS end-user products have been known to tell their PR people to stuff 
-it...)
 
--- 
-Patrick McFarland || www.AdAstraPerAspera.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-we'd all be running around in darkened rooms, munching magic pills and
-listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-Inc, 1989
+I was working on a reiserfs panic with 2.6.17-rc3, while running fs
+stress tests.
+
+The panic message looked like :
+
+" REISERFS: panic (device Null superblock): reiserfs[4248]: assertion
+!(truncate && (REISERFS_I(inode)->i_flags & i_link_saved_truncate_mask)
+) failed at fs/reiserfs/super.c:328:add_save_link: saved link already re
+exists for truncated inode 13b5a "
+
+------ Summary of the problem -----------
+
+Reiserfs uses "safe links" ( directory entries with some special key
+value) to keep track of "truncated" or "unlinked" files to ensure
+integrity across crashes.
+
+Whenever there is a truncate/unlink on a file, Reiserfs creates a safe
+link for the same and deletes the same once the operation is complete.
+If the machine crashes before committing the operation, whenever the fs
+is mounted next time, the fs will look for the saved links ( easy to
+find out, since they have special key) and commit the operation that was
+unfinished.
+
+
+The problem here occurs as follows:
+
+  Whenever there is an extending DIO write operation, the fs would
+create a safe link so as to ensure the file size consistent, if there is
+crash in between the DIO. This will be deleted once the write operation
+finishes.
+
+  If the DIO write happens to go through a "HOLE" region in the file, it
+will fall into normal "buffered write", which is done  through the
+address space operations prepare_write() & commit_write(). Now, the
+prepare_write() might allocate blocks for the file (if needed). So if
+there is some error at a later point (say ENOSPC) in prepare_write(), we
+need to discard the allocated blocks. This is done by calling
+"vmtruncate()" on the file. This call leads to reiserfs specific
+truncate, which would try to add a save link for the file.
+
+This addition causes a reiserfs_panic, since there is already a "save
+link" stored for the file.
+
+
+Any thoughts on how to fix this ?
+
+
+thanks,
+
+Suzuki K P
+Linux Technology Centre,
+IBM Software Labs.
+
+
+
+
+
 

@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWEEFh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWEEFnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbWEEFh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 01:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWEEFh3
+	id S1750935AbWEEFnY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 01:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWEEFnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 01:37:29 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:17423 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932468AbWEEFh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 01:37:28 -0400
-Date: Fri, 5 May 2006 07:37:18 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: marcelo@kvack.org
-Cc: linux-kernel@vger.kernel.org, Chris Wright <chrisw@sous-sol.org>,
-       Steven French <sfrench@us.ibm.com>,
-       Mark Moseley <moseleymark@gmail.com>
-Subject: Re: [PATCH] smbfs chroot issue (CVE-2006-1864)
-Message-ID: <20060505053718.GE11191@w.ods.org>
-References: <20060505014041.GZ24291@moss.sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060505014041.GZ24291@moss.sous-sol.org>
-User-Agent: Mutt/1.5.10i
+	Fri, 5 May 2006 01:43:24 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:39093 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750935AbWEEFnX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 01:43:23 -0400
+Message-ID: <445AE690.5030700@sgi.com>
+Date: Fri, 05 May 2006 07:45:52 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org, akpm@osdl.org, jeremy@sgi.com
+Subject: Re: [PATCH] Move various PCI IDs to header file
+References: <20060504180614.X88573@chenjesu.americas.sgi.com> <20060504173722.028c2b24.rdunlap@xenotime.net>
+In-Reply-To: <20060504173722.028c2b24.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
+Randy.Dunlap wrote:
+> On Thu, 4 May 2006 18:09:45 -0500 (CDT) Brent Casavant wrote:
+> 
+>> Move various QLogic, Vitesse, and Intel storage
+>> controller PCI IDs to the main header file.
+>>
+>> Signed-off-by: Brent Casavant <bcasavan@sgi.com>
+>>
+>> ---
+>>
+>> As suggested by Andrew Morton and Jes Sorenson.
+> 
+> as compared to:
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=9b860b8c4bde5949b272968597d1426d53080532
 
-This patch also applies to 2.4, did you receive it on your side or do you
-want me to queue it in -upstream ?
+I guess Andrew and I should be blamed for that. I Andrew suggested
+putting the IDs in the 'right place' and I took the right place as being
+the pci_ids.h file.
 
-Regards,
-Willy
+Can't say I agree with the recommendation, having them in pci_ids.h is
+nice and clean and it allows one to go look through the list, instead
+they now really become random hex values :( Brent's patch is a perfect
+example of IDs being used in multiple places, ie. the qla1280 driver
+and in the IOC4 driver, so the claim in that Documentation/ file doesn't
+hold water.
 
-On Thu, May 04, 2006 at 06:40:41PM -0700, Chris Wright wrote:
-> From: Olaf Kirch <okir@suse.de>
-> 
-> Mark Moseley reported that a chroot environment on a SMB share can be
-> left via "cd ..\\".  Similar to CVE-2006-1863 issue with cifs, this fix
-> is for smbfs.
-> 
-> Steven French <sfrench@us.ibm.com> wrote:
-> 
-> Looks fine to me.  This should catch the slash on lookup or equivalent,
-> which will be all obvious paths of interest.
-> 
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> ---
->  This fix is in -stable, but doesn't appear to be in your tree yet.
-> 
->  fs/smbfs/dir.c |    5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> --- linus-2.6.orig/fs/smbfs/dir.c
-> +++ linus-2.6/fs/smbfs/dir.c
-> @@ -434,6 +434,11 @@ smb_lookup(struct inode *dir, struct den
->  	if (dentry->d_name.len > SMB_MAXNAMELEN)
->  		goto out;
->  
-> +	/* Do not allow lookup of names with backslashes in */
-> +	error = -EINVAL;
-> +	if (memchr(dentry->d_name.name, '\\', dentry->d_name.len))
-> +		goto out;
-> +
->  	lock_kernel();
->  	error = smb_proc_getattr(dentry, &finfo);
->  #ifdef SMBFS_PARANOIA
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Anyway, if this is the new rule, then I guess it's back to using the
+ugly patch :(
+
+Jes

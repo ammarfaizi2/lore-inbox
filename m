@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWEEHXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWEEHyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbWEEHXK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 03:23:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWEEHXK
+	id S1030337AbWEEHyY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 03:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030340AbWEEHyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 03:23:10 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:59881 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750750AbWEEHXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 03:23:09 -0400
-Subject: Re: Buffering Models
-From: Arjan van de Ven <arjan@infradead.org>
-To: Deven Balani <devenbalani@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7a37e95e0605050020x3b355e6cqdc6a59befb35d8d3@mail.gmail.com>
-References: <7a37e95e0605050020x3b355e6cqdc6a59befb35d8d3@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 05 May 2006 09:23:06 +0200
-Message-Id: <1146813787.2891.15.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 5 May 2006 03:54:23 -0400
+Received: from blaster.systems.pipex.net ([62.241.163.7]:5315 "EHLO
+	blaster.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S1030337AbWEEHyX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 03:54:23 -0400
+Date: Fri, 5 May 2006 08:55:06 +0100 (BST)
+From: Tigran Aivazian <tigran_aivazian@symantec.com>
+X-X-Sender: tigran@ezer.homenet
+To: Jan Beulich <jbeulich@novell.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix x86 microcode driver handling of multiple matching
+ revisions
+In-Reply-To: <4459D0C2.76E4.0078.0@novell.com>
+Message-ID: <Pine.LNX.4.61.0605050853370.2558@ezer.homenet>
+References: <444F9D34.76E4.0078.0@novell.com> <Pine.LNX.4.61.0605040828230.2440@ezer.homenet>
+ <4459D0C2.76E4.0078.0@novell.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-05-05 at 12:50 +0530, Deven Balani wrote:
-> Hi All
-> 
-> I am working on Real-time streaming Applications, which is using
-> various Buffer Models, Can any one help in understanding the exact
-> _scenario_ to use these flow control mechanisms,
-> 
-> 1) Circular Buffer.
-> 2) Low Water Mark Mechanism with DMA.
-> 3) Ping Pong Handshake. (or) Double Buffering.
+On Thu, 4 May 2006, Jan Beulich wrote:
+> the update file is the one in microcode_ctl-1.13. CPUID 0x00000f48 can
+> be found twice in that file, once with product code bits 0x0000005f and
+> a second time with 0x00000002. Obviously these overlap for CPUs with
+> product code 1 (testing bit mask 0x00000002), which is what is the case
+> for the (Paxville) system I saw the ill behavior on.
 
+Ok, in that case, yes, I agree that the driver should be corrected to deal 
+with multiple chunks.
 
-the homework helpline is --> that way ;-)
-
-
+Kind regards
+Tigran

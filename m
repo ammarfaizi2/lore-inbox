@@ -1,509 +1,468 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWEESnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWEESzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751209AbWEESnl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 14:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWEESnl
+	id S1751215AbWEESzG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 14:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWEESzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 14:43:41 -0400
-Received: from mail.gmx.de ([213.165.64.20]:25751 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751209AbWEESnl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 14:43:41 -0400
-X-Authenticated: #20450766
-Date: Fri, 5 May 2006 20:43:39 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Alessandro Zummo <azummo-lists@towertech.it>
-cc: Russell King <rmk@arm.linux.org.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: drivers/acorn/char/pcf8583.[hc] vs. RTC subsystem
-In-Reply-To: <20060503132301.52a75dcd@inspiron>
-Message-ID: <Pine.LNX.4.60.0605052036360.4241@poirot.grange>
-References: <20060331100423.175139000@towertech.it>
- <Pine.LNX.4.63.0605030826290.1846@pcgl.dsa-ac.de> <20060503105816.65f309f8@inspiron>
- <Pine.LNX.4.63.0605031120570.1846@pcgl.dsa-ac.de> <20060503121354.61bf3558@inspiron>
- <Pine.LNX.4.63.0605031223350.1846@pcgl.dsa-ac.de> <20060503122555.5337523f@inspiron>
- <Pine.LNX.4.63.0605031242020.1846@pcgl.dsa-ac.de> <20060503132301.52a75dcd@inspiron>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Fri, 5 May 2006 14:55:06 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:47066 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751215AbWEESzD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 14:55:03 -0400
+Subject: Re: [PATCH 8/13: eCryptfs] File operations
+From: "Timothy R. Chavez" <tinytim@us.ibm.com>
+To: Phillip Hellewell <phillip@hellewell.homeip.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk, mike@halcrow.us,
+       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
+       yoder1@us.ibm.com, James Morris <jmorris@namei.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Erez Zadok <ezk@cs.sunysb.edu>,
+       David Howells <dhowells@redhat.com>
+In-Reply-To: <20060504033949.GG28613@hellewell.homeip.net>
+References: <20060504031755.GA28257@hellewell.homeip.net>
+	 <20060504033949.GG28613@hellewell.homeip.net>
+Content-Type: text/plain
+Date: Fri, 05 May 2006 13:55:03 -0500
+Message-Id: <1146855304.17346.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 May 2006, Guennadi Liakhovetski wrote:
-
-> On Wed, 3 May 2006, Russell King wrote:
+On Wed, 2006-05-03 at 21:39 -0600, Phillip Hellewell wrote: 
+> This is the 8th patch in a series of 13 constituting the kernel
+> components of the eCryptfs cryptographic filesystem.
 > 
-> > I doubt we could switch - we need to read the year from the memory part
-> > and that's specific to Acorn machines.  The PCF8583 has a 2 bit year
-> > counter which is totally useless, so Acorn machines keep track of the
-> > year in the CMOS part of the chip.
+> eCryptfs file operations. Includes code to read header information
+> from the underyling file when needed.
 > 
-> The driver I've submitted does exactly this. It is a CMOS built into the pcf,
-> so, why not just use it for that?
+> Signed-off-by: Phillip Hellewell <phillip@hellewell.homeip.net>
+> Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
 > 
-> > Hence to _correctly_ interpret the time and date from the clock, you
-> > _have_ to have this special knowledge built in to the driver.  That
-> > won't be suitable for other setups, so I don't see how you could
-> > sanely combine the drivers and keep the functionality.
+
+Hello,
+
+Just a few more little comments.
+
+-tim
+
+> ---
 > 
-> Why do you think it is unsuitable for others?
-
-Russell, as you haven't replied, I take it as an agreement with this 
-patch, leaving the original driver under drivers/acorn so far alone.
-
-On Wed, 3 May 2006, Alessandro Zummo wrote:
-
-> On Wed, 3 May 2006 12:49:16 +0200 (CEST)
-> Guennadi Liakhovetski <gl@dsa-ac.de> wrote:
-> > 
-> > Ok, the patch is attached (sorry, this my pine is still not configured 
-> > properly for inlining, if it is a problem, will resend from home), so the 
-> > interested parties can already review it, but I would still wait for 
-> > Russell's opinion, I am not quite excited by the idea of having 2 drivers 
-> > for pcf8583 in the kernel:-)
+>  file.c |  642 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 642 insertions(+)
 > 
->  ok.  here is my
+> Index: linux-2.6.17-rc3-mm1-ecryptfs/fs/ecryptfs/file.c
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.17-rc3-mm1-ecryptfs/fs/ecryptfs/file.c	2006-05-02 19:36:01.000000000 -0600
+> @@ -0,0 +1,642 @@
+> +/**
+> + * eCryptfs: Linux filesystem encryption layer
+> + *
+> + * Copyright (C) 1997-2004 Erez Zadok
+> + * Copyright (C) 2001-2004 Stony Brook University
+> + * Copyright (C) 2004-2006 International Business Machines Corp.
+> + *   Author(s): Michael A. Halcrow <mhalcrow@us.ibm.com>
+> + *   		Michael C. Thompson <mcthomps@us.ibm.com>
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation; either version 2 of the
+> + * License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + * General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+> + * 02111-1307, USA.
+> + */
+> +
+> +#include <linux/file.h>
+> +#include <linux/poll.h>
+> +#include <linux/mount.h>
+> +#include <linux/pagemap.h>
+> +#include <linux/security.h>
+> +#include <linux/smp_lock.h>
+> +#include <linux/compat.h>
+> +#include "ecryptfs_kernel.h"
+> +
+> +/**
+> + * @param file File we are seeking in
+> + * @param offset The offset to seek to
+> + * @param origin 2: offset from i_size; 1: offset from f_pos
+> + * @return The position we have seeked to, or negative on error
+> + */
+> +static loff_t ecryptfs_llseek(struct file *file, loff_t offset, int origin)
+> +{
+> +	loff_t rv;
+> +	loff_t new_end_pos;
+> +	int rc;
+> +	int expanding_file = 0;
+> +	struct inode *inode = file->f_mapping->host;
+> +
+> +	ecryptfs_printk(KERN_DEBUG, "Enter; offset = [0x%.16x]\n", offset);
+> +	ecryptfs_printk(KERN_DEBUG, "origin = [%d]\n", origin);
+> +	ecryptfs_printk(KERN_DEBUG, "inode w/ addr = [0x%p], i_ino = [0x%.16x] "
+> +			"size: [0x%.16x]\n", inode, inode->i_ino,
+> +			i_size_read(inode));
+> +	/* If our offset is past the end of our file, we're going to
+> +	 * need to grow it so we have a valid length of 0's */
+> +	new_end_pos = offset;
+> +	switch (origin) {
+> +	case 2:
+> +		new_end_pos += i_size_read(inode);
+> +		expanding_file = 1;
+> +		break;
+> +	case 1:
+> +		new_end_pos += file->f_pos;
+> +		if (new_end_pos > i_size_read(inode)) {
+> +			ecryptfs_printk(KERN_DEBUG, "new_end_pos(=[0x%.16x]) "
+> +					"> i_size_read(inode)(=[0x%.16x])\n",
+> +					new_end_pos, i_size_read(inode));
+> +			expanding_file = 1;
+> +		}
+> +		break;
+> +	default:
+> +		if (new_end_pos > i_size_read(inode)) {
+> +			ecryptfs_printk(KERN_DEBUG, "new_end_pos(=[0x%.16x]) "
+> +					"> i_size_read(inode)(=[0x%.16x])\n",
+> +					new_end_pos, i_size_read(inode));
+> +			expanding_file = 1;
+> +		}
+> +	}
+> +	ecryptfs_printk(KERN_DEBUG, "new_end_pos = [0x%.16x]\n", new_end_pos);
+> +	if (expanding_file) {
+> +		rc = ecryptfs_truncate(file->f_dentry, new_end_pos);
+> +		if (rc) {
+> +			rv = rc;
+> +			ecryptfs_printk(KERN_ERR, "Error on attempt to "
+> +					"truncate to (higher) offset [0x%.16x];"
+> +					" rc = [%d]\n", rc, new_end_pos);
+> +			goto out;
+> +		}
+> +	}
+> +	rv = generic_file_llseek(file, offset, origin);
+> +out:
+> +	ecryptfs_printk(KERN_DEBUG, "Exit; rv = [0x%.16x]\n", rv);
+> +	return rv;
+> +}
+
+Maybe get rid of 'rc' and rename 'rv' to 'rc'?  Makes things look a bit
+more consistent... 
+
+[..] 
+> +
+> +/**
+> + * generic_file_read updates the atime of upper layer inode.  But, it
+> + * doesn't give us a chance to update the atime of the lower layer
+> + * inode.  This function is a wrapper to generic_file_read.  It
+> + * updates the atime of the lower level inode if generic_file_read
+> + * returns without any errors. This is to be used only for file reads.
+> + * The function to be used for directory reads is ecryptfs_read.
+> + */
+> +static ssize_t ecryptfs_read_update_atime(struct file *file, char __user * buf,
+> +					  size_t count, loff_t * ppos)
+> +{
+> +	int rc = 0;
+
+Initialization not needed.
+
+[..]
+> +	struct dentry *lower_dentry;
+> +	struct vfsmount *lower_vfsmount;
+> +
+> +	ecryptfs_printk(KERN_DEBUG, "Enter\n");
+> +	rc = generic_file_read(file, buf, count, ppos);
+> +	if (rc >= 0) {
+> +		lower_dentry = ECRYPTFS_DENTRY_TO_LOWER(file->f_dentry);
+> +		lower_vfsmount = ECRYPTFS_SUPERBLOCK_TO_PRIVATE(
+> +			file->f_dentry->d_inode->i_sb)->lower_mnt;
+> +		touch_atime(lower_vfsmount, lower_dentry);
+> +	}
+> +	ecryptfs_printk(KERN_DEBUG, "Exit\n");
+> +	return rc;
+> +}
+> +
+> +struct ecryptfs_getdents_callback {
+> +	void *dirent;
+> +	struct dentry *dentry;
+> +	filldir_t filldir;
+> +	int err;
+> +	int filldir_called;
+> +	int entries_written;
+> +};
+> +
+> +/* Inspired by generic filldir in fs/readir.c */
+> +static int
+> +ecryptfs_filldir(void *dirent, const char *name, int namelen, loff_t offset,
+> +		 ino_t ino, unsigned int d_type)
+> +{
+> +	struct ecryptfs_crypt_stat *crypt_stat;
+> +	struct ecryptfs_getdents_callback *buf =
+> +	    (struct ecryptfs_getdents_callback *)dirent;
+> +	int rc;
+> +	char *decoded_name;
+> +	int decoded_length;
+> +
+> +	ecryptfs_printk(KERN_DEBUG, "Enter w/ name = [%.*s]\n", namelen,
+> +			name);
+> +	crypt_stat = ECRYPTFS_DENTRY_TO_PRIVATE(buf->dentry)->crypt_stat;
+> +	buf->filldir_called++;
+> +	decoded_length = ecryptfs_decode_filename(crypt_stat, name, namelen,
+> +						  &decoded_name);
+> +	if (decoded_length < 0)
+> +		return 0;
+
+Is it wise to potentially toss away the -ENOMEM being returned from
+ecryptfs_decode_filename... Might consider propagating that error??
+
+[..]
 > 
-> Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
-> 
->  when you feel ready, you can send it to Andrew Morton
->  for inclusion in -mm.
+> +	rc = buf->filldir(buf->dirent, decoded_name, decoded_length, offset,
+> +			  ino, d_type);
+> +	kfree(decoded_name);
+> +	if (rc >= 0)
+> +		buf->entries_written++;
+> +	ecryptfs_printk(KERN_DEBUG, "Exit; rc = [%d]\n", rc);
+> +	return rc;
+> +}
+> +
+> +/**
+> + * @param file The ecryptfs file struct
+> + * @param filldir The filldir callback function
+> + */
+> +static int ecryptfs_readdir(struct file *file, void *dirent, filldir_t filldir)
+> +{
+> +	int rc = -ENOTDIR;
+> +	struct file *lower_file = NULL;
 
-The unmodified patch is below. Andrew, please, apply.
+Neither initialization not needed.
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+[..]
+> +	struct inode *inode;
+> +	struct ecryptfs_getdents_callback buf;
+> +
+> +	ecryptfs_printk(KERN_DEBUG, "Enter; file = [%p]\n", file);
+> +	lower_file = ECRYPTFS_FILE_TO_LOWER(file);
+> +	inode = file->f_dentry->d_inode;
+> +	memset(&buf, 0, sizeof(buf));
+> +	buf.dirent = dirent;
+> +	buf.dentry = file->f_dentry;
+> +	buf.filldir = filldir;
+> +retry:
+> +	buf.filldir_called = 0;
+> +	buf.entries_written = 0;
+> +	buf.err = 0;
+> +	rc = vfs_readdir(lower_file, ecryptfs_filldir, (void *)&buf);
+> +	if (buf.err)
+> +		rc = buf.err;
+> +	if (buf.filldir_called && !buf.entries_written)
+> +		goto retry;
+> +	file->f_pos = lower_file->f_pos;
+> +	if (rc >= 0)
+> +		ecryptfs_copy_attr_atime(inode, lower_file->f_dentry->d_inode);
+> +	ecryptfs_printk(KERN_DEBUG, "Exit; rc = [%d]\n", rc);
+> +	return rc;
+> +}
+> +
+> +/**
+> + * @return Zero on success; non-zero otherwise
+> + */
+> +static int
+> +read_inode_size_from_header(struct file *lower_file,
+> +			    struct inode *lower_inode, struct inode *inode)
+> +{
+> +	int rc = 0;
+> +	struct page *header_page;
+> +	unsigned char *header_virt;
+> +	u64 data_size;
+> +
+> +	ecryptfs_printk(KERN_DEBUG, "Enter w/ lower_inode = [%p]; inode = "
+> +			"[%p]\n", lower_inode, inode);
+> +	header_page = grab_cache_page(lower_inode->i_mapping, 0);
+> +	if (!header_page) {
+> +		rc = -EINVAL;
+> +		ecryptfs_printk(KERN_ERR, "grab_cache_page for header page "
+> +				"failed\n");
+> +		goto out;
+> +	}
+> +	header_virt = kmap(header_page);
+> +	rc = lower_inode->i_mapping->a_ops->readpage(lower_file, header_page);
+> +	if (rc) {
+> +		ecryptfs_printk(KERN_ERR, "Error reading header page\n");
+> +		goto out_unmap;
+> +	}
+> +	memcpy(&data_size, header_virt, sizeof(data_size));
+> +	data_size = be64_to_cpu(data_size);
+> +	i_size_write(inode, (loff_t)data_size);
+> +	ecryptfs_printk(KERN_DEBUG, "inode w/ addr = [0x%p], i_ino = [0x%.16x] "
+> +			"size: [0x%.16x]\n", inode, inode->i_ino,
+> +			i_size_read(inode));
+> +out_unmap:
+> +	kunmap(header_page);
+> +	page_cache_release(header_page);
+> +out:
+> +	ecryptfs_printk(KERN_DEBUG, "Exit; rc = [%d]\n", rc);
+> +	return rc;
+> +}
+> +
+> +kmem_cache_t *ecryptfs_file_info_cache;
 
-Signed-off-by: G. Liakhovetski <gl@dsa-ac.de>
+Static?
 
-diff -u /dev/null b/drivers/rtc/rtc-pcf8583.c
---- /dev/null	2004-06-30 21:04:37.000000000
-+++ b/drivers/rtc/rtc-pcf8583.c	2006-05-03 12:31:03.147332245
-@@ -0,0 +1,394 @@
-+/*
-+ *  drivers/rtc/rtc-pcf8583.c
-+ *
-+ *  Copyright (C) 2000 Russell King
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ *  Driver for PCF8583 RTC & RAM chip
-+ *
-+ *  Converted to the generic RTC susbsystem by G. Liakhovetski (2006)
-+ */
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+#include <linux/slab.h>
-+#include <linux/string.h>
-+#include <linux/mc146818rtc.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include <linux/bcd.h>
-+
-+struct rtc_mem {
-+	unsigned int	loc;
-+	unsigned int	nr;
-+	unsigned char	*data;
-+};
-+
-+struct pcf8583 {
-+	struct i2c_client client;
-+	struct rtc_device *rtc;
-+	unsigned char ctrl;
-+};
-+
-+#define CTRL_STOP	0x80
-+#define CTRL_HOLD	0x40
-+#define CTRL_32KHZ	0x00
-+#define CTRL_MASK	0x08
-+#define CTRL_ALARMEN	0x04
-+#define CTRL_ALARM	0x02
-+#define CTRL_TIMER	0x01
-+
-+static unsigned short normal_i2c[] = { I2C_CLIENT_END };
-+
-+/* Module parameters */
-+I2C_CLIENT_INSMOD;
-+
-+static struct i2c_driver pcf8583_driver;
-+
-+#define get_ctrl(x)    ((struct pcf8583 *)i2c_get_clientdata(x))->ctrl
-+#define set_ctrl(x, v) get_ctrl(x) = v
-+
-+#define CMOS_YEAR	(64 + 128)
-+#define CMOS_CHECKSUM	(63)
-+
-+static int pcf8583_get_datetime(struct i2c_client *client, struct rtc_time *dt)
-+{
-+	unsigned char buf[8], addr[1] = { 1 };
-+	struct i2c_msg msgs[2] = {
-+		{
-+			.addr = client->addr,
-+			.flags = 0,
-+			.len = 1,
-+			.buf = addr,
-+		}, {
-+			.addr = client->addr,
-+			.flags = I2C_M_RD,
-+			.len = 6,
-+			.buf = buf,
-+		}
-+	};
-+	int ret;
-+
-+	memset(buf, 0, sizeof(buf));
-+
-+	ret = i2c_transfer(client->adapter, msgs, 2);
-+	if (ret == 2) {
-+		dt->tm_year = buf[4] >> 6;
-+		dt->tm_wday = buf[5] >> 5;
-+
-+		buf[4] &= 0x3f;
-+		buf[5] &= 0x1f;
-+
-+		dt->tm_sec = BCD_TO_BIN(buf[1]);
-+		dt->tm_min = BCD_TO_BIN(buf[2]);
-+		dt->tm_hour = BCD_TO_BIN(buf[3]);
-+		dt->tm_mday = BCD_TO_BIN(buf[4]);
-+		dt->tm_mon = BCD_TO_BIN(buf[5]);
-+	}
-+
-+	return ret == 2 ? 0 : -EIO;
-+}
-+
-+static int pcf8583_set_datetime(struct i2c_client *client, struct rtc_time *dt, int datetoo)
-+{
-+	unsigned char buf[8];
-+	int ret, len = 6;
-+
-+	buf[0] = 0;
-+	buf[1] = get_ctrl(client) | 0x80;
-+	buf[2] = 0;
-+	buf[3] = BIN_TO_BCD(dt->tm_sec);
-+	buf[4] = BIN_TO_BCD(dt->tm_min);
-+	buf[5] = BIN_TO_BCD(dt->tm_hour);
-+
-+	if (datetoo) {
-+		len = 8;
-+		buf[6] = BIN_TO_BCD(dt->tm_mday) | (dt->tm_year << 6);
-+		buf[7] = BIN_TO_BCD(dt->tm_mon)  | (dt->tm_wday << 5);
-+	}
-+
-+	ret = i2c_master_send(client, (char *)buf, len);
-+	if (ret != len)
-+		return -EIO;
-+
-+	buf[1] = get_ctrl(client);
-+	ret = i2c_master_send(client, (char *)buf, 2);
-+
-+	return ret == 2 ? 0 : -EIO;
-+}
-+
-+static int pcf8583_get_ctrl(struct i2c_client *client, unsigned char *ctrl)
-+{
-+	*ctrl = get_ctrl(client);
-+	return 0;
-+}
-+
-+static int pcf8583_set_ctrl(struct i2c_client *client, unsigned char *ctrl)
-+{
-+	unsigned char buf[2];
-+
-+	buf[0] = 0;
-+	buf[1] = *ctrl;
-+	set_ctrl(client, *ctrl);
-+
-+	return i2c_master_send(client, (char *)buf, 2);
-+}
-+
-+static int pcf8583_read_mem(struct i2c_client *client, struct rtc_mem *mem)
-+{
-+	unsigned char addr[1];
-+	struct i2c_msg msgs[2] = {
-+		{
-+			.addr = client->addr,
-+			.flags = 0,
-+			.len = 1,
-+			.buf = addr,
-+		}, {
-+			.addr = client->addr,
-+			.flags = I2C_M_RD,
-+			.len = mem->nr,
-+			.buf = mem->data,
-+		}
-+	};
-+
-+	if (mem->loc < 8)
-+		return -EINVAL;
-+
-+	addr[0] = mem->loc;
-+
-+	return i2c_transfer(client->adapter, msgs, 2) == 2 ? 0 : -EIO;
-+}
-+
-+static int pcf8583_write_mem(struct i2c_client *client, struct rtc_mem *mem)
-+{
-+	unsigned char addr[1];
-+	struct i2c_msg msgs[2] = {
-+		{
-+			.addr = client->addr,
-+			.flags = 0,
-+			.len = 1,
-+			.buf = addr,
-+		}, {
-+			.addr = client->addr,
-+			.flags = I2C_M_NOSTART,
-+			.len = mem->nr,
-+			.buf = mem->data,
-+		}
-+	};
-+
-+	if (mem->loc < 8)
-+		return -EINVAL;
-+
-+	addr[0] = mem->loc;
-+
-+	return i2c_transfer(client->adapter, msgs, 2) == 2 ? 0 : -EIO;
-+}
-+
-+static int pcf8583_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	unsigned char ctrl, year[2];
-+	struct rtc_mem mem = { CMOS_YEAR, sizeof(year), year };
-+	int real_year, year_offset, err;
-+
-+	/*
-+	 * Ensure that the RTC is running.
-+	 */
-+	pcf8583_get_ctrl(client, &ctrl);
-+	if (ctrl & (CTRL_STOP | CTRL_HOLD)) {
-+		unsigned char new_ctrl = ctrl & ~(CTRL_STOP | CTRL_HOLD);
-+
-+		printk(KERN_WARNING "RTC: resetting control %02x -> %02x\n",
-+		       ctrl, new_ctrl);
-+
-+		if ((err = pcf8583_set_ctrl(client, &new_ctrl)) < 0)
-+			return err;
-+	}
-+
-+	if (pcf8583_get_datetime(client, tm) ||
-+	    pcf8583_read_mem(client, &mem))
-+		return -EIO;
-+
-+	real_year = year[0];
-+
-+	/*
-+	 * The RTC year holds the LSB two bits of the current
-+	 * year, which should reflect the LSB two bits of the
-+	 * CMOS copy of the year.  Any difference indicates
-+	 * that we have to correct the CMOS version.
-+	 */
-+	year_offset = tm->tm_year - (real_year & 3);
-+	if (year_offset < 0)
-+		/*
-+		 * RTC year wrapped.  Adjust it appropriately.
-+		 */
-+		year_offset += 4;
-+
-+	tm->tm_year = real_year + year_offset + year[1] * 100;
-+
-+	return 0;
-+}
-+
-+static int pcf8583_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	unsigned char year[2], chk;
-+	struct rtc_mem cmos_year  = { CMOS_YEAR, sizeof(year), year };
-+	struct rtc_mem cmos_check = { CMOS_CHECKSUM, 1, &chk };
-+	int ret;
-+
-+	/*
-+	 * The RTC's own 2-bit year must reflect the least
-+	 * significant two bits of the CMOS year.
-+	 */
-+
-+	ret = pcf8583_set_datetime(client, tm, 1);
-+	if (ret)
-+		return ret;
-+
-+	ret = pcf8583_read_mem(client, &cmos_check);
-+	if (ret)
-+		return ret;
-+
-+	ret = pcf8583_read_mem(client, &cmos_year);
-+	if (ret)
-+		return ret;
-+
-+	chk -= year[1] + year[0];
-+
-+	year[1] = tm->tm_year / 100;
-+	year[0] = tm->tm_year % 100;
-+
-+	chk += year[1] + year[0];
-+
-+	ret = pcf8583_write_mem(client, &cmos_year);
-+
-+	if (ret)
-+		return ret;
-+
-+	ret = pcf8583_write_mem(client, &cmos_check);
-+
-+	return ret;
-+}
-+
-+static struct rtc_class_ops pcf8583_rtc_ops = {
-+	.read_time	= pcf8583_rtc_read_time,
-+	.set_time	= pcf8583_rtc_set_time,
-+};
-+
-+static int pcf8583_probe(struct i2c_adapter *adap, int addr, int kind);
-+
-+static int pcf8583_attach(struct i2c_adapter *adap)
-+{
-+	return i2c_probe(adap, &addr_data, pcf8583_probe);
-+}
-+
-+static int pcf8583_detach(struct i2c_client *client)
-+{
-+	int err;
-+	struct pcf8583 *pcf = i2c_get_clientdata(client);
-+	struct rtc_device *rtc = pcf->rtc;
-+
-+	if (rtc)
-+		rtc_device_unregister(rtc);
-+
-+	if ((err = i2c_detach_client(client)))
-+		return err;
-+
-+	kfree(pcf);
-+	return 0;
-+}
-+
-+static struct i2c_driver pcf8583_driver = {
-+	.driver = {
-+		.name	= "pcf8583",
-+	},
-+	.id		= I2C_DRIVERID_PCF8583,
-+	.attach_adapter	= pcf8583_attach,
-+	.detach_client	= pcf8583_detach,
-+};
-+
-+static int pcf8583_probe(struct i2c_adapter *adap, int addr, int kind)
-+{
-+	struct pcf8583 *pcf;
-+	struct i2c_client *client;
-+	struct rtc_device *rtc;
-+	unsigned char buf[1], ad[1] = { 0 };
-+	int err;
-+	struct i2c_msg msgs[2] = {
-+		{
-+			.addr = addr,
-+			.flags = 0,
-+			.len = 1,
-+			.buf = ad,
-+		}, {
-+			.addr = addr,
-+			.flags = I2C_M_RD,
-+			.len = 1,
-+			.buf = buf,
-+		}
-+	};
-+
-+	pcf = kzalloc(sizeof(*pcf), GFP_KERNEL);
-+	if (!pcf)
-+		return -ENOMEM;
-+
-+	client = &pcf->client;
-+
-+	client->addr		= addr;
-+	client->adapter	= adap;
-+	client->driver	= &pcf8583_driver;
-+
-+	strlcpy(client->name, pcf8583_driver.driver.name, I2C_NAME_SIZE);
-+
-+	if (i2c_transfer(client->adapter, msgs, 2) != 2) {
-+		err = -EIO;
-+		goto exit_kfree;
-+	}
-+
-+	err = i2c_attach_client(client);
-+
-+	if (err)
-+		goto exit_kfree;
-+
-+	rtc = rtc_device_register(pcf8583_driver.driver.name, &client->dev,
-+				  &pcf8583_rtc_ops, THIS_MODULE);
-+
-+	if (IS_ERR(rtc)) {
-+		err = PTR_ERR(rtc);
-+		goto exit_detach;
-+	}
-+
-+	pcf->rtc = rtc;
-+	i2c_set_clientdata(client, pcf);
-+	set_ctrl(client, buf[0]);
-+
-+	return 0;
-+
-+exit_detach:
-+	i2c_detach_client(client);
-+
-+exit_kfree:
-+	kfree(pcf);
-+
-+	return err;
-+}
-+
-+static __init int pcf8583_init(void)
-+{
-+	return i2c_add_driver(&pcf8583_driver);
-+}
-+
-+static __exit void pcf8583_exit(void)
-+{
-+	i2c_del_driver(&pcf8583_driver);
-+}
-+
-+module_init(pcf8583_init);
-+module_exit(pcf8583_exit);
-+
-+MODULE_AUTHOR("Russell King");
-+MODULE_DESCRIPTION("PCF8583 I2C RTC driver");
-+MODULE_LICENSE("GPL");
-diff -u a/drivers/rtc/Makefile b/drivers/rtc/Makefile
---- a/drivers/rtc/Makefile	2006-04-28 15:28:20.000000000
-+++ b/drivers/rtc/Makefile	2006-05-02 15:06:47.000000000
-@@ -15,6 +15,7 @@
- obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
- obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
- obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
-+obj-$(CONFIG_RTC_DRV_PCF8583)	+= rtc-pcf8583.o
- obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
- obj-$(CONFIG_RTC_DRV_M48T86)	+= rtc-m48t86.o
- obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
-diff -u a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
---- a/drivers/rtc/Kconfig	2006-04-28 15:28:20.000000000
-+++ b/drivers/rtc/Kconfig	2006-05-03 12:34:21.593469115
-@@ -107,6 +107,16 @@
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-pcf8563.
- 
-+config RTC_DRV_PCF8583
-+	tristate "Philips PCF8583"
-+	depends on RTC_CLASS && I2C
-+	help
-+	  If you say yes here you get support for the
-+	  Philips PCF8583 RTC chip.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-pcf8583.
-+
- config RTC_DRV_RS5C372
- 	tristate "Ricoh RS5C372A/B"
- 	depends on RTC_CLASS && I2C
+[..]
+> +
+> +/**
+> + * Opens the file specified by inode.
+> + *
+> + * @param inode	inode speciying file to open
+> + * @param file	Structure to return filled in
+> + * @return Zero on success; non-zero otherwise
+> + */
+> +static int ecryptfs_open(struct inode *inode, struct file *file)
+> +{
+> +	int rc = 0;
+> +	struct ecryptfs_crypt_stat *crypt_stat = NULL;
+> +	struct dentry *ecryptfs_dentry = file->f_dentry;
+> +	struct dentry *lower_dentry = ECRYPTFS_DENTRY_TO_LOWER(ecryptfs_dentry);
+> +	struct inode *lower_inode = NULL;
+> +	struct file *lower_file = NULL;
+> +	struct vfsmount *lower_mnt;
+> +	int lower_flags;
+> +
+> +	ecryptfs_printk(KERN_DEBUG, "Enter\n");
+> +	ecryptfs_printk(KERN_DEBUG, "inode w/ addr = [0x%p], i_ino = [0x%.16x] "
+> +			"size: [0x%.16x]\n", inode, inode->i_ino,
+> +			i_size_read(inode));
+> +	ecryptfs_printk(KERN_DEBUG, "file->f_dentry = [%p], "
+> +			"file->f_dentry->d_name.name = [%s], "
+> +			"file->f_dentry->d_name.len = [%d]\n",
+> +			ecryptfs_dentry, ecryptfs_dentry->d_name.name,
+> +			ecryptfs_dentry->d_name.len);
+> +	/* ECRYPTFS_DENTRY_TO_PRIVATE(ecryptfs_dentry) Allocated in
+> +	 * ecryptfs_lookup() */
+> +	/* Released in ecryptfs_release or end of function if failure */
+> +	ECRYPTFS_FILE_TO_PRIVATE_SM(file) =
+> +		kmem_cache_alloc(ecryptfs_file_info_cache, SLAB_KERNEL);
+> +	if (!ECRYPTFS_FILE_TO_PRIVATE_SM(file)) {
+> +		ecryptfs_printk(KERN_ERR,
+> +				"Error attempting to allocate memory\n");
+> +		rc = -ENOMEM;
+> +		goto out;
+> +	}
+> +	lower_dentry = ECRYPTFS_DENTRY_TO_LOWER(ecryptfs_dentry);
+> +	crypt_stat = &(ECRYPTFS_INODE_TO_PRIVATE(inode)->crypt_stat);
+> +	if (!ECRYPTFS_CHECK_FLAG(crypt_stat->flags, ECRYPTFS_POLICY_APPLIED)) {
+> +		ecryptfs_printk(KERN_DEBUG, "Setting flags for stat...\n");
+> +		/* Policy code enabled in future release */
+> +		ECRYPTFS_SET_FLAG(crypt_stat->flags, ECRYPTFS_POLICY_APPLIED);
+> +		ECRYPTFS_SET_FLAG(crypt_stat->flags, ECRYPTFS_ENCRYPTED);
+> +	}
+> +	/* This mntget & dget is undone via fput when the file is released */
+> +	dget(lower_dentry);
+> +	lower_flags = file->f_flags;
+> +	if ((lower_flags & O_ACCMODE) == O_WRONLY)
+> +		lower_flags = (lower_flags & O_ACCMODE) | O_RDWR;
+> +	if (file->f_flags & O_APPEND)
+> +		lower_flags &= ~O_APPEND;
+> +	lower_mnt = ECRYPTFS_SUPERBLOCK_TO_PRIVATE(inode->i_sb)->lower_mnt;
+> +	mntget(lower_mnt);
+> +	/* Corresponding fput() in ecryptfs_release() */
+> +	lower_file = dentry_open(lower_dentry, lower_mnt, lower_flags);
+> +	if (IS_ERR(lower_file)) {
+> +		rc = PTR_ERR(lower_file);
+> +		ecryptfs_printk(KERN_ERR, "Error opening lower file\n");
+> +		goto out_puts;
+> +	}
+> +	ECRYPTFS_FILE_TO_LOWER(file) = lower_file;
+> +	/* Isn't this check the same as the one in lookup? */
+> +	lower_inode = lower_dentry->d_inode;
+> +	if (S_ISDIR(ecryptfs_dentry->d_inode->i_mode)) {
+> +		ecryptfs_printk(KERN_DEBUG, "This is a directory\n");
+> +		ECRYPTFS_CLEAR_FLAG(crypt_stat->flags, ECRYPTFS_ENCRYPTED);
+> +		rc = 0;
+> +		goto out;
+> +	}
+> +	if (i_size_read(lower_inode) == 0) {
+> +		ecryptfs_printk(KERN_EMERG, "Zero-length lower file; "
+> +				"ecryptfs_create() had a problem?\n");
+> +		rc = -ENOENT;
+> +		goto out_puts;
+> +	} else if (!ECRYPTFS_CHECK_FLAG(crypt_stat->flags,
+> +					ECRYPTFS_POLICY_APPLIED)
+> +		   || !ECRYPTFS_CHECK_FLAG(crypt_stat->flags,
+> +					   ECRYPTFS_KEY_VALID)) {
+> +		rc = ecryptfs_read_headers(ecryptfs_dentry, lower_file);
+> +		if (rc) {
+> +			ecryptfs_printk(KERN_DEBUG,
+> +					"Valid headers not found\n");
+> +			ECRYPTFS_CLEAR_FLAG(crypt_stat->flags,
+> +					    ECRYPTFS_ENCRYPTED);
+> +			/* At this point, we could just move on and
+> +			 * have the encrypted data passed through
+> +			 * as-is to userspace. For release 0.1, we are
+> +			 * going to default to -EIO. */
+> +			rc = -EIO;
+> +			goto out_puts;
+> +		} else
+> +			read_inode_size_from_header(lower_file, lower_inode,
+> +						    inode);
+> +	}
+> +	ecryptfs_printk(KERN_DEBUG, "inode w/ addr = [0x%p], i_ino = [0x%.16x] "
+> +			"size: [0x%.16x]\n", inode, inode->i_ino,
+> +			i_size_read(inode));
+> +	ECRYPTFS_FILE_TO_LOWER(file) = lower_file;
+> +	goto out;
+> +out_puts:
+> +	mntput(lower_mnt);
+> +	dput(lower_dentry);
+> +	kmem_cache_free(ecryptfs_file_info_cache,
+> +			ECRYPTFS_FILE_TO_PRIVATE(file));
+> +out:
+> +	ecryptfs_printk(KERN_DEBUG, "Exit; rc = [%d]\n", rc);
+> +	return rc;
+> +}
+> +
+> +static int ecryptfs_flush(struct file *file, fl_owner_t td)
+> +{
+> +	int rc = 0;
+> +	struct file *lower_file = NULL;
+> +
+> +	ecryptfs_printk(KERN_DEBUG, "Enter; file = [%p]\n", file);
+> +	lower_file = ECRYPTFS_FILE_TO_LOWER(file);
+> +	if (lower_file->f_op && lower_file->f_op->flush)
+> +		rc = lower_file->f_op->flush(lower_file, td);
+> +	ecryptfs_printk(KERN_DEBUG, "Exit; rc = [%d]\n", rc);
+> +	return rc;
+> +}
+> +
+> +static int ecryptfs_release(struct inode *ecryptfs_inode, struct file *file)
+> +{
+> +	int rc = 0;
+> +	struct file *lower_file = NULL;
+> +	struct inode *lower_inode;
+> +
+> +	ecryptfs_printk(KERN_DEBUG,
+> +			"Enter; ecryptfs_inode->i_count = [%d]\n",
+> +			ecryptfs_inode->i_count);
+> +	lower_file = ECRYPTFS_FILE_TO_LOWER(file);
+> +	kmem_cache_free(ecryptfs_file_info_cache,
+> +			ECRYPTFS_FILE_TO_PRIVATE(file));
+> +	lower_inode = ECRYPTFS_INODE_TO_LOWER(ecryptfs_inode);
+> +	fput(lower_file);
+> +	ecryptfs_inode->i_blocks = lower_inode->i_blocks;
+> +	ecryptfs_printk(KERN_DEBUG, "Exit; rc = [%d]\n", rc);
+> +	return rc;
+
+What about just "return 0;" here.  There's no need for 'rc'.
+
+> +}
+> +
+
+<snip>
+

@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWEERKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWEERNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWEERKW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 13:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWEERKW
+	id S1751178AbWEERNc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 13:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWEERNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 13:10:22 -0400
-Received: from [65.205.244.70] ([65.205.244.70]:8866 "EHLO
-	mail1.dmz.sj.pioneer-pra.com") by vger.kernel.org with ESMTP
-	id S1751177AbWEERKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 13:10:20 -0400
-From: Jason Schoonover <jasons@pioneer-pra.com>
-To: linux-kernel@vger.kernel.org
-Subject: High load average on disk I/O on 2.6.17-rc3
-Date: Fri, 5 May 2006 10:10:19 -0700
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 5 May 2006 13:13:32 -0400
+Received: from smtpout.mac.com ([17.250.248.185]:28875 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751178AbWEERNc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 13:13:32 -0400
+In-Reply-To: <8.420169009@selenic.com>
+References: <8.420169009@selenic.com>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <65CF7F44-0452-4E94-8FC1-03B024BCCAE7@mac.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       davem@davemloft.net
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200605051010.19725.jasons@pioneer-pra.com>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+Date: Fri, 5 May 2006 13:13:23 -0400
+To: Matt Mackall <mpm@selenic.com>
+X-Mailer: Apple Mail (2.746.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On May 5, 2006, at 12:42:35, Matt Mackall wrote:
+> Remove SA_SAMPLE_RANDOM from network drivers
+>
+> /dev/random wants entropy sources to be both unpredictable and  
+> unobservable. Network devices are neither as they may be directly  
+> observed and controlled by an attacker. Thus SA_SAMPLE_RANDOM is  
+> not appropriate.
 
-I'm not sure if this is the right list to post to, so please direct me to the 
-appropriate list if this is the wrong one.
+I thought I saw an analysis somewhere of why it was actually OK to  
+include randomness from network devices (or even basically any  
+interrupt source that isn't periodic on a fundamental hardware  
+level).  It had something to do with investigating interrupt arrival  
+time from real-time network traffic; they hooked a logic analyzer of  
+sorts up to the physical ethernet cable itself and to the system bus  
+of the destination computer (and wrote software that recorded a TSC  
+timestamp of every interrupt).  Essentially the interaction between  
+the occasional ethernet retransmission, variable internal network  
+card latencies and queues, variable CPU-dependent interrupt  
+latencies, critical sections in the OS, etc, plus the high-resolution  
+nature of the TSC used for a seed value made it a chaotic system and  
+basically cryptographically impossible to predict the interrupt  
+data.  It's possible that the analysis I saw was later proven  
+incorrect; but I'd be interested if you've seen some paper or  
+research on the topic that I haven't, I'd be interested in references.
 
-I'm having some problems on the latest 2.6.17-rc3 kernel and SCSI disk I/O.  
-Whenever I copy any large file (over 500GB) the load average starts to slowly 
-rise and after about a minute it is up to 7.5 and keeps on rising (depending 
-on how long the file takes to copy).  When I watch top, the processes at the 
-top of the list are cp, pdflush, kjournald and kswapd.
+Cheers,
+Kyle Moffett
 
-I just recently upgraded the box, it used to run Redhat 9 with kernel 2.4.20 
-just fine.  This problem did not show up with 2.4.20.  I just recently 
-installed Debian/unstable on it and that's when the problems started showing 
-up.
 
-Initially the problem showed up on debian's 2.6.15-1-686-smp kernel pkg, so I 
-upgraded to 2.6.16-1-686; same problem, I then downloaded 2.6.16.12 from 
-kernel.org and finally ended up downloading and compiling 2.6.17-rc3 and same 
-problem occurs.
-
-The hardware is a Dell PowerEdge 2650 Dual Xeon 2.4GHZ/2GB RAM, the hard drive 
-controller is (as reported by lspci):
-
-0000:04:08.1 RAID bus controller: Dell PowerEdge Expandable RAID Controller 
-3/Di (rev 01)
-0000:05:06.0 SCSI storage controller: Adaptec RAID subsystem HBA (rev 01)
-0000:05:06.1 SCSI storage controller: Adaptec RAID subsystem HBA (rev 01)
-
-The PERC RAID configuration is four 136GB SCSI drives RAID5'd together.
-
-Can anybody help me out here?  Maybe I'm doing something wrong with the 
-configuration.  Any help/suggestions would be great.
-
-Thanks,
-Jason Schoonover

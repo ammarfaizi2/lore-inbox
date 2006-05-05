@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWEEMR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751540AbWEEMkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWEEMR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 08:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWEEMR7
+	id S1751540AbWEEMkH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 08:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbWEEMkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 08:17:59 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:12996 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751048AbWEEMR6
+	Fri, 5 May 2006 08:40:06 -0400
+Received: from gateway.argo.co.il ([194.90.79.130]:27663 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1751540AbWEEMkF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 08:17:58 -0400
-Date: Fri, 5 May 2006 07:17:54 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, dev@sw.ru,
-       linux-kernel@vger.kernel.org, sam@vilain.net, xemul@sw.ru,
-       haveblue@us.ibm.com, clg@fr.ibm.com, frankeh@us.ibm.com
-Subject: Re: [PATCH 7/7] uts namespaces: Implement CLONE_NEWUTS flag
-Message-ID: <20060505121754.GE12850@sergelap.austin.ibm.com>
-References: <20060501203906.XF1836@sergelap.austin.ibm.com> <200605021017.19897.ak@suse.de> <20060502172031.GA22923@sergelap.austin.ibm.com> <200605021930.45068.ak@suse.de> <20060503161143.GA18576@sergelap.austin.ibm.com> <20060505064445.GA3437@MAIL.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060505064445.GA3437@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.11
+	Fri, 5 May 2006 08:40:05 -0400
+Message-ID: <445B479C.1060401@argo.co.il>
+Date: Fri, 05 May 2006 15:39:56 +0300
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Roy Rietveld <rwm_rietveld@hotmail.com>
+CC: P@draigBrady.com, linux-kernel@vger.kernel.org
+Subject: Re: TCP/IP send, sendfile, RAW
+References: <BAY105-F14065377CA78E7380B26DCE9B50@phx.gbl>
+In-Reply-To: <BAY105-F14065377CA78E7380B26DCE9B50@phx.gbl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 May 2006 12:40:02.0792 (UTC) FILETIME=[07841680:01C67041]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Herbert Poetzl (herbert@13thfloor.at):
-> On Wed, May 03, 2006 at 11:11:43AM -0500, Serge E. Hallyn wrote:
-> > Should we talk about this  on irc someplace?  Perhaps drag in Eric as
-> > well?
-> 
-> good idea, feel free to use #vserver (irc.oftc.net) for that
+Roy Rietveld wrote:
+> the platform is a netsilicon NS9360 witch include an 100MBit ethernet 
+> device.
+> The driver came with the software(LxNETES) for the development board.
+> CPU load is 100% when running sender program.
+>
+> cat /proc/interrupts; sleep 10; cat /proc/interrupts doen't work 
+> anymore because cpu is to busy.
+>
+> Does sendto give other processes time when the hardware is 
+> transmitting data?
+> Is this bad hardware or is the cost of sendto that high.
 
-Moves a bit too fast for me to be able to keep up, but I'll try to hang
-out there more than I have been  :)
+Try sending UDP over loopback and see.
 
-> > Anyway I guess I'll go ahead and queue up some tests.
-> 
-> good!
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-As I later mentioned, this won't necessary give honest picture of
-performance implications, since some namespaces might need to be
-frequently referenced, in which case the extra indirection from
-task_struct->container->nsstruct may give a big hit.
-
-But perhaps I can use the utsname ns on top of the experimental
-container patch to test that aspect.
-
-thanks,
--serge

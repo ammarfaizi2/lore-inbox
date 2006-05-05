@@ -1,83 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWEEOou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWEEOtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751570AbWEEOou (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 10:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751572AbWEEOou
+	id S1751578AbWEEOtP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 10:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751581AbWEEOtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 10:44:50 -0400
-Received: from smtp.ustc.edu.cn ([202.38.64.16]:4070 "HELO ustc.edu.cn")
-	by vger.kernel.org with SMTP id S1751569AbWEEOou (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 10:44:50 -0400
-Message-ID: <346840286.22726@ustc.edu.cn>
-X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
-Date: Fri, 5 May 2006 22:44:51 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [RFC] kernel facilities for cache prefetching
-Message-ID: <20060505144451.GA6134@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-	Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>
-References: <346556235.24875@ustc.edu.cn> <Pine.LNX.4.64.0605020832570.4086@g5.osdl.org> <20060503041106.GC5915@mail.ustc.edu.cn> <1146677280.8373.59.camel@dyn9047017100.beaverton.ibm.com> <346733486.30800@ustc.edu.cn> <Pine.LNX.4.64.0605040800080.3908@g5.osdl.org>
+	Fri, 5 May 2006 10:49:15 -0400
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:39089 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1751572AbWEEOtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 10:49:14 -0400
+X-IronPort-AV: i="4.05,93,1146466800"; 
+   d="scan'208"; a="426534853:sNHT25013272"
+To: Heiko J Schick <schihei@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
+       linuxppc-dev@ozlabs.org, Christoph Raisch <RAISCH@de.ibm.com>,
+       Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>, Marcus Eder <MEDER@de.ibm.com>
+Subject: Re: [openib-general] [PATCH 07/16] ehca: interrupt handling routines
+X-Message-Flag: Warning: May contain useful information
+References: <4450A196.2050901@de.ibm.com> <adaejz9o4vh.fsf@cisco.com>
+	<445B4DA9.9040601@de.ibm.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 05 May 2006 07:49:10 -0700
+In-Reply-To: <445B4DA9.9040601@de.ibm.com> (Heiko J. Schick's message of "Fri, 05 May 2006 15:05:45 +0200")
+Message-ID: <adafyjomsrd.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0605040800080.3908@g5.osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+X-OriginalArrivalTime: 05 May 2006 14:49:11.0943 (UTC) FILETIME=[125EB170:01C67053]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 04, 2006 at 08:03:50AM -0700, Linus Torvalds wrote:
-> Actually, I did something even simpler for a totally one-off thing: you 
-> don't actually even need to drop caches or track pretty much anything, 
-> it's sufficient for most analysis to just have a timestamp on each page 
-> cache, and then have some way to read out the current cached contents.
-> 
-> You can then use the timestamps to get a pretty good idea of what order 
-> things happened in.
- 
-> The really nice thing was that you don't even have to set the timestamp in 
-> any complex place: you do it at page _allocation_ time. That automatically 
-> gets the right answer for any page cache page, and you can do it in a 
-> single place.
+    Heiko> Originaly, we had the same idea as you mentioned, that it
+    Heiko> would be better to do this in the higher levels. The point
+    Heiko> is that we can't see so far any simple posibility how this
+    Heiko> can done in the OpenIB stack, the TCP/IP network layer or
+    Heiko> somewhere in the Linux kernel.
 
-Looks nice.  A detailed scheme might be:
+    Heiko> For example: For IPoIB we get the best throughput when we
+    Heiko> do the CQ callbacks on different CPUs and not to stay on
+    Heiko> the same CPU.
 
-1) ctime/atime for each radixtree node(or, cluser of pages)
-It seems to be a good accuracy/overhead compromise.
-And is perfect for the most common case of sequential accesses.
+So why not do it in IPoIB then?  This approach is not optimal
+globally.  For example, uverbs event dispatch is just going to queue
+an event and wake up the process waiting for events, and doing this on
+some random CPU not related to the where the process will run is
+clearly the worst possible way to dispatch the event.
 
-struct radix_tree_node {
-+        unsigned long ctime, atime;
-} 
+    Heiko> In other papers and slides (see [1]) you can see similar
+    Heiko> approaches.
 
-radix_tree_node_alloc()
-{
-+        node->ctime = some_virtual_time();
-}
+    Heiko> [1]: Speeding up Networking, Van Jacobson and Bob
+    Heiko> Felderman,
+    Heiko> http://www.lemis.com/grog/Documentation/vj/lca06vj.pdf
 
-radix_tree_lookup_slot()
-{
-+        node->atime = some_virtual_time();
-}
+I think you've misunderstood this paper.  It's about maximizing CPU
+locality and pushing processing directly into the consumer.  In the
+context of slide 9, what you've done is sort of like adding another
+control loop inside the kernel, since you dispatch from interrupt
+handler to driver thread to final consumer.  So I would argue that
+your approach is exactly the opposite of what VJ is advocating.
 
-2) eviction-time for each recently evicted page
-Store eviction-time _in place_ in the slot that used to store the
-page's address, with minimal space/time impact.
-
-+#define SLOT_IS_EVICTION_TIME  1
-radix_tree_delete()
-{
--                pathp->node->slots[pathp->offset] = NULL;
-+                pathp->node->slots[pathp->offset] =
-+                                 some_virtual_time() | SLOT_IS_EVICTION_TIME;
-}
-
-Regards,
-Wu
+ - R.

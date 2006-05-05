@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWEECbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWEEC4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWEECbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 22:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWEECbI
+	id S932453AbWEEC4e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 22:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWEEC4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 22:31:08 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:8833 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932443AbWEECbH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 22:31:07 -0400
-Date: Thu, 4 May 2006 19:33:53 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       stable@kernel.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.16.14
-Message-ID: <20060505023353.GA24291@moss.sous-sol.org>
-References: <20060505003526.GW24291@moss.sous-sol.org> <200605051152.39693.ncunningham@cyclades.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605051152.39693.ncunningham@cyclades.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 4 May 2006 22:56:34 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:16744 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932453AbWEEC4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 22:56:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=TOEUp5ru9ZDbmVEAIwv8rF7to4JSTMp42RVOFKAnWVXJHsR9Eq4MWCLQwlApxNfDz6pDobXOLEk6fBGgYjCPk54G8cXdOXtXtTBMA2XcUfVwLQ2job3bXU7xy9GRt3WUQSAN6FFPGdmYtARvuX/Uw3CJgN+JXBUrPhnbrzG1RbQ=
+Message-ID: <ea59786f0605041956g6d1f9505ud5f070403b03910c@mail.gmail.com>
+Date: Thu, 4 May 2006 19:56:33 -0700
+From: "Constantine Sapuntzakis" <csapuntz@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] drivers/block/loop.c: don't return garbage if LOOP_SET_STATUS not called
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_3979_32720847.1146797793263"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nigel Cunningham (ncunningham@cyclades.com) wrote:
-> Is this supposed to be some sort of subtle pressure on Linus to open 2.7? :>
+------=_Part_3979_32720847.1146797793263
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-He does every couple months and leaves it open for a few weeks.
-Then, just to keep us guessing, he releases it with a 2.6 name ;-)
+While writing a version of losetup, I ran into the problem that the
+loop device was
+returning total garbage.
 
-Actually, I think the system is working quite well.  We've got a quick
-route for getting bug fixes and security fixes to users, and a shorter
-devel cycle helping distro folks get more regular drops from upstream.
-This particular patch applies all the way back to the beginning of git
-time (over a year ago), and I'm sure earlier.  So it's hard to conclude
-it's a byproduct of the release cycles.
+It turns out the problem was that this losetup was only issuing
+the LOOP_SET_FD ioctl and not issuing a subsequent LOOP_SET_STATUS
+ioctl. This losetup didn't have any special status to set, so it left
+out the call.
 
-thanks,
--chris
+The deeper cause is that loop_set_fd sets the transfer function to
+NULL, which causes no transfer to happen lo_do_transfer.
+
+This patch fixes the problem by setting transfer to transfer_none in
+loop_set_fd.
+
+-Costa
+
+------=_Part_3979_32720847.1146797793263
+Content-Type: application/octet-stream; name=loop-fix-set-fd.diff
+Content-Transfer-Encoding: 7bit
+X-Attachment-Id: f_emtxkp37
+Content-Disposition: attachment; filename="loop-fix-set-fd.diff"
+
+--- loop.c	(revision 3701)
++++ loop.c	(working copy)
+@@ -855,7 +855,7 @@
+ 	lo->lo_device = bdev;
+ 	lo->lo_flags = lo_flags;
+ 	lo->lo_backing_file = file;
+-	lo->transfer = NULL;
++	lo->transfer = transfer_none;
+ 	lo->ioctl = NULL;
+ 	lo->lo_sizelimit = 0;
+ 	lo->old_gfp_mask = mapping_gfp_mask(mapping);
+
+
+
+
+------=_Part_3979_32720847.1146797793263--

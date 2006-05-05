@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWEEXIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWEEXNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWEEXIS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 19:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWEEXIR
+	id S1750955AbWEEXNU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 19:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWEEXNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 19:08:17 -0400
-Received: from waste.org ([64.81.244.121]:34023 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1750941AbWEEXIR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 19:08:17 -0400
-Date: Fri, 5 May 2006 18:03:24 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060505230324.GX15445@waste.org>
-References: <2.420169009@selenic.com> <8.420169009@selenic.com> <20060505.141040.53473194.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060505.141040.53473194.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
+	Fri, 5 May 2006 19:13:20 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:2231 "EHLO
+	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750955AbWEEXNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 19:13:20 -0400
+Date: Fri, 05 May 2006 17:12:45 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: High load average on disk I/O on 2.6.17-rc3
+In-reply-to: <69c8K-3Bu-57@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: jasons@pioneer-pra.com
+Message-id: <445BDBED.7050101@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <69c8K-3Bu-57@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 05, 2006 at 02:10:40PM -0700, David S. Miller wrote:
-> From: Matt Mackall <mpm@selenic.com>
-> Date: Fri, 05 May 2006 11:42:35 -0500
+Jason Schoonover wrote:
+> Hi all,
 > 
-> > Remove SA_SAMPLE_RANDOM from network drivers
-> > 
-> > /dev/random wants entropy sources to be both unpredictable and
-> > unobservable. Network devices are neither as they may be directly
-> > observed and controlled by an attacker. Thus SA_SAMPLE_RANDOM is not
-> > appropriate.
-> > 
-> > Signed-off-by: Matt Mackall <mpm@selenic.com>
+> I'm not sure if this is the right list to post to, so please direct me to the 
+> appropriate list if this is the wrong one.
 > 
-> Besides the other issues discussed, what you are doing is
-> essentially making a headless machine with a quiet disk have
-> next to zero entropy available.
+> I'm having some problems on the latest 2.6.17-rc3 kernel and SCSI disk I/O.  
+> Whenever I copy any large file (over 500GB) the load average starts to slowly 
+> rise and after about a minute it is up to 7.5 and keeps on rising (depending 
+> on how long the file takes to copy).  When I watch top, the processes at the 
+> top of the list are cp, pdflush, kjournald and kswapd.
 > 
-> I don't think we can seriously consider this patch, as I've seen real
-> users run into this lack of entropy issue.
 
-And my claim is they don't actually have any entropy. If they want to
-continue fooling themselves, they can copy the device node for
-/dev/urandom to /dev/random.
+Are there some processes stuck in D state? These will contribute to the 
+load average even if they are not using CPU.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

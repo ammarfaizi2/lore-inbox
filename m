@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWEEBiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWEEBw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWEEBiI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 May 2006 21:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWEEBiI
+	id S932428AbWEEBw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 May 2006 21:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWEEBw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 May 2006 21:38:08 -0400
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:16769 "EHLO
-	sous-sol.org") by vger.kernel.org with ESMTP id S932405AbWEEBiH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 May 2006 21:38:07 -0400
-Date: Thu, 4 May 2006 18:40:41 -0700
-From: Chris Wright <chrisw@sous-sol.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, Greg KH <greg@kroah.com>,
-       Steven French <sfrench@us.ibm.com>,
-       Marcel Holtmann <holtmann@redhat.com>, Olaf Kirch <okir@suse.de>,
-       Mark Moseley <moseleymark@gmail.com>, shaggy@austin.ibm.com
-Subject: [PATCH] smbfs chroot issue (CVE-2006-1864)
-Message-ID: <20060505014041.GZ24291@moss.sous-sol.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 May 2006 21:52:57 -0400
+Received: from wr-out-0506.google.com ([64.233.184.236]:27096 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932428AbWEEBw5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 May 2006 21:52:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=RRkzKhXe5ZPMy9HfCYgrsapdUKBAYLSGNtspfm2TkEwb5YX4hM7Oyk+Xv0j9/3y58DucZYpyDcUnqQTQBiLplkEgIZMPMLHPdT/7BN6xGVPIJ+FWvgJNQ1xYpjr4m3eyQe7fhTDMmKSkwOwDeRPT+oNjTCdbOqlFnthQr2aamvA=
+Message-ID: <c0c067900605041852m50e04171x7fd1579e77c9d5a3@mail.gmail.com>
+Date: Thu, 4 May 2006 21:52:56 -0400
+From: "Dan Merillat" <harik.attar@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kbuild + Cross compiling
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Olaf Kirch <okir@suse.de>
+I must be an idiot, but why does Kbuild rebuild every file when cross-compiling?
+I'm not editing .config or touching any headers, I'm making tweaks to
+a single .c driver,
+and it is taking forever due to continual full-rebuilds.
 
-Mark Moseley reported that a chroot environment on a SMB share can be
-left via "cd ..\\".  Similar to CVE-2006-1863 issue with cifs, this fix
-is for smbfs.
+building on i386 for ARCH=arm CROSS_COMPILE=arm-linux-uclibc-
 
-Steven French <sfrench@us.ibm.com> wrote:
-
-Looks fine to me.  This should catch the slash on lookup or equivalent,
-which will be all obvious paths of interest.
-
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
- This fix is in -stable, but doesn't appear to be in your tree yet.
-
- fs/smbfs/dir.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
---- linus-2.6.orig/fs/smbfs/dir.c
-+++ linus-2.6/fs/smbfs/dir.c
-@@ -434,6 +434,11 @@ smb_lookup(struct inode *dir, struct den
- 	if (dentry->d_name.len > SMB_MAXNAMELEN)
- 		goto out;
- 
-+	/* Do not allow lookup of names with backslashes in */
-+	error = -EINVAL;
-+	if (memchr(dentry->d_name.name, '\\', dentry->d_name.len))
-+		goto out;
-+
- 	lock_kernel();
- 	error = smb_proc_getattr(dentry, &finfo);
- #ifdef SMBFS_PARANOIA
+I tried following the logic, but everything is a forced build using
+if_changed and if_changed_dep, and I can't read GNU Make well enough
+to figure out what it thinks is new.  I know make -d says all the
+dependancies are up-to-date, so it's being forced some other way.

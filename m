@@ -1,67 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWEFRWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWEFR32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWEFRWh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 13:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWEFRWh
+	id S1750982AbWEFR32 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 13:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWEFR32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 13:22:37 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:58229 "EHLO
-	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751010AbWEFRWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 13:22:36 -0400
-Date: Sat, 06 May 2006 11:20:16 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: High load average on disk I/O on 2.6.17-rc3
-In-reply-to: <200605052139.49241.jasons@pioneer-pra.com>
-To: Jason Schoonover <jasons@pioneer-pra.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <445CDAD0.1000203@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <69c8K-3Bu-57@gated-at.bofh.it> <445BDBED.7050101@shaw.ca>
- <200605052139.49241.jasons@pioneer-pra.com>
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
+	Sat, 6 May 2006 13:29:28 -0400
+Received: from quechua.inka.de ([193.197.184.2]:55959 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1750756AbWEFR31 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 13:29:27 -0400
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <20060506164808.GY15445@waste.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1FcQar-0002Wo-00@calista.inka.de>
+Date: Sat, 06 May 2006 19:29:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Schoonover wrote:
-> Hi Robert,
+Matt Mackall <mpm@selenic.com> wrote:
+>> So I would much prefer to see the entropy sampling stay in its current
+>> location, since people using real-time deserve real randomness too.
+>> (In fact, some of them may have a **much** stronger need for it.  :-)
 > 
-> There are, this is the relevant output of the process list:
-> 
->  ...
->  4659 pts/6    Ss     0:00 -bash
->  4671 pts/5    R+     0:12 cp -a test-dir/ new-test
->  4676 ?        D      0:00 [pdflush]
->  4679 ?        D      0:00 [pdflush]
->  4687 pts/4    D+     0:01 hdparm -t /dev/sda
->  4688 ?        D      0:00 [pdflush]
->  4690 ?        D      0:00 [pdflush]
->  4692 ?        D      0:00 [pdflush]
->  ...
-> 
-> This was when I was copying a directory and then doing a performance test with 
-> hdparm in a separate shell.  The hdparm process was in [D+] state and 
-> basically waited until the cp was finished.  During the whole thing there 
-> were up to 5 pdflush processes in [D] state.
-> 
-> The 5 minute load average hit 8.90 during this test.
-> 
-> Does that help?
+> This is the point that bothers me. It's one thing to optimistically
+> mix network samples (or any other convenient source) into the entropy
+> pool. I'm all for that. The more, the better.
 
-Well, it obviously explains why the load average is high, those D state 
-processes all count in the load average. It may be sort of a cosmetic 
-issue, since they're not actually using any CPU, but it's still a bit 
-unusual. For one thing, not sure why there are that many of them?
+Isnt it possible to use timestamps on the received packages. So you get the
+indeterministic timing from interrupt context and can process it in a less
+hot path. Also the timestamps are helpfull for other stuff, also.
 
-You could try enabling the SysRq triggers (if they're not already in 
-your kernel/distro) and doing Alt-SysRq-T which will dump the kernel 
-stack of all processes, that should show where exactly in the kernel 
-those pdflush processes are blocked..
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Gruss
+Bernd

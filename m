@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWEFOIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWEFPJV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWEFOIy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 10:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWEFOIy
+	id S1750853AbWEFPJV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 11:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWEFPJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 10:08:54 -0400
-Received: from keetweej.vanheusden.com ([213.84.46.114]:62392 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S1750824AbWEFOIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 10:08:54 -0400
-Date: Sat, 6 May 2006 16:08:51 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: mpm@selenic.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060506140850.GN25646@vanheusden.com>
-References: <2.420169009@selenic.com> <8.420169009@selenic.com>
-	<20060505.141040.53473194.davem@davemloft.net>
+	Sat, 6 May 2006 11:09:21 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:11200 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1750830AbWEFPJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 11:09:20 -0400
+X-Sasl-enc: rHsCp9MI3TuuCvSqf5A50OdqmJ4+LZdIkxc7okC3mhmO 1146928157
+Subject: Re: [smartmontools-support]Re: LibPATA code issues / 2.6.16
+	(previously, 2.6.15.x)
+From: Leon Woestenberg <leonw@mailcan.com>
+To: Linus Torvalds <torvalds@osdl.org>,
+       smartmontools-support@lists.sourceforge.net
+Cc: Jeff Garzik <jgarzik@pobox.com>, Justin Piszcz <jpiszcz@lucidpixels.com>,
+       Mark Lord <lkml@rtr.ca>, David Greaves <david@dgreaves.com>,
+       Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de
+In-Reply-To: <Pine.LNX.4.64.0604211704120.3701@g5.osdl.org>
+References: <Pine.LNX.4.64.0602140439580.3567@p34>
+	 <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com>
+	 <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34>
+	 <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com>
+	 <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com>
+	 <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca>
+	 <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca>
+	 <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca>
+	 <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com>
+	 <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com>
+	 <4405E83D.9000906@rtr.ca> <4405EC94.2030202@dgreaves.com>
+	 <4405FAAE.3080705@dgreaves.com> <Pine.LNX.4.64.0603050637110.30164@p34>
+	 <Pine.LNX.4.64.0603050740500.3116@p34> <440B6CFE.4010503@rtr.ca>
+	 <440B76B4.5080502@pobox.com> <Pine.LNX.4.64.0604211511120.22768@p34>
+	 <44493023.4010109@pobox.com> <Pine.LNX.4.64.0604211226120.3701@g5.osdl.org>
+	 <444960CC.2000009@pobox.com> <Pine.LNX.4.64.0604211704120.3701@g5.osdl.org>
+Content-Type: text/plain
+Date: Sat, 06 May 2006 17:09:12 +0200
+Message-Id: <1146928152.2611.18.camel@dhcppc7>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060505.141040.53473194.davem@davemloft.net>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Reply-By: Sat Apr 29 15:52:22 CEST 2006
-X-Message-Flag: www.unixexpert.nl
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.6.1 (2.6.1-1.fc5.2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Remove SA_SAMPLE_RANDOM from network drivers
-> > /dev/random wants entropy sources to be both unpredictable and
-> > unobservable. Network devices are neither as they may be directly
-> > observed and controlled by an attacker. Thus SA_SAMPLE_RANDOM is not
-> > appropriate.
-> Besides the other issues discussed, what you are doing is
-> essentially making a headless machine with a quiet disk have
-> next to zero entropy available.
+Hi all,
 
-Consider adding a cheap soundcard to the system and run
-'audio-entropyd': www.vanheusden.com/aed
+On Fri, 2006-04-21 at 17:05 -0700, Linus Torvalds wrote:
+> 
+> On Fri, 21 Apr 2006, Jeff Garzik wrote:
+> 
+> > 
+> > Agreed, though the original poster had already done a 400GB dd from
+> > /dev/zero...
+> 
+> Yes, but to a _file_ on the partition (ie he didn't overwrite any existign 
+> data, just the empty parts of a filesystem).
+> 
+> I realize that it's not enough for the "re-allocate on write" behaviour, 
+> and for that you really _do_ need to re-write the whole disk to get all 
+> the broken blocks reallocated, but my argument was just that we should 
+> make sure to _tell_ people when they are overwriting all their old data ;)
+> 
+I did not realize this before, and asked badblocks maintainer Theodore
+if badblocks /some/file was supported (the man page says no); but of
+course any filesystem can decide to re-allocate blocks for a file.
 
+However, for large files where parts may be bad sectors, I am still
+searching for a way to read, then re-write every physical sector
+occupied by the file. 
 
-Folkert van Heusden
+With the purpose to remap the bad sectors inside large MPEG files (where
+I would rather have a few zeroed holes than a read error in them).
 
--- 
-www.biglumber.com <- site where one can exchange PGP key signatures 
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+Anyone know such tooling exists? I suspect it has to use filesystem
+specific IOCTL's to query for the blocks involved.
+
+Regards,
+
+Leon
+

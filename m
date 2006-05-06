@@ -1,27 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWEFGjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWEFGmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbWEFGjM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 02:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWEFGjL
+	id S1751242AbWEFGmL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 02:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWEFGmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 02:39:11 -0400
-Received: from usea-naimss2.unisys.com ([192.61.61.104]:47117 "EHLO
-	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S1750884AbWEFGjK convert rfc822-to-8bit (ORCPT
+	Sat, 6 May 2006 02:42:11 -0400
+Received: from usea-naimss1.unisys.com ([192.61.61.103]:48910 "EHLO
+	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
+	id S1751242AbWEFGmJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 02:39:10 -0400
+	Sat, 6 May 2006 02:42:09 -0400
 X-MimeOLE: Produced By Microsoft Exchange V6.5
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Subject: 
-Date: Sat, 6 May 2006 01:39:05 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0BC8@USRV-EXCH4.na.uis.unisys.com>
+Subject: RE: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Date: Sat, 6 May 2006 01:42:04 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACC023B0BC9@USRV-EXCH4.na.uis.unisys.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Index: AcZw18UX3Pq2MBaJRRSrP2XArnejOA==
+Thread-Topic: [(repost) git Patch 1/1] avoid IRQ0 ioapic pin collision
+Thread-Index: AcZvj+3cUNJ/67FZTaabyEaNx8cUSQAAHvvQAAIXkFAATcJ24AACFL4w
 From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
 To: "Brown, Len" <len.brown@intel.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>
@@ -29,7 +30,7 @@ Cc: "Andi Kleen" <ak@suse.de>, <sergio@sergiomb.no-ip.org>,
        "Kimball Murray" <kimball.murray@gmail.com>,
        <linux-kernel@vger.kernel.org>, <akpm@digeo.com>, <kmurray@redhat.com>,
        <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 06 May 2006 06:39:06.0011 (UTC) FILETIME=[C57B4EB0:01C670D7]
+X-OriginalArrivalTime: 06 May 2006 06:42:05.0904 (UTC) FILETIME=[30B4CD00:01C670D8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -91,6 +92,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > If we had done this, then we wouldn't have needed kimbal's patch.
 > If we do this, then we can delete that workaround on top of 
 > workaround.
+> 
+> thoughts?
 
 Sure sounds like a great idea. I just signed up for a large partition (>
 1700 GSIs) to try this over the weekend.
@@ -101,5 +104,4 @@ thinking that all the complexity is actually located on the first
 IO-APIC, this may have some potential for compression only coming into
 play on non-zero IO-APICs. But using the total number of IRQs used is
 definitely the most logical thing to try...I will test this shortly -
-Thanks,
---Natalie
+Thanks, --Natalie 

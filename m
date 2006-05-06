@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWEFNsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWEFOIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbWEFNsu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 09:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWEFNsu
+	id S1750824AbWEFOIy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 10:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbWEFOIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 09:48:50 -0400
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:50960 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1750828AbWEFNst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 09:48:49 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: "C K Kashyap" <ckkashyap@gmail.com>
-Subject: Re: Booting vmlinux with GRUB on x86
-Date: Sat, 6 May 2006 14:48:57 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <844f6ea60605052202i224bf7cew9018afa7e6959e11@mail.gmail.com>
-In-Reply-To: <844f6ea60605052202i224bf7cew9018afa7e6959e11@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 6 May 2006 10:08:54 -0400
+Received: from keetweej.vanheusden.com ([213.84.46.114]:62392 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S1750824AbWEFOIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 10:08:54 -0400
+Date: Sat, 6 May 2006 16:08:51 +0200
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mpm@selenic.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+Message-ID: <20060506140850.GN25646@vanheusden.com>
+References: <2.420169009@selenic.com> <8.420169009@selenic.com>
+	<20060505.141040.53473194.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200605061448.57892.s0348365@sms.ed.ac.uk>
+In-Reply-To: <20060505.141040.53473194.davem@davemloft.net>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Reply-By: Sat Apr 29 15:52:22 CEST 2006
+X-Message-Flag: www.unixexpert.nl
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 06 May 2006 06:02, C K Kashyap wrote:
-> Looks like kernel 2.6 generates a kernel that can be loaded by GRUB by
-> just adding the multiboot signature...However, it does'nt quite work!
-> ... Has anyone tried it? Just want to do away with the overhead of
-> bzImage etc!!
+> > Remove SA_SAMPLE_RANDOM from network drivers
+> > /dev/random wants entropy sources to be both unpredictable and
+> > unobservable. Network devices are neither as they may be directly
+> > observed and controlled by an attacker. Thus SA_SAMPLE_RANDOM is not
+> > appropriate.
+> Besides the other issues discussed, what you are doing is
+> essentially making a headless machine with a quiet disk have
+> next to zero entropy available.
 
-You might be interested in Gujin.
+Consider adding a cheap soundcard to the system and run
+'audio-entropyd': www.vanheusden.com/aed
 
-http://en.wikipedia.org/wiki/Gujin
+
+Folkert van Heusden
 
 -- 
-Cheers,
-Alistair.
-
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+www.biglumber.com <- site where one can exchange PGP key signatures 
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

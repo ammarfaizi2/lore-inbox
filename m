@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWEFDjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751813AbWEFEDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbWEFDjq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 23:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWEFDjq
+	id S1751813AbWEFEDW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 00:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWEFEDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 23:39:46 -0400
-Received: from nz-out-0102.google.com ([64.233.162.194]:4622 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751244AbWEFDjp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 23:39:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HVPWmBsPjybxX76KmQHQSl9sr3mi1vrXByqtbDKa1q3m0mls6hBbiDg/f3a4vzAQ2aM99QywrmWQIU5mJa8+r3fDbSjkCFkdBnJ9SC/nHD3Ts6gM0w1J87CA8nRjb/F/oLX4BxzTxyOKU7YRMHcjRwm8JifQbg432G5Nl6qXqsI=
-Message-ID: <9e4733910605052039n7d2debbse0fd07e0d1d059fb@mail.gmail.com>
-Date: Fri, 5 May 2006 23:39:44 -0400
-From: "Jon Smirl" <jonsmirl@gmail.com>
-To: "Dave Airlie" <airlied@gmail.com>
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-Cc: "Greg KH" <greg@kroah.com>, "Ian Romanick" <idr@us.ibm.com>,
-       "Dave Airlie" <airlied@linux.ie>,
-       "Arjan van de Ven" <arjan@linux.intel.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <21d7e9970605051857l4415a04ai7d1b1f886bb01cee@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <mj+md-20060504.211425.25445.atrey@ucw.cz>
-	 <445BA584.40309@us.ibm.com>
-	 <9e4733910605051314jb681476y4b2863918dfae1f8@mail.gmail.com>
-	 <20060505202603.GB6413@kroah.com>
-	 <9e4733910605051335h7a98670ie8102666bbc4d7cd@mail.gmail.com>
-	 <20060505210614.GB7365@kroah.com>
-	 <9e4733910605051415o48fddbafpf0f8b096f971e482@mail.gmail.com>
-	 <20060505222738.GA8985@kroah.com>
-	 <9e4733910605051705j755ad61dm1c07c66c2c24c525@mail.gmail.com>
-	 <21d7e9970605051857l4415a04ai7d1b1f886bb01cee@mail.gmail.com>
+	Sat, 6 May 2006 00:03:22 -0400
+Received: from ms-smtp-03.socal.rr.com ([66.75.162.135]:36277 "EHLO
+	ms-smtp-03.socal.rr.com") by vger.kernel.org with ESMTP
+	id S1751813AbWEFEDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 00:03:22 -0400
+Message-Id: <6.2.3.4.0.20060505204729.036dfdf8@pop-server.san.rr.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.3.4
+Date: Fri, 05 May 2006 20:57:48 -0700
+To: "H. Peter Anvin" <hpa@zytor.com>
+From: John Coffman <johninsd@san.rr.com>
+Subject: Re: [PATCH][TAKE 4] THE LINUX/I386 BOOT PROTOCOL - Breaking  
+  the 256 limit
+Cc: Alon Bar-Lev <alon.barlev@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
+       tony.luck@intel.com
+In-Reply-To: <445BCA33.30903@zytor.com>
+References: <445B5524.2090001@gmail.com>
+ <445B5C92.5070401@zytor.com>
+ <445B610A.7020009@gmail.com>
+ <445B62AC.90600@zytor.com>
+ <6.2.3.4.0.20060505110517.036df928@pop-server.san.rr.com>
+ <445B96D2.9070301@zytor.com>
+ <6.2.3.4.0.20060505144445.03642988@pop-server.san.rr.com>
+ <445BCA33.30903@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0618-3, 05/05/2006), Outbound message
+X-Antivirus-Status: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/5/06, Dave Airlie <airlied@gmail.com> wrote:
-> > It has everything to do with the 'enable' file. The 'enable' file lets
-> > you change the state of the hardware without an ownership mechanism.
-> > Other device users will not be notified of the state change. Since the
-> > other users can't be sure of the state of the hardware when they are
-> > activated, they will have to reload their state into the hardware on
-> > every activation.
->
-> Jon
->
-> you seem to miss the fact that this can be done now without the enable
-> flag, setpci can be used to disable the BARs, again the enable flag
-> doesn't change that....
+At 02:57 PM  Friday 5/5/2006, H. Peter Anvin wrote:
+Okay, let me ask this:
 
-Existence of a problem API doesn't justify creating more of them.
+>If the *kernel* limit is modified, but the LILO limit is not, what 
+>will happen?  This is the real crux of the matter.
 
-The minimal vga driver combined with new_id scheme is very simple, it
-works on older kernels, it does not create a new API and it tracks
-ownership of the hardware state. But instead everyone seems to want
-the 'enable' file despite it's obvious problems.
+The length of the kernel command line will be limited by the size of 
+the boot loader buffer.  LILO always inserts a NUL terminator.
 
---
-Jon Smirl
-jonsmirl@gmail.com
+--John
+
+P.S.  The LILO command line buffer has always been 1 sector (512 
+bytes); however, only the first half is actually used for the command 
+line. No kernel can do any harm by setting "boot_cmdline[511] = 0;" 
+for any version of LILO back to version 20 (and probably before).
+
+
+
+         PGP KeyID: 6781C9C8  (good until 31-Dec-2008)
+         Keyserver at  ldap://keyserver.pgp.com  OR  http://pgp.mit.edu
+         LILO links at http://freshmeat.net/projects/lilo
+         and Help link at http://lilo.go.dyndns.org
+
+

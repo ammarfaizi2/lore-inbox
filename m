@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWEFSgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWEFTAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751083AbWEFSgL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 14:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWEFSgL
+	id S1750794AbWEFTAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 15:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWEFTAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 14:36:11 -0400
-Received: from waste.org ([64.81.244.121]:14284 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751083AbWEFSgK (ORCPT
+	Sat, 6 May 2006 15:00:08 -0400
+Received: from main.gmane.org ([80.91.229.2]:12719 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750794AbWEFTAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 14:36:10 -0400
-Date: Sat, 6 May 2006 13:31:12 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/14] random: Remove SA_SAMPLE_RANDOM from USB gadget drivers
-Message-ID: <20060506183112.GA15445@waste.org>
-References: <9.420169009@selenic.com> <200605061407.02737.vda@ilport.com.ua> <200605061116.18274.david-b@pacbell.net>
+	Sat, 6 May 2006 15:00:07 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jindrich Makovicka <makovick@gmail.com>
+Subject: Re: Remove silly messages from input layer.
+Date: Sat, 6 May 2006 20:51:13 +0200
+Message-ID: <20060506205113.3af2c386@holly.localdomain>
+References: <20060504024404.GA17818@redhat.com>
+	<20060504071736.GB5359@ucw.cz>
+	<445A21B6.9010808@dgreaves.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200605061116.18274.david-b@pacbell.net>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: chaos.mk.cvut.cz
+X-Newsreader: Sylpheed-Claws 2.1.1 (GTK+ 2.8.17; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 06, 2006 at 11:16:16AM -0700, David Brownell wrote:
-> On Saturday 06 May 2006 4:07 am, Denis Vlasenko wrote:
-> > On Friday 05 May 2006 19:42, Matt Mackall wrote:
-> > > Remove SA_SAMPLE_RANDOM from USB gadget drivers
-> 
-> It's conventional to post USB patches to linux-usb-devel, or at least
-> to CC that list.
-> 
-> 
-> > > There's no a priori reason to think that USB device interrupts will
-> > > contain "entropy" as defined/required by /dev/random. In fact, most
-> > > operations will be streaming and bandwidth- or CPU-limited.
-> > > /dev/random needs unpredictable inputs such as human interaction or
-> > > chaotic physical processes like turbulence manifested in disk seek
-> > > times.
-> 
-> And that'd be why you removed that SAMPLE_RANDOM from the Lubbock VBUS
-> irqs ... which come from users connecting (by hand!) a USB cable.  :)
+On Thu, 04 May 2006 16:45:58 +0100
+David Greaves <david@dgreaves.com> wrote:
 
-Really I removed it because I want SAMPLE_RANDOM to go away and most
-of the users were either pretty trivial (the Lubbock case), wrong (a
-bunch of block devices, etc), or suspect (network, i2c).
- 
-> You shouldn't add spaces before labels, or change indents from
-> pure-tab to tabs-plus-four-spaces.
+> Pavel Machek wrote:
+> > On Wed 03-05-06 22:44:04, Dave Jones wrote:
+> >   
+> >> There are two messages in the input layer that seem to be
+> >> triggerable very easily, and they confuse end-users to no end.
+> >> "too many keys pressed? Should I press less keys?"
+> >>     
+> >
+> > It actually means 'type more slowly' or 'use standard keymap' or
+> > 'get a better keyboard' :-) or 'no, you are not imagining it, I've
+> > seen your keypress and dropped it'.
+> > 									Pavel
+> >
+> >   
+> or 'the cat walked on the keyboard again...'
 
-Show me where I did that, please.
- 
-> Admittedly OMAP _now_ has access to the FIPS-certified hardware RNG,
-> so for that platform it's hard to justify needing other entropy sources.
-> But on the other hand, DMA completion IRQs aren't exactly predictable
-> either, and it doesn't necessarily hurt to salt a high entropy pool
-> with some less-high entropy inputs.
+Note that this might be already patented:
 
-The sampling is fine. It's the _accounting_ that's at issue.
+http://www.bitboost.com/pawsense/pawsense-faq.html
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Jindrich Makovicka
+

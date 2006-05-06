@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWEFCfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751814AbWEFCoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWEFCfx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 22:35:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbWEFCfx
+	id S1751814AbWEFCoP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 22:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWEFCoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 22:35:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:43927 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751108AbWEFCfx (ORCPT
+	Fri, 5 May 2006 22:44:15 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:33211 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751814AbWEFCoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 22:35:53 -0400
-Date: Fri, 5 May 2006 19:35:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] device core: remove redundant call to
- device_initialize.
-Message-Id: <20060505193542.0332557b.akpm@osdl.org>
-In-Reply-To: <20060505153907.12756.23295.stgit@zion.home.lan>
-References: <20060505153907.12756.23295.stgit@zion.home.lan>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
+	Fri, 5 May 2006 22:44:14 -0400
+Subject: Re: [PATCH 3/5] periodic clocksource update
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0604272159400.32445@scrub.home>
+References: <Pine.LNX.4.64.0604032156430.4714@scrub.home>
+	 <1144437489.2745.114.camel@leatherman>
+	 <Pine.LNX.4.64.0604272159400.32445@scrub.home>
+Content-Type: text/plain
+Date: Fri, 05 May 2006 19:44:11 -0700
+Message-Id: <1146883452.12414.63.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 05 May 2006 17:39:08 +0200
-"Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it> wrote:
+On Thu, 2006-04-27 at 23:40 +0200, Roman Zippel wrote:
+> There are big differences. :)
+> As I already mentioned it produces smaller code and I tried to make the 
+> fast path as small as possible.
+> I also updated the algorithm to be more robust, the subtle changes are in 
+> the clocksource_bigadjust(), which does a bit more work to keep the clock 
+> from oscillating.
 
-> From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> 
-> platform_device_add calls device_register which calls then again
-> device_initialize, redundantly.
-> 
-> Cc: Greg Kroah-Hartman <gregkh@suse.de>
-> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> ---
-> 
->  drivers/base/platform.c |    1 -
->  1 files changed, 0 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-> index 83f5c59..b0d9bd4 100644
-> --- a/drivers/base/platform.c
-> +++ b/drivers/base/platform.c
-> @@ -317,7 +317,6 @@ EXPORT_SYMBOL_GPL(platform_device_del);
->   */
->  int platform_device_register(struct platform_device * pdev)
->  {
-> -	device_initialize(&pdev->dev);
->  	return platform_device_add(pdev);
->  }
->  EXPORT_SYMBOL_GPL(platform_device_register);
+Ok, I'd like to integrate the ideas from your clocksource_adjust()
+method into what I currently have as make_ntp_adj().  However the code
+is still difficult to grasp, for example, you have the constants 33, 32
+and 31 there with no explanation of exactly why you're using differing
+shift values. I'm just still really hesitant to add code that is so
+difficult to read and understand. 
 
-platform_device_add() initialises a bunch of things in pdev->dev and _then_
-calls device_register(&pdev->dev) which calls device_initialize() to "init
-device structure".  This happens after we've already done some
-initialisation on the thing.   This is not nice.
+So I'll take another pass at optimizing my make_ntp_adj function, and
+maybe you could do the same with respect to clarity and comments for
+clocksource_adjust() and maybe we can meet halfway?
 
-A better design would be to rip out all the device_initialize() calls and
-require that the caller run device_initialize() before "add"ing or
-"register"ing the platform_device.
+thanks
+-john
 
-And indeed platform_device_alloc() already does that.  If that is
-sufficient then we're in good shape.
-
-If it is not sufficient then more thought would be needed.  We could at
-least run device_initialize() at the _start_ of platform_device_add(),
-rather than towards the end.
-
-icky stuff.

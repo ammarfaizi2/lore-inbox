@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWEFCIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbWEFCWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWEFCIh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 22:08:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWEFCIh
+	id S1751544AbWEFCWj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 22:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWEFCWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 22:08:37 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:12180 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1750775AbWEFCIg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 22:08:36 -0400
-Subject: Re: promise 20268 dma lockups with 2.4 & 2.6
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0604301535500.1829@tassadar.physics.auth.gr>
-References: <Pine.LNX.4.64.0604301535500.1829@tassadar.physics.auth.gr>
-Content-Type: text/plain
-Date: Sat, 06 May 2006 04:08:35 +0200
-Message-Id: <1146881315.3026.2.camel@localhost>
+	Fri, 5 May 2006 22:22:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24980 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750792AbWEFCWh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 22:22:37 -0400
+Date: Fri, 5 May 2006 19:21:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: shaggy@austin.ibm.com, dhowells@redhat.com, phillip@hellewell.homeip.net,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       viro@ftp.linux.org.uk, mike@halcrow.us, mhalcrow@us.ibm.com,
+       mcthomps@us.ibm.com, toml@us.ibm.com, yoder1@us.ibm.com,
+       jmorris@namei.org, sct@redhat.com, ezk@cs.sunysb.edu
+Subject: Re: [PATCH 10/13: eCryptfs] Mmap operations
+Message-Id: <20060505192148.e2c968b7.akpm@osdl.org>
+In-Reply-To: <1146843528.11271.1.camel@localhost>
+References: <84144f020605040813q29fcddcr1c846d27cf156432@mail.gmail.com>
+	<20060504031755.GA28257@hellewell.homeip.net>
+	<20060504034127.GI28613@hellewell.homeip.net>
+	<23514.1146779003@warthog.cambridge.redhat.com>
+	<1146842548.10109.27.camel@kleikamp.austin.ibm.com>
+	<1146843528.11271.1.camel@localhost>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.17; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this seems to be a problem with promise ultra 133 TX2 aswell.. i tried
-contacting promise, and the people listed in the driver file, no
-response... i have myself pretty much given up on getting this solved. i
-dont have the nessecary expertise myself, and i cant get in touch with
-those who do.. this has also been posted to lkml before..
+On Fri, 05 May 2006 18:38:48 +0300
+Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 
-<snip>
+> On Thu, 2006-05-04 at 22:43 +0100, David Howells wrote:
+> > > When writing CacheFiles, I noticed that ext3 would occasionally unlock a page
+> > > that had neither PG_uptodate nor PG_error set, and so I had to force another
+> > > readpage() on it.
 > 
->  	Any help is appreciated.
+> On Fri, 2006-05-05 at 10:22 -0500, Dave Kleikamp wrote:
+> > I understand this comes from the FiST package.  In that code, there is a
+> > comment in one of these functions explaining the second read.  It would
+> > be nice to have that comment in here too:
+> > 
+> >    /*
+> >     * call readpage() again if we returned from wait_on_page with a
+> >     * page that's not up-to-date; that can happen when a partial
+> >     * page has a few buffers which are ok, but not the whole
+> >     * page.
+> >     */
+> > 
+> > I'm a bit surprised that this could happen.
 > 
->  	Best regards,
-> 
-> --
-> ============================================================================
-> 
-> Dimitris Zilaskos
-> 
-> Department of Physics @ Aristotle University of Thessaloniki , Greece
-> PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
->  	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
-> MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
-> ============================================================================
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Me too. How do we know we don't end up the same way for the second read?
 > 
 
+And why doesn't it cause do_generic_mapping_read() and page_cache_read() to
+fail?
+
+This is all raher fishy.

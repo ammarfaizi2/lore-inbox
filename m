@@ -1,75 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWEFElS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbWEFFCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWEFElS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 00:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWEFElS
+	id S1751815AbWEFFCP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 01:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751604AbWEFFCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 00:41:18 -0400
-Received: from mail.pioneer-pra.com ([65.205.244.70]:18340 "EHLO
-	mail1.dmz.sj.pioneer-pra.com") by vger.kernel.org with ESMTP
-	id S932438AbWEFElR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 00:41:17 -0400
-From: Jason Schoonover <jasons@pioneer-pra.com>
-Organization: Pioneer PRA
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: High load average on disk I/O on 2.6.17-rc3
-Date: Fri, 5 May 2006 21:39:49 -0700
-User-Agent: KMail/1.8.3
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <69c8K-3Bu-57@gated-at.bofh.it> <445BDBED.7050101@shaw.ca>
-In-Reply-To: <445BDBED.7050101@shaw.ca>
+	Sat, 6 May 2006 01:02:15 -0400
+Received: from wr-out-0506.google.com ([64.233.184.233]:2229 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751146AbWEFFCO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 01:02:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=d1u0SOWWZGErS2XCB7ek8J3SxB2L6nbSqXl3UHthpJauvULa8fJiouCYnyQimX7rTBm3U8lug9/CrfS+E7LGmR22T2E1bJQwf6xlavNQYVfzCurRhT/nGOIJ+kB8BuLu6Tg0xt8ADdWVkWy2asbofujwyhEKoWZWU4ZH/0nWPsM=
+Message-ID: <844f6ea60605052202i224bf7cew9018afa7e6959e11@mail.gmail.com>
+Date: Sat, 6 May 2006 10:32:14 +0530
+From: "C K Kashyap" <ckkashyap@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Booting vmlinux with GRUB on x86
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200605052139.49241.jasons@pioneer-pra.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert,
-
-There are, this is the relevant output of the process list:
-
- ...
- 4659 pts/6    Ss     0:00 -bash
- 4671 pts/5    R+     0:12 cp -a test-dir/ new-test
- 4676 ?        D      0:00 [pdflush]
- 4679 ?        D      0:00 [pdflush]
- 4687 pts/4    D+     0:01 hdparm -t /dev/sda
- 4688 ?        D      0:00 [pdflush]
- 4690 ?        D      0:00 [pdflush]
- 4692 ?        D      0:00 [pdflush]
- ...
-
-This was when I was copying a directory and then doing a performance test with 
-hdparm in a separate shell.  The hdparm process was in [D+] state and 
-basically waited until the cp was finished.  During the whole thing there 
-were up to 5 pdflush processes in [D] state.
-
-The 5 minute load average hit 8.90 during this test.
-
-Does that help?
-
-Jason
-
--------Original Message-----
-From: Robert Hancock
-Sent: Friday 05 May 2006 16:12
-To: linux-kernel
-Subject: Re: High load average on disk I/O on 2.6.17-rc3
-
-Jason Schoonover wrote:
-> Hi all,
->
-> I'm not sure if this is the right list to post to, so please direct me to
-> the appropriate list if this is the wrong one.
->
-> I'm having some problems on the latest 2.6.17-rc3 kernel and SCSI disk I/O.
-> Whenever I copy any large file (over 500GB) the load average starts to
-> slowly rise and after about a minute it is up to 7.5 and keeps on rising
-> (depending on how long the file takes to copy).  When I watch top, the
-> processes at the top of the list are cp, pdflush, kjournald and kswapd.
-
-Are there some processes stuck in D state? These will contribute to the
-load average even if they are not using CPU.
+Looks like kernel 2.6 generates a kernel that can be loaded by GRUB by
+just adding the multiboot signature...However, it does'nt quite work!
+... Has anyone tried it? Just want to do away with the overhead of
+bzImage etc!!
+--
+Regards,
+Kashyap

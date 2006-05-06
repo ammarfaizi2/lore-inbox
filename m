@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWEFSKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbWEFSQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751022AbWEFSKF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 14:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWEFSKF
+	id S1751062AbWEFSQV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 14:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbWEFSQV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 14:10:05 -0400
-Received: from khc.piap.pl ([195.187.100.11]:36620 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751022AbWEFSKD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 14:10:03 -0400
-To: "Jon Smirl" <jonsmirl@gmail.com>
-Cc: "Dave Airlie" <airlied@gmail.com>, "Greg KH" <greg@kroah.com>,
-       "Ian Romanick" <idr@us.ibm.com>, "Dave Airlie" <airlied@linux.ie>,
-       "Arjan van de Ven" <arjan@linux.intel.com>,
+	Sat, 6 May 2006 14:16:21 -0400
+Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:58477 "HELO
+	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751062AbWEFSQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 14:16:20 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH 8/14] random: Remove SA_SAMPLE_RANDOM from USB gadget drivers
+Date: Sat, 6 May 2006 11:16:16 -0700
+User-Agent: KMail/1.7.1
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: Add a "enable" sysfs attribute to the pci devices to allow userspace (Xorg) to enable devices without doing foul direct access
-References: <mj+md-20060504.211425.25445.atrey@ucw.cz>
-	<20060505202603.GB6413@kroah.com>
-	<9e4733910605051335h7a98670ie8102666bbc4d7cd@mail.gmail.com>
-	<20060505210614.GB7365@kroah.com>
-	<9e4733910605051415o48fddbafpf0f8b096f971e482@mail.gmail.com>
-	<20060505222738.GA8985@kroah.com>
-	<9e4733910605051705j755ad61dm1c07c66c2c24c525@mail.gmail.com>
-	<21d7e9970605051857l4415a04ai7d1b1f886bb01cee@mail.gmail.com>
-	<9e4733910605052039n7d2debbse0fd07e0d1d059fb@mail.gmail.com>
-	<m3d5er729f.fsf@defiant.localdomain>
-	<9e4733910605060608l57c1a215pa300c326ef1eef4b@mail.gmail.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sat, 06 May 2006 20:10:01 +0200
-In-Reply-To: <9e4733910605060608l57c1a215pa300c326ef1eef4b@mail.gmail.com> (Jon Smirl's message of "Sat, 6 May 2006 09:08:28 -0400")
-Message-ID: <m34q036n46.fsf@defiant.localdomain>
+References: <9.420169009@selenic.com> <200605061407.02737.vda@ilport.com.ua>
+In-Reply-To: <200605061407.02737.vda@ilport.com.ua>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200605061116.18274.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jon Smirl" <jonsmirl@gmail.com> writes:
+On Saturday 06 May 2006 4:07 am, Denis Vlasenko wrote:
+> On Friday 05 May 2006 19:42, Matt Mackall wrote:
+> > Remove SA_SAMPLE_RANDOM from USB gadget drivers
 
-> Substitute vga with the name of whatever class of device you are
-> working on and build it a minimal driver for it. The technique is
-> generic.
+It's conventional to post USB patches to linux-usb-devel, or at least
+to CC that list.
 
-The card in question _has_ a driver. I, for example, just need a way
-to write EEPROM data to it (vendor/device ID etc). The card has to be
-selected by PCI bus and slot (device) number, not by device class
-and/or IDs, because it can contain garbage and/or some generic IDs
-with generic device class.
 
-I'm not against the additional driver but it has to be able to work
-with any specified card (as setpci does). But if it's that simple
-then why not do that in the PCI code instead (holding some device
-file open isn't a problem)?
--- 
-Krzysztof Halasa
+> > There's no a priori reason to think that USB device interrupts will
+> > contain "entropy" as defined/required by /dev/random. In fact, most
+> > operations will be streaming and bandwidth- or CPU-limited.
+> > /dev/random needs unpredictable inputs such as human interaction or
+> > chaotic physical processes like turbulence manifested in disk seek
+> > times.
+
+And that'd be why you removed that SAMPLE_RANDOM from the Lubbock VBUS
+irqs ... which come from users connecting (by hand!) a USB cable.  :)
+
+You shouldn't add spaces before labels, or change indents from
+pure-tab to tabs-plus-four-spaces.
+
+Admittedly OMAP _now_ has access to the FIPS-certified hardware RNG,
+so for that platform it's hard to justify needing other entropy sources.
+But on the other hand, DMA completion IRQs aren't exactly predictable
+either, and it doesn't necessarily hurt to salt a high entropy pool
+with some less-high entropy inputs.
+
+
+
+> Come on, let's get real. A few low bits of TSC are random enough
+> (for just about any interrupt source).
+> 
+> Attackers will probably look for easier ways to hack your crypto
+> than predicting /dev/random.
+
+I'm not sure I'd go that far.  But I'd agree that this particular
+patch should not be merged.
+
+Reasonable people could have arguments about the quality of a given
+entropy source ... and the SA_SAMPLE_RANDOM mechanism has no way to
+indicate that quality, thereby wrongly implying that all interrupts
+have the same entropy contribution.  A few Kbytes/second is very
+different from a few bits per hour.
+
+But I disagree with the blanket assertion that only high quality
+crypto-ready RNG sources should ever be provided ... and that lower
+quality sources are useless.  Sure it helps if attackers need extra
+hours to make the attack, but extra minutes help too.
+
+- Dave
+

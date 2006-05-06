@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWEFQ6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWEFRWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbWEFQ6G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 12:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWEFQ6F
+	id S1751020AbWEFRWh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 13:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWEFRWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 12:58:05 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2230 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750966AbWEFQ6E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 12:58:04 -0400
-Date: Sat, 6 May 2006 09:57:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Michael Halcrow <lkml@halcrow.us>, penberg@cs.helsinki.fi,
-       shaggy@austin.ibm.com, dhowells@redhat.com,
-       phillip@hellewell.homeip.net, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, viro@ftp.linux.org.uk,
-       mhalcrow@us.ibm.com, mcthomps@us.ibm.com, toml@us.ibm.com,
-       yoder1@us.ibm.com, jmorris@namei.org, sct@redhat.com, ezk@cs.sunysb.edu
-Subject: Re: [PATCH 10/13: eCryptfs] Mmap operations
-In-Reply-To: <20060506094228.25fcda1b.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0605060948150.16343@g5.osdl.org>
-References: <84144f020605040813q29fcddcr1c846d27cf156432@mail.gmail.com>
- <20060504031755.GA28257@hellewell.homeip.net> <20060504034127.GI28613@hellewell.homeip.net>
- <23514.1146779003@warthog.cambridge.redhat.com> <1146842548.10109.27.camel@kleikamp.austin.ibm.com>
- <1146843528.11271.1.camel@localhost> <20060505192148.e2c968b7.akpm@osdl.org>
- <20060506160044.GA8209@halcrow.us> <20060506094228.25fcda1b.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 6 May 2006 13:22:37 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:58229 "EHLO
+	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751010AbWEFRWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 13:22:36 -0400
+Date: Sat, 06 May 2006 11:20:16 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: High load average on disk I/O on 2.6.17-rc3
+In-reply-to: <200605052139.49241.jasons@pioneer-pra.com>
+To: Jason Schoonover <jasons@pioneer-pra.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <445CDAD0.1000203@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <69c8K-3Bu-57@gated-at.bofh.it> <445BDBED.7050101@shaw.ca>
+ <200605052139.49241.jasons@pioneer-pra.com>
+User-Agent: Thunderbird 1.5.0.2 (Windows/20060308)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 6 May 2006, Andrew Morton wrote:
+Jason Schoonover wrote:
+> Hi Robert,
 > 
-> Note that the pagefault handlers do still do a second readpage().  The
-> comment implies that this is an open-coded attempt to recover from an I/O
-> error.  I do recall that a year or so ago we discussed taking out that
-> second readpage attempt, but Linus had good-sounding reasons for keeping
-> it.  But I forget what they were.  Perhaps he can remind me?
+> There are, this is the relevant output of the process list:
+> 
+>  ...
+>  4659 pts/6    Ss     0:00 -bash
+>  4671 pts/5    R+     0:12 cp -a test-dir/ new-test
+>  4676 ?        D      0:00 [pdflush]
+>  4679 ?        D      0:00 [pdflush]
+>  4687 pts/4    D+     0:01 hdparm -t /dev/sda
+>  4688 ?        D      0:00 [pdflush]
+>  4690 ?        D      0:00 [pdflush]
+>  4692 ?        D      0:00 [pdflush]
+>  ...
+> 
+> This was when I was copying a directory and then doing a performance test with 
+> hdparm in a separate shell.  The hdparm process was in [D+] state and 
+> basically waited until the cp was finished.  During the whole thing there 
+> were up to 5 pdflush processes in [D] state.
+> 
+> The 5 minute load average hit 8.90 during this test.
+> 
+> Does that help?
 
-All the non-readahead read paths - not just page faults, but certainly 
-things like the generic file read routines - will do (at least they 
-_should_ do) a "readpage()" if they find a page that is not up-to-date 
-after they've gotten the lock.
+Well, it obviously explains why the load average is high, those D state 
+processes all count in the load average. It may be sort of a cosmetic 
+issue, since they're not actually using any CPU, but it's still a bit 
+unusual. For one thing, not sure why there are that many of them?
 
-That's basically just what the PG_uptodate flag means. If that flag isn't 
-set, you need to ->readpage() the contents, whether you allocated the page 
-yourself or not.
+You could try enabling the SysRq triggers (if they're not already in 
+your kernel/distro) and doing Alt-SysRq-T which will dump the kernel 
+stack of all processes, that should show where exactly in the kernel 
+those pdflush processes are blocked..
 
-But nobody should ever do two readpages on their OWN. If readpage() fails, 
-you should return -EIO (or whatever), and the page will be left 
-not-up-to-date. But you do need to be able to accept the fact that a 
-_previous_ read-page failed.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-And yes, it happens in practice. Networked filesystems, for example. The 
-previous person to try to read might have gotten a permission error. The 
-same is true of any kind of security scheme where the "read()" checks may 
-not match the "open()" security.
-
-It's also true of read errors. You don't want to have the kernel re-try 
-them forever, but on the other hand, you do NOT want to keep the page as 
-an "error" forever without trying again. The read error could have been 
-because the user had removed the media (or not closed the door properly), 
-or anything else that the user could actually fix manually, and re-do the 
-operation, and it would work.
-
-Not all read errors are final. So we shouldn't consider them final.
-
-		Linus

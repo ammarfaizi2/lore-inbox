@@ -1,39 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWEFBoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWEFBoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751809AbWEFBoO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 21:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbWEFBoO
+	id S1750868AbWEFBoi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 21:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWEFBoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 21:44:14 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31396
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750793AbWEFBoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 21:44:13 -0400
-Date: Fri, 05 May 2006 18:41:58 -0700 (PDT)
-Message-Id: <20060505.184158.131584956.davem@davemloft.net>
-To: shemminger@osdl.org
-Cc: greg@kroah.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] netdev: create attribute_groups with
- class_device_add
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060421125438.50f93a34@localhost.localdomain>
-References: <20060421125255.3451959f@localhost.localdomain>
-	<20060421125438.50f93a34@localhost.localdomain>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 5 May 2006 21:44:38 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:58347 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750868AbWEFBoh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 21:44:37 -0400
+Subject: [PATCH] Time: optimize out some mults, since gcc can't avoid them
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>
+Content-Type: text/plain
+Date: Fri, 05 May 2006 18:44:33 -0700
+Message-Id: <1146879873.12414.3.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
-Date: Fri, 21 Apr 2006 12:54:38 -0700
+Newsflash: GCC not as smart as once hoped.
 
-> Atomically create attributes when class device is added. This avoids the
-> race between registering class_device (which generates hotplug event),
-> and the creation of attribute groups.
-> 
-> Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+This patch removes some mults since GCC can't figure out how.
 
-Did the first patch that adds the attribute_group creation
-infrastructure go in so that we can get this networking fix in?
+Pointed out by Roman Zippel.
+
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
+
+diff --git a/include/linux/clocksource.h b/include/linux/clocksource.h
+index 585789f..5f4a7f7 100644
+--- a/include/linux/clocksource.h
++++ b/include/linux/clocksource.h
+@@ -236,7 +236,6 @@ static inline int error_aproximation(u64
+  *
+  * Where mult_delta is the adjustment value made to mult
+  *
+- * XXX - Hopefully gcc is smart enough to avoid the multiplies.
+  */
+ static inline s64 make_ntp_adj(struct clocksource *clock,
+ 				cycles_t cycles_delta, s64* error)
+@@ -244,27 +243,27 @@ static inline s64 make_ntp_adj(struct cl
+ 	s64 ret = 0;
+ 	if (*error  > ((s64)clock->interval_cycles+1)/2) {
+ 		/* calculate adjustment value */
+-		int adjustment = 1 << error_aproximation(*error,
++		int adjustment = error_aproximation(*error,
+ 						clock->interval_cycles);
+ 		/* adjust clock */
+-		clock->mult += adjustment;
+-		clock->interval_snsecs += clock->interval_cycles * adjustment;
++		clock->mult += 1 << adjustment;
++		clock->interval_snsecs += clock->interval_cycles << adjustment;
+ 
+ 		/* adjust the base and error for the adjustment */
+-		ret =  -(cycles_delta * adjustment);
+-		*error -= clock->interval_cycles * adjustment;
++		ret =  -(cycles_delta << adjustment);
++		*error -= clock->interval_cycles << adjustment;
+ 		/* XXX adj error for cycle_delta offset? */
+ 	} else if ((-(*error))  > ((s64)clock->interval_cycles+1)/2) {
+ 		/* calculate adjustment value */
+-		int adjustment = 1 << error_aproximation(-(*error),
++		int adjustment = error_aproximation(-(*error),
+ 						clock->interval_cycles);
+ 		/* adjust clock */
+-		clock->mult -= adjustment;
+-		clock->interval_snsecs -= clock->interval_cycles * adjustment;
++		clock->mult -= 1 << adjustment;
++		clock->interval_snsecs -= clock->interval_cycles << adjustment;
+ 
+ 		/* adjust the base and error for the adjustment */
+-		ret =  cycles_delta * adjustment;
+-		*error += clock->interval_cycles * adjustment;
++		ret =  cycles_delta << adjustment;
++		*error += clock->interval_cycles << adjustment;
+ 		/* XXX adj error for cycle_delta offset? */
+ 	}
+ 	return ret;
+
+

@@ -1,450 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWEFRzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWEFSGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWEFRzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 13:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWEFRzZ
+	id S1750700AbWEFSGK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 14:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWEFSGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 13:55:25 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:41947 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751024AbWEFRzY convert rfc822-to-8bit (ORCPT
+	Sat, 6 May 2006 14:06:09 -0400
+Received: from thunk.org ([69.25.196.29]:62417 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750700AbWEFSGI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 13:55:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=bbrR1/bM5cYdml1iBs6OJa7LDfkHgEkxqWZ4xTOYctFmdxZuKDFBhx5KDVEq+dMp+WM2xCxW26G/Ss340hcgs6HdpIguIYXn7JOPIcsgZHlNxk9g9Y0y8OLilTzTX5At4aCDzcDoCOzMYLqIzGdaEnNXDqDs0ELopBM6z1V3e4Q=
-Message-ID: <3feffd230605061055s251c27fcjb6953965aea90cb7@mail.gmail.com>
-Date: Sun, 7 May 2006 01:55:23 +0800
-From: "Wong Edison" <hswong3i@gmail.com>
-To: netdev@vger.kernel.org
-Subject: PATCH] TCP congestion module: add TCP-LP supporting for 2.6.16.14
-Cc: linux-kernel@vger.kernel.org
+	Sat, 6 May 2006 14:06:08 -0400
+Date: Sat, 6 May 2006 14:05:51 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
+Message-ID: <20060506180551.GB22474@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Matt Mackall <mpm@selenic.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	davem@davemloft.net
+References: <8.420169009@selenic.com> <65CF7F44-0452-4E94-8FC1-03B024BCCAE7@mac.com> <20060505172424.GV15445@waste.org> <20060505191127.GA16076@thunk.org> <20060505203436.GW15445@waste.org> <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060506164808.GY15445@waste.org>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-TCP Low Priority is a distributed algorithm whose goal is to utilize only
-  the excess network bandwidth as compared to the ``fair share`` of
-  bandwidth as targeted by TCP. Available from:
-    http://www.ece.rice.edu/~akuzma/Doc/akuzma/TCP-LP.pdf
+On Sat, May 06, 2006 at 11:48:08AM -0500, Matt Mackall wrote:
+> Case 3:
+> Hash function broken, entropy accounting is over-optimistic:
+> /dev/urandom and /dev/random are both equally insecure because both
+> are revealing more internal entropy than they're collecting. So you
+> should just use /dev/urandom because at least it doesn't block.
+> 
+> Putting aside all the practical issue of what exactly is entropy and
+> what decent entropy sources are, we should be able to agree on this
+> much. And this basically says that if you do your entropy accounting
+> badly, you throw the baby out with the bathwater.
 
-Original Author:
-  Aleksandar Kuzmanovic <akuzma@northwestern.edu>
+Agreed, but I'd an additional point of nuance; this assumes that the
+attacker (call him Boris for the sake of argument) can actually gain
+access to enough /dev/random or /dev/urandom outputs, and be
+knowledgable about all other calls to /dev/random and exactly when
+they happen (since entropy extractions cause the TSC to be mixed into
+the pool) so Boris can can actually determine the contents of the
+pool.  Note that simply "breaking" a cryptographic hash, in the sense
+of finding two input values that collide to the same output value,
+does not mean that the hash has been sufficiently analyzed that it
+would be possible to accomplish this feat.  And given that it took
+80,000 CPU hours to determine find this collision, and the complexity
+of the attack was 2**51, it seems highly likely that with a poolsize
+of 4096 bits, that it would take a huge amount of /dev/random
+extractions, complete with the exact TSC timestamp when the
+extractions were happening, such that an attacker would be able to
+have enough information to break the pool.
 
-See http://www-ece.rice.edu/networks/TCP-LP/ for their implementation.
-As of 2.6.13, Linux supports pluggable congestion control algorithms.
-Due to the limitation of the API, we take the following changes from
-the original TCP-LP implementation:
-  o We use newReno in most core CA handling. Only add some checking
-    within cong_avoid.
-  o Error correcting in remote HZ, therefore remote HZ will be keeped
-    on checking and updating.
-  o Handling calculation of One-Way-Delay (OWD) within rtt_sample, sicne
-    OWD have a similar meaning as RTT. Also correct the buggy formular.
-  o Handle reaction for Early Congestion Indication (ECI) within
-    pkts_acked, as mentioned within pseudo code.
-  o OWD is handled in relative format, where local time stamp will in
-    tcp_time_stamp format.
+Does this mean we should __depend__ on this?  No, we should always do
+the best job that we can.  But it's also fair to say that even if the
+hash function is "broken", that the results are not automatically
+going to be catastrophic.  If the attacker can't get their hands on
+enough of an output stream from /dev/random, then it's not likely to
+do much.  For an attacker who only has network access, this could be
+quite difficult.
 
-Port from 2.4.19 to 2.6.16 as module by:
-  Wong Hoi Sing Edison <hswong3i@gmail.com>
-  Hung Hing Lun <hlhung3i@gmail.com>
+> But network traffic should be _assumed_ to be observable to some
+> degree. Everything else in network security makes the assumption that
+> traffic is completely snoopable. By contrast, we assume people can't
+> see us type our passwords[1]. So while our entropy estimator assumes
+> observability == 0, for the network case, 0 < observability <= 1. And
+> if it's greater than what our entropy estimator assumes, our entropy
+> estimates are now too optimistic and /dev/random security degrades to
+> that of /dev/urandom.
 
-Signed-off-by: Wong Hoi Sing Edison <hswong3i@gmail.com>
+The timing of network arrivals is observable to *some* degree.  Of
+course, so is the timing from block I/O interrupts.  The question is
+whether or not it is predictable enough at the finest resolution.  For
+block device interrupts, there has been papers showing that air
+currents inside the spinning media is chaotic enough that it can
+actually influence the timing at which interrupts are returned --- at
+least for systems a decade ago.  To be honest, it would probably be a
+useful and worthwhile masters thesis for a grad student to revisit the
+problem using modern disk drive technologies, controllers, and
+interconnects to see if this is still a valid assumption.
 
----
+For network traffic, again, it depends on your threat model.  For an
+attacker stationed in Fort Mead, Maryland, with over a dozen router
+and ethernet switches between them and the target system, there are
+enough packet queues and buffers that any hope of observing packet
+interarrival times is almost certainly hopeless.  As I've said, if an
+attacker has direct physical access to the ethernet segment between
+your host and the switch, then while the attacker is busy installing a
+keyboard switcher and possibly doing a black bag job on your hard disk
+to install monitoring software directly in the OS software, yes, the
+FBI agent could probably install something on the ethernet between
+your host and the switch that could precisely measure packet arrival
+times very accurately.  Is that something the system administrator
+should care about?  Maybe, maybe not.
 
-diff -urpN linux-2.6.16.14/net/ipv4/Kconfig linux/net/ipv4/Kconfig
---- linux-2.6.16.14/net/ipv4/Kconfig	2006-05-05 08:03:45.000000000 +0800
-+++ linux/net/ipv4/Kconfig	2006-05-07 01:41:33.000000000 +0800
-@@ -531,6 +531,27 @@ config TCP_CONG_SCALABLE
- 	properties, though is known to have fairness issues.
- 	See http://www-lce.eng.cam.ac.uk/~ctk21/scalable/
+That's why I think it should be configurable.  If you don't have a
+real hardware number generator, maybe blocking would be preferable to
+not having good entropy.  But in other circumstances, what people need
+is the best possible randomness they can get, and their security is
+not enhanced by simply taking it away from them altogether.  That
+makes about as much sense as GNOME making its applications "easier to
+use" by removing functionality (to quote Linus).
 
-+config TCP_CONG_LP
-+	tristate "TCP Low Priority"
-+	depends on EXPERIMENTAL
-+	default n
-+	---help---
-+	TCP Low Priority (TCP-LP), a distributed algorithm whose goal is
-+	to utiliza only the excess network bandwidth as compared to the
-+	``fair share`` of bandwidth as targeted by TCP.
-+	See http://www-ece.rice.edu/networks/TCP-LP/
-+
-+config TCP_CONG_LP_DEBUG
-+	bool "TCP-LP Debug"
-+	depends on TCP_CONG_LP
-+	default n
-+	---help---
-+	Turn on/off the debug message for TCP-LP. The debug message will
-+	print to default kernel debug log file, e.g. /var/log/debug as
-+	default. You can use dmesg to obtain the log too.
-+	
-+	If unsure, say N.
-+
- endmenu
+> Yes, this is all strictly theoretical. But the usefulness of
+> /dev/random is exactly as theoretical. So if you use /dev/random for
+> it's theoretical advantages (and why else would you?), this defeats
+> that.
 
- config TCP_CONG_BIC
-diff -urpN linux-2.6.16.14/net/ipv4/Makefile linux/net/ipv4/Makefile
---- linux-2.6.16.14/net/ipv4/Makefile	2006-05-05 08:03:45.000000000 +0800
-+++ linux/net/ipv4/Makefile	2006-05-07 01:41:33.000000000 +0800
-@@ -41,6 +41,7 @@ obj-$(CONFIG_TCP_CONG_HYBLA) += tcp_hybl
- obj-$(CONFIG_TCP_CONG_HTCP) += tcp_htcp.o
- obj-$(CONFIG_TCP_CONG_VEGAS) += tcp_vegas.o
- obj-$(CONFIG_TCP_CONG_SCALABLE) += tcp_scalable.o
-+obj-$(CONFIG_TCP_CONG_LP) += tcp_lp.o
+This becomes a philosophical arugment.  Yes, we should strive for as
+much theoretical perfection as possible.  But at the same time, we
+need to live in the real world, and adding network entropy which can
+defeat the bored high school student in Russia using some black hat
+toolkit they downloaded of the internet is useful --- even if it can't
+defeat the NSA/FBI agent who can perform a black bag job and place a
+monitoring device on your internal ethernet segment.
 
- obj-$(CONFIG_XFRM) += xfrm4_policy.o xfrm4_state.o xfrm4_input.o \
- 		      xfrm4_output.o
-diff -urpN linux-2.6.16.14/net/ipv4/tcp_lp.c linux/net/ipv4/tcp_lp.c
---- linux-2.6.16.14/net/ipv4/tcp_lp.c	1970-01-01 08:00:00.000000000 +0800
-+++ linux/net/ipv4/tcp_lp.c	2006-05-07 01:41:33.000000000 +0800
-@@ -0,0 +1,343 @@
-+/*
-+ * TCP Low Priority (TCP-LP)
-+ *
-+ * TCP Low Priority is a distributed algorithm whose goal is to utilize only
-+ *   the excess network bandwidth as compared to the ``fair share`` of
-+ *   bandwidth as targeted by TCP. Available from:
-+ *     http://www.ece.rice.edu/~akuzma/Doc/akuzma/TCP-LP.pdf
-+ *
-+ * Original Author:
-+ *   Aleksandar Kuzmanovic <akuzma@northwestern.edu>
-+ *
-+ * See http://www-ece.rice.edu/networks/TCP-LP/ for their implementation.
-+ * As of 2.6.13, Linux supports pluggable congestion control algorithms.
-+ * Due to the limitation of the API, we take the following changes from
-+ * the original TCP-LP implementation:
-+ *   o We use newReno in most core CA handling. Only add some checking
-+ *     within cong_avoid.
-+ *   o Error correcting in remote HZ, therefore remote HZ will be keeped
-+ *     on checking and updating.
-+ *   o Handling calculation of One-Way-Delay (OWD) within rtt_sample, sicne
-+ *     OWD have a similar meaning as RTT. Also correct the buggy formular.
-+ *   o Handle reaction for Early Congestion Indication (ECI) within
-+ *     pkts_acked, as mentioned within pseudo code.
-+ *   o OWD is handled in relative format, where local time stamp will in
-+ *     tcp_time_stamp format.
-+ *
-+ * Port from 2.4.19 to 2.6.16 as module by:
-+ *   Wong Hoi Sing Edison <hswong3i@gmail.com>
-+ *   Hung Hing Lun <hlhung3i@gmail.com>
-+ *
-+ * Version: $Id: tcp_lp.c,v 1.22 2006-05-02 18:18:19 hswong3i Exp $
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <net/tcp.h>
-+
-+#ifndef CONFIG_TCP_CONG_LP_DEBUG
-+#define CONFIG_TCP_CONG_LP_DEBUG 0
-+#endif
-+
-+/* resolution of owd */
-+#define LP_RESOL	1000
-+
-+/**
-+ * enum tcp_lp_state
-+ * @LP_VALID_RHZ: is remote HZ valid?
-+ * @LP_VALID_OWD: is OWD valid?
-+ * @LP_WITHIN_THR: are we within threshold?
-+ * @LP_WITHIN_INF: are we within inference?
-+ *
-+ * TCP-LP's state flags.
-+ * We create this set of state flag mainly for debugging.
-+ */
-+enum tcp_lp_state {
-+	LP_VALID_RHZ = (1 << 0),
-+	LP_VALID_OWD = (1 << 1),
-+	LP_WITHIN_THR = (1 << 3),
-+	LP_WITHIN_INF = (1 << 4),
-+};
-+
-+/**
-+ * struct lp
-+ * @flag: TCP-LP state flag
-+ * @sowd: smoothed OWD << 3
-+ * @owd_min: min OWD
-+ * @owd_max: max OWD
-+ * @owd_max_rsv: resrved max owd
-+ * @remote_hz: estimated remote HZ
-+ * @remote_ref_time: remote reference time
-+ * @local_ref_time: local reference time
-+ * @last_drop: time for last active drop
-+ * @inference: current inference
-+ *
-+ * TCP-LP's private struct.
-+ * We get the idea from original TCP-LP implementation where only left those we
-+ * found are really useful.
-+ */
-+struct lp {
-+	u32 flag;
-+	u32 sowd;
-+	u32 owd_min;
-+	u32 owd_max;
-+	u32 owd_max_rsv;
-+	u32 remote_hz;
-+	u32 remote_ref_time;
-+	u32 local_ref_time;
-+	u32 last_drop;
-+	u32 inference;
-+};
-+
-+/**
-+ * tcp_lp_init
-+ *
-+ * Init all required variables.
-+ * Clone the handling from Vegas module implementation.
-+ */
-+static void tcp_lp_init(struct sock *sk)
-+{
-+	struct lp *lp = inet_csk_ca(sk);
-+
-+	lp->flag = 0;
-+	lp->sowd = 0;
-+	lp->owd_min = 0xffffffff;
-+	lp->owd_max = 0;
-+	lp->owd_max_rsv = 0;
-+	lp->remote_hz = 0;
-+	lp->remote_ref_time = 0;
-+	lp->local_ref_time = 0;
-+	lp->last_drop = 0;
-+	lp->inference = 0;
-+}
-+
-+/**
-+ * tcp_lp_cong_avoid
-+ *
-+ * Implementation of cong_avoid.
-+ * Will only call newReno CA when away from inference.
-+ * From TCP-LP's paper, this will be handled in additive increasement.
-+ */
-+static void tcp_lp_cong_avoid(struct sock *sk, u32 ack, u32 rtt, u32 in_flight,
-+			      int flag)
-+{
-+	struct lp *lp = inet_csk_ca(sk);
-+
-+	if (!(lp->flag & LP_WITHIN_INF))
-+		tcp_reno_cong_avoid(sk, ack, rtt, in_flight, flag);
-+}
-+
-+/**
-+ * tcp_lp_remote_hz_estimator
-+ *
-+ * Estimate remote HZ.
-+ * We keep on updating the estimated value, where original TCP-LP
-+ * implementation only guest it for once and use forever.
-+ */
-+static inline u32 tcp_lp_remote_hz_estimator(struct sock *sk)
-+{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+	struct lp *lp = inet_csk_ca(sk);
-+	s64 rhz = lp->remote_hz << 6;	/* remote HZ << 6 */
-+	s64 m = 0;
-+
-+	/* not yet record reference time
-+	 * go away!! record it before come back!! */
-+	if (lp->remote_ref_time == 0 || lp->local_ref_time == 0)
-+		goto out;
-+
-+	/* we can't calc remote HZ with no different!! */
-+	if (tp->rx_opt.rcv_tsval == lp->remote_ref_time
-+	    || tp->rx_opt.rcv_tsecr == lp->local_ref_time)
-+		goto out;
-+
-+	m = HZ * (tp->rx_opt.rcv_tsval -
-+		  lp->remote_ref_time) / (tp->rx_opt.rcv_tsecr -
-+					  lp->local_ref_time);
-+	if (m < 0)
-+		m = -m;
-+
-+	if (rhz != 0) {
-+		m -= (rhz >> 6);	/* m is now error in remote HZ est */
-+		rhz += m;	/* 63/64 old + 1/64 new */
-+	} else
-+		rhz = m << 6;
-+
-+	/* record time for successful remote HZ calc */
-+	lp->flag |= LP_VALID_RHZ;
-+
-+      out:
-+	/* record reference time stamp */
-+	lp->remote_ref_time = tp->rx_opt.rcv_tsval;
-+	lp->local_ref_time = tp->rx_opt.rcv_tsecr;
-+
-+	return rhz >> 6;
-+}
-+
-+/**
-+ * tcp_lp_owd_calculator
-+ *
-+ * Calculate one way delay (in relative format).
-+ * Original implement OWD as minus of remote time difference to local time
-+ * difference directly. As this time difference just simply equal to RTT, when
-+ * the network status is stable, remote RTT will equal to local RTT, and result
-+ * OWD into zero.
-+ * It seems to be a bug and so we fixed it.
-+ */
-+static inline u32 tcp_lp_owd_calculator(struct sock *sk)
-+{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+	struct lp *lp = inet_csk_ca(sk);
-+	s64 owd = 0;
-+
-+	lp->remote_hz = tcp_lp_remote_hz_estimator(sk);
-+
-+	if (lp->flag & LP_VALID_RHZ) {
-+		owd =
-+		    tp->rx_opt.rcv_tsval * (LP_RESOL / lp->remote_hz) -
-+		    tp->rx_opt.rcv_tsecr * (LP_RESOL / HZ);
-+		if (owd < 0)
-+			owd = -owd;
-+	}
-+
-+	if (owd > 0)
-+		lp->flag |= LP_VALID_OWD;
-+	else
-+		lp->flag &= ~LP_VALID_OWD;
-+
-+	return owd;
-+}
-+
-+/**
-+ * tcp_lp_rtt_sample
-+ *
-+ * Implementation or rtt_sample.
-+ * Will take the following action,
-+ *   1. calc OWD,
-+ *   2. record the min/max OWD,
-+ *   3. calc smoothed OWD (SOWD).
-+ * Most ideas come from the original TCP-LP implementation.
-+ */
-+static void tcp_lp_rtt_sample(struct sock *sk, u32 usrtt)
-+{
-+	struct lp *lp = inet_csk_ca(sk);
-+	s64 mowd = tcp_lp_owd_calculator(sk);
-+
-+	/* sorry that we don't have valid data */
-+	if (!(lp->flag & LP_VALID_RHZ) || !(lp->flag & LP_VALID_OWD))
-+		return;
-+
-+	/* record the next min owd */
-+	if (mowd < lp->owd_min)
-+		lp->owd_min = mowd;
-+
-+	/* always forget the max of the max
-+	 * we just set owd_max as one below it */
-+	if (mowd > lp->owd_max) {
-+		if (mowd > lp->owd_max_rsv) {
-+			if (lp->owd_max_rsv == 0)
-+				lp->owd_max = mowd;
-+			else
-+				lp->owd_max = lp->owd_max_rsv;
-+			lp->owd_max_rsv = mowd;
-+		} else
-+			lp->owd_max = mowd;
-+	}
-+
-+	/* calc for smoothed owd */
-+	if (lp->sowd != 0) {
-+		mowd -= (lp->sowd >> 3);	/* m is now error in owd est */
-+		lp->sowd += mowd;	/* owd = 7/8 owd + 1/8 new */
-+	} else
-+		lp->sowd = mowd << 3;	/* take the measured time be owd */
-+}
-+
-+/**
-+ * tcp_lp_pkts_acked
-+ *
-+ * Implementation of pkts_acked.
-+ * Deal with active drop under Early Congestion Indication.
-+ * Only drop to half and 1 will be handle, because we hope to use back
-+ * newReno in increase case.
-+ * We work it out by following the idea from TCP-LP's paper directly
-+ */
-+static void tcp_lp_pkts_acked(struct sock *sk, u32 num_acked)
-+{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+	struct lp *lp = inet_csk_ca(sk);
-+
-+	/* calc inference */
-+	if (tcp_time_stamp > tp->rx_opt.rcv_tsecr)
-+		lp->inference = 3 * (tcp_time_stamp - tp->rx_opt.rcv_tsecr);
-+
-+	/* test if within inference */
-+	if (lp->last_drop && (tcp_time_stamp - lp->last_drop < lp->inference))
-+		lp->flag |= LP_WITHIN_INF;
-+	else
-+		lp->flag &= ~LP_WITHIN_INF;
-+
-+	/* test if within threshold */
-+	if (lp->sowd >> 3 <
-+	    lp->owd_min + 15 * (lp->owd_max - lp->owd_min) / 100)
-+		lp->flag |= LP_WITHIN_THR;
-+	else
-+		lp->flag &= ~LP_WITHIN_THR;
-+
-+#if CONFIG_TCP_CONG_LP_DEBUG == 1
-+	printk(KERN_DEBUG "TCP-LP: %05o|%5u|%5u|%15u|%15u|%15u\n", lp->flag,
-+	       tp->snd_cwnd, lp->remote_hz, lp->owd_min, lp->owd_max, lp->sowd >> 3);
-+#endif
-+
-+	if (lp->flag & LP_WITHIN_THR)
-+		return;
-+
-+	/* FIXME: try to reset owd_min and owd_max here
-+	 * so decrease the chance the min/max is no longer suitable
-+	 * and will usually within threshold when whithin inference */
-+	lp->owd_min = (lp->sowd >> 3);
-+	lp->owd_max = (lp->sowd >> 2);
-+	lp->owd_max_rsv = (lp->sowd >> 2);
-+
-+	/* happened within inference
-+	 * drop snd_cwnd into 1 */
-+	if (lp->flag & LP_WITHIN_INF)
-+		tp->snd_cwnd = 1U;
-+
-+	/* happened after inference
-+	 * cut snd_cwnd into half */
-+	else
-+		tp->snd_cwnd = max(tp->snd_cwnd >> 1U, 1U);
-+
-+	/* record this drop time */
-+	lp->last_drop = tcp_time_stamp;
-+}
-+
-+static struct tcp_congestion_ops tcp_lp = {
-+	.init = tcp_lp_init,
-+	.ssthresh = tcp_reno_ssthresh,
-+	.cong_avoid = tcp_lp_cong_avoid,
-+	.min_cwnd = tcp_reno_min_cwnd,
-+	.rtt_sample = tcp_lp_rtt_sample,
-+	.pkts_acked = tcp_lp_pkts_acked,
-+
-+	.owner = THIS_MODULE,
-+	.name = "lp"
-+};
-+
-+static int __init lp_register(void)
-+{
-+	BUG_ON(sizeof(struct lp) > ICSK_CA_PRIV_SIZE);
-+	return tcp_register_congestion_control(&tcp_lp);
-+}
-+
-+static void __exit lp_unregister(void)
-+{
-+	tcp_unregister_congestion_control(&tcp_lp);
-+}
-+
-+module_init(lp_register);
-+module_exit(lp_unregister);
-+
-+MODULE_AUTHOR("Wong Hoi Sing Edison, Hung Hing Lun");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("TCP Low Priority");
+							- Ted

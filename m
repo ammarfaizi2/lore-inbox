@@ -1,89 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWEFJVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWEFK2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWEFJVb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 05:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWEFJVb
+	id S1750709AbWEFK2s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 06:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWEFK2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 05:21:31 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:44733 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751229AbWEFJVa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 05:21:30 -0400
+	Sat, 6 May 2006 06:28:47 -0400
+Received: from wr-out-0506.google.com ([64.233.184.224]:53084 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750709AbWEFK2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 06:28:47 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=E5ltvNG0ddAxjchqWV55ZmYse8dVjU1VdxVe5EElQxaySIFbnMpJKDEzVbR76t46UMtOGQJjO0APzUxFqSdLoOqGqcslLOyB4QmioaDe6Aoy1J9YFW5PLBE3CZi7lbgK9eSlTSyllUV2ubUE4UyEdMu4bkFuEI3OqGtEa0H7ac8=  ;
-Message-ID: <445C6717.1000402@yahoo.com.au>
-Date: Sat, 06 May 2006 19:06:31 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
+        b=W7T5jOQfoN3Gf0eoW5UW95fvW4kwzNcq8Px5VS6uGZXtmE9HEYtNMLkPqXbC0XpgXbfBaDDpztD/FuBLMfrZmrnO/XzTt2TVe2VNS2O9lQITQt197gI5TbFoyq6UhtqQ7arMTNTfINU1DI0lbuZ32tiFOfI0oLbVt3dHU/C3O5I=
+Message-ID: <445C7AE9.4060808@gmail.com>
+Date: Sat, 06 May 2006 13:31:05 +0300
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
 MIME-Version: 1.0
-To: Blaisorblade <blaisorblade@yahoo.it>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Ulrich Drepper <drepper@redhat.com>, Val Henson <val.henson@intel.com>
-Subject: Re: [patch 00/14] remap_file_pages protection support
-References: <20060430172953.409399000@zion.home.lan> <4456D5ED.2040202@yahoo.com.au> <200605030245.01457.blaisorblade@yahoo.it>
-In-Reply-To: <200605030245.01457.blaisorblade@yahoo.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: John Coffman <johninsd@san.rr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
+       tony.luck@intel.com
+Subject: Re: [PATCH][TAKE 4] THE LINUX/I386 BOOT PROTOCOL - Breaking    the
+ 256 limit
+References: <445B5524.2090001@gmail.com> <445B5C92.5070401@zytor.com> <445B610A.7020009@gmail.com> <445B62AC.90600@zytor.com> <6.2.3.4.0.20060505110517.036df928@pop-server.san.rr.com> <445B96D2.9070301@zytor.com> <6.2.3.4.0.20060505144445.03642988@pop-server.san.rr.com> <445BCA33.30903@zytor.com> <6.2.3.4.0.20060505204729.036dfdf8@pop-server.san.rr.com> <445C301E.6060509@zytor.com>
+In-Reply-To: <445C301E.6060509@zytor.com>
+Content-Type: multipart/mixed;
+ boundary="------------070601090903030202090004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Blaisorblade wrote:
-> On Tuesday 02 May 2006 05:45, Nick Piggin wrote:
-> 
->>blaisorblade@yahoo.it wrote:
+This is a multi-part message in MIME format.
+--------------070601090903030202090004
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+H. Peter Anvin wrote:
+> John Coffman wrote:
+>> At 02:57 PM  Friday 5/5/2006, H. Peter Anvin wrote:
+>> Okay, let me ask this:
 >>
->>>The first idea is to use this for UML - it must create a lot of single
->>>page mappings, and managing them through separate VMAs is slow.
+>>> If the *kernel* limit is modified, but the LILO limit is not, what
+>>> will happen?  This is the real crux of the matter.
+>>
+>> The length of the kernel command line will be limited by the size of
+>> the boot loader buffer.  LILO always inserts a NUL terminator.
+>>
+>> --John
+>>
+>> P.S.  The LILO command line buffer has always been 1 sector (512
+>> bytes); however, only the first half is actually used for the command
+>> line. No kernel can do any harm by setting "boot_cmdline[511] = 0;"
+>> for any version of LILO back to version 20 (and probably before).
+>>
+> 
+> Okay... **DOES ANYONE HAVE ANY ACTUAL EVIDENCE TO THE CONTRARY???**, and
+> if so, **WHAT ARE THE DETAILS**?
+> 
+> All I've heard so far is hearsay.  "X said that Y had said..."
+> 
+>     -hpa
 > 
 > 
->>I think I would rather this all just folded under VM_NONLINEAR rather than
->>having this extra MANYPROTS thing, no? (you're already doing that in one
->>direction).
-> 
-> 
-> That step is _temporary_ if the extra usages are accepted.
 
-Can we try to get the whole design right from the start?
+So here is an updated patch. Notice that I've removed the
+redundant COMMAND_LINE_SIZE from param.h of i386 to make it
+closer to other architectures. It was required in the past
+to allow a boot loader to know the COMMAND_LINE_SIZE, but
+LILO, GRUB, syslinux have a local definition for this, and
+is not required in boot protocol >= 2.02 since a boot loader
+can pass any null terminated string.
 
-> 
-> Also, I reported (changelog of patch 03/14) a definite API bug you get if you 
-> don't distinguish VM_MANYPROTS from VM_NONLINEAR. I'm pasting it here because 
-> that changelog is rather long:
-> 
-> "In fact, without this flag, we'd have indeed a regression with
-> remap_file_pages VS mprotect, on uniform nonlinear VMAs.
-> 
-> mprotect alters the VMA prots and walks each present PTE, ignoring installed
-> ones, even when pte_file() is on; their saved prots will be restored on 
-> faults,
-> ignoring VMA ones and losing the mprotect() on them. So, in do_file_page(), we
-> must restore anyway VMA prots when the VMA is uniform, as we used to do before
-> this trail of patches."
+Best Regards,
+Alon Bar-Lev.
 
-It is only a bug because you hadn't plugged the hole -- make it fix up pte_file
-ones as well.
+--------------070601090903030202090004
+Content-Type: text/plain;
+ name="linux-2.6.17-rc3-x86-command-line.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6.17-rc3-x86-command-line.patch"
 
-> Ulrich wanted to have code+data(+guard on 64-bit) into the same VMA, but I 
-> left the code+data VMA joining away, to think more with it, since currently 
-> it's too slow on swapout.
+diff -urNp linux-2.6.17-rc3/include/asm-i386/param.h linux-2.6.17-rc3.new/include/asm-i386/param.h
+--- linux-2.6.17-rc3/include/asm-i386/param.h	2006-03-20 07:53:29.000000000 +0200
++++ linux-2.6.17-rc3.new/include/asm-i386/param.h	2006-05-06 12:38:32.000000000 +0300
+@@ -19,6 +19,5 @@
+ #endif
+ 
+ #define MAXHOSTNAMELEN	64	/* max length of hostname */
+-#define COMMAND_LINE_SIZE 256
+ 
+ #endif
+diff -urNp linux-2.6.17-rc3/include/asm-i386/setup.h linux-2.6.17-rc3.new/include/asm-i386/setup.h
+--- linux-2.6.17-rc3/include/asm-i386/setup.h	2006-05-06 12:35:09.000000000 +0300
++++ linux-2.6.17-rc3.new/include/asm-i386/setup.h	2006-05-06 12:38:44.000000000 +0300
+@@ -15,7 +15,7 @@
+ #define MAX_NONPAE_PFN	(1 << 20)
+ 
+ #define PARAM_SIZE 4096
+-#define COMMAND_LINE_SIZE 256
++#define COMMAND_LINE_SIZE 2048
+ 
+ #define OLD_CL_MAGIC_ADDR	0x90020
+ #define OLD_CL_MAGIC		0xA33F
+diff -urNp linux-2.6.17-rc3/include/asm-ia64/setup.h linux-2.6.17-rc3.new/include/asm-ia64/setup.h
+--- linux-2.6.17-rc3/include/asm-ia64/setup.h	2006-03-20 07:53:29.000000000 +0200
++++ linux-2.6.17-rc3.new/include/asm-ia64/setup.h	2006-05-06 12:40:32.000000000 +0300
+@@ -1,6 +1,6 @@
+ #ifndef __IA64_SETUP_H
+ #define __IA64_SETUP_H
+ 
+-#define COMMAND_LINE_SIZE	512
++#define COMMAND_LINE_SIZE	2048
+ 
+ #endif
 
-Yes, and it would be ridiculous to do this with non linear protections anyway.
-If the vma code is so slow that glibc wants to merge code and data vmas together,
-then we obviously need to fix the data structure (which will help everyone)
-rather than hacking around it.
-
-> 
-> The other part is avoiding guard VMAs for thread stacks, and that could be 
-> accomplished too by your proposal. Iff this work is held out, however.
-
-I see no reason why they couldn't both go in. In fact, having an mmap flag for
-adding guard regions around vmas (and perhaps eg. a system-wide / per-process
-option for stack) could almost go in tomorrow.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--------------070601090903030202090004--

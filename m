@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWEFWZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWEFWoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWEFWZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 18:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWEFWZ7
+	id S932097AbWEFWoX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 18:44:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWEFWoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 18:25:59 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:8579 "EHLO
-	palinux.external.hp.com") by vger.kernel.org with ESMTP
-	id S932089AbWEFWZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 18:25:58 -0400
-Date: Sat, 6 May 2006 16:25:57 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: minixfs bitmaps and associated lossage
-Message-ID: <20060506222557.GK9609@parisc-linux.org>
-References: <44560796.8010700@gmail.com> <20060506162956.GO27946@ftp.linux.org.uk> <20060506163737.GP27946@ftp.linux.org.uk> <20060506220451.GQ27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060506220451.GQ27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+	Sat, 6 May 2006 18:44:23 -0400
+Received: from mx.freeshell.ORG ([192.94.73.18]:58606 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S932097AbWEFWoW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 18:44:22 -0400
+Date: Sat, 6 May 2006 22:43:57 +0000 (UTC)
+From: Alexey Toptygin <alexeyt@freeshell.org>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, tony.luck@intel.com
+Subject: Re: [PATCH] sendfile compat functions on x86_64 and ia64
+In-Reply-To: <200605061046.24315.ak@suse.de>
+Message-ID: <Pine.NEB.4.64.0605062241480.6792@norge.freeshell.org>
+References: <Pine.NEB.4.62.0605050030200.18795@norge.freeshell.org>
+ <200605052328.21370.ak@suse.de> <Pine.NEB.4.62.0605052145140.25706@ukato.freeshell.org>
+ <200605061046.24315.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 06, 2006 at 11:04:51PM +0100, Al Viro wrote:
-> 	So...  What the hell can we do?  Layouts (4) and (5) are clearly
-> broken and _never_ worked - there's nothing that would manage to create
-> such filesystem.  So these are obvious candidates for switching - either
-> to (2) (correct) or to (3) (broken, but at least match util-linux fsck.minix
-> and mkfs.minix on such platforms).  The question being, what do we do with
-> (3) (big-endian metadata, little-endian bitmaps) and what do we do with
-> Linux fsck.minix?  Aside of repeating the mantra, that is ("All Software
-> Sucks, All Hardware Sucks")...
+On Sat, 6 May 2006, Andi Kleen wrote:
 
-For parisc (and I suspect many other architectures), the situation
-is clear.  Nobody has ever used minixfs, and the only possible reason
-to use it is for data transfer from another system.  Now, there's more
-i386/minix systems in existence than there are m68k/minix, so I'd actually
-prefer to switch parisc to support the LE minix format.  Or, since that
-would involve doing work for something that nobody would ever use, just
-disabling it on parisc.  If anyone ever wants it, they can do the work.
+>> I agree that this test will pass if we change the declaration of count to
+>> u32 in sys32_sendfile,
+>
+> Again the compat layer is only supposed to be as good as a native 32bit
+> kernel. You try to make it better by allowing values that a 32bit
+> kernel wouldn't allow. But that's not its goal - it just wants to be
+> as compatible as possible.
+
+Absolutely not, this is not what I'm trying to do at all! My change will 
+not make it accept values that the native 32 bit kernel won't accept - I 
+had a very detailed description of why in my last mail.
+
+> The goal isn't to be clear, the goal is to be compatible.
+>
+> Please stop continue arguing about this - it's useless.
+
+Fine, you're the maintainer.
+
+ 			Alexey

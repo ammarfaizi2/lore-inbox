@@ -1,120 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWEFK2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWEFKaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWEFK2s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 06:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750712AbWEFK2r
+	id S1750712AbWEFKaF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 06:30:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWEFKaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 06:28:47 -0400
-Received: from wr-out-0506.google.com ([64.233.184.224]:53084 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750709AbWEFK2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 06:28:47 -0400
+	Sat, 6 May 2006 06:30:05 -0400
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:47038 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750712AbWEFKaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 06:30:02 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type;
-        b=W7T5jOQfoN3Gf0eoW5UW95fvW4kwzNcq8Px5VS6uGZXtmE9HEYtNMLkPqXbC0XpgXbfBaDDpztD/FuBLMfrZmrnO/XzTt2TVe2VNS2O9lQITQt197gI5TbFoyq6UhtqQ7arMTNTfINU1DI0lbuZ32tiFOfI0oLbVt3dHU/C3O5I=
-Message-ID: <445C7AE9.4060808@gmail.com>
-Date: Sat, 06 May 2006 13:31:05 +0300
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Thunderbird 1.5.0.2 (X11/20060501)
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=V5XLac13etLonXhcgEO52Sr0/0chSufjfg09Ox+V3y0JGPqPV9B2e7IdXRZO4bharMw817FJqp9UDChv1afu92f8VIve3EkABGCsw5XUPQYXfCAcdoUiTGFbcwWIw+CGLiwjx9MZP9pXMFms+CiYKeP0CUNGjlG9UTTZPyCR3jY=  ;
+Message-ID: <445C747A.7080205@yahoo.com.au>
+Date: Sat, 06 May 2006 20:03:38 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: John Coffman <johninsd@san.rr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Barry K. Nathan" <barryn@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
-       tony.luck@intel.com
-Subject: Re: [PATCH][TAKE 4] THE LINUX/I386 BOOT PROTOCOL - Breaking    the
- 256 limit
-References: <445B5524.2090001@gmail.com> <445B5C92.5070401@zytor.com> <445B610A.7020009@gmail.com> <445B62AC.90600@zytor.com> <6.2.3.4.0.20060505110517.036df928@pop-server.san.rr.com> <445B96D2.9070301@zytor.com> <6.2.3.4.0.20060505144445.03642988@pop-server.san.rr.com> <445BCA33.30903@zytor.com> <6.2.3.4.0.20060505204729.036dfdf8@pop-server.san.rr.com> <445C301E.6060509@zytor.com>
-In-Reply-To: <445C301E.6060509@zytor.com>
-Content-Type: multipart/mixed;
- boundary="------------070601090903030202090004"
+To: Blaisorblade <blaisorblade@yahoo.it>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [patch 11/14] remap_file_pages protection support: pte_present
+ should not trigger on PTE_FILE PROTNONE ptes
+References: <20060430172953.409399000@zion.home.lan> <20060430173025.752423000@zion.home.lan> <4456D7B8.2000004@yahoo.com.au> <200605030329.51034.blaisorblade@yahoo.it>
+In-Reply-To: <200605030329.51034.blaisorblade@yahoo.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070601090903030202090004
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-H. Peter Anvin wrote:
-> John Coffman wrote:
->> At 02:57 PM  Friday 5/5/2006, H. Peter Anvin wrote:
->> Okay, let me ask this:
->>
->>> If the *kernel* limit is modified, but the LILO limit is not, what
->>> will happen?  This is the real crux of the matter.
->>
->> The length of the kernel command line will be limited by the size of
->> the boot loader buffer.  LILO always inserts a NUL terminator.
->>
->> --John
->>
->> P.S.  The LILO command line buffer has always been 1 sector (512
->> bytes); however, only the first half is actually used for the command
->> line. No kernel can do any harm by setting "boot_cmdline[511] = 0;"
->> for any version of LILO back to version 20 (and probably before).
->>
+Blaisorblade wrote:
+> On Tuesday 02 May 2006 05:53, Nick Piggin wrote:
 > 
-> Okay... **DOES ANYONE HAVE ANY ACTUAL EVIDENCE TO THE CONTRARY???**, and
-> if so, **WHAT ARE THE DETAILS**?
-> 
-> All I've heard so far is hearsay.  "X said that Y had said..."
-> 
->     -hpa
+>>blaisorblade@yahoo.it wrote:
+>>
+>>>From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+>>>
+>>>pte_present(pte) implies that pte_pfn(pte) is valid. Normally even with a
+>>>_PAGE_PROTNONE pte this holds, but not when such a PTE is installed by
+>>>the new install_file_pte; previously it didn't store protections, only
+>>>file offsets, with the patches it also stores protections, and can set
+>>>_PAGE_PROTNONE|_PAGE_FILE.
 > 
 > 
+> What could be done is to set a PTE with "no protection", use another bit 
+> rather than _PAGE_PROTNONE. This wastes one more bit but doable.
 
-So here is an updated patch. Notice that I've removed the
-redundant COMMAND_LINE_SIZE from param.h of i386 to make it
-closer to other architectures. It was required in the past
-to allow a boot loader to know the COMMAND_LINE_SIZE, but
-LILO, GRUB, syslinux have a local definition for this, and
-is not required in boot protocol >= 2.02 since a boot loader
-can pass any null terminated string.
+I see.
 
-Best Regards,
-Alon Bar-Lev.
+> 
+> 
+>>Why is this combination useful? Can't you just drop the _PAGE_FILE from
+>>_PAGE_PROTNONE ptes?
+> 
+> 
+> I must think on this, but the semantics are not entirely the same between the 
+> two cases.
 
---------------070601090903030202090004
-Content-Type: text/plain;
- name="linux-2.6.17-rc3-x86-command-line.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.17-rc3-x86-command-line.patch"
+And yes, this won't work. I was misunderstanding what was happening.
 
-diff -urNp linux-2.6.17-rc3/include/asm-i386/param.h linux-2.6.17-rc3.new/include/asm-i386/param.h
---- linux-2.6.17-rc3/include/asm-i386/param.h	2006-03-20 07:53:29.000000000 +0200
-+++ linux-2.6.17-rc3.new/include/asm-i386/param.h	2006-05-06 12:38:32.000000000 +0300
-@@ -19,6 +19,5 @@
- #endif
- 
- #define MAXHOSTNAMELEN	64	/* max length of hostname */
--#define COMMAND_LINE_SIZE 256
- 
- #endif
-diff -urNp linux-2.6.17-rc3/include/asm-i386/setup.h linux-2.6.17-rc3.new/include/asm-i386/setup.h
---- linux-2.6.17-rc3/include/asm-i386/setup.h	2006-05-06 12:35:09.000000000 +0300
-+++ linux-2.6.17-rc3.new/include/asm-i386/setup.h	2006-05-06 12:38:44.000000000 +0300
-@@ -15,7 +15,7 @@
- #define MAX_NONPAE_PFN	(1 << 20)
- 
- #define PARAM_SIZE 4096
--#define COMMAND_LINE_SIZE 256
-+#define COMMAND_LINE_SIZE 2048
- 
- #define OLD_CL_MAGIC_ADDR	0x90020
- #define OLD_CL_MAGIC		0xA33F
-diff -urNp linux-2.6.17-rc3/include/asm-ia64/setup.h linux-2.6.17-rc3.new/include/asm-ia64/setup.h
---- linux-2.6.17-rc3/include/asm-ia64/setup.h	2006-03-20 07:53:29.000000000 +0200
-+++ linux-2.6.17-rc3.new/include/asm-ia64/setup.h	2006-05-06 12:40:32.000000000 +0300
-@@ -1,6 +1,6 @@
- #ifndef __IA64_SETUP_H
- #define __IA64_SETUP_H
- 
--#define COMMAND_LINE_SIZE	512
-+#define COMMAND_LINE_SIZE	2048
- 
- #endif
+I guess your problem is that you're overloading the pte protection bits
+for present ptes as protection bits for not present (file) ptes. I'd rather
+you just used a different encoding for file pte protections then.
 
---------------070601090903030202090004--
+"Wasting" a bit seems much more preferable for this very uncommon case (for
+most people) rather than bloating pte_present check, which is called in
+practically every performance critical inner loop).
+
+That said, if the patch is i386/uml specific then I don't have much say in
+it. If Ingo/Linus and Jeff/Yourself, respectively, accept the patch, then
+fine.
+
+But I think you should drop the comment from the core code. It seems wrong.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

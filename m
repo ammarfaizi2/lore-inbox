@@ -1,127 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWEFSGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWEFSJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWEFSGK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 14:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbWEFSGJ
+	id S1751034AbWEFSJF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 14:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWEFSJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 14:06:09 -0400
-Received: from thunk.org ([69.25.196.29]:62417 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750700AbWEFSGI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 14:06:08 -0400
-Date: Sat, 6 May 2006 14:05:51 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH 7/14] random: Remove SA_SAMPLE_RANDOM from network drivers
-Message-ID: <20060506180551.GB22474@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Matt Mackall <mpm@selenic.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	davem@davemloft.net
-References: <8.420169009@selenic.com> <65CF7F44-0452-4E94-8FC1-03B024BCCAE7@mac.com> <20060505172424.GV15445@waste.org> <20060505191127.GA16076@thunk.org> <20060505203436.GW15445@waste.org> <20060506115502.GB18880@thunk.org> <20060506164808.GY15445@waste.org>
+	Sat, 6 May 2006 14:09:04 -0400
+Received: from mail.crosswalkinc.com ([72.16.196.98]:61446 "EHLO
+	coach.cozx.com") by vger.kernel.org with ESMTP id S1751034AbWEFSJE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 May 2006 14:09:04 -0400
+Message-ID: <445CE6ED.30703@cozx.com>
+Date: Sat, 06 May 2006 12:11:57 -0600
+From: Dave Pitts <dpitts@cozx.com>
+Organization: Colorado Zephyrs
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060506164808.GY15445@waste.org>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: linux-kernel@vger.kernel.org
+Subject: How can I boost block I/O performance
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 06, 2006 at 11:48:08AM -0500, Matt Mackall wrote:
-> Case 3:
-> Hash function broken, entropy accounting is over-optimistic:
-> /dev/urandom and /dev/random are both equally insecure because both
-> are revealing more internal entropy than they're collecting. So you
-> should just use /dev/urandom because at least it doesn't block.
-> 
-> Putting aside all the practical issue of what exactly is entropy and
-> what decent entropy sources are, we should be able to agree on this
-> much. And this basically says that if you do your entropy accounting
-> badly, you throw the baby out with the bathwater.
+Hello all:
 
-Agreed, but I'd an additional point of nuance; this assumes that the
-attacker (call him Boris for the sake of argument) can actually gain
-access to enough /dev/random or /dev/urandom outputs, and be
-knowledgable about all other calls to /dev/random and exactly when
-they happen (since entropy extractions cause the TSC to be mixed into
-the pool) so Boris can can actually determine the contents of the
-pool.  Note that simply "breaking" a cryptographic hash, in the sense
-of finding two input values that collide to the same output value,
-does not mean that the hash has been sufficiently analyzed that it
-would be possible to accomplish this feat.  And given that it took
-80,000 CPU hours to determine find this collision, and the complexity
-of the attack was 2**51, it seems highly likely that with a poolsize
-of 4096 bits, that it would take a huge amount of /dev/random
-extractions, complete with the exact TSC timestamp when the
-extractions were happening, such that an attacker would be able to
-have enough information to break the pool.
+I've been trying some hacks to boost disk I/O performance mostly by 
+changing values
+in the /proc/sys/vm filesystem.  A vmstat display shows bursty block out 
+counts with
+fairly consistent interrupt counts:
 
-Does this mean we should __depend__ on this?  No, we should always do
-the best job that we can.  But it's also fair to say that even if the
-hash function is "broken", that the results are not automatically
-going to be catastrophic.  If the attacker can't get their hands on
-enough of an output stream from /dev/random, then it's not likely to
-do much.  For an attacker who only has network access, this could be
-quite difficult.
+procs -----------memory---------- ---swap-- -----io---- --system-- 
+----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy 
+id wa
+ 4  0    720  80252   1820 7077456    0    0     9   852    5    11  1 
+14 84  0
+ 1  0    720  80444   1820 7077456    0    0     0     0 15923 77712  4 
+20 76  0
+ 2  0    720  80196   1820 7077524    0    0     0     0 14705 87207  4 
+18 79  0
+ 2  0    720  79732   1828 7077856    0    0     8   116 16235 84459  4 
+20 76  0
+ 4  0    720 104172   1812 7051964    0    0    24 62568 20447 73499  4 
+27 69  0
+ 2  0    720 105172   1812 7051964    0    0     0 90740 16960 80149  1 
+21 78  0
+ 2  0    720 104108   1812 7051964    0    0     0     0 14162 72632  3 
+13 85  0
+ 4  0    720 103980   1812 7052032    0    0     0     0 13495 68133  4 
+16 80  0
+ 1  0    720 103868   1820 7052704    0    0     0   128 15417 59969  4 
+17 79  0
+ 0  0    720 104340   1828 7052696    0    0     0   280 19504 74281  0  
+8 92  0
+ 0  0    720 104532   1828 7052696    0    0     0     0 14736 70017  0  
+5 95  0
+ 1  0    720 104596   1828 7052696    0    0     0     0 16006 73173  0  
+6 94  0
+ 2  0    720  92844   1828 7064256    0    0    12     0 16508 80601  0  
+9 91  0
+ 2  0    720  91916   1836 7064248    0    0     4   104 20787 74676  0  
+7 92  0
+ 0  0    720  92580   1844 7064240    0    0     0 14640 17789 71545  0 
+10 90  0
+ 1  0    720  92900   1844 7064240    0    0     0     0 15460 74760  0  
+8 92  0
+ 0  0    720  92668   1844 7065260    0    0     0     0 18585 77435  0  
+7 93  0
+ 0  0    720  92604   1844 7065260    0    0     0     0 19187 86426  0  
+9 91  0
+ 2  0    720  91964   1860 7065244    0    0     0   140 23659 87962  0  
+8 92  0
+ 5  0    720  90364   1860 7067080    0    0    40 66956 17995 95384  0 
+17 82  0
 
-> But network traffic should be _assumed_ to be observable to some
-> degree. Everything else in network security makes the assumption that
-> traffic is completely snoopable. By contrast, we assume people can't
-> see us type our passwords[1]. So while our entropy estimator assumes
-> observability == 0, for the network case, 0 < observability <= 1. And
-> if it's greater than what our entropy estimator assumes, our entropy
-> estimates are now too optimistic and /dev/random security degrades to
-> that of /dev/urandom.
+This test is running several NFS clients to a RAID disk storage array. I 
+also see the
+same behavior when running SFTP transfers. What I'd like is a more even 
+block
+out behavior (even at the expense of other apps as this is a file server 
+not an app
+server).  The values that I've been hacking are the 
+dirty_writeback_centisecs,
+dirty_background_ratio, etc. Am I barking up the wrong tree?
 
-The timing of network arrivals is observable to *some* degree.  Of
-course, so is the timing from block I/O interrupts.  The question is
-whether or not it is predictable enough at the finest resolution.  For
-block device interrupts, there has been papers showing that air
-currents inside the spinning media is chaotic enough that it can
-actually influence the timing at which interrupts are returned --- at
-least for systems a decade ago.  To be honest, it would probably be a
-useful and worthwhile masters thesis for a grad student to revisit the
-problem using modern disk drive technologies, controllers, and
-interconnects to see if this is still a valid assumption.
+Thanks in advance.
 
-For network traffic, again, it depends on your threat model.  For an
-attacker stationed in Fort Mead, Maryland, with over a dozen router
-and ethernet switches between them and the target system, there are
-enough packet queues and buffers that any hope of observing packet
-interarrival times is almost certainly hopeless.  As I've said, if an
-attacker has direct physical access to the ethernet segment between
-your host and the switch, then while the attacker is busy installing a
-keyboard switcher and possibly doing a black bag job on your hard disk
-to install monitoring software directly in the OS software, yes, the
-FBI agent could probably install something on the ethernet between
-your host and the switch that could precisely measure packet arrival
-times very accurately.  Is that something the system administrator
-should care about?  Maybe, maybe not.
+-- 
+Dave Pitts                   PULLMAN: Travel and sleep in safety and comfort.
+dpitts@cozx.com              My other RV IS a Pullman (Colorado Pine).
+http://www.cozx.com/~dpitts
 
-That's why I think it should be configurable.  If you don't have a
-real hardware number generator, maybe blocking would be preferable to
-not having good entropy.  But in other circumstances, what people need
-is the best possible randomness they can get, and their security is
-not enhanced by simply taking it away from them altogether.  That
-makes about as much sense as GNOME making its applications "easier to
-use" by removing functionality (to quote Linus).
-
-> Yes, this is all strictly theoretical. But the usefulness of
-> /dev/random is exactly as theoretical. So if you use /dev/random for
-> it's theoretical advantages (and why else would you?), this defeats
-> that.
-
-This becomes a philosophical arugment.  Yes, we should strive for as
-much theoretical perfection as possible.  But at the same time, we
-need to live in the real world, and adding network entropy which can
-defeat the bored high school student in Russia using some black hat
-toolkit they downloaded of the internet is useful --- even if it can't
-defeat the NSA/FBI agent who can perform a black bag job and place a
-monitoring device on your internal ethernet segment.
-
-							- Ted

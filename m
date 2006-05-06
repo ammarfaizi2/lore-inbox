@@ -1,109 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWEFVFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWEFVOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWEFVFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 May 2006 17:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWEFVFZ
+	id S932076AbWEFVOE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 May 2006 17:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWEFVOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 May 2006 17:05:25 -0400
-Received: from fmmailgate01.web.de ([217.72.192.221]:46258 "EHLO
-	fmmailgate01.web.de") by vger.kernel.org with ESMTP id S932072AbWEFVFZ
+	Sat, 6 May 2006 17:14:04 -0400
+Received: from mail.crosswalkinc.com ([72.16.196.98]:60942 "EHLO
+	coach.cozx.com") by vger.kernel.org with ESMTP id S932076AbWEFVOD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 May 2006 17:05:25 -0400
-From: Michael Helmling <supermihi@web.de>
-To: "Markus Rechberger" <mrechberger@gmail.com>
-Subject: Re: New, yet unsupported USB-Ethernet adaptor
-Date: Sat, 6 May 2006 23:05:20 +0200
-User-Agent: KMail/1.9.1
-Cc: "Ioan Ionita" <opslynx@gmail.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <200605022002.15845.supermihi@web.de> <200605022303.10832.supermihi@web.de> <d9def9db0605050554m7b1e093di85782c1b09ca2636@mail.gmail.com>
-In-Reply-To: <d9def9db0605050554m7b1e093di85782c1b09ca2636@mail.gmail.com>
+	Sat, 6 May 2006 17:14:03 -0400
+Message-ID: <445D124E.2020404@cozx.com>
+Date: Sat, 06 May 2006 15:17:02 -0600
+From: Dave Pitts <dpitts@cozx.com>
+Organization: Colorado Zephyrs
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1426170.3YvNsdGz8u";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Avi Kivity <avi@argo.co.il>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How can I boost block I/O performance
+References: <445CE6ED.30703@cozx.com> <445CF9E4.3040202@argo.co.il>
+In-Reply-To: <445CF9E4.3040202@argo.co.il>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200605062305.20750.supermihi@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1426170.3YvNsdGz8u
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Avi Kivity wrote:
 
-Hi Markus,
+> Dave Pitts wrote:
+>
+>> Hello all:
+>>
+>> I've been trying some hacks to boost disk I/O performance mostly by 
+>> changing values
+>> in the /proc/sys/vm filesystem.  A vmstat display shows bursty block 
+>> out counts with
+>> fairly consistent interrupt counts:
+>>
+>> procs -----------memory---------- ---swap-- -----io---- --system-- 
+>> ----cpu----
+>> r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+>> sy id wa
+>> 4  0    720  80252   1820 7077456    0    0     9   852    5    11  1 
+>> 14 84  0
+>
+> [...]
+>
+>> 5  0    720  90364   1860 7067080    0    0    40 66956 17995 95384  
+>> 0 17 82  0
+>>
+>> This test is running several NFS clients to a RAID disk storage 
+>> array. I also see the
+>> same behavior when running SFTP transfers. What I'd like is a more 
+>> even block
+>> out behavior (even at the expense of other apps as this is a file 
+>> server not an app
+>> server).  The values that I've been hacking are the 
+>> dirty_writeback_centisecs,
+>> dirty_background_ratio, etc. Am I barking up the wrong tree?
+>
+> No  iowait time, plenty of idle time: looks like you are network 
+> bound. What time of network are you running?
+>
+Well, it's an 8 cpu system. Does the idle time reflect the idle time of 
+all cpu's?
+The network is a Gigabit Ethernet.
 
-I'm sorry but your attachment has 0kb size. :(
 
-On Friday 05 May 2006 14:54, Markus Rechberger wrote:
-> Hi Michael,
->=20
-> I mailed you the complete package it compiled fine but I'm also unable to
-> test since I don't have such a device either
-> I should have known about this thread earlier :)
->=20
-> Markus
->=20
-> On 5/2/06, Michael Helmling <supermihi@web.de> wrote:
-> >
-> >
-> >
-> > Am Dienstag 02 Mai 2006 22:40 schrieb Ioan Ionita:
-> > > On 5/2/06, Michael Helmling <supermihi@web.de> wrote:
-> > > > Thank you very much for the immediate answer.
-> > > > I applied the patch  - well, I had to do this manually, for some
-> > reason, I
-> > > > assume bad formatting in my mail program, patch -p0 < patch1 didn't
-> > work.
-> > Or
-> > > > am I using the wrong command?
-> > >
-> > > You shoud use patch -p1< patch
-> >
-> > $ patch -p1 < patch
-> > patching file mcs7830.c
-> > Hunk #1 FAILED at 1309.
-> > Hunk #2 FAILED at 1370.
-> > Hunk #3 FAILED at 1503.
-> > Hunk #4 FAILED at 1935.
-> > Hunk #5 FAILED at 1997.
-> > Hunk #6 FAILED at 2044.
-> > Hunk #7 FAILED at 2404.
-> > 7 out of 7 hunks FAILED -- saving rejects to file mcs7830.c.rej
-> >
-> > Don't know why. :( But since it are only a few lines this isn't a major
-> > problem.
-> >
-> > > Me neither. It was a quick & dirty patch, I must have missed
-> > > something. I'll toy around with it some more.
-> >
-> > Good luck!
-> > >
-> > >
-> > > P.S In the future, make sure you use reply-to-all. Thanks
-> >
-> > Ok.
-> >
-> >
-> >
->=20
->=20
-> --
-> Markus Rechberger
->=20
+-- 
+Dave Pitts                   PULLMAN: Travel and sleep in safety and comfort.
+dpitts@cozx.com              My other RV IS a Pullman (Colorado Pine).
+http://www.cozx.com/~dpitts
 
---nextPart1426170.3YvNsdGz8u
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-
-iD8DBQBEXQ+QcLJiNWFgTBIRAs8aAKCGIxVTsW1L5fN+Stt6wQiuzWSWOgCfSraH
-BOLG12YHkGpdeA7HF260/98=
-=/tnw
------END PGP SIGNATURE-----
-
---nextPart1426170.3YvNsdGz8u--

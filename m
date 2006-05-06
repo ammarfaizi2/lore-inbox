@@ -1,62 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWEEXkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWEFABD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWEEXkS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 May 2006 19:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWEEXkS
+	id S1751079AbWEFABD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 May 2006 20:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWEFABD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 May 2006 19:40:18 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:33194 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751222AbWEEXkQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 May 2006 19:40:16 -0400
-Message-ID: <445BE327.4030104@sw.ru>
-Date: Sat, 06 May 2006 03:43:35 +0400
-From: Vasily Averin <vvs@sw.ru>
-Organization: SW-soft
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050921
-X-Accept-Language: en-us, en, ru
+	Fri, 5 May 2006 20:01:03 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:1481 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S1751079AbWEFABB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 May 2006 20:01:01 -0400
+Message-ID: <445BE729.80903@am.sony.com>
+Date: Fri, 05 May 2006 17:00:41 -0700
+From: Geoff Levand <geoffrey.levand@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: linux-scsi@vger.kernel.org, Neela.Kolli@engenio.com,
-       Atul Mukker <Atul.Mukker@lsil.com>, Seokmann.Ju@lsil.com,
-       sreenib@lsil.com, devel@openvz.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: megaraid_mbox: garbage in file
-References: <445A4C8F.5030204@sw.ru>	 <1146783568.22932.105.camel@mulgrave.il.steeleye.com>	 <445AE4A5.8070202@sw.ru>	 <1146844763.9848.17.camel@mulgrave.il.steeleye.com>  <445B96B9.20100@sw.ru> <1146859509.9848.110.camel@mulgrave.il.steeleye.com>
-In-Reply-To: <1146859509.9848.110.camel@mulgrave.il.steeleye.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
+To: Paul Mackerras <paulus@samba.org>
+CC: Arnd Bergmann <arnd@arndb.de>, cbe-oss-dev@ozlabs.org,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       "Levand, Geoffrey" <Geoffrey.Levand@am.sony.com>,
+       Arnd Bergmann <arnd.bergmann@de.ibm.com>
+Subject: Re: [PATCH 04/13] cell: remove broken __setup_cpu_be function
+References: <17498.60066.92373.6527@cargo.ozlabs.ibm.com>
+In-Reply-To: <17498.60066.92373.6527@cargo.ozlabs.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Fri, 2006-05-05 at 22:17 +0400, Vasily Averin wrote:
->> megaraid mailbox: status:0x0 cmd:0xa7 id:0x25 sec:0x1a
->>                 lba:0x33f624ac addr:0xffffffff ld:128 sg:4
->> scsi cmnd: 0x28 0x00 0x33 0xf6 0x24 0xac 0x00 0x00 0x1a 0x00
->> mbox request_buffer eafde340 use_sg 4
->> mbox sg0: page 077a0474 off 0 addr 1fd575000 len 4096 virt ff15a000
->>                 first 03020100 page->flags 40020101
->> mbox sg1: page 077b5738 off 0 addr 1fdede000 len 4096 virt ff141000
->>                 first 03020100 page->flags 40020101
->> mbox sg2: page 077ad500 off 0 addr 1fdb40000 len 4096 virt ff056000
->>                 first 03020100 page->flags 40020101
->> mbox sg3: page 030d46e8 off 1024 addr 5e6a400 len 1024 virt 07e6a400
->>                 first 03020100 page->flags 20001004
+Paul Mackerras wrote:
+> Arnd Bergmann writes:
 > 
-> The odd thing about this is that the highmem addresses shouldn't have a
-> virtual mapping (since nothing should have called kmap on them).
+>>  From: Geoff Levand <geoffrey.levand@am.sony.com>
+>> 
+>> This patch removes the incorrect Cell processor setup routine
+>> __setup_cpu_be.  This routine improperly accesses the hypervisor
+>> page size configuration at SPR HID6.  The correct behavior is for
+>> firmware, or if needed, platform setup code, to set the correct
+>> page size.
+> 
+>> -		.cpu_setup		= __setup_cpu_be,
+>> +		.cpu_setup		= __setup_cpu_power4,
+> 
+> That looks a bit dodgy.  Either just remove the contents of
+> __setup_cpu_be (leaving only the blr), or define a __setup_cpu_null
+> that does nothing, or make the identify_cpu not call the cpu setup
+> function if the pointer is NULL.
 
-You are right, in the other my experiments highmem pages usually have virt=0 and
-I cannot find who is kmapped these pages.
 
-I'll investigate this issue later: first ща all I'll try to reproduce this issue
-on 2.6.16 kernel.
+OK, I set it up with __setup_cpu_null.  An updated patch follows.
 
-Thank you,
-	Vasily Averin
+It falls out from this that we can replace the do-nothing routines
+__setup_cpu_power3 and __setup_cpu_power4 with __setup_cpu_null also.
+I'll post a separate patch for consideration.
 
-SWsoft Virtuozzo/OpenVZ Linux kernel team
+-Geoff
+
+
+Replaced the Cell processor specific routine __setup_cpu_be with
+a new generic routine __setup_cpu_null.  __setup_cpu_be improperly
+accessed the hypervisor page size configuration at SPR HID6.  Correct
+behavior is for firmware, or if needed, platform setup code, to set
+the correct page size.
+
+
+Signed-off-by: Geoff Levand <geoffrey.levand@am.sony.com>
+
+
+Index: cell--alp--3/arch/powerpc/kernel/cpu_setup_power4.S
+===================================================================
+--- cell--alp--3.orig/arch/powerpc/kernel/cpu_setup_power4.S	2006-04-26 19:19:25.000000000 -0700
++++ cell--alp--3/arch/powerpc/kernel/cpu_setup_power4.S	2006-05-05 15:59:58.000000000 -0700
+@@ -76,20 +76,6 @@
+ _GLOBAL(__setup_cpu_power4)
+ 	blr
+
+-_GLOBAL(__setup_cpu_be)
+-        /* Set large page sizes LP=0: 16MB, LP=1: 64KB */
+-        addi    r3, 0,  0
+-        ori     r3, r3, HID6_LB
+-        sldi    r3, r3, 32
+-        nor     r3, r3, r3
+-        mfspr   r4, SPRN_HID6
+-        and     r4, r4, r3
+-        addi    r3, 0, 0x02000
+-        sldi    r3, r3, 32
+-        or      r4, r4, r3
+-        mtspr   SPRN_HID6, r4
+-	blr
+-
+ _GLOBAL(__setup_cpu_ppc970)
+ 	mfspr	r0,SPRN_HID0
+ 	li	r11,5			/* clear DOZE and SLEEP */
+Index: cell--alp--3/arch/powerpc/kernel/cputable.c
+===================================================================
+--- cell--alp--3.orig/arch/powerpc/kernel/cputable.c	2006-04-26 19:19:25.000000000 -0700
++++ cell--alp--3/arch/powerpc/kernel/cputable.c	2006-05-05 16:29:06.000000000 -0700
+@@ -31,9 +31,9 @@
+  * and ppc64
+  */
+ #ifdef CONFIG_PPC64
++extern void __setup_cpu_null(unsigned long offset, struct cpu_spec* spec);
+ extern void __setup_cpu_power3(unsigned long offset, struct cpu_spec* spec);
+ extern void __setup_cpu_power4(unsigned long offset, struct cpu_spec* spec);
+-extern void __setup_cpu_be(unsigned long offset, struct cpu_spec* spec);
+ #else
+ extern void __setup_cpu_603(unsigned long offset, struct cpu_spec* spec);
+ extern void __setup_cpu_604(unsigned long offset, struct cpu_spec* spec);
+@@ -273,7 +273,7 @@
+ 			PPC_FEATURE_SMT,
+ 		.icache_bsize		= 128,
+ 		.dcache_bsize		= 128,
+-		.cpu_setup		= __setup_cpu_be,
++		.cpu_setup		= __setup_cpu_null,
+ 		.platform		= "ppc-cell-be",
+ 	},
+ 	{	/* default match */
+Index: cell--alp--3/arch/powerpc/kernel/misc_64.S
+===================================================================
+--- cell--alp--3.orig/arch/powerpc/kernel/misc_64.S	2006-04-26 19:19:25.000000000 -0700
++++ cell--alp--3/arch/powerpc/kernel/misc_64.S	2006-05-05 16:04:59.000000000 -0700
+@@ -768,6 +768,9 @@
+
+ #endif /* CONFIG_ALTIVEC */
+
++_GLOBAL(__setup_cpu_null)
++	blr
++
+ _GLOBAL(__setup_cpu_power3)
+ 	blr
 
